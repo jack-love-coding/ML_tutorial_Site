@@ -1,0 +1,51 @@
+import { ref } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
+export const routeNavigating = ref(false)
+export const pendingRoutePath = ref('/')
+
+let navigationTimer: number | undefined
+
+export const router = createRouter({
+  history: createWebHistory(),
+  scrollBehavior() {
+    return { top: 0, behavior: 'smooth' }
+  },
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: () => import('../views/HomeView.vue'),
+    },
+    {
+      path: '/learn/:slug',
+      name: 'algorithm',
+      component: () => import('../views/AlgorithmView.vue'),
+    },
+  ],
+})
+
+router.beforeEach((to) => {
+  pendingRoutePath.value = to.path
+  routeNavigating.value = true
+  if (navigationTimer) {
+    window.clearTimeout(navigationTimer)
+    navigationTimer = undefined
+  }
+  return true
+})
+
+router.afterEach((to) => {
+  pendingRoutePath.value = to.path
+  navigationTimer = window.setTimeout(() => {
+    routeNavigating.value = false
+    navigationTimer = undefined
+  }, 140)
+})
+
+router.onError(() => {
+  routeNavigating.value = false
+  if (navigationTimer) {
+    window.clearTimeout(navigationTimer)
+    navigationTimer = undefined
+  }
+})
