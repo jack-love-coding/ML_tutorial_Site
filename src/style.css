@@ -1297,7 +1297,7 @@ p {
 
 .gradient-chapter-lab__hero,
 .gradient-chapter-lab__terrain,
-.gradient-chapter-lab__visual {
+.gradient-chapter-lab__workspace {
   display: grid;
   gap: 16px;
 }
@@ -1411,20 +1411,30 @@ p {
   border: 1px solid rgba(15, 23, 40, 0.05);
 }
 
-.gradient-chapter-lab__bottom {
-  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
-  align-items: start;
+.gradient-chapter-lab__workspace {
+  gap: 18px;
 }
 
-.gradient-chapter-lab__controls-panel,
+.gradient-chapter-lab__workspace-primary {
+  display: grid;
+  gap: 16px;
+}
+
+.gradient-chapter-lab__workspace-secondary {
+  display: grid;
+  gap: 16px;
+}
+
 .gradient-chapter-lab__readout-panel {
   display: grid;
   gap: 16px;
 }
 
-.gradient-chapter-lab__control-clusters {
+.gradient-chapter-lab__workspace-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
   gap: 14px;
+  align-items: start;
 }
 
 .gradient-chapter-lab__control-cluster {
@@ -1439,6 +1449,10 @@ p {
 .gradient-chapter-lab__control-cluster.is-emphasis {
   border-color: rgba(77, 99, 255, 0.22);
   box-shadow: 0 18px 36px rgba(77, 99, 255, 0.08);
+}
+
+.gradient-chapter-lab__control-cluster--playback {
+  background: rgba(245, 247, 252, 0.94);
 }
 
 .gradient-chapter-lab__control-cluster header {
@@ -1464,7 +1478,7 @@ p {
 
 .gradient-chapter-lab__actions {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
   gap: 10px;
 }
 
@@ -1472,6 +1486,13 @@ p {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+}
+
+.gradient-chapter-lab__readout-panel {
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: rgba(247, 248, 252, 0.9);
+  border: 1px solid rgba(15, 23, 40, 0.06);
 }
 
 .gradient-chapter-lab__metric {
@@ -3350,8 +3371,8 @@ p {
   .embedded-loss-lab__footer,
   .gradient-chapter-lab__hero-grid,
   .gradient-chapter-lab__terrain-grid,
+  .gradient-chapter-lab__workspace-grid,
   .gradient-chapter-lab__meta-grid,
-  .gradient-chapter-lab__bottom,
   .gradient-chapter-lab__actions,
   .gradient-chapter-lab__metrics,
   .gradient-function-pill-strip,
@@ -3609,7 +3630,8 @@ p {
   .gradient-chapter-lab__summary,
   .gradient-chapter-lab__formula,
   .gradient-chapter-lab__terrain-meta,
-  .gradient-chapter-lab__control-cluster {
+  .gradient-chapter-lab__control-cluster,
+  .gradient-chapter-lab__readout-panel {
     padding: 16px;
     border-radius: 18px;
   }

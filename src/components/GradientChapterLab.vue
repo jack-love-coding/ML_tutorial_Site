@@ -302,23 +302,6 @@ function onCoordinateInput(key: 'startX' | 'startY', event: Event) {
           <strong>{{ localizedText(currentFunction.label) }}</strong>
         </div>
 
-        <div class="gradient-function-pill-strip">
-          <button
-            v-for="definition in gradientLossFunctions"
-            :key="definition.id"
-            type="button"
-            class="gradient-function-pill"
-            :class="{
-              'is-active': definition.id === currentFunction.id,
-              'is-recommended': definition.id === recommendedFunction.id,
-            }"
-            @click="onFunctionChange(definition.id)"
-          >
-            <strong>{{ localizedText(definition.label) }}</strong>
-            <span>{{ localizedText(definition.teachingGoal) }}</span>
-          </button>
-        </div>
-
         <div class="gradient-chapter-lab__terrain-grid">
           <article class="gradient-chapter-lab__formula">
             <MarkdownMathContent :source="functionFormula" />
@@ -350,7 +333,12 @@ function onCoordinateInput(key: 'startX' | 'startY', event: Event) {
       </div>
     </div>
 
-    <div class="gradient-chapter-lab__visual">
+    <section class="panel gradient-chapter-lab__workspace">
+      <div class="panel__heading">
+        <span>{{ copy.optimizationControls }}</span>
+        <strong>{{ localizedText(section.callout) }}</strong>
+      </div>
+
       <GradientDescentViz
         :snapshot="snapshot"
         :config="config"
@@ -359,67 +347,35 @@ function onCoordinateInput(key: 'startX' | 'startY', event: Event) {
         layout="split"
         @update-start-point="emit('update-start-point', $event)"
       />
-    </div>
 
-    <div class="gradient-chapter-lab__bottom">
-      <section class="panel gradient-chapter-lab__controls-panel">
-        <div class="panel__heading">
-          <span>{{ copy.terrainControls }}</span>
-          <strong>{{ t('common.lossFunction') }}</strong>
-        </div>
+      <div class="gradient-chapter-lab__workspace-primary">
+        <section
+          class="gradient-chapter-lab__control-cluster gradient-chapter-lab__control-cluster--playback"
+          :class="{ 'is-emphasis': emphasisMap.optimization }"
+        >
+          <header>
+            <span>{{ copy.optimizationControls }}</span>
+            <strong>{{ localizedText(section.callout) }}</strong>
+          </header>
 
-        <div class="gradient-chapter-lab__control-clusters">
-          <section
-            class="gradient-chapter-lab__control-cluster"
-            :class="{ 'is-emphasis': emphasisMap.terrain }"
-          >
-            <header>
-              <span>{{ copy.terrainControls }}</span>
-              <strong>{{ copy.dragHint }}</strong>
-            </header>
+          <div class="gradient-chapter-lab__actions">
+            <button type="button" class="action-button action-button--primary" @click="emit('toggle-play')">
+              {{ isPlaying ? t('actions.pause') : t('actions.play') }}
+            </button>
+            <button type="button" class="action-button" @click="emit('step')">{{ t('actions.step') }}</button>
+            <button type="button" class="action-button" @click="emit('replay')">{{ t('actions.replay') }}</button>
+            <button type="button" class="action-button" @click="emit('reset')">{{ t('actions.reset') }}</button>
+          </div>
+        </section>
 
-            <div class="control-group__grid">
-              <label class="control">
-                <span class="control__row">
-                  <span>{{ t('controls.startX') }}</span>
-                  <strong>{{ round(Number(config.startX ?? 0), 2) }}</strong>
-                </span>
-                <input
-                  class="control__number"
-                  type="number"
-                  :min="currentFunction.domain.xMin"
-                  :max="currentFunction.domain.xMax"
-                  step="0.1"
-                  :value="Number(config.startX ?? 0)"
-                  @change="onCoordinateInput('startX', $event)"
-                />
-              </label>
-
-              <label class="control">
-                <span class="control__row">
-                  <span>{{ t('controls.startY') }}</span>
-                  <strong>{{ round(Number(config.startY ?? 0), 2) }}</strong>
-                </span>
-                <input
-                  class="control__number"
-                  type="number"
-                  :min="currentFunction.domain.yMin"
-                  :max="currentFunction.domain.yMax"
-                  step="0.1"
-                  :value="Number(config.startY ?? 0)"
-                  @change="onCoordinateInput('startY', $event)"
-                />
-              </label>
-            </div>
-          </section>
-
+        <div class="gradient-chapter-lab__workspace-grid">
           <section
             class="gradient-chapter-lab__control-cluster"
             :class="{ 'is-emphasis': emphasisMap.optimization }"
           >
             <header>
               <span>{{ copy.optimizationControls }}</span>
-              <strong>{{ localizedText(section.callout) }}</strong>
+              <strong>{{ t('controls.learningRate') }}</strong>
             </header>
 
             <div class="control-group__grid">
@@ -441,22 +397,6 @@ function onCoordinateInput(key: 'startX' | 'startY', event: Event) {
 
               <label class="control">
                 <span class="control__row">
-                  <span>{{ t('controls.iterations') }}</span>
-                  <strong>{{ Number(config.iterations ?? 0) }}</strong>
-                </span>
-                <input
-                  class="control__range"
-                  type="range"
-                  min="24"
-                  max="100"
-                  step="1"
-                  :value="Number(config.iterations ?? 0)"
-                  @input="onRangeInput('iterations', $event)"
-                />
-              </label>
-
-              <label class="control">
-                <span class="control__row">
                   <span>{{ t('controls.animationSpeed') }}</span>
                   <strong>{{ Math.round(Number(config.playbackMs ?? 0)) }} ms</strong>
                 </span>
@@ -471,7 +411,7 @@ function onCoordinateInput(key: 'startX' | 'startY', event: Event) {
                 />
               </label>
 
-              <label class="control control--wide">
+              <label class="control">
                 <span class="control__row">
                   <span>{{ t('controls.batchMode') }}</span>
                 </span>
@@ -486,51 +426,121 @@ function onCoordinateInput(key: 'startX' | 'startY', event: Event) {
                 </select>
               </label>
             </div>
+          </section>
 
-            <div class="gradient-chapter-lab__actions">
-              <button type="button" class="action-button action-button--primary" @click="emit('toggle-play')">
-                {{ isPlaying ? t('actions.pause') : t('actions.play') }}
-              </button>
-              <button type="button" class="action-button" @click="emit('step')">{{ t('actions.step') }}</button>
-              <button type="button" class="action-button" @click="emit('replay')">{{ t('actions.replay') }}</button>
-              <button type="button" class="action-button" @click="emit('reset')">{{ t('actions.reset') }}</button>
+          <section class="gradient-chapter-lab__readout-panel">
+            <div class="panel__heading">
+              <span>{{ copy.liveReadout }}</span>
+              <strong>{{ t('metrics.status') }}</strong>
+            </div>
+
+            <div class="gradient-chapter-lab__metrics">
+              <article
+                v-for="metric in metricCards"
+                :key="metric.id"
+                class="gradient-chapter-lab__metric"
+                :class="{ 'is-emphasis': section.metricEmphasis?.includes(metric.id) }"
+              >
+                <span>{{ metric.label }}</span>
+                <strong>{{ metric.value }}</strong>
+              </article>
+            </div>
+
+            <article
+              v-if="primaryInsight"
+              class="insight-card gradient-chapter-lab__insight"
+              :class="`insight-card--${primaryInsight.tone}`"
+            >
+              <span>{{ copy.watchFor }}</span>
+              <strong>{{ t(primaryInsight.titleKey) }}</strong>
+              <p>{{ t(primaryInsight.bodyKey) }}</p>
+            </article>
+
+            <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
+              {{ localizedText(section.experimentPrompt) }}
             </div>
           </section>
         </div>
-      </section>
+      </div>
 
-      <section class="panel gradient-chapter-lab__readout-panel">
-        <div class="panel__heading">
-          <span>{{ copy.liveReadout }}</span>
-          <strong>{{ t('metrics.status') }}</strong>
-        </div>
-
-        <div class="gradient-chapter-lab__metrics">
-          <article
-            v-for="metric in metricCards"
-            :key="metric.id"
-            class="gradient-chapter-lab__metric"
-            :class="{ 'is-emphasis': section.metricEmphasis?.includes(metric.id) }"
-          >
-            <span>{{ metric.label }}</span>
-            <strong>{{ metric.value }}</strong>
-          </article>
-        </div>
-
-        <article
-          v-if="primaryInsight"
-          class="insight-card gradient-chapter-lab__insight"
-          :class="`insight-card--${primaryInsight.tone}`"
+      <div class="gradient-chapter-lab__workspace-secondary">
+        <section
+          class="gradient-chapter-lab__control-cluster"
+          :class="{ 'is-emphasis': emphasisMap.terrain }"
         >
-          <span>{{ copy.watchFor }}</span>
-          <strong>{{ t(primaryInsight.titleKey) }}</strong>
-          <p>{{ t(primaryInsight.bodyKey) }}</p>
-        </article>
+          <header>
+            <span>{{ copy.terrainControls }}</span>
+            <strong>{{ copy.dragHint }}</strong>
+          </header>
 
-        <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
-          {{ localizedText(section.experimentPrompt) }}
-        </div>
-      </section>
-    </div>
+          <div class="gradient-function-pill-strip">
+            <button
+              v-for="definition in gradientLossFunctions"
+              :key="definition.id"
+              type="button"
+              class="gradient-function-pill"
+              :class="{
+                'is-active': definition.id === currentFunction.id,
+                'is-recommended': definition.id === recommendedFunction.id,
+              }"
+              @click="onFunctionChange(definition.id)"
+            >
+              <strong>{{ localizedText(definition.label) }}</strong>
+              <span>{{ localizedText(definition.teachingGoal) }}</span>
+            </button>
+          </div>
+
+          <div class="control-group__grid">
+            <label class="control">
+              <span class="control__row">
+                <span>{{ t('controls.startX') }}</span>
+                <strong>{{ round(Number(config.startX ?? 0), 2) }}</strong>
+              </span>
+              <input
+                class="control__number"
+                type="number"
+                :min="currentFunction.domain.xMin"
+                :max="currentFunction.domain.xMax"
+                step="0.1"
+                :value="Number(config.startX ?? 0)"
+                @change="onCoordinateInput('startX', $event)"
+              />
+            </label>
+
+            <label class="control">
+              <span class="control__row">
+                <span>{{ t('controls.startY') }}</span>
+                <strong>{{ round(Number(config.startY ?? 0), 2) }}</strong>
+              </span>
+              <input
+                class="control__number"
+                type="number"
+                :min="currentFunction.domain.yMin"
+                :max="currentFunction.domain.yMax"
+                step="0.1"
+                :value="Number(config.startY ?? 0)"
+                @change="onCoordinateInput('startY', $event)"
+              />
+            </label>
+
+            <label class="control">
+              <span class="control__row">
+                <span>{{ t('controls.iterations') }}</span>
+                <strong>{{ Number(config.iterations ?? 0) }}</strong>
+              </span>
+              <input
+                class="control__range"
+                type="range"
+                min="24"
+                max="100"
+                step="1"
+                :value="Number(config.iterations ?? 0)"
+                @input="onRangeInput('iterations', $event)"
+              />
+            </label>
+          </div>
+        </section>
+      </div>
+    </section>
   </section>
 </template>
