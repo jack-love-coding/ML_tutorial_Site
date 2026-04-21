@@ -129,3 +129,30 @@ test('linear regression lessons use richer housing datasets for visual teaching'
     'polynomial and overfitting views need enough train/validation samples',
   )
 })
+
+test('multivariate 3D lesson exposes uneven point clouds and residual segments', () => {
+  const snapshot = simulateLinearRegression({
+    scenario: 'multivariate',
+    featureNoise: 0.18,
+    epochs: 8,
+  }).snapshots.at(-1)
+
+  assert.ok(snapshot, 'expected a multivariate snapshot')
+  assert.ok(
+    (snapshot.multivariateResiduals?.length ?? 0) === (snapshot.multivariateSamples?.length ?? -1),
+    'every 3D point should have a residual segment to the current plane',
+  )
+
+  const areas = (snapshot.multivariateSamples ?? [])
+    .map((sample) => sample.area)
+    .sort((left, right) => left - right)
+  const gaps = areas.slice(1).map((area, index) => area - areas[index]!)
+  const maxGap = Math.max(...gaps)
+  const minGap = Math.min(...gaps)
+
+  assert.ok(maxGap >= minGap * 2.5, 'area distribution should contain visible clusters and gaps')
+  assert.ok(
+    (snapshot.multivariateResiduals ?? []).some((segment) => Math.abs(segment.residual) > 5),
+    'residual visualization should include visible non-zero errors during training',
+  )
+})

@@ -39,6 +39,14 @@ export interface MultivariateRegressionSample {
   split?: 'train' | 'validation'
 }
 
+export interface MultivariateResidualSegment {
+  area: number
+  age: number
+  actualPrice: number
+  predictedPrice: number
+  residual: number
+}
+
 export interface HiddenPoint extends PlotPoint {
   h1: number
   h2: number
@@ -117,6 +125,7 @@ export interface TrainingSnapshot {
   validationSamples?: PlotPoint[]
   multivariateSamples?: MultivariateRegressionSample[]
   multivariatePlane?: { weights: number[]; intercept: number }
+  multivariateResiduals?: MultivariateResidualSegment[]
   classificationSamples?: PlotPoint[]
   probabilityBars?: number[]
   likelihoodCurve?: PlotPoint[]

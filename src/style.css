@@ -3443,6 +3443,12 @@ p {
   stroke-dasharray: 7 7;
 }
 
+.linear-state-line--error {
+  stroke: #d85d3f;
+  stroke-width: 3;
+  stroke-dasharray: 5 6;
+}
+
 .linear-state-dot {
   fill: #0f1728;
   stroke: white;
@@ -3472,6 +3478,10 @@ p {
 
 .legend-dot--validation {
   background: #d65c5c;
+}
+
+.legend-dot--error {
+  background: #d85d3f;
 }
 
 .linear-regression-lab__three-canvas {

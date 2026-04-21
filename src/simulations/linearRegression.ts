@@ -283,24 +283,24 @@ function simulateSimpleLine(config: ExperimentConfig, scenario: LinearRegression
 
 function createMultivariateSamples(noise: number): MultivariateRegressionSample[] {
   const rows = [
-    [48, 24],
-    [55, 18],
-    [63, 28],
-    [70, 12],
-    [78, 21],
-    [86, 8],
-    [94, 16],
-    [103, 5],
-    [112, 19],
-    [121, 11],
-    [132, 6],
-    [144, 15],
-    [156, 4],
-    [168, 10],
-    [181, 7],
-    [196, 3],
-    [210, 12],
-    [226, 5],
+    [46, 29],
+    [51, 25],
+    [57, 31],
+    [63, 21],
+    [86, 18],
+    [92, 9],
+    [96, 16],
+    [104, 7],
+    [111, 22],
+    [118, 12],
+    [151, 5],
+    [158, 14],
+    [166, 3],
+    [173, 9],
+    [184, 18],
+    [218, 4],
+    [231, 11],
+    [246, 2],
   ]
 
   return rows.map(([area, age], index) => {
@@ -309,7 +309,13 @@ function createMultivariateSamples(noise: number): MultivariateRegressionSample[
     return {
       area,
       age,
-      price: 58 + area * 1.48 - age * 3.15 + deterministicNoise,
+      price:
+        46 +
+        area * 1.36 -
+        age * 2.85 +
+        Math.max(area - 170, 0) * 0.42 -
+        Math.max(age - 24, 0) * 1.2 +
+        deterministicNoise,
       split: 'train',
     }
   })
@@ -372,7 +378,17 @@ function simulateMultivariate(config: ExperimentConfig): ModuleSimulation {
     )
     const gradBias = average(errors) * 2
     const plane = actualMultivariatePlane(normalized.stats, weights, bias)
-    const residuals = samples.map((sample) => predictMultivariate(sample, plane.weights, plane.intercept) - sample.price)
+    const multivariateResiduals = samples.map((sample) => {
+      const predictedPrice = predictMultivariate(sample, plane.weights, plane.intercept)
+      return {
+        area: sample.area,
+        age: sample.age,
+        actualPrice: sample.price,
+        predictedPrice,
+        residual: predictedPrice - sample.price,
+      }
+    })
+    const residuals = multivariateResiduals.map((segment) => segment.residual)
     const mse = average(residuals.map((residual) => residual ** 2))
     const highlightIndex = step % samples.length
     const highlighted = samples[highlightIndex] ?? samples[0]!
@@ -384,6 +400,7 @@ function simulateMultivariate(config: ExperimentConfig): ModuleSimulation {
       regressionSamples: samples.map((sample) => ({ x: sample.area, y: sample.price, split: 'train' })),
       multivariateSamples: samples,
       multivariatePlane: plane,
+      multivariateResiduals,
       derivedMetrics: {
         scenario: 'multivariate',
         mse,

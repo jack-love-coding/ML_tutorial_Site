@@ -32,6 +32,7 @@ const copy = computed(() =>
         age: '房龄',
         price: '房价',
         lossCurve: 'MSE 曲线',
+        errorCurve: '平均误差',
       }
     : {
         plane: '3D regression plane',
@@ -40,13 +41,19 @@ const copy = computed(() =>
         age: 'Age',
         price: 'Price',
         lossCurve: 'MSE curve',
+        errorCurve: 'Mean error',
       },
 )
 
 const samples = computed(() => props.snapshot?.multivariateSamples ?? [])
 const plane = computed(() => props.snapshot?.multivariatePlane ?? { weights: [1.4, -3], intercept: 58 })
+const residuals = computed(() => props.snapshot?.multivariateResiduals ?? [])
 const lossValues = computed(() => props.snapshots.map((snapshot) => snapshot.loss))
+const errorValues = computed(() =>
+  props.snapshots.map((snapshot) => Number(snapshot.derivedMetrics?.mae ?? 0)),
+)
 const lossPath = computed(() => buildStatePolyline(lossValues.value))
+const errorPath = computed(() => buildStatePolyline(errorValues.value))
 const lossDot = computed(() => pointOnStateLine(lossValues.value, props.currentStep))
 
 function scaleDomain(value: number, min: number, max: number, size = 6) {
@@ -123,7 +130,10 @@ function drawThreeScene() {
 
   const areaValues = samples.value.map((sample) => sample.area)
   const ageValues = samples.value.map((sample) => sample.age)
-  const priceValues = samples.value.map((sample) => sample.price)
+  const priceValues = [
+    ...samples.value.map((sample) => sample.price),
+    ...residuals.value.map((segment) => segment.predictedPrice),
+  ]
   const minArea = Math.min(...areaValues, 50)
   const maxArea = Math.max(...areaValues, 170)
   const minAge = Math.min(...ageValues, 3)
@@ -131,17 +141,70 @@ function drawThreeScene() {
   const minPrice = Math.min(...priceValues, 105)
   const maxPrice = Math.max(...priceValues, 280)
 
-  const pointGeometry = new THREE.SphereGeometry(0.1, 18, 18)
-  const pointMaterial = new THREE.MeshStandardMaterial({ color: 0x14313a, roughness: 0.48 })
-  const highlightMaterial = new THREE.MeshStandardMaterial({ color: props.accent, roughness: 0.42 })
+  const pointGeometry = new THREE.SphereGeometry(0.17, 24, 24)
+  const projectionGeometry = new THREE.SphereGeometry(0.075, 16, 16)
+  const pointMaterial = new THREE.MeshStandardMaterial({
+    color: 0x102d36,
+    emissive: 0x0b1a20,
+    emissiveIntensity: 0.25,
+    roughness: 0.38,
+    depthTest: true,
+  })
+  const highlightMaterial = new THREE.MeshStandardMaterial({
+    color: props.accent,
+    emissive: new THREE.Color(props.accent),
+    emissiveIntensity: 0.32,
+    roughness: 0.34,
+    depthTest: true,
+  })
+  const projectionMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: 0xffffff,
+    emissiveIntensity: 0.18,
+    roughness: 0.5,
+    depthTest: false,
+  })
+  const residualMaterial = new THREE.LineBasicMaterial({
+    color: 0xd85d3f,
+    transparent: true,
+    opacity: 0.82,
+    depthTest: false,
+  })
   samples.value.forEach((sample, index) => {
-    const point = new THREE.Mesh(pointGeometry, index === props.currentStep % samples.value.length ? highlightMaterial : pointMaterial)
+    const point = new THREE.Mesh(
+      pointGeometry,
+      index === props.currentStep % samples.value.length ? highlightMaterial : pointMaterial,
+    )
     point.position.set(
       scaleDomain(sample.area, minArea, maxArea),
       scaleHeight(sample.price, minPrice, maxPrice),
       scaleDomain(sample.age, minAge, maxAge),
     )
+    point.renderOrder = 4
     scene?.add(point)
+  })
+
+  residuals.value.forEach((segment, index) => {
+    const x = scaleDomain(segment.area, minArea, maxArea)
+    const z = scaleDomain(segment.age, minAge, maxAge)
+    const actualY = scaleHeight(segment.actualPrice, minPrice, maxPrice)
+    const predictedY = scaleHeight(segment.predictedPrice, minPrice, maxPrice)
+    const residualLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(x, actualY, z),
+        new THREE.Vector3(x, predictedY, z),
+      ]),
+      residualMaterial,
+    )
+    residualLine.renderOrder = 3
+    scene?.add(residualLine)
+
+    if (index === props.currentStep % residuals.value.length) {
+      const projectionPoint = new THREE.Mesh(projectionGeometry, projectionMaterial)
+      projectionPoint.position.set(x, predictedY, z)
+      projectionPoint.renderOrder = 5
+      scene?.add(projectionPoint)
+    }
   })
 
   const planeGeometry = new THREE.PlaneGeometry(6.4, 6.4, 1, 1)
@@ -151,6 +214,7 @@ function drawThreeScene() {
     opacity: 0.28,
     side: THREE.DoubleSide,
     roughness: 0.55,
+    depthWrite: false,
   })
   const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial)
   const areaCenter = (minArea + maxArea) / 2
@@ -160,6 +224,7 @@ function drawThreeScene() {
   planeMesh.position.set(0, scaleHeight(priceCenter, minPrice, maxPrice), 0)
   planeMesh.rotation.x = -Math.PI / 2 + 0.18
   planeMesh.rotation.z = -0.08
+  planeMesh.renderOrder = 1
   scene.add(planeMesh)
 
   const labels = [
@@ -249,7 +314,7 @@ onBeforeUnmount(() => {
     <section class="linear-regression-lab__panel linear-regression-lab__panel--state">
       <div class="linear-regression-lab__heading">
         <span>{{ copy.state }}</span>
-        <strong>{{ copy.lossCurve }}</strong>
+        <strong>{{ copy.lossCurve }} / {{ copy.errorCurve }}</strong>
       </div>
       <svg
         :viewBox="`0 0 ${stateWidth} ${stateHeight}`"
@@ -272,8 +337,13 @@ onBeforeUnmount(() => {
           class="linear-axis"
         />
         <polyline :points="lossPath" class="linear-state-line" />
+        <polyline :points="errorPath" class="linear-state-line linear-state-line--error" />
         <circle :cx="lossDot.x" :cy="lossDot.y" r="6" class="linear-state-dot" />
       </svg>
+      <div class="linear-state-legend">
+        <span><i class="legend-dot legend-dot--train"></i>{{ copy.lossCurve }}</span>
+        <span><i class="legend-dot legend-dot--error"></i>{{ copy.errorCurve }}</span>
+      </div>
     </section>
   </div>
 </template>
