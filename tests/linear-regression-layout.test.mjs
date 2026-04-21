@@ -50,3 +50,25 @@ test('linear regression lesson lab uses a unified experiment card layout', () =>
   assert.match(componentSource, /class="linear-regression-lab__readout"/)
   assert.match(styleSource, /\.linear-regression-lab__workspace\s*\{/)
 })
+
+test('linear regression advanced chapters and subviews are wired', () => {
+  const moduleSource = readFileSync(
+    new URL('../src/data/linearRegressionModule.ts', import.meta.url),
+    'utf8',
+  )
+  const componentSource = readFileSync(componentPath, 'utf8')
+
+  assert.match(moduleSource, /id: 'multivariate'/)
+  assert.match(moduleSource, /id: 'polynomial'/)
+  assert.match(moduleSource, /id: 'overfitting'/)
+  assert.match(moduleSource, /id: 'regularization'/)
+  assert.match(moduleSource, /regularizationType/)
+  assert.match(moduleSource, /polynomialDegree/)
+
+  const chapterCount = [...moduleSource.matchAll(/eyebrowKey: 'common\.chapter'/g)].length
+  assert.equal(chapterCount, 8, 'linear regression should have 8 guided chapters')
+
+  assert.match(componentSource, /LinearRegressionMultivariateView/)
+  assert.match(componentSource, /LinearRegressionUnivariateView/)
+  assert.match(componentSource, /linear-regression-lab__advanced-controls/)
+})

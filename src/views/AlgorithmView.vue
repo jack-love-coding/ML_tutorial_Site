@@ -235,6 +235,13 @@ onBeforeUnmount(stopTimer)
 
 function onChapterChange(nextChapter: string) {
   activeChapter.value = nextChapter
+  if (isLinearRegressionPage.value) {
+    const section = moduleDefinition.value?.chapters.find((chapter) => chapter.id === nextChapter)
+    const preset = moduleDefinition.value?.presets.find((item) => item.id === section?.presetId)
+    if (preset) {
+      experimentStore.applyPreset(slug.value, preset.config)
+    }
+  }
 }
 
 function patchConfig(partialConfig: Partial<ExperimentConfig>) {

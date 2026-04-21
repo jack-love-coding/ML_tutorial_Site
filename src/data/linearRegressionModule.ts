@@ -171,6 +171,126 @@ The parameter intuition carries over, while the task, the loss, and the output m
       presetId: 'limits-bridge',
       metricEmphasis: ['loss'],
     },
+    {
+      id: 'multivariate',
+      eyebrowKey: 'common.chapter',
+      titleKey: 'modules.linearRegression.sections.multivariate.title',
+      markdown: loc(
+        `真实房价很少只由面积决定。把房龄也放进来之后，模型不再是一条线，而是一个平面：
+
+$$\hat{y}=w_1x_{\text{area}}+w_2x_{\text{age}}+b$$
+
+- $w_1$ 仍然描述面积增加时，预测价格怎样变化
+- $w_2$ 描述房龄增加时，预测价格怎样变化
+- $b$ 仍然是整体基线
+
+多元线性回归的重点不是“公式变长了”，而是每个权重都在解释一个特征对预测的贡献。`,
+        `Real housing prices rarely depend on area alone. Once age is added, the model becomes a plane instead of one line:
+
+$$\hat{y}=w_1x_{\text{area}}+w_2x_{\text{age}}+b$$
+
+- $w_1$ describes how price changes with area
+- $w_2$ describes how price changes with age
+- $b$ remains the baseline shift
+
+The point of multivariate regression is not a longer formula. It is that each weight explains one feature's contribution.`,
+      ),
+      callout: loc(
+        '看 3D 点云和平面：面积把平面往上推，房龄通常把平面往下拉。',
+        'Read the 3D cloud and plane: area usually lifts the plane, while age usually pulls it down.',
+      ),
+      experimentPrompt: loc(
+        '播放训练，观察回归平面怎样同时调整面积权重、房龄权重和截距。',
+        'Play training and watch the plane adjust area weight, age weight, and intercept together.',
+      ),
+      presetId: 'multivariate-plane',
+      metricEmphasis: ['loss'],
+    },
+    {
+      id: 'polynomial',
+      eyebrowKey: 'common.chapter',
+      titleKey: 'modules.linearRegression.sections.polynomial.title',
+      markdown: loc(
+        `如果面积和房价的关系有弯曲趋势，模型可以继续保持“线性参数”，但把输入特征扩展成多项式：
+
+$$\hat{y}=w_1x+w_2x^2+w_3x^3+b$$
+
+它仍然是对参数线性的模型，只是特征不再只有原始面积。这样一来，直线可以变成曲线，模型表达能力明显增强。`,
+        `If the relationship between area and price bends, the model can stay linear in parameters while expanding the input into polynomial features:
+
+$$\hat{y}=w_1x+w_2x^2+w_3x^3+b$$
+
+The model is still linear in its weights, but the features are no longer just raw area. The line can become a curve.`,
+      ),
+      callout: loc(
+        '调多项式阶数，观察同一套线性权重怎样画出更弯的曲线。',
+        'Adjust polynomial degree and watch linear weights draw a more flexible curve.',
+      ),
+      experimentPrompt: loc(
+        '把阶数从 2 调到 5，对比曲线表达能力提升后，残差是否更容易被压低。',
+        'Move degree from 2 to 5 and compare how added flexibility changes residuals.',
+      ),
+      presetId: 'polynomial-curve',
+      metricEmphasis: ['loss'],
+    },
+    {
+      id: 'overfitting',
+      eyebrowKey: 'common.chapter',
+      titleKey: 'modules.linearRegression.sections.overfitting.title',
+      markdown: loc(
+        `模型越复杂，不一定越好。高阶多项式可能把训练样本贴得很近，却在没见过的验证样本上表现变差。
+
+这就是过拟合：模型记住了训练数据里的细碎波动，却没有学到更稳定的规律。
+
+本章要同时看两条曲线：训练误差和验证误差。训练误差下降不代表泛化能力一定变好。`,
+        `A more complex model is not automatically better. A high-degree polynomial may hug training samples closely while doing worse on validation samples.
+
+That is overfitting: the model memorizes small training fluctuations instead of learning a stable pattern.
+
+Read two curves together here: training error and validation error. Falling training error does not guarantee better generalization.`,
+      ),
+      callout: loc(
+        '重点看训练 MSE 和验证 MSE 是否开始分叉。',
+        'Watch whether training MSE and validation MSE start to split apart.',
+      ),
+      experimentPrompt: loc(
+        '使用高阶多项式播放训练，观察曲线是否为了贴合训练点而变得过度弯折。',
+        'Use a high-degree polynomial and watch whether the curve bends too much to chase training points.',
+      ),
+      presetId: 'overfit-warning',
+      metricEmphasis: ['loss'],
+    },
+    {
+      id: 'regularization',
+      eyebrowKey: 'common.chapter',
+      titleKey: 'modules.linearRegression.sections.regularization.title',
+      markdown: loc(
+        `正则化是在损失函数里加入“别让参数太夸张”的提醒。
+
+L2 会惩罚权重平方，让权重整体变小；L1 会惩罚权重绝对值，更容易把一部分权重推向 0。
+
+$$\text{loss}=\text{MSE}+\lambda\cdot\text{penalty}(w)$$
+
+它不只是让训练误差更低，而是在训练误差和泛化能力之间做更稳的取舍。`,
+        `Regularization adds a reminder to the loss: do not let the weights become too extreme.
+
+L2 penalizes squared weights and shrinks them overall. L1 penalizes absolute weights and more easily pushes some weights toward zero.
+
+$$\text{loss}=\text{MSE}+\lambda\cdot\text{penalty}(w)$$
+
+The goal is not merely lower training error. It is a better tradeoff between fit and generalization.`,
+      ),
+      callout: loc(
+        '切换 L1 / L2，比较权重范数、有效权重数量和验证误差。',
+        'Switch L1 / L2 and compare weight norm, active weights, and validation error.',
+      ),
+      experimentPrompt: loc(
+        '增大正则强度，观察曲线如何变平滑，以及哪些权重被压小。',
+        'Increase regularization strength and watch the curve smooth out as weights shrink.',
+      ),
+      presetId: 'regularized-balance',
+      metricEmphasis: ['loss'],
+    },
   ],
   controls: [
     { key: 'learningRate', type: 'range', labelKey: 'controls.learningRate', category: 'optimization', min: 0.02, max: 0.24, step: 0.01, format: 'number' },
@@ -178,6 +298,21 @@ The parameter intuition carries over, while the task, the loss, and the output m
     { key: 'playbackMs', type: 'range', labelKey: 'controls.animationSpeed', category: 'playback', min: 70, max: 260, step: 10, format: 'speed' },
     { key: 'datasetNoise', type: 'range', labelKey: 'controls.datasetNoise', category: 'data', min: 0, max: 0.35, step: 0.01, format: 'number' },
     { key: 'outlierStrength', type: 'range', labelKey: 'controls.outlierStrength', category: 'data', min: 0, max: 120, step: 2, format: 'number' },
+    { key: 'featureNoise', type: 'range', labelKey: 'controls.featureNoise', category: 'data', min: 0, max: 0.45, step: 0.01, format: 'number' },
+    { key: 'polynomialDegree', type: 'range', labelKey: 'controls.polynomialDegree', category: 'architecture', min: 1, max: 7, step: 1, format: 'integer' },
+    { key: 'lambda', type: 'range', labelKey: 'controls.lambda', category: 'optimization', min: 0, max: 0.8, step: 0.01, format: 'number' },
+    { key: 'validationSplit', type: 'range', labelKey: 'controls.validationSplit', category: 'data', min: 0.18, max: 0.48, step: 0.01, format: 'percent' },
+    {
+      key: 'regularizationType',
+      type: 'select',
+      labelKey: 'controls.regularizationType',
+      category: 'optimization',
+      options: [
+        { value: 'none', labelKey: 'controls.options.none' },
+        { value: 'l1', labelKey: 'controls.options.l1' },
+        { value: 'l2', labelKey: 'controls.options.l2' },
+      ],
+    },
   ],
   presets: [
     {
@@ -240,6 +375,64 @@ The parameter intuition carries over, while the task, the loss, and the output m
         initialIntercept: 0.54,
       },
     },
+    {
+      id: 'multivariate-plane',
+      label: loc('面积 + 房龄平面', 'Area + age plane'),
+      description: loc('加入房龄特征，让一条线扩展成 3D 空间里的回归平面。', 'Add home age so one line becomes a regression plane in 3D.'),
+      config: {
+        scenario: 'multivariate',
+        learningRate: 0.08,
+        epochs: 46,
+        featureNoise: 0.08,
+        datasetNoise: 0.08,
+        includeOutlier: false,
+      },
+    },
+    {
+      id: 'polynomial-curve',
+      label: loc('二次曲线拟合', 'Quadratic curve'),
+      description: loc('用二次特征表达轻微弯曲的面积-房价关系。', 'Use a quadratic feature to express a gently curved area-price relationship.'),
+      config: {
+        scenario: 'polynomial',
+        learningRate: 0.07,
+        epochs: 54,
+        datasetNoise: 0.1,
+        polynomialDegree: 2,
+        validationSplit: 0.32,
+        regularizationType: 'none',
+        lambda: 0,
+      },
+    },
+    {
+      id: 'overfit-warning',
+      label: loc('高阶过拟合', 'High-degree overfit'),
+      description: loc('用六阶曲线观察训练误差下降和验证误差分叉。', 'Use a sixth-degree curve to watch training and validation errors split.'),
+      config: {
+        scenario: 'overfit',
+        learningRate: 0.06,
+        epochs: 70,
+        datasetNoise: 0.18,
+        polynomialDegree: 6,
+        validationSplit: 0.35,
+        regularizationType: 'none',
+        lambda: 0,
+      },
+    },
+    {
+      id: 'regularized-balance',
+      label: loc('正则化约束', 'Regularized balance'),
+      description: loc('在高阶曲线上切换 L1 / L2，观察权重收缩与验证误差。', 'Switch L1 / L2 on a high-degree curve and compare weight shrinkage with validation error.'),
+      config: {
+        scenario: 'regularized',
+        learningRate: 0.055,
+        epochs: 70,
+        datasetNoise: 0.16,
+        polynomialDegree: 6,
+        validationSplit: 0.35,
+        regularizationType: 'l2',
+        lambda: 0.28,
+      },
+    },
   ],
   createDefaultConfig: () => ({
     learningRate: 0.11,
@@ -251,6 +444,11 @@ The parameter intuition carries over, while the task, the loss, and the output m
     scenario: 'linear',
     initialSlope: -0.3,
     initialIntercept: 0.52,
+    featureNoise: 0.08,
+    polynomialDegree: 2,
+    validationSplit: 0.32,
+    regularizationType: 'none',
+    lambda: 0,
   }),
   simulate: simulateLinearRegression,
 }

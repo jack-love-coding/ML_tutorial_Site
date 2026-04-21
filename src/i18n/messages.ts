@@ -69,6 +69,11 @@ export const messages = {
       datasetNoise: '样本噪声',
       outlierStrength: '离群点强度',
       includeOutlier: '包含离群点',
+      featureNoise: '特征噪声',
+      polynomialDegree: '多项式阶数',
+      lambda: '正则强度 λ',
+      validationSplit: '验证集比例',
+      regularizationType: '正则类型',
       dataset: '数据集',
       hiddenUnits: '隐藏单元数',
       activation: '激活函数',
@@ -87,6 +92,9 @@ export const messages = {
         sigmoid: 'Sigmoid',
         on: '开启',
         off: '关闭',
+        none: '无正则',
+        l1: 'L1',
+        l2: 'L2',
       },
     },
     metrics: {
@@ -255,6 +263,18 @@ export const messages = {
           modelLimits: {
             title: '一条直线的表达边界，以及通往逻辑回归的桥',
           },
+          multivariate: {
+            title: '多元线性回归：面积和房龄一起解释房价',
+          },
+          polynomial: {
+            title: '多项式回归：让线性参数画出弯曲关系',
+          },
+          overfitting: {
+            title: '过拟合现象：训练误差下降不等于泛化更好',
+          },
+          regularization: {
+            title: '正则化：用 L1 / L2 约束过度复杂的曲线',
+          },
         },
       },
       logisticRegression: {
@@ -369,6 +389,11 @@ export const messages = {
       datasetNoise: 'Dataset noise',
       outlierStrength: 'Outlier strength',
       includeOutlier: 'Include outlier',
+      featureNoise: 'Feature noise',
+      polynomialDegree: 'Polynomial degree',
+      lambda: 'Regularization λ',
+      validationSplit: 'Validation split',
+      regularizationType: 'Regularization type',
       dataset: 'Dataset',
       hiddenUnits: 'Hidden units',
       activation: 'Activation',
@@ -387,6 +412,9 @@ export const messages = {
         sigmoid: 'Sigmoid',
         on: 'On',
         off: 'Off',
+        none: 'None',
+        l1: 'L1',
+        l2: 'L2',
       },
     },
     metrics: {
@@ -560,6 +588,18 @@ export const messages = {
           },
           modelLimits: {
             title: 'The limit of one line, and the bridge to logistic regression',
+          },
+          multivariate: {
+            title: 'Multivariate linear regression: area and age explain price together',
+          },
+          polynomial: {
+            title: 'Polynomial regression: linear weights can draw curved relationships',
+          },
+          overfitting: {
+            title: 'Overfitting: lower training error is not always better generalization',
+          },
+          regularization: {
+            title: 'Regularization: use L1 / L2 to restrain complex curves',
           },
         },
       },

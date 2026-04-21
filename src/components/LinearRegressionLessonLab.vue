@@ -4,11 +4,12 @@ import { useI18n } from 'vue-i18n'
 import type {
   ExperimentConfig,
   ExperimentPreset,
-  PlotPoint,
   StorySection,
   TrainingSnapshot,
 } from '../types/ml'
 import { round } from '../utils/math'
+import LinearRegressionMultivariateView from './LinearRegressionMultivariateView.vue'
+import LinearRegressionUnivariateView from './LinearRegressionUnivariateView.vue'
 
 const props = defineProps<{
   config: ExperimentConfig
@@ -32,300 +33,212 @@ const emit = defineEmits<{
 
 const { t, locale } = useI18n()
 
-const dataWidth = 660
-const dataHeight = 360
-const dataPadding = 46
-const stateWidth = 360
-const stateHeight = 220
-const statePadding = 28
-
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
-        dataSpace: '数据空间',
-        stateSpace: '训练状态',
-        area: '面积',
-        price: '房价',
+        controls: '实验控制',
+        advanced: '进阶调参',
+        presets: '章节预设',
+        focus: '本章看什么',
+        selectedHouse: '当前样本',
         predicted: '预测',
         actual: '真实',
         residual: '残差',
+        area: '面积',
+        age: '房龄',
+        price: '房价',
         loss: 'MSE',
+        trainMse: '训练 MSE',
+        validationMse: '验证 MSE',
         mae: 'MAE',
         slope: '斜率',
         intercept: '截距',
         gradient: '梯度强度',
         status: '状态',
-        selectedHouse: '当前样本',
-        controls: '实验控制',
-        presets: '章节预设',
-        focus: '本章看什么',
-        lossCurve: '损失曲线',
-        parameterPath: '斜率 / 截距轨迹',
+        degree: '阶数',
+        weightNorm: '权重范数',
+        activeWeights: '有效权重',
+        penalty: '正则惩罚',
+        areaWeight: '面积权重',
+        ageWeight: '房龄权重',
         outlierOn: '离群点开启',
         outlierOff: '离群点关闭',
-        units: {
-          area: 'm²',
-          price: '万',
+        regularizationLabels: {
+          none: '无正则',
+          l1: 'L1',
+          l2: 'L2',
         },
         statusText: {
-          initializing: '初始直线',
+          initializing: '初始模型',
           'coarse-search': '大步校正',
           settling: '快速下降',
           refining: '细调参数',
           'capacity-limit': '表达受限',
           plateau: '接近收敛',
+          overfitting: '正在过拟合',
+          regularized: '正则约束中',
         },
         focusText: {
           'fit-line': '先看散点和直线的相对位置，把斜率和截距理解成模型语言。',
           'residual-loss': '重点看竖直残差线，以及少数大误差如何影响 MSE。',
           'training-motion': '把左侧直线移动和右侧参数轨迹连起来读。',
           'model-limits': '观察弯曲趋势和离群点如何暴露“一条线”的表达边界。',
+          multivariate: '看 3D 平面如何同时解释面积、房龄和房价。',
+          polynomial: '看多项式特征如何让线性权重画出曲线。',
+          overfitting: '盯住训练 MSE 和验证 MSE 是否开始分叉。',
+          regularization: '比较 L1 / L2 如何压小权重并让曲线更克制。',
         },
       }
     : {
-        dataSpace: 'Data space',
-        stateSpace: 'Training state',
-        area: 'Area',
-        price: 'Price',
+        controls: 'Experiment controls',
+        advanced: 'Advanced tuning',
+        presets: 'Chapter presets',
+        focus: 'What to watch',
+        selectedHouse: 'Selected house',
         predicted: 'Predicted',
         actual: 'Actual',
         residual: 'Residual',
+        area: 'Area',
+        age: 'Age',
+        price: 'Price',
         loss: 'MSE',
+        trainMse: 'Train MSE',
+        validationMse: 'Validation MSE',
         mae: 'MAE',
         slope: 'Slope',
         intercept: 'Intercept',
         gradient: 'Gradient norm',
         status: 'Status',
-        selectedHouse: 'Selected house',
-        controls: 'Experiment controls',
-        presets: 'Chapter presets',
-        focus: 'What to watch',
-        lossCurve: 'Loss curve',
-        parameterPath: 'Slope / intercept path',
+        degree: 'Degree',
+        weightNorm: 'Weight norm',
+        activeWeights: 'Active weights',
+        penalty: 'Penalty',
+        areaWeight: 'Area weight',
+        ageWeight: 'Age weight',
         outlierOn: 'Outlier on',
         outlierOff: 'Outlier off',
-        units: {
-          area: 'm²',
-          price: 'w',
+        regularizationLabels: {
+          none: 'None',
+          l1: 'L1',
+          l2: 'L2',
         },
         statusText: {
-          initializing: 'Initial line',
+          initializing: 'Initial model',
           'coarse-search': 'Coarse correction',
           settling: 'Falling quickly',
           refining: 'Fine tuning',
           'capacity-limit': 'Capacity limit',
           plateau: 'Near convergence',
+          overfitting: 'Overfitting',
+          regularized: 'Regularized',
         },
         focusText: {
           'fit-line': 'Read the scatter and line first, then connect slope and intercept to model language.',
           'residual-loss': 'Watch the vertical residuals and how a few large errors influence MSE.',
           'training-motion': 'Connect the moving line on the left to the parameter path on the right.',
           'model-limits': 'Use curvature and outliers to see the expressive limit of one line.',
+          multivariate: 'Watch a 3D plane explain area, age, and price at the same time.',
+          polynomial: 'See how polynomial features let linear weights draw a curve.',
+          overfitting: 'Watch train MSE and validation MSE split apart.',
+          regularization: 'Compare how L1 / L2 shrink weights and restrain the curve.',
         },
       },
 )
 
-const samples = computed(() => props.snapshot?.regressionSamples ?? [])
-const fit = computed(() => props.snapshot?.regressionFit ?? { slope: 1.35, intercept: 55 })
-const highlightIndex = computed(() => Number(props.snapshot?.derivedMetrics?.highlightIndex ?? 0))
-const chartMode = computed(() =>
-  props.section.id === 'training-motion' ? 'parameters' : 'loss',
+const isMultivariate = computed(() => props.section.id === 'multivariate')
+const isPolynomialFamily = computed(() =>
+  props.section.id === 'polynomial' ||
+  props.section.id === 'overfitting' ||
+  props.section.id === 'regularization',
+)
+const showRegularizationControls = computed(() => props.section.id === 'regularization')
+const showValidationControls = computed(() =>
+  props.section.id === 'overfitting' || props.section.id === 'regularization',
 )
 
-const domain = computed(() => {
-  const xValues = samples.value.map((sample) => sample.x)
-  const yValues = samples.value.flatMap((sample) => [
-    sample.y,
-    fit.value.slope * sample.x + fit.value.intercept,
-  ])
+const readoutCards = computed(() => {
+  const metrics = props.snapshot?.derivedMetrics ?? {}
+  const statusKey = String(metrics.statusKey ?? 'initializing') as keyof typeof copy.value.statusText
+  const weights = Array.isArray(metrics.weights) ? metrics.weights : []
 
-  return {
-    xMin: Math.min(...xValues, 40) - 8,
-    xMax: Math.max(...xValues, 170) + 8,
-    yMin: Math.min(...yValues, 90) - 18,
-    yMax: Math.max(...yValues, 320) + 18,
+  if (isMultivariate.value) {
+    return [
+      { id: 'loss', label: copy.value.loss, value: round(Number(metrics.mse ?? props.snapshot?.loss ?? 0), 2) },
+      { id: 'area-weight', label: copy.value.areaWeight, value: round(Number(weights[0] ?? 0), 3) },
+      { id: 'age-weight', label: copy.value.ageWeight, value: round(Number(weights[1] ?? 0), 3) },
+      { id: 'intercept', label: copy.value.intercept, value: round(Number(metrics.intercept ?? 0), 2) },
+      { id: 'gradient', label: copy.value.gradient, value: round(Number(metrics.gradientNorm ?? 0), 3) },
+      { id: 'status', label: copy.value.status, value: copy.value.statusText[statusKey] ?? statusKey },
+    ]
   }
+
+  if (isPolynomialFamily.value) {
+    return [
+      { id: 'train', label: copy.value.trainMse, value: round(Number(metrics.trainMse ?? 0), 2) },
+      { id: 'validation', label: copy.value.validationMse, value: round(Number(metrics.validationMse ?? 0), 2) },
+      { id: 'degree', label: copy.value.degree, value: Number(metrics.polynomialDegree ?? props.config.polynomialDegree ?? 1) },
+      { id: 'norm', label: copy.value.weightNorm, value: round(Number(metrics.weightNorm ?? 0), 3) },
+      { id: 'active', label: copy.value.activeWeights, value: Number(metrics.activeWeights ?? 0) },
+      {
+        id: 'penalty',
+        label: showRegularizationControls.value ? copy.value.penalty : copy.value.status,
+        value: showRegularizationControls.value
+          ? round(Number(metrics.regularizationPenalty ?? 0), 3)
+          : copy.value.statusText[statusKey] ?? statusKey,
+      },
+    ]
+  }
+
+  return [
+    { id: 'loss', label: copy.value.loss, value: round(Number(metrics.mse ?? props.snapshot?.loss ?? 0), 2) },
+    { id: 'mae', label: copy.value.mae, value: round(Number(metrics.mae ?? 0), 2) },
+    { id: 'slope', label: copy.value.slope, value: round(Number(metrics.slope ?? props.snapshot?.regressionFit?.slope ?? 0), 3) },
+    { id: 'intercept', label: copy.value.intercept, value: round(Number(metrics.intercept ?? props.snapshot?.regressionFit?.intercept ?? 0), 2) },
+    { id: 'gradient', label: copy.value.gradient, value: round(Number(metrics.gradientNorm ?? 0), 3) },
+    { id: 'status', label: copy.value.status, value: copy.value.statusText[statusKey] ?? statusKey },
+  ]
 })
-
-const fitLine = computed(() => [
-  {
-    x: domain.value.xMin,
-    y: fit.value.slope * domain.value.xMin + fit.value.intercept,
-  },
-  {
-    x: domain.value.xMax,
-    y: fit.value.slope * domain.value.xMax + fit.value.intercept,
-  },
-])
-
-const residualSegments = computed(() =>
-  samples.value.map((sample, index) => {
-    const prediction = fit.value.slope * sample.x + fit.value.intercept
-    return {
-      id: `${sample.x}-${index}`,
-      index,
-      x: sample.x,
-      actual: sample.y,
-      prediction,
-    }
-  }),
-)
-
-const readoutCards = computed(() => [
-  {
-    id: 'loss',
-    label: copy.value.loss,
-    value: round(Number(props.snapshot?.derivedMetrics?.mse ?? props.snapshot?.loss ?? 0), 2),
-  },
-  {
-    id: 'mae',
-    label: copy.value.mae,
-    value: round(Number(props.snapshot?.derivedMetrics?.mae ?? 0), 2),
-  },
-  {
-    id: 'slope',
-    label: copy.value.slope,
-    value: round(Number(props.snapshot?.derivedMetrics?.slope ?? fit.value.slope), 3),
-  },
-  {
-    id: 'intercept',
-    label: copy.value.intercept,
-    value: round(Number(props.snapshot?.derivedMetrics?.intercept ?? fit.value.intercept), 2),
-  },
-  {
-    id: 'gradient',
-    label: copy.value.gradient,
-    value: round(Number(props.snapshot?.derivedMetrics?.gradientNorm ?? 0), 3),
-  },
-  {
-    id: 'status',
-    label: copy.value.status,
-    value:
-      copy.value.statusText[
-        String(props.snapshot?.derivedMetrics?.statusKey ?? 'initializing') as keyof typeof copy.value.statusText
-      ],
-  },
-])
 
 const selectedObservation = computed(() => props.snapshot?.selectedObservation ?? {})
-const selectedSummary = computed(() => [
-  {
-    label: copy.value.area,
-    value: `${round(Number(selectedObservation.value.area ?? 0), 1)} ${copy.value.units.area}`,
-  },
-  {
-    label: copy.value.actual,
-    value: `${round(Number(selectedObservation.value.actualPrice ?? 0), 1)} ${copy.value.units.price}`,
-  },
-  {
-    label: copy.value.predicted,
-    value: `${round(Number(selectedObservation.value.predictedPrice ?? 0), 1)} ${copy.value.units.price}`,
-  },
-  {
-    label: copy.value.residual,
-    value: `${round(Number(selectedObservation.value.residual ?? 0), 1)} ${copy.value.units.price}`,
-  },
-])
+const selectedSummary = computed(() => {
+  const rows = [
+    {
+      label: copy.value.area,
+      value: `${round(Number(selectedObservation.value.area ?? 0), 1)} m2`,
+    },
+  ]
 
-const lossPath = computed(() =>
-  buildStatePolyline(props.snapshots.map((snapshot) => snapshot.loss)),
-)
-
-const lossDot = computed(() =>
-  pointOnStateLine(props.snapshots.map((snapshot) => snapshot.loss), props.currentStep),
-)
-
-const parameterPoints = computed(() =>
-  props.snapshots.map((snapshot) => ({
-    x: Number(snapshot.regressionFit?.slope ?? 0),
-    y: Number(snapshot.regressionFit?.intercept ?? 0),
-  })),
-)
-
-const parameterPath = computed(() => {
-  if (!parameterPoints.value.length) return ''
-  const xs = parameterPoints.value.map((point) => point.x)
-  const ys = parameterPoints.value.map((point) => point.y)
-  const minX = Math.min(...xs)
-  const maxX = Math.max(...xs)
-  const minY = Math.min(...ys)
-  const maxY = Math.max(...ys)
-
-  return parameterPoints.value
-    .map((point) => {
-      const x = scaleState(point.x, minX, maxX)
-      const y = stateHeight - statePadding - scaleState(point.y, minY, maxY, stateHeight - statePadding * 2)
-      return `${x},${y}`
+  if (isMultivariate.value) {
+    rows.push({
+      label: copy.value.age,
+      value: `${round(Number(selectedObservation.value.age ?? 0), 1)} y`,
     })
-    .join(' ')
-})
-
-const parameterDot = computed(() => {
-  if (!parameterPoints.value.length) return { x: statePadding, y: stateHeight - statePadding }
-  const xs = parameterPoints.value.map((point) => point.x)
-  const ys = parameterPoints.value.map((point) => point.y)
-  const point = parameterPoints.value[Math.min(props.currentStep, parameterPoints.value.length - 1)]!
-  return {
-    x: scaleState(point.x, Math.min(...xs), Math.max(...xs)),
-    y:
-      stateHeight -
-      statePadding -
-      scaleState(point.y, Math.min(...ys), Math.max(...ys), stateHeight - statePadding * 2),
   }
+
+  rows.push(
+    {
+      label: copy.value.actual,
+      value: `${round(Number(selectedObservation.value.actualPrice ?? 0), 1)} w`,
+    },
+    {
+      label: copy.value.predicted,
+      value: `${round(Number(selectedObservation.value.predictedPrice ?? 0), 1)} w`,
+    },
+    {
+      label: copy.value.residual,
+      value: `${round(Number(selectedObservation.value.residual ?? 0), 1)} w`,
+    },
+  )
+
+  return rows
 })
-
-function mapDataX(value: number) {
-  return (
-    dataPadding +
-    ((value - domain.value.xMin) / (domain.value.xMax - domain.value.xMin || 1)) *
-      (dataWidth - dataPadding * 2)
-  )
-}
-
-function mapDataY(value: number) {
-  return (
-    dataHeight -
-    dataPadding -
-    ((value - domain.value.yMin) / (domain.value.yMax - domain.value.yMin || 1)) *
-      (dataHeight - dataPadding * 2)
-  )
-}
-
-function fitLinePoints(points: PlotPoint[]) {
-  return points.map((point) => `${mapDataX(point.x)},${mapDataY(point.y)}`).join(' ')
-}
-
-function scaleState(value: number, min: number, max: number, size = stateWidth - statePadding * 2) {
-  return statePadding + ((value - min) / (max - min || 1)) * size
-}
-
-function buildStatePolyline(values: number[]) {
-  if (!values.length) return ''
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  return values
-    .map((value, index) => {
-      const x = statePadding + (index / Math.max(values.length - 1, 1)) * (stateWidth - statePadding * 2)
-      const y = stateHeight - statePadding - ((value - min) / (max - min || 1)) * (stateHeight - statePadding * 2)
-      return `${x},${y}`
-    })
-    .join(' ')
-}
-
-function pointOnStateLine(values: number[], index: number) {
-  if (!values.length) return { x: statePadding, y: stateHeight - statePadding }
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  const safeIndex = Math.min(index, values.length - 1)
-  const value = values[safeIndex] ?? values[0]
-  return {
-    x: statePadding + (safeIndex / Math.max(values.length - 1, 1)) * (stateWidth - statePadding * 2),
-    y: stateHeight - statePadding - ((value - min) / (max - min || 1)) * (stateHeight - statePadding * 2),
-  }
-}
 
 function configNumber(key: string, fallback: number) {
   return Number(props.config[key] ?? fallback)
+}
+
+function configString(key: string, fallback: string) {
+  return String(props.config[key] ?? fallback)
 }
 
 function onRangeInput(key: string, event: Event) {
@@ -336,6 +249,10 @@ function onRangeInput(key: string, event: Event) {
 function toggleOutlier() {
   emit('patch-config', { includeOutlier: !Boolean(props.config.includeOutlier) })
 }
+
+function setRegularizationType(value: string) {
+  emit('patch-config', { regularizationType: value })
+}
 </script>
 
 <template>
@@ -344,109 +261,21 @@ function toggleOutlier() {
     :style="{ '--linear-accent': props.accent }"
   >
     <div class="linear-regression-lab__workspace">
-      <div class="linear-regression-lab__viz">
-        <section class="linear-regression-lab__panel linear-regression-lab__panel--data">
-          <div class="linear-regression-lab__heading">
-            <span>{{ copy.dataSpace }}</span>
-            <strong>{{ copy.area }} -> {{ copy.price }}</strong>
-          </div>
-          <svg
-            :viewBox="`0 0 ${dataWidth} ${dataHeight}`"
-            class="linear-regression-lab__data-svg"
-            role="img"
-            aria-label="linear regression data space"
-          >
-            <line
-              :x1="dataPadding"
-              :x2="dataWidth - dataPadding"
-              :y1="dataHeight - dataPadding"
-              :y2="dataHeight - dataPadding"
-              class="linear-axis"
-            />
-            <line
-              :x1="dataPadding"
-              :x2="dataPadding"
-              :y1="dataPadding"
-              :y2="dataHeight - dataPadding"
-              class="linear-axis"
-            />
-            <text :x="dataWidth - 118" :y="dataHeight - 16" class="linear-axis-label">
-              {{ copy.area }} ({{ copy.units.area }})
-            </text>
-            <text :x="12" :y="32" class="linear-axis-label">
-              {{ copy.price }} ({{ copy.units.price }})
-            </text>
-            <line
-              v-for="segment in residualSegments"
-              :key="segment.id"
-              :x1="mapDataX(segment.x)"
-              :x2="mapDataX(segment.x)"
-              :y1="mapDataY(segment.actual)"
-              :y2="mapDataY(segment.prediction)"
-              class="linear-residual"
-              :class="{ 'is-emphasis': segment.index === highlightIndex || props.section.id === 'residual-loss' }"
-            />
-            <polyline :points="fitLinePoints(fitLine)" class="linear-fit-line" />
-            <circle
-              v-for="(sample, index) in samples"
-              :key="`${sample.x}-${sample.y}-${index}`"
-              :cx="mapDataX(sample.x)"
-              :cy="mapDataY(sample.y)"
-              :r="index === highlightIndex ? 7 : 5.6"
-              class="linear-sample"
-              :class="{ 'is-highlight': index === highlightIndex }"
-            />
-          </svg>
-        </section>
-
-        <section class="linear-regression-lab__panel linear-regression-lab__panel--state">
-          <div class="linear-regression-lab__heading">
-            <span>{{ copy.stateSpace }}</span>
-            <strong>{{ chartMode === 'parameters' ? copy.parameterPath : copy.lossCurve }}</strong>
-          </div>
-          <svg
-            :viewBox="`0 0 ${stateWidth} ${stateHeight}`"
-            class="linear-regression-lab__state-svg"
-            role="img"
-            aria-label="linear regression training state"
-          >
-            <line
-              :x1="statePadding"
-              :x2="stateWidth - statePadding"
-              :y1="stateHeight - statePadding"
-              :y2="stateHeight - statePadding"
-              class="linear-axis"
-            />
-            <line
-              :x1="statePadding"
-              :x2="statePadding"
-              :y1="statePadding"
-              :y2="stateHeight - statePadding"
-              class="linear-axis"
-            />
-            <template v-if="chartMode === 'parameters'">
-              <polyline
-                :points="parameterPath"
-                class="linear-state-line linear-state-line--parameter"
-              />
-              <circle
-                :cx="parameterDot.x"
-                :cy="parameterDot.y"
-                r="6"
-                class="linear-state-dot"
-              />
-            </template>
-            <template v-else>
-              <polyline :points="lossPath" class="linear-state-line" />
-              <circle
-                :cx="lossDot.x"
-                :cy="lossDot.y"
-                r="6"
-                class="linear-state-dot"
-              />
-            </template>
-          </svg>
-        </section>
+      <div class="linear-regression-lab__viz" :class="'linear-regression-lab__viz-shell'">
+        <LinearRegressionMultivariateView
+          v-if="isMultivariate"
+          :snapshot="props.snapshot"
+          :snapshots="props.snapshots"
+          :current-step="props.currentStep"
+          :accent="props.accent"
+        />
+        <LinearRegressionUnivariateView
+          v-else
+          :snapshot="props.snapshot"
+          :snapshots="props.snapshots"
+          :current-step="props.currentStep"
+          :section-id="props.section.id"
+        />
       </div>
 
       <div class="linear-regression-lab__controls">
@@ -491,7 +320,7 @@ function toggleOutlier() {
               class="control__range"
               type="range"
               min="16"
-              max="72"
+              max="80"
               step="2"
               :value="configNumber('epochs', 36)"
               @input="onRangeInput('epochs', $event)"
@@ -516,21 +345,21 @@ function toggleOutlier() {
 
           <label class="control">
             <span class="control__row">
-              <span>{{ t('controls.datasetNoise') }}</span>
-              <strong>{{ round(configNumber('datasetNoise', 0.05), 2) }}</strong>
+              <span>{{ isMultivariate ? t('controls.featureNoise') : t('controls.datasetNoise') }}</span>
+              <strong>{{ round(configNumber(isMultivariate ? 'featureNoise' : 'datasetNoise', 0.08), 2) }}</strong>
             </span>
             <input
               class="control__range"
               type="range"
               min="0"
-              max="0.35"
+              :max="isMultivariate ? 0.45 : 0.42"
               step="0.01"
-              :value="configNumber('datasetNoise', 0.05)"
-              @input="onRangeInput('datasetNoise', $event)"
+              :value="configNumber(isMultivariate ? 'featureNoise' : 'datasetNoise', 0.08)"
+              @input="onRangeInput(isMultivariate ? 'featureNoise' : 'datasetNoise', $event)"
             />
           </label>
 
-          <label class="control">
+          <label v-if="!isPolynomialFamily && !isMultivariate" class="control">
             <span class="control__row">
               <span>{{ t('controls.outlierStrength') }}</span>
               <strong>{{ round(configNumber('outlierStrength', 36), 0) }}</strong>
@@ -546,7 +375,7 @@ function toggleOutlier() {
             />
           </label>
 
-          <label class="control control--toggle">
+          <label v-if="!isPolynomialFamily && !isMultivariate" class="control control--toggle">
             <span class="control__row">
               <span>{{ t('controls.includeOutlier') }}</span>
               <strong>{{ Boolean(props.config.includeOutlier) ? copy.outlierOn : copy.outlierOff }}</strong>
@@ -555,6 +384,75 @@ function toggleOutlier() {
               {{ Boolean(props.config.includeOutlier) ? t('controls.options.on') : t('controls.options.off') }}
             </button>
           </label>
+        </div>
+
+        <div v-if="isPolynomialFamily" class="linear-regression-lab__advanced-controls">
+          <label class="control">
+            <span class="control__row">
+              <span>{{ t('controls.polynomialDegree') }}</span>
+              <strong>{{ configNumber('polynomialDegree', 2) }}</strong>
+            </span>
+            <input
+              class="control__range"
+              type="range"
+              min="1"
+              max="7"
+              step="1"
+              :value="configNumber('polynomialDegree', 2)"
+              @input="onRangeInput('polynomialDegree', $event)"
+            />
+          </label>
+
+          <label v-if="showValidationControls" class="control">
+            <span class="control__row">
+              <span>{{ t('controls.validationSplit') }}</span>
+              <strong>{{ round(configNumber('validationSplit', 0.32) * 100, 0) }}%</strong>
+            </span>
+            <input
+              class="control__range"
+              type="range"
+              min="0.18"
+              max="0.48"
+              step="0.01"
+              :value="configNumber('validationSplit', 0.32)"
+              @input="onRangeInput('validationSplit', $event)"
+            />
+          </label>
+
+          <label v-if="showRegularizationControls" class="control">
+            <span class="control__row">
+              <span>{{ t('controls.lambda') }}</span>
+              <strong>{{ round(configNumber('lambda', 0.28), 2) }}</strong>
+            </span>
+            <input
+              class="control__range"
+              type="range"
+              min="0"
+              max="0.8"
+              step="0.01"
+              :value="configNumber('lambda', 0.28)"
+              @input="onRangeInput('lambda', $event)"
+            />
+          </label>
+
+          <div v-if="showRegularizationControls" class="control control--toggle">
+            <span class="control__row">
+              <span>{{ t('controls.regularizationType') }}</span>
+              <strong>{{ copy.regularizationLabels[configString('regularizationType', 'l2') as 'none' | 'l1' | 'l2'] }}</strong>
+            </span>
+            <div class="regularization-switch">
+              <button
+                v-for="option in ['none', 'l1', 'l2']"
+                :key="option"
+                type="button"
+                class="toggle-strip__button"
+                :class="{ 'is-active': configString('regularizationType', 'l2') === option }"
+                @click="setRegularizationType(option)"
+              >
+                {{ copy.regularizationLabels[option as 'none' | 'l1' | 'l2'] }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

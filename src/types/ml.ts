@@ -29,6 +29,14 @@ export interface PlotPoint {
   x: number
   y: number
   label?: number
+  split?: 'train' | 'validation'
+}
+
+export interface MultivariateRegressionSample {
+  area: number
+  age: number
+  price: number
+  split?: 'train' | 'validation'
 }
 
 export interface HiddenPoint extends PlotPoint {
@@ -101,10 +109,14 @@ export interface TrainingSnapshot {
   extraMetric?: number
   functionId?: string
   referenceDistance?: number
-  derivedMetrics?: Record<string, number | string>
+  derivedMetrics?: Record<string, number | string | boolean | number[] | string[]>
   lossCurves?: Record<string, PlotPoint[]>
   regressionSamples?: PlotPoint[]
   regressionFit?: { slope: number; intercept: number }
+  fitCurve?: PlotPoint[]
+  validationSamples?: PlotPoint[]
+  multivariateSamples?: MultivariateRegressionSample[]
+  multivariatePlane?: { weights: number[]; intercept: number }
   classificationSamples?: PlotPoint[]
   probabilityBars?: number[]
   likelihoodCurve?: PlotPoint[]

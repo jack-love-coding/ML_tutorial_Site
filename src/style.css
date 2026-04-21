@@ -3328,6 +3328,10 @@ p {
   gap: 14px;
 }
 
+.linear-regression-lab__viz-shell {
+  display: contents;
+}
+
 .linear-regression-lab__panel,
 .linear-regression-lab__controls,
 .linear-regression-lab__readout,
@@ -3416,6 +3420,12 @@ p {
   filter: drop-shadow(0 0 8px rgba(219, 108, 58, 0.42));
 }
 
+.linear-sample.is-validation {
+  fill: #f3b44b;
+  stroke: #5f3f08;
+  stroke-dasharray: 3 3;
+}
+
 .linear-state-line {
   fill: none;
   stroke: #2e9f79;
@@ -3428,10 +3438,50 @@ p {
   stroke: var(--linear-accent, #db6c3a);
 }
 
+.linear-state-line--validation {
+  stroke: #d65c5c;
+  stroke-dasharray: 7 7;
+}
+
 .linear-state-dot {
   fill: #0f1728;
   stroke: white;
   stroke-width: 3;
+}
+
+.linear-state-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.linear-state-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #2e9f79;
+}
+
+.legend-dot--validation {
+  background: #d65c5c;
+}
+
+.linear-regression-lab__three-canvas {
+  display: block;
+  width: 100%;
+  min-height: 360px;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(246, 251, 250, 0.9), rgba(238, 244, 242, 0.7)),
+    radial-gradient(circle at 50% 30%, rgba(219, 108, 58, 0.12), transparent 48%);
 }
 
 .linear-regression-lab__actions {
@@ -3444,6 +3494,18 @@ p {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+
+.linear-regression-lab__advanced-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.regularization-switch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .linear-regression-lab__readout {
@@ -3872,6 +3934,7 @@ p {
 @media (max-width: 1080px) {
   .linear-regression-lab__viz,
   .linear-regression-lab__control-grid,
+  .linear-regression-lab__advanced-controls,
   .linear-regression-lab__readout,
   .linear-results__grid {
     grid-template-columns: 1fr;
@@ -3902,7 +3965,12 @@ p {
 
   .linear-regression-lab__actions,
   .linear-regression-lab__mini-grid,
-  .linear-regression-lab__preset-list {
+  .linear-regression-lab__preset-list,
+  .regularization-switch {
     grid-template-columns: 1fr;
+  }
+
+  .linear-regression-lab__three-canvas {
+    min-height: 300px;
   }
 }

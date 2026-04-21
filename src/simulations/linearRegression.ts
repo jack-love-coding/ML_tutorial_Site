@@ -1,11 +1,42 @@
-import type { ExperimentConfig, ModuleSimulation, PlotPoint, TrainingSnapshot } from '../types/ml'
+import type {
+  ExperimentConfig,
+  ModuleSimulation,
+  MultivariateRegressionSample,
+  PlotPoint,
+  TrainingSnapshot,
+} from '../types/ml'
 
-type LinearRegressionScenario = 'linear' | 'curved'
+type LinearRegressionScenario =
+  | 'linear'
+  | 'curved'
+  | 'multivariate'
+  | 'polynomial'
+  | 'overfit'
+  | 'regularized'
+
+type RegularizationType = 'none' | 'l1' | 'l2'
 
 interface NormalizedStats {
   meanX: number
   meanY: number
   scaleX: number
+  scaleY: number
+}
+
+interface FeatureStats {
+  means: number[]
+  scales: number[]
+  meanY: number
+  scaleY: number
+}
+
+interface PolynomialData {
+  training: PlotPoint[]
+  validation: PlotPoint[]
+  all: PlotPoint[]
+  meanX: number
+  scaleX: number
+  meanY: number
   scaleY: number
 }
 
@@ -22,6 +53,10 @@ function stddev(values: number[], mean: number) {
   if (!values.length) return 1
   const variance = average(values.map((value) => (value - mean) ** 2))
   return Math.sqrt(variance) || 1
+}
+
+function dot(left: number[], right: number[]) {
+  return left.reduce((sum, value, index) => sum + value * (right[index] ?? 0), 0)
 }
 
 function createHousingSamples(
@@ -54,6 +89,7 @@ function createHousingSamples(
     return {
       x: sample.x,
       y: sample.y + deterministicNoise + curvedPremium,
+      split: 'train' as const,
     }
   })
 
@@ -61,6 +97,7 @@ function createHousingSamples(
     adjusted.push({
       x: 126,
       y: 182 + outlierStrength,
+      split: 'train',
     })
   }
 
@@ -88,12 +125,12 @@ function toActualFit(stats: NormalizedStats, slopeNorm: number, interceptNorm: n
   return { slope, intercept }
 }
 
-function predictPrice(area: number, slope: number, intercept: number) {
+function predictLine(area: number, slope: number, intercept: number) {
   return slope * area + intercept
 }
 
-function computeLoss(samples: PlotPoint[], slope: number, intercept: number) {
-  const residuals = samples.map((sample) => predictPrice(sample.x, slope, intercept) - sample.y)
+function computeLineLoss(samples: PlotPoint[], slope: number, intercept: number) {
+  const residuals = samples.map((sample) => predictLine(sample.x, slope, intercept) - sample.y)
   const mse = average(residuals.map((residual) => residual ** 2))
   const mae = average(residuals.map((residual) => Math.abs(residual)))
   return { mse, mae, residuals }
@@ -117,7 +154,7 @@ function statusKeyFor(
   return 'plateau'
 }
 
-function buildSnapshot(
+function buildLineSnapshot(
   step: number,
   samples: PlotPoint[],
   stats: NormalizedStats,
@@ -131,10 +168,10 @@ function buildSnapshot(
   includeOutlier: boolean,
 ): TrainingSnapshot {
   const fit = toActualFit(stats, slopeNorm, interceptNorm)
-  const { mse, mae } = computeLoss(samples, fit.slope, fit.intercept)
+  const { mse, mae } = computeLineLoss(samples, fit.slope, fit.intercept)
   const highlightIndex = step % samples.length
-  const highlightedSample = samples[highlightIndex] ?? samples[0]
-  const highlightedPrediction = predictPrice(highlightedSample.x, fit.slope, fit.intercept)
+  const highlightedSample = samples[highlightIndex] ?? samples[0]!
+  const highlightedPrediction = predictLine(highlightedSample.x, fit.slope, fit.intercept)
   const residual = highlightedPrediction - highlightedSample.y
   const gradientNorm = Math.hypot(gradSlope, gradIntercept)
   const deltaLoss = previousLoss === undefined ? 0 : previousLoss - mse
@@ -146,6 +183,7 @@ function buildSnapshot(
     regressionFit: fit,
     derivedMetrics: {
       mse,
+      trainMse: mse,
       mae,
       slope: fit.slope,
       intercept: fit.intercept,
@@ -154,6 +192,11 @@ function buildSnapshot(
       highlightIndex,
       statusKey: statusKeyFor(step, mse, deltaLoss, gradientNorm, scenario, includeOutlier),
       scenario,
+      modelComplexity: 1,
+      weightNorm: Math.abs(fit.slope),
+      activeWeights: Math.abs(fit.slope) > 0.001 ? 1 : 0,
+      regularizationPenalty: 0,
+      weights: [fit.slope],
     },
     selectedObservation: {
       area: highlightedSample.x,
@@ -166,7 +209,7 @@ function buildSnapshot(
       gradientIntercept: gradIntercept,
     },
     sampleLossBreakdown: samples.slice(0, 4).map((sample, index) => {
-      const prediction = predictPrice(sample.x, fit.slope, fit.intercept)
+      const prediction = predictLine(sample.x, fit.slope, fit.intercept)
       return {
         id: `house-${index}`,
         label: `H${index + 1}`,
@@ -178,13 +221,12 @@ function buildSnapshot(
   }
 }
 
-export function simulateLinearRegression(config: ExperimentConfig): ModuleSimulation {
+function simulateSimpleLine(config: ExperimentConfig, scenario: LinearRegressionScenario) {
   const learningRate = clamp(Number(config.learningRate ?? 0.12), 0.01, 0.4)
   const epochs = Math.max(12, Math.round(Number(config.epochs ?? 40)))
   const datasetNoise = clamp(Number(config.datasetNoise ?? 0.08), 0, 0.35)
   const outlierStrength = clamp(Number(config.outlierStrength ?? 42), 0, 120)
   const includeOutlier = Boolean(config.includeOutlier ?? false)
-  const scenario = String(config.scenario ?? 'linear') as LinearRegressionScenario
   const initialSlope = Number(config.initialSlope ?? -0.25)
   const initialIntercept = Number(config.initialIntercept ?? 0.55)
 
@@ -204,12 +246,9 @@ export function simulateLinearRegression(config: ExperimentConfig): ModuleSimula
     const gradSlope =
       average(errors.map((error, index) => error * normalized.samples[index]!.x)) * 2
     const gradIntercept = average(errors) * 2
-    const stepSize = Math.hypot(
-      learningRate * gradSlope,
-      learningRate * gradIntercept,
-    )
+    const stepSize = Math.hypot(learningRate * gradSlope, learningRate * gradIntercept)
 
-    const snapshot = buildSnapshot(
+    const snapshot = buildLineSnapshot(
       step,
       samples,
       normalized.stats,
@@ -233,4 +272,308 @@ export function simulateLinearRegression(config: ExperimentConfig): ModuleSimula
   }
 
   return { snapshots }
+}
+
+function createMultivariateSamples(noise: number): MultivariateRegressionSample[] {
+  const rows = [
+    [54, 18],
+    [68, 14],
+    [77, 22],
+    [86, 8],
+    [96, 15],
+    [108, 5],
+    [121, 11],
+    [136, 4],
+    [148, 13],
+    [164, 6],
+  ]
+
+  return rows.map(([area, age], index) => {
+    const deterministicNoise =
+      Math.sin(index * 1.17) * noise * 28 + Math.cos(index * 0.51) * noise * 14
+    return {
+      area,
+      age,
+      price: 58 + area * 1.48 - age * 3.15 + deterministicNoise,
+      split: 'train',
+    }
+  })
+}
+
+function normalizeFeatureRows(rows: number[][], yValues: number[]) {
+  const columns = rows[0]?.length ?? 0
+  const means = Array.from({ length: columns }, (_, column) =>
+    average(rows.map((row) => row[column] ?? 0)),
+  )
+  const scales = means.map((mean, column) =>
+    stddev(rows.map((row) => row[column] ?? 0), mean),
+  )
+  const meanY = average(yValues)
+  const scaleY = stddev(yValues, meanY)
+
+  return {
+    stats: { means, scales, meanY, scaleY },
+    rows: rows.map((row) => row.map((value, index) => (value - means[index]!) / scales[index]!)),
+    y: yValues.map((value) => (value - meanY) / scaleY),
+  }
+}
+
+function actualMultivariatePlane(stats: FeatureStats, weights: number[], bias: number) {
+  const actualWeights = weights.map(
+    (weight, index) => (stats.scaleY * weight) / (stats.scales[index] ?? 1),
+  )
+  const intercept =
+    stats.meanY +
+    stats.scaleY * bias -
+    actualWeights.reduce((sum, weight, index) => sum + weight * (stats.means[index] ?? 0), 0)
+
+  return { weights: actualWeights, intercept }
+}
+
+function predictMultivariate(sample: MultivariateRegressionSample, weights: number[], intercept: number) {
+  return sample.area * (weights[0] ?? 0) + sample.age * (weights[1] ?? 0) + intercept
+}
+
+function simulateMultivariate(config: ExperimentConfig): ModuleSimulation {
+  const learningRate = clamp(Number(config.learningRate ?? 0.08), 0.01, 0.22)
+  const epochs = Math.max(18, Math.round(Number(config.epochs ?? 46)))
+  const featureNoise = clamp(Number(config.featureNoise ?? config.datasetNoise ?? 0.1), 0, 0.45)
+  const samples = createMultivariateSamples(featureNoise)
+  const normalized = normalizeFeatureRows(
+    samples.map((sample) => [sample.area, sample.age]),
+    samples.map((sample) => sample.price),
+  )
+
+  let weights = [-0.32, 0.26]
+  let bias = 0.16
+  const snapshots: TrainingSnapshot[] = []
+
+  for (let step = 0; step <= epochs; step += 1) {
+    const predictions = normalized.rows.map((row) => dot(row, weights) + bias)
+    const errors = predictions.map((prediction, index) => prediction - normalized.y[index]!)
+    const gradWeights = weights.map(
+      (_, featureIndex) =>
+        average(errors.map((error, rowIndex) => error * normalized.rows[rowIndex]![featureIndex]!)) * 2,
+    )
+    const gradBias = average(errors) * 2
+    const plane = actualMultivariatePlane(normalized.stats, weights, bias)
+    const residuals = samples.map((sample) => predictMultivariate(sample, plane.weights, plane.intercept) - sample.price)
+    const mse = average(residuals.map((residual) => residual ** 2))
+    const highlightIndex = step % samples.length
+    const highlighted = samples[highlightIndex] ?? samples[0]!
+    const highlightedPrediction = predictMultivariate(highlighted, plane.weights, plane.intercept)
+
+    snapshots.push({
+      step,
+      loss: mse,
+      regressionSamples: samples.map((sample) => ({ x: sample.area, y: sample.price, split: 'train' })),
+      multivariateSamples: samples,
+      multivariatePlane: plane,
+      derivedMetrics: {
+        scenario: 'multivariate',
+        mse,
+        trainMse: mse,
+        mae: average(residuals.map((residual) => Math.abs(residual))),
+        weights: plane.weights,
+        intercept: plane.intercept,
+        gradientNorm: Math.hypot(...gradWeights, gradBias),
+        stepSize: Math.hypot(...gradWeights.map((gradient) => gradient * learningRate), gradBias * learningRate),
+        highlightIndex,
+        modelComplexity: 2,
+        weightNorm: Math.hypot(...plane.weights),
+        activeWeights: plane.weights.filter((weight) => Math.abs(weight) > 0.04).length,
+        regularizationPenalty: 0,
+        statusKey: step === 0 ? 'initializing' : mse > 180 ? 'coarse-search' : 'refining',
+      },
+      selectedObservation: {
+        area: highlighted.area,
+        age: highlighted.age,
+        actualPrice: highlighted.price,
+        predictedPrice: highlightedPrediction,
+        residual: highlightedPrediction - highlighted.price,
+      },
+    })
+
+    if (step === epochs) break
+
+    weights = weights.map((weight, index) => weight - learningRate * gradWeights[index]!)
+    bias -= learningRate * gradBias
+  }
+
+  return { snapshots }
+}
+
+function truePolynomialPrice(area: number, index: number, noise: number) {
+  const centered = area - 112
+  const curve = 88 + area * 1.06 + centered ** 2 * 0.012 - centered ** 3 * 0.000018
+  const deterministicNoise = Math.sin(index * 1.9) * noise * 36 + Math.cos(index * 0.73) * noise * 16
+  return curve + deterministicNoise
+}
+
+function createPolynomialData(noise: number, validationSplit: number, scenario: LinearRegressionScenario): PolynomialData {
+  const areas = [42, 53, 65, 76, 88, 99, 111, 123, 136, 148, 161, 174, 186]
+  const all = areas.map((area, index) => ({
+    x: area,
+    y: truePolynomialPrice(area, index, noise),
+    split: 'train' as const,
+  }))
+
+  const validationCount = Math.max(2, Math.round(all.length * validationSplit))
+  const validation = all
+    .filter((_, index) => index % 3 === 1)
+    .slice(0, validationCount)
+    .map((sample) => ({ ...sample, split: 'validation' as const }))
+  const validationSet = new Set(validation.map((sample) => sample.x))
+  const training = all
+    .filter((sample) => !validationSet.has(sample.x))
+    .map((sample) => ({ ...sample, split: 'train' as const }))
+  const visibleAll = [
+    ...training,
+    ...validation.map((sample, index) => ({
+      ...sample,
+      y: sample.y + (scenario === 'overfit' ? Math.sin(index * 2.4) * noise * 28 : 0),
+    })),
+  ].sort((left, right) => left.x - right.x)
+  const meanX = average(training.map((sample) => sample.x))
+  const scaleX = (Math.max(...training.map((sample) => sample.x)) - Math.min(...training.map((sample) => sample.x))) / 2 || 1
+  const meanY = average(training.map((sample) => sample.y))
+  const scaleY = stddev(training.map((sample) => sample.y), meanY)
+
+  return { training, validation, all: visibleAll, meanX, scaleX, meanY, scaleY }
+}
+
+function polynomialFeatures(area: number, degree: number, meanX: number, scaleX: number) {
+  const normalized = (area - meanX) / scaleX
+  return Array.from({ length: degree }, (_, index) => normalized ** (index + 1))
+}
+
+function predictPolynomial(area: number, weights: number[], bias: number, data: PolynomialData) {
+  const normalizedY = dot(polynomialFeatures(area, weights.length, data.meanX, data.scaleX), weights) + bias
+  return data.meanY + normalizedY * data.scaleY
+}
+
+function sampleMse(samples: PlotPoint[], weights: number[], bias: number, data: PolynomialData) {
+  const residuals = samples.map((sample) => predictPolynomial(sample.x, weights, bias, data) - sample.y)
+  return {
+    mse: average(residuals.map((residual) => residual ** 2)),
+    mae: average(residuals.map((residual) => Math.abs(residual))),
+    residuals,
+  }
+}
+
+function regularizationPenalty(weights: number[], type: RegularizationType, lambda: number) {
+  if (type === 'l2') return lambda * average(weights.map((weight) => weight ** 2))
+  if (type === 'l1') return lambda * average(weights.map((weight) => Math.abs(weight)))
+  return 0
+}
+
+function buildFitCurve(weights: number[], bias: number, data: PolynomialData) {
+  const minX = Math.min(...data.all.map((sample) => sample.x)) - 4
+  const maxX = Math.max(...data.all.map((sample) => sample.x)) + 4
+  return Array.from({ length: 64 }, (_, index) => {
+    const x = minX + (index / 63) * (maxX - minX)
+    return { x, y: predictPolynomial(x, weights, bias, data) }
+  })
+}
+
+function simulatePolynomialFamily(config: ExperimentConfig, scenario: LinearRegressionScenario): ModuleSimulation {
+  const learningRate = clamp(Number(config.learningRate ?? 0.065), 0.01, 0.16)
+  const epochs = Math.max(24, Math.round(Number(config.epochs ?? 58)))
+  const datasetNoise = clamp(Number(config.datasetNoise ?? 0.12), 0, 0.42)
+  const degree = Math.max(1, Math.min(7, Math.round(Number(config.polynomialDegree ?? (scenario === 'polynomial' ? 2 : 6)))))
+  const validationSplit = clamp(Number(config.validationSplit ?? 0.32), 0.18, 0.48)
+  const regularizationType = String(config.regularizationType ?? (scenario === 'regularized' ? 'l2' : 'none')) as RegularizationType
+  const lambda = scenario === 'regularized' ? clamp(Number(config.lambda ?? 0.25), 0, 0.8) : 0
+  const data = createPolynomialData(datasetNoise, validationSplit, scenario)
+  const trainFeatures = data.training.map((sample) =>
+    polynomialFeatures(sample.x, degree, data.meanX, data.scaleX),
+  )
+  const trainY = data.training.map((sample) => (sample.y - data.meanY) / data.scaleY)
+  let weights = Array.from({ length: degree }, (_, index) => (index === 0 ? -0.16 : 0.12 / (index + 1)))
+  let bias = 0.08
+  const snapshots: TrainingSnapshot[] = []
+
+  for (let step = 0; step <= epochs; step += 1) {
+    const predictions = trainFeatures.map((features) => dot(features, weights) + bias)
+    const errors = predictions.map((prediction, index) => prediction - trainY[index]!)
+    const gradWeights = weights.map((weight, featureIndex) => {
+      const mseGradient =
+        average(errors.map((error, rowIndex) => error * trainFeatures[rowIndex]![featureIndex]!)) * 2
+      if (regularizationType === 'l2') return mseGradient + 2 * lambda * weight
+      if (regularizationType === 'l1') return mseGradient + lambda * Math.sign(weight)
+      return mseGradient
+    })
+    const gradBias = average(errors) * 2
+    const trainLoss = sampleMse(data.training, weights, bias, data)
+    const validationLoss = sampleMse(data.validation, weights, bias, data)
+    const penalty = regularizationPenalty(weights, regularizationType, lambda)
+    const loss = trainLoss.mse + penalty * data.scaleY
+    const highlightIndex = step % data.all.length
+    const highlighted = data.all[highlightIndex] ?? data.all[0]!
+    const highlightedPrediction = predictPolynomial(highlighted.x, weights, bias, data)
+
+    snapshots.push({
+      step,
+      loss,
+      regressionSamples: data.all,
+      validationSamples: data.validation,
+      fitCurve: buildFitCurve(weights, bias, data),
+      derivedMetrics: {
+        scenario,
+        mse: loss,
+        trainMse: trainLoss.mse,
+        validationMse: validationLoss.mse,
+        mae: trainLoss.mae,
+        weights: weights.map((weight) => weight * data.scaleY),
+        intercept: data.meanY + bias * data.scaleY,
+        gradientNorm: Math.hypot(...gradWeights, gradBias),
+        stepSize: Math.hypot(...gradWeights.map((gradient) => gradient * learningRate), gradBias * learningRate),
+        highlightIndex,
+        polynomialDegree: degree,
+        modelComplexity: degree,
+        regularizationType,
+        lambda,
+        regularizationPenalty: penalty,
+        weightNorm: Math.hypot(...weights),
+        activeWeights: weights.filter((weight) => Math.abs(weight) > 0.08).length,
+        statusKey:
+          scenario === 'overfit' && validationLoss.mse > trainLoss.mse * 1.18
+            ? 'overfitting'
+            : regularizationType !== 'none'
+              ? 'regularized'
+              : 'refining',
+      },
+      selectedObservation: {
+        area: highlighted.x,
+        actualPrice: highlighted.y,
+        predictedPrice: highlightedPrediction,
+        residual: highlightedPrediction - highlighted.y,
+      },
+    })
+
+    if (step === epochs) break
+
+    weights = weights.map((weight, index) => {
+      const next = weight - learningRate * gradWeights[index]!
+      if (regularizationType === 'l1') {
+        const shrink = learningRate * lambda * 0.36
+        return Math.sign(next) * Math.max(0, Math.abs(next) - shrink)
+      }
+      return next
+    })
+    bias -= learningRate * gradBias
+  }
+
+  return { snapshots }
+}
+
+export function simulateLinearRegression(config: ExperimentConfig): ModuleSimulation {
+  const scenario = String(config.scenario ?? 'linear') as LinearRegressionScenario
+
+  if (scenario === 'multivariate') return simulateMultivariate(config)
+  if (scenario === 'polynomial' || scenario === 'overfit' || scenario === 'regularized') {
+    return simulatePolynomialFamily(config, scenario)
+  }
+
+  return simulateSimpleLine(config, scenario)
 }
