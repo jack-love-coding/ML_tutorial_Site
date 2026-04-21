@@ -66,21 +66,22 @@ function createHousingSamples(
   scenario: LinearRegressionScenario,
 ): PlotPoint[] {
   const baseSamples = [
-    { x: 42, y: 104 },
-    { x: 49, y: 116 },
-    { x: 57, y: 126 },
-    { x: 64, y: 139 },
-    { x: 71, y: 151 },
-    { x: 79, y: 164 },
-    { x: 88, y: 178 },
-    { x: 96, y: 190 },
-    { x: 105, y: 207 },
-    { x: 116, y: 222 },
-    { x: 128, y: 239 },
-    { x: 141, y: 259 },
-    { x: 156, y: 282 },
-    { x: 174, y: 310 },
-    { x: 188, y: 326 },
+    { x: 41, y: 102 },
+    { x: 46, y: 111 },
+    { x: 52, y: 121 },
+    { x: 58, y: 132 },
+    { x: 64, y: 141 },
+    { x: 88, y: 176 },
+    { x: 94, y: 187 },
+    { x: 101, y: 199 },
+    { x: 109, y: 212 },
+    { x: 118, y: 226 },
+    { x: 151, y: 272 },
+    { x: 158, y: 284 },
+    { x: 167, y: 298 },
+    { x: 179, y: 315 },
+    { x: 214, y: 354 },
+    { x: 229, y: 371 },
   ]
 
   const noiseScale = noise * 22
@@ -444,8 +445,7 @@ function truePolynomialPrice(area: number, index: number, noise: number) {
 
 function createPolynomialData(noise: number, validationSplit: number, scenario: LinearRegressionScenario): PolynomialData {
   const areas = [
-    38, 45, 52, 59, 67, 75, 84, 92, 101, 110, 119, 128, 138, 149, 160, 172, 184, 197,
-    211, 226,
+    36, 42, 48, 55, 63, 91, 98, 106, 114, 123, 153, 160, 169, 181, 193, 224, 238, 254,
   ]
   const all = areas.map((area, index) => ({
     x: area,
@@ -457,17 +457,18 @@ function createPolynomialData(noise: number, validationSplit: number, scenario: 
   const validation = all
     .filter((_, index) => index % 3 === 1)
     .slice(0, validationCount)
-    .map((sample) => ({ ...sample, split: 'validation' as const }))
+    .map((sample, index) => ({
+      ...sample,
+      y: sample.y + (scenario === 'overfit' ? (index % 2 === 0 ? 42 : -34) : 0),
+      split: 'validation' as const,
+    }))
   const validationSet = new Set(validation.map((sample) => sample.x))
   const training = all
     .filter((sample) => !validationSet.has(sample.x))
     .map((sample) => ({ ...sample, split: 'train' as const }))
   const visibleAll = [
     ...training,
-    ...validation.map((sample, index) => ({
-      ...sample,
-      y: sample.y + (scenario === 'overfit' ? Math.sin(index * 2.4) * noise * 28 : 0),
-    })),
+    ...validation,
   ].sort((left, right) => left.x - right.x)
   const meanX = average(training.map((sample) => sample.x))
   const scaleX = (Math.max(...training.map((sample) => sample.x)) - Math.min(...training.map((sample) => sample.x))) / 2 || 1

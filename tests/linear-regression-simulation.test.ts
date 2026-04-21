@@ -2,6 +2,20 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { simulateLinearRegression } from '../src/simulations/linearRegression.ts'
 
+function sortedGaps(values: number[]) {
+  const sorted = [...values].sort((left, right) => left - right)
+  return sorted.slice(1).map((value, index) => value - sorted[index]!)
+}
+
+function assertClusteredDistribution(values: number[], message: string) {
+  const gaps = sortedGaps(values)
+  const tightGaps = gaps.filter((gap) => gap <= 8).length
+  const wideGaps = gaps.filter((gap) => gap >= 22).length
+
+  assert.ok(tightGaps >= 4, `${message}: expected several close samples inside local clusters`)
+  assert.ok(wideGaps >= 2, `${message}: expected visible gaps between market segments`)
+}
+
 test('linear regression simulation reduces loss and updates parameters under the default config', () => {
   const simulation = simulateLinearRegression({
     learningRate: 0.1,
@@ -127,6 +141,15 @@ test('linear regression lessons use richer housing datasets for visual teaching'
   assert.ok(
     (polynomial.regressionSamples?.length ?? 0) >= 18,
     'polynomial and overfitting views need enough train/validation samples',
+  )
+
+  assertClusteredDistribution(
+    simple.regressionSamples?.map((sample) => sample.x) ?? [],
+    'single-feature housing data',
+  )
+  assertClusteredDistribution(
+    polynomial.regressionSamples?.map((sample) => sample.x) ?? [],
+    'polynomial housing data',
   )
 })
 
