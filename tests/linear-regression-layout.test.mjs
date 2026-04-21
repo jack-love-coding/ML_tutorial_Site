@@ -72,3 +72,26 @@ test('linear regression advanced chapters and subviews are wired', () => {
   assert.match(componentSource, /LinearRegressionUnivariateView/)
   assert.match(componentSource, /linear-regression-lab__advanced-controls/)
 })
+
+test('linear regression chapter scroll does not auto-reset an active experiment', () => {
+  const algorithmViewSource = readFileSync(
+    new URL('../src/views/AlgorithmView.vue', import.meta.url),
+    'utf8',
+  )
+
+  const onChapterChangeStart = algorithmViewSource.indexOf('function onChapterChange')
+  const patchConfigStart = algorithmViewSource.indexOf('function patchConfig')
+  assert.notEqual(onChapterChangeStart, -1, 'expected onChapterChange handler')
+  assert.notEqual(patchConfigStart, -1, 'expected patchConfig handler after onChapterChange')
+
+  const onChapterChangeBody = algorithmViewSource.slice(onChapterChangeStart, patchConfigStart)
+
+  assert.match(onChapterChangeBody, /activeChapter\.value = nextChapter/)
+  assert.match(
+    onChapterChangeBody,
+    /currentStep > 0|isPlaying/,
+    'chapter preset sync must be guarded once a lab has started',
+  )
+  assert.match(onChapterChangeBody, /return/)
+  assert.match(onChapterChangeBody, /applyPreset/)
+})

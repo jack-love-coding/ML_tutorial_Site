@@ -100,3 +100,32 @@ test('advanced linear regression scenarios expose the intended teaching signals'
   assert.ok(Number(ridge.derivedMetrics?.weightNorm ?? 0) < Number(unregularized.derivedMetrics?.weightNorm ?? 0))
   assert.ok(Number(lasso.derivedMetrics?.activeWeights ?? 0) <= Number(unregularized.derivedMetrics?.activeWeights ?? 0))
 })
+
+test('linear regression lessons use richer housing datasets for visual teaching', () => {
+  const simple = simulateLinearRegression({
+    scenario: 'linear',
+    datasetNoise: 0.12,
+  }).snapshots[0]
+  const multivariate = simulateLinearRegression({
+    scenario: 'multivariate',
+    featureNoise: 0.12,
+  }).snapshots[0]
+  const polynomial = simulateLinearRegression({
+    scenario: 'polynomial',
+    polynomialDegree: 3,
+    datasetNoise: 0.14,
+  }).snapshots[0]
+
+  assert.ok(
+    (simple.regressionSamples?.length ?? 0) >= 14,
+    'single-feature housing data should have enough points to avoid toy-looking fits',
+  )
+  assert.ok(
+    (multivariate.multivariateSamples?.length ?? 0) >= 16,
+    'multivariate plane should be supported by a richer point cloud',
+  )
+  assert.ok(
+    (polynomial.regressionSamples?.length ?? 0) >= 18,
+    'polynomial and overfitting views need enough train/validation samples',
+  )
+})

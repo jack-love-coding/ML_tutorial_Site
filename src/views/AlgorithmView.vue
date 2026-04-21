@@ -236,6 +236,8 @@ onBeforeUnmount(stopTimer)
 function onChapterChange(nextChapter: string) {
   activeChapter.value = nextChapter
   if (isLinearRegressionPage.value) {
+    if (experiment.value?.isPlaying || Number(experiment.value?.currentStep ?? 0) > 0) return
+
     const section = moduleDefinition.value?.chapters.find((chapter) => chapter.id === nextChapter)
     const preset = moduleDefinition.value?.presets.find((item) => item.id === section?.presetId)
     if (preset) {

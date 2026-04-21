@@ -66,14 +66,21 @@ function createHousingSamples(
   scenario: LinearRegressionScenario,
 ): PlotPoint[] {
   const baseSamples = [
-    { x: 48, y: 118 },
-    { x: 61, y: 132 },
-    { x: 74, y: 149 },
-    { x: 86, y: 171 },
-    { x: 99, y: 191 },
-    { x: 114, y: 216 },
-    { x: 134, y: 242 },
-    { x: 158, y: 279 },
+    { x: 42, y: 104 },
+    { x: 49, y: 116 },
+    { x: 57, y: 126 },
+    { x: 64, y: 139 },
+    { x: 71, y: 151 },
+    { x: 79, y: 164 },
+    { x: 88, y: 178 },
+    { x: 96, y: 190 },
+    { x: 105, y: 207 },
+    { x: 116, y: 222 },
+    { x: 128, y: 239 },
+    { x: 141, y: 259 },
+    { x: 156, y: 282 },
+    { x: 174, y: 310 },
+    { x: 188, y: 326 },
   ]
 
   const noiseScale = noise * 22
@@ -276,16 +283,24 @@ function simulateSimpleLine(config: ExperimentConfig, scenario: LinearRegression
 
 function createMultivariateSamples(noise: number): MultivariateRegressionSample[] {
   const rows = [
-    [54, 18],
-    [68, 14],
-    [77, 22],
+    [48, 24],
+    [55, 18],
+    [63, 28],
+    [70, 12],
+    [78, 21],
     [86, 8],
-    [96, 15],
-    [108, 5],
+    [94, 16],
+    [103, 5],
+    [112, 19],
     [121, 11],
-    [136, 4],
-    [148, 13],
-    [164, 6],
+    [132, 6],
+    [144, 15],
+    [156, 4],
+    [168, 10],
+    [181, 7],
+    [196, 3],
+    [210, 12],
+    [226, 5],
   ]
 
   return rows.map(([area, age], index) => {
@@ -411,7 +426,10 @@ function truePolynomialPrice(area: number, index: number, noise: number) {
 }
 
 function createPolynomialData(noise: number, validationSplit: number, scenario: LinearRegressionScenario): PolynomialData {
-  const areas = [42, 53, 65, 76, 88, 99, 111, 123, 136, 148, 161, 174, 186]
+  const areas = [
+    38, 45, 52, 59, 67, 75, 84, 92, 101, 110, 119, 128, 138, 149, 160, 172, 184, 197,
+    211, 226,
+  ]
   const all = areas.map((area, index) => ({
     x: area,
     y: truePolynomialPrice(area, index, noise),
