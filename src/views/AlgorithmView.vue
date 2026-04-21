@@ -18,6 +18,8 @@ import GradientTeachingBlocks from '../components/GradientTeachingBlocks.vue'
 import GradientChapterLab from '../components/GradientChapterLab.vue'
 import LossFunctionsLessonLab from '../components/LossFunctionsLessonLab.vue'
 import LossFunctionsResults from '../components/LossFunctionsResults.vue'
+import LinearRegressionLessonLab from '../components/LinearRegressionLessonLab.vue'
+import LinearRegressionResults from '../components/LinearRegressionResults.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,6 +33,7 @@ const slug = computed(() => route.params.slug as ModuleSlug)
 const moduleDefinition = computed(() => moduleRegistry[slug.value])
 const isGradientPage = computed(() => slug.value === 'gradient-descent')
 const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
+const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
 
 if (!moduleDefinition.value) {
   router.replace('/')
@@ -251,6 +254,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     :class="{
       'algorithm-view--gradient': isGradientPage,
       'algorithm-view--loss': isLossFunctionsPage,
+      'algorithm-view--linear': isLinearRegressionPage,
     }"
   >
     <section
@@ -374,6 +378,75 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </StoryScroller>
     </section>
 
+    <section
+      v-else-if="isLinearRegressionPage"
+      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--linear-story"
+    >
+      <StoryScroller
+        :sections="moduleDefinition.chapters"
+        :active-id="activeChapter"
+        @change="onChapterChange"
+      >
+        <template #section="{ section, localizedText: slotLocalizedText }">
+          <h3>{{ t(section.titleKey) }}</h3>
+          <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
+
+          <LinearRegressionLessonLab
+            :config="experiment.config"
+            :snapshot="snapshot"
+            :snapshots="experiment.snapshots"
+            :current-step="experiment.currentStep"
+            :is-playing="experiment.isPlaying"
+            :accent="moduleDefinition.accent"
+            :section="section"
+            :presets="moduleDefinition.presets"
+            @patch-config="patchConfig"
+            @toggle-play="experimentStore.togglePlayback(slug)"
+            @step="experimentStore.advance(slug)"
+            @replay="experimentStore.replay(slug)"
+            @reset="experimentStore.reset(slug)"
+            @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
+          />
+
+          <div class="story-companion story-companion--lesson">
+            <section class="story-companion__panel story-companion__panel--guide">
+              <div class="panel__heading">
+                <span>{{ t('common.readingGuide') }}</span>
+                <strong>{{ localizedText(section.callout) }}</strong>
+              </div>
+              <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
+                {{ localizedText(section.experimentPrompt) }}
+              </div>
+            </section>
+
+            <router-link
+              class="story-companion__panel story-companion__panel--meta story-companion__link"
+              to="/learn/logistic-regression"
+            >
+              <span>{{ locale === 'zh-CN' ? '下一课' : 'Next lesson' }}</span>
+              <strong>
+                {{
+                  locale === 'zh-CN'
+                    ? '从连续值预测走向分类概率'
+                    : 'From continuous prediction to class probability'
+                }}
+              </strong>
+              <p>
+                {{
+                  locale === 'zh-CN'
+                    ? '线性回归学的是连续房价；逻辑回归会把线性打分映射成概率，用来解释分类边界。'
+                    : 'Linear regression predicts continuous prices; logistic regression maps a linear score into probability for classification.'
+                }}
+              </p>
+              <span class="action-button">
+                {{ locale === 'zh-CN' ? '进入逻辑回归' : 'Open Logistic Regression' }}
+              </span>
+            </router-link>
+          </div>
+        </template>
+      </StoryScroller>
+    </section>
+
     <section v-else class="algorithm-layout">
       <StoryScroller
         :sections="moduleDefinition.chapters"
@@ -457,6 +530,45 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
           <strong>{{ lessonBridgeFor(activeSection)?.title }}</strong>
           <p>{{ lessonBridgeFor(activeSection)?.body }}</p>
           <small>{{ lessonBridgeFor(activeSection)?.cta }}</small>
+        </router-link>
+      </section>
+    </section>
+
+    <section v-else-if="isLinearRegressionPage" class="results-grid results-grid--linear">
+      <LinearRegressionResults
+        :section="activeSection"
+        :snapshot="snapshot"
+        :snapshots="experiment.snapshots"
+        :current-step="experiment.currentStep"
+      />
+
+      <section class="panel lesson-panel">
+        <div class="panel__heading">
+          <span>{{ t('common.results') }}</span>
+          <strong>{{ activeSection ? t(activeSection.titleKey) : t(moduleDefinition.titleKey) }}</strong>
+        </div>
+        <p class="lesson-panel__callout">{{ localizedText(activeSection?.callout) }}</p>
+        <div v-if="localizedText(activeSection?.experimentPrompt)" class="lesson-panel__prompt">
+          {{ localizedText(activeSection?.experimentPrompt) }}
+        </div>
+
+        <router-link class="lesson-bridge-card" to="/learn/logistic-regression">
+          <span>{{ locale === 'zh-CN' ? '逻辑回归预告' : 'Logistic bridge' }}</span>
+          <strong>
+            {{
+              locale === 'zh-CN'
+                ? '线性打分下一步会变成分类概率'
+                : 'The linear score becomes a class probability next'
+            }}
+          </strong>
+          <p>
+            {{
+              locale === 'zh-CN'
+                ? '斜率和截距的直觉会保留，但输出从房价变成概率，损失也从 MSE 换成交叉熵。'
+                : 'The slope-and-intercept intuition remains, but the output becomes probability and MSE gives way to cross-entropy.'
+            }}
+          </p>
+          <small>{{ locale === 'zh-CN' ? '进入逻辑回归' : 'Open Logistic Regression' }}</small>
         </router-link>
       </section>
     </section>

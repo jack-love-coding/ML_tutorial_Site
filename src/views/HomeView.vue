@@ -9,40 +9,36 @@ const primaryRoute = computed(() => moduleOrder[0]?.route ?? '/learn/loss-functi
 
 const highlights = computed(() =>
   locale.value === 'zh-CN'
-    ? [
-        '4 个互动课程模块',
-        '回归、分类与 MLE 一起讲清',
-        '全部在浏览器本地实时运行',
-      ]
+    ? ['5 个互动课程模块', '从损失、优化到回归与分类的连续主线', '全部在浏览器本地实时运行']
     : [
-        '4 interactive lesson modules',
-        'Regression, classification, and MLE in one path',
+        '5 interactive lesson modules',
+        'A continuous path from loss to regression and classification',
         'Runs entirely in the browser',
       ],
 )
 
 const posterBody = computed(() =>
   locale.value === 'zh-CN'
-    ? '四节课程共用一套双语教学框架：公式讲解、章节实验、可重复的数据演示，以及从损失到模型的连续学习路径。'
-    : 'Four lessons share one bilingual teaching frame: formula-first explanations, embedded labs, reproducible data demos, and a continuous path from loss to models.',
+    ? '五节课程共用一套双语教学框架：公式讲解、章节实验、可重复的数据演示，以及从损失到模型的连续学习路径。'
+    : 'Five lessons share one bilingual teaching frame: formula-first explanations, embedded labs, reproducible data demos, and a continuous path from loss to models.',
 )
 
 const modulesBody = computed(() =>
   locale.value === 'zh-CN'
-    ? '从损失函数出发，依次进入优化、线性分类与浅层神经网络，把“模型为什么这样学”拆成连续的四节课。'
-    : 'Start from loss functions, then move into optimization, linear classification, and shallow neural networks as one continuous sequence.',
+    ? '从损失函数出发，依次进入优化、线性回归、线性分类与浅层神经网络，把“模型为什么这样学”拆成连续的五节课。'
+    : 'Start from loss functions, then move into optimization, linear regression, linear classification, and shallow neural networks as one continuous sequence.',
 )
 
 const modulesNote = computed(() =>
   locale.value === 'zh-CN'
-    ? '第一课现在单独讲损失函数与似然，其余模块继续承担优化、分类边界与表示学习的直觉训练。'
-    : 'Lesson one now stands on its own as Loss Functions & Likelihood, while the later modules focus on optimization, decision boundaries, and representation learning.',
+    ? '第一课先把损失和似然讲清楚，后面再接优化、线性回归、逻辑回归和表示学习，整条路径更完整。'
+    : 'Lesson one now stands on its own as Loss Functions & Likelihood, and the later lessons carry that idea into optimization, linear regression, classification, and representation learning.',
 )
 
 const pathBody = computed(() =>
   locale.value === 'zh-CN'
-    ? '先理解误差如何变成损失，再看优化器怎样沿着目标函数移动，最后进入分类器和浅层网络。'
-    : 'First learn how error becomes loss, then watch optimizers move across that objective, and finally carry the idea into classifiers and shallow networks.',
+    ? '先理解误差如何变成损失，再看优化器怎样沿着目标函数移动，接着进入连续值预测，最后再走到分类器和浅层网络。'
+    : 'First learn how error becomes loss, then watch optimizers move across that objective, then step into continuous-value prediction before heading to classifiers and shallow networks.',
 )
 
 const learningPath = computed(() =>
@@ -50,21 +46,23 @@ const learningPath = computed(() =>
     ? [
         '损失函数与似然：先理解 MSE、MAE、交叉熵和 MLE 的关系',
         '梯度下降：观察优化器怎样在不同 loss 地形上移动',
-        '逻辑回归：把交叉熵放进真实二分类边界里',
+        '线性回归：把 MSE 放进真实房价预测，理解斜率和截距如何学习',
+        '逻辑回归：把线性打分映射成分类概率与决策边界',
         '浅层 MLP：看隐藏层怎样重组空间并提升表达能力',
       ]
     : [
         'Loss Functions & Likelihood: connect MSE, MAE, cross-entropy, and MLE',
         'Gradient Descent: watch optimizers move across different loss landscapes',
-        'Logistic Regression: place cross-entropy inside a real binary classifier',
+        'Linear Regression: learn slope and intercept through a housing-price story',
+        'Logistic Regression: map a linear score into class probabilities and boundaries',
         'Shallow MLP: see how hidden layers reorganize space and expand capacity',
       ],
 )
 
 const footerText = computed(() =>
   locale.value === 'zh-CN'
-    ? '课程入口已经改成“损失函数与似然”，更适合从目标函数、概率解释和模型训练之间的关系开始学起。'
-    : 'The course now opens with Loss Functions & Likelihood so students can start from objectives, probability, and training before moving into full models.',
+    ? '课程现在从损失函数与似然起步，再顺着优化、线性回归、逻辑回归和浅层网络一路展开，学习路径更连贯。'
+    : 'The course now opens with Loss Functions & Likelihood and then flows through optimization, linear regression, logistic regression, and shallow networks.',
 )
 </script>
 
@@ -95,7 +93,11 @@ const footerText = computed(() =>
         </div>
 
         <div class="hero__highlights">
-          <article v-for="(highlight, index) in highlights" :key="`${highlight}-${index}`" class="hero-highlight">
+          <article
+            v-for="(highlight, index) in highlights"
+            :key="`${highlight}-${index}`"
+            class="hero-highlight"
+          >
             <span>{{ `0${index + 1}` }}</span>
             <p>{{ highlight }}</p>
           </article>

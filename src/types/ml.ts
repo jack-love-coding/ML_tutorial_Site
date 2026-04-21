@@ -1,4 +1,9 @@
-export type ModuleSlug = 'loss-functions' | 'gradient-descent' | 'logistic-regression' | 'mlp'
+export type ModuleSlug =
+  | 'loss-functions'
+  | 'gradient-descent'
+  | 'linear-regression'
+  | 'logistic-regression'
+  | 'mlp'
 export type AppLocale = 'zh-CN' | 'en'
 export type ExperimentConfigValue = number | string | boolean
 export type ExperimentConfig = Record<string, ExperimentConfigValue>

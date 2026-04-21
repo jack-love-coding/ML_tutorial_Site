@@ -66,6 +66,9 @@ export const messages = {
       regularization: '正则强度',
       epochs: '训练轮数',
       noise: '数据噪声',
+      datasetNoise: '样本噪声',
+      outlierStrength: '离群点强度',
+      includeOutlier: '包含离群点',
       dataset: '数据集',
       hiddenUnits: '隐藏单元数',
       activation: '激活函数',
@@ -82,6 +85,8 @@ export const messages = {
         tanh: 'tanh',
         relu: 'ReLU',
         sigmoid: 'Sigmoid',
+        on: '开启',
+        off: '关闭',
       },
     },
     metrics: {
@@ -232,6 +237,26 @@ export const messages = {
           },
         },
       },
+      linearRegression: {
+        title: '线性回归',
+        kicker: 'Regression Studio',
+        intro: '用“房屋面积 -> 房价预测”这条真实感更强的样例，把斜率、截距、残差、MSE 和训练动态完整串起来。',
+        summary: '从拟合一条线开始，逐步走到残差、损失、参数更新和模型边界，让线性回归成为一门完整独立的教学页。',
+        sections: {
+          fitLine: {
+            title: '先把“面积与房价”拟合成一条可解释的直线',
+          },
+          residualLoss: {
+            title: '残差与 MSE：每个点如何被计分',
+          },
+          trainingMotion: {
+            title: '训练如何同时推动斜率、截距和损失变化',
+          },
+          modelLimits: {
+            title: '一条直线的表达边界，以及通往逻辑回归的桥',
+          },
+        },
+      },
       logisticRegression: {
         title: '逻辑回归',
         kicker: 'Linear Classifier',
@@ -341,6 +366,9 @@ export const messages = {
       regularization: 'Regularization',
       epochs: 'Epochs',
       noise: 'Noise',
+      datasetNoise: 'Dataset noise',
+      outlierStrength: 'Outlier strength',
+      includeOutlier: 'Include outlier',
       dataset: 'Dataset',
       hiddenUnits: 'Hidden units',
       activation: 'Activation',
@@ -357,6 +385,8 @@ export const messages = {
         tanh: 'tanh',
         relu: 'ReLU',
         sigmoid: 'Sigmoid',
+        on: 'On',
+        off: 'Off',
       },
     },
     metrics: {
@@ -510,6 +540,26 @@ export const messages = {
           },
           noiseAndBatch: {
             title: 'Batch mode changes what convergence looks like',
+          },
+        },
+      },
+      linearRegression: {
+        title: 'Linear Regression',
+        kicker: 'Regression Studio',
+        intro: 'Use a housing-price story to teach slope, intercept, residuals, MSE, and training dynamics as one connected lesson.',
+        summary: 'Start by fitting a line, then move through residuals, loss, parameter updates, and model limits so linear regression stands on its own.',
+        sections: {
+          fitLine: {
+            title: 'Fit one interpretable line to area and price',
+          },
+          residualLoss: {
+            title: 'Residuals and MSE: how every point gets scored',
+          },
+          trainingMotion: {
+            title: 'Training moves slope, intercept, and loss together',
+          },
+          modelLimits: {
+            title: 'The limit of one line, and the bridge to logistic regression',
           },
         },
       },

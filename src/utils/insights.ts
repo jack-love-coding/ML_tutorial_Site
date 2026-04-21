@@ -75,6 +75,10 @@ export function getTeachingInsights(
     ]
   }
 
+  if (slug === 'linear-regression') {
+    return []
+  }
+
   return [
     {
       id: 'mlp-status',

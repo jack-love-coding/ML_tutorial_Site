@@ -3295,6 +3295,213 @@ p {
   font-size: 1.08rem;
 }
 
+.algorithm-view--linear .story-card {
+  min-height: auto;
+  gap: 22px;
+}
+
+.results-grid--linear {
+  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
+}
+
+.linear-regression-lab {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+  padding: 22px;
+  border-radius: 26px;
+  background:
+    linear-gradient(135deg, rgba(219, 108, 58, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(242, 249, 247, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 44px rgba(15, 23, 40, 0.08);
+}
+
+.linear-regression-lab__workspace {
+  display: grid;
+  gap: 16px;
+}
+
+.linear-regression-lab__viz {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 14px;
+}
+
+.linear-regression-lab__panel,
+.linear-regression-lab__controls,
+.linear-regression-lab__readout,
+.linear-regression-lab__selected,
+.linear-regression-lab__focus,
+.linear-regression-lab__presets {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.linear-regression-lab__panel--data,
+.linear-regression-lab__panel--state {
+  min-width: 0;
+}
+
+.linear-regression-lab__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.linear-regression-lab__heading span,
+.linear-regression-lab__metric span,
+.linear-regression-lab__mini-grid span,
+.linear-regression-lab__focus span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.linear-regression-lab__heading strong {
+  font-size: 1rem;
+  text-align: right;
+}
+
+.linear-regression-lab__data-svg,
+.linear-regression-lab__state-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.linear-axis {
+  stroke: rgba(8, 18, 33, 0.16);
+  stroke-width: 1.5;
+}
+
+.linear-axis-label {
+  fill: rgba(83, 96, 118, 0.9);
+  font-size: 13px;
+}
+
+.linear-residual {
+  stroke: rgba(219, 108, 58, 0.24);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+}
+
+.linear-residual.is-emphasis {
+  stroke: rgba(219, 108, 58, 0.82);
+  stroke-width: 3;
+}
+
+.linear-fit-line {
+  fill: none;
+  stroke: var(--linear-accent, #db6c3a);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.linear-sample {
+  fill: #12303a;
+  stroke: white;
+  stroke-width: 2.5;
+  transition: r 180ms ease, filter 180ms ease;
+}
+
+.linear-sample.is-highlight {
+  fill: var(--linear-accent, #db6c3a);
+  filter: drop-shadow(0 0 8px rgba(219, 108, 58, 0.42));
+}
+
+.linear-state-line {
+  fill: none;
+  stroke: #2e9f79;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.linear-state-line--parameter {
+  stroke: var(--linear-accent, #db6c3a);
+}
+
+.linear-state-dot {
+  fill: #0f1728;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.linear-regression-lab__actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.linear-regression-lab__control-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.linear-regression-lab__readout {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.linear-regression-lab__metric,
+.linear-regression-lab__mini-grid article {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.92);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.linear-regression-lab__metric strong {
+  font-size: 1.05rem;
+}
+
+.linear-regression-lab__selected,
+.linear-regression-lab__focus,
+.linear-regression-lab__presets {
+  grid-column: span 3;
+}
+
+.linear-regression-lab__focus {
+  align-content: start;
+  background: linear-gradient(145deg, rgba(242, 249, 247, 0.95), rgba(255, 250, 245, 0.92));
+}
+
+.linear-regression-lab__focus p {
+  color: var(--ink);
+}
+
+.linear-regression-lab__mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.linear-regression-lab__preset-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.linear-results {
+  gap: 14px;
+}
+
+.linear-results__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
 @keyframes pulse-grid {
   from {
     transform: translate3d(0, 0, 0);
@@ -3659,5 +3866,43 @@ p {
   .home-footer {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+@media (max-width: 1080px) {
+  .linear-regression-lab__viz,
+  .linear-regression-lab__control-grid,
+  .linear-regression-lab__readout,
+  .linear-results__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .linear-regression-lab__selected,
+  .linear-regression-lab__focus,
+  .linear-regression-lab__presets {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .linear-regression-lab {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .linear-regression-lab__panel,
+  .linear-regression-lab__controls,
+  .linear-regression-lab__readout,
+  .linear-regression-lab__selected,
+  .linear-regression-lab__focus,
+  .linear-regression-lab__presets {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .linear-regression-lab__actions,
+  .linear-regression-lab__mini-grid,
+  .linear-regression-lab__preset-list {
+    grid-template-columns: 1fr;
   }
 }
