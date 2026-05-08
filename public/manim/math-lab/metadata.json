@@ -1,0 +1,20 @@
+{
+  "generatedBy": "scripts/manim/render_math_lab.py",
+  "scenes": [
+    {
+      "scene": "VectorDotProductScene",
+      "assetPath": "/manim/math-lab/vector-dot-product.mp4",
+      "posterPath": "/manim/math-lab/vector-dot-product.svg"
+    },
+    {
+      "scene": "MatrixTransformScene",
+      "assetPath": "/manim/math-lab/matrix-transform.mp4",
+      "posterPath": "/manim/math-lab/matrix-transform.svg"
+    },
+    {
+      "scene": "GradientDescentScene",
+      "assetPath": "/manim/math-lab/gradient-descent.mp4",
+      "posterPath": "/manim/math-lab/gradient-descent.svg"
+    }
+  ]
+}

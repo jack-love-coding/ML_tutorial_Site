@@ -17,6 +17,21 @@ export const router = createRouter({
       component: () => import('../views/HomeView.vue'),
     },
     {
+      path: '/math-lab',
+      name: 'math-lab',
+      component: () => import('../modules/math-lab/pages/MathLabHome.vue'),
+    },
+    {
+      path: '/math-lab/diagnostic',
+      name: 'math-lab-diagnostic',
+      component: () => import('../modules/math-lab/pages/DiagnosticPage.vue'),
+    },
+    {
+      path: '/math-lab/modules/:moduleId',
+      name: 'math-lab-module',
+      component: () => import('../modules/math-lab/pages/MathLabModulePage.vue'),
+    },
+    {
       path: '/learn/:slug',
       name: 'algorithm',
       component: () => import('../views/AlgorithmView.vue'),

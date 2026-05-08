@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Dot product vector poster">
+  <rect width="960" height="540" fill="#091326"/>
+  <g stroke="#ffffff" stroke-opacity=".12">
+    <path d="M0 270h960M480 0v540"/>
+    <path d="M120 0v540M240 0v540M360 0v540M600 0v540M720 0v540M840 0v540M0 90h960M0 180h960M0 360h960M0 450h960"/>
+  </g>
+  <g stroke-linecap="round" stroke-width="12" fill="none">
+    <path d="M480 270L710 165" stroke="#84a4ff"/>
+    <path d="M480 270L660 115" stroke="#86e1c5"/>
+    <path d="M480 270L650 270" stroke="#ffb088" stroke-dasharray="20 18"/>
+  </g>
+  <circle cx="480" cy="270" r="9" fill="#fff"/>
+  <circle cx="650" cy="270" r="9" fill="#ffb088"/>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Gradient descent contour poster">
+  <rect width="960" height="540" fill="#091326"/>
+  <g fill="none" stroke="#ffb088" stroke-opacity=".28" stroke-width="5" transform="rotate(-16 480 270)">
+    <ellipse cx="480" cy="270" rx="90" ry="50"/>
+    <ellipse cx="480" cy="270" rx="150" ry="84"/>
+    <ellipse cx="480" cy="270" rx="225" ry="126"/>
+    <ellipse cx="480" cy="270" rx="305" ry="174"/>
+  </g>
+  <path d="M250 115C325 170 365 206 420 230S515 264 560 270S635 275 690 300" fill="none" stroke="#84a4ff" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="250" cy="115" r="15" fill="#86e1c5" stroke="#fff" stroke-width="5"/>
+  <circle cx="690" cy="300" r="15" fill="#fff" stroke="#84a4ff" stroke-width="5"/>
+  <path d="M690 300l-72 44" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+</svg>

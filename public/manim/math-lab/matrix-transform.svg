@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Matrix transform poster">
+  <rect width="960" height="540" fill="#091326"/>
+  <g stroke="#86e1c5" stroke-opacity=".28" stroke-width="2">
+    <path d="M160 420L780 350M135 360L755 290M110 300L730 230M85 240L705 170M60 180L680 110"/>
+    <path d="M170 110L250 430M290 95L370 415M410 80L490 400M530 65L610 385M650 50L730 370"/>
+  </g>
+  <g stroke-linecap="round" stroke-width="12" fill="none">
+    <path d="M420 300L570 260" stroke="#84a4ff"/>
+    <path d="M420 300L505 160" stroke="#86e1c5"/>
+  </g>
+  <circle cx="420" cy="300" r="10" fill="#fff"/>
+  <path d="M420 300L570 260L655 120L505 160Z" fill="#ffb088" fill-opacity=".18" stroke="#ffb088" stroke-width="4"/>
+</svg>

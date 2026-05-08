@@ -24,6 +24,13 @@ const { t } = useI18n()
           {{ t('nav.home') }}
         </router-link>
         <router-link
+          class="site-header__link"
+          :class="{ 'is-current': route.path.startsWith('/math-lab') }"
+          to="/math-lab"
+        >
+          {{ t('nav.mathLab') }}
+        </router-link>
+        <router-link
           v-for="moduleDefinition in moduleOrder"
           :key="moduleDefinition.slug"
           class="site-header__link"

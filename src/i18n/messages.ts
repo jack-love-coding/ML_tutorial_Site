@@ -3,6 +3,7 @@ export const messages = {
     nav: {
       brand: 'ML Atlas',
       home: '课程首页',
+      mathLab: '数学直觉实验室',
       modules: '核心实验',
       subtitle: '用可视化把机器学习训练过程讲清楚',
     },
@@ -323,6 +324,7 @@ export const messages = {
     nav: {
       brand: 'ML Atlas',
       home: 'Home',
+      mathLab: 'Math Lab',
       modules: 'Modules',
       subtitle: 'Explain machine learning through animated training feedback',
     },
