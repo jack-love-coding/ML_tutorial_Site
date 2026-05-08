@@ -161,3 +161,55 @@ class TaylorPolynomialScene(Scene):
         final_caption = Text("degree 5: closer near the center", font_size=25).to_edge(DOWN)
         self.play(Transform(linear, fifth), Create(window), Transform(caption, final_caption))
         self.wait(0.7)
+
+
+class MonteCarloSamplingScene(Scene):
+    def construct(self):
+        axes = Axes(
+            x_range=[0, 1.05, 0.25],
+            y_range=[0, 1.05, 0.25],
+            x_length=4.8,
+            y_length=4.8,
+            tips=False,
+            axis_config={"stroke_opacity": 0.55},
+        ).shift(DOWN * 0.15)
+        title = Text("Monte Carlo turns area into a count", font_size=31).to_edge(UP)
+        square = VGroup(
+            Line(axes.c2p(0, 0), axes.c2p(1, 0), color=WHITE, stroke_opacity=0.7),
+            Line(axes.c2p(1, 0), axes.c2p(1, 1), color=WHITE, stroke_opacity=0.7),
+            Line(axes.c2p(1, 1), axes.c2p(0, 1), color=WHITE, stroke_opacity=0.7),
+            Line(axes.c2p(0, 1), axes.c2p(0, 0), color=WHITE, stroke_opacity=0.7),
+        )
+        arc = axes.plot(lambda x: math.sqrt(max(0, 1 - x * x)), x_range=[0, 1], color=GREEN, stroke_width=6)
+        caption = Text("count points inside the quarter circle", font_size=25).to_edge(DOWN)
+
+        samples = [
+            (0.07, 0.18), (0.14, 0.82), (0.22, 0.41), (0.31, 0.92), (0.38, 0.12),
+            (0.46, 0.55), (0.53, 0.73), (0.61, 0.22), (0.68, 0.64), (0.75, 0.33),
+            (0.82, 0.49), (0.88, 0.18), (0.94, 0.79), (0.17, 0.24), (0.28, 0.68),
+            (0.35, 0.35), (0.43, 0.87), (0.57, 0.46), (0.65, 0.83), (0.72, 0.11),
+            (0.84, 0.38), (0.91, 0.55), (0.11, 0.57), (0.24, 0.91), (0.49, 0.28),
+            (0.58, 0.66), (0.69, 0.72), (0.77, 0.58), (0.86, 0.08), (0.96, 0.29),
+        ]
+        dots = VGroup(
+            *[
+                Dot(
+                    axes.c2p(x, y),
+                    radius=0.042,
+                    color=BLUE if x * x + y * y <= 1 else ORANGE,
+                )
+                for x, y in samples
+            ]
+        )
+        inside_count = sum(1 for x, y in samples if x * x + y * y <= 1)
+        counter = Text(f"{inside_count} of {len(samples)} samples land inside", font_size=25).to_edge(DOWN)
+        pi_caption = Text("the fraction becomes an area estimate", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(title), FadeIn(axes), Create(square), Create(arc), FadeIn(caption))
+        self.wait(0.3)
+        self.play(FadeIn(VGroup(*dots[:10])), run_time=0.8)
+        self.play(FadeIn(VGroup(*dots[10:20])), run_time=0.8)
+        self.play(FadeIn(VGroup(*dots[20:])), Transform(caption, counter), run_time=0.8)
+        self.wait(0.4)
+        self.play(Transform(caption, pi_caption))
+        self.wait(0.6)

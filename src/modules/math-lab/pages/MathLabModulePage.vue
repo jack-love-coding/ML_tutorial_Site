@@ -9,6 +9,7 @@ import ManimPlayer from '../components/ManimPlayer.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
 import MathGradientLab from '../labs/MathGradientLab.vue'
 import MatrixTransformLab from '../labs/MatrixTransformLab.vue'
+import MonteCarloLab from '../labs/MonteCarloLab.vue'
 import NumericalMiniLab from '../labs/NumericalMiniLab.vue'
 import TaylorSeriesLab from '../labs/TaylorSeriesLab.vue'
 import VectorDotProductLab from '../labs/VectorDotProductLab.vue'
@@ -196,6 +197,10 @@ function labsForSection(section: MathLabSection): LabConfig[] {
                   v-else-if="lab.componentName === 'TaylorSeriesLab'"
                   :locale="currentLocale"
                 />
+                <MonteCarloLab
+                  v-else-if="lab.componentName === 'MonteCarloLab'"
+                  :locale="currentLocale"
+                />
                 <NumericalMiniLab
                   v-else
                   :module-id="moduleDefinition.id"
@@ -236,6 +241,10 @@ function labsForSection(section: MathLabSection): LabConfig[] {
               />
               <TaylorSeriesLab
                 v-else-if="lab.componentName === 'TaylorSeriesLab'"
+                :locale="currentLocale"
+              />
+              <MonteCarloLab
+                v-else-if="lab.componentName === 'MonteCarloLab'"
                 :locale="currentLocale"
               />
               <NumericalMiniLab

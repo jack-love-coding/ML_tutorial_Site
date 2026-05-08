@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
+import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
 import type { MathLabLocale, MathLabModuleId, QuizAttempt, QuizItem } from '../types/mathLab'
 import { buildQuizAttempt, evaluateQuizAnswer } from '../utils/quiz'
 
@@ -58,12 +59,12 @@ function submit() {
 
     <div class="math-checkpoint__list">
       <article v-for="quiz in quizzes" :key="quiz.id" class="math-checkpoint__item">
-        <p>{{ quiz.prompt[locale] }}</p>
+        <MarkdownMathContent :source="quiz.prompt[locale]" />
 
         <div v-if="quiz.choices?.length" class="math-checkpoint__choices">
           <label v-for="choice in quiz.choices" :key="choice.id">
             <input v-model="answers[quiz.id]" type="radio" :name="quiz.id" :value="choice.id" />
-            <span>{{ choice.label[locale] }}</span>
+            <MarkdownMathContent :source="choice.label[locale]" />
           </label>
         </div>
 
@@ -92,7 +93,7 @@ function submit() {
                   : 'Review needed'
             }}
           </strong>
-          <p>{{ quiz.explanation[locale] }}</p>
+          <MarkdownMathContent :source="quiz.explanation[locale]" />
         </div>
       </article>
     </div>

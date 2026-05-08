@@ -1,5 +1,6 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
+import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildTaylorSeriesModule } from './taylorSeriesModule.ts'
 import type { MathLabModule, MathLabModuleId } from '../types/mathLab'
 
@@ -10,6 +11,10 @@ const supplementalModules = Object.fromEntries(
 export const mathLabModules: MathLabModule[] = importedMathNotes.map((moduleDefinition) => {
   if (moduleDefinition.id === 'taylor-series') {
     return buildTaylorSeriesModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'monte-carlo') {
+    return buildMonteCarloModule(moduleDefinition)
   }
 
   const supplement = supplementalModules[moduleDefinition.id]

@@ -20,6 +20,11 @@
       "scene": "TaylorPolynomialScene",
       "assetPath": "/manim/math-lab/taylor-polynomial.mp4",
       "posterPath": "/manim/math-lab/taylor-polynomial.svg"
+    },
+    {
+      "scene": "MonteCarloSamplingScene",
+      "assetPath": "/manim/math-lab/monte-carlo-sampling.mp4",
+      "posterPath": "/manim/math-lab/monte-carlo-sampling.svg"
     }
   ]
 }

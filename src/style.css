@@ -4626,6 +4626,111 @@ p {
   text-transform: uppercase;
 }
 
+.monte-carlo-lab {
+  align-items: stretch;
+}
+
+.monte-carlo-lab__visual,
+.monte-carlo-lab__controls {
+  min-width: 0;
+}
+
+.monte-carlo-lab__visual {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.monte-carlo-lab__plot,
+.monte-carlo-lab__bars {
+  display: block;
+  width: 100%;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 18px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f7fbfa);
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+.monte-carlo-lab__plot {
+  min-height: 320px;
+}
+
+.monte-carlo-lab__plot rect,
+.monte-carlo-lab__plot path,
+.monte-carlo-lab__plot line,
+.monte-carlo-lab__bars line {
+  fill: none;
+  stroke: rgba(15, 23, 40, 0.24);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.monte-carlo-lab__plot circle {
+  fill: #d8663a;
+  stroke: white;
+  stroke-width: 1.2;
+}
+
+.monte-carlo-lab__plot circle.is-inside,
+.monte-carlo-lab__legend i.is-inside,
+.monte-carlo-lab__bars rect {
+  fill: #247a73;
+  background: #247a73;
+}
+
+.monte-carlo-lab__bars {
+  min-height: 140px;
+  padding: 8px;
+}
+
+.monte-carlo-lab__bars rect {
+  opacity: 0.86;
+}
+
+.monte-carlo-lab__bars text {
+  fill: var(--muted);
+  font-size: 0.72rem;
+}
+
+.monte-carlo-lab__legend,
+.monte-carlo-lab__sequence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.monte-carlo-lab__legend span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.monte-carlo-lab__legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #d8663a;
+}
+
+.monte-carlo-lab__sequence {
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(36, 122, 115, 0.08);
+}
+
+.monte-carlo-lab__sequence strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
 .taylor-series-lab {
   align-items: stretch;
 }
@@ -4908,11 +5013,20 @@ p {
 }
 
 .math-mini-controls input,
+.math-mini-controls select,
 .matrix-input-grid input,
 .math-checkpoint__numeric input {
   width: 100%;
   min-height: 40px;
   accent-color: #3868ff;
+}
+
+.math-mini-controls select {
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
 }
 
 .matrix-input-grid {

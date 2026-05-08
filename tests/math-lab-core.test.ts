@@ -13,6 +13,14 @@ import {
   norm,
   projection,
 } from '../src/modules/math-lab/utils/math.ts'
+import {
+  estimateIntegralXSquared,
+  estimatePiMonteCarlo,
+  findLcgPeriod,
+  lcgConfigForKind,
+  lcgSequence,
+  monteCarloPiStandardError,
+} from '../src/modules/math-lab/utils/monteCarlo.ts'
 import { evaluateQuizAnswer, scoreQuiz } from '../src/modules/math-lab/utils/quiz.ts'
 import {
   appendQuizAttempt,
@@ -90,7 +98,7 @@ test('imported math foundation modules include complete topics 6-19', () => {
     mathLabModules.map((moduleDefinition) => moduleDefinition.title.en),
     [
       'Taylor Series',
-      'Random Number Generators and Monte Carlo Method',
+      'Random Number Generators and Monte Carlo Methods',
       'Vectors, Matrices, and Norms',
       'LU Decomposition for Solving Linear Equations',
       'Sparse Matrices',
@@ -118,6 +126,8 @@ test('imported math foundation modules include complete topics 6-19', () => {
     assert.equal(englishBody.length > 4000, true, `${moduleDefinition.id} should not use the previous shortened body`)
     if (moduleDefinition.id === 'taylor-series') {
       assert.match(englishBody, /From Polynomials to Local Models|Constructing the Taylor Polynomial/)
+    } else if (moduleDefinition.id === 'monte-carlo') {
+      assert.match(englishBody, /Where Reproducible Randomness Comes From|Writing Areas and Integrals as Sample Averages/)
     } else {
       assert.match(englishBody, /Learning Objectives|Learning objectives|Dense Matrices/)
     }
@@ -132,7 +142,7 @@ test('key math foundation topics are connected to interactive or video enhanceme
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
 
   assert.ok(byId['taylor-series']!.labs.some((lab) => lab.componentName === 'TaylorSeriesLab'))
-  assert.ok(byId['monte-carlo']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
+  assert.ok(byId['monte-carlo']!.labs.some((lab) => lab.componentName === 'MonteCarloLab'))
   assert.ok(byId['vectors-matrices-norms']!.labs.some((lab) => lab.componentName === 'VectorDotProductLab'))
   assert.ok(byId['vectors-matrices-norms']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
   assert.ok(byId['lu-decomposition']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
@@ -183,6 +193,50 @@ test('taylor module markdown renders formulas without raw delimiters', () => {
   assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
 })
 
+test('monte carlo module presents repaired bilingual content and inline sampling lab', () => {
+  const monteCarlo = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'monte-carlo')
+  assert.ok(monteCarlo)
+
+  assert.equal(monteCarlo.title['zh-CN'], '随机数生成器与蒙特卡洛方法')
+  assert.equal(monteCarlo.title.en, 'Random Number Generators and Monte Carlo Methods')
+  assert.ok(monteCarlo.learningObjectives.length >= 4)
+  assert.ok(monteCarlo.concepts.length >= 1)
+  assert.ok(monteCarlo.quizzes.length >= 2)
+  assert.ok(monteCarlo.misconceptions.length >= 2)
+  assert.ok(monteCarlo.labs.some((lab) => lab.componentName === 'MonteCarloLab'))
+  assert.ok(monteCarlo.visuals.some((visual) => visual.id === 'monte-carlo-sampling-video'))
+  assert.ok(monteCarlo.sections.some((section) => section.visualIds?.includes('monte-carlo-sampling-video')))
+  assert.ok(monteCarlo.sections.some((section) => section.labIds?.includes('monte-carlo-sampling-lab')))
+
+  const zhBody = monteCarlo.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = monteCarlo.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /可复现的随机数/)
+  assert.match(zhBody, /线性同余生成器/)
+  assert.match(zhBody, /\/math-lab\/generated\/monte-carlo-sampling-illustration\.png/)
+  assert.match(zhBody, /典型误差规模|误差为什么通常按/)
+  assert.match(zhBody, /小批量梯度下降/)
+  assert.match(enBody, /Reproducible Randomness/)
+  assert.match(enBody, /linear congruential generator/)
+  assert.match(enBody, /Mini-batch gradient descent/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Source Note/)
+  assert.doesNotMatch(zhBody, /One of the most common applications|Consider using Monte Carlo|Below is the Python code|What is a pseudo-random/)
+  assert.doesNotMatch(enBody, /随机数生成器具有|蒙特卡洛方法通常|复习问题/)
+})
+
+test('monte carlo module markdown renders formulas without raw delimiters', () => {
+  const monteCarlo = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'monte-carlo')
+  assert.ok(monteCarlo)
+
+  const source = monteCarlo.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(source)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
 test('taylor approximation utilities expose expected error trends', () => {
   const degreeOne = evaluateTaylorApproximation('sin', 0.8, 0, 1)
   const degreeThree = evaluateTaylorApproximation('sin', 0.8, 0, 3)
@@ -193,6 +247,36 @@ test('taylor approximation utilities expose expected error trends', () => {
   const expApprox = evaluateTaylorApproximation('exp', 1.1, 0, 5)
   assert.ok(expApprox.remainderBound >= expApprox.error)
   assert.ok(expApprox.nextTermEstimate > 0)
+})
+
+test('monte carlo utilities expose reproducible sampling and expected error scaling', () => {
+  const stableConfig = lcgConfigForKind('stable', 17)
+  const shortConfig = lcgConfigForKind('short-cycle', 17)
+  const shortSequence = lcgSequence(shortConfig, 6)
+  const shortPeriod = findLcgPeriod(shortConfig, 100)
+
+  assert.equal(shortSequence.length, 6)
+  assert.ok(shortSequence.every((value) => value > 0 && value < shortConfig.modulus))
+  assert.ok(shortPeriod && shortPeriod < shortConfig.modulus)
+  assert.equal(findLcgPeriod(stableConfig, 500), undefined)
+
+  const se100 = monteCarloPiStandardError(100)
+  const se400 = monteCarloPiStandardError(400)
+  assert.ok(se400 < se100)
+  assert.ok(Math.abs(se100 / se400 - 2) < 1e-12)
+
+  const piEstimate = estimatePiMonteCarlo({
+    samples: 3000,
+    seed: 17,
+    generatorKind: 'stable',
+    visiblePoints: 50,
+  })
+  assert.equal(piEstimate.points.length, 50)
+  assert.ok(piEstimate.estimate > 2.9 && piEstimate.estimate < 3.35)
+  assert.ok(piEstimate.standardError > 0)
+
+  const integralEstimate = estimateIntegralXSquared(8000, 23, 'stable')
+  assert.ok(integralEstimate.absoluteError < 0.02)
 })
 
 test('markdown renderer supports formulas, tables, code blocks, images, and callouts', () => {
