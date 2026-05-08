@@ -24,46 +24,78 @@ function section(
 const sections: MathLabSection[] = [
   section(
     'monte-carlo-reproducible-randomness',
-    copy('可复现的随机数从哪里来', 'Where Reproducible Randomness Comes From'),
+    copy('随机数生成器：真随机与伪随机', 'Random Number Generators: True Random and Pseudorandom'),
     copy(
-      md`随机数生成器（random number generator, RNG）回答的是一个计算问题：程序怎样产生一串看起来无法预测、但又能被实验复现的数？
+      md`随机数生成器（random number generator, RNG）是一类算法或方法，用来生成一串在合理范围内难以预测的数。通常有两种主要路线：
 
-真实随机数来自物理过程，例如掷骰子、热噪声或大气噪声。数值计算里更常用的是伪随机数：它由确定性算法生成，给定相同初始状态就会产生同一串结果。这个初始状态称为种子（seed）。这不是缺点；在调试模型、复现实验和比较算法时，种子反而很重要。
+| 方法 | 含义 | 例子 |
+| --- | --- | --- |
+| 真随机方法 | 依靠物理随机现象产生数值 | 公平骰子、大气噪声、热噪声 |
+| 伪随机方法 | 由计算算法生成看似随机、实际可预测且可复现的序列 | 编程语言里的常见 RNG |
 
-好的伪随机数生成器通常需要这些性质：
+数值计算里更常用伪随机数，因为它既能模拟随机抽样，又能通过相同初始条件复现实验。这个初始条件称为种子（seed）。如果算法和 seed 不变，生成的序列也不变；这对调试模型、复现实验、比较算法尤其关键。
+
+由于计算机只能表示有限数量的状态，任何伪随机序列最终都会重复。生成器的周期（period）定义为序列开始重复前最长的不重复前缀。周期太短时，Monte Carlo 还没完成抽样，点云就可能进入循环。
+
+好的随机数生成器通常需要这些性质：
 
 | 性质 | 含义 | 为什么重要 |
 | --- | --- | --- |
-| 随机模式 | 通过常见统计随机性检验 | 避免采样点出现明显偏向 |
+| 随机模式 | 能通过常见统计随机性检验 | 避免采样点出现明显偏向 |
 | 效率 | 生成速度快，占用存储少 | Monte Carlo 常常需要大量样本 |
 | 长周期 | 序列重复前尽量长 | 避免抽样还没完成就进入循环 |
 | 可重复 | 同一算法和种子给出同一序列 | 便于复现实验和定位问题 |
 | 可移植 | 不同平台表现一致 | 便于跨机器比较结果 |
 
-一个经典例子是线性同余生成器（linear congruential generator, LCG）：
+一个经典伪随机生成器是线性同余生成器（linear congruential generator, LCG）：
 
 $$
-x_0=\text{seed},\qquad x_{k+1}=(a x_k+c)\bmod M.
+x_0=\text{seed},\qquad x_{n+1}=(a x_n+c)\bmod M.
 $$
 
-其中 \(a\) 是乘数，\(c\) 是增量，\(M\) 是模数。LCG 的周期不会超过 \(M\)，并且实际周期取决于 \(a,c,M\) 的选择。
+其中 \(a\) 是乘数，\(c\) 是增量，\(M\) 是模数。LCG 的周期不会超过 \(M\)，实际周期可能更短，并且生成质量取决于 \(a,c,M\) 的选择。
 
-**小例子。** 取 \(x_0=1\)、\(a=2\)、\(c=1\)、\(M=10\)，得到
+**小例子。** 取 \(x_0=1\)、\(a=2\)、\(c=1\)、\(M=10\)，也就是“上一项乘 \(2\)，加 \(1\)，再对 \(10\) 取模”，得到
 
 $$
 1,3,7,5,1,3,7,5,\ldots
 $$
 
-这个生成器会很快重复，因此不适合认真采样。但它清楚展示了伪随机数的核心：序列由公式决定，种子控制从哪里开始，周期决定多久以后重复。`,
-      md`A random number generator (RNG) answers a computational question: how can a program produce a sequence that looks unpredictable while still allowing experiments to be reproduced?
+下面的代码保留了这个 LCG 递推结构：
 
-Truly random numbers come from physical processes, such as dice, thermal noise, or atmospheric noise. Numerical computing more often uses pseudorandom numbers: a deterministic algorithm produces a sequence, and the same initial state produces the same sequence again. That initial state is the seed. This is not a weakness; seeds are essential for debugging models, reproducing experiments, and comparing algorithms.
+~~~python
+def lcg_gen_next(modulus: int, a: int, c: int, xk: int) -> int:
+    """Uses an LCG to generate the next pseudorandom number."""
+    xk_p1 = (a * xk + c) % modulus
+    return xk_p1
 
-A good pseudorandom generator usually needs these properties:
+x = 1  # initial seed
+M = 10
+a = 2
+c = 1
+
+for i in range(100):
+    print(x)
+    x = lcg_gen_next(M, a, c, x)
+~~~
+
+这个生成器会很快重复，因此不适合认真采样。但它清楚展示了伪随机数的核心：序列由公式决定，seed 控制从哪里开始，period 控制多久以后重复。`,
+      md`Random number generators (RNGs) are algorithms or methods for producing a sequence of numbers that cannot be reasonably predicted. There are usually two principal routes:
+
+| Method | Meaning | Examples |
+| --- | --- | --- |
+| Truly random methods | Generate values from physical random phenomena | A fair die, atmospheric noise, thermal noise |
+| Pseudorandom methods | Use computational algorithms to produce apparently random but predictable and reproducible sequences | Common programming-language RNGs |
+
+Numerical computing often uses pseudorandom numbers because they can mimic random sampling while keeping experiments reproducible. The initial condition is called the seed. If the algorithm and seed are the same, the sequence is the same; that is essential for debugging models, reproducing experiments, and comparing algorithms.
+
+Because a computer can represent only finitely many states, every pseudorandom sequence must eventually repeat. The period of a generator is the maximum length of the repetition-free prefix of the sequence. If the period is too short, a Monte Carlo experiment may enter a cycle before it has collected enough useful samples.
+
+A good random number generator usually has these properties:
 
 | Property | Meaning | Why it matters |
 | --- | --- | --- |
-| Random-looking pattern | Passes common statistical tests | Prevents obvious sampling bias |
+| Random pattern | Passes common statistical tests of randomness | Prevents obvious sampling bias |
 | Efficiency | Fast generation and little storage | Monte Carlo often needs many samples |
 | Long period | Repeats only after a long sequence | Avoids cycling before the experiment is done |
 | Repeatability | Same algorithm and seed give the same sequence | Makes experiments reproducible |
@@ -72,16 +104,34 @@ A good pseudorandom generator usually needs these properties:
 A classic example is a linear congruential generator (LCG):
 
 $$
-x_0=\text{seed},\qquad x_{k+1}=(a x_k+c)\bmod M.
+x_0=\text{seed},\qquad x_{n+1}=(a x_n+c)\bmod M.
 $$
 
-Here \(a\) is the multiplier, \(c\) is the increment, and \(M\) is the modulus. The period of an LCG cannot exceed \(M\), and the actual period depends on the choices of \(a,c,M\).
+Here \(a\) is the multiplier, \(c\) is the increment, and \(M\) is the modulus. The period of an LCG cannot exceed \(M\), may be less than \(M\), and depends on the choices of \(a,c,M\).
 
-**Small example.** With \(x_0=1\), \(a=2\), \(c=1\), and \(M=10\), the sequence is
+**Small example.** With \(x_0=1\), \(a=2\), \(c=1\), and \(M=10\), the rule doubles the previous number, adds \(1\), and takes the result modulo \(10\). The sequence is
 
 $$
 1,3,7,5,1,3,7,5,\ldots
 $$
+
+The same recurrence can be written directly in Python:
+
+~~~python
+def lcg_gen_next(modulus: int, a: int, c: int, xk: int) -> int:
+    """Uses an LCG to generate the next pseudorandom number."""
+    xk_p1 = (a * xk + c) % modulus
+    return xk_p1
+
+x = 1  # initial seed
+M = 10
+a = 2
+c = 1
+
+for i in range(100):
+    print(x)
+    x = lcg_gen_next(M, a, c, x)
+~~~
 
 This generator repeats quickly, so it is not suitable for serious sampling. It does show the core idea: the sequence is determined by a formula, the seed controls where it starts, and the period controls when it repeats.`,
     ),
@@ -90,7 +140,15 @@ This generator repeats quickly, so it is not suitable for serious sampling. It d
     'monte-carlo-random-variables',
     copy('随机变量与期望', 'Random Variables and Expectation'),
     copy(
-      md`Monte Carlo 的数学语言来自随机变量。随机变量 \(X\) 把一个随机过程的结果映射成数值：一次投硬币可以映射为 \(0\) 或 \(1\)，明天降雨量可以映射为毫米数，模型 dropout 的掩码可以映射为一组 \(0/1\) 开关。
+      md`Monte Carlo 的数学语言来自随机变量。随机变量 \(X\) 可以理解为一个函数：它把不可预测的随机过程结果映射成数值。
+
+例如：
+
+- 明天会下多少雨？
+- 黄油面包落地时，抹油面是否朝下？
+- 一次投硬币是否为正面？
+
+这些过程单次结果无法提前精确知道，但大量重复后可以用长期平均来近似。这正是大数定律提供的直觉。
 
 如果离散随机变量 \(X\) 以概率 \(p_i\) 取值 \(x_i\)，并且 \(\sum_{i=1}^{m}p_i=1\)，它的期望为
 
@@ -116,8 +174,18 @@ $$
 \mathbb{E}[X]=1\cdot 0.5+0\cdot 0.5=0.5.
 $$
 
-一次投掷只会得到 \(0\) 或 \(1\)，不会得到 \(0.5\)。但如果做很多次投掷并取平均，平均值会趋近 \(0.5\)。这就是大数定律提供的直觉：样本均值可以作为期望的可计算替身。`,
-      md`Monte Carlo uses the language of random variables. A random variable \(X\) maps the outcome of a random process to a number: a coin toss can map to \(0\) or \(1\), tomorrow's rainfall can map to millimeters, and a dropout mask in a model can map to a collection of \(0/1\) switches.
+一次投掷只会得到 \(0\) 或 \(1\)，不会得到 \(0.5\)。但如果做很多次投掷并取平均，平均值会趋近 \(0.5\)。这就是大数定律提供的直觉：样本均值可以作为期望的可计算替身。
+
+如果我们把一枚公平硬币投掷 \(1000\) 次，记录正面次数，再把这个 \(1000\) 次投掷实验重复 \(N\) 次（例如 \(N=100\)），每次记录的比例大多会接近 \(0.5\)。这些实验结果会围绕 \(0.5\) 形成一个集中分布；样本越多，平均结果越稳定。`,
+      md`Monte Carlo uses the language of random variables. A random variable \(X\) can be viewed as a function that maps the outcome of an unpredictable random process to a numerical quantity.
+
+Examples include:
+
+- How much rain will fall tomorrow?
+- Will my buttered bread land face-down?
+- Is a coin toss heads?
+
+We do not know the exact result of one trial in advance, but repeated trials allow us to approximate the long-run outcome. That is the intuition behind the law of large numbers.
 
 If a discrete random variable \(X\) takes value \(x_i\) with probability \(p_i\), and \(\sum_{i=1}^{m}p_i=1\), its expectation is
 
@@ -143,19 +211,23 @@ $$
 \mathbb{E}[X]=1\cdot 0.5+0\cdot 0.5=0.5.
 $$
 
-One toss gives either \(0\) or \(1\), not \(0.5\). But after many tosses, the average approaches \(0.5\). This is the intuition behind the law of large numbers: a sample average can act as a computable substitute for an expectation.`,
+One toss gives either \(0\) or \(1\), not \(0.5\). But after many tosses, the average approaches \(0.5\). This is the intuition behind the law of large numbers: a sample average can act as a computable substitute for an expectation.
+
+If we toss a fair coin \(1000\) times, record the number of heads, and repeat that \(1000\)-toss experiment \(N\) times, say \(N=100\), most recorded proportions land near \(0.5\). Those repeated results form a distribution concentrated around \(0.5\); with enough samples, the average behavior becomes stable.`,
     ),
   ),
   section(
     'monte-carlo-estimators',
     copy('把面积和积分写成样本平均', 'Writing Areas and Integrals as Sample Averages'),
     copy(
-      md`Monte Carlo 方法依赖重复随机抽样来近似目标量。它特别适合两类问题：
+      md`Monte Carlo 方法是一类依赖重复随机抽样来近似目标量的算法。它特别适合两类问题：
 
-- 过程本身带有随机性，例如随机模拟、抽样推断和不确定性估计。
-- 目标是确定的，但直接计算太贵，尤其是高维积分、复杂区域面积或体积。
+- 过程本身是非确定性的，例如随机模拟、抽样推断和不确定性估计。
+- 目标是确定的，但系统复杂或维度很高，直接计算太贵，例如非平凡函数的积分、复杂区域面积或体积。
 
-估计圆面积是最经典的直觉图像。把四分之一单位圆放进单位正方形，在正方形中均匀抽点。如果落在圆内的比例是 \(\hat p\)，那么
+估计圆面积是最经典的直觉图像。先在包围圆的正方形区域中均匀抽取大量点，再检查哪些点落在圆内。如果圆内点比例是 \(p\)，就用 \(p\) 乘以正方形面积来近似圆面积。这个做法成立有两个原因：均匀随机抽样让点覆盖整个区域；大数定律说明样本比例会随着样本增加而接近真实面积比例。
+
+在本章实验台里，我们使用更容易画清楚的四分之一单位圆：把圆心放在单位正方形左下角。如果落在四分之一圆内的比例是 \(\hat p\)，那么
 
 $$
 \frac{\pi}{4}\approx \hat p,\qquad \hat\pi=4\hat p.
@@ -179,17 +251,21 @@ $$
 \hat I_N=(b-a)S_N=(b-a)\frac{1}{N}\sum_{i=1}^{N}f(X_i).
 $$
 
+根据大数定律，当 \(N\to\infty\) 时，\(S_N\to \mathbb{E}[f(X)]\)，所以 \(\hat I_N\to \int_a^b f(x)\,dx\)。
+
 下面这张无坐标插图只用来建立直觉：随机点铺满整个正方形，落在四分之一圆区域里的点数比例就代表面积比例。
 
 ![随机采样落入四分之一圆区域的抽象示意图](/math-lab/generated/monte-carlo-sampling-illustration.png)
 
 下面的实验台把这两个想法放在一起：用可复现的 LCG 采样估计 \(\pi\)，并展示样本数、种子和生成器周期如何影响读数。`,
-      md`Monte Carlo methods approximate a target quantity by repeated random sampling. They are especially useful for two kinds of problems:
+      md`Monte Carlo methods are algorithms that approximate a target quantity by repeated random sampling. They are especially useful for two kinds of problems:
 
-- The process itself is random, such as stochastic simulation, sampling-based inference, and uncertainty estimation.
-- The target is deterministic but expensive to compute directly, especially high-dimensional integrals or areas and volumes of complicated regions.
+- The process itself is nondeterministic, such as stochastic simulation, sampling-based inference, and uncertainty estimation.
+- The target is deterministic but the system is complicated or high-dimensional, so direct computation is expensive, such as nontrivial integrals or areas and volumes of complicated regions.
 
-Estimating the area of a circle gives the classic picture. Put a quarter unit circle inside the unit square and sample uniformly in the square. If the fraction of points inside the circle is \(\hat p\), then
+Estimating the area of a circle gives the classic picture. First sample many points uniformly in a square region around the circle. Then check which points are inside the circle. If the fraction inside is \(p\), multiplying \(p\) by the square's area approximates the circle's area. This works for two reasons: uniform random sampling spreads points across the region, and the law of large numbers makes the sample fraction converge toward the true area fraction.
+
+In this chapter's lab, we use a quarter unit circle because it is easy to display clearly: the circle center is at the lower-left corner of the unit square. If the fraction of points inside the quarter circle is \(\hat p\), then
 
 $$
 \frac{\pi}{4}\approx \hat p,\qquad \hat\pi=4\hat p.
@@ -212,6 +288,8 @@ and then estimate the integral by
 $$
 \hat I_N=(b-a)S_N=(b-a)\frac{1}{N}\sum_{i=1}^{N}f(X_i).
 $$
+
+By the law of large numbers, as \(N\to\infty\), \(S_N\to \mathbb{E}[f(X)]\). Therefore \(\hat I_N\to \int_a^b f(x)\,dx\).
 
 The coordinate-free illustration below is only for intuition: random points fill the whole square, and the fraction landing in the quarter-circle region represents the area fraction.
 
@@ -237,6 +315,12 @@ $$
 \sqrt{N}(S_N-\mu)\Rightarrow N(0,\sigma^2).
 $$
 
+这里的方差项应理解为 \(f(X)\) 的方差。令 \(Z\sim N(0,\sigma^2)\)，Monte Carlo 样本均值误差 \(err=S_N-\mu\) 可以近似写成
+
+$$
+err\approx \frac{1}{\sqrt{N}}Z.
+$$
+
 这意味着样本平均的典型误差规模约为
 
 $$
@@ -258,6 +342,12 @@ $$
 \sqrt{N}(S_N-\mu)\Rightarrow N(0,\sigma^2).
 $$
 
+For an integral estimator, this variance term is the variance of \(f(X)\). Let \(Z\sim N(0,\sigma^2)\). The Monte Carlo sample-average error \(err=S_N-\mu\) can be approximated by
+
+$$
+err\approx \frac{1}{\sqrt{N}}Z.
+$$
+
 So the typical error scale of the sample average is roughly
 
 $$
@@ -267,6 +357,86 @@ $$
 Doubling the sample count therefore does not cut the error in half. To roughly halve the error, you usually need about \(4\) times as many samples. That sounds slow, but the advantage is dimension behavior: in many high-dimensional integration problems, grid-based methods explode with dimension, while Monte Carlo keeps sampling.
 
 It also has clear failure modes. If samples are not drawn from the intended distribution, the estimate is biased; if the function has high variance, the error constant is large; if a pseudorandom generator has a short period or strong correlation, many points may carry too little effective information.`,
+    ),
+  ),
+  section(
+    'monte-carlo-code-example',
+    copy('代码例子：二维区域上的积分', 'Code Example: Integrating Over a 2D Region'),
+    copy(
+      md`Monte Carlo 不只用于一维积分。对二维矩形区域
+
+$$
+[x_{\min},x_{\max}]\times [y_{\min},y_{\max}]
+$$
+
+上的函数 \(f(x,y)=x+y\)，可以在矩形中均匀抽样点 \((x,y)\)，把函数值平均后再乘以矩形面积：
+
+$$
+\hat I_N
+=
+\left((x_{\max}-x_{\min})(y_{\max}-y_{\min})\right)
+\frac{1}{N}\sum_{i=1}^{N}f(x_i,y_i).
+$$
+
+下面的代码保留了这个二维 Monte Carlo 积分结构。变量 \(n,x_{\min},x_{\max},y_{\min},y_{\max}\) 在使用前需要由调用者设定。
+
+~~~python
+import random
+
+def f(x: float, y: float) -> float:
+    """返回函数 f 在点 (x, y) 处的值。"""
+    return x + y
+
+total = 0.0
+
+# n 是 Monte Carlo 积分使用的采样点数量
+for i in range(n):
+    x = random.uniform(x_min, x_max)
+    y = random.uniform(y_min, y_max)
+    total += f(x, y)
+
+# 积分估计值：平均函数值乘以矩形面积
+est = (1.0 / n * total) * ((x_max - x_min) * (y_max - y_min))
+~~~
+
+这个例子的重点不是 \(x+y\) 本身，而是结构：在目标区域均匀采样、计算函数值、求平均、再乘以区域大小。维度升高时，规则网格的点数会迅速膨胀，而 Monte Carlo 仍然可以继续用“随机样本平均”来工作。`,
+      md`Monte Carlo is not limited to one-dimensional integrals. For the function \(f(x,y)=x+y\) over the rectangular region
+
+$$
+[x_{\min},x_{\max}]\times [y_{\min},y_{\max}],
+$$
+
+sample points \((x,y)\) uniformly from the rectangle, average the function values, and multiply by the rectangle's area:
+
+$$
+\hat I_N
+=
+\left((x_{\max}-x_{\min})(y_{\max}-y_{\min})\right)
+\frac{1}{N}\sum_{i=1}^{N}f(x_i,y_i).
+$$
+
+The code below keeps that 2D Monte Carlo integration structure. The variables \(n,x_{\min},x_{\max},y_{\min},y_{\max}\) need to be set before use.
+
+~~~python
+import random
+
+def f(x: float, y: float) -> float:
+    """Returns the value for function f at point (x, y)."""
+    return x + y
+
+total = 0.0
+
+# n is the number of points used in Monte Carlo integration
+for i in range(n):
+    x = random.uniform(x_min, x_max)
+    y = random.uniform(y_min, y_max)
+    total += f(x, y)
+
+# estimated integral value: average function value times rectangle area
+est = (1.0 / n * total) * ((x_max - x_min) * (y_max - y_min))
+~~~
+
+The point of the example is not the function \(x+y\) itself; it is the structure: sample uniformly from the target region, evaluate the function, average the values, and multiply by the region size. As dimension increases, regular grids become expensive quickly, while Monte Carlo can still proceed by averaging random samples.`,
     ),
   ),
   section(
@@ -375,24 +545,28 @@ $$
     'monte-carlo-review',
     copy('复习问题', 'Review Questions'),
     copy(
-      md`1. 伪随机数生成器为什么可以同时“随机”和“可复现”？
-2. LCG 公式里的 \(a,c,M,x_0\) 分别控制什么？
-3. 什么是生成器周期？周期太短会怎样影响 Monte Carlo？
-4. 为什么公平硬币的期望是 \(0.5\)，但一次投掷不会得到 \(0.5\)？
-5. 如何把 \(\int_a^b f(x)\,dx\) 写成均匀随机变量的期望？
-6. 用单位正方形估计 \(\pi\) 时，为什么要计算圆内点的比例？
-7. Monte Carlo 误差为什么通常按 \(1/\sqrt{N}\) 而不是 \(1/N\) 下降？
-8. 如果想把误差大约减半，样本数通常要增加多少倍？
-9. 在小批量梯度下降、dropout 或 Bayesian 推断中，Monte Carlo 思想分别对应什么？`,
-      md`1. Why can a pseudorandom generator be both random-looking and reproducible?
-2. In an LCG, what do \(a,c,M,x_0\) control?
-3. What is a generator period, and how can a short period affect Monte Carlo?
-4. Why is the expectation of a fair coin \(0.5\), even though one toss never returns \(0.5\)?
-5. How can \(\int_a^b f(x)\,dx\) be written as an expectation over a uniform random variable?
-6. When estimating \(\pi\) in the unit square, why do we count the fraction of points inside the circle?
-7. Why does Monte Carlo error usually shrink like \(1/\sqrt{N}\) rather than \(1/N\)?
-8. If you want to roughly halve the error, how many more samples do you usually need?
-9. In mini-batch gradient descent, dropout, or Bayesian inference, what does the Monte Carlo idea correspond to?`,
+      md`1. 什么是伪随机数生成器？
+2. 好的随机数生成器应具备哪些性质？
+3. 与真随机数相比，使用伪随机数生成器有什么优点和缺点？
+4. 什么是线性同余生成器（LCG）？
+5. 随机数生成器里的 seed 是什么？
+6. 随机数生成器会重复吗？它们是否可复现？
+7. 什么是 Monte Carlo 方法？它们通常如何使用？
+8. 对 Monte Carlo 来说，误差和采样点数量之间有什么关系？
+9. 如果已知某次 Monte Carlo 计算的值和采样误差，改变样本数后应怎样估计新的误差量级？
+10. 对一个小型例题，如何用 Monte Carlo 估计某个区域的面积？
+11. 对一个小型例题，如何用 Monte Carlo 估计某个函数的积分？`,
+      md`1. What is a pseudorandom number generator?
+2. What are properties of good random number generators?
+3. What are the advantages and disadvantages of pseudorandom number generators compared with truly random numbers?
+4. What is a linear congruential generator (LCG)?
+5. What is a seed for a random number generator?
+6. Do random number generators repeat? Are they reproducible?
+7. What are Monte Carlo methods, and how are they used?
+8. For Monte Carlo, how does the error behave in relation to the number of sampling points?
+9. Given a computed value from Monte Carlo and a sampling error, what sampling error could you expect for a different number of samples?
+10. For a small example problem, use Monte Carlo to estimate the area of a certain domain.
+11. For a small example problem, use Monte Carlo to estimate the integral of a function.`,
     ),
   ),
 ]
@@ -405,7 +579,7 @@ export function buildMonteCarloModule(importedModule: MathLabModule): MathLabMod
       '用可复现的随机采样，把面积、积分和模型期望变成可计算的平均值。',
       'Use reproducible random sampling to turn areas, integrals, and model expectations into computable averages.',
     ),
-    estimatedMinutes: 35,
+    estimatedMinutes: 45,
     prerequisites: ['taylor-series'],
     aiModelConnections: [
       copy(
@@ -418,12 +592,15 @@ export function buildMonteCarloModule(importedModule: MathLabModule): MathLabMod
       ),
     ],
     learningObjectives: [
-      copy('解释伪随机数、种子、周期和可复现性的关系。', 'Explain how pseudorandom numbers, seeds, periods, and reproducibility are connected.'),
-      copy('把随机变量的期望读成长期平均，并用样本均值估计它。', 'Read expectation as a long-run average and estimate it with a sample mean.'),
-      copy('把面积和积分改写成 Monte Carlo 估计公式。', 'Rewrite areas and integrals as Monte Carlo estimators.'),
       copy(
-        md`说明误差通常按 \(1/\sqrt{N}\) 下降，并识别采样偏差或短周期带来的失败场景。`,
-        md`Explain why error often shrinks like \(1/\sqrt{N}\), and identify failures from biased sampling or short periods.`,
+        '理解随机数生成器的性质，以及一个好的随机数生成器应具备什么条件。',
+        'Understand the properties of random number generators and what properties are desirable in a random number generator.',
+      ),
+      copy('举例说明哪些问题适合使用 Monte Carlo 方法。', 'Give examples of problems where you would use Monte Carlo.'),
+      copy('描述 Monte Carlo 误差如何随采样点数量变化。', 'Characterize the error of Monte Carlo as the number of sampling points changes.'),
+      copy(
+        '把随机采样估计连接到小批量训练、dropout、Bayesian 推断和生成模型。',
+        'Connect random sampling estimates to mini-batch training, dropout, Bayesian inference, and generative models.',
       ),
     ],
     concepts: [

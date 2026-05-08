@@ -70,20 +70,20 @@ const copy = computed(() =>
     ? {
         aria: '矩阵变换可视化',
         title: '矩阵实验',
-        subtitle: 'W 会变换整张网格',
+        subtitle: '修改 W，观察整张网格如何变形',
         invertible: '可逆',
         yes: '是',
         nearNo: '接近不可逆',
-        note: 'y = Wx + b 先做这个线性变换，再用 b 平移变换后的特征。',
+        note: '线性层 y = Wx + b 先用 W 变换特征，再用 b 平移变换后的结果。',
       }
     : {
         aria: 'Matrix transform visualization',
         title: 'Matrix Lab',
-        subtitle: 'W transforms the whole grid',
+        subtitle: 'Edit W and watch the whole grid transform',
         invertible: 'invertible',
         yes: 'yes',
         nearNo: 'near no',
-        note: 'y = Wx + b uses this same transform first, then shifts the transformed features by b.',
+        note: 'A linear layer y = Wx + b uses W to transform features first, then shifts the result by b.',
       },
 )
 </script>

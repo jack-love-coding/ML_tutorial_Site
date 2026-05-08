@@ -11,7 +11,7 @@ defineProps<{
 <template>
   <article class="math-misconception-card">
     <span>{{ locale === 'zh-CN' ? '常见误区' : 'Common misconception' }}</span>
-    <strong>{{ misconception.statement[locale] }}</strong>
+    <MarkdownMathContent class="math-misconception-card__statement" :source="misconception.statement[locale]" />
     <MarkdownMathContent class="math-misconception-card__body" :source="misconception.correction[locale]" />
     <MarkdownMathContent class="math-misconception-card__example" :source="misconception.example[locale]" />
   </article>

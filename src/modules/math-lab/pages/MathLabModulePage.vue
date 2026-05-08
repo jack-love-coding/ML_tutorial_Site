@@ -10,7 +10,9 @@ import MisconceptionCard from '../components/MisconceptionCard.vue'
 import MathGradientLab from '../labs/MathGradientLab.vue'
 import MatrixTransformLab from '../labs/MatrixTransformLab.vue'
 import MonteCarloLab from '../labs/MonteCarloLab.vue'
+import LuDecompositionLab from '../labs/LuDecompositionLab.vue'
 import NumericalMiniLab from '../labs/NumericalMiniLab.vue'
+import SparseMatrixLab from '../labs/SparseMatrixLab.vue'
 import TaylorSeriesLab from '../labs/TaylorSeriesLab.vue'
 import VectorDotProductLab from '../labs/VectorDotProductLab.vue'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
@@ -201,6 +203,14 @@ function labsForSection(section: MathLabSection): LabConfig[] {
                   v-else-if="lab.componentName === 'MonteCarloLab'"
                   :locale="currentLocale"
                 />
+                <LuDecompositionLab
+                  v-else-if="lab.componentName === 'LuDecompositionLab'"
+                  :locale="currentLocale"
+                />
+                <SparseMatrixLab
+                  v-else-if="lab.componentName === 'SparseMatrixLab'"
+                  :locale="currentLocale"
+                />
                 <NumericalMiniLab
                   v-else
                   :module-id="moduleDefinition.id"
@@ -245,6 +255,14 @@ function labsForSection(section: MathLabSection): LabConfig[] {
               />
               <MonteCarloLab
                 v-else-if="lab.componentName === 'MonteCarloLab'"
+                :locale="currentLocale"
+              />
+              <LuDecompositionLab
+                v-else-if="lab.componentName === 'LuDecompositionLab'"
+                :locale="currentLocale"
+              />
+              <SparseMatrixLab
+                v-else-if="lab.componentName === 'SparseMatrixLab'"
                 :locale="currentLocale"
               />
               <NumericalMiniLab

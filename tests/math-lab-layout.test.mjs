@@ -45,6 +45,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/MatrixTransformLab.vue',
     'src/modules/math-lab/labs/MathGradientLab.vue',
     'src/modules/math-lab/labs/MonteCarloLab.vue',
+    'src/modules/math-lab/labs/LuDecompositionLab.vue',
     'src/modules/math-lab/labs/NumericalMiniLab.vue',
     'src/modules/math-lab/labs/TaylorSeriesLab.vue',
   ]
@@ -91,6 +92,7 @@ test('migrated note figures are stored locally', () => {
     'public/math-lab/cs357-assets/figs/pca_center_combined.png',
     'public/math-lab/cs357-assets/figs/pca_covar_diag.png',
     'public/math-lab/generated/monte-carlo-sampling-illustration.png',
+    'public/math-lab/generated/vector-matrix-norms-illustration.png',
   ]
 
   for (const assetPath of keyAssets) {
@@ -103,7 +105,8 @@ test('manim pipeline and existing math lab video assets remain present', () => {
   assert.ok(existsSync(new URL('scripts/manim/render_math_lab.py', root)))
 
   const metadata = JSON.parse(read('public/manim/math-lab/metadata.json'))
-  assert.equal(metadata.scenes.length, 5)
+  assert.equal(metadata.scenes.length, 6)
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'VectorSpanNormScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'TaylorPolynomialScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'MonteCarloSamplingScene'))
 

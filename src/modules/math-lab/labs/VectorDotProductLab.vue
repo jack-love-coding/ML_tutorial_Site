@@ -65,18 +65,18 @@ const svgProjection = computed(() => toSvg(projectionOfA.value))
 const copy = computed(() =>
   props.locale === 'zh-CN'
     ? {
-        aria: '可交互的向量点积可视化',
+        aria: '可交互的向量点积与投影可视化',
         title: '向量实验',
-        subtitle: '拖动端点改变夹角',
+        subtitle: '拖动端点，观察夹角、投影和相似度',
         dot: 'a dot b',
         cosine: '余弦相似度',
         angle: '夹角',
         norms: '向量长度',
       }
     : {
-        aria: 'Interactive vector dot product visualization',
+        aria: 'Interactive vector dot product and projection visualization',
         title: 'Vector Lab',
-        subtitle: 'Drag the endpoints',
+        subtitle: 'Drag the endpoints to watch angle, projection, and similarity',
         dot: 'a dot b',
         cosine: 'cosine similarity',
         angle: 'angle',

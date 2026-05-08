@@ -4283,6 +4283,18 @@ p {
   text-transform: uppercase;
 }
 
+.math-misconception-card__statement {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.04rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.math-misconception-card__statement p {
+  margin: 0;
+}
+
 .math-misconception-card__body,
 .math-misconception-card__example {
   gap: 8px;
@@ -4895,6 +4907,234 @@ p {
   min-width: 0;
 }
 
+.sparse-matrix-lab {
+  align-items: stretch;
+}
+
+.sparse-matrix-lab__visual,
+.sparse-matrix-lab__controls {
+  min-width: 0;
+}
+
+.sparse-matrix-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.sparse-matrix-lab__grid {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f6fbf8);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.sparse-matrix-lab__frame {
+  fill: rgba(255, 255, 255, 0.78);
+  stroke: rgba(15, 23, 40, 0.12);
+  stroke-width: 2;
+}
+
+.sparse-matrix-lab__row {
+  fill: transparent;
+}
+
+.sparse-matrix-lab__row.is-highlighted-row {
+  fill: rgba(226, 109, 61, 0.1);
+}
+
+.sparse-matrix-lab__cell {
+  fill: rgba(15, 23, 40, 0.035);
+  stroke: rgba(15, 23, 40, 0.045);
+  stroke-width: 1;
+}
+
+.sparse-matrix-lab__cell.is-nonzero {
+  fill: #0f9f7a;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 1.6;
+}
+
+.sparse-matrix-lab__cell.is-highlighted-entry {
+  fill: #e26d3d;
+}
+
+.sparse-matrix-lab__arrays {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sparse-matrix-lab__arrays article {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.sparse-matrix-lab__arrays span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sparse-matrix-lab__arrays strong {
+  min-width: 0;
+  color: var(--ink);
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.sparse-matrix-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.sparse-matrix-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sparse-matrix-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(15, 159, 122, 0.1);
+}
+
+.lu-decomposition-lab {
+  align-items: stretch;
+}
+
+.lu-decomposition-lab__visual,
+.lu-decomposition-lab__controls {
+  min-width: 0;
+}
+
+.lu-decomposition-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.lu-decomposition-lab__factorization {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.lu-matrix-panel {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.lu-matrix-panel > span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lu-matrix {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-left: 3px solid #7c5cff;
+  border-right: 3px solid #7c5cff;
+  border-radius: 10px;
+  background: white;
+  font-variant-numeric: tabular-nums;
+}
+
+.lu-matrix span {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lu-matrix strong {
+  min-width: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.lu-decomposition-lab__flow {
+  display: block;
+  width: 100%;
+  min-height: 170px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f8f7ff);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.lu-decomposition-lab__flow rect {
+  fill: rgba(124, 92, 255, 0.08);
+  stroke: rgba(124, 92, 255, 0.3);
+  stroke-width: 2;
+}
+
+.lu-decomposition-lab__flow line {
+  stroke: #7c5cff;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.lu-decomposition-lab__flow path {
+  fill: #7c5cff;
+}
+
+.lu-decomposition-lab__flow text {
+  fill: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.lu-decomposition-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.lu-decomposition-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lu-decomposition-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(15, 159, 122, 0.1);
+}
+
+.lu-decomposition-lab__status.needs-pivot {
+  background: rgba(226, 109, 61, 0.12);
+}
+
+.lu-decomposition-lab__status.is-singular {
+  background: rgba(190, 18, 60, 0.1);
+}
+
 .math-vector-svg,
 .math-matrix-svg,
 .math-gradient-svg {
@@ -5118,6 +5358,13 @@ p {
   .math-misconception-grid,
   .math-readout-grid,
   .math-skill-radar__legend {
+    grid-template-columns: 1fr;
+  }
+
+  .sparse-matrix-lab__arrays,
+  .sparse-matrix-lab__control-grid,
+  .lu-decomposition-lab__factorization,
+  .lu-decomposition-lab__control-grid {
     grid-template-columns: 1fr;
   }
 }

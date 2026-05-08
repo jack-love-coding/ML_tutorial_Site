@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Vector span and norm poster">
+  <rect width="960" height="540" fill="#f8fbff"/>
+  <g stroke="#d7dee9" stroke-width="1">
+    <path d="M120 90V450M220 90V450M320 90V450M420 90V450M520 90V450M620 90V450M720 90V450M820 90V450"/>
+    <path d="M100 130H860M100 210H860M100 290H860M100 370H860M100 450H860"/>
+  </g>
+  <path d="M100 270H860" stroke="#667085" stroke-width="2"/>
+  <path d="M480 90V450" stroke="#667085" stroke-width="2"/>
+  <path d="M480 270L650 208" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M642 193L690 194L657 229Z" fill="#3868ff"/>
+  <path d="M480 270L425 125" stroke="#0f9f7a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M407 133L416 86L447 122Z" fill="#0f9f7a"/>
+  <path d="M650 208L595 63M425 125L595 63" stroke="#8a96a8" stroke-width="5" stroke-dasharray="12 12"/>
+  <path d="M480 270L595 63" stroke="#e26d3d" stroke-width="10" stroke-linecap="round"/>
+  <path d="M576 62L618 22L612 79Z" fill="#e26d3d"/>
+  <path d="M620 360L720 410" stroke="#d9463f" stroke-width="8" stroke-linecap="round"/>
+  <path d="M707 392L748 424L696 426Z" fill="#d9463f"/>
+  <text x="92" y="72" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Span, dependence, and norm</text>
+  <text x="92" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Combine directions, then measure the remaining error vector.</text>
+</svg>

@@ -21,6 +21,14 @@ import {
   lcgSequence,
   monteCarloPiStandardError,
 } from '../src/modules/math-lab/utils/monteCarlo.ts'
+import { estimateLuReuseCost, evaluateLu2x2 } from '../src/modules/math-lab/utils/luDecomposition.ts'
+import {
+  csrMatVec,
+  denseToCoo,
+  denseToCsr,
+  estimateSparseStorage,
+  sparseLectureMatrix,
+} from '../src/modules/math-lab/utils/sparseMatrix.ts'
 import { evaluateQuizAnswer, scoreQuiz } from '../src/modules/math-lab/utils/quiz.ts'
 import {
   appendQuizAttempt,
@@ -125,9 +133,13 @@ test('imported math foundation modules include complete topics 6-19', () => {
     const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
     assert.equal(englishBody.length > 4000, true, `${moduleDefinition.id} should not use the previous shortened body`)
     if (moduleDefinition.id === 'taylor-series') {
-      assert.match(englishBody, /From Polynomials to Local Models|Constructing the Taylor Polynomial/)
+      assert.match(englishBody, /Learning Objectives|Taylor Series Expansion|Taylor Series Error/)
     } else if (moduleDefinition.id === 'monte-carlo') {
       assert.match(englishBody, /Where Reproducible Randomness Comes From|Writing Areas and Integrals as Sample Averages/)
+    } else if (moduleDefinition.id === 'vectors-matrices-norms') {
+      assert.match(englishBody, /Vectors: Coordinates, Linear Combinations, and Span|Dot Product: Reading Angle as Similarity/)
+    } else if (moduleDefinition.id === 'lu-decomposition') {
+      assert.match(englishBody, /Basic Idea: The .Undo. button for Linear Operations|Back Substitution Algorithm for Upper Triangular Systems/)
     } else {
       assert.match(englishBody, /Learning Objectives|Learning objectives|Dense Matrices/)
     }
@@ -145,7 +157,8 @@ test('key math foundation topics are connected to interactive or video enhanceme
   assert.ok(byId['monte-carlo']!.labs.some((lab) => lab.componentName === 'MonteCarloLab'))
   assert.ok(byId['vectors-matrices-norms']!.labs.some((lab) => lab.componentName === 'VectorDotProductLab'))
   assert.ok(byId['vectors-matrices-norms']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
-  assert.ok(byId['lu-decomposition']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
+  assert.ok(byId['lu-decomposition']!.labs.some((lab) => lab.componentName === 'LuDecompositionLab'))
+  assert.ok(byId['sparse-matrices']!.labs.some((lab) => lab.componentName === 'SparseMatrixLab'))
   assert.ok(byId['eigenvalues-eigenvectors']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
   assert.ok(byId.optimization!.labs.some((lab) => lab.componentName === 'MathGradientLab'))
   assert.ok(byId.svd!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
@@ -166,16 +179,34 @@ test('taylor module presents hand-written bilingual content as an integrated rea
   assert.ok(taylor.visuals.some((visual) => visual.id === 'taylor-polynomial-video'))
   assert.ok(taylor.sections.some((section) => section.visualIds?.includes('taylor-polynomial-video')))
   assert.ok(taylor.sections.some((section) => section.labIds?.includes('taylor-series-lab')))
+  assert.deepEqual(
+    taylor.sections.map((section) => section.id),
+    [
+      'taylor-series-learning-objectives',
+      'taylor-series-polynomial-overview',
+      'taylor-series-taylor-series-expansion',
+      'taylor-series-taylor-series-error',
+      'taylor-series-ml-summary',
+      'taylor-series-review-questions',
+    ],
+  )
 
   const zhBody = taylor.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
   const enBody = taylor.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
 
-  assert.match(zhBody, /从多项式到局部模型/)
+  assert.match(zhBody, /学习目标/)
+  assert.match(zhBody, /多项式概览/)
+  assert.match(zhBody, /Taylor 级数展开/)
+  assert.match(zhBody, /Taylor 级数误差/)
   assert.match(zhBody, /Lagrange 余项/)
   assert.match(zhBody, /梯度下降/)
-  assert.match(enBody, /From Polynomials to Local Models/)
+  assert.match(enBody, /Learning Objectives/)
+  assert.match(enBody, /Polynomial Overview/)
+  assert.match(enBody, /Taylor Series Expansion/)
+  assert.match(enBody, /Taylor Series Error/)
+  assert.match(enBody, /Taylor Remainder Theorem/)
   assert.match(enBody, /Lagrange/)
-  assert.match(enBody, /Gradient descent/)
+  assert.match(enBody, /gradient descent/i)
   assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Source Note/)
   assert.doesNotMatch(zhBody, /泰勒系列扩展包|当时|A Taylor series is|How would we|Suppose that/)
 })
@@ -211,13 +242,21 @@ test('monte carlo module presents repaired bilingual content and inline sampling
   const zhBody = monteCarlo.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
   const enBody = monteCarlo.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
 
-  assert.match(zhBody, /可复现的随机数/)
+  assert.match(zhBody, /伪随机方法/)
+  assert.match(zhBody, /公平骰子、大气噪声、热噪声/)
   assert.match(zhBody, /线性同余生成器/)
+  assert.match(zhBody, /def lcg_gen_next/)
+  assert.match(zhBody, /黄油面包/)
+  assert.match(zhBody, /投掷实验重复/)
   assert.match(zhBody, /\/math-lab\/generated\/monte-carlo-sampling-illustration\.png/)
   assert.match(zhBody, /典型误差规模|误差为什么通常按/)
+  assert.match(zhBody, /def f\(x: float, y: float\)/)
+  assert.match(zhBody, /什么是伪随机数生成器/)
   assert.match(zhBody, /小批量梯度下降/)
-  assert.match(enBody, /Reproducible Randomness/)
+  assert.match(enBody, /True Random and Pseudorandom/)
   assert.match(enBody, /linear congruential generator/)
+  assert.match(enBody, /Will my buttered bread land face-down/)
+  assert.match(enBody, /What is a pseudorandom number generator/)
   assert.match(enBody, /Mini-batch gradient descent/)
   assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Source Note/)
   assert.doesNotMatch(zhBody, /One of the most common applications|Consider using Monte Carlo|Below is the Python code|What is a pseudo-random/)
@@ -229,6 +268,173 @@ test('monte carlo module markdown renders formulas without raw delimiters', () =
   assert.ok(monteCarlo)
 
   const source = monteCarlo.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(source)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
+test('vectors matrices norms module presents repaired bilingual content and inline labs', () => {
+  const vectorModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'vectors-matrices-norms')
+  assert.ok(vectorModule)
+
+  assert.equal(vectorModule.title['zh-CN'], '向量、矩阵与范数')
+  assert.equal(vectorModule.title.en, 'Vectors, Matrices, and Norms')
+  assert.ok(vectorModule.learningObjectives.length >= 4)
+  assert.ok(vectorModule.concepts.length >= 3)
+  assert.ok(vectorModule.quizzes.length >= 3)
+  assert.ok(vectorModule.misconceptions.length >= 3)
+  assert.ok(vectorModule.labs.some((lab) => lab.componentName === 'VectorDotProductLab'))
+  assert.ok(vectorModule.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
+  assert.ok(vectorModule.visuals.some((visual) => visual.id === 'vector-span-norm-video'))
+  assert.ok(vectorModule.visuals.some((visual) => visual.id === 'vector-dot-product-video'))
+  assert.ok(vectorModule.visuals.some((visual) => visual.id === 'matrix-transform-video'))
+  assert.ok(vectorModule.sections.some((section) => section.visualIds?.includes('vector-span-norm-video')))
+  assert.ok(vectorModule.sections.some((section) => section.visualIds?.includes('vector-dot-product-video')))
+  assert.ok(vectorModule.sections.some((section) => section.visualIds?.includes('matrix-transform-video')))
+  assert.ok(vectorModule.sections.some((section) => section.labIds?.includes('vector-dot-product-lab')))
+  assert.ok(vectorModule.sections.some((section) => section.labIds?.includes('matrix-transform-lab')))
+
+  const zhBody = vectorModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = vectorModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /向量：坐标、线性组合与 span/)
+  assert.match(zhBody, /点积：把夹角读成相似度/)
+  assert.match(zhBody, /矩阵：看列向量如何移动空间/)
+  assert.match(zhBody, /\/math-lab\/generated\/vector-matrix-norms-illustration\.png/)
+  assert.match(zhBody, /向量空间/)
+  assert.match(zhBody, /置换矩阵/)
+  assert.match(zhBody, /P\\mathbf\{x\}=\[2,4,1,3\]\^\\top/)
+  assert.match(zhBody, /\\sqrt\{78\}/)
+  assert.match(zhBody, /\\lambda\^2 - 23\\lambda \+ 49 = 0/)
+  assert.match(zhBody, /submultiplicative/)
+  assert.match(zhBody, /Embedding 相似度/)
+  assert.match(enBody, /Vectors: Coordinates/)
+  assert.match(enBody, /Matrix Norms: How Much a Linear Layer Can Amplify/)
+  assert.match(enBody, /Special Matrices, Rank, and Representing Linear Transformations/)
+  assert.match(enBody, /Frobenius example/)
+  assert.match(enBody, /lower bound on/)
+  assert.match(enBody, /What is a vector space/)
+  assert.match(enBody, /Gradient norms/)
+  const objectiveSource = vectorModule.learningObjectives.map((objective) => `${objective['zh-CN']}\n${objective.en}`).join('\n')
+  assert.match(objectiveSource, /Recognize zero, identity, diagonal, triangular, permutation, and block matrices/)
+  assert.match(objectiveSource, /Perform matrix-vector multiplication/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Source Note/)
+  assert.doesNotMatch(zhBody, /A \*\*_vector_\*\* is an array|Perform matrix-vector multiplications|What is a vector space/)
+})
+
+test('vectors matrices norms module markdown renders formulas without raw delimiters', () => {
+  const vectorModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'vectors-matrices-norms')
+  assert.ok(vectorModule)
+
+  const source = vectorModule.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(source)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
+test('lu decomposition module presents repaired bilingual content and inline LU lab', () => {
+  const luModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'lu-decomposition')
+  assert.ok(luModule)
+
+  assert.equal(luModule.title['zh-CN'], '用 LU 分解求解线性方程')
+  assert.equal(luModule.title.en, 'LU Decomposition for Solving Linear Equations')
+  assert.ok(luModule.learningObjectives.length >= 5)
+  assert.ok(luModule.concepts.length >= 2)
+  assert.ok(luModule.quizzes.length >= 3)
+  assert.ok(luModule.misconceptions.length >= 3)
+  assert.ok(luModule.labs.some((lab) => lab.componentName === 'LuDecompositionLab'))
+  assert.ok(luModule.sections.some((section) => section.labIds?.includes('lu-decomposition-solve-lab')))
+  assert.ok(luModule.sections.length >= 16)
+  assert.ok(luModule.sections.some((section) => section.id === 'lu-decomposition-basic-idea-the-undo-button-for-linear-operations'))
+  assert.ok(luModule.sections.some((section) => section.id === 'lu-decomposition-back-substitution-algorithm-for-upper-triangular-systems'))
+  assert.ok(luModule.sections.some((section) => section.id === 'lu-decomposition-the-lu-decomposition-algorithm'))
+  assert.ok(luModule.sections.some((section) => section.id === 'lu-decomposition-the-lup-decomposition-algorithm'))
+  assert.ok(luModule.sections.some((section) => section.id === 'lu-decomposition-review-questions'))
+
+  const zhBody = luModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = luModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(enBody, /Matrix-vector multiplication: given/)
+  assert.match(enBody, /def back_sub/)
+  assert.match(enBody, /def forward_sub/)
+  assert.match(enBody, /def lu_decomp/)
+  assert.match(enBody, /def lup_decomp/)
+  assert.match(enBody, /Given a factorization/)
+  assert.match(enBody, /The lab below uses the same/)
+  assert.match(enBody, /Schur complement/)
+  assert.match(enBody, /Partial pivoting/)
+  assert.match(enBody, /inverse iteration/)
+  assert.match(zhBody, /矩阵-向量乘法可以这样理解/)
+  assert.match(zhBody, /回代算法/)
+  assert.match(zhBody, /前代算法/)
+  assert.match(zhBody, /LU 分解的性质如下/)
+  assert.match(zhBody, /怎样求这个矩阵的 LUP 分解/)
+  assert.match(zhBody, /给定分解/)
+  assert.doesNotMatch(
+    zhBody,
+    /Matrix-vector multiplication: given|The properties of this algorithm are|How can we solve|What is the cost of matrix-matrix multiplication|Given a factorization/,
+  )
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|Cleaned Source|Source Note|Errata/)
+})
+
+test('lu decomposition module markdown renders formulas without raw delimiters', () => {
+  const luModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'lu-decomposition')
+  assert.ok(luModule)
+
+  const source = luModule.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const objectiveSource = luModule.learningObjectives.map((objective) => objective['zh-CN']).join('\n\n')
+  const html = renderMarkdownWithMath(`${objectiveSource}\n\n${source}`)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /Amathbf|mathcalO|times2/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
+test('sparse matrices module presents repaired bilingual content and inline CSR lab', () => {
+  const sparseModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'sparse-matrices')
+  assert.ok(sparseModule)
+
+  assert.equal(sparseModule.title['zh-CN'], '稀疏矩阵')
+  assert.equal(sparseModule.title.en, 'Sparse Matrices')
+  assert.ok(sparseModule.learningObjectives.length >= 5)
+  assert.ok(sparseModule.concepts.length >= 2)
+  assert.ok(sparseModule.quizzes.length >= 3)
+  assert.ok(sparseModule.misconceptions.length >= 3)
+  assert.ok(sparseModule.labs.some((lab) => lab.componentName === 'SparseMatrixLab'))
+  assert.ok(sparseModule.sections.some((section) => section.labIds?.includes('sparse-matrix-storage-lab')))
+
+  const zhBody = sparseModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = sparseModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /Dense 矩阵：所有位置都要存/)
+  assert.match(zhBody, /COO：把非零项写成三元组/)
+  assert.match(zhBody, /CSR：用 rowptr 把每一行切出来/)
+  assert.match(zhBody, /CSR 矩阵向量乘法/)
+  assert.match(zhBody, /推荐系统/)
+  assert.match(zhBody, /\\operatorname\{nnz\}\(A\)/)
+  assert.match(enBody, /Dense Matrices: Every Position Is Stored/)
+  assert.match(enBody, /COO: Store Nonzeros as Triples/)
+  assert.match(enBody, /CSR: Use rowptr to Slice Each Row/)
+  assert.match(enBody, /Sparse Structure in Machine Learning/)
+  assert.match(enBody, /def csr_mat_vec/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|Cleaned Source|Source Note|Course Staff|changelog/)
+  assert.doesNotMatch(zhBody, /Some types of matrices contain too many zeros|What does it mean for a matrix to be sparse/)
+  assert.doesNotMatch(enBody, /什么叫稀疏矩阵|推荐系统|图学习/)
+})
+
+test('sparse matrices module markdown renders formulas without raw delimiters', () => {
+  const sparseModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'sparse-matrices')
+  assert.ok(sparseModule)
+
+  const source = sparseModule.sections
     .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
     .join('\n\n')
   const html = renderMarkdownWithMath(source)
@@ -277,6 +483,69 @@ test('monte carlo utilities expose reproducible sampling and expected error scal
 
   const integralEstimate = estimateIntegralXSquared(8000, 23, 'stable')
   assert.ok(integralEstimate.absoluteError < 0.02)
+})
+
+test('lu utilities expose factorization, solve residuals, pivot warnings, and reuse savings', () => {
+  const evaluation = evaluateLu2x2({
+    a11: 4,
+    a12: 2,
+    a21: 3,
+    a22: 5,
+    b1: 6,
+    b2: 7,
+  })
+
+  assert.equal(evaluation.multiplier, 0.75)
+  assert.equal(evaluation.schurComplement, 3.5)
+  assert.ok(Math.abs(evaluation.x[0] - 8 / 7) < 1e-12)
+  assert.ok(Math.abs(evaluation.x[1] - 5 / 7) < 1e-12)
+  assert.ok(evaluation.residualNorm < 1e-12)
+
+  const pivotCandidate = evaluateLu2x2({
+    a11: 0.25,
+    a12: 2,
+    a21: 3,
+    a22: 5,
+    b1: 6,
+    b2: 7,
+  }, 0.08)
+  assert.equal(pivotCandidate.needsPivot, true)
+
+  const nearSingular = evaluateLu2x2({
+    a11: 4,
+    a12: 2,
+    a21: 3,
+    a22: 1.5,
+    b1: 6,
+    b2: 7,
+  }, 0.08)
+  assert.equal(nearSingular.singular, true)
+
+  const oneRhs = estimateLuReuseCost(160, 1)
+  const sixRhs = estimateLuReuseCost(160, 6)
+  assert.ok(sixRhs.factorOnceCost < sixRhs.refactorEachSolveCost)
+  assert.ok(sixRhs.speedup > oneRhs.speedup)
+})
+
+test('sparse matrix utilities expose COO, CSR, matvec, and storage estimates', () => {
+  const coo = denseToCoo(sparseLectureMatrix)
+  const csr = denseToCsr(sparseLectureMatrix)
+
+  assert.equal(coo.entries.length, 12)
+  assert.deepEqual(coo.entries[0], { row: 0, column: 0, value: 1 })
+  assert.deepEqual(coo.entries[coo.entries.length - 1], { row: 4, column: 4, value: 12 })
+  assert.deepEqual(csr.rowptr, [0, 2, 5, 9, 11, 12])
+  assert.deepEqual(csr.col, [0, 3, 0, 1, 3, 0, 2, 3, 4, 2, 3, 4])
+  assert.deepEqual(csr.data, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+  assert.deepEqual(csrMatVec(csr, [1, 2, 3, 4, 5]), [9, 31, 104, 74, 60])
+
+  const estimate = estimateSparseStorage({ size: 1000, nonzerosPerRow: 4 })
+  assert.equal(estimate.nnz, 4000)
+  assert.equal(estimate.denseElements, 1_000_000)
+  assert.equal(estimate.csrElements, 9001)
+  assert.equal(estimate.density, 0.004)
+  assert.ok(estimate.denseBytes > estimate.csrBytes)
+  assert.ok(estimate.denseMatVecOps > estimate.sparseMatVecOps)
 })
 
 test('markdown renderer supports formulas, tables, code blocks, images, and callouts', () => {

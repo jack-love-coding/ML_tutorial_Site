@@ -1,7 +1,10 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
+import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
 import { buildMonteCarloModule } from './monteCarloModule.ts'
+import { buildSparseMatricesModule } from './sparseMatricesModule.ts'
 import { buildTaylorSeriesModule } from './taylorSeriesModule.ts'
+import { buildVectorMatrixNormsModule } from './vectorMatrixNormsModule.ts'
 import type { MathLabModule, MathLabModuleId } from '../types/mathLab'
 
 const supplementalModules = Object.fromEntries(
@@ -15,6 +18,18 @@ export const mathLabModules: MathLabModule[] = importedMathNotes.map((moduleDefi
 
   if (moduleDefinition.id === 'monte-carlo') {
     return buildMonteCarloModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'vectors-matrices-norms') {
+    return buildVectorMatrixNormsModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'lu-decomposition') {
+    return buildLuDecompositionModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'sparse-matrices') {
+    return buildSparseMatricesModule(moduleDefinition)
   }
 
   const supplement = supplementalModules[moduleDefinition.id]

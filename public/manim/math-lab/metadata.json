@@ -12,6 +12,11 @@
       "posterPath": "/manim/math-lab/matrix-transform.svg"
     },
     {
+      "scene": "VectorSpanNormScene",
+      "assetPath": "/manim/math-lab/vector-span-norm.mp4",
+      "posterPath": "/manim/math-lab/vector-span-norm.svg"
+    },
+    {
       "scene": "GradientDescentScene",
       "assetPath": "/manim/math-lab/gradient-descent.mp4",
       "posterPath": "/manim/math-lab/gradient-descent.svg"

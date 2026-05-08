@@ -93,6 +93,51 @@ class MatrixTransformScene(Scene):
         self.wait(0.6)
 
 
+class VectorSpanNormScene(Scene):
+    def construct(self):
+        plane = NumberPlane(
+            x_range=[-4, 4, 1],
+            y_range=[-3, 3, 1],
+            background_line_style={"stroke_opacity": 0.2},
+        )
+        title = Text("Span asks where combinations can reach", font_size=31).to_edge(UP)
+        v1 = Arrow(plane.c2p(0, 0), plane.c2p(2.2, 0.8), color=BLUE, buff=0)
+        v2 = Arrow(plane.c2p(0, 0), plane.c2p(-0.7, 1.9), color=GREEN, buff=0)
+        combo = Arrow(plane.c2p(0, 0), plane.c2p(1.5, 2.7), color=ORANGE, buff=0)
+        parallelogram = VGroup(
+            Line(plane.c2p(2.2, 0.8), plane.c2p(1.5, 2.7), color=WHITE, stroke_opacity=0.58),
+            Line(plane.c2p(-0.7, 1.9), plane.c2p(1.5, 2.7), color=WHITE, stroke_opacity=0.58),
+        )
+        caption = Text("independent directions sweep out a plane", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(plane), FadeIn(title), Create(v1), Create(v2), FadeIn(caption))
+        self.wait(0.3)
+        self.play(Create(parallelogram), Create(combo))
+        self.wait(0.4)
+
+        v2_dependent = Arrow(plane.c2p(0, 0), plane.c2p(1.3, 0.47), color=GREEN, buff=0)
+        span_line = Line(plane.c2p(-3.4, -1.24), plane.c2p(3.4, 1.24), color=YELLOW, stroke_width=7)
+        collapse_caption = Text("dependent directions collapse span to a line", font_size=25).to_edge(DOWN)
+        self.play(FadeOut(parallelogram), FadeOut(combo), Transform(v2, v2_dependent), Create(span_line), Transform(caption, collapse_caption))
+        self.wait(0.5)
+
+        true_vector = Arrow(plane.c2p(0, 0), plane.c2p(2.4, 1.6), color=BLUE, buff=0)
+        approx_vector = Arrow(plane.c2p(0, 0), plane.c2p(1.7, 1.1), color=GREEN, buff=0)
+        error_vector = Arrow(plane.c2p(1.7, 1.1), plane.c2p(2.4, 1.6), color=RED, buff=0)
+        error_caption = Text("a norm turns the error vector into one size", font_size=25).to_edge(DOWN)
+        self.play(
+            FadeOut(v1),
+            FadeOut(v2),
+            FadeOut(span_line),
+            Create(true_vector),
+            Create(approx_vector),
+            Transform(caption, error_caption),
+        )
+        self.wait(0.3)
+        self.play(Create(error_vector))
+        self.wait(0.7)
+
+
 class GradientDescentScene(Scene):
     def construct(self):
         title = Text("Gradient descent follows negative gradient", font_size=31).to_edge(UP)

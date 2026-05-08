@@ -23,111 +23,121 @@ function section(
 
 const sections: MathLabSection[] = [
   section(
-    'taylor-local-polynomial-model',
-    copy('从多项式到局部模型', 'From Polynomials to Local Models'),
+    'taylor-series-learning-objectives',
+    copy('学习目标', 'Learning Objectives'),
     copy(
-      md`Taylor 级数的出发点很朴素：如果一个函数在某个点附近足够平滑，我们希望用一个更容易计算的多项式来描述它在附近的形状。
+      md`读完这一章后，你应该能够完成本章的三件核心任务，并把它们连接到后续的数值计算和机器学习语境中：
 
-一个关于变量 \(x\) 的 \(n\) 次多项式可以写成
+- 使用 Taylor 级数在给定中心点附近近似一个函数。
+- 使用 Taylor 展开推导导数、积分或差分公式的近似形式。
+- 量化 Taylor 多项式截断后产生的误差。
+- 解释中心点 \(x_0\)、阶数 \(n\)、步长 \(h=x-x_0\) 分别控制了什么。
+- 读懂一阶近似、二阶近似和更高阶项的直觉：值、斜率、曲率以及形状修正。
+- 将一阶 Taylor 近似联系到梯度下降，将二阶 Taylor 近似联系到 Newton 法和 Hessian。
 
-$$
-a_nx^n+a_{n-1}x^{n-1}+\cdots+a_2x^2+a_1x+a_0,
-$$
+Taylor 级数不是把一个函数“翻译成另一个函数”，而是在某个中心点附近搭建一个可计算的局部模型。你知道中心点处的函数值和各阶导数，就能写出一个多项式；阶数越高，多项式在中心附近匹配的信息越多。真正需要警惕的是“附近”两个字：Taylor 多项式的可靠范围由误差项、收敛半径和函数本身的光滑性共同决定。`,
+      md`By the end of this chapter, you should be able to do three core tasks and connect them to numerical computing and machine learning:
 
-也可以用求和符号写成
+- Approximate a function using a Taylor series around a chosen center.
+- Use Taylor expansions to derive approximations for derivatives, integrals, or finite-difference formulas.
+- Quantify the error in a truncated Taylor approximation.
+- Explain what the center \(x_0\), the degree \(n\), and the step \(h=x-x_0\) control.
+- Interpret first-order, second-order, and higher-order terms as value, slope, curvature, and shape corrections.
+- Connect first-order Taylor approximation to gradient descent, and second-order Taylor approximation to Newton's method and Hessians.
 
-$$
-\sum_{k=0}^{n} a_k x^k.
-$$
-
-这里的 \(x^0,x^1,x^2,\ldots\) 是单项式，整个多项式就是这些单项式的线性组合。Taylor 方法把这种多项式语言用于一般函数：系数不再随意选择，而是由函数在某个中心点的导数决定。
-
-最短的局部模型只记住中心点 \(a\) 的高度：
-
-$$
-f(x)\approx f(a).
-$$
-
-加入一阶项以后，模型知道从中心点出发应该如何倾斜：
-
-$$
-f(x)\approx f(a)+f'(a)(x-a).
-$$
-
-加入二阶项以后，模型开始知道曲率，也就是函数在中心附近是向上弯、向下弯，还是接近直线：
-
-$$
-f(x)\approx f(a)+f'(a)(x-a)+\frac{f''(a)}{2}(x-a)^2.
-$$
-
-可以把每一层读成不同的局部信息：
-
-| 项 | 数学对象 | 直觉 |
-| --- | --- | --- |
-| \(f(a)\) | 函数值 | 当前高度 |
-| \(f'(a)(x-a)\) | 一阶项 | 当前斜率给出的线性趋势 |
-| \(\frac{f''(a)}{2}(x-a)^2\) | 二阶项 | 当前曲率给出的弯曲修正 |
-| 更高阶项 | 高阶导数 | 更细的局部形状修正 |
-
-所以 Taylor 多项式不是凭空拟合函数，而是从一个锚点开始读取函数的局部形状。中心 \(a\) 一变，最可靠的近似区域也会跟着移动。`,
-      md`The starting point of Taylor series is simple: if a function is smooth enough near a point, we want a polynomial that is easier to compute and still describes the function's nearby shape.
-
-A degree \(n\) polynomial in \(x\) can be written as
-
-$$
-a_nx^n+a_{n-1}x^{n-1}+\cdots+a_2x^2+a_1x+a_0,
-$$
-
-or more compactly as
-
-$$
-\sum_{k=0}^{n} a_k x^k.
-$$
-
-The terms \(x^0,x^1,x^2,\ldots\) are monomials, and the polynomial is a linear combination of them. Taylor's method uses this polynomial language for general functions: the coefficients are not chosen freely; they are determined by derivative information at a chosen center.
-
-The shortest local model remembers only the height at the center \(a\):
-
-$$
-f(x)\approx f(a).
-$$
-
-Adding the first-order term tells the model how to tilt away from the center:
-
-$$
-f(x)\approx f(a)+f'(a)(x-a).
-$$
-
-Adding the second-order term starts to encode curvature: whether the function bends upward, bends downward, or stays close to linear near the center.
-
-$$
-f(x)\approx f(a)+f'(a)(x-a)+\frac{f''(a)}{2}(x-a)^2.
-$$
-
-Each layer carries a different kind of local information:
-
-| Term | Mathematical object | Intuition |
-| --- | --- | --- |
-| \(f(a)\) | Function value | Current height |
-| \(f'(a)(x-a)\) | First-order term | Linear trend from the current slope |
-| \(\frac{f''(a)}{2}(x-a)^2\) | Second-order term | Curvature correction |
-| Higher-order terms | Higher derivatives | Finer local shape corrections |
-
-A Taylor polynomial is therefore not fitting the function from nowhere. It reads the function from an anchor point. When the center \(a\) changes, the most reliable neighborhood changes with it.`,
+A Taylor series does not replace a function globally by magic. It builds a computable local model near a center point. If you know the function value and derivatives at that center, you can write a polynomial. Higher degree means the polynomial matches more local information. The word local matters: the reliable range is controlled by the remainder term, the radius of convergence, and the smoothness of the function.`,
     ),
   ),
   section(
-    'taylor-polynomial-formula',
-    copy('Taylor 多项式的构造', 'Constructing the Taylor Polynomial'),
+    'taylor-series-polynomial-overview',
+    copy('多项式概览', 'Polynomial Overview'),
     copy(
-      md`如果函数 \(f\) 在中心 \(x_0\) 附近足够光滑，那么它在 \(x_0\) 处的 Taylor 级数为
+      md`Taylor 多项式首先是多项式，所以先把多项式语言整理清楚。
+
+### \(n\) 次多项式
+
+关于变量 \(x\) 的多项式总可以写成
 
 $$
-f(x_0)
-+\frac{f'(x_0)}{1!}(x-x_0)
-+\frac{f''(x_0)}{2!}(x-x_0)^2
-+\frac{f^{(3)}(x_0)}{3!}(x-x_0)^3
-+\cdots.
+a_nx^n+a_{n-1}x^{n-1}+\dotsb+a_2x^2+a_1x+a_0,
+$$
+
+其中 \(a_i\) 是常数，\(0\le i\le n\)。用求和符号可以更紧凑地写成
+
+$$
+\sum_{k=0}^{n} a_k x^k.
+$$
+
+如果最高次项系数 \(a_n\ne 0\)，这个多项式称为 \(n\) 次多项式。
+
+这个定义看起来只是记号，但它解释了为什么 Taylor 近似适合计算机：多项式只需要加法、乘法和若干常数系数。许多数值库在近似 \(\sin x\)、\(\exp x\)、\(\log(1+x)\) 等函数时，都会把输入先缩放到一个合适的小区间，再使用多项式或有理函数近似。
+
+### 单项式与线性组合
+
+变量 \(x\) 的单项式是 \(x\) 的非负整数次幂，例如 \(1,x,x^2,\ldots,x^n\)。有些教材也把带非零系数的 \(a x^n\) 称为单项式。按照这个观点，任意 \(n\) 次多项式
+
+$$
+\sum_{k=0}^{n} a_k x^k
+$$
+
+都可以看作单项式集合
+
+$$
+\{x^i\mid 0\le i\le n\}
+$$
+
+的线性组合。系数 \(a_k\) 决定每个单项式贡献多少。
+
+Taylor 多项式的特别之处在于：这些系数不是随便拟合出来的，而是由中心点 \(x_0\) 处的导数决定的。常数项匹配函数值，一次项匹配斜率，二次项匹配曲率。也就是说，它把“局部几何信息”翻译成“多项式系数”。`,
+      md`Taylor polynomials are polynomials, so we first need the polynomial language.
+
+### Degree \(n\) Polynomial
+
+A polynomial in the variable \(x\) can always be written as
+
+$$
+a_nx^n+a_{n-1}x^{n-1}+\dotsb+a_2x^2+a_1x+a_0,
+$$
+
+where \(a_i\) are constants and \(0\le i\le n\). With summation notation, the same polynomial is
+
+$$
+\sum_{k=0}^{n} a_k x^k.
+$$
+
+If the leading coefficient \(a_n\ne 0\), this is called a degree \(n\) polynomial.
+
+This definition is more than notation. It explains why Taylor approximation is computationally useful: polynomials need only additions, multiplications, and fixed coefficients. Many numerical libraries approximate functions such as \(\sin x\), \(\exp x\), and \(\log(1+x)\) by first reducing the input to a small interval and then using polynomial or rational approximations.
+
+### Monomials and Linear Combinations
+
+A monomial in \(x\) is a nonnegative integer power of \(x\), such as \(1,x,x^2,\ldots,x^n\). Some texts also allow a nonzero coefficient and call \(a x^n\) a monomial. From this viewpoint, every degree \(n\) polynomial
+
+$$
+\sum_{k=0}^{n} a_k x^k
+$$
+
+is a linear combination of the monomial set
+
+$$
+\{x^i\mid 0\le i\le n\}.
+$$
+
+The coefficient \(a_k\) controls how much the monomial \(x^k\) contributes.
+
+The special feature of a Taylor polynomial is that its coefficients are not arbitrary fitted numbers. They are determined by derivatives at the center \(x_0\). The constant term matches the function value, the linear term matches the slope, and the quadratic term matches curvature. Taylor approximation translates local geometric information into polynomial coefficients.`,
+    ),
+  ),
+  section(
+    'taylor-series-taylor-series-expansion',
+    copy('Taylor 级数展开', 'Taylor Series Expansion'),
+    copy(
+      md`### 无限 Taylor 级数
+
+设函数 \(f(x)\) 在中心点 \(x_0\) 附近足够光滑。Taylor 级数用 \(x_0\) 处的函数值和导数来构造一个幂级数：
+
+$$
+f(x_0)+\frac{f'(x_0)}{1!}(x-x_0)+\frac{f''(x_0)}{2!}(x-x_0)^2+\frac{f'''(x_0)}{3!}(x-x_0)^3+\dotsb.
 $$
 
 用求和符号写成
@@ -136,316 +146,506 @@ $$
 \sum_{k=0}^{\infty}\frac{f^{(k)}(x_0)}{k!}(x-x_0)^k.
 $$
 
-其中 \(f^{(k)}(x_0)\) 是第 \(k\) 阶导数在中心点的值，并且 \(0!=1\)。实际计算时，我们通常只保留有限项：
+这里 \(f^{(k)}(x_0)\) 表示第 \(k\) 阶导数在 \(x_0\) 处的值，并且 \(0!=1\)。
+
+如果 \(f\) 本身就是多项式，那么它的 Taylor 级数会在足够高阶后停止出现新信息：高阶导数最终为零，所以无限展开等于多项式本身。
+
+### 有限 Taylor 多项式
+
+实际计算中我们通常不能保留无限多项；有时函数也只在有限阶意义下可微。因此我们截断 Taylor 级数，用前 \(n+1\) 项构造 \(n\) 次 Taylor 多项式：
 
 $$
 T_n(x)=\sum_{k=0}^{n}\frac{f^{(k)}(x_0)}{k!}(x-x_0)^k.
 $$
 
-这个 \(T_n(x)\) 称为 \(n\) 次 Taylor 多项式。它用有限计算量近似原函数。对多项式函数来说，只要保留的阶数不低于原多项式次数，Taylor 多项式就会精确还原原函数。
+这个式子是本章的核心公式。它读起来可以非常具体：
 
-三个常见展开值得熟练掌握：
+- \(T_0(x)=f(x_0)\)：只使用中心点的函数值，是一个水平常数模型。
+- \(T_1(x)=f(x_0)+f'(x_0)(x-x_0)\)：加入斜率，是切线模型。
+- \(T_2(x)=T_1(x)+\frac{f''(x_0)}{2}(x-x_0)^2\)：加入曲率，是局部抛物线模型。
+- 更高阶项继续修正非对称性、拐弯速度和更细的形状变化。
 
-**指数函数**
+中心点 \(x_0\) 决定“在哪里贴合”，阶数 \(n\) 决定“贴合多少阶导数”，距离 \(|x-x_0|\) 决定“离开局部信息有多远”。
 
-因为 \(e^x\) 的每阶导数都是 \(e^x\)，在 \(0\) 处每阶导数都等于 \(1\)，所以
+### 例题：在 0 附近展开 \(\cos x\)
 
-$$
-e^x=1+x+\frac{x^2}{2!}+\frac{x^3}{3!}+\cdots.
-$$
-
-**正弦函数**
-
-导数在 \(\sin,\cos,-\sin,-\cos\) 之间循环，在 \(0\) 处只留下奇次幂：
+要在 \(x_0=0\) 附近展开 \(f(x)=\cos x\)，先列出导数在 0 处的值：
 
 $$
-\sin x=x-\frac{x^3}{3!}+\frac{x^5}{5!}-\frac{x^7}{7!}+\cdots.
+\begin{aligned}
+f(0)&=\cos 0=1,\\
+f'(0)&=-\sin 0=0,\\
+f''(0)&=-\cos 0=-1,\\
+f'''(0)&=\sin 0=0,\\
+f^{(4)}(0)&=\cos 0=1.
+\end{aligned}
 $$
 
-**余弦函数**
-
-在 \(0\) 处只留下偶次幂：
+代入 Taylor 公式：
 
 $$
-\cos x=1-\frac{x^2}{2!}+\frac{x^4}{4!}-\frac{x^6}{6!}+\cdots.
+\begin{aligned}
+\cos x
+&=1+0\cdot x-\frac{x^2}{2!}+0\cdot x^3+\frac{x^4}{4!}-\dotsb\\
+&=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k)!}x^{2k}.
+\end{aligned}
 $$
 
-下面的动画展示的是 \(\sin x\) 在 \(0\) 附近的一次、三次、五次 Taylor 多项式。注意：阶数提高时，贴近区域会变宽，但最稳定的区域仍围绕中心展开。`,
-      md`If \(f\) is sufficiently smooth near the center \(x_0\), its Taylor series about \(x_0\) is
+偶数阶留下来，奇数阶消失，是因为 \(\cos x\) 是偶函数；这一点也能从导数循环中看出来。
+
+### 例题：用截断 Taylor 多项式近似 \(\sin(2)\)
+
+现在用 \(x_0=0\) 处的 4 次 Taylor 多项式近似 \(f(x)=\sin x\)。导数值为
 
 $$
-f(x_0)
-+\frac{f'(x_0)}{1!}(x-x_0)
-+\frac{f''(x_0)}{2!}(x-x_0)^2
-+\frac{f^{(3)}(x_0)}{3!}(x-x_0)^3
-+\cdots.
+\begin{aligned}
+f(0)&=\sin 0=0,\\
+f'(0)&=\cos 0=1,\\
+f''(0)&=-\sin 0=0,\\
+f'''(0)&=-\cos 0=-1,\\
+f^{(4)}(0)&=\sin 0=0.
+\end{aligned}
 $$
 
-In summation notation,
+因此
+
+$$
+\begin{aligned}
+T_4(x)&=0+x+0-\frac{x^3}{3!}+0\\
+&=x-\frac{x^3}{6}.
+\end{aligned}
+$$
+
+代入 \(x=2\)：
+
+$$
+\sin(2)\approx T_4(2)=2-\frac{2^3}{6}=\frac{2}{3}.
+$$
+
+这个近似不算很精确，因为 \(2\) 离中心 \(0\) 已经不算近。若提高阶数，\(\sin x\) 的 Taylor 级数为
+
+$$
+\sin x=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k+1)!}x^{2k+1}.
+$$
+
+下面的动画展示了 \(\sin x\) 在 0 附近从一次、三次到五次 Taylor 多项式逐步贴合原函数的过程。观察重点不是“次数越高必然全局更好”，而是“中心附近贴合得更紧”。`,
+      md`### Infinite Taylor Series
+
+Assume \(f(x)\) is sufficiently smooth near the center \(x_0\). The Taylor series builds a power series from the function value and derivatives at \(x_0\):
+
+$$
+f(x_0)+\frac{f'(x_0)}{1!}(x-x_0)+\frac{f''(x_0)}{2!}(x-x_0)^2+\frac{f'''(x_0)}{3!}(x-x_0)^3+\dotsb.
+$$
+
+With summation notation:
 
 $$
 \sum_{k=0}^{\infty}\frac{f^{(k)}(x_0)}{k!}(x-x_0)^k.
 $$
 
-Here \(f^{(k)}(x_0)\) is the \(k\)-th derivative evaluated at the center, and \(0!=1\). In computation, we usually keep only finitely many terms:
+Here \(f^{(k)}(x_0)\) means the \(k\)-th derivative evaluated at \(x_0\), and \(0!=1\).
+
+If \(f\) itself is a polynomial, its Taylor series eventually stops adding new information: high-order derivatives become zero, so the infinite expansion is the polynomial itself.
+
+### Finite Taylor Polynomial
+
+In computation we usually cannot keep infinitely many terms. Sometimes the function is only differentiable to a finite order. We therefore truncate the Taylor series and keep the first \(n+1\) terms:
 
 $$
 T_n(x)=\sum_{k=0}^{n}\frac{f^{(k)}(x_0)}{k!}(x-x_0)^k.
 $$
 
-This \(T_n(x)\) is the degree \(n\) Taylor polynomial. It approximates the original function using finite work. For a polynomial function, a Taylor polynomial with degree at least as large as the original degree recovers the polynomial exactly.
+This is the central formula for the chapter. Read it concretely:
 
-Three common expansions are worth knowing fluently:
+- \(T_0(x)=f(x_0)\): a constant model using only the function value at the center.
+- \(T_1(x)=f(x_0)+f'(x_0)(x-x_0)\): the tangent-line model using slope.
+- \(T_2(x)=T_1(x)+\frac{f''(x_0)}{2}(x-x_0)^2\): a local parabola using curvature.
+- Higher-order terms keep correcting asymmetry, bending rate, and finer shape changes.
 
-**Exponential function**
+The center \(x_0\) decides where the approximation matches. The degree \(n\) decides how many derivatives it matches. The distance \(|x-x_0|\) decides how far you are asking local information to travel.
 
-Every derivative of \(e^x\) is \(e^x\), so at \(0\) every derivative is \(1\):
+### Example: Expanding \(\cos x\) Around 0
 
-$$
-e^x=1+x+\frac{x^2}{2!}+\frac{x^3}{3!}+\cdots.
-$$
-
-**Sine function**
-
-The derivatives cycle through \(\sin,\cos,-\sin,-\cos\), and only odd powers remain at \(0\):
+To expand \(f(x)=\cos x\) around \(x_0=0\), first evaluate derivatives at 0:
 
 $$
-\sin x=x-\frac{x^3}{3!}+\frac{x^5}{5!}-\frac{x^7}{7!}+\cdots.
+\begin{aligned}
+f(0)&=\cos 0=1,\\
+f'(0)&=-\sin 0=0,\\
+f''(0)&=-\cos 0=-1,\\
+f'''(0)&=\sin 0=0,\\
+f^{(4)}(0)&=\cos 0=1.
+\end{aligned}
 $$
 
-**Cosine function**
-
-At \(0\), only even powers remain:
+Substitute these into the Taylor formula:
 
 $$
-\cos x=1-\frac{x^2}{2!}+\frac{x^4}{4!}-\frac{x^6}{6!}+\cdots.
+\begin{aligned}
+\cos x
+&=1+0\cdot x-\frac{x^2}{2!}+0\cdot x^3+\frac{x^4}{4!}-\dotsb\\
+&=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k)!}x^{2k}.
+\end{aligned}
 $$
 
-The animation below shows the first-, third-, and fifth-degree Taylor polynomials for \(\sin x\) near \(0\). As the degree increases, the region of agreement widens, but the most stable region still surrounds the center.`,
+Even-order terms remain and odd-order terms vanish because \(\cos x\) is an even function. The derivative cycle shows the same pattern.
+
+### Example: Using a Truncated Taylor Polynomial for \(\sin(2)\)
+
+Now approximate \(f(x)=\sin x\) at \(x=2\) using the degree-4 Taylor polynomial centered at \(x_0=0\). The derivative values are
+
+$$
+\begin{aligned}
+f(0)&=\sin 0=0,\\
+f'(0)&=\cos 0=1,\\
+f''(0)&=-\sin 0=0,\\
+f'''(0)&=-\cos 0=-1,\\
+f^{(4)}(0)&=\sin 0=0.
+\end{aligned}
+$$
+
+Therefore
+
+$$
+\begin{aligned}
+T_4(x)&=0+x+0-\frac{x^3}{3!}+0\\
+&=x-\frac{x^3}{6}.
+\end{aligned}
+$$
+
+Plugging in \(x=2\):
+
+$$
+\sin(2)\approx T_4(2)=2-\frac{2^3}{6}=\frac{2}{3}.
+$$
+
+This is not extremely accurate because \(2\) is not very close to the center \(0\). Increasing the degree gives the Taylor series
+
+$$
+\sin x=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k+1)!}x^{2k+1}.
+$$
+
+The animation below shows the first-, third-, and fifth-degree Taylor polynomials for \(\sin x\) becoming tighter near 0. The key observation is not that higher degree must be better everywhere; it is that the approximation matches more tightly near the center.`,
     ),
     { visualIds: ['taylor-polynomial-video'] },
   ),
   section(
-    'taylor-remainder-error',
-    copy('截断、余项与误差', 'Truncation, Remainder, and Error'),
+    'taylor-series-taylor-series-error',
+    copy('Taylor 级数误差', 'Taylor Series Error'),
     copy(
-      md`Taylor 级数通常是无限和，但计算机只能处理有限项。保留到 \(n\) 次项以后，剩下的部分就是余项：
+      md`Taylor 近似真正有用，是因为它不仅给出近似值，还能告诉我们误差如何随距离和阶数变化。
+
+### 截断误差阶数
+
+设 \(f(x)\) 至少有 \(n+1\) 阶导数，\(T_n(x)\) 是以 \(x_0\) 为中心的 \(n\) 次 Taylor 多项式。令
 
 $$
-R_n(x)=f(x)-T_n(x).
+h=|x-x_0|.
 $$
 
-如果 \(f\) 在 \(x\) 和 \(x_0\) 之间具有 \(n+1\) 阶导数，那么 Lagrange 余项形式给出
+当 \(h\to 0\) 时，截断误差满足
 
 $$
-R_n(x)=\frac{f^{(n+1)}(\xi)}{(n+1)!}(x-x_0)^{n+1},
+\left|f(x)-T_n(x)\right|\le C h^{n+1}=O(h^{n+1}).
 $$
 
-其中 \(\xi\) 位于 \(x\) 和 \(x_0\) 之间。因此，如果在这段区间内
+这说明两个事实：
+
+- 固定阶数 \(n\) 时，越靠近中心点，误差下降越快。
+- 固定距离 \(h\) 时，提高阶数通常会改善近似，但改善程度取决于高阶导数和收敛性质。
+
+### Taylor 余项定理
+
+更精确的误差表达来自 Lagrange 余项。若 \(f(x)\) 有 \(n+1\) 阶导数，则存在某个介于 \(x_0\) 和 \(x\) 之间的点 \(\xi\)，使得
 
 $$
-\left|f^{(n+1)}(t)\right|\le M,
+R_n(x)=f(x)-T_n(x)=\frac{f^{(n+1)}(\xi)}{(n+1)!}(x-x_0)^{n+1}.
 $$
 
-就有误差界
+因此可以把上面的常数 \(C\) 写成区间上的上界：
 
 $$
-\left|f(x)-T_n(x)\right|
-\le
-\frac{M}{(n+1)!}|x-x_0|^{n+1}.
+C=\max_{\xi}\frac{\left|f^{(n+1)}(\xi)\right|}{(n+1)!}.
 $$
 
-这解释了一个重要直觉：当 \(h=|x-x_0|\to 0\) 时，
+这也解释了“下一项估计”的来源：如果高阶导数变化不剧烈，那么 Taylor 级数的下一项常常能给误差规模提供一个实用估计。但这只是估计，不是所有函数、所有点上都可靠的定理替代品。
+
+### 误差的渐近行为
+
+如果 \(n\) 次 Taylor 多项式在距离 \(h_1\) 处的误差约为 \(e_1\)，那么在距离 \(h_2\) 处的误差可以按阶数估计：
 
 $$
-\left|f(x)-T_n(x)\right|=O(h^{n+1}).
+e_1\propto h_1^{n+1},\qquad e_2\propto h_2^{n+1}.
 $$
 
-也就是说，在同样阶数下，离中心点的距离变小，误差通常会按更高次幂快速下降。如果已知在距离 \(h_1\) 处的误差约为 \(e_1\)，那么距离 \(h_2\) 处可以粗略估计为
+两式相除得到
 
 $$
-e_2\approx \left(\frac{h_2}{h_1}\right)^{n+1}e_1.
+\frac{e_1}{e_2}=\left(\frac{h_1}{h_2}\right)^{n+1},
 $$
 
-例如三次 Taylor 多项式的误差通常按四次方缩放。若 \(h_2=h_1/2\)，误差大约变成原来的 \(1/16\)。
-
-**例题：用误差界决定 \(\sin(0.5)\) 需要多少项。**
-
-使用 Maclaurin 展开
+也就是
 
 $$
-\sin x=x-\frac{x^3}{3!}+\frac{x^5}{5!}-\cdots.
+e_2=\left(\frac{h_2}{h_1}\right)^{n+1}e_1.
 $$
 
-若保留到三次项，
+这个公式常用于估算“把步长减半后误差会降多少”。例如三次 Taylor 多项式的截断误差是 \(O(h^4)\)，步长减半后误差大约乘以 \((1/2)^4=1/16\)。
+
+### 例题：\(\sin x\) 的 4 次 Taylor 误差界
+
+用 \(x_0=0\) 处的 4 次 Taylor 多项式近似 \(\sin x\) 时，余项为
 
 $$
-T_3(0.5)=0.5-\frac{0.5^3}{6}.
+R_4(x)=\frac{f^{(5)}(\xi)}{5!}x^5.
 $$
 
-下一项大小为
+因为 \(f^{(5)}(x)=\cos x\)，并且 \(|\cos \xi|\le 1\)，所以
 
 $$
-\frac{0.5^5}{5!}\approx 2.60\times 10^{-4}.
+|R_4(x)|\le \frac{|x|^5}{5!}=\frac{|x|^5}{120}.
 $$
 
-如果目标误差小于 \(10^{-3}\)，三次项已经足够；如果目标误差小于 \(10^{-5}\)，就需要继续保留五次项或更高。
+这给出了一个可靠的上界。它可能比真实误差保守，但不会低估。
 
-现在可以在实验台里移动中心、阶数和观察点。最值得观察的是：观察点远离中心时，即使阶数不低，误差也可能明显变大。`,
-      md`A Taylor series is often an infinite sum, but a computer can only keep finitely many terms. After we keep terms through degree \(n\), the leftover part is the remainder:
+### 例题：给定一个误差反推新误差
 
-$$
-R_n(x)=f(x)-T_n(x).
-$$
+设对函数 \(\sqrt{x-10}\) 在中心 \(x_0=12\) 展开三次 Taylor 多项式。若当 \(h_1=0.5\) 时截断误差约为 \(e_1=10^{-4}\)，估计 \(h_2=0.25\) 时的误差。
 
-If \(f\) has \(n+1\) derivatives between \(x\) and \(x_0\), the Lagrange form of the remainder is
+三次多项式意味着主导误差阶数为 \(n+1=4\)，因此
 
 $$
-R_n(x)=\frac{f^{(n+1)}(\xi)}{(n+1)!}(x-x_0)^{n+1},
+e_2=\left(\frac{0.25}{0.5}\right)^4 10^{-4}
+=\frac{1}{16}\cdot 10^{-4}
+=6.25\times 10^{-6}.
 $$
 
-where \(\xi\) lies between \(x\) and \(x_0\). Therefore, if
+### 交互实验：中心、阶数和观察点
+
+下面的实验台把本节公式变成可拖动的图像。你可以选择 \(\sin x\)、\(\cos x\)、\(e^x\)，移动展开中心 \(a\)、阶数 \(n\) 和观察点 \(x\)。读数会同时显示真实值 \(f(x)\)、Taylor 多项式 \(T_n(x)\)、绝对误差、下一项估计和可用误差界。
+
+实验时建议关注三件事：
+
+- 固定阶数，移动观察点远离中心，误差线通常会快速变长。
+- 固定观察点，提高阶数，中心附近的曲线会更贴合。
+- 对 \(e^x\) 这类函数，远离中心时误差界会明显受高阶导数大小影响。`,
+      md`Taylor approximation is useful because it gives both an approximation and a way to reason about error.
+
+### Truncation Error Order
+
+Let \(f(x)\) have at least \(n+1\) derivatives, and let \(T_n(x)\) be the degree \(n\) Taylor polynomial centered at \(x_0\). Define
 
 $$
-\left|f^{(n+1)}(t)\right|\le M
+h=|x-x_0|.
 $$
 
-on that interval, then
+As \(h\to 0\), the truncation error satisfies
 
 $$
-\left|f(x)-T_n(x)\right|
-\le
-\frac{M}{(n+1)!}|x-x_0|^{n+1}.
+\left|f(x)-T_n(x)\right|\le C h^{n+1}=O(h^{n+1}).
 $$
 
-This explains a key intuition: when \(h=|x-x_0|\to 0\),
+This says two things:
+
+- With fixed degree \(n\), moving closer to the center makes the error shrink rapidly.
+- With fixed distance \(h\), increasing the degree often improves the approximation, but the improvement depends on high-order derivatives and convergence behavior.
+
+### Taylor Remainder Theorem
+
+A sharper expression comes from the Lagrange remainder. If \(f(x)\) has \(n+1\) derivatives, then for some point \(\xi\) between \(x_0\) and \(x\),
 
 $$
-\left|f(x)-T_n(x)\right|=O(h^{n+1}).
+R_n(x)=f(x)-T_n(x)=\frac{f^{(n+1)}(\xi)}{(n+1)!}(x-x_0)^{n+1}.
 $$
 
-For the same degree, moving closer to the center usually shrinks the error rapidly. If the error at distance \(h_1\) is approximately \(e_1\), then at distance \(h_2\) we often estimate
+So the constant \(C\) above can be written as an interval bound:
 
 $$
-e_2\approx \left(\frac{h_2}{h_1}\right)^{n+1}e_1.
+C=\max_{\xi}\frac{\left|f^{(n+1)}(\xi)\right|}{(n+1)!}.
 $$
 
-For example, the error of a cubic Taylor polynomial usually scales like a fourth power. If \(h_2=h_1/2\), the error is roughly \(1/16\) of the original.
+This also explains the next-term estimate: when high-order derivatives do not vary too much, the next term of the Taylor series often gives a practical estimate of the error scale. It is an estimate, not a replacement for an actual bound in every function and every region.
 
-**Worked example: decide how many terms are needed for \(\sin(0.5)\).**
+### Asymptotic Error Behavior
 
-Use the Maclaurin expansion
-
-$$
-\sin x=x-\frac{x^3}{3!}+\frac{x^5}{5!}-\cdots.
-$$
-
-If we keep terms through degree 3,
+If a degree \(n\) Taylor polynomial has error about \(e_1\) at distance \(h_1\), then the error at distance \(h_2\) can be estimated by the order:
 
 $$
-T_3(0.5)=0.5-\frac{0.5^3}{6}.
+e_1\propto h_1^{n+1},\qquad e_2\propto h_2^{n+1}.
 $$
 
-The next term has size
+Dividing gives
 
 $$
-\frac{0.5^5}{5!}\approx 2.60\times 10^{-4}.
+\frac{e_1}{e_2}=\left(\frac{h_1}{h_2}\right)^{n+1},
 $$
 
-If the target error is below \(10^{-3}\), the cubic approximation is enough. If the target error is below \(10^{-5}\), keep the fifth-degree term or higher.
+or
 
-Use the lab below to move the center, degree, and point of evaluation. The important pattern is that error can grow clearly when the point moves away from the center, even if the degree is not small.`,
+$$
+e_2=\left(\frac{h_2}{h_1}\right)^{n+1}e_1.
+$$
+
+This formula is commonly used to estimate how much error falls when the step size is halved. For a cubic Taylor polynomial, the truncation error is \(O(h^4)\), so halving the distance multiplies the error by about \((1/2)^4=1/16\).
+
+### Example: Error Bound for Degree-4 Taylor Approximation of \(\sin x\)
+
+Using the degree-4 Taylor polynomial for \(\sin x\) centered at \(x_0=0\), the remainder is
+
+$$
+R_4(x)=\frac{f^{(5)}(\xi)}{5!}x^5.
+$$
+
+Since \(f^{(5)}(x)=\cos x\) and \(|\cos \xi|\le 1\),
+
+$$
+|R_4(x)|\le \frac{|x|^5}{5!}=\frac{|x|^5}{120}.
+$$
+
+This is a reliable upper bound. It may be conservative, but it does not underestimate the error.
+
+### Example: Predicting a New Error from a Known Error
+
+Suppose \(\sqrt{x-10}\) is expanded as a degree-3 Taylor polynomial centered at \(x_0=12\). If the truncation error at \(h_1=0.5\) is about \(e_1=10^{-4}\), estimate the error at \(h_2=0.25\).
+
+A cubic polynomial has leading error order \(n+1=4\), so
+
+$$
+e_2=\left(\frac{0.25}{0.5}\right)^4 10^{-4}
+=\frac{1}{16}\cdot 10^{-4}
+=6.25\times 10^{-6}.
+$$
+
+### Interactive Lab: Center, Degree, and Observation Point
+
+The lab below turns the formulas in this section into a draggable visual model. You can choose \(\sin x\), \(\cos x\), or \(e^x\), then move the expansion center \(a\), degree \(n\), and observation point \(x\). The readouts show the true value \(f(x)\), the Taylor value \(T_n(x)\), the absolute error, the next-term estimate, and an available error bound.
+
+Watch three patterns:
+
+- With fixed degree, moving the observation point away from the center usually lengthens the error segment quickly.
+- With fixed observation point, increasing the degree tightens the match near the center.
+- For functions such as \(e^x\), error bounds can grow noticeably because the high-order derivatives grow as the input grows.`,
     ),
     { labIds: ['taylor-series-lab'] },
   ),
   section(
-    'taylor-ml-connection',
-    copy('机器学习中的 Taylor 直觉', 'Taylor Intuition in Machine Learning'),
+    'taylor-series-ml-summary',
+    copy('从 Taylor 到优化和机器学习', 'From Taylor to Optimization and Machine Learning'),
     copy(
-      md`机器学习里经常无法直接“看完整个函数”，只能在当前参数附近看局部变化。Taylor 展开正好给出这种语言。
+      md`Taylor 级数在机器学习中常常不以“Taylor 级数”这个名字出现，但它是许多优化和近似方法背后的局部语言。
 
-**梯度下降是一阶局部模型。**
+### 一阶近似与梯度下降
 
-对损失函数 \(L(\theta)\)，在当前参数 \(\theta\) 附近：
-
-$$
-L(\theta+\Delta)
-\approx L(\theta)+\nabla L(\theta)^\top \Delta.
-$$
-
-为了让这个线性近似下降，\(\Delta\) 应该和梯度方向相反，这就是负梯度方向的来源。
-
-**Newton 法是二阶局部模型。**
-
-加入 Hessian 后：
+对多变量函数 \(L(\theta)\)，在参数 \(\theta\) 附近的一阶 Taylor 近似是
 
 $$
-L(\theta+\Delta)
-\approx
-L(\theta)+\nabla L(\theta)^\top\Delta
-+\frac{1}{2}\Delta^\top H(\theta)\Delta.
+L(\theta+\Delta)\approx L(\theta)+\nabla L(\theta)^T\Delta.
 $$
 
-二阶项告诉优化器地形的弯曲程度，所以 Newton 类方法能在合适条件下走得更快，但也更贵、更依赖 Hessian 稳定性。
-
-**数值库和深度学习框架也会用截断思想。**
-
-激活函数近似、矩阵函数近似、求指数、求三角函数、自动微分中的局部线性化，都在不同层面使用“局部展开 + 控制误差”的思想。
-
-最重要的判断是：Taylor 多项式通常越靠近中心越可靠；越远离中心，就越要检查误差、收敛半径或替代方法。`,
-      md`In machine learning we often cannot inspect the whole function directly. We inspect local change near the current parameters. Taylor expansion gives that language.
-
-**Gradient descent is a first-order local model.**
-
-For a loss \(L(\theta)\), near the current parameter \(\theta\):
+如果希望让损失下降，选择与梯度相反的方向 \(\Delta=-\eta \nabla L(\theta)\)，就得到梯度下降的基本更新直觉：
 
 $$
-L(\theta+\Delta)
-\approx L(\theta)+\nabla L(\theta)^\top \Delta.
+\theta_{\text{new}}=\theta-\eta \nabla L(\theta).
 $$
 
-To make this linear approximation decrease, \(\Delta\) should point opposite the gradient. That is the source of the negative-gradient direction.
+这不是凭空来的规则，而是“一阶局部模型告诉我们哪个方向会让函数下降最快”的结果。
 
-**Newton's method is a second-order local model.**
+### 二阶近似与 Newton 法
 
-With the Hessian included:
+加入二阶项后，
 
 $$
-L(\theta+\Delta)
-\approx
-L(\theta)+\nabla L(\theta)^\top\Delta
-+\frac{1}{2}\Delta^\top H(\theta)\Delta.
+L(\theta+\Delta)\approx L(\theta)+\nabla L(\theta)^T\Delta+\frac{1}{2}\Delta^T H(\theta)\Delta,
 $$
 
-The second-order term tells the optimizer about curvature. Newton-type methods can move faster under good conditions, but they are more expensive and depend on a stable Hessian.
+其中 \(H(\theta)\) 是 Hessian 矩阵。令这个二次模型的梯度为零，可以得到 Newton 步：
 
-**Numerical libraries and deep learning frameworks also use truncation ideas.**
+$$
+H(\theta)\Delta=-\nabla L(\theta).
+$$
 
-Activation approximations, matrix-function approximations, exponentials, trigonometric functions, and local linearization in automatic differentiation all use the same pattern: local expansion plus error control.
+二阶模型利用曲率信息，因此在局部二次近似可靠时会很快；代价是需要 Hessian 或其近似，计算和存储成本都更高。
 
-The most important judgment is this: Taylor polynomials are usually more reliable near the center. Far from the center, check the error, radius of convergence, or use a different method.`,
+### 激活函数和数值库中的截断
+
+激活函数、softmax、指数、对数和三角函数在底层实现中经常会遇到近似问题。Taylor 多项式提供了基本思路：在小区间上用低阶表达式替代昂贵函数，并用误差界控制精度。实际工程库通常会再结合范围缩减、分段多项式、Chebyshev 近似或有理函数近似，以获得更稳定的全局精度。
+
+在阅读后续章节时，可以把 Taylor 看成一种反复出现的思维方式：
+
+- 有复杂函数，就先在当前点附近写局部模型。
+- 要优化，就先问一阶项给出的下降方向，再看二阶项是否值得使用。
+- 要做数值近似，就同时追踪截断误差和舍入误差。
+- 要判断近似是否可信，就看中心、距离、阶数和余项界。`,
+      md`Taylor series often appears in machine learning without being named explicitly. It is the local language behind many optimization and approximation methods.
+
+### First-Order Approximation and Gradient Descent
+
+For a multivariable loss \(L(\theta)\), the first-order Taylor approximation near \(\theta\) is
+
+$$
+L(\theta+\Delta)\approx L(\theta)+\nabla L(\theta)^T\Delta.
+$$
+
+To decrease the loss, choose the direction opposite the gradient, \(\Delta=-\eta \nabla L(\theta)\). This gives the basic gradient descent update:
+
+$$
+\theta_{\text{new}}=\theta-\eta \nabla L(\theta).
+$$
+
+The rule is not arbitrary. It comes from the first-order local model telling us which direction decreases the function fastest.
+
+### Second-Order Approximation and Newton's Method
+
+Adding the second-order term gives
+
+$$
+L(\theta+\Delta)\approx L(\theta)+\nabla L(\theta)^T\Delta+\frac{1}{2}\Delta^T H(\theta)\Delta,
+$$
+
+where \(H(\theta)\) is the Hessian matrix. Setting the gradient of this quadratic model to zero gives the Newton step:
+
+$$
+H(\theta)\Delta=-\nabla L(\theta).
+$$
+
+The second-order model uses curvature, so it can move quickly when the local quadratic approximation is reliable. The cost is that the Hessian, or an approximation to it, can be expensive to compute and store.
+
+### Activation Functions and Truncation in Numerical Libraries
+
+Activation functions, softmax, exponentials, logarithms, and trigonometric functions all raise approximation questions in low-level implementations. Taylor polynomials provide the basic idea: replace an expensive function by a low-degree expression on a small interval, and control accuracy with an error bound. Production numerical libraries often combine this with range reduction, piecewise polynomials, Chebyshev approximation, or rational approximation for better global stability.
+
+In later chapters, treat Taylor approximation as a reusable way of thinking:
+
+- When a function is complicated, first write a local model near the current point.
+- When optimizing, ask what descent direction the first-order term gives, then decide whether second-order information is worth its cost.
+- When approximating numerically, track both truncation error and roundoff error.
+- When judging whether an approximation is trustworthy, inspect the center, distance, degree, and remainder bound.`,
     ),
   ),
   section(
-    'taylor-review-questions',
+    'taylor-series-review-questions',
     copy('复习问题', 'Review Questions'),
     copy(
-      md`1. Taylor 多项式的一般形式是什么？
-2. 给定函数和中心点，如何写出 \(n\) 次 Taylor 多项式？
-3. 为什么 Taylor 多项式首先是局部近似？
-4. 一阶项、二阶项和更高阶项分别编码什么局部信息？
-5. 如何用 Taylor 多项式近似函数值？
-6. 如何用 Lagrange 余项给出误差界？
-7. 给定目标误差时，如何判断需要保留多少项？
-8. Taylor 展开如何解释梯度下降和 Newton 法？`,
-      md`1. What is the general form of a Taylor polynomial?
-2. Given a function and a center, how do you write the degree \(n\) Taylor polynomial?
-3. Why is a Taylor polynomial first of all a local approximation?
-4. What local information do first-, second-, and higher-order terms encode?
-5. How can a Taylor polynomial approximate a function value?
-6. How can the Lagrange remainder give an error bound?
-7. Given a target error, how can you decide how many terms are needed?
-8. How does Taylor expansion explain gradient descent and Newton's method?`,
+      md`1. Taylor 级数的一般形式是什么？每个符号分别表示什么？
+2. 给定函数和中心点 \(x_0\)，怎样写出 \(n\) 次 Taylor 多项式？
+3. 常数项、一次项、二次项分别匹配函数的哪些局部信息？
+4. 怎样用 Taylor 级数近似函数在某点的值？
+5. 怎样从 Taylor 展开推导导数或差分近似？
+6. 对 \(n\) 次 Taylor 多项式，误差关于距离 \(h=|x-x_0|\) 的阶数是什么？
+7. 对简单函数，怎样用 Taylor 余项定理找到误差界中的常数 \(C\)？
+8. 如果要求误差小于给定阈值，怎样估算需要保留多少项？
+9. 为什么 Taylor 多项式通常是局部近似，而不是自动给出全局准确模型？
+10. 一阶和二阶 Taylor 近似分别如何连接到梯度下降和 Newton 法？`,
+      md`1. What is the general form of a Taylor series? What does each symbol mean?
+2. Given a function and a center \(x_0\), how do you write the degree \(n\) Taylor polynomial?
+3. What local information is matched by the constant, linear, and quadratic terms?
+4. How do you use a Taylor series to approximate a function value at a point?
+5. How can Taylor expansion be used to derive derivative or finite-difference approximations?
+6. For a degree \(n\) Taylor polynomial, what is the error order in terms of \(h=|x-x_0|\)?
+7. For simple functions, how do you use the Taylor Remainder Theorem to find the constant \(C\) in an error bound?
+8. If the error must be below a given threshold, how can you estimate how many terms are required?
+9. Why is a Taylor polynomial usually a local approximation rather than an automatically accurate global model?
+10. How do first- and second-order Taylor approximations connect to gradient descent and Newton's method?`,
     ),
   ),
 ]
@@ -455,175 +655,218 @@ export function buildTaylorSeriesModule(importedModule: MathLabModule): MathLabM
     ...importedModule,
     title: copy('泰勒级数', 'Taylor Series'),
     subtitle: copy(
-      '从一个中心点的函数值、斜率和曲率出发，构造可计算的局部近似。',
-      'Build computable local approximations from a function value, slope, and curvature at one center.',
+      '围绕一个中心点，用函数值、导数和误差界构造可计算的局部近似。',
+      'Build computable local approximations from a center point, derivatives, and error bounds.',
     ),
-    estimatedMinutes: 34,
-    prerequisites: [],
+    estimatedMinutes: 38,
+    learningObjectives: [
+      copy('使用 Taylor 级数近似函数。', 'Approximate a function using a Taylor series.'),
+      copy('使用 Taylor 展开推导导数、积分或差分近似。', 'Use Taylor expansions to derive derivative, integral, or finite-difference approximations.'),
+      copy('量化 Taylor 多项式截断误差。', 'Quantify the truncation error of a Taylor polynomial.'),
+      copy('把一阶和二阶 Taylor 近似连接到优化算法。', 'Connect first- and second-order Taylor approximations to optimization algorithms.'),
+    ],
     aiModelConnections: [
       copy(
-        '梯度下降、Newton 法、有限差分和许多数值库都依赖 Taylor 的局部近似思想。',
-        'Gradient descent, Newton methods, finite differences, and many numerical libraries rely on Taylor local approximation.',
+        '梯度下降、Newton 法、激活函数近似和数值库截断都依赖 Taylor 式的局部建模思想。',
+        'Gradient descent, Newton methods, activation approximations, and numerical-library truncation all rely on Taylor-style local modeling.',
       ),
-    ],
-    learningObjectives: [
-      copy('解释中心点、阶数和局部有效性的关系。', 'Explain how center, degree, and locality are connected.'),
-      copy(
-        md`写出 \(e^x\)、\(\sin x\)、\(\cos x\) 的常见 Maclaurin 展开。`,
-        md`Write the common Maclaurin expansions for \(e^x\), \(\sin x\), and \(\cos x\).`,
-      ),
-      copy('用 Lagrange 余项或下一项估计截断误差。', 'Use the Lagrange remainder or next-term estimate to reason about truncation error.'),
-      copy('把一阶和二阶 Taylor 近似连接到梯度下降与 Newton 法。', 'Connect first- and second-order Taylor approximations to gradient descent and Newton methods.'),
     ],
     concepts: [
       {
-        id: 'taylor-series-core',
+        id: 'taylor-polynomial',
         name: copy('Taylor 多项式', 'Taylor Polynomial'),
-        formulaLatex: 'T_n(x)=\\sum_{k=0}^{n}\\frac{f^{(k)}(a)}{k!}(x-a)^k',
+        formulaLatex: 'T_n(x)=\\sum_{k=0}^{n}\\frac{f^{(k)}(x_0)}{k!}(x-x_0)^k',
         variables: [
           {
-            symbol: 'a',
-            description: copy('展开中心，也是“局部”这个词的锚点。', 'Expansion center, the anchor for locality.'),
+            symbol: 'x_0',
+            description: copy('展开中心，所有导数都在这里取值。', 'The expansion center where derivatives are evaluated.'),
           },
           {
             symbol: 'n',
-            description: copy('保留到第几阶，控制计算成本和局部精度。', 'The retained degree, controlling cost and local accuracy.'),
+            description: copy('保留到的最高次数。', 'The highest retained degree.'),
           },
           {
-            symbol: 'f^{(k)}(a)',
-            description: copy(md`函数在中心点的第 \(k\) 阶导数。`, md`The \(k\)-th derivative evaluated at the center.`),
+            symbol: 'f^{(k)}(x_0)',
+            description: copy('函数在中心点的第 k 阶导数。', 'The k-th derivative of the function at the center.'),
           },
         ],
         plainExplanation: copy(
-          'Taylor 多项式用中心点附近可测的导数信息，一层层修正函数的局部形状。',
-          'A Taylor polynomial uses derivative information at a center to refine the local shape of a function term by term.',
+          'Taylor 多项式用中心点处的函数值和导数构造一个局部多项式替身。',
+          'A Taylor polynomial uses function values and derivatives at a center to build a local polynomial substitute.',
         ),
         geometricIntuition: copy(
-          '零阶看高度，一阶看斜率，二阶看弯曲，更高阶继续补局部细节。',
-          'Zeroth order sees height, first order sees slope, second order sees curvature, and higher orders add local detail.',
+          '零阶匹配高度，一阶匹配切线，二阶匹配曲率，更高阶继续调整局部形状。',
+          'Order zero matches height, order one matches tangent slope, order two matches curvature, and higher orders refine local shape.',
         ),
         numericalExample: copy(
-          md`在 0 附近，\(\sin x\approx x-x^3/6\) 很准；离 0 越远，越需要更高阶项或误差检查。`,
-          md`Near 0, \(\sin x\approx x-x^3/6\) is accurate; farther away, higher-order terms or error checks matter.`,
+          '在 0 附近，\\(\\sin x\\approx x-x^3/6\\)。代入 \\(x=0.5\\) 得到约 \\(0.47917\\)，真实值约 \\(0.47943\\)。',
+          'Near 0, \\(\\sin x\\approx x-x^3/6\\). At \\(x=0.5\\), this gives about \\(0.47917\\), while the true value is about \\(0.47943\\).',
         ),
-        codeExample:
-          'import math\n\nx = 0.7\napprox = x - x**3 / math.factorial(3) + x**5 / math.factorial(5)\nprint(approx, math.sin(x), abs(approx - math.sin(x)))',
         modelConnection: copy(
-          '优化算法常把损失函数在当前参数附近展开，用一阶或二阶局部模型决定下一步。',
-          'Optimization algorithms often expand the loss near current parameters and use first- or second-order local models to choose the next step.',
+          '许多优化算法每一步都在当前参数附近建立一阶或二阶 Taylor 局部模型。',
+          'Many optimization algorithms build a first- or second-order Taylor local model around the current parameters at each step.',
+        ),
+      },
+      {
+        id: 'taylor-remainder',
+        name: copy('Taylor 余项', 'Taylor Remainder'),
+        formulaLatex: 'R_n(x)=\\frac{f^{(n+1)}(\\xi)}{(n+1)!}(x-x_0)^{n+1}',
+        variables: [
+          {
+            symbol: 'R_n(x)',
+            description: copy('真实函数与 n 次 Taylor 多项式之间的误差。', 'The error between the true function and the degree n Taylor polynomial.'),
+          },
+          {
+            symbol: '\\xi',
+            description: copy('位于 x 和 x_0 之间的某个点。', 'Some point between x and x_0.'),
+          },
+        ],
+        plainExplanation: copy(
+          '余项说明截断后漏掉的量由下一阶导数和距离的 n+1 次方控制。',
+          'The remainder says the omitted part is controlled by the next derivative and the distance raised to the n+1 power.',
+        ),
+        geometricIntuition: copy(
+          '离中心越远，局部信息被外推得越远，误差通常增长越快。',
+          'The farther you move from the center, the farther local information is extrapolated, so error usually grows faster.',
+        ),
+        numericalExample: copy(
+          '对 \\(\\sin x\\) 的四次 Taylor 多项式，\\(|R_4(x)|\\le |x|^5/120\\)。',
+          'For the degree-4 Taylor polynomial of \\(\\sin x\\), \\(|R_4(x)|\\le |x|^5/120\\).',
+        ),
+        modelConnection: copy(
+          '误差界帮助判断近似激活函数、近似梯度和低精度计算是否仍在可接受范围内。',
+          'Error bounds help judge whether approximate activations, approximate gradients, and lower-precision computations remain acceptable.',
         ),
       },
     ],
     sections,
-    toc: sections.map((item) => ({
-      id: item.id,
-      level: item.level,
-      title: item.title,
-    })),
+    toc: sections.map(({ id, level, title }) => ({ id, level, title })),
     visuals: [
       {
         id: 'taylor-polynomial-video',
         type: 'manim-video',
-        title: copy('Taylor 多项式逐阶贴近', 'Taylor polynomials approaching a function'),
+        title: copy('Taylor 多项式逐阶贴合 \\(\\sin x\\)', 'Taylor polynomials progressively match \\(\\sin x\\)'),
         assetPath: '/manim/math-lab/taylor-polynomial.mp4',
         posterPath: '/manim/math-lab/taylor-polynomial.svg',
         transcript: copy(
-          md`动画展示 \(\sin x\) 在 0 附近从一次、三次到五次 Taylor 多项式逐步贴近原函数。`,
-          md`The animation shows first-, third-, and fifth-degree Taylor polynomials approaching \(\sin x\) near 0.`,
+          '动画展示一次、三次、五次 Taylor 多项式在 0 附近逐步贴近 \\(\\sin x\\)，同时保留远离中心时误差变大的视觉线索。',
+          'The animation shows first-, third-, and fifth-degree Taylor polynomials becoming closer to \\(\\sin x\\) near 0 while preserving the visual cue that error grows away from the center.',
         ),
         learningPurpose: copy(
-          '用运动展示“阶数增加改善局部形状，但中心附近最可靠”。',
-          'Use motion to show that higher degree improves local shape while the center neighborhood remains most reliable.',
+          '帮助读者把“匹配导数”看成曲线在中心附近逐步贴合。',
+          'Help readers see derivative matching as progressive local curve agreement near the center.',
+        ),
+        alt: copy(
+          'sin 曲线及其一次、三次、五次 Taylor 多项式的动画。',
+          'Animation of the sine curve and its first-, third-, and fifth-degree Taylor polynomials.',
+        ),
+        caption: copy(
+          '阶数升高主要改善中心附近的局部贴合；远离中心仍需要看余项。',
+          'Increasing degree mainly improves local agreement near the center; away from the center, the remainder still matters.',
         ),
       },
     ],
     labs: [
       {
         id: 'taylor-series-lab',
-        title: copy('Taylor 局部近似实验', 'Taylor Local Approximation Lab'),
+        title: copy('Taylor 局部近似实验台', 'Taylor Local Approximation Lab'),
         type: 'interactive-visual',
         componentName: 'TaylorSeriesLab',
         successCriteria: [
-          copy('能解释中心点改变后，近似最可靠的区域也会移动。', 'Explain why moving the center moves the most reliable region.'),
-          copy('能比较增加阶数与远离中心对误差的影响。', 'Compare how increasing degree and moving away from the center affect error.'),
+          copy('能够移动中心点并说明误差线为何变化。', 'Move the center point and explain why the error segment changes.'),
+          copy('能够比较一次、二次和高阶多项式的贴合范围。', 'Compare the useful range of first-, second-, and higher-degree polynomials.'),
+          copy('能够用读数判断下一项估计和误差界的差别。', 'Use the readouts to distinguish a next-term estimate from an error bound.'),
         ],
       },
     ],
     quizzes: [
       {
-        id: 'taylor-series-locality',
+        id: 'taylor-series-checkpoint',
         type: 'single-choice',
-        prompt: copy('Taylor 多项式首先是什么类型的模型？', 'What kind of model is a Taylor polynomial first of all?'),
+        prompt: copy(
+          'Taylor 多项式的中心点 \(x_0\) 最直接决定什么？',
+          'What does the center \(x_0\) of a Taylor polynomial most directly determine?',
+        ),
         choices: [
           {
-            id: 'correct',
-            label: copy('围绕某个中心点的局部模型', 'A local model around a chosen center'),
+            id: 'match-location',
+            label: copy('函数值和导数在哪里被匹配。', 'Where the function value and derivatives are matched.'),
           },
           {
-            id: 'global',
-            label: copy('自动在所有地方都准确的全局模型', 'A global model that is automatically accurate everywhere'),
+            id: 'global-range',
+            label: copy('多项式在整个实数轴上都准确。', 'That the polynomial is accurate on the entire real line.'),
+          },
+          {
+            id: 'degree',
+            label: copy('多项式必须有多少阶。', 'The required degree of the polynomial.'),
           },
         ],
-        answer: 'correct',
+        answer: 'match-location',
         explanation: copy(
-          'Taylor 多项式由中心点处的导数决定，所以它最先保证的是中心附近的形状匹配。',
-          'A Taylor polynomial is determined by derivatives at the center, so its strongest guarantee is shape matching near that center.',
+          '中心点决定局部信息的采样位置；准确范围还取决于阶数、距离和余项。',
+          'The center determines where local information is sampled; the useful range also depends on degree, distance, and the remainder.',
         ),
         misconceptionTags: ['taylor-global'],
         revisitVisualId: 'taylor-polynomial-video',
       },
       {
-        id: 'taylor-series-second-order',
+        id: 'taylor-remainder-order',
         type: 'single-choice',
-        prompt: copy('二阶 Taylor 项主要补充了哪类局部信息？', 'What local information does the second-order Taylor term mainly add?'),
+        prompt: copy(
+          '若使用 \(n\) 次 Taylor 多项式，并且函数足够光滑，中心附近的主导截断误差通常是什么阶？',
+          'If a degree \(n\) Taylor polynomial is used and the function is smooth enough, what is the usual leading truncation-error order near the center?',
+        ),
         choices: [
           {
-            id: 'correct',
-            label: copy('曲率信息', 'Curvature information'),
+            id: 'n-plus-one',
+            label: copy('\\(O(h^{n+1})\\)', '\\(O(h^{n+1})\\)'),
           },
           {
-            id: 'label',
-            label: copy('样本类别标签', 'Class labels'),
+            id: 'n',
+            label: copy('\\(O(h^n)\\)', '\\(O(h^n)\\)'),
+          },
+          {
+            id: 'constant',
+            label: copy('\\(O(1)\\)', '\\(O(1)\\)'),
           },
         ],
-        answer: 'correct',
+        answer: 'n-plus-one',
         explanation: copy(
-          md`\(f''(a)(x-a)^2/2\) 让近似从切线升级为能表达局部弯曲的二次模型。`,
-          md`\(f''(a)(x-a)^2/2\) upgrades the approximation from a tangent line to a quadratic model that captures local bending.`,
+          'Lagrange 余项包含 \((x-x_0)^{n+1}\)，因此中心附近的截断误差按 \(h^{n+1}\) 缩放。',
+          'The Lagrange remainder contains \((x-x_0)^{n+1}\), so near the center the truncation error scales like \(h^{n+1}\).',
         ),
-        misconceptionTags: ['taylor-order'],
-        revisitVisualId: 'taylor-polynomial-video',
+        misconceptionTags: ['taylor-remainder'],
       },
     ],
     misconceptions: [
       {
         id: 'taylor-global',
         statement: copy(
-          'Taylor 多项式阶数越高，就一定在任何地方都很准。',
-          'A higher-degree Taylor polynomial is always accurate everywhere.',
+          'Taylor 多项式阶数越高，就一定在所有地方越准确。',
+          'A higher-degree Taylor polynomial is necessarily more accurate everywhere.',
         ),
         correction: copy(
-          '精度取决于中心点、阶数、函数本身和观察点距离；Taylor 近似首先是局部工具。',
-          'Accuracy depends on center, degree, the function, and distance from the point of evaluation; Taylor approximation is first a local tool.',
+          'Taylor 多项式首先是局部模型。阶数升高通常改善中心附近的贴合，但远离中心时仍可能发散或误差变大。',
+          'A Taylor polynomial is first a local model. Higher degree often improves agreement near the center, but far away it can still diverge or have larger error.',
         ),
         example: copy(
-          md`\(\sin x\) 的 Maclaurin 多项式在 0 附近很好，但离 0 很远时必须检查误差或增加阶数。`,
-          md`A Maclaurin polynomial for \(\sin x\) works well near 0, but far from 0 you must check error or increase degree.`,
+          '\\(\\sin x\\) 在 0 附近用少数项就很好，但在更远处必须检查余项和收敛行为。',
+          '\\(\\sin x\\) is well approximated by a few terms near 0, but farther away the remainder and convergence behavior must be checked.',
         ),
       },
       {
-        id: 'taylor-order',
+        id: 'taylor-remainder',
         statement: copy(
-          '一阶、二阶、高阶只是公式长短不同，没有直觉区别。',
-          'First, second, and higher order only differ in formula length, not in intuition.',
+          'Taylor 余项就是被删掉的下一项，所以永远可以直接拿下一项当严格误差。',
+          'The Taylor remainder is just the next omitted term, so the next term is always a strict error.',
         ),
         correction: copy(
-          '不同阶数对应不同局部信息：高度、斜率、曲率和更细的形状修正。',
-          'Different orders encode different local information: height, slope, curvature, and finer shape corrections.',
+          '下一项常能估计误差规模，但严格误差界需要控制区间内的高阶导数。',
+          'The next term often estimates the error scale, but a rigorous bound requires controlling the higher derivative on the interval.',
         ),
         example: copy(
-          '梯度下降使用一阶局部模型；Newton 法额外使用二阶曲率信息。',
-          'Gradient descent uses a first-order local model; Newton methods additionally use second-order curvature.',
+          '对 \\(\\sin x\\) 可以用 \\(|f^{(5)}(\\xi)|\\le 1\\) 得到严格界；对 \\(e^x\\) 则要看区间上 \\(e^\\xi\\) 的最大值。',
+          'For \\(\\sin x\\), \\(|f^{(5)}(\\xi)|\\le 1\\) gives a rigorous bound; for \\(e^x\\), the maximum of \\(e^\\xi\\) on the interval matters.',
         ),
       },
     ],
