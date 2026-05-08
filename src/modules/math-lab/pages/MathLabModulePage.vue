@@ -10,9 +10,10 @@ import MisconceptionCard from '../components/MisconceptionCard.vue'
 import MathGradientLab from '../labs/MathGradientLab.vue'
 import MatrixTransformLab from '../labs/MatrixTransformLab.vue'
 import NumericalMiniLab from '../labs/NumericalMiniLab.vue'
+import TaylorSeriesLab from '../labs/TaylorSeriesLab.vue'
 import VectorDotProductLab from '../labs/VectorDotProductLab.vue'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
-import type { MathLabLocale, MathLabModuleId, QuizAttempt } from '../types/mathLab'
+import type { LabConfig, MathLabLocale, MathLabModuleId, MathLabSection, QuizAttempt } from '../types/mathLab'
 import {
   appendQuizAttempt,
   loadMathLabProgress,
@@ -39,7 +40,17 @@ const nextModule = computed(() => moduleDefinition.value?.nextModuleIds[0]
 const manimAssets = computed(() =>
   moduleDefinition.value?.visuals.filter((visual) => visual.type === 'manim-video') ?? [],
 )
-const hasSupplements = computed(() => manimAssets.value.length > 0 || (moduleDefinition.value?.labs.length ?? 0) > 0)
+const inlineVisualIds = computed(
+  () => new Set(moduleDefinition.value?.sections.flatMap((section) => section.visualIds ?? []) ?? []),
+)
+const inlineLabIds = computed(
+  () => new Set(moduleDefinition.value?.sections.flatMap((section) => section.labIds ?? []) ?? []),
+)
+const remainingManimAssets = computed(() => manimAssets.value.filter((asset) => !inlineVisualIds.value.has(asset.id)))
+const remainingLabs = computed(() =>
+  moduleDefinition.value?.labs.filter((lab) => !inlineLabIds.value.has(lab.id)) ?? [],
+)
+const hasSupplements = computed(() => remainingManimAssets.value.length > 0 || remainingLabs.value.length > 0)
 
 if (!moduleDefinition.value) {
   router.replace('/math-lab')
@@ -71,6 +82,18 @@ function onQuizSubmit(attempts: QuizAttempt[]) {
   }
 
   progress.value = saveMathLabProgress(nextProgress)
+}
+
+function manimAssetsForSection(section: MathLabSection) {
+  if (!section.visualIds?.length) return []
+  const sectionVisualIds = new Set(section.visualIds)
+  return manimAssets.value.filter((asset) => sectionVisualIds.has(asset.id))
+}
+
+function labsForSection(section: MathLabSection): LabConfig[] {
+  if (!section.labIds?.length) return []
+  const sectionLabIds = new Set(section.labIds)
+  return moduleDefinition.value?.labs.filter((lab) => sectionLabIds.has(lab.id)) ?? []
 }
 </script>
 
@@ -105,7 +128,7 @@ function onQuizSubmit(attempts: QuizAttempt[]) {
           </header>
           <div class="math-objective-list">
             <article v-for="objective in moduleDefinition.learningObjectives" :key="objective.en">
-              {{ objective[currentLocale] }}
+              <MarkdownMathContent :source="objective[currentLocale]" />
             </article>
           </div>
         </section>
@@ -121,28 +144,67 @@ function onQuizSubmit(attempts: QuizAttempt[]) {
           <div class="math-explanation-grid">
             <article>
               <span>{{ currentLocale === 'zh-CN' ? '直觉' : 'Intuition' }}</span>
-              <p>{{ concept.plainExplanation[currentLocale] }}</p>
+              <MarkdownMathContent :source="concept.plainExplanation[currentLocale]" />
             </article>
             <article>
               <span>{{ currentLocale === 'zh-CN' ? '模型连接' : 'Model link' }}</span>
-              <p>{{ concept.modelConnection[currentLocale] }}</p>
+              <MarkdownMathContent :source="concept.modelConnection[currentLocale]" />
             </article>
           </div>
           <CodeLab v-if="concept.codeExample" :title="concept.name[currentLocale]" :code="concept.codeExample" />
         </section>
 
-        <article
-          v-for="section in moduleDefinition.sections"
-          :id="section.id"
-          :key="section.id"
-          class="math-lab-panel math-article-section"
-        >
-          <header>
-            <span>{{ currentLocale === 'zh-CN' ? '完整讲义' : 'Complete note' }}</span>
-            <h2>{{ section.title[currentLocale] }}</h2>
-          </header>
-          <MarkdownMathContent :source="section.content[currentLocale]" />
-        </article>
+        <template v-for="section in moduleDefinition.sections" :key="section.id">
+          <article
+            :id="section.id"
+            class="math-lab-panel math-article-section"
+          >
+            <header>
+              <span>{{ currentLocale === 'zh-CN' ? '章节内容' : 'Section' }}</span>
+              <h2>{{ section.title[currentLocale] }}</h2>
+            </header>
+            <MarkdownMathContent :source="section.content[currentLocale]" />
+          </article>
+
+          <section
+            v-if="manimAssetsForSection(section).length || labsForSection(section).length"
+            class="math-inline-supplement-section"
+          >
+            <ManimPlayer
+              v-for="asset in manimAssetsForSection(section)"
+              :key="asset.id"
+              :asset="asset"
+              :accent="moduleDefinition.accent"
+              :locale="currentLocale"
+            />
+
+            <section v-if="labsForSection(section).length" class="math-module-labs">
+              <template v-for="lab in labsForSection(section)" :key="lab.id">
+                <VectorDotProductLab
+                  v-if="lab.componentName === 'VectorDotProductLab'"
+                  :locale="currentLocale"
+                />
+                <MatrixTransformLab
+                  v-else-if="lab.componentName === 'MatrixTransformLab'"
+                  :locale="currentLocale"
+                />
+                <MathGradientLab
+                  v-else-if="lab.componentName === 'MathGradientLab'"
+                  :locale="currentLocale"
+                />
+                <TaylorSeriesLab
+                  v-else-if="lab.componentName === 'TaylorSeriesLab'"
+                  :locale="currentLocale"
+                />
+                <NumericalMiniLab
+                  v-else
+                  :module-id="moduleDefinition.id"
+                  :locale="currentLocale"
+                />
+              </template>
+            </section>
+          </section>
+        </template>
 
         <section v-if="hasSupplements" class="math-lab-panel math-supplement-section">
           <header>
@@ -151,15 +213,15 @@ function onQuizSubmit(attempts: QuizAttempt[]) {
           </header>
 
           <ManimPlayer
-            v-for="asset in manimAssets"
+            v-for="asset in remainingManimAssets"
             :key="asset.id"
             :asset="asset"
             :accent="moduleDefinition.accent"
             :locale="currentLocale"
           />
 
-          <section v-if="moduleDefinition.labs.length" class="math-module-labs">
-            <template v-for="lab in moduleDefinition.labs" :key="lab.id">
+          <section v-if="remainingLabs.length" class="math-module-labs">
+            <template v-for="lab in remainingLabs" :key="lab.id">
               <VectorDotProductLab
                 v-if="lab.componentName === 'VectorDotProductLab'"
                 :locale="currentLocale"
@@ -170,6 +232,10 @@ function onQuizSubmit(attempts: QuizAttempt[]) {
               />
               <MathGradientLab
                 v-else-if="lab.componentName === 'MathGradientLab'"
+                :locale="currentLocale"
+              />
+              <TaylorSeriesLab
+                v-else-if="lab.componentName === 'TaylorSeriesLab'"
                 :locale="currentLocale"
               />
               <NumericalMiniLab

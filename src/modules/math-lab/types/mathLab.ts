@@ -22,6 +22,8 @@ export interface MathLabSection {
   level: 2 | 3
   title: LocalizedCopy
   content: LocalizedCopy
+  visualIds?: string[]
+  labIds?: string[]
 }
 
 export interface MathConcept {

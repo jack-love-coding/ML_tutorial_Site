@@ -1,5 +1,6 @@
 import MarkdownIt from 'markdown-it'
 import katex from 'katex'
+import sanitizeHtml from 'sanitize-html'
 
 const markdown = new MarkdownIt({
   html: true,
@@ -7,6 +8,62 @@ const markdown = new MarkdownIt({
   typographer: true,
   breaks: true,
 })
+
+const markdownSanitizeOptions = {
+  allowedTags: [
+    'a',
+    'b',
+    'blockquote',
+    'br',
+    'center',
+    'code',
+    'dd',
+    'del',
+    'details',
+    'div',
+    'dl',
+    'dt',
+    'em',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'hr',
+    'i',
+    'img',
+    'li',
+    'ol',
+    'p',
+    'pre',
+    's',
+    'span',
+    'strong',
+    'sub',
+    'summary',
+    'sup',
+    'table',
+    'tbody',
+    'td',
+    'th',
+    'thead',
+    'tr',
+    'ul',
+  ],
+  allowedAttributes: {
+    '*': ['class', 'id'],
+    a: ['href', 'title'],
+    img: ['src', 'alt', 'width', 'height'],
+    details: ['open'],
+    td: ['align'],
+    th: ['align'],
+  },
+  allowedSchemes: ['http', 'https', 'mailto'],
+  allowedSchemesAppliedToAttributes: ['href', 'src'],
+  allowProtocolRelative: false,
+  disallowedTagsMode: 'discard',
+} satisfies NonNullable<Parameters<typeof sanitizeHtml>[1]>
 
 function renderFormula(source: string, display = false) {
   return katex.renderToString(source, {
@@ -46,7 +103,14 @@ export function renderMarkdownWithMath(source: string) {
     return `\n\n${stashFormula(formula, true)}\n\n`
   })
 
-  const withParenInline = withDollarBlocks.replace(/\\{1,2}\(([\s\S]+?)\\{1,2}\)/g, (_, formula: string) => {
+  const withSingleDollarBlocks = withDollarBlocks.replace(
+    /(^|\n)\s*\$\s*\n([\s\S]+?)\n\s*\$\s*(?=\n|$)/g,
+    (_full: string, prefix: string, formula: string) => {
+      return `${prefix}\n\n${stashFormula(formula, true)}\n\n`
+    },
+  )
+
+  const withParenInline = withSingleDollarBlocks.replace(/\\{1,2}\(([\s\S]+?)\\{1,2}\)/g, (_, formula: string) => {
     return stashFormula(formula, false)
   })
 
@@ -57,7 +121,7 @@ export function renderMarkdownWithMath(source: string) {
     },
   )
 
-  let html = markdown.render(withAllPlaceholders)
+  let html = sanitizeHtml(markdown.render(withAllPlaceholders), markdownSanitizeOptions)
   formulas.forEach((formulaMarkup, index) => {
     html = html.replaceAll(`<p>@@FORMULA_${index}@@</p>`, () => formulaMarkup)
     html = html.replaceAll(`@@FORMULA_${index}@@`, () => formulaMarkup)

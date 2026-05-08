@@ -1,4 +1,7 @@
+import math
+
 from manim import (
+    Axes,
     BLUE,
     GREEN,
     ORANGE,
@@ -20,6 +23,16 @@ from manim import (
     UP,
     VGroup,
 )
+
+
+def taylor_sin(x, degree):
+    total = 0
+    for k in range((degree + 1) // 2):
+        power = 2 * k + 1
+        if power > degree:
+            break
+        total += ((-1) ** k) * x ** power / math.factorial(power)
+    return total
 
 
 class VectorDotProductScene(Scene):
@@ -113,3 +126,38 @@ class GradientDescentScene(Scene):
         caption_path = Text("step size is controlled by learning rate", font_size=26).to_edge(DOWN)
         self.play(FadeOut(uphill), FadeOut(downhill), Transform(caption, caption_path), Create(path), FadeIn(dots))
         self.wait(0.6)
+
+
+class TaylorPolynomialScene(Scene):
+    def construct(self):
+        axes = Axes(
+            x_range=[-3.5, 3.5, 1],
+            y_range=[-1.6, 1.6, 0.5],
+            x_length=9,
+            y_length=4.4,
+            tips=False,
+            axis_config={"stroke_opacity": 0.55},
+        )
+        title = Text("Taylor polynomials are local models", font_size=31).to_edge(UP)
+        sine_curve = axes.plot(lambda x: math.sin(x), color=BLUE, stroke_width=5)
+        center_dot = Dot(axes.c2p(0, 0), color=GREEN)
+        caption = Text("center at 0: match height and slope", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(title), FadeIn(axes), Create(sine_curve), FadeIn(center_dot), FadeIn(caption))
+        self.wait(0.3)
+
+        linear = axes.plot(lambda x: taylor_sin(x, 1), color=ORANGE, stroke_width=5)
+        linear_caption = Text("degree 1: tangent line", font_size=25).to_edge(DOWN)
+        self.play(Create(linear), Transform(caption, linear_caption))
+        self.wait(0.4)
+
+        cubic = axes.plot(lambda x: taylor_sin(x, 3), color=ORANGE, stroke_width=5)
+        cubic_caption = Text("degree 3: adds curvature correction", font_size=25).to_edge(DOWN)
+        self.play(Transform(linear, cubic), Transform(caption, cubic_caption))
+        self.wait(0.4)
+
+        fifth = axes.plot(lambda x: taylor_sin(x, 5), color=ORANGE, stroke_width=5)
+        window = axes.plot(lambda x: math.sin(x), x_range=[-1.2, 1.2], color=WHITE, stroke_width=8)
+        final_caption = Text("degree 5: closer near the center", font_size=25).to_edge(DOWN)
+        self.play(Transform(linear, fifth), Create(window), Transform(caption, final_caption))
+        self.wait(0.7)

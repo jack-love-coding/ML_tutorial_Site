@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
 import type { MathLabLocale, Misconception } from '../types/mathLab'
 
 defineProps<{
@@ -11,7 +12,7 @@ defineProps<{
   <article class="math-misconception-card">
     <span>{{ locale === 'zh-CN' ? '常见误区' : 'Common misconception' }}</span>
     <strong>{{ misconception.statement[locale] }}</strong>
-    <p>{{ misconception.correction[locale] }}</p>
-    <small>{{ misconception.example[locale] }}</small>
+    <MarkdownMathContent class="math-misconception-card__body" :source="misconception.correction[locale]" />
+    <MarkdownMathContent class="math-misconception-card__example" :source="misconception.example[locale]" />
   </article>
 </template>

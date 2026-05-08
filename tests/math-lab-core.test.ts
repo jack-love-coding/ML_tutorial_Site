@@ -23,6 +23,7 @@ import {
   setDiagnosticResult,
   type StorageLike,
 } from '../src/modules/math-lab/utils/progress.ts'
+import { evaluateTaylorApproximation } from '../src/modules/math-lab/utils/taylorSeries.ts'
 import { renderMarkdownWithMath } from '../src/utils/markdownMath.ts'
 
 function createMemoryStorage(): StorageLike {
@@ -115,7 +116,11 @@ test('imported math foundation modules include complete topics 6-19', () => {
 
     const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
     assert.equal(englishBody.length > 4000, true, `${moduleDefinition.id} should not use the previous shortened body`)
-    assert.match(englishBody, /Learning Objectives|Learning objectives|Dense Matrices/)
+    if (moduleDefinition.id === 'taylor-series') {
+      assert.match(englishBody, /From Polynomials to Local Models|Constructing the Taylor Polynomial/)
+    } else {
+      assert.match(englishBody, /Learning Objectives|Learning objectives|Dense Matrices/)
+    }
     if (moduleDefinition.id !== 'pca') {
       assert.match(englishBody, /Review Questions/)
     }
@@ -126,7 +131,7 @@ test('imported math foundation modules include complete topics 6-19', () => {
 test('key math foundation topics are connected to interactive or video enhancements', () => {
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
 
-  assert.ok(byId['taylor-series']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
+  assert.ok(byId['taylor-series']!.labs.some((lab) => lab.componentName === 'TaylorSeriesLab'))
   assert.ok(byId['monte-carlo']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
   assert.ok(byId['vectors-matrices-norms']!.labs.some((lab) => lab.componentName === 'VectorDotProductLab'))
   assert.ok(byId['vectors-matrices-norms']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
@@ -135,6 +140,59 @@ test('key math foundation topics are connected to interactive or video enhanceme
   assert.ok(byId.optimization!.labs.some((lab) => lab.componentName === 'MathGradientLab'))
   assert.ok(byId.svd!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
   assert.ok(byId.pca!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
+})
+
+test('taylor module presents hand-written bilingual content as an integrated reader chapter', () => {
+  const taylor = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'taylor-series')
+  assert.ok(taylor)
+
+  assert.equal(taylor.title['zh-CN'], '泰勒级数')
+  assert.equal(taylor.title.en, 'Taylor Series')
+  assert.ok(taylor.learningObjectives.length >= 4)
+  assert.ok(taylor.concepts.length >= 1)
+  assert.ok(taylor.quizzes.length >= 2)
+  assert.ok(taylor.misconceptions.length >= 2)
+  assert.ok(taylor.labs.some((lab) => lab.componentName === 'TaylorSeriesLab'))
+  assert.ok(taylor.visuals.some((visual) => visual.id === 'taylor-polynomial-video'))
+  assert.ok(taylor.sections.some((section) => section.visualIds?.includes('taylor-polynomial-video')))
+  assert.ok(taylor.sections.some((section) => section.labIds?.includes('taylor-series-lab')))
+
+  const zhBody = taylor.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = taylor.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /从多项式到局部模型/)
+  assert.match(zhBody, /Lagrange 余项/)
+  assert.match(zhBody, /梯度下降/)
+  assert.match(enBody, /From Polynomials to Local Models/)
+  assert.match(enBody, /Lagrange/)
+  assert.match(enBody, /Gradient descent/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Source Note/)
+  assert.doesNotMatch(zhBody, /泰勒系列扩展包|当时|A Taylor series is|How would we|Suppose that/)
+})
+
+test('taylor module markdown renders formulas without raw delimiters', () => {
+  const taylor = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'taylor-series')
+  assert.ok(taylor)
+
+  const source = taylor.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(source)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
+test('taylor approximation utilities expose expected error trends', () => {
+  const degreeOne = evaluateTaylorApproximation('sin', 0.8, 0, 1)
+  const degreeThree = evaluateTaylorApproximation('sin', 0.8, 0, 3)
+  const degreeFive = evaluateTaylorApproximation('sin', 0.8, 0, 5)
+  assert.ok(degreeThree.error < degreeOne.error)
+  assert.ok(degreeFive.error < degreeThree.error)
+
+  const expApprox = evaluateTaylorApproximation('exp', 1.1, 0, 5)
+  assert.ok(expApprox.remainderBound >= expApprox.error)
+  assert.ok(expApprox.nextTermEstimate > 0)
 })
 
 test('markdown renderer supports formulas, tables, code blocks, images, and callouts', () => {
@@ -177,6 +235,50 @@ print("ok")
   assert.match(html, /<blockquote>/)
 })
 
+test('markdown renderer sanitizes raw html while preserving teaching markup', () => {
+  const html = renderMarkdownWithMath(`
+<img src="/math-lab/cs357-assets/figs/vector_example.png" alt="Vector" width="300" height="200" onerror="alert(1)" style="color: red" />
+<a href="javascript:alert(1)" title="bad">unsafe link</a>
+<a href="https://example.com/math" title="safe">safe link</a>
+<script>alert(1)</script>
+<iframe src="https://example.com"></iframe>
+<style>.bad { color: red }</style>
+<details open>
+  <summary><strong>Answer</strong></summary>
+  <div class="figure" style="color: red"><span id="safe-note">Allowed teaching note</span></div>
+</details>
+`)
+
+  assert.match(html, /<img/)
+  assert.match(html, /src="\/math-lab\/cs357-assets\/figs\/vector_example\.png"/)
+  assert.match(html, /alt="Vector"/)
+  assert.match(html, /width="300"/)
+  assert.match(html, /height="200"/)
+  assert.doesNotMatch(html, /onerror/)
+  assert.doesNotMatch(html, /style=/)
+  assert.doesNotMatch(html, /javascript:/)
+  assert.match(html, /<a title="bad">unsafe link<\/a>/)
+  assert.match(html, /<a href="https:\/\/example\.com\/math" title="safe">safe link<\/a>/)
+  assert.doesNotMatch(html, /<script/)
+  assert.doesNotMatch(html, /<iframe/)
+  assert.doesNotMatch(html, /<style/)
+  assert.match(html, /<details open>/)
+  assert.match(html, /<summary><strong>Answer<\/strong><\/summary>/)
+  assert.match(html, /<div class="figure"><span id="safe-note">Allowed teaching note<\/span><\/div>/)
+})
+
+test('markdown renderer escapes html payloads inside code blocks', () => {
+  const html = renderMarkdownWithMath(`
+\`\`\`html
+<img src=x onerror=alert(1)>
+\`\`\`
+`)
+
+  assert.match(html, /<pre><code/)
+  assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/)
+  assert.doesNotMatch(html, /<img src=x/i)
+})
+
 test('markdown renderer does not parse math delimiters inside code blocks', () => {
   const html = renderMarkdownWithMath(`
 \`\`\`python
@@ -202,6 +304,21 @@ A = U\Sigma V^T
 
   assert.match(html, /katex/)
   assert.doesNotMatch(html, /\\{1,2}[\[\]\(\)]/)
+})
+
+test('markdown renderer supports legacy single-dollar display blocks', () => {
+  const html = renderMarkdownWithMath(`
+Legacy block:
+
+$
+\\begin{align}
+f(x) &= f(a) + f'(a)(x-a)
+\\end{align}
+$
+`)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\$\s*<br|\\begin/)
 })
 
 test('diagnostic scoring recommends the earliest weak math foundation module', () => {

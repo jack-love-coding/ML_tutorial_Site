@@ -4259,6 +4259,11 @@ p {
   gap: 8px;
 }
 
+.math-inline-supplement-section {
+  display: grid;
+  gap: 18px;
+}
+
 .math-lab-panel header > span,
 .math-code-lab header > span,
 .math-checkpoint header > span,
@@ -4276,6 +4281,17 @@ p {
   font-size: 0.78rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.math-misconception-card__body,
+.math-misconception-card__example {
+  gap: 8px;
+}
+
+.math-misconception-card__example {
+  padding-top: 2px;
+  color: color-mix(in srgb, var(--muted) 88%, var(--ink));
+  font-size: 0.88rem;
 }
 
 .math-path-map {
@@ -4608,6 +4624,170 @@ p {
   color: rgba(255, 255, 255, 0.62);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.taylor-series-lab {
+  align-items: stretch;
+}
+
+.taylor-series-lab__visual,
+.taylor-series-lab__controls {
+  min-width: 0;
+}
+
+.taylor-series-lab__visual {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.taylor-series-lab__plot {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.055) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f8fbff);
+  background-size: 32px 32px, 32px 32px, auto;
+}
+
+.taylor-series-lab__local-window {
+  fill: rgba(226, 109, 61, 0.08);
+}
+
+.taylor-series-lab__axis {
+  stroke: rgba(15, 23, 40, 0.22);
+  stroke-width: 1.4;
+}
+
+.taylor-series-lab__curve {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.taylor-series-lab__curve--actual {
+  stroke: #3868ff;
+}
+
+.taylor-series-lab__curve--approximation {
+  stroke: #e26d3d;
+  stroke-dasharray: 9 8;
+}
+
+.taylor-series-lab__error-line {
+  stroke: rgba(15, 23, 40, 0.64);
+  stroke-width: 2.5;
+  stroke-dasharray: 5 6;
+}
+
+.taylor-series-lab__center-dot {
+  fill: #0f9f7a;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.taylor-series-lab__sample-dot {
+  fill: #3868ff;
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.taylor-series-lab__approx-dot {
+  fill: #e26d3d;
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.taylor-series-lab__legend,
+.taylor-series-lab__toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.taylor-series-lab__legend span,
+.taylor-series-lab__toggles label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.taylor-series-lab__legend i {
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: #3868ff;
+}
+
+.taylor-series-lab__legend i.is-approximation {
+  background: #e26d3d;
+}
+
+.taylor-series-lab__legend i.is-center {
+  width: 9px;
+  height: 9px;
+  background: #0f9f7a;
+}
+
+.taylor-series-lab__legend i.is-error {
+  background: #0f1728;
+}
+
+.taylor-series-lab__control-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.taylor-series-lab__control-grid label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.taylor-series-lab__control-grid input,
+.taylor-series-lab__control-grid select {
+  width: 100%;
+  min-height: 40px;
+  accent-color: #e26d3d;
+}
+
+.taylor-series-lab__control-grid select {
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+}
+
+.taylor-series-lab__toggles input {
+  accent-color: #e26d3d;
+}
+
+.taylor-series-lab__formula {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.taylor-series-lab__formula > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.taylor-series-lab__formula .markdown-math {
+  min-width: 0;
 }
 
 .math-vector-svg,

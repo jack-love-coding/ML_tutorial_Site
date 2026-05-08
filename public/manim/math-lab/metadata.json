@@ -15,6 +15,11 @@
       "scene": "GradientDescentScene",
       "assetPath": "/manim/math-lab/gradient-descent.mp4",
       "posterPath": "/manim/math-lab/gradient-descent.svg"
+    },
+    {
+      "scene": "TaylorPolynomialScene",
+      "assetPath": "/manim/math-lab/taylor-polynomial.mp4",
+      "posterPath": "/manim/math-lab/taylor-polynomial.svg"
     }
   ]
 }

@@ -9,14 +9,20 @@ const assetOutputDir = path.join(root, 'public/math-lab/cs357-assets/figs')
 const cachePath = path.join(root, 'output/cs357-translation-cache.json')
 const sourceCacheDir = path.join(root, 'output/cs357-source-notes')
 
-const RAW_BASE = 'https://raw.githubusercontent.com/cs357/textbook/main'
+const CS357_TEXTBOOK_REF = '1f20018699108d8233535d645e856185db8fdd03'
+const RAW_BASE = `https://raw.githubusercontent.com/cs357/textbook/${CS357_TEXTBOOK_REF}`
 const NOTE_BASE = `${RAW_BASE}/notes`
 const FIG_BASE = `${RAW_BASE}/assets/img/figs`
 const CONTENT_API_BASE = 'https://api.github.com/repos/cs357/textbook/contents'
 
-const shouldTranslate = process.argv.includes('--translate')
+const externalTranslationRequested = process.argv.includes('--translate')
+const shouldTranslate = false
 const maxTranslationChars = 470
 let translationUnavailable = false
+
+if (externalTranslationRequested) {
+  console.warn('External translation is disabled. Chinese content must come from hand-written project overrides.')
+}
 
 const noteSpecs = [
   {
@@ -280,7 +286,7 @@ async function fetchGitHubContent(repoPath) {
 
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      const response = await fetchWithRetry(`${CONTENT_API_BASE}/${repoPath}?ref=main`)
+      const response = await fetchWithRetry(`${CONTENT_API_BASE}/${repoPath}?ref=${CS357_TEXTBOOK_REF}`)
 
       if (!response.ok) {
         throw new Error(`Failed to fetch ${repoPath}: ${response.status} ${response.statusText}`)
@@ -503,29 +509,9 @@ async function translateChunk(text, cache) {
   if (cache[normalized]) return cache[normalized]
   if (translationUnavailable) return text
 
-  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(normalized)}&langpair=en|zh-CN`
-  const response = await fetch(url, {
-    headers: {
-      'User-Agent': 'ML-tutorial-site-importer',
-    },
-  })
-  const payload = await response.json()
-
-  if (payload.responseStatus !== 200 || !payload.responseData?.translatedText) {
-    const details = String(payload.responseDetails ?? payload.responseStatus)
-    if (details.includes('USED ALL AVAILABLE FREE TRANSLATIONS')) {
-      translationUnavailable = true
-      console.warn('Translation quota reached; remaining uncached Chinese body chunks will fall back to the English source.')
-    } else {
-      console.warn(`Translation fallback for chunk: ${details}`)
-    }
-    cache[normalized] = text
-    return text
-  }
-
-  cache[normalized] = payload.responseData.translatedText
-  await new Promise((resolve) => setTimeout(resolve, 80))
-  return cache[normalized]
+  translationUnavailable = true
+  cache[normalized] = text
+  return text
 }
 
 function splitLongChunk(chunk) {

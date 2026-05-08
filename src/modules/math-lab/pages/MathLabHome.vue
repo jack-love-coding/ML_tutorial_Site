@@ -17,11 +17,11 @@ const copy = computed(() =>
         eyebrow: 'Math Intuition Lab',
         title: '数学直觉实验室',
         subtitle:
-          '从泰勒级数到 PCA，完整迁移数值数学讲义，并配合本站的公式渲染、图片、本地实验和双语阅读体验。',
+          '从泰勒级数到 PCA，用双语讲解、公式渲染、可视化动画和互动实验串起数值数学核心直觉。',
         diagnostic: '开始入门诊断',
         continue: '继续学习',
         pathTitle: '第 6-19 章完整学习路径',
-        pathBody: '保留原讲义的教学内容、公式、代码、表格、图片、答案折叠区和复习问题；前 1-5 个预备主题不显示在本路径中。',
+        pathBody: '这些章节覆盖公式、代码、表格、图片、答案折叠区和复习问题；前 1-5 个预备主题不显示在本路径中。',
         radarTitle: '当前数学地基',
         radarEmpty: '完成诊断后，这里会显示线性代数、微积分、概率和优化的准备度。',
       }
@@ -29,11 +29,11 @@ const copy = computed(() =>
         eyebrow: 'Math Intuition Lab',
         title: 'Numerical Math Notes',
         subtitle:
-          'A full chapter path from Taylor series to PCA, adapted into this site with math rendering, local images, labs, and bilingual reading.',
+          'A full chapter path from Taylor series to PCA, with bilingual explanations, math rendering, visual animations, and interactive labs.',
         diagnostic: 'Start diagnostic',
         continue: 'Continue learning',
         pathTitle: 'Complete path: chapters 6-19',
-        pathBody: 'The migrated notes preserve full teaching content, formulas, code, tables, figures, answer details, and review questions while omitting topics 1-5.',
+        pathBody: 'These chapters cover formulas, code, tables, figures, answer details, and review questions while omitting preparatory topics 1-5.',
         radarTitle: 'Current foundation',
         radarEmpty: 'After the diagnostic, this panel shows your linear algebra, calculus, probability, and optimization readiness.',
       },

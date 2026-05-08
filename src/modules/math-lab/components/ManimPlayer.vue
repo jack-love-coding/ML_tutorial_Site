@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
 import type { MathLabLocale, VisualAsset } from '../types/mathLab'
 
 const props = withDefaults(defineProps<{
@@ -40,7 +41,7 @@ const fallbackTranscript = computed(() =>
 
     <div class="math-manim-player__copy">
       <span>{{ asset?.title[locale] ?? fallbackTitle }}</span>
-      <p>{{ asset?.transcript[locale] ?? fallbackTranscript }}</p>
+      <MarkdownMathContent :source="asset?.transcript[locale] ?? fallbackTranscript" />
     </div>
   </section>
 </template>

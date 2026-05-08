@@ -45,6 +45,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/MatrixTransformLab.vue',
     'src/modules/math-lab/labs/MathGradientLab.vue',
     'src/modules/math-lab/labs/NumericalMiniLab.vue',
+    'src/modules/math-lab/labs/TaylorSeriesLab.vue',
   ]
 
   for (const path of componentPaths) {
@@ -100,7 +101,8 @@ test('manim pipeline and existing math lab video assets remain present', () => {
   assert.ok(existsSync(new URL('scripts/manim/render_math_lab.py', root)))
 
   const metadata = JSON.parse(read('public/manim/math-lab/metadata.json'))
-  assert.equal(metadata.scenes.length, 3)
+  assert.equal(metadata.scenes.length, 4)
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'TaylorPolynomialScene'))
 
   for (const scene of metadata.scenes) {
     const assetPath = scene.assetPath.replace(/^\//, 'public/')
