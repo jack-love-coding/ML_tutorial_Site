@@ -3,13 +3,14 @@ import { computed, ref } from 'vue'
 import type { MathLabLocale, MathLabModuleId } from '../types/mathLab'
 import { evaluatePowerIteration, type EigenPowerMatrixKind } from '../utils/eigenPower'
 import { evaluateLeastSquaresLine } from '../utils/leastSquares'
+import { evaluateSvdLowRank, type SvdSpectrumKind } from '../utils/svd'
 
 const props = defineProps<{
   moduleId: MathLabModuleId
   locale: MathLabLocale
 }>()
 
-type LabKind = 'taylor' | 'monteCarlo' | 'lu' | 'power' | 'leastSquares' | 'pca' | 'generic'
+type LabKind = 'taylor' | 'monteCarlo' | 'lu' | 'power' | 'leastSquares' | 'svd' | 'pca' | 'generic'
 
 const degree = ref(5)
 const xValue = ref(0.9)
@@ -21,6 +22,9 @@ const initialAngle = ref(35)
 const slope = ref(0.72)
 const intercept = ref(1.12)
 const outlierLift = ref(0)
+const svdKeptRank = ref(2)
+const svdSpectrumKind = ref<SvdSpectrumKind>('lecture')
+const svdTolerancePower = ref(-2)
 const componentCount = ref(1)
 
 const labKind = computed<LabKind>(() => {
@@ -29,7 +33,8 @@ const labKind = computed<LabKind>(() => {
   if (props.moduleId === 'lu-decomposition') return 'lu'
   if (props.moduleId === 'eigenvalues-eigenvectors') return 'power'
   if (props.moduleId === 'least-squares-fitting') return 'leastSquares'
-  if (props.moduleId === 'svd' || props.moduleId === 'pca') return 'pca'
+  if (props.moduleId === 'svd') return 'svd'
+  if (props.moduleId === 'pca') return 'pca'
   return 'generic'
 })
 
@@ -55,6 +60,10 @@ const copy = computed(() => {
     leastSquares: [
       zh ? '最小二乘残差' : 'Least-squares residual',
       zh ? '移动斜率，观察残差平方和如何变化。' : 'Move the slope and watch the sum of squared residuals change.',
+    ],
+    svd: [
+      zh ? '低秩近似与奇异值谱' : 'Low-rank approximation and spectrum',
+      zh ? '保留前 k 个奇异值时，能量保留增加，2-范数误差由下一个奇异值控制。' : 'Keep the first k singular values; retained energy rises, and 2-norm error is controlled by the next singular value.',
     ],
     pca: [
       zh ? '主方向保留信息' : 'Principal directions retain information',
@@ -202,9 +211,14 @@ const leastSquares = computed(() => {
   }
 })
 
+const svd = computed(() => evaluateSvdLowRank({
+  spectrumKind: svdSpectrumKind.value,
+  keptRank: svdKeptRank.value,
+  tolerance: 10 ** svdTolerancePower.value,
+}))
 
 const pca = computed(() => {
-  const singularValues = props.moduleId === 'svd' ? [8.4, 3.2, 0.9] : [6.2, 2.1, 0.55]
+  const singularValues = [6.2, 2.1, 0.55]
   const total = singularValues.reduce((acc, value) => acc + value ** 2, 0)
   const retained = singularValues
     .slice(0, componentCount.value)
@@ -215,6 +229,22 @@ const pca = computed(() => {
   }
 })
 
+function matrixCells(matrix: number[][], xOffset: number, yOffset: number) {
+  const maxAbs = Math.max(1e-12, ...matrix.flat().map((value) => Math.abs(value)))
+  return matrix.flatMap((row, rowIndex) =>
+    row.map((value, columnIndex) => ({
+      x: xOffset + columnIndex * 18,
+      y: yOffset + rowIndex * 18,
+      value,
+      opacity: Math.min(1, Math.abs(value) / maxAbs),
+    })),
+  )
+}
+
+function heatColor(value: number, opacity: number) {
+  const alpha = 0.18 + opacity * 0.72
+  return value >= 0 ? `rgba(56, 104, 255, ${alpha})` : `rgba(226, 109, 61, ${alpha})`
+}
 </script>
 
 <template>
@@ -301,6 +331,52 @@ const pca = computed(() => {
           class="least-squares-residual-line"
         />
         <circle v-for="point in leastSquares.points" :key="point.x" :cx="point.x" :cy="point.y" r="7" />
+      </svg>
+
+      <svg v-else-if="labKind === 'svd'" class="numerical-lab-svg" viewBox="0 0 360 240" role="img">
+        <rect
+          v-for="(value, index) in svd.singularValues"
+          :key="`${value}-${index}`"
+          :x="36 + index * 42"
+          :y="106 - (value / svd.singularValues[0]) * 82"
+          width="25"
+          :height="(value / svd.singularValues[0]) * 82"
+          :class="{ 'is-retained': index < svd.keptRank }"
+        />
+        <line x1="28" y1="108" x2="210" y2="108" />
+        <g>
+          <rect
+            v-for="cell in matrixCells(svd.originalMatrix, 40, 142)"
+            :key="`original-${cell.x}-${cell.y}`"
+            :x="cell.x"
+            :y="cell.y"
+            width="17"
+            height="17"
+            :style="{ fill: heatColor(cell.value, cell.opacity) }"
+          />
+        </g>
+        <g>
+          <rect
+            v-for="cell in matrixCells(svd.approximationMatrix, 146, 142)"
+            :key="`approx-${cell.x}-${cell.y}`"
+            :x="cell.x"
+            :y="cell.y"
+            width="17"
+            height="17"
+            :style="{ fill: heatColor(cell.value, cell.opacity) }"
+          />
+        </g>
+        <g>
+          <rect
+            v-for="cell in matrixCells(svd.residualMatrix, 252, 142)"
+            :key="`residual-${cell.x}-${cell.y}`"
+            :x="cell.x"
+            :y="cell.y"
+            width="17"
+            height="17"
+            :style="{ fill: heatColor(cell.value, cell.opacity) }"
+          />
+        </g>
       </svg>
 
       <svg v-else-if="labKind === 'pca'" class="numerical-lab-svg" viewBox="0 0 300 210" role="img">
@@ -434,6 +510,58 @@ const pca = computed(() => {
           <article>
             <span>{{ locale === 'zh-CN' ? 'cond(AᵀA)' : 'cond(AᵀA)' }}</span>
             <strong>{{ leastSquares.conditionEstimate.toFixed(2) }}</strong>
+          </article>
+        </div>
+      </div>
+
+      <div v-else-if="labKind === 'svd'" class="math-mini-controls">
+        <label>
+          {{ locale === 'zh-CN' ? '奇异值谱' : 'Spectrum' }}
+          <select v-model="svdSpectrumKind">
+            <option value="lecture">
+              {{ locale === 'zh-CN' ? '五行三列例子' : '5 by 3 example' }}
+            </option>
+            <option value="image">
+              {{ locale === 'zh-CN' ? '图像压缩型' : 'Image compression' }}
+            </option>
+            <option value="ill-conditioned">
+              {{ locale === 'zh-CN' ? '病态矩阵型' : 'Ill-conditioned' }}
+            </option>
+          </select>
+        </label>
+        <label>
+          {{ locale === 'zh-CN' ? '保留秩 k' : 'Kept rank k' }}: {{ svdKeptRank }}
+          <input v-model.number="svdKeptRank" type="range" min="1" max="4" />
+        </label>
+        <label>
+          {{ locale === 'zh-CN' ? '有效秩容差' : 'Effective-rank tolerance' }}:
+          1e{{ svdTolerancePower }}
+          <input v-model.number="svdTolerancePower" type="range" min="-4" max="-1" />
+        </label>
+        <div class="math-readout-grid">
+          <article>
+            <span>{{ locale === 'zh-CN' ? '能量' : 'energy' }}</span>
+            <strong>{{ (svd.retainedEnergy * 100).toFixed(1) }}%</strong>
+          </article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? '2-范数误差' : '2-norm error' }}</span>
+            <strong>{{ svd.spectralError.toFixed(3) }}</strong>
+          </article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? '有效秩' : 'effective rank' }}</span>
+            <strong>{{ svd.effectiveRank }}</strong>
+          </article>
+          <article>
+            <span>cond2</span>
+            <strong>{{ Number.isFinite(svd.conditionNumber) ? svd.conditionNumber.toFixed(1) : '∞' }}</strong>
+          </article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? '压缩存储' : 'compressed storage' }}</span>
+            <strong>{{ svd.compressedStorage }} / {{ svd.originalStorage }}</strong>
+          </article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? 'Frobenius 误差' : 'Frobenius error' }}</span>
+            <strong>{{ svd.frobeniusError.toFixed(3) }}</strong>
           </article>
         </div>
       </div>

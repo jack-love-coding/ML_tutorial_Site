@@ -10,6 +10,7 @@ import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
 import { buildOptimizationModule } from './optimizationModule.ts'
 import { buildSparseMatricesModule } from './sparseMatricesModule.ts'
+import { buildSvdModule } from './svdModule.ts'
 import { buildTaylorSeriesModule } from './taylorSeriesModule.ts'
 import { buildVectorMatrixNormsModule } from './vectorMatrixNormsModule.ts'
 import type { MathLabModule, MathLabModuleId } from '../types/mathLab'
@@ -67,6 +68,9 @@ export const mathLabModules: MathLabModule[] = importedMathNotes.map((moduleDefi
     return buildLeastSquaresModule(moduleDefinition)
   }
 
+  if (moduleDefinition.id === 'svd') {
+    return buildSvdModule(moduleDefinition)
+  }
 
   const supplement = supplementalModules[moduleDefinition.id]
 
