@@ -15,6 +15,7 @@ import ConditionNumbersLab from '../labs/ConditionNumbersLab.vue'
 import LuDecompositionLab from '../labs/LuDecompositionLab.vue'
 import MarkovChainLab from '../labs/MarkovChainLab.vue'
 import NumericalMiniLab from '../labs/NumericalMiniLab.vue'
+import NonlinearEquationsLab from '../labs/NonlinearEquationsLab.vue'
 import SparseMatrixLab from '../labs/SparseMatrixLab.vue'
 import TaylorSeriesLab from '../labs/TaylorSeriesLab.vue'
 import VectorDotProductLab from '../labs/VectorDotProductLab.vue'
@@ -226,6 +227,10 @@ function labsForSection(section: MathLabSection): LabConfig[] {
                   v-else-if="lab.componentName === 'FiniteDifferenceLab'"
                   :locale="currentLocale"
                 />
+                <NonlinearEquationsLab
+                  v-else-if="lab.componentName === 'NonlinearEquationsLab'"
+                  :locale="currentLocale"
+                />
                 <NumericalMiniLab
                   v-else
                   :module-id="moduleDefinition.id"
@@ -290,6 +295,10 @@ function labsForSection(section: MathLabSection): LabConfig[] {
               />
               <FiniteDifferenceLab
                 v-else-if="lab.componentName === 'FiniteDifferenceLab'"
+                :locale="currentLocale"
+              />
+              <NonlinearEquationsLab
+                v-else-if="lab.componentName === 'NonlinearEquationsLab'"
                 :locale="currentLocale"
               />
               <NumericalMiniLab

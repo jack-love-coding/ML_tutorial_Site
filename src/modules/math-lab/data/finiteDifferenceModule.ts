@@ -82,7 +82,7 @@ $$
 f'(x)=df(x)+O(h).
 $$
 
-这保留了原讲义的关键结论：有限差分不是魔法，它是 Taylor 局部模型的一阶截断。`,
+关键结论是：有限差分不是魔法，它是 Taylor 局部模型的一阶截断。`,
       md`For a smooth function $f(x)$, we often want the derivative $f'(x)$ at one point. The analytic derivative may not be available, or the function value may come from a black-box simulator, a remote model, or an expensive numerical routine. The finite-difference idea is direct: do not first derive a symbolic formula; sample nearby function values and turn their change into a slope.
 
 The derivative is defined by
@@ -140,7 +140,7 @@ $$
 
 所以中心差分的主误差是 $O(h^2)$，代价是要在两侧各取一次函数值。这个“更准但更贵”的取舍在数值库和模型调试中经常出现。
 
-手算例题仍用原讲义的二次函数：
+手算例题使用下面的二次函数：
 
 $$
 f(x)=2x^2+15x+1,\qquad f'(x)=4x+15.
@@ -248,7 +248,7 @@ $$
 h\approx \sqrt{\frac{\epsilon_m |f(x)|}{M}}.
 $$
 
-这解释了原讲义中的误差图：$h$ 很大时，截断误差主导；$h$ 很小时，舍入和相消误差主导；总误差在两者交会附近最小。
+这解释了下图中的误差形状：$h$ 很大时，截断误差主导；$h$ 很小时，舍入和相消误差主导；总误差在两者交会附近最小。
 
 ![有限差分误差曲线](/math-lab/cs357-assets/figs/finite_diff_errors.png)
 
@@ -311,7 +311,7 @@ $$
 
 每个分量都可以换成后向或中心差分。中心差分通常更适合做梯度检查，因为它的截断误差更小；前向差分在函数调用预算更紧时更便宜。
 
-原讲义的梯度例题是
+梯度例题是
 
 $$
 f(x_1,x_2)=2x_1+x_1^2x_2+x_2^3,
@@ -463,7 +463,7 @@ $$
 
 这和梯度近似是同一个动作，只是每次函数调用返回整列输出变化。
 
-原讲义的 Jacobian 例题为
+Jacobian 例题为
 
 $$
 \mathbf{f}(x_1,x_2)=
@@ -743,7 +743,7 @@ export function buildFiniteDifferenceModule(importedModule: MathLabModule): Math
           'Each column is the local output-space response after pushing one input direction.',
         ),
         numericalExample: copy(
-          md`在原讲义 Jacobian 例题中，前向差分得到 \(\begin{bmatrix}54.2&18\\3&7\end{bmatrix}\)，解析结果是 \(\begin{bmatrix}54&18\\3&7\end{bmatrix}\)。`,
+          md`在 Jacobian 例题中，前向差分得到 \(\begin{bmatrix}54.2&18\\3&7\end{bmatrix}\)，解析结果是 \(\begin{bmatrix}54&18\\3&7\end{bmatrix}\)。`,
           md`In the lecture's Jacobian example, forward difference gives \(\begin{bmatrix}54.2&18\\3&7\end{bmatrix}\), while the analytic result is \(\begin{bmatrix}54&18\\3&7\end{bmatrix}\).`,
         ),
         modelConnection: copy(

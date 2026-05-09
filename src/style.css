@@ -5339,6 +5339,185 @@ p {
   background: rgba(190, 18, 60, 0.1);
 }
 
+.nonlinear-equations-lab {
+  align-items: stretch;
+}
+
+.nonlinear-equations-lab__visual,
+.nonlinear-equations-lab__controls {
+  min-width: 0;
+}
+
+.nonlinear-equations-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.nonlinear-equations-lab__plot {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f8fbff);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.nonlinear-equations-lab__axis {
+  stroke: rgba(15, 23, 40, 0.22);
+  stroke-width: 1.4;
+}
+
+.nonlinear-equations-lab__curve {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nonlinear-equations-lab__bracket {
+  stroke: #0f9f7a;
+  stroke-width: 8;
+  stroke-linecap: round;
+  opacity: 0.68;
+}
+
+.nonlinear-equations-lab__drop-line {
+  stroke: rgba(190, 18, 60, 0.38);
+  stroke-width: 1.8;
+  stroke-dasharray: 5 6;
+}
+
+.nonlinear-equations-lab__secant-path {
+  fill: none;
+  stroke: rgba(226, 109, 61, 0.74);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 8 7;
+}
+
+.nonlinear-equations-lab__root,
+.nonlinear-equations-lab__bisection-point,
+.nonlinear-equations-lab__newton-point,
+.nonlinear-equations-lab__secant-point {
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.nonlinear-equations-lab__root {
+  fill: #0f1728;
+}
+
+.nonlinear-equations-lab__bisection-point {
+  fill: #0f9f7a;
+}
+
+.nonlinear-equations-lab__newton-point {
+  fill: #be123c;
+}
+
+.nonlinear-equations-lab__secant-point {
+  fill: #e26d3d;
+}
+
+.nonlinear-equations-lab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.nonlinear-equations-lab__legend span {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.nonlinear-equations-lab__legend i {
+  width: 18px;
+  height: 4px;
+  border-radius: 999px;
+  background: #2563eb;
+}
+
+.nonlinear-equations-lab__legend i.is-bracket {
+  background: #0f9f7a;
+}
+
+.nonlinear-equations-lab__legend i.is-newton {
+  background: #be123c;
+}
+
+.nonlinear-equations-lab__legend i.is-secant {
+  background: #e26d3d;
+}
+
+.nonlinear-equations-lab__method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.nonlinear-equations-lab__method-grid article {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.nonlinear-equations-lab__method-grid span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nonlinear-equations-lab__method-grid strong,
+.nonlinear-equations-lab__method-grid small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.nonlinear-equations-lab__method-grid strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.nonlinear-equations-lab__method-grid small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.nonlinear-equations-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.nonlinear-equations-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.nonlinear-equations-lab__control-grid label:first-child {
+  grid-column: 1 / -1;
+}
+
+.nonlinear-equations-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(37, 99, 235, 0.1);
+}
+
 .finite-difference-lab {
   align-items: stretch;
 }
@@ -5457,6 +5636,7 @@ p {
   border-radius: 16px;
   background: rgba(37, 99, 235, 0.1);
 }
+
 .lu-decomposition-lab {
   align-items: stretch;
 }
@@ -5812,6 +5992,8 @@ p {
   .condition-number-lab__singular-values,
   .condition-number-lab__control-grid,
   .finite-difference-lab__control-grid,
+  .nonlinear-equations-lab__method-grid,
+  .nonlinear-equations-lab__control-grid,
   .lu-decomposition-lab__factorization,
   .lu-decomposition-lab__control-grid {
     grid-template-columns: 1fr;
