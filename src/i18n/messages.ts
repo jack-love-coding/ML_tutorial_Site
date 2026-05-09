@@ -288,9 +288,17 @@ export const messages = {
             title: '模型学到的是一条把平面切开的直线',
             body: '参数决定直线的朝向与位置，背景颜色展示模型对不同区域的置信度。',
           },
+          sigmoid: {
+            title: 'Sigmoid 把线性打分压成类别概率',
+            body: '分数可以任意大或小，但概率必须落在 0 到 1 之间。',
+          },
           confidence: {
             title: '交叉熵不只关心对错，也关心信心是否足够',
             body: '样本越被推向高置信区域，损失通常越低；正则项则会抑制权重过大。',
+          },
+          regularization: {
+            title: '正则化限制过度自信的线性边界',
+            body: '权重越大，概率背景越尖锐；正则项让模型不要为了少数样本过度倾斜。',
           },
           limits: {
             title: '当数据本身是非线性的，单条直线就会吃力',
@@ -308,13 +316,25 @@ export const messages = {
             title: '隐藏层先把原始坐标变成新的特征',
             body: '每个隐藏单元都在学习自己的方向和响应模式，它们组合起来构成新的表示空间。',
           },
+          activations: {
+            title: '激活函数让多层网络真正变成非线性模型',
+            body: '没有激活函数，多层线性变换仍然会退化成一个线性变换。',
+          },
           reconfigure: {
             title: '分类器在新的表示空间里会更容易工作',
             body: '当隐藏表示把原本缠绕的数据拉开后，输出层只需要较简单的边界就能完成分类。',
           },
+          backprop: {
+            title: '反向传播把损失信号分配给每一层参数',
+            body: '链式法则让隐藏层知道自己怎样影响最终损失。',
+          },
           capacity: {
             title: '容量更高，就能表达更丰富的边界',
             body: '增加隐藏单元或更换激活函数，会明显改变表示形状和最终决策边界。',
+          },
+          generalization: {
+            title: '更强的表达能力也会带来过拟合风险',
+            body: '训练准确率提高不等于泛化更好，需要观察边界是否开始追随噪声。',
           },
         },
       },
@@ -615,9 +635,17 @@ export const messages = {
             title: 'The model learns one line that cuts the plane',
             body: 'The parameters control the line orientation and offset. The background color shows class confidence everywhere.',
           },
+          sigmoid: {
+            title: 'Sigmoid turns a linear score into class probability',
+            body: 'Scores can be unbounded, but probabilities must stay between 0 and 1.',
+          },
           confidence: {
             title: 'Cross-entropy cares about confidence, not only correctness',
             body: 'The farther examples are pushed into confident regions, the lower the loss usually becomes. Regularization keeps the weights in check.',
+          },
+          regularization: {
+            title: 'Regularization restrains overconfident linear boundaries',
+            body: 'Large weights create sharper confidence fields; regularization keeps the boundary from over-tilting for a few examples.',
           },
           limits: {
             title: 'Nonlinear data exposes the limit of a single line',
@@ -635,13 +663,25 @@ export const messages = {
             title: 'Hidden units first turn coordinates into new features',
             body: 'Each hidden neuron learns its own orientation and response pattern. Together they build a new representation space.',
           },
+          activations: {
+            title: 'Activation functions make stacked layers nonlinear',
+            body: 'Without activations, multiple linear layers collapse into one linear transformation.',
+          },
           reconfigure: {
             title: 'Classification becomes easier in the new representation',
             body: 'Once the hidden space separates tangled inputs, the output layer only needs a simpler final split.',
           },
+          backprop: {
+            title: 'Backpropagation assigns the loss signal to each layer',
+            body: 'The chain rule tells hidden-layer parameters how they affected the final loss.',
+          },
           capacity: {
             title: 'More capacity means richer boundaries',
             body: 'Changing the number of hidden units or the activation function visibly changes the final boundary and hidden layout.',
+          },
+          generalization: {
+            title: 'More expressive power also raises overfitting risk',
+            body: 'Higher training accuracy does not guarantee better generalization; inspect whether the boundary starts following noise.',
           },
         },
       },
