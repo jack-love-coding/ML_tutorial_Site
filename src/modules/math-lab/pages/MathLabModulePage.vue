@@ -7,6 +7,7 @@ import CheckpointQuiz from '../components/CheckpointQuiz.vue'
 import CodeLab from '../components/CodeLab.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
+import FiniteDifferenceLab from '../labs/FiniteDifferenceLab.vue'
 import MathGradientLab from '../labs/MathGradientLab.vue'
 import MatrixTransformLab from '../labs/MatrixTransformLab.vue'
 import MonteCarloLab from '../labs/MonteCarloLab.vue'
@@ -221,6 +222,10 @@ function labsForSection(section: MathLabSection): LabConfig[] {
                   v-else-if="lab.componentName === 'MarkovChainLab'"
                   :locale="currentLocale"
                 />
+                <FiniteDifferenceLab
+                  v-else-if="lab.componentName === 'FiniteDifferenceLab'"
+                  :locale="currentLocale"
+                />
                 <NumericalMiniLab
                   v-else
                   :module-id="moduleDefinition.id"
@@ -281,6 +286,10 @@ function labsForSection(section: MathLabSection): LabConfig[] {
               />
               <MarkovChainLab
                 v-else-if="lab.componentName === 'MarkovChainLab'"
+                :locale="currentLocale"
+              />
+              <FiniteDifferenceLab
+                v-else-if="lab.componentName === 'FiniteDifferenceLab'"
                 :locale="currentLocale"
               />
               <NumericalMiniLab

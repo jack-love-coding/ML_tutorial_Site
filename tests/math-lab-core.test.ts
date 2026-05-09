@@ -33,6 +33,12 @@ import {
   stationaryDistributionPower,
 } from '../src/modules/math-lab/utils/markovChains.ts'
 import {
+  evaluateFiniteDifference,
+  evaluateLectureGradient,
+  evaluateLectureJacobian,
+  finiteDifferenceDerivative,
+} from '../src/modules/math-lab/utils/finiteDifference.ts'
+import {
   csrMatVec,
   denseToCoo,
   denseToCsr,
@@ -173,6 +179,7 @@ test('key math foundation topics are connected to interactive or video enhanceme
   assert.ok(byId['condition-numbers']!.labs.some((lab) => lab.componentName === 'ConditionNumbersLab'))
   assert.ok(byId['eigenvalues-eigenvectors']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
   assert.ok(byId['markov-chains']!.labs.some((lab) => lab.componentName === 'MarkovChainLab'))
+  assert.ok(byId['finite-difference-methods']!.labs.some((lab) => lab.componentName === 'FiniteDifferenceLab'))
   assert.ok(byId.optimization!.labs.some((lab) => lab.componentName === 'MathGradientLab'))
   assert.ok(byId.svd!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
   assert.ok(byId.pca!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
@@ -648,6 +655,74 @@ test('markov chains module markdown renders formulas without raw delimiters', ()
   assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
 })
 
+test('finite difference module preserves lecture coverage with bilingual repair and inline step-size lab', () => {
+  const finiteModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'finite-difference-methods')
+  assert.ok(finiteModule)
+
+  assert.equal(finiteModule.title['zh-CN'], '有限差分方法')
+  assert.equal(finiteModule.title.en, 'Finite Difference Methods')
+  assert.ok(finiteModule.learningObjectives.length >= 5)
+  assert.ok(finiteModule.concepts.length >= 3)
+  assert.ok(finiteModule.quizzes.length >= 3)
+  assert.ok(finiteModule.misconceptions.length >= 3)
+  assert.ok(finiteModule.labs.some((lab) => lab.componentName === 'FiniteDifferenceLab'))
+  assert.ok(finiteModule.sections.some((section) => section.labIds?.includes('finite-difference-error-lab')))
+
+  const sectionIds = finiteModule.sections.map((section) => section.id)
+  assert.ok(sectionIds.includes('finite-difference-methods-derivative-from-samples'))
+  assert.ok(sectionIds.includes('finite-difference-methods-three-stencils'))
+  assert.ok(sectionIds.includes('finite-difference-methods-step-size-error'))
+  assert.ok(sectionIds.includes('finite-difference-methods-gradient-checking'))
+  assert.ok(sectionIds.includes('finite-difference-methods-jacobian'))
+  assert.ok(sectionIds.includes('finite-difference-methods-review-questions'))
+
+  const zhBody = finiteModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = finiteModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /前向差分/)
+  assert.match(zhBody, /后向差分/)
+  assert.match(zhBody, /中心差分/)
+  assert.match(zhBody, /截断误差/)
+  assert.match(zhBody, /相消误差/)
+  assert.match(zhBody, /f\(x\)=2x\^2\+15x\+1/)
+  assert.match(zhBody, /gradient check/)
+  assert.match(zhBody, /Jacobian/)
+  assert.match(zhBody, /\/math-lab\/cs357-assets\/figs\/finite_diff_errors\.png/)
+  assert.match(enBody, /Forward difference/)
+  assert.match(enBody, /Backward difference/)
+  assert.match(enBody, /Central difference/)
+  assert.match(enBody, /roundoff and cancellation/)
+  assert.match(enBody, /gradient check/i)
+  assert.match(enBody, /Jacobian approximation/)
+  assert.match(enBody, /Black-box model debugging/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Course Staff|changelog/)
+  assert.doesNotMatch(zhBody, /For a given smooth function|Using a similar approach|Assume .*we are trying/)
+  assert.doesNotMatch(enBody, /有限差分|复习问题|学习目标/)
+})
+
+test('finite difference module markdown renders formulas without raw delimiters', () => {
+  const finiteModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'finite-difference-methods')
+  assert.ok(finiteModule)
+
+  const source = finiteModule.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const objectiveSource = finiteModule.learningObjectives.map((objective) => objective['zh-CN']).join('\n\n')
+  const conceptSource = finiteModule.concepts
+    .map((concept) => `${concept.plainExplanation['zh-CN']}\n\n${concept.numericalExample['zh-CN']}`)
+    .join('\n\n')
+  const quizSource = finiteModule.quizzes
+    .map((quiz) => `${quiz.prompt['zh-CN']}\n\n${quiz.explanation['zh-CN']}`)
+    .join('\n\n')
+  const misconceptionSource = finiteModule.misconceptions
+    .map((misconception) => `${misconception.correction['zh-CN']}\n\n${misconception.example['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(`${objectiveSource}\n\n${conceptSource}\n\n${source}\n\n${quizSource}\n\n${misconceptionSource}`)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
 test('taylor approximation utilities expose expected error trends', () => {
   const degreeOne = evaluateTaylorApproximation('sin', 0.8, 0, 1)
   const degreeThree = evaluateTaylorApproximation('sin', 0.8, 0, 3)
@@ -813,6 +888,58 @@ test('markov chain utilities expose column-stochastic updates, stationarity, and
 
   const history = iterateMarkovChain(pageRank.transitionMatrix, [1, 0, 0, 0, 0, 0], 20)
   assert.ok(l1Distance(history[20]!, stationary.vector) < l1Distance(history[0]!, stationary.vector))
+})
+
+test('finite difference utilities expose stencil accuracy and gradient/Jacobian trends', () => {
+  const quadratic = (x: number) => 2 * x ** 2 + 15 * x + 1
+
+  assert.equal(finiteDifferenceDerivative(quadratic, 10, 0.01, 'forward').toFixed(2), '55.02')
+  assert.equal(finiteDifferenceDerivative(quadratic, 10, 0.01, 'backward').toFixed(2), '54.98')
+  assert.equal(finiteDifferenceDerivative(quadratic, 10, 0.01, 'central').toFixed(2), '55.00')
+
+  const forwardWide = evaluateFiniteDifference({
+    functionKind: 'exp-shift',
+    method: 'forward',
+    x: 0.4,
+    h: 1e-1,
+  })
+  const forwardNarrow = evaluateFiniteDifference({
+    functionKind: 'exp-shift',
+    method: 'forward',
+    x: 0.4,
+    h: 1e-4,
+  })
+  const centralNarrow = evaluateFiniteDifference({
+    functionKind: 'exp-shift',
+    method: 'central',
+    x: 0.4,
+    h: 1e-4,
+  })
+  const tiny = evaluateFiniteDifference({
+    functionKind: 'exp-shift',
+    method: 'forward',
+    x: 0.4,
+    h: 1e-12,
+  })
+
+  assert.ok(forwardNarrow.absoluteError < forwardWide.absoluteError)
+  assert.ok(centralNarrow.absoluteError < forwardNarrow.absoluteError)
+  assert.ok(tiny.roundingEstimate > forwardNarrow.roundingEstimate)
+  assert.equal(centralNarrow.functionEvaluations, 2)
+  assert.equal(forwardNarrow.functionEvaluations, 1)
+
+  const gradientForward = evaluateLectureGradient(0.05, 'forward')
+  const gradientCentral = evaluateLectureGradient(0.05, 'central')
+  assert.ok(gradientCentral.errorNorm < gradientForward.errorNorm)
+  assert.deepEqual(gradientForward.approximation.map((value) => Number(value.toFixed(4))), [14.985, 74.4575])
+
+  const jacobianForward = evaluateLectureJacobian(0.1, 'forward')
+  const jacobianCentral = evaluateLectureJacobian(0.1, 'central')
+  assert.deepEqual(jacobianForward.approximation.map((row) => row.map((value) => Number(value.toFixed(1)))), [
+    [54.2, 18],
+    [3, 7],
+  ])
+  assert.ok(jacobianCentral.maxError < jacobianForward.maxError)
 })
 
 test('sparse matrix utilities expose COO, CSR, matvec, and storage estimates', () => {

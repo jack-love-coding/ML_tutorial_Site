@@ -1,6 +1,7 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
 import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
+import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
 import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { buildMarkovChainsModule } from './markovChainsModule.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
@@ -45,6 +46,10 @@ export const mathLabModules: MathLabModule[] = importedMathNotes.map((moduleDefi
 
   if (moduleDefinition.id === 'markov-chains') {
     return buildMarkovChainsModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'finite-difference-methods') {
+    return buildFiniteDifferenceModule(moduleDefinition)
   }
 
   const supplement = supplementalModules[moduleDefinition.id]

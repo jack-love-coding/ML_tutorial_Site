@@ -5339,6 +5339,124 @@ p {
   background: rgba(190, 18, 60, 0.1);
 }
 
+.finite-difference-lab {
+  align-items: stretch;
+}
+
+.finite-difference-lab__visual,
+.finite-difference-lab__controls {
+  min-width: 0;
+}
+
+.finite-difference-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.finite-difference-lab__plot {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f7fbff);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.finite-difference-lab__axis {
+  stroke: rgba(15, 23, 40, 0.16);
+  stroke-width: 1.4;
+}
+
+.finite-difference-lab__axis--x {
+  stroke-dasharray: 5 7;
+}
+
+.finite-difference-lab__curve,
+.finite-difference-lab__secant,
+.finite-difference-lab__tangent {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.finite-difference-lab__curve {
+  stroke: #2563eb;
+  stroke-width: 4;
+}
+
+.finite-difference-lab__secant {
+  stroke: #d8663a;
+  stroke-width: 4;
+}
+
+.finite-difference-lab__tangent {
+  stroke: rgba(15, 23, 40, 0.68);
+  stroke-width: 2.6;
+  stroke-dasharray: 7 7;
+}
+
+.finite-difference-lab__sample,
+.finite-difference-lab__current {
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.finite-difference-lab__sample {
+  fill: #d8663a;
+}
+
+.finite-difference-lab__current {
+  fill: #0f9f7a;
+}
+
+.finite-difference-lab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.finite-difference-lab__legend span {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.finite-difference-lab__legend i {
+  width: 18px;
+  height: 4px;
+  border-radius: 999px;
+  background: #2563eb;
+}
+
+.finite-difference-lab__legend i.is-secant {
+  background: #d8663a;
+}
+
+.finite-difference-lab__legend i.is-tangent {
+  background: #0f1728;
+}
+
+.finite-difference-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.finite-difference-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.finite-difference-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(37, 99, 235, 0.1);
+}
 .lu-decomposition-lab {
   align-items: stretch;
 }
@@ -5693,6 +5811,7 @@ p {
   .markov-chain-lab__control-grid,
   .condition-number-lab__singular-values,
   .condition-number-lab__control-grid,
+  .finite-difference-lab__control-grid,
   .lu-decomposition-lab__factorization,
   .lu-decomposition-lab__control-grid {
     grid-template-columns: 1fr;
