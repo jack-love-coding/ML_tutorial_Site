@@ -39,6 +39,10 @@ import {
   finiteDifferenceDerivative,
 } from '../src/modules/math-lab/utils/finiteDifference.ts'
 import {
+  evaluateNewtonSystemStep,
+  evaluateNonlinearRootFinding,
+} from '../src/modules/math-lab/utils/nonlinearEquations.ts'
+import {
   csrMatVec,
   denseToCoo,
   denseToCsr,
@@ -180,6 +184,7 @@ test('key math foundation topics are connected to interactive or video enhanceme
   assert.ok(byId['eigenvalues-eigenvectors']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
   assert.ok(byId['markov-chains']!.labs.some((lab) => lab.componentName === 'MarkovChainLab'))
   assert.ok(byId['finite-difference-methods']!.labs.some((lab) => lab.componentName === 'FiniteDifferenceLab'))
+  assert.ok(byId['nonlinear-equations']!.labs.some((lab) => lab.componentName === 'NonlinearEquationsLab'))
   assert.ok(byId.optimization!.labs.some((lab) => lab.componentName === 'MathGradientLab'))
   assert.ok(byId.svd!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
   assert.ok(byId.pca!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
@@ -723,6 +728,152 @@ test('finite difference module markdown renders formulas without raw delimiters'
   assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
 })
 
+test('nonlinear equations module preserves lecture coverage with bilingual repair and inline root-finding lab', () => {
+  const nonlinearModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'nonlinear-equations')
+  assert.ok(nonlinearModule)
+
+  assert.equal(nonlinearModule.title['zh-CN'], '求解非线性方程')
+  assert.equal(nonlinearModule.title.en, 'Solving Nonlinear Equations')
+  assert.ok(nonlinearModule.learningObjectives.length >= 5)
+  assert.ok(nonlinearModule.concepts.length >= 3)
+  assert.ok(nonlinearModule.quizzes.length >= 3)
+  assert.ok(nonlinearModule.misconceptions.length >= 3)
+  assert.ok(nonlinearModule.labs.some((lab) => lab.componentName === 'NonlinearEquationsLab'))
+  assert.ok(nonlinearModule.sections.some((section) => section.labIds?.includes('nonlinear-equations-root-finding-lab')))
+
+  const sectionIds = nonlinearModule.sections.map((section) => section.id)
+  assert.ok(sectionIds.includes('nonlinear-equations-root-of-a-function'))
+  assert.ok(sectionIds.includes('nonlinear-equations-convergence-and-cost'))
+  assert.ok(sectionIds.includes('nonlinear-equations-bisection-method'))
+  assert.ok(sectionIds.includes('nonlinear-equations-newton-and-secant-methods'))
+  assert.ok(sectionIds.includes('nonlinear-equations-nonlinear-system-of-equations'))
+  assert.ok(sectionIds.includes('nonlinear-equations-review-questions'))
+
+  const zhBody = nonlinearModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = nonlinearModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /二分法/)
+  assert.match(zhBody, /Newton 法/)
+  assert.match(zhBody, /割线法/)
+  assert.match(zhBody, /Jacobian/)
+  assert.match(zhBody, /x\^3-x-1/)
+  assert.match(zhBody, /多维 Newton/)
+  assert.match(zhBody, /隐式层/)
+  assert.match(zhBody, /\/math-lab\/cs357-assets\/figs\/cubic\.png/)
+  assert.match(enBody, /Bisection Method/)
+  assert.match(enBody, /Newton's method/)
+  assert.match(enBody, /secant method/)
+  assert.match(enBody, /Jacobian/)
+  assert.match(enBody, /implicit layers/)
+  assert.match(enBody, /Production solvers/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Course Staff|changelog/)
+  assert.doesNotMatch(zhBody, /Linear functions are trivial|The bisection method is the simplest|What is the convergence rate/)
+  assert.doesNotMatch(enBody, /二分法|割线法|复习问题|学习目标/)
+})
+
+test('nonlinear equations module markdown renders formulas without raw delimiters', () => {
+  const nonlinearModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'nonlinear-equations')
+  assert.ok(nonlinearModule)
+
+  const source = nonlinearModule.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const objectiveSource = nonlinearModule.learningObjectives.map((objective) => objective['zh-CN']).join('\n\n')
+  const conceptSource = nonlinearModule.concepts
+    .map((concept) => `${concept.plainExplanation['zh-CN']}\n\n${concept.numericalExample['zh-CN']}`)
+    .join('\n\n')
+  const quizSource = nonlinearModule.quizzes
+    .map((quiz) => `${quiz.prompt['zh-CN']}\n\n${quiz.explanation['zh-CN']}`)
+    .join('\n\n')
+  const misconceptionSource = nonlinearModule.misconceptions
+    .map((misconception) => `${misconception.correction['zh-CN']}\n\n${misconception.example['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(`${objectiveSource}\n\n${conceptSource}\n\n${source}\n\n${quizSource}\n\n${misconceptionSource}`)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
+test('optimization module preserves lecture coverage with bilingual repair and inline gradient lab', () => {
+  const optimizationModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'optimization')
+  assert.ok(optimizationModule)
+
+  assert.equal(optimizationModule.title['zh-CN'], '优化')
+  assert.equal(optimizationModule.title.en, 'Optimization')
+  assert.ok(optimizationModule.learningObjectives.length >= 6)
+  assert.ok(optimizationModule.concepts.length >= 3)
+  assert.ok(optimizationModule.quizzes.length >= 3)
+  assert.ok(optimizationModule.misconceptions.length >= 3)
+  assert.ok(optimizationModule.labs.some((lab) => lab.componentName === 'MathGradientLab'))
+  assert.ok(optimizationModule.visuals.some((visual) => visual.id === 'gradient-descent-video'))
+  assert.ok(optimizationModule.sections.some((section) => section.visualIds?.includes('gradient-descent-video')))
+  assert.ok(optimizationModule.sections.some((section) => section.labIds?.includes('optimization-gradient-lab')))
+
+  const sectionIds = optimizationModule.sections.map((section) => section.id)
+  assert.deepEqual(sectionIds, [
+    'optimization-learning-objectives',
+    'optimization-problem-statement',
+    'optimization-local-global',
+    'optimization-one-dimensional-tests',
+    'optimization-golden-section',
+    'optimization-newton-1d',
+    'optimization-gradient-hessian',
+    'optimization-steepest-descent',
+    'optimization-newton-nd',
+    'optimization-ml-practice',
+    'optimization-review-questions',
+  ])
+
+  const zhBody = optimizationModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = optimizationModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /无约束优化/)
+  assert.match(zhBody, /约束优化/)
+  assert.match(zhBody, /局部最小值/)
+  assert.match(zhBody, /黄金分割搜索/)
+  assert.match(zhBody, /12\.36/)
+  assert.match(zhBody, /一维 Newton/)
+  assert.match(zhBody, /Hessian/)
+  assert.match(zhBody, /最速下降/)
+  assert.match(zhBody, /线搜索/)
+  assert.match(zhBody, /小批量梯度下降/)
+  assert.match(zhBody, /\/math-lab\/cs357-assets\/figs\/ternery_search_optimization\.png/)
+  assert.match(zhBody, /\/math-lab\/cs357-assets\/figs\/steepest_contour_map_1\.png/)
+  assert.match(enBody, /Unconstrained optimization/)
+  assert.match(enBody, /Golden Section Search/)
+  assert.match(enBody, /Newton Optimization in 1-D/)
+  assert.match(enBody, /Multidimensional Optimization/)
+  assert.match(enBody, /Steepest Descent/)
+  assert.match(enBody, /Hessian Linear System/)
+  assert.match(enBody, /Feature scaling/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Course Staff|changelog|site\.baseurl/)
+  assert.doesNotMatch(zhBody, /The goal of optimization is|First, let's learn|Consider running Golden Section|Using Taylor Expansion/)
+  assert.doesNotMatch(enBody, /学习目标|复习问题|最速下降|黄金分割搜索/)
+})
+
+test('optimization module markdown renders formulas without raw delimiters', () => {
+  const optimizationModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'optimization')
+  assert.ok(optimizationModule)
+
+  const sectionSource = optimizationModule.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const objectiveSource = optimizationModule.learningObjectives.map((objective) => objective['zh-CN']).join('\n\n')
+  const conceptSource = optimizationModule.concepts
+    .map((concept) => `${concept.plainExplanation['zh-CN']}\n\n${concept.geometricIntuition['zh-CN']}\n\n${concept.numericalExample['zh-CN']}`)
+    .join('\n\n')
+  const quizSource = optimizationModule.quizzes
+    .map((quiz) => `${quiz.prompt['zh-CN']}\n\n${quiz.explanation['zh-CN']}`)
+    .join('\n\n')
+  const misconceptionSource = optimizationModule.misconceptions
+    .map((misconception) => `${misconception.correction['zh-CN']}\n\n${misconception.example['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(`${objectiveSource}\n\n${conceptSource}\n\n${sectionSource}\n\n${quizSource}\n\n${misconceptionSource}`)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
 test('taylor approximation utilities expose expected error trends', () => {
   const degreeOne = evaluateTaylorApproximation('sin', 0.8, 0, 1)
   const degreeThree = evaluateTaylorApproximation('sin', 0.8, 0, 3)
@@ -940,6 +1091,44 @@ test('finite difference utilities expose stencil accuracy and gradient/Jacobian 
     [3, 7],
   ])
   assert.ok(jacobianCentral.maxError < jacobianForward.maxError)
+})
+
+test('nonlinear equation utilities expose bisection, Newton, secant, and system Newton trends', () => {
+  const early = evaluateNonlinearRootFinding({
+    functionKind: 'cubic',
+    iterations: 2,
+    newtonStart: 1,
+    secantPrevious: 2,
+  })
+  const later = evaluateNonlinearRootFinding({
+    functionKind: 'cubic',
+    iterations: 6,
+    newtonStart: 1,
+    secantPrevious: 2,
+  })
+
+  assert.ok(later.bisection.intervalWidth < early.bisection.intervalWidth)
+  assert.ok(later.bisection.residual < early.bisection.residual)
+  assert.ok(later.newton.residual < later.bisection.residual)
+  assert.ok(later.secant.residual < early.secant.residual)
+  assert.ok(Math.abs(later.newton.approximation - later.trueRoot) < 1e-8)
+  assert.equal(later.secant.functionEvaluations, 8)
+
+  const flat = evaluateNonlinearRootFinding({
+    functionKind: 'flat',
+    iterations: 6,
+    newtonStart: 1,
+    secantPrevious: -1,
+  })
+  assert.ok(flat.newton.residual > later.newton.residual)
+
+  const firstSystemStep = evaluateNewtonSystemStep({ x: 1, y: 1 })
+  assert.deepEqual(firstSystemStep.step.map((value) => Number(value.toFixed(2))), [-1.5, 0.25])
+  assert.deepEqual(firstSystemStep.next.map((value) => Number(value.toFixed(2))), [-0.5, 1.25])
+  assert.ok(firstSystemStep.nextResidualNorm > firstSystemStep.residualNorm)
+
+  const thirdSystemStep = evaluateNewtonSystemStep({ x: -0.08333333, y: 1.04166667 })
+  assert.ok(thirdSystemStep.nextResidualNorm < thirdSystemStep.residualNorm)
 })
 
 test('sparse matrix utilities expose COO, CSR, matvec, and storage estimates', () => {

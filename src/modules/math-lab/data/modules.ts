@@ -6,6 +6,8 @@ import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { buildMarkovChainsModule } from './markovChainsModule.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
 import { buildMonteCarloModule } from './monteCarloModule.ts'
+import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
+import { buildOptimizationModule } from './optimizationModule.ts'
 import { buildSparseMatricesModule } from './sparseMatricesModule.ts'
 import { buildTaylorSeriesModule } from './taylorSeriesModule.ts'
 import { buildVectorMatrixNormsModule } from './vectorMatrixNormsModule.ts'
@@ -50,6 +52,14 @@ export const mathLabModules: MathLabModule[] = importedMathNotes.map((moduleDefi
 
   if (moduleDefinition.id === 'finite-difference-methods') {
     return buildFiniteDifferenceModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'nonlinear-equations') {
+    return buildNonlinearEquationsModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'optimization') {
+    return buildOptimizationModule(moduleDefinition)
   }
 
   const supplement = supplementalModules[moduleDefinition.id]
