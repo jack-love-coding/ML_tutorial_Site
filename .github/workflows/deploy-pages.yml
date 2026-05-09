@@ -39,8 +39,8 @@ jobs:
         env:
           VITE_BASE_PATH: /ML_tutorial_Site/
 
-      - name: Add SPA fallback
-        run: cp dist/index.html dist/404.html
+      - name: Add SPA fallbacks
+        run: node scripts/create-pages-fallbacks.mjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
