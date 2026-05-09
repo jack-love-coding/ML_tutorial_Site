@@ -9,6 +9,7 @@ import { mathFoundationsModules } from './mathFoundationsModules.ts'
 import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
 import { buildOptimizationModule } from './optimizationModule.ts'
+import { buildPcaModule } from './pcaModule.ts'
 import { buildSparseMatricesModule } from './sparseMatricesModule.ts'
 import { buildSvdModule } from './svdModule.ts'
 import { buildTaylorSeriesModule } from './taylorSeriesModule.ts'
@@ -70,6 +71,10 @@ export const mathLabModules: MathLabModule[] = importedMathNotes.map((moduleDefi
 
   if (moduleDefinition.id === 'svd') {
     return buildSvdModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'pca') {
+    return buildPcaModule(moduleDefinition)
   }
 
   const supplement = supplementalModules[moduleDefinition.id]

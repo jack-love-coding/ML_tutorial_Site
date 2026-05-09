@@ -16,6 +16,7 @@ import LuDecompositionLab from '../labs/LuDecompositionLab.vue'
 import MarkovChainLab from '../labs/MarkovChainLab.vue'
 import NumericalMiniLab from '../labs/NumericalMiniLab.vue'
 import NonlinearEquationsLab from '../labs/NonlinearEquationsLab.vue'
+import PcaProjectionLab from '../labs/PcaProjectionLab.vue'
 import SparseMatrixLab from '../labs/SparseMatrixLab.vue'
 import TaylorSeriesLab from '../labs/TaylorSeriesLab.vue'
 import VectorDotProductLab from '../labs/VectorDotProductLab.vue'
@@ -231,6 +232,10 @@ function labsForSection(section: MathLabSection): LabConfig[] {
                   v-else-if="lab.componentName === 'NonlinearEquationsLab'"
                   :locale="currentLocale"
                 />
+                <PcaProjectionLab
+                  v-else-if="lab.componentName === 'PcaProjectionLab'"
+                  :locale="currentLocale"
+                />
                 <NumericalMiniLab
                   v-else
                   :module-id="moduleDefinition.id"
@@ -299,6 +304,10 @@ function labsForSection(section: MathLabSection): LabConfig[] {
               />
               <NonlinearEquationsLab
                 v-else-if="lab.componentName === 'NonlinearEquationsLab'"
+                :locale="currentLocale"
+              />
+              <PcaProjectionLab
+                v-else-if="lab.componentName === 'PcaProjectionLab'"
                 :locale="currentLocale"
               />
               <NumericalMiniLab

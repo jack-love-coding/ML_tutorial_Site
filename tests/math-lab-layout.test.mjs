@@ -49,6 +49,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/ConditionNumbersLab.vue',
     'src/modules/math-lab/labs/MarkovChainLab.vue',
     'src/modules/math-lab/labs/NumericalMiniLab.vue',
+    'src/modules/math-lab/labs/PcaProjectionLab.vue',
     'src/modules/math-lab/labs/TaylorSeriesLab.vue',
   ]
 

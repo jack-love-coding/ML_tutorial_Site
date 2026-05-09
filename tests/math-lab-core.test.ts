@@ -187,7 +187,7 @@ test('key math foundation topics are connected to interactive or video enhanceme
   assert.ok(byId['nonlinear-equations']!.labs.some((lab) => lab.componentName === 'NonlinearEquationsLab'))
   assert.ok(byId.optimization!.labs.some((lab) => lab.componentName === 'MathGradientLab'))
   assert.ok(byId.svd!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
-  assert.ok(byId.pca!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
+  assert.ok(byId.pca!.labs.some((lab) => lab.componentName === 'PcaProjectionLab'))
 })
 
 test('taylor module presents hand-written bilingual content as an integrated reader chapter', () => {
