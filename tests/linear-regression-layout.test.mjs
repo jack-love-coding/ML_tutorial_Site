@@ -73,6 +73,40 @@ test('linear regression advanced chapters and subviews are wired', () => {
   assert.match(componentSource, /linear-regression-lab__advanced-controls/)
 })
 
+test('linear regression lecture adds the required teaching frame and animated diagrams', () => {
+  const moduleSource = readFileSync(
+    new URL('../src/data/linearRegressionModule.ts', import.meta.url),
+    'utf8',
+  )
+  const componentSource = readFileSync(componentPath, 'utf8')
+  const styleSource = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8')
+
+  for (const heading of [
+    '### 核心问题',
+    '### 概念直觉',
+    '### 手算例子',
+    '### 公式',
+    '### 常见误解',
+    '### 插图与动画',
+    '### 交互实验设计',
+    '### 来源参考',
+  ]) {
+    assert.match(moduleSource, new RegExp(heading))
+  }
+
+  assert.match(moduleSource, /withTeachingFrame/)
+  assert.match(moduleSource, /linearRegressionTeachingFrames/)
+  assert.match(moduleSource, /D2L/)
+  assert.match(moduleSource, /CS357/)
+  assert.match(componentSource, /linear-regression-lab__teaching-visual/)
+  assert.match(componentSource, /linear-regression-lab__teaching-svg/)
+  assert.match(componentSource, /linear-visual-residual/)
+  assert.match(componentSource, /linear-visual-param-path/)
+  assert.match(styleSource, /@keyframes linear-residual-pulse/)
+  assert.match(styleSource, /@keyframes linear-path-flow/)
+  assert.match(styleSource, /@keyframes linear-weight-shrink/)
+})
+
 test('linear regression chapter scroll does not auto-reset an active experiment', () => {
   const algorithmViewSource = readFileSync(
     new URL('../src/views/AlgorithmView.vue', import.meta.url),

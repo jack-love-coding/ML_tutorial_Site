@@ -32,6 +32,8 @@ const copy = computed(() =>
         residual: '残差',
         totalLoss: '数据集总损失',
         workedExample: '同一残差的两种惩罚',
+        penaltyAmplifier: '残差放大器',
+        rawResidual: '原始残差强度',
         activeFit: '当前拟合',
         mse: '平方误差',
         mae: '绝对误差',
@@ -50,6 +52,8 @@ const copy = computed(() =>
         residual: 'Residual',
         totalLoss: 'Dataset loss',
         workedExample: 'Two penalties for the same residual',
+        penaltyAmplifier: 'Residual amplifier',
+        rawResidual: 'Raw residual strength',
         activeFit: 'Current fit',
         mse: 'Squared error',
         mae: 'Absolute error',
@@ -124,6 +128,34 @@ const workedExampleCards = computed(() => [
     value: round(Number(props.snapshot?.selectedObservation?.mae ?? 0)),
   },
 ])
+
+const amplifierBars = computed(() => {
+  const residualMagnitude = Math.abs(residual.value)
+  const mseValue = Number(props.snapshot?.selectedObservation?.mse ?? 0)
+  const maeValue = Number(props.snapshot?.selectedObservation?.mae ?? 0)
+  const maxValue = Math.max(residualMagnitude, mseValue, maeValue, 0.001)
+
+  return [
+    {
+      id: 'raw',
+      label: copy.value.rawResidual,
+      value: residualMagnitude,
+      width: `${Math.max(4, (residualMagnitude / maxValue) * 100)}%`,
+    },
+    {
+      id: 'mae',
+      label: copy.value.mae,
+      value: maeValue,
+      width: `${Math.max(4, (maeValue / maxValue) * 100)}%`,
+    },
+    {
+      id: 'mse',
+      label: copy.value.mse,
+      value: mseValue,
+      width: `${Math.max(4, (mseValue / maxValue) * 100)}%`,
+    },
+  ]
+})
 
 function mapX(value: number) {
   return padding + ((value + 2.8) / 5.6) * (size - padding * 2)
@@ -225,6 +257,24 @@ function polyline(points: PlotPoint[]) {
     </div>
 
     <div class="lesson-lab__visual">
+      <div class="lesson-lab__heading">
+        <span>{{ copy.workedExample }}</span>
+        <strong>{{ copy.penaltyAmplifier }}</strong>
+      </div>
+      <div class="residual-amplifier" aria-label="residual penalty amplifier">
+        <article
+          v-for="bar in amplifierBars"
+          :key="bar.id"
+          class="residual-amplifier__item"
+          :class="`residual-amplifier__item--${bar.id}`"
+        >
+          <span>{{ bar.label }}</span>
+          <div class="residual-amplifier__track">
+            <div class="residual-amplifier__fill" :style="{ width: bar.width }" />
+          </div>
+          <strong>{{ round(bar.value) }}</strong>
+        </article>
+      </div>
       <LossCurvePlot
         :curves="curveSpecs"
         :marker-x="predictionValue"

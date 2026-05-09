@@ -29,6 +29,10 @@ const copy = computed(() =>
         nll: '负对数似然',
         termList: '每个样本项',
         translation: '概率到损失的翻译',
+        multiply: '连乘',
+        takeLog: '取对数',
+        addMinus: '加负号',
+        productToSum: '小概率乘积',
         note: '样本越多，联合似然通常会因为连乘而越来越小；取对数之后，比较会稳定得多。',
         success: '正面',
         failure: '反面',
@@ -43,6 +47,10 @@ const copy = computed(() =>
         nll: 'Negative log-likelihood',
         termList: 'Per-sample terms',
         translation: 'From probability to loss',
+        multiply: 'Multiply',
+        takeLog: 'Take log',
+        addMinus: 'Add minus',
+        productToSum: 'Small-probability product',
         note: 'As the number of samples grows, joint likelihood usually shrinks quickly because it is a product. After taking logs, the comparison becomes much more stable.',
         success: 'Head',
         failure: 'Tail',
@@ -228,6 +236,20 @@ function formatSmallNumber(value: number) {
         <div class="lesson-lab__heading">
           <span>{{ copy.translation }}</span>
           <strong>{{ round(Number(props.snapshot?.selectedObservation?.coinNll ?? 0)) }}</strong>
+        </div>
+        <div class="negative-log-transform" aria-label="negative log transform">
+          <article class="negative-log-transform__step">
+            <span>{{ copy.multiply }}</span>
+            <strong>{{ copy.productToSum }}</strong>
+          </article>
+          <article class="negative-log-transform__step">
+            <span>{{ copy.takeLog }}</span>
+            <strong>{{ copy.logLikelihood }}</strong>
+          </article>
+          <article class="negative-log-transform__step">
+            <span>{{ copy.addMinus }}</span>
+            <strong>{{ copy.nll }}</strong>
+          </article>
         </div>
         <div class="process-chain">
           <article v-for="card in translationCards" :key="card.id" class="process-chain__step">

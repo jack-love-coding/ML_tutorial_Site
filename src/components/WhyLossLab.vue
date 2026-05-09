@@ -29,6 +29,7 @@ const copy = computed(() =>
         objective: '平均目标',
         sampleCards: '三条样本记录',
         flow: '从误差到目标',
+        pipelineInput: '样本输入',
         mse: '平方误差',
         mae: '绝对误差',
         samplePrefix: '房价样本',
@@ -45,6 +46,7 @@ const copy = computed(() =>
         objective: 'Average objective',
         sampleCards: 'Three sample records',
         flow: 'From error to objective',
+        pipelineInput: 'Sample input',
         mse: 'Squared error',
         mae: 'Absolute error',
         samplePrefix: 'House sample',
@@ -204,6 +206,23 @@ function localizedSampleLabel(label: string) {
       <div class="lesson-lab__heading">
         <span>{{ copy.lessonFocus }}</span>
         <strong>{{ copy.flow }}</strong>
+      </div>
+      <div class="loss-pipeline-illustration" aria-label="error to objective pipeline">
+        <div class="loss-pipeline-illustration__track" aria-hidden="true">
+          <span />
+        </div>
+        <article class="loss-pipeline-illustration__node">
+          <span>{{ copy.pipelineInput }}</span>
+          <strong>{{ copy.target }} {{ round(targetValue) }} · {{ copy.prediction }} {{ round(predictionValue) }}</strong>
+        </article>
+        <article
+          v-for="card in flowCards"
+          :key="`pipeline-${card.id}`"
+          class="loss-pipeline-illustration__node"
+        >
+          <span>{{ card.label }}</span>
+          <strong>{{ card.value }}</strong>
+        </article>
       </div>
       <LossCurvePlot
         :curves="curveSpecs"

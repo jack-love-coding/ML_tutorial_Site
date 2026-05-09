@@ -50,7 +50,17 @@ $$\\mathcal{L}(\\hat{y}, y)$$
 > 不要把“误差”直接当成“损失”。误差只是差多少，损失还包含“你如何看待这个差距”的价值判断。
 
 ### 记住这一点
-损失函数不是公式装饰，而是机器学习问题的评分标准。`,
+损失函数不是公式装饰，而是机器学习问题的评分标准。
+
+### 补充知识点
+同一批误差可以被不同 loss 改写成完全不同的训练目标。  
+如果只是把残差直接平均，正负误差可能互相抵消；平方、绝对值、负对数这些变形，本质上都是先把“错在哪里”改写成不会抵消、且符合任务偏好的分数。
+
+### 交互实验设计
+在实验里先切换 MSE / MAE，再拖动真实值和预测值。重点观察“误差 -> 单样本损失 -> 平均目标”这条流水线：误差只是输入，损失规则才决定模型最终看到的训练分数。
+
+### 来源参考
+改写自 Google Machine Learning Crash Course 对 loss 的入门直觉，以及 D2L 中 objective / loss 的训练框架；本站将其重组为“误差、损失、目标”三层入口。`,
         en: `Suppose you are predicting the prices of three houses. What does it actually mean for the model to be “good”?
 
 ### Concept
@@ -85,7 +95,17 @@ The hard part is not the symbol. The hard part is deciding **what kind of mistak
 > Do not treat error and loss as the same thing. Error is only the gap; loss also includes how you choose to value that gap.
 
 ### Remember This
-The loss function is the grading rule of the learning problem, not decorative algebra.`,
+The loss function is the grading rule of the learning problem, not decorative algebra.
+
+### Extra Concept
+The same errors can become very different objectives under different losses.  
+If we only average raw residuals, positive and negative errors can cancel. Squaring, absolute value, and negative logs all rewrite “what went wrong” into a score that does not cancel and matches the task preference.
+
+### Interaction Design
+In the lab, switch between MSE and MAE, then drag the target and prediction. Watch the pipeline “error -> single-sample loss -> average objective”: error is only the input, while the loss rule decides the score the model sees.
+
+### Source References
+Adapted from Google Machine Learning Crash Course for the introductory loss intuition and D2L for the objective / loss training frame; this site reorganizes them into the three layers of error, loss, and objective.`,
       },
       callout: {
         'zh-CN': '先盯住一个样本的误差，再看三个样本怎样被合成一个总体目标。',
@@ -143,7 +163,17 @@ $$\\text{MAE} = \\frac{1}{N}\\sum_i |\\hat{y}_i - y_i|$$
 > 不要把 “MSE 更常见” 误解成 “MSE 一定更好”。如果数据里有明显离群点，MAE 往往会更稳健。
 
 ### 记住这一点
-MSE 和 MAE 的区别，本质上是在问：你希望模型多害怕大误差？`,
+MSE 和 MAE 的区别，本质上是在问：你希望模型多害怕大误差？
+
+### 补充知识点
+MSE 的曲线是光滑的，离目标越远斜率越大，所以梯度下降会更用力地纠正大残差。  
+MAE 的曲线在 0 附近有尖角，惩罚增长更线性，因此遇到离群点时通常不那么容易被单个大误差牵着走。
+
+### 交互实验设计
+先用单样本面板手算同一个残差下的 MSE 和 MAE，再开启离群点。观察拟合线、总损失和残差放大条：同样的数据，在不同 loss 下会形成不同的“最好直线”。
+
+### 来源参考
+改写自 Google Machine Learning Crash Course 中对 MSE / MAE 与离群点的解释、D2L 的回归损失视角，以及 CS357 最小二乘对平方误差的数学动机。`,
         en: `If a model misses a house price by 5 and by 50, should those two mistakes really be treated as equally serious?
 
 ### Concept
@@ -183,7 +213,17 @@ Squaring punishes large mistakes more strongly. Absolute value grows more evenly
 > Do not confuse “more common” with “always better.” If the dataset contains strong outliers, MAE is often more robust.
 
 ### Remember This
-The real difference between MSE and MAE is how much you want the model to fear large errors.`,
+The real difference between MSE and MAE is how much you want the model to fear large errors.
+
+### Extra Concept
+MSE is smooth, and its slope grows as the prediction moves farther from the target, so gradient descent pushes harder on large residuals.  
+MAE has a corner near zero and grows more linearly, so it is usually less easily dominated by one extreme outlier.
+
+### Interaction Design
+Start with the single-sample calculation, then enable the outlier. Watch the fitted line, total loss, and residual amplifier: the same data can produce different “best lines” under different losses.
+
+### Source References
+Adapted from Google Machine Learning Crash Course for MSE / MAE and outlier intuition, D2L for the regression-loss framing, and CS357 for the least-squares motivation behind squared error.`,
       },
       callout: {
         'zh-CN': '重点看同一个残差在 MSE 和 MAE 下会被“重新放大”成多大的惩罚。',
@@ -281,7 +321,17 @@ $$\\frac{e^{z_1}}{e^{z_0}+e^{z_1}} = \\frac{1}{1+e^{-(z_1-z_0)}} = \\sigma(z_1-z
 > 不要把 Softmax 当成“和 BCE 没关系的另一套系统”，也不要把多分类简单理解成“给每个类各自套一个 sigmoid”。真正变化的不是“惩罚真类概率不足”这个思想，而是输出从一个概率变成了一整组必须共同归一化的概率。
 
 ### 记住这一点
-BCE 解决的是“二分类里真类概率够不够高”，Softmax 解决的是“多分类里整组概率如何合法分配”；而二类 Softmax 恰好会退化回 BCE 背后的 Sigmoid 形式。`,
+BCE 解决的是“二分类里真类概率够不够高”，Softmax 解决的是“多分类里整组概率如何合法分配”；而二类 Softmax 恰好会退化回 BCE 背后的 Sigmoid 形式。
+
+### 补充知识点
+准确率只看最终有没有判对，不能区分“0.51 勉强对”和“0.99 非常确定”。  
+交叉熵把置信度也纳入惩罚，因此更适合作为训练目标：正确但不自信会继续被推动，错误且自信会被强烈惩罚。
+
+### 交互实验设计
+先拖动 BCE 概率，看同一标签下 loss 如何随置信度变化；再看 Softmax 概率预算图，观察真类概率、竞争类概率和分母如何一起变化。最后对比“每类一个 sigmoid”的反例，确认 softmax 适合互斥多分类。
+
+### 来源参考
+改写自 Google Machine Learning Crash Course 的 log loss / classification probability 讲解、D2L 的 softmax regression 结构，以及 mlcourse.ai 对逻辑回归似然和交叉熵的推导线索。`,
         en: `If a model labels an email incorrectly and is 99% confident about it, should that mistake be treated the same as being only slightly wrong?
 
 ### Concept
@@ -362,7 +412,17 @@ That means:
 > Do not treat softmax as a completely unrelated system, and do not reduce multiclass classification to “one sigmoid per class.” The core idea never changed: the true class should receive high probability. What changed is that the output must grow from one probability into a full normalized distribution.
 
 ### Remember This
-BCE answers “is the true-class probability high enough in binary classification?” Softmax answers “how do we distribute probability legally across many classes?” and two-class softmax collapses right back into the sigmoid form behind BCE.`,
+BCE answers “is the true-class probability high enough in binary classification?” Softmax answers “how do we distribute probability legally across many classes?” and two-class softmax collapses right back into the sigmoid form behind BCE.
+
+### Extra Concept
+Accuracy only checks whether the final decision is right. It cannot distinguish “barely right at 0.51” from “very confident at 0.99.”  
+Cross-entropy includes confidence in the penalty, so it is more useful as a training objective: correct-but-hesitant predictions are still pushed, while confident mistakes are punished strongly.
+
+### Interaction Design
+First drag the BCE probability and watch how loss changes with confidence for the same label. Then inspect the softmax probability-budget graphic: the true-class probability, competing probabilities, and denominator move together. Finally compare the “one sigmoid per class” counterexample to see why softmax fits mutually exclusive multiclass tasks.
+
+### Source References
+Adapted from Google Machine Learning Crash Course for log loss and classification probability, D2L for the softmax regression structure, and mlcourse.ai for the likelihood-to-cross-entropy line in logistic regression.`,
       },
       callout: {
         'zh-CN': '先在 BCE 面板里理解“真类概率不够高就会被罚”，再到 Softmax 面板里看这个思想如何推广成一整组归一化概率。',
@@ -418,7 +478,17 @@ $$L(p \\mid \\text{8 heads in 10 tosses}) = p^8(1-p)^2$$
 > 不要把“参数的概率”误解成“似然”。这里不是在问“$p=0.8$ 本身有多可能”，而是在问“如果 $p=0.8$，这批数据有多像它生成的”。
 
 ### 记住这一点
-似然是在给参数打分：谁最能解释当前数据，谁的似然就更大。`,
+似然是在给参数打分：谁最能解释当前数据，谁的似然就更大。
+
+### 补充知识点
+似然曲线的最高点通常靠近观测频率。  
+如果 10 次里有 8 次正面，$p=0.8$ 会比 $p=0.2$ 更合理；如果你把正面次数改成 2，曲线峰值也会跟着移动。
+
+### 交互实验设计
+固定抛硬币次数，拖动正面次数和候选概率。观察候选排名、似然曲线和当前标记点：数据不变时是在比较参数，数据一变时整条曲线都会重新定义“谁更合理”。
+
+### 来源参考
+改写自 D2L 对最大似然思想的训练动机，以及 mlcourse.ai 在概率模型中用观测数据比较参数的讲法；本站用硬币例子把参数评分先独立讲清楚。`,
         en: `If you toss a coin 10 times and get 8 heads, would you find it convincing to say “this coin has head probability 0.2”?
 
 ### Concept
@@ -456,7 +526,17 @@ A larger likelihood does not mean the parameter is “certainly correct.” It o
 > Do not confuse the “probability of the parameter” with likelihood. We are not asking how likely $p=0.8$ is by itself. We are asking how well $p=0.8$ explains the observed data.
 
 ### Remember This
-Likelihood is a scoring rule for parameters: the candidate that explains the data better gets the higher score.`,
+Likelihood is a scoring rule for parameters: the candidate that explains the data better gets the higher score.
+
+### Extra Concept
+The peak of the likelihood curve usually sits near the observed frequency.  
+If 8 out of 10 tosses are heads, $p=0.8$ is much more plausible than $p=0.2$; if you change the heads count to 2, the peak moves with the data.
+
+### Interaction Design
+Keep the number of tosses fixed, then drag the heads count and candidate probability. Watch the candidate ranking, likelihood curve, and current marker: with fixed data we compare parameters, while changing data redefines which parameter looks plausible.
+
+### Source References
+Adapted from D2L for the maximum-likelihood training motivation and mlcourse.ai for comparing parameters through observed data; this site isolates the coin example before connecting it to loss.`,
       },
       callout: {
         'zh-CN': '先比较几个候选参数谁更像这组数据的来源，再谈“最优参数”这件事。',
@@ -511,7 +591,17 @@ $$-\\log L(p) = -\\left[8\\log p + 2\\log(1-p)\\right]$$
 > 负对数似然不是在“改变问题”，而是在用更方便计算、更适合优化的语言，重写同一个比较任务。
 
 ### 记住这一点
-取对数是为了把连乘变连加，加负号是为了把最大化问题改写成最小化问题。`,
+取对数是为了把连乘变连加，加负号是为了把最大化问题改写成最小化问题。
+
+### 补充知识点
+对数函数是单调递增的，所以最大化 $L$ 和最大化 $\\log L$ 会选出同一个参数。  
+负号只改变优化方向：最大化 $\\log L$ 等价于最小化 $-\\log L$。
+
+### 交互实验设计
+逐步增加样本数，比较上方联合似然曲线和下方 NLL 曲线。注意观察：联合似然会很快接近 0，但 NLL 仍然保持清晰的数值尺度，便于排序和优化。
+
+### 来源参考
+改写自 Google Machine Learning Crash Course 对 log loss 数值稳定性的解释，以及 D2L 中把 likelihood 转成 negative log-likelihood 目标函数的训练写法。`,
         en: `If likelihood already scores parameters, why do we bother taking a log and then adding a minus sign?
 
 ### Concept
@@ -548,7 +638,17 @@ After adding the minus sign, a “larger is better” score becomes a “smaller
 > Negative log-likelihood does not change the underlying question. It rewrites the same comparison in a form that is easier to compute and easier to optimize.
 
 ### Remember This
-The log turns multiplication into addition; the minus sign turns maximization into minimization.`,
+The log turns multiplication into addition; the minus sign turns maximization into minimization.
+
+### Extra Concept
+The logarithm is monotonic, so maximizing $L$ and maximizing $\\log L$ choose the same parameter.  
+The minus sign only flips the optimization direction: maximizing $\\log L$ is equivalent to minimizing $-\\log L$.
+
+### Interaction Design
+Increase the sample count and compare the joint-likelihood curve above with the NLL curve below. The joint likelihood quickly approaches zero, while NLL keeps a readable scale for ranking and optimization.
+
+### Source References
+Adapted from Google Machine Learning Crash Course for the numerical-stability intuition behind log loss and D2L for rewriting likelihood into a negative-log-likelihood objective.`,
       },
       callout: {
         'zh-CN': '这一章的重点不是新公式，而是看懂“为什么要把概率语言翻译成优化语言”。',
@@ -604,7 +704,17 @@ $$\\hat{\\theta}_{\\text{MLE}} = \\arg\\min_{\\theta} -\\log p(\\mathcal{D}\\mid
 > 不要把 MLE 当成“和损失函数无关的统计附录”。它恰恰解释了为什么很多 loss 会长成今天这个样子。
 
 ### 记住这一点
-很多常见损失，其实是某种数据生成假设下的负对数似然。`,
+很多常见损失，其实是某种数据生成假设下的负对数似然。
+
+### 补充知识点
+选择 loss 时不要只问“哪个公式常用”，而要问“我愿意假设误差长什么样”。  
+高斯假设强调小误差和对称噪声，拉普拉斯假设更能容忍少量大偏差，伯努利假设则对应 0/1 事件。
+
+### 交互实验设计
+切换 Gaussian、Laplace、Bernoulli 三种假设，并拖动参数。观察“分布假设 -> 似然 -> 负对数 -> loss”的链条：图形形状变化时，等价 loss 的含义也在变化。
+
+### 来源参考
+改写自 D2L 对 MLE 与常见损失的连接、mlcourse.ai 对逻辑回归最大似然的推导，以及 Google MLCC 对 MSE / log loss 应用场景的解释。`,
         en: `At this point we can finally answer a crucial question: why do losses such as MSE, MAE, and BCE have the shapes they do?
 
 ### Concept
@@ -642,7 +752,17 @@ The real meaning is simple: **minimizing loss often means finding the parameter 
 > Do not treat MLE as a detached statistics appendix. It is exactly the idea that explains why many practical losses look the way they do.
 
 ### Remember This
-Many familiar losses are just negative log-likelihoods under different data-generation assumptions.`,
+Many familiar losses are just negative log-likelihoods under different data-generation assumptions.
+
+### Extra Concept
+When choosing a loss, do not only ask which formula is common. Ask what you are willing to assume about the errors.  
+Gaussian assumptions emphasize small symmetric noise, Laplace assumptions tolerate occasional larger deviations, and Bernoulli assumptions match 0-or-1 events.
+
+### Interaction Design
+Switch across Gaussian, Laplace, and Bernoulli, then drag the parameters. Watch the chain “assumption -> likelihood -> negative log -> loss”: when the shape changes, the meaning of the equivalent loss changes too.
+
+### Source References
+Adapted from D2L for the MLE-to-loss connection, mlcourse.ai for the maximum-likelihood derivation of logistic regression, and Google MLCC for practical MSE / log-loss usage intuition.`,
       },
       callout: {
         'zh-CN': '把“分布假设 -> 似然 -> 负对数 -> 对应 loss”这条链真正连起来，MLE 就不再神秘。',

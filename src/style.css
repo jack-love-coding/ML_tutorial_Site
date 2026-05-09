@@ -1698,12 +1698,18 @@ p {
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 2px 10px rgba(15, 23, 40, 0.35));
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: loss-curve-trace 900ms ease forwards;
 }
 
 .loss-curve-plot__dot {
   stroke: rgba(255, 255, 255, 0.92);
   stroke-width: 2.2;
   filter: drop-shadow(0 3px 8px rgba(8, 18, 33, 0.4));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: loss-marker-pulse 1200ms ease-in-out infinite;
 }
 
 .loss-curve-plot__legend {
@@ -1753,6 +1759,132 @@ p {
   color: var(--muted);
   font-size: 0.84rem;
   line-height: 1.5;
+}
+
+.loss-pipeline-illustration {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.15fr repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  overflow: hidden;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background:
+    linear-gradient(90deg, rgba(30, 166, 122, 0.12), rgba(63, 109, 255, 0.08)),
+    rgba(248, 250, 255, 0.9);
+}
+
+.loss-pipeline-illustration__track {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: 50%;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(63, 109, 255, 0.16);
+  transform: translateY(-50%);
+}
+
+.loss-pipeline-illustration__track span {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #1ea67a;
+  box-shadow: 0 0 0 8px rgba(30, 166, 122, 0.14);
+  transform: translateY(-50%);
+  animation: loss-signal-travel 2600ms ease-in-out infinite;
+}
+
+.loss-pipeline-illustration__node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 6px;
+  min-height: 86px;
+  align-content: center;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 18px rgba(15, 23, 40, 0.06);
+}
+
+.loss-pipeline-illustration__node span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.loss-pipeline-illustration__node strong {
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.residual-amplifier,
+.confidence-budget {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background: rgba(248, 250, 255, 0.9);
+}
+
+.residual-amplifier__item,
+.confidence-budget__item {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr) 58px;
+  align-items: center;
+  gap: 10px;
+}
+
+.residual-amplifier__item span,
+.confidence-budget__item span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.residual-amplifier__track,
+.confidence-budget__track {
+  overflow: hidden;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(8, 18, 33, 0.08);
+}
+
+.residual-amplifier__fill,
+.confidence-budget__fill {
+  height: 100%;
+  min-width: 8px;
+  border-radius: inherit;
+  transform-origin: left center;
+  animation: loss-bar-sweep 520ms ease both;
+  transition: width 220ms ease;
+}
+
+.residual-amplifier__item--raw .residual-amplifier__fill {
+  background: linear-gradient(90deg, #7d8ca4, #a5b0c1);
+}
+
+.residual-amplifier__item--mae .residual-amplifier__fill,
+.confidence-budget__item--true .confidence-budget__fill {
+  background: linear-gradient(90deg, #3154e8, #6e83ff);
+}
+
+.residual-amplifier__item--mse .residual-amplifier__fill,
+.confidence-budget__item--other .confidence-budget__fill {
+  background: linear-gradient(90deg, #ff7d4d, #ffae72);
+}
+
+.residual-amplifier__item strong,
+.confidence-budget__item strong {
+  text-align: right;
+  font-size: 0.94rem;
 }
 
 .softmax-worked-card {
@@ -1813,6 +1945,9 @@ p {
   fill: none;
   stroke: #2f4bd1;
   stroke-width: 3.2;
+  stroke-dasharray: 420;
+  stroke-dashoffset: 420;
+  animation: loss-curve-trace 900ms ease forwards;
 }
 
 .regression-fit-viz__dot {
@@ -1824,6 +1959,9 @@ p {
 
 .regression-fit-viz__dot.is-outlier {
   fill: #ff7d4d;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: loss-marker-pulse 1200ms ease-in-out infinite;
 }
 
 .probability-bars {
@@ -1854,6 +1992,7 @@ p {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(135deg, #2f4bd1, #5d73f7);
+  transition: width 240ms ease;
 }
 
 .probability-bars__item strong {
@@ -2048,7 +2187,50 @@ p {
 }
 
 .process-chain {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.negative-log-transform {
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  position: relative;
+}
+
+.negative-log-transform__step {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(63, 109, 255, 0.14);
+  background:
+    linear-gradient(135deg, rgba(63, 109, 255, 0.08), rgba(30, 166, 122, 0.08)),
+    rgba(255, 255, 255, 0.92);
+}
+
+.negative-log-transform__step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -7px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid rgba(63, 109, 255, 0.55);
+  border-right: 2px solid rgba(63, 109, 255, 0.55);
+  transform: translateY(-50%) rotate(45deg);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.negative-log-transform__step span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.negative-log-transform__step strong {
+  font-size: 0.96rem;
 }
 
 .toss-grid {
@@ -2067,6 +2249,7 @@ p {
   color: #3244ba;
   font-size: 0.82rem;
   font-weight: 600;
+  animation: toss-item-rise 360ms ease both;
 }
 
 .toss-grid__item.is-success {
@@ -3421,6 +3604,7 @@ p {
 .linear-regression-lab__readout,
 .linear-regression-lab__selected,
 .linear-regression-lab__focus,
+.linear-regression-lab__teaching-visual,
 .linear-regression-lab__presets {
   display: grid;
   gap: 14px;
@@ -3445,7 +3629,8 @@ p {
 .linear-regression-lab__heading span,
 .linear-regression-lab__metric span,
 .linear-regression-lab__mini-grid span,
-.linear-regression-lab__focus span {
+.linear-regression-lab__focus span,
+.linear-regression-lab__teaching-visual span {
   color: var(--muted);
   font-size: 0.76rem;
   letter-spacing: 0.1em;
@@ -3623,6 +3808,7 @@ p {
 
 .linear-regression-lab__selected,
 .linear-regression-lab__focus,
+.linear-regression-lab__teaching-visual,
 .linear-regression-lab__presets {
   grid-column: span 3;
 }
@@ -3634,6 +3820,191 @@ p {
 
 .linear-regression-lab__focus p {
   color: var(--ink);
+}
+
+.linear-regression-lab__teaching-visual {
+  align-content: start;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.linear-regression-lab__teaching-svg {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  border-radius: 16px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 252, 246, 0.96), rgba(244, 250, 248, 0.96));
+  background-size: 22px 22px, 22px 22px, auto;
+}
+
+.linear-regression-lab__teaching-visual p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1.62;
+}
+
+.linear-visual-axis {
+  stroke: rgba(15, 23, 40, 0.28);
+  stroke-width: 2;
+}
+
+.linear-visual-fit,
+.linear-visual-curve,
+.linear-visual-true-curve,
+.linear-visual-overfit-curve,
+.linear-visual-train-line,
+.linear-visual-validation-line,
+.linear-visual-param-path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.linear-visual-fit {
+  stroke: var(--linear-accent, #db6c3a);
+  stroke-width: 5;
+  animation: linear-line-draw 1.7s ease-in-out infinite alternate;
+}
+
+.linear-visual-fit.is-before {
+  stroke: rgba(15, 23, 40, 0.32);
+  stroke-width: 4;
+  stroke-dasharray: 7 7;
+  animation: none;
+}
+
+.linear-visual-fit.is-after,
+.linear-visual-curve {
+  stroke: var(--linear-accent, #db6c3a);
+}
+
+.linear-visual-dot {
+  fill: #12303a;
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+
+.linear-visual-dot.is-predicted {
+  fill: var(--linear-accent, #db6c3a);
+}
+
+.linear-visual-arrow,
+.linear-visual-intercept {
+  fill: none;
+  stroke: #10162f;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.linear-visual-marker {
+  fill: #10162f;
+}
+
+.linear-visual-label {
+  fill: #10162f;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.linear-visual-residual {
+  stroke: #d65c5c;
+  stroke-width: 4;
+  stroke-dasharray: 7 6;
+  animation: linear-residual-pulse 1.4s ease-in-out infinite;
+}
+
+.linear-visual-loss-box,
+.linear-visual-plane {
+  fill: rgba(255, 244, 189, 0.74);
+  stroke: rgba(15, 23, 40, 0.42);
+  stroke-width: 2;
+}
+
+.linear-visual-param-path {
+  stroke: #2e9f79;
+  stroke-width: 4;
+  stroke-dasharray: 120;
+  animation: linear-path-flow 2.2s ease-in-out infinite;
+}
+
+.linear-visual-param-dot {
+  fill: var(--linear-accent, #db6c3a);
+  stroke: #ffffff;
+  stroke-width: 3;
+  animation: linear-dot-pulse 1.2s ease-in-out infinite;
+}
+
+.linear-visual-true-curve {
+  stroke: #2e9f79;
+  stroke-width: 4;
+}
+
+.linear-visual-plane-surface {
+  fill: rgba(47, 210, 127, 0.16);
+  stroke: #2e9f79;
+  stroke-width: 3;
+}
+
+.linear-visual-feature-bar,
+.linear-visual-weight-bar {
+  fill: var(--linear-accent, #db6c3a);
+  stroke: #10162f;
+  stroke-width: 2;
+  animation: linear-bar-rise 1.8s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+}
+
+.linear-visual-feature-bar.is-square,
+.linear-visual-weight-bar.is-medium {
+  fill: #2e9f79;
+  animation-delay: 140ms;
+}
+
+.linear-visual-feature-bar.is-cube,
+.linear-visual-weight-bar.is-small {
+  fill: #f3b44b;
+  animation-delay: 260ms;
+}
+
+.linear-visual-weight-bar.is-large,
+.linear-visual-weight-bar.is-medium,
+.linear-visual-weight-bar.is-small {
+  animation-name: linear-weight-shrink;
+}
+
+.linear-visual-curve {
+  stroke-width: 5;
+  animation: linear-curve-smooth 2.4s ease-in-out infinite alternate;
+}
+
+.linear-visual-overfit-curve {
+  stroke: #d65c5c;
+  stroke-width: 4;
+  animation: linear-wiggle 2s ease-in-out infinite alternate;
+}
+
+.linear-visual-overfit-curve.is-muted {
+  opacity: 0.36;
+}
+
+.linear-visual-train-line {
+  stroke: #2e9f79;
+  stroke-width: 4;
+}
+
+.linear-visual-validation-line {
+  stroke: #d65c5c;
+  stroke-width: 4;
+  stroke-dasharray: 8 7;
+  animation: linear-validation-rise 1.7s ease-in-out infinite alternate;
+}
+
+.linear-regression-lab__teaching-visual--model-limits .linear-visual-fit,
+.linear-regression-lab__teaching-visual--multivariate .linear-visual-fit {
+  animation: none;
 }
 
 .linear-regression-lab__mini-grid {
@@ -3656,6 +4027,149 @@ p {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
+}
+
+@keyframes linear-line-draw {
+  from {
+    stroke-dasharray: 70 18;
+    stroke-dashoffset: 18;
+  }
+  to {
+    stroke-dasharray: 104 12;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes linear-residual-pulse {
+  0%,
+  100% {
+    opacity: 0.58;
+    stroke-width: 3;
+  }
+  50% {
+    opacity: 1;
+    stroke-width: 6;
+  }
+}
+
+@keyframes linear-path-flow {
+  0% {
+    stroke-dashoffset: 118;
+  }
+  60%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes linear-dot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.22);
+  }
+}
+
+@keyframes linear-bar-rise {
+  from {
+    transform: scaleY(0.72);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes linear-weight-shrink {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.64);
+  }
+}
+
+@keyframes linear-curve-smooth {
+  from {
+    stroke-width: 5;
+  }
+  to {
+    stroke-width: 3.5;
+  }
+}
+
+@keyframes linear-wiggle {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(5px);
+  }
+}
+
+@keyframes linear-validation-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes loss-curve-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes loss-marker-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+}
+
+@keyframes loss-signal-travel {
+  0% {
+    left: 0;
+    background: #1ea67a;
+  }
+  32% {
+    background: #3f6dff;
+  }
+  66% {
+    background: #ff7d4d;
+  }
+  100% {
+    left: calc(100% - 13px);
+    background: #1ea67a;
+  }
+}
+
+@keyframes loss-bar-sweep {
+  from {
+    transform: scaleX(0.18);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes toss-item-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse-grid {
@@ -3751,7 +4265,9 @@ p {
   .sample-loss-grid,
   .observation-grid,
   .teaching-flow,
+  .loss-pipeline-illustration,
   .confidence-case-list,
+  .negative-log-transform,
   .process-chain,
   .lesson-panel__signals,
   .gradient-sticky-rail__summary-grid,
@@ -3900,6 +4416,27 @@ p {
     padding-top: 20px;
   }
 
+  .algorithm-hero,
+  .algorithm-layout,
+  .story-column,
+  .story-flow,
+  .story-card,
+  .results-grid {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .story-card > *,
+  .algorithm-hero > *,
+  .markdown-math,
+  .lesson-lab,
+  .story-companion,
+  .results-grid > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .site-header {
     width: min(100vw - 20px, 1240px);
     gap: 12px;
@@ -4011,6 +4548,25 @@ p {
     gap: 6px;
   }
 
+  .loss-pipeline-illustration__track {
+    display: none;
+  }
+
+  .loss-pipeline-illustration__node {
+    min-height: auto;
+  }
+
+  .residual-amplifier__item,
+  .confidence-budget__item {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .residual-amplifier__item strong,
+  .confidence-budget__item strong {
+    text-align: left;
+  }
+
   .toss-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -4036,6 +4592,7 @@ p {
 
   .linear-regression-lab__selected,
   .linear-regression-lab__focus,
+  .linear-regression-lab__teaching-visual,
   .linear-regression-lab__presets {
     grid-column: 1 / -1;
   }
@@ -4052,6 +4609,7 @@ p {
   .linear-regression-lab__readout,
   .linear-regression-lab__selected,
   .linear-regression-lab__focus,
+  .linear-regression-lab__teaching-visual,
   .linear-regression-lab__presets {
     padding: 14px;
     border-radius: 18px;
@@ -6491,6 +7049,7 @@ summary:focus-visible {
 .chart-summary__item span,
 .math-readout-grid span,
 .linear-regression-lab__metric span,
+.linear-regression-lab__teaching-visual span,
 .gradient-chapter-lab__metric span,
 .gradient-sticky-rail__metric span,
 .playback-dock__metric span,
@@ -6730,6 +7289,11 @@ summary:focus-visible {
 .lesson-lab__controls,
 .lesson-lab__visual,
 .lesson-lab__panel,
+.loss-pipeline-illustration,
+.loss-pipeline-illustration__node,
+.residual-amplifier,
+.confidence-budget,
+.negative-log-transform__step,
 .gradient-chapter-lab__hero,
 .gradient-chapter-lab__terrain,
 .gradient-chapter-lab__workspace,
@@ -6744,6 +7308,7 @@ summary:focus-visible {
 .linear-regression-lab__readout,
 .linear-regression-lab__selected,
 .linear-regression-lab__focus,
+.linear-regression-lab__teaching-visual,
 .linear-regression-lab__presets,
 .math-lab-panel,
 .math-checkpoint,
@@ -6774,6 +7339,52 @@ summary:focus-visible {
   background:
     linear-gradient(45deg, rgba(47, 210, 127, 0.12) 25%, transparent 25% 50%, rgba(47, 210, 127, 0.12) 50% 75%, transparent 75%) 0 0 / 24px 24px,
     #fffef7;
+}
+
+.loss-pipeline-illustration,
+.residual-amplifier,
+.confidence-budget {
+  background: #ffffff;
+}
+
+.loss-pipeline-illustration__track {
+  background: var(--pixel-line);
+  height: 2px;
+}
+
+.loss-pipeline-illustration__track span {
+  border: 2px solid var(--pixel-line);
+  border-radius: 3px;
+  box-shadow: 3px 3px 0 rgba(16, 22, 47, 0.42);
+}
+
+.loss-pipeline-illustration__node {
+  min-height: 88px;
+  box-shadow: 3px 3px 0 rgba(16, 22, 47, 0.55);
+}
+
+.residual-amplifier__track,
+.confidence-budget__track {
+  border: 2px solid var(--pixel-line);
+  border-radius: 4px;
+  background: #ffffff;
+  height: 16px;
+}
+
+.residual-amplifier__fill,
+.confidence-budget__fill,
+.probability-bars__fill {
+  border-right: 2px solid var(--pixel-line);
+  border-radius: 2px;
+}
+
+.negative-log-transform__step {
+  background: #ffffff;
+}
+
+.negative-log-transform__step:not(:last-child)::after {
+  border-color: var(--pixel-line);
+  background: #ffffff;
 }
 
 .toggle-strip,
@@ -6943,6 +7554,7 @@ select {
 .chart-svg,
 .linear-regression-lab__data-svg,
 .linear-regression-lab__state-svg,
+.linear-regression-lab__teaching-svg,
 .math-vector-svg,
 .math-matrix-svg,
 .math-gradient-svg {
@@ -7211,5 +7823,27 @@ select {
     border-radius: 7px;
     background: var(--pixel-paper);
     box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loss-curve-plot__line,
+  .loss-curve-plot__dot,
+  .loss-pipeline-illustration__track span,
+  .residual-amplifier__fill,
+  .confidence-budget__fill,
+  .regression-fit-viz__line,
+  .regression-fit-viz__dot.is-outlier,
+  .linear-visual-fit,
+  .linear-visual-residual,
+  .linear-visual-param-path,
+  .linear-visual-param-dot,
+  .linear-visual-feature-bar,
+  .linear-visual-weight-bar,
+  .linear-visual-curve,
+  .linear-visual-overfit-curve,
+  .linear-visual-validation-line,
+  .toss-grid__item {
+    animation: none;
   }
 }

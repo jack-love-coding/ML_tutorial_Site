@@ -233,6 +233,97 @@ const selectedSummary = computed(() => {
   return rows
 })
 
+const teachingVisual = computed(() => {
+  const visuals =
+    locale.value === 'zh-CN'
+      ? {
+          'fit-line': {
+            label: '章节插图',
+            title: '斜率旋转，截距平移',
+            caption: '直线的角度由斜率控制，整体高度由截距控制；训练动画会同时调整这两个量。',
+          },
+          'residual-loss': {
+            label: '残差动画',
+            title: '误差先竖直量，再平方汇总',
+            caption: '残差线保留方向，MSE 把它平方后平均；大残差会在动效里更突出。',
+          },
+          'training-motion': {
+            label: '参数路径',
+            title: '一轮更新对应两个空间',
+            caption: '左侧直线在数据空间移动，右侧点在参数空间移动，二者由同一次梯度更新连接。',
+          },
+          'model-limits': {
+            label: '模型边界',
+            title: '直线无法追随弯曲趋势',
+            caption: '当残差在一端连续偏向同一方向，问题通常不只是训练轮数不够。',
+          },
+          multivariate: {
+            label: '3D 示意',
+            title: '多个特征把线扩展成平面',
+            caption: '面积和房龄分别改变平面在两个方向上的倾斜，残差变成点到平面的距离。',
+          },
+          polynomial: {
+            label: '特征扩展',
+            title: 'x、x²、x³ 合成曲线',
+            caption: '曲线来自输入特征扩展；权重仍然是线性相加的参数。',
+          },
+          overfitting: {
+            label: '泛化诊断',
+            title: '训练与验证曲线分叉',
+            caption: '训练误差下降但验证误差抬头时，模型可能开始记住噪声。',
+          },
+          regularization: {
+            label: '正则动画',
+            title: '惩罚大权重，让曲线收敛',
+            caption: '增大 λ 会压小权重，牺牲少量训练贴合度来换取更稳定的曲线。',
+          },
+        }
+      : {
+          'fit-line': {
+            label: 'Chapter diagram',
+            title: 'Slope rotates, intercept shifts',
+            caption: 'Slope controls the line angle and intercept controls its height; playback adjusts both together.',
+          },
+          'residual-loss': {
+            label: 'Residual animation',
+            title: 'Measure vertically, then square',
+            caption: 'Residuals keep direction while MSE squares and averages them; large residuals become visually dominant.',
+          },
+          'training-motion': {
+            label: 'Parameter path',
+            title: 'One update, two spaces',
+            caption: 'The line moves in data space while the point moves in parameter space under the same gradient update.',
+          },
+          'model-limits': {
+            label: 'Model limit',
+            title: 'One line cannot follow curvature',
+            caption: 'When residuals lean the same way at one end, the issue is often model capacity, not just more epochs.',
+          },
+          multivariate: {
+            label: '3D sketch',
+            title: 'Several features become a plane',
+            caption: 'Area and age tilt the plane in different directions; residuals become distances to that plane.',
+          },
+          polynomial: {
+            label: 'Feature expansion',
+            title: 'x, x², x³ combine into a curve',
+            caption: 'Curvature comes from expanded input features; weights are still linearly added parameters.',
+          },
+          overfitting: {
+            label: 'Generalization check',
+            title: 'Train and validation split apart',
+            caption: 'When train error falls but validation error rises, the model may be memorizing noise.',
+          },
+          regularization: {
+            label: 'Regularization animation',
+            title: 'Penalize large weights',
+            caption: 'Increasing λ shrinks weights and trades a little training fit for a steadier curve.',
+          },
+        }
+
+  return visuals[props.section.id as keyof typeof visuals] ?? visuals['fit-line']
+})
+
 function configNumber(key: string, fallback: number) {
   return Number(props.config[key] ?? fallback)
 }
@@ -482,6 +573,137 @@ function setRegularizationType(value: string) {
         <section class="linear-regression-lab__focus">
           <span>{{ copy.focus }}</span>
           <p>{{ copy.focusText[props.section.id as keyof typeof copy.focusText] }}</p>
+        </section>
+
+        <section
+          class="linear-regression-lab__teaching-visual"
+          :class="`linear-regression-lab__teaching-visual--${props.section.id}`"
+        >
+          <div class="linear-regression-lab__heading">
+            <span>{{ teachingVisual.label }}</span>
+            <strong>{{ teachingVisual.title }}</strong>
+          </div>
+
+          <svg
+            viewBox="0 0 360 180"
+            class="linear-regression-lab__teaching-svg"
+            role="img"
+            :aria-label="teachingVisual.title"
+          >
+            <defs>
+              <marker
+                id="linear-visual-arrow"
+                markerWidth="8"
+                markerHeight="8"
+                refX="6"
+                refY="4"
+                orient="auto"
+              >
+                <path d="M1,1 L7,4 L1,7 Z" class="linear-visual-marker" />
+              </marker>
+            </defs>
+
+            <template v-if="props.section.id === 'fit-line'">
+              <line x1="42" x2="318" y1="144" y2="144" class="linear-visual-axis" />
+              <line x1="42" x2="42" y1="30" y2="144" class="linear-visual-axis" />
+              <circle cx="80" cy="120" r="6" class="linear-visual-dot" />
+              <circle cx="132" cy="98" r="6" class="linear-visual-dot" />
+              <circle cx="188" cy="76" r="6" class="linear-visual-dot" />
+              <circle cx="250" cy="52" r="6" class="linear-visual-dot" />
+              <line x1="58" x2="304" y1="132" y2="38" class="linear-visual-fit" />
+              <line x1="254" x2="305" y1="58" y2="38" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
+              <line x1="42" x2="70" y1="132" y2="132" class="linear-visual-intercept" />
+              <text x="268" y="86" class="linear-visual-label">w</text>
+              <text x="74" y="126" class="linear-visual-label">b</text>
+            </template>
+
+            <template v-else-if="props.section.id === 'residual-loss'">
+              <line x1="44" x2="318" y1="142" y2="142" class="linear-visual-axis" />
+              <line x1="44" x2="44" y1="30" y2="142" class="linear-visual-axis" />
+              <line x1="58" x2="306" y1="126" y2="52" class="linear-visual-fit" />
+              <circle cx="192" cy="62" r="7" class="linear-visual-dot is-actual" />
+              <circle cx="192" cy="86" r="5.5" class="linear-visual-dot is-predicted" />
+              <line x1="192" x2="192" y1="62" y2="86" class="linear-visual-residual" />
+              <rect x="232" y="58" width="72" height="46" rx="5" class="linear-visual-loss-box" />
+              <text x="244" y="77" class="linear-visual-label">e</text>
+              <text x="260" y="77" class="linear-visual-label">-></text>
+              <text x="282" y="77" class="linear-visual-label">e²</text>
+              <path d="M198 75 C216 68, 220 68, 232 76" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
+            </template>
+
+            <template v-else-if="props.section.id === 'training-motion'">
+              <line x1="38" x2="158" y1="138" y2="138" class="linear-visual-axis" />
+              <line x1="38" x2="38" y1="42" y2="138" class="linear-visual-axis" />
+              <line x1="46" x2="150" y1="120" y2="84" class="linear-visual-fit is-before" />
+              <line x1="46" x2="150" y1="124" y2="54" class="linear-visual-fit is-after" />
+              <path d="M166 88 C184 78, 190 74, 202 70" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
+              <rect x="210" y="38" width="112" height="104" rx="6" class="linear-visual-plane" />
+              <polyline points="232,118 246,100 260,86 280,70 302,58" class="linear-visual-param-path" />
+              <circle cx="280" cy="70" r="7" class="linear-visual-param-dot" />
+              <text x="220" y="56" class="linear-visual-label">w / b</text>
+            </template>
+
+            <template v-else-if="props.section.id === 'model-limits'">
+              <line x1="40" x2="320" y1="142" y2="142" class="linear-visual-axis" />
+              <line x1="40" x2="40" y1="34" y2="142" class="linear-visual-axis" />
+              <path d="M58 126 C120 116, 164 86, 212 70 C254 56, 284 40, 310 28" class="linear-visual-true-curve" />
+              <line x1="58" x2="310" y1="128" y2="50" class="linear-visual-fit" />
+              <line x1="230" x2="230" y1="64" y2="75" class="linear-visual-residual" />
+              <line x1="272" x2="272" y1="44" y2="62" class="linear-visual-residual" />
+              <line x1="304" x2="304" y1="31" y2="52" class="linear-visual-residual" />
+              <text x="210" y="116" class="linear-visual-label">capacity limit</text>
+            </template>
+
+            <template v-else-if="props.section.id === 'multivariate'">
+              <polygon points="72,126 176,76 296,102 184,150" class="linear-visual-plane-surface" />
+              <line x1="72" x2="176" y1="126" y2="76" class="linear-visual-axis" />
+              <line x1="72" x2="184" y1="126" y2="150" class="linear-visual-axis" />
+              <line x1="72" x2="72" y1="126" y2="44" class="linear-visual-axis" />
+              <line x1="150" x2="150" y1="68" y2="92" class="linear-visual-residual" />
+              <line x1="230" x2="230" y1="82" y2="108" class="linear-visual-residual" />
+              <circle cx="150" cy="68" r="6" class="linear-visual-dot" />
+              <circle cx="230" cy="82" r="6" class="linear-visual-dot" />
+              <circle cx="258" cy="120" r="6" class="linear-visual-dot" />
+              <text x="76" y="40" class="linear-visual-label">price</text>
+              <text x="242" y="150" class="linear-visual-label">area + age</text>
+            </template>
+
+            <template v-else-if="props.section.id === 'polynomial'">
+              <line x1="40" x2="320" y1="142" y2="142" class="linear-visual-axis" />
+              <rect x="62" y="104" width="30" height="38" rx="4" class="linear-visual-feature-bar" />
+              <rect x="104" y="82" width="30" height="60" rx="4" class="linear-visual-feature-bar is-square" />
+              <rect x="146" y="60" width="30" height="82" rx="4" class="linear-visual-feature-bar is-cube" />
+              <path d="M198 124 C222 62, 258 58, 302 96" class="linear-visual-curve" />
+              <path d="M178 92 C190 88, 194 88, 202 86" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
+              <text x="67" y="158" class="linear-visual-label">x</text>
+              <text x="105" y="158" class="linear-visual-label">x²</text>
+              <text x="146" y="158" class="linear-visual-label">x³</text>
+            </template>
+
+            <template v-else-if="props.section.id === 'overfitting'">
+              <line x1="44" x2="318" y1="142" y2="142" class="linear-visual-axis" />
+              <line x1="44" x2="44" y1="34" y2="142" class="linear-visual-axis" />
+              <path d="M58 122 C98 80, 120 144, 158 76 C196 14, 232 142, 300 58" class="linear-visual-overfit-curve" />
+              <polyline points="60,118 116,94 172,76 228,64 296,54" class="linear-visual-train-line" />
+              <polyline points="60,122 116,104 172,86 228,96 296,118" class="linear-visual-validation-line" />
+              <text x="210" y="56" class="linear-visual-label">train</text>
+              <text x="210" y="114" class="linear-visual-label">val</text>
+            </template>
+
+            <template v-else>
+              <line x1="40" x2="320" y1="142" y2="142" class="linear-visual-axis" />
+              <rect x="64" y="54" width="30" height="88" rx="4" class="linear-visual-weight-bar is-large" />
+              <rect x="112" y="84" width="30" height="58" rx="4" class="linear-visual-weight-bar is-medium" />
+              <rect x="160" y="112" width="30" height="30" rx="4" class="linear-visual-weight-bar is-small" />
+              <path d="M210 122 C232 62, 258 66, 302 104" class="linear-visual-overfit-curve is-muted" />
+              <path d="M210 116 C238 88, 270 82, 306 96" class="linear-visual-curve" />
+              <path d="M196 66 C208 66, 210 66, 220 68" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
+              <text x="72" y="158" class="linear-visual-label">|w|</text>
+              <text x="238" y="140" class="linear-visual-label">smooth</text>
+            </template>
+          </svg>
+
+          <p>{{ teachingVisual.caption }}</p>
         </section>
 
         <section class="linear-regression-lab__presets">

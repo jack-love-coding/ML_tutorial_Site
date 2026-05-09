@@ -29,6 +29,9 @@ const copy = computed(() =>
         multiclass: '多分类扩展',
         trueLabel: '真实标签',
         predictedProbability: '预测概率 p',
+        confidenceBudget: '真实类别概率预算',
+        trueClassProbability: '真类概率',
+        competingProbability: '另一类概率',
         boundaryShift: '决策平移',
         binary: '二分类交叉熵 (BCE)',
         softmax: 'Softmax 交叉熵',
@@ -85,6 +88,9 @@ const copy = computed(() =>
         multiclass: 'Multiclass extension',
         trueLabel: 'True label',
         predictedProbability: 'Predicted probability p',
+        confidenceBudget: 'True-class probability budget',
+        trueClassProbability: 'True-class probability',
+        competingProbability: 'Other-class probability',
         boundaryShift: 'Decision shift',
         binary: 'Binary cross-entropy (BCE)',
         softmax: 'Softmax cross-entropy',
@@ -138,6 +144,10 @@ const copy = computed(() =>
 
 const classificationLabel = computed(() => Number(props.config.classificationLabel ?? 1))
 const probability = computed(() => Number(props.config.probability ?? 0.76))
+const trueClassProbability = computed(() =>
+  classificationLabel.value === 1 ? probability.value : 1 - probability.value,
+)
+const competingProbability = computed(() => 1 - trueClassProbability.value)
 
 const curveSpecs = computed(() => [
   {
@@ -187,6 +197,19 @@ const confidenceCases = computed(() => [
     loss: Number(props.snapshot?.selectedObservation?.confidentMistakeLoss ?? 0),
     tone: 'caution',
     note: copy.value.confidentMistakeNote,
+  },
+])
+
+const confidenceBudgetItems = computed(() => [
+  {
+    id: 'true',
+    label: copy.value.trueClassProbability,
+    value: trueClassProbability.value,
+  },
+  {
+    id: 'other',
+    label: copy.value.competingProbability,
+    value: competingProbability.value,
   },
 ])
 
@@ -463,6 +486,24 @@ function rowNote(row: WorkedExampleRow) {
         <strong>{{ copy.binary }}</strong>
       </div>
       <LossCurvePlot :curves="curveSpecs" :marker-x="probability" :marker-points="markerPoints" />
+      <div class="confidence-budget" aria-label="true class probability budget">
+        <div class="lesson-lab__heading lesson-lab__heading--subtle">
+          <span>{{ copy.confidenceBudget }}</span>
+          <strong>{{ round(Number(props.snapshot?.selectedObservation?.bce ?? 0)) }}</strong>
+        </div>
+        <article
+          v-for="item in confidenceBudgetItems"
+          :key="item.id"
+          class="confidence-budget__item"
+          :class="`confidence-budget__item--${item.id}`"
+        >
+          <span>{{ item.label }}</span>
+          <div class="confidence-budget__track">
+            <div class="confidence-budget__fill" :style="{ width: `${Math.max(4, item.value * 100)}%` }" />
+          </div>
+          <strong>{{ round(item.value, 2) }}</strong>
+        </article>
+      </div>
       <div class="confidence-case-list">
         <article
           v-for="item in confidenceCases"
