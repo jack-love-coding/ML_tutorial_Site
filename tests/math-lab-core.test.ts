@@ -51,6 +51,7 @@ import {
 } from '../src/modules/math-lab/utils/progress.ts'
 import { evaluateTaylorApproximation } from '../src/modules/math-lab/utils/taylorSeries.ts'
 import { renderMarkdownWithMath } from '../src/utils/markdownMath.ts'
+import { withPublicBase } from '../src/utils/publicPath.ts'
 
 function createMemoryStorage(): StorageLike {
   const values = new Map<string, string>()
@@ -873,6 +874,14 @@ print("ok")
   assert.match(html, /<img/)
   assert.match(html, /<details>/)
   assert.match(html, /<blockquote>/)
+})
+
+test('public asset paths are rebased for GitHub Pages project deployments', () => {
+  assert.equal(withPublicBase('/math-lab/cs357-assets/figs/vector_example.png', '/ML_tutorial_Site/'), '/ML_tutorial_Site/math-lab/cs357-assets/figs/vector_example.png')
+  assert.equal(withPublicBase('/manim/math-lab/vector-dot-product.mp4', '/ML_tutorial_Site/'), '/ML_tutorial_Site/manim/math-lab/vector-dot-product.mp4')
+  assert.equal(withPublicBase('/ML_tutorial_Site/math-lab/cs357-assets/figs/vector_example.png', '/ML_tutorial_Site/'), '/ML_tutorial_Site/math-lab/cs357-assets/figs/vector_example.png')
+  assert.equal(withPublicBase('https://example.com/asset.png', '/ML_tutorial_Site/'), 'https://example.com/asset.png')
+  assert.equal(withPublicBase('#section', '/ML_tutorial_Site/'), '#section')
 })
 
 test('markdown renderer sanitizes raw html while preserving teaching markup', () => {

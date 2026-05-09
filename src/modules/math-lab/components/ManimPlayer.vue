@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
+import { withPublicBase } from '../../../utils/publicPath.ts'
 import type { MathLabLocale, VisualAsset } from '../types/mathLab'
 
 const props = withDefaults(defineProps<{
@@ -17,6 +18,8 @@ const fallbackTranscript = computed(() =>
     ? '这个动画提供静态降级内容，确保视频不可用时仍能学习。'
     : 'This animation has a static fallback for accessibility.',
 )
+const videoSrc = computed(() => withPublicBase(props.asset?.assetPath))
+const posterSrc = computed(() => withPublicBase(props.asset?.posterPath))
 </script>
 
 <template>
@@ -27,11 +30,11 @@ const fallbackTranscript = computed(() =>
         controls
         preload="metadata"
         playsinline
-        :poster="asset.posterPath"
+        :poster="posterSrc"
         :aria-label="asset.title[locale]"
-        :data-asset-path="asset.assetPath"
+        :data-asset-path="videoSrc"
       >
-        <source :src="asset.assetPath" type="video/mp4" />
+        <source :src="videoSrc" type="video/mp4" />
       </video>
       <div v-else class="math-manim-player__fallback">
         <span>Manim</span>

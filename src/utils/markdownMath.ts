@@ -1,6 +1,7 @@
 import MarkdownIt from 'markdown-it'
 import katex from 'katex'
 import sanitizeHtml from 'sanitize-html'
+import { withPublicBase } from './publicPath.ts'
 
 const markdown = new MarkdownIt({
   html: true,
@@ -63,6 +64,22 @@ const markdownSanitizeOptions = {
   allowedSchemesAppliedToAttributes: ['href', 'src'],
   allowProtocolRelative: false,
   disallowedTagsMode: 'discard',
+  transformTags: {
+    a: (tagName, attribs) => {
+      const nextAttribs = { ...attribs }
+      if (nextAttribs.href) {
+        nextAttribs.href = withPublicBase(nextAttribs.href)
+      }
+      return { tagName, attribs: nextAttribs }
+    },
+    img: (tagName, attribs) => {
+      const nextAttribs = { ...attribs }
+      if (nextAttribs.src) {
+        nextAttribs.src = withPublicBase(nextAttribs.src)
+      }
+      return { tagName, attribs: nextAttribs }
+    },
+  },
 } satisfies NonNullable<Parameters<typeof sanitizeHtml>[1]>
 
 function renderFormula(source: string, display = false) {
