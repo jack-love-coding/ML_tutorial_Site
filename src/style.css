@@ -6009,3 +6009,1207 @@ p {
     transform: translateY(-8px);
   }
 }
+
+/* Codecademy-inspired pixel redesign */
+:root {
+  --pixel-bg: #fff7df;
+  --pixel-paper: #fffef7;
+  --pixel-ink: #10162f;
+  --pixel-muted: #3f4a6b;
+  --pixel-line: #10162f;
+  --pixel-yellow: #ffd84d;
+  --pixel-green: #2fd27f;
+  --pixel-blue: #536dfe;
+  --pixel-cyan: #36c5f0;
+  --pixel-pink: #ff7ab6;
+  --pixel-orange: #ff9f43;
+  --pixel-lilac: #d9ceff;
+  --pixel-grid: rgba(16, 22, 47, 0.12);
+  --pixel-shadow: 7px 7px 0 #10162f;
+  --pixel-shadow-soft: 4px 4px 0 rgba(16, 22, 47, 0.78);
+  --pixel-shadow-small: 3px 3px 0 #10162f;
+  --bg: var(--pixel-bg);
+  --surface: var(--pixel-paper);
+  --surface-strong: #ffffff;
+  --ink: var(--pixel-ink);
+  --muted: var(--pixel-muted);
+  --line: var(--pixel-line);
+  --shadow: var(--pixel-shadow);
+  --shadow-soft: var(--pixel-shadow-soft);
+  --radius-xl: 8px;
+  --radius-lg: 8px;
+  --radius-md: 6px;
+  --font-display: "Trebuchet MS", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --font-body: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  color: var(--pixel-ink);
+  background:
+    linear-gradient(90deg, rgba(255, 216, 77, 0.4) 0 16px, transparent 16px 48px),
+    linear-gradient(rgba(16, 22, 47, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 22, 47, 0.055) 1px, transparent 1px),
+    var(--pixel-bg);
+  background-size: 64px 64px, 24px 24px, 24px 24px, auto;
+}
+
+html {
+  background: var(--pixel-bg);
+}
+
+body {
+  color: var(--pixel-ink);
+  background:
+    linear-gradient(135deg, rgba(83, 109, 254, 0.08) 0 25%, transparent 25% 50%, rgba(47, 210, 127, 0.08) 50% 75%, transparent 75%) 0 0 / 32px 32px,
+    linear-gradient(180deg, #fff7df 0%, #fffdf2 46%, #f5ffe9 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 10% 12%, rgba(255, 216, 77, 0.34) 0 0.5rem, transparent 0.55rem),
+    radial-gradient(circle at 82% 18%, rgba(54, 197, 240, 0.24) 0 0.55rem, transparent 0.6rem),
+    radial-gradient(circle at 74% 78%, rgba(255, 122, 182, 0.18) 0 0.65rem, transparent 0.7rem);
+  background-size: 118px 118px, 156px 156px, 210px 210px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+strong {
+  font-family: var(--font-display);
+}
+
+h1,
+h2,
+h3 {
+  color: var(--pixel-ink);
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: 4.35rem;
+  line-height: 0.95;
+}
+
+h2 {
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+h3 {
+  font-size: 1.55rem;
+  line-height: 1.08;
+}
+
+p,
+li,
+small {
+  color: var(--pixel-muted);
+}
+
+a,
+button,
+input,
+select,
+textarea,
+summary {
+  outline-offset: 3px;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--pixel-blue);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--pixel-yellow);
+  color: var(--pixel-ink);
+}
+
+.site-main {
+  width: min(1280px, calc(100vw - 48px));
+  padding: 30px 0 84px;
+}
+
+.site-header {
+  width: min(1280px, calc(100vw - 48px));
+  margin-top: 14px;
+  padding: 10px 12px;
+  gap: 14px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, var(--pixel-yellow) 0 9px, transparent 9px 18px) 0 100% / 18px 6px repeat-x,
+    var(--pixel-paper);
+  box-shadow: var(--pixel-shadow);
+  backdrop-filter: none;
+}
+
+.site-header__brand {
+  gap: 10px;
+  min-width: 0;
+}
+
+.site-header__brand strong {
+  color: var(--pixel-ink);
+  font-size: 1rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.site-header__brand small {
+  color: var(--pixel-muted);
+  font-size: 0.78rem;
+}
+
+.site-header__mark {
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background:
+    linear-gradient(135deg, var(--pixel-blue) 0 50%, #233569 50% 100%);
+  color: white;
+  box-shadow: 3px 3px 0 var(--pixel-line);
+  letter-spacing: 0;
+}
+
+.site-header__nav {
+  justify-content: center;
+  gap: 8px;
+}
+
+.site-header__link {
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  color: var(--pixel-ink);
+  font-weight: 700;
+  transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.site-header__link:hover,
+.site-header__link.is-current,
+.site-header__link.router-link-active {
+  border-color: var(--pixel-line);
+  background: var(--pixel-yellow);
+  color: var(--pixel-ink);
+  box-shadow: 3px 3px 0 var(--pixel-line);
+  transform: translate(-2px, -2px);
+}
+
+.locale-switch {
+  gap: 0;
+  padding: 3px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 3px 3px 0 var(--pixel-line);
+}
+
+.locale-switch__button {
+  min-width: 42px;
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  color: var(--pixel-muted);
+  font-weight: 800;
+}
+
+.locale-switch__button.is-active {
+  background: var(--pixel-ink);
+  color: #ffffff;
+}
+
+.eyebrow {
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--pixel-ink);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.eyebrow::before {
+  width: 22px;
+  height: 8px;
+  border: 2px solid var(--pixel-line);
+  background: var(--pixel-green);
+}
+
+.home-view,
+.algorithm-view,
+.math-lab-page {
+  gap: 28px;
+}
+
+.hero,
+.algorithm-hero,
+.path-section,
+.modules-section,
+.results-grid,
+.panel,
+.story-card,
+.home-footer,
+.math-lab-hero,
+.math-lab-module-hero,
+.math-lab-compact-hero,
+.math-lab-panel,
+.math-manim-player,
+.math-lab-card,
+.math-checkpoint,
+.math-misconception-card,
+.route-skeleton__hero,
+.route-skeleton__lesson-hero,
+.route-skeleton__panel {
+  border: 2px solid var(--pixel-line);
+  border-radius: 8px;
+  background: var(--pixel-paper);
+  box-shadow: var(--pixel-shadow);
+  backdrop-filter: none;
+}
+
+.hero,
+.math-lab-hero {
+  position: relative;
+  align-items: center;
+  padding: 44px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(16, 22, 47, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(16, 22, 47, 0.08) 1px, transparent 1px),
+    linear-gradient(135deg, #fffef7 0 58%, #e8fff2 58% 100%);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.hero::before,
+.math-lab-hero::before,
+.algorithm-hero::before,
+.math-lab-module-hero::before {
+  content: "";
+  position: absolute;
+  inset: 14px auto auto 14px;
+  width: 72px;
+  height: 18px;
+  border: 2px solid var(--pixel-line);
+  background:
+    linear-gradient(90deg, var(--pixel-pink) 0 16px, var(--pixel-yellow) 16px 32px, var(--pixel-green) 32px 48px, var(--pixel-blue) 48px 64px);
+  box-shadow: 3px 3px 0 var(--pixel-line);
+  z-index: 0;
+}
+
+.hero__copy,
+.math-lab-hero__copy,
+.algorithm-hero__copy {
+  position: relative;
+  z-index: 1;
+  gap: 18px;
+}
+
+.math-lab-module-hero > div,
+.math-lab-module-hero aside,
+.algorithm-hero__summary,
+.hero__visual,
+.math-lab-hero__visual {
+  position: relative;
+  z-index: 1;
+}
+
+.home-hero h1,
+.math-lab-hero__copy h1,
+.math-lab-hero--foundations .math-lab-hero__copy h1,
+.algorithm-hero h1,
+.math-lab-module-hero--article h1 {
+  max-width: 11ch;
+  font-size: 4.2rem;
+  letter-spacing: 0;
+}
+
+.hero__copy p,
+.math-lab-hero__copy p,
+.algorithm-hero__copy p,
+.math-lab-module-hero p {
+  color: var(--pixel-muted);
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.hero__actions,
+.math-article-nav__actions,
+.playback-dock__actions,
+.controls-panel__actions,
+.loss-lab-actions,
+.linear-regression-lab__actions,
+.gradient-chapter-lab__actions,
+.gradient-sticky-rail__actions {
+  gap: 10px;
+}
+
+.action-button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 5px;
+  background: #ffffff;
+  color: var(--pixel-ink);
+  box-shadow: 4px 4px 0 var(--pixel-line);
+  font-weight: 900;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.action-button:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--pixel-line);
+}
+
+.action-button--primary {
+  background: var(--pixel-blue);
+  color: #ffffff;
+}
+
+.action-button--primary:hover {
+  background: #3f55df;
+}
+
+.hero__poster,
+.math-lab-hero__visual {
+  min-height: 420px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(135deg, #10162f 0 52%, #0b4a57 52% 100%);
+  background-size: 32px 32px, 32px 32px, auto;
+  box-shadow: var(--pixel-shadow);
+}
+
+.hero__poster::after,
+.math-lab-hero__visual::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 2px dashed rgba(255, 255, 255, 0.42);
+  pointer-events: none;
+}
+
+.hero__grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: none;
+  animation: pulse-grid 14s steps(8) infinite;
+}
+
+.hero__poster-copy {
+  right: 18px;
+  bottom: 18px;
+  padding: 16px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: var(--pixel-yellow);
+  box-shadow: 4px 4px 0 var(--pixel-line);
+  backdrop-filter: none;
+}
+
+.hero__poster-copy span,
+.hero__poster-copy p {
+  color: var(--pixel-ink);
+}
+
+.hero__poster-copy span {
+  font-size: 1.1rem;
+}
+
+.course-plane {
+  gap: 12px;
+  transform: rotate(-6deg) skew(-2deg);
+}
+
+.course-plane span {
+  border: 2px solid #ffffff;
+  border-radius: 5px;
+  background: var(--pixel-blue);
+  color: #ffffff;
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.42);
+  animation: math-tile-rise 3.2s steps(3) infinite;
+}
+
+.hero__highlights,
+.algorithm-hero__stats,
+.metrics-grid,
+.math-skill-radar__legend,
+.math-readout-grid,
+.linear-regression-lab__readout,
+.linear-regression-lab__mini-grid,
+.chart-summary {
+  gap: 10px;
+}
+
+.hero-highlight,
+.algorithm-hero__stat,
+.metric-card,
+.chart-summary__item,
+.math-skill-radar__legend article,
+.math-readout-grid article,
+.math-variable-grid article,
+.math-explanation-grid article,
+.math-diagnostic-question,
+.math-checkpoint__item,
+.linear-regression-lab__metric,
+.linear-regression-lab__mini-grid article,
+.gradient-chapter-lab__metric,
+.gradient-sticky-rail__metric,
+.gradient-sticky-rail__mobile-metrics article,
+.playback-dock__metric,
+.viz-card__stats article {
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.hero-highlight {
+  min-height: 116px;
+  padding: 16px;
+}
+
+.hero-highlight span,
+.algorithm-hero__stat span,
+.metric-card span,
+.chart-summary__item span,
+.math-readout-grid span,
+.linear-regression-lab__metric span,
+.gradient-chapter-lab__metric span,
+.gradient-sticky-rail__metric span,
+.playback-dock__metric span,
+.viz-card__stats span {
+  color: var(--pixel-muted);
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.hero-highlight span,
+.algorithm-hero__stat strong,
+.metric-card strong,
+.chart-summary__item strong,
+.math-readout-grid strong,
+.linear-regression-lab__metric strong,
+.gradient-chapter-lab__metric strong,
+.gradient-sticky-rail__metric strong,
+.playback-dock__metric strong,
+.viz-card__stats strong {
+  color: var(--pixel-ink);
+}
+
+.modules-section,
+.path-section,
+.math-lab-dashboard,
+.math-diagnostic-layout,
+.math-module-layout {
+  gap: 22px;
+}
+
+.modules-section,
+.path-section {
+  padding: 32px;
+  background:
+    linear-gradient(45deg, rgba(255, 216, 77, 0.16) 25%, transparent 25% 50%, rgba(255, 216, 77, 0.16) 50% 75%, transparent 75%) 0 0 / 22px 22px,
+    var(--pixel-paper);
+}
+
+.section-header {
+  gap: 12px;
+}
+
+.module-teaser,
+.path-step,
+.math-path-node,
+.preset-card,
+.lesson-preset-card,
+.lesson-bridge-card,
+.gradient-function-pill,
+.gradient-teaching-block,
+.softmax-lesson-card {
+  border: 2px solid var(--pixel-line);
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--teaser-bg, var(--math-theme, var(--module-theme, #ffffff))) 42%, #ffffff) 0 62%, #ffffff 62% 100%);
+  box-shadow: var(--pixel-shadow-small);
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.module-teaser {
+  min-height: 220px;
+  padding: 24px;
+}
+
+.module-teaser__meta {
+  padding-left: 42px;
+  position: relative;
+  z-index: 1;
+}
+
+.module-teaser::before {
+  inset: auto 18px 18px auto;
+  width: 54px;
+  height: 54px;
+  border: 2px solid var(--pixel-line);
+  background:
+    linear-gradient(45deg, var(--teaser-accent) 25%, transparent 25% 50%, var(--teaser-accent) 50% 75%, transparent 75%),
+    #ffffff;
+  background-size: 12px 12px;
+  opacity: 1;
+}
+
+.module-teaser::after {
+  inset: 18px auto auto 18px;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 0;
+  background: var(--teaser-accent);
+}
+
+.module-teaser:hover,
+.path-step:hover,
+.math-path-node:hover,
+.preset-card:hover,
+.lesson-preset-card:hover,
+.lesson-bridge-card:hover,
+.gradient-function-pill:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--pixel-line);
+}
+
+.module-teaser span,
+.module-teaser small,
+.module-teaser__meta em {
+  color: var(--pixel-ink);
+  letter-spacing: 0;
+}
+
+.module-teaser__meta span {
+  overflow-wrap: anywhere;
+}
+
+.module-teaser strong {
+  position: relative;
+  z-index: 1;
+  color: var(--pixel-ink);
+  font-size: 1.55rem;
+}
+
+.module-teaser small {
+  position: relative;
+  z-index: 1;
+  font-weight: 900;
+}
+
+.path-step {
+  min-height: 150px;
+  padding: 20px;
+  background:
+    linear-gradient(90deg, var(--pixel-green) 0 8px, transparent 8px),
+    #ffffff;
+}
+
+.path-step span {
+  color: var(--pixel-blue);
+}
+
+.home-footer {
+  padding: 22px 24px;
+  background: var(--pixel-yellow);
+}
+
+.algorithm-hero,
+.math-lab-module-hero,
+.math-lab-compact-hero {
+  position: relative;
+  padding: 32px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(16, 22, 47, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(16, 22, 47, 0.08) 1px, transparent 1px),
+    linear-gradient(135deg, color-mix(in srgb, var(--module-theme, var(--math-theme, #fffef7)) 55%, #ffffff) 0 72%, var(--pixel-lilac) 72% 100%);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.algorithm-hero__summary,
+.math-lab-module-hero aside,
+.dashboard-brief,
+.dashboard__reading,
+.dashboard__presets,
+.dashboard__controls,
+.dashboard__gradient-meta,
+.dashboard__start-point,
+.lesson-panel__callout,
+.lesson-panel__prompt {
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.algorithm-hero__summary,
+.math-lab-module-hero aside {
+  padding: 20px;
+}
+
+.story-card,
+.panel,
+.lesson-panel,
+.embedded-loss-lab,
+.lesson-lab,
+.gradient-chapter-lab,
+.linear-regression-lab,
+.playback-dock,
+.gradient-sticky-rail {
+  border: 2px solid var(--pixel-line);
+  border-radius: 8px;
+  background: var(--pixel-paper);
+  box-shadow: var(--pixel-shadow);
+}
+
+.story-card {
+  padding: 26px;
+}
+
+.story-card.is-active {
+  border-color: var(--pixel-line);
+  background:
+    linear-gradient(90deg, var(--pixel-yellow) 0 10px, transparent 10px),
+    var(--pixel-paper);
+}
+
+.story-card__count,
+.story-progress__item span {
+  border: 2px solid var(--pixel-line);
+  border-radius: 5px;
+  background: var(--pixel-yellow);
+  color: var(--pixel-ink);
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.story-progress__item.is-active span {
+  background: var(--pixel-blue);
+  color: #ffffff;
+}
+
+.embedded-loss-lab,
+.lesson-lab,
+.gradient-chapter-lab,
+.linear-regression-lab {
+  padding: 24px;
+  background:
+    linear-gradient(rgba(16, 22, 47, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 22, 47, 0.055) 1px, transparent 1px),
+    #fffef7;
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+.embedded-loss-lab__story,
+.embedded-loss-lab__switcher,
+.embedded-loss-lab__visuals,
+.embedded-loss-lab__controls,
+.embedded-loss-lab__footer,
+.embedded-loss-lab__overview,
+.loss-lab-panel,
+.lesson-lab__controls,
+.lesson-lab__visual,
+.lesson-lab__panel,
+.gradient-chapter-lab__hero,
+.gradient-chapter-lab__terrain,
+.gradient-chapter-lab__workspace,
+.gradient-chapter-lab__summary,
+.gradient-chapter-lab__formula,
+.gradient-chapter-lab__terrain-meta,
+.gradient-chapter-lab__control-cluster,
+.gradient-chapter-lab__readout-panel,
+.gradient-chapter-lab__meta-grid div,
+.linear-regression-lab__panel,
+.linear-regression-lab__controls,
+.linear-regression-lab__readout,
+.linear-regression-lab__selected,
+.linear-regression-lab__focus,
+.linear-regression-lab__presets,
+.math-lab-panel,
+.math-checkpoint,
+.math-misconception-card,
+.math-code-lab,
+.math-manim-player,
+.math-lab-card {
+  border: 2px solid var(--pixel-line);
+  border-radius: 7px;
+  background: #ffffff;
+  box-shadow: var(--pixel-shadow-small);
+  backdrop-filter: none;
+}
+
+.gradient-chapter-lab__control-cluster.is-emphasis,
+.metric-card.is-emphasized,
+.gradient-chapter-lab__metric.is-emphasis,
+.gradient-sticky-rail__metric.is-emphasis {
+  background: #fff4bd;
+}
+
+.lesson-lab--overview,
+.lesson-lab--regression,
+.lesson-lab--classification,
+.lesson-lab--likelihood,
+.lesson-lab--negative-log,
+.lesson-lab--mle {
+  background:
+    linear-gradient(45deg, rgba(47, 210, 127, 0.12) 25%, transparent 25% 50%, rgba(47, 210, 127, 0.12) 50% 75%, transparent 75%) 0 0 / 24px 24px,
+    #fffef7;
+}
+
+.toggle-strip,
+.loss-function-switcher,
+.gradient-function-pill-strip,
+.regularization-switch {
+  border: 2px solid var(--pixel-line);
+  border-radius: 7px;
+  background: #ffffff;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.toggle-strip__button,
+.loss-function-option,
+.regularization-switch button {
+  border-radius: 4px;
+  color: var(--pixel-muted);
+  font-weight: 900;
+}
+
+.toggle-strip__button.is-active,
+.loss-function-option.is-active,
+.regularization-switch button.is-active {
+  background: var(--pixel-ink);
+  color: #ffffff;
+}
+
+.control,
+.math-mini-controls label,
+.matrix-input-grid label,
+.math-checkpoint__numeric {
+  color: var(--pixel-muted);
+  font-weight: 800;
+}
+
+.control__range,
+.control__number,
+.control__select,
+.math-mini-controls input,
+.math-mini-controls select,
+.matrix-input-grid input,
+.math-checkpoint__numeric input,
+.math-diagnostic-question input,
+.math-checkpoint__choices input {
+  accent-color: var(--pixel-blue);
+}
+
+.control__number,
+.control__select,
+.math-mini-controls select,
+.matrix-input-grid input,
+.math-checkpoint__numeric input,
+input[type="number"],
+input[type="text"],
+select {
+  border: 2px solid var(--pixel-line);
+  border-radius: 5px;
+  background: #ffffff;
+  color: var(--pixel-ink);
+  box-shadow: 2px 2px 0 rgba(16, 22, 47, 0.65);
+}
+
+.markdown-math {
+  color: var(--pixel-ink);
+}
+
+.markdown-math h2,
+.markdown-math h3,
+.markdown-math h4,
+.markdown-math h5 {
+  color: var(--pixel-ink);
+  letter-spacing: 0;
+}
+
+.markdown-math code,
+.markdown-math pre,
+.math-code-lab {
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: #10162f;
+  color: #ffffff;
+}
+
+.markdown-math code {
+  padding: 0.12rem 0.3rem;
+  background: #f1f4ff;
+  color: var(--pixel-ink);
+}
+
+.markdown-math pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  border: 0;
+}
+
+.markdown-math blockquote,
+.markdown-math details,
+.markdown-math table,
+.markdown-math .figure,
+.markdown-math .row,
+.math-objective-list article {
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.markdown-math th {
+  background: var(--pixel-yellow);
+  color: var(--pixel-ink);
+}
+
+.markdown-math img {
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.viz-card,
+.gradient-viz__panel,
+.linear-regression-lab__viz-shell,
+.math-manim-player__media,
+.three-scene-shell,
+.numerical-lab-svg,
+.monte-carlo-lab__plot,
+.monte-carlo-lab__bars,
+.taylor-series-lab__plot,
+.pca-projection-lab__plot,
+.sparse-matrix-lab__grid,
+.markov-chain-lab__graph,
+.condition-number-lab__plot,
+.nonlinear-equations-lab__plot,
+.finite-difference-lab__plot,
+.lu-decomposition-lab__matrix {
+  border: 2px solid var(--pixel-line);
+  border-radius: 7px;
+  background:
+    linear-gradient(rgba(16, 22, 47, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 22, 47, 0.08) 1px, transparent 1px),
+    #ffffff;
+  background-size: 24px 24px, 24px 24px, auto;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.viz-card__canvas,
+.viz-card__overlay,
+.gradient-viz__contour-canvas {
+  border-radius: 5px;
+}
+
+.viz-card__hud,
+.viz-card__tag,
+.gradient-viz__footer,
+.linear-state-legend,
+.condition-number-lab__legend,
+.nonlinear-equations-lab__legend,
+.monte-carlo-lab__legend,
+.taylor-series-lab__legend,
+.taylor-series-lab__toggles {
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.chart-svg,
+.linear-regression-lab__data-svg,
+.linear-regression-lab__state-svg,
+.math-vector-svg,
+.math-matrix-svg,
+.math-gradient-svg {
+  border: 2px solid var(--pixel-line);
+  border-radius: 7px;
+  background:
+    linear-gradient(rgba(16, 22, 47, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 22, 47, 0.08) 1px, transparent 1px),
+    #ffffff;
+  background-size: 24px 24px, 24px 24px, auto;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.chart-axis,
+.chart-cursor,
+.linear-axis,
+.math-grid line,
+.math-grid .axis {
+  stroke: rgba(16, 22, 47, 0.42);
+}
+
+.chart-line--loss,
+.linear-fit-line,
+.gradient-trajectory,
+.nonlinear-equations-lab__curve,
+.finite-difference-lab__curve {
+  stroke: var(--pixel-blue);
+}
+
+.chart-line--accuracy,
+.basis--j,
+.vector-line--b {
+  stroke: var(--pixel-green);
+}
+
+.vector-line--a,
+.basis--i,
+.pca-projection-lab__axis {
+  stroke: var(--pixel-blue);
+}
+
+.vector-handle,
+.projection-dot,
+.origin-dot,
+.gradient-current,
+.gradient-start,
+.linear-sample,
+.linear-state-dot {
+  stroke: var(--pixel-line);
+  stroke-width: 2.5;
+}
+
+.math-path-node {
+  min-height: 156px;
+  padding: 20px;
+}
+
+.math-path-node.is-complete {
+  background:
+    linear-gradient(90deg, var(--pixel-green) 0 8px, transparent 8px),
+    #ffffff;
+}
+
+.math-skill-radar circle,
+.math-skill-radar line {
+  stroke: rgba(16, 22, 47, 0.22);
+}
+
+.math-skill-radar polygon {
+  fill: rgba(83, 109, 254, 0.28);
+  stroke: var(--pixel-blue);
+}
+
+.math-article-nav {
+  border: 2px solid var(--pixel-line);
+  border-radius: 7px;
+  background: #ffffff;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.math-article-nav nav a {
+  border-radius: 4px;
+  color: var(--pixel-muted);
+  font-weight: 800;
+}
+
+.math-article-nav nav a:hover {
+  background: var(--pixel-yellow);
+  color: var(--pixel-ink);
+}
+
+.route-skeleton__hero,
+.route-skeleton__lesson-hero,
+.route-skeleton__panel {
+  background:
+    linear-gradient(rgba(16, 22, 47, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 22, 47, 0.07) 1px, transparent 1px),
+    var(--pixel-paper);
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+.route-skeleton__poster-card,
+.route-skeleton__panel--viz {
+  border: 2px solid var(--pixel-line);
+  border-radius: 7px;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    #10162f;
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.route-skeleton__mini,
+.route-skeleton__pill,
+.route-skeleton__line,
+.route-skeleton__rail,
+.route-skeleton__panel::before {
+  border-radius: 4px;
+  background: #dce4ff;
+}
+
+.route-skeleton__panel::before,
+.route-skeleton__poster-card::before,
+.route-skeleton__mini::after,
+.route-skeleton__pill::after,
+.route-skeleton__line::after,
+.route-skeleton__rail::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 216, 77, 0.9), transparent);
+  animation-timing-function: steps(6);
+}
+
+.gradient-sticky-rail {
+  background: var(--pixel-paper);
+}
+
+.gradient-sticky-rail__preset,
+.gradient-sticky-rail__note,
+.gradient-sticky-rail__control-group {
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: var(--pixel-shadow-small);
+}
+
+.playback-dock {
+  padding: 14px;
+}
+
+@media (max-width: 1080px) {
+  .site-header,
+  .site-main {
+    width: min(100vw - 28px, 1280px);
+  }
+
+  .site-header {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .locale-switch {
+    justify-self: start;
+  }
+
+  .site-header__nav {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .site-main {
+    width: min(100vw - 20px, 1280px);
+    padding-top: 20px;
+  }
+
+  .site-header {
+    width: min(100vw - 20px, 1280px);
+    margin-top: 10px;
+    padding: 8px;
+    box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+
+  .site-header__brand small {
+    max-width: 14rem;
+  }
+
+  .site-header__nav {
+    padding-bottom: 8px;
+  }
+
+  .site-header__link {
+    min-height: 34px;
+    padding: 7px 10px;
+  }
+
+  h1,
+  .home-hero h1,
+  .math-lab-hero__copy h1,
+  .math-lab-hero--foundations .math-lab-hero__copy h1,
+  .algorithm-hero h1,
+  .math-lab-module-hero--article h1 {
+    font-size: 2.55rem;
+    line-height: 1;
+  }
+
+  h2 {
+    font-size: 1.85rem;
+  }
+
+  h3 {
+    font-size: 1.3rem;
+  }
+
+  .hero,
+  .math-lab-hero,
+  .modules-section,
+  .path-section,
+  .algorithm-hero,
+  .story-card,
+  .gradient-chapter-lab,
+  .lesson-lab,
+  .panel,
+  .home-footer,
+  .math-lab-module-hero,
+  .math-lab-compact-hero,
+  .math-lab-panel,
+  .math-manim-player,
+  .math-lab-card,
+  .math-checkpoint,
+  .math-misconception-card,
+  .linear-regression-lab {
+    padding: 18px;
+    border-radius: 7px;
+    box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+
+  .hero,
+  .math-lab-hero,
+  .algorithm-hero,
+  .math-lab-module-hero {
+    padding-top: 52px;
+  }
+
+  .hero__poster,
+  .math-lab-hero__visual {
+    min-height: 300px;
+    box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+
+  .module-teaser,
+  .path-step,
+  .math-path-node,
+  .hero-highlight {
+    box-shadow: 3px 3px 0 var(--pixel-line);
+  }
+
+  .action-button {
+    width: auto;
+    min-height: 42px;
+  }
+
+  .gradient-sticky-rail {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 10px;
+    border-radius: 7px;
+    background: var(--pixel-paper);
+    box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+}
