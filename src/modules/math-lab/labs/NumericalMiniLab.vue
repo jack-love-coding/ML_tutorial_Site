@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import type { MathLabLocale, MathLabModuleId } from '../types/mathLab'
 import { evaluatePowerIteration, type EigenPowerMatrixKind } from '../utils/eigenPower'
+import { evaluateLeastSquaresLine } from '../utils/leastSquares'
 
 const props = defineProps<{
   moduleId: MathLabModuleId
@@ -18,6 +19,8 @@ const iterations = ref(6)
 const eigenMatrixKind = ref<EigenPowerMatrixKind>('well-separated')
 const initialAngle = ref(35)
 const slope = ref(0.72)
+const intercept = ref(1.12)
+const outlierLift = ref(0)
 const componentCount = ref(1)
 
 const labKind = computed<LabKind>(() => {
@@ -163,24 +166,42 @@ const powerIteration = computed(() => {
 })
 
 const leastSquares = computed(() => {
-  const points = [
-    { x: 42, y: 188, dataX: 0, dataY: 1.2 },
-    { x: 96, y: 146, dataX: 1, dataY: 1.95 },
-    { x: 150, y: 122, dataX: 2, dataY: 2.35 },
-    { x: 204, y: 78, dataX: 3, dataY: 3.25 },
-  ]
-  const intercept = 1.12
-  const residual = points.reduce((acc, point) => {
-    const prediction = intercept + slope.value * point.dataX
-    return acc + (point.dataY - prediction) ** 2
-  }, 0)
+  const evaluation = evaluateLeastSquaresLine({
+    slope: slope.value,
+    intercept: intercept.value,
+    outlierLift: outlierLift.value,
+  })
+  const xMin = -0.25
+  const xMax = 4.35
+  const yMin = 0.7
+  const yMax = 5.1
+  const width = 280
+  const height = 240
+  const pad = 28
+
+  const plotX = (x: number) => pad + ((x - xMin) / (xMax - xMin)) * (width - pad * 2)
+  const plotY = (y: number) => height - pad - ((y - yMin) / (yMax - yMin)) * (height - pad * 2)
+  const lineFor = (lineIntercept: number, lineSlope: number) => ({
+    x1: plotX(xMin),
+    y1: plotY(lineIntercept + lineSlope * xMin),
+    x2: plotX(xMax),
+    y2: plotY(lineIntercept + lineSlope * xMax),
+  })
+
   return {
-    points,
-    residual,
-    lineStart: { x: 32, y: 220 - intercept * 42 },
-    lineEnd: { x: 236, y: 220 - (intercept + slope.value * 3.8) * 42 },
+    ...evaluation,
+    points: evaluation.points.map((point, index) => ({
+      x: plotX(point.t),
+      y: plotY(point.y),
+      predictionY: plotY(evaluation.current.predictions[index]!),
+      optimalPredictionY: plotY(evaluation.optimal.predictions[index]!),
+      residual: evaluation.current.residuals[index]!,
+    })),
+    currentLine: lineFor(evaluation.current.intercept, evaluation.current.slope),
+    optimalLine: lineFor(evaluation.optimal.intercept, evaluation.optimal.slope),
   }
 })
+
 
 const pca = computed(() => {
   const singularValues = props.moduleId === 'svd' ? [8.4, 3.2, 0.9] : [6.2, 2.1, 0.55]
@@ -193,6 +214,7 @@ const pca = computed(() => {
     explained: retained / total,
   }
 })
+
 </script>
 
 <template>
@@ -256,10 +278,27 @@ const pca = computed(() => {
 
       <svg v-else-if="labKind === 'leastSquares'" class="numerical-lab-svg" viewBox="0 0 280 240" role="img">
         <line
-          :x1="leastSquares.lineStart.x"
-          :y1="leastSquares.lineStart.y"
-          :x2="leastSquares.lineEnd.x"
-          :y2="leastSquares.lineEnd.y"
+          :x1="leastSquares.optimalLine.x1"
+          :y1="leastSquares.optimalLine.y1"
+          :x2="leastSquares.optimalLine.x2"
+          :y2="leastSquares.optimalLine.y2"
+          class="least-squares-optimal-line"
+        />
+        <line
+          :x1="leastSquares.currentLine.x1"
+          :y1="leastSquares.currentLine.y1"
+          :x2="leastSquares.currentLine.x2"
+          :y2="leastSquares.currentLine.y2"
+          class="least-squares-current-line"
+        />
+        <line
+          v-for="point in leastSquares.points"
+          :key="`residual-${point.x}`"
+          :x1="point.x"
+          :y1="point.y"
+          :x2="point.x"
+          :y2="point.predictionY"
+          class="least-squares-residual-line"
         />
         <circle v-for="point in leastSquares.points" :key="point.x" :cx="point.x" :cy="point.y" r="7" />
       </svg>
@@ -363,8 +402,39 @@ const pca = computed(() => {
           {{ locale === 'zh-CN' ? '斜率' : 'Slope' }}: {{ slope.toFixed(2) }}
           <input v-model.number="slope" type="range" min="0.2" max="1.2" step="0.02" />
         </label>
+        <label>
+          {{ locale === 'zh-CN' ? '截距' : 'Intercept' }}: {{ intercept.toFixed(2) }}
+          <input v-model.number="intercept" type="range" min="0.4" max="2.0" step="0.02" />
+        </label>
+        <label>
+          {{ locale === 'zh-CN' ? '最后一点扰动' : 'Last-point lift' }}: {{ outlierLift.toFixed(2) }}
+          <input v-model.number="outlierLift" type="range" min="-0.6" max="1.4" step="0.05" />
+        </label>
         <div class="math-readout-grid">
-          <article><span>residual</span><strong>{{ leastSquares.residual.toFixed(4) }}</strong></article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? '当前 SSE' : 'current SSE' }}</span>
+            <strong>{{ leastSquares.current.sse.toFixed(4) }}</strong>
+          </article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? '最优 SSE' : 'best SSE' }}</span>
+            <strong>{{ leastSquares.optimal.sse.toFixed(4) }}</strong>
+          </article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? '最优斜率' : 'best slope' }}</span>
+            <strong>{{ leastSquares.optimal.slope.toFixed(3) }}</strong>
+          </article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? '最优截距' : 'best intercept' }}</span>
+            <strong>{{ leastSquares.optimal.intercept.toFixed(3) }}</strong>
+          </article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? '法方程误差' : 'normal residual' }}</span>
+            <strong>{{ leastSquares.current.normalResidualNorm.toFixed(3) }}</strong>
+          </article>
+          <article>
+            <span>{{ locale === 'zh-CN' ? 'cond(AᵀA)' : 'cond(AᵀA)' }}</span>
+            <strong>{{ leastSquares.conditionEstimate.toFixed(2) }}</strong>
+          </article>
         </div>
       </div>
 
@@ -380,3 +450,24 @@ const pca = computed(() => {
     </div>
   </section>
 </template>
+
+<style scoped>
+.least-squares-current-line {
+  stroke: #2563eb;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.least-squares-optimal-line {
+  stroke: #0f9f7a;
+  stroke-width: 4;
+  stroke-dasharray: 8 7;
+  stroke-linecap: round;
+}
+
+.least-squares-residual-line {
+  stroke: rgba(190, 18, 60, 0.58);
+  stroke-width: 2.5;
+  stroke-dasharray: 4 5;
+}
+</style>
