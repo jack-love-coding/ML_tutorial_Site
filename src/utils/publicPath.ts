@@ -1,6 +1,9 @@
 function getBaseUrl() {
-  const meta = import.meta as ImportMeta & { env?: { BASE_URL?: string } }
-  return meta.env?.BASE_URL ?? '/'
+  try {
+    return import.meta.env.BASE_URL
+  } catch {
+    return '/'
+  }
 }
 
 function isExternalOrSpecialPath(path: string) {
