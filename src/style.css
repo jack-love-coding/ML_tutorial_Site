@@ -4621,6 +4621,23 @@ p {
   stroke-width: 2;
 }
 
+.numerical-lab-svg .power-axis {
+  stroke: rgba(15, 23, 40, 0.12);
+  stroke-width: 1.4;
+}
+
+.numerical-lab-svg .power-dominant-line {
+  stroke: rgba(226, 109, 61, 0.8);
+  stroke-width: 3;
+  stroke-dasharray: 7 6;
+}
+
+.numerical-lab-svg .power-current-vector {
+  stroke: #0f1728;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
 .numerical-lab-generic {
   display: grid;
   min-height: 280px;
@@ -5013,6 +5030,315 @@ p {
   background: rgba(15, 159, 122, 0.1);
 }
 
+.markov-chain-lab {
+  align-items: stretch;
+}
+
+.markov-chain-lab__visual,
+.markov-chain-lab__controls {
+  min-width: 0;
+}
+
+.markov-chain-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.markov-chain-lab__graph {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f5fbfd);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.markov-chain-lab__graph line {
+  stroke: #0891b2;
+  stroke-linecap: round;
+}
+
+.markov-chain-lab__graph path {
+  fill: #0891b2;
+}
+
+.markov-chain-lab__node circle {
+  fill: rgba(8, 145, 178, 0.16);
+  stroke: rgba(8, 145, 178, 0.56);
+  stroke-width: 2.5;
+}
+
+.markov-chain-lab__node circle.is-initial {
+  fill: rgba(226, 109, 61, 0.18);
+  stroke: rgba(226, 109, 61, 0.74);
+}
+
+.markov-chain-lab__node text {
+  fill: var(--ink);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.markov-chain-lab__node-value {
+  fill: var(--muted) !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+}
+
+.markov-chain-lab__rank-bars,
+.markov-chain-lab__matrix {
+  display: grid;
+  gap: 9px;
+}
+
+.markov-chain-lab__rank-bars article {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 54px;
+  gap: 10px;
+  align-items: center;
+}
+
+.markov-chain-lab__rank-bars span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.markov-chain-lab__rank-bars div {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(15, 23, 40, 0.08);
+}
+
+.markov-chain-lab__rank-bars i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #0891b2;
+}
+
+.markov-chain-lab__rank-bars strong {
+  color: var(--ink);
+  font-size: 0.86rem;
+  text-align: right;
+}
+
+.markov-chain-lab__matrix {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.markov-chain-lab__matrix article {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.markov-chain-lab__matrix span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.markov-chain-lab__matrix strong {
+  min-width: 0;
+  color: var(--ink);
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.markov-chain-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.markov-chain-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.markov-chain-lab__control-grid label:last-child {
+  grid-column: 1 / -1;
+}
+
+.markov-chain-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(8, 145, 178, 0.1);
+}
+
+.condition-number-lab {
+  align-items: stretch;
+}
+
+.condition-number-lab__visual,
+.condition-number-lab__controls {
+  min-width: 0;
+}
+
+.condition-number-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.condition-number-lab__plot {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #fff8f3);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.condition-number-lab__axis {
+  stroke: rgba(15, 23, 40, 0.2);
+  stroke-width: 1.4;
+}
+
+.condition-number-lab__parallelogram {
+  fill: rgba(234, 88, 12, 0.1);
+  stroke: rgba(194, 65, 12, 0.34);
+  stroke-width: 2;
+}
+
+.condition-number-lab__vector {
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.condition-number-lab__vector--first {
+  stroke: #2563eb;
+}
+
+.condition-number-lab__vector--second {
+  stroke: #0f9f7a;
+}
+
+.condition-number-lab__vector--b {
+  stroke: #c2410c;
+}
+
+.condition-number-lab__perturbation {
+  stroke: #be123c;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 6 6;
+}
+
+.condition-number-lab__point {
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.condition-number-lab__point--exact {
+  fill: #c2410c;
+}
+
+.condition-number-lab__point--perturbed {
+  fill: #be123c;
+}
+
+.condition-number-lab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.condition-number-lab__legend span {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.condition-number-lab__legend i {
+  width: 18px;
+  height: 4px;
+  border-radius: 999px;
+  background: #2563eb;
+}
+
+.condition-number-lab__legend i.is-second {
+  background: #0f9f7a;
+}
+
+.condition-number-lab__legend i.is-b {
+  background: #c2410c;
+}
+
+.condition-number-lab__legend i.is-perturbation {
+  background: #be123c;
+}
+
+.condition-number-lab__singular-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.condition-number-lab__singular-values article {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.condition-number-lab__singular-values span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.condition-number-lab__singular-values strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.condition-number-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.condition-number-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.condition-number-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(15, 159, 122, 0.1);
+}
+
+.condition-number-lab__status.is-warning {
+  background: rgba(226, 109, 61, 0.12);
+}
+
+.condition-number-lab__status.is-severe {
+  background: rgba(190, 18, 60, 0.1);
+}
+
 .lu-decomposition-lab {
   align-items: stretch;
 }
@@ -5363,6 +5689,10 @@ p {
 
   .sparse-matrix-lab__arrays,
   .sparse-matrix-lab__control-grid,
+  .markov-chain-lab__matrix,
+  .markov-chain-lab__control-grid,
+  .condition-number-lab__singular-values,
+  .condition-number-lab__control-grid,
   .lu-decomposition-lab__factorization,
   .lu-decomposition-lab__control-grid {
     grid-template-columns: 1fr;

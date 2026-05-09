@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { MathLabLocale, MathLabModuleId } from '../types/mathLab'
+import { evaluatePowerIteration, type EigenPowerMatrixKind } from '../utils/eigenPower'
 
 const props = defineProps<{
   moduleId: MathLabModuleId
@@ -14,6 +15,8 @@ const xValue = ref(0.9)
 const sampleCount = ref(600)
 const luA22 = ref(5)
 const iterations = ref(6)
+const eigenMatrixKind = ref<EigenPowerMatrixKind>('well-separated')
+const initialAngle = ref(35)
 const slope = ref(0.72)
 const componentCount = ref(1)
 
@@ -138,17 +141,25 @@ const lu = computed(() => {
 })
 
 const powerIteration = computed(() => {
-  let vector = [1, 1]
-  const path = [{ x: 140, y: 140 }]
-  for (let step = 0; step < iterations.value; step += 1) {
-    const next = [2 * vector[0] + vector[1], vector[0] + 3 * vector[1]]
-    const norm = Math.hypot(next[0], next[1])
-    vector = [next[0] / norm, next[1] / norm]
-    path.push({ x: 140 + vector[0] * 82, y: 140 - vector[1] * 82 })
+  const evaluation = evaluatePowerIteration({
+    matrixKind: eigenMatrixKind.value,
+    iterations: iterations.value,
+    initialAngleRadians: (initialAngle.value * Math.PI) / 180,
+  })
+
+  return {
+    ...evaluation,
+    path: evaluation.iterates.map((vector) => ({
+      x: 140 + vector[0] * 82,
+      y: 140 - vector[1] * 82,
+    })),
+    dominantLine: {
+      x1: 140 - evaluation.dominantEigenvector[0] * 92,
+      y1: 140 + evaluation.dominantEigenvector[1] * 92,
+      x2: 140 + evaluation.dominantEigenvector[0] * 92,
+      y2: 140 - evaluation.dominantEigenvector[1] * 92,
+    },
   }
-  const av = [2 * vector[0] + vector[1], vector[0] + 3 * vector[1]]
-  const lambda = vector[0] * av[0] + vector[1] * av[1]
-  return { vector, lambda, path }
 })
 
 const leastSquares = computed(() => {
@@ -218,14 +229,29 @@ const pca = computed(() => {
       </svg>
 
       <svg v-else-if="labKind === 'power'" class="numerical-lab-svg" viewBox="0 0 280 280" role="img">
+        <line x1="24" y1="140" x2="256" y2="140" class="power-axis" />
+        <line x1="140" y1="24" x2="140" y2="256" class="power-axis" />
         <circle cx="140" cy="140" r="88" />
+        <line
+          :x1="powerIteration.dominantLine.x1"
+          :y1="powerIteration.dominantLine.y1"
+          :x2="powerIteration.dominantLine.x2"
+          :y2="powerIteration.dominantLine.y2"
+          class="power-dominant-line"
+        />
         <polyline
           fill="none"
           stroke="#3868ff"
           stroke-width="4"
           :points="powerIteration.path.map((point) => `${point.x},${point.y}`).join(' ')"
         />
-        <line x1="140" y1="140" :x2="140 + powerIteration.vector[0] * 90" :y2="140 - powerIteration.vector[1] * 90" />
+        <line
+          x1="140"
+          y1="140"
+          :x2="140 + powerIteration.vector[0] * 90"
+          :y2="140 - powerIteration.vector[1] * 90"
+          class="power-current-vector"
+        />
       </svg>
 
       <svg v-else-if="labKind === 'leastSquares'" class="numerical-lab-svg" viewBox="0 0 280 240" role="img">
@@ -302,12 +328,33 @@ const pca = computed(() => {
 
       <div v-else-if="labKind === 'power'" class="math-mini-controls">
         <label>
+          {{ locale === 'zh-CN' ? '矩阵类型' : 'Matrix type' }}
+          <select v-model="eigenMatrixKind">
+            <option value="well-separated">
+              {{ locale === 'zh-CN' ? '谱间隔清晰' : 'Clear spectral gap' }}
+            </option>
+            <option value="slow-gap">
+              {{ locale === 'zh-CN' ? '谱间隔较小' : 'Small spectral gap' }}
+            </option>
+            <option value="sign-flip">
+              {{ locale === 'zh-CN' ? '负主特征值' : 'Negative dominant value' }}
+            </option>
+          </select>
+        </label>
+        <label>
           {{ locale === 'zh-CN' ? '迭代次数' : 'Iterations' }}: {{ iterations }}
           <input v-model.number="iterations" type="range" min="1" max="14" />
         </label>
+        <label>
+          {{ locale === 'zh-CN' ? '初始方向' : 'Initial direction' }}:
+          {{ initialAngle }}{{ locale === 'zh-CN' ? ' 度' : ' deg' }}
+          <input v-model.number="initialAngle" type="range" min="-170" max="170" step="5" />
+        </label>
         <div class="math-readout-grid">
-          <article><span>lambda</span><strong>{{ powerIteration.lambda.toFixed(4) }}</strong></article>
+          <article><span>lambda</span><strong>{{ powerIteration.rayleighQuotient.toFixed(4) }}</strong></article>
           <article><span>vector</span><strong>{{ powerIteration.vector.map((value) => value.toFixed(2)).join(', ') }}</strong></article>
+          <article><span>ratio</span><strong>{{ powerIteration.spectralRatio.toFixed(3) }}</strong></article>
+          <article><span>residual</span><strong>{{ powerIteration.residualNorm.toExponential(2) }}</strong></article>
         </div>
       </div>
 

@@ -22,6 +22,16 @@ import {
   monteCarloPiStandardError,
 } from '../src/modules/math-lab/utils/monteCarlo.ts'
 import { estimateLuReuseCost, evaluateLu2x2 } from '../src/modules/math-lab/utils/luDecomposition.ts'
+import { conditionNumber2x2, evaluateConditioning, makeColumnMatrix } from '../src/modules/math-lab/utils/conditionNumbers.ts'
+import { evaluatePowerIteration } from '../src/modules/math-lab/utils/eigenPower.ts'
+import {
+  buildPageRankTransition,
+  buildWeatherTransition,
+  iterateMarkovChain,
+  l1Distance,
+  maxColumnSumError,
+  stationaryDistributionPower,
+} from '../src/modules/math-lab/utils/markovChains.ts'
 import {
   csrMatVec,
   denseToCoo,
@@ -159,7 +169,9 @@ test('key math foundation topics are connected to interactive or video enhanceme
   assert.ok(byId['vectors-matrices-norms']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
   assert.ok(byId['lu-decomposition']!.labs.some((lab) => lab.componentName === 'LuDecompositionLab'))
   assert.ok(byId['sparse-matrices']!.labs.some((lab) => lab.componentName === 'SparseMatrixLab'))
+  assert.ok(byId['condition-numbers']!.labs.some((lab) => lab.componentName === 'ConditionNumbersLab'))
   assert.ok(byId['eigenvalues-eigenvectors']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
+  assert.ok(byId['markov-chains']!.labs.some((lab) => lab.componentName === 'MarkovChainLab'))
   assert.ok(byId.optimization!.labs.some((lab) => lab.componentName === 'MathGradientLab'))
   assert.ok(byId.svd!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
   assert.ok(byId.pca!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
@@ -443,6 +455,198 @@ test('sparse matrices module markdown renders formulas without raw delimiters', 
   assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
 })
 
+test('condition numbers module preserves lecture coverage with bilingual repair and inline lab', () => {
+  const conditionModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'condition-numbers')
+  assert.ok(conditionModule)
+
+  assert.equal(conditionModule.title['zh-CN'], '条件数与敏感性')
+  assert.equal(conditionModule.title.en, 'Condition Numbers')
+  assert.ok(conditionModule.learningObjectives.length >= 5)
+  assert.ok(conditionModule.concepts.length >= 2)
+  assert.ok(conditionModule.quizzes.length >= 3)
+  assert.ok(conditionModule.misconceptions.length >= 3)
+  assert.ok(conditionModule.labs.some((lab) => lab.componentName === 'ConditionNumbersLab'))
+  assert.ok(conditionModule.sections.some((section) => section.labIds?.includes('condition-number-amplification-lab')))
+
+  const sectionIds = conditionModule.sections.map((section) => section.id)
+  assert.ok(sectionIds.includes('condition-numbers-sensitivity-of-solutions-of-linear-systems-and-error-bound'))
+  assert.ok(sectionIds.includes('condition-numbers-condition-number'))
+  assert.ok(sectionIds.includes('condition-numbers-residual-vs-error'))
+  assert.ok(sectionIds.includes('condition-numbers-alternative-definitions-of-relative-residual'))
+  assert.ok(sectionIds.includes('condition-numbers-gaussian-elimination-with-partial-pivoting-is-guaranteed-to-produce-a-small-residual'))
+  assert.ok(sectionIds.includes('condition-numbers-accuracy-rule-of-thumb-for-conditioning'))
+
+  const zhBody = conditionModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = conditionModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /线性系统解的敏感性与误差界/)
+  assert.match(zhBody, /诱导矩阵范数/)
+  assert.match(zhBody, /正交矩阵/)
+  assert.match(zhBody, /行列式不是判断/)
+  assert.match(zhBody, /残差与误差不是一回事/)
+  assert.match(zhBody, /带部分主元/)
+  assert.match(zhBody, /16-10=6/)
+  assert.match(zhBody, /特征缩放/)
+  assert.match(zhBody, /\\operatorname\{cond\}\(X\^TX\)=\\operatorname\{cond\}\(X\)\^2/)
+  assert.match(enBody, /Sensitivity of Linear-System Solutions/)
+  assert.match(enBody, /Induced Matrix Norms/)
+  assert.match(enBody, /Residual and Error Are Not the Same Thing/)
+  assert.match(enBody, /Gaussian elimination with partial pivoting/)
+  assert.match(enBody, /Feature scaling/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Course Staff|changelog/)
+  assert.doesNotMatch(zhBody, /Suppose we start|The condition number of a matrix|What is the 2-norm|How many accurate decimal digits/)
+  assert.doesNotMatch(enBody, /条件数是衡量|残差与误差|特征缩放/)
+})
+
+test('condition numbers module markdown renders formulas without raw delimiters', () => {
+  const conditionModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'condition-numbers')
+  assert.ok(conditionModule)
+
+  const source = conditionModule.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(source)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
+test('eigenvalues module presents repaired bilingual content with inline power iteration lab', () => {
+  const eigenModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'eigenvalues-eigenvectors')
+  assert.ok(eigenModule)
+
+  assert.equal(eigenModule.title['zh-CN'], '特征值与特征向量')
+  assert.equal(eigenModule.title.en, 'Eigenvalues and Eigenvectors')
+  assert.ok(eigenModule.learningObjectives.length >= 5)
+  assert.ok(eigenModule.concepts.length >= 3)
+  assert.ok(eigenModule.quizzes.length >= 4)
+  assert.ok(eigenModule.misconceptions.length >= 3)
+  assert.ok(eigenModule.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
+  assert.ok(eigenModule.sections.some((section) => section.labIds?.includes('eigen-power-iteration-lab')))
+
+  const sectionIds = eigenModule.sections.map((section) => section.id)
+  assert.ok(sectionIds.includes('eigenvalues-eigenvectors-definition-and-small-example'))
+  assert.ok(sectionIds.includes('eigenvalues-eigenvectors-diagonalization'))
+  assert.ok(sectionIds.includes('eigenvalues-eigenvectors-shifts-and-inverses'))
+  assert.ok(sectionIds.includes('eigenvalues-eigenvectors-power-iteration'))
+  assert.ok(sectionIds.includes('eigenvalues-eigenvectors-inverse-shifted-and-costs'))
+  assert.ok(sectionIds.includes('eigenvalues-eigenvectors-orthogonal-bases'))
+  assert.ok(sectionIds.includes('eigenvalues-eigenvectors-review-questions'))
+
+  const zhBody = eigenModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = eigenModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /特征多项式/)
+  assert.match(zhBody, /可对角化/)
+  assert.match(zhBody, /平移逆迭代/)
+  assert.match(zhBody, /Rayleigh quotient/)
+  assert.match(zhBody, /Gram-Schmidt/)
+  assert.match(zhBody, /谱间隔/)
+  assert.match(zhBody, /PCA/)
+  assert.match(zhBody, /PageRank/)
+  assert.match(enBody, /Characteristic Polynomial/)
+  assert.match(enBody, /Diagonalization/)
+  assert.match(enBody, /shifted inverse iteration/i)
+  assert.match(enBody, /Rayleigh quotient iteration/i)
+  assert.match(enBody, /Gram-Schmidt/)
+  assert.match(enBody, /Spectral Structure in Machine Learning/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Course Staff|changelog/)
+  assert.doesNotMatch(zhBody, /An \*\*_eigenvalue_\*\*|Power iteration allows us|The following code snippet performs power iteration/)
+  assert.doesNotMatch(enBody, /特征值|特征向量|平移逆迭代|复习问题/)
+})
+
+test('eigenvalues module markdown renders formulas without raw delimiters', () => {
+  const eigenModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'eigenvalues-eigenvectors')
+  assert.ok(eigenModule)
+
+  const source = eigenModule.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const objectiveSource = eigenModule.learningObjectives.map((objective) => objective['zh-CN']).join('\n\n')
+  const conceptSource = eigenModule.concepts
+    .map((concept) => `${concept.plainExplanation['zh-CN']}\n\n${concept.numericalExample['zh-CN']}`)
+    .join('\n\n')
+  const quizSource = eigenModule.quizzes
+    .map((quiz) => `${quiz.prompt['zh-CN']}\n\n${quiz.explanation['zh-CN']}`)
+    .join('\n\n')
+  const misconceptionSource = eigenModule.misconceptions
+    .map((misconception) => `${misconception.correction['zh-CN']}\n\n${misconception.example['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(`${objectiveSource}\n\n${conceptSource}\n\n${source}\n\n${quizSource}\n\n${misconceptionSource}`)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /Amathbf|lambdamathbf/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
+test('markov chains module preserves lecture coverage with bilingual repair and inline PageRank lab', () => {
+  const markovModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'markov-chains')
+  assert.ok(markovModule)
+
+  assert.equal(markovModule.title['zh-CN'], '马尔可夫链')
+  assert.equal(markovModule.title.en, 'Markov chains')
+  assert.ok(markovModule.learningObjectives.length >= 5)
+  assert.ok(markovModule.concepts.length >= 3)
+  assert.ok(markovModule.quizzes.length >= 3)
+  assert.ok(markovModule.misconceptions.length >= 3)
+  assert.ok(markovModule.labs.some((lab) => lab.componentName === 'MarkovChainLab'))
+  assert.ok(markovModule.sections.some((section) => section.labIds?.includes('markov-chain-pagerank-lab')))
+
+  const sectionIds = markovModule.sections.map((section) => section.id)
+  assert.ok(sectionIds.includes('markov-chains-graphs-as-matrices'))
+  assert.ok(sectionIds.includes('markov-chains-property-and-matrix'))
+  assert.ok(sectionIds.includes('markov-chains-weather-example'))
+  assert.ok(sectionIds.includes('markov-chains-stationary-distribution'))
+  assert.ok(sectionIds.includes('markov-chains-pagerank'))
+  assert.ok(sectionIds.includes('markov-chains-review-questions'))
+
+  const zhBody = markovModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const enBody = markovModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+
+  assert.match(zhBody, /从图到邻接矩阵/)
+  assert.match(zhBody, /带权有向图/)
+  assert.match(zhBody, /列表示当前状态、行表示下一状态/)
+  assert.match(zhBody, /天气状态转移图/)
+  assert.match(zhBody, /稳定分布/)
+  assert.match(zhBody, /特征值 1/)
+  assert.match(zhBody, /PageRank/)
+  assert.match(zhBody, /阻尼因子/)
+  assert.match(zhBody, /MCMC/)
+  assert.match(enBody, /From Graphs to Adjacency Matrices/)
+  assert.match(enBody, /column-stochastic/)
+  assert.match(enBody, /Weather Example/)
+  assert.match(enBody, /A Stationary Distribution Is the Eigenvalue-1 Direction/)
+  assert.match(enBody, /PageRank/)
+  assert.match(enBody, /damping factor/)
+  assert.match(enBody, /MCMC/)
+  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Course Staff|changelog/)
+  assert.doesNotMatch(zhBody, /A graph, at an abstract level|Suppose we want to build|Page Rank is a straightforward algorithm/)
+  assert.doesNotMatch(enBody, /无向图|稳定分布|复习问题/)
+})
+
+test('markov chains module markdown renders formulas without raw delimiters', () => {
+  const markovModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'markov-chains')
+  assert.ok(markovModule)
+
+  const source = markovModule.sections
+    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
+    .join('\n\n')
+  const objectiveSource = markovModule.learningObjectives.map((objective) => objective['zh-CN']).join('\n\n')
+  const conceptSource = markovModule.concepts
+    .map((concept) => `${concept.plainExplanation['zh-CN']}\n\n${concept.numericalExample['zh-CN']}`)
+    .join('\n\n')
+  const quizSource = markovModule.quizzes
+    .map((quiz) => `${quiz.prompt['zh-CN']}\n\n${quiz.explanation['zh-CN']}`)
+    .join('\n\n')
+  const misconceptionSource = markovModule.misconceptions
+    .map((misconception) => `${misconception.correction['zh-CN']}\n\n${misconception.example['zh-CN']}`)
+    .join('\n\n')
+  const html = renderMarkdownWithMath(`${objectiveSource}\n\n${conceptSource}\n\n${source}\n\n${quizSource}\n\n${misconceptionSource}`)
+
+  assert.match(html, /katex/)
+  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+})
+
 test('taylor approximation utilities expose expected error trends', () => {
   const degreeOne = evaluateTaylorApproximation('sin', 0.8, 0, 1)
   const degreeThree = evaluateTaylorApproximation('sin', 0.8, 0, 3)
@@ -525,6 +729,89 @@ test('lu utilities expose factorization, solve residuals, pivot warnings, and re
   const sixRhs = estimateLuReuseCost(160, 6)
   assert.ok(sixRhs.factorOnceCost < sixRhs.refactorEachSolveCost)
   assert.ok(sixRhs.speedup > oneRhs.speedup)
+})
+
+test('condition number utilities expose sensitivity trends and residual-error bounds', () => {
+  const wellConditioned = makeColumnMatrix(80, 1)
+  const illConditioned = makeColumnMatrix(5, 1)
+
+  assert.ok(conditionNumber2x2(illConditioned) > conditionNumber2x2(wellConditioned))
+
+  const stable = evaluateConditioning({
+    columnAngleDegrees: 80,
+    secondColumnScale: 1,
+    perturbationPower: -6,
+    perturbationAngleDegrees: 90,
+    inputDigits: 16,
+  })
+  const sensitive = evaluateConditioning({
+    columnAngleDegrees: 5,
+    secondColumnScale: 1,
+    perturbationPower: -6,
+    perturbationAngleDegrees: 90,
+    inputDigits: 16,
+  })
+
+  assert.ok(sensitive.conditionNumber > stable.conditionNumber)
+  assert.ok(sensitive.relativeOutputError > stable.relativeOutputError)
+  assert.ok(sensitive.errorBound >= sensitive.relativeOutputError)
+  assert.ok(Math.abs(sensitive.relativeResidual - sensitive.relativeInputError) < 1e-12)
+  assert.ok(sensitive.expectedDigits < stable.expectedDigits)
+})
+
+test('eigen power iteration utility exposes spectral gap, residual, and sign-flip behavior', () => {
+  const early = evaluatePowerIteration({
+    matrixKind: 'well-separated',
+    iterations: 2,
+    initialAngleRadians: 0.6,
+  })
+  const later = evaluatePowerIteration({
+    matrixKind: 'well-separated',
+    iterations: 12,
+    initialAngleRadians: 0.6,
+  })
+  const slowGap = evaluatePowerIteration({
+    matrixKind: 'slow-gap',
+    iterations: 12,
+    initialAngleRadians: 0.6,
+  })
+  const signFlip = evaluatePowerIteration({
+    matrixKind: 'sign-flip',
+    iterations: 6,
+    initialAngleRadians: 0.6,
+  })
+
+  assert.equal(later.iterates.length, 13)
+  assert.ok(later.residualNorm < early.residualNorm)
+  assert.ok(Math.abs(later.rayleighQuotient - later.dominantEigenvalue) < 0.01)
+  assert.ok(slowGap.spectralRatio > later.spectralRatio)
+  assert.ok(signFlip.dominantEigenvalue < 0)
+  assert.equal(signFlip.iterates.length, 7)
+})
+
+test('markov chain utilities expose column-stochastic updates, stationarity, and PageRank damping', () => {
+  const weather = buildWeatherTransition(0)
+  const rainyStart = [0, 1, 0]
+  const rainyHistory = iterateMarkovChain(weather, rainyStart, 1)
+
+  assert.ok(maxColumnSumError(weather) < 1e-12)
+  assert.deepEqual(rainyHistory[1]!.map((value) => Number(value.toFixed(12))), [0.2, 0.4, 0.4])
+
+  const stickyWeather = buildWeatherTransition(0.6)
+  assert.ok(maxColumnSumError(stickyWeather) < 1e-12)
+  assert.ok(stickyWeather[0]![0]! > weather[0]![0]!)
+
+  const pageRank = buildPageRankTransition(0.85)
+  assert.ok(maxColumnSumError(pageRank.transitionMatrix) < 1e-12)
+  assert.ok(pageRank.transitionMatrix.every((row) => row.every((value) => value > 0)))
+
+  const stationary = stationaryDistributionPower(pageRank.transitionMatrix)
+  const totalProbability = stationary.vector.reduce((acc, value) => acc + value, 0)
+  assert.ok(Math.abs(totalProbability - 1) < 1e-12)
+  assert.ok(stationary.residual < 1e-10)
+
+  const history = iterateMarkovChain(pageRank.transitionMatrix, [1, 0, 0, 0, 0, 0], 20)
+  assert.ok(l1Distance(history[20]!, stationary.vector) < l1Distance(history[0]!, stationary.vector))
 })
 
 test('sparse matrix utilities expose COO, CSR, matvec, and storage estimates', () => {

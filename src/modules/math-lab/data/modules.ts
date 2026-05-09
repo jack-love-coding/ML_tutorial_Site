@@ -1,5 +1,8 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
+import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
+import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildLuDecompositionModule } from './luDecompositionModule.ts'
+import { buildMarkovChainsModule } from './markovChainsModule.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
 import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildSparseMatricesModule } from './sparseMatricesModule.ts'
@@ -30,6 +33,18 @@ export const mathLabModules: MathLabModule[] = importedMathNotes.map((moduleDefi
 
   if (moduleDefinition.id === 'sparse-matrices') {
     return buildSparseMatricesModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'condition-numbers') {
+    return buildConditionNumbersModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'eigenvalues-eigenvectors') {
+    return buildEigenvaluesModule(moduleDefinition)
+  }
+
+  if (moduleDefinition.id === 'markov-chains') {
+    return buildMarkovChainsModule(moduleDefinition)
   }
 
   const supplement = supplementalModules[moduleDefinition.id]
