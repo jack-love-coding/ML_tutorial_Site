@@ -6,6 +6,9 @@ export const messages = {
       mathLab: '数学直觉实验室',
       modules: '核心实验',
       subtitle: '用可视化把机器学习训练过程讲清楚',
+      primaryLabel: '主导航',
+      openMenu: '打开导航菜单',
+      closeMenu: '关闭导航菜单',
     },
     common: {
       chapter: '章节',
@@ -348,6 +351,9 @@ export const messages = {
       mathLab: 'Math Lab',
       modules: 'Modules',
       subtitle: 'Explain machine learning through animated training feedback',
+      primaryLabel: 'Primary navigation',
+      openMenu: 'Open navigation menu',
+      closeMenu: 'Close navigation menu',
     },
     common: {
       chapter: 'Chapter',
