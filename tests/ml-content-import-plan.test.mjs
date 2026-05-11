@@ -7,6 +7,7 @@ const docsSource = readFileSync(
   'utf8',
 )
 const modulesSource = readFileSync(new URL('../src/data/modules.ts', import.meta.url), 'utf8')
+const mlpModuleSource = readFileSync(new URL('../src/data/mlpModule.ts', import.meta.url), 'utf8')
 const messagesSource = readFileSync(new URL('../src/i18n/messages.ts', import.meta.url), 'utf8')
 
 function countChapterObjects(source, slug) {
@@ -42,16 +43,24 @@ test('ML content import plan documents source priorities and reusable chapter te
 
 test('logistic regression and MLP modules now follow the expanded teaching plan', () => {
   assert.equal(countChapterObjects(modulesSource, 'logistic-regression'), 5)
-  assert.equal(countChapterObjects(modulesSource, 'mlp'), 6)
+  assert.equal([...mlpModuleSource.matchAll(/modules\.mlp\.sections\.[^.]+\.title/g)].length, 6)
 
   for (const id of [
     "id: 'sigmoid'",
     "id: 'regularization'",
-    "id: 'activations'",
-    "id: 'backprop'",
-    "id: 'generalization'",
   ]) {
     assert.match(modulesSource, new RegExp(id))
+  }
+
+  for (const id of [
+    "'features'",
+    "'activations'",
+    "'reconfigure'",
+    "'backprop'",
+    "'capacity'",
+    "'generalization'",
+  ]) {
+    assert.match(mlpModuleSource, new RegExp(id))
   }
 
   for (const titleKey of [
@@ -64,4 +73,3 @@ test('logistic regression and MLP modules now follow the expanded teaching plan'
     assert.match(messagesSource, new RegExp(`${titleKey}: \\{`))
   }
 })
-

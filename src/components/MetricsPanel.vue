@@ -30,7 +30,7 @@ const items = computed(() => {
         label: t('metrics.referenceDistance'),
         value:
           props.snapshot.referenceDistance === undefined
-            ? '—'
+            ? '-'
             : round(props.snapshot.referenceDistance),
       },
       {

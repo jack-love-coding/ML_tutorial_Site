@@ -10,6 +10,7 @@ import type {
 import { round } from '../utils/math'
 import LinearRegressionMultivariateView from './LinearRegressionMultivariateView.vue'
 import LinearRegressionUnivariateView from './LinearRegressionUnivariateView.vue'
+import LessonWorkbench from './LessonWorkbench.vue'
 
 const props = defineProps<{
   config: ExperimentConfig
@@ -154,6 +155,11 @@ const isPolynomialFamily = computed(() =>
 const showRegularizationControls = computed(() => props.section.id === 'regularization')
 const showValidationControls = computed(() =>
   props.section.id === 'overfitting' || props.section.id === 'regularization',
+)
+const showOutlierControls = computed(() =>
+  !isPolynomialFamily.value &&
+  !isMultivariate.value &&
+  ['residual-loss', 'model-limits'].includes(props.section.id),
 )
 
 const readoutCards = computed(() => {
@@ -347,10 +353,21 @@ function setRegularizationType(value: string) {
 </script>
 
 <template>
-  <section
+  <LessonWorkbench
     class="linear-regression-lab"
+    :accent="props.accent"
+    :section-id="props.section.id"
+    variant="cockpit"
     :style="{ '--linear-accent': props.accent }"
   >
+    <template #task>
+      <section class="linear-regression-lab__focus linear-regression-lab__focus--task">
+        <span>{{ copy.focus }}</span>
+        <p>{{ copy.focusText[props.section.id as keyof typeof copy.focusText] }}</p>
+      </section>
+    </template>
+
+    <template #visual>
     <div class="linear-regression-lab__workspace">
       <div class="linear-regression-lab__viz" :class="'linear-regression-lab__viz-shell'">
         <LinearRegressionMultivariateView
@@ -368,7 +385,10 @@ function setRegularizationType(value: string) {
           :section-id="props.section.id"
         />
       </div>
+    </div>
+    </template>
 
+    <template #controls>
       <div class="linear-regression-lab__controls">
         <div class="linear-regression-lab__actions">
           <button type="button" class="action-button action-button--primary" @click="emit('toggle-play')">
@@ -450,7 +470,7 @@ function setRegularizationType(value: string) {
             />
           </label>
 
-          <label v-if="!isPolynomialFamily && !isMultivariate" class="control">
+          <label v-if="showOutlierControls" class="control">
             <span class="control__row">
               <span>{{ t('controls.outlierStrength') }}</span>
               <strong>{{ round(configNumber('outlierStrength', 36), 0) }}</strong>
@@ -466,7 +486,7 @@ function setRegularizationType(value: string) {
             />
           </label>
 
-          <label v-if="!isPolynomialFamily && !isMultivariate" class="control control--toggle">
+          <label v-if="showOutlierControls" class="control control--toggle">
             <span class="control__row">
               <span>{{ t('controls.includeOutlier') }}</span>
               <strong>{{ Boolean(props.config.includeOutlier) ? copy.outlierOn : copy.outlierOff }}</strong>
@@ -546,7 +566,9 @@ function setRegularizationType(value: string) {
           </div>
         </div>
       </div>
+    </template>
 
+    <template #metrics>
       <div class="linear-regression-lab__readout">
         <article
           v-for="card in readoutCards"
@@ -570,15 +592,16 @@ function setRegularizationType(value: string) {
           </div>
         </section>
 
-        <section class="linear-regression-lab__focus">
-          <span>{{ copy.focus }}</span>
-          <p>{{ copy.focusText[props.section.id as keyof typeof copy.focusText] }}</p>
-        </section>
+        <details class="linear-regression-lab__details linear-regression-lab__details--teaching">
+          <summary>
+            <span>{{ teachingVisual.label }}</span>
+            <strong>{{ teachingVisual.title }}</strong>
+          </summary>
 
-        <section
-          class="linear-regression-lab__teaching-visual"
-          :class="`linear-regression-lab__teaching-visual--${props.section.id}`"
-        >
+          <section
+            class="linear-regression-lab__teaching-visual"
+            :class="`linear-regression-lab__teaching-visual--${props.section.id}`"
+          >
           <div class="linear-regression-lab__heading">
             <span>{{ teachingVisual.label }}</span>
             <strong>{{ teachingVisual.title }}</strong>
@@ -704,8 +727,17 @@ function setRegularizationType(value: string) {
           </svg>
 
           <p>{{ teachingVisual.caption }}</p>
-        </section>
+          </section>
+        </details>
+      </div>
+    </template>
 
+    <template #presets>
+      <details class="linear-regression-lab__details linear-regression-lab__details--presets">
+        <summary>
+          <span>{{ copy.presets }}</span>
+          <strong>{{ t('common.presets') }}</strong>
+        </summary>
         <section class="linear-regression-lab__presets">
           <div class="linear-regression-lab__heading">
             <span>{{ copy.presets }}</span>
@@ -726,7 +758,7 @@ function setRegularizationType(value: string) {
             </button>
           </div>
         </section>
-      </div>
-    </div>
-  </section>
+      </details>
+    </template>
+  </LessonWorkbench>
 </template>

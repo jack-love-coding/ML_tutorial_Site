@@ -13,23 +13,31 @@ const styleSource = readFileSync(
 )
 
 test('gradient chapter lab uses a unified workspace shell', () => {
-  assert.match(componentSource, /class="panel gradient-chapter-lab__workspace"/)
+  assert.match(componentSource, /class="gradient-chapter-lab__workspace"/)
+  assert.match(componentSource, /variant="cockpit"/)
+  assert.match(componentSource, /class="gradient-chapter-lab__taskbar"/)
   assert.match(componentSource, /class="gradient-chapter-lab__workspace-primary"/)
-  assert.match(componentSource, /class="gradient-chapter-lab__workspace-secondary"/)
+  assert.match(componentSource, /<details class="gradient-chapter-lab__details"/)
+  assert.match(componentSource, /compact/)
+  assert.doesNotMatch(componentSource, /class="gradient-chapter-lab__hero"/)
+  assert.doesNotMatch(componentSource, /class="gradient-chapter-lab__terrain"/)
 
   const vizIndex = componentSource.indexOf('<GradientDescentViz')
   const primaryIndex = componentSource.indexOf('class="gradient-chapter-lab__workspace-primary"')
-  const secondaryIndex = componentSource.indexOf('class="gradient-chapter-lab__workspace-secondary"')
+  const detailsIndex = componentSource.indexOf('class="gradient-chapter-lab__details"')
 
   assert.notEqual(vizIndex, -1)
   assert.notEqual(primaryIndex, -1)
-  assert.notEqual(secondaryIndex, -1)
+  assert.notEqual(detailsIndex, -1)
   assert.ok(vizIndex < primaryIndex, 'visualization should appear before primary controls')
-  assert.ok(primaryIndex < secondaryIndex, 'secondary settings should follow the primary workspace')
+  assert.ok(primaryIndex < detailsIndex, 'low-frequency settings should move into collapsed details')
 })
 
 test('gradient chapter lab styles define the unified workspace grid', () => {
+  assert.match(styleSource, /\.lesson-workbench--cockpit/)
+  assert.match(styleSource, /minmax\(620px, 1fr\) minmax\(320px, 360px\)/)
   assert.match(styleSource, /\.gradient-chapter-lab__workspace\s*\{/)
   assert.match(styleSource, /\.gradient-chapter-lab__workspace-primary\s*\{/)
-  assert.match(styleSource, /\.gradient-chapter-lab__workspace-secondary\s*\{/)
+  assert.match(styleSource, /\.gradient-chapter-lab__taskbar\s*\{/)
+  assert.match(styleSource, /\.gradient-chapter-lab__details\s*,/)
 })

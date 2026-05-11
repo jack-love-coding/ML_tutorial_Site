@@ -79,16 +79,19 @@ export function getTeachingInsights(
     return []
   }
 
+  const generalizationGap = Number(snapshot.derivedMetrics?.generalizationGap ?? 0)
+  const hiddenSeparation = Number(snapshot.derivedMetrics?.hiddenSeparation ?? 0)
+
   return [
     {
       id: 'mlp-status',
-      tone: String(config.activation) === 'relu' ? 'neutral' : 'positive',
+      tone: generalizationGap > 0.16 ? 'caution' : 'positive',
       titleKey: 'insights.mlp.status',
-      bodyKey: 'observations.mlpActivation',
+      bodyKey: generalizationGap > 0.16 ? 'observations.mlpGeneralizationGap' : 'observations.mlpActivation',
     },
     {
       id: 'mlp-capacity',
-      tone: Number(config.hiddenUnits) >= 7 ? 'positive' : 'neutral',
+      tone: Number(config.hiddenUnits) >= 7 && hiddenSeparation > 0.5 ? 'positive' : 'neutral',
       titleKey: 'insights.mlp.capacity',
       bodyKey: Number(config.hiddenUnits) >= 7 ? 'observations.mlpCapacityHigh' : 'observations.mlpCapacityLow',
     },

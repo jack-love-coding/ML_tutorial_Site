@@ -35,6 +35,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: transparent;
+  overflow-x: clip;
 }
 
 a {
@@ -58,6 +59,7 @@ code {
 
 #app {
   min-height: 100vh;
+  overflow-x: clip;
 }
 
 .app-shell {
@@ -1577,6 +1579,86 @@ p {
   background: rgba(255, 255, 255, 0.8);
 }
 
+.lesson-workbench {
+  --lesson-accent: #4d63ff;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.lesson-workbench__task {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--lesson-accent) 12%, transparent), transparent 54%),
+    rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(15, 23, 40, 0.07);
+}
+
+.lesson-workbench__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.36fr) minmax(330px, 0.64fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.lesson-workbench__visual,
+.lesson-workbench__side,
+.lesson-workbench__controls,
+.lesson-workbench__metrics,
+.lesson-workbench__lower,
+.lesson-workbench__presets,
+.lesson-workbench__timeline {
+  min-width: 0;
+}
+
+.lesson-workbench__visual {
+  display: grid;
+  gap: 14px;
+}
+
+.lesson-workbench__side {
+  display: grid;
+  gap: 14px;
+}
+
+.lesson-workbench__controls,
+.lesson-workbench__metrics,
+.lesson-workbench__presets,
+.lesson-workbench__timeline {
+  display: grid;
+  gap: 14px;
+}
+
+.lesson-workbench__lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+.lesson-workbench__controls .linear-regression-lab__control-grid,
+.lesson-workbench__controls .linear-regression-lab__advanced-controls,
+.lesson-workbench__controls .gradient-chapter-lab__workspace-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lesson-workbench__controls .linear-regression-lab__actions,
+.lesson-workbench__controls .gradient-chapter-lab__actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lesson-workbench__metrics .linear-regression-lab__readout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lesson-workbench__metrics .linear-regression-lab__selected,
+.lesson-workbench__metrics .linear-regression-lab__teaching-visual,
+.linear-regression-lab__focus--task {
+  grid-column: 1 / -1;
+}
+
 .lesson-lab__heading {
   display: flex;
   justify-content: space-between;
@@ -3069,6 +3151,145 @@ p {
 
 .dataset-point--negative {
   fill: #f97352;
+}
+
+.dataset-point--validation {
+  stroke: #101828;
+  stroke-width: 2.2;
+  stroke-dasharray: 3 3;
+  opacity: 0.86;
+}
+
+.mlp-lesson-lab {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+  padding: 22px;
+  border-radius: 26px;
+  background:
+    linear-gradient(135deg, rgba(77, 99, 255, 0.12), transparent 36%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(244, 247, 255, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 44px rgba(15, 23, 40, 0.08);
+}
+
+.mlp-lesson-lab__task,
+.mlp-lesson-lab__visual,
+.mlp-lesson-lab__controls,
+.mlp-lesson-lab__metrics,
+.mlp-lesson-lab__curves,
+.mlp-lesson-lab__presets {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.mlp-lesson-lab__task {
+  background: linear-gradient(145deg, rgba(244, 247, 255, 0.95), rgba(255, 255, 255, 0.88));
+}
+
+.mlp-lesson-lab__task span,
+.mlp-lesson-lab__heading span,
+.mlp-lesson-lab__metric span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.mlp-lesson-lab__task strong {
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.mlp-lesson-lab__task p {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.62;
+}
+
+.mlp-lesson-lab__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.mlp-lesson-lab__heading strong {
+  text-align: right;
+}
+
+.mlp-lesson-lab__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mlp-lesson-lab__control-grid,
+.mlp-lesson-lab__metric-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.mlp-lesson-lab__metric-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mlp-lesson-lab__metric {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.92);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.mlp-lesson-lab__metric.is-emphasis {
+  border-color: rgba(77, 99, 255, 0.28);
+  box-shadow: 0 14px 30px rgba(77, 99, 255, 0.1);
+}
+
+.mlp-lesson-lab__chart {
+  display: block;
+  width: 100%;
+  min-height: 220px;
+}
+
+.mlp-lesson-lab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.mlp-lesson-lab__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mlp-lesson-lab__preset-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.chart-line--validation {
+  stroke: #d65c5c;
+  stroke-dasharray: 7 7;
+}
+
+.chart-line--generalization {
+  stroke: #7c58d6;
+  stroke-dasharray: 4 5;
+}
+
+.legend-dot--generalization {
+  background: #7c58d6;
 }
 
 .panel {
@@ -7823,6 +8044,867 @@ select {
     border-radius: 7px;
     background: var(--pixel-paper);
     box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+}
+
+@media (max-width: 720px) {
+  .site-header__nav {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .lesson-workbench,
+  .lesson-workbench__task,
+  .lesson-workbench__visual,
+  .lesson-workbench__side,
+  .lesson-workbench__controls,
+  .lesson-workbench__metrics,
+  .lesson-workbench__lower,
+  .lesson-workbench__presets,
+  .lesson-workbench__timeline,
+  .gradient-chapter-lab,
+  .linear-regression-lab,
+  .logistic-regression-lab,
+  .mlp-lesson-lab {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .lesson-workbench__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lesson-workbench__task,
+  .mlp-lesson-lab__task,
+  .mlp-lesson-lab__visual,
+  .mlp-lesson-lab__controls,
+  .mlp-lesson-lab__metrics,
+  .mlp-lesson-lab__curves,
+  .mlp-lesson-lab__presets {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .gradient-chapter-lab__metrics,
+  .lesson-workbench__metrics .linear-regression-lab__readout,
+  .linear-regression-lab__readout,
+  .mlp-lesson-lab__metric-grid,
+  .mlp-lesson-lab__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mlp-lesson-lab__heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .mlp-lesson-lab__heading strong {
+    text-align: left;
+  }
+}
+
+.lesson-workbench--cockpit {
+  gap: 10px;
+}
+
+.lesson-workbench--cockpit .lesson-workbench__task {
+  padding: 10px 12px;
+  border-radius: 7px;
+}
+
+.lesson-workbench--cockpit .lesson-workbench__grid,
+.lesson-workbench--cockpit .lesson-workbench__side,
+.lesson-workbench--cockpit .lesson-workbench__visual,
+.lesson-workbench--cockpit .lesson-workbench__controls,
+.lesson-workbench--cockpit .lesson-workbench__metrics,
+.lesson-workbench--cockpit .lesson-workbench__lower {
+  gap: 10px;
+}
+
+@media (min-width: 1100px) {
+  .lesson-workbench--cockpit .lesson-workbench__grid {
+    grid-template-columns: minmax(620px, 1fr) minmax(320px, 360px);
+    align-items: start;
+  }
+}
+
+@media (max-width: 1080px) {
+  .lesson-workbench--cockpit .lesson-workbench__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gradient-chapter-lab:has(.lesson-workbench--cockpit),
+.linear-regression-lab.lesson-workbench--cockpit,
+.logistic-regression-lab.lesson-workbench--cockpit {
+  padding: 14px;
+  gap: 10px;
+}
+
+.gradient-chapter-lab__taskbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 0.28fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.algorithm-view--logistic .story-column {
+  grid-template-columns: 92px minmax(0, 1fr);
+  justify-content: start;
+}
+
+.algorithm-view--logistic .story-card {
+  min-height: auto;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.logistic-regression-lab {
+  --logistic-accent: var(--lesson-accent);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--logistic-accent) 12%, transparent), transparent 46%),
+    rgba(250, 255, 252, 0.9);
+}
+
+.logistic-regression-lab__taskbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 0.32fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.logistic-regression-lab__task-main,
+.logistic-regression-lab__task-meta {
+  min-width: 0;
+}
+
+.logistic-regression-lab__task-main {
+  display: grid;
+  gap: 5px;
+}
+
+.logistic-regression-lab__task-main strong {
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.34;
+}
+
+.logistic-regression-lab__task-main p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.86rem;
+  line-height: 1.44;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.logistic-regression-lab__task-meta {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.logistic-regression-lab__task-meta span,
+.logistic-regression-lab__task-meta small,
+.logistic-regression-lab__heading span,
+.logistic-regression-lab__metric span,
+.logistic-regression-lab__sample-grid span,
+.logistic-regression-lab__details summary span,
+.logistic-regression-lab__detail-grid span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.logistic-regression-lab__task-meta strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logistic-regression-lab__task-meta small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logistic-regression-lab__visual {
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) minmax(180px, 0.34fr);
+  gap: 10px;
+  min-width: 0;
+}
+
+.logistic-regression-lab__boundary,
+.logistic-regression-lab__trace,
+.logistic-regression-lab__controls,
+.logistic-regression-lab__readout,
+.logistic-regression-lab__sample,
+.logistic-regression-lab__details {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 3px 3px 0 var(--pixel-line, rgba(15, 23, 40, 0.14));
+}
+
+.logistic-regression-lab__boundary {
+  padding-bottom: 8px;
+}
+
+.logistic-regression-lab__boundary .classifier-stack {
+  gap: 0;
+  justify-items: center;
+}
+
+.logistic-regression-lab__boundary .viz-card {
+  width: min(100%, 430px);
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 7px;
+  box-shadow: none;
+}
+
+.logistic-regression-lab__boundary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.logistic-regression-lab__heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.logistic-regression-lab__heading strong {
+  color: var(--ink);
+  font-size: 0.86rem;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.logistic-regression-lab__trace {
+  align-content: start;
+}
+
+.logistic-regression-lab__curve {
+  width: 100%;
+  min-height: 128px;
+  border: 2px solid rgba(15, 23, 40, 0.12);
+  border-radius: 7px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.055) 1px, transparent 1px),
+    rgba(248, 252, 250, 0.9);
+  background-size: 24px 24px;
+}
+
+.logistic-curve-axis {
+  stroke: rgba(15, 23, 40, 0.16);
+  stroke-width: 2;
+}
+
+.logistic-curve-line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.logistic-curve-line--loss {
+  stroke: #f97352;
+}
+
+.logistic-curve-line--accuracy {
+  stroke: var(--logistic-accent);
+}
+
+.logistic-curve-cursor {
+  stroke: rgba(15, 23, 40, 0.52);
+  stroke-dasharray: 4 4;
+  stroke-width: 2;
+}
+
+.logistic-regression-lab__legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.logistic-regression-lab__legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.logistic-regression-lab__legend span::before {
+  content: "";
+  width: 14px;
+  height: 3px;
+  border-radius: 999px;
+  background: #f97352;
+}
+
+.logistic-regression-lab__legend span + span::before {
+  background: var(--logistic-accent);
+}
+
+.logistic-regression-lab__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.logistic-regression-lab__control-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.logistic-regression-lab__readout {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.logistic-regression-lab__metric,
+.logistic-regression-lab__sample-grid article {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  min-height: 43px;
+  padding: 6px 7px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 2px 2px 0 var(--pixel-line, rgba(15, 23, 40, 0.12));
+}
+
+.logistic-regression-lab__metric.is-emphasis {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--logistic-accent) 18%, transparent), transparent),
+    rgba(255, 255, 255, 0.9);
+}
+
+.logistic-regression-lab__metric strong,
+.logistic-regression-lab__sample-grid strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.8rem;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+}
+
+.logistic-regression-lab__sample,
+.logistic-regression-lab__details {
+  grid-column: 1 / -1;
+}
+
+.logistic-regression-lab__sample {
+  padding: 6px;
+}
+
+.logistic-regression-lab__sample .logistic-regression-lab__heading {
+  display: none;
+}
+
+.logistic-regression-lab__sample-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.logistic-regression-lab__details {
+  padding: 10px 12px;
+}
+
+.logistic-regression-lab__details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.logistic-regression-lab__details summary::-webkit-details-marker {
+  display: none;
+}
+
+.logistic-regression-lab__details summary::after {
+  content: "+";
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 5px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.logistic-regression-lab__details[open] summary::after {
+  content: "-";
+}
+
+.logistic-regression-lab__detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.7fr) minmax(0, 1fr);
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.logistic-regression-lab__detail-grid article {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+  border: 2px solid rgba(15, 23, 40, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.logistic-regression-lab__detail-grid p,
+.logistic-regression-lab__detail-grid strong {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.82rem;
+  line-height: 1.48;
+}
+
+.logistic-regression-lab__presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.gradient-chapter-lab__task-main,
+.gradient-chapter-lab__task-meta {
+  min-width: 0;
+}
+
+.gradient-chapter-lab__task-main {
+  display: grid;
+  gap: 5px;
+}
+
+.gradient-chapter-lab__task-main strong {
+  font-size: 1rem;
+  line-height: 1.34;
+}
+
+.gradient-chapter-lab__task-main p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.86rem;
+  line-height: 1.44;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.gradient-chapter-lab__task-meta {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.gradient-chapter-lab__task-meta span,
+.gradient-chapter-lab__task-meta small,
+.gradient-chapter-lab__details summary span,
+.linear-regression-lab__details summary span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gradient-chapter-lab__task-meta strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gradient-chapter-lab__task-actions .action-button {
+  width: 100%;
+  min-width: 136px;
+}
+
+.lesson-workbench--cockpit .gradient-viz {
+  gap: 10px;
+}
+
+.lesson-workbench--cockpit .gradient-viz .viz-card,
+.lesson-workbench--cockpit .linear-regression-lab__panel {
+  border-radius: 7px;
+  box-shadow: 4px 4px 0 var(--pixel-line, rgba(15, 23, 40, 0.16));
+}
+
+.lesson-workbench--cockpit .gradient-viz__header,
+.lesson-workbench--cockpit .gradient-viz--compact .gradient-viz__header {
+  padding: 10px 12px 0;
+}
+
+.lesson-workbench--cockpit .gradient-viz__header span {
+  font-size: 0.68rem;
+}
+
+.lesson-workbench--cockpit .gradient-viz__header strong {
+  max-width: 190px;
+  font-size: 0.82rem;
+}
+
+.lesson-workbench--cockpit .viz-card__hud {
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+}
+
+.lesson-workbench--cockpit .gradient-viz--compact .viz-card__tag {
+  display: none;
+}
+
+.lesson-workbench--cockpit .viz-card__stats article {
+  min-width: 78px;
+  padding: 8px 10px;
+  border-radius: 7px;
+}
+
+.lesson-workbench--cockpit .gradient-viz__footer {
+  padding: 9px 12px 10px;
+  font-size: 0.78rem;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__workspace-primary,
+.lesson-workbench--cockpit .gradient-chapter-lab__workspace-grid {
+  gap: 10px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__control-cluster,
+.lesson-workbench--cockpit .gradient-chapter-lab__readout-panel,
+.lesson-workbench--cockpit .linear-regression-lab__controls,
+.lesson-workbench--cockpit .linear-regression-lab__readout,
+.lesson-workbench--cockpit .linear-regression-lab__selected,
+.lesson-workbench--cockpit .linear-regression-lab__focus,
+.lesson-workbench--cockpit .linear-regression-lab__presets,
+.lesson-workbench--cockpit .linear-regression-lab__teaching-visual {
+  gap: 10px;
+  padding: 10px;
+  border-radius: 7px;
+  box-shadow: 3px 3px 0 var(--pixel-line, rgba(15, 23, 40, 0.14));
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__control-cluster header,
+.lesson-workbench--cockpit .panel__heading,
+.lesson-workbench--cockpit .linear-regression-lab__heading {
+  gap: 4px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__control-cluster header,
+.lesson-workbench--cockpit .gradient-chapter-lab__readout-panel .panel__heading {
+  display: none;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__control-cluster header strong,
+.lesson-workbench--cockpit .linear-regression-lab__heading strong {
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__actions,
+.lesson-workbench--cockpit .linear-regression-lab__actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lesson-workbench--cockpit .action-button {
+  min-height: 36px;
+  padding: 0 10px;
+  box-shadow: 3px 3px 0 var(--pixel-line, rgba(15, 23, 40, 0.16));
+  font-size: 0.9rem;
+}
+
+.lesson-workbench--cockpit .control-group__grid,
+.lesson-workbench--cockpit .linear-regression-lab__control-grid,
+.lesson-workbench--cockpit .linear-regression-lab__advanced-controls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lesson-workbench--cockpit .control,
+.lesson-workbench--cockpit .linear-regression-lab__metric,
+.lesson-workbench--cockpit .linear-regression-lab__mini-grid article,
+.lesson-workbench--cockpit .gradient-chapter-lab__metric {
+  gap: 6px;
+  padding: 9px 10px;
+  border-radius: 6px;
+}
+
+.lesson-workbench--cockpit .control__row {
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.lesson-workbench--cockpit .control__number,
+.lesson-workbench--cockpit .control__select {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 5px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metrics,
+.lesson-workbench--cockpit .linear-regression-lab__readout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__readout {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metric {
+  min-height: 48px;
+  padding: 6px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metric span {
+  overflow: hidden;
+  font-size: 0.56rem;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metric strong,
+.lesson-workbench--cockpit .linear-regression-lab__metric strong {
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__metric {
+  min-height: 43px;
+  padding: 6px 7px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__metric span,
+.lesson-workbench--cockpit .linear-regression-lab__mini-grid span {
+  overflow: hidden;
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__metric strong {
+  overflow: hidden;
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metric strong {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 0.72rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__insight {
+  display: none;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__insight span {
+  display: none;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__insight strong {
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__insight p {
+  display: none;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__selected,
+.lesson-workbench--cockpit .linear-regression-lab__details {
+  grid-column: 1 / -1;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__selected {
+  padding: 6px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__selected .linear-regression-lab__heading {
+  display: none;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__mini-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__mini-grid article {
+  min-height: 34px;
+  padding: 5px 6px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__viz {
+  grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
+  gap: 10px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__three-canvas {
+  min-height: 300px;
+  border-radius: 7px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__data-svg,
+.lesson-workbench--cockpit .linear-regression-lab__state-svg,
+.lesson-workbench--cockpit .linear-regression-lab__teaching-svg {
+  border-radius: 7px;
+}
+
+.gradient-chapter-lab__details,
+.linear-regression-lab__details {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 3px 3px 0 var(--pixel-line, rgba(15, 23, 40, 0.14));
+}
+
+.gradient-chapter-lab__details summary,
+.linear-regression-lab__details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.gradient-chapter-lab__details summary::-webkit-details-marker,
+.linear-regression-lab__details summary::-webkit-details-marker {
+  display: none;
+}
+
+.gradient-chapter-lab__details summary::after,
+.linear-regression-lab__details summary::after {
+  content: "+";
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 5px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.gradient-chapter-lab__details[open] summary::after,
+.linear-regression-lab__details[open] summary::after {
+  content: "-";
+}
+
+.gradient-chapter-lab__details-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.gradient-chapter-lab__details-grid .gradient-function-pill-strip {
+  grid-column: 1 / -1;
+}
+
+.linear-regression-lab__details .linear-regression-lab__teaching-visual,
+.linear-regression-lab__details .linear-regression-lab__presets {
+  margin-top: 10px;
+  box-shadow: none;
+}
+
+.linear-regression-lab__details--presets .linear-regression-lab__preset-list {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1080px) {
+  .gradient-chapter-lab__taskbar,
+  .logistic-regression-lab__taskbar,
+  .logistic-regression-lab__visual,
+  .lesson-workbench--cockpit .linear-regression-lab__viz,
+  .logistic-regression-lab__detail-grid,
+  .gradient-chapter-lab__details-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gradient-chapter-lab__task-actions .action-button {
+    min-width: 0;
+  }
+
+  .algorithm-view--logistic .story-column {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .gradient-chapter-lab__task-main p {
+    -webkit-line-clamp: 1;
+  }
+}
+
+@media (max-width: 720px) {
+  .lesson-workbench--cockpit .control-group__grid,
+  .lesson-workbench--cockpit .linear-regression-lab__control-grid,
+  .lesson-workbench--cockpit .linear-regression-lab__advanced-controls,
+  .lesson-workbench--cockpit .gradient-chapter-lab__metrics,
+  .lesson-workbench--cockpit .linear-regression-lab__readout,
+  .lesson-workbench--cockpit .linear-regression-lab__mini-grid,
+  .logistic-regression-lab__control-grid,
+  .logistic-regression-lab__readout,
+  .logistic-regression-lab__sample-grid,
+  .logistic-regression-lab__presets,
+  .linear-regression-lab__details--presets .linear-regression-lab__preset-list {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

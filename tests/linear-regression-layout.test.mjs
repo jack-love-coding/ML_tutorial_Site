@@ -44,11 +44,15 @@ test('linear regression lesson lab uses a unified experiment card layout', () =>
   const styleSource = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8')
 
   assert.match(componentSource, /class="linear-regression-lab"/)
+  assert.match(componentSource, /variant="cockpit"/)
   assert.match(componentSource, /class="linear-regression-lab__workspace"/)
   assert.match(componentSource, /class="linear-regression-lab__viz"/)
   assert.match(componentSource, /class="linear-regression-lab__controls"/)
   assert.match(componentSource, /class="linear-regression-lab__readout"/)
+  assert.match(componentSource, /class="linear-regression-lab__details linear-regression-lab__details--teaching"/)
+  assert.match(componentSource, /class="linear-regression-lab__details linear-regression-lab__details--presets"/)
   assert.match(styleSource, /\.linear-regression-lab__workspace\s*\{/)
+  assert.match(styleSource, /\.lesson-workbench--cockpit/)
 })
 
 test('linear regression advanced chapters and subviews are wired', () => {
@@ -105,6 +109,23 @@ test('linear regression lecture adds the required teaching frame and animated di
   assert.match(styleSource, /@keyframes linear-residual-pulse/)
   assert.match(styleSource, /@keyframes linear-path-flow/)
   assert.match(styleSource, /@keyframes linear-weight-shrink/)
+})
+
+test('linear regression cockpit keeps teaching diagrams and presets collapsed by default', () => {
+  const componentSource = readFileSync(componentPath, 'utf8')
+
+  const metricsIndex = componentSource.indexOf('<template #metrics>')
+  const teachingDetailsIndex = componentSource.indexOf('linear-regression-lab__details--teaching')
+  const presetsIndex = componentSource.indexOf('<template #presets>')
+  const presetDetailsIndex = componentSource.indexOf('linear-regression-lab__details--presets')
+
+  assert.notEqual(metricsIndex, -1)
+  assert.notEqual(teachingDetailsIndex, -1)
+  assert.notEqual(presetsIndex, -1)
+  assert.notEqual(presetDetailsIndex, -1)
+  assert.ok(metricsIndex < teachingDetailsIndex, 'teaching diagram should be inside a collapsed metrics detail')
+  assert.ok(presetsIndex < presetDetailsIndex, 'preset list should be inside a collapsed lower detail')
+  assert.doesNotMatch(componentSource, /<details[^>]*open/)
 })
 
 test('linear regression chapter scroll does not auto-reset an active experiment', () => {

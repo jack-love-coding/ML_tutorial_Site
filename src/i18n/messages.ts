@@ -191,6 +191,7 @@ export const messages = {
       mlpCapacityHigh: '更多隐藏单元让网络有能力表达更弯曲的边界。',
       mlpCapacityLow: '较小的隐藏层让边界更平滑，也更容易欠拟合。',
       mlpActivation: '激活函数会改变隐藏特征如何弯折输入空间。',
+      mlpGeneralizationGap: '训练集和验证集已经拉开差距，需要检查容量、噪声和训练轮数。',
     },
     modules: {
       lossFunctions: {
@@ -535,6 +536,7 @@ export const messages = {
       mlpCapacityHigh: 'More hidden units give the network room to express curved boundaries.',
       mlpCapacityLow: 'A smaller hidden layer keeps the boundary smoother and easier to underfit.',
       mlpActivation: 'The activation function changes how hidden features bend the input space.',
+      mlpGeneralizationGap: 'Training and validation have split apart, so capacity, noise, and training length need attention.',
     },
     modules: {
       lossFunctions: {

@@ -69,7 +69,7 @@ const functionTag = computed(() => localizedText(currentFunction.value.label))
 const surfaceBadge = computed(() => '3D loss surface')
 const contourHint = computed(() =>
   locale.value === 'zh-CN'
-    ? '鎷栨嫿璧风偣骞惰瀵熻建杩?'
+    ? '拖拽起点并观察轨迹如何变化'
     : 'Drag the start point to compare trajectories',
 )
 

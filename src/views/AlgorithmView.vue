@@ -20,6 +20,8 @@ import LossFunctionsLessonLab from '../components/LossFunctionsLessonLab.vue'
 import LossFunctionsResults from '../components/LossFunctionsResults.vue'
 import LinearRegressionLessonLab from '../components/LinearRegressionLessonLab.vue'
 import LinearRegressionResults from '../components/LinearRegressionResults.vue'
+import LogisticRegressionLessonLab from '../components/LogisticRegressionLessonLab.vue'
+import MlpLessonLab from '../components/MlpLessonLab.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -34,6 +36,8 @@ const moduleDefinition = computed(() => moduleRegistry[slug.value])
 const isGradientPage = computed(() => slug.value === 'gradient-descent')
 const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
+const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
+const isMlpPage = computed(() => slug.value === 'mlp')
 
 if (!moduleDefinition.value) {
   router.replace('/')
@@ -235,7 +239,7 @@ onBeforeUnmount(stopTimer)
 
 function onChapterChange(nextChapter: string) {
   activeChapter.value = nextChapter
-  if (isLinearRegressionPage.value) {
+  if (isLinearRegressionPage.value || isLogisticRegressionPage.value || isMlpPage.value) {
     if (experiment.value?.isPlaying || Number(experiment.value?.currentStep ?? 0) > 0) return
 
     const section = moduleDefinition.value?.chapters.find((chapter) => chapter.id === nextChapter)
@@ -264,6 +268,8 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       'algorithm-view--gradient': isGradientPage,
       'algorithm-view--loss': isLossFunctionsPage,
       'algorithm-view--linear': isLinearRegressionPage,
+      'algorithm-view--logistic': isLogisticRegressionPage,
+      'algorithm-view--mlp': isMlpPage,
     }"
   >
     <section
@@ -456,6 +462,81 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </StoryScroller>
     </section>
 
+    <section
+      v-else-if="isLogisticRegressionPage"
+      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--logistic-story"
+    >
+      <StoryScroller
+        :sections="moduleDefinition.chapters"
+        :active-id="activeChapter"
+        @change="onChapterChange"
+      >
+        <template #section="{ section }">
+          <LogisticRegressionLessonLab
+            :config="experiment.config"
+            :snapshot="snapshot"
+            :snapshots="experiment.snapshots"
+            :current-step="experiment.currentStep"
+            :is-playing="experiment.isPlaying"
+            :accent="moduleDefinition.accent"
+            :section="section"
+            :presets="moduleDefinition.presets"
+            @patch-config="patchConfig"
+            @toggle-play="experimentStore.togglePlayback(slug)"
+            @step="experimentStore.advance(slug)"
+            @replay="experimentStore.replay(slug)"
+            @reset="experimentStore.reset(slug)"
+            @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
+          />
+        </template>
+      </StoryScroller>
+    </section>
+
+    <section
+      v-else-if="isMlpPage"
+      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--mlp-story"
+    >
+      <StoryScroller
+        :sections="moduleDefinition.chapters"
+        :active-id="activeChapter"
+        @change="onChapterChange"
+      >
+        <template #section="{ section, localizedText: slotLocalizedText }">
+          <h3>{{ t(section.titleKey) }}</h3>
+          <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
+
+          <MlpLessonLab
+            :config="experiment.config"
+            :snapshot="snapshot"
+            :snapshots="experiment.snapshots"
+            :current-step="experiment.currentStep"
+            :is-playing="experiment.isPlaying"
+            :accent="moduleDefinition.accent"
+            :section="section"
+            :presets="moduleDefinition.presets"
+            @patch-config="patchConfig"
+            @toggle-play="experimentStore.togglePlayback(slug)"
+            @step="experimentStore.advance(slug)"
+            @replay="experimentStore.replay(slug)"
+            @reset="experimentStore.reset(slug)"
+            @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
+          />
+
+          <div class="story-companion story-companion--lesson">
+            <section class="story-companion__panel story-companion__panel--guide">
+              <div class="panel__heading">
+                <span>{{ t('common.readingGuide') }}</span>
+                <strong>{{ localizedText(section.callout) }}</strong>
+              </div>
+              <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
+                {{ localizedText(section.experimentPrompt) }}
+              </div>
+            </section>
+          </div>
+        </template>
+      </StoryScroller>
+    </section>
+
     <section v-else class="algorithm-layout">
       <StoryScroller
         :sections="moduleDefinition.chapters"
@@ -579,6 +660,58 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
           </p>
           <small>{{ locale === 'zh-CN' ? '进入逻辑回归' : 'Open Logistic Regression' }}</small>
         </router-link>
+      </section>
+    </section>
+
+    <section v-else-if="isLogisticRegressionPage" class="results-grid results-grid--logistic">
+      <LineChart :slug="slug" :snapshots="experiment.snapshots" :current-step="experiment.currentStep" />
+
+      <section class="panel lesson-panel">
+        <div class="panel__heading">
+          <span>{{ locale === 'zh-CN' ? '实验复盘' : 'Results' }}</span>
+          <strong>
+            {{
+              locale === 'zh-CN'
+                ? '线性分类器能解释什么，也解释不了什么'
+                : 'What a linear classifier can and cannot explain'
+            }}
+          </strong>
+        </div>
+        <p class="lesson-panel__callout">
+          {{
+            locale === 'zh-CN'
+              ? '如果概率场和准确率同步改善，问题主要在优化；如果 XOR 等结构仍然卡住，问题在模型表达能力。'
+              : 'If the probability field and accuracy improve together, the main issue is optimization. If XOR still stalls, the limit is model capacity.'
+          }}
+        </p>
+
+        <router-link class="lesson-bridge-card" to="/learn/mlp">
+          <span>{{ locale === 'zh-CN' ? '下一课' : 'Next lesson' }}</span>
+          <strong>{{ locale === 'zh-CN' ? '用隐藏层弯曲决策边界' : 'Bend the boundary with hidden layers' }}</strong>
+          <p>
+            {{
+              locale === 'zh-CN'
+                ? 'MLP 会把输入空间重构成更容易分开的表示空间，用来处理逻辑回归无法表达的非线性边界。'
+                : 'MLP rebuilds input space into a representation that can express nonlinear boundaries logistic regression cannot.'
+            }}
+          </p>
+          <small>{{ locale === 'zh-CN' ? '进入 MLP' : 'Open MLP' }}</small>
+        </router-link>
+      </section>
+    </section>
+
+    <section v-else-if="isMlpPage" class="results-grid results-grid--mlp">
+      <LineChart :slug="slug" :snapshots="experiment.snapshots" :current-step="experiment.currentStep" />
+
+      <section class="panel lesson-panel">
+        <div class="panel__heading">
+          <span>{{ t('common.results') }}</span>
+          <strong>{{ activeSection ? t(activeSection.titleKey) : t(moduleDefinition.titleKey) }}</strong>
+        </div>
+        <p class="lesson-panel__callout">{{ localizedText(activeSection?.callout) }}</p>
+        <div v-if="localizedText(activeSection?.experimentPrompt)" class="lesson-panel__prompt">
+          {{ localizedText(activeSection?.experimentPrompt) }}
+        </div>
       </section>
     </section>
 

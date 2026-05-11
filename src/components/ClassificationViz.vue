@@ -22,6 +22,7 @@ function hiddenMap(value: number) {
 }
 
 const dataset = computed(() => props.snapshot?.dataset ?? [])
+const validationDataset = computed(() => props.snapshot?.validationSamples ?? [])
 const hiddenPoints = computed(() => props.snapshot?.hidden ?? [])
 
 const decisionLine = computed(() => {
@@ -100,6 +101,17 @@ watch(canvasSize, draw)
           r="5"
           :class="point.label === 1 ? 'dataset-point dataset-point--positive' : 'dataset-point dataset-point--negative'"
         />
+        <circle
+          v-for="(point, index) in validationDataset"
+          :key="`validation-${point.x}-${point.y}-${index}`"
+          :cx="map(point.x)"
+          :cy="canvasSize - map(point.y)"
+          r="5"
+          :class="[
+            point.label === 1 ? 'dataset-point dataset-point--positive' : 'dataset-point dataset-point--negative',
+            'dataset-point--validation',
+          ]"
+        />
       </svg>
     </div>
 
@@ -120,7 +132,10 @@ watch(canvasSize, draw)
           :cx="hiddenMap(point.h1)"
           :cy="180 - hiddenMap(point.h2)"
           r="4"
-          :class="point.label === 1 ? 'dataset-point dataset-point--positive' : 'dataset-point dataset-point--negative'"
+          :class="[
+            point.label === 1 ? 'dataset-point dataset-point--positive' : 'dataset-point dataset-point--negative',
+            point.split === 'validation' ? 'dataset-point--validation' : '',
+          ]"
         />
       </svg>
     </div>
