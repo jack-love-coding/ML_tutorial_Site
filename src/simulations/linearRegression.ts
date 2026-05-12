@@ -1,10 +1,17 @@
 import type {
   ExperimentConfig,
+  FitDiagnosticItem,
+  FitDiagnostics,
   ModuleSimulation,
   MultivariateRegressionSample,
   PlotPoint,
+  RegressionMeta,
   TrainingSnapshot,
 } from '../types/ml'
+import {
+  californiaHousingRegressionMeta,
+  californiaHousingSubset,
+} from '../data/californiaHousingSubset.ts'
 
 type LinearRegressionScenario =
   | 'linear'
@@ -38,6 +45,12 @@ interface PolynomialData {
   scaleX: number
   meanY: number
   scaleY: number
+  meta?: RegressionMeta
+}
+
+interface PolynomialModel {
+  weights: number[]
+  bias: number
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -57,6 +70,37 @@ function stddev(values: number[], mean: number) {
 
 function dot(left: number[], right: number[]) {
   return left.reduce((sum, value, index) => sum + value * (right[index] ?? 0), 0)
+}
+
+function solveLinearSystem(matrix: number[][], vector: number[]) {
+  const size = vector.length
+  const augmented = matrix.map((row, index) => [...row, vector[index] ?? 0])
+
+  for (let column = 0; column < size; column += 1) {
+    let pivotRow = column
+    for (let row = column + 1; row < size; row += 1) {
+      if (Math.abs(augmented[row]![column]!) > Math.abs(augmented[pivotRow]![column]!)) {
+        pivotRow = row
+      }
+    }
+
+    const pivot = augmented[pivotRow]![column] || 1e-8
+    ;[augmented[column], augmented[pivotRow]] = [augmented[pivotRow]!, augmented[column]!]
+
+    for (let entry = column; entry <= size; entry += 1) {
+      augmented[column]![entry] = augmented[column]![entry]! / pivot
+    }
+
+    for (let row = 0; row < size; row += 1) {
+      if (row === column) continue
+      const factor = augmented[row]![column] ?? 0
+      for (let entry = column; entry <= size; entry += 1) {
+        augmented[row]![entry] = augmented[row]![entry]! - factor * augmented[column]![entry]!
+      }
+    }
+  }
+
+  return augmented.map((row) => row[size] ?? 0)
 }
 
 function createHousingSamples(
@@ -478,6 +522,33 @@ function createPolynomialData(noise: number, validationSplit: number, scenario: 
   return { training, validation, all: visibleAll, meanX, scaleX, meanY, scaleY }
 }
 
+function createCaliforniaHousingPolynomialData(): PolynomialData {
+  const all = californiaHousingSubset
+    .map((sample) => ({
+      x: sample.medInc,
+      y: sample.medianHouseValue,
+      split: sample.split,
+    }))
+    .sort((left, right) => left.x - right.x)
+  const training = all.filter((sample) => sample.split === 'train')
+  const validation = all.filter((sample) => sample.split === 'validation')
+  const meanX = average(training.map((sample) => sample.x))
+  const scaleX = (Math.max(...training.map((sample) => sample.x)) - Math.min(...training.map((sample) => sample.x))) / 2 || 1
+  const meanY = average(training.map((sample) => sample.y))
+  const scaleY = stddev(training.map((sample) => sample.y), meanY)
+
+  return {
+    training,
+    validation,
+    all,
+    meanX,
+    scaleX,
+    meanY,
+    scaleY,
+    meta: californiaHousingRegressionMeta,
+  }
+}
+
 function polynomialFeatures(area: number, degree: number, meanX: number, scaleX: number) {
   const normalized = (area - meanX) / scaleX
   return Array.from({ length: degree }, (_, index) => normalized ** (index + 1))
@@ -510,6 +581,216 @@ function buildFitCurve(weights: number[], bias: number, data: PolynomialData) {
     const x = minX + (index / 63) * (maxX - minX)
     return { x, y: predictPolynomial(x, weights, bias, data) }
   })
+}
+
+function buildFitCurveForModel(model: PolynomialModel, data: PolynomialData, padding = 0.18) {
+  const minX = Math.min(...data.all.map((sample) => sample.x)) - padding
+  const maxX = Math.max(...data.all.map((sample) => sample.x)) + padding
+
+  return Array.from({ length: 72 }, (_, index) => {
+    const x = minX + (index / 71) * (maxX - minX)
+    return { x, y: predictPolynomial(x, model.weights, model.bias, data) }
+  })
+}
+
+function fitClosedFormPolynomial(data: PolynomialData, degree: number, type: RegularizationType, lambda: number): PolynomialModel {
+  const features = data.training.map((sample) => polynomialFeatures(sample.x, degree, data.meanX, data.scaleX))
+  const targets = data.training.map((sample) => (sample.y - data.meanY) / data.scaleY)
+  const width = degree + 1
+  const regularizationScale = type === 'l2' ? lambda : 0
+  const matrix = Array.from({ length: width }, () => Array.from({ length: width }, () => 0))
+  const vector = Array.from({ length: width }, () => 0)
+
+  features.forEach((row, rowIndex) => {
+    const withBias = [...row, 1]
+    withBias.forEach((left, leftIndex) => {
+      vector[leftIndex] += (left * targets[rowIndex]!) / features.length
+      withBias.forEach((right, rightIndex) => {
+        matrix[leftIndex]![rightIndex] += (left * right) / features.length
+      })
+    })
+  })
+
+  for (let index = 0; index < degree; index += 1) {
+    matrix[index]![index] += regularizationScale || 1e-6
+  }
+
+  const coefficients = solveLinearSystem(matrix, vector)
+  const rawWeights = coefficients.slice(0, degree)
+  const bias = coefficients[degree] ?? 0
+  const weights =
+    type === 'l1'
+      ? rawWeights.map((weight) => Math.sign(weight) * Math.max(0, Math.abs(weight) - lambda * 0.28))
+      : rawWeights
+
+  return { weights, bias }
+}
+
+function modelMetrics(model: PolynomialModel, data: PolynomialData, type: RegularizationType, lambda: number) {
+  const trainLoss = sampleMse(data.training, model.weights, model.bias, data)
+  const validationLoss = sampleMse(data.validation, model.weights, model.bias, data)
+  const curve = buildFitCurveForModel(model, data)
+  const secondDiffs = curve.slice(2).map((point, index) => {
+    const previous = curve[index]!
+    const middle = curve[index + 1]!
+    return point.y - 2 * middle.y + previous.y
+  })
+
+  return {
+    trainLoss,
+    validationLoss,
+    regularizationPenalty: regularizationPenalty(model.weights, type, lambda),
+    weightNorm: Math.hypot(...model.weights),
+    activeWeights: model.weights.filter((weight) => Math.abs(weight) > 0.08).length,
+    roughness: average(secondDiffs.map((value) => value ** 2)),
+    curve,
+  }
+}
+
+function createFitDiagnostics(data: PolynomialData): FitDiagnostics {
+  const definitions: Array<Pick<FitDiagnosticItem, 'id' | 'degree' | 'label' | 'cause' | 'response'>> = [
+    {
+      id: 'underfit',
+      degree: 1,
+      label: { 'zh-CN': '欠拟合', en: 'Underfit' },
+      cause: {
+        'zh-CN': '模型太简单，只能画直线，抓不住收入和房价之间的弯曲趋势。',
+        en: 'The model is too simple: one line misses the curved income-value pattern.',
+      },
+      response: {
+        'zh-CN': '增加有效特征或提高多项式阶数，先让模型具备表达主趋势的能力。',
+        en: 'Add useful features or raise degree so the model can express the main trend.',
+      },
+    },
+    {
+      id: 'balanced',
+      degree: 3,
+      label: { 'zh-CN': '泛化较好', en: 'Better generalization' },
+      cause: {
+        'zh-CN': '三阶曲线保留了主要弯曲，又没有为了少数训练点剧烈摆动。',
+        en: 'The cubic curve captures the bend without swinging hard for a few training points.',
+      },
+      response: {
+        'zh-CN': '用验证误差选择复杂度，而不是只看训练误差最低。',
+        en: 'Choose complexity by validation error, not by the lowest training error alone.',
+      },
+    },
+    {
+      id: 'overfit',
+      degree: 7,
+      label: { 'zh-CN': '过拟合', en: 'Overfit' },
+      cause: {
+        'zh-CN': '高阶曲线权重很大，训练点附近贴得更紧，但验证点误差明显变差。',
+        en: 'The high-degree curve uses large weights to hug training points, then misses validation points.',
+      },
+      response: {
+        'zh-CN': '降低阶数、增加数据、早停，或进入下一章用正则化惩罚过大的权重。',
+        en: 'Lower degree, add data, stop earlier, or use regularization to penalize large weights.',
+      },
+    },
+  ]
+
+  return {
+    sourceNote: {
+      'zh-CN': 'California Housing 子集：x 为 MedInc，y 为街区房价中位数，单位为 10 万美元。',
+      en: 'California Housing subset: x is MedInc and y is median house value in $100k units.',
+    },
+    items: definitions.map((definition) => {
+      const model = fitClosedFormPolynomial(data, definition.degree, 'none', 0)
+      const metrics = modelMetrics(model, data, 'none', 0)
+
+      return {
+        ...definition,
+        trainMse: metrics.trainLoss.mse,
+        validationMse: metrics.validationLoss.mse,
+        weightNorm: metrics.weightNorm,
+        activeWeights: metrics.activeWeights,
+        roughness: metrics.roughness,
+        curve: metrics.curve,
+      }
+    }),
+  }
+}
+
+function interpolateModel(start: PolynomialModel, end: PolynomialModel, progress: number): PolynomialModel {
+  return {
+    weights: end.weights.map((weight, index) => (start.weights[index] ?? 0) + (weight - (start.weights[index] ?? 0)) * progress),
+    bias: start.bias + (end.bias - start.bias) * progress,
+  }
+}
+
+function simulateCaliforniaPolynomialFamily(config: ExperimentConfig, scenario: LinearRegressionScenario): ModuleSimulation {
+  const epochs = Math.max(24, Math.round(Number(config.epochs ?? 70)))
+  const degree = Math.max(1, Math.min(7, Math.round(Number(config.polynomialDegree ?? 7))))
+  const regularizationType = String(config.regularizationType ?? (scenario === 'regularized' ? 'l2' : 'none')) as RegularizationType
+  const lambda = scenario === 'regularized' ? clamp(Number(config.lambda ?? 0.28), 0, 0.8) : 0
+  const data = createCaliforniaHousingPolynomialData()
+  const diagnostics = createFitDiagnostics(data)
+  const finalModel = fitClosedFormPolynomial(data, degree, regularizationType, lambda)
+  const initialModel: PolynomialModel = {
+    weights: Array.from({ length: degree }, (_, index) => (index === 0 ? -0.18 : 0.03 / (index + 1))),
+    bias: -0.08,
+  }
+  const snapshots: TrainingSnapshot[] = []
+
+  for (let step = 0; step <= epochs; step += 1) {
+    const progress = step / Math.max(epochs, 1)
+    const easedProgress = 1 - (1 - progress) ** 2.2
+    const model = interpolateModel(initialModel, finalModel, easedProgress)
+    const metrics = modelMetrics(model, data, regularizationType, lambda)
+    const loss = metrics.trainLoss.mse + metrics.regularizationPenalty * data.scaleY
+    const highlightIndex = step % data.all.length
+    const highlighted = data.all[highlightIndex] ?? data.all[0]!
+    const highlightedPrediction = predictPolynomial(highlighted.x, model.weights, model.bias, data)
+
+    snapshots.push({
+      step,
+      loss,
+      regressionSamples: data.all,
+      validationSamples: data.validation,
+      fitCurve: metrics.curve,
+      regressionMeta: data.meta,
+      fitDiagnostics: diagnostics,
+      derivedMetrics: {
+        scenario,
+        dataSource: 'california-housing',
+        mse: loss,
+        trainMse: metrics.trainLoss.mse,
+        validationMse: metrics.validationLoss.mse,
+        mae: metrics.trainLoss.mae,
+        weights: model.weights.map((weight) => weight * data.scaleY),
+        intercept: data.meanY + model.bias * data.scaleY,
+        gradientNorm: Math.hypot(
+          ...finalModel.weights.map((weight, index) => weight - (model.weights[index] ?? 0)),
+          finalModel.bias - model.bias,
+        ),
+        stepSize: Math.abs(1 - easedProgress),
+        highlightIndex,
+        polynomialDegree: degree,
+        modelComplexity: degree,
+        regularizationType,
+        lambda,
+        regularizationPenalty: metrics.regularizationPenalty,
+        weightNorm: metrics.weightNorm,
+        activeWeights: metrics.activeWeights,
+        roughness: metrics.roughness,
+        statusKey:
+          scenario === 'overfit' && metrics.validationLoss.mse > metrics.trainLoss.mse * 1.18
+            ? 'overfitting'
+            : regularizationType !== 'none'
+              ? 'regularized'
+              : 'refining',
+      },
+      selectedObservation: {
+        area: highlighted.x,
+        actualPrice: highlighted.y,
+        predictedPrice: highlightedPrediction,
+        residual: highlightedPrediction - highlighted.y,
+      },
+    })
+  }
+
+  return { snapshots }
 }
 
 function simulatePolynomialFamily(config: ExperimentConfig, scenario: LinearRegressionScenario): ModuleSimulation {
@@ -607,7 +888,10 @@ export function simulateLinearRegression(config: ExperimentConfig): ModuleSimula
   const scenario = String(config.scenario ?? 'linear') as LinearRegressionScenario
 
   if (scenario === 'multivariate') return simulateMultivariate(config)
-  if (scenario === 'polynomial' || scenario === 'overfit' || scenario === 'regularized') {
+  if (scenario === 'overfit' || scenario === 'regularized') {
+    return simulateCaliforniaPolynomialFamily(config, scenario)
+  }
+  if (scenario === 'polynomial') {
     return simulatePolynomialFamily(config, scenario)
   }
 

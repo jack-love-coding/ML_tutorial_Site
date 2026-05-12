@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Backpropagation responsibility poster">
+  <rect width="960" height="540" fill="#fffaf6"/>
+  <g stroke="#102a4c" stroke-width="5" stroke-opacity=".5">
+    <path d="M145 210L350 150M145 330L350 150M145 210L350 270M145 330L350 270M350 150L570 210M350 270L570 210M350 150L570 330M350 270L570 330M570 210L790 270M570 330L790 270"/>
+  </g>
+  <g fill="#dff2d7" stroke="#4f8b5c" stroke-width="5">
+    <circle cx="350" cy="150" r="31"/><circle cx="350" cy="270" r="31"/><circle cx="570" cy="210" r="31"/><circle cx="570" cy="330" r="31"/>
+  </g>
+  <g fill="#dcecff" stroke="#256bd9" stroke-width="5"><circle cx="145" cy="210" r="34"/><circle cx="145" cy="330" r="34"/></g>
+  <circle cx="790" cy="270" r="38" fill="#ffe1d5" stroke="#e26d3d" stroke-width="6"/>
+  <g fill="none" stroke="#e26d3d" stroke-width="9" stroke-linecap="round">
+    <path d="M756 260C690 242 648 224 600 210"/><path d="M758 282C690 306 650 324 600 330"/><path d="M534 330C480 320 430 295 380 278"/><path d="M318 268C260 282 220 306 178 326"/>
+  </g>
+  <text x="72" y="56" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Loss signal flows backward</text>
+</svg>

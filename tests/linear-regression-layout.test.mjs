@@ -77,6 +77,53 @@ test('linear regression advanced chapters and subviews are wired', () => {
   assert.match(componentSource, /linear-regression-lab__advanced-controls/)
 })
 
+test('linear regression overfitting chapter uses real-data diagnostics and local video', () => {
+  const moduleSource = readFileSync(
+    new URL('../src/data/linearRegressionModule.ts', import.meta.url),
+    'utf8',
+  )
+  const simulationSource = readFileSync(
+    new URL('../src/simulations/linearRegression.ts', import.meta.url),
+    'utf8',
+  )
+  const dataSource = readFileSync(
+    new URL('../src/data/californiaHousingSubset.ts', import.meta.url),
+    'utf8',
+  )
+  const componentSource = readFileSync(componentPath, 'utf8')
+  const univariateSource = readFileSync(
+    new URL('../src/components/LinearRegressionUnivariateView.vue', import.meta.url),
+    'utf8',
+  )
+  const algorithmViewSource = readFileSync(
+    new URL('../src/views/AlgorithmView.vue', import.meta.url),
+    'utf8',
+  )
+  const styleSource = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8')
+  const videoPath = new URL('../public/manim/linear-regression/fit-comparison.mp4', import.meta.url)
+  const posterPath = new URL('../public/manim/linear-regression/fit-comparison.svg', import.meta.url)
+
+  assert.match(moduleSource, /California Housing/)
+  assert.match(moduleSource, /fit-comparison\.mp4/)
+  assert.match(moduleSource, /degree 1/)
+  assert.match(moduleSource, /degree 3/)
+  assert.match(moduleSource, /degree 7/)
+  assert.match(dataSource, /datasetSize: 20640/)
+  assert.match(dataSource, /featureCount: 8/)
+  assert.match(dataSource, /MedInc/)
+  assert.match(simulationSource, /fitDiagnostics/)
+  assert.match(simulationSource, /regressionMeta/)
+  assert.match(componentSource, /isRealCaliforniaFamily/)
+  assert.match(univariateSource, /linear-regression-lab__diagnostic-grid/)
+  assert.match(univariateSource, /fitDiagnostics/)
+  assert.match(algorithmViewSource, /story-media--linear/)
+  assert.match(algorithmViewSource, /<video/)
+  assert.match(styleSource, /\.story-media/)
+  assert.match(styleSource, /\.linear-regression-lab__diagnostic-grid/)
+  assert.ok(existsSync(videoPath), 'fit comparison video should be generated')
+  assert.ok(existsSync(posterPath), 'fit comparison poster should be generated')
+})
+
 test('linear regression lecture adds the required teaching frame and animated diagrams', () => {
   const moduleSource = readFileSync(
     new URL('../src/data/linearRegressionModule.ts', import.meta.url),

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Hidden representation rewrite poster">
+  <rect width="960" height="540" fill="#f8fbff"/>
+  <g fill="none" stroke="#102a4c" stroke-width="4">
+    <path d="M68 430V120M68 430H330M632 430V120M632 430H894"/>
+  </g>
+  <g>
+    <circle cx="110" cy="170" r="8" fill="#256bd9"/><circle cx="150" cy="210" r="8" fill="#256bd9"/><circle cx="205" cy="270" r="8" fill="#256bd9"/><circle cx="280" cy="330" r="8" fill="#256bd9"/>
+    <circle cx="105" cy="336" r="8" fill="#e26d3d"/><circle cx="160" cy="294" r="8" fill="#e26d3d"/><circle cx="218" cy="230" r="8" fill="#e26d3d"/><circle cx="285" cy="174" r="8" fill="#e26d3d"/>
+    <circle cx="702" cy="170" r="8" fill="#256bd9"/><circle cx="740" cy="208" r="8" fill="#256bd9"/><circle cx="782" cy="248" r="8" fill="#256bd9"/>
+    <circle cx="704" cy="332" r="8" fill="#e26d3d"/><circle cx="746" cy="368" r="8" fill="#e26d3d"/><circle cx="804" cy="392" r="8" fill="#e26d3d"/>
+  </g>
+  <path d="M710 284C760 250 815 234 874 214" stroke="#4f8b5c" stroke-width="7" stroke-dasharray="15 13" fill="none"/>
+  <g stroke="#102a4c" stroke-width="4" fill="#dff2d7" transform="translate(470 270)">
+    <circle cx="-80" cy="-48" r="22"/><circle cx="-80" cy="48" r="22"/><circle cx="28" cy="-76" r="22"/><circle cx="28" cy="0" r="22"/><circle cx="28" cy="76" r="22"/>
+  </g>
+  <text x="70" y="56" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Hidden space rewrites geometry</text>
+</svg>

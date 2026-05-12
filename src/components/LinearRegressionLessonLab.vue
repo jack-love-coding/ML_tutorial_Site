@@ -147,15 +147,16 @@ const copy = computed(() =>
 )
 
 const isMultivariate = computed(() => props.section.id === 'multivariate')
+const isRealCaliforniaFamily = computed(() =>
+  props.section.id === 'overfitting' || props.section.id === 'regularization',
+)
 const isPolynomialFamily = computed(() =>
   props.section.id === 'polynomial' ||
   props.section.id === 'overfitting' ||
   props.section.id === 'regularization',
 )
 const showRegularizationControls = computed(() => props.section.id === 'regularization')
-const showValidationControls = computed(() =>
-  props.section.id === 'overfitting' || props.section.id === 'regularization',
-)
+const showValidationControls = computed(() => !isRealCaliforniaFamily.value && props.section.id === 'polynomial')
 const showOutlierControls = computed(() =>
   !isPolynomialFamily.value &&
   !isMultivariate.value &&
@@ -206,11 +207,24 @@ const readoutCards = computed(() => {
 })
 
 const selectedObservation = computed(() => props.snapshot?.selectedObservation ?? {})
+const regressionMeta = computed(() => props.snapshot?.regressionMeta)
+const selectedSampleLabel = computed(
+  () => regressionMeta.value?.sampleLabel[locale.value as 'zh-CN' | 'en'] ?? copy.value.selectedHouse,
+)
+const selectedXAxisLabel = computed(
+  () => regressionMeta.value?.xLabel[locale.value as 'zh-CN' | 'en'] ?? copy.value.area,
+)
+const selectedXUnit = computed(
+  () => regressionMeta.value?.xUnit[locale.value as 'zh-CN' | 'en'] ?? 'm2',
+)
+const selectedYUnit = computed(
+  () => regressionMeta.value?.yUnit[locale.value as 'zh-CN' | 'en'] ?? 'w',
+)
 const selectedSummary = computed(() => {
   const rows = [
     {
-      label: copy.value.area,
-      value: `${round(Number(selectedObservation.value.area ?? 0), 1)} m2`,
+      label: selectedXAxisLabel.value,
+      value: `${round(Number(selectedObservation.value.area ?? 0), 2)} ${selectedXUnit.value}`,
     },
   ]
 
@@ -224,15 +238,15 @@ const selectedSummary = computed(() => {
   rows.push(
     {
       label: copy.value.actual,
-      value: `${round(Number(selectedObservation.value.actualPrice ?? 0), 1)} w`,
+      value: `${round(Number(selectedObservation.value.actualPrice ?? 0), 2)} ${selectedYUnit.value}`,
     },
     {
       label: copy.value.predicted,
-      value: `${round(Number(selectedObservation.value.predictedPrice ?? 0), 1)} w`,
+      value: `${round(Number(selectedObservation.value.predictedPrice ?? 0), 2)} ${selectedYUnit.value}`,
     },
     {
       label: copy.value.residual,
-      value: `${round(Number(selectedObservation.value.residual ?? 0), 1)} w`,
+      value: `${round(Number(selectedObservation.value.residual ?? 0), 2)} ${selectedYUnit.value}`,
     },
   )
 
@@ -454,7 +468,7 @@ function setRegularizationType(value: string) {
             />
           </label>
 
-          <label class="control">
+          <label v-if="!isRealCaliforniaFamily" class="control">
             <span class="control__row">
               <span>{{ isMultivariate ? t('controls.featureNoise') : t('controls.datasetNoise') }}</span>
               <strong>{{ round(configNumber(isMultivariate ? 'featureNoise' : 'datasetNoise', 0.08), 2) }}</strong>
@@ -581,7 +595,7 @@ function setRegularizationType(value: string) {
 
         <section class="linear-regression-lab__selected">
           <div class="linear-regression-lab__heading">
-            <span>{{ copy.selectedHouse }}</span>
+            <span>{{ selectedSampleLabel }}</span>
             <strong>{{ copy.predicted }} vs {{ copy.actual }}</strong>
           </div>
           <div class="linear-regression-lab__mini-grid">

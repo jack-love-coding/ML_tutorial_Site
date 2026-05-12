@@ -9,6 +9,28 @@ export type ExperimentConfigValue = number | string | boolean
 export type ExperimentConfig = Record<string, ExperimentConfigValue>
 export type ControlCategory = 'optimization' | 'data' | 'architecture' | 'playback'
 export type InsightTone = 'neutral' | 'positive' | 'caution'
+export type MlpProblemType = 'classification' | 'regression'
+export type MlpClassificationDataset = 'circle' | 'xor' | 'gauss' | 'spiral'
+export type MlpRegressionDataset = 'plane' | 'gaussian'
+export type MlpFeatureKey =
+  | 'x1'
+  | 'x2'
+  | 'x1Squared'
+  | 'x2Squared'
+  | 'x1TimesX2'
+  | 'sinX1'
+  | 'sinX2'
+export type MlpRegularizationType = 'none' | 'l1' | 'l2'
+export type MlpActivationKind = 'tanh' | 'relu' | 'sigmoid' | 'linear'
+export type MlpPlaygroundFocus =
+  | 'dataset'
+  | 'features'
+  | 'network'
+  | 'activations'
+  | 'loss'
+  | 'regularization'
+  | 'generalization'
+export type MlpNetworkShape = number[]
 export type FocusTarget =
   | 'point'
   | 'gradient'
@@ -25,11 +47,95 @@ export interface LocalizedCopy {
   en: string
 }
 
+export interface ModuleSourceReference {
+  label: LocalizedCopy
+  href: string
+  license?: string
+}
+
+export interface ModuleVisualAsset {
+  id: string
+  type: 'image' | 'manim-video'
+  title: LocalizedCopy
+  caption: LocalizedCopy
+  assetPath: string
+  posterPath?: string
+}
+
 export interface PlotPoint {
   x: number
   y: number
   label?: number
   split?: 'train' | 'validation'
+}
+
+export interface MlpPlaygroundPoint {
+  x: number
+  y: number
+  label: number
+  split: 'train' | 'test'
+}
+
+export interface MlpPlaygroundState {
+  problemType: MlpProblemType
+  classificationDataset: MlpClassificationDataset
+  regressionDataset: MlpRegressionDataset
+  featureKeys: MlpFeatureKey[]
+  networkShape: MlpNetworkShape
+  activation: MlpActivationKind
+  learningRate: number
+  batchSize: number
+  regularizationType: MlpRegularizationType
+  regularizationRate: number
+  noise: number
+  trainRatio: number
+  showTestData: boolean
+  discretize: boolean
+  seed: number
+  iteration: number
+}
+
+export interface MlpNodeSnapshot {
+  id: string
+  label: string
+  layerIndex: number
+  nodeIndex: number
+  layerKind: 'input' | 'hidden' | 'output'
+  bias: number
+  output: number
+  outputGrid: number[]
+}
+
+export interface MlpLinkSnapshot {
+  id: string
+  sourceId: string
+  targetId: string
+  weight: number
+  isDead: boolean
+}
+
+export interface MlpPlaygroundSnapshot {
+  state: MlpPlaygroundState
+  iteration: number
+  gridSize: number
+  xDomain: [number, number]
+  yDomain: [number, number]
+  trainData: MlpPlaygroundPoint[]
+  testData: MlpPlaygroundPoint[]
+  outputGrid: number[]
+  layers: MlpNodeSnapshot[][]
+  links: MlpLinkSnapshot[]
+  trainLoss: number
+  testLoss: number
+  trainAccuracy?: number
+  testAccuracy?: number
+  trainScore?: number
+  testScore?: number
+  weightNorm: number
+  activeWeights: number
+  gradientNorm: number
+  regularizationPenalty: number
+  lossHistory: Array<{ iteration: number; trainLoss: number; testLoss: number }>
 }
 
 export interface MultivariateRegressionSample {
@@ -102,6 +208,39 @@ export interface WorkedExampleRow {
   note?: string
 }
 
+export interface RegressionMeta {
+  xLabel: LocalizedCopy
+  yLabel: LocalizedCopy
+  xUnit: LocalizedCopy
+  yUnit: LocalizedCopy
+  sampleLabel: LocalizedCopy
+  sourceName: string
+  sourceUrl: string
+  featureName: string
+  targetName: string
+  datasetSize: number
+  featureCount: number
+}
+
+export interface FitDiagnosticItem {
+  id: 'underfit' | 'balanced' | 'overfit'
+  degree: number
+  label: LocalizedCopy
+  cause: LocalizedCopy
+  response: LocalizedCopy
+  trainMse: number
+  validationMse: number
+  weightNorm: number
+  activeWeights: number
+  roughness: number
+  curve: PlotPoint[]
+}
+
+export interface FitDiagnostics {
+  items: FitDiagnosticItem[]
+  sourceNote: LocalizedCopy
+}
+
 export interface TrainingSnapshot {
   step: number
   loss: number
@@ -133,6 +272,8 @@ export interface TrainingSnapshot {
   jointLikelihood?: number
   jointLogLikelihood?: number
   perSampleLikelihoods?: number[]
+  regressionMeta?: RegressionMeta
+  fitDiagnostics?: FitDiagnostics
   selectedObservation?: Record<string, number | string>
   sampleLossBreakdown?: Array<{
     id: string
@@ -170,6 +311,7 @@ export interface StorySection {
   id: string
   eyebrowKey: string
   titleKey: string
+  title?: LocalizedCopy
   markdown: LocalizedCopy
   teachingBlocks?: {
     concept: LocalizedCopy
@@ -187,6 +329,15 @@ export interface StorySection {
   focusTarget?: FocusTarget
   linkedInsightIds?: string[]
   metricEmphasis?: string[]
+  sources?: ModuleSourceReference[]
+  visualIds?: string[]
+  playgroundFocus?: MlpPlaygroundFocus
+  media?: {
+    title: LocalizedCopy
+    body: LocalizedCopy
+    assetPath: string
+    posterPath?: string
+  }
 }
 
 export interface ChapterLabDefinition {
@@ -221,6 +372,8 @@ export interface AlgorithmModuleDefinition {
   chapters: StorySection[]
   controls: ExperimentControl[]
   presets: ExperimentPreset[]
+  visuals?: ModuleVisualAsset[]
+  sourceNote?: LocalizedCopy
   createDefaultConfig: () => ExperimentConfig
   simulate: (config: ExperimentConfig) => ModuleSimulation
 }

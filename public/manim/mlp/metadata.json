@@ -1,0 +1,25 @@
+{
+  "generatedBy": "scripts/manim/render_mlp.py",
+  "scenes": [
+    {
+      "scene": "AffineActivationScene",
+      "assetPath": "/manim/mlp/affine-activation.mp4",
+      "posterPath": "/manim/mlp/affine-activation.svg"
+    },
+    {
+      "scene": "HiddenRewriteScene",
+      "assetPath": "/manim/mlp/hidden-rewrite.mp4",
+      "posterPath": "/manim/mlp/hidden-rewrite.svg"
+    },
+    {
+      "scene": "BackpropResponsibilityScene",
+      "assetPath": "/manim/mlp/backprop-responsibility.mp4",
+      "posterPath": "/manim/mlp/backprop-responsibility.svg"
+    },
+    {
+      "scene": "CapacityOverfittingScene",
+      "assetPath": "/manim/mlp/capacity-overfitting.mp4",
+      "posterPath": "/manim/mlp/capacity-overfitting.svg"
+    }
+  ]
+}

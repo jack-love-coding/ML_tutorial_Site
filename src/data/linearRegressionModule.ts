@@ -340,30 +340,32 @@ $\\phi(x)$ is the feature expansion. As long as the model remains linear in $\\m
   },
   overfitting: {
     coreQuestion: loc(
-      '为什么训练误差继续下降，验证误差却可能变差？',
-      'Why can training error keep falling while validation error gets worse?',
+      '在真实 California Housing 数据上，为什么训练误差继续下降，验证误差却可能变差？',
+      'On real California Housing data, why can training error keep falling while validation error gets worse?',
     ),
     concept: loc(
-      `知识点：过拟合发生在模型容量超过稳定规律所需时。模型把训练集里的噪声也当成规律，导致没见过的数据表现变差。`,
-      `Key idea: overfitting happens when model capacity exceeds what the stable pattern needs. The model treats training noise as signal and performs worse on unseen data.`,
+      `知识点：过拟合发生在模型容量超过稳定规律所需时。这里用 California Housing 的 MedInc → MedHouseVal 子集做诊断：模型如果为了少数训练街区剧烈弯折，验证街区上的误差就会抬头。`,
+      `Key idea: overfitting happens when model capacity exceeds what the stable pattern needs. Here the California Housing MedInc → MedHouseVal subset shows it directly: if the model bends hard for a few training block groups, validation error rises.`,
     ),
     workedExample: loc(
-      `比较两组结果：
+      `比较三组结果：
 
 | 模型 | 训练 MSE | 验证 MSE |
 |---|---:|---:|
-| 二阶多项式 | 25 | 30 |
-| 六阶多项式 | 12 | 80 |
+| degree 1 欠拟合 | 高 | 高 |
+| degree 3 泛化较好 | 中 | 低 |
+| degree 7 过拟合 | 低 | 高 |
 
-六阶模型训练更好，但泛化明显更差。`,
-      `Compare two outcomes:
+真实数据里不只看训练误差。degree 7 可能训练更好，但验证误差明显更差。`,
+      `Compare three outcomes:
 
 | Model | Train MSE | Validation MSE |
 |---|---:|---:|
-| Degree 2 | 25 | 30 |
-| Degree 6 | 12 | 80 |
+| Degree 1 underfit | high | high |
+| Degree 3 better generalization | medium | low |
+| Degree 7 overfit | low | high |
 
-The degree-6 model fits training better but generalizes much worse.`,
+On real data, do not read training error alone. Degree 7 can fit training better but generalize much worse.`,
     ),
     formula: loc(
       `泛化判断至少要同时看：
@@ -378,20 +380,20 @@ $$\\text{Train MSE}=\\frac{1}{N_{train}}\\sum e_i^2,\\quad \\text{Val MSE}=\\fra
 When they split, the training metric alone is not evidence of success.`,
     ),
     commonMistake: loc(
-      `不要把“训练误差最低”当成“模型最好”。如果验证误差升高，模型可能正在记住训练噪声。`,
-      `Do not treat "lowest training error" as "best model." If validation error rises, the model may be memorizing training noise.`,
+      `不要把“训练误差最低”当成“模型最好”。欠拟合常来自模型太简单、特征不足或训练不够；过拟合常来自容量过高、数据太少、噪声较大或训练太久。`,
+      `Do not treat "lowest training error" as "best model." Underfitting often comes from too little capacity, weak features, or insufficient training; overfitting often comes from too much capacity, too little data, noise, or training too long.`,
     ),
     visualAnimation: loc(
-      `实验卡会同时画训练/验证误差曲线；当验证曲线抬头时，过拟合提示会和弯折曲线一起出现。`,
-      `The lab draws train and validation error curves together. When the validation curve rises, the overfitting cue appears with the increasingly wavy fit.`,
+      `实验卡会同时画训练/验证点、训练/验证误差曲线和三联诊断；视频会把 degree 1、3、7 放在同一批真实点上比较。`,
+      `The lab draws train and validation points, error curves, and a three-panel diagnostic. The video compares degrees 1, 3, and 7 on the same real points.`,
     ),
     experimentDesign: loc(
-      `使用“高阶过拟合”预设，先播放到后半段，再降低阶数或噪声，比较两条误差曲线是否重新靠近。`,
-      `Use the high-degree overfit preset, play into the later epochs, then lower degree or noise and compare whether the two error curves move closer again.`,
+      `使用“高阶过拟合”预设，先播放到后半段，再把阶数从 7 降到 3。重点看验证 MSE、权重范数和曲线弯折是否一起下降。`,
+      `Use the high-degree overfit preset, play into the later epochs, then lower degree from 7 to 3. Watch validation MSE, weight norm, and curve roughness move together.`,
     ),
     sourceReference: loc(
-      `D2L 模型选择、过拟合和欠拟合；Google MLCC 泛化与验证集诊断。`,
-      `D2L model selection, overfitting, and underfitting; Google MLCC generalization and validation diagnostics.`,
+      `scikit-learn California Housing 与 underfitting/overfitting 示例；Google MLCC 泛化、验证集诊断和 L2 regularization。`,
+      `scikit-learn California Housing and underfitting/overfitting examples; Google MLCC generalization, validation diagnostics, and L2 regularization.`,
     ),
   },
   regularization: {
@@ -400,8 +402,8 @@ When they split, the training metric alone is not evidence of success.`,
       'How does regularization trade off fitting the training data against keeping the model restrained?',
     ),
     concept: loc(
-      `知识点：正则化把参数大小也写进目标函数。它允许训练误差稍高一点，换取更平滑、更稳定的模型。`,
-      `Key idea: regularization puts parameter size into the objective. It may accept slightly higher training error in exchange for a smoother and more stable model.`,
+      `知识点：正则化把参数大小也写进目标函数。接在 California Housing 的过拟合诊断之后，它回答的是：如果我们想保留高阶特征，又不想让权重失控，该怎样给复杂度加成本？`,
+      `Key idea: regularization puts parameter size into the objective. After the California Housing overfitting diagnosis, it asks: if we want to keep high-degree features without letting weights explode, how do we add a cost to complexity?`,
     ),
     workedExample: loc(
       `若当前 MSE 为 $24$，使用 L2 正则，$\\lambda=0.5$，权重为 $[3,1]$：
@@ -432,8 +434,8 @@ L2 tends to shrink weights overall; L1 more readily pushes some weights to zero.
       `The mini diagram shrinks large weight bars and shows a wavy curve becoming smoother to explain how regularization limits freedom.`,
     ),
     experimentDesign: loc(
-      `在“正则化约束”预设里切换 none、L1、L2，并逐步增大 $\\lambda$。重点比较权重范数、有效权重数量和验证 MSE。`,
-      `In the regularized preset, switch between none, L1, and L2 while increasing $\\lambda$. Compare weight norm, active weight count, and validation MSE.`,
+      `在同一批 California Housing 点上切换 none、L1、L2，并逐步增大 $\\lambda$。重点比较权重范数、有效权重数量、曲线弯折和验证 MSE。`,
+      `On the same California Housing points, switch between none, L1, and L2 while increasing $\\lambda$. Compare weight norm, active weight count, curve roughness, and validation MSE.`,
     ),
     sourceReference: loc(
       `D2L 权重衰减和正则化；CS357 最小二乘稳定性与病态问题；站内【梯度下降】学习率与参数路径。`,
@@ -675,25 +677,44 @@ The model is still linear in its weights, but the features are no longer just ra
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.linearRegression.sections.overfitting.title',
       markdown: loc(
-        `模型越复杂，不一定越好。高阶多项式可能把训练样本贴得很近，却在没见过的验证样本上表现变差。
+        `模型越复杂，不一定越好。这里开始换成真实的 **California Housing** 子集：横轴是街区收入中位数 **MedInc**，纵轴是街区房价中位数 **MedHouseVal**，目标单位是 10 万美元。
 
-这就是过拟合：模型记住了训练数据里的细碎波动，却没有学到更稳定的规律。
+同一批真实点上，三种模型会给出完全不同的诊断：
 
-本章要同时看两条曲线：训练误差和验证误差。训练误差下降不代表泛化能力一定变好。`,
-        `A more complex model is not automatically better. A high-degree polynomial may hug training samples closely while doing worse on validation samples.
+- **degree 1 欠拟合**：曲线太简单，训练和验证都偏高。
+- **degree 3 泛化较好**：抓住收入和房价之间的主要弯曲趋势。
+- **degree 7 过拟合**：训练误差更低，但曲线为了少数训练点剧烈摆动，验证误差升高。
 
-That is overfitting: the model memorizes small training fluctuations instead of learning a stable pattern.
+欠拟合可能来自模型太简单、特征不足或训练不够；过拟合可能来自模型容量过高、数据太少、噪声太大或训练太久。  
+本章先用真实数据把问题看清楚，下一章再回答：如果还想保留高阶特征，怎样用正则化让它别过度弯折。`,
+        `A more complex model is not automatically better. This chapter switches to a real **California Housing** subset: the x-axis is block-group median income **MedInc**, the y-axis is block-group median house value **MedHouseVal**, and the target unit is $100,000.
 
-Read two curves together here: training error and validation error. Falling training error does not guarantee better generalization.`,
+On the same real points, three models give different diagnoses:
+
+- **degree 1 underfits**: the curve is too simple, so train and validation errors both stay high.
+- **degree 3 generalizes better**: it captures the main bend between income and value.
+- **degree 7 overfits**: training error falls, but the curve swings for a few training points and validation error rises.
+
+Underfitting can come from too little capacity, weak features, or insufficient training; overfitting can come from too much capacity, too little data, noise, or training too long.  
+This chapter makes the diagnosis visible first, then the next chapter asks how regularization keeps high-degree features restrained.`,
       ),
       callout: loc(
-        '重点看训练 MSE 和验证 MSE 是否开始分叉。',
-        'Watch whether training MSE and validation MSE start to split apart.',
+        '用真实数据同时看训练点、验证点和三联诊断，不要只盯训练 MSE。',
+        'Read real training points, validation points, and the three-panel diagnostic together.',
       ),
       experimentPrompt: loc(
-        '使用高阶多项式播放训练，观察曲线是否为了贴合训练点而变得过度弯折。',
-        'Use a high-degree polynomial and watch whether the curve bends too much to chase training points.',
+        '先播放 degree 7，再把阶数降到 3。比较验证 MSE、权重范数和曲线弯折是否同步变小。',
+        'Play degree 7 first, then lower degree to 3. Compare validation MSE, weight norm, and curve roughness.',
       ),
+      media: {
+        title: loc('真实数据上的欠拟合、泛化较好与过拟合', 'Underfit, better fit, and overfit on real data'),
+        body: loc(
+          '同一批 California Housing 点上，degree 1 抓不住趋势，degree 3 保留主要弯曲，degree 7 为训练点剧烈摆动。',
+          'On the same California Housing points, degree 1 misses the trend, degree 3 keeps the main bend, and degree 7 swings for training points.',
+        ),
+        assetPath: '/manim/linear-regression/fit-comparison.mp4',
+        posterPath: '/manim/linear-regression/fit-comparison.svg',
+      },
       presetId: 'overfit-warning',
       metricEmphasis: ['loss'],
     },
@@ -702,28 +723,28 @@ Read two curves together here: training error and validation error. Falling trai
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.linearRegression.sections.regularization.title',
       markdown: loc(
-        `正则化是在损失函数里加入“别让参数太夸张”的提醒。
+        `过拟合章节里，degree 7 可以把训练点贴得更近，但代价是权重很大、曲线很抖、验证误差升高。正则化就是在损失函数里加入“别让参数太夸张”的提醒。
 
 L2 会惩罚权重平方，让权重整体变小；L1 会惩罚权重绝对值，更容易把一部分权重推向 0。
 
 $$\text{loss}=\text{MSE}+\lambda\cdot\text{penalty}(w)$$
 
-它不只是让训练误差更低，而是在训练误差和泛化能力之间做更稳的取舍。`,
-        `Regularization adds a reminder to the loss: do not let the weights become too extreme.
+它不是为了单独压低训练误差，而是在“保留高阶特征”和“避免过度弯折”之间做更稳的取舍。`,
+        `In the overfitting chapter, degree 7 can hug training points more closely, but the cost is large weights, a wavy curve, and higher validation error. Regularization adds a reminder to the loss: do not let the weights become too extreme.
 
 L2 penalizes squared weights and shrinks them overall. L1 penalizes absolute weights and more easily pushes some weights toward zero.
 
 $$\text{loss}=\text{MSE}+\lambda\cdot\text{penalty}(w)$$
 
-The goal is not merely lower training error. It is a better tradeoff between fit and generalization.`,
+The goal is not lower training error alone. It is a steadier tradeoff between keeping high-degree features and avoiding excessive bending.`,
       ),
       callout: loc(
-        '切换 L1 / L2，比较权重范数、有效权重数量和验证误差。',
-        'Switch L1 / L2 and compare weight norm, active weights, and validation error.',
+        '切换 L1 / L2，比较权重范数、有效权重数量、曲线弯折和验证误差。',
+        'Switch L1 / L2 and compare weight norm, active weights, curve roughness, and validation error.',
       ),
       experimentPrompt: loc(
-        '增大正则强度，观察曲线如何变平滑，以及哪些权重被压小。',
-        'Increase regularization strength and watch the curve smooth out as weights shrink.',
+        '保持 degree 7，逐步增大 λ。观察训练 MSE 可能上升，但验证 MSE 和曲线摆动会更稳定。',
+        'Keep degree 7 and increase λ. Training MSE may rise, while validation MSE and curve movement become steadier.',
       ),
       presetId: 'regularized-balance',
       metricEmphasis: ['loss'],
@@ -843,13 +864,13 @@ The goal is not merely lower training error. It is a better tradeoff between fit
     {
       id: 'overfit-warning',
       label: loc('高阶过拟合', 'High-degree overfit'),
-      description: loc('用六阶曲线观察训练误差下降和验证误差分叉。', 'Use a sixth-degree curve to watch training and validation errors split.'),
+      description: loc('用真实 California Housing 子集和七阶曲线观察训练误差下降、验证误差抬头。', 'Use a real California Housing subset and a seventh-degree curve to watch train and validation errors split.'),
       config: {
         scenario: 'overfit',
         learningRate: 0.06,
         epochs: 70,
         datasetNoise: 0.18,
-        polynomialDegree: 6,
+        polynomialDegree: 7,
         validationSplit: 0.35,
         regularizationType: 'none',
         lambda: 0,
@@ -858,13 +879,13 @@ The goal is not merely lower training error. It is a better tradeoff between fit
     {
       id: 'regularized-balance',
       label: loc('正则化约束', 'Regularized balance'),
-      description: loc('在高阶曲线上切换 L1 / L2，观察权重收缩与验证误差。', 'Switch L1 / L2 on a high-degree curve and compare weight shrinkage with validation error.'),
+      description: loc('在同一批真实数据上切换 L1 / L2，观察权重收缩、曲线平滑和验证误差。', 'Switch L1 / L2 on the same real data and compare weight shrinkage, smoothing, and validation error.'),
       config: {
         scenario: 'regularized',
         learningRate: 0.055,
         epochs: 70,
         datasetNoise: 0.16,
-        polynomialDegree: 6,
+        polynomialDegree: 7,
         validationSplit: 0.35,
         regularizationType: 'l2',
         lambda: 0.28,

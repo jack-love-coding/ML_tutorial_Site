@@ -43,7 +43,7 @@ test('ML content import plan documents source priorities and reusable chapter te
 
 test('logistic regression and MLP modules now follow the expanded teaching plan', () => {
   assert.equal(countChapterObjects(modulesSource, 'logistic-regression'), 5)
-  assert.equal([...mlpModuleSource.matchAll(/modules\.mlp\.sections\.[^.]+\.title/g)].length, 6)
+  assert.equal([...mlpModuleSource.matchAll(/\bchapter\(\s*'/g)].length, 8)
 
   for (const id of [
     "id: 'sigmoid'",
@@ -53,12 +53,14 @@ test('logistic regression and MLP modules now follow the expanded teaching plan'
   }
 
   for (const id of [
-    "'features'",
+    "'linearLimits'",
+    "'neuronAffine'",
     "'activations'",
-    "'reconfigure'",
+    "'hiddenRepresentation'",
+    "'forwardOutput'",
     "'backprop'",
-    "'capacity'",
-    "'generalization'",
+    "'trainingDynamics'",
+    "'capacityGeneralization'",
   ]) {
     assert.match(mlpModuleSource, new RegExp(id))
   }
@@ -66,10 +68,10 @@ test('logistic regression and MLP modules now follow the expanded teaching plan'
   for (const titleKey of [
     'sigmoid',
     'regularization',
-    'activations',
-    'backprop',
-    'generalization',
   ]) {
     assert.match(messagesSource, new RegExp(`${titleKey}: \\{`))
   }
+
+  assert.match(mlpModuleSource, /OpenStax/)
+  assert.match(mlpModuleSource, /CC BY-NC-SA/)
 })

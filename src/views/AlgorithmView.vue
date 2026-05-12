@@ -21,7 +21,8 @@ import LossFunctionsResults from '../components/LossFunctionsResults.vue'
 import LinearRegressionLessonLab from '../components/LinearRegressionLessonLab.vue'
 import LinearRegressionResults from '../components/LinearRegressionResults.vue'
 import LogisticRegressionLessonLab from '../components/LogisticRegressionLessonLab.vue'
-import MlpLessonLab from '../components/MlpLessonLab.vue'
+import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
+import { withPublicBase } from '../utils/publicPath'
 
 const route = useRoute()
 const router = useRouter()
@@ -30,6 +31,7 @@ const experimentStore = useExperimentStore()
 const { experiments } = storeToRefs(experimentStore)
 
 const activeChapter = ref('')
+const mlpPlaygroundRef = ref<HTMLElement | null>(null)
 
 const slug = computed(() => route.params.slug as ModuleSlug)
 const moduleDefinition = computed(() => moduleRegistry[slug.value])
@@ -107,6 +109,25 @@ const gradientFeaturedInsights = computed(() => gradientSectionInsights.value.sl
 function localizedText(copy?: { 'zh-CN': string; en: string }) {
   if (!copy) return ''
   return copy[locale.value as AppLocale]
+}
+
+function sectionTitle(section?: StorySection) {
+  if (!section) return ''
+  return localizedText(section.title) || t(section.titleKey)
+}
+
+function publicAsset(path?: string) {
+  return withPublicBase(path)
+}
+
+function visualAssetsFor(section?: StorySection) {
+  if (!section?.visualIds?.length) return []
+  const visualIds = new Set(section.visualIds)
+  return moduleDefinition.value?.visuals?.filter((asset) => visualIds.has(asset.id)) ?? []
+}
+
+function scrollToMlpPlayground() {
+  mlpPlaygroundRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 function sectionCompanionCopy(section?: StorySection) {
@@ -406,6 +427,24 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
           <h3>{{ t(section.titleKey) }}</h3>
           <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
 
+          <section v-if="section.media" class="story-media story-media--linear">
+            <div class="story-media__frame">
+              <video
+                controls
+                playsinline
+                preload="metadata"
+                :poster="publicAsset(section.media.posterPath)"
+                :aria-label="localizedText(section.media.title)"
+              >
+                <source :src="publicAsset(section.media.assetPath)" type="video/mp4" />
+              </video>
+            </div>
+            <div class="story-media__copy">
+              <span>{{ localizedText(section.media.title) }}</span>
+              <MarkdownMathContent :source="localizedText(section.media.body)" />
+            </div>
+          </section>
+
           <LinearRegressionLessonLab
             :config="experiment.config"
             :snapshot="snapshot"
@@ -496,31 +535,55 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       v-else-if="isMlpPage"
       class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--mlp-story"
     >
+      <section ref="mlpPlaygroundRef" class="mlp-playground-stage">
+        <MlpPlaygroundCockpit
+          :accent="moduleDefinition.accent"
+          :section="activeSection"
+        />
+      </section>
+
+      <button
+        type="button"
+        class="mlp-playground-jump"
+        :aria-label="locale === 'zh-CN' ? '回到 MLP 实验台' : 'Back to MLP playground'"
+        @click="scrollToMlpPlayground"
+      >
+        <span>{{ locale === 'zh-CN' ? '实验台' : 'Lab' }}</span>
+        <strong>↑</strong>
+      </button>
+
       <StoryScroller
         :sections="moduleDefinition.chapters"
         :active-id="activeChapter"
         @change="onChapterChange"
       >
         <template #section="{ section, localizedText: slotLocalizedText }">
-          <h3>{{ t(section.titleKey) }}</h3>
+          <h3>{{ sectionTitle(section) }}</h3>
           <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
 
-          <MlpLessonLab
-            :config="experiment.config"
-            :snapshot="snapshot"
-            :snapshots="experiment.snapshots"
-            :current-step="experiment.currentStep"
-            :is-playing="experiment.isPlaying"
-            :accent="moduleDefinition.accent"
-            :section="section"
-            :presets="moduleDefinition.presets"
-            @patch-config="patchConfig"
-            @toggle-play="experimentStore.togglePlayback(slug)"
-            @step="experimentStore.advance(slug)"
-            @replay="experimentStore.replay(slug)"
-            @reset="experimentStore.reset(slug)"
-            @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
-          />
+          <div v-if="visualAssetsFor(section).length" class="mlp-story-visuals">
+            <figure
+              v-for="asset in visualAssetsFor(section)"
+              :key="asset.id"
+              class="mlp-story-visual"
+              :class="`mlp-story-visual--${asset.type}`"
+            >
+              <video
+                v-if="asset.type === 'manim-video'"
+                controls
+                preload="metadata"
+                playsinline
+                :poster="publicAsset(asset.posterPath)"
+              >
+                <source :src="publicAsset(asset.assetPath)" type="video/mp4" />
+              </video>
+              <img v-else :src="publicAsset(asset.assetPath)" :alt="localizedText(asset.title)" loading="lazy" />
+              <figcaption>
+                <strong>{{ localizedText(asset.title) }}</strong>
+                <span>{{ localizedText(asset.caption) }}</span>
+              </figcaption>
+            </figure>
+          </div>
 
           <div class="story-companion story-companion--lesson">
             <section class="story-companion__panel story-companion__panel--guide">
@@ -531,6 +594,19 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
               <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
                 {{ localizedText(section.experimentPrompt) }}
               </div>
+            </section>
+
+            <section v-if="section.sources?.length" class="story-companion__panel story-companion__panel--sources">
+              <div class="panel__heading">
+                <span>{{ locale === 'zh-CN' ? '来源' : 'Sources' }}</span>
+                <strong>{{ locale === 'zh-CN' ? '改写与归因' : 'Rewrite and attribution' }}</strong>
+              </div>
+              <ul class="mlp-source-list">
+                <li v-for="source in section.sources" :key="source.href">
+                  <a :href="source.href" target="_blank" rel="noreferrer">{{ localizedText(source.label) }}</a>
+                  <small v-if="source.license">{{ source.license }}</small>
+                </li>
+              </ul>
             </section>
           </div>
         </template>
@@ -697,21 +773,6 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
           </p>
           <small>{{ locale === 'zh-CN' ? '进入 MLP' : 'Open MLP' }}</small>
         </router-link>
-      </section>
-    </section>
-
-    <section v-else-if="isMlpPage" class="results-grid results-grid--mlp">
-      <LineChart :slug="slug" :snapshots="experiment.snapshots" :current-step="experiment.currentStep" />
-
-      <section class="panel lesson-panel">
-        <div class="panel__heading">
-          <span>{{ t('common.results') }}</span>
-          <strong>{{ activeSection ? t(activeSection.titleKey) : t(moduleDefinition.titleKey) }}</strong>
-        </div>
-        <p class="lesson-panel__callout">{{ localizedText(activeSection?.callout) }}</p>
-        <div v-if="localizedText(activeSection?.experimentPrompt)" class="lesson-panel__prompt">
-          {{ localizedText(activeSection?.experimentPrompt) }}
-        </div>
       </section>
     </section>
 

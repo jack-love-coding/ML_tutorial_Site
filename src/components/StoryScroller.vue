@@ -23,6 +23,10 @@ function localizedText(copy?: { 'zh-CN': string; en: string }) {
   return copy[locale.value as AppLocale]
 }
 
+function sectionTitle(section: StorySection) {
+  return localizedText(section.title) || t(section.titleKey)
+}
+
 function setSectionRef(element: Element | ComponentPublicInstance | null, index: number) {
   if (!element) return
   sectionRefs.value[index] = ('$el' in element ? element.$el : element) as HTMLElement
@@ -85,7 +89,7 @@ onBeforeUnmount(() => {
         @click="jumpToSection(index)"
       >
         <span>{{ `0${index + 1}` }}</span>
-        <small>{{ t(section.titleKey) }}</small>
+        <small>{{ sectionTitle(section) }}</small>
       </button>
     </nav>
 
@@ -111,7 +115,7 @@ onBeforeUnmount(() => {
           :is-active="props.activeId === section.id"
           :localized-text="localizedText"
         >
-          <h3>{{ t(section.titleKey) }}</h3>
+          <h3>{{ sectionTitle(section) }}</h3>
           <MarkdownMathContent :source="localizedText(section.markdown)" />
         </slot>
       </article>

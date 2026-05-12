@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Capacity overfitting poster">
+  <rect width="960" height="540" fill="#f8fbff"/>
+  <g transform="translate(60 126)">
+    <g stroke="#102a4c" stroke-width="4"><path d="M0 280V0M0 280H240"/></g>
+    <path d="M0 238L238 60" stroke="#4f8b5c" stroke-width="7" fill="none"/>
+    <g fill="#256bd9"><circle cx="38" cy="74" r="7"/><circle cx="74" cy="96" r="7"/><circle cx="126" cy="118" r="7"/></g>
+    <g fill="#e26d3d"><circle cx="70" cy="226" r="7"/><circle cx="142" cy="208" r="7"/><circle cx="202" cy="218" r="7"/></g>
+  </g>
+  <g transform="translate(360 126)">
+    <g stroke="#102a4c" stroke-width="4"><path d="M0 280V0M0 280H240"/></g>
+    <path d="M0 260C72 220 100 158 132 128C166 96 190 78 238 70" stroke="#4f8b5c" stroke-width="7" fill="none"/>
+    <g fill="#256bd9"><circle cx="34" cy="74" r="7"/><circle cx="78" cy="86" r="7"/><circle cx="144" cy="82" r="7"/></g>
+    <g fill="#e26d3d"><circle cx="64" cy="226" r="7"/><circle cx="138" cy="214" r="7"/><circle cx="204" cy="218" r="7"/></g>
+  </g>
+  <g transform="translate(660 126)">
+    <g stroke="#102a4c" stroke-width="4"><path d="M0 280V0M0 280H240"/></g>
+    <path d="M6 230C32 170 58 262 84 202C112 136 144 228 168 122C190 44 214 118 238 68" stroke="#4f8b5c" stroke-width="7" fill="none"/>
+    <g fill="#256bd9"><circle cx="36" cy="74" r="7"/><circle cx="80" cy="96" r="7"/><circle cx="142" cy="82" r="7"/></g>
+    <g fill="#e26d3d"><circle cx="58" cy="230" r="7"/><circle cx="132" cy="210" r="7"/><circle cx="208" cy="226" r="7"/></g>
+  </g>
+  <text x="72" y="56" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Capacity changes boundary shape</text>
+</svg>

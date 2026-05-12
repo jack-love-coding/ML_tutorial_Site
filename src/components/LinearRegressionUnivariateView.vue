@@ -18,6 +18,9 @@ const dataPadding = 46
 const stateWidth = 360
 const stateHeight = 220
 const statePadding = 28
+const diagnosticWidth = 260
+const diagnosticHeight = 168
+const diagnosticPadding = 28
 
 const copy = computed(() =>
   locale.value === 'zh-CN'
@@ -48,6 +51,8 @@ const copy = computed(() =>
 const samples = computed(() => props.snapshot?.regressionSamples ?? [])
 const fit = computed(() => props.snapshot?.regressionFit)
 const fitCurve = computed(() => props.snapshot?.fitCurve ?? [])
+const regressionMeta = computed(() => props.snapshot?.regressionMeta)
+const fitDiagnostics = computed(() => props.snapshot?.fitDiagnostics)
 const highlightIndex = computed(() => Number(props.snapshot?.derivedMetrics?.highlightIndex ?? 0))
 const showValidation = computed(() =>
   props.sectionId === 'overfitting' || props.sectionId === 'regularization',
@@ -67,15 +72,8 @@ const domain = computed(() => {
         }))
       : []),
   ]
-  const xValues = visiblePoints.map((sample) => sample.x)
-  const yValues = visiblePoints.map((sample) => sample.y)
 
-  return {
-    xMin: Math.min(...xValues, 40) - 8,
-    xMax: Math.max(...xValues, 190) + 8,
-    yMin: Math.min(...yValues, 80) - 18,
-    yMax: Math.max(...yValues, 340) + 18,
-  }
+  return paddedDomain(visiblePoints)
 })
 
 const fitLine = computed(() => {
@@ -93,6 +91,15 @@ const fitLine = computed(() => {
 })
 
 const visibleFitPoints = computed(() => (fitCurve.value.length ? fitCurve.value : fitLine.value))
+const axisCopy = computed(() => ({
+  xLabel: regressionMeta.value?.xLabel[locale.value as 'zh-CN' | 'en'] ?? copy.value.area,
+  yLabel: regressionMeta.value?.yLabel[locale.value as 'zh-CN' | 'en'] ?? copy.value.price,
+  xUnit: regressionMeta.value?.xUnit[locale.value as 'zh-CN' | 'en'] ?? 'm2',
+  yUnit: regressionMeta.value?.yUnit[locale.value as 'zh-CN' | 'en'] ?? 'w',
+  sourceNote: fitDiagnostics.value?.sourceNote[locale.value as 'zh-CN' | 'en'] ?? '',
+}))
+
+const dataHeading = computed(() => `${axisCopy.value.xLabel} -> ${axisCopy.value.yLabel}`)
 
 const residualSegments = computed(() =>
   samples.value.map((sample, index) => {
@@ -171,6 +178,30 @@ function predict(area: number) {
   return 0
 }
 
+function paddedDomain(points: PlotPoint[]) {
+  const finitePoints = points.filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y))
+
+  if (!finitePoints.length) {
+    return { xMin: 32, xMax: 238, yMin: 60, yMax: 380 }
+  }
+
+  const xValues = finitePoints.map((point) => point.x)
+  const yValues = finitePoints.map((point) => point.y)
+  const minX = Math.min(...xValues)
+  const maxX = Math.max(...xValues)
+  const minY = Math.min(...yValues)
+  const maxY = Math.max(...yValues)
+  const xPadding = Math.max((maxX - minX) * 0.08, 0.35)
+  const yPadding = Math.max((maxY - minY) * 0.12, 0.18)
+
+  return {
+    xMin: minX - xPadding,
+    xMax: maxX + xPadding,
+    yMin: minY - yPadding,
+    yMax: maxY + yPadding,
+  }
+}
+
 function mapDataX(value: number) {
   return (
     dataPadding +
@@ -220,6 +251,42 @@ function pointOnStateLine(values: number[], index: number) {
     y: stateHeight - statePadding - ((value - min) / (max - min || 1)) * (stateHeight - statePadding * 2),
   }
 }
+
+function diagnosticDomain(item: NonNullable<TrainingSnapshot['fitDiagnostics']>['items'][number]) {
+  const visiblePoints = [...samples.value, ...item.curve]
+  const xValues = visiblePoints.map((point) => point.x)
+  const yValues = visiblePoints.map((point) => point.y)
+
+  return {
+    xMin: Math.min(...xValues) - 0.18,
+    xMax: Math.max(...xValues) + 0.18,
+    yMin: Math.min(...yValues) - 0.2,
+    yMax: Math.max(...yValues) + 0.2,
+  }
+}
+
+function mapDiagnosticX(value: number, item: NonNullable<TrainingSnapshot['fitDiagnostics']>['items'][number]) {
+  const itemDomain = diagnosticDomain(item)
+  return (
+    diagnosticPadding +
+    ((value - itemDomain.xMin) / (itemDomain.xMax - itemDomain.xMin || 1)) *
+      (diagnosticWidth - diagnosticPadding * 2)
+  )
+}
+
+function mapDiagnosticY(value: number, item: NonNullable<TrainingSnapshot['fitDiagnostics']>['items'][number]) {
+  const itemDomain = diagnosticDomain(item)
+  return (
+    diagnosticHeight -
+    diagnosticPadding -
+    ((value - itemDomain.yMin) / (itemDomain.yMax - itemDomain.yMin || 1)) *
+      (diagnosticHeight - diagnosticPadding * 2)
+  )
+}
+
+function diagnosticPolyline(item: NonNullable<TrainingSnapshot['fitDiagnostics']>['items'][number]) {
+  return item.curve.map((point) => `${mapDiagnosticX(point.x, item)},${mapDiagnosticY(point.y, item)}`).join(' ')
+}
 </script>
 
 <template>
@@ -227,7 +294,7 @@ function pointOnStateLine(values: number[], index: number) {
     <section class="linear-regression-lab__panel linear-regression-lab__panel--data">
       <div class="linear-regression-lab__heading">
         <span>{{ copy.dataSpace }}</span>
-        <strong>{{ copy.area }} -> {{ copy.price }}</strong>
+        <strong>{{ dataHeading }}</strong>
       </div>
       <svg
         :viewBox="`0 0 ${dataWidth} ${dataHeight}`"
@@ -249,10 +316,10 @@ function pointOnStateLine(values: number[], index: number) {
           :y2="dataHeight - dataPadding"
           class="linear-axis"
         />
-        <text :x="dataWidth - 118" :y="dataHeight - 16" class="linear-axis-label">
-          {{ copy.area }} (m2)
+        <text :x="dataWidth - 12" :y="dataHeight - 16" class="linear-axis-label" text-anchor="end">
+          {{ axisCopy.xLabel }} ({{ axisCopy.xUnit }})
         </text>
-        <text :x="12" :y="32" class="linear-axis-label">{{ copy.price }} (w)</text>
+        <text :x="12" :y="32" class="linear-axis-label">{{ axisCopy.yLabel }} ({{ axisCopy.yUnit }})</text>
         <line
           v-for="segment in residualSegments"
           :key="segment.id"
@@ -321,6 +388,74 @@ function pointOnStateLine(values: number[], index: number) {
         <span><i class="legend-dot legend-dot--train"></i>{{ copy.train }}</span>
         <span><i class="legend-dot legend-dot--validation"></i>{{ copy.validation }}</span>
       </div>
+    </section>
+
+    <section v-if="fitDiagnostics" class="linear-regression-lab__diagnostics">
+      <div class="linear-regression-lab__heading">
+        <span>{{ locale === 'zh-CN' ? '真实数据诊断' : 'Real-data diagnostics' }}</span>
+        <strong>Degree 1 / 3 / 7</strong>
+      </div>
+      <div class="linear-regression-lab__diagnostic-grid">
+        <article
+          v-for="item in fitDiagnostics.items"
+          :key="item.id"
+          class="linear-regression-lab__diagnostic"
+          :class="`is-${item.id}`"
+        >
+          <header>
+            <span>{{ item.label[locale as 'zh-CN' | 'en'] }}</span>
+            <strong>degree {{ item.degree }}</strong>
+          </header>
+          <svg
+            :viewBox="`0 0 ${diagnosticWidth} ${diagnosticHeight}`"
+            class="linear-regression-lab__diagnostic-svg"
+            role="img"
+            :aria-label="item.label[locale as 'zh-CN' | 'en']"
+          >
+            <line
+              :x1="diagnosticPadding"
+              :x2="diagnosticWidth - diagnosticPadding"
+              :y1="diagnosticHeight - diagnosticPadding"
+              :y2="diagnosticHeight - diagnosticPadding"
+              class="linear-axis"
+            />
+            <line
+              :x1="diagnosticPadding"
+              :x2="diagnosticPadding"
+              :y1="diagnosticPadding"
+              :y2="diagnosticHeight - diagnosticPadding"
+              class="linear-axis"
+            />
+            <polyline :points="diagnosticPolyline(item)" class="linear-diagnostic-fit" />
+            <circle
+              v-for="(sample, index) in samples"
+              :key="`${item.id}-${sample.x}-${index}`"
+              :cx="mapDiagnosticX(sample.x, item)"
+              :cy="mapDiagnosticY(sample.y, item)"
+              :r="sample.split === 'validation' ? 4.8 : 4"
+              class="linear-sample"
+              :class="{ 'is-validation': sample.split === 'validation' }"
+            />
+          </svg>
+          <dl>
+            <div>
+              <dt>{{ copy.train }}</dt>
+              <dd>{{ item.trainMse.toFixed(2) }}</dd>
+            </div>
+            <div>
+              <dt>{{ copy.validation }}</dt>
+              <dd>{{ item.validationMse.toFixed(2) }}</dd>
+            </div>
+            <div>
+              <dt>{{ locale === 'zh-CN' ? '权重范数' : 'Weight norm' }}</dt>
+              <dd>{{ item.weightNorm.toFixed(2) }}</dd>
+            </div>
+          </dl>
+          <p>{{ item.cause[locale as 'zh-CN' | 'en'] }}</p>
+          <p>{{ item.response[locale as 'zh-CN' | 'en'] }}</p>
+        </article>
+      </div>
+      <p class="linear-regression-lab__source-note">{{ axisCopy.sourceNote }}</p>
     </section>
   </div>
 </template>

@@ -34,20 +34,33 @@ test('MLP is promoted to an independent guided module', () => {
     'MLP should follow the legacy logistic-regression module in the public course order',
   )
 
-  assert.equal([...mlpModuleSource.matchAll(/modules\.mlp\.sections\.[^.]+\.title/g)].length, 6)
-  for (const id of ['features', 'activations', 'reconfigure', 'backprop', 'capacity', 'generalization']) {
+  assert.equal([...mlpModuleSource.matchAll(/titleKey: `modules\.mlp\.sections\.\$\{id\}\.title`/g)].length, 1)
+  for (const id of [
+    'linearLimits',
+    'neuronAffine',
+    'activations',
+    'hiddenRepresentation',
+    'forwardOutput',
+    'backprop',
+    'trainingDynamics',
+    'capacityGeneralization',
+  ]) {
     assert.match(mlpModuleSource, new RegExp(`'${id}'`))
   }
 
-  assert.match(algorithmViewSource, /MlpLessonLab/)
+  assert.match(algorithmViewSource, /MlpPlaygroundCockpit/)
   assert.match(algorithmViewSource, /slug\.value === 'mlp'/)
+  assert.match(algorithmViewSource, /visualAssetsFor/)
+  assert.match(algorithmViewSource, /mlp-playground-stage/)
+  assert.match(algorithmViewSource, /mlp-playground-jump/)
+  assert.doesNotMatch(algorithmViewSource, /<MlpLessonLab/)
+  assert.doesNotMatch(algorithmViewSource, /mlp-playground-rail/)
 })
 
-test('three professional lesson labs use the shared workbench shell', () => {
+test('professional lesson labs keep the shared workbench shell where it is still used', () => {
   for (const path of [
     'src/components/GradientChapterLab.vue',
     'src/components/LinearRegressionLessonLab.vue',
-    'src/components/MlpLessonLab.vue',
   ]) {
     const source = read(path)
     assert.match(source, /LessonWorkbench/)
@@ -62,8 +75,30 @@ test('three professional lesson labs use the shared workbench shell', () => {
     assert.match(workbenchSource, new RegExp(`name="${slotName}"`))
   }
 
-  const mlpSource = read('src/components/MlpLessonLab.vue')
-  assert.doesNotMatch(mlpSource, /variant="cockpit"/)
+  const mlpCockpitSource = read('src/components/MlpPlaygroundCockpit.vue')
+  assert.match(mlpCockpitSource, /createMlpPlaygroundSession/)
+  assert.match(mlpCockpitSource, /data-testid="mlp-output-heatmap"/)
+  assert.match(mlpCockpitSource, /data-testid="mlp-network-graph"/)
+})
+
+test('MLP module declares sources and project-local visual assets', () => {
+  const mlpModuleSource = read('src/data/mlpModule.ts')
+  for (const source of ['d2l.ai', 'developers.google.com', 'openstax.org', 'playground.tensorflow.org', 'github.com/tensorflow/playground']) {
+    assert.match(mlpModuleSource, new RegExp(source.replaceAll('.', '\\.')))
+  }
+
+  for (const assetPath of [
+    'public/mlp/generated/affine-activation-map.png',
+    'public/mlp/generated/hidden-space-rewrite.png',
+    'public/mlp/generated/backprop-responsibility.png',
+    'public/mlp/generated/capacity-generalization.png',
+    'public/manim/mlp/affine-activation.mp4',
+    'public/manim/mlp/hidden-rewrite.mp4',
+    'public/manim/mlp/backprop-responsibility.mp4',
+    'public/manim/mlp/capacity-overfitting.mp4',
+  ]) {
+    assert.ok(statSync(new URL(assetPath, root)).isFile(), `${assetPath} should exist`)
+  }
 })
 
 test('source files do not keep common mojibake fragments', () => {

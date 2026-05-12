@@ -115,6 +115,44 @@ test('advanced linear regression scenarios expose the intended teaching signals'
   assert.ok(Number(lasso.derivedMetrics?.activeWeights ?? 0) <= Number(unregularized.derivedMetrics?.activeWeights ?? 0))
 })
 
+test('california housing overfit view exposes real-data diagnostics', () => {
+  const snapshot = simulateLinearRegression({
+    scenario: 'overfit',
+    polynomialDegree: 7,
+    epochs: 70,
+  }).snapshots.at(-1)
+
+  assert.ok(snapshot, 'expected a final overfit snapshot')
+  assert.equal(snapshot.regressionMeta?.sourceName, 'scikit-learn California Housing')
+  assert.equal(snapshot.regressionMeta?.datasetSize, 20640)
+  assert.equal(snapshot.regressionMeta?.featureCount, 8)
+  assert.equal(snapshot.regressionMeta?.featureName, 'MedInc')
+  assert.equal(snapshot.regressionMeta?.targetName, 'MedHouseVal')
+
+  const samples = snapshot.regressionSamples ?? []
+  const trainCount = samples.filter((sample) => sample.split === 'train').length
+  const validationCount = samples.filter((sample) => sample.split === 'validation').length
+  assert.equal(samples.length, 27)
+  assert.equal(trainCount, 18)
+  assert.equal(validationCount, 9)
+
+  const diagnostics = snapshot.fitDiagnostics?.items ?? []
+  assert.equal(diagnostics.length, 3)
+  const underfit = diagnostics.find((item) => item.id === 'underfit')
+  const balanced = diagnostics.find((item) => item.id === 'balanced')
+  const overfit = diagnostics.find((item) => item.id === 'overfit')
+
+  assert.ok(underfit && balanced && overfit, 'expected underfit, balanced, and overfit diagnostics')
+  assert.equal(underfit.degree, 1)
+  assert.equal(balanced.degree, 3)
+  assert.equal(overfit.degree, 7)
+  assert.ok(underfit.validationMse > balanced.validationMse, 'degree 1 should underfit validation data')
+  assert.ok(overfit.trainMse < balanced.trainMse, 'degree 7 should reduce training error')
+  assert.ok(overfit.validationMse > balanced.validationMse, 'degree 7 should hurt validation error')
+  assert.ok(overfit.weightNorm > balanced.weightNorm, 'overfit model should use larger weights')
+  assert.ok(overfit.curve.length >= 64, 'diagnostic curves should be renderable')
+})
+
 test('linear regression lessons use richer housing datasets for visual teaching', () => {
   const simple = simulateLinearRegression({
     scenario: 'linear',
