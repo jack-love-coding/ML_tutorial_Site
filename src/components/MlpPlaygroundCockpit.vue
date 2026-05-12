@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type {
   AppLocale,
@@ -20,7 +20,9 @@ import {
   normalizeMlpPlaygroundState,
 } from '../simulations/mlpPlayground'
 import { round } from '../utils/math'
-import MlpNodeHeatmap from './MlpNodeHeatmap.vue'
+import MlpNetworkGraph from './MlpNetworkGraph.vue'
+import MlpOutputFitMap from './MlpOutputFitMap.vue'
+import MlpTrainingTimeline from './MlpTrainingTimeline.vue'
 
 const props = defineProps<{
   accent: string
@@ -28,14 +30,14 @@ const props = defineProps<{
 }>()
 
 const { locale } = useI18n()
-const outputCanvasRef = ref<HTMLCanvasElement>()
 const state = ref<MlpPlaygroundState>(normalizeMlpPlaygroundState(DEFAULT_MLP_PLAYGROUND_STATE))
 const session = shallowRef(createMlpPlaygroundSession(state.value))
 const snapshot = shallowRef<MlpPlaygroundSnapshot>(session.value.snapshot())
+const previousSnapshot = shallowRef<MlpPlaygroundSnapshot>()
+const contourHistory = shallowRef<MlpPlaygroundSnapshot[]>([snapshot.value])
 const isPlaying = ref(false)
 let timer: number | undefined
 
-const networkWidth = 680
 const classificationDatasets: MlpClassificationDataset[] = ['circle', 'xor', 'gauss', 'spiral']
 const regressionDatasets: MlpRegressionDataset[] = ['plane', 'gaussian']
 const activations: MlpActivationKind[] = ['tanh', 'relu', 'sigmoid', 'linear']
@@ -43,62 +45,73 @@ const regularizations: MlpRegularizationType[] = ['none', 'l1', 'l2']
 const learningRates = [0.00001, 0.0001, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3, 10]
 const regularizationRates = [0, 0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3, 10]
 
+type MlpDatasetKey = MlpClassificationDataset | MlpRegressionDataset
+
+interface MlpFitAdvice {
+  title: string
+  summary: string
+  chips: string[]
+  config: Partial<MlpPlaygroundState>
+}
+
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
         title: 'MLP Playground',
-        subtitle: '保留 TensorFlow Playground 的原版工作台风格',
+        subtitle: '用热力图、等值线和网络内部状态观察拟合过程',
         task: '当前章节任务',
         play: '播放',
         pause: '暂停',
         step: '单步',
         reset: '重置',
         regenerate: '重新生成',
-        problem: 'Problem type',
-        classification: 'Classification',
-        regression: 'Regression',
-        data: 'DATA',
-        dataQuestion: 'Which dataset do you want to use?',
-        features: 'FEATURES',
-        featureQuestion: 'Which properties do you want to feed in?',
-        output: 'OUTPUT',
-        hiddenLayers: 'HIDDEN LAYERS',
-        activation: 'Activation',
-        regularization: 'Regularization',
-        learningRate: 'Learning rate',
-        regularizationRate: 'Regularization rate',
-        batchSize: 'Batch size',
-        noise: 'Noise',
-        trainRatio: 'Ratio of training to test data',
-        showTestData: 'Show test data',
-        discretize: 'Discretize output',
-        lossCurve: 'Loss curve',
-        trainLoss: 'Training loss',
-        testLoss: 'Test loss',
-        trainAccuracy: 'Train accuracy',
-        testAccuracy: 'Test accuracy',
-        trainScore: 'Train R2',
-        testScore: 'Test R2',
-        weightNorm: 'Weight norm',
-        activeWeights: 'Active weights',
-        gradientNorm: 'Gradient norm',
+        problem: '任务类型',
+        classification: '分类',
+        regression: '回归',
+        data: '数据',
+        dataQuestion: '选择一个要拟合的数据形状',
+        features: '输入特征',
+        featureQuestion: '决定哪些信号进入网络',
+        output: '输出拟合图',
+        hiddenLayers: '隐藏层',
+        activation: '激活函数',
+        regularization: '正则化',
+        learningRate: '学习率',
+        regularizationRate: '正则强度',
+        batchSize: '批大小',
+        noise: '噪声',
+        trainRatio: '训练集比例',
+        showTestData: '显示测试集',
+        discretize: '离散化输出',
+        lossCurve: '损失曲线',
+        trainLoss: '训练损失',
+        testLoss: '测试损失',
+        trainAccuracy: '训练准确率',
+        testAccuracy: '测试准确率',
+        trainScore: '训练 R2',
+        testScore: '测试 R2',
+        weightNorm: '权重范数',
+        activeWeights: '有效连接',
+        gradientNorm: '梯度强度',
         iteration: 'Epoch',
-        neurons: 'neurons',
+        neurons: '个神经元',
         noHiddenLayers: '0',
-        colorLegend: 'Colors show data, neuron and weight values.',
+        colorLegend: '橙色偏向 -1，蓝色偏向 +1；白色附近是边界。',
+        outputHint: '粗线是当前 0 等值线，淡线是最近几次训练留下的边界轨迹。',
+        networkHint: '线条颜色表示权重正负，粗细表示权重大小，节点小图显示该节点对输入平面的响应。',
         datasets: {
-          circle: 'Circle',
+          circle: '同心圆',
           xor: 'XOR',
-          gauss: 'Gaussian',
-          spiral: 'Spiral',
-          plane: 'Plane',
-          gaussian: 'Gaussian field',
+          gauss: '高斯团块',
+          spiral: '双螺旋',
+          plane: '平面',
+          gaussian: '高斯场',
         },
         focus: {
-          dataset: '观察数据分布与输出区域是否匹配。',
+          dataset: '先比较数据分布和输出等值线是否匹配。',
           features: '先看输入节点热力图，再看隐藏层如何组合这些特征。',
           network: '读取节点热力图和权重线，理解输出如何被组合出来。',
-          activations: '只切换激活函数，比较节点响应形状和 loss 曲线。',
+          activations: '只切换激活函数，比较节点响应形状、边界和 loss 曲线。',
           loss: '单步训练，观察 loss、权重、bias 和输出热力图是否同步变化。',
           regularization: '切换 L1/L2，观察权重线是否变细或被剪掉。',
           generalization: '同时读训练 loss 与测试 loss，判断是否正在记住噪声。',
@@ -106,7 +119,7 @@ const copy = computed(() =>
       }
     : {
         title: 'MLP Playground',
-        subtitle: 'TensorFlow Playground style neural-network workbench',
+        subtitle: 'Read fitting through heatmaps, contours, and internal network state',
         task: 'Current chapter task',
         play: 'Play',
         pause: 'Pause',
@@ -116,19 +129,19 @@ const copy = computed(() =>
         problem: 'Problem type',
         classification: 'Classification',
         regression: 'Regression',
-        data: 'DATA',
-        dataQuestion: 'Which dataset do you want to use?',
-        features: 'FEATURES',
-        featureQuestion: 'Which properties do you want to feed in?',
-        output: 'OUTPUT',
-        hiddenLayers: 'HIDDEN LAYERS',
+        data: 'Data',
+        dataQuestion: 'Choose the shape to fit',
+        features: 'Input features',
+        featureQuestion: 'Choose which signals enter the network',
+        output: 'Output fit',
+        hiddenLayers: 'Hidden layers',
         activation: 'Activation',
         regularization: 'Regularization',
         learningRate: 'Learning rate',
         regularizationRate: 'Regularization rate',
         batchSize: 'Batch size',
         noise: 'Noise',
-        trainRatio: 'Ratio of training to test data',
+        trainRatio: 'Train split',
         showTestData: 'Show test data',
         discretize: 'Discretize output',
         lossCurve: 'Loss curve',
@@ -144,7 +157,9 @@ const copy = computed(() =>
         iteration: 'Epoch',
         neurons: 'neurons',
         noHiddenLayers: '0',
-        colorLegend: 'Colors show data, neuron and weight values.',
+        colorLegend: 'Orange leans -1, blue leans +1; white is near the boundary.',
+        outputHint: 'The bold line is the current zero contour; pale lines are recent boundary traces.',
+        networkHint: 'Link color shows weight sign, width shows weight size, and node maps show each response over the input plane.',
         datasets: {
           circle: 'Circle',
           xor: 'XOR',
@@ -154,10 +169,10 @@ const copy = computed(() =>
           gaussian: 'Gaussian field',
         },
         focus: {
-          dataset: 'Compare data distribution with the output regions.',
+          dataset: 'Compare data distribution with the output contour.',
           features: 'Read input-node heatmaps first, then see how hidden layers combine those signals.',
           network: 'Read every node heatmap and weight link to understand how the output is composed.',
-          activations: 'Change only the activation and compare node response shapes plus loss curves.',
+          activations: 'Change only the activation and compare node response shapes, boundary, and loss curves.',
           loss: 'Step training and watch loss, weights, biases, and output heatmap move together.',
           regularization: 'Switch L1/L2 and watch whether links thin out or get pruned.',
           generalization: 'Read train loss and test loss together to detect noise memorization.',
@@ -178,15 +193,27 @@ function stopPlayback() {
   isPlaying.value = false
 }
 
-function sync(nextSnapshot: MlpPlaygroundSnapshot) {
+function sync(nextSnapshot: MlpPlaygroundSnapshot, options: { clearHistory?: boolean } = {}) {
+  previousSnapshot.value = options.clearHistory ? undefined : snapshot.value
   snapshot.value = nextSnapshot
   state.value = nextSnapshot.state
-  void nextTick(drawOutput)
+
+  if (options.clearHistory) {
+    contourHistory.value = [nextSnapshot]
+    return
+  }
+
+  const last = contourHistory.value.at(-1)
+  if (!last || last.iteration !== nextSnapshot.iteration) {
+    contourHistory.value = [...contourHistory.value, nextSnapshot].slice(-6)
+  } else {
+    contourHistory.value = [...contourHistory.value.slice(0, -1), nextSnapshot]
+  }
 }
 
 function resetWith(partial: Partial<MlpPlaygroundState> = {}) {
   stopPlayback()
-  sync(session.value.reset({ ...state.value, ...partial }))
+  sync(session.value.reset({ ...state.value, ...partial }), { clearHistory: true })
 }
 
 function updateWithoutReset(partial: Partial<MlpPlaygroundState>) {
@@ -209,7 +236,7 @@ function togglePlayback() {
 
 function regenerateData() {
   stopPlayback()
-  sync(session.value.regenerateData())
+  sync(session.value.regenerateData(), { clearHistory: true })
 }
 
 function chooseDataset(dataset: MlpClassificationDataset | MlpRegressionDataset) {
@@ -224,6 +251,10 @@ function isDatasetActive(dataset: MlpClassificationDataset | MlpRegressionDatase
   return state.value.problemType === 'classification'
     ? state.value.classificationDataset === dataset
     : state.value.regressionDataset === dataset
+}
+
+function datasetLabel(dataset: MlpClassificationDataset | MlpRegressionDataset) {
+  return copy.value.datasets[dataset]
 }
 
 function toggleFeature(featureKey: MlpFeatureKey) {
@@ -310,64 +341,151 @@ function quickPreset(kind: 'xor' | 'circle' | 'regression') {
   })
 }
 
-function colorForValue(rawValue: number) {
-  const value = state.value.discretize ? (rawValue >= 0 ? 1 : -1) : Math.max(-1, Math.min(1, rawValue))
-  const t = (value + 1) / 2
-  const red = Math.round(244 - t * 172)
-  const green = Math.round(148 + t * 34)
-  const blue = Math.round(34 + t * 154)
-  return `rgb(${red}, ${green}, ${blue})`
-}
-
-function drawOutput() {
-  const canvas = outputCanvasRef.value
-  const context = canvas?.getContext('2d')
-  const current = snapshot.value
-  if (!canvas || !context || !current.outputGrid.length) return
-
-  const size = Math.max(300, Math.round(canvas.clientWidth || 420))
-  if (canvas.width !== size || canvas.height !== size) {
-    canvas.width = size
-    canvas.height = size
-  }
-
-  context.clearRect(0, 0, size, size)
-  const cell = size / current.gridSize
-
-  for (let row = 0; row < current.gridSize; row += 1) {
-    for (let column = 0; column < current.gridSize; column += 1) {
-      context.fillStyle = colorForValue(current.outputGrid[row * current.gridSize + column] ?? 0)
-      context.fillRect(column * cell, row * cell, Math.ceil(cell), Math.ceil(cell))
-    }
-  }
-
-  context.strokeStyle = 'rgba(0, 0, 0, 0.18)'
-  context.lineWidth = 1
-  context.beginPath()
-  context.moveTo(size / 2, 0)
-  context.lineTo(size / 2, size)
-  context.moveTo(0, size / 2)
-  context.lineTo(size, size / 2)
-  context.stroke()
-}
-
-function mapX(x: number) {
-  const [min, max] = snapshot.value.xDomain
-  return ((x - min) / (max - min)) * 100
-}
-
-function mapY(y: number) {
-  const [min, max] = snapshot.value.yDomain
-  return 100 - ((y - min) / (max - min)) * 100
-}
-
-const visiblePoints = computed(() =>
-  state.value.showTestData ? [...snapshot.value.trainData, ...snapshot.value.testData] : snapshot.value.trainData,
-)
-
 const datasetOptions = computed(() =>
   state.value.problemType === 'classification' ? classificationDatasets : regressionDatasets,
 )
+
+const activeDatasetKey = computed<MlpDatasetKey>(() =>
+  state.value.problemType === 'classification' ? state.value.classificationDataset : state.value.regressionDataset,
+)
+
+const fitAdviceLabels = computed(() =>
+  locale.value === 'zh-CN'
+    ? { heading: '推荐拟合方案', apply: '套用方案' }
+    : { heading: 'Suggested fit', apply: 'Apply setup' },
+)
+
+const currentFitAdvice = computed<MlpFitAdvice>(() => {
+  const zh = locale.value === 'zh-CN'
+  const advice: Record<MlpDatasetKey, MlpFitAdvice> = {
+    circle: {
+      title: zh ? '用平方特征先把圆环展开' : 'Open the rings with squared features',
+      summary: zh
+        ? '同心圆最吃 x1^2 和 x2^2；一层 4 个神经元再接 2 个神经元，通常能快速画出闭合边界。'
+        : 'Circle data benefits from x1^2 and x2^2; 4 then 2 hidden neurons usually form a clean closed boundary.',
+      chips: zh
+        ? ['特征 X1/X2/X1^2/X2^2', '隐藏层 4-2', 'tanh', '学习率 0.03']
+        : ['X1/X2/X1^2/X2^2', 'Hidden 4-2', 'tanh', 'LR 0.03'],
+      config: {
+        problemType: 'classification',
+        classificationDataset: 'circle',
+        featureKeys: ['x1', 'x2', 'x1Squared', 'x2Squared'],
+        networkShape: [4, 2],
+        activation: 'tanh',
+        learningRate: 0.03,
+        regularizationType: 'none',
+        regularizationRate: 0,
+        noise: 0.08,
+      },
+    },
+    xor: {
+      title: zh ? '保留原始坐标，让隐藏层做折线' : 'Keep raw inputs and let hidden layers bend',
+      summary: zh
+        ? 'XOR 不需要先加平方特征；4-2 的 tanh 隐藏层足够展示从直线失败到弯折边界的变化。'
+        : 'XOR does not need squared features first; a 4-2 tanh stack shows the move from linear failure to bent boundaries.',
+      chips: zh
+        ? ['特征 X1/X2', '隐藏层 4-2', 'tanh', '低噪声']
+        : ['X1/X2', 'Hidden 4-2', 'tanh', 'Low noise'],
+      config: {
+        problemType: 'classification',
+        classificationDataset: 'xor',
+        featureKeys: ['x1', 'x2'],
+        networkShape: [4, 2],
+        activation: 'tanh',
+        learningRate: 0.03,
+        regularizationType: 'none',
+        regularizationRate: 0,
+        noise: 0.08,
+      },
+    },
+    gauss: {
+      title: zh ? '先用近似线性边界验证基线' : 'Start with a near-linear baseline',
+      summary: zh
+        ? '高斯团块本来接近线性可分，0 层隐藏层就能拟合；复杂网络会把简单问题讲复杂。'
+        : 'Gaussian blobs are almost linearly separable, so zero hidden layers fit well without overcomplicating the lesson.',
+      chips: zh
+        ? ['特征 X1/X2', '隐藏层 0', '学习率 0.03', '少正则']
+        : ['X1/X2', '0 hidden', 'LR 0.03', 'Light regularization'],
+      config: {
+        problemType: 'classification',
+        classificationDataset: 'gauss',
+        featureKeys: ['x1', 'x2'],
+        networkShape: [],
+        activation: 'tanh',
+        learningRate: 0.03,
+        regularizationType: 'none',
+        regularizationRate: 0,
+        noise: 0.08,
+      },
+    },
+    spiral: {
+      title: zh ? '螺旋需要更高容量和一点约束' : 'Use more capacity with light restraint',
+      summary: zh
+        ? '双螺旋边界弯曲多，建议用两到三层较宽隐藏层，并保留一点 L2 防止追噪声。'
+        : 'Spirals need a highly curved boundary, so use wider hidden layers with a little L2 to avoid chasing noise.',
+      chips: zh
+        ? ['特征 X1/X2/sin', '隐藏层 8-8-6', 'tanh', 'L2 0.001']
+        : ['X1/X2/sin', 'Hidden 8-8-6', 'tanh', 'L2 0.001'],
+      config: {
+        problemType: 'classification',
+        classificationDataset: 'spiral',
+        featureKeys: ['x1', 'x2', 'sinX1', 'sinX2'],
+        networkShape: [8, 8, 6],
+        activation: 'tanh',
+        learningRate: 0.03,
+        regularizationType: 'l2',
+        regularizationRate: 0.001,
+        noise: 0.08,
+      },
+    },
+    plane: {
+      title: zh ? '平面回归用线性读出即可' : 'A linear readout is enough for the plane',
+      summary: zh
+        ? '平面目标由 X1 和 X2 决定，0 层隐藏层最清楚；加深网络反而不利于看懂。'
+        : 'The plane target is driven by X1 and X2, so zero hidden layers make the fit easiest to read.',
+      chips: zh
+        ? ['特征 X1/X2', '隐藏层 0', 'linear', '学习率 0.03']
+        : ['X1/X2', '0 hidden', 'linear', 'LR 0.03'],
+      config: {
+        problemType: 'regression',
+        regressionDataset: 'plane',
+        featureKeys: ['x1', 'x2'],
+        networkShape: [],
+        activation: 'linear',
+        learningRate: 0.03,
+        regularizationType: 'none',
+        regularizationRate: 0,
+        noise: 0.04,
+      },
+    },
+    gaussian: {
+      title: zh ? '高斯场需要局部响应组合' : 'Combine local responses for the Gaussian field',
+      summary: zh
+        ? '高斯场有多个局部峰谷，平方和交叉特征配合 6-4 隐藏层，会比单纯线性读出稳定。'
+        : 'The Gaussian field has local peaks and dips; squared and interaction features with a 6-4 stack are steadier than a plain line.',
+      chips: zh
+        ? ['平方 + 交叉特征', '隐藏层 6-4', 'tanh', 'L2 0.001']
+        : ['Squared + interaction', 'Hidden 6-4', 'tanh', 'L2 0.001'],
+      config: {
+        problemType: 'regression',
+        regressionDataset: 'gaussian',
+        featureKeys: ['x1', 'x2', 'x1Squared', 'x2Squared', 'x1TimesX2'],
+        networkShape: [6, 4],
+        activation: 'tanh',
+        learningRate: 0.01,
+        regularizationType: 'l2',
+        regularizationRate: 0.001,
+        noise: 0.05,
+      },
+    },
+  }
+
+  return advice[activeDatasetKey.value]
+})
+
+function applyFitAdvice() {
+  resetWith(currentFitAdvice.value.config)
+}
 
 const metricCards = computed(() => {
   const current = snapshot.value
@@ -388,67 +506,11 @@ const metricCards = computed(() => {
         : round(Number(current.testScore ?? 0), 3),
     },
     { id: 'weightNorm', label: copy.value.weightNorm, value: round(current.weightNorm, 3) },
+    { id: 'activeWeights', label: copy.value.activeWeights, value: current.activeWeights },
     { id: 'gradientNorm', label: copy.value.gradientNorm, value: round(current.gradientNorm, 4) },
   ]
 })
 
-const networkHeight = computed(() => {
-  const maxNodes = Math.max(...snapshot.value.layers.map((layer) => layer.length), 1)
-  return Math.max(300, maxNodes * 46 + 54)
-})
-
-const positionedNodes = computed(() => {
-  const layers = snapshot.value.layers
-  const xStep = (networkWidth - 78) / Math.max(layers.length - 1, 1)
-  return layers.flatMap((layer, layerIndex) => {
-    const yStep = (networkHeight.value - 64) / Math.max(layer.length - 1, 1)
-    return layer.map((node, nodeIndex) => ({
-      ...node,
-      x: 39 + layerIndex * xStep,
-      y: layer.length === 1 ? networkHeight.value / 2 : 32 + nodeIndex * yStep,
-    }))
-  })
-})
-
-const positionedNodeMap = computed(() => new Map(positionedNodes.value.map((node) => [node.id, node])))
-
-const linkPaths = computed(() =>
-  snapshot.value.links.flatMap((link) => {
-    const source = positionedNodeMap.value.get(link.sourceId)
-    const target = positionedNodeMap.value.get(link.targetId)
-    if (!source || !target) return []
-    const mid = (source.x + target.x) / 2
-    return [{
-      ...link,
-      path: `M ${source.x + 23} ${source.y} C ${mid} ${source.y}, ${mid} ${target.y}, ${target.x - 23} ${target.y}`,
-      width: Math.min(5, 0.6 + Math.abs(link.weight) * 1.9),
-      color: link.weight >= 0 ? '#1f87c9' : '#f59322',
-      opacity: link.isDead ? 0.14 : 0.22 + Math.min(0.56, Math.abs(link.weight) / 2.6),
-    }]
-  }),
-)
-
-function curvePoints(kind: 'train' | 'test') {
-  const history = snapshot.value.lossHistory
-  if (!history.length) return ''
-  const values = history.map((entry) => (kind === 'train' ? entry.trainLoss : entry.testLoss))
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  const range = max - min || 1
-  const width = 320
-  const height = 96
-  const pad = 10
-  return values
-    .map((value, index) => {
-      const x = pad + (index / Math.max(values.length - 1, 1)) * (width - pad * 2)
-      const y = height - pad - ((value - min) / range) * (height - pad * 2)
-      return `${x},${y}`
-    })
-    .join(' ')
-}
-
-const trainLossPoints = computed(() => curvePoints('train'))
-const testLossPoints = computed(() => curvePoints('test'))
 const focusText = computed(() => copy.value.focus[props.section?.playgroundFocus ?? 'network'])
 const epochDisplay = computed(() =>
   String(snapshot.value.iteration).padStart(6, '0').replace(/\B(?=(\d{3})+(?!\d))/g, ','),
@@ -457,21 +519,39 @@ const networkSummary = computed(() =>
   state.value.networkShape.length ? `${state.value.networkShape.length}` : copy.value.noHiddenLayers,
 )
 
-onMounted(drawOutput)
 onBeforeUnmount(stopPlayback)
-watch(snapshot, drawOutput, { deep: true })
-watch(() => state.value.discretize, drawOutput)
 </script>
 
 <template>
   <section class="mlp-playground-cockpit" :style="{ '--mlp-accent': props.accent }">
     <header class="mlp-playground-toolbar">
       <div class="mlp-run-controls" aria-label="MLP training controls">
-        <button type="button" class="mlp-icon-button" :title="copy.reset" @click="resetWith()">↻</button>
-        <button type="button" class="mlp-icon-button mlp-icon-button--play" :title="isPlaying ? copy.pause : copy.play" @click="togglePlayback">
-          {{ isPlaying ? 'Ⅱ' : '▶' }}
+        <button type="button" class="mlp-icon-button" :title="copy.reset" :aria-label="copy.reset" @click="resetWith()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4.5 8.5A8 8 0 1 1 4 15" />
+            <path d="M4.5 4v4.5H9" />
+          </svg>
         </button>
-        <button type="button" class="mlp-icon-button" :title="copy.step" @click="step(1)">▶▏</button>
+        <button
+          type="button"
+          class="mlp-icon-button mlp-icon-button--play"
+          :title="isPlaying ? copy.pause : copy.play"
+          :aria-label="isPlaying ? copy.pause : copy.play"
+          @click="togglePlayback"
+        >
+          <svg v-if="isPlaying" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5v14M16 5v14" />
+          </svg>
+          <svg v-else viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+        <button type="button" class="mlp-icon-button" :title="copy.step" :aria-label="copy.step" @click="step(1)">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 5v14l9-7z" />
+            <path d="M18 5v14" />
+          </svg>
+        </button>
       </div>
 
       <div class="mlp-epoch-readout">
@@ -522,7 +602,7 @@ watch(() => state.value.discretize, drawOutput)
 
     <section class="mlp-playground-lesson-strip">
       <span>{{ copy.task }}</span>
-      <strong>{{ localizedText(props.section?.title) }}</strong>
+      <strong>{{ localizedText(props.section?.title) || copy.title }}</strong>
       <p>{{ localizedText(props.section?.experimentPrompt) || focusText }}</p>
     </section>
 
@@ -538,12 +618,22 @@ watch(() => state.value.discretize, drawOutput)
             type="button"
             class="mlp-dataset-choice"
             :class="[`mlp-dataset-choice--${dataset}`, { 'is-active': isDatasetActive(dataset) }]"
-            :title="copy.datasets[dataset]"
+            :title="datasetLabel(dataset)"
             @click="chooseDataset(dataset)"
           >
             <span aria-hidden="true" />
           </button>
         </div>
+
+        <section class="mlp-fit-advice" aria-live="polite">
+          <span>{{ fitAdviceLabels.heading }}</span>
+          <strong>{{ currentFitAdvice.title }}</strong>
+          <p>{{ currentFitAdvice.summary }}</p>
+          <div class="mlp-fit-advice__chips">
+            <small v-for="chip in currentFitAdvice.chips" :key="chip">{{ chip }}</small>
+          </div>
+          <button type="button" @click="applyFitAdvice">{{ fitAdviceLabels.apply }}</button>
+        </section>
 
         <label class="mlp-slider-control">
           <span>{{ copy.trainRatio }} <strong>{{ Math.round(state.trainRatio * 100) }}%</strong></span>
@@ -582,7 +672,7 @@ watch(() => state.value.discretize, drawOutput)
       <section class="mlp-network-panel">
         <div class="mlp-network-header">
           <button type="button" class="mlp-layer-button" :disabled="state.networkShape.length >= 6" @click="addLayer">+</button>
-          <button type="button" class="mlp-layer-button" :disabled="!state.networkShape.length" @click="removeLayer">−</button>
+          <button type="button" class="mlp-layer-button" :disabled="!state.networkShape.length" @click="removeLayer">-</button>
           <strong>{{ networkSummary }}</strong>
           <span>{{ copy.hiddenLayers }}</span>
         </div>
@@ -593,57 +683,21 @@ watch(() => state.value.discretize, drawOutput)
             :key="`layer-${index}`"
             class="mlp-layer-stepper"
           >
-            <div>
+            <div class="mlp-layer-stepper__actions">
               <button type="button" @click="resizeLayer(index, 1)">+</button>
-              <button type="button" @click="resizeLayer(index, -1)">−</button>
+              <button type="button" @click="resizeLayer(index, -1)">-</button>
             </div>
-            <strong>{{ count }} {{ copy.neurons }}</strong>
+            <strong class="mlp-layer-stepper__count">{{ count }} {{ copy.neurons }}</strong>
           </div>
         </div>
 
-        <div
-          class="mlp-network"
-          :style="{ '--network-height': `${networkHeight}px` }"
-          data-testid="mlp-network-graph"
-        >
-          <svg
-            class="mlp-network__links"
-            :viewBox="`0 0 ${networkWidth} ${networkHeight}`"
-            preserveAspectRatio="none"
-          >
-            <path
-              v-for="link in linkPaths"
-              :key="link.id"
-              :d="link.path"
-              :stroke="link.color"
-              :stroke-width="link.width"
-              :opacity="link.opacity"
-              class="mlp-network__link"
-            />
-          </svg>
+        <MlpNetworkGraph
+          :snapshot="snapshot"
+          :previous-snapshot="previousSnapshot"
+          :state="state"
+        />
 
-          <div
-            v-for="node in positionedNodes"
-            :key="node.id"
-            class="mlp-network__node"
-            :class="`mlp-network__node--${node.layerKind}`"
-            :style="{ left: `${(node.x / networkWidth) * 100}%`, top: `${(node.y / networkHeight) * 100}%` }"
-          >
-            <MlpNodeHeatmap
-              :values="node.outputGrid"
-              :grid-size="snapshot.gridSize"
-              :discretize="state.discretize"
-              compact
-            />
-            <span>{{ node.label }}</span>
-            <i
-              v-if="node.layerKind !== 'input'"
-              class="mlp-network__bias"
-              :style="{ backgroundColor: colorForValue(node.bias) }"
-              :title="`bias ${round(node.bias, 2)}`"
-            />
-          </div>
-        </div>
+        <p class="mlp-panel-note">{{ copy.networkHint }}</p>
       </section>
 
       <aside class="mlp-output-panel">
@@ -653,33 +707,22 @@ watch(() => state.value.discretize, drawOutput)
           <span>{{ copy.trainLoss }} {{ round(snapshot.trainLoss, 3) }}</span>
         </div>
 
-        <div class="mlp-loss-chart">
-          <div class="mlp-panel-heading">
-            <span>{{ copy.lossCurve }}</span>
-            <strong>{{ snapshot.lossHistory.length }}</strong>
-          </div>
-          <svg viewBox="0 0 320 96" role="img" aria-label="MLP train and test loss curves">
-            <polyline :points="trainLossPoints" class="mlp-loss-chart__line mlp-loss-chart__line--train" />
-            <polyline :points="testLossPoints" class="mlp-loss-chart__line mlp-loss-chart__line--test" />
-          </svg>
+        <div class="mlp-panel-heading">
+          <span>{{ copy.lossCurve }}</span>
+          <strong>{{ snapshot.lossHistory.length }}</strong>
         </div>
+        <MlpTrainingTimeline
+          :snapshot="snapshot"
+          :train-label="copy.trainLoss"
+          :test-label="copy.testLoss"
+        />
 
-        <div class="mlp-output-map">
-          <canvas ref="outputCanvasRef" class="mlp-output-map__canvas" data-testid="mlp-output-heatmap" />
-          <svg viewBox="0 0 100 100" class="mlp-output-map__points" aria-hidden="true">
-            <circle
-              v-for="(point, index) in visiblePoints"
-              :key="`${point.split}-${index}-${point.x}-${point.y}`"
-              :cx="mapX(point.x)"
-              :cy="mapY(point.y)"
-              :r="point.split === 'test' ? 1.25 : 1.05"
-              :class="[
-                point.label >= 0 ? 'mlp-data-point mlp-data-point--positive' : 'mlp-data-point mlp-data-point--negative',
-                point.split === 'test' ? 'mlp-data-point--test' : '',
-              ]"
-            />
-          </svg>
-        </div>
+        <MlpOutputFitMap
+          :snapshot="snapshot"
+          :state="state"
+          :history="contourHistory"
+          :accent="props.accent"
+        />
 
         <div class="mlp-output-legend">
           <span>{{ copy.colorLegend }}</span>
@@ -691,6 +734,7 @@ watch(() => state.value.discretize, drawOutput)
             <i>1</i>
           </div>
         </div>
+        <p class="mlp-panel-note">{{ copy.outputHint }}</p>
 
         <div class="mlp-output-checks">
           <label>

@@ -15,25 +15,25 @@ const copy = computed(() =>
   currentLocale.value === 'zh-CN'
     ? {
         eyebrow: 'Math Intuition Lab',
-        title: '数学直觉实验室',
+        title: 'AI 数学直觉实验室',
         subtitle:
-          '从泰勒级数到 PCA，用双语讲解、公式渲染、可视化动画和互动实验串起数值数学核心直觉。',
+          '从向量矩阵到 Transformer，用双语讲解、公式渲染、可视化和互动实验串起 AI 前置数学直觉。',
         diagnostic: '开始入门诊断',
         continue: '继续学习',
-        pathTitle: '第 6-19 章完整学习路径',
-        pathBody: '这些章节覆盖公式、代码、表格、图片、答案折叠区和复习问题；前 1-5 个预备主题不显示在本路径中。',
+        pathTitle: '第 6-24 章 AI 数学主线',
+        pathBody: '路径把 shape、自动微分、概率损失、训练诊断和深度结构数学插入原数值计算地基中。',
         radarTitle: '当前数学地基',
         radarEmpty: '完成诊断后，这里会显示线性代数、微积分、概率和优化的准备度。',
       }
     : {
         eyebrow: 'Math Intuition Lab',
-        title: 'Numerical Math Notes',
+        title: 'AI Math Intuition Lab',
         subtitle:
-          'A full chapter path from Taylor series to PCA, with bilingual explanations, math rendering, visual animations, and interactive labs.',
+          'A chapter path from vectors and matrices to Transformers, with bilingual explanations, math rendering, visualizations, and interactive labs.',
         diagnostic: 'Start diagnostic',
         continue: 'Continue learning',
-        pathTitle: 'Complete path: chapters 6-19',
-        pathBody: 'These chapters cover formulas, code, tables, figures, answer details, and review questions while omitting preparatory topics 1-5.',
+        pathTitle: 'AI math path: chapters 6-24',
+        pathBody: 'The path inserts shape, autodiff, probability losses, training diagnostics, and deep architecture math into the numerical foundation.',
         radarTitle: 'Current foundation',
         radarEmpty: 'After the diagnostic, this panel shows your linear algebra, calculus, probability, and optimization readiness.',
       },

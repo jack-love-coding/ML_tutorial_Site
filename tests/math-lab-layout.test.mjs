@@ -42,6 +42,11 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/components/MisconceptionCard.vue',
     'src/modules/math-lab/components/ThreeSceneShell.vue',
     'src/modules/math-lab/labs/VectorDotProductLab.vue',
+    'src/modules/math-lab/labs/TensorShapeLab.vue',
+    'src/modules/math-lab/labs/AutodiffGraphLab.vue',
+    'src/modules/math-lab/labs/ProbabilityEntropyLab.vue',
+    'src/modules/math-lab/labs/TrainingDiagnosticsLab.vue',
+    'src/modules/math-lab/labs/ArchitectureMathLab.vue',
     'src/modules/math-lab/labs/MatrixTransformLab.vue',
     'src/modules/math-lab/labs/MathGradientLab.vue',
     'src/modules/math-lab/labs/MonteCarloLab.vue',
@@ -68,6 +73,7 @@ test('math lab components and labs exist with expected contracts', () => {
 
 test('math lab uses generated imported notes and local migrated assets', () => {
   assert.ok(existsSync(new URL('src/modules/math-lab/data/mathFoundationsModules.ts', root)))
+  assert.ok(existsSync(new URL('src/modules/math-lab/data/aiBridgeModules.ts', root)))
   assert.ok(existsSync(new URL('scripts/import-cs357-notes.mjs', root)))
   assert.ok(existsSync(new URL('src/modules/math-lab/data/importedMathNotes.generated.ts', root)))
   assert.ok(existsSync(new URL('public/math-lab/cs357-assets/figs', root)))
@@ -75,6 +81,7 @@ test('math lab uses generated imported notes and local migrated assets', () => {
   const modulesSource = read('src/modules/math-lab/data/modules.ts')
   assert.match(modulesSource, /importedMathNotes/)
   assert.match(modulesSource, /mathFoundationsModules/)
+  assert.match(modulesSource, /aiBridgeModules/)
 
   const generatedSource = read('src/modules/math-lab/data/importedMathNotes.generated.ts')
   assert.match(generatedSource, /Taylor Series/)

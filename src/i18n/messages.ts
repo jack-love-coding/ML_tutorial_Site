@@ -76,6 +76,7 @@ export const messages = {
       featureNoise: '特征噪声',
       polynomialDegree: '多项式阶数',
       lambda: '正则强度 λ',
+      elasticAlpha: 'Elastic Net L1 占比 α',
       validationSplit: '验证集比例',
       regularizationType: '正则类型',
       dataset: '数据集',
@@ -99,6 +100,7 @@ export const messages = {
         none: '无正则',
         l1: 'L1',
         l2: 'L2',
+        elastic: 'Elastic Net',
       },
     },
     metrics: {
@@ -421,6 +423,7 @@ export const messages = {
       featureNoise: 'Feature noise',
       polynomialDegree: 'Polynomial degree',
       lambda: 'Regularization λ',
+      elasticAlpha: 'Elastic Net L1 mix α',
       validationSplit: 'Validation split',
       regularizationType: 'Regularization type',
       dataset: 'Dataset',
@@ -444,6 +447,7 @@ export const messages = {
         none: 'None',
         l1: 'L1',
         l2: 'L2',
+        elastic: 'Elastic Net',
       },
     },
     metrics: {

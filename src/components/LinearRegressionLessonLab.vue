@@ -34,6 +34,9 @@ const emit = defineEmits<{
 
 const { t, locale } = useI18n()
 
+const regularizationOptions = ['none', 'l1', 'l2', 'elastic'] as const
+type LinearRegularizationType = (typeof regularizationOptions)[number]
+
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
@@ -68,6 +71,7 @@ const copy = computed(() =>
           none: '无正则',
           l1: 'L1',
           l2: 'L2',
+          elastic: 'Elastic Net',
         },
         statusText: {
           initializing: '初始模型',
@@ -87,7 +91,7 @@ const copy = computed(() =>
           multivariate: '看 3D 平面如何同时解释面积、房龄和房价。',
           polynomial: '看多项式特征如何让线性权重画出曲线。',
           overfitting: '盯住训练 MSE 和验证 MSE 是否开始分叉。',
-          regularization: '比较 L1 / L2 如何压小权重并让曲线更克制。',
+          regularization: '比较 L1 / L2 / Elastic Net 如何压小权重并让曲线更克制。',
         },
       }
     : {
@@ -122,6 +126,7 @@ const copy = computed(() =>
           none: 'None',
           l1: 'L1',
           l2: 'L2',
+          elastic: 'Elastic Net',
         },
         statusText: {
           initializing: 'Initial model',
@@ -141,7 +146,7 @@ const copy = computed(() =>
           multivariate: 'Watch a 3D plane explain area, age, and price at the same time.',
           polynomial: 'See how polynomial features let linear weights draw a curve.',
           overfitting: 'Watch train MSE and validation MSE split apart.',
-          regularization: 'Compare how L1 / L2 shrink weights and restrain the curve.',
+          regularization: 'Compare how L1 / L2 / Elastic Net shrink weights and restrain the curve.',
         },
       },
 )
@@ -156,6 +161,9 @@ const isPolynomialFamily = computed(() =>
   props.section.id === 'regularization',
 )
 const showRegularizationControls = computed(() => props.section.id === 'regularization')
+const showElasticAlphaControl = computed(
+  () => showRegularizationControls.value && configString('regularizationType', 'l2') === 'elastic',
+)
 const showValidationControls = computed(() => !isRealCaliforniaFamily.value && props.section.id === 'polynomial')
 const showOutlierControls = computed(() =>
   !isPolynomialFamily.value &&
@@ -294,8 +302,8 @@ const teachingVisual = computed(() => {
           },
           regularization: {
             label: '正则动画',
-            title: '惩罚大权重，让曲线收敛',
-            caption: '增大 λ 会压小权重，牺牲少量训练贴合度来换取更稳定的曲线。',
+            title: '不同惩罚给参数不同边界',
+            caption: 'L1 更容易产生稀疏权重，L2 更平滑地整体收缩，Elastic Net 把两种约束混合在一起。',
           },
         }
       : {
@@ -336,12 +344,17 @@ const teachingVisual = computed(() => {
           },
           regularization: {
             label: 'Regularization animation',
-            title: 'Penalize large weights',
-            caption: 'Increasing λ shrinks weights and trades a little training fit for a steadier curve.',
+            title: 'Different penalties create different boundaries',
+            caption: 'L1 more readily creates sparse weights, L2 shrinks smoothly, and Elastic Net blends both constraints.',
           },
         }
 
   return visuals[props.section.id as keyof typeof visuals] ?? visuals['fit-line']
+})
+
+const currentRegularizationType = computed(() => {
+  const value = configString('regularizationType', 'l2') as LinearRegularizationType
+  return regularizationOptions.includes(value) ? value : 'l2'
 })
 
 function configNumber(key: string, fallback: number) {
@@ -560,21 +573,37 @@ function setRegularizationType(value: string) {
             />
           </label>
 
+          <label v-if="showElasticAlphaControl" class="control">
+            <span class="control__row">
+              <span>{{ t('controls.elasticAlpha') }}</span>
+              <strong>{{ round(configNumber('elasticAlpha', 0.5) * 100, 0) }}%</strong>
+            </span>
+            <input
+              class="control__range"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              :value="configNumber('elasticAlpha', 0.5)"
+              @input="onRangeInput('elasticAlpha', $event)"
+            />
+          </label>
+
           <div v-if="showRegularizationControls" class="control control--toggle">
             <span class="control__row">
               <span>{{ t('controls.regularizationType') }}</span>
-              <strong>{{ copy.regularizationLabels[configString('regularizationType', 'l2') as 'none' | 'l1' | 'l2'] }}</strong>
+              <strong>{{ copy.regularizationLabels[currentRegularizationType] }}</strong>
             </span>
             <div class="regularization-switch">
               <button
-                v-for="option in ['none', 'l1', 'l2']"
+                v-for="option in regularizationOptions"
                 :key="option"
                 type="button"
                 class="toggle-strip__button"
-                :class="{ 'is-active': configString('regularizationType', 'l2') === option }"
+                :class="{ 'is-active': currentRegularizationType === option }"
                 @click="setRegularizationType(option)"
               >
-                {{ copy.regularizationLabels[option as 'none' | 'l1' | 'l2'] }}
+                {{ copy.regularizationLabels[option] }}
               </button>
             </div>
           </div>

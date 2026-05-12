@@ -3,6 +3,16 @@ import assert from 'node:assert/strict'
 import { diagnosticQuestions, scoreDiagnostic } from '../src/modules/math-lab/data/diagnostic.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import {
+  convolutionOutputSize,
+  evaluateAttention,
+  evaluateAutodiffGraph,
+  evaluateProbabilityLab,
+  evaluateTensorShape,
+  evaluateTrainingScenario,
+  klDivergence,
+  softmax,
+} from '../src/modules/math-lab/utils/aiBridgeMath.ts'
+import {
   angleBetween,
   cosineSimilarity,
   determinant2x2,
@@ -98,18 +108,49 @@ test('math lab matrix and gradient utilities expose the expected teaching behavi
   })
 })
 
-test('imported math foundation modules include complete topics 6-19', () => {
-  assert.equal(mathLabModules.length, 14)
+test('AI bridge math utilities validate shapes, autodiff, probability, diagnostics, and architecture formulas', () => {
+  const shape = evaluateTensorShape({ batchSize: 8, inputDim: 6, hiddenDim: 4, biasDim: 4 })
+  assert.deepEqual(shape.inputShape, [8, 6])
+  assert.deepEqual(shape.outputShape, [8, 4])
+  assert.equal(shape.biasCompatible, true)
+  assert.equal(shape.parameterCount, 28)
+  assert.equal(evaluateTensorShape({ batchSize: 8, inputDim: 6, hiddenDim: 4, biasDim: 5 }).biasCompatible, false)
+
+  const autodiff = evaluateAutodiffGraph({ w: 1.4, x: 2, b: -0.5, y: 1.2 })
+  assert.equal(Math.abs(autodiff.gradients.w - autodiff.finiteDifferenceW) < 1e-8, true)
+  assert.equal(autodiff.gradientCheckError < 1e-8, true)
+
+  const probabilities = softmax([1.5, 0.3, -0.8])
+  assert.equal(Math.abs(probabilities.reduce((sum, value) => sum + value, 0) - 1) < 1e-12, true)
+  const probabilityLab = evaluateProbabilityLab({ logits: [1.5, 0.3, -0.8], temperature: 1, targetIndex: 0 })
+  assert.equal(probabilityLab.crossEntropy > 0, true)
+  assert.equal(klDivergence([0.8, 0.2], [0.5, 0.5]) > 0, true)
+
+  const healthy = evaluateTrainingScenario('healthy', 20)
+  const overfitting = evaluateTrainingScenario('overfitting', 20)
+  assert.equal(healthy.last.trainLoss < healthy.first.trainLoss, true)
+  assert.equal(overfitting.last.valLoss > overfitting.bestVal.valLoss, true)
+
+  assert.equal(convolutionOutputSize(32, 3, 1, 1), 32)
+  const attention = evaluateAttention([1, 0], [[1, 0], [0, 1]])
+  assert.equal(attention.weights[0] > attention.weights[1], true)
+})
+
+test('math lab modules include the reordered AI math path from 6-24', () => {
+  assert.equal(mathLabModules.length, 19)
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.order),
-    [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
   )
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.id),
     [
-      'taylor-series',
-      'monte-carlo',
       'vectors-matrices-norms',
+      'tensor-shapes-vectorization',
+      'taylor-series',
+      'matrix-calculus-autodiff',
+      'monte-carlo',
+      'probability-likelihood-entropy',
       'lu-decomposition',
       'sparse-matrices',
       'condition-numbers',
@@ -118,17 +159,22 @@ test('imported math foundation modules include complete topics 6-19', () => {
       'finite-difference-methods',
       'nonlinear-equations',
       'optimization',
+      'training-diagnostics',
       'least-squares-fitting',
       'svd',
       'pca',
+      'deep-architecture-math',
     ],
   )
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.title.en),
     [
-      'Taylor Series',
-      'Random Number Generators and Monte Carlo Methods',
       'Vectors, Matrices, and Norms',
+      'Tensor Shapes and Vectorization',
+      'Taylor Series',
+      'Matrix Calculus and Automatic Differentiation',
+      'Random Number Generators and Monte Carlo Methods',
+      'Probability, Likelihood, and Entropy',
       'LU Decomposition for Solving Linear Equations',
       'Sparse Matrices',
       'Condition Numbers',
@@ -137,9 +183,11 @@ test('imported math foundation modules include complete topics 6-19', () => {
       'Finite Difference Methods',
       'Solving Nonlinear Equations',
       'Optimization',
+      'Mathematics of Training Diagnostics',
       'Least Squares Fitting',
       'Singular Value Decomposition (SVD)',
       'Principal Component Analysis (PCA)',
+      'Mathematics Inside Deep Architectures',
     ],
   )
 
@@ -149,11 +197,20 @@ test('imported math foundation modules include complete topics 6-19', () => {
     assert.equal(moduleDefinition.toc.length > 0, true, `${moduleDefinition.id} needs toc entries`)
     assert.equal(moduleDefinition.labs.length >= 1, true, `${moduleDefinition.id} needs an interactive lab entry`)
     assert.equal(moduleDefinition.sourceNoteFile?.endsWith('.md'), true, `${moduleDefinition.id} should track source filename internally`)
-    assert.equal(moduleDefinition.originalSort, moduleDefinition.order)
 
     const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
-    assert.equal(englishBody.length > 4000, true, `${moduleDefinition.id} should not use the previous shortened body`)
-    if (moduleDefinition.id === 'taylor-series') {
+    assert.equal(englishBody.length > 900, true, `${moduleDefinition.id} should include complete instructional body`)
+    if (moduleDefinition.id === 'tensor-shapes-vectorization') {
+      assert.match(englishBody, /Broadcasting and Vectorization|shape/i)
+    } else if (moduleDefinition.id === 'matrix-calculus-autodiff') {
+      assert.match(englishBody, /Computation Graph and Backpropagation|local linearization/)
+    } else if (moduleDefinition.id === 'probability-likelihood-entropy') {
+      assert.match(englishBody, /softmax|cross entropy/i)
+    } else if (moduleDefinition.id === 'training-diagnostics') {
+      assert.match(englishBody, /gradient norm|validation loss/i)
+    } else if (moduleDefinition.id === 'deep-architecture-math') {
+      assert.match(englishBody, /Attention|Transformer|Residual/)
+    } else if (moduleDefinition.id === 'taylor-series') {
       assert.match(englishBody, /Learning Objectives|Taylor Series Expansion|Taylor Series Error/)
     } else if (moduleDefinition.id === 'monte-carlo') {
       assert.match(englishBody, /Where Reproducible Randomness Comes From|Writing Areas and Integrals as Sample Averages/)
@@ -164,11 +221,23 @@ test('imported math foundation modules include complete topics 6-19', () => {
     } else {
       assert.match(englishBody, /Learning Objectives|Learning objectives|Dense Matrices/)
     }
-    if (moduleDefinition.id !== 'pca') {
+    const aiBridgeIds = new Set([
+      'tensor-shapes-vectorization',
+      'matrix-calculus-autodiff',
+      'probability-likelihood-entropy',
+      'training-diagnostics',
+      'deep-architecture-math',
+    ])
+    if (moduleDefinition.id !== 'pca' && !aiBridgeIds.has(moduleDefinition.id)) {
       assert.match(englishBody, /Review Questions/)
     }
     assert.doesNotMatch(englishBody, /CS\s*357|Course Staff|changelog|site\.baseurl/)
   }
+
+  for (let index = 0; index < mathLabModules.length - 1; index += 1) {
+    assert.deepEqual(mathLabModules[index].nextModuleIds, [mathLabModules[index + 1].id])
+  }
+  assert.deepEqual(mathLabModules.at(-1)?.nextModuleIds, [])
 })
 
 test('key math foundation topics are connected to interactive or video enhancements', () => {
@@ -186,8 +255,43 @@ test('key math foundation topics are connected to interactive or video enhanceme
   assert.ok(byId['finite-difference-methods']!.labs.some((lab) => lab.componentName === 'FiniteDifferenceLab'))
   assert.ok(byId['nonlinear-equations']!.labs.some((lab) => lab.componentName === 'NonlinearEquationsLab'))
   assert.ok(byId.optimization!.labs.some((lab) => lab.componentName === 'MathGradientLab'))
+  assert.ok(byId['tensor-shapes-vectorization']!.labs.some((lab) => lab.componentName === 'TensorShapeLab'))
+  assert.ok(byId['matrix-calculus-autodiff']!.labs.some((lab) => lab.componentName === 'AutodiffGraphLab'))
+  assert.ok(byId['probability-likelihood-entropy']!.labs.some((lab) => lab.componentName === 'ProbabilityEntropyLab'))
+  assert.ok(byId['training-diagnostics']!.labs.some((lab) => lab.componentName === 'TrainingDiagnosticsLab'))
+  assert.ok(byId['deep-architecture-math']!.labs.some((lab) => lab.componentName === 'ArchitectureMathLab'))
   assert.ok(byId.svd!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
   assert.ok(byId.pca!.labs.some((lab) => lab.componentName === 'PcaProjectionLab'))
+})
+
+test('AI bridge modules include complete V1 teaching surfaces', () => {
+  const bridgeModules = mathLabModules.filter((moduleDefinition) =>
+    [
+      'tensor-shapes-vectorization',
+      'matrix-calculus-autodiff',
+      'probability-likelihood-entropy',
+      'training-diagnostics',
+      'deep-architecture-math',
+    ].includes(moduleDefinition.id),
+  )
+
+  assert.equal(bridgeModules.length, 5)
+
+  for (const moduleDefinition of bridgeModules) {
+    assert.equal(moduleDefinition.learningObjectives.length >= 3, true)
+    assert.equal(moduleDefinition.concepts.length >= 1, true)
+    assert.equal(moduleDefinition.sections.length >= 3, true)
+    assert.equal(moduleDefinition.quizzes.length >= 2, true)
+    assert.equal(moduleDefinition.misconceptions.length >= 2, true)
+    assert.equal(moduleDefinition.sections.some((section) => section.labIds?.length), true)
+
+    const html = renderMarkdownWithMath([
+      ...moduleDefinition.concepts.map((concept) => `$$${concept.formulaLatex}$$`),
+      ...moduleDefinition.sections.map((section) => `${section.title.en}\n\n${section.content.en}`),
+    ].join('\n\n'))
+    assert.match(html, /katex/)
+    assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+  }
 })
 
 test('taylor module presents hand-written bilingual content as an integrated reader chapter', () => {
@@ -1291,7 +1395,7 @@ test('diagnostic scoring recommends the earliest weak math foundation module', (
     diagnosticQuestions.map((question) => [question.id, question.answer]),
   )
   const strong = scoreDiagnostic(allCorrect)
-  assert.equal(strong.recommendedStartModuleId, 'taylor-series')
+  assert.equal(strong.recommendedStartModuleId, 'vectors-matrices-norms')
   assert.equal(strong.weakConcepts.length, 0)
 
   const weakLinearAlgebra = scoreDiagnostic({ ...allCorrect, 'diag-dot': 'elementwise' })
@@ -1348,7 +1452,7 @@ test('math lab progress persists diagnostic, completion, and quiz attempts in st
   saveMathLabProgress(progress, storage)
 
   const reloaded = loadMathLabProgress(storage)
-  assert.equal(reloaded.diagnosticResult?.recommendedStartModuleId, 'taylor-series')
+  assert.equal(reloaded.diagnosticResult?.recommendedStartModuleId, 'vectors-matrices-norms')
   assert.deepEqual(reloaded.completedModuleIds, ['taylor-series'])
   assert.equal(reloaded.quizAttempts.length, 1)
 })

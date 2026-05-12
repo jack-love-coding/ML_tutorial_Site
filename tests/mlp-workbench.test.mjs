@@ -76,13 +76,27 @@ test('professional lesson labs keep the shared workbench shell where it is still
   }
 
   const mlpCockpitSource = read('src/components/MlpPlaygroundCockpit.vue')
+  const outputMapSource = read('src/components/MlpOutputFitMap.vue')
+  const networkGraphSource = read('src/components/MlpNetworkGraph.vue')
+  const timelineSource = read('src/components/MlpTrainingTimeline.vue')
+
   assert.match(mlpCockpitSource, /createMlpPlaygroundSession/)
-  assert.match(mlpCockpitSource, /data-testid="mlp-output-heatmap"/)
-  assert.match(mlpCockpitSource, /data-testid="mlp-network-graph"/)
+  assert.match(mlpCockpitSource, /MlpOutputFitMap/)
+  assert.match(mlpCockpitSource, /MlpNetworkGraph/)
+  assert.match(mlpCockpitSource, /MlpTrainingTimeline/)
+  assert.match(outputMapSource, /from 'd3'/)
+  assert.match(outputMapSource, /contours/)
+  assert.match(outputMapSource, /data-testid="mlp-output-heatmap"/)
+  assert.match(outputMapSource, /data-testid="mlp-output-contour"/)
+  assert.match(networkGraphSource, /from 'd3'/)
+  assert.match(networkGraphSource, /data-testid="mlp-network-graph"/)
+  assert.match(timelineSource, /from 'd3'/)
+  assert.match(timelineSource, /data-testid="mlp-training-timeline"/)
 })
 
 test('MLP module declares sources and project-local visual assets', () => {
   const mlpModuleSource = read('src/data/mlpModule.ts')
+  const renderMlpSource = read('scripts/manim/render_mlp.py')
   for (const source of ['d2l.ai', 'developers.google.com', 'openstax.org', 'playground.tensorflow.org', 'github.com/tensorflow/playground']) {
     assert.match(mlpModuleSource, new RegExp(source.replaceAll('.', '\\.')))
   }
@@ -96,9 +110,16 @@ test('MLP module declares sources and project-local visual assets', () => {
     'public/manim/mlp/hidden-rewrite.mp4',
     'public/manim/mlp/backprop-responsibility.mp4',
     'public/manim/mlp/capacity-overfitting.mp4',
+    'public/manim/mlp/affine-activation.svg',
+    'public/manim/mlp/hidden-rewrite.svg',
+    'public/manim/mlp/backprop-responsibility.svg',
+    'public/manim/mlp/capacity-overfitting.svg',
   ]) {
     assert.ok(statSync(new URL(assetPath, root)).isFile(), `${assetPath} should exist`)
   }
+
+  assert.match(renderMlpSource, /Training loss alone cannot choose the right boundary/)
+  assert.match(renderMlpSource, /Hidden space rewrites geometry/)
 })
 
 test('source files do not keep common mojibake fragments', () => {
@@ -107,4 +128,18 @@ test('source files do not keep common mojibake fragments', () => {
   const offenders = walkFiles(srcPath).filter((file) => mojibake.test(readFileSync(file, 'utf8')))
 
   assert.deepEqual(offenders, [])
+})
+
+test('MLP visible source stays readable in Chinese', () => {
+  const visibleSources = [
+    'src/components/MlpPlaygroundCockpit.vue',
+    'src/data/mlpModule.ts',
+    'src/views/AlgorithmView.vue',
+  ].map(read).join('\n')
+
+  for (const phrase of ['当前章节任务', '输出拟合图', '线性模型为什么会在 XOR 上失败', '回到 MLP 实验台']) {
+    assert.match(visibleSources, new RegExp(phrase))
+  }
+
+  assert.doesNotMatch(visibleSources, /(鍥炲埌|瀹為獙|鏉ユ簮|鏀瑰啓|鐨勫師|鈫|鈻|鈪)/)
 })

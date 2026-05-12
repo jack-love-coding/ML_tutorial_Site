@@ -7,6 +7,8 @@ import CheckpointQuiz from '../components/CheckpointQuiz.vue'
 import CodeLab from '../components/CodeLab.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
+import ArchitectureMathLab from '../labs/ArchitectureMathLab.vue'
+import AutodiffGraphLab from '../labs/AutodiffGraphLab.vue'
 import FiniteDifferenceLab from '../labs/FiniteDifferenceLab.vue'
 import MathGradientLab from '../labs/MathGradientLab.vue'
 import MatrixTransformLab from '../labs/MatrixTransformLab.vue'
@@ -17,8 +19,11 @@ import MarkovChainLab from '../labs/MarkovChainLab.vue'
 import NumericalMiniLab from '../labs/NumericalMiniLab.vue'
 import NonlinearEquationsLab from '../labs/NonlinearEquationsLab.vue'
 import PcaProjectionLab from '../labs/PcaProjectionLab.vue'
+import ProbabilityEntropyLab from '../labs/ProbabilityEntropyLab.vue'
 import SparseMatrixLab from '../labs/SparseMatrixLab.vue'
 import TaylorSeriesLab from '../labs/TaylorSeriesLab.vue'
+import TensorShapeLab from '../labs/TensorShapeLab.vue'
+import TrainingDiagnosticsLab from '../labs/TrainingDiagnosticsLab.vue'
 import VectorDotProductLab from '../labs/VectorDotProductLab.vue'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
 import type { LabConfig, MathLabLocale, MathLabModuleId, MathLabSection, QuizAttempt } from '../types/mathLab'
@@ -236,6 +241,26 @@ function labsForSection(section: MathLabSection): LabConfig[] {
                   v-else-if="lab.componentName === 'PcaProjectionLab'"
                   :locale="currentLocale"
                 />
+                <TensorShapeLab
+                  v-else-if="lab.componentName === 'TensorShapeLab'"
+                  :locale="currentLocale"
+                />
+                <AutodiffGraphLab
+                  v-else-if="lab.componentName === 'AutodiffGraphLab'"
+                  :locale="currentLocale"
+                />
+                <ProbabilityEntropyLab
+                  v-else-if="lab.componentName === 'ProbabilityEntropyLab'"
+                  :locale="currentLocale"
+                />
+                <TrainingDiagnosticsLab
+                  v-else-if="lab.componentName === 'TrainingDiagnosticsLab'"
+                  :locale="currentLocale"
+                />
+                <ArchitectureMathLab
+                  v-else-if="lab.componentName === 'ArchitectureMathLab'"
+                  :locale="currentLocale"
+                />
                 <NumericalMiniLab
                   v-else
                   :module-id="moduleDefinition.id"
@@ -308,6 +333,26 @@ function labsForSection(section: MathLabSection): LabConfig[] {
               />
               <PcaProjectionLab
                 v-else-if="lab.componentName === 'PcaProjectionLab'"
+                :locale="currentLocale"
+              />
+              <TensorShapeLab
+                v-else-if="lab.componentName === 'TensorShapeLab'"
+                :locale="currentLocale"
+              />
+              <AutodiffGraphLab
+                v-else-if="lab.componentName === 'AutodiffGraphLab'"
+                :locale="currentLocale"
+              />
+              <ProbabilityEntropyLab
+                v-else-if="lab.componentName === 'ProbabilityEntropyLab'"
+                :locale="currentLocale"
+              />
+              <TrainingDiagnosticsLab
+                v-else-if="lab.componentName === 'TrainingDiagnosticsLab'"
+                :locale="currentLocale"
+              />
+              <ArchitectureMathLab
+                v-else-if="lab.componentName === 'ArchitectureMathLab'"
                 :locale="currentLocale"
               />
               <NumericalMiniLab

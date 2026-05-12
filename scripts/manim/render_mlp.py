@@ -97,6 +97,121 @@ POSTER_SVGS = {
 """,
 }
 
+POSTER_SVGS = {
+    "AffineActivationScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Affine score and activation poster">
+  <rect width="960" height="540" fill="#f6f7f9"/>
+  <g stroke="#d9dee8" stroke-width="1">
+    <path d="M96 110H422M96 164H422M96 218H422M96 272H422M96 326H422M96 380H422"/>
+    <path d="M150 80V410M204 80V410M258 80V410M312 80V410M366 80V410"/>
+  </g>
+  <path d="M96 245H422M259 80V410" stroke="#8b95a5" stroke-width="2"/>
+  <path d="M116 338C182 302 247 258 306 204C347 166 376 137 410 112" fill="none" stroke="#172033" stroke-width="7" stroke-linecap="round"/>
+  <path d="M118 292C178 267 251 218 318 156" fill="none" stroke="#256bd9" stroke-width="4" stroke-dasharray="10 9"/>
+  <g fill="#256bd9" stroke="#fff" stroke-width="3">
+    <circle cx="154" cy="154" r="8"/><circle cx="194" cy="184" r="8"/><circle cx="246" cy="166" r="8"/><circle cx="316" cy="122" r="8"/>
+  </g>
+  <g fill="#e26d3d" stroke="#fff" stroke-width="3">
+    <circle cx="152" cy="345" r="8"/><circle cx="218" cy="326" r="8"/><circle cx="290" cy="344" r="8"/><circle cx="360" cy="298" r="8"/>
+  </g>
+  <g transform="translate(502 138)">
+    <circle cx="78" cy="132" r="54" fill="#fff" stroke="#172033" stroke-width="5"/>
+    <path d="M45 141C61 146 59 117 76 117C94 117 91 146 112 137" fill="none" stroke="#4d63ff" stroke-width="5" stroke-linecap="round"/>
+    <path d="M0 132H24M132 132H182" stroke="#172033" stroke-width="5" stroke-linecap="round"/>
+    <path d="M182 132L164 121V143Z" fill="#172033"/>
+  </g>
+  <g transform="translate(715 122)">
+    <path d="M0 250H170M0 250V28" stroke="#8b95a5" stroke-width="2"/>
+    <path d="M2 214C38 212 54 156 82 138C111 119 111 70 168 62" fill="none" stroke="#256bd9" stroke-width="8" stroke-linecap="round"/>
+    <path d="M2 226C43 220 58 178 84 160C114 139 122 98 168 88" fill="none" stroke="#e26d3d" stroke-width="8" stroke-linecap="round" opacity=".72"/>
+  </g>
+  <text x="84" y="56" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Affine score, then activation</text>
+  <text x="84" y="486" fill="#667085" font-family="Arial, sans-serif" font-size="22">A directional score becomes a nonlinear response field.</text>
+</svg>
+""",
+    "HiddenRewriteScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Hidden representation rewrite poster">
+  <rect width="960" height="540" fill="#f6f7f9"/>
+  <g stroke="#d9dee8" stroke-width="1">
+    <path d="M86 150H350M86 214H350M86 278H350M86 342H350M86 406H350"/>
+    <path d="M150 104V430M214 104V430M278 104V430M646 150H884M646 214H884M646 278H884M646 342H884M646 406H884"/>
+    <path d="M706 104V430M766 104V430M826 104V430"/>
+  </g>
+  <path d="M86 430H350M86 104V430M646 430H884M646 104V430" stroke="#8b95a5" stroke-width="2"/>
+  <g fill="#256bd9" stroke="#fff" stroke-width="3">
+    <circle cx="122" cy="166" r="8"/><circle cx="166" cy="206" r="8"/><circle cx="226" cy="270" r="8"/><circle cx="306" cy="338" r="8"/>
+    <circle cx="698" cy="166" r="8"/><circle cx="732" cy="196" r="8"/><circle cx="772" cy="226" r="8"/><circle cx="812" cy="246" r="8"/>
+  </g>
+  <g fill="#e26d3d" stroke="#fff" stroke-width="3">
+    <circle cx="124" cy="342" r="8"/><circle cx="172" cy="302" r="8"/><circle cx="230" cy="238" r="8"/><circle cx="308" cy="174" r="8"/>
+    <circle cx="700" cy="334" r="8"/><circle cx="744" cy="360" r="8"/><circle cx="790" cy="384" r="8"/><circle cx="832" cy="396" r="8"/>
+  </g>
+  <path d="M684 286C734 262 794 250 864 226" stroke="#172033" stroke-width="6" stroke-dasharray="12 10" fill="none"/>
+  <g transform="translate(420 180)" fill="#fff" stroke="#172033" stroke-width="3">
+    <circle cx="0" cy="44" r="21"/><circle cx="0" cy="134" r="21"/><circle cx="108" cy="18" r="21"/><circle cx="108" cy="88" r="21"/><circle cx="108" cy="158" r="21"/>
+  </g>
+  <g stroke="#4d63ff" stroke-width="4" stroke-linecap="round">
+    <path d="M450 224C485 209 500 205 528 198"/><path d="M450 224C486 248 501 259 528 268"/><path d="M450 314C486 294 501 286 528 268"/><path d="M450 314C486 326 501 337 528 338"/>
+  </g>
+  <text x="84" y="62" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Hidden space rewrites geometry</text>
+  <text x="84" y="486" fill="#667085" font-family="Arial, sans-serif" font-size="22">The final layer reads a cleaner representation than the raw input plane.</text>
+</svg>
+""",
+    "BackpropResponsibilityScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Backpropagation responsibility poster">
+  <rect width="960" height="540" fill="#f6f7f9"/>
+  <g stroke="#cfd6e2" stroke-width="5" stroke-opacity=".72" stroke-linecap="round">
+    <path d="M140 210L334 150M140 330L334 150M140 210L334 270M140 330L334 270M334 150L560 210M334 270L560 210M334 150L560 330M334 270L560 330M560 210L782 270M560 330L782 270"/>
+  </g>
+  <g fill="#fff" stroke="#172033" stroke-width="5">
+    <circle cx="140" cy="210" r="31"/><circle cx="140" cy="330" r="31"/>
+    <circle cx="334" cy="150" r="29"/><circle cx="334" cy="270" r="29"/>
+    <circle cx="560" cy="210" r="29"/><circle cx="560" cy="330" r="29"/>
+  </g>
+  <circle cx="782" cy="270" r="38" fill="#fff" stroke="#172033" stroke-width="6"/>
+  <circle cx="850" cy="270" r="27" fill="#ffe9e2" stroke="#e26d3d" stroke-width="5"/>
+  <text x="839" y="279" fill="#e26d3d" font-family="Arial, sans-serif" font-size="28" font-weight="700">L</text>
+  <g fill="none" stroke="#e26d3d" stroke-linecap="round">
+    <path d="M824 270C756 256 682 232 590 213" stroke-width="9"/>
+    <path d="M824 270C754 294 682 318 590 329" stroke-width="8" opacity=".82"/>
+    <path d="M532 329C474 319 418 294 365 276" stroke-width="7" opacity=".7"/>
+    <path d="M306 267C246 280 202 307 168 326" stroke-width="6" opacity=".58"/>
+  </g>
+  <text x="84" y="62" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Loss signal flows backward</text>
+  <text x="84" y="486" fill="#667085" font-family="Arial, sans-serif" font-size="22">Gradients assign responsibility to links and biases across the graph.</text>
+</svg>
+""",
+    "CapacityOverfittingScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Capacity overfitting poster">
+  <rect width="960" height="540" fill="#f6f7f9"/>
+  <g font-family="Arial, sans-serif">
+    <g transform="translate(70 130)">
+      <rect width="236" height="246" rx="10" fill="#fff" stroke="#d9dee8"/>
+      <path d="M24 214H214M24 214V26" stroke="#8b95a5" stroke-width="2"/>
+      <path d="M30 184L210 68" stroke="#172033" stroke-width="7" stroke-linecap="round" fill="none"/>
+      <g fill="#256bd9" stroke="#fff" stroke-width="3"><circle cx="58" cy="72" r="8"/><circle cx="104" cy="98" r="8"/><circle cx="154" cy="112" r="8"/></g>
+      <g fill="#e26d3d" stroke="#fff" stroke-width="3"><circle cx="70" cy="188" r="8"/><circle cx="134" cy="172" r="8"/><circle cx="190" cy="184" r="8"/></g>
+      <text x="24" y="284" fill="#667085" font-size="22" font-weight="700">underfit</text>
+    </g>
+    <g transform="translate(362 130)">
+      <rect width="236" height="246" rx="10" fill="#fff" stroke="#d9dee8"/>
+      <path d="M24 214H214M24 214V26" stroke="#8b95a5" stroke-width="2"/>
+      <path d="M30 202C82 178 102 130 128 106C156 80 180 70 210 62" stroke="#172033" stroke-width="7" stroke-linecap="round" fill="none"/>
+      <g fill="#256bd9" stroke="#fff" stroke-width="3"><circle cx="56" cy="72" r="8"/><circle cx="104" cy="86" r="8"/><circle cx="154" cy="78" r="8"/></g>
+      <g fill="#e26d3d" stroke="#fff" stroke-width="3"><circle cx="68" cy="188" r="8"/><circle cx="134" cy="174" r="8"/><circle cx="192" cy="184" r="8"/></g>
+      <text x="24" y="284" fill="#667085" font-size="22" font-weight="700">balanced</text>
+    </g>
+    <g transform="translate(654 130)">
+      <rect width="236" height="246" rx="10" fill="#fff" stroke="#d9dee8"/>
+      <path d="M24 214H214M24 214V26" stroke="#8b95a5" stroke-width="2"/>
+      <path d="M30 188C52 116 78 222 104 166C132 92 158 206 178 96C190 38 202 110 212 64" stroke="#172033" stroke-width="7" stroke-linecap="round" fill="none"/>
+      <g fill="#256bd9" stroke="#fff" stroke-width="3"><circle cx="58" cy="72" r="8"/><circle cx="104" cy="98" r="8"/><circle cx="154" cy="78" r="8"/></g>
+      <g fill="#e26d3d" stroke="#fff" stroke-width="3"><circle cx="66" cy="190" r="8"/><circle cx="136" cy="174" r="8"/><circle cx="194" cy="190" r="8"/></g>
+      <text x="24" y="284" fill="#667085" font-size="22" font-weight="700">overfit</text>
+    </g>
+  </g>
+  <text x="84" y="62" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Capacity changes boundary shape</text>
+  <text x="84" y="486" fill="#667085" font-family="Arial, sans-serif" font-size="22">Training loss alone cannot choose the right boundary.</text>
+</svg>
+""",
+}
+
 
 def render_scene(scene_name: str) -> Path:
     subprocess.run(
@@ -158,4 +273,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

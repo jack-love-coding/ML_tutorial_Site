@@ -1,4 +1,5 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
+import { aiBridgeModules } from './aiBridgeModules.ts'
 import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
@@ -20,7 +21,29 @@ const supplementalModules = Object.fromEntries(
   mathFoundationsModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
 ) as Record<MathLabModuleId, MathLabModule | undefined>
 
-export const mathLabModules: MathLabModule[] = importedMathNotes.map((moduleDefinition) => {
+const aiMathPath: MathLabModuleId[] = [
+  'vectors-matrices-norms',
+  'tensor-shapes-vectorization',
+  'taylor-series',
+  'matrix-calculus-autodiff',
+  'monte-carlo',
+  'probability-likelihood-entropy',
+  'lu-decomposition',
+  'sparse-matrices',
+  'condition-numbers',
+  'eigenvalues-eigenvectors',
+  'markov-chains',
+  'finite-difference-methods',
+  'nonlinear-equations',
+  'optimization',
+  'training-diagnostics',
+  'least-squares-fitting',
+  'svd',
+  'pca',
+  'deep-architecture-math',
+]
+
+const importedFoundationModules: MathLabModule[] = importedMathNotes.map((moduleDefinition) => {
   if (moduleDefinition.id === 'taylor-series') {
     return buildTaylorSeriesModule(moduleDefinition)
   }
@@ -83,6 +106,24 @@ export const mathLabModules: MathLabModule[] = importedMathNotes.map((moduleDefi
     ...moduleDefinition,
     visuals: supplement?.visuals ?? [],
     labs: supplement?.labs ?? [],
+  }
+})
+
+const allModulesById = Object.fromEntries(
+  [...importedFoundationModules, ...aiBridgeModules].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
+) as Record<MathLabModuleId, MathLabModule | undefined>
+
+export const mathLabModules: MathLabModule[] = aiMathPath.map((moduleId, index) => {
+  const moduleDefinition = allModulesById[moduleId]
+
+  if (!moduleDefinition) {
+    throw new Error(`Missing math lab module: ${moduleId}`)
+  }
+
+  return {
+    ...moduleDefinition,
+    order: index + 6,
+    nextModuleIds: aiMathPath[index + 1] ? [aiMathPath[index + 1]] : [],
   }
 })
 

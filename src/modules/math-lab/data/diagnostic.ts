@@ -137,11 +137,11 @@ function emptyDimensionScores() {
 }
 
 function recommendStartModule(scores: Record<DiagnosticDimension, number>): MathLabModuleId {
+  if (scores.linearAlgebra < 0.75) return 'vectors-matrices-norms'
   if (scores.calculus < 0.75) return 'taylor-series'
   if (scores.probability < 0.75) return 'monte-carlo'
-  if (scores.linearAlgebra < 0.75) return 'vectors-matrices-norms'
   if (scores.optimization < 0.75) return 'optimization'
-  return 'taylor-series'
+  return 'vectors-matrices-norms'
 }
 
 export function scoreDiagnostic(answers: Record<string, string>): DiagnosticResult {

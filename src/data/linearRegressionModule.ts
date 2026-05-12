@@ -725,27 +725,60 @@ This chapter makes the diagnosis visible first, then the next chapter asks how r
       markdown: loc(
         `过拟合章节里，degree 7 可以把训练点贴得更近，但代价是权重很大、曲线很抖、验证误差升高。正则化就是在损失函数里加入“别让参数太夸张”的提醒。
 
-L2 会惩罚权重平方，让权重整体变小；L1 会惩罚权重绝对值，更容易把一部分权重推向 0。
+![正则化把复杂模型压进更克制的预算边界](/linear-regression/generated/regularization-budget.png)
 
-$$\text{loss}=\text{MSE}+\lambda\cdot\text{penalty}(w)$$
+*这张辅助图没有公式和坐标，只表达一个直觉：正则化像一个预算边界，把原本摇摆很大的参数连接压得更平顺。*
 
-它不是为了单独压低训练误差，而是在“保留高阶特征”和“避免过度弯折”之间做更稳的取舍。`,
+统一写法是：
+
+$$\\text{loss}=\\text{MSE}+\\lambda\\cdot\\text{penalty}(\\mathbf{w})$$
+
+三种常见惩罚对应三种不同的参数偏好：
+
+| 方法 | 惩罚项 | 几何约束 | 典型效果 |
+|---|---|---|---|
+| L1 / Lasso | $\\sum_j |w_j|$ | 菱形，有尖角 | 更容易让部分权重变成 0，适合做稀疏选择 |
+| L2 / Ridge | $\\sum_j w_j^2$ | 圆形或球形，边界光滑 | 更倾向整体缩小权重，通常更稳定 |
+| Elastic Net | $\\alpha\\sum_j |w_j|+(1-\\alpha)\\sum_j w_j^2$ | 介于菱形和圆之间 | 同时保留稀疏性和整体收缩，适合相关特征较多时 |
+
+本章的重点不是“正则化一定让训练 MSE 更低”。它优化的是训练误差和参数复杂度的合成目标：允许训练贴合度稍微变差，换取验证误差、权重范数和曲线弯折更稳定。`,
         `In the overfitting chapter, degree 7 can hug training points more closely, but the cost is large weights, a wavy curve, and higher validation error. Regularization adds a reminder to the loss: do not let the weights become too extreme.
 
-L2 penalizes squared weights and shrinks them overall. L1 penalizes absolute weights and more easily pushes some weights toward zero.
+![Regularization pushes a flexible model through a calmer complexity budget](/linear-regression/generated/regularization-budget.png)
 
-$$\text{loss}=\text{MSE}+\lambda\cdot\text{penalty}(w)$$
+*This support image contains no formulas or axes. It gives the intuition: regularization acts like a budget boundary that makes overly flexible parameter connections settle into a calmer shape.*
 
-The goal is not lower training error alone. It is a steadier tradeoff between keeping high-degree features and avoiding excessive bending.`,
+The shared objective is:
+
+$$\\text{loss}=\\text{MSE}+\\lambda\\cdot\\text{penalty}(\\mathbf{w})$$
+
+The common penalties create different parameter preferences:
+
+| Method | Penalty | Geometry | Typical effect |
+|---|---|---|---|
+| L1 / Lasso | $\\sum_j |w_j|$ | Diamond with corners | More easily pushes some weights to zero; useful for sparse selection |
+| L2 / Ridge | $\\sum_j w_j^2$ | Smooth circle or sphere | Shrinks weights overall and is usually stable |
+| Elastic Net | $\\alpha\\sum_j |w_j|+(1-\\alpha)\\sum_j w_j^2$ | Between diamond and circle | Mixes sparsity with smooth shrinkage, useful when features are correlated |
+
+The point is not that regularization always lowers training MSE. It optimizes a combined objective: accept a little less training fit in exchange for steadier validation error, weight norm, and curve roughness.`,
       ),
       callout: loc(
-        '切换 L1 / L2，比较权重范数、有效权重数量、曲线弯折和验证误差。',
-        'Switch L1 / L2 and compare weight norm, active weights, curve roughness, and validation error.',
+        '切换 L1 / L2 / Elastic Net，比较权重范数、有效权重数量、曲线弯折和验证误差。',
+        'Switch L1 / L2 / Elastic Net and compare weight norm, active weights, curve roughness, and validation error.',
       ),
       experimentPrompt: loc(
-        '保持 degree 7，逐步增大 λ。观察训练 MSE 可能上升，但验证 MSE 和曲线摆动会更稳定。',
-        'Keep degree 7 and increase λ. Training MSE may rise, while validation MSE and curve movement become steadier.',
+        '保持 degree 7，逐步增大 λ；再切到 Elastic Net 调整 α。观察训练 MSE 可能上升，但验证 MSE、权重范数和曲线摆动会更稳定。',
+        'Keep degree 7, increase lambda, then switch to Elastic Net and adjust alpha. Training MSE may rise, while validation MSE, weight norm, and curve movement become steadier.',
       ),
+      media: {
+        title: loc('L1、L2 与 Elastic Net 的参数几何', 'Parameter Geometry of L1, L2, and Elastic Net'),
+        body: loc(
+          'RSS 等高线从未正则化解向外扩散；L1 菱形更容易在角点相交，L2 圆形会平滑收缩，Elastic Net 的边界介于两者之间。',
+          'RSS contours spread around the unregularized solution. The L1 diamond often meets at corners, L2 shrinks smoothly, and Elastic Net sits between them.',
+        ),
+        assetPath: '/manim/linear-regression/regularization-geometry.mp4',
+        posterPath: '/manim/linear-regression/regularization-geometry.svg',
+      },
       presetId: 'regularized-balance',
       metricEmphasis: ['loss'],
     },
@@ -759,6 +792,7 @@ The goal is not lower training error alone. It is a steadier tradeoff between ke
     { key: 'featureNoise', type: 'range', labelKey: 'controls.featureNoise', category: 'data', min: 0, max: 0.45, step: 0.01, format: 'number' },
     { key: 'polynomialDegree', type: 'range', labelKey: 'controls.polynomialDegree', category: 'architecture', min: 1, max: 7, step: 1, format: 'integer' },
     { key: 'lambda', type: 'range', labelKey: 'controls.lambda', category: 'optimization', min: 0, max: 0.8, step: 0.01, format: 'number' },
+    { key: 'elasticAlpha', type: 'range', labelKey: 'controls.elasticAlpha', category: 'optimization', min: 0, max: 1, step: 0.05, format: 'percent' },
     { key: 'validationSplit', type: 'range', labelKey: 'controls.validationSplit', category: 'data', min: 0.18, max: 0.48, step: 0.01, format: 'percent' },
     {
       key: 'regularizationType',
@@ -769,6 +803,7 @@ The goal is not lower training error alone. It is a steadier tradeoff between ke
         { value: 'none', labelKey: 'controls.options.none' },
         { value: 'l1', labelKey: 'controls.options.l1' },
         { value: 'l2', labelKey: 'controls.options.l2' },
+        { value: 'elastic', labelKey: 'controls.options.elastic' },
       ],
     },
   ],
@@ -888,6 +923,7 @@ The goal is not lower training error alone. It is a steadier tradeoff between ke
         polynomialDegree: 7,
         validationSplit: 0.35,
         regularizationType: 'l2',
+        elasticAlpha: 0.5,
         lambda: 0.28,
       },
     },
@@ -906,6 +942,7 @@ The goal is not lower training error alone. It is a steadier tradeoff between ke
     polynomialDegree: 2,
     validationSplit: 0.32,
     regularizationType: 'none',
+    elasticAlpha: 0.5,
     lambda: 0,
   }),
   simulate: simulateLinearRegression,
