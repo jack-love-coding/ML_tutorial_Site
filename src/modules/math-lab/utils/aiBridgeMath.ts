@@ -14,6 +14,11 @@ export interface TensorShapeInput {
   biasDim: number
 }
 
+export interface CalibrationPoint {
+  confidence: number
+  correct: boolean
+}
+
 export function evaluateTensorShape(input: TensorShapeInput) {
   const batchSize = Math.max(1, Math.round(input.batchSize))
   const inputDim = Math.max(1, Math.round(input.inputDim))
@@ -75,6 +80,35 @@ export function evaluateAutodiffGraph(input: {
   }
 }
 
+export function evaluateJacobianProducts(input: {
+  x: number
+  y: number
+  upstream: [number, number]
+  tangent: [number, number]
+}) {
+  const { x, y, upstream, tangent } = input
+  const output: [number, number] = [x * x + y, x * y]
+  const jacobian: [[number, number], [number, number]] = [
+    [2 * x, 1],
+    [y, x],
+  ]
+  const vjp: [number, number] = [
+    upstream[0] * jacobian[0][0] + upstream[1] * jacobian[1][0],
+    upstream[0] * jacobian[0][1] + upstream[1] * jacobian[1][1],
+  ]
+  const jvp: [number, number] = [
+    jacobian[0][0] * tangent[0] + jacobian[0][1] * tangent[1],
+    jacobian[1][0] * tangent[0] + jacobian[1][1] * tangent[1],
+  ]
+
+  return {
+    output,
+    jacobian,
+    vjp,
+    jvp,
+  }
+}
+
 export function softmax(logits: number[], temperature = 1) {
   const safeTemperature = Math.max(0.05, temperature)
   const scaled = logits.map((value) => value / safeTemperature)
@@ -110,13 +144,52 @@ export function evaluateProbabilityLab(input: {
 }) {
   const probabilities = softmax(input.logits, input.temperature)
   const uniform = probabilities.map(() => 1 / probabilities.length)
+  const target = clamp(Math.round(input.targetIndex), 0, probabilities.length - 1)
   return {
     probabilities,
-    crossEntropy: crossEntropy(probabilities, input.targetIndex),
+    crossEntropy: crossEntropy(probabilities, target),
     entropy: entropy(probabilities),
     klToUniform: klDivergence(probabilities, uniform),
-    targetProbability: probabilities[clamp(Math.round(input.targetIndex), 0, probabilities.length - 1)] ?? 0,
+    klFromUniform: klDivergence(uniform, probabilities),
+    targetProbability: probabilities[target] ?? 0,
   }
+}
+
+export function evaluateKLDirections(left: number[], right: number[]) {
+  return {
+    leftToRight: klDivergence(left, right),
+    rightToLeft: klDivergence(right, left),
+    asymmetry: Math.abs(klDivergence(left, right) - klDivergence(right, left)),
+  }
+}
+
+export function calibrationBins(points: CalibrationPoint[], binCount = 5) {
+  const safeBinCount = Math.max(1, Math.round(binCount))
+  return Array.from({ length: safeBinCount }, (_, binIndex) => {
+    const lower = binIndex / safeBinCount
+    const upper = (binIndex + 1) / safeBinCount
+    const inBin = points.filter((point) =>
+      binIndex === safeBinCount - 1
+        ? point.confidence >= lower && point.confidence <= upper
+        : point.confidence >= lower && point.confidence < upper,
+    )
+    const averageConfidence = inBin.length
+      ? inBin.reduce((sum, point) => sum + point.confidence, 0) / inBin.length
+      : (lower + upper) / 2
+    const accuracy = inBin.length
+      ? inBin.filter((point) => point.correct).length / inBin.length
+      : 0
+
+    return {
+      bin: binIndex,
+      lower,
+      upper,
+      count: inBin.length,
+      averageConfidence,
+      accuracy,
+      gap: Math.abs(averageConfidence - accuracy),
+    }
+  })
 }
 
 export function evaluateTrainingScenario(scenario: TrainingScenario, steps = 40) {
@@ -188,6 +261,29 @@ export function convolutionOutputSize(inputSize: number, kernelSize: number, str
   return Math.floor((inputSize + 2 * padding - kernelSize) / stride) + 1
 }
 
+export function evaluateAttentionShape(input: {
+  batchSize: number
+  tokens: number
+  hiddenDim: number
+  heads: number
+}) {
+  const batchSize = Math.max(1, Math.round(input.batchSize))
+  const tokens = Math.max(1, Math.round(input.tokens))
+  const hiddenDim = Math.max(1, Math.round(input.hiddenDim))
+  const heads = Math.max(1, Math.round(input.heads))
+  const valid = hiddenDim % heads === 0
+  const perHeadDim = valid ? hiddenDim / heads : Math.floor(hiddenDim / heads)
+
+  return {
+    valid,
+    perHeadDim,
+    inputShape: [batchSize, tokens, hiddenDim] as const,
+    splitShape: valid ? ([batchSize, heads, tokens, perHeadDim] as const) : undefined,
+    scoreShape: valid ? ([batchSize, heads, tokens, tokens] as const) : undefined,
+    outputShape: [batchSize, tokens, hiddenDim] as const,
+  }
+}
+
 export function evaluateAttention(query: number[], keys: number[][], temperature = Math.sqrt(query.length)) {
   const scores = keys.map((key) =>
     key.reduce((sum, value, index) => sum + value * (query[index] ?? 0), 0) / Math.max(0.05, temperature),
@@ -196,6 +292,10 @@ export function evaluateAttention(query: number[], keys: number[][], temperature
     scores,
     weights: softmax(scores, 1),
   }
+}
+
+export function evaluateAttentionMatrix(tokens: number[][]) {
+  return tokens.map((query) => evaluateAttention(query, tokens).weights)
 }
 
 export function normalizeVector(values: number[]) {

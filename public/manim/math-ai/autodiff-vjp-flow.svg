@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Autodiff VJP flow poster">
+  <rect width="960" height="540" fill="#fffef7"/>
+  <g stroke="#10162f" stroke-width="5" opacity=".35">
+    <path d="M150 178L365 230M150 362L365 230M365 230L570 270M365 320L570 270M570 270L770 270"/>
+  </g>
+  <g fill="#d8f6ff" stroke="#10162f" stroke-width="5"><circle cx="150" cy="178" r="42"/><circle cx="150" cy="362" r="42"/></g>
+  <g fill="#dffbe9" stroke="#10162f" stroke-width="5"><circle cx="365" cy="230" r="42"/><circle cx="365" cy="320" r="42"/></g>
+  <circle cx="570" cy="270" r="48" fill="#e7ddff" stroke="#10162f" stroke-width="5"/>
+  <circle cx="770" cy="270" r="52" fill="#ffd6c8" stroke="#10162f" stroke-width="5"/>
+  <g stroke="#d65a31" stroke-width="12" stroke-linecap="round" fill="none">
+    <path d="M730 270C660 252 626 246 596 258"/><path d="M528 270C468 254 430 240 398 232"/><path d="M330 230C260 210 220 190 184 178"/>
+  </g>
+  <rect x="354" y="418" width="250" height="62" rx="12" fill="#fff2ad" stroke="#10162f" stroke-width="4" transform="rotate(-8 479 449)"/>
+</svg>

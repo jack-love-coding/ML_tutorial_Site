@@ -193,6 +193,38 @@
   gap: 18px;
 }
 
+.math-visual-asset {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: var(--shadow-soft);
+}
+
+.math-visual-asset img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  object-fit: cover;
+  background: #0c1628;
+}
+
+.math-visual-asset figcaption {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.math-visual-asset figcaption strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
 .math-lab-panel header > span,
 .math-code-lab header > span,
 .math-checkpoint header > span,

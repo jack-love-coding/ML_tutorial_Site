@@ -19,6 +19,7 @@ import GradientChapterLab from '../components/GradientChapterLab.vue'
 import LossFunctionsLessonLab from '../components/LossFunctionsLessonLab.vue'
 import LossFunctionsResults from '../components/LossFunctionsResults.vue'
 import LinearRegressionLessonLab from '../components/LinearRegressionLessonLab.vue'
+import LinearRegressionPagedLesson from '../components/LinearRegressionPagedLesson.vue'
 import LinearRegressionResults from '../components/LinearRegressionResults.vue'
 import LogisticRegressionLessonLab from '../components/LogisticRegressionLessonLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
@@ -33,7 +34,14 @@ const { experiments } = storeToRefs(experimentStore)
 const activeChapter = ref('')
 const mlpPlaygroundRef = ref<HTMLElement | null>(null)
 
-const slug = computed(() => route.params.slug as ModuleSlug)
+const slug = computed(() => {
+  const routeSlug = route.params.slug
+  if (typeof routeSlug === 'string') return routeSlug as ModuleSlug
+  return 'linear-regression' as ModuleSlug
+})
+const requestedChapterId = computed(() =>
+  typeof route.params.chapterId === 'string' ? route.params.chapterId : '',
+)
 const moduleDefinition = computed(() => moduleRegistry[slug.value])
 const isGradientPage = computed(() => slug.value === 'gradient-descent')
 const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
@@ -46,15 +54,34 @@ if (!moduleDefinition.value) {
 }
 
 watch(
-  slug,
-  (nextSlug) => {
-    if (!moduleRegistry[nextSlug]) {
+  () => [slug.value, requestedChapterId.value] as const,
+  ([nextSlug, nextChapterId]) => {
+    const nextModuleDefinition = moduleRegistry[nextSlug]
+    if (!nextModuleDefinition) {
       router.replace('/')
       return
     }
 
     experimentStore.ensureExperiment(nextSlug)
-    activeChapter.value = moduleRegistry[nextSlug].chapters[0]?.id ?? ''
+    const firstChapterId = nextModuleDefinition.chapters[0]?.id ?? ''
+    let nextActiveChapter = firstChapterId
+
+    if (nextSlug === 'linear-regression') {
+      if (nextChapterId) {
+        const matchedChapter = nextModuleDefinition.chapters.find((chapter) => chapter.id === nextChapterId)
+        if (!matchedChapter) {
+          router.replace(`/learn/linear-regression/${firstChapterId}`)
+          return
+        }
+        nextActiveChapter = matchedChapter.id
+      }
+
+      activeChapter.value = nextActiveChapter
+      syncChapterPreset(nextActiveChapter)
+      return
+    }
+
+    activeChapter.value = nextActiveChapter
   },
   { immediate: true },
 )
@@ -258,10 +285,10 @@ watch(
 
 onBeforeUnmount(stopTimer)
 
-function onChapterChange(nextChapter: string) {
-  activeChapter.value = nextChapter
+function syncChapterPreset(nextChapter: string) {
   if (isLinearRegressionPage.value || isLogisticRegressionPage.value || isMlpPage.value) {
-    if (experiment.value?.isPlaying || Number(experiment.value?.currentStep ?? 0) > 0) return
+    const currentExperiment = experimentStore.ensureExperiment(slug.value)
+    if (currentExperiment.isPlaying || Number(currentExperiment.currentStep ?? 0) > 0) return
 
     const section = moduleDefinition.value?.chapters.find((chapter) => chapter.id === nextChapter)
     const preset = moduleDefinition.value?.presets.find((item) => item.id === section?.presetId)
@@ -269,6 +296,11 @@ function onChapterChange(nextChapter: string) {
       experimentStore.applyPreset(slug.value, preset.config)
     }
   }
+}
+
+function onChapterChange(nextChapter: string) {
+  activeChapter.value = nextChapter
+  syncChapterPreset(nextChapter)
 }
 
 function patchConfig(partialConfig: Partial<ExperimentConfig>) {
@@ -414,8 +446,25 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </StoryScroller>
     </section>
 
+    <LinearRegressionPagedLesson
+      v-else-if="isLinearRegressionPage && activeSection"
+      :module-definition="moduleDefinition"
+      :section="activeSection"
+      :config="experiment.config"
+      :snapshot="snapshot"
+      :snapshots="experiment.snapshots"
+      :current-step="experiment.currentStep"
+      :is-playing="experiment.isPlaying"
+      @patch-config="patchConfig"
+      @toggle-play="experimentStore.togglePlayback(slug)"
+      @step="experimentStore.advance(slug)"
+      @replay="experimentStore.replay(slug)"
+      @reset="experimentStore.reset(slug)"
+      @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
+    />
+
     <section
-      v-else-if="isLinearRegressionPage"
+      v-else-if="false && isLinearRegressionPage"
       class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--linear-story"
     >
       <StoryScroller
@@ -433,24 +482,24 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
                 controls
                 playsinline
                 preload="metadata"
-                :poster="publicAsset(section.media.posterPath)"
-                :aria-label="localizedText(section.media.title)"
+                :poster="publicAsset(section.media?.posterPath)"
+                :aria-label="localizedText(section.media?.title)"
               >
-                <source :src="publicAsset(section.media.assetPath)" type="video/mp4" />
+                <source :src="publicAsset(section.media?.assetPath)" type="video/mp4" />
               </video>
             </div>
             <div class="story-media__copy">
-              <span>{{ localizedText(section.media.title) }}</span>
-              <MarkdownMathContent :source="localizedText(section.media.body)" />
+              <span>{{ localizedText(section.media?.title) }}</span>
+              <MarkdownMathContent :source="localizedText(section.media?.body)" />
             </div>
           </section>
 
           <LinearRegressionLessonLab
-            :config="experiment.config"
+            :config="experiment?.config || {}"
             :snapshot="snapshot"
-            :snapshots="experiment.snapshots"
-            :current-step="experiment.currentStep"
-            :is-playing="experiment.isPlaying"
+            :snapshots="experiment?.snapshots || []"
+            :current-step="experiment?.currentStep || 0"
+            :is-playing="Boolean(experiment?.isPlaying)"
             :accent="moduleDefinition.accent"
             :section="section"
             :presets="moduleDefinition.presets"
@@ -700,12 +749,14 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </section>
     </section>
 
-    <section v-else-if="isLinearRegressionPage" class="results-grid results-grid--linear">
+    <template v-else-if="isLinearRegressionPage" />
+
+    <section v-else-if="false && isLinearRegressionPage" class="results-grid results-grid--linear">
       <LinearRegressionResults
         :section="activeSection"
         :snapshot="snapshot"
-        :snapshots="experiment.snapshots"
-        :current-step="experiment.currentStep"
+        :snapshots="experiment?.snapshots || []"
+        :current-step="experiment?.currentStep || 0"
       />
 
       <section class="panel lesson-panel">

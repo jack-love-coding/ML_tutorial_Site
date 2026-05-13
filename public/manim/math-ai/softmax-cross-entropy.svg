@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Probability simplex and softmax poster">
+  <rect width="960" height="540" fill="#f8fbff"/>
+  <path d="M168 372L304 136L448 372Z" fill="#ffffff" stroke="#10162f" stroke-width="5"/>
+  <circle cx="330" cy="270" r="19" fill="#ffd84d" stroke="#10162f" stroke-width="4"/>
+  <path d="M616 408V154" stroke="#10162f" stroke-width="5" stroke-linecap="round"/>
+  <path d="M584 408H858" stroke="#10162f" stroke-width="5" stroke-linecap="round"/>
+  <g stroke="#10162f" stroke-width="4">
+    <rect x="626" y="304" width="46" height="104" fill="#d8f6ff"/>
+    <rect x="704" y="182" width="46" height="226" fill="#ffd84d"/>
+    <rect x="782" y="348" width="46" height="60" fill="#d8f6ff"/>
+  </g>
+  <circle cx="727" cy="158" r="34" fill="none" stroke="#d65a31" stroke-width="7"/>
+</svg>

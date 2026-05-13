@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Tensor shape broadcasting poster">
+  <rect width="960" height="540" fill="#f7fbff"/>
+  <g transform="translate(92 126)" fill="#d8f6ff" stroke="#10162f" stroke-width="3">
+    <rect width="210" height="250" rx="16"/>
+    <g opacity=".45"><path d="M52 0V250M104 0V250M156 0V250M0 50H210M0 100H210M0 150H210M0 200H210"/></g>
+  </g>
+  <g transform="translate(376 116)" fill="#e7ddff" stroke="#10162f" stroke-width="3">
+    <rect width="150" height="270" rx="16"/>
+    <g opacity=".45"><path d="M50 0V270M100 0V270M0 68H150M0 136H150M0 204H150"/></g>
+  </g>
+  <g transform="translate(620 138)" fill="#dffbe9" stroke="#10162f" stroke-width="3">
+    <rect width="168" height="226" rx="16"/>
+    <g opacity=".45"><path d="M56 0V226M112 0V226M0 45H168M0 90H168M0 135H168M0 180H168"/></g>
+  </g>
+  <g stroke="#10162f" stroke-width="8" stroke-linecap="round" fill="none">
+    <path d="M318 255H356"/><path d="M542 255H592"/>
+  </g>
+  <path d="M594 255L572 241V269Z" fill="#10162f"/>
+  <g fill="#ffd84d" stroke="#10162f" stroke-width="3">
+    <circle cx="574" cy="180" r="18"/><circle cx="574" cy="230" r="18"/><circle cx="574" cy="280" r="18"/>
+  </g>
+</svg>

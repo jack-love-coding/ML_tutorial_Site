@@ -1,0 +1,30 @@
+{
+  "generatedBy": "scripts/manim/render_ai_bridge.py",
+  "scenes": [
+    {
+      "scene": "TensorBroadcastingScene",
+      "assetPath": "/manim/math-ai/tensor-broadcasting.mp4",
+      "posterPath": "/manim/math-ai/tensor-broadcasting.svg"
+    },
+    {
+      "scene": "AutodiffVjpFlowScene",
+      "assetPath": "/manim/math-ai/autodiff-vjp-flow.mp4",
+      "posterPath": "/manim/math-ai/autodiff-vjp-flow.svg"
+    },
+    {
+      "scene": "SoftmaxCrossEntropyScene",
+      "assetPath": "/manim/math-ai/softmax-cross-entropy.mp4",
+      "posterPath": "/manim/math-ai/softmax-cross-entropy.svg"
+    },
+    {
+      "scene": "TrainingLossDiagnosticsScene",
+      "assetPath": "/manim/math-ai/training-loss-diagnostics.mp4",
+      "posterPath": "/manim/math-ai/training-loss-diagnostics.svg"
+    },
+    {
+      "scene": "AttentionConvResidualScene",
+      "assetPath": "/manim/math-ai/attention-conv-residual.mp4",
+      "posterPath": "/manim/math-ai/attention-conv-residual.svg"
+    }
+  ]
+}

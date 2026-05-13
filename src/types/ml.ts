@@ -312,6 +312,9 @@ export interface StorySection {
   eyebrowKey: string
   titleKey: string
   title?: LocalizedCopy
+  pageSummary?: LocalizedCopy
+  conceptVisualId?: string
+  estimatedMinutes?: number
   markdown: LocalizedCopy
   teachingBlocks?: {
     concept: LocalizedCopy

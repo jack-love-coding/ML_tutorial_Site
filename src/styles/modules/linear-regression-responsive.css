@@ -376,6 +376,55 @@
 }
 
 @media (max-width: 1080px) {
+  .linear-course-page__grid,
+  .linear-course-page__fuel-grid,
+  .linear-course-page__residual-grid,
+  .linear-course-page__review {
+    grid-template-columns: 1fr;
+  }
+
+  .linear-course-page__mobile-toggle {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid rgba(15, 23, 40, 0.09);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--ink);
+    text-align: left;
+    box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+
+  .linear-course-page__mobile-toggle span {
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .linear-course-page__mobile-toggle strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .linear-course-page__sidebar {
+    position: static;
+    display: none;
+  }
+
+  .linear-course-page__sidebar.is-open {
+    display: grid;
+  }
+
+  .linear-course-page__nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .story-media,
   .linear-regression-lab__viz,
   .linear-regression-lab__diagnostic-grid,
@@ -396,6 +445,53 @@
 }
 
 @media (max-width: 720px) {
+  .linear-course-page__header,
+  .linear-course-page__visual,
+  .linear-course-page__lab-block,
+  .linear-course-page__guide-card,
+  .linear-course-page__data-table,
+  .linear-course-page__figure,
+  .linear-course-page__equation-figure,
+  .linear-course-page__wide-figure,
+  .linear-course-page__loss-summary,
+  .linear-course-page__pager-link {
+    padding: 14px;
+  }
+
+  .linear-course-page__header h2 {
+    font-size: 2.05rem;
+  }
+
+  .linear-course-page__toc-heading,
+  .linear-course-page__section-heading,
+  .linear-course-page__meta {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .linear-course-page__toc-heading strong,
+  .linear-course-page__section-heading strong {
+    text-align: left;
+  }
+
+  .linear-course-page__nav,
+  .linear-course-page__pager {
+    grid-template-columns: 1fr;
+  }
+
+  .linear-course-page__pager-link--next {
+    text-align: left;
+  }
+
+  .linear-equation-main {
+    font-size: 38px;
+  }
+
+  .linear-equation-callout text,
+  .linear-equation-note {
+    font-size: 16px;
+  }
+
   .linear-regression-lab {
     padding: 22px;
     border-radius: 24px;

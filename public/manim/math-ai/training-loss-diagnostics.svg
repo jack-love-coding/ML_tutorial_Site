@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Training diagnostics curve poster">
+  <rect width="960" height="540" fill="#fff8f3"/>
+  <g stroke="#10162f" stroke-width="5" stroke-linecap="round">
+    <path d="M112 430H854"/><path d="M112 430V102"/>
+  </g>
+  <path d="M132 128C236 202 318 274 430 322C556 376 684 398 832 410" fill="none" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M132 150C254 214 356 276 466 300C600 330 700 322 832 242" fill="none" stroke="#d65a31" stroke-width="10" stroke-linecap="round"/>
+  <path d="M132 390C220 358 280 406 356 334C430 264 502 382 576 248C652 112 728 260 832 126" fill="none" stroke="#0f9f7a" stroke-width="8" stroke-linecap="round" opacity=".75"/>
+  <g stroke="#ffd84d" stroke-width="7" stroke-linecap="round">
+    <path d="M188 424V374"/><path d="M292 424V344"/><path d="M396 424V392"/><path d="M500 424V276"/><path d="M604 424V316"/><path d="M708 424V180"/>
+  </g>
+</svg>

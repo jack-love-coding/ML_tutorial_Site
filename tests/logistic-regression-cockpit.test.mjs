@@ -57,7 +57,7 @@ test('logistic regression chapter changes preserve an active experiment', () => 
     'utf8',
   )
 
-  const onChapterChangeStart = algorithmViewSource.indexOf('function onChapterChange')
+  const onChapterChangeStart = algorithmViewSource.indexOf('function syncChapterPreset')
   const patchConfigStart = algorithmViewSource.indexOf('function patchConfig')
   assert.notEqual(onChapterChangeStart, -1)
   assert.notEqual(patchConfigStart, -1)

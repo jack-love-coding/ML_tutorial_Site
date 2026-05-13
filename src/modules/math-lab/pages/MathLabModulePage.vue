@@ -26,7 +26,8 @@ import TensorShapeLab from '../labs/TensorShapeLab.vue'
 import TrainingDiagnosticsLab from '../labs/TrainingDiagnosticsLab.vue'
 import VectorDotProductLab from '../labs/VectorDotProductLab.vue'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
-import type { LabConfig, MathLabLocale, MathLabModuleId, MathLabSection, QuizAttempt } from '../types/mathLab'
+import type { LabConfig, MathLabLocale, MathLabModuleId, MathLabSection, QuizAttempt, VisualAsset } from '../types/mathLab'
+import { withPublicBase } from '../../../utils/publicPath.ts'
 import {
   appendQuizAttempt,
   loadMathLabProgress,
@@ -53,17 +54,25 @@ const nextModule = computed(() => moduleDefinition.value?.nextModuleIds[0]
 const manimAssets = computed(() =>
   moduleDefinition.value?.visuals.filter((visual) => visual.type === 'manim-video') ?? [],
 )
+const imageAssets = computed(() =>
+  moduleDefinition.value?.visuals.filter((visual) => visual.type === 'image') ?? [],
+)
+const displayAssets = computed(() =>
+  moduleDefinition.value?.visuals.filter((visual) => visual.type === 'manim-video' || visual.type === 'image') ?? [],
+)
 const inlineVisualIds = computed(
   () => new Set(moduleDefinition.value?.sections.flatMap((section) => section.visualIds ?? []) ?? []),
 )
 const inlineLabIds = computed(
   () => new Set(moduleDefinition.value?.sections.flatMap((section) => section.labIds ?? []) ?? []),
 )
-const remainingManimAssets = computed(() => manimAssets.value.filter((asset) => !inlineVisualIds.value.has(asset.id)))
+const remainingDisplayAssets = computed(() =>
+  displayAssets.value.filter((asset) => !inlineVisualIds.value.has(asset.id)),
+)
 const remainingLabs = computed(() =>
   moduleDefinition.value?.labs.filter((lab) => !inlineLabIds.value.has(lab.id)) ?? [],
 )
-const hasSupplements = computed(() => remainingManimAssets.value.length > 0 || remainingLabs.value.length > 0)
+const hasSupplements = computed(() => remainingDisplayAssets.value.length > 0 || remainingLabs.value.length > 0)
 
 if (!moduleDefinition.value) {
   router.replace('/math-lab')
@@ -103,10 +112,20 @@ function manimAssetsForSection(section: MathLabSection) {
   return manimAssets.value.filter((asset) => sectionVisualIds.has(asset.id))
 }
 
+function imageAssetsForSection(section: MathLabSection) {
+  if (!section.visualIds?.length) return []
+  const sectionVisualIds = new Set(section.visualIds)
+  return imageAssets.value.filter((asset) => sectionVisualIds.has(asset.id))
+}
+
 function labsForSection(section: MathLabSection): LabConfig[] {
   if (!section.labIds?.length) return []
   const sectionLabIds = new Set(section.labIds)
   return moduleDefinition.value?.labs.filter((lab) => sectionLabIds.has(lab.id)) ?? []
+}
+
+function imageSrc(asset: VisualAsset) {
+  return withPublicBase(asset.assetPath)
 }
 </script>
 
@@ -180,9 +199,26 @@ function labsForSection(section: MathLabSection): LabConfig[] {
           </article>
 
           <section
-            v-if="manimAssetsForSection(section).length || labsForSection(section).length"
+            v-if="imageAssetsForSection(section).length || manimAssetsForSection(section).length || labsForSection(section).length"
             class="math-inline-supplement-section"
           >
+            <figure
+              v-for="asset in imageAssetsForSection(section)"
+              :key="asset.id"
+              class="math-visual-asset"
+            >
+              <img
+                v-if="asset.assetPath"
+                :src="imageSrc(asset)"
+                :alt="asset.alt?.[currentLocale] ?? asset.title[currentLocale]"
+                loading="lazy"
+              />
+              <figcaption>
+                <strong>{{ asset.title[currentLocale] }}</strong>
+                <MarkdownMathContent :source="asset.caption?.[currentLocale] ?? asset.transcript[currentLocale]" />
+              </figcaption>
+            </figure>
+
             <ManimPlayer
               v-for="asset in manimAssetsForSection(section)"
               :key="asset.id"
@@ -277,13 +313,26 @@ function labsForSection(section: MathLabSection): LabConfig[] {
             <h2>{{ currentLocale === 'zh-CN' ? '用现有互动实验巩固本章直觉' : 'Use the existing interactive labs to reinforce the note' }}</h2>
           </header>
 
-          <ManimPlayer
-            v-for="asset in remainingManimAssets"
-            :key="asset.id"
-            :asset="asset"
-            :accent="moduleDefinition.accent"
-            :locale="currentLocale"
-          />
+          <template v-for="asset in remainingDisplayAssets" :key="asset.id">
+            <figure v-if="asset.type === 'image'" class="math-visual-asset">
+              <img
+                v-if="asset.assetPath"
+                :src="imageSrc(asset)"
+                :alt="asset.alt?.[currentLocale] ?? asset.title[currentLocale]"
+                loading="lazy"
+              />
+              <figcaption>
+                <strong>{{ asset.title[currentLocale] }}</strong>
+                <MarkdownMathContent :source="asset.caption?.[currentLocale] ?? asset.transcript[currentLocale]" />
+              </figcaption>
+            </figure>
+            <ManimPlayer
+              v-else
+              :asset="asset"
+              :accent="moduleDefinition.accent"
+              :locale="currentLocale"
+            />
+          </template>
 
           <section v-if="remainingLabs.length" class="math-module-labs">
             <template v-for="lab in remainingLabs" :key="lab.id">

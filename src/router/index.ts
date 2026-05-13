@@ -32,6 +32,15 @@ export const router = createRouter({
       component: () => import('../modules/math-lab/pages/MathLabModulePage.vue'),
     },
     {
+      path: '/learn/linear-regression',
+      redirect: '/learn/linear-regression/fit-line',
+    },
+    {
+      path: '/learn/linear-regression/:chapterId',
+      name: 'linear-regression-chapter',
+      component: () => import('../views/AlgorithmView.vue'),
+    },
+    {
       path: '/learn/:slug',
       name: 'algorithm',
       component: () => import('../views/AlgorithmView.vue'),

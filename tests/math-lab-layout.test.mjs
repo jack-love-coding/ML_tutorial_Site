@@ -69,6 +69,11 @@ test('math lab components and labs exist with expected contracts', () => {
   const playerSource = read('src/modules/math-lab/components/ManimPlayer.vue')
   assert.match(playerSource, /<video/)
   assert.match(playerSource, /data-asset-path/)
+
+  const modulePageSource = read('src/modules/math-lab/pages/MathLabModulePage.vue')
+  assert.match(modulePageSource, /asset\.type === 'image'/)
+  assert.match(modulePageSource, /math-visual-asset/)
+  assert.doesNotMatch(modulePageSource, /sourceReferences/)
 })
 
 test('math lab uses generated imported notes and local migrated assets', () => {
@@ -126,4 +131,69 @@ test('manim pipeline and existing math lab video assets remain present', () => {
     assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
     assert.ok(existsSync(new URL(posterPath, root)), `${posterPath} should exist`)
   }
+})
+
+test('AI bridge generated images, source record, and Manim assets are complete', () => {
+  assert.ok(existsSync(new URL('docs/math-lab-ai-foundation-sources.md', root)))
+  assert.ok(existsSync(new URL('scripts/manim/scenes/ai_bridge_math.py', root)))
+  assert.ok(existsSync(new URL('scripts/manim/render_ai_bridge.py', root)))
+
+  const sourceRecord = read('docs/math-lab-ai-foundation-sources.md')
+  for (const moduleId of [
+    'tensor-shapes-vectorization',
+    'matrix-calculus-autodiff',
+    'probability-likelihood-entropy',
+    'training-diagnostics',
+    'deep-architecture-math',
+  ]) {
+    assert.match(sourceRecord, new RegExp(moduleId))
+  }
+
+  for (const assetPath of [
+    'public/math-lab/ai-bridge/generated/tensor-shape-pipeline.png',
+    'public/math-lab/ai-bridge/generated/autodiff-local-linearization.png',
+    'public/math-lab/ai-bridge/generated/probability-simplex.png',
+    'public/math-lab/ai-bridge/generated/training-diagnostics-dashboard.png',
+    'public/math-lab/ai-bridge/generated/architecture-stack.png',
+  ]) {
+    assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
+  }
+
+  const metadata = JSON.parse(read('public/manim/math-ai/metadata.json'))
+  assert.equal(metadata.generatedBy, 'scripts/manim/render_ai_bridge.py')
+  assert.equal(metadata.scenes.length, 5)
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'TensorBroadcastingScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'AutodiffVjpFlowScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'SoftmaxCrossEntropyScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'TrainingLossDiagnosticsScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'AttentionConvResidualScene'))
+
+  for (const scene of metadata.scenes) {
+    const assetPath = scene.assetPath.replace(/^\//, 'public/')
+    const posterPath = scene.posterPath.replace(/^\//, 'public/')
+    assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
+    assert.ok(existsSync(new URL(posterPath, root)), `${posterPath} should exist`)
+  }
+})
+
+test('AI bridge labs use deterministic D3 and Three.js upgrades', () => {
+  const labSources = {
+    tensor: read('src/modules/math-lab/labs/TensorShapeLab.vue'),
+    autodiff: read('src/modules/math-lab/labs/AutodiffGraphLab.vue'),
+    probability: read('src/modules/math-lab/labs/ProbabilityEntropyLab.vue'),
+    diagnostics: read('src/modules/math-lab/labs/TrainingDiagnosticsLab.vue'),
+    architecture: read('src/modules/math-lab/labs/ArchitectureMathLab.vue'),
+  }
+
+  assert.match(labSources.tensor, /import \* as d3 from 'd3'/)
+  assert.match(labSources.autodiff, /import \* as d3 from 'd3'/)
+  assert.match(labSources.autodiff, /import \* as THREE from 'three'/)
+  assert.match(labSources.autodiff, /ThreeSceneShell/)
+  assert.match(labSources.probability, /import \* as d3 from 'd3'/)
+  assert.match(labSources.probability, /calibrationBins/)
+  assert.match(labSources.diagnostics, /import \* as d3 from 'd3'/)
+  assert.match(labSources.architecture, /import \* as d3 from 'd3'/)
+  assert.match(labSources.architecture, /import \* as THREE from 'three'/)
+  assert.match(labSources.architecture, /evaluateAttentionShape/)
+  assert.match(labSources.architecture, /ThreeSceneShell/)
 })

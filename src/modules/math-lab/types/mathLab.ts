@@ -11,6 +11,13 @@ export interface LocalizedCopy {
   en: string
 }
 
+export interface SourceReference {
+  label: LocalizedCopy
+  href: string
+  license?: string
+  usage: LocalizedCopy
+}
+
 export interface MathLabTocItem {
   id: string
   level: 2 | 3
@@ -110,6 +117,7 @@ export interface MathLabModule {
   sourceNoteFile?: string
   originalSort?: number
   importedAssetPaths?: string[]
+  sourceReferences?: SourceReference[]
 }
 
 export interface DiagnosticQuestion {

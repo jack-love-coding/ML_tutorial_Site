@@ -3,9 +3,14 @@ import assert from 'node:assert/strict'
 import { diagnosticQuestions, scoreDiagnostic } from '../src/modules/math-lab/data/diagnostic.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import {
+  calibrationBins,
   convolutionOutputSize,
   evaluateAttention,
+  evaluateAttentionMatrix,
+  evaluateAttentionShape,
   evaluateAutodiffGraph,
+  evaluateJacobianProducts,
+  evaluateKLDirections,
   evaluateProbabilityLab,
   evaluateTensorShape,
   evaluateTrainingScenario,
@@ -119,12 +124,32 @@ test('AI bridge math utilities validate shapes, autodiff, probability, diagnosti
   const autodiff = evaluateAutodiffGraph({ w: 1.4, x: 2, b: -0.5, y: 1.2 })
   assert.equal(Math.abs(autodiff.gradients.w - autodiff.finiteDifferenceW) < 1e-8, true)
   assert.equal(autodiff.gradientCheckError < 1e-8, true)
+  const jacobianProducts = evaluateJacobianProducts({
+    x: 2,
+    y: 3,
+    upstream: [5, 7],
+    tangent: [0.5, -1],
+  })
+  assert.deepEqual(jacobianProducts.jacobian, [[4, 1], [3, 2]])
+  assert.deepEqual(jacobianProducts.vjp, [41, 19])
+  assert.deepEqual(jacobianProducts.jvp, [1, -0.5])
 
   const probabilities = softmax([1.5, 0.3, -0.8])
   assert.equal(Math.abs(probabilities.reduce((sum, value) => sum + value, 0) - 1) < 1e-12, true)
   const probabilityLab = evaluateProbabilityLab({ logits: [1.5, 0.3, -0.8], temperature: 1, targetIndex: 0 })
   assert.equal(probabilityLab.crossEntropy > 0, true)
+  assert.equal(probabilityLab.klFromUniform > 0, true)
   assert.equal(klDivergence([0.8, 0.2], [0.5, 0.5]) > 0, true)
+  const klDirections = evaluateKLDirections([0.8, 0.2], [0.5, 0.5])
+  assert.equal(klDirections.asymmetry > 0, true)
+  const bins = calibrationBins([
+    { confidence: 0.2, correct: false },
+    { confidence: 0.8, correct: true },
+    { confidence: 0.9, correct: false },
+  ], 2)
+  assert.equal(bins.length, 2)
+  assert.equal(bins[1]!.count, 2)
+  assert.equal(bins[1]!.gap > 0, true)
 
   const healthy = evaluateTrainingScenario('healthy', 20)
   const overfitting = evaluateTrainingScenario('overfitting', 20)
@@ -134,6 +159,13 @@ test('AI bridge math utilities validate shapes, autodiff, probability, diagnosti
   assert.equal(convolutionOutputSize(32, 3, 1, 1), 32)
   const attention = evaluateAttention([1, 0], [[1, 0], [0, 1]])
   assert.equal(attention.weights[0] > attention.weights[1], true)
+  const attentionMatrix = evaluateAttentionMatrix([[1, 0], [0, 1]])
+  assert.equal(attentionMatrix.length, 2)
+  assert.equal(attentionMatrix[0]![0] > attentionMatrix[0]![1], true)
+  const attentionShape = evaluateAttentionShape({ batchSize: 2, tokens: 4, hiddenDim: 12, heads: 3 })
+  assert.equal(attentionShape.valid, true)
+  assert.deepEqual(attentionShape.splitShape, [2, 3, 4, 4])
+  assert.equal(evaluateAttentionShape({ batchSize: 2, tokens: 4, hiddenDim: 10, heads: 3 }).valid, false)
 })
 
 test('math lab modules include the reordered AI math path from 6-24', () => {
@@ -279,11 +311,16 @@ test('AI bridge modules include complete V1 teaching surfaces', () => {
 
   for (const moduleDefinition of bridgeModules) {
     assert.equal(moduleDefinition.learningObjectives.length >= 3, true)
-    assert.equal(moduleDefinition.concepts.length >= 1, true)
-    assert.equal(moduleDefinition.sections.length >= 3, true)
-    assert.equal(moduleDefinition.quizzes.length >= 2, true)
-    assert.equal(moduleDefinition.misconceptions.length >= 2, true)
+    assert.equal(moduleDefinition.concepts.length >= 2, true)
+    assert.equal(moduleDefinition.sections.length >= 5, true)
+    assert.equal(moduleDefinition.quizzes.length >= 3, true)
+    assert.equal(moduleDefinition.misconceptions.length >= 3, true)
     assert.equal(moduleDefinition.sections.some((section) => section.labIds?.length), true)
+    assert.equal(moduleDefinition.visuals.some((visual) => visual.type === 'image'), true)
+    assert.equal(moduleDefinition.visuals.some((visual) => visual.type === 'manim-video'), true)
+    assert.equal(moduleDefinition.sourceReferences?.length > 0, true)
+    assert.equal(moduleDefinition.sourceNoteFile, 'math-lab-ai-foundation-sources.md')
+    assert.equal(moduleDefinition.sourceReferences?.every((source) => source.href.startsWith('https://')), true)
 
     const html = renderMarkdownWithMath([
       ...moduleDefinition.concepts.map((concept) => `$$${concept.formulaLatex}$$`),
