@@ -32,6 +32,16 @@ export const router = createRouter({
       component: () => import('../modules/math-lab/pages/MathLabModulePage.vue'),
     },
     {
+      path: '/data-lab',
+      name: 'data-lab',
+      component: () => import('../modules/data-lab/pages/DataLabHome.vue'),
+    },
+    {
+      path: '/data-lab/modules/:moduleId',
+      name: 'data-lab-module',
+      component: () => import('../modules/data-lab/pages/DataLabModulePage.vue'),
+    },
+    {
       path: '/learn/linear-regression',
       redirect: '/learn/linear-regression/fit-line',
     },

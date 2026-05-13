@@ -1,0 +1,93 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { existsSync, readFileSync } from 'node:fs'
+
+const root = new URL('../', import.meta.url)
+
+function read(path) {
+  return readFileSync(new URL(path, root), 'utf8')
+}
+
+test('data lab lazy routes and nav entries are wired independently of math lab', () => {
+  const routerSource = read('src/router/index.ts')
+  const appShellSource = read('src/components/AppShell.vue')
+  const messagesSource = read('src/i18n/messages.ts')
+
+  assert.match(routerSource, /path: '\/data-lab'/)
+  assert.match(routerSource, /path: '\/data-lab\/modules\/:moduleId'/)
+  assert.match(routerSource, /modules\/data-lab\/pages\/DataLabHome\.vue/)
+  assert.match(routerSource, /modules\/data-lab\/pages\/DataLabModulePage\.vue/)
+
+  assert.match(appShellSource, /to="\/data-lab"/)
+  assert.match(appShellSource, /t\('nav\.dataLab'\)/)
+  assert.match(messagesSource, /dataLab: '数据实验室'/)
+  assert.match(messagesSource, /dataLab: 'Data Lab'/)
+})
+
+test('data lab components, labs, generated images, and manim assets exist', () => {
+  const componentPaths = [
+    'src/modules/data-lab/pages/DataLabHome.vue',
+    'src/modules/data-lab/pages/DataLabModulePage.vue',
+    'src/modules/data-lab/components/DataTableView.vue',
+    'src/modules/data-lab/components/DataVisualFigure.vue',
+    'src/modules/data-lab/components/DataManimPlayer.vue',
+    'src/modules/data-lab/labs/ColumnTypeLab.vue',
+    'src/modules/data-lab/labs/CleaningPipelineLab.vue',
+    'src/modules/data-lab/labs/EdaWorkbenchLab.vue',
+    'src/modules/data-lab/labs/PandasPipelineLab.vue',
+    'src/modules/data-lab/utils/tableTransforms.ts',
+    'src/modules/data-lab/data/modules.ts',
+    'scripts/manim/scenes/data_lab.py',
+    'scripts/manim/render_data_lab.py',
+  ]
+
+  for (const path of componentPaths) {
+    assert.ok(existsSync(new URL(path, root)), `${path} should exist`)
+  }
+
+  for (const assetPath of [
+    'public/data-lab/generated/data-types-feature-vectors.png',
+    'public/data-lab/generated/data-cleaning-preprocessing.png',
+    'public/data-lab/generated/exploratory-data-analysis.png',
+    'public/data-lab/generated/pandas-workflow.png',
+  ]) {
+    assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
+  }
+
+  const metadata = JSON.parse(read('public/manim/data-lab/metadata.json'))
+  assert.equal(metadata.generatedBy, 'scripts/manim/render_data_lab.py')
+  assert.equal(metadata.scenes.length, 4)
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'DataTypesFeatureFlowScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'DataCleaningFlowScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'EdaSplitApplyScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'PandasMethodChainScene'))
+
+  for (const scene of metadata.scenes) {
+    const assetPath = scene.assetPath.replace(/^\//, 'public/')
+    const posterPath = scene.posterPath.replace(/^\//, 'public/')
+    assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
+    assert.ok(existsSync(new URL(posterPath, root)), `${posterPath} should exist`)
+  }
+})
+
+test('data lab labs use D3, Three.js, and deterministic TS table transforms', () => {
+  const columnTypeSource = read('src/modules/data-lab/labs/ColumnTypeLab.vue')
+  const cleaningSource = read('src/modules/data-lab/labs/CleaningPipelineLab.vue')
+  const edaSource = read('src/modules/data-lab/labs/EdaWorkbenchLab.vue')
+  const pipelineSource = read('src/modules/data-lab/labs/PandasPipelineLab.vue')
+  const modulePageSource = read('src/modules/data-lab/pages/DataLabModulePage.vue')
+
+  assert.match(columnTypeSource, /import \* as d3 from 'd3'/)
+  assert.match(columnTypeSource, /import \* as THREE from 'three'/)
+  assert.match(columnTypeSource, /oneHotDimension/)
+  assert.match(cleaningSource, /fillMissing/)
+  assert.match(cleaningSource, /dropDuplicates/)
+  assert.match(cleaningSource, /clipColumn/)
+  assert.match(edaSource, /import \* as d3 from 'd3'/)
+  assert.match(edaSource, /groupByAggregate/)
+  assert.match(pipelineSource, /deriveColumn/)
+  assert.match(pipelineSource, /mergeLookup/)
+  assert.match(modulePageSource, /DataManimPlayer/)
+  assert.match(modulePageSource, /DataVisualFigure/)
+  assert.doesNotMatch(`${columnTypeSource}\n${cleaningSource}\n${edaSource}\n${pipelineSource}`, /pyodide|Pyodide/)
+})

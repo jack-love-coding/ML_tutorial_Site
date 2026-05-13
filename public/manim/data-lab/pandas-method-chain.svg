@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="pandas method chain poster">
+  <rect width="960" height="540" fill="#fbf9ff"/>
+  <rect x="82" y="160" width="180" height="170" rx="22" fill="#ffffff" stroke="#d7dee9" stroke-width="4"/>
+  <g fill="#f1edff" stroke="#7048e8" stroke-width="4">
+    <rect x="335" y="190" width="82" height="82" rx="20"/><rect x="455" y="190" width="82" height="82" rx="20"/>
+    <rect x="575" y="190" width="82" height="82" rx="20"/><rect x="695" y="190" width="82" height="82" rx="20"/>
+  </g>
+  <path d="M275 232H322M420 232H442M540 232H562M660 232H682M780 232H835" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
+  <rect x="846" y="160" width="70" height="170" rx="18" fill="#e2f8ef" stroke="#0f9f7a" stroke-width="4"/>
+  <text x="82" y="76" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">pandas workflows are table recipes</text>
+</svg>

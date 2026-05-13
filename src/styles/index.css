@@ -16,6 +16,7 @@
 @import './animations.css';
 @import './modules/linear-regression-responsive.css';
 @import './modules/math-lab.css';
+@import './modules/data-lab.css';
 @import './themes/pixel-redesign.css';
 @import './overrides/final-responsive.css';
 @import './modules/logistic-regression.css';

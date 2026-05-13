@@ -1,0 +1,25 @@
+{
+  "generatedBy": "scripts/manim/render_data_lab.py",
+  "scenes": [
+    {
+      "scene": "DataTypesFeatureFlowScene",
+      "assetPath": "/manim/data-lab/data-types-feature-flow.mp4",
+      "posterPath": "/manim/data-lab/data-types-feature-flow.svg"
+    },
+    {
+      "scene": "DataCleaningFlowScene",
+      "assetPath": "/manim/data-lab/data-cleaning-flow.mp4",
+      "posterPath": "/manim/data-lab/data-cleaning-flow.svg"
+    },
+    {
+      "scene": "EdaSplitApplyScene",
+      "assetPath": "/manim/data-lab/eda-split-apply.mp4",
+      "posterPath": "/manim/data-lab/eda-split-apply.svg"
+    },
+    {
+      "scene": "PandasMethodChainScene",
+      "assetPath": "/manim/data-lab/pandas-method-chain.mp4",
+      "posterPath": "/manim/data-lab/pandas-method-chain.svg"
+    }
+  ]
+}

@@ -48,6 +48,13 @@ watch(
           {{ t('nav.mathLab') }}
         </router-link>
         <router-link
+          class="site-header__link"
+          :class="{ 'is-current': route.path.startsWith('/data-lab') }"
+          to="/data-lab"
+        >
+          {{ t('nav.dataLab') }}
+        </router-link>
+        <router-link
           v-for="moduleDefinition in moduleOrder"
           :key="moduleDefinition.slug"
           class="site-header__link"
@@ -86,6 +93,13 @@ watch(
           to="/math-lab"
         >
           {{ t('nav.mathLab') }}
+        </router-link>
+        <router-link
+          class="site-header__link"
+          :class="{ 'is-current': route.path.startsWith('/data-lab') }"
+          to="/data-lab"
+        >
+          {{ t('nav.dataLab') }}
         </router-link>
         <router-link
           v-for="moduleDefinition in moduleOrder"

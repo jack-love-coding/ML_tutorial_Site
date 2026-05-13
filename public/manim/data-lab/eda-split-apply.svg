@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="EDA split apply combine poster">
+  <rect width="960" height="540" fill="#fffaf4"/>
+  <rect x="90" y="145" width="210" height="190" rx="22" fill="#ffffff" stroke="#d7dee9" stroke-width="4"/>
+  <rect x="390" y="120" width="130" height="100" rx="18" fill="#e4f7ee" stroke="#0f9f7a" stroke-width="4"/>
+  <rect x="390" y="260" width="130" height="100" rx="18" fill="#fff2ad" stroke="#d65a31" stroke-width="4"/>
+  <rect x="640" y="175" width="44" height="150" rx="12" fill="#0f9f7a"/><rect x="715" y="225" width="44" height="100" rx="12" fill="#d65a31"/>
+  <path d="M315 240H370M535 240H615" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
+  <text x="90" y="76" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Split, summarize, compare</text>
+</svg>

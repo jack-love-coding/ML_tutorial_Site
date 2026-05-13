@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Cleaning pipeline poster">
+  <rect width="960" height="540" fill="#f7fbfa"/>
+  <rect x="92" y="128" width="210" height="210" rx="22" fill="#fff4e8" stroke="#d7dee9" stroke-width="4"/>
+  <circle cx="150" cy="185" r="16" fill="#be123c"/><circle cx="235" cy="255" r="16" fill="#f59e0b"/>
+  <g fill="#ffffff" stroke="#0f9f7a" stroke-width="4"><rect x="385" y="120" width="70" height="230" rx="20"/><rect x="500" y="120" width="70" height="230" rx="20"/><rect x="615" y="120" width="70" height="230" rx="20"/></g>
+  <path d="M315 235H370M458 235H488M573 235H603M690 235H760" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
+  <rect x="770" y="128" width="130" height="210" rx="22" fill="#e2f8ef" stroke="#d7dee9" stroke-width="4"/>
+  <text x="90" y="76" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Cleaning is a reproducible pipeline</text>
+</svg>
