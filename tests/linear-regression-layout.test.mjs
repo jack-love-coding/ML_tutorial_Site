@@ -102,9 +102,12 @@ test('linear regression overfitting chapter uses real-data diagnostics and local
   const styleSource = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8')
   const videoPath = new URL('../public/manim/linear-regression/fit-comparison.mp4', import.meta.url)
   const posterPath = new URL('../public/manim/linear-regression/fit-comparison.svg', import.meta.url)
+  const regularizationVideoPath = new URL('../public/manim/linear-regression/regularization-geometry.mp4', import.meta.url)
+  const regularizationPosterPath = new URL('../public/manim/linear-regression/regularization-geometry.svg', import.meta.url)
 
   assert.match(moduleSource, /California Housing/)
   assert.match(moduleSource, /fit-comparison\.mp4/)
+  assert.match(moduleSource, /regularization-geometry\.mp4/)
   assert.match(moduleSource, /degree 1/)
   assert.match(moduleSource, /degree 3/)
   assert.match(moduleSource, /degree 7/)
@@ -122,6 +125,8 @@ test('linear regression overfitting chapter uses real-data diagnostics and local
   assert.match(styleSource, /\.linear-regression-lab__diagnostic-grid/)
   assert.ok(existsSync(videoPath), 'fit comparison video should be generated')
   assert.ok(existsSync(posterPath), 'fit comparison poster should be generated')
+  assert.ok(existsSync(regularizationVideoPath), 'regularization geometry video should be generated')
+  assert.ok(existsSync(regularizationPosterPath), 'regularization geometry poster should be generated')
 })
 
 test('linear regression lecture adds the required teaching frame and animated diagrams', () => {

@@ -131,3 +131,65 @@ class LinearRegressionFitComparisonScene(Scene):
         self.wait(1.0)
         self.play(FadeOut(label), FadeOut(curve))
         self.wait(0.2)
+
+
+class RegularizationGeometryScene(Scene):
+    def construct(self):
+        axes = Axes(
+            x_range=[-3.2, 3.2, 1],
+            y_range=[-2.4, 2.4, 1],
+            x_length=9.2,
+            y_length=5.6,
+            tips=False,
+            axis_config={"stroke_color": WHITE, "stroke_opacity": 0.36},
+        )
+        title = Text("Regularization geometry", font_size=34).to_edge(np.array([0, 1, 0]))
+        subtitle = Text("Loss contours meet a parameter budget", font_size=24, color=WHITE).next_to(title, np.array([0, -1, 0]), buff=0.18)
+
+        contours = VGroup()
+        for width, height, opacity in [(5.8, 3.8, 0.24), (4.3, 2.7, 0.34), (2.7, 1.7, 0.5)]:
+            contour = axes.plot_parametric_curve(
+                lambda t, w=width, h=height: axes.c2p(
+                    0.4 + w * np.cos(t) / 2,
+                    -0.22 + h * np.sin(t) / 2,
+                ),
+                t_range=[0, 2 * np.pi],
+                color=WHITE,
+                stroke_opacity=opacity,
+                stroke_width=3,
+            )
+            contours.add(contour)
+
+        l1 = axes.plot_line_graph(
+            x_values=[0, 1.65, 0, -1.65, 0],
+            y_values=[1.65, 0, -1.65, 0, 1.65],
+            add_vertex_dots=False,
+            line_color=BLUE,
+            stroke_width=7,
+        )
+        l2 = axes.plot_parametric_curve(
+            lambda t: axes.c2p(1.2 * np.cos(t), 1.2 * np.sin(t)),
+            t_range=[0, 2 * np.pi],
+            color=GREEN,
+            stroke_width=7,
+        )
+        path = axes.plot_parametric_curve(
+            lambda t: axes.c2p(-1.55 + 3.7 * t, 0.55 - 1.75 * t + 0.32 * np.sin(5.4 * t)),
+            t_range=[0, 1],
+            color=ORANGE,
+            stroke_width=6,
+        )
+
+        l1_label = Text("L1: corners favor sparse weights", font_size=28, color=BLUE).to_edge(np.array([0, -1, 0]))
+        l2_label = Text("L2: smooth shrinkage", font_size=28, color=GREEN).to_edge(np.array([0, -1, 0]))
+        elastic_label = Text("Elastic Net blends both budgets", font_size=28, color=ORANGE).to_edge(np.array([0, -1, 0]))
+
+        self.play(FadeIn(axes), FadeIn(title), FadeIn(subtitle), FadeIn(contours))
+        self.play(Create(l1), FadeIn(l1_label))
+        self.wait(0.7)
+        self.play(Transform(l1, l2), Transform(l1_label, l2_label))
+        self.wait(0.7)
+        self.play(Create(path), Transform(l1_label, elastic_label))
+        self.wait(0.9)
+        self.play(FadeOut(path), FadeOut(l1), FadeOut(l1_label))
+        self.wait(0.2)

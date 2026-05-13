@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Regularization geometry poster">
+  <rect width="960" height="540" fill="#f8fbff"/>
+  <g transform="translate(480 286)">
+    <ellipse cx="0" cy="0" rx="332" ry="218" fill="none" stroke="#d7dee9" stroke-width="2"/>
+    <ellipse cx="-8" cy="-4" rx="244" ry="156" fill="none" stroke="#c5d0df" stroke-width="2"/>
+    <ellipse cx="-18" cy="-10" rx="154" ry="94" fill="none" stroke="#adb9ca" stroke-width="2"/>
+    <path d="M0 -162 L162 0 L0 162 L-162 0 Z" fill="rgba(56,104,255,0.08)" stroke="#3868ff" stroke-width="8" stroke-linejoin="round"/>
+    <circle cx="0" cy="0" r="142" fill="rgba(33,132,111,0.08)" stroke="#21846f" stroke-width="8"/>
+    <path d="M-132 34 C-78 -42 -20 -96 52 -112 C112 -126 166 -86 206 -28" fill="none" stroke="#db6c3a" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="0" cy="-162" r="12" fill="#3868ff"/>
+    <circle cx="100" cy="-100" r="12" fill="#21846f"/>
+  </g>
+  <text x="92" y="78" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">L1 corners, L2 smooth shrinkage</text>
+  <text x="92" y="496" fill="#475467" font-family="Arial, sans-serif" font-size="24">Regularization changes where the loss contours first touch the budget.</text>
+</svg>

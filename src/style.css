@@ -11231,20 +11231,24 @@ select {
 
 .mlp-layer-stepper {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center;
-  gap: 7px;
-  min-width: 104px;
+  align-items: start;
+  gap: 8px;
+  min-width: 118px;
 }
 
 .mlp-layer-stepper .mlp-layer-stepper__actions {
   display: grid;
   grid-template-columns: repeat(2, 34px);
   gap: 7px;
+  width: 75px;
 }
 
 .mlp-layer-stepper .mlp-layer-stepper__count {
   display: block;
-  min-width: 92px;
+  width: 100%;
+  min-width: 0;
   color: #475467;
   font-size: 0.78rem;
   font-weight: 700;
