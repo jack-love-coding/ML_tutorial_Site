@@ -1,0 +1,557 @@
+.algorithm-view--linear .story-card {
+  min-height: auto;
+  gap: 22px;
+}
+
+.results-grid--linear {
+  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
+}
+
+.linear-regression-lab {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+  padding: 22px;
+  border-radius: 26px;
+  background:
+    linear-gradient(135deg, rgba(219, 108, 58, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(242, 249, 247, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 44px rgba(15, 23, 40, 0.08);
+}
+
+.linear-regression-lab__workspace {
+  display: grid;
+  gap: 16px;
+}
+
+.linear-regression-lab__viz {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 14px;
+}
+
+.linear-regression-lab__viz-shell {
+  display: contents;
+}
+
+.linear-regression-lab__panel,
+.linear-regression-lab__controls,
+.linear-regression-lab__readout,
+.linear-regression-lab__selected,
+.linear-regression-lab__focus,
+.linear-regression-lab__teaching-visual,
+.linear-regression-lab__diagnostics,
+.linear-regression-lab__presets {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.linear-regression-lab__panel--data,
+.linear-regression-lab__panel--state {
+  min-width: 0;
+}
+
+.linear-regression-lab__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.linear-regression-lab__heading span,
+.linear-regression-lab__metric span,
+.linear-regression-lab__mini-grid span,
+.linear-regression-lab__focus span,
+.linear-regression-lab__diagnostic header span,
+.linear-regression-lab__teaching-visual span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.linear-regression-lab__heading strong {
+  font-size: 1rem;
+  text-align: right;
+}
+
+.linear-regression-lab__data-svg,
+.linear-regression-lab__state-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.linear-axis {
+  stroke: rgba(8, 18, 33, 0.16);
+  stroke-width: 1.5;
+}
+
+.linear-axis-label {
+  fill: rgba(83, 96, 118, 0.9);
+  font-size: 13px;
+}
+
+.linear-residual {
+  stroke: rgba(219, 108, 58, 0.24);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+}
+
+.linear-residual.is-emphasis {
+  stroke: rgba(219, 108, 58, 0.82);
+  stroke-width: 3;
+}
+
+.linear-fit-line {
+  fill: none;
+  stroke: var(--linear-accent, #db6c3a);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.linear-sample {
+  fill: #12303a;
+  stroke: white;
+  stroke-width: 2.5;
+  transition: r 180ms ease, filter 180ms ease;
+}
+
+.linear-sample.is-highlight {
+  fill: var(--linear-accent, #db6c3a);
+  filter: drop-shadow(0 0 8px rgba(219, 108, 58, 0.42));
+}
+
+.linear-sample.is-validation {
+  fill: #f3b44b;
+  stroke: #5f3f08;
+  stroke-dasharray: 3 3;
+}
+
+.linear-state-line {
+  fill: none;
+  stroke: #2e9f79;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.linear-state-line--parameter {
+  stroke: var(--linear-accent, #db6c3a);
+}
+
+.linear-state-line--validation {
+  stroke: #d65c5c;
+  stroke-dasharray: 7 7;
+}
+
+.linear-state-line--error {
+  stroke: #d85d3f;
+  stroke-width: 3;
+  stroke-dasharray: 5 6;
+}
+
+.linear-state-dot {
+  fill: #0f1728;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.linear-state-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.linear-state-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #2e9f79;
+}
+
+.legend-dot--validation {
+  background: #d65c5c;
+}
+
+.legend-dot--error {
+  background: #d85d3f;
+}
+
+.linear-regression-lab__three-canvas {
+  display: block;
+  width: 100%;
+  min-height: 360px;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(246, 251, 250, 0.9), rgba(238, 244, 242, 0.7)),
+    radial-gradient(circle at 50% 30%, rgba(219, 108, 58, 0.12), transparent 48%);
+}
+
+.linear-regression-lab__actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.linear-regression-lab__control-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.linear-regression-lab__advanced-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.regularization-switch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.linear-regression-lab__readout {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.linear-regression-lab__metric,
+.linear-regression-lab__mini-grid article {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.92);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.linear-regression-lab__metric strong {
+  font-size: 1.05rem;
+}
+
+.linear-regression-lab__selected,
+.linear-regression-lab__focus,
+.linear-regression-lab__teaching-visual,
+.linear-regression-lab__diagnostics,
+.linear-regression-lab__presets {
+  grid-column: span 3;
+}
+
+.linear-regression-lab__focus {
+  align-content: start;
+  background: linear-gradient(145deg, rgba(242, 249, 247, 0.95), rgba(255, 250, 245, 0.92));
+}
+
+.linear-regression-lab__focus p {
+  color: var(--ink);
+}
+
+.linear-regression-lab__teaching-visual {
+  align-content: start;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.linear-regression-lab__teaching-svg {
+  display: block;
+  width: 100%;
+  min-height: 180px;
+  border-radius: 16px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 252, 246, 0.96), rgba(244, 250, 248, 0.96));
+  background-size: 22px 22px, 22px 22px, auto;
+}
+
+.linear-regression-lab__teaching-visual p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1.62;
+}
+
+.linear-regression-lab__diagnostics {
+  grid-column: 1 / -1;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.linear-regression-lab__diagnostic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.linear-regression-lab__diagnostic {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 8px;
+  background: rgba(248, 249, 252, 0.92);
+}
+
+.linear-regression-lab__diagnostic header,
+.linear-regression-lab__diagnostic dl {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.linear-regression-lab__diagnostic header strong {
+  font-size: 0.9rem;
+}
+
+.linear-regression-lab__diagnostic-svg {
+  display: block;
+  width: 100%;
+  border-radius: 7px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.04) 1px, transparent 1px),
+    rgba(255, 255, 255, 0.92);
+  background-size: 20px 20px, 20px 20px, auto;
+}
+
+.linear-diagnostic-fit {
+  fill: none;
+  stroke: rgba(219, 108, 58, 0.9);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.linear-regression-lab__diagnostic.is-underfit .linear-diagnostic-fit {
+  stroke: rgba(92, 116, 148, 0.9);
+}
+
+.linear-regression-lab__diagnostic.is-balanced .linear-diagnostic-fit {
+  stroke: rgba(34, 132, 111, 0.92);
+}
+
+.linear-regression-lab__diagnostic dl {
+  margin: 0;
+}
+
+.linear-regression-lab__diagnostic dl div {
+  display: grid;
+  gap: 3px;
+}
+
+.linear-regression-lab__diagnostic dt {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.linear-regression-lab__diagnostic dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.linear-regression-lab__diagnostic p,
+.linear-regression-lab__source-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.linear-visual-axis {
+  stroke: rgba(15, 23, 40, 0.28);
+  stroke-width: 2;
+}
+
+.linear-visual-fit,
+.linear-visual-curve,
+.linear-visual-true-curve,
+.linear-visual-overfit-curve,
+.linear-visual-train-line,
+.linear-visual-validation-line,
+.linear-visual-param-path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.linear-visual-fit {
+  stroke: var(--linear-accent, #db6c3a);
+  stroke-width: 5;
+  animation: linear-line-draw 1.7s ease-in-out infinite alternate;
+}
+
+.linear-visual-fit.is-before {
+  stroke: rgba(15, 23, 40, 0.32);
+  stroke-width: 4;
+  stroke-dasharray: 7 7;
+  animation: none;
+}
+
+.linear-visual-fit.is-after,
+.linear-visual-curve {
+  stroke: var(--linear-accent, #db6c3a);
+}
+
+.linear-visual-dot {
+  fill: #12303a;
+  stroke: #ffffff;
+  stroke-width: 3;
+}
+
+.linear-visual-dot.is-predicted {
+  fill: var(--linear-accent, #db6c3a);
+}
+
+.linear-visual-arrow,
+.linear-visual-intercept {
+  fill: none;
+  stroke: #10162f;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.linear-visual-marker {
+  fill: #10162f;
+}
+
+.linear-visual-label {
+  fill: #10162f;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.linear-visual-residual {
+  stroke: #d65c5c;
+  stroke-width: 4;
+  stroke-dasharray: 7 6;
+  animation: linear-residual-pulse 1.4s ease-in-out infinite;
+}
+
+.linear-visual-loss-box,
+.linear-visual-plane {
+  fill: rgba(255, 244, 189, 0.74);
+  stroke: rgba(15, 23, 40, 0.42);
+  stroke-width: 2;
+}
+
+.linear-visual-param-path {
+  stroke: #2e9f79;
+  stroke-width: 4;
+  stroke-dasharray: 120;
+  animation: linear-path-flow 2.2s ease-in-out infinite;
+}
+
+.linear-visual-param-dot {
+  fill: var(--linear-accent, #db6c3a);
+  stroke: #ffffff;
+  stroke-width: 3;
+  animation: linear-dot-pulse 1.2s ease-in-out infinite;
+}
+
+.linear-visual-true-curve {
+  stroke: #2e9f79;
+  stroke-width: 4;
+}
+
+.linear-visual-plane-surface {
+  fill: rgba(47, 210, 127, 0.16);
+  stroke: #2e9f79;
+  stroke-width: 3;
+}
+
+.linear-visual-feature-bar,
+.linear-visual-weight-bar {
+  fill: var(--linear-accent, #db6c3a);
+  stroke: #10162f;
+  stroke-width: 2;
+  animation: linear-bar-rise 1.8s ease-in-out infinite alternate;
+  transform-origin: center bottom;
+}
+
+.linear-visual-feature-bar.is-square,
+.linear-visual-weight-bar.is-medium {
+  fill: #2e9f79;
+  animation-delay: 140ms;
+}
+
+.linear-visual-feature-bar.is-cube,
+.linear-visual-weight-bar.is-small {
+  fill: #f3b44b;
+  animation-delay: 260ms;
+}
+
+.linear-visual-weight-bar.is-large,
+.linear-visual-weight-bar.is-medium,
+.linear-visual-weight-bar.is-small {
+  animation-name: linear-weight-shrink;
+}
+
+.linear-visual-curve {
+  stroke-width: 5;
+  animation: linear-curve-smooth 2.4s ease-in-out infinite alternate;
+}
+
+.linear-visual-overfit-curve {
+  stroke: #d65c5c;
+  stroke-width: 4;
+  animation: linear-wiggle 2s ease-in-out infinite alternate;
+}
+
+.linear-visual-overfit-curve.is-muted {
+  opacity: 0.36;
+}
+
+.linear-visual-train-line {
+  stroke: #2e9f79;
+  stroke-width: 4;
+}
+
+.linear-visual-validation-line {
+  stroke: #d65c5c;
+  stroke-width: 4;
+  stroke-dasharray: 8 7;
+  animation: linear-validation-rise 1.7s ease-in-out infinite alternate;
+}
+
+.linear-regression-lab__teaching-visual--model-limits .linear-visual-fit,
+.linear-regression-lab__teaching-visual--multivariate .linear-visual-fit {
+  animation: none;
+}
+
+.linear-regression-lab__mini-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.linear-regression-lab__preset-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.linear-results {
+  gap: 14px;
+}
+
+.linear-results__grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}

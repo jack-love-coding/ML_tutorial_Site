@@ -1,0 +1,366 @@
+.gradient-chapter-lab__task-main,
+.gradient-chapter-lab__task-meta {
+  min-width: 0;
+}
+
+.gradient-chapter-lab__task-main {
+  display: grid;
+  gap: 5px;
+}
+
+.gradient-chapter-lab__task-main strong {
+  font-size: 1rem;
+  line-height: 1.34;
+}
+
+.gradient-chapter-lab__task-main p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.86rem;
+  line-height: 1.44;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.gradient-chapter-lab__task-meta {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.gradient-chapter-lab__task-meta span,
+.gradient-chapter-lab__task-meta small,
+.gradient-chapter-lab__details summary span,
+.linear-regression-lab__details summary span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gradient-chapter-lab__task-meta strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gradient-chapter-lab__task-actions .action-button {
+  width: 100%;
+  min-width: 136px;
+}
+
+.lesson-workbench--cockpit .gradient-viz {
+  gap: 10px;
+}
+
+.lesson-workbench--cockpit .gradient-viz .viz-card,
+.lesson-workbench--cockpit .linear-regression-lab__panel {
+  border-radius: 7px;
+  box-shadow: 4px 4px 0 var(--pixel-line, rgba(15, 23, 40, 0.16));
+}
+
+.lesson-workbench--cockpit .gradient-viz__header,
+.lesson-workbench--cockpit .gradient-viz--compact .gradient-viz__header {
+  padding: 10px 12px 0;
+}
+
+.lesson-workbench--cockpit .gradient-viz__header span {
+  font-size: 0.68rem;
+}
+
+.lesson-workbench--cockpit .gradient-viz__header strong {
+  max-width: 190px;
+  font-size: 0.82rem;
+}
+
+.lesson-workbench--cockpit .viz-card__hud {
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+}
+
+.lesson-workbench--cockpit .gradient-viz--compact .viz-card__tag {
+  display: none;
+}
+
+.lesson-workbench--cockpit .viz-card__stats article {
+  min-width: 78px;
+  padding: 8px 10px;
+  border-radius: 7px;
+}
+
+.lesson-workbench--cockpit .gradient-viz__footer {
+  padding: 9px 12px 10px;
+  font-size: 0.78rem;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__workspace-primary,
+.lesson-workbench--cockpit .gradient-chapter-lab__workspace-grid {
+  gap: 10px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__control-cluster,
+.lesson-workbench--cockpit .gradient-chapter-lab__readout-panel,
+.lesson-workbench--cockpit .linear-regression-lab__controls,
+.lesson-workbench--cockpit .linear-regression-lab__readout,
+.lesson-workbench--cockpit .linear-regression-lab__selected,
+.lesson-workbench--cockpit .linear-regression-lab__focus,
+.lesson-workbench--cockpit .linear-regression-lab__presets,
+.lesson-workbench--cockpit .linear-regression-lab__teaching-visual {
+  gap: 10px;
+  padding: 10px;
+  border-radius: 7px;
+  box-shadow: 3px 3px 0 var(--pixel-line, rgba(15, 23, 40, 0.14));
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__control-cluster header,
+.lesson-workbench--cockpit .panel__heading,
+.lesson-workbench--cockpit .linear-regression-lab__heading {
+  gap: 4px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__control-cluster header,
+.lesson-workbench--cockpit .gradient-chapter-lab__readout-panel .panel__heading {
+  display: none;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__control-cluster header strong,
+.lesson-workbench--cockpit .linear-regression-lab__heading strong {
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__actions,
+.lesson-workbench--cockpit .linear-regression-lab__actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lesson-workbench--cockpit .action-button {
+  min-height: 36px;
+  padding: 0 10px;
+  box-shadow: 3px 3px 0 var(--pixel-line, rgba(15, 23, 40, 0.16));
+  font-size: 0.9rem;
+}
+
+.lesson-workbench--cockpit .control-group__grid,
+.lesson-workbench--cockpit .linear-regression-lab__control-grid,
+.lesson-workbench--cockpit .linear-regression-lab__advanced-controls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lesson-workbench--cockpit .control,
+.lesson-workbench--cockpit .linear-regression-lab__metric,
+.lesson-workbench--cockpit .linear-regression-lab__mini-grid article,
+.lesson-workbench--cockpit .gradient-chapter-lab__metric {
+  gap: 6px;
+  padding: 9px 10px;
+  border-radius: 6px;
+}
+
+.lesson-workbench--cockpit .control__row {
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.lesson-workbench--cockpit .control__number,
+.lesson-workbench--cockpit .control__select {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 5px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metrics,
+.lesson-workbench--cockpit .linear-regression-lab__readout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__readout {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metric {
+  min-height: 48px;
+  padding: 6px;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metric span {
+  overflow: hidden;
+  font-size: 0.56rem;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metric strong,
+.lesson-workbench--cockpit .linear-regression-lab__metric strong {
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__metric {
+  min-height: 43px;
+  padding: 6px 7px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__metric span,
+.lesson-workbench--cockpit .linear-regression-lab__mini-grid span {
+  overflow: hidden;
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__metric strong {
+  overflow: hidden;
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__metric strong {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 0.72rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__insight {
+  display: none;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__insight span {
+  display: none;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__insight strong {
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.lesson-workbench--cockpit .gradient-chapter-lab__insight p {
+  display: none;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__selected,
+.lesson-workbench--cockpit .linear-regression-lab__details {
+  grid-column: 1 / -1;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__selected {
+  padding: 6px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__selected .linear-regression-lab__heading {
+  display: none;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__mini-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__mini-grid article {
+  min-height: 34px;
+  padding: 5px 6px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__viz {
+  grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
+  gap: 10px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__three-canvas {
+  min-height: 300px;
+  border-radius: 7px;
+}
+
+.lesson-workbench--cockpit .linear-regression-lab__data-svg,
+.lesson-workbench--cockpit .linear-regression-lab__state-svg,
+.lesson-workbench--cockpit .linear-regression-lab__teaching-svg {
+  border-radius: 7px;
+}
+
+.gradient-chapter-lab__details,
+.linear-regression-lab__details {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 3px 3px 0 var(--pixel-line, rgba(15, 23, 40, 0.14));
+}
+
+.gradient-chapter-lab__details summary,
+.linear-regression-lab__details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.gradient-chapter-lab__details summary::-webkit-details-marker,
+.linear-regression-lab__details summary::-webkit-details-marker {
+  display: none;
+}
+
+.gradient-chapter-lab__details summary::after,
+.linear-regression-lab__details summary::after {
+  content: "+";
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--pixel-line, rgba(15, 23, 40, 0.14));
+  border-radius: 5px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.gradient-chapter-lab__details[open] summary::after,
+.linear-regression-lab__details[open] summary::after {
+  content: "-";
+}
+
+.gradient-chapter-lab__details-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.gradient-chapter-lab__details-grid .gradient-function-pill-strip {
+  grid-column: 1 / -1;
+}
+
+.linear-regression-lab__details .linear-regression-lab__teaching-visual,
+.linear-regression-lab__details .linear-regression-lab__presets {
+  margin-top: 10px;
+  box-shadow: none;
+}
+
+.linear-regression-lab__details--presets .linear-regression-lab__preset-list {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}

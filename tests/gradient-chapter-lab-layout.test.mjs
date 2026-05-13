@@ -1,16 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { readStyleSource } from './helpers/styleSource.mjs'
 
 const componentSource = readFileSync(
   new URL('../src/components/GradientChapterLab.vue', import.meta.url),
   'utf8',
 )
 
-const styleSource = readFileSync(
-  new URL('../src/style.css', import.meta.url),
-  'utf8',
-)
+const styleSource = readStyleSource()
 
 test('gradient chapter lab uses a unified workspace shell', () => {
   assert.match(componentSource, /class="gradient-chapter-lab__workspace"/)

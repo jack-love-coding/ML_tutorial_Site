@@ -4,7 +4,7 @@ import App from './App.vue'
 import { i18n, syncDocumentLanguage } from './i18n'
 import { router } from './router'
 import 'katex/dist/katex.min.css'
-import './style.css'
+import './styles/index.css'
 
 const app = createApp(App)
 

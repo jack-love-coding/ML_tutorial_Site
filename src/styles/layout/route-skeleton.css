@@ -1,0 +1,185 @@
+.route-skeleton {
+  display: grid;
+  gap: 30px;
+}
+
+.route-skeleton__hero,
+.route-skeleton__lesson-hero,
+.route-skeleton__panel {
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: var(--shadow-soft);
+}
+
+.route-skeleton__hero,
+.route-skeleton__lesson-hero,
+.route-skeleton__lesson-layout,
+.route-skeleton__grid,
+.route-skeleton__story,
+.route-skeleton__poster-grid,
+.route-skeleton__summary-grid,
+.route-skeleton__stack,
+.route-skeleton__actions {
+  display: grid;
+  gap: 16px;
+}
+
+.route-skeleton__hero,
+.route-skeleton__lesson-hero {
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  padding: 36px;
+}
+
+.route-skeleton__copy {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.route-skeleton__poster {
+  display: grid;
+  gap: 16px;
+}
+
+.route-skeleton__poster-card,
+.route-skeleton__panel--viz {
+  min-height: 360px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(18, 30, 55, 0.9), rgba(38, 52, 96, 0.92));
+}
+
+.route-skeleton__poster-grid,
+.route-skeleton__summary-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.route-skeleton__mini,
+.route-skeleton__pill,
+.route-skeleton__line,
+.route-skeleton__rail,
+.route-skeleton__panel::before,
+.route-skeleton__poster-card::before {
+  position: relative;
+  overflow: hidden;
+}
+
+.route-skeleton__mini,
+.route-skeleton__pill,
+.route-skeleton__line,
+.route-skeleton__rail,
+.route-skeleton__panel::before {
+  background: rgba(227, 232, 243, 0.92);
+}
+
+.route-skeleton__panel::before,
+.route-skeleton__poster-card::before,
+.route-skeleton__mini::after,
+.route-skeleton__pill::after,
+.route-skeleton__line::after,
+.route-skeleton__rail::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.route-skeleton__line {
+  display: block;
+  height: 14px;
+  border-radius: 999px;
+}
+
+.route-skeleton__line--eyebrow {
+  width: 148px;
+  height: 10px;
+}
+
+.route-skeleton__line--title {
+  height: 30px;
+  border-radius: 16px;
+}
+
+.route-skeleton__line--xl {
+  width: min(520px, 92%);
+}
+
+.route-skeleton__line--lg {
+  width: min(420px, 76%);
+}
+
+.route-skeleton__line--body {
+  width: min(320px, 82%);
+}
+
+.route-skeleton__line--medium {
+  width: min(260px, 64%);
+}
+
+.route-skeleton__pill {
+  display: inline-block;
+  width: 132px;
+  height: 46px;
+  border-radius: 999px;
+}
+
+.route-skeleton__pill--soft {
+  width: 118px;
+}
+
+.route-skeleton__mini {
+  display: block;
+  min-height: 72px;
+  border-radius: 22px;
+}
+
+.route-skeleton__grid {
+  grid-template-columns: minmax(260px, 0.76fr) minmax(0, 1.24fr);
+}
+
+.route-skeleton__panel {
+  min-height: 180px;
+  padding: 0;
+}
+
+.route-skeleton__panel::before {
+  border-radius: inherit;
+}
+
+.route-skeleton__panel--tall {
+  min-height: 280px;
+}
+
+.route-skeleton__lesson-layout {
+  grid-template-columns: minmax(0, 1.04fr) minmax(390px, 0.96fr);
+}
+
+.route-skeleton__story {
+  grid-template-columns: 74px minmax(0, 1fr);
+}
+
+.route-skeleton__rail {
+  display: block;
+  min-height: 420px;
+  border-radius: 24px;
+}
+
+.route-skeleton__panel--story {
+  min-height: 360px;
+}
+
+.route-skeleton__panel--soft {
+  opacity: 0.8;
+}
+
+.route-skeleton__panel--dashboard {
+  min-height: 540px;
+}
+
+.route-skeleton__summary {
+  display: grid;
+  gap: 18px;
+  align-content: space-between;
+}

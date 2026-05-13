@@ -1,0 +1,462 @@
+.lab-column__sticky {
+  position: sticky;
+  top: 92px;
+  display: grid;
+  gap: 10px;
+}
+
+.viz-card,
+.hidden-panel {
+  border-radius: 28px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow-soft);
+}
+
+.viz-card {
+  position: relative;
+}
+
+.gradient-viz {
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+  gap: 12px;
+  transition: opacity 180ms ease;
+}
+
+.gradient-viz__panel {
+  display: grid;
+}
+
+.gradient-viz__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 14px;
+  padding: 18px 18px 0;
+}
+
+.gradient-viz__header span {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.74rem;
+}
+
+.gradient-viz__header strong {
+  max-width: 220px;
+  font-size: 0.95rem;
+  text-align: right;
+}
+
+.viz-card__canvas,
+.viz-card__overlay {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+
+.viz-card__overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.gradient-viz__contour-canvas {
+  cursor: grab;
+  touch-action: none;
+}
+
+.gradient-viz__contour-canvas:active {
+  cursor: grabbing;
+}
+
+.viz-card__hud {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 14px;
+  pointer-events: none;
+}
+
+.viz-card__tag,
+.viz-card__stats article {
+  background: rgba(8, 18, 33, 0.7);
+  color: white;
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 28px rgba(8, 18, 33, 0.18);
+}
+
+.viz-card__tag {
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.viz-card__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.viz-card__stats article {
+  min-width: 98px;
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 18px;
+}
+
+.viz-card__stats span {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.viz-card__stats strong {
+  font-size: 1rem;
+}
+
+
+.gradient-viz__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px 18px;
+  color: var(--muted);
+  border-top: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.gradient-viz__footer strong {
+  color: var(--ink);
+}
+
+.playback-dock {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(248, 249, 255, 0.92));
+}
+
+.gradient-sticky-rail {
+  position: sticky;
+  top: 92px;
+  display: grid;
+  gap: 14px;
+}
+
+.gradient-sticky-rail__mobile-bar {
+  display: none;
+}
+
+.gradient-sticky-rail__body {
+  display: grid;
+  gap: 14px;
+  max-height: calc(100vh - 110px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding-right: 8px;
+}
+
+.gradient-sticky-rail__panel {
+  display: grid;
+  gap: 16px;
+}
+
+.gradient-sticky-rail .panel {
+  padding: 20px;
+  border-radius: 24px;
+}
+
+.gradient-sticky-rail .panel__heading {
+  margin-bottom: 14px;
+}
+
+.gradient-sticky-rail__lead {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.gradient-sticky-rail__summary-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.gradient-sticky-rail__preset,
+.gradient-sticky-rail__note {
+  display: grid;
+  gap: 8px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  background: rgba(248, 249, 252, 0.92);
+  text-align: left;
+}
+
+.gradient-sticky-rail__preset {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.gradient-sticky-rail__preset:hover {
+  transform: translateY(-1px);
+  border-color: rgba(77, 99, 255, 0.22);
+  box-shadow: 0 16px 32px rgba(15, 23, 40, 0.08);
+}
+
+.gradient-sticky-rail__preset span,
+.gradient-sticky-rail__note span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gradient-sticky-rail__preset strong,
+.gradient-sticky-rail__note strong {
+  font-size: 1rem;
+}
+
+.gradient-sticky-rail__preset p,
+.gradient-sticky-rail__note p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.gradient-sticky-rail__actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.gradient-sticky-rail__control-sections {
+  display: grid;
+  gap: 14px;
+}
+
+.gradient-sticky-rail__control-group {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  background: rgba(246, 248, 252, 0.92);
+}
+
+.gradient-sticky-rail__control-group.is-emphasis {
+  border-color: rgba(77, 99, 255, 0.22);
+  box-shadow: 0 16px 34px rgba(77, 99, 255, 0.08);
+}
+
+.gradient-sticky-rail__control-group header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.gradient-sticky-rail__control-group header span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gradient-sticky-rail__control-group header strong {
+  font-size: 0.98rem;
+}
+
+.gradient-sticky-rail__metrics-block {
+  display: grid;
+  gap: 12px;
+}
+
+.gradient-sticky-rail__metrics-heading {
+  margin-bottom: 0;
+}
+
+.gradient-sticky-rail__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.gradient-sticky-rail__metric,
+.gradient-sticky-rail__mobile-metrics article {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.9);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.gradient-sticky-rail__metric strong,
+.gradient-sticky-rail__mobile-metrics strong {
+  font-size: 1rem;
+}
+
+.gradient-sticky-rail__metric.is-emphasis {
+  border-color: rgba(77, 99, 255, 0.24);
+  box-shadow: 0 14px 30px rgba(77, 99, 255, 0.1);
+}
+
+.gradient-sticky-rail__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.playback-dock__body {
+  display: grid;
+  gap: 14px;
+}
+
+.playback-dock__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.playback-dock__metric {
+  display: grid;
+  gap: 6px;
+  padding: 14px 15px;
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.92);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.playback-dock__metric span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.playback-dock__metric strong {
+  font-size: 1.05rem;
+}
+
+.playback-dock__actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.viz-path {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.7;
+  transition: opacity 180ms ease, stroke-width 180ms ease, filter 180ms ease;
+}
+
+.viz-arrow,
+.viz-separator {
+  stroke: rgba(8, 18, 33, 0.85);
+  stroke-width: 2;
+  stroke-dasharray: 7 8;
+  opacity: 0.72;
+  transition: opacity 180ms ease, stroke-width 180ms ease, filter 180ms ease;
+}
+
+.viz-dot {
+  fill: #081221;
+  stroke: white;
+  stroke-width: 3;
+  transition: r 180ms ease, filter 180ms ease, opacity 180ms ease;
+}
+
+.viz-path.is-emphasis,
+.viz-arrow.is-emphasis,
+.viz-separator.is-emphasis {
+  opacity: 1;
+  stroke-width: 4;
+  filter: drop-shadow(0 0 8px rgba(77, 99, 255, 0.35));
+}
+
+.viz-dot.is-emphasis {
+  filter: drop-shadow(0 0 10px rgba(255, 125, 77, 0.5));
+}
+
+.viz-card.is-focused-point .viz-path,
+.viz-card.is-focused-gradient .viz-path,
+.viz-card.is-focused-gradient .viz-dot,
+.viz-card.is-focused-trajectory .viz-dot,
+.gradient-viz.is-focused-surface .gradient-viz__panel--contour,
+.gradient-viz.is-focused-contour .gradient-viz__panel--surface,
+.gradient-viz.is-focused-reference .gradient-viz__panel--surface,
+.classifier-stack.is-focused-boundary .dataset-point,
+.classifier-stack.is-focused-hidden .viz-card,
+.classifier-stack.is-focused-background .dataset-point {
+  opacity: 0.42;
+}
+
+.classifier-stack.is-focused-hidden .hidden-panel,
+.classifier-stack.is-focused-boundary .viz-separator.is-emphasis,
+.classifier-stack.is-focused-background .viz-card,
+.gradient-viz.is-focused-surface .gradient-viz__panel--surface,
+.gradient-viz.is-focused-contour .gradient-viz__panel--contour,
+.gradient-viz.is-focused-reference .gradient-viz__panel--contour {
+  box-shadow: 0 18px 42px rgba(77, 99, 255, 0.14);
+}
+
+.classifier-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.hidden-panel {
+  padding: 14px 14px 8px;
+}
+
+.hidden-panel.is-emphasis {
+  box-shadow: 0 18px 42px rgba(77, 99, 255, 0.18);
+  border-color: rgba(77, 99, 255, 0.28);
+}
+
+.hidden-panel header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+.hidden-panel__svg {
+  width: 100%;
+  display: block;
+}
+
+.hidden-panel__axis {
+  stroke: rgba(8, 18, 33, 0.16);
+  stroke-width: 1;
+}
+
+.dataset-point {
+  stroke: white;
+  stroke-width: 1.5;
+}
+
+.dataset-point--positive {
+  fill: #0f2447;
+}
+
+.dataset-point--negative {
+  fill: #f97352;
+}
+
+.dataset-point--validation {
+  stroke: #101828;
+  stroke-width: 2.2;
+  stroke-dasharray: 3 3;
+  opacity: 0.86;
+}

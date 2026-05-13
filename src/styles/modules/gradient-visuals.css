@@ -1,0 +1,156 @@
+.gradient-viz {
+  gap: 14px;
+}
+
+.gradient-viz .viz-card {
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  box-shadow: 0 16px 30px rgba(15, 23, 40, 0.08);
+}
+
+.gradient-viz--stacked {
+  grid-template-columns: 1fr;
+}
+
+.gradient-viz--compact {
+  gap: 10px;
+}
+
+.gradient-viz--compact .gradient-viz__header {
+  padding: 14px 14px 0;
+}
+
+.gradient-viz--compact .gradient-viz__header strong {
+  font-size: 0.9rem;
+}
+
+.gradient-viz--compact .viz-card__tag {
+  padding: 8px 12px;
+  font-size: 0.72rem;
+}
+
+.gradient-viz--compact .viz-card__stats article {
+  min-width: 84px;
+  padding: 10px 12px;
+}
+
+.gradient-viz--compact .gradient-viz__footer {
+  padding: 12px 14px 14px;
+  font-size: 0.82rem;
+}
+
+.gradient-viz__panel--surface {
+  background:
+    radial-gradient(circle at top left, rgba(255, 125, 77, 0.18), transparent 35%),
+    linear-gradient(155deg, rgba(11, 20, 38, 0.94), rgba(15, 28, 55, 0.94));
+}
+
+.gradient-viz__panel--surface .gradient-viz__header span {
+  color: rgba(225, 236, 255, 0.72);
+}
+
+.gradient-viz__panel--surface .gradient-viz__header strong {
+  color: rgba(242, 247, 255, 0.96);
+}
+
+.gradient-viz__panel--contour {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 254, 0.95));
+}
+
+.gradient-viz__header {
+  padding: 16px 16px 0;
+}
+
+.viz-card__hud {
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+}
+
+.gradient-viz__footer {
+  padding: 12px 16px 14px;
+  font-size: 0.86rem;
+}
+
+.gradient-viz__footer span {
+  color: var(--muted);
+}
+
+.loss-lab-panel {
+  gap: 12px;
+  border-radius: 20px;
+}
+
+.loss-lab-actions {
+  position: sticky;
+  bottom: 0;
+  padding-top: 6px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.84) 34%);
+}
+
+.results-grid--gradient {
+  grid-template-columns: minmax(0, 1.06fr) minmax(320px, 0.94fr);
+}
+
+.results-grid--loss {
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+}
+
+.loss-reading-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.loss-reading-panel__lead {
+  font-size: 1.02rem;
+}
+
+.loss-reading-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.loss-reading-card,
+.loss-reading-panel__note,
+.lesson-bridge-card {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.loss-reading-card span,
+.loss-reading-panel__note span,
+.lesson-bridge-card span,
+.lesson-bridge-card small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.loss-reading-card strong {
+  font-size: 1.32rem;
+}
+
+.loss-reading-panel__note p,
+.lesson-bridge-card p {
+  margin: 0;
+}
+
+.lesson-panel--loss {
+  align-content: start;
+}
+
+.lesson-bridge-card {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.lesson-bridge-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(15, 23, 40, 0.08);
+  border-color: rgba(63, 109, 255, 0.24);
+}

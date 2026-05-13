@@ -1,0 +1,276 @@
+@media (max-width: 1080px) {
+  .site-header,
+  .site-main {
+    width: min(100vw - 28px, 1280px);
+  }
+
+  .site-header {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .locale-switch {
+    justify-self: start;
+  }
+
+  .site-header__nav {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .site-main {
+    width: min(100vw - 20px, 1280px);
+    padding-top: 20px;
+  }
+
+  .site-header {
+    width: min(100vw - 20px, 1280px);
+    margin-top: 10px;
+    padding: 8px;
+    box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+
+  .site-header__brand small {
+    max-width: 14rem;
+  }
+
+  .site-header__nav {
+    padding-bottom: 8px;
+  }
+
+  .site-header__link {
+    min-height: 34px;
+    padding: 7px 10px;
+  }
+
+  h1,
+  .home-hero h1,
+  .math-lab-hero__copy h1,
+  .math-lab-hero--foundations .math-lab-hero__copy h1,
+  .algorithm-hero h1,
+  .math-lab-module-hero--article h1 {
+    font-size: 2.55rem;
+    line-height: 1;
+  }
+
+  h2 {
+    font-size: 1.85rem;
+  }
+
+  h3 {
+    font-size: 1.3rem;
+  }
+
+  .hero,
+  .math-lab-hero,
+  .modules-section,
+  .path-section,
+  .algorithm-hero,
+  .story-card,
+  .gradient-chapter-lab,
+  .lesson-lab,
+  .panel,
+  .home-footer,
+  .math-lab-module-hero,
+  .math-lab-compact-hero,
+  .math-lab-panel,
+  .math-manim-player,
+  .math-lab-card,
+  .math-checkpoint,
+  .math-misconception-card,
+  .linear-regression-lab {
+    padding: 18px;
+    border-radius: 7px;
+    box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+
+  .hero,
+  .math-lab-hero,
+  .algorithm-hero,
+  .math-lab-module-hero {
+    padding-top: 52px;
+  }
+
+  .hero__poster,
+  .math-lab-hero__visual {
+    min-height: 300px;
+    box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+
+  .module-teaser,
+  .path-step,
+  .math-path-node,
+  .hero-highlight {
+    box-shadow: 3px 3px 0 var(--pixel-line);
+  }
+
+  .action-button {
+    width: auto;
+    min-height: 42px;
+  }
+
+  .gradient-sticky-rail {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 10px;
+    border-radius: 7px;
+    background: var(--pixel-paper);
+    box-shadow: 4px 4px 0 var(--pixel-line);
+  }
+}
+
+@media (max-width: 720px) {
+  .site-header__nav {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .lesson-workbench,
+  .lesson-workbench__task,
+  .lesson-workbench__visual,
+  .lesson-workbench__side,
+  .lesson-workbench__controls,
+  .lesson-workbench__metrics,
+  .lesson-workbench__lower,
+  .lesson-workbench__presets,
+  .lesson-workbench__timeline,
+  .gradient-chapter-lab,
+  .linear-regression-lab,
+  .logistic-regression-lab,
+  .mlp-lesson-lab {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .lesson-workbench__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lesson-workbench__task,
+  .mlp-lesson-lab__task,
+  .mlp-lesson-lab__visual,
+  .mlp-lesson-lab__controls,
+  .mlp-lesson-lab__metrics,
+  .mlp-lesson-lab__curves,
+  .mlp-lesson-lab__presets {
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .gradient-chapter-lab__metrics,
+  .lesson-workbench__metrics .linear-regression-lab__readout,
+  .linear-regression-lab__readout,
+  .mlp-lesson-lab__metric-grid,
+  .mlp-lesson-lab__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mlp-lesson-lab__heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .mlp-lesson-lab__heading strong {
+    text-align: left;
+  }
+
+  .algorithm-view--mlp .story-column {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mlp-playground-cockpit {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .mlp-playground-cockpit__header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mlp-playground-cockpit__actions,
+  .mlp-network__editors,
+  .mlp-metrics-panel,
+  .mlp-preset-strip,
+  .segmented-control,
+  .mlp-dataset-list,
+  .mlp-control-group--features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mlp-loss-chart {
+    grid-column: auto;
+  }
+
+  .mlp-network {
+    overflow-x: auto;
+  }
+
+  .mlp-story-visual,
+  .mlp-playground-cockpit__header,
+  .mlp-playground-cockpit__task,
+  .mlp-output-panel,
+  .mlp-network-panel,
+  .mlp-controls-panel,
+  .mlp-metrics-panel {
+    padding: 10px;
+  }
+}
+
+.lesson-workbench--cockpit {
+  gap: 10px;
+}
+
+.lesson-workbench--cockpit .lesson-workbench__task {
+  padding: 10px 12px;
+  border-radius: 7px;
+}
+
+.lesson-workbench--cockpit .lesson-workbench__grid,
+.lesson-workbench--cockpit .lesson-workbench__side,
+.lesson-workbench--cockpit .lesson-workbench__visual,
+.lesson-workbench--cockpit .lesson-workbench__controls,
+.lesson-workbench--cockpit .lesson-workbench__metrics,
+.lesson-workbench--cockpit .lesson-workbench__lower {
+  gap: 10px;
+}
+
+@media (min-width: 1100px) {
+  .lesson-workbench--cockpit .lesson-workbench__grid {
+    grid-template-columns: minmax(620px, 1fr) minmax(320px, 360px);
+    align-items: start;
+  }
+}
+
+@media (max-width: 1080px) {
+  .lesson-workbench--cockpit .lesson-workbench__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .algorithm-layout--mlp-story {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mlp-playground-stage {
+    width: 100%;
+    margin-left: 0;
+    transform: none;
+  }
+
+  .mlp-playground-jump {
+    right: 14px;
+    bottom: 14px;
+    padding: 8px 11px;
+  }
+
+  .mlp-playground-cockpit__grid,
+  .mlp-controls-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mlp-control-group--wide,
+  .mlp-control-group--features {
+    grid-column: auto;
+  }
+}

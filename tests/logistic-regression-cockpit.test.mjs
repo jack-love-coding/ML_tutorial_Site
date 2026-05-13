@@ -1,8 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { readStyleSource } from './helpers/styleSource.mjs'
 
 const componentPath = new URL('../src/components/LogisticRegressionLessonLab.vue', import.meta.url)
+const styleSource = readStyleSource()
 
 test('logistic regression has a dedicated cockpit lesson lab', () => {
   assert.ok(existsSync(componentPath), 'logistic regression lesson lab component should exist')
@@ -12,7 +14,6 @@ test('logistic regression has a dedicated cockpit lesson lab', () => {
     'utf8',
   )
   const componentSource = readFileSync(componentPath, 'utf8')
-  const styleSource = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8')
 
   assert.match(algorithmViewSource, /LogisticRegressionLessonLab/)
   assert.match(algorithmViewSource, /slug\.value === 'logistic-regression'/)

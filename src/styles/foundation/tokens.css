@@ -1,0 +1,28 @@
+:root {
+  --bg: #faf7f1;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-strong: rgba(255, 255, 255, 0.9);
+  --ink: #0f1728;
+  --muted: #536076;
+  --line: rgba(15, 23, 40, 0.08);
+  --shadow: 0 24px 80px rgba(15, 23, 40, 0.08);
+  --shadow-soft: 0 14px 34px rgba(15, 23, 40, 0.06);
+  --radius-xl: 32px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --font-display: "Aptos Display", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
+  --font-body: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: radial-gradient(circle at top left, #fef2d7 0%, transparent 32%),
+    radial-gradient(circle at top right, #dfefff 0%, transparent 28%),
+    linear-gradient(180deg, #faf7f1 0%, #f3efe8 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}

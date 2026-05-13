@@ -1,0 +1,40 @@
+.app-shell {
+  min-height: 100vh;
+}
+
+.route-stage {
+  position: relative;
+}
+
+.route-loading-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+}
+
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.page-fade-enter-from,
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.loading-layer-enter-active,
+.loading-layer-leave-active {
+  transition: opacity 180ms ease;
+}
+
+.loading-layer-enter-from,
+.loading-layer-leave-to {
+  opacity: 0;
+}
+
+.site-main {
+  width: min(1360px, calc(100vw - 40px));
+  margin: 0 auto;
+  padding: 28px 0 72px;
+}

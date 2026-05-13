@@ -1,0 +1,462 @@
+.gradient-chapter-lab {
+  display: grid;
+  gap: 18px;
+  margin-top: 6px;
+  padding: 24px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 125, 77, 0.14), transparent 30%),
+    radial-gradient(circle at top right, rgba(77, 99, 255, 0.1), transparent 26%),
+    linear-gradient(180deg, rgba(255, 252, 247, 0.99), rgba(247, 247, 244, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 24px 52px rgba(15, 23, 40, 0.08);
+}
+
+.gradient-chapter-lab__hero,
+.gradient-chapter-lab__terrain,
+.gradient-chapter-lab__workspace {
+  display: grid;
+  gap: 16px;
+}
+
+.gradient-chapter-lab__copy {
+  display: grid;
+  gap: 10px;
+  max-width: 46rem;
+}
+
+.gradient-chapter-lab__headline {
+  font-family: var(--font-display);
+  font-size: clamp(1.42rem, 2.5vw, 1.92rem);
+  line-height: 1.08;
+}
+
+.gradient-chapter-lab__hero-grid,
+.gradient-chapter-lab__terrain-grid,
+.gradient-chapter-lab__bottom {
+  display: grid;
+  gap: 14px;
+}
+
+.gradient-chapter-lab__hero-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gradient-chapter-lab__summary,
+.gradient-chapter-lab__formula,
+.gradient-chapter-lab__terrain-meta {
+  display: grid;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.gradient-chapter-lab__summary strong,
+.gradient-chapter-lab__terrain-meta strong {
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.gradient-chapter-lab__terrain-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.gradient-function-pill-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.gradient-function-pill {
+  display: grid;
+  gap: 8px;
+  padding: 15px 16px;
+  text-align: left;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.gradient-function-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(15, 23, 40, 0.08);
+}
+
+.gradient-function-pill.is-active,
+.gradient-function-pill.is-recommended {
+  border-color: rgba(255, 125, 77, 0.35);
+  background: rgba(255, 252, 247, 0.98);
+  box-shadow: 0 18px 34px rgba(255, 125, 77, 0.1);
+}
+
+.gradient-function-pill strong {
+  font-size: 0.96rem;
+}
+
+.gradient-function-pill span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.gradient-chapter-lab__terrain-grid {
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  align-items: start;
+}
+
+.gradient-chapter-lab__formula .markdown-math {
+  gap: 12px;
+}
+
+.gradient-chapter-lab__meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gradient-chapter-lab__meta-grid div {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.88);
+  border: 1px solid rgba(15, 23, 40, 0.05);
+}
+
+.gradient-chapter-lab__workspace {
+  gap: 18px;
+}
+
+.gradient-chapter-lab__workspace-primary {
+  display: grid;
+  gap: 16px;
+}
+
+.gradient-chapter-lab__workspace-secondary {
+  display: grid;
+  gap: 16px;
+}
+
+.gradient-chapter-lab__readout-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.gradient-chapter-lab__workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.gradient-chapter-lab__control-cluster {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: rgba(247, 248, 252, 0.9);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.gradient-chapter-lab__control-cluster.is-emphasis {
+  border-color: rgba(77, 99, 255, 0.22);
+  box-shadow: 0 18px 36px rgba(77, 99, 255, 0.08);
+}
+
+.gradient-chapter-lab__control-cluster--playback {
+  background: rgba(245, 247, 252, 0.94);
+}
+
+.gradient-chapter-lab__control-cluster header {
+  display: grid;
+  gap: 8px;
+}
+
+.gradient-chapter-lab__control-cluster header strong {
+  font-size: 0.96rem;
+  line-height: 1.5;
+}
+
+.gradient-chapter-lab__summary span,
+.gradient-chapter-lab__control-cluster header span,
+.gradient-chapter-lab__meta-grid span,
+.gradient-function-pill span,
+.gradient-chapter-lab__metric span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gradient-chapter-lab__actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.gradient-chapter-lab__metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.gradient-chapter-lab__readout-panel {
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: rgba(247, 248, 252, 0.9);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.gradient-chapter-lab__metric {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.9);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.gradient-chapter-lab__metric strong {
+  font-size: 1rem;
+}
+
+.gradient-chapter-lab__metric.is-emphasis {
+  border-color: rgba(77, 99, 255, 0.24);
+  box-shadow: 0 14px 30px rgba(77, 99, 255, 0.08);
+}
+
+.gradient-chapter-lab__insight {
+  gap: 10px;
+}
+
+.lesson-lab {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+  padding: 22px;
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at top right, rgba(63, 109, 255, 0.12), transparent 34%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(246, 248, 253, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 44px rgba(15, 23, 40, 0.08);
+}
+
+.lesson-lab--overview {
+  background:
+    radial-gradient(circle at top right, rgba(30, 166, 122, 0.12), transparent 32%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 249, 0.95));
+}
+
+.lesson-lab--regression {
+  background:
+    radial-gradient(circle at top left, rgba(255, 125, 77, 0.14), transparent 34%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(253, 247, 242, 0.95));
+}
+
+.lesson-lab--classification {
+  background:
+    radial-gradient(circle at top right, rgba(63, 109, 255, 0.15), transparent 35%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(244, 247, 255, 0.95));
+}
+
+.lesson-lab--likelihood {
+  background:
+    radial-gradient(circle at top left, rgba(30, 166, 122, 0.14), transparent 34%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.97), rgba(242, 250, 247, 0.95));
+}
+
+.lesson-lab--negative-log {
+  background:
+    radial-gradient(circle at top right, rgba(63, 109, 255, 0.16), transparent 34%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.97), rgba(243, 247, 255, 0.95));
+}
+
+.lesson-lab--mle {
+  background:
+    radial-gradient(circle at top right, rgba(30, 166, 122, 0.15), transparent 35%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(243, 251, 249, 0.95));
+}
+
+.lesson-lab__controls,
+.lesson-lab__visual,
+.lesson-lab__panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.lesson-workbench {
+  --lesson-accent: #4d63ff;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.lesson-workbench__task {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--lesson-accent) 12%, transparent), transparent 54%),
+    rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(15, 23, 40, 0.07);
+}
+
+.lesson-workbench__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.36fr) minmax(330px, 0.64fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.lesson-workbench__visual,
+.lesson-workbench__side,
+.lesson-workbench__controls,
+.lesson-workbench__metrics,
+.lesson-workbench__lower,
+.lesson-workbench__presets,
+.lesson-workbench__timeline {
+  min-width: 0;
+}
+
+.lesson-workbench__visual {
+  display: grid;
+  gap: 14px;
+}
+
+.lesson-workbench__side {
+  display: grid;
+  gap: 14px;
+}
+
+.lesson-workbench__controls,
+.lesson-workbench__metrics,
+.lesson-workbench__presets,
+.lesson-workbench__timeline {
+  display: grid;
+  gap: 14px;
+}
+
+.lesson-workbench__lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+
+.lesson-workbench__controls .linear-regression-lab__control-grid,
+.lesson-workbench__controls .linear-regression-lab__advanced-controls,
+.lesson-workbench__controls .gradient-chapter-lab__workspace-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lesson-workbench__controls .linear-regression-lab__actions,
+.lesson-workbench__controls .gradient-chapter-lab__actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lesson-workbench__metrics .linear-regression-lab__readout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lesson-workbench__metrics .linear-regression-lab__selected,
+.lesson-workbench__metrics .linear-regression-lab__teaching-visual,
+.linear-regression-lab__focus--task {
+  grid-column: 1 / -1;
+}
+
+.lesson-lab__heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+
+.lesson-lab__heading span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.lesson-lab__heading strong {
+  font-size: 1rem;
+  text-align: right;
+}
+
+.lesson-lab__heading--subtle {
+  padding-top: 4px;
+}
+
+.lesson-lab__summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.lesson-lab__summary--classification {
+  grid-template-columns: 1fr;
+}
+
+.lesson-lab__visual--stacked {
+  gap: 12px;
+}
+
+.lesson-lab__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+  line-height: 1.55;
+}
+
+.lesson-lab__note--compact {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(63, 109, 255, 0.06);
+  border: 1px solid rgba(63, 109, 255, 0.12);
+  color: var(--ink);
+}
+
+.toggle-strip {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(8, 18, 33, 0.06);
+  width: fit-content;
+}
+
+.toggle-strip__button {
+  border: 0;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.toggle-strip__button.is-active {
+  background: linear-gradient(135deg, rgba(63, 109, 255, 0.96), rgba(42, 83, 209, 0.96));
+  color: #f8fbff;
+  box-shadow: 0 10px 20px rgba(36, 63, 161, 0.28);
+}
+
+.toggle-strip__button:hover {
+  transform: translateY(-1px);
+}

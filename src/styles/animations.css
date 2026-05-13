@@ -1,0 +1,174 @@
+@keyframes linear-line-draw {
+  from {
+    stroke-dasharray: 70 18;
+    stroke-dashoffset: 18;
+  }
+  to {
+    stroke-dasharray: 104 12;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes linear-residual-pulse {
+  0%,
+  100% {
+    opacity: 0.58;
+    stroke-width: 3;
+  }
+  50% {
+    opacity: 1;
+    stroke-width: 6;
+  }
+}
+
+@keyframes linear-path-flow {
+  0% {
+    stroke-dashoffset: 118;
+  }
+  60%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes linear-dot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.22);
+  }
+}
+
+@keyframes linear-bar-rise {
+  from {
+    transform: scaleY(0.72);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes linear-weight-shrink {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.64);
+  }
+}
+
+@keyframes linear-curve-smooth {
+  from {
+    stroke-width: 5;
+  }
+  to {
+    stroke-width: 3.5;
+  }
+}
+
+@keyframes linear-wiggle {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(5px);
+  }
+}
+
+@keyframes linear-validation-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes loss-curve-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes loss-marker-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+}
+
+@keyframes loss-signal-travel {
+  0% {
+    left: 0;
+    background: #1ea67a;
+  }
+  32% {
+    background: #3f6dff;
+  }
+  66% {
+    background: #ff7d4d;
+  }
+  100% {
+    left: calc(100% - 13px);
+    background: #1ea67a;
+  }
+}
+
+@keyframes loss-bar-sweep {
+  from {
+    transform: scaleX(0.18);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes toss-item-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-grid {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-12px, -8px, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes dashboard-fade {
+  from {
+    opacity: 0.72;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}

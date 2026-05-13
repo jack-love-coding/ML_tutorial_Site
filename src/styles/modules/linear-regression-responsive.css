@@ -1,0 +1,426 @@
+@media (max-width: 1080px) {
+  .site-header,
+  .site-main {
+    width: min(100vw - 28px, 1240px);
+  }
+
+  .site-header {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .hero,
+  .algorithm-hero,
+  .route-skeleton__hero,
+  .route-skeleton__lesson-hero,
+  .algorithm-layout,
+  .route-skeleton__lesson-layout,
+  .results-grid,
+  .modules-section,
+  .path-layout,
+  .route-skeleton__grid,
+  .route-skeleton__story,
+  .module-gallery,
+  .path-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero__highlights,
+  .route-skeleton__poster-grid,
+  .route-skeleton__summary-grid,
+  .algorithm-hero__stats,
+  .gradient-viz,
+  .playback-dock__metrics,
+  .preset-list--compact,
+  .control-group__grid,
+  .dashboard-brief,
+  .function-panel__meta,
+  .story-companion__grid,
+  .story-companion__metrics,
+  .embedded-loss-lab__overview,
+  .embedded-loss-lab__controls,
+  .embedded-loss-lab__footer,
+  .gradient-chapter-lab__hero-grid,
+  .gradient-chapter-lab__terrain-grid,
+  .gradient-chapter-lab__workspace-grid,
+  .gradient-chapter-lab__meta-grid,
+  .gradient-chapter-lab__actions,
+  .gradient-chapter-lab__metrics,
+  .gradient-function-pill-strip,
+  .gradient-teaching-blocks,
+  .loss-function-switcher,
+  .lesson-preset-list,
+  .loss-overview-card__meta,
+  .loss-reading-grid,
+  .loss-readout,
+  .lesson-lab__summary,
+  .softmax-lesson-grid,
+  .softmax-compare-grid,
+  .sample-loss-grid,
+  .observation-grid,
+  .teaching-flow,
+  .loss-pipeline-illustration,
+  .confidence-case-list,
+  .negative-log-transform,
+  .process-chain,
+  .lesson-panel__signals,
+  .gradient-sticky-rail__summary-grid,
+  .gradient-sticky-rail__control-sections,
+  .gradient-sticky-rail__actions,
+  .gradient-sticky-rail__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .embedded-loss-lab {
+    grid-template-columns: 1fr;
+  }
+
+  .embedded-loss-lab__visuals,
+  .embedded-loss-lab__controls {
+    grid-column: 1 / -1;
+  }
+
+  .probability-bars__item {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .story-card {
+    min-height: auto;
+  }
+
+  .story-progress {
+    position: static;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .story-progress__item {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .story-progress__item span {
+    width: 36px;
+    height: 36px;
+  }
+
+  .story-column {
+    grid-template-columns: 1fr;
+  }
+
+  .algorithm-view--gradient .story-column {
+    grid-template-columns: 1fr;
+  }
+
+  .algorithm-view--loss .story-column {
+    grid-template-columns: 1fr;
+  }
+
+  .algorithm-layout--gradient-story {
+    display: block;
+  }
+
+  .lab-column {
+    order: -1;
+  }
+
+  .lab-column__sticky {
+    position: static;
+  }
+
+  .gradient-lab-column {
+    min-height: 92px;
+  }
+
+  .algorithm-view--gradient {
+    padding-bottom: 0;
+  }
+
+  .gradient-sticky-rail {
+    position: fixed;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    top: auto;
+    z-index: 35;
+    padding: 12px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(22px);
+    box-shadow: 0 24px 48px rgba(15, 23, 40, 0.16);
+  }
+
+  .gradient-sticky-rail__mobile-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .gradient-sticky-rail__mobile-copy {
+    display: grid;
+    gap: 6px;
+  }
+
+  .gradient-sticky-rail__mobile-copy span {
+    color: var(--muted);
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .gradient-sticky-rail__mobile-copy strong {
+    font-size: 0.96rem;
+    line-height: 1.35;
+  }
+
+  .gradient-sticky-rail__mobile-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-column: 1 / -1;
+    gap: 8px;
+  }
+
+  .gradient-sticky-rail__mobile-metrics article {
+    padding: 12px 14px;
+  }
+
+  .gradient-sticky-rail__body {
+    display: none;
+    max-height: min(68vh, 620px);
+    overflow: auto;
+    padding-right: 0;
+    padding-top: 12px;
+  }
+
+  .gradient-sticky-rail.is-mobile-open .gradient-sticky-rail__body {
+    display: grid;
+  }
+
+  .insight-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .site-main {
+    width: min(100vw - 20px, 1240px);
+    padding-top: 20px;
+  }
+
+  .algorithm-hero,
+  .algorithm-layout,
+  .story-column,
+  .story-flow,
+  .story-card,
+  .results-grid {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .story-card > *,
+  .algorithm-hero > *,
+  .markdown-math,
+  .lesson-lab,
+  .story-companion,
+  .results-grid > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .site-header {
+    width: min(100vw - 20px, 1240px);
+    gap: 12px;
+  }
+
+  .site-header__brand {
+    width: 100%;
+  }
+
+  .site-header__nav {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .site-header__link {
+    white-space: nowrap;
+  }
+
+  .hero,
+  .modules-section,
+  .path-section,
+  .algorithm-hero,
+  .story-card,
+  .gradient-chapter-lab,
+  .lesson-lab,
+  .panel,
+  .home-footer {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .story-card {
+    min-height: auto;
+  }
+
+  .hero__poster {
+    min-height: 340px;
+  }
+
+  .hero__highlights,
+  .metrics-grid,
+  .playback-dock__actions,
+  .controls-panel__actions,
+  .loss-lab-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard {
+    gap: 14px;
+  }
+
+  .panel__heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .panel__toggle {
+    display: inline-flex;
+  }
+
+  .viz-card__hud {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .viz-card__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .preset-card {
+    padding: 16px;
+  }
+
+  .lesson-lab__controls,
+  .lesson-lab__panel,
+  .lesson-lab__visual {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .gradient-chapter-lab__summary,
+  .gradient-chapter-lab__formula,
+  .gradient-chapter-lab__terrain-meta,
+  .gradient-chapter-lab__control-cluster,
+  .gradient-chapter-lab__readout-panel {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .toggle-strip {
+    width: 100%;
+  }
+
+  .toggle-strip__button {
+    min-height: 34px;
+  }
+
+  .loss-curve-plot__legend {
+    gap: 6px;
+  }
+
+  .loss-pipeline-illustration__track {
+    display: none;
+  }
+
+  .loss-pipeline-illustration__node {
+    min-height: auto;
+  }
+
+  .residual-amplifier__item,
+  .confidence-budget__item {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .residual-amplifier__item strong,
+  .confidence-budget__item strong {
+    text-align: left;
+  }
+
+  .toss-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .site-header__nav {
+    justify-content: flex-start;
+  }
+
+  .home-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 1080px) {
+  .story-media,
+  .linear-regression-lab__viz,
+  .linear-regression-lab__diagnostic-grid,
+  .linear-regression-lab__control-grid,
+  .linear-regression-lab__advanced-controls,
+  .linear-regression-lab__readout,
+  .linear-results__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .linear-regression-lab__selected,
+  .linear-regression-lab__focus,
+  .linear-regression-lab__teaching-visual,
+  .linear-regression-lab__diagnostics,
+  .linear-regression-lab__presets {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .linear-regression-lab {
+    padding: 22px;
+    border-radius: 24px;
+  }
+
+  .linear-regression-lab__panel,
+  .linear-regression-lab__controls,
+  .linear-regression-lab__readout,
+  .linear-regression-lab__selected,
+  .linear-regression-lab__focus,
+  .linear-regression-lab__teaching-visual,
+  .linear-regression-lab__diagnostics,
+  .linear-regression-lab__presets {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .linear-regression-lab__actions,
+  .linear-regression-lab__mini-grid,
+  .linear-regression-lab__preset-list,
+  .regularization-switch {
+    grid-template-columns: 1fr;
+  }
+
+  .linear-regression-lab__three-canvas {
+    min-height: 300px;
+  }
+}

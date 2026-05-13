@@ -1,0 +1,1940 @@
+.math-lab-page {
+  display: grid;
+  gap: 32px;
+}
+
+.math-lab-hero,
+.math-lab-module-hero,
+.math-lab-compact-hero,
+.math-lab-panel,
+.math-manim-player,
+.math-lab-card,
+.math-checkpoint,
+.math-misconception-card {
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-soft);
+}
+
+.math-lab-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
+  gap: 32px;
+  min-height: min(680px, calc(100svh - 120px));
+  padding: 52px;
+  overflow: hidden;
+  border-radius: 36px;
+  background:
+    linear-gradient(135deg, rgba(247, 250, 255, 0.98), rgba(255, 248, 240, 0.9)),
+    linear-gradient(90deg, rgba(56, 104, 255, 0.08), rgba(15, 159, 122, 0.08));
+}
+
+.math-lab-hero__copy {
+  display: grid;
+  align-content: center;
+  gap: 20px;
+  max-width: 42rem;
+}
+
+.math-lab-hero__copy h1 {
+  max-width: 8.5ch;
+}
+
+.math-lab-hero__copy p {
+  max-width: 36rem;
+  font-size: 1.1rem;
+}
+
+.math-lab-hero__visual {
+  position: relative;
+  min-height: 460px;
+  border-radius: 30px;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(145deg, #071326, #172744 54%, #0d2f31);
+  background-size: 46px 46px, 46px 46px, auto;
+}
+
+.math-lab-hero--foundations .math-lab-hero__copy h1 {
+  max-width: 10ch;
+}
+
+.math-lab-hero__visual--course {
+  display: grid;
+  place-items: center;
+}
+
+.course-plane {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  width: min(82%, 420px);
+  transform: rotate(-8deg) skew(-4deg);
+}
+
+.course-plane span {
+  display: grid;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.18);
+  animation: math-tile-rise 4.8s ease-in-out infinite;
+}
+
+.course-plane span:nth-child(2n) {
+  animation-delay: 220ms;
+}
+
+.course-plane span:nth-child(3n) {
+  animation-delay: 420ms;
+}
+
+.math-lab-orbit {
+  position: absolute;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+}
+
+.math-lab-orbit::before,
+.math-lab-orbit::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+
+.math-lab-orbit--vector {
+  left: 13%;
+  top: 18%;
+  width: 38%;
+  height: 2px;
+  color: #84a4ff;
+  transform: rotate(-28deg);
+}
+
+.math-lab-orbit--vector::after {
+  right: -2px;
+  top: -5px;
+  width: 12px;
+  height: 12px;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.math-lab-orbit--matrix {
+  right: 12%;
+  top: 16%;
+  width: 34%;
+  height: 34%;
+  color: #86e1c5;
+  transform: skew(-12deg);
+}
+
+.math-lab-orbit--matrix::before {
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 100%;
+}
+
+.math-lab-orbit--matrix::after {
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+}
+
+.math-lab-orbit--gradient {
+  left: 28%;
+  bottom: 16%;
+  width: 45%;
+  height: 26%;
+  color: #ffb088;
+  border-radius: 50%;
+  transform: rotate(-16deg);
+}
+
+.math-lab-dashboard,
+.math-diagnostic-layout,
+.math-module-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.math-lab-panel,
+.math-lab-compact-hero,
+.math-checkpoint,
+.math-misconception-card {
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+}
+
+.math-lab-panel header,
+.math-code-lab header,
+.math-checkpoint header,
+.math-lab-card__controls header,
+.math-manim-player__copy,
+.math-lab-panel--sticky {
+  display: grid;
+  gap: 8px;
+}
+
+.math-inline-supplement-section {
+  display: grid;
+  gap: 18px;
+}
+
+.math-lab-panel header > span,
+.math-code-lab header > span,
+.math-checkpoint header > span,
+.math-lab-card__controls header > span,
+.math-manim-player__copy > span,
+.math-misconception-card > span,
+.math-diagnostic-question > span,
+.math-concept-section > span,
+.math-explanation-grid span,
+.math-variable-grid strong,
+.math-path-node span,
+.math-path-node small,
+.math-readout-grid span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.math-misconception-card__statement {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.04rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.math-misconception-card__statement p {
+  margin: 0;
+}
+
+.math-misconception-card__body,
+.math-misconception-card__example {
+  gap: 8px;
+}
+
+.math-misconception-card__example {
+  padding-top: 2px;
+  color: color-mix(in srgb, var(--muted) 88%, var(--ink));
+  font-size: 0.88rem;
+}
+
+.math-path-map {
+  display: grid;
+  gap: 14px;
+}
+
+.math-path-node {
+  display: grid;
+  gap: 10px;
+  min-height: 170px;
+  padding: 24px;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--math-theme) 70%, white), rgba(255, 255, 255, 0.9));
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.math-path-node:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--math-accent) 35%, white);
+  box-shadow: 0 16px 36px rgba(15, 23, 40, 0.1);
+}
+
+.math-path-node strong {
+  max-width: 16rem;
+  font-size: 1.3rem;
+  line-height: 1.1;
+}
+
+.math-path-node.is-complete {
+  border-color: rgba(15, 159, 122, 0.38);
+}
+
+.math-skill-radar {
+  display: grid;
+  gap: 18px;
+}
+
+.math-skill-radar svg {
+  width: min(100%, 260px);
+  justify-self: center;
+}
+
+.math-skill-radar circle,
+.math-skill-radar line {
+  fill: none;
+  stroke: rgba(15, 23, 40, 0.12);
+  stroke-width: 1.2;
+}
+
+.math-skill-radar polygon {
+  fill: rgba(56, 104, 255, 0.18);
+  stroke: #3868ff;
+  stroke-width: 3;
+}
+
+.math-skill-radar__legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.math-skill-radar__legend article,
+.math-readout-grid article,
+.math-variable-grid article,
+.math-explanation-grid article,
+.math-diagnostic-question,
+.math-checkpoint__item {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.86);
+}
+
+.math-diagnostic-form {
+  display: grid;
+  gap: 14px;
+}
+
+.math-diagnostic-question label,
+.math-checkpoint__choices label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--ink);
+}
+
+.math-lab-panel--sticky,
+.math-module-side {
+  position: sticky;
+  top: 96px;
+}
+
+.math-lab-module-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 24px;
+  padding: 34px;
+  border-radius: 32px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--math-theme) 78%, white), rgba(255, 255, 255, 0.94));
+}
+
+.math-lab-module-hero > div,
+.math-lab-module-hero aside {
+  display: grid;
+  gap: 16px;
+}
+
+.math-lab-module-hero aside {
+  align-content: center;
+  padding: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.math-module-main {
+  display: grid;
+  gap: 24px;
+}
+
+.math-module-layout--article {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+}
+
+.math-lab-module-hero--article h1 {
+  max-width: 13ch;
+}
+
+.math-article-nav__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.math-module-labs {
+  display: grid;
+  gap: 18px;
+}
+
+.math-supplement-section {
+  display: grid;
+  gap: 18px;
+}
+
+.math-supplement-section > header {
+  display: grid;
+  gap: 6px;
+}
+
+.math-article-section {
+  scroll-margin-top: 96px;
+}
+
+.math-article-section .markdown-math {
+  color: #334155;
+}
+
+.math-article-nav {
+  max-height: calc(100svh - 120px);
+  overflow: auto;
+}
+
+.math-article-nav nav {
+  display: grid;
+  gap: 4px;
+}
+
+.math-article-nav nav a {
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: var(--muted);
+  line-height: 1.25;
+}
+
+.math-article-nav nav a:hover {
+  color: var(--ink);
+  background: rgba(15, 23, 40, 0.05);
+}
+
+.math-article-nav nav a.is-level-3 {
+  padding-left: 22px;
+  font-size: 0.92rem;
+}
+
+.math-article-meta {
+  display: grid;
+  gap: 4px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(15, 23, 40, 0.08);
+}
+
+.math-objective-list,
+.math-variable-grid,
+.math-explanation-grid,
+.math-misconception-grid,
+.math-readout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.math-objective-list article {
+  padding: 16px 18px;
+  border-left: 3px solid #3868ff;
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.86);
+}
+
+.math-concept-section {
+  gap: 22px;
+}
+
+.math-code-lab {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 20px;
+  background: #0c1628;
+}
+
+.math-code-lab header strong,
+.math-code-lab pre {
+  color: white;
+}
+
+.math-code-lab pre {
+  max-width: 100%;
+  overflow: auto;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.math-manim-player,
+.math-lab-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
+  gap: 18px;
+  padding: 22px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.math-manim-player__media {
+  min-height: 280px;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #091326;
+}
+
+.math-manim-player video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+}
+
+.math-manim-player__fallback {
+  display: grid;
+  min-height: 280px;
+  place-items: center;
+  color: white;
+}
+
+.math-lab-card__visual {
+  min-width: 0;
+}
+
+.numerical-mini-lab .math-lab-card__controls p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.numerical-lab-svg {
+  display: block;
+  width: 100%;
+  min-height: 280px;
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f8fbff);
+  background-size: 28px 28px, 28px 28px, auto;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.numerical-lab-svg line,
+.numerical-lab-svg path,
+.numerical-lab-svg circle:first-child {
+  fill: none;
+  stroke: rgba(15, 23, 40, 0.18);
+  stroke-width: 2;
+}
+
+.numerical-lab-svg circle {
+  fill: #e26d3d;
+  stroke: white;
+  stroke-width: 1.4;
+}
+
+.numerical-lab-svg circle.is-inside,
+.numerical-lab-svg rect.is-retained {
+  fill: #3868ff;
+}
+
+.numerical-lab-svg rect {
+  fill: rgba(56, 104, 255, 0.2);
+  stroke: rgba(56, 104, 255, 0.58);
+  stroke-width: 2;
+}
+
+.numerical-lab-svg .power-axis {
+  stroke: rgba(15, 23, 40, 0.12);
+  stroke-width: 1.4;
+}
+
+.numerical-lab-svg .power-dominant-line {
+  stroke: rgba(226, 109, 61, 0.8);
+  stroke-width: 3;
+  stroke-dasharray: 7 6;
+}
+
+.numerical-lab-svg .power-current-vector {
+  stroke: #0f1728;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.numerical-lab-generic {
+  display: grid;
+  min-height: 280px;
+  place-items: center;
+  padding: 28px;
+  border-radius: 22px;
+  background: #0c1628;
+  color: white;
+  text-align: center;
+}
+
+.numerical-lab-generic span {
+  color: rgba(255, 255, 255, 0.62);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.monte-carlo-lab {
+  align-items: stretch;
+}
+
+.monte-carlo-lab__visual,
+.monte-carlo-lab__controls {
+  min-width: 0;
+}
+
+.monte-carlo-lab__visual {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.monte-carlo-lab__plot,
+.monte-carlo-lab__bars {
+  display: block;
+  width: 100%;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 18px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f7fbfa);
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+.monte-carlo-lab__plot {
+  min-height: 320px;
+}
+
+.monte-carlo-lab__plot rect,
+.monte-carlo-lab__plot path,
+.monte-carlo-lab__plot line,
+.monte-carlo-lab__bars line {
+  fill: none;
+  stroke: rgba(15, 23, 40, 0.24);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.monte-carlo-lab__plot circle {
+  fill: #d8663a;
+  stroke: white;
+  stroke-width: 1.2;
+}
+
+.monte-carlo-lab__plot circle.is-inside,
+.monte-carlo-lab__legend i.is-inside,
+.monte-carlo-lab__bars rect {
+  fill: #247a73;
+  background: #247a73;
+}
+
+.monte-carlo-lab__bars {
+  min-height: 140px;
+  padding: 8px;
+}
+
+.monte-carlo-lab__bars rect {
+  opacity: 0.86;
+}
+
+.monte-carlo-lab__bars text {
+  fill: var(--muted);
+  font-size: 0.72rem;
+}
+
+.monte-carlo-lab__legend,
+.monte-carlo-lab__sequence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.monte-carlo-lab__legend span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.monte-carlo-lab__legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #d8663a;
+}
+
+.monte-carlo-lab__sequence {
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(36, 122, 115, 0.08);
+}
+
+.monte-carlo-lab__sequence strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.taylor-series-lab {
+  align-items: stretch;
+}
+
+.taylor-series-lab__visual,
+.taylor-series-lab__controls {
+  min-width: 0;
+}
+
+.taylor-series-lab__visual {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.taylor-series-lab__plot {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.055) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f8fbff);
+  background-size: 32px 32px, 32px 32px, auto;
+}
+
+.taylor-series-lab__local-window {
+  fill: rgba(226, 109, 61, 0.08);
+}
+
+.taylor-series-lab__axis {
+  stroke: rgba(15, 23, 40, 0.22);
+  stroke-width: 1.4;
+}
+
+.taylor-series-lab__curve {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.taylor-series-lab__curve--actual {
+  stroke: #3868ff;
+}
+
+.taylor-series-lab__curve--approximation {
+  stroke: #e26d3d;
+  stroke-dasharray: 9 8;
+}
+
+.taylor-series-lab__error-line {
+  stroke: rgba(15, 23, 40, 0.64);
+  stroke-width: 2.5;
+  stroke-dasharray: 5 6;
+}
+
+.taylor-series-lab__center-dot {
+  fill: #0f9f7a;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.taylor-series-lab__sample-dot {
+  fill: #3868ff;
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.taylor-series-lab__approx-dot {
+  fill: #e26d3d;
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.taylor-series-lab__legend,
+.taylor-series-lab__toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.taylor-series-lab__legend span,
+.taylor-series-lab__toggles label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.taylor-series-lab__legend i {
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  border-radius: 999px;
+  background: #3868ff;
+}
+
+.taylor-series-lab__legend i.is-approximation {
+  background: #e26d3d;
+}
+
+.taylor-series-lab__legend i.is-center {
+  width: 9px;
+  height: 9px;
+  background: #0f9f7a;
+}
+
+.taylor-series-lab__legend i.is-error {
+  background: #0f1728;
+}
+
+.taylor-series-lab__control-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.taylor-series-lab__control-grid label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.taylor-series-lab__control-grid input,
+.taylor-series-lab__control-grid select {
+  width: 100%;
+  min-height: 40px;
+  accent-color: #e26d3d;
+}
+
+.taylor-series-lab__control-grid select {
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+}
+
+.taylor-series-lab__toggles input {
+  accent-color: #e26d3d;
+}
+
+.taylor-series-lab__formula {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.taylor-series-lab__formula > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.taylor-series-lab__formula .markdown-math {
+  min-width: 0;
+}
+
+.sparse-matrix-lab {
+  align-items: stretch;
+}
+
+.sparse-matrix-lab__visual,
+.sparse-matrix-lab__controls {
+  min-width: 0;
+}
+
+.sparse-matrix-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.sparse-matrix-lab__grid {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f6fbf8);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.sparse-matrix-lab__frame {
+  fill: rgba(255, 255, 255, 0.78);
+  stroke: rgba(15, 23, 40, 0.12);
+  stroke-width: 2;
+}
+
+.sparse-matrix-lab__row {
+  fill: transparent;
+}
+
+.sparse-matrix-lab__row.is-highlighted-row {
+  fill: rgba(226, 109, 61, 0.1);
+}
+
+.sparse-matrix-lab__cell {
+  fill: rgba(15, 23, 40, 0.035);
+  stroke: rgba(15, 23, 40, 0.045);
+  stroke-width: 1;
+}
+
+.sparse-matrix-lab__cell.is-nonzero {
+  fill: #0f9f7a;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 1.6;
+}
+
+.sparse-matrix-lab__cell.is-highlighted-entry {
+  fill: #e26d3d;
+}
+
+.sparse-matrix-lab__arrays {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sparse-matrix-lab__arrays article {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.sparse-matrix-lab__arrays span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sparse-matrix-lab__arrays strong {
+  min-width: 0;
+  color: var(--ink);
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.sparse-matrix-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.sparse-matrix-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sparse-matrix-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(15, 159, 122, 0.1);
+}
+
+.markov-chain-lab {
+  align-items: stretch;
+}
+
+.markov-chain-lab__visual,
+.markov-chain-lab__controls {
+  min-width: 0;
+}
+
+.markov-chain-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.markov-chain-lab__graph {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f5fbfd);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.markov-chain-lab__graph line {
+  stroke: #0891b2;
+  stroke-linecap: round;
+}
+
+.markov-chain-lab__graph path {
+  fill: #0891b2;
+}
+
+.markov-chain-lab__node circle {
+  fill: rgba(8, 145, 178, 0.16);
+  stroke: rgba(8, 145, 178, 0.56);
+  stroke-width: 2.5;
+}
+
+.markov-chain-lab__node circle.is-initial {
+  fill: rgba(226, 109, 61, 0.18);
+  stroke: rgba(226, 109, 61, 0.74);
+}
+
+.markov-chain-lab__node text {
+  fill: var(--ink);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.markov-chain-lab__node-value {
+  fill: var(--muted) !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+}
+
+.markov-chain-lab__rank-bars,
+.markov-chain-lab__matrix {
+  display: grid;
+  gap: 9px;
+}
+
+.markov-chain-lab__rank-bars article {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 54px;
+  gap: 10px;
+  align-items: center;
+}
+
+.markov-chain-lab__rank-bars span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.markov-chain-lab__rank-bars div {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(15, 23, 40, 0.08);
+}
+
+.markov-chain-lab__rank-bars i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #0891b2;
+}
+
+.markov-chain-lab__rank-bars strong {
+  color: var(--ink);
+  font-size: 0.86rem;
+  text-align: right;
+}
+
+.markov-chain-lab__matrix {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.markov-chain-lab__matrix article {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.markov-chain-lab__matrix span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.markov-chain-lab__matrix strong {
+  min-width: 0;
+  color: var(--ink);
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.markov-chain-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.markov-chain-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.markov-chain-lab__control-grid label:last-child {
+  grid-column: 1 / -1;
+}
+
+.markov-chain-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(8, 145, 178, 0.1);
+}
+
+.condition-number-lab {
+  align-items: stretch;
+}
+
+.condition-number-lab__visual,
+.condition-number-lab__controls {
+  min-width: 0;
+}
+
+.condition-number-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.condition-number-lab__plot {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #fff8f3);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.condition-number-lab__axis {
+  stroke: rgba(15, 23, 40, 0.2);
+  stroke-width: 1.4;
+}
+
+.condition-number-lab__parallelogram {
+  fill: rgba(234, 88, 12, 0.1);
+  stroke: rgba(194, 65, 12, 0.34);
+  stroke-width: 2;
+}
+
+.condition-number-lab__vector {
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.condition-number-lab__vector--first {
+  stroke: #2563eb;
+}
+
+.condition-number-lab__vector--second {
+  stroke: #0f9f7a;
+}
+
+.condition-number-lab__vector--b {
+  stroke: #c2410c;
+}
+
+.condition-number-lab__perturbation {
+  stroke: #be123c;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 6 6;
+}
+
+.condition-number-lab__point {
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.condition-number-lab__point--exact {
+  fill: #c2410c;
+}
+
+.condition-number-lab__point--perturbed {
+  fill: #be123c;
+}
+
+.condition-number-lab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.condition-number-lab__legend span {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.condition-number-lab__legend i {
+  width: 18px;
+  height: 4px;
+  border-radius: 999px;
+  background: #2563eb;
+}
+
+.condition-number-lab__legend i.is-second {
+  background: #0f9f7a;
+}
+
+.condition-number-lab__legend i.is-b {
+  background: #c2410c;
+}
+
+.condition-number-lab__legend i.is-perturbation {
+  background: #be123c;
+}
+
+.condition-number-lab__singular-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.condition-number-lab__singular-values article {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.condition-number-lab__singular-values span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.condition-number-lab__singular-values strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.condition-number-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.condition-number-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.condition-number-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(15, 159, 122, 0.1);
+}
+
+.condition-number-lab__status.is-warning {
+  background: rgba(226, 109, 61, 0.12);
+}
+
+.condition-number-lab__status.is-severe {
+  background: rgba(190, 18, 60, 0.1);
+}
+
+.nonlinear-equations-lab {
+  align-items: stretch;
+}
+
+.nonlinear-equations-lab__visual,
+.nonlinear-equations-lab__controls {
+  min-width: 0;
+}
+
+.nonlinear-equations-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.nonlinear-equations-lab__plot {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f8fbff);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.nonlinear-equations-lab__axis {
+  stroke: rgba(15, 23, 40, 0.22);
+  stroke-width: 1.4;
+}
+
+.nonlinear-equations-lab__curve {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nonlinear-equations-lab__bracket {
+  stroke: #0f9f7a;
+  stroke-width: 8;
+  stroke-linecap: round;
+  opacity: 0.68;
+}
+
+.nonlinear-equations-lab__drop-line {
+  stroke: rgba(190, 18, 60, 0.38);
+  stroke-width: 1.8;
+  stroke-dasharray: 5 6;
+}
+
+.nonlinear-equations-lab__secant-path {
+  fill: none;
+  stroke: rgba(226, 109, 61, 0.74);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 8 7;
+}
+
+.nonlinear-equations-lab__root,
+.nonlinear-equations-lab__bisection-point,
+.nonlinear-equations-lab__newton-point,
+.nonlinear-equations-lab__secant-point {
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.nonlinear-equations-lab__root {
+  fill: #0f1728;
+}
+
+.nonlinear-equations-lab__bisection-point {
+  fill: #0f9f7a;
+}
+
+.nonlinear-equations-lab__newton-point {
+  fill: #be123c;
+}
+
+.nonlinear-equations-lab__secant-point {
+  fill: #e26d3d;
+}
+
+.nonlinear-equations-lab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.nonlinear-equations-lab__legend span {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.nonlinear-equations-lab__legend i {
+  width: 18px;
+  height: 4px;
+  border-radius: 999px;
+  background: #2563eb;
+}
+
+.nonlinear-equations-lab__legend i.is-bracket {
+  background: #0f9f7a;
+}
+
+.nonlinear-equations-lab__legend i.is-newton {
+  background: #be123c;
+}
+
+.nonlinear-equations-lab__legend i.is-secant {
+  background: #e26d3d;
+}
+
+.nonlinear-equations-lab__method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.nonlinear-equations-lab__method-grid article {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.nonlinear-equations-lab__method-grid span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nonlinear-equations-lab__method-grid strong,
+.nonlinear-equations-lab__method-grid small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.nonlinear-equations-lab__method-grid strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.nonlinear-equations-lab__method-grid small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.nonlinear-equations-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.nonlinear-equations-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.nonlinear-equations-lab__control-grid label:first-child {
+  grid-column: 1 / -1;
+}
+
+.nonlinear-equations-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.finite-difference-lab {
+  align-items: stretch;
+}
+
+.finite-difference-lab__visual,
+.finite-difference-lab__controls {
+  min-width: 0;
+}
+
+.finite-difference-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.finite-difference-lab__plot {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f7fbff);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.finite-difference-lab__axis {
+  stroke: rgba(15, 23, 40, 0.16);
+  stroke-width: 1.4;
+}
+
+.finite-difference-lab__axis--x {
+  stroke-dasharray: 5 7;
+}
+
+.finite-difference-lab__curve,
+.finite-difference-lab__secant,
+.finite-difference-lab__tangent {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.finite-difference-lab__curve {
+  stroke: #2563eb;
+  stroke-width: 4;
+}
+
+.finite-difference-lab__secant {
+  stroke: #d8663a;
+  stroke-width: 4;
+}
+
+.finite-difference-lab__tangent {
+  stroke: rgba(15, 23, 40, 0.68);
+  stroke-width: 2.6;
+  stroke-dasharray: 7 7;
+}
+
+.finite-difference-lab__sample,
+.finite-difference-lab__current {
+  stroke: white;
+  stroke-width: 2.5;
+}
+
+.finite-difference-lab__sample {
+  fill: #d8663a;
+}
+
+.finite-difference-lab__current {
+  fill: #0f9f7a;
+}
+
+.finite-difference-lab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.finite-difference-lab__legend span {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.finite-difference-lab__legend i {
+  width: 18px;
+  height: 4px;
+  border-radius: 999px;
+  background: #2563eb;
+}
+
+.finite-difference-lab__legend i.is-secant {
+  background: #d8663a;
+}
+
+.finite-difference-lab__legend i.is-tangent {
+  background: #0f1728;
+}
+
+.finite-difference-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.finite-difference-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.finite-difference-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.lu-decomposition-lab {
+  align-items: stretch;
+}
+
+.lu-decomposition-lab__visual,
+.lu-decomposition-lab__controls {
+  min-width: 0;
+}
+
+.lu-decomposition-lab__visual {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.lu-decomposition-lab__factorization {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.lu-matrix-panel {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.lu-matrix-panel > span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lu-matrix {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-left: 3px solid #7c5cff;
+  border-right: 3px solid #7c5cff;
+  border-radius: 10px;
+  background: white;
+  font-variant-numeric: tabular-nums;
+}
+
+.lu-matrix span {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lu-matrix strong {
+  min-width: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.lu-decomposition-lab__flow {
+  display: block;
+  width: 100%;
+  min-height: 170px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f8f7ff);
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.lu-decomposition-lab__flow rect {
+  fill: rgba(124, 92, 255, 0.08);
+  stroke: rgba(124, 92, 255, 0.3);
+  stroke-width: 2;
+}
+
+.lu-decomposition-lab__flow line {
+  stroke: #7c5cff;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.lu-decomposition-lab__flow path {
+  fill: #7c5cff;
+}
+
+.lu-decomposition-lab__flow text {
+  fill: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.lu-decomposition-lab__controls header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.lu-decomposition-lab__control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lu-decomposition-lab__status {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(15, 159, 122, 0.1);
+}
+
+.lu-decomposition-lab__status.needs-pivot {
+  background: rgba(226, 109, 61, 0.12);
+}
+
+.lu-decomposition-lab__status.is-singular {
+  background: rgba(190, 18, 60, 0.1);
+}
+
+.math-vector-svg,
+.math-matrix-svg,
+.math-gradient-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(241, 246, 255, 0.9));
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.math-grid line {
+  stroke: rgba(15, 23, 40, 0.1);
+  stroke-width: 1;
+}
+
+.math-grid .axis {
+  stroke: rgba(15, 23, 40, 0.26);
+  stroke-width: 1.6;
+}
+
+.vector-line,
+.basis {
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+.vector-line--a,
+.basis--i {
+  stroke: #3868ff;
+}
+
+.vector-line--b,
+.basis--j {
+  stroke: #0f9f7a;
+}
+
+.vector-handle {
+  cursor: grab;
+  stroke: white;
+  stroke-width: 4;
+}
+
+.vector-handle--a {
+  fill: #3868ff;
+}
+
+.vector-handle--b {
+  fill: #0f9f7a;
+}
+
+.projection-drop {
+  stroke: rgba(226, 109, 61, 0.7);
+  stroke-width: 2.4;
+  stroke-dasharray: 6 7;
+}
+
+.projection-dot,
+.origin-dot,
+.gradient-current {
+  fill: #0f1728;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.unit-circle {
+  fill: rgba(226, 109, 61, 0.12);
+  stroke: rgba(226, 109, 61, 0.7);
+  stroke-width: 3;
+}
+
+.transformed-grid line {
+  stroke: rgba(15, 159, 122, 0.24);
+}
+
+.math-gradient-contours ellipse {
+  fill: none;
+  stroke: rgba(226, 109, 61, 0.22);
+  stroke-width: 2;
+}
+
+.gradient-trajectory {
+  fill: none;
+  stroke: #3868ff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.gradient-start {
+  fill: #0f9f7a;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.negative-gradient-arrow {
+  stroke: #0f1728;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.math-lab-card__controls,
+.math-mini-controls {
+  display: grid;
+  gap: 14px;
+}
+
+.math-mini-controls label,
+.matrix-input-grid label,
+.math-checkpoint__numeric {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.math-mini-controls input,
+.math-mini-controls select,
+.matrix-input-grid input,
+.math-checkpoint__numeric input {
+  width: 100%;
+  min-height: 40px;
+  accent-color: #3868ff;
+}
+
+.math-mini-controls select {
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+}
+
+.matrix-input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  max-width: 260px;
+}
+
+.matrix-input-grid input,
+.math-checkpoint__numeric input {
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 12px;
+  background: white;
+}
+
+.math-lab-note {
+  color: var(--ink);
+}
+
+.math-checkpoint__list {
+  display: grid;
+  gap: 14px;
+}
+
+.math-checkpoint__feedback {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(226, 109, 61, 0.12);
+}
+
+.math-checkpoint__feedback.is-correct {
+  background: rgba(15, 159, 122, 0.12);
+}
+
+.three-scene-shell {
+  min-height: 320px;
+  border-radius: 22px;
+  background: #0c1628;
+}
+
+@media (max-width: 1080px) {
+  .math-lab-hero,
+  .math-lab-dashboard,
+  .math-diagnostic-layout,
+  .math-module-layout,
+  .math-lab-module-hero,
+  .math-manim-player,
+  .math-lab-card {
+    grid-template-columns: 1fr;
+  }
+
+  .math-lab-panel--sticky,
+  .math-module-side {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .math-lab-hero,
+  .math-lab-module-hero,
+  .math-lab-compact-hero,
+  .math-lab-panel,
+  .math-manim-player,
+  .math-lab-card,
+  .math-checkpoint,
+  .math-misconception-card {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .math-lab-hero {
+    min-height: auto;
+  }
+
+  .course-plane {
+    width: 92%;
+    gap: 10px;
+  }
+
+  .math-lab-hero__visual {
+    min-height: 300px;
+  }
+
+  .math-objective-list,
+  .math-variable-grid,
+  .math-explanation-grid,
+  .math-misconception-grid,
+  .math-readout-grid,
+  .math-skill-radar__legend {
+    grid-template-columns: 1fr;
+  }
+
+  .sparse-matrix-lab__arrays,
+  .sparse-matrix-lab__control-grid,
+  .markov-chain-lab__matrix,
+  .markov-chain-lab__control-grid,
+  .condition-number-lab__singular-values,
+  .condition-number-lab__control-grid,
+  .finite-difference-lab__control-grid,
+  .nonlinear-equations-lab__method-grid,
+  .nonlinear-equations-lab__control-grid,
+  .lu-decomposition-lab__factorization,
+  .lu-decomposition-lab__control-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes math-tile-rise {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}

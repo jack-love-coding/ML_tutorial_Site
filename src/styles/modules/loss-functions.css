@@ -1,0 +1,98 @@
+.loss-function-switcher,
+.lesson-preset-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.loss-function-card,
+.lesson-preset-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  text-align: left;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.loss-function-card:hover,
+.lesson-preset-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 32px rgba(15, 23, 40, 0.08);
+}
+
+.loss-function-card.is-active,
+.loss-function-card.is-recommended,
+.lesson-preset-card.is-linked {
+  border-color: rgba(255, 125, 77, 0.44);
+  background: rgba(255, 253, 249, 0.98);
+  box-shadow: 0 18px 32px rgba(255, 125, 77, 0.12);
+}
+
+.loss-function-card__meta,
+.loss-function-card__chips {
+  display: grid;
+  gap: 8px;
+}
+
+.loss-function-card__meta strong,
+.lesson-preset-card strong {
+  font-size: 0.98rem;
+}
+
+.loss-function-card__chips {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.embedded-loss-lab__overview,
+.embedded-loss-lab__controls,
+.embedded-loss-lab__footer {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.embedded-loss-lab__controls--poster {
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+}
+
+.loss-overview-card,
+.loss-lab-panel {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.loss-overview-card p,
+.lesson-preset-card p,
+.loss-lab-panel__hint {
+  margin: 0;
+  color: var(--muted);
+}
+
+.loss-overview-card__meta,
+.loss-readout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.loss-overview-card__meta div,
+.loss-readout__item {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.88);
+  border: 1px solid rgba(15, 23, 40, 0.05);
+}
+
+.loss-lab-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}

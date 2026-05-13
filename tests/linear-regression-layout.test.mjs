@@ -1,8 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { readStyleSource } from './helpers/styleSource.mjs'
 
 const componentPath = new URL('../src/components/LinearRegressionLessonLab.vue', import.meta.url)
+const styleSource = readStyleSource()
 
 test('linear regression module is inserted into the guided course flow', () => {
   const moduleCatalogSource = readFileSync(
@@ -41,8 +43,6 @@ test('linear regression lesson lab uses a unified experiment card layout', () =>
   assert.ok(existsSync(componentPath), 'linear regression lesson lab component should exist')
 
   const componentSource = readFileSync(componentPath, 'utf8')
-  const styleSource = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8')
-
   assert.match(componentSource, /class="linear-regression-lab"/)
   assert.match(componentSource, /variant="cockpit"/)
   assert.match(componentSource, /class="linear-regression-lab__workspace"/)
@@ -99,7 +99,6 @@ test('linear regression overfitting chapter uses real-data diagnostics and local
     new URL('../src/views/AlgorithmView.vue', import.meta.url),
     'utf8',
   )
-  const styleSource = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8')
   const videoPath = new URL('../public/manim/linear-regression/fit-comparison.mp4', import.meta.url)
   const posterPath = new URL('../public/manim/linear-regression/fit-comparison.svg', import.meta.url)
   const regularizationVideoPath = new URL('../public/manim/linear-regression/regularization-geometry.mp4', import.meta.url)
@@ -135,8 +134,6 @@ test('linear regression lecture adds the required teaching frame and animated di
     'utf8',
   )
   const componentSource = readFileSync(componentPath, 'utf8')
-  const styleSource = readFileSync(new URL('../src/style.css', import.meta.url), 'utf8')
-
   for (const heading of [
     '### 核心问题',
     '### 概念直觉',
