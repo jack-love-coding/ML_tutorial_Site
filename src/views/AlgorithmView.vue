@@ -48,6 +48,7 @@ const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
 const isMlpPage = computed(() => slug.value === 'mlp')
+const showLegacyLinearRegressionStory = false
 
 if (!moduleDefinition.value) {
   router.replace('/')
@@ -464,7 +465,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     />
 
     <section
-      v-else-if="false && isLinearRegressionPage"
+      v-else-if="showLegacyLinearRegressionStory && isLinearRegressionPage"
       class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--linear-story"
     >
       <StoryScroller
@@ -749,9 +750,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </section>
     </section>
 
-    <template v-else-if="isLinearRegressionPage" />
-
-    <section v-else-if="false && isLinearRegressionPage" class="results-grid results-grid--linear">
+    <section v-else-if="showLegacyLinearRegressionStory && isLinearRegressionPage" class="results-grid results-grid--linear">
       <LinearRegressionResults
         :section="activeSection"
         :snapshot="snapshot"
@@ -827,7 +826,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </section>
     </section>
 
-    <section v-else class="results-grid" :class="{ 'results-grid--gradient': isGradientPage }">
+    <section v-else-if="!isLinearRegressionPage" class="results-grid" :class="{ 'results-grid--gradient': isGradientPage }">
       <LineChart :slug="slug" :snapshots="experiment.snapshots" :current-step="experiment.currentStep" />
 
       <section class="panel lesson-panel">

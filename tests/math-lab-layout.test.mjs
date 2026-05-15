@@ -73,6 +73,10 @@ test('math lab components and labs exist with expected contracts', () => {
   const modulePageSource = read('src/modules/math-lab/pages/MathLabModulePage.vue')
   assert.match(modulePageSource, /asset\.type === 'image'/)
   assert.match(modulePageSource, /math-visual-asset/)
+  assert.match(modulePageSource, /defineAsyncComponent/)
+  assert.match(modulePageSource, /labComponentRegistry/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/VectorDotProductLab\.vue'\)/)
+  assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
 })
 

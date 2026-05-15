@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
@@ -7,24 +7,6 @@ import CheckpointQuiz from '../components/CheckpointQuiz.vue'
 import CodeLab from '../components/CodeLab.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
-import ArchitectureMathLab from '../labs/ArchitectureMathLab.vue'
-import AutodiffGraphLab from '../labs/AutodiffGraphLab.vue'
-import FiniteDifferenceLab from '../labs/FiniteDifferenceLab.vue'
-import MathGradientLab from '../labs/MathGradientLab.vue'
-import MatrixTransformLab from '../labs/MatrixTransformLab.vue'
-import MonteCarloLab from '../labs/MonteCarloLab.vue'
-import ConditionNumbersLab from '../labs/ConditionNumbersLab.vue'
-import LuDecompositionLab from '../labs/LuDecompositionLab.vue'
-import MarkovChainLab from '../labs/MarkovChainLab.vue'
-import NumericalMiniLab from '../labs/NumericalMiniLab.vue'
-import NonlinearEquationsLab from '../labs/NonlinearEquationsLab.vue'
-import PcaProjectionLab from '../labs/PcaProjectionLab.vue'
-import ProbabilityEntropyLab from '../labs/ProbabilityEntropyLab.vue'
-import SparseMatrixLab from '../labs/SparseMatrixLab.vue'
-import TaylorSeriesLab from '../labs/TaylorSeriesLab.vue'
-import TensorShapeLab from '../labs/TensorShapeLab.vue'
-import TrainingDiagnosticsLab from '../labs/TrainingDiagnosticsLab.vue'
-import VectorDotProductLab from '../labs/VectorDotProductLab.vue'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
 import type { LabConfig, MathLabLocale, MathLabModuleId, MathLabSection, QuizAttempt, VisualAsset } from '../types/mathLab'
 import { withPublicBase } from '../../../utils/publicPath.ts'
@@ -40,6 +22,28 @@ const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
 const progress = ref(loadMathLabProgress())
+const fallbackLabComponent = defineAsyncComponent(() => import('../labs/NumericalMiniLab.vue'))
+const labComponentRegistry = {
+  ArchitectureMathLab: defineAsyncComponent(() => import('../labs/ArchitectureMathLab.vue')),
+  AutodiffGraphLab: defineAsyncComponent(() => import('../labs/AutodiffGraphLab.vue')),
+  ConditionNumbersLab: defineAsyncComponent(() => import('../labs/ConditionNumbersLab.vue')),
+  FiniteDifferenceLab: defineAsyncComponent(() => import('../labs/FiniteDifferenceLab.vue')),
+  LuDecompositionLab: defineAsyncComponent(() => import('../labs/LuDecompositionLab.vue')),
+  MarkovChainLab: defineAsyncComponent(() => import('../labs/MarkovChainLab.vue')),
+  MathGradientLab: defineAsyncComponent(() => import('../labs/MathGradientLab.vue')),
+  MatrixTransformLab: defineAsyncComponent(() => import('../labs/MatrixTransformLab.vue')),
+  MonteCarloLab: defineAsyncComponent(() => import('../labs/MonteCarloLab.vue')),
+  NonlinearEquationsLab: defineAsyncComponent(() => import('../labs/NonlinearEquationsLab.vue')),
+  PcaProjectionLab: defineAsyncComponent(() => import('../labs/PcaProjectionLab.vue')),
+  ProbabilityEntropyLab: defineAsyncComponent(() => import('../labs/ProbabilityEntropyLab.vue')),
+  SparseMatrixLab: defineAsyncComponent(() => import('../labs/SparseMatrixLab.vue')),
+  TaylorSeriesLab: defineAsyncComponent(() => import('../labs/TaylorSeriesLab.vue')),
+  TensorShapeLab: defineAsyncComponent(() => import('../labs/TensorShapeLab.vue')),
+  TrainingDiagnosticsLab: defineAsyncComponent(() => import('../labs/TrainingDiagnosticsLab.vue')),
+  VectorDotProductLab: defineAsyncComponent(() => import('../labs/VectorDotProductLab.vue')),
+}
+
+type RegisteredLabComponentName = keyof typeof labComponentRegistry
 
 const currentLocale = computed(() => locale.value as MathLabLocale)
 const moduleId = computed(() => route.params.moduleId as MathLabModuleId)
@@ -122,6 +126,26 @@ function labsForSection(section: MathLabSection): LabConfig[] {
   if (!section.labIds?.length) return []
   const sectionLabIds = new Set(section.labIds)
   return moduleDefinition.value?.labs.filter((lab) => sectionLabIds.has(lab.id)) ?? []
+}
+
+function isRegisteredLabComponent(componentName?: string): componentName is RegisteredLabComponentName {
+  return Boolean(componentName && componentName in labComponentRegistry)
+}
+
+function labComponentFor(componentName?: string) {
+  if (isRegisteredLabComponent(componentName)) {
+    return labComponentRegistry[componentName]
+  }
+
+  return fallbackLabComponent
+}
+
+function labPropsFor(lab: LabConfig) {
+  if (isRegisteredLabComponent(lab.componentName)) {
+    return { locale: currentLocale.value }
+  }
+
+  return { moduleId: moduleDefinition.value?.id ?? moduleId.value, locale: currentLocale.value }
 }
 
 function imageSrc(asset: VisualAsset) {
@@ -228,81 +252,12 @@ function imageSrc(asset: VisualAsset) {
             />
 
             <section v-if="labsForSection(section).length" class="math-module-labs">
-              <template v-for="lab in labsForSection(section)" :key="lab.id">
-                <VectorDotProductLab
-                  v-if="lab.componentName === 'VectorDotProductLab'"
-                  :locale="currentLocale"
-                />
-                <MatrixTransformLab
-                  v-else-if="lab.componentName === 'MatrixTransformLab'"
-                  :locale="currentLocale"
-                />
-                <MathGradientLab
-                  v-else-if="lab.componentName === 'MathGradientLab'"
-                  :locale="currentLocale"
-                />
-                <TaylorSeriesLab
-                  v-else-if="lab.componentName === 'TaylorSeriesLab'"
-                  :locale="currentLocale"
-                />
-                <MonteCarloLab
-                  v-else-if="lab.componentName === 'MonteCarloLab'"
-                  :locale="currentLocale"
-                />
-                <LuDecompositionLab
-                  v-else-if="lab.componentName === 'LuDecompositionLab'"
-                  :locale="currentLocale"
-                />
-                <SparseMatrixLab
-                  v-else-if="lab.componentName === 'SparseMatrixLab'"
-                  :locale="currentLocale"
-                />
-                <ConditionNumbersLab
-                  v-else-if="lab.componentName === 'ConditionNumbersLab'"
-                  :locale="currentLocale"
-                />
-                <MarkovChainLab
-                  v-else-if="lab.componentName === 'MarkovChainLab'"
-                  :locale="currentLocale"
-                />
-                <FiniteDifferenceLab
-                  v-else-if="lab.componentName === 'FiniteDifferenceLab'"
-                  :locale="currentLocale"
-                />
-                <NonlinearEquationsLab
-                  v-else-if="lab.componentName === 'NonlinearEquationsLab'"
-                  :locale="currentLocale"
-                />
-                <PcaProjectionLab
-                  v-else-if="lab.componentName === 'PcaProjectionLab'"
-                  :locale="currentLocale"
-                />
-                <TensorShapeLab
-                  v-else-if="lab.componentName === 'TensorShapeLab'"
-                  :locale="currentLocale"
-                />
-                <AutodiffGraphLab
-                  v-else-if="lab.componentName === 'AutodiffGraphLab'"
-                  :locale="currentLocale"
-                />
-                <ProbabilityEntropyLab
-                  v-else-if="lab.componentName === 'ProbabilityEntropyLab'"
-                  :locale="currentLocale"
-                />
-                <TrainingDiagnosticsLab
-                  v-else-if="lab.componentName === 'TrainingDiagnosticsLab'"
-                  :locale="currentLocale"
-                />
-                <ArchitectureMathLab
-                  v-else-if="lab.componentName === 'ArchitectureMathLab'"
-                  :locale="currentLocale"
-                />
-                <NumericalMiniLab
-                  v-else
-                  :module-id="moduleDefinition.id"
-                  :locale="currentLocale"
-                />
-              </template>
+              <component
+                :is="labComponentFor(lab.componentName)"
+                v-for="lab in labsForSection(section)"
+                :key="lab.id"
+                v-bind="labPropsFor(lab)"
+              />
             </section>
           </section>
         </template>
@@ -335,81 +290,12 @@ function imageSrc(asset: VisualAsset) {
           </template>
 
           <section v-if="remainingLabs.length" class="math-module-labs">
-            <template v-for="lab in remainingLabs" :key="lab.id">
-              <VectorDotProductLab
-                v-if="lab.componentName === 'VectorDotProductLab'"
-                :locale="currentLocale"
-              />
-              <MatrixTransformLab
-                v-else-if="lab.componentName === 'MatrixTransformLab'"
-                :locale="currentLocale"
-              />
-              <MathGradientLab
-                v-else-if="lab.componentName === 'MathGradientLab'"
-                :locale="currentLocale"
-              />
-              <TaylorSeriesLab
-                v-else-if="lab.componentName === 'TaylorSeriesLab'"
-                :locale="currentLocale"
-              />
-              <MonteCarloLab
-                v-else-if="lab.componentName === 'MonteCarloLab'"
-                :locale="currentLocale"
-              />
-              <LuDecompositionLab
-                v-else-if="lab.componentName === 'LuDecompositionLab'"
-                :locale="currentLocale"
-              />
-              <SparseMatrixLab
-                v-else-if="lab.componentName === 'SparseMatrixLab'"
-                :locale="currentLocale"
-              />
-              <ConditionNumbersLab
-                v-else-if="lab.componentName === 'ConditionNumbersLab'"
-                :locale="currentLocale"
-              />
-              <MarkovChainLab
-                v-else-if="lab.componentName === 'MarkovChainLab'"
-                :locale="currentLocale"
-              />
-              <FiniteDifferenceLab
-                v-else-if="lab.componentName === 'FiniteDifferenceLab'"
-                :locale="currentLocale"
-              />
-              <NonlinearEquationsLab
-                v-else-if="lab.componentName === 'NonlinearEquationsLab'"
-                :locale="currentLocale"
-              />
-              <PcaProjectionLab
-                v-else-if="lab.componentName === 'PcaProjectionLab'"
-                :locale="currentLocale"
-              />
-              <TensorShapeLab
-                v-else-if="lab.componentName === 'TensorShapeLab'"
-                :locale="currentLocale"
-              />
-              <AutodiffGraphLab
-                v-else-if="lab.componentName === 'AutodiffGraphLab'"
-                :locale="currentLocale"
-              />
-              <ProbabilityEntropyLab
-                v-else-if="lab.componentName === 'ProbabilityEntropyLab'"
-                :locale="currentLocale"
-              />
-              <TrainingDiagnosticsLab
-                v-else-if="lab.componentName === 'TrainingDiagnosticsLab'"
-                :locale="currentLocale"
-              />
-              <ArchitectureMathLab
-                v-else-if="lab.componentName === 'ArchitectureMathLab'"
-                :locale="currentLocale"
-              />
-              <NumericalMiniLab
-                v-else
-                :module-id="moduleDefinition.id"
-                :locale="currentLocale"
-              />
-            </template>
+            <component
+              :is="labComponentFor(lab.componentName)"
+              v-for="lab in remainingLabs"
+              :key="lab.id"
+              v-bind="labPropsFor(lab)"
+            />
           </section>
         </section>
 

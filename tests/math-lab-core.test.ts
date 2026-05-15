@@ -1373,6 +1373,20 @@ test('markdown renderer sanitizes raw html while preserving teaching markup', ()
   assert.match(html, /<div class="figure"><span id="safe-note">Allowed teaching note<\/span><\/div>/)
 })
 
+test('markdown renderer strips xmp raw-text html payloads', () => {
+  const html = renderMarkdownWithMath(`
+<xmp>
+<script>alert(1)</script>
+<img src=x onerror=alert(1)>
+</xmp>
+`)
+
+  assert.doesNotMatch(html, /<\/?xmp/i)
+  assert.doesNotMatch(html, /<script/i)
+  assert.doesNotMatch(html, /onerror/i)
+  assert.doesNotMatch(html, /<img src=x/i)
+})
+
 test('markdown renderer escapes html payloads inside code blocks', () => {
   const html = renderMarkdownWithMath(`
 \`\`\`html

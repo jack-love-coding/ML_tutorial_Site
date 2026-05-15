@@ -39,6 +39,9 @@ test('algorithm view has a dedicated linear regression lesson branch', () => {
   assert.match(algorithmViewSource, /requestedChapterId/)
   assert.match(algorithmViewSource, /router\.replace\(`\/learn\/linear-regression\/\$\{firstChapterId\}`\)/)
   assert.match(algorithmViewSource, /slug\.value === 'linear-regression'/)
+  assert.match(algorithmViewSource, /showLegacyLinearRegressionStory/)
+  assert.doesNotMatch(algorithmViewSource, /false && isLinearRegressionPage/)
+  assert.doesNotMatch(algorithmViewSource, /<template v-else-if="isLinearRegressionPage"\s*\/>/)
 })
 
 test('linear regression chapter routes are wired before the generic algorithm route', () => {
