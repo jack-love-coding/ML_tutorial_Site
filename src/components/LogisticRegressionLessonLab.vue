@@ -263,8 +263,19 @@ const { t, locale } = useI18n()
 
 const copy = computed(() => (locale.value === 'zh-CN' ? zhCopy : enCopy))
 
+const chapterKey = computed(
+  () =>
+    ({
+      'linear-score': 'boundary',
+      'sigmoid-probability': 'sigmoid',
+      'threshold-decisions': 'sigmoid',
+      'log-loss': 'confidence',
+      'linear-limits': 'limits',
+    })[props.section.id] ?? props.section.id,
+)
+
 const chapterCopy = computed(
-  () => copy.value.chapters[props.section.id] ?? copy.value.chapters.boundary,
+  () => copy.value.chapters[chapterKey.value] ?? copy.value.chapters.boundary,
 )
 
 const recommendedPreset = computed(() =>
@@ -287,7 +298,7 @@ const confidenceSpread = computed(() => {
 })
 
 const statusKey = computed(() => {
-  if (configString('datasetKind', 'tilted') === 'xor' || props.section.id === 'limits') return 'limited'
+  if (configString('datasetKind', 'tilted') === 'xor' || props.section.id === 'limits' || props.section.id === 'linear-limits') return 'limited'
   if (configNumber('regularization', 0.03) >= 0.13) return 'conservative'
   if ((props.snapshot?.accuracy ?? 0) >= 0.86 && props.snapshot?.loss && props.snapshot.loss < 0.5) return 'stable'
   if (props.currentStep <= 4) return 'starting'
@@ -297,8 +308,9 @@ const statusKey = computed(() => {
 const boundaryEquation = computed(() => {
   const weights = props.snapshot?.params?.weights ?? [0, 0]
   const bias = props.snapshot?.params?.bias ?? 0
+  const thresholdLogit = Number(props.snapshot?.derivedMetrics?.thresholdLogit ?? 0)
   const sign = bias >= 0 ? '+' : '-'
-  return `${round(weights[0], 2)} x1 + ${round(weights[1], 2)} x2 ${sign} ${round(Math.abs(bias), 2)} = 0`
+  return `${round(weights[0], 2)} x1 + ${round(weights[1], 2)} x2 ${sign} ${round(Math.abs(bias), 2)} = ${round(thresholdLogit, 2)}`
 })
 
 const metricCards = computed(() => [
@@ -315,12 +327,32 @@ const metricCards = computed(() => [
   {
     id: 'boundaryStrength',
     label: copy.value.boundaryStrength,
-    value: round(props.snapshot?.extraMetric ?? 0, 3),
+    value: round(Number(props.snapshot?.extraMetric ?? 0), 3),
   },
   {
     id: 'weightNorm',
     label: copy.value.weightNorm,
-    value: round(weightNorm.value, 3),
+    value: round(Number(props.snapshot?.derivedMetrics?.weightNorm ?? weightNorm.value), 3),
+  },
+  {
+    id: 'precision',
+    label: locale.value === 'zh-CN' ? '精确率' : 'Precision',
+    value: `${round(Number(props.snapshot?.derivedMetrics?.precision ?? 0) * 100, 1)}%`,
+  },
+  {
+    id: 'recall',
+    label: locale.value === 'zh-CN' ? '召回率' : 'Recall',
+    value: `${round(Number(props.snapshot?.derivedMetrics?.recall ?? 0) * 100, 1)}%`,
+  },
+  {
+    id: 'meanTrueClassProbability',
+    label: locale.value === 'zh-CN' ? '真实类概率' : 'True-class prob.',
+    value: round(Number(props.snapshot?.derivedMetrics?.meanTrueClassProbability ?? 0), 3),
+  },
+  {
+    id: 'regularizationPenalty',
+    label: locale.value === 'zh-CN' ? '正则项' : 'Reg. penalty',
+    value: round(Number(props.snapshot?.derivedMetrics?.regularizationPenalty ?? 0), 3),
   },
   {
     id: 'confidence',
@@ -375,10 +407,15 @@ const sampleSummary = computed(() => {
 const controlCards = computed(() => {
   const sectionControls: Record<string, string[]> = {
     boundary: ['datasetKind', 'learningRate', 'epochs', 'playbackMs'],
+    'linear-score': ['datasetKind', 'learningRate', 'epochs', 'playbackMs'],
     sigmoid: ['learningRate', 'epochs', 'noise', 'playbackMs'],
+    'sigmoid-probability': ['learningRate', 'epochs', 'noise', 'playbackMs'],
+    'threshold-decisions': ['threshold', 'datasetKind', 'epochs', 'playbackMs'],
     confidence: ['learningRate', 'epochs', 'datasetKind', 'playbackMs'],
+    'log-loss': ['learningRate', 'epochs', 'datasetKind', 'playbackMs'],
     regularization: ['regularization', 'learningRate', 'epochs', 'datasetKind'],
     limits: ['datasetKind', 'noise', 'epochs', 'playbackMs'],
+    'linear-limits': ['datasetKind', 'noise', 'epochs', 'playbackMs'],
   }
 
   return (sectionControls[props.section.id] ?? sectionControls.boundary).map((key) => {
@@ -411,6 +448,14 @@ const controlCards = computed(() => {
         step: 0.01,
         fallback: 0.03,
         display: (value) => String(round(value, 2)),
+      },
+      threshold: {
+        label: t('controls.threshold'),
+        min: 0.1,
+        max: 0.9,
+        step: 0.01,
+        fallback: 0.5,
+        display: (value) => `${round(value * 100, 0)}%`,
       },
       epochs: {
         label: t('controls.epochs'),

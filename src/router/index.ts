@@ -51,6 +51,15 @@ export const router = createRouter({
       component: () => import('../views/AlgorithmView.vue'),
     },
     {
+      path: '/learn/logistic-regression',
+      redirect: '/learn/logistic-regression/linear-score',
+    },
+    {
+      path: '/learn/logistic-regression/:chapterId',
+      name: 'logistic-regression-chapter',
+      component: () => import('../views/AlgorithmView.vue'),
+    },
+    {
       path: '/learn/:slug',
       name: 'algorithm',
       component: () => import('../views/AlgorithmView.vue'),

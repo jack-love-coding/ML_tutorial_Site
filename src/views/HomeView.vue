@@ -9,36 +9,36 @@ const primaryRoute = computed(() => moduleOrder[0]?.route ?? '/learn/loss-functi
 
 const highlights = computed(() =>
   locale.value === 'zh-CN'
-    ? ['5 个互动课程模块', '从损失、优化到回归与分类的连续主线', '全部在浏览器本地实时运行']
+    ? ['6 个互动课程模块', '从损失、优化到回归、分类评估与表示学习的连续主线', '全部在浏览器本地实时运行']
     : [
-        '5 interactive lesson modules',
-        'A continuous path from loss to regression and classification',
+        '6 interactive lesson modules',
+        'A continuous path from loss to regression, classification metrics, and representation learning',
         'Runs entirely in the browser',
       ],
 )
 
 const posterBody = computed(() =>
   locale.value === 'zh-CN'
-    ? '五节课程共用一套双语教学框架：公式讲解、章节实验、可重复的数据演示，以及从损失到模型的连续学习路径。'
-    : 'Five lessons share one bilingual teaching frame: formula-first explanations, embedded labs, reproducible data demos, and a continuous path from loss to models.',
+    ? '六节课程共用一套双语教学框架：公式讲解、章节实验、可重复的数据演示，以及从损失到评估再到模型的连续学习路径。'
+    : 'Six lessons share one bilingual teaching frame: formula-first explanations, embedded labs, reproducible data demos, and a continuous path from loss to evaluation to models.',
 )
 
 const modulesBody = computed(() =>
   locale.value === 'zh-CN'
-    ? '从损失函数出发，依次进入优化、线性回归、线性分类与浅层神经网络，把“模型为什么这样学”拆成连续的五节课。'
-    : 'Start from loss functions, then move into optimization, linear regression, linear classification, and shallow neural networks as one continuous sequence.',
+    ? '从损失函数出发，依次进入优化、线性回归、逻辑回归、分类评估与浅层神经网络，把“模型为什么这样学、怎样评估”拆成连续的六节课。'
+    : 'Start from loss functions, then move into optimization, linear regression, logistic regression, classification metrics, and shallow neural networks as one continuous sequence.',
 )
 
 const modulesNote = computed(() =>
   locale.value === 'zh-CN'
-    ? '第一课先把损失和似然讲清楚，后面再接优化、线性回归、逻辑回归和表示学习，整条路径更完整。'
-    : 'Lesson one now stands on its own as Loss Functions & Likelihood, and the later lessons carry that idea into optimization, linear regression, classification, and representation learning.',
+    ? '第一课先把损失和似然讲清楚，后面再接优化、线性回归、逻辑回归、分类评估和表示学习，整条路径更完整。'
+    : 'Lesson one now stands on its own as Loss Functions & Likelihood, and the later lessons carry that idea into optimization, linear regression, logistic regression, classification evaluation, and representation learning.',
 )
 
 const pathBody = computed(() =>
   locale.value === 'zh-CN'
-    ? '先理解误差如何变成损失，再看优化器怎样沿着目标函数移动，接着进入连续值预测，最后再走到分类器和浅层网络。'
-    : 'First learn how error becomes loss, then watch optimizers move across that objective, then step into continuous-value prediction before heading to classifiers and shallow networks.',
+    ? '先理解误差如何变成损失，再看优化器怎样沿着目标函数移动，接着进入连续值预测、概率分类、分类评估，最后走到浅层网络。'
+    : 'First learn how error becomes loss, then watch optimizers move across that objective, then step into continuous prediction, probabilistic classification, classification evaluation, and shallow networks.',
 )
 
 const learningPath = computed(() =>
@@ -48,6 +48,7 @@ const learningPath = computed(() =>
         '梯度下降：观察优化器怎样在不同 loss 地形上移动',
         '线性回归：把 MSE 放进真实房价预测，理解斜率和截距如何学习',
         '逻辑回归：把线性打分映射成分类概率与决策边界',
+        '分类评估：用阈值、混淆矩阵、ROC/AUC 和校准判断分类器是否适合任务',
         '浅层 MLP：看隐藏层怎样重组空间并提升表达能力',
       ]
     : [
@@ -55,14 +56,15 @@ const learningPath = computed(() =>
         'Gradient Descent: watch optimizers move across different loss landscapes',
         'Linear Regression: learn slope and intercept through a housing-price story',
         'Logistic Regression: map a linear score into class probabilities and boundaries',
+        'Classification: evaluate thresholds, confusion matrices, ROC/AUC, and calibration',
         'Shallow MLP: see how hidden layers reorganize space and expand capacity',
       ],
 )
 
 const footerText = computed(() =>
   locale.value === 'zh-CN'
-    ? '课程现在从损失函数与似然起步，再顺着优化、线性回归、逻辑回归和浅层网络一路展开，学习路径更连贯。'
-    : 'The course now opens with Loss Functions & Likelihood and then flows through optimization, linear regression, logistic regression, and shallow networks.',
+    ? '课程现在从损失函数与似然起步，再顺着优化、线性回归、逻辑回归、分类评估和浅层网络一路展开，学习路径更连贯。'
+    : 'The course now opens with Loss Functions & Likelihood and then flows through optimization, linear regression, logistic regression, classification evaluation, and shallow networks.',
 )
 </script>
 

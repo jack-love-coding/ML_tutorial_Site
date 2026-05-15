@@ -3,6 +3,7 @@ export type ModuleSlug =
   | 'gradient-descent'
   | 'linear-regression'
   | 'logistic-regression'
+  | 'classification'
   | 'mlp'
 export type AppLocale = 'zh-CN' | 'en'
 export type ExperimentConfigValue = number | string | boolean
@@ -208,6 +209,68 @@ export interface WorkedExampleRow {
   note?: string
 }
 
+export interface ClassificationExample {
+  id: string
+  label: number
+  score: number
+  probability: number
+  predicted: number
+  split?: 'train' | 'validation'
+}
+
+export interface ConfusionMatrix {
+  tp: number
+  fp: number
+  tn: number
+  fn: number
+}
+
+export interface ClassificationMetricSummary {
+  accuracy: number
+  precision: number
+  recall: number
+  specificity: number
+  f1: number
+  fpr: number
+  tpr: number
+  positiveRate: number
+  labelRate: number
+  predictionBias: number
+  falsePositiveCost: number
+  falseNegativeCost: number
+  expectedCost: number
+  auc: number
+  macroF1: number
+  microF1: number
+}
+
+export interface RocPoint {
+  threshold: number
+  tpr: number
+  fpr: number
+}
+
+export interface CalibrationBin {
+  id: string
+  start: number
+  end: number
+  predicted: number
+  observed: number
+  count: number
+}
+
+export interface MulticlassMetricRow {
+  id: string
+  label: string
+  logit: number
+  probability: number
+  predictedCount: number
+  actualCount: number
+  precision: number
+  recall: number
+  f1: number
+}
+
 export interface RegressionMeta {
   xLabel: LocalizedCopy
   yLabel: LocalizedCopy
@@ -283,6 +346,12 @@ export interface TrainingSnapshot {
     loss: number
   }>
   workedExampleRows?: WorkedExampleRow[]
+  classificationExamples?: ClassificationExample[]
+  confusionMatrix?: ConfusionMatrix
+  classificationMetrics?: ClassificationMetricSummary
+  rocPoints?: RocPoint[]
+  calibrationBins?: CalibrationBin[]
+  multiclassRows?: MulticlassMetricRow[]
 }
 
 export interface ModuleSimulation {

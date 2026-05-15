@@ -363,3 +363,208 @@
   gap: 10px;
   padding-top: 10px;
 }
+
+.logistic-course-page .linear-course-page__header {
+  border-left-color: var(--logistic-accent, #1ea67a);
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--logistic-accent, #1ea67a) 13%, white), transparent 44%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.logistic-course-page__visual-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.logistic-course-page__asset,
+.logistic-d3-figure,
+.logistic-three-surface {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.logistic-course-page__asset--manim-video,
+.logistic-three-surface {
+  grid-column: 1 / -1;
+}
+
+.logistic-course-page__asset img,
+.logistic-course-page__asset video {
+  display: block;
+  width: 100%;
+  border-radius: 8px;
+  background: rgba(248, 251, 252, 0.94);
+}
+
+.logistic-course-page__asset img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.logistic-course-page__asset figcaption,
+.logistic-d3-figure figcaption,
+.logistic-three-surface figcaption {
+  display: grid;
+  gap: 4px;
+}
+
+.logistic-course-page__asset figcaption strong,
+.logistic-d3-figure figcaption strong,
+.logistic-three-surface figcaption strong {
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.logistic-course-page__asset figcaption span,
+.logistic-d3-figure figcaption span,
+.logistic-three-surface figcaption span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.logistic-d3-figure svg {
+  display: block;
+  width: 100%;
+  min-height: 240px;
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.045) 1px, transparent 1px),
+    rgba(248, 251, 252, 0.94);
+  background-size: 24px 24px, 24px 24px, auto;
+}
+
+.logistic-axis {
+  stroke: rgba(15, 23, 40, 0.36);
+  stroke-width: 2;
+}
+
+.logistic-reference {
+  stroke: rgba(15, 23, 40, 0.22);
+  stroke-width: 2;
+  stroke-dasharray: 6 7;
+}
+
+.logistic-sigmoid-path,
+.logistic-loss-path {
+  fill: none;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.logistic-loss-path--negative {
+  stroke: #e35f45;
+}
+
+.logistic-cursor-line {
+  stroke: rgba(15, 23, 40, 0.52);
+  stroke-width: 2;
+  stroke-dasharray: 5 6;
+}
+
+.logistic-cursor-dot {
+  fill: var(--logistic-accent, #1ea67a);
+  stroke: #ffffff;
+  stroke-width: 4;
+}
+
+.logistic-cursor-dot.is-negative {
+  fill: #e35f45;
+}
+
+.logistic-chart-label,
+.logistic-chart-note {
+  fill: rgba(15, 23, 40, 0.72);
+  font-size: 13px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.logistic-chart-note {
+  text-anchor: start;
+}
+
+.logistic-confusion-cell {
+  stroke: rgba(15, 23, 40, 0.12);
+  stroke-width: 2;
+}
+
+.logistic-confusion-label,
+.logistic-confusion-value {
+  fill: #0f1728;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.logistic-confusion-value {
+  font-size: 28px;
+}
+
+.logistic-three-surface__canvas {
+  display: block;
+  width: 100%;
+  min-height: 380px;
+  border-radius: 8px;
+  background: rgba(246, 251, 250, 0.96);
+}
+
+.logistic-results {
+  display: grid;
+  gap: 14px;
+}
+
+.logistic-results__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.logistic-source-block {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.logistic-source-block ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.logistic-source-block a {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+@media (max-width: 1080px) {
+  .logistic-course-page__visual-grid,
+  .logistic-results__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .logistic-course-page__asset,
+  .logistic-d3-figure,
+  .logistic-three-surface {
+    padding: 12px;
+  }
+
+  .logistic-three-surface__canvas {
+    min-height: 300px;
+  }
+}

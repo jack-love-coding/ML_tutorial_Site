@@ -1,0 +1,25 @@
+{
+  "generatedBy": "scripts/manim/render_classification.py",
+  "scenes": [
+    {
+      "scene": "ThresholdSweepScene",
+      "assetPath": "/manim/classification/threshold-sweep.mp4",
+      "posterPath": "/manim/classification/threshold-sweep.svg"
+    },
+    {
+      "scene": "ConfusionUpdateScene",
+      "assetPath": "/manim/classification/confusion-update.mp4",
+      "posterPath": "/manim/classification/confusion-update.svg"
+    },
+    {
+      "scene": "RocConstructionScene",
+      "assetPath": "/manim/classification/roc-construction.mp4",
+      "posterPath": "/manim/classification/roc-construction.svg"
+    },
+    {
+      "scene": "SoftmaxSimplexScene",
+      "assetPath": "/manim/classification/softmax-simplex.mp4",
+      "posterPath": "/manim/classification/softmax-simplex.svg"
+    }
+  ]
+}

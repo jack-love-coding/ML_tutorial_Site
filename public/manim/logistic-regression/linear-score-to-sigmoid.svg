@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Linear score to sigmoid poster">
+  <rect width="960" height="540" fill="#f7fbfa"/>
+  <path d="M110 430H850M110 100V430" stroke="#72817f" stroke-width="4"/>
+  <path d="M130 400C236 398 314 380 394 306C474 232 515 156 610 132C688 112 764 110 834 110" fill="none" stroke="#1ea67a" stroke-width="12" stroke-linecap="round"/>
+  <path d="M480 100V430M110 270H850" stroke="#b8c3c0" stroke-width="4" stroke-dasharray="12 12"/>
+  <circle cx="420" cy="250" r="18" fill="#1ea67a" stroke="#fff" stroke-width="6"/>
+  <text x="88" y="70" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Linear score becomes probability</text>
+</svg>

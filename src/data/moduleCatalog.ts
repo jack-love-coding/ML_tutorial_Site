@@ -2,6 +2,8 @@ import type { AlgorithmModuleDefinition } from '../types/ml'
 import { lossFunctionsModule } from './lossFunctionsModule'
 import { gradientDescentModule } from './gradientDescentModule'
 import { linearRegressionModule } from './linearRegressionModule'
+import { logisticRegressionModule } from './logisticRegressionModule'
+import { classificationModule } from './classificationModule'
 import { mlpModule } from './mlpModule'
 import { moduleOrder as legacyModuleOrder } from './modules'
 
@@ -9,10 +11,14 @@ export const moduleOrder: AlgorithmModuleDefinition[] = [
   lossFunctionsModule,
   gradientDescentModule,
   linearRegressionModule,
+  logisticRegressionModule,
+  classificationModule,
   ...legacyModuleOrder.filter(
     (moduleDefinition) =>
       moduleDefinition.slug !== 'gradient-descent' &&
       moduleDefinition.slug !== 'loss-functions' &&
+      moduleDefinition.slug !== 'logistic-regression' &&
+      moduleDefinition.slug !== 'classification' &&
       moduleDefinition.slug !== 'mlp',
   ),
   mlpModule,

@@ -83,6 +83,13 @@ export const messages = {
       dataset: '数据集',
       hiddenUnits: '隐藏单元数',
       activation: '激活函数',
+      threshold: '分类阈值',
+      prevalence: '正例比例',
+      separability: '类别可分性',
+      falsePositiveCost: '误报成本',
+      falseNegativeCost: '漏报成本',
+      calibrationShift: '校准偏移',
+      temperature: 'Softmax 温度',
       options: {
         fullBatch: '全量梯度',
         miniBatch: '小批量',
@@ -291,6 +298,18 @@ export const messages = {
         intro: '观察一条线性决策边界如何随训练移动，并直接影响准确率。',
         summary: '在学过损失函数之后，再看交叉熵如何实际推动线性边界移动，并理解线性模型的能力边界。',
         sections: {
+          linearScore: {
+            title: '线性打分：先得到证据，再谈分类',
+          },
+          sigmoidProbability: {
+            title: 'Sigmoid：把任意分数压成概率',
+          },
+          thresholdDecisions: {
+            title: '阈值：把概率翻译成业务决策',
+          },
+          logLoss: {
+            title: 'Log loss：错得越自信，惩罚越重',
+          },
           boundary: {
             title: '模型学到的是一条把平面切开的直线',
             body: '参数决定直线的朝向与位置，背景颜色展示模型对不同区域的置信度。',
@@ -310,6 +329,41 @@ export const messages = {
           limits: {
             title: '当数据本身是非线性的，单条直线就会吃力',
             body: '切换到 XOR 数据后，准确率会明显停滞，因为模型无法弯出足够复杂的边界。',
+          },
+          linearLimits: {
+            title: '线性限制：有些边界一条线画不出来',
+          },
+        },
+      },
+      classification: {
+        title: '分类评估',
+        kicker: 'Classification Metrics',
+        intro: '把分类模型从“输出概率”一直讲到阈值、混淆矩阵、Precision/Recall、ROC/AUC、偏差校准和多分类。',
+        summary: '独立补全分类教学：学生可以拖动阈值、改变类别比例和错误成本，并观察指标、ROC 曲线、校准分箱和 softmax 单纯形如何同步变化。',
+        sections: {
+          scores: {
+            title: '分类先输出分数，再做决策',
+          },
+          thresholds: {
+            title: '阈值控制误报和漏报的取舍',
+          },
+          confusionMatrix: {
+            title: '混淆矩阵把“对错”拆成四类结果',
+          },
+          precisionRecall: {
+            title: 'Precision、Recall 和 F1 回答不同问题',
+          },
+          costTradeoff: {
+            title: '错误成本决定指标优先级',
+          },
+          rocAuc: {
+            title: 'ROC/AUC 衡量跨阈值排序能力',
+          },
+          biasCalibration: {
+            title: 'Prediction bias 和校准检查概率是否可信',
+          },
+          multiclass: {
+            title: '多分类把一个概率扩展成一组概率预算',
           },
         },
       },
@@ -431,6 +485,13 @@ export const messages = {
       dataset: 'Dataset',
       hiddenUnits: 'Hidden units',
       activation: 'Activation',
+      threshold: 'Classification threshold',
+      prevalence: 'Positive prevalence',
+      separability: 'Class separability',
+      falsePositiveCost: 'False-positive cost',
+      falseNegativeCost: 'False-negative cost',
+      calibrationShift: 'Calibration shift',
+      temperature: 'Softmax temperature',
       options: {
         fullBatch: 'Full batch',
         miniBatch: 'Mini-batch',
@@ -645,6 +706,18 @@ export const messages = {
         intro: 'Watch a single linear decision boundary move through a 2D dataset and directly change accuracy.',
         summary: 'After learning loss functions, revisit how cross-entropy actually moves a linear boundary and where linear models hit their limit.',
         sections: {
+          linearScore: {
+            title: 'Linear score: evidence before classification',
+          },
+          sigmoidProbability: {
+            title: 'Sigmoid: compress any score into probability',
+          },
+          thresholdDecisions: {
+            title: 'Thresholds: translate probability into decisions',
+          },
+          logLoss: {
+            title: 'Log loss: confident mistakes cost more',
+          },
           boundary: {
             title: 'The model learns one line that cuts the plane',
             body: 'The parameters control the line orientation and offset. The background color shows class confidence everywhere.',
@@ -664,6 +737,41 @@ export const messages = {
           limits: {
             title: 'Nonlinear data exposes the limit of a single line',
             body: 'Switch to an XOR-style dataset and accuracy stalls, because the model simply cannot bend its boundary enough.',
+          },
+          linearLimits: {
+            title: 'Linear limits: one line cannot draw every boundary',
+          },
+        },
+      },
+      classification: {
+        title: 'Classification',
+        kicker: 'Classification Metrics',
+        intro: 'Teach classification from probability outputs through thresholds, confusion matrices, precision/recall, ROC/AUC, prediction bias, calibration, and multiclass softmax.',
+        summary: 'A complete classification module where students drag thresholds, change prevalence and error costs, and watch metrics, ROC, calibration bins, and the softmax simplex update together.',
+        sections: {
+          scores: {
+            title: 'Classification outputs scores before decisions',
+          },
+          thresholds: {
+            title: 'Threshold controls the false-positive / false-negative tradeoff',
+          },
+          confusionMatrix: {
+            title: 'Confusion matrix splits right and wrong into four outcomes',
+          },
+          precisionRecall: {
+            title: 'Precision, recall, and F1 answer different questions',
+          },
+          costTradeoff: {
+            title: 'Error cost decides metric priority',
+          },
+          rocAuc: {
+            title: 'ROC/AUC measures ranking across thresholds',
+          },
+          biasCalibration: {
+            title: 'Prediction bias and calibration check probability trustworthiness',
+          },
+          multiclass: {
+            title: 'Multiclass extends one probability into a probability budget',
           },
         },
       },

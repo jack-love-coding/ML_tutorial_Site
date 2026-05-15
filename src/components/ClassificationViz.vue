@@ -29,11 +29,15 @@ const decisionLine = computed(() => {
   if (!props.snapshot?.params || props.slug !== 'logistic-regression') return null
   const [w0, w1] = props.snapshot.params.weights
   const bias = props.snapshot.params.bias
+  const thresholdLogit =
+    typeof props.snapshot.derivedMetrics?.thresholdLogit === 'number'
+      ? props.snapshot.derivedMetrics.thresholdLogit
+      : 0
   if (Math.abs(w1) < 1e-6) return null
   const x1 = -2.5
-  const y1 = -(w0 * x1 + bias) / w1
+  const y1 = (thresholdLogit - w0 * x1 - bias) / w1
   const x2 = 2.5
-  const y2 = -(w0 * x2 + bias) / w1
+  const y2 = (thresholdLogit - w0 * x2 - bias) / w1
   return {
     x1: map(x1),
     y1: canvasSize.value - map(y1),

@@ -22,6 +22,8 @@ import LinearRegressionLessonLab from '../components/LinearRegressionLessonLab.v
 import LinearRegressionPagedLesson from '../components/LinearRegressionPagedLesson.vue'
 import LinearRegressionResults from '../components/LinearRegressionResults.vue'
 import LogisticRegressionLessonLab from '../components/LogisticRegressionLessonLab.vue'
+import LogisticRegressionPagedLesson from '../components/LogisticRegressionPagedLesson.vue'
+import ClassificationLessonLab from '../components/ClassificationLessonLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
 import { withPublicBase } from '../utils/publicPath'
 
@@ -37,6 +39,8 @@ const mlpPlaygroundRef = ref<HTMLElement | null>(null)
 const slug = computed(() => {
   const routeSlug = route.params.slug
   if (typeof routeSlug === 'string') return routeSlug as ModuleSlug
+  if (route.path.startsWith('/learn/logistic-regression')) return 'logistic-regression' as ModuleSlug
+  if (route.path.startsWith('/learn/linear-regression')) return 'linear-regression' as ModuleSlug
   return 'linear-regression' as ModuleSlug
 })
 const requestedChapterId = computed(() =>
@@ -47,8 +51,10 @@ const isGradientPage = computed(() => slug.value === 'gradient-descent')
 const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
+const isClassificationPage = computed(() => slug.value === 'classification')
 const isMlpPage = computed(() => slug.value === 'mlp')
 const showLegacyLinearRegressionStory = false
+const showLegacyLogisticRegressionStory = false
 
 if (!moduleDefinition.value) {
   router.replace('/')
@@ -67,11 +73,15 @@ watch(
     const firstChapterId = nextModuleDefinition.chapters[0]?.id ?? ''
     let nextActiveChapter = firstChapterId
 
-    if (nextSlug === 'linear-regression') {
+    if (nextSlug === 'linear-regression' || nextSlug === 'logistic-regression') {
       if (nextChapterId) {
         const matchedChapter = nextModuleDefinition.chapters.find((chapter) => chapter.id === nextChapterId)
         if (!matchedChapter) {
-          router.replace(`/learn/linear-regression/${firstChapterId}`)
+          if (nextSlug === 'linear-regression') {
+            router.replace(`/learn/linear-regression/${firstChapterId}`)
+          } else {
+            router.replace(`/learn/logistic-regression/${firstChapterId}`)
+          }
           return
         }
         nextActiveChapter = matchedChapter.id
@@ -287,7 +297,7 @@ watch(
 onBeforeUnmount(stopTimer)
 
 function syncChapterPreset(nextChapter: string) {
-  if (isLinearRegressionPage.value || isLogisticRegressionPage.value || isMlpPage.value) {
+  if (isLinearRegressionPage.value || isLogisticRegressionPage.value || isClassificationPage.value || isMlpPage.value) {
     const currentExperiment = experimentStore.ensureExperiment(slug.value)
     if (currentExperiment.isPlaying || Number(currentExperiment.currentStep ?? 0) > 0) return
 
@@ -323,6 +333,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       'algorithm-view--loss': isLossFunctionsPage,
       'algorithm-view--linear': isLinearRegressionPage,
       'algorithm-view--logistic': isLogisticRegressionPage,
+      'algorithm-view--classification': isClassificationPage,
       'algorithm-view--mlp': isMlpPage,
     }"
   >
@@ -464,6 +475,80 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
     />
 
+    <LogisticRegressionPagedLesson
+      v-else-if="isLogisticRegressionPage && activeSection"
+      :module-definition="moduleDefinition"
+      :section="activeSection"
+      :config="experiment.config"
+      :snapshot="snapshot"
+      :snapshots="experiment.snapshots"
+      :current-step="experiment.currentStep"
+      :is-playing="experiment.isPlaying"
+      @patch-config="patchConfig"
+      @toggle-play="experimentStore.togglePlayback(slug)"
+      @step="experimentStore.advance(slug)"
+      @replay="experimentStore.replay(slug)"
+      @reset="experimentStore.reset(slug)"
+      @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
+    />
+
+    <section
+      v-else-if="isClassificationPage"
+      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--classification-story"
+    >
+      <StoryScroller
+        :sections="moduleDefinition.chapters"
+        :active-id="activeChapter"
+        @change="onChapterChange"
+      >
+        <template #section="{ section, localizedText: slotLocalizedText }">
+          <h3>{{ sectionTitle(section) }}</h3>
+          <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
+
+          <div v-if="visualAssetsFor(section).length" class="classification-story-visuals">
+            <figure
+              v-for="asset in visualAssetsFor(section)"
+              :key="asset.id"
+              class="classification-story-visual"
+              :class="`classification-story-visual--${asset.type}`"
+            >
+              <video
+                v-if="asset.type === 'manim-video'"
+                controls
+                preload="metadata"
+                playsinline
+                :poster="publicAsset(asset.posterPath)"
+              >
+                <source :src="publicAsset(asset.assetPath)" type="video/mp4" />
+              </video>
+              <img v-else :src="publicAsset(asset.assetPath)" :alt="localizedText(asset.title)" loading="lazy" />
+              <figcaption>
+                <strong>{{ localizedText(asset.title) }}</strong>
+                <span>{{ localizedText(asset.caption) }}</span>
+              </figcaption>
+            </figure>
+          </div>
+
+          <ClassificationLessonLab
+            :config="experiment.config"
+            :snapshot="snapshot"
+            :snapshots="experiment.snapshots"
+            :current-step="experiment.currentStep"
+            :is-playing="experiment.isPlaying"
+            :accent="moduleDefinition.accent"
+            :section="section"
+            :presets="moduleDefinition.presets"
+            @patch-config="patchConfig"
+            @toggle-play="experimentStore.togglePlayback(slug)"
+            @step="experimentStore.advance(slug)"
+            @replay="experimentStore.replay(slug)"
+            @reset="experimentStore.reset(slug)"
+            @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
+          />
+        </template>
+      </StoryScroller>
+    </section>
+
     <section
       v-else-if="showLegacyLinearRegressionStory && isLinearRegressionPage"
       class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--linear-story"
@@ -552,7 +637,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     </section>
 
     <section
-      v-else-if="isLogisticRegressionPage"
+      v-else-if="showLegacyLogisticRegressionStory && isLogisticRegressionPage"
       class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--logistic-story"
     >
       <StoryScroller
@@ -789,7 +874,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </section>
     </section>
 
-    <section v-else-if="isLogisticRegressionPage" class="results-grid results-grid--logistic">
+    <section v-else-if="showLegacyLogisticRegressionStory && isLogisticRegressionPage" class="results-grid results-grid--logistic">
       <LineChart :slug="slug" :snapshots="experiment.snapshots" :current-step="experiment.currentStep" />
 
       <section class="panel lesson-panel">

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Log loss poster">
+  <rect width="960" height="540" fill="#f7fbfa"/>
+  <path d="M110 430H850M110 90V430" stroke="#72817f" stroke-width="4"/>
+  <path d="M120 92C180 112 246 150 318 210C420 296 544 368 838 414" fill="none" stroke="#1ea67a" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="772" cy="404" r="17" fill="#1ea67a" stroke="#fff" stroke-width="6"/>
+  <circle cx="206" cy="132" r="20" fill="#e35f45" stroke="#fff" stroke-width="6"/>
+  <text x="88" y="70" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Confident mistakes become expensive</text>
+</svg>

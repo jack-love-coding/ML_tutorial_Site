@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Softmax simplex poster">
+  <rect width="960" height="540" fill="#f7fbfb"/>
+  <rect x="72" y="76" width="816" height="376" rx="16" fill="#fff" stroke="#d9e5e4" stroke-width="3"/>
+  
+  <path d="M480 132L278 398H682Z" fill="#e6f4f2" stroke="#172033" stroke-width="6" stroke-linejoin="round"/>
+  <circle cx="504" cy="286" r="18" fill="#f97352" stroke="#fff" stroke-width="5"/>
+  <text x="470" y="114" font-family="Arial" font-size="34" font-weight="700" fill="#f97352">A</text>
+  <text x="238" y="430" font-family="Arial" font-size="34" font-weight="700" fill="#3f6dff">B</text>
+  <text x="700" y="430" font-family="Arial" font-size="34" font-weight="700" fill="#0f9f8f">C</text>
+  <rect x="728" y="226" width="34" height="142" fill="#f97352" opacity=".78"/>
+  <rect x="776" y="292" width="34" height="76" fill="#3f6dff" opacity=".78"/>
+  <rect x="824" y="328" width="34" height="40" fill="#0f9f8f" opacity=".78"/>
+
+  <text x="92" y="54" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Softmax simplex</text>
+  <text x="92" y="500" fill="#667085" font-family="Arial, sans-serif" font-size="22">Three class probabilities share a total budget of one.</text>
+</svg>

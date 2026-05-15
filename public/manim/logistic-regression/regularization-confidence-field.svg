@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Regularization confidence field poster">
+  <rect width="960" height="540" fill="#f7fbfa"/>
+  <rect x="70" y="100" width="370" height="320" rx="20" fill="#f55f45" opacity=".16"/>
+  <rect x="520" y="100" width="370" height="320" rx="20" fill="#1ea67a" opacity=".13"/>
+  <path d="M174 398C250 304 298 202 354 118" fill="none" stroke="#e35f45" stroke-width="10" stroke-linecap="round"/>
+  <path d="M600 390C684 294 734 212 808 128" fill="none" stroke="#1ea67a" stroke-width="10" stroke-linecap="round"/>
+  <g fill="#1f63d8" stroke="#fff" stroke-width="4">
+    <circle cx="150" cy="320" r="12"/><circle cx="206" cy="356" r="12"/><circle cx="286" cy="312" r="12"/>
+    <circle cx="594" cy="326" r="12"/><circle cx="664" cy="358" r="12"/><circle cx="752" cy="314" r="12"/>
+  </g>
+  <g fill="#e35f45" stroke="#fff" stroke-width="4">
+    <circle cx="238" cy="172" r="12"/><circle cx="318" cy="208" r="12"/><circle cx="358" cy="158" r="12"/>
+    <circle cx="662" cy="172" r="12"/><circle cx="744" cy="208" r="12"/><circle cx="808" cy="158" r="12"/>
+  </g>
+  <text x="88" y="70" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Regularization calms confidence</text>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Confusion matrix poster">
+  <rect width="960" height="540" fill="#f7fbfb"/>
+  <rect x="72" y="76" width="816" height="376" rx="16" fill="#fff" stroke="#d9e5e4" stroke-width="3"/>
+  
+  <g transform="translate(260 128)">
+    <rect width="180" height="150" fill="#0f9f8f" opacity=".12" stroke="#172033" stroke-width="4"/>
+    <rect x="180" width="180" height="150" fill="#f97352" opacity=".13" stroke="#172033" stroke-width="4"/>
+    <rect y="150" width="180" height="150" fill="#f97352" opacity=".13" stroke="#172033" stroke-width="4"/>
+    <rect x="180" y="150" width="180" height="150" fill="#0f9f8f" opacity=".12" stroke="#172033" stroke-width="4"/>
+    <text x="72" y="88" font-family="Arial" font-size="36" font-weight="700" fill="#0f9f8f">TP</text>
+    <text x="252" y="88" font-family="Arial" font-size="36" font-weight="700" fill="#f97352">FN</text>
+    <text x="72" y="238" font-family="Arial" font-size="36" font-weight="700" fill="#f97352">FP</text>
+    <text x="252" y="238" font-family="Arial" font-size="36" font-weight="700" fill="#0f9f8f">TN</text>
+  </g>
+  <path d="M150 186C196 178 214 154 256 150" fill="none" stroke="#f97352" stroke-width="7" stroke-linecap="round"/>
+  <path d="M150 344C198 348 220 388 260 398" fill="none" stroke="#3f6dff" stroke-width="7" stroke-linecap="round"/>
+
+  <text x="92" y="54" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Confusion matrix update</text>
+  <text x="92" y="500" fill="#667085" font-family="Arial, sans-serif" font-size="22">Every classification result contributes to TP, FP, TN, or FN.</text>
+</svg>
