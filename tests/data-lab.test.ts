@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { dataLabModules } from '../src/modules/data-lab/data/modules.ts'
 import {
   castColumn,
@@ -21,6 +21,10 @@ import type { DataTable, LocalizedCopy } from '../src/modules/data-lab/types/dat
 import { withPublicBase } from '../src/utils/publicPath.ts'
 
 const root = new URL('../', import.meta.url)
+
+function read(path: string) {
+  return readFileSync(new URL(path, root), 'utf8')
+}
 
 function assertLocalized(copy: LocalizedCopy, message: string) {
   assert.equal(typeof copy['zh-CN'], 'string', `${message} needs zh-CN text`)
@@ -47,14 +51,14 @@ test('data lab modules expose a complete independent learning path', () => {
   for (const moduleDefinition of dataLabModules) {
     assertLocalized(moduleDefinition.title, `${moduleDefinition.id} title`)
     assertLocalized(moduleDefinition.subtitle, `${moduleDefinition.id} subtitle`)
-    assert.equal(moduleDefinition.learningObjectives.length >= 3, true, `${moduleDefinition.id} needs objectives`)
-    assert.equal(moduleDefinition.concepts.length >= 2, true, `${moduleDefinition.id} needs concepts`)
-    assert.equal(moduleDefinition.sections.length >= 3, true, `${moduleDefinition.id} needs lesson sections`)
+    assert.equal(moduleDefinition.learningObjectives.length >= 5, true, `${moduleDefinition.id} needs expanded objectives`)
+    assert.equal(moduleDefinition.concepts.length >= 4, true, `${moduleDefinition.id} needs textbook-level concepts`)
+    assert.equal(moduleDefinition.sections.length >= 6, true, `${moduleDefinition.id} needs expanded lesson sections`)
     assert.equal(moduleDefinition.labs.length >= 1, true, `${moduleDefinition.id} needs a lab`)
-    assert.equal(moduleDefinition.quizzes.length >= 1, true, `${moduleDefinition.id} needs a quiz`)
-    assert.equal(moduleDefinition.misconceptions.length >= 1, true, `${moduleDefinition.id} needs misconceptions`)
-    assert.equal(moduleDefinition.sourceReferences.length >= 3, true, `${moduleDefinition.id} needs references`)
-    assert.equal(moduleDefinition.visuals.some((visual) => visual.type === 'image'), true)
+    assert.equal(moduleDefinition.quizzes.length >= 2, true, `${moduleDefinition.id} needs expanded quizzes`)
+    assert.equal(moduleDefinition.misconceptions.length >= 2, true, `${moduleDefinition.id} needs expanded misconceptions`)
+    assert.equal(moduleDefinition.sourceReferences.length >= 4, true, `${moduleDefinition.id} needs references`)
+    assert.equal(moduleDefinition.visuals.filter((visual) => visual.type === 'image').length >= 2, true)
     assert.equal(moduleDefinition.visuals.some((visual) => visual.type === 'manim-video'), true)
     assert.equal(moduleDefinition.notebookUrl, undefined, 'Notebook links should stay hidden until a URL exists')
 
@@ -112,6 +116,9 @@ test('data lab source references and visual assets are local, explicit, and teac
 
       if (visual.type === 'image') {
         assert.equal((visual.labels?.length ?? 0) >= 4, true, `${visual.id} needs explanatory overlay labels`)
+        if (visual.assetPath.includes('-v2.png')) {
+          assert.equal((visual.labels?.length ?? 0) >= 5, true, `${visual.id} needs dense explanatory overlay labels`)
+        }
         for (const label of visual.labels ?? []) {
           assertLocalized(label.label, `${visual.id} overlay ${label.id}`)
           assert.equal(label.x >= 0 && label.x <= 100, true)
@@ -127,8 +134,29 @@ test('data lab source references and visual assets are local, explicit, and teac
   assert.ok(sourceHosts.has('developers.google.com'))
   assert.ok(sourceHosts.has('pandas.pydata.org'))
 
+  for (const assetPath of [
+    'public/data-lab/generated/feature-vector-pipeline-v2.png',
+    'public/data-lab/generated/cleaning-policy-map-v2.png',
+    'public/data-lab/generated/eda-investigation-board-v2.png',
+    'public/data-lab/generated/pandas-shape-audit-v2.png',
+  ]) {
+    assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
+  }
+
   const dataManimMetadata = new URL('public/manim/data-lab/metadata.json', root)
   assert.ok(existsSync(dataManimMetadata), 'Data Lab Manim metadata should exist')
+})
+
+test('data lab Chinese source stays free of mojibake fragments', () => {
+  const source = [
+    'src/modules/data-lab/data/modules.ts',
+    'src/modules/data-lab/pages/DataLabHome.vue',
+    'src/modules/data-lab/pages/DataLabModulePage.vue',
+  ]
+    .map(read)
+    .join('\n')
+
+  assert.doesNotMatch(source, /(锛|�|鈥|乣|銆|€|鏁|鍒|瀛︿|绔犺|棰勮|姣忔|琛楀|鍙傝|杩斿|寮€)/)
 })
 
 test('data table transforms model pandas-like operations without mutating inputs', () => {
