@@ -16,6 +16,8 @@ SCENES = {
     "DataCleaningFlowScene": "data-cleaning-flow.mp4",
     "EdaSplitApplyScene": "eda-split-apply.mp4",
     "PandasMethodChainScene": "pandas-method-chain.mp4",
+    "CategoricalOneHotFlowScene": "categorical-one-hot-flow.mp4",
+    "FeatureCrossSparsityScene": "feature-cross-sparsity.mp4",
 }
 
 POSTER_SVGS = {
@@ -66,6 +68,49 @@ POSTER_SVGS = {
   <path d="M275 232H322M420 232H442M540 232H562M660 232H682M780 232H835" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
   <rect x="846" y="160" width="70" height="170" rx="18" fill="#e2f8ef" stroke="#0f9f7a" stroke-width="4"/>
   <text x="82" y="76" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">pandas workflows are table recipes</text>
+</svg>
+""",
+    "CategoricalOneHotFlowScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="categorical one hot poster">
+  <rect width="960" height="540" fill="#f8fffc"/>
+  <g transform="translate(86 130)" fill="#ffffff" stroke="#0f766e" stroke-width="4">
+    <rect width="170" height="58" rx="18"/><rect y="76" width="170" height="58" rx="18"/><rect y="152" width="170" height="58" rx="18"/>
+  </g>
+  <path d="M280 235H375" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
+  <g transform="translate(400 105)" fill="#ffffff" stroke="#2563eb" stroke-width="4">
+    <rect width="210" height="280" rx="24"/>
+    <path d="M0 56H210M0 112H210M0 168H210M0 224H210"/>
+    <rect y="224" width="210" height="56" fill="#fff3cd"/>
+  </g>
+  <path d="M632 235H710" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
+  <g transform="translate(720 210)" stroke="#0f766e" stroke-width="4">
+    <rect width="34" height="70" fill="#ffffff"/><rect x="42" width="34" height="70" fill="#ffffff"/>
+    <rect x="84" width="34" height="70" fill="#f6c04d"/><rect x="126" width="34" height="70" fill="#ffffff"/>
+    <rect x="168" width="34" height="70" fill="#ffffff"/>
+  </g>
+  <text x="86" y="76" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Vocabulary fixes category positions</text>
+</svg>
+""",
+    "FeatureCrossSparsityScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="feature cross sparsity poster">
+  <rect width="960" height="540" fill="#fffdfa"/>
+  <g transform="translate(110 145)" stroke="#2563eb" stroke-width="4">
+    <rect width="52" height="52" fill="#ffffff"/><rect y="62" width="52" height="52" fill="#f6c04d"/>
+    <rect y="124" width="52" height="52" fill="#ffffff"/><rect y="186" width="52" height="52" fill="#ffffff"/>
+    <rect x="82" width="52" height="52" fill="#ffffff"/><rect x="82" y="62" width="52" height="52" fill="#ffffff"/>
+    <rect x="82" y="124" width="52" height="52" fill="#f6c04d"/><rect x="82" y="186" width="52" height="52" fill="#ffffff"/>
+  </g>
+  <path d="M280 260H360" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
+  <g transform="translate(390 145)" stroke="#0f766e" stroke-width="3" fill="#ffffff">
+    <rect width="220" height="220" rx="16"/>
+    <path d="M55 0V220M110 0V220M165 0V220M0 55H220M0 110H220M0 165H220"/>
+    <rect x="110" y="55" width="55" height="55" fill="#f6c04d"/>
+  </g>
+  <path d="M635 260H710" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
+  <g transform="translate(725 238)" stroke="#0f1728" stroke-width="2">
+    <rect width="22" height="44" fill="#ffffff"/><rect x="28" width="22" height="44" fill="#ffffff"/><rect x="56" width="22" height="44" fill="#ffffff"/>
+    <rect x="84" width="22" height="44" fill="#f6c04d"/><rect x="112" width="22" height="44" fill="#ffffff"/><rect x="140" width="22" height="44" fill="#ffffff"/>
+    <rect x="168" width="22" height="44" fill="#ffffff"/>
+  </g>
+  <text x="110" y="76" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Crossed categories multiply sparse slots</text>
 </svg>
 """,
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -18,14 +18,15 @@ import GradientTeachingBlocks from '../components/GradientTeachingBlocks.vue'
 import GradientChapterLab from '../components/GradientChapterLab.vue'
 import LossFunctionsLessonLab from '../components/LossFunctionsLessonLab.vue'
 import LossFunctionsResults from '../components/LossFunctionsResults.vue'
-import LinearRegressionLessonLab from '../components/LinearRegressionLessonLab.vue'
 import LinearRegressionPagedLesson from '../components/LinearRegressionPagedLesson.vue'
-import LinearRegressionResults from '../components/LinearRegressionResults.vue'
-import LogisticRegressionLessonLab from '../components/LogisticRegressionLessonLab.vue'
 import LogisticRegressionPagedLesson from '../components/LogisticRegressionPagedLesson.vue'
 import ClassificationLessonLab from '../components/ClassificationLessonLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
 import { withPublicBase } from '../utils/publicPath'
+
+const LinearRegressionLessonLab = defineAsyncComponent(() => import('../components/LinearRegressionLessonLab.vue'))
+const LinearRegressionResults = defineAsyncComponent(() => import('../components/LinearRegressionResults.vue'))
+const LogisticRegressionLessonLab = defineAsyncComponent(() => import('../components/LogisticRegressionLessonLab.vue'))
 
 const route = useRoute()
 const router = useRouter()

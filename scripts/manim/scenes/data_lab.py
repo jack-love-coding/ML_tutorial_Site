@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from manim import (
     BLUE,
+    Brace,
     GREEN,
     ORANGE,
     PURPLE,
     RED,
+    RIGHT,
     WHITE,
     YELLOW,
     Arrow,
@@ -17,7 +19,9 @@ from manim import (
     Rectangle,
     Scene,
     Square,
+    Text,
     Transform,
+    UP,
     VGroup,
 )
 
@@ -136,4 +140,107 @@ class PandasMethodChainScene(Scene):
         for index, step in enumerate(steps):
             self.play(Create(arrows[index]), FadeIn(step), run_time=0.45)
         self.play(Create(arrows[-1]), FadeIn(final), run_time=0.7)
+        self.wait(0.5)
+
+
+class CategoricalOneHotFlowScene(Scene):
+    def construct(self):
+        tokens = VGroup(
+            *[
+                Rectangle(width=1.18, height=0.42, color=color, fill_opacity=0.22)
+                .shift((-5.0, 1.15 - index * 0.55, 0))
+                for index, color in enumerate([BLUE, GREEN, ORANGE, PURPLE, RED])
+            ]
+        )
+        token_label = Text("category values", font_size=22).next_to(tokens, UP, buff=0.25)
+
+        vocab = VGroup(
+            *[
+                Rectangle(width=1.36, height=0.44, color=WHITE, fill_opacity=0.08)
+                .shift((-1.7, 1.35 - index * 0.45, 0))
+                for index in range(7)
+            ]
+        )
+        vocab[5].set_color(ORANGE).set_fill(ORANGE, opacity=0.18)
+        vocab[6].set_color(RED).set_fill(RED, opacity=0.16)
+        vocab_label = Text("frozen vocabulary", font_size=22).next_to(vocab, UP, buff=0.25)
+
+        one_hot = VGroup(
+            *[
+                Rectangle(width=0.44, height=0.7, color=GREEN if index == 2 else WHITE, fill_opacity=0.55 if index == 2 else 0.08)
+                .shift((1.5 + index * 0.48, 0.35, 0))
+                for index in range(7)
+            ]
+        )
+        vector_label = Text("one-hot vector", font_size=22).next_to(one_hot, UP, buff=0.32)
+        sparse = VGroup(
+            Rectangle(width=2.2, height=0.72, color=GREEN, fill_opacity=0.16).shift((4.35, -1.2, 0)),
+            Text("{2: 1}", font_size=28).shift((4.35, -1.2, 0)),
+        )
+        sparse_label = Text("sparse index", font_size=22).next_to(sparse, UP, buff=0.2)
+
+        arrows = VGroup(
+            Arrow(tokens.get_right(), vocab.get_left(), buff=0.22, color=WHITE),
+            Arrow(vocab.get_right(), one_hot.get_left(), buff=0.22, color=WHITE),
+            Arrow(one_hot.get_bottom(), sparse.get_top(), buff=0.18, color=WHITE),
+        )
+
+        self.play(FadeIn(tokens), FadeIn(token_label))
+        self.play(Create(arrows[0]), FadeIn(vocab), FadeIn(vocab_label), run_time=0.8)
+        self.play(Create(arrows[1]), FadeIn(one_hot), FadeIn(vector_label), run_time=0.8)
+        self.play(Create(arrows[2]), FadeIn(sparse), FadeIn(sparse_label), run_time=0.7)
+        self.wait(0.5)
+
+
+class FeatureCrossSparsityScene(Scene):
+    def construct(self):
+        feature_a = VGroup(
+            *[
+                Rectangle(width=0.42, height=0.5, color=GREEN if index == 1 else BLUE, fill_opacity=0.58 if index == 1 else 0.12)
+                .shift((-5.0, 0.85 - index * 0.58, 0))
+                for index in range(4)
+            ]
+        )
+        feature_b = VGroup(
+            *[
+                Rectangle(width=0.42, height=0.5, color=ORANGE if index == 2 else BLUE, fill_opacity=0.58 if index == 2 else 0.12)
+                .shift((-4.15, 0.85 - index * 0.58, 0))
+                for index in range(4)
+            ]
+        )
+        labels = VGroup(
+            Text("A", font_size=24).next_to(feature_a, UP, buff=0.2),
+            Text("B", font_size=24).next_to(feature_b, UP, buff=0.2),
+        )
+        brace = Brace(VGroup(feature_a, feature_b), RIGHT, color=WHITE)
+
+        grid = VGroup()
+        for row in range(4):
+            for col in range(4):
+                cell = Square(side_length=0.42)
+                active = row == 1 and col == 2
+                cell.set_stroke(WHITE, opacity=0.64, width=1)
+                cell.set_fill(ORANGE if active else BLUE, opacity=0.62 if active else 0.08)
+                cell.shift((-1.0 + col * 0.45, 0.72 - row * 0.45, 0))
+                grid.add(cell)
+        grid_label = Text("cross grid", font_size=22).next_to(grid, UP, buff=0.3)
+
+        crossed_vector = VGroup(
+            *[
+                Rectangle(width=0.2, height=0.42, color=ORANGE if index == 6 else WHITE, fill_opacity=0.66 if index == 6 else 0.07)
+                .shift((2.3 + index * 0.22, 0.15, 0))
+                for index in range(16)
+            ]
+        )
+        vector_label = Text("wide sparse vector", font_size=22).next_to(crossed_vector, UP, buff=0.32)
+        warning = Text("dimension = |A| × |B|", font_size=24, color=ORANGE).shift((3.9, -1.35, 0))
+
+        arrows = VGroup(
+            Arrow(brace.get_right(), grid.get_left(), buff=0.22, color=WHITE),
+            Arrow(grid.get_right(), crossed_vector.get_left(), buff=0.24, color=WHITE),
+        )
+
+        self.play(FadeIn(feature_a), FadeIn(feature_b), FadeIn(labels), FadeIn(brace))
+        self.play(Create(arrows[0]), FadeIn(grid), FadeIn(grid_label), run_time=0.8)
+        self.play(Create(arrows[1]), FadeIn(crossed_vector), FadeIn(vector_label), FadeIn(warning), run_time=0.8)
         self.wait(0.5)

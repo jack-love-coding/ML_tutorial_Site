@@ -10,6 +10,7 @@ import type {
   LocalizedCopy,
   SourceReference,
 } from '../types/dataLab'
+import { categoricalDataModule } from './categoricalDataModule.ts'
 
 const md = String.raw
 
@@ -1525,6 +1526,7 @@ The pandas Pipeline simulator maps each button to equivalent pandas code and out
       sources.pandasVisualization,
     ],
   }),
+  categoricalDataModule,
 ]
 
 export const dataLabModuleRegistry = Object.fromEntries(

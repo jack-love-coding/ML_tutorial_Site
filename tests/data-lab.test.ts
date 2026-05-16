@@ -4,15 +4,23 @@ import { existsSync, readFileSync } from 'node:fs'
 import { dataLabModules } from '../src/modules/data-lab/data/modules.ts'
 import {
   castColumn,
+  activeSparseIndices,
+  buildCategoryVocabulary,
   clipColumn,
   deriveColumn,
   dropDuplicates,
+  encodeMultiHot,
+  encodeOneHot,
+  featureCrossDimension,
+  featureCrossToken,
   fillMissing,
   groupByAggregate,
+  hashCategoryToBucket,
   housingTeachingTable,
   inferColumnType,
   isMissing,
   mergeLookup,
+  resolveCategoryToken,
   oneHotDimension,
   profileColumns,
   tableShape,
@@ -35,7 +43,7 @@ function assertLocalized(copy: LocalizedCopy, message: string) {
 }
 
 test('data lab modules expose a complete independent learning path', () => {
-  assert.equal(dataLabModules.length, 4)
+  assert.equal(dataLabModules.length, 5)
   assert.deepEqual(
     dataLabModules.map((moduleDefinition) => moduleDefinition.id),
     [
@@ -43,9 +51,10 @@ test('data lab modules expose a complete independent learning path', () => {
       'data-cleaning-preprocessing',
       'exploratory-data-analysis',
       'pandas-workflow',
+      'categorical-data-processing',
     ],
   )
-  assert.deepEqual(dataLabModules.map((moduleDefinition) => moduleDefinition.order), [1, 2, 3, 4])
+  assert.deepEqual(dataLabModules.map((moduleDefinition) => moduleDefinition.order), [1, 2, 3, 4, 5])
 
   const componentNames = new Set<string>()
   for (const moduleDefinition of dataLabModules) {
@@ -86,6 +95,7 @@ test('data lab modules expose a complete independent learning path', () => {
   }
 
   assert.deepEqual([...componentNames].sort(), [
+    'CategoricalEncodingLab',
     'CleaningPipelineLab',
     'ColumnTypeLab',
     'EdaWorkbenchLab',
@@ -101,7 +111,7 @@ test('data lab source references and visual assets are local, explicit, and teac
       const url = new URL(source.href)
       sourceHosts.add(url.hostname)
       assert.ok(
-        ['developers.google.com', 'pandas.pydata.org'].includes(url.hostname),
+        ['developers.google.com', 'pandas.pydata.org', 'scikit-learn.org'].includes(url.hostname),
         `${source.href} should come from an approved teaching source`,
       )
       assertLocalized(source.label, `${moduleDefinition.id} source label`)
@@ -139,12 +149,55 @@ test('data lab source references and visual assets are local, explicit, and teac
     'public/data-lab/generated/cleaning-policy-map-v2.png',
     'public/data-lab/generated/eda-investigation-board-v2.png',
     'public/data-lab/generated/pandas-shape-audit-v2.png',
+    'public/data-lab/generated/categorical-semantics.png',
+    'public/data-lab/generated/categorical-vocabulary-one-hot.png',
+    'public/data-lab/generated/categorical-feature-cross-sparsity.png',
   ]) {
     assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
   }
 
   const dataManimMetadata = new URL('public/manim/data-lab/metadata.json', root)
   assert.ok(existsSync(dataManimMetadata), 'Data Lab Manim metadata should exist')
+})
+
+test('categorical encoding utilities keep train-time vocabulary stable', () => {
+  const vocabulary = buildCategoryVocabulary(
+    ['north', 'south', 'south', 'west', 'harbor', 'north', 'airport'],
+    { minFrequency: 2, maxCategories: 3, includeOov: true },
+  )
+
+  assert.deepEqual(vocabulary.tokens, ['north', 'south', '<RARE>', '<OOV>'])
+  assert.deepEqual(vocabulary.rareValues.sort(), ['airport', 'harbor', 'west'])
+  assert.equal(resolveCategoryToken('harbor', vocabulary), '<RARE>')
+  assert.equal(resolveCategoryToken('new-district', vocabulary), '<OOV>')
+
+  assert.deepEqual(encodeOneHot('south', vocabulary), [0, 1, 0, 0])
+  assert.deepEqual(encodeOneHot('airport', vocabulary), [0, 0, 1, 0])
+  assert.deepEqual(encodeOneHot('unknown', vocabulary), [0, 0, 0, 1])
+  assert.deepEqual(activeSparseIndices(encodeOneHot('north', vocabulary)), [0])
+
+  const prototypeVocabulary = buildCategoryVocabulary(['__proto__', 'constructor', 'north'], { includeOov: true })
+  assert.equal(prototypeVocabulary.frequencies.__proto__, 1)
+  assert.equal(prototypeVocabulary.frequencies.constructor, 1)
+  assert.equal(prototypeVocabulary.tokenToIndex.__proto__ !== undefined, true)
+  assert.equal(prototypeVocabulary.tokenToIndex.constructor !== undefined, true)
+
+  const northOnlyVocabulary = buildCategoryVocabulary(['north'], { includeOov: true })
+  assert.deepEqual(encodeOneHot('__proto__', northOnlyVocabulary), [0, 1])
+  assert.deepEqual(encodeOneHot('constructor', northOnlyVocabulary), [0, 1])
+  assert.deepEqual(Object.keys(encodeOneHot('__proto__', northOnlyVocabulary)), ['0', '1'])
+
+  const tagVocabulary = buildCategoryVocabulary(['school', 'subway', 'park', 'school'], { includeOov: true })
+  assert.deepEqual(encodeMultiHot(['school', 'park'], tagVocabulary), [1, 1, 0, 0])
+
+  const left = buildCategoryVocabulary(['north', 'south'], { includeOov: false })
+  const right = buildCategoryVocabulary(['apartment', 'condo', 'house'], { includeOov: false })
+  assert.equal(featureCrossDimension(left, right), 6)
+  assert.equal(featureCrossToken('North', 'Condo'), 'north×condo')
+
+  const hashed = hashCategoryToBucket('airport', 8)
+  assert.equal(hashed.bucket >= 0 && hashed.bucket < 8, true)
+  assert.equal(hashCategoryToBucket('airport', 8).bucket, hashed.bucket)
 })
 
 test('data lab Chinese source stays free of mojibake fragments', () => {

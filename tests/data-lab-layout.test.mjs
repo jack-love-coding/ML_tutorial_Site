@@ -35,8 +35,10 @@ test('data lab components, labs, generated images, and manim assets exist', () =
     'src/modules/data-lab/labs/CleaningPipelineLab.vue',
     'src/modules/data-lab/labs/EdaWorkbenchLab.vue',
     'src/modules/data-lab/labs/PandasPipelineLab.vue',
+    'src/modules/data-lab/labs/CategoricalEncodingLab.vue',
     'src/modules/data-lab/utils/tableTransforms.ts',
     'src/modules/data-lab/data/modules.ts',
+    'src/modules/data-lab/data/categoricalDataModule.ts',
     'scripts/manim/scenes/data_lab.py',
     'scripts/manim/render_data_lab.py',
   ]
@@ -50,17 +52,22 @@ test('data lab components, labs, generated images, and manim assets exist', () =
     'public/data-lab/generated/data-cleaning-preprocessing.png',
     'public/data-lab/generated/exploratory-data-analysis.png',
     'public/data-lab/generated/pandas-workflow.png',
+    'public/data-lab/generated/categorical-semantics.png',
+    'public/data-lab/generated/categorical-vocabulary-one-hot.png',
+    'public/data-lab/generated/categorical-feature-cross-sparsity.png',
   ]) {
     assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
   }
 
   const metadata = JSON.parse(read('public/manim/data-lab/metadata.json'))
   assert.equal(metadata.generatedBy, 'scripts/manim/render_data_lab.py')
-  assert.equal(metadata.scenes.length, 4)
+  assert.equal(metadata.scenes.length, 6)
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'DataTypesFeatureFlowScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'DataCleaningFlowScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'EdaSplitApplyScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'PandasMethodChainScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'CategoricalOneHotFlowScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'FeatureCrossSparsityScene'))
 
   for (const scene of metadata.scenes) {
     const assetPath = scene.assetPath.replace(/^\//, 'public/')
@@ -75,6 +82,7 @@ test('data lab labs use D3, Three.js, and deterministic TS table transforms', ()
   const cleaningSource = read('src/modules/data-lab/labs/CleaningPipelineLab.vue')
   const edaSource = read('src/modules/data-lab/labs/EdaWorkbenchLab.vue')
   const pipelineSource = read('src/modules/data-lab/labs/PandasPipelineLab.vue')
+  const categoricalSource = read('src/modules/data-lab/labs/CategoricalEncodingLab.vue')
   const modulePageSource = read('src/modules/data-lab/pages/DataLabModulePage.vue')
 
   assert.match(columnTypeSource, /import \* as d3 from 'd3'/)
@@ -87,7 +95,12 @@ test('data lab labs use D3, Three.js, and deterministic TS table transforms', ()
   assert.match(edaSource, /groupByAggregate/)
   assert.match(pipelineSource, /deriveColumn/)
   assert.match(pipelineSource, /mergeLookup/)
+  assert.match(categoricalSource, /import \* as d3 from 'd3'/)
+  assert.match(categoricalSource, /import \* as THREE from 'three'/)
+  assert.match(categoricalSource, /buildCategoryVocabulary/)
+  assert.match(categoricalSource, /encodeOneHot/)
   assert.match(modulePageSource, /DataManimPlayer/)
   assert.match(modulePageSource, /DataVisualFigure/)
-  assert.doesNotMatch(`${columnTypeSource}\n${cleaningSource}\n${edaSource}\n${pipelineSource}`, /pyodide|Pyodide/)
+  assert.match(modulePageSource, /CategoricalEncodingLab/)
+  assert.doesNotMatch(`${columnTypeSource}\n${cleaningSource}\n${edaSource}\n${pipelineSource}\n${categoricalSource}`, /pyodide|Pyodide/)
 })

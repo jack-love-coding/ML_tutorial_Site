@@ -5,6 +5,7 @@ export type DataLabModuleId =
   | 'data-cleaning-preprocessing'
   | 'exploratory-data-analysis'
   | 'pandas-workflow'
+  | 'categorical-data-processing'
 
 export type DataCell = string | number | boolean | null
 
@@ -91,7 +92,12 @@ export interface DataVisualAsset {
 export interface DataLabConfig {
   id: string
   title: LocalizedCopy
-  componentName: 'ColumnTypeLab' | 'CleaningPipelineLab' | 'EdaWorkbenchLab' | 'PandasPipelineLab'
+  componentName:
+    | 'ColumnTypeLab'
+    | 'CleaningPipelineLab'
+    | 'EdaWorkbenchLab'
+    | 'PandasPipelineLab'
+    | 'CategoricalEncodingLab'
   successCriteria: LocalizedCopy[]
 }
 

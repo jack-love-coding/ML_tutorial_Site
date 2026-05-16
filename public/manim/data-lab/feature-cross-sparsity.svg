@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="feature cross sparsity poster">
+  <rect width="960" height="540" fill="#fffdfa"/>
+  <g transform="translate(110 145)" stroke="#2563eb" stroke-width="4">
+    <rect width="52" height="52" fill="#ffffff"/><rect y="62" width="52" height="52" fill="#f6c04d"/>
+    <rect y="124" width="52" height="52" fill="#ffffff"/><rect y="186" width="52" height="52" fill="#ffffff"/>
+    <rect x="82" width="52" height="52" fill="#ffffff"/><rect x="82" y="62" width="52" height="52" fill="#ffffff"/>
+    <rect x="82" y="124" width="52" height="52" fill="#f6c04d"/><rect x="82" y="186" width="52" height="52" fill="#ffffff"/>
+  </g>
+  <path d="M280 260H360" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
+  <g transform="translate(390 145)" stroke="#0f766e" stroke-width="3" fill="#ffffff">
+    <rect width="220" height="220" rx="16"/>
+    <path d="M55 0V220M110 0V220M165 0V220M0 55H220M0 110H220M0 165H220"/>
+    <rect x="110" y="55" width="55" height="55" fill="#f6c04d"/>
+  </g>
+  <path d="M635 260H710" stroke="#0f1728" stroke-width="8" stroke-linecap="round"/>
+  <g transform="translate(725 238)" stroke="#0f1728" stroke-width="2">
+    <rect width="22" height="44" fill="#ffffff"/><rect x="28" width="22" height="44" fill="#ffffff"/><rect x="56" width="22" height="44" fill="#ffffff"/>
+    <rect x="84" width="22" height="44" fill="#f6c04d"/><rect x="112" width="22" height="44" fill="#ffffff"/><rect x="140" width="22" height="44" fill="#ffffff"/>
+    <rect x="168" width="22" height="44" fill="#ffffff"/>
+  </g>
+  <text x="110" y="76" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Crossed categories multiply sparse slots</text>
+</svg>

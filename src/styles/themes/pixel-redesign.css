@@ -207,11 +207,11 @@ summary:focus-visible {
 .site-header__nav--desktop {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: nowrap;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 2px 4px;
+  gap: 6px;
+  overflow: visible;
+  padding: 2px 0;
 }
 
 .site-header__nav--mobile {
@@ -228,6 +228,7 @@ summary:focus-visible {
   padding: 8px 12px;
   border: 2px solid transparent;
   border-radius: 5px;
+  background: transparent;
   color: var(--pixel-ink);
   font-weight: 700;
   line-height: 1.1;
@@ -244,6 +245,70 @@ summary:focus-visible {
   color: var(--pixel-ink);
   box-shadow: 3px 3px 0 var(--pixel-line);
   transform: translate(-2px, -2px);
+}
+
+.site-header__more {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.site-header__more-button {
+  gap: 7px;
+}
+
+.site-header__more-caret {
+  width: 0;
+  height: 0;
+  border-top: 6px solid currentColor;
+  border-inline: 5px solid transparent;
+  transition: transform 120ms ease;
+}
+
+.site-header__more.is-open .site-header__more-caret {
+  transform: rotate(180deg);
+}
+
+.site-header__more.is-open .site-header__more-button,
+.site-header__more.is-current .site-header__more-button {
+  border-color: var(--pixel-line);
+  background: var(--pixel-yellow);
+  color: var(--pixel-ink);
+  box-shadow: 3px 3px 0 var(--pixel-line);
+}
+
+.site-header__more-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 50;
+  display: grid;
+  gap: 6px;
+  width: min(320px, calc(100vw - 32px));
+  padding: 10px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 7px;
+  background: #ffffff;
+  box-shadow: var(--pixel-shadow-small);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+  visibility: hidden;
+}
+
+.site-header__more.is-open .site-header__more-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.site-header__more-menu .site-header__link {
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 10px;
+  white-space: normal;
 }
 
 .site-header__actions {

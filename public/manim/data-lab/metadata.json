@@ -20,6 +20,16 @@
       "scene": "PandasMethodChainScene",
       "assetPath": "/manim/data-lab/pandas-method-chain.mp4",
       "posterPath": "/manim/data-lab/pandas-method-chain.svg"
+    },
+    {
+      "scene": "CategoricalOneHotFlowScene",
+      "assetPath": "/manim/data-lab/categorical-one-hot-flow.mp4",
+      "posterPath": "/manim/data-lab/categorical-one-hot-flow.svg"
+    },
+    {
+      "scene": "FeatureCrossSparsityScene",
+      "assetPath": "/manim/data-lab/feature-cross-sparsity.mp4",
+      "posterPath": "/manim/data-lab/feature-cross-sparsity.svg"
     }
   ]
 }

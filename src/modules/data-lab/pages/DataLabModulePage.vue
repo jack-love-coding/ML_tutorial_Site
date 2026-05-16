@@ -7,6 +7,7 @@ import CleaningPipelineLab from '../labs/CleaningPipelineLab.vue'
 import ColumnTypeLab from '../labs/ColumnTypeLab.vue'
 import EdaWorkbenchLab from '../labs/EdaWorkbenchLab.vue'
 import PandasPipelineLab from '../labs/PandasPipelineLab.vue'
+import CategoricalEncodingLab from '../labs/CategoricalEncodingLab.vue'
 import DataManimPlayer from '../components/DataManimPlayer.vue'
 import DataVisualFigure from '../components/DataVisualFigure.vue'
 import { dataLabModuleRegistry, dataLabModules } from '../data/modules'
@@ -154,6 +155,7 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
               <CleaningPipelineLab v-else-if="lab.componentName === 'CleaningPipelineLab'" :locale="currentLocale" />
               <EdaWorkbenchLab v-else-if="lab.componentName === 'EdaWorkbenchLab'" :locale="currentLocale" />
               <PandasPipelineLab v-else-if="lab.componentName === 'PandasPipelineLab'" :locale="currentLocale" />
+              <CategoricalEncodingLab v-else-if="lab.componentName === 'CategoricalEncodingLab'" :locale="currentLocale" />
             </template>
           </section>
         </template>
@@ -180,6 +182,7 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
             <CleaningPipelineLab v-else-if="lab.componentName === 'CleaningPipelineLab'" :locale="currentLocale" />
             <EdaWorkbenchLab v-else-if="lab.componentName === 'EdaWorkbenchLab'" :locale="currentLocale" />
             <PandasPipelineLab v-else-if="lab.componentName === 'PandasPipelineLab'" :locale="currentLocale" />
+            <CategoricalEncodingLab v-else-if="lab.componentName === 'CategoricalEncodingLab'" :locale="currentLocale" />
           </template>
         </section>
 

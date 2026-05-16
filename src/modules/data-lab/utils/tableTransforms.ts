@@ -10,8 +10,33 @@ import type {
 
 type AggregateOperation = 'count' | 'sum' | 'mean' | 'min' | 'max'
 
+export interface CategoryVocabularyOptions {
+  minFrequency?: number
+  maxCategories?: number
+  includeOov?: boolean
+  oovToken?: string
+  rareToken?: string
+}
+
+export interface CategoryVocabulary {
+  tokens: string[]
+  tokenToIndex: Record<string, number>
+  frequencies: Record<string, number>
+  rareValues: string[]
+  oovToken: string
+  rareToken: string
+}
+
 function copy(zh: string, en: string): LocalizedCopy {
   return { 'zh-CN': zh, en }
+}
+
+function emptyRecord<T>(): Record<string, T> {
+  return Object.create(null) as Record<string, T>
+}
+
+function hasOwnKey<T>(record: Record<string, T>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(record, key)
 }
 
 export const housingTeachingTable: DataTable = {
@@ -312,4 +337,113 @@ export function oneHotDimension(table: DataTable, columnKey: string): number {
       .filter((value) => !isMissing(value))
       .map(String),
   ).size
+}
+
+export function normalizeCategoryValue(value: DataCell | undefined): string {
+  if (isMissing(value)) return ''
+  return String(value).trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+export function buildCategoryVocabulary(
+  values: Array<DataCell | undefined>,
+  options: CategoryVocabularyOptions = {},
+): CategoryVocabulary {
+  const minFrequency = options.minFrequency ?? 1
+  const maxCategories = options.maxCategories ?? Number.POSITIVE_INFINITY
+  const includeOov = options.includeOov ?? true
+  const oovToken = options.oovToken ?? '<OOV>'
+  const rareToken = options.rareToken ?? '<RARE>'
+  const frequencies = emptyRecord<number>()
+
+  for (const value of values) {
+    const normalized = normalizeCategoryValue(value)
+    if (!normalized) continue
+    frequencies[normalized] = (frequencies[normalized] ?? 0) + 1
+  }
+
+  const sorted = Object.entries(frequencies).sort((left, right) => {
+    const byFrequency = right[1] - left[1]
+    return byFrequency === 0 ? left[0].localeCompare(right[0]) : byFrequency
+  })
+
+  const kept: string[] = []
+  const rareValues: string[] = []
+
+  for (const [token, frequency] of sorted) {
+    if (frequency < minFrequency || kept.length >= maxCategories) {
+      rareValues.push(token)
+    } else {
+      kept.push(token)
+    }
+  }
+
+  const tokens = [...kept]
+  if (rareValues.length) tokens.push(rareToken)
+  if (includeOov) tokens.push(oovToken)
+
+  return {
+    tokens,
+    tokenToIndex: tokens.reduce((indexByToken, token, index) => {
+      indexByToken[token] = index
+      return indexByToken
+    }, emptyRecord<number>()),
+    frequencies,
+    rareValues,
+    oovToken,
+    rareToken,
+  }
+}
+
+export function resolveCategoryToken(value: DataCell | undefined, vocabulary: CategoryVocabulary): string | undefined {
+  const normalized = normalizeCategoryValue(value)
+  if (!normalized) return hasOwnKey(vocabulary.tokenToIndex, vocabulary.oovToken) ? vocabulary.oovToken : undefined
+  if (hasOwnKey(vocabulary.tokenToIndex, normalized)) return normalized
+  if (vocabulary.rareValues.includes(normalized) && hasOwnKey(vocabulary.tokenToIndex, vocabulary.rareToken)) {
+    return vocabulary.rareToken
+  }
+  return hasOwnKey(vocabulary.tokenToIndex, vocabulary.oovToken) ? vocabulary.oovToken : undefined
+}
+
+export function encodeOneHot(value: DataCell | undefined, vocabulary: CategoryVocabulary): number[] {
+  const vector = Array.from({ length: vocabulary.tokens.length }, () => 0)
+  const token = resolveCategoryToken(value, vocabulary)
+  if (!token) return vector
+  const index = vocabulary.tokenToIndex[token]
+  if (index !== undefined) vector[index] = 1
+  return vector
+}
+
+export function encodeMultiHot(values: Array<DataCell | undefined>, vocabulary: CategoryVocabulary): number[] {
+  const vector = Array.from({ length: vocabulary.tokens.length }, () => 0)
+  for (const value of values) {
+    const token = resolveCategoryToken(value, vocabulary)
+    const index = token ? vocabulary.tokenToIndex[token] : undefined
+    if (index !== undefined) vector[index] = 1
+  }
+  return vector
+}
+
+export function activeSparseIndices(vector: number[]): number[] {
+  return vector.flatMap((value, index) => (value ? [index] : []))
+}
+
+export function featureCrossToken(left: DataCell | undefined, right: DataCell | undefined): string {
+  return `${normalizeCategoryValue(left) || '<MISSING>'}×${normalizeCategoryValue(right) || '<MISSING>'}`
+}
+
+export function featureCrossDimension(leftVocabulary: CategoryVocabulary, rightVocabulary: CategoryVocabulary): number {
+  return leftVocabulary.tokens.length * rightVocabulary.tokens.length
+}
+
+export function hashCategoryToBucket(value: DataCell | undefined, bucketCount: number): { bucket: number; normalized: string } {
+  const normalized = normalizeCategoryValue(value) || '<MISSING>'
+  let hash = 2166136261
+  for (let index = 0; index < normalized.length; index += 1) {
+    hash ^= normalized.charCodeAt(index)
+    hash = Math.imul(hash, 16777619)
+  }
+  return {
+    bucket: Math.abs(hash >>> 0) % Math.max(1, bucketCount),
+    normalized,
+  }
 }
