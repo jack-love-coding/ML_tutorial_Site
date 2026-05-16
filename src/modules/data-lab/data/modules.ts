@@ -10,7 +10,6 @@ import type {
   LocalizedCopy,
   SourceReference,
 } from '../types/dataLab'
-import { categoricalDataModule } from './categoricalDataModule.ts'
 
 const md = String.raw
 
@@ -105,1428 +104,729 @@ function video(id: string, file: string, title: LocalizedCopy, caption: Localize
   }
 }
 
-const sources = {
-  googleNumerical: {
-    label: copy('Google MLCC：数值数据', 'Google MLCC: Numerical data'),
-    href: 'https://developers.google.com/machine-learning/crash-course/numerical-data',
-    license: 'CC BY 4.0',
-    usage: copy(
-      '校准数值特征、分布、离群点、好特征条件和特征向量的入门边界。',
-      'Calibrates numerical features, distributions, outliers, good-feature criteria, and feature-vector boundaries.',
-    ),
-  },
-  googleScrubbing: {
-    label: copy('Google MLCC：数据清洗', 'Google MLCC: Scrubbing'),
-    href: 'https://developers.google.com/machine-learning/crash-course/numerical-data/scrubbing',
-    license: 'CC BY 4.0',
-    usage: copy(
-      '校准缺失值、重复、坏数据、尺度问题和清洗策略对训练的影响。',
-      'Calibrates missing values, duplicates, bad data, scale issues, and their training impact.',
-    ),
-  },
-  googleNormalization: {
-    label: copy('Google MLCC：归一化', 'Google MLCC: Normalization'),
-    href: 'https://developers.google.com/machine-learning/crash-course/numerical-data/normalization',
-    license: 'CC BY 4.0',
-    usage: copy(
-      '校准缩放、分箱、极端范围和训练/预测一致性的教学边界。',
-      'Calibrates scaling, binning, extreme ranges, and train/predict consistency.',
-    ),
-  },
-  googleCategorical: {
-    label: copy('Google MLCC：类别数据', 'Google MLCC: Categorical data'),
-    href: 'https://developers.google.com/machine-learning/crash-course/categorical-data',
-    license: 'CC BY 4.0',
-    usage: copy(
-      '校准类别特征、词表、稀疏表示和高基数风险。',
-      'Calibrates categorical features, vocabularies, sparse representations, and high-cardinality risk.',
-    ),
-  },
-  googleOneHot: {
-    label: copy('Google MLCC：one-hot 编码', 'Google MLCC: One-hot encoding'),
-    href: 'https://developers.google.com/machine-learning/crash-course/categorical-data/one-hot-encoding',
-    license: 'CC BY 4.0',
-    usage: copy(
-      '校准 one-hot 向量、未知类别和类别词表的教学解释。',
-      'Calibrates one-hot vectors, unknown categories, and category vocabulary teaching.',
-    ),
-  },
-  pandasIntro: {
-    label: copy('pandas：DataFrame 入门', 'pandas: DataFrame intro'),
-    href: 'https://pandas.pydata.org/docs/getting_started/intro_tutorials/01_table_oriented.html',
-    usage: copy(
-      '校准 DataFrame、Series、列选择、行过滤和表格心智模型。',
-      'Calibrates DataFrame, Series, column selection, row filtering, and the table mental model.',
-    ),
-  },
-  pandasMissing: {
-    label: copy('pandas：缺失数据', 'pandas: Missing data'),
-    href: 'https://pandas.pydata.org/docs/user_guide/missing_data.html',
-    usage: copy(
-      '校准 isna、notna、dropna、fillna 和缺失值传播语义。',
-      'Calibrates isna, notna, dropna, fillna, and missing-value propagation semantics.',
-    ),
-  },
-  pandasGroupby: {
-    label: copy('pandas：GroupBy', 'pandas: GroupBy'),
-    href: 'https://pandas.pydata.org/docs/user_guide/groupby.html',
-    usage: copy(
-      '校准 split-apply-combine、聚合、分组统计和结果形状变化。',
-      'Calibrates split-apply-combine, aggregation, grouped statistics, and output shape changes.',
-    ),
-  },
-  pandasVisualization: {
-    label: copy('pandas：可视化', 'pandas: Visualization'),
-    href: 'https://pandas.pydata.org/docs/user_guide/visualization.html',
-    usage: copy(
-      '校准直方图、箱线图、散点图和分组图在表格探索中的入口。',
-      'Calibrates histograms, box plots, scatter plots, and grouped plots for table exploration.',
-    ),
-  },
-  pandasDerived: {
-    label: copy('pandas：派生列', 'pandas: Derived columns'),
-    href: 'https://pandas.pydata.org/docs/getting_started/intro_tutorials/05_add_columns.html',
-    usage: copy(
-      '校准新增列、表达式、assign 和 method chain 的教学用法。',
-      'Calibrates derived columns, expressions, assign, and method-chain teaching usage.',
-    ),
-  },
-} satisfies Record<string, SourceReference>
-
 function moduleDefinition(input: DataLabModule): DataLabModule {
   return input
 }
 
+const references = {
+  numericalData: {
+    label: copy('数值数据与特征向量', 'Numerical data and feature vectors'),
+    href: 'https://developers.google.com/machine-learning/crash-course/numerical-data',
+    usage: copy('课后复习数值列、特征向量、缩放、分箱和好特征的基础概念。', 'Review numerical columns, feature vectors, scaling, binning, and good-feature criteria.'),
+  },
+  categoricalData: {
+    label: copy('类别数据、词表与 one-hot 编码', 'Categorical data, vocabularies, and one-hot encoding'),
+    href: 'https://developers.google.com/machine-learning/crash-course/categorical-data',
+    usage: copy('课后复习类别语义、词表、未知类别、高基数和特征交叉。', 'Review categorical meaning, vocabularies, unknown values, high cardinality, and feature crosses.'),
+  },
+  dataQuality: {
+    label: copy('数据质量、标签与不平衡数据', 'Data quality, labels, and imbalance'),
+    href: 'https://developers.google.com/machine-learning/crash-course/overfitting/data-characteristics',
+    usage: copy('课后复习样本代表性、坏数据、标签定义和数据比例对模型的影响。', 'Review representativeness, unreliable data, label definitions, and how proportions affect models.'),
+  },
+  splitting: {
+    label: copy('训练、验证、测试与泛化', 'Training, validation, testing, and generalization'),
+    href: 'https://developers.google.com/machine-learning/crash-course/overfitting/dividing-datasets',
+    usage: copy('课后复习数据划分、变换参数复用、泛化和过拟合判断。', 'Review data splitting, transform-parameter reuse, generalization, and overfitting checks.'),
+  },
+  complexity: {
+    label: copy('模型复杂度、正则化与损失曲线', 'Model complexity, regularization, and loss curves'),
+    href: 'https://developers.google.com/machine-learning/crash-course/overfitting/model-complexity',
+    usage: copy('课后复习复杂度、L2 正则化、提前停止和训练曲线诊断。', 'Review complexity, L2 regularization, early stopping, and training-curve diagnosis.'),
+  },
+  pandasIntro: {
+    label: copy('pandas DataFrame 入门', 'pandas DataFrame intro'),
+    href: 'https://pandas.pydata.org/docs/getting_started/intro_tutorials/01_table_oriented.html',
+    usage: copy('查阅 DataFrame、Series、列选择、行过滤和基础表格操作。', 'Look up DataFrame, Series, column selection, row filtering, and basic table operations.'),
+  },
+  pandasMissing: {
+    label: copy('pandas 缺失数据处理', 'pandas missing-data handling'),
+    href: 'https://pandas.pydata.org/docs/user_guide/missing_data.html',
+    usage: copy('查阅 isna、dropna、fillna 以及缺失值传播规则。', 'Look up isna, dropna, fillna, and missing-value propagation rules.'),
+  },
+  pandasCategorical: {
+    label: copy('pandas Categorical 与 get_dummies', 'pandas Categorical and get_dummies'),
+    href: 'https://pandas.pydata.org/docs/user_guide/categorical.html',
+    usage: copy('查阅固定类别集合、有序类别和 one-hot 展开的工程写法。', 'Look up fixed category sets, ordered categories, and one-hot engineering patterns.'),
+  },
+  pandasGroupby: {
+    label: copy('pandas GroupBy 与聚合', 'pandas GroupBy and aggregation'),
+    href: 'https://pandas.pydata.org/docs/user_guide/groupby.html',
+    usage: copy('查阅 split-apply-combine、分组统计和聚合结果形状。', 'Look up split-apply-combine, grouped statistics, and aggregation output shapes.'),
+  },
+  pandasVisualization: {
+    label: copy('pandas 可视化', 'pandas visualization'),
+    href: 'https://pandas.pydata.org/docs/user_guide/visualization.html',
+    usage: copy('查阅直方图、箱线图、散点图和分组图在探索分析中的用法。', 'Look up histograms, box plots, scatter plots, and grouped plots for exploratory analysis.'),
+  },
+} satisfies Record<string, SourceReference>
+
+function refs(...keys: Array<keyof typeof references>): SourceReference[] {
+  return keys.map((key) => references[key])
+}
+
 export const dataLabModules: DataLabModule[] = [
   moduleDefinition({
-    id: 'data-types-feature-vectors',
+    id: 'numerical-data',
     order: 1,
-    title: copy('数据类型与特征表示', 'Data Types and Feature Vectors'),
+    title: copy('数值数据：从列到特征向量', 'Numerical Data: From Columns to Feature Vectors'),
     subtitle: copy(
-      '先判断列的语义，再决定模型应该怎样读取它。',
-      'Decide what a column means before deciding how a model should read it.',
+      '理解模型为什么只读取数字，以及原始表格如何经过选择、清洗、缩放和变换成为稳定输入。',
+      'Understand why models read numbers and how raw tables become stable inputs through selection, cleaning, scaling, and transforms.',
     ),
     accent: '#2563eb',
     theme: '#edf4ff',
-    estimatedMinutes: 46,
+    estimatedMinutes: 85,
     learningObjectives: [
-      copy(
-        '区分数值、类别、序数、布尔、时间、文本、ID 和缺失值列。',
-        'Distinguish numeric, categorical, ordinal, boolean, datetime, text, ID, and missing-value columns.',
-      ),
-      copy(
-        '解释 row、column、feature、label、feature vector 和 model input 的关系。',
-        'Explain the relation among row, column, feature, label, feature vector, and model input.',
-      ),
-      copy(
-        '判断哪些“看起来像数字”的列其实不能当连续数值使用。',
-        'Judge when numeric-looking columns should not be treated as continuous quantities.',
-      ),
-      copy(
-        '说明 one-hot、词表、分箱、归一化和特征交叉如何改变输入维度。',
-        'Explain how one-hot encoding, vocabularies, binning, normalization, and feature crosses change input dimension.',
-      ),
-      copy(
-        '识别数据泄漏和训练/预测阶段不可用特征。',
-        'Recognize leakage and features unavailable at prediction time.',
-      ),
+      copy('解释 row、column、feature、label 和 feature vector 的关系。', 'Explain the relation among rows, columns, features, labels, and feature vectors.'),
+      copy('区分连续数值、类别编号、ID、缺失状态和预测时不可用的列。', 'Separate continuous values, categorical codes, IDs, missingness, and columns unavailable at prediction time.'),
+      copy('说明缩放、分箱、裁剪和多项式变换各自解决什么问题。', 'Explain what scaling, binning, clipping, and polynomial transforms each solve.'),
+      copy('用 pandas 表达列选择、过滤、派生列、缺失值处理和 shape 审计。', 'Use pandas for column selection, filtering, derived columns, missing-value handling, and shape audits.'),
+      copy('判断一个数值特征是否稳定、可解释、与任务有关，并能在预测时获得。', 'Judge whether a numerical feature is stable, interpretable, task-relevant, and available at prediction time.'),
     ],
     concepts: [
-      concept(
-        'semantic-type',
-        copy('列的语义类型', 'Column Semantic Type'),
-        copy(
-          'CSV 里的值只是字符串、数字或空格；建模时要先问它表示大小、类别、顺序、时间、身份还是缺失。语义先于编码。',
-          'CSV values are only strings, numbers, or blanks; modeling first asks whether a column means magnitude, category, order, time, identity, or missingness. Semantics comes before encoding.',
-        ),
-        copy(
-          '邮编 94110 和 10001 之间没有可解释的数值距离；房价 500 和 700 之间可以比较大小。',
-          'ZIP codes 94110 and 10001 do not have a meaningful numeric distance; prices 500 and 700 do.',
-        ),
-      ),
       concept(
         'feature-vector',
         copy('特征向量', 'Feature Vector'),
-        copy(
-          '一行样本经过列选择、编码、分箱和缩放后，会变成模型真正读取的一串数字。训练算法看到的是这个向量，而不是原始表格。',
-          'After column selection, encoding, binning, and scaling, one row becomes the numeric vector the model actually reads. The training algorithm sees this vector, not the raw table.',
-        ),
-        copy(
-          'district=north 可以展开成 one-hot 片段，rooms=3 可以保留为缩放后的数值，二者拼在同一个输入向量中。',
-          'district=north can expand into one-hot indicators, while rooms=3 can remain one scaled number; both pieces enter the same input vector.',
-        ),
-        "pd.get_dummies(df[['district']]).join(df[['rooms']])",
+        copy('特征向量是一行样本经过处理后交给模型的一串数字。列名帮助人理解含义，向量位置才是模型真正读取的输入协议。', 'A feature vector is the numeric sequence handed to a model after one example is processed. Column names help people; vector positions are the input contract the model reads.'),
+        copy('房屋样本可以把 area_z、rooms_z、district_north、district_south 拼成固定长度向量。', 'A housing example can concatenate area_z, rooms_z, district_north, and district_south into a fixed-length vector.'),
+        "pd.get_dummies(df[['district']]).join(df[['area', 'rooms']])",
       ),
       concept(
-        'normalization',
-        copy('数值缩放', 'Numerical Scaling'),
-        copy(
-          '缩放不会改变样本顺序，但会改变优化器看到的距离和梯度尺度。面积、价格、年龄这类单位不同的列，直接拼接会让大尺度列支配训练。',
-          'Scaling does not change sample order, but it changes distances and gradient scale. Area, price, and age can dominate training if their units are mixed without scaling.',
-        ),
-        copy(
-          '价格从 100 到 9800，房间数从 1 到 5；若不缩放，模型更新可能主要追着价格列跑。',
-          'Price may range from 100 to 9800 while rooms range from 1 to 5; without scaling, updates may mostly chase the price column.',
-        ),
+        'numeric-semantics',
+        copy('数值语义', 'Numeric Semantics'),
+        copy('能写成数字不等于适合做连续数值。数值特征应当支持大小、差值或距离解释，否则模型会从不存在的顺序里学习错误规律。', 'Being written with digits does not make a value continuous. A numeric feature should support magnitude, difference, or distance; otherwise a model may learn order that does not exist.'),
+        copy('邮编 10001 和 10002 的差为 1，但这不代表两个地区距离更近或价格更相似。', 'ZIP codes 10001 and 10002 differ by 1, but that does not mean the areas are closer or prices are more similar.'),
+      ),
+      concept(
+        'scaling',
+        copy('缩放', 'Scaling'),
+        copy('缩放把不同量纲的列放到可比较范围，避免大范围列支配梯度、距离或权重。缩放参数必须从训练集估计并复用。', 'Scaling puts columns with different units into comparable ranges so wide columns do not dominate gradients, distances, or weights. Scaling parameters are estimated on training data and reused.'),
+        copy('价格范围 100 到 9800，房间数范围 1 到 5；直接拼接会让价格列的变化显得更大。', 'Price may range from 100 to 9800 while rooms range from 1 to 5; raw concatenation makes price variation look larger.'),
         "df['price_z'] = (df['price'] - train_mean) / train_std",
       ),
       concept(
-        'vocabulary-one-hot',
-        copy('词表与 one-hot', 'Vocabulary and One-hot'),
-        copy(
-          '类别列需要先确定允许出现的类别集合，再把每个类别映射到固定位置。未知类别、拼写变体和高基数 ID 都会让向量变宽或变脏。',
-          'Categorical columns need a fixed vocabulary before categories map to stable positions. Unknown categories, spelling variants, and high-cardinality IDs can widen or dirty the vector.',
-        ),
-        copy(
-          'district 有 north、west、south 三类时，one-hot 宽度是 3；新增 east 时，训练和预测必须按同一套词表处理。',
-          'If district has north, west, and south, one-hot width is 3; a new east category must be handled against the same train-time vocabulary.',
-        ),
-        "pd.get_dummies(df['district'])",
-      ),
-      concept(
-        'binning-cross',
-        copy('分箱与特征交叉', 'Binning and Feature Crosses'),
-        copy(
-          '分箱把连续值切成区间，特征交叉把两个信号组合成更具体的局部规则。它们能表达非线性结构，但也会增加稀疏性和过拟合风险。',
-          'Binning converts continuous values into intervals, while feature crosses combine signals into more local rules. They can express nonlinear structure but increase sparsity and overfitting risk.',
-        ),
-        copy(
-          '把 area 分成小/中/大，再与 district 交叉，可以表示“西区大户型”这类局部模式。',
-          'Binning area into small/medium/large and crossing it with district can represent a local pattern such as large homes in the west district.',
-        ),
-        "pd.cut(df['area'], bins=[0, 60, 120, 300])",
+        'transform',
+        copy('数值变换', 'Numeric Transform'),
+        copy('变换会改变模型能表达的模式。分箱牺牲细节换稳定，多项式特征增加表达能力也增加过拟合风险。', 'Transforms change what patterns a model can express. Binning trades detail for stability; polynomial features increase expressiveness and overfitting risk.'),
+        copy('把 age 切成年龄段可以学习阶段差异；加入 area_sq 可以让线性模型表达弯曲关系。', 'Binning age can learn stage differences; adding area_sq lets a linear model express curved relationships.'),
+        "df = df.assign(area_sq=lambda d: d['area'] ** 2)",
       ),
     ],
     sections: [
       section(
-        'semantic-before-encoding',
-        copy('先问语义，再写代码', 'Ask Semantics Before Writing Code'),
+        'table-to-vector',
+        copy('从原始表格到模型输入', 'From Raw Tables to Model Inputs'),
         copy(
-          md`数据表的每一列都要先回答一个问题：这些值之间能不能比较大小、计算距离或求平均？如果答案是否定的，它通常不应该直接作为连续数值喂给模型。
+          md`本章先建立一个基本事实：机器学习模型不会直接理解表格里的业务故事，它读取的是固定顺序的数字。课堂上看到的一行样本，进入模型前通常会经历列选择、类型判断、缺失处理、缩放、编码和拼接。这个过程的产物就是特征向量。为什么重要：只要列顺序、含义或处理规则发生变化，模型接收到的输入协议就变了，训练结果也会变得不可解释。
 
-数值列表示可比较的大小，例如面积、温度、价格。类别列表示成员关系，例如城市、产品类型、设备型号。序数列有顺序但间隔未必相等，例如低/中/高风险。ID 列主要用于连接、去重或追踪，不应该被模型当成“越大越强”的量。这个判断决定编码方式，也决定哪些错误会悄悄进入训练。`,
-          md`Each column should first answer one question: can these values be compared by magnitude, distance, or average? If not, the column usually should not enter a model as a continuous number.
+学习时不要急着训练模型，先把每一列问清楚：这列在预测时能不能知道？它是答案还是输入？它是连续数值、类别身份、ID，还是只用于审计的辅助信息？pandas 中的列选择和行过滤是这个流程的第一步，shape 变化则是最早的检查信号。`,
+          md`This chapter starts with one fact: a machine-learning model does not read the business story inside a table. It reads numbers in a fixed order. Before one row reaches the model, it usually passes through column selection, type judgment, missing-value handling, scaling, encoding, and concatenation. The result is a feature vector. This matters because any change in column order, meaning, or processing rules changes the input contract and makes training behavior harder to explain.
 
-Numeric columns represent comparable magnitude: area, temperature, price. Categorical columns represent membership: city, product type, device model. Ordinal columns have order but not necessarily equal spacing: low, medium, high risk. ID columns are for joins, deduplication, or tracking, not magnitude. This decision controls encoding and prevents subtle training mistakes.`,
+Students should not rush into training. First ask for every column: will it be known at prediction time, is it the answer or an input, is it continuous numeric meaning, categorical identity, an ID, or audit-only information? In pandas, column selection and row filtering start the workflow, while shape changes are the earliest audit signal.`,
         ),
-        { visualIds: ['feature-vector-pipeline-v2'] },
+        { visualIds: ['feature-vector-pipeline'], labIds: ['column-type-lab'] },
       ),
       section(
-        'raw-row-to-vector',
-        copy('一行样本如何变成向量', 'How One Row Becomes a Vector'),
+        'numeric-or-not',
+        copy('先判断数字是否真的有数值意义', 'First Decide Whether Digits Have Numeric Meaning'),
         copy(
-          md`监督学习中的一行样本通常包含 feature 和 label。feature 是预测时可以看到的输入，label 是训练时用来评分的答案。模型不会天然理解“街区”“邮编”“挂牌时间”这些列名，它只会接收一串位置固定的数值。
+          md`许多初学者会把所有能转成 number 的列都交给模型，这是数据准备中最常见的错误之一。连续数值应当允许比较大小、计算差值，并且差值有稳定解释。面积从 80 到 100 平方米，差值 20 有明确含义；邮编从 10001 到 10021，差值 20 却没有可训练的距离意义。为什么重要：模型会把输入中的数值当成可比较信号，如果语义是错的，后面再好的算法也会学习偏差。
 
-因此数据准备的核心任务是把“表格语义”稳定地翻译成“向量位置”。数值列可以缩放后放入向量；类别列可以通过 one-hot 或其他编码展开；时间列可以拆成星期、月份或间隔；缺失状态也可以显式变成一个指示特征。`,
-          md`In supervised learning, one row usually contains features and a label. Features are inputs available at prediction time, while the label is the answer used for training feedback. A model does not naturally understand column names such as district, ZIP code, or listing date; it receives numbers at stable vector positions.
+课堂练习可以让学生给每列贴标签：连续数值、序数、类别、布尔、时间、文本、ID、缺失状态。pandas 对照代码不只是为了运行，而是为了让学生看见“业务解释 -> 数据类型 -> 模型表示”的链条。`,
+          md`Many beginners pass every parseable number to a model, which is one of the most common data-preparation mistakes. A continuous numeric feature should support comparison, differences, and stable interpretation of those differences. An area increase from 80 to 100 square meters has clear meaning; a ZIP-code increase from 10001 to 10021 does not provide trainable distance. This matters because models treat numeric inputs as comparable signals, and a wrong semantic choice teaches bias no later algorithm can fully repair.
 
-The core data-preparation task is therefore to translate table semantics into vector positions. Numerical columns can be scaled; categorical columns can be one-hot encoded; datetime columns can become weekday, month, or elapsed time; missingness itself can become an indicator feature.`,
-        ),
-        { labIds: ['column-type-lab'] },
-      ),
-      section(
-        'numeric-quality',
-        copy('好数值特征要有可学习的尺度', 'Good Numerical Features Need Learnable Scale'),
-        copy(
-          md`数值特征不是“能转成 number 就合格”。好的数值特征应该覆盖足够样本、没有明显录入错误、与任务有可解释关系，并且尺度不会让优化过程失衡。若一个列大多数值都集中在 0 附近，却偶尔出现巨大离群点，均值、标准差和梯度都会被拉偏。
-
-归一化、标准化、裁剪和分箱不是为了让表格更整齐，而是为了让模型读到的距离更稳定。重要的是：这些参数必须从训练集学到，并在验证、测试和线上预测阶段复用。`,
-          md`A numerical feature is not good merely because it can be parsed as a number. A useful numerical feature should cover enough samples, avoid obvious recording errors, relate to the task, and have a scale that does not destabilize optimization. If most values sit near 0 while a few huge outliers appear, means, standard deviations, and gradients are distorted.
-
-Normalization, standardization, clipping, and binning are not cosmetic table work. They make model-visible distances more stable. The important rule is that these parameters are learned from the training set and reused on validation, test, and prediction data.`,
+A classroom exercise is to tag each column as continuous numeric, ordinal, categorical, boolean, datetime, text, ID, or missingness. The pandas code is not only for execution; it shows the chain from business interpretation to data type to model representation.`,
         ),
       ),
       section(
-        'categorical-vocabulary',
-        copy('类别列需要词表和未知值策略', 'Categorical Columns Need Vocabulary Policy'),
+        'scale-and-outliers',
+        copy('缩放、裁剪和离群点', 'Scaling, Clipping, and Outliers'),
         copy(
-          md`类别列要先确定词表：哪些类别被保留，哪些低频类别合并为 other，预测时出现的新类别怎样处理。one-hot 编码把一个类别变成固定位置上的 0/1 指示器，所以词表顺序就是模型输入协议的一部分。
+          md`数值列常常来自不同单位：价格、面积、年龄、点击次数、评分和距离的范围完全不同。缩放的目的不是让表格看起来整齐，而是让模型在训练时面对可比较的变化。标准化通常使用均值和标准差，归一化通常使用最小值和最大值。为什么重要：这些参数只能从训练集估计，然后原样用于验证集、测试集和新样本，否则评估过程会提前知道不该知道的信息。
 
-高基数列尤其需要谨慎。用户 ID、订单号、房源编号这类列可能有成千上万个取值，直接 one-hot 会制造巨大的稀疏向量，却不一定带来可泛化规律。它们常用于连接、去重、分组统计或泄漏检查，而不是直接作为普通类别特征。`,
-          md`Categorical columns need a vocabulary policy: which categories stay, which rare categories collapse into other, and how new categories at prediction time are handled. One-hot encoding turns a category into a 0/1 indicator at a fixed position, so vocabulary order becomes part of the model input contract.
+离群点也要先解释再处理。一个极端房价可能是录入错误，也可能是真实豪宅；一个异常点击量可能是作弊，也可能是热门事件。pandas 中的 clip、isna、describe 和分位数统计可以帮助学生观察范围，但是否删除、裁剪或保留，必须由业务含义和训练目标共同决定。`,
+          md`Numeric columns often come from different units: price, area, age, click count, rating, and distance have very different ranges. Scaling is not cosmetic cleanup; it makes changes comparable during training. Standardization usually uses mean and standard deviation, while normalization often uses minimum and maximum. This matters because these parameters must be estimated from training data, then reused for validation, test, and new examples, or evaluation will peek at information it should not know.
 
-High-cardinality columns deserve extra caution. User IDs, order numbers, and listing IDs may have thousands of values. Direct one-hot encoding can create huge sparse vectors without generalizable signal. They are often better used for joins, deduplication, grouped statistics, or leakage checks than as ordinary categorical features.`,
+Outliers must be interpreted before they are handled. An extreme house price may be a data-entry error or a real luxury property; unusual clicks may be fraud or a genuine event. In pandas, clip, isna, describe, and quantile summaries help students observe range, but deletion, clipping, or retention must follow business meaning and the training goal.`,
+        ),
+        { visualIds: ['cleaning-policy-map'] },
+      ),
+      section(
+        'binning-and-polynomial',
+        copy('分箱和多项式特征改变表达能力', 'Binning and Polynomial Features Change Expressiveness'),
+        copy(
+          md`分箱把连续值切成区间，例如把年龄分成儿童、青年、中年和老年，把价格分成低、中、高。它适合表达区间效应，缺点是同一箱内的细节会被压平。多项式特征走相反方向：它保留连续数值，并加入 x^2、x^3 或交互项，让简单模型也能表达弯曲关系。为什么重要：这两类变换都不是“更高级就更好”，而是在稳定性、表达能力和过拟合风险之间取舍。
+
+教学时可以让学生比较三种输入：原始数值、分箱后的 one-hot、加入平方项的数值。pandas 中 pd.cut 和 assign 能清楚地展示新增列从哪里来，shape 审计则提醒学生：每增加一个列，模型输入空间也跟着改变。`,
+          md`Binning cuts continuous values into intervals such as child, young adult, middle aged, and senior, or low, medium, and high price. It expresses interval effects but flattens detail inside each bin. Polynomial features move in the opposite direction: they keep continuity and add x^2, x^3, or interactions so a simple model can express curved relationships. This matters because neither transform is automatically better; each trades among stability, expressiveness, and overfitting risk.
+
+In class, students can compare three inputs: raw values, one-hot bins, and values with squared terms. In pandas, pd.cut and assign show where new columns come from, while shape audits remind students that every added column changes the model input space.`,
         ),
       ),
       section(
-        'binning-crosses',
-        copy('分箱和交叉是有代价的表达能力', 'Binning and Crosses Add Costly Expressiveness'),
+        'pandas-numeric-recipe',
+        copy('pandas 对照：写出可复查的数值流水线', 'pandas Companion: Write a Reviewable Numeric Pipeline'),
         copy(
-          md`分箱把连续值转成区间，例如把面积分成小、中、大。这样可以让模型捕捉“价格在某个区间后变化变慢”的结构，也能降低极端值影响。特征交叉把两个输入组合，例如 district 与 area_bin 组合成“某街区的大户型”。
+          md`一个完整的数值流水线通常包括：选择可用列、过滤明显无效行、转换类型、补缺失、裁剪极端值、派生新列、估计缩放参数、应用缩放并保存列顺序。课堂练习目标不是背 API，而是让学生能解释每一步改变了什么：行数变了没有，列数变了没有，参数从哪里估计，下一次预测时能否复现同样处理。
 
-代价是维度和稀疏性上升。若一个交叉项大多数格子都没有样本，模型看到的只是碎片化记忆。教学上可以把它理解为：交叉让模型拥有更细的局部格子，但每个格子都需要足够数据支撑。`,
-          md`Binning converts a continuous value into intervals, such as small, medium, and large area. It can help a model capture shapes such as price growth slowing after a threshold, and it can reduce the influence of extreme values. Feature crosses combine inputs, such as district crossed with area_bin to represent large homes in a specific district.
+浏览器实验会用 TypeScript 模拟 pandas 风格的表格变化，学生可以安全地拖动选项、观察 shape 和统计量。对应的 pandas 片段提供真实 notebook 中的写法，帮助学生把概念从网页练习带到自己的数据集。`,
+          md`A complete numeric pipeline usually selects available columns, filters invalid rows, casts types, imputes missing values, clips extremes, derives new columns, estimates scaling parameters, applies scaling, and saves column order. The classroom goal is not API memorization; students should explain what each step changes: did row count change, did column count change, where were parameters estimated, and can prediction-time processing reproduce the same rule?
 
-The cost is higher dimension and sparsity. If most crossed cells have few or no samples, the model sees fragmented memorization rather than reliable structure. A useful teaching view is: crosses give the model finer local cells, but each cell needs enough data.`,
+The browser lab simulates pandas-style table changes in TypeScript so students can safely adjust options and observe shape and statistics. The matching pandas snippets provide the notebook pattern for carrying the concept to their own datasets.`,
         ),
-        { visualIds: ['data-types-feature-flow-video'] },
-      ),
-      section(
-        'feature-label-boundary',
-        copy('feature 与 label 的边界要守住', 'Keep the Feature/Label Boundary'),
-        copy(
-          md`只要预测时还不知道的列，就不能当作 feature。预测成交价时，成交后才产生的佣金、最终折扣、结算状态都不应该进入输入。它们可能与 label 高度相关，但这种相关性来自答案泄漏。
-
-一个可靠检查是把时间线写出来：样本被预测的时刻，哪些字段已经存在？哪些字段只有未来才知道？数据实验室里的列类型分拣器不是只练习术语，而是在训练这种“预测时可用性”判断。`,
-          md`A column unknown at prediction time cannot be a feature. If predicting final home price, post-sale commission, final discount, or settlement state should not enter the input. They may correlate strongly with the label, but the correlation comes from answer leakage.
-
-A reliable check is to write the timeline: at the moment of prediction, which fields already exist and which are only known later? The column-type sorter is not only vocabulary practice; it trains this availability judgment.`,
-        ),
-      ),
-      section(
-        'feature-checklist',
-        copy('进入模型前的特征检查清单', 'Feature Checklist Before Modeling'),
-        copy(
-          md`把一列放进模型前，至少检查六件事：语义是否正确、预测时是否可用、缺失如何处理、数值尺度是否稳定、类别词表是否固定、维度增长是否值得。每个答案都应该能追溯到任务目标，而不是只因为 pandas 代码能跑。
-
-最终目标不是把所有列都塞进向量，而是构造一个稳定、可复现、对任务有解释力的输入协议。这个协议一旦用于训练，就必须被评估、上线和监控流程复用。`,
-          md`Before a column enters a model, check at least six things: correct semantics, prediction-time availability, missing-value handling, stable numeric scale, fixed category vocabulary, and whether dimension growth is worth it. Each answer should trace back to the task, not merely to code that runs.
-
-The goal is not to stuff every column into a vector. The goal is a stable, reproducible, task-relevant input contract. Once used for training, that contract must be reused in evaluation, deployment, and monitoring.`,
-        ),
-        { visualIds: ['data-types-feature-vector-image'] },
+        { visualIds: ['pandas-workflow'], labIds: ['pandas-pipeline-lab'] },
       ),
     ],
     visuals: [
-      image(
-        'feature-vector-pipeline-v2',
-        'feature-vector-pipeline-v2.png',
-        copy('从原始表到模型输入协议', 'From raw table to model input contract'),
-        copy(
-          '同一行数据先经过语义判读，再按数值、类别、分箱、ID 等路径编码，最后拼成模型读取的固定长度向量。',
-          'One row is first interpreted semantically, then encoded through numeric, categorical, binned, and ID-handling paths before becoming a fixed-length vector.',
-        ),
-        [
-          { id: 'raw-table', x: 12, y: 18, label: copy('原始表格', 'Raw table') },
-          { id: 'semantic-types', x: 37, y: 16, label: copy('列语义判读', 'Column semantics') },
-          { id: 'encoding', x: 58, y: 16, label: copy('编码与缩放', 'Encoding and scaling') },
-          { id: 'feature-vector', x: 76, y: 15, label: copy('特征向量', 'Feature vector') },
-          { id: 'model-input', x: 91, y: 36, label: copy('模型输入', 'Model input') },
-          { id: 'id-warning', x: 38, y: 86, label: copy('ID 只作身份信号', 'ID is identity, not magnitude') },
-        ],
-      ),
-      image(
-        'data-types-feature-vector-image',
-        'data-types-feature-vectors.png',
-        copy('从列语义到特征向量', 'From column semantics to feature vector'),
-        copy(
-          '原始表格先经过列语义判断，再被编码成模型读取的数值向量。',
-          'Raw columns are interpreted semantically before becoming numeric vectors for a model.',
-        ),
-        [
-          { id: 'raw', x: 18, y: 13, label: copy('原始表格', 'Raw table') },
-          { id: 'types', x: 49, y: 13, label: copy('列语义', 'Column meaning') },
-          { id: 'vector', x: 78, y: 13, label: copy('特征向量', 'Feature vector') },
-          { id: 'warning', x: 49, y: 82, label: copy('ID 不等于数值大小', 'ID is not magnitude') },
-        ],
-      ),
-      video(
-        'data-types-feature-flow-video',
-        'data-types-feature-flow',
-        copy('列类型流向特征向量', 'Column types flowing into a feature vector'),
-        copy(
-          '动画展示数值、类别和 ID 列在进入模型前的不同处理路径。',
-          'Animation showing numeric, categorical, and ID columns taking different paths before modeling.',
-        ),
-      ),
+      image('feature-vector-pipeline', 'feature-vector-pipeline-v2.png', copy('特征向量流水线', 'Feature-vector pipeline'), copy('原始表格经过语义判断、清洗、编码和缩放后，成为模型读取的固定向量。', 'Raw tables become fixed model vectors after semantic checks, cleaning, encoding, and scaling.'), [
+        { id: 'raw', x: 11, y: 29, label: copy('原始表格', 'Raw table') },
+        { id: 'semantics', x: 30, y: 18, label: copy('列语义', 'Column semantics') },
+        { id: 'clean', x: 50, y: 18, label: copy('清洗', 'Clean') },
+        { id: 'scale', x: 70, y: 18, label: copy('缩放/编码', 'Scale / encode') },
+        { id: 'vector', x: 91, y: 29, label: copy('特征向量', 'Feature vector') },
+      ]),
+      image('cleaning-policy-map', 'cleaning-policy-map-v2.png', copy('数值清洗策略图', 'Numeric cleaning policy map'), copy('缺失、重复、坏值和离群点需要不同策略，并且必须记录对训练数据的影响。', 'Missing values, duplicates, bad values, and outliers need different policies, with training impact recorded.'), [
+        { id: 'missing', x: 17, y: 25, label: copy('缺失', 'Missing') },
+        { id: 'duplicate', x: 36, y: 25, label: copy('重复', 'Duplicate') },
+        { id: 'bad', x: 56, y: 25, label: copy('坏值', 'Bad value') },
+        { id: 'outlier', x: 76, y: 25, label: copy('离群点', 'Outlier') },
+        { id: 'audit', x: 50, y: 82, label: copy('记录策略', 'Record policy') },
+      ]),
+      video('data-types-video', 'data-types-feature-flow', copy('特征流动画', 'Feature-flow animation'), copy('展示数据列如何进入特征向量。', 'Shows how data columns enter feature vectors.')),
     ],
     labs: [
-      lab('column-type-lab', copy('列类型分拣器', 'Column Type Sorter'), 'ColumnTypeLab', [
-        copy(
-          '能解释为什么邮编、用户 ID、房源编号不应直接当连续数值。',
-          'Explain why ZIP codes, user IDs, and listing IDs should not be treated as continuous values.',
-        ),
-        copy(
-          '能说出 one-hot、分箱和数值缩放会怎样改变特征向量宽度。',
-          'Describe how one-hot encoding, binning, and scaling change feature-vector width.',
-        ),
-        copy(
-          '能根据预测时是否可用来排除泄漏列。',
-          'Use prediction-time availability to reject leakage columns.',
-        ),
+      lab('column-type-lab', copy('列语义实验室', 'Column Semantics Lab'), 'ColumnTypeLab', [
+        copy('能判断一列是否适合作为连续数值特征。', 'Judge whether a column belongs as a continuous numerical feature.'),
+        copy('能说明缩放、one-hot 和 ID 保留各自解决什么问题。', 'Explain what scaling, one-hot encoding, and ID retention each solve.'),
+      ]),
+      lab('pandas-pipeline-lab', copy('pandas 数值流水线', 'pandas Numeric Pipeline'), 'PandasPipelineLab', [
+        copy('能把选择、过滤、派生和聚合对应到 pandas 代码。', 'Map selection, filtering, derivation, and aggregation to pandas code.'),
+        copy('能用 shape 变化检查流水线是否合理。', 'Use shape changes to audit whether a pipeline is reasonable.'),
       ]),
     ],
     quizzes: [
-      quiz(
-        'zip-type',
-        copy('邮编列最安全的初始处理方式是什么？', 'What is the safest first treatment for a ZIP-code column?'),
-        'category',
-        copy('把它视为类别、地理分组或连接线索。', 'Treat it as categorical, geographic grouping, or a join signal.'),
-        copy('直接求均值和欧氏距离。', 'Average it and use Euclidean distance.'),
-        copy(
-          '邮编的数字差不代表真实空间距离或大小顺序。',
-          'A numeric ZIP-code difference does not represent meaningful distance or magnitude.',
-        ),
-      ),
-      quiz(
-        'one-hot-width',
-        copy('district 有 8 个稳定类别时，普通 one-hot 通常会产生多少个指示位置？', 'If district has 8 stable categories, how many ordinary one-hot indicator positions are usually created?'),
-        'eight',
-        copy('8 个。', 'Eight.'),
-        copy('1 个，因为原来只有一列。', 'One, because the original data had one column.'),
-        copy(
-          'one-hot 会把类别列展开为固定词表上的多个 0/1 位置。',
-          'One-hot expands a categorical column into multiple 0/1 positions over a fixed vocabulary.',
-        ),
-      ),
-      quiz(
-        'prediction-availability',
-        copy('预测成交价时，成交后才知道的佣金列应该怎样处理？', 'When predicting final sale price, how should a commission column known only after sale be treated?'),
-        'exclude',
-        copy('排除为特征，并记录为泄漏风险。', 'Exclude it as a feature and record it as leakage risk.'),
-        copy('保留，因为它和价格高度相关。', 'Keep it because it correlates strongly with price.'),
-        copy(
-          '预测时不可用的信息不能进入特征，即使它和 label 很相关。',
-          'Information unavailable at prediction time cannot enter features, even if it correlates with the label.',
-        ),
-      ),
+      quiz('zip-code-numeric', copy('邮编 94110 应该直接作为连续数值输入吗？', 'Should ZIP code 94110 be used directly as a continuous numeric input?'), 'no', copy('不应该，它更像类别或地区身份。', 'No. It is closer to category or area identity.'), copy('应该，因为它能转成 number。', 'Yes, because it can be parsed as a number.'), copy('关键不是外观，而是差值和距离是否有稳定含义。', 'The key is not appearance, but whether differences and distances are meaningful.')),
+      quiz('scale-fit', copy('缩放参数应该从哪些数据估计？', 'Where should scaling parameters be estimated?'), 'train', copy('只从训练集估计。', 'From training data only.'), copy('从训练、验证、测试一起估计。', 'From training, validation, and test together.'), copy('验证和测试要模拟未知样本，不能参与参数估计。', 'Validation and test should simulate unseen examples and must not fit processing parameters.')),
+      quiz('binning-cost', copy('分箱的主要代价是什么？', 'What is the main cost of binning?'), 'detail', copy('区间内部细节会丢失。', 'Detail inside each interval is lost.'), copy('一定会增加连续精度。', 'It always increases continuous precision.'), copy('分箱换来稳定性，但会压平同一箱内的差异。', 'Binning trades detail for stability and flattens within-bin differences.')),
     ],
     misconceptions: [
-      misconception(
-        'numeric-looking',
-        copy('只要 CSV 里是数字，就一定是数值特征。', 'If it is numeric in a CSV, it is a numeric feature.'),
-        copy(
-          '数字外观不等于数值语义。ID、邮编、类别编码都可能只是符号。',
-          'Numeric appearance is not numeric meaning. IDs, ZIP codes, and category codes may be symbols.',
-        ),
-        copy(
-          '用户 ID 102 比用户 ID 17 大，并不表示用户更强或更贵。',
-          'User ID 102 being larger than 17 does not mean the user is stronger or more expensive.',
-        ),
-      ),
-      misconception(
-        'one-hot-free',
-        copy('one-hot 只是换个格式，不会改变建模难度。', 'One-hot is only a format change and does not affect modeling difficulty.'),
-        copy(
-          'one-hot 会增加维度，并在高基数场景制造稀疏矩阵；维度增长必须换来可泛化信号才值得。',
-          'One-hot increases dimension and creates sparse matrices for high-cardinality columns; dimension growth is worthwhile only when it adds generalizable signal.',
-        ),
-        copy(
-          '把订单号 one-hot 可能产生数万个几乎只出现一次的位置。',
-          'One-hot encoding order IDs can create tens of thousands of positions that appear only once.',
-        ),
-      ),
-      misconception(
-        'scaling-changes-truth',
-        copy('缩放会改变数据事实，所以不应该做。', 'Scaling changes the facts, so it should not be used.'),
-        copy(
-          '缩放保留相对信息，改变的是模型和优化器看到的坐标尺度。',
-          'Scaling preserves relative information while changing the coordinate scale seen by the model and optimizer.',
-        ),
-        copy(
-          '摄氏温度和华氏温度数值不同，但描述的是同一物理量；缩放也类似。',
-          'Celsius and Fahrenheit use different numbers for the same physical quantity; scaling has a similar role.',
-        ),
-      ),
+      misconception('all-numbers', copy('能写成数字的列都应该当作数值特征。', 'Every digit-like column should be numeric.'), copy('只有差值、大小或距离有稳定解释时，才适合作连续数值。', 'A column belongs as continuous numeric only when differences, magnitude, or distance have stable meaning.'), copy('邮编、设备号、用户 ID 通常不能求平均。', 'ZIP codes, device IDs, and user IDs usually cannot be averaged.')),
+      misconception('scaling-cosmetic', copy('缩放只是为了表格好看。', 'Scaling is only cosmetic.'), copy('缩放会改变梯度、距离和权重敏感度，是训练协议的一部分。', 'Scaling changes gradients, distances, and weight sensitivity, so it is part of the training protocol.'), copy('训练集估计的均值和标准差要保存到预测流程。', 'Means and standard deviations estimated on training data must be saved for prediction.')),
+      misconception('more-transforms', copy('变换越多，模型一定越好。', 'More transforms always make a model better.'), copy('变换会增加表达能力，也会增加复杂度和过拟合风险。', 'Transforms add expressiveness but also complexity and overfitting risk.'), copy('新增 area_sq 后必须看验证表现。', 'After adding area_sq, validation behavior must be checked.')),
     ],
-    sourceReferences: [
-      sources.googleNumerical,
-      sources.googleNormalization,
-      sources.googleCategorical,
-      sources.googleOneHot,
-      sources.pandasIntro,
-    ],
+    sourceReferences: refs('numericalData', 'pandasIntro', 'pandasMissing'),
   }),
   moduleDefinition({
-    id: 'data-cleaning-preprocessing',
+    id: 'categorical-data',
     order: 2,
-    title: copy('数据处理与清洗', 'Data Cleaning and Preprocessing'),
+    title: copy('类别数据：词表、one-hot 与特征交叉', 'Categorical Data: Vocabularies, One-hot, and Feature Crosses'),
     subtitle: copy(
-      '把坏值、缺失、重复和尺度问题变成可检查的流水线。',
-      'Turn bad values, missingness, duplicates, and scale issues into an auditable pipeline.',
+      '学习模型如何读取“属于哪一类”的信息，以及类别编码为什么必须有固定词表和未知值策略。',
+      'Learn how models read membership information and why categorical encoding needs fixed vocabularies and unknown-value policies.',
     ),
-    accent: '#0f9f7a',
-    theme: '#e9f8f5',
-    estimatedMinutes: 50,
+    accent: '#7c3aed',
+    theme: '#f4efff',
+    estimatedMinutes: 80,
     learningObjectives: [
-      copy(
-        '识别缺失值、重复行、越界值、离群点、坏标签和单位混用。',
-        'Recognize missing values, duplicates, out-of-range values, outliers, bad labels, and mixed units.',
-      ),
-      copy(
-        '用 pandas 语义解释 isna、notna、dropna、fillna、drop_duplicates、clip、astype 和 to_datetime。',
-        'Explain pandas semantics for isna, notna, dropna, fillna, drop_duplicates, clip, astype, and to_datetime.',
-      ),
-      copy(
-        '说明为什么训练与预测阶段必须使用同一套清洗和预处理规则。',
-        'Explain why training and prediction must use the same cleaning and preprocessing rules.',
-      ),
-      copy(
-        '区分“错误值”“罕见但真实的值”和“任务上需要保留的异常信号”。',
-        'Distinguish erroneous values, rare-but-real values, and abnormal signals that the task should preserve.',
-      ),
-      copy(
-        '把清洗策略写成可复现、可审计、可测试的 pipeline。',
-        'Write cleaning policies as reproducible, auditable, testable pipelines.',
-      ),
+      copy('区分类别、序数、文本、ID 和连续数值。', 'Distinguish categorical, ordinal, text, ID, and continuous numeric data.'),
+      copy('解释词表、未知类别、低频类别和 one-hot 向量的作用。', 'Explain vocabularies, unknown categories, rare categories, and one-hot vectors.'),
+      copy('说明高基数类别为什么容易让模型记住训练样本。', 'Explain why high-cardinality categories can make models memorize training examples.'),
+      copy('判断特征交叉什么时候表达有效组合，什么时候只是在放大稀疏性。', 'Judge when feature crosses express useful combinations and when they only amplify sparsity.'),
+      copy('用 pandas Categorical 和 get_dummies 写出稳定的类别编码流程。', 'Use pandas Categorical and get_dummies to write stable categorical encoding workflows.'),
     ],
     concepts: [
-      concept(
-        'cleaning-policy',
-        copy('清洗策略', 'Cleaning Policy'),
-        copy(
-          '清洗不是随手修表，而是把哪些值有效、如何处理无效值写成可复现规则。',
-          'Cleaning is not ad hoc table fixing; it is a reproducible policy for valid values and invalid-value handling.',
-        ),
-        copy(
-          '缺失房间数可以填中位数、单独加缺失指示器，或丢弃该行；选择取决于任务和缺失机制。',
-          'Missing room count can be median-filled, paired with a missing indicator, or dropped; the choice depends on the task and missingness mechanism.',
-        ),
-        "df['rooms'] = df['rooms'].fillna(df['rooms'].median())",
-      ),
-      concept(
-        'missingness',
-        copy('缺失机制', 'Missingness Mechanism'),
-        copy(
-          '缺失值有时是随机记录失败，有时是用户行为或业务流程造成的信号。先解释缺失原因，再决定填充、删除还是保留指示器。',
-          'Missing values may be random recording failures or signals created by user behavior or business workflow. Explain missingness before choosing fill, drop, or indicators.',
-        ),
-        copy(
-          '高收入用户更常跳过收入字段时，直接删除会改变样本分布。',
-          'If high-income users skip income more often, dropping those rows changes the sample distribution.',
-        ),
-        "df['income_missing'] = df['income'].isna()",
-      ),
-      concept(
-        'preprocessing-fit',
-        copy('预处理必须可复用', 'Preprocessing Must Be Reusable'),
-        copy(
-          '训练集上学到的填充值、类别词表和缩放参数，预测时必须复用，不能重新从单条样本估计。',
-          'Imputation values, category vocabulary, and scaling parameters learned on training data must be reused at prediction time.',
-        ),
-        copy(
-          '用训练集均值缩放测试集，而不是用测试集重新计算均值。',
-          'Scale the test set using the training mean rather than recomputing a test mean.',
-        ),
-        "train_mean = train['price'].mean()\ntest['price_centered'] = test['price'] - train_mean",
-      ),
-      concept(
-        'outlier-policy',
-        copy('离群点策略', 'Outlier Policy'),
-        copy(
-          '离群点不等于错误。先判断它是录入错误、单位混用、极端但真实的样本，还是任务真正需要识别的风险信号。',
-          'An outlier is not automatically wrong. First decide whether it is a recording error, mixed unit, rare real sample, or task-relevant risk signal.',
-        ),
-        copy(
-          '房价 9800 可能是豪宅，也可能是单位从万元混进千元。',
-          'A price of 9800 may be a luxury home or a unit mix-up.',
-        ),
-        "df['price'] = df['price'].clip(lower=100, upper=1200)",
-      ),
-      concept(
-        'audit-trail',
-        copy('清洗审计轨迹', 'Cleaning Audit Trail'),
-        copy(
-          '每一步清洗都应该说明输入形状、输出形状、改变了哪些列、为什么这样做，以及是否只在训练集上拟合参数。',
-          'Each cleaning step should state input shape, output shape, changed columns, why it is done, and whether parameters are fitted only on training data.',
-        ),
-        copy(
-          'drop_duplicates 后行数从 6 变 5，这个变化应该被记录，而不是只看最终表。',
-          'After drop_duplicates changes rows from 6 to 5, that change should be recorded rather than hidden inside the final table.',
-        ),
-      ),
+      concept('category', copy('类别特征', 'Categorical Feature'), copy('类别特征表示成员身份，而不是连续距离。模型需要把类别变成固定槽位，才能稳定读取。', 'A categorical feature represents membership rather than continuous distance. A model needs categories mapped into fixed slots to read them consistently.'), copy('district=north 表示属于 north 街区，而不是数值大小。', 'district=north means membership in the north district, not magnitude.'), "df['district'].astype('category')"),
+      concept('vocabulary', copy('词表', 'Vocabulary'), copy('词表是训练时确定的合法类别集合。它规定每个类别落在哪个向量槽位，也规定新样本中的未知类别如何处理。', 'A vocabulary is the legal category set fixed during training. It defines vector slots and how unknown categories are handled.'), copy('训练时有 north、south、west，新样本出现 airport 时应进入 OOV 或 RARE 槽。', 'If training has north, south, and west, a new airport value should map to OOV or RARE.'), "pd.Categorical(df['district'], categories=train_vocab)"),
+      concept('one-hot', copy('one-hot 编码', 'One-hot Encoding'), copy('one-hot 用一组 0/1 槽表示类别身份。每个槽对应词表中的一个类别，当前类别所在槽为 1。', 'One-hot uses 0/1 slots for category membership. Each slot corresponds to one vocabulary token, and the active category gets 1.'), copy('district=south 可以编码为 [0, 1, 0, 0]。', 'district=south may encode as [0, 1, 0, 0].'), "pd.get_dummies(df['district'], prefix='district')"),
+      concept('feature-cross', copy('特征交叉', 'Feature Cross'), copy('特征交叉把两个或多个类别组合成新类别，让模型学习局部规则，但维度会快速增长。', 'A feature cross combines categories into new categories so the model can learn local rules, but dimensionality grows quickly.'), copy('district=north 与 type=condo 交叉后形成 north_x_condo 槽位。', 'district=north crossed with type=condo creates a north_x_condo slot.'), "df['district_type'] = df['district'] + '_' + df['type']"),
     ],
     sections: [
       section(
-        'quality-scan',
-        copy('先做质量扫描', 'Start with a Quality Scan'),
+        'categorical-meaning',
+        copy('类别数据表达身份，不表达距离', 'Categorical Data Expresses Identity, Not Distance'),
         copy(
-          md`进入建模前，先统计每列的缺失比例、唯一值数量、范围、类型和重复行。这个扫描不是为了美化数据，而是为了发现会改变训练信号的问题：目标列缺失、单位混用、异常大值、日期解析失败、重复样本和非法类别。
+          md`类别数据的核心问题是“这个样本属于哪一组”。它可以是地区、产品类型、浏览器、职业、颜色、学校或设备型号。为什么重要：如果把类别当成连续数值，模型会错误地相信类别之间存在大小和距离；如果不编码，模型又无法读取字符串。教学时要让学生先解释列的业务含义，再决定是 one-hot、multi-hot、序数编码还是保留为审计字段。
 
-质量扫描的输出应该像体检报告：哪些列健康，哪些列需要复查，哪些列暂时不能进入模型。若没有这一步，后面的清洗动作很容易变成凭感觉修表。`,
-          md`Before modeling, profile each column for missing rate, unique count, range, type, and duplicate rows. This scan is not cosmetic; it finds issues that change training signals: missing labels, mixed units, extreme values, failed date parsing, duplicates, and invalid categories.
+pandas 中 object、string、category 和 int dtype 只是技术外观，不能替代语义判断。一个列写成数字，也可能只是类别编号；一个列写成文字，也可能需要拆成多个标签或时间字段。`,
+          md`The core question for categorical data is: which group does this example belong to? It may be district, product type, browser, occupation, color, school, or device model. This matters because treating categories as continuous values teaches the model false magnitude and distance; leaving strings unencoded gives the model nothing numeric to read. Students should first explain business meaning, then choose one-hot, multi-hot, ordinal encoding, or audit-only retention.
 
-The scan should read like a health report: which columns are usable, which need review, and which cannot enter the model yet. Without it, later cleaning easily becomes guesswork.`,
+In pandas, object, string, category, and int dtype are technical appearances, not semantic decisions. A digit-like column may still be a category code; a text column may need to become multiple tags or a datetime field.`,
         ),
-        { visualIds: ['cleaning-policy-map-v2'] },
+        { visualIds: ['categorical-semantics'], labIds: ['categorical-encoding-lab'] },
       ),
       section(
-        'missing-values',
-        copy('缺失值要解释，不只是填掉', 'Explain Missingness Before Filling It'),
+        'vocabulary-contract',
+        copy('词表是类别输入的契约', 'A Vocabulary Is the Categorical Input Contract'),
         copy(
-          md`缺失值有时只是记录失败，有时本身就是信号。清洗流水线应该记录选择：丢弃、填充、保留缺失类别，或新增一个“是否缺失”的指示列。pandas 里的 isna 和 notna 用来先定位缺失，dropna 和 fillna 才是后续动作。
+          md`模型训练时必须知道类别集合和槽位顺序。词表把类别映射到固定位置，例如 north 落在第 0 槽、south 落在第 1 槽。为什么重要：如果验证或线上预测时重新排序词表，同一个向量位置就会变成不同含义，模型读到的信号会错位。词表还要规定低频类别和未知类别如何处理，避免新样本直接报错或产生全 0 向量。
 
-选择填充值时要避免把验证集、测试集或线上样本的信息反向泄漏到训练流程。中位数、均值、众数、类别词表和缩放参数都应该在训练集上确定。`,
-          md`Missingness may be a recording failure or a signal. The pipeline should record the choice: drop, fill, keep a missing category, or add a missingness indicator. In pandas, isna and notna locate missing values; dropna and fillna act on them.
+课堂练习可以让学生从训练数据统计 value_counts，然后设置 minFrequency，把少数类别合并到 RARE，把训练后才出现的类别放到 OOV。这样学生能看到“稳定输入协议”比“把字符串转成数字”更重要。`,
+          md`During training, a model must know the category set and slot order. A vocabulary maps categories to fixed positions, such as north in slot 0 and south in slot 1. This matters because if validation or serving recomputes and reorders the vocabulary, the same vector position changes meaning and the model reads the wrong signal. The vocabulary also defines rare and unknown handling so new examples do not fail or produce misleading all-zero vectors.
 
-When choosing fill values, avoid leaking validation, test, or prediction information back into training. Medians, means, modes, vocabularies, and scaling parameters should be determined on the training set.`,
+A classroom exercise can build value_counts from training data, set a minFrequency, merge rare categories into RARE, and map post-training categories into OOV. Students then see that a stable input contract matters more than merely converting strings into numbers.`,
         ),
-        { labIds: ['cleaning-pipeline-lab'] },
+        { visualIds: ['categorical-vocabulary'], labIds: ['categorical-encoding-lab'] },
       ),
       section(
-        'duplicates-and-labels',
-        copy('重复行和坏标签会改写训练信号', 'Duplicates and Bad Labels Rewrite Training Signal'),
+        'one-hot-and-sparsity',
+        copy('one-hot 让模型读取类别，但会产生稀疏输入', 'One-hot Makes Categories Readable but Sparse'),
         copy(
-          md`重复样本会给某些观测额外权重。如果重复来自真实频次，保留可能合理；如果重复来自采集或合并错误，它会让模型过度相信某些行。坏标签更危险：它直接污染监督学习的反馈。
+          md`one-hot 编码把一个类别展开成多个 0/1 槽。它的优点是不会强加类别大小顺序，适合名义类别；缺点是类别越多，向量越宽，绝大多数位置都是 0。为什么重要：稀疏输入本身不是错误，但它会提高存储、训练和泛化难度，尤其是在样本数不足时。学生应该把 one-hot 看成“稳定地表达成员身份”，而不是万能编码。
 
-清洗时不要只问“有没有重复”，还要问重复的业务含义。按 id 去重、按全行去重和按时间保留最新记录会得到不同数据集。标签列缺失或异常时，通常应先隔离样本，而不是自动填充答案。`,
-          md`Duplicate samples give extra weight to some observations. If duplication represents true frequency, keeping it may be reasonable; if it comes from collection or merge errors, it makes the model over-trust certain rows. Bad labels are worse because they directly corrupt supervised feedback.
+pandas 的 get_dummies 很方便，但课堂中要强调它默认从当前数据推断列集合。真实工程应保存训练词表和输出列顺序，再对验证、测试和新样本补齐缺失列。`,
+          md`One-hot encoding expands one category into multiple 0/1 slots. Its benefit is that it avoids imposing magnitude order, which fits nominal categories. Its cost is width: more categories mean wider vectors, with most positions equal to 0. This matters because sparsity is not wrong, but it increases storage, training, and generalization difficulty, especially with few examples. Students should see one-hot as stable membership representation, not a universal encoding.
 
-Cleaning should ask not only whether duplicates exist, but what they mean. Deduplicating by ID, by full row, or by latest timestamp creates different datasets. Missing or abnormal labels are usually isolated rather than automatically filled.`,
-        ),
-      ),
-      section(
-        'outliers-and-types',
-        copy('异常值、类型和单位要一起看', 'Read Outliers, Types, and Units Together'),
-        copy(
-          md`异常值不一定错，但一定要解释。房价 9800 可能是豪宅，也可能是单位从万元混进千元。日期列解析失败、布尔列混入字符串、价格列含货币符号，都会让后续分析悄悄变形。
-
-类型转换应该显式处理失败路径。to_datetime 遇到坏日期可以变成缺失值；astype 遇到混合文本可能失败；clip 可以限制训练中不可信的极端范围，但不能掩盖真实风险事件。`,
-          md`An outlier is not automatically wrong, but it must be explained. A price of 9800 may be a luxury home or a unit mix-up. Failed dates, strings inside boolean columns, and currency symbols inside prices can silently distort later analysis.
-
-Type conversion should handle failure explicitly. to_datetime can turn bad dates into missing values; astype may fail on mixed text; clip can limit untrustworthy extreme ranges, but it must not hide real risk events.`,
-        ),
-        { visualIds: ['data-cleaning-flow-video'] },
-      ),
-      section(
-        'scaling-and-binning',
-        copy('缩放、分箱和裁剪必须有训练边界', 'Scaling, Binning, and Clipping Need Training Boundaries'),
-        copy(
-          md`归一化和标准化会把不同单位的列放到更可比较的尺度上。分箱可以把连续值变成区间，减弱噪声和极端值影响。裁剪可以限制明显不可信的范围。但这些规则都不能在全数据上偷看答案。
-
-正确流程是：在训练集上决定均值、标准差、分位数、分箱边界和裁剪阈值；在验证、测试和线上预测阶段只应用这些已记录参数。这样评估结果才反映真实泛化能力。`,
-          md`Normalization and standardization put columns with different units onto more comparable scales. Binning converts continuous values into intervals and can reduce noise or extreme-value influence. Clipping can limit clearly untrustworthy ranges. None of these rules should peek at all data.
-
-The correct flow is: decide means, standard deviations, quantiles, bin boundaries, and clipping thresholds on the training set; then only apply recorded parameters to validation, test, and prediction data. This keeps evaluation honest.`,
+pandas get_dummies is convenient, but lessons should emphasize that it infers columns from the current data by default. Real workflows save the training vocabulary and output column order, then align validation, test, and new examples to that schema.`,
         ),
       ),
       section(
-        'prediction-consistency',
-        copy('训练和预测要用同一条流水线', 'Training and Prediction Use the Same Pipeline'),
+        'high-cardinality',
+        copy('高基数、低频类别和漂移', 'High Cardinality, Rare Values, and Drift'),
         copy(
-          md`很多数据错误不是来自单个清洗函数，而是来自训练和预测不一致。训练时填中位数，线上预测时改用当前样本均值；训练时把未知类别归为 other，线上预测时直接新增一列；这些都会让模型输入协议漂移。
+          md`高基数列是指类别数量很大，例如用户 ID、商品 ID、搜索词、地理网格或设备型号。为什么重要：如果每个类别只有少量样本，模型很容易把类别槽位当成记忆训练样本的钥匙，而不是学习可泛化规律。低频类别、拼写变体和新类别还会让线上输入不断变化。
 
-把清洗看成模型的一部分，而不是建模前的临时脚本。只要规则会影响模型输入，它就应该被版本化、测试，并与模型一起发布。`,
-          md`Many data bugs do not come from a single cleaning function; they come from inconsistency between training and prediction. Training may fill with a median while prediction recomputes from one row; training may map unknown categories to other while prediction adds a new column. These changes drift the input contract.
+处理高基数类别时，常见策略包括合并低频值、限制词表大小、使用哈希桶、只保留更粗粒度分组，或者干脆不把 ID 作为特征。学生要能说明每种策略牺牲了什么：合并会丢细节，哈希会冲突，删除会少一个信号，但盲目展开可能更危险。`,
+          md`A high-cardinality column has many possible categories: user ID, product ID, search term, geographic cell, or device model. This matters because if each category has only a few examples, the model can use category slots as keys for memorizing training rows rather than learning generalizable patterns. Rare values, spelling variants, and new categories also make serving inputs drift.
 
-Treat cleaning as part of the model, not a temporary pre-modeling script. If a rule affects model input, it should be versioned, tested, and shipped with the model.`,
+Common strategies include merging rare values, limiting vocabulary size, using hash buckets, keeping coarser groups, or excluding IDs as features. Students should explain the cost of each strategy: merging loses detail, hashing creates collisions, deletion removes signal, and blind expansion may be more dangerous.`,
         ),
+        { visualIds: ['categorical-sparsity'] },
       ),
       section(
-        'cleaning-as-report',
-        copy('清洗结果要能讲清楚', 'Cleaning Results Must Be Explainable'),
+        'feature-crosses',
+        copy('特征交叉表达组合规则，也会放大维度', 'Feature Crosses Express Combination Rules and Expand Dimensions'),
         copy(
-          md`一条好的清洗流水线应该能回答：删了多少行？填了哪些列？哪些值被裁剪？哪些类别被合并？这些动作对标签分布和关键分组有没有影响？如果回答不了，后续模型指标就很难被信任。
+          md`有些规律只在类别组合中出现。例如“市中心的小户型”和“郊区的大户型”可能对应不同价格关系，单独看地区或房型都不够。特征交叉把多个类别拼成组合槽位，让线性模型也能学习局部规则。为什么重要：交叉的维度等于各词表大小相乘，两个 100 类特征交叉就可能产生 10000 个槽，样本不够时会非常稀疏。
 
-数据实验室中的清洗实验把每个按钮映射到 pandas 语义和表格形状变化。目标不是记住函数名，而是训练“每一步为什么改变数据”的解释能力。`,
-          md`A good cleaning pipeline can answer: how many rows were dropped, which columns were filled, which values were clipped, which categories were merged, and whether these actions affected labels or key groups. Without those answers, model metrics are hard to trust.
+课堂练习目标是让学生先提出组合假设，再用验证集检查收益，而不是机械地把所有类别两两交叉。pandas 中可以用字符串拼接构造交叉列，再用 get_dummies 展开，并用 shape 变化观察维度增长。`,
+          md`Some patterns appear only in category combinations. Downtown small apartments and suburban large houses may follow different price relationships, and district or type alone may not be enough. A feature cross concatenates categories into combination slots so a linear model can learn local rules. This matters because cross dimensionality multiplies vocabulary sizes: two 100-token features may create 10,000 slots, which becomes very sparse without enough examples.
 
-The cleaning lab maps each button to pandas semantics and table-shape changes. The goal is not memorizing function names; it is explaining why each step changes the data.`,
+The classroom goal is to propose a combination hypothesis first and check validation benefit, not mechanically cross every pair of categories. In pandas, string concatenation can build a cross column, get_dummies can expand it, and shape changes reveal dimension growth.`,
         ),
-        { visualIds: ['data-cleaning-pipeline-image'] },
+        { visualIds: ['categorical-sparsity'], labIds: ['categorical-encoding-lab'] },
       ),
     ],
     visuals: [
-      image(
-        'cleaning-policy-map-v2',
-        'cleaning-policy-map-v2.png',
-        copy('清洗策略地图', 'Cleaning policy map'),
-        copy(
-          '清洗从 profile 开始，分别处理缺失、离群、类型和单位问题，再把训练阶段确定的规则复用于预测阶段。',
-          'Cleaning starts with profiling, handles missingness, outliers, types, and units, then reuses train-time rules at prediction time.',
-        ),
-        [
-          { id: 'profile', x: 15, y: 22, label: copy('质量扫描', 'Profile') },
-          { id: 'missing', x: 34, y: 18, label: copy('缺失路径', 'Missing branch') },
-          { id: 'outlier', x: 34, y: 47, label: copy('离群路径', 'Outlier branch') },
-          { id: 'type-unit', x: 35, y: 76, label: copy('类型与单位', 'Type and unit') },
-          { id: 'rules', x: 66, y: 39, label: copy('训练规则卡', 'Train-time rule card') },
-          { id: 'predict', x: 86, y: 40, label: copy('预测时复用', 'Reuse at prediction') },
-          { id: 'audit', x: 64, y: 86, label: copy('审计每一步', 'Audit every step') },
-        ],
-      ),
-      image(
-        'data-cleaning-pipeline-image',
-        'data-cleaning-preprocessing.png',
-        copy('清洗流水线', 'Cleaning pipeline'),
-        copy(
-          '从杂乱表格到可训练表格，中间每一步都应该可复现、可审计。',
-          'From messy table to training-ready table, every step should be reproducible and auditable.',
-        ),
-        [
-          { id: 'raw', x: 17, y: 12, label: copy('原始数据', 'Raw data') },
-          { id: 'rules', x: 50, y: 12, label: copy('清洗规则', 'Cleaning rules') },
-          { id: 'clean', x: 82, y: 12, label: copy('可训练数据', 'Trainable data') },
-          { id: 'audit', x: 54, y: 84, label: copy('记录每一步', 'Audit every step') },
-        ],
-      ),
-      video(
-        'data-cleaning-flow-video',
-        'data-cleaning-flow',
-        copy('清洗步骤动画', 'Cleaning steps animation'),
-        copy(
-          '动画展示缺失值、重复行、异常值和类型转换如何进入同一条流水线。',
-          'Animation showing missing values, duplicates, outliers, and type conversion entering one pipeline.',
-        ),
-      ),
+      image('categorical-semantics', 'categorical-semantics.png', copy('类别语义判断', 'Categorical semantics'), copy('先判断一列表示连续数值、身份、顺序还是审计 ID，再决定编码方式。', 'Decide whether a column represents continuous value, identity, order, or audit ID before choosing encoding.'), [
+        { id: 'numeric', x: 17, y: 31, label: copy('连续数值', 'numeric') },
+        { id: 'category', x: 38, y: 31, label: copy('类别身份', 'category') },
+        { id: 'ordinal', x: 58, y: 31, label: copy('有序等级', 'ordinal') },
+        { id: 'id', x: 78, y: 31, label: copy('审计 ID', 'audit ID') },
+      ]),
+      image('categorical-vocabulary', 'categorical-vocabulary-one-hot.png', copy('词表与 one-hot', 'Vocabulary and one-hot'), copy('训练词表决定槽位顺序，未知类别进入稳定的 OOV 处理。', 'Training vocabulary fixes slot order, and unknown values use a stable OOV policy.'), [
+        { id: 'vocab', x: 18, y: 21, label: copy('训练词表', 'Vocabulary') },
+        { id: 'slot', x: 43, y: 21, label: copy('固定槽位', 'Fixed slots') },
+        { id: 'onehot', x: 68, y: 21, label: copy('独热编码', 'one-hot') },
+        { id: 'oov', x: 86, y: 73, label: copy('未知类别', 'OOV') },
+      ]),
+      image('categorical-sparsity', 'categorical-feature-cross-sparsity.png', copy('交叉与稀疏性', 'Crosses and sparsity'), copy('特征交叉能表达组合规则，也会让向量维度快速增长。', 'Feature crosses express combination rules but can rapidly increase vector width.'), [
+        { id: 'left', x: 13, y: 25, label: copy('地区', 'district') },
+        { id: 'right', x: 30, y: 25, label: copy('房型', 'type') },
+        { id: 'cross', x: 51, y: 25, label: copy('组合槽位', 'cross slots') },
+        { id: 'sparse', x: 78, y: 25, label: copy('稀疏向量', 'sparse vector') },
+        { id: 'risk', x: 52, y: 84, label: copy('验证收益', 'validation gain') },
+      ]),
+      video('categorical-one-hot-video', 'categorical-one-hot-flow', copy('one-hot 动画', 'One-hot animation'), copy('展示类别如何映射到固定向量槽位。', 'Shows categories mapping into fixed vector slots.')),
+      video('feature-cross-video', 'feature-cross-sparsity', copy('特征交叉动画', 'Feature-cross animation'), copy('展示交叉维度如何随词表增长。', 'Shows cross dimensionality growing with vocabularies.')),
     ],
     labs: [
-      lab('cleaning-pipeline-lab', copy('清洗流水线实验', 'Cleaning Pipeline Lab'), 'CleaningPipelineLab', [
-        copy(
-          '能比较填充、丢弃、裁剪和去重对表格形状的影响。',
-          'Compare how filling, dropping, clipping, and deduplication affect table shape.',
-        ),
-        copy(
-          '能把每个 pandas 调用对应到一类数据质量问题。',
-          'Map each pandas call to one data quality issue.',
-        ),
-        copy(
-          '能说明哪些清洗参数必须来自训练阶段。',
-          'Explain which cleaning parameters must come from training time.',
-        ),
+      lab('categorical-encoding-lab', copy('类别编码实验室', 'Categorical Encoding Lab'), 'CategoricalEncodingLab', [
+        copy('能构建训练词表并处理未知类别。', 'Build a training vocabulary and handle unknown categories.'),
+        copy('能比较 one-hot、低频合并、哈希和特征交叉的影响。', 'Compare one-hot, rare merging, hashing, and feature crosses.'),
       ]),
     ],
     quizzes: [
-      quiz(
-        'fill-source',
-        copy('预测阶段遇到缺失值时，填充值应该来自哪里？', 'At prediction time, where should an imputation value come from?'),
-        'training',
-        copy('来自训练阶段记录下来的规则或统计量。', 'From the rule or statistic recorded during training.'),
-        copy('从当前单条预测样本重新估计。', 'Re-estimate it from the single prediction row.'),
-        copy(
-          '预处理规则必须训练/预测一致，才能避免分布和语义漂移。',
-          'Preprocessing rules must match between training and prediction to avoid distribution and semantic drift.',
-        ),
-      ),
-      quiz(
-        'outlier-first-question',
-        copy('看到极端大值时，第一步应该是什么？', 'When seeing an extreme value, what is the first step?'),
-        'explain',
-        copy('先解释它是错误、单位问题，还是真实样本。', 'First explain whether it is an error, unit issue, or real sample.'),
-        copy('立刻删除，因为离群点都不可靠。', 'Delete it immediately because all outliers are unreliable.'),
-        copy(
-          '离群点可能是错误，也可能是任务需要学习的真实风险信号。',
-          'An outlier may be an error, but it may also be a real risk signal the task needs.',
-        ),
-      ),
-      quiz(
-        'dedupe-risk',
-        copy('重复行为什么可能改变训练结果？', 'Why can duplicate rows change training results?'),
-        'weight',
-        copy('它会给某些样本额外权重。', 'They give extra weight to some samples.'),
-        copy('它们只影响文件大小，不影响模型。', 'They only affect file size, not the model.'),
-        copy(
-          '监督学习会反复看到重复样本，因此重复来源必须解释。',
-          'Supervised learning repeatedly sees duplicated samples, so the duplication source must be explained.',
-        ),
-      ),
+      quiz('id-feature', copy('用户 ID 适合直接 one-hot 后训练吗？', 'Should user IDs be directly one-hot encoded for training?'), 'careful', copy('通常要非常谨慎，容易记住训练样本。', 'Usually only with great caution because memorization is likely.'), copy('一定适合，因为 ID 很精确。', 'Always, because IDs are precise.'), copy('高基数 ID 的泛化证据通常不足。', 'High-cardinality IDs often lack generalization evidence.')),
+      quiz('vocab-source', copy('验证集应该重新生成自己的 one-hot 列吗？', 'Should validation generate its own one-hot columns?'), 'no', copy('不应该，应对齐训练词表和列顺序。', 'No. It should align to the training vocabulary and column order.'), copy('应该，这样能看到更多类别。', 'Yes, so it can include more categories.'), copy('重新生成会让槽位含义不稳定。', 'Regenerating makes slot meaning unstable.')),
+      quiz('cross-cost', copy('两个各 50 类的特征交叉，最多会产生多少组合槽？', 'Two features with 50 categories each can create up to how many cross slots?'), '2500', copy('2500 个。', '2,500.'), copy('100 个。', '100.'), copy('交叉维度通常是词表大小相乘。', 'Cross dimensionality usually multiplies vocabulary sizes.')),
     ],
     misconceptions: [
-      misconception(
-        'delete-all-missing',
-        copy('只要有缺失值，最安全就是删掉整行。', 'If a row has a missing value, deleting it is always safest.'),
-        copy(
-          '删除可能引入偏差，也可能浪费样本；要先理解缺失机制和任务风险。',
-          'Deletion can introduce bias or waste samples; first understand missingness and task risk.',
-        ),
-        copy(
-          '高收入用户不填收入时，删除这些行会改变样本分布。',
-          'If high-income users often omit income, deleting those rows changes the sample distribution.',
-        ),
-      ),
-      misconception(
-        'cleaning-is-before-model',
-        copy('清洗只是建模前的一次性脚本。', 'Cleaning is a one-off script before modeling.'),
-        copy(
-          '清洗规则定义了模型输入，必须和模型一起复用、测试和版本化。',
-          'Cleaning rules define model input and must be reused, tested, and versioned with the model.',
-        ),
-        copy(
-          '线上预测时若使用不同填充值，模型看到的坐标系就变了。',
-          'If prediction uses a different fill value, the model sees a different coordinate system.',
-        ),
-      ),
-      misconception(
-        'clip-every-outlier',
-        copy('所有离群点都应该裁剪到正常范围。', 'All outliers should be clipped into the normal range.'),
-        copy(
-          '裁剪只适合有明确边界或录入错误的情况；真实极端样本可能正是业务风险。',
-          'Clipping fits clear bounds or recording errors; real extreme samples may be the business risk itself.',
-        ),
-        copy(
-          '欺诈检测里的极端交易金额可能比普通交易更重要。',
-          'In fraud detection, extreme transaction amounts may matter more than ordinary ones.',
-        ),
-      ),
+      misconception('category-order', copy('类别编号越大，含义就越强。', 'A larger category code means stronger meaning.'), copy('类别编号通常只是标签，不代表大小或距离。', 'Category codes are usually labels, not magnitude or distance.'), copy('行业代码 20 不一定比行业代码 10 更大或更近。', 'Industry code 20 is not necessarily larger or closer than code 10.')),
+      misconception('get-dummies-enough', copy('get_dummies 一行代码就完成了所有类别工程。', 'One get_dummies line finishes categorical engineering.'), copy('还要固定词表、处理未知值、对齐列顺序并检查稀疏性。', 'The workflow still needs fixed vocabularies, unknown handling, column alignment, and sparsity checks.'), copy('训练和预测必须使用同一套槽位。', 'Training and prediction must use the same slots.')),
+      misconception('cross-always', copy('所有类别都应该互相交叉。', 'All categorical features should be crossed.'), copy('交叉应服务于明确假设，并用验证集检查收益。', 'Crosses should serve a clear hypothesis and be checked with validation data.'), copy('没有足够样本的交叉槽很容易只记住噪声。', 'Cross slots without enough examples can memorize noise.')),
     ],
-    sourceReferences: [
-      sources.googleScrubbing,
-      sources.googleNormalization,
-      sources.pandasMissing,
-      sources.pandasIntro,
-    ],
+    sourceReferences: refs('categoricalData', 'pandasCategorical'),
   }),
   moduleDefinition({
-    id: 'exploratory-data-analysis',
+    id: 'dataset-quality',
     order: 3,
-    title: copy('数据分析与探索', 'Exploratory Data Analysis'),
+    title: copy('数据质量：缺失、标签与代表性', 'Data Quality: Missingness, Labels, and Representativeness'),
     subtitle: copy(
-      '先看分布、关系和分组，再决定模型假设是否站得住。',
-      'Inspect distributions, relationships, and groups before trusting modeling assumptions.',
+      '在建模前审计样本、列、标签和分布，判断这批数据是否足以支持可靠训练。',
+      'Audit examples, columns, labels, and distributions before modeling to decide whether data can support reliable training.',
     ),
-    accent: '#d65a31',
-    theme: '#fff1e8',
-    estimatedMinutes: 48,
+    accent: '#0891b2',
+    theme: '#ecfeff',
+    estimatedMinutes: 82,
     learningObjectives: [
-      copy(
-        '使用描述统计、直方图、箱线图、散点图、相关性和分组统计提出数据问题。',
-        'Use descriptive statistics, histograms, box plots, scatter plots, correlation, and grouped summaries to ask data questions.',
-      ),
-      copy(
-        '解释为什么均值可能掩盖偏态、双峰、离群点和群体差异。',
-        'Explain why means can hide skew, bimodality, outliers, and group differences.',
-      ),
-      copy(
-        '用 split-apply-combine 读懂分组统计如何暴露整体平均看不到的信息。',
-        'Use split-apply-combine to understand how grouped summaries reveal what global averages hide.',
-      ),
-      copy(
-        '识别探索阶段的数据泄漏、选择性解释和过度解读风险。',
-        'Recognize leakage, selective interpretation, and overinterpretation risks during exploration.',
-      ),
-      copy(
-        '把 EDA 结论转化为后续清洗、特征工程和模型假设检查。',
-        'Convert EDA findings into later cleaning, feature engineering, and model-assumption checks.',
-      ),
+      copy('用样本量、覆盖范围、时间窗口和分布描述数据代表性。', 'Describe representativeness through sample size, coverage, time window, and distributions.'),
+      copy('区分缺失值、坏值、重复记录、离群点和采样偏差。', 'Distinguish missing values, bad values, duplicates, outliers, and sampling bias.'),
+      copy('解释标签定义、标注时间点和一致性如何影响训练反馈。', 'Explain how label definition, label timing, and consistency affect training feedback.'),
+      copy('用基线和分组统计检查不平衡数据。', 'Use baselines and grouped statistics to inspect imbalanced data.'),
+      copy('把探索分析整理成可复查的数据质量报告。', 'Turn exploratory analysis into a reviewable data-quality report.'),
     ],
     concepts: [
-      concept(
-        'distribution-first',
-        copy('先看分布', 'Distribution First'),
-        copy(
-          '均值只是一个摘要。直方图和箱线图能揭示偏态、长尾、离群点和分组差异。',
-          'A mean is only one summary. Histograms and box plots reveal skew, tails, outliers, and group differences.',
-        ),
-        copy(
-          '两组房价均值相同，但一组集中，一组长尾，模型风险完全不同。',
-          'Two price groups can share a mean while one is concentrated and the other long-tailed, creating different modeling risks.',
-        ),
-        "df['price'].describe()\ndf['price'].plot.hist()",
-      ),
-      concept(
-        'plot-purpose',
-        copy('图形服务问题', 'Plots Serve Questions'),
-        copy(
-          'EDA 图不是装饰。每张图都应该回答一个具体问题：形状、离群、关系、分组差异、缺失模式或泄漏风险。',
-          'EDA plots are not decoration. Each plot should answer a concrete question about shape, outliers, relationships, group differences, missingness, or leakage risk.',
-        ),
-        copy(
-          '散点图问两个数值列是否有结构；箱线图问不同组的中位数和离群点是否不同。',
-          'A scatter plot asks whether two numeric columns have structure; a box plot asks whether group medians and outliers differ.',
-        ),
-      ),
-      concept(
-        'grouped-analysis',
-        copy('分组分析', 'Grouped Analysis'),
-        copy(
-          '把总体拆成有意义的组，常能发现整体均值看不到的规律。',
-          'Splitting the population into meaningful groups often reveals patterns hidden by overall averages.',
-        ),
-        copy(
-          '按街区比较价格均值和样本数，比只看全城平均更适合发现数据覆盖不足。',
-          'Comparing mean price and count by district is better than one citywide mean for spotting coverage gaps.',
-        ),
-        "df.groupby('district')['price'].agg(['count', 'mean'])",
-      ),
-      concept(
-        'correlation-boundary',
-        copy('相关性的边界', 'Correlation Boundary'),
-        copy(
-          '相关性描述共同变化，不说明因果，也不保证预测时可用。高相关列可能是混杂、共同趋势或泄漏。',
-          'Correlation describes co-movement; it does not prove causation or prediction-time availability. A high correlation can come from confounding, shared trends, or leakage.',
-        ),
-        copy(
-          '成交价和佣金高度相关，但佣金可能在成交后才产生。',
-          'Final price and commission may correlate strongly, but commission may be created only after sale.',
-        ),
-      ),
-      concept(
-        'eda-handoff',
-        copy('EDA 到建模的交接', 'EDA-to-Model Handoff'),
-        copy(
-          'EDA 的产物不是漂亮图，而是可执行决策：需要清洗什么、需要缩放什么、哪些分组样本太少、哪些假设不可信。',
-          'The output of EDA is not beautiful charts; it is executable decisions about cleaning, scaling, sparse groups, and unreliable assumptions.',
-        ),
-        copy(
-          '若某类别只有两条样本，就不要把它的均值当成稳定规律。',
-          'If a category has only two samples, do not treat its mean as a stable rule.',
-        ),
-      ),
+      concept('representativeness', copy('代表性', 'Representativeness'), copy('数据代表性描述样本是否覆盖模型将来要服务的人群、时间、地区和场景。', 'Representativeness describes whether examples cover the people, time, regions, and scenarios the model will serve.'), copy('只用一线城市数据训练的房价模型，很难可靠预测县城房屋。', 'A house-price model trained only on major cities may not predict small-town houses reliably.')),
+      concept('missingness', copy('缺失机制', 'Missingness Mechanism'), copy('缺失不是单纯空白，它可能和业务流程、设备、地区或目标结果有关。', 'Missingness is not just blankness; it may relate to workflow, device, region, or outcome.'), copy('低收入用户更少填写收入，直接删除会改变样本人群。', 'If low-income users fill income less often, dropping missing rows changes the population.')),
+      concept('label-quality', copy('标签质量', 'Label Quality'), copy('标签是训练的反馈信号，必须定义清楚、时间点正确、标注规则一致。', 'Labels are the feedback signal for training and need clear definition, correct timing, and consistent rules.'), copy('用成交后才知道的信息预测成交前结果，会造成答案泄漏。', 'Using information known only after sale to predict a pre-sale result leaks the answer.')),
+      concept('imbalance', copy('类别不平衡', 'Class Imbalance'), copy('类别比例悬殊时，准确率可能掩盖模型对少数类的失败。', 'When class proportions are skewed, accuracy can hide failure on the minority class.'), copy('欺诈样本只有 1%，全部预测非欺诈也有 99% 准确率。', 'If fraud is 1%, predicting non-fraud for everything gives 99% accuracy.')),
     ],
     sections: [
       section(
-        'question-driven-eda',
-        copy('EDA 从问题开始', 'EDA Starts with Questions'),
+        'quality-before-modeling',
+        copy('数据质量决定模型能学到什么', 'Data Quality Determines What a Model Can Learn'),
         copy(
-          md`探索性数据分析不是随机画图，而是围绕建模前的问题组织证据：列是否可用？分布是否稳定？离群点从哪里来？不同群体是否覆盖均衡？是否存在预测时不可用的信息？
+          md`模型不会自动知道数据是否可靠。它会认真学习你给它的每一行、每一列和每一个标签，包括错误、偏差和泄漏。为什么重要：如果训练数据只覆盖部分场景，模型就只能学习那部分规律；如果标签定义混乱，模型就会把混乱当成目标；如果缺失和异常集中在某些群体，模型可能对这些群体表现更差。
 
-每一个问题都对应一类检查。describe 给出摘要，直方图看形状，箱线图看分组和离群，散点图看关系，groupby 看群体差异，缺失矩阵和时间线检查泄漏。`,
-          md`Exploratory data analysis is not random plotting; it organizes evidence around pre-modeling questions. Are columns usable? Are distributions stable? Where do outliers come from? Are groups covered evenly? Is any information unavailable at prediction time?
+本章的课堂目标是让学生先写数据问题清单，再训练模型。清单至少包括样本来自哪里、时间范围是什么、哪些群体缺失、每列缺失率如何、哪些列预测时不可用、标签在什么时间点产生。`,
+          md`A model does not automatically know whether data is reliable. It faithfully learns every row, column, and label it receives, including errors, bias, and leakage. This matters because if training data covers only part of the target scenario, the model learns only that part; if labels are inconsistent, the model learns inconsistency; if missingness and anomalies concentrate in groups, performance may degrade for those groups.
 
-Each question maps to a check. describe gives summaries, histograms show shape, box plots show group differences and outliers, scatter plots show relationships, groupby reveals subgroup patterns, and missingness or timeline checks expose leakage.`,
+The classroom goal is to write a data-issue checklist before training. At minimum, students should record where examples came from, the time range, which groups are missing, missing rates by column, which columns are unavailable at prediction time, and when labels were produced.`,
         ),
-        { visualIds: ['eda-investigation-board-v2'] },
+        { visualIds: ['eda-board'], labIds: ['eda-workbench-lab'] },
       ),
       section(
-        'describe-is-not-enough',
-        copy('describe 是起点，不是终点', 'describe Is a Start, Not the Finish'),
+        'missing-bad-duplicate',
+        copy('缺失、坏值、重复和离群点要分开处理', 'Missing, Bad, Duplicate, and Outlier Values Need Different Treatment'),
         copy(
-          md`describe 能快速给出计数、均值、标准差和分位数，但它不会告诉你分布形状。探索时至少要追问：是否偏态？是否双峰？离群点集中在哪些组？缺失值是否和目标相关？
+          md`清洗不是把“不整齐”的数据全部删除。缺失值可能代表没有采集、没有发生、不适用或被用户拒绝填写；坏值可能来自解析错误；重复记录可能来自日志重试；离群点可能是真实少数情况。为什么重要：不同问题需要不同策略，统一删除常常会改变训练分布，让模型远离真实场景。
 
-同一个均值可能对应完全不同的数据：一个是窄而稳定的分布，一个是长尾分布，一个是两个群体混在一起的双峰分布。只看表格摘要会把这些差异压平。`,
-          md`describe quickly gives counts, means, standard deviations, and quantiles, but it does not show distribution shape. During exploration, ask: Is it skewed? Bimodal? Where do outliers cluster? Is missingness related to the target?
+pandas 对照中，isna、duplicated、clip、drop_duplicates、fillna 和分组统计能帮助学生定位问题。每次处理都要回答三个问题：删除或替换了多少行，是否集中影响某个群体，处理规则在预测时能否执行。`,
+          md`Cleaning is not deleting everything that looks untidy. Missing values may mean not collected, did not happen, not applicable, or refused by the user; bad values may come from parsing errors; duplicates may come from log retries; outliers may be real minority cases. This matters because different problems need different policies, and blanket deletion often changes the training distribution.
 
-The same mean can come from very different data: a narrow stable distribution, a long-tailed distribution, or a bimodal mixture of groups. A table summary flattens these differences.`,
+In pandas, isna, duplicated, clip, drop_duplicates, fillna, and grouped summaries help locate issues. Every treatment should answer three questions: how many rows were deleted or replaced, did the rule affect a group disproportionately, and can the same rule run at prediction time?`,
         ),
+        { visualIds: ['cleaning-flow'], labIds: ['cleaning-pipeline-lab'] },
       ),
       section(
-        'distribution-shape',
-        copy('分布形状决定风险读法', 'Distribution Shape Changes Risk Reading'),
+        'labels-and-leakage',
+        copy('标签定义是训练反馈的根', 'Label Definition Is the Root of Training Feedback'),
         copy(
-          md`直方图回答“值集中在哪里”，箱线图回答“中位数、四分位和离群点在哪里”。偏态分布提示均值可能被长尾拉动；双峰分布提示样本可能来自两个群体；异常密集的整数或固定值可能提示采集规则或默认填充值。
+          md`标签不是自然出现的真理，它来自业务规则、人工标注、传感器、日志或未来结果。为什么重要：模型优化的就是标签，如果标签定义错了，模型会把错误当成正确答案。学生要能说清楚标签表示什么，何时可知，由谁产生，是否有噪声，不同标注者是否一致。
 
-分布图还会反过来指导清洗。若某列大量出现 0，要确认 0 是真实数值、缺失占位符，还是业务上的特殊状态。`,
-          md`A histogram asks where values concentrate; a box plot asks where the median, quartiles, and outliers lie. Skew suggests a mean pulled by the tail; bimodality suggests two populations; suspicious spikes at integers or fixed values may indicate collection rules or default fills.
+答案泄漏是标签问题中最危险的一类。比如用“成交后生成的评价”预测“是否会成交”，模型会学到未来信息；验证分数可能非常高，但上线时信息不存在。课堂练习应让学生把每个特征放到时间线上，标出预测时刻之前和之后。`,
+          md`A label is not naturally occurring truth; it comes from business rules, human annotation, sensors, logs, or future outcomes. This matters because the model optimizes the label. If the label definition is wrong, the model treats wrong feedback as the answer. Students should state what the label means, when it is known, who produced it, whether it is noisy, and whether annotators agree.
 
-Distribution plots also guide cleaning. If a column contains many zeros, verify whether zero is a real value, a missing placeholder, or a special business state.`,
-        ),
-        { visualIds: ['eda-workbench-image'] },
-      ),
-      section(
-        'relationships',
-        copy('关系图要服务假设', 'Relationship Plots Serve Assumptions'),
-        copy(
-          md`散点图、相关矩阵和分组柱状图不是为了让页面更丰富，而是为了检验假设。面积和房价是否近似单调？离群点是否只来自某个街区？某个类别是否样本太少？这些问题决定线性模型是否足够，是否需要变换或交互项。
-
-相关性高不等于因果，也不等于特征可用。EDA 阶段看到强关系时，要立刻追问：这列在预测时是否已经知道？是否只是 label 的另一种记录方式？`,
-          md`Scatter plots, correlation matrices, and grouped bars are not page decoration; they test assumptions. Is area roughly monotonic with price? Do outliers come from one district? Does a category have too few examples? These questions shape whether a linear model is enough or whether transformations and interactions are needed.
-
-High correlation is not causation and not proof of feature availability. When EDA finds a strong relationship, immediately ask whether the column is known at prediction time or merely another record of the label.`,
-        ),
-        { labIds: ['eda-workbench-lab'] },
-      ),
-      section(
-        'split-apply-combine',
-        copy('用 split-apply-combine 读分组', 'Read Groups with Split-Apply-Combine'),
-        copy(
-          md`GroupBy 的心智模型是 split-apply-combine：先按类别拆分表，再对每组应用统计函数，最后把结果合并成一张摘要表。它能把总体平均看不到的结构显出来。
-
-但分组统计必须带上 count。一个组的均值再高，如果只有两条样本，也不能和几千条样本的组同等解读。好的 EDA 会同时看均值、样本数、分散程度和缺失比例。`,
-          md`The GroupBy mental model is split-apply-combine: split the table by category, apply a statistic to each group, then combine the results into a summary table. It reveals structure hidden by global averages.
-
-Grouped statistics must carry counts. A high group mean based on two samples should not be read like a group with thousands of samples. Good EDA reads mean, count, spread, and missing rate together.`,
-        ),
-        { visualIds: ['eda-split-apply-video'] },
-      ),
-      section(
-        'leakage-check',
-        copy('探索时也要防泄漏', 'Check Leakage During EDA'),
-        copy(
-          md`探索越深入，越容易把目标答案泄露进特征。强相关列不一定是好特征；它可能是目标的另一种记录方式，或是预测时不可用的信息。EDA 需要把“相关”与“可用”分开。
-
-泄漏检查最好用时间线表达：数据在什么时候产生，预测在什么时候发生，label 在什么时候确定。任何晚于预测时刻的信息都不能进入 feature，即使它在历史数据里很容易获得。`,
-          md`The deeper the exploration, the easier it is to leak target information into features. A strongly correlated column is not automatically a good feature; it may be another record of the label or information unavailable at prediction time. EDA must separate correlation from availability.
-
-Leakage checks are best expressed as timelines: when the data is created, when prediction happens, and when the label is known. Anything later than prediction time cannot enter features, even if it is easy to access historically.`,
+Target leakage is one of the most dangerous label problems. For example, using a review generated after sale to predict whether a sale will happen lets the model learn future information. Validation may look excellent, but the signal will not exist at serving time. A classroom exercise should place each feature on a timeline before and after prediction time.`,
         ),
       ),
       section(
-        'eda-handoff',
-        copy('把探索结论交给下一步', 'Hand EDA Findings to the Next Step'),
+        'imbalance-and-baselines',
+        copy('不平衡数据先看基线和任务成本', 'Imbalanced Data Needs Baselines and Task Costs First'),
         copy(
-          md`EDA 的结尾应该是一组明确动作：哪些列需要清洗，哪些列需要缩放，哪些类别需要合并，哪些关系提示特征交叉，哪些群体需要更多数据，哪些列因泄漏被排除。
+          md`类别不平衡时，单一准确率很容易误导学生。多数类基线是第一步：如果 95% 的样本都是否定类，那么一个什么都不学的模型也可能有 95% 准确率。为什么重要：模型评估必须结合召回率、精确率、混淆矩阵、阈值和任务成本，否则少数类错误会被总体指标掩盖。
 
-如果探索只停留在“图看起来不错”，它没有真正帮助建模。好的 EDA 会让下一步的数据处理和模型选择更少猜测、更可复现。`,
-          md`EDA should end with concrete actions: which columns need cleaning, which need scaling, which categories should merge, which relationships suggest crosses, which groups need more data, and which columns are excluded for leakage.
+在数据实验室里，重点是先发现比例问题。pandas 的 value_counts(normalize=True) 和 groupby 可以检查不平衡是否集中在地区、设备、时间或采集渠道。学生要学会问：少数类样本够不够，是否需要更多数据，是否需要不同指标，而不是只追求更高 accuracy。`,
+          md`With class imbalance, raw accuracy easily misleads students. The majority-class baseline comes first: if 95% of examples are negative, a model that learns nothing may still reach 95% accuracy. This matters because evaluation must include recall, precision, confusion matrices, thresholds, and task cost; otherwise minority-class errors are hidden inside aggregate metrics.
 
-If exploration stops at charts looking nice, it has not helped modeling. Good EDA makes later preprocessing and model selection less guessy and more reproducible.`,
+In Data Lab, the focus is to discover the proportion problem early. pandas value_counts(normalize=True) and groupby can check whether imbalance concentrates by region, device, time, or collection channel. Students should ask whether the minority class has enough examples, whether more data is needed, and whether different metrics are required, not only how to raise accuracy.`,
         ),
+      ),
+      section(
+        'quality-report',
+        copy('把 EDA 写成数据质量报告', 'Write Exploratory Analysis as a Data-quality Report'),
+        copy(
+          md`探索性分析不是画几张漂亮图，而是为建模决策提供证据。一个合格的数据质量报告应包含：样本来源、时间范围、行列 shape、列语义、缺失率、异常处理、标签定义、类别比例、主要分组差异、训练前风险和后续需要补采的数据。为什么重要：报告让团队能复查数据处理决策，也让学生知道模型表现不是孤立数字。
+
+课堂交付可以是一页表格：每个问题对应一个 pandas 检查、一个发现、一个处理建议和一个风险等级。这样学生能把 EDA 从“看图”提升为“形成可解释结论”。`,
+          md`Exploratory analysis is not drawing pretty charts; it provides evidence for modeling decisions. A useful data-quality report includes data collection context, time range, row/column shape, column semantics, missing rates, anomaly handling, label definition, class proportions, major group differences, pre-training risks, and data that still needs to be collected. This matters because reports make processing decisions reviewable and teach students that model performance is not an isolated number.
+
+A classroom deliverable can be a one-page table: each issue maps to a pandas check, a finding, a suggested treatment, and a risk level. Students then move from looking at charts to forming explainable conclusions.`,
+        ),
+        { visualIds: ['pandas-shape-audit'], labIds: ['eda-workbench-lab'] },
       ),
     ],
     visuals: [
-      image(
-        'eda-investigation-board-v2',
-        'eda-investigation-board-v2.png',
-        copy('EDA 问题地图', 'EDA investigation board'),
-        copy(
-          '围绕同一张表，从摘要、分布、离群、关系、分组和泄漏六个角度把探索问题组织起来。',
-          'Around one table, organize EDA questions through summaries, distributions, outliers, relationships, groups, and leakage checks.',
-        ),
-        [
-          { id: 'table', x: 44, y: 41, label: copy('中心表格', 'Central table') },
-          { id: 'describe', x: 14, y: 15, label: copy('摘要统计', 'Summary stats') },
-          { id: 'hist', x: 41, y: 10, label: copy('分布形状', 'Distribution shape') },
-          { id: 'box', x: 70, y: 11, label: copy('离群与分组', 'Outliers and groups') },
-          { id: 'scatter', x: 70, y: 49, label: copy('变量关系', 'Relationships') },
-          { id: 'groupby', x: 16, y: 54, label: copy('分组比较', 'Group comparison') },
-          { id: 'leakage', x: 68, y: 83, label: copy('泄漏检查', 'Leakage check') },
-        ],
-      ),
-      image(
-        'eda-workbench-image',
-        'exploratory-data-analysis.png',
-        copy('探索性数据分析工作台', 'EDA workbench'),
-        copy(
-          '同一张表可以从分布、离群点、相关性和分组差异四个角度阅读。',
-          'One table can be read through distribution, outliers, correlation, and group differences.',
-        ),
-        [
-          { id: 'distribution', x: 30, y: 12, label: copy('分布', 'Distribution') },
-          { id: 'outlier', x: 68, y: 18, label: copy('离群点', 'Outliers') },
-          { id: 'groups', x: 78, y: 74, label: copy('分组', 'Groups') },
-          { id: 'mean-warning', x: 31, y: 85, label: copy('均值会隐藏形状', 'Mean can hide shape') },
-        ],
-      ),
-      video(
-        'eda-split-apply-video',
-        'eda-split-apply',
-        copy('split-apply-combine 动画', 'Split-apply-combine animation'),
-        copy(
-          '动画展示表格如何按类别拆分、分别统计，再组合成分析结果。',
-          'Animation showing a table split by category, summarized, and recombined into analysis output.',
-        ),
-      ),
+      image('eda-board', 'eda-investigation-board-v2.png', copy('数据质量调查板', 'Data-quality investigation board'), copy('建模前先检查样本、列、标签、比例和时间窗口。', 'Before modeling, inspect examples, columns, labels, proportions, and time windows.'), [
+        { id: 'shape', x: 16, y: 18, label: copy('表格形状', 'shape') },
+        { id: 'missing', x: 36, y: 18, label: copy('缺失', 'missing') },
+        { id: 'label', x: 56, y: 18, label: copy('标签', 'labels') },
+        { id: 'imbalance', x: 77, y: 18, label: copy('比例', 'proportion') },
+        { id: 'report', x: 50, y: 84, label: copy('质量报告', 'report') },
+      ]),
+      image('cleaning-flow', 'data-cleaning-preprocessing.png', copy('清洗流程', 'Cleaning workflow'), copy('不同数据问题需要不同处理策略，并记录对训练样本的影响。', 'Different data problems need different treatments, with training impact recorded.'), [
+        { id: 'missing', x: 13, y: 28, label: copy('缺失', 'Missing') },
+        { id: 'bad', x: 34, y: 28, label: copy('坏值', 'Bad values') },
+        { id: 'duplicate', x: 55, y: 28, label: copy('重复', 'Duplicate') },
+        { id: 'outlier', x: 77, y: 28, label: copy('离群', 'Outlier') },
+      ]),
+      image('pandas-shape-audit', 'pandas-shape-audit-v2.png', copy('shape 审计链', 'Shape-audit chain'), copy('每个数据变换都要记录输入输出 shape、列语义和参数。', 'Every transform records input/output shape, column meaning, and parameters.'), [
+        { id: 'input', x: 11, y: 28, label: copy('输入表', 'Input table') },
+        { id: 'select', x: 25, y: 16, label: copy('选择', 'Select') },
+        { id: 'filter', x: 39, y: 16, label: copy('过滤', 'Filter') },
+        { id: 'assign', x: 53, y: 16, label: copy('派生', 'Assign') },
+        { id: 'audit', x: 50, y: 88, label: copy('审计 shape', 'Audit shape') },
+      ]),
+      video('cleaning-video', 'data-cleaning-flow', copy('清洗动画', 'Cleaning animation'), copy('展示缺失、坏值和离群点如何进入处理策略。', 'Shows missing values, bad values, and outliers entering treatment policies.')),
+      video('eda-video', 'eda-split-apply', copy('EDA 分组动画', 'EDA grouped-analysis animation'), copy('展示分组统计如何暴露比例和质量问题。', 'Shows grouped statistics exposing proportion and quality issues.')),
     ],
     labs: [
-      lab('eda-workbench-lab', copy('EDA 工作台', 'EDA Workbench'), 'EdaWorkbenchLab', [
-        copy(
-          '能用不同图形解释同一列数据的不同风险。',
-          'Use different plots to explain different risks in the same column.',
-        ),
-        copy(
-          '能说出 groupby 为什么能揭示总体均值看不到的信息。',
-          'Explain why groupby can reveal information hidden by overall means.',
-        ),
-        copy(
-          '能把 EDA 发现转化为清洗、缩放、分组或泄漏检查动作。',
-          'Convert EDA findings into cleaning, scaling, grouping, or leakage-check actions.',
-        ),
+      lab('cleaning-pipeline-lab', copy('清洗策略实验室', 'Cleaning Policy Lab'), 'CleaningPipelineLab', [
+        copy('能比较删除、补值、裁剪和保留异常的后果。', 'Compare deletion, imputation, clipping, and anomaly retention.'),
+        copy('能说明清洗策略如何改变样本集合。', 'Explain how cleaning policies change the example set.'),
+      ]),
+      lab('eda-workbench-lab', copy('数据质量工作台', 'Data Quality Workbench'), 'EdaWorkbenchLab', [
+        copy('能用分布和分组统计发现数据风险。', 'Use distributions and grouped statistics to find data risks.'),
+        copy('能把发现写成建模前质量结论。', 'Write findings as pre-modeling quality conclusions.'),
       ]),
     ],
     quizzes: [
-      quiz(
-        'mean-risk',
-        copy('为什么只看均值可能危险？', 'Why can looking only at a mean be risky?'),
-        'shape',
-        copy('因为均值可能掩盖分布形状和离群点。', 'Because a mean can hide distribution shape and outliers.'),
-        copy('因为均值永远不能计算。', 'Because means can never be computed.'),
-        copy(
-          '均值有用，但它不能替代分布、分位数和分组检查。',
-          'A mean is useful, but it cannot replace distributions, quantiles, and grouped checks.',
-        ),
-      ),
-      quiz(
-        'groupby-count',
-        copy('分组均值旁边为什么应该同时看 count？', 'Why should grouped means be read with counts?'),
-        'stability',
-        copy('样本数决定这个均值有多稳定。', 'Sample count affects how stable the mean is.'),
-        copy('count 只用于排序，不影响解释。', 'Count is only for sorting and does not affect interpretation.'),
-        copy(
-          '两条样本的组均值不应和大量样本的组均值同等解读。',
-          'A group mean from two samples should not be interpreted like a group mean from many samples.',
-        ),
-      ),
-      quiz(
-        'correlation-risk',
-        copy('EDA 发现某列与 label 高度相关后，下一步应该问什么？', 'After EDA finds a column highly correlated with the label, what should be asked next?'),
-        'availability',
-        copy('预测时这列是否已经可用，是否可能泄漏。', 'Whether the column is available at prediction time and whether it leaks.'),
-        copy('立刻把它作为最重要特征。', 'Immediately use it as the most important feature.'),
-        copy(
-          '相关性需要结合时间线和业务语义解释。',
-          'Correlation must be interpreted with timeline and business semantics.',
-        ),
-      ),
+      quiz('drop-missing', copy('缺失值多的行是否应该一律删除？', 'Should rows with missing values always be deleted?'), 'no', copy('不应该，应先理解缺失机制和影响范围。', 'No. Understand the missingness mechanism and impact first.'), copy('应该，删除后表格最干净。', 'Yes, because the table becomes clean.'), copy('统一删除可能改变训练人群。', 'Blanket deletion can change the training population.')),
+      quiz('label-timing', copy('预测成交前结果时，可以使用成交后产生的信息吗？', 'Can post-sale information be used to predict a pre-sale outcome?'), 'no', copy('不能，这是答案泄漏。', 'No. That is target leakage.'), copy('可以，只要分数更高。', 'Yes, if the score becomes higher.'), copy('特征必须在预测时刻已经可用。', 'Features must be available at prediction time.')),
+      quiz('imbalance-accuracy', copy('正类只有 1% 时，99% accuracy 一定好吗？', 'If positives are 1%, is 99% accuracy always good?'), 'no', copy('不一定，可能只是全部预测负类。', 'Not necessarily. It may predict every example as negative.'), copy('一定很好。', 'Definitely good.'), copy('要结合基线、召回率和任务成本。', 'Use baselines, recall, and task cost.')),
     ],
     misconceptions: [
-      misconception(
-        'correlation-causal',
-        copy('相关性高就说明一个变量导致另一个变量。', 'High correlation means one variable causes the other.'),
-        copy(
-          '相关性只是共同变化信号，可能来自混杂因素、泄漏或共同趋势。',
-          'Correlation only signals co-movement; it may come from confounding, leakage, or shared trends.',
-        ),
-        copy(
-          '成交价和佣金高度相关，但佣金可能在成交后才知道，不能作为预测前特征。',
-          'Final price and commission may correlate strongly, but commission may be known only after sale.',
-        ),
-      ),
-      misconception(
-        'plot-more',
-        copy('EDA 就是画越多图越好。', 'EDA means making as many plots as possible.'),
-        copy(
-          '图形必须服务具体问题；没有问题的图只会增加噪声。',
-          'Plots must serve concrete questions; plots without questions add noise.',
-        ),
-        copy(
-          '直方图、箱线图、散点图和 groupby 摘要应该分别回答不同假设。',
-          'Histograms, box plots, scatter plots, and groupby summaries should answer different assumptions.',
-        ),
-      ),
-      misconception(
-        'describe-complete',
-        copy('describe 已经足够代表一列数据。', 'describe fully represents a column.'),
-        copy(
-          'describe 是摘要，不展示形状、双峰、群体差异和许多离群结构。',
-          'describe is a summary; it does not show shape, bimodality, group differences, or many outlier structures.',
-        ),
-        copy(
-          '两个分布可以均值和标准差接近，但一个单峰、一个双峰。',
-          'Two distributions can have similar means and standard deviations while one is unimodal and the other bimodal.',
-        ),
-      ),
+      misconception('eda-decoration', copy('EDA 只是做几张图。', 'EDA is just making charts.'), copy('EDA 的目标是产生可复查的数据质量结论。', 'EDA should produce reviewable data-quality conclusions.'), copy('每张图后面都应有发现和下一步。', 'Each chart should lead to a finding and next step.')),
+      misconception('labels-perfect', copy('标签总是正确答案。', 'Labels are always correct answers.'), copy('标签可能有噪声、延迟、定义错误或标注不一致。', 'Labels can be noisy, delayed, misdefined, or inconsistent.'), copy('模型会学习标签里的错误。', 'A model learns errors in labels.')),
+      misconception('outlier-delete', copy('离群点都应该删除。', 'All outliers should be deleted.'), copy('离群点可能是真实少数情况，必须先解释。', 'Outliers may be real minority cases and must be interpreted first.'), copy('豪宅价格可能是真实信号，不一定是坏值。', 'A luxury-house price may be real signal, not necessarily a bad value.')),
     ],
-    sourceReferences: [
-      sources.googleNumerical,
-      sources.pandasVisualization,
-      sources.pandasGroupby,
-      sources.pandasMissing,
-    ],
+    sourceReferences: refs('dataQuality', 'pandasMissing', 'pandasVisualization', 'pandasGroupby'),
   }),
   moduleDefinition({
-    id: 'pandas-workflow',
+    id: 'splits-generalization',
     order: 4,
-    title: copy('pandas 工作流', 'pandas Workflow'),
+    title: copy('划分与泛化：让评估像未来一样未知', 'Splits and Generalization: Make Evaluation Look Like the Future'),
     subtitle: copy(
-      '把表格操作组织成清晰、可复现、可讲解的 method chain。',
-      'Organize table operations into clear, reproducible, explainable method chains.',
+      '理解训练集、验证集和测试集各自的职责，并学会把变换参数只从训练集学习。',
+      'Understand the roles of training, validation, and test sets, and learn to fit transform parameters only from training data.',
     ),
-    accent: '#7048e8',
-    theme: '#f1edff',
-    estimatedMinutes: 52,
+    accent: '#16a34a',
+    theme: '#eefbf1',
+    estimatedMinutes: 78,
     learningObjectives: [
-      copy(
-        '解释 DataFrame、Series、index、列选择、布尔过滤和新增列。',
-        'Explain DataFrame, Series, index, column selection, boolean filtering, and derived columns.',
-      ),
-      copy(
-        '用等价 pandas 代码描述 sort、merge、concat、groupby、pivot 和 method chaining。',
-        'Describe sort, merge, concat, groupby, pivot, and method chaining with equivalent pandas code.',
-      ),
-      copy(
-        '用表格 shape、列含义和索引变化检查每一步是否符合预期。',
-        'Use table shape, column meaning, and index changes to check each step.',
-      ),
-      copy(
-        '把长链拆成可命名、可测试、可解释的阶段。',
-        'Split long chains into named, testable, explainable stages.',
-      ),
-      copy(
-        '识别 merge 扩张、groupby 粒度变化、pivot 稀疏化和派生列泄漏。',
-        'Recognize merge expansion, groupby granularity changes, pivot sparsity, and derived-column leakage.',
-      ),
+      copy('说明训练集、验证集和测试集的职责边界。', 'Explain the responsibilities of training, validation, and test sets.'),
+      copy('判断随机划分、分层划分和时间划分分别适合什么场景。', 'Choose among random, stratified, and time-based splits by scenario.'),
+      copy('解释 fit/transform 规则以及为什么变换参数只能从训练集学习。', 'Explain fit/transform and why transform parameters are learned from training data only.'),
+      copy('用训练和验证表现判断泛化差距。', 'Use training and validation behavior to judge generalization gaps.'),
+      copy('写出可复查的数据划分和处理协议。', 'Write reviewable data-splitting and processing protocols.'),
     ],
     concepts: [
-      concept(
-        'dataframe-series',
-        copy('DataFrame 与 Series', 'DataFrame and Series'),
-        copy(
-          'DataFrame 是带列名和索引的二维表；选出一列通常得到 Series，选出多列仍是 DataFrame。',
-          'A DataFrame is a two-dimensional table with column names and an index; selecting one column usually returns a Series, while selecting multiple columns keeps a DataFrame.',
-        ),
-        copy(
-          'df["price"] 是一列 Series；df[["district", "price"]] 是两列表格。',
-          'df["price"] is a Series; df[["district", "price"]] is a two-column DataFrame.',
-        ),
-        "df['price']\ndf[['district', 'price']]",
-      ),
-      concept(
-        'boolean-mask',
-        copy('布尔过滤', 'Boolean Filtering'),
-        copy(
-          '布尔条件会为每一行产生 True/False，再保留 True 行。过滤后行数变化是最重要的调试信号。',
-          'A boolean condition creates True/False for each row, then keeps True rows. The row-count change is the key debugging signal.',
-        ),
-        copy(
-          '只保留 price 非空且小于 2000 的样本，会同时处理缺失和极端值。',
-          'Keeping rows where price is not missing and below 2000 handles missingness and extreme values together.',
-        ),
-        "df = df[df['price'].notna() & (df['price'] < 2000)]",
-      ),
-      concept(
-        'derived-column',
-        copy('派生列', 'Derived Column'),
-        copy(
-          '派生列把已有列转换成更有任务意义的信号，但必须避免把 label 或未来信息换个名字塞回 feature。',
-          'A derived column transforms existing columns into a more task-relevant signal, but must not reinsert the label or future information under a new name.',
-        ),
-        copy(
-          'price_per_room 可能帮助比较房源，但若预测目标就是 price，就要小心它是否直接使用了答案。',
-          'price_per_room may help compare homes, but if the target is price, check whether it directly uses the answer.',
-        ),
-        "df = df.assign(price_per_room=lambda d: d['price'] / d['rooms'])",
-      ),
-      concept(
-        'method-chain',
-        copy('Method chain', 'Method Chain'),
-        copy(
-          '把选择、过滤、派生列、分组和排序连成一条链，可以让数据处理过程像配方一样可读。',
-          'Chaining selection, filtering, derived columns, grouping, and sorting makes a data pipeline read like a recipe.',
-        ),
-        copy(
-          '先过滤有效价格，再添加单价列，最后按街区聚合。',
-          'Filter valid prices, add price-per-room, then aggregate by district.',
-        ),
-        "(\n    df.dropna(subset=['price'])\n      .assign(price_per_room=lambda d: d['price'] / d['rooms'])\n      .groupby('district')['price_per_room'].mean()\n)",
-      ),
-      concept(
-        'shape-audit',
-        copy('Shape 审计', 'Shape Audit'),
-        copy(
-          '每一步都应该能说明输入行列数、输出行列数、列语义和索引变化。shape 不对，含义通常也不对。',
-          'Each step should explain input rows/columns, output rows/columns, column meaning, and index changes. If shape is wrong, meaning is often wrong too.',
-        ),
-        copy(
-          'merge 后行数突然翻倍，常说明连接键不是唯一。',
-          'If rows double after merge, the join key is often not unique.',
-        ),
-      ),
-      concept(
-        'split-apply-combine',
-        copy('Split-apply-combine', 'Split-Apply-Combine'),
-        copy(
-          'groupby 会改变表的粒度：从逐行样本变成逐组摘要。后续代码必须知道它已经不是原始样本表。',
-          'groupby changes table granularity from row-level samples to group-level summaries. Later code must know it is no longer the original sample table.',
-        ),
-        copy(
-          '按 district 求 price 均值后，每一行代表一个街区，而不是一个房源。',
-          'After mean price by district, each row represents a district, not a listing.',
-        ),
-        "df.groupby('district')['price'].mean().reset_index()",
-      ),
+      concept('train-set', copy('训练集', 'Training Set'), copy('训练集用于学习模型参数和数据处理参数，例如缩放均值、词表和补值中位数。', 'Training data fits model parameters and processing parameters such as scaling means, vocabularies, and imputation medians.'), copy('模型权重和标准化均值都从训练集得到。', 'Model weights and standardization means both come from training data.')),
+      concept('validation-set', copy('验证集', 'Validation Set'), copy('验证集用于比较模型、超参数和特征方案，不参与拟合。', 'Validation data compares models, hyperparameters, and feature choices without fitting them.'), copy('选择分箱粒度、正则化强度和停止轮数时看验证表现。', 'Validation behavior helps choose bin granularity, regularization strength, and stopping epoch.')),
+      concept('test-set', copy('测试集', 'Test Set'), copy('测试集用于最终确认，越少使用越能保持独立性。', 'Test data provides final confirmation; using it less preserves independence.'), copy('反复用测试集调参，会让它退化成验证集。', 'Repeated test-set tuning turns it into validation data.')),
+      concept('generalization', copy('泛化', 'Generalization'), copy('泛化指模型在未见样本上的表现。训练分数高只能说明模型解释了训练数据。', 'Generalization is performance on unseen examples. A high training score only means the model explains training data.'), copy('训练 loss 下降而验证 loss 上升，通常提示过拟合风险。', 'Falling training loss with rising validation loss usually signals overfitting risk.')),
     ],
     sections: [
       section(
-        'read-table-shape',
-        copy('每一步都读 shape', 'Read Shape at Every Step'),
+        'split-contract',
+        copy('数据划分是一份评估契约', 'A Data Split Is an Evaluation Contract'),
         copy(
-          md`pandas 代码不只是能跑。每一步都应该能说出输入表和输出表的行数、列数、列含义和索引变化。这样调试时才知道是过滤掉了太多行，还是 merge 造成了重复扩张。
+          md`训练、验证和测试不是随便切三份表。训练集用于学习，验证集用于选择，测试集用于最终确认。为什么重要：如果同一批样本既参与选择又参与最终报告，评估就会变得过于乐观。学生要理解，划分的目的不是形式上有三个文件，而是模拟模型遇到未知样本的过程。
 
-shape 是数据语义的外显信号。select 改变列数，filter 改变行数，assign 增加列，groupby 改变粒度，merge 可能扩张行数，pivot 改变行列方向。`,
-          md`pandas code should not only run. Each step should have an expected input/output row count, column count, column meaning, and index behavior. That is how you notice a filter dropping too many rows or a merge expanding duplicates.
+课堂上可以用一个简单问题检查理解：如果模型在训练集表现很好，在验证集表现很差，说明什么？答案不是“验证集有问题”，而是模型可能没有学到能跨样本成立的规律。`,
+          md`Training, validation, and test sets are not arbitrary table slices. Training data is for learning, validation data is for choosing, and test data is for final confirmation. This matters because if the same examples participate in both selection and final reporting, evaluation becomes too optimistic. Students should understand that splitting is not about having three files; it is about simulating unknown examples.
 
-Shape is the visible signal of data meaning. select changes columns, filter changes rows, assign adds columns, groupby changes granularity, merge can expand rows, and pivot changes row/column orientation.`,
-        ),
-        { visualIds: ['pandas-shape-audit-v2'] },
-      ),
-      section(
-        'dataframe-mental-model',
-        copy('先建立 DataFrame 心智模型', 'Build the DataFrame Mental Model First'),
-        copy(
-          md`DataFrame 是带列名和索引的二维表。Series 通常是一列带索引的向量。pandas 入门最常见的错误，是忘记单列选择、多列选择、行过滤和 groupby 结果的形状不同。
-
-把每个操作读成“输入表 -> 规则 -> 输出表”。只要输出表的行、列、索引或粒度改变，后续代码就不能继续假装它还是原表。`,
-          md`A DataFrame is a two-dimensional table with column names and an index. A Series is usually one indexed column. A common beginner mistake is forgetting that single-column selection, multi-column selection, row filtering, and groupby outputs have different shapes.
-
-Read every operation as input table -> rule -> output table. Once rows, columns, index, or granularity change, later code cannot pretend it is still the original table.`,
+A classroom check is simple: if a model performs well on training data and poorly on validation data, what does that mean? The answer is not automatically that validation is bad; the model may not have learned a pattern that holds across examples.`,
         ),
       ),
       section(
-        'selection-filter-assign',
-        copy('选择、过滤、新增列', 'Select, Filter, Assign'),
+        'split-strategies',
+        copy('随机、分层和时间划分服务于不同问题', 'Random, Stratified, and Time-based Splits Serve Different Problems'),
         copy(
-          md`典型 pandas 流程先缩小列，再用布尔条件过滤行，最后用 assign 或直接赋值创建派生列。列选择回答“哪些信息进入下一步”，行过滤回答“哪些样本仍然可信”，派生列回答“哪些组合更贴近任务”。
+          md`随机划分适合样本独立且分布稳定的场景。分层划分适合类别不平衡场景，确保训练、验证和测试中类别比例相近。时间划分适合未来预测问题，让验证和测试发生在训练时间之后。为什么重要：错误划分会让评估看起来好，却无法代表真实使用场景。
 
-派生列要有业务含义，不能只是把目标答案换个名字放回特征。尤其在教学里，每个 assign 都应该能说明公式、单位和预测时可用性。`,
-          md`A typical pandas flow narrows columns, filters rows with boolean masks, then creates derived columns with assign or direct assignment. Column selection answers which information enters the next step, row filtering answers which samples remain trustworthy, and derived columns answer which combinations are more task-relevant.
+学生需要把划分策略和任务联系起来：预测明天的销量不能让未来数据进入训练；评估罕见疾病分类不能让验证集没有正例；同一用户的多条记录如果分散到不同集合，可能让模型间接见过同一个人。`,
+          md`Random splits work when examples are independent and distribution is stable. Stratified splits help with class imbalance by keeping proportions similar across train, validation, and test. Time-based splits fit future-prediction tasks by placing validation and test after the training period. This matters because the wrong split can look good while failing to represent real use.
 
-Derived columns need task meaning; they must not reinsert the target under another name. In teaching, every assign should explain formula, units, and prediction-time availability.`,
-        ),
-        { labIds: ['pandas-pipeline-lab'] },
-      ),
-      section(
-        'groupby-granularity',
-        copy('groupby 会改变粒度', 'groupby Changes Granularity'),
-        copy(
-          md`groupby 不是普通筛选，它会把逐行样本表变成逐组摘要表。按 district 求均值后，每一行代表一个街区；按 district 和 room_bin 求均值后，每一行代表一个街区-户型组合。
-
-因此 groupby 后最重要的问题是：当前表的一行代表什么？若粒度变了，merge 回原表前必须检查键是否唯一，聚合是否合理，count 是否足够。`,
-          md`groupby is not ordinary filtering; it changes a row-level sample table into a group-level summary. After mean by district, each row represents a district. After mean by district and room_bin, each row represents a district-room-bin combination.
-
-The key question after groupby is: what does one row now represent? If granularity changed, check key uniqueness, aggregation meaning, and counts before merging back to the original table.`,
-        ),
-        { visualIds: ['pandas-method-chain-video'] },
-      ),
-      section(
-        'join-group-pivot',
-        copy('连接、拼接和透视都要检查形状', 'Join, Concat, and Pivot Need Shape Checks'),
-        copy(
-          md`merge 用键把表连接起来，concat 沿行或列拼接同结构数据，pivot_table 把长表整理成交叉表。每一种操作都可能改变 shape，因此必须检查键是否唯一、类别是否完整、聚合是否合理。
-
-最常见的错误是 many-to-many merge 造成行数膨胀。若左表某个 key 出现 3 次，右表同一 key 出现 4 次，连接后会产生 12 行组合。shape audit 能在建模前发现这种问题。`,
-          md`merge joins tables by keys, concat stacks compatible data along rows or columns, and pivot_table reshapes long data into a cross-tab. Each operation can change shape, so check key uniqueness, category coverage, and aggregation meaning.
-
-A common error is row expansion from many-to-many merge. If a key appears 3 times on the left and 4 times on the right, the join creates 12 combinations. Shape audit catches this before modeling.`,
+Students should connect split strategy to task: predicting tomorrow's sales must not train on future data; evaluating rare-disease classification cannot leave validation with no positives; records from the same user split across sets may let the model indirectly see the same person.`,
         ),
       ),
       section(
-        'method-chain-readable',
-        copy('链式处理要可读，不是越长越好', 'Method Chains Should Be Readable, Not Long'),
+        'fit-transform-rule',
+        copy('变换参数只能从训练集学习', 'Transform Parameters Come from Training Data Only'),
         copy(
-          md`method chain 的优点是把数据配方从上到下写清楚。它的风险是链太长以后，中间 shape 看不见，错误只在最后暴露。好的链条会按概念分段，并在过滤、merge、groupby 这类关键变化处检查中间结果。
+          md`数据处理也有“训练”。标准化均值、缺失值中位数、分箱边界、类别词表、低频阈值和输出列顺序，都是从数据中学来的参数。为什么重要：如果这些参数从全量数据估计，验证和测试的信息就泄漏进了训练流程，分数会高估模型能力。
 
-教学上可以要求每段链回答三件事：这一步输入是什么，输出是什么，为什么这一步在业务上合理。回答不了，就说明链条需要拆开。`,
-          md`A method chain is useful because it writes a data recipe from top to bottom. Its risk is that long chains hide intermediate shape, so errors appear only at the end. A good chain is segmented by concept and inspects intermediates around filtering, merge, and groupby.
+正确规则是 fit on train, transform everywhere。先在训练集上估计处理参数，再把同一套参数应用到验证、测试和新样本。pandas 中可以用中间变量明确区分 train_stats、train_vocab、transform_train、transform_valid，让学生看见参数从哪里来。`,
+          md`Data processing also has a training phase. Standardization means, imputation medians, bin edges, category vocabularies, rare thresholds, and output column order are parameters learned from data. This matters because estimating them from all data leaks validation and test information into the training workflow and overstates model ability.
 
-For teaching, each chain segment should answer three questions: what is the input, what is the output, and why is this step meaningful for the task. If it cannot answer them, split the chain.`,
+The rule is fit on train, transform everywhere. Estimate processing parameters on training data, then apply the same parameters to validation, test, and new examples. In pandas, intermediate variables such as train_stats, train_vocab, transform_train, and transform_valid make parameter origin visible.`,
+        ),
+        { visualIds: ['pandas-shape-audit'], labIds: ['pandas-pipeline-lab'] },
+      ),
+      section(
+        'generalization-gap',
+        copy('泛化差距比训练分数更重要', 'The Generalization Gap Matters More Than Training Score'),
+        copy(
+          md`训练分数回答“模型是否解释了训练样本”，验证分数回答“这个解释是否能用于未见样本”。两者之间的差距就是泛化差距。为什么重要：机器学习的价值来自新样本表现，而不是背诵旧样本。训练 loss 很低但验证 loss 很高，通常说明模型太复杂、特征泄漏、数据划分不代表未来，或者训练样本噪声被记住了。
+
+学生读曲线时要同时看训练和验证：两条都高可能欠拟合或特征不足；训练低验证高可能过拟合；两条都震荡可能学习率、尺度或坏数据有问题。数据实验室关注的是这些曲线背后的数据原因。`,
+          md`Training score answers whether the model explains training examples; validation score asks whether that explanation transfers to unseen examples. The difference is the generalization gap. This matters because machine learning creates value on new examples, not memorized old ones. Low training loss with high validation loss often means excessive complexity, leakage, unrepresentative splits, or memorized noise.
+
+Students should read training and validation curves together: both high may mean underfitting or insufficient features; low train and high validation may mean overfitting; both oscillating may point to learning rate, scale, or bad data. Data Lab focuses on data-side causes behind these curves.`,
         ),
       ),
       section(
-        'workflow-handoff',
-        copy('把 pandas 流程变成可复现配方', 'Turn pandas Workflow into a Reproducible Recipe'),
+        'split-protocol',
+        copy('把划分和变换写成协议', 'Write Splits and Transforms as a Protocol'),
         copy(
-          md`数据准备流程最终应该能被重新运行、测试和解释。不要只保存最后一张表；要保存每一步的规则、关键参数、shape 变化和来源假设。这样当模型表现变化时，才能追踪是数据分布变了、清洗规则变了，还是模型本身变了。
+          md`可复查的数据协议至少记录：随机种子、划分策略、时间边界、分层列、训练集拟合出的参数、输出列顺序、每一步输入输出 shape，以及哪些列在预测时可用。为什么重要：没有协议，下一次重训可能悄悄改变评估含义；有了协议，学生和团队才能复现模型输入。
 
-数据实验室的 pandas Pipeline 模拟器把每个按钮对应到等价 pandas 代码和输出表变化。目标是让学习者把代码读成数据协议，而不是把 pandas 当作黑盒魔法。`,
-          md`A data-preparation workflow should be rerunnable, testable, and explainable. Do not save only the final table; save rules, key parameters, shape changes, and source assumptions for each step. Then when model behavior changes, you can trace whether data distribution, cleaning rules, or the model changed.
+课堂练习可以让学生把一段 pandas 代码拆成 fit 和 transform 两部分，并解释哪些变量应保存到模型工件中。这样他们会看到“数据准备”不是临时脚本，而是模型系统的一部分。`,
+          md`A reviewable data protocol records at least random seed, split strategy, time boundary, stratification column, parameters fit on training data, output column order, input/output shape at each step, and which columns are available at prediction time. This matters because without a protocol, retraining may silently change evaluation meaning; with one, students and teams can reproduce model inputs.
 
-The pandas Pipeline simulator maps each button to equivalent pandas code and output-table changes. The goal is to read code as a data contract, not treat pandas as black-box magic.`,
+A classroom exercise can split pandas code into fit and transform phases, then explain which variables belong in the model artifact. Students then see that data preparation is not a temporary script but part of the model system.`,
         ),
-        { visualIds: ['pandas-workflow-image'] },
+        { visualIds: ['pandas-workflow'], labIds: ['pandas-pipeline-lab'] },
       ),
     ],
     visuals: [
-      image(
-        'pandas-shape-audit-v2',
-        'pandas-shape-audit-v2.png',
-        copy('pandas shape 审计链', 'pandas shape-audit chain'),
-        copy(
-          'select、filter、assign、groupby、merge 和 sort 每一步都会改变表格的行列形状或语义，必须在链式处理中显式检查。',
-          'select, filter, assign, groupby, merge, and sort each change table shape or meaning and should be explicitly checked in method chains.',
-        ),
-        [
-          { id: 'input', x: 11, y: 28, label: copy('输入表', 'Input table') },
-          { id: 'select', x: 25, y: 16, label: copy('选择列', 'Select') },
-          { id: 'filter', x: 39, y: 16, label: copy('过滤行', 'Filter') },
-          { id: 'assign', x: 53, y: 16, label: copy('新增列', 'Assign') },
-          { id: 'groupby', x: 67, y: 16, label: copy('分组聚合', 'GroupBy') },
-          { id: 'merge', x: 80, y: 16, label: copy('连接检查', 'Merge') },
-          { id: 'output', x: 93, y: 16, label: copy('输出表', 'Output') },
-          { id: 'audit', x: 50, y: 88, label: copy('每步记录 shape', 'Audit shape at every step') },
-        ],
-      ),
-      image(
-        'pandas-workflow-image',
-        'pandas-workflow.png',
-        copy('pandas 链式处理', 'pandas method chain'),
-        copy(
-          'DataFrame 经过选择、过滤、派生、分组、连接和排序后，形成可复现的数据配方。',
-          'A DataFrame passes through selection, filtering, derivation, grouping, joining, and sorting as a reproducible recipe.',
-        ),
-        [
-          { id: 'input', x: 16, y: 13, label: copy('输入 DataFrame', 'Input DataFrame') },
-          { id: 'chain', x: 52, y: 13, label: copy('链式步骤', 'method chain') },
-          { id: 'output', x: 83, y: 13, label: copy('输出表', 'Output table') },
-          { id: 'shape', x: 51, y: 84, label: copy('每步检查 shape', 'Check shape each step') },
-        ],
-      ),
-      video(
-        'pandas-method-chain-video',
-        'pandas-method-chain',
-        copy('pandas 链式处理动画', 'pandas method-chain animation'),
-        copy(
-          '动画展示一张表如何经过过滤、派生、分组、连接和排序得到结果。',
-          'Animation showing a table moving through filter, assign, groupby, merge, and sort.',
-        ),
-      ),
+      image('pandas-shape-audit', 'pandas-shape-audit-v2.png', copy('划分后的 shape 审计', 'Post-split shape audit'), copy('训练、验证和测试要记录 shape、列顺序和参数来源。', 'Train, validation, and test need recorded shape, column order, and parameter origin.'), [
+        { id: 'input', x: 11, y: 28, label: copy('输入表', 'Input table') },
+        { id: 'select', x: 25, y: 16, label: copy('划分', 'Split') },
+        { id: 'filter', x: 39, y: 16, label: copy('拟合参数', 'fit') },
+        { id: 'assign', x: 53, y: 16, label: copy('应用变换', 'transform') },
+        { id: 'audit', x: 50, y: 88, label: copy('审计', 'Audit') },
+      ]),
+      image('pandas-workflow', 'pandas-workflow.png', copy('划分与变换协议', 'Split and transform protocol'), copy('把划分、变换和保存参数组织成可复用的数据协议。', 'Turn splits, transforms, and saved parameters into a reusable data protocol.'), [
+        { id: 'input', x: 16, y: 13, label: copy('输入', 'Input') },
+        { id: 'chain', x: 52, y: 13, label: copy('协议', 'Protocol') },
+        { id: 'output', x: 83, y: 13, label: copy('输出', 'Output') },
+        { id: 'shape', x: 51, y: 84, label: copy('检查 shape', 'Check shape') },
+      ]),
+      video('pandas-method-chain-video', 'pandas-method-chain', copy('pandas 链式处理动画', 'pandas method-chain animation'), copy('展示表格如何经过过滤、派生、聚合和连接。', 'Shows a table moving through filter, assign, aggregate, and merge.')),
     ],
     labs: [
-      lab('pandas-pipeline-lab', copy('pandas Pipeline 模拟器', 'pandas Pipeline Simulator'), 'PandasPipelineLab', [
-        copy(
-          '能把每个按钮对应到一段 pandas 代码。',
-          'Map each button to a pandas code snippet.',
-        ),
-        copy(
-          '能用行列数变化判断 pipeline 是否符合预期。',
-          'Use row/column shape changes to judge whether the pipeline behaves as expected.',
-        ),
-        copy(
-          '能解释 groupby、merge 和 assign 分别怎样改变表格语义。',
-          'Explain how groupby, merge, and assign each change table meaning.',
-        ),
+      lab('pandas-pipeline-lab', copy('划分与变换实验室', 'Split and Transform Lab'), 'PandasPipelineLab', [
+        copy('能解释 fit 参数只来自训练集。', 'Explain why fit parameters come from training data only.'),
+        copy('能用 shape 审计发现划分或变换错误。', 'Use shape audits to find split or transform mistakes.'),
       ]),
     ],
     quizzes: [
-      quiz(
-        'series-dataframe',
-        copy('在 pandas 中，单列选择通常返回什么？', 'In pandas, what does selecting one column usually return?'),
-        'series',
-        copy('Series。', 'A Series.'),
-        copy('一定返回完整 DataFrame。', 'Always a full DataFrame.'),
-        copy(
-          '单列和多列选择的返回类型不同，是 pandas 入门中最常见的形状问题。',
-          'Single-column and multi-column selection return different shapes, a common beginner issue.',
-        ),
-      ),
-      quiz(
-        'merge-expansion',
-        copy('merge 后行数突然增加，最常见的原因是什么？', 'If rows suddenly increase after merge, what is the most common reason?'),
-        'many-to-many',
-        copy('连接键不是唯一，发生了多对多组合。', 'The join key is not unique, causing many-to-many combinations.'),
-        copy('pandas 自动复制所有列名。', 'pandas automatically duplicates all column names.'),
-        copy(
-          'merge 会按匹配键组合左右表，键重复会扩张行数。',
-          'merge combines rows by matching keys, and repeated keys can expand row count.',
-        ),
-      ),
-      quiz(
-        'groupby-grain',
-        copy('groupby 之后，表格粒度通常发生了什么变化？', 'After groupby, how does table granularity usually change?'),
-        'group',
-        copy('从逐样本行变成逐组摘要行。', 'It changes from sample-level rows to group-level summary rows.'),
-        copy('完全不变，只是排序不同。', 'It stays exactly the same, only sorted differently.'),
-        copy(
-          '聚合后的每一行代表一个组，因此后续解释要按组粒度进行。',
-          'After aggregation, each row represents a group, so later interpretation is at group granularity.',
-        ),
-      ),
+      quiz('test-tuning', copy('测试集可以频繁用于调参吗？', 'Can the test set be used frequently for tuning?'), 'no', copy('不可以，频繁使用会让它失去独立性。', 'No. Frequent use destroys its independence.'), copy('可以，越频繁越可靠。', 'Yes, more frequent use is more reliable.'), copy('调参应该依赖训练/验证循环。', 'Tuning should rely on the train/validation loop.')),
+      quiz('fit-transform', copy('验证集可以计算自己的缩放均值吗？', 'Can validation data compute its own scaling mean?'), 'no', copy('不能，应复用训练集均值。', 'No. It should reuse the training mean.'), copy('可以，这样更贴合验证集。', 'Yes, to fit validation better.'), copy('验证集要模拟未知样本。', 'Validation should simulate unseen examples.')),
+      quiz('time-split', copy('预测未来销量时，哪种划分通常更合理？', 'For future sales prediction, which split is usually more appropriate?'), 'time', copy('按时间划分。', 'A time-based split.'), copy('随便打乱即可。', 'Any random shuffle.'), copy('未来预测要让验证和测试发生在训练之后。', 'Future prediction should place validation and test after training time.')),
     ],
     misconceptions: [
-      misconception(
-        'chain-hard-debug',
-        copy('method chain 越长越专业。', 'The longer a method chain, the more professional it is.'),
-        copy(
-          '好的链条应该按概念分段，并在关键 shape 变化处容易检查。',
-          'A good chain is conceptually segmented and easy to inspect at key shape changes.',
-        ),
-        copy(
-          '过滤、merge 和 groupby 通常值得分别看中间结果。',
-          'Filtering, merge, and groupby often deserve intermediate inspection.',
-        ),
-      ),
-      misconception(
-        'assign-always-safe',
-        copy('只要是 assign 新增的列，就一定是合法特征。', 'Any column created with assign is automatically a valid feature.'),
-        copy(
-          '派生列也可能泄漏 label 或未来信息，必须检查公式来源和预测时可用性。',
-          'A derived column can still leak the label or future information, so its formula and availability must be checked.',
-        ),
-        copy(
-          '用成交价计算 price_per_room 再预测成交价，就是把答案放回输入。',
-          'Using final sale price to compute price_per_room while predicting final sale price puts the answer back into input.',
-        ),
-      ),
-      misconception(
-        'shape-is-cosmetic',
-        copy('shape 只是调试细节，和数据含义无关。', 'Shape is only a debugging detail and unrelated to meaning.'),
-        copy(
-          'shape 改变通常意味着样本集合、特征集合或表格粒度改变。',
-          'A shape change usually means the sample set, feature set, or table granularity changed.',
-        ),
-        copy(
-          'groupby 后从 1000 行变 12 行，说明一行不再代表一个样本。',
-          'After groupby changes 1000 rows to 12 rows, one row no longer represents one sample.',
-        ),
-      ),
+      misconception('split-after-preprocess', copy('可以先全量预处理，再划分数据。', 'It is fine to preprocess all data before splitting.'), copy('会让验证和测试信息进入处理参数，造成泄漏。', 'That lets validation and test information enter processing parameters and creates leakage.'), copy('均值、词表和分箱边界都要从训练集学习。', 'Means, vocabularies, and bin edges are learned from training data.')),
+      misconception('training-score', copy('训练分数高就说明模型好。', 'High training score means the model is good.'), copy('训练分数只说明模型解释了训练样本，还要看未见样本。', 'Training score only shows fit to training examples; unseen examples matter.'), copy('泛化差距才是上线前的核心信号。', 'The generalization gap is the core pre-release signal.')),
+      misconception('random-always', copy('任何任务都适合随机划分。', 'Random splitting fits every task.'), copy('时间预测、同用户多记录和不平衡任务常常需要特殊划分。', 'Time prediction, repeated users, and imbalanced tasks often need special splits.'), copy('划分方式要服务于真实使用场景。', 'Split strategy should match real use.')),
     ],
-    sourceReferences: [
-      sources.pandasIntro,
-      sources.pandasDerived,
-      sources.pandasGroupby,
-      sources.pandasVisualization,
-    ],
+    sourceReferences: refs('splitting', 'pandasIntro', 'pandasGroupby'),
   }),
-  categoricalDataModule,
+  moduleDefinition({
+    id: 'complexity-regularization',
+    order: 5,
+    title: copy('复杂度、正则化与损失曲线', 'Complexity, Regularization, and Loss Curves'),
+    subtitle: copy(
+      '把特征工程和训练诊断连接起来，理解为什么更复杂的输入需要验证集、正则化和曲线判断。',
+      'Connect feature engineering to training diagnostics and understand why more complex inputs need validation, regularization, and curve reading.',
+    ),
+    accent: '#be123c',
+    theme: '#fff1f4',
+    estimatedMinutes: 82,
+    learningObjectives: [
+      copy('说明特征数量、交叉、分箱细度和多项式阶数如何提高复杂度。', 'Explain how feature count, crosses, bin granularity, and polynomial degree increase complexity.'),
+      copy('用训练和验证曲线区分欠拟合、合适拟合和过拟合。', 'Use training and validation curves to distinguish underfitting, useful fit, and overfitting.'),
+      copy('解释 L2 正则化如何限制过大的权重。', 'Explain how L2 regularization limits overly large weights.'),
+      copy('说明提前停止为什么依赖独立验证集。', 'Explain why early stopping depends on independent validation data.'),
+      copy('把复杂度控制写回数据报告和课堂结论。', 'Write complexity-control decisions back into the data report and classroom conclusions.'),
+    ],
+    concepts: [
+      concept('complexity', copy('复杂度', 'Complexity'), copy('复杂度来自模型参数，也来自输入空间：更多特征、更多交叉、更细分箱和更高阶变换都会提高复杂度。', 'Complexity comes from model parameters and the input space: more features, more crosses, finer bins, and higher-degree transforms all increase it.'), copy('8 个地区与 5 个房型交叉，最多产生 40 个局部槽位。', 'Crossing 8 districts with 5 property types can create up to 40 local slots.')),
+      concept('overfitting', copy('过拟合', 'Overfitting'), copy('过拟合指模型把训练样本中的噪声、偶然组合或泄漏信号当成规律。', 'Overfitting means the model treats noise, accidental combinations, or leakage in training examples as patterns.'), copy('训练 loss 继续下降而验证 loss 上升，是常见警报。', 'Training loss falling while validation loss rises is a common warning.')),
+      concept('l2', copy('L2 正则化', 'L2 Regularization'), copy('L2 在目标函数中惩罚大权重，鼓励模型用更平滑、更不极端的参数解释数据。', 'L2 penalizes large weights in the objective and encourages smoother, less extreme parameters.'), copy('稀有交叉槽位如果权重暴涨，L2 会提高它的代价。', 'If a rare cross slot gets a huge weight, L2 raises its cost.')),
+      concept('early-stopping', copy('提前停止', 'Early Stopping'), copy('提前停止在验证表现开始恶化时结束训练，避免模型继续记住训练噪声。', 'Early stopping ends training when validation behavior worsens, preventing continued memorization of training noise.'), copy('第 40 轮后训练 loss 降、验证 loss 升，停止点可能在第 40 轮附近。', 'If train loss falls and validation loss rises after epoch 40, the stopping point may be near epoch 40.')),
+    ],
+    sections: [
+      section(
+        'input-complexity',
+        copy('复杂度不只来自算法，也来自数据表示', 'Complexity Comes from Data Representation Too'),
+        copy(
+          md`学生常以为复杂度只由模型类型决定，其实数据表示本身就会改变复杂度。多项式特征、过细分箱、高基数 one-hot 和大量特征交叉都会扩大输入空间。为什么重要：输入越宽，模型越容易在训练集找到看似有效的局部规律，也越需要验证集证明这些规律能泛化。
+
+课堂上可以让学生数一数维度：原始 5 列输入可能经过 one-hot 和交叉后变成几百列。这个维度增长不是抽象数字，它意味着更多参数、更稀疏样本和更多过拟合机会。`,
+          md`Students often think complexity comes only from model type, but data representation also changes it. Polynomial features, overly fine bins, high-cardinality one-hot, and many feature crosses all expand the input space. This matters because wider inputs make it easier to find training-only local patterns and require validation evidence for generalization.
+
+In class, ask students to count dimensions: five raw input columns may become hundreds after one-hot and crosses. That growth is not abstract; it means more parameters, sparser examples, and more opportunities to overfit.`,
+        ),
+      ),
+      section(
+        'overfit-underfit-curves',
+        copy('用曲线区分欠拟合和过拟合', 'Use Curves to Separate Underfitting and Overfitting'),
+        copy(
+          md`训练曲线和验证曲线要一起读。两条曲线都高，说明模型可能太简单、特征不足、优化失败或数据质量差；训练曲线低而验证曲线高，说明模型在训练集上找到了不能泛化的规律。为什么重要：单看一个最终分数很难知道该改数据、改特征、改模型还是改训练过程。
+
+学生可以把曲线当作诊断面板：发散可能来自学习率过大或特征尺度混乱；平台期可能表示信号不足；训练验证差距扩大可能来自过多交叉、标签噪声或划分错误。`,
+          md`Training and validation curves must be read together. If both are high, the model may be too simple, features may be insufficient, optimization may fail, or data quality may be poor. If training is low and validation is high, the model has found training patterns that do not generalize. This matters because one final score rarely tells whether to change data, features, model, or training.
+
+Students can treat curves as a diagnostic panel: divergence may come from high learning rate or messy feature scale; plateaus may signal insufficient information; a widening train/validation gap may come from too many crosses, label noise, or split mistakes.`,
+        ),
+        { visualIds: ['curve-diagnosis'], labIds: ['eda-workbench-lab'] },
+      ),
+      section(
+        'l2-budget',
+        copy('L2 正则化给权重设置预算', 'L2 Regularization Sets a Weight Budget'),
+        copy(
+          md`L2 正则化会把权重平方和加入损失函数。直观地说，它让模型为过大的权重付出代价，因此模型更倾向于使用多个稳定信号，而不是极端依赖少数稀有槽位。为什么重要：高维稀疏输入中，某些偶然组合可能在训练集上特别有效；L2 会限制这种过度敏感。
+
+正则化不是简单地“削弱模型”。合适的正则化是在训练拟合和泛化之间设置预算。课堂练习可以让学生观察不同 L2 强度下训练 loss、验证 loss 和权重大小如何变化。`,
+          md`L2 regularization adds the sum of squared weights to the loss. Intuitively, it makes very large weights costly, so the model prefers using multiple stable signals rather than depending extremely on rare slots. This matters because in high-dimensional sparse inputs, accidental combinations may look powerful on training data; L2 limits that sensitivity.
+
+Regularization is not simply weakening a model. Appropriate regularization sets a budget between training fit and generalization. A classroom exercise can compare training loss, validation loss, and weight sizes under different L2 strengths.`,
+        ),
+      ),
+      section(
+        'early-stopping-validation',
+        copy('提前停止用验证集控制训练时间', 'Early Stopping Uses Validation to Control Training Time'),
+        copy(
+          md`训练时间越长，模型越有机会继续降低训练 loss，但这不保证未见样本表现变好。提前停止把验证曲线变成训练控制器：当验证表现不再改善，甚至开始恶化时，停止训练。为什么重要：它是一种复杂度控制方法，依赖的前提是验证集没有参与拟合参数。
+
+如果验证集已经参与缩放、词表或补值参数估计，提前停止点也会被污染。学生要把这一章和上一章连起来：独立验证集不只是评估工具，也是训练控制工具。`,
+          md`Longer training gives a model more opportunity to lower training loss, but that does not guarantee better unseen performance. Early stopping turns the validation curve into a training controller: when validation stops improving or worsens, training stops. This matters because it is a complexity-control method whose premise is that validation data did not fit parameters.
+
+If validation data participated in scaling, vocabulary, or imputation parameter estimation, the stopping point is also contaminated. Students should connect this chapter to the previous one: independent validation is not only for evaluation but also for training control.`,
+        ),
+      ),
+      section(
+        'complexity-report',
+        copy('把复杂度选择写成可复查结论', 'Write Complexity Choices as Reviewable Conclusions'),
+        copy(
+          md`课程最后要把数据处理、特征工程和训练诊断合在一起。一个可复查结论应说明：保留哪些特征，删除哪些交叉，为什么选择这个分箱粒度，正则化强度如何影响验证曲线，提前停止点在哪里。为什么重要：当下一次模型表现变化时，团队才能判断变化来自数据分布、特征工程还是训练策略。
+
+课堂交付可以是一份“复杂度控制报告”：每个新增特征必须写出假设、维度增长、验证收益和风险。这样学生会明白，机器学习不是堆更多特征，而是用证据控制表达能力。`,
+          md`The final course step combines data processing, feature engineering, and training diagnosis. A reviewable conclusion states which features were kept, which crosses were removed, why a bin granularity was chosen, how regularization strength affected validation curves, and where early stopping landed. This matters because when model behavior changes later, the team can tell whether the cause was data distribution, feature engineering, or training strategy.
+
+A classroom deliverable can be a complexity-control report: every added feature must list its hypothesis, dimension growth, validation benefit, and risk. Students then learn that machine learning is not stacking more features, but controlling expressiveness with evidence.`,
+        ),
+        { visualIds: ['pandas-workflow'] },
+      ),
+    ],
+    visuals: [
+      image('curve-diagnosis', 'eda-investigation-board-v2.png', copy('曲线诊断前的数据面板', 'Data panel before curve diagnosis'), copy('损失曲线异常常常可以追溯到尺度、标签、类别比例或划分问题。', 'Abnormal loss curves often trace back to scale, labels, class proportions, or split problems.'), [
+        { id: 'scale', x: 15, y: 19, label: copy('尺度', 'scale') },
+        { id: 'label', x: 36, y: 20, label: copy('标签', 'labels') },
+        { id: 'class', x: 57, y: 20, label: copy('比例', 'proportion') },
+        { id: 'split', x: 78, y: 20, label: copy('划分', 'split') },
+        { id: 'report', x: 50, y: 86, label: copy('诊断', 'diagnosis') },
+      ]),
+      image('pandas-workflow', 'pandas-workflow.png', copy('复杂度控制报告', 'Complexity-control report'), copy('把特征维度、交叉、正则化和验证曲线选择记录成报告。', 'Record feature dimension, crosses, regularization, and validation-curve choices as a report.'), [
+        { id: 'features', x: 16, y: 13, label: copy('特征', 'Features') },
+        { id: 'controls', x: 52, y: 13, label: copy('约束', 'Controls') },
+        { id: 'curves', x: 83, y: 13, label: copy('曲线', 'Curves') },
+        { id: 'report', x: 51, y: 84, label: copy('报告', 'Report') },
+      ]),
+      video('pandas-method-chain-video', 'pandas-method-chain', copy('数据报告流水线动画', 'Data-report pipeline animation'), copy('展示表格处理如何留下可复查的中间结果。', 'Shows how table processing leaves reviewable intermediate results.')),
+    ],
+    labs: [
+      lab('eda-workbench-lab', copy('复杂度诊断工作台', 'Complexity Diagnosis Workbench'), 'EdaWorkbenchLab', [
+        copy('能把损失曲线异常追溯到可能的数据原因。', 'Trace loss-curve symptoms to possible data-side causes.'),
+        copy('能说明正则化和提前停止如何依赖验证集。', 'Explain how regularization and early stopping depend on validation data.'),
+      ]),
+    ],
+    quizzes: [
+      quiz('more-features', copy('增加交叉和高阶多项式通常会带来什么风险？', 'What risk comes with adding crosses and high-degree polynomial features?'), 'overfit', copy('复杂度和过拟合风险上升。', 'Complexity and overfitting risk rise.'), copy('一定降低泛化误差。', 'It always lowers generalization error.'), copy('表达能力提高需要验证集和正则化约束。', 'More expressiveness needs validation and regularization constraints.')),
+      quiz('l2-target', copy('L2 正则化主要惩罚什么？', 'What does L2 regularization mainly penalize?'), 'weights', copy('过大的权重。', 'Large weights.'), copy('缺失值数量。', 'Missing-value count.'), copy('L2 通过权重预算降低模型对少数信号的过度敏感。', 'L2 lowers excessive sensitivity by budgeting weights.')),
+      quiz('early-stop-curve', copy('提前停止主要依赖哪类数据的表现？', 'Early stopping mainly depends on which data behavior?'), 'validation', copy('验证集表现。', 'Validation behavior.'), copy('只看训练集表现。', 'Training behavior only.'), copy('停止点应由未参与拟合的数据提供。', 'The stopping point should come from data not used for fitting.')),
+    ],
+    misconceptions: [
+      misconception('feature-more-safe', copy('特征越多越安全。', 'More features are always safer.'), copy('特征越多，输入空间越宽，越需要验证和正则化。', 'More features widen input space and require validation plus regularization.'), copy('高基数 one-hot 可能让模型记住训练样本。', 'High-cardinality one-hot may help a model memorize training examples.')),
+      misconception('regularization-bad', copy('正则化只是让模型变差。', 'Regularization only makes models worse.'), copy('合适正则化是在训练拟合和泛化之间设置预算。', 'Appropriate regularization budgets between training fit and generalization.'), copy('验证曲线决定约束是否过强。', 'Validation curves show whether the constraint is too strong.')),
+      misconception('curves-model-only', copy('损失曲线只反映模型问题。', 'Loss curves only reflect model problems.'), copy('曲线也会暴露尺度、标签、划分和坏数据问题。', 'Curves can also expose scale, label, split, and bad-data problems.'), copy('发散可能来自学习率，也可能来自未缩放特征。', 'Divergence may come from learning rate or unscaled features.')),
+    ],
+    sourceReferences: refs('complexity', 'pandasVisualization', 'pandasGroupby'),
+  }),
 ]
 
 export const dataLabModuleRegistry = Object.fromEntries(

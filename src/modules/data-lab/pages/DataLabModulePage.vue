@@ -67,6 +67,7 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
   const ids = new Set(section.labIds)
   return moduleDefinition.value?.labs.filter((lab) => ids.has(lab.id)) ?? []
 }
+
 </script>
 
 <template>
@@ -88,8 +89,8 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
         <p>
           {{
             currentLocale === 'zh-CN'
-              ? '实验在浏览器中模拟 pandas 行为，重点是理解表格变化和代码语义。'
-              : 'Labs simulate pandas behavior in-browser, emphasizing table changes and code semantics.'
+              ? '本章用浏览器实验模拟 pandas 行为，帮助学生把概念、表格变化和模型输入联系起来。'
+              : 'This chapter uses browser labs to simulate pandas behavior and connect concepts, table changes, and model inputs.'
           }}
         </p>
       </aside>
@@ -197,8 +198,15 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
 
         <section class="data-lab-panel data-source-section">
           <header>
-            <span>{{ currentLocale === 'zh-CN' ? '参考来源' : 'Source references' }}</span>
-            <h2>{{ currentLocale === 'zh-CN' ? '用于校准，不直接搬运' : 'Used for calibration, not copied prose' }}</h2>
+            <span>{{ currentLocale === 'zh-CN' ? '参考资料' : 'References' }}</span>
+            <h2>{{ currentLocale === 'zh-CN' ? '课后延伸阅读' : 'Further reading' }}</h2>
+            <p>
+              {{
+                currentLocale === 'zh-CN'
+                  ? '这些链接用于教师备课和学生课后查阅；正文已经按本站课程顺序重新组织。'
+                  : 'These links support lesson preparation and after-class reading; the lesson body is organized for this course.'
+              }}
+            </p>
           </header>
           <a
             v-for="source in moduleDefinition.sourceReferences"

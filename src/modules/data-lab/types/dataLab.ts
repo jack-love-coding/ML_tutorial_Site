@@ -1,11 +1,11 @@
 export type DataLabLocale = 'zh-CN' | 'en'
 
 export type DataLabModuleId =
-  | 'data-types-feature-vectors'
-  | 'data-cleaning-preprocessing'
-  | 'exploratory-data-analysis'
-  | 'pandas-workflow'
-  | 'categorical-data-processing'
+  | 'numerical-data'
+  | 'categorical-data'
+  | 'dataset-quality'
+  | 'splits-generalization'
+  | 'complexity-regularization'
 
 export type DataCell = string | number | boolean | null
 

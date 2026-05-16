@@ -47,11 +47,11 @@ test('data lab modules expose a complete independent learning path', () => {
   assert.deepEqual(
     dataLabModules.map((moduleDefinition) => moduleDefinition.id),
     [
-      'data-types-feature-vectors',
-      'data-cleaning-preprocessing',
-      'exploratory-data-analysis',
-      'pandas-workflow',
-      'categorical-data-processing',
+      'numerical-data',
+      'categorical-data',
+      'dataset-quality',
+      'splits-generalization',
+      'complexity-regularization',
     ],
   )
   assert.deepEqual(dataLabModules.map((moduleDefinition) => moduleDefinition.order), [1, 2, 3, 4, 5])
@@ -62,20 +62,40 @@ test('data lab modules expose a complete independent learning path', () => {
     assertLocalized(moduleDefinition.subtitle, `${moduleDefinition.id} subtitle`)
     assert.equal(moduleDefinition.learningObjectives.length >= 5, true, `${moduleDefinition.id} needs expanded objectives`)
     assert.equal(moduleDefinition.concepts.length >= 4, true, `${moduleDefinition.id} needs textbook-level concepts`)
-    assert.equal(moduleDefinition.sections.length >= 6, true, `${moduleDefinition.id} needs expanded lesson sections`)
+    assert.equal(moduleDefinition.sections.length >= 5, true, `${moduleDefinition.id} needs expanded lesson sections`)
     assert.equal(moduleDefinition.labs.length >= 1, true, `${moduleDefinition.id} needs a lab`)
     assert.equal(moduleDefinition.quizzes.length >= 2, true, `${moduleDefinition.id} needs expanded quizzes`)
     assert.equal(moduleDefinition.misconceptions.length >= 2, true, `${moduleDefinition.id} needs expanded misconceptions`)
-    assert.equal(moduleDefinition.sourceReferences.length >= 4, true, `${moduleDefinition.id} needs references`)
+    assert.equal(moduleDefinition.sourceReferences.length >= 2, true, `${moduleDefinition.id} needs lightweight references`)
+    assert.equal('sourcePages' in moduleDefinition, false, `${moduleDefinition.id} should not expose page-level source metadata`)
+    assert.equal('sourceMode' in moduleDefinition, false, `${moduleDefinition.id} should not expose source mode`)
     assert.equal(moduleDefinition.visuals.filter((visual) => visual.type === 'image').length >= 2, true)
     assert.equal(moduleDefinition.visuals.some((visual) => visual.type === 'manim-video'), true)
     assert.equal(moduleDefinition.notebookUrl, undefined, 'Notebook links should stay hidden until a URL exists')
+
+    const zhLessonBody = [
+      moduleDefinition.title['zh-CN'],
+      moduleDefinition.subtitle['zh-CN'],
+      ...moduleDefinition.learningObjectives.map((objective) => objective['zh-CN']),
+      ...moduleDefinition.concepts.map((concept) => concept.plainExplanation['zh-CN']),
+      ...moduleDefinition.sections.map((section) => section.content['zh-CN']),
+      ...moduleDefinition.misconceptions.map((item) => item.correction['zh-CN']),
+    ].join('\n')
+    assert.match(zhLessonBody, /为什么重要/, `${moduleDefinition.id} should explain why the concepts matter`)
+    assert.match(zhLessonBody, /课堂|学生/, `${moduleDefinition.id} should be written for students`)
+    assert.doesNotMatch(
+      zhLessonBody,
+      /迁移\s*Google|Google\s*MLCC|MLCC|翻译整理|来源与许可|原文\/文档时间|按 CC BY|Source date|translated and organized/i,
+      `${moduleDefinition.id} should avoid source-first page narrative`,
+    )
 
     for (const objective of moduleDefinition.learningObjectives) assertLocalized(objective, `${moduleDefinition.id} objective`)
     for (const section of moduleDefinition.sections) {
       assertLocalized(section.title, `${moduleDefinition.id} section title`)
       assertLocalized(section.content, `${moduleDefinition.id} section content`)
       assert.equal(section.content.en.length > 180, true, `${section.id} English lesson body is too thin`)
+      assert.equal(section.content['zh-CN'].length > 180, true, `${section.id} Chinese lesson body is too thin`)
+      assert.equal('sourcePageIds' in section, false, `${section.id} should not carry source page traceability`)
     }
     for (const concept of moduleDefinition.concepts) {
       assertLocalized(concept.name, `${concept.id} concept name`)
@@ -103,7 +123,7 @@ test('data lab modules expose a complete independent learning path', () => {
   ])
 })
 
-test('data lab source references and visual assets are local, explicit, and teaching-oriented', () => {
+test('data lab references stay lightweight and visual assets are teaching-oriented', () => {
   const sourceHosts = new Set<string>()
 
   for (const moduleDefinition of dataLabModules) {
@@ -111,11 +131,13 @@ test('data lab source references and visual assets are local, explicit, and teac
       const url = new URL(source.href)
       sourceHosts.add(url.hostname)
       assert.ok(
-        ['developers.google.com', 'pandas.pydata.org', 'scikit-learn.org'].includes(url.hostname),
+        ['developers.google.com', 'pandas.pydata.org'].includes(url.hostname),
         `${source.href} should come from an approved teaching source`,
       )
       assertLocalized(source.label, `${moduleDefinition.id} source label`)
       assertLocalized(source.usage, `${moduleDefinition.id} source usage`)
+      assert.equal('lastUpdated' in source, false, `${moduleDefinition.id} reference should not expose source dates`)
+      assert.equal('sourceMode' in source, false, `${moduleDefinition.id} reference should not expose source mode`)
     }
 
     for (const visual of moduleDefinition.visuals) {
@@ -203,6 +225,7 @@ test('categorical encoding utilities keep train-time vocabulary stable', () => {
 test('data lab Chinese source stays free of mojibake fragments', () => {
   const source = [
     'src/modules/data-lab/data/modules.ts',
+    'src/modules/data-lab/data/categoricalDataModule.ts',
     'src/modules/data-lab/pages/DataLabHome.vue',
     'src/modules/data-lab/pages/DataLabModulePage.vue',
   ]
@@ -210,6 +233,8 @@ test('data lab Chinese source stays free of mojibake fragments', () => {
     .join('\n')
 
   assert.doesNotMatch(source, /(锛|�|鈥|乣|銆|€|鏁|鍒|瀛︿|绔犺|棰勮|姣忔|琛楀|鍙傝|杩斿|寮€)/)
+  assert.doesNotMatch(source, /用于校准，不直接搬运|Used for calibration, not copied prose/)
+  assert.doesNotMatch(source, /迁移\s*Google|Google\s*MLCC|MLCC|翻译整理|来源与许可|原文\/文档时间|按 CC BY|Source date|Sources and licenses/i)
 })
 
 test('data table transforms model pandas-like operations without mutating inputs', () => {
@@ -280,8 +305,8 @@ test('data table transforms model pandas-like operations without mutating inputs
 
 test('data lab public paths are compatible with GitHub Pages base URLs', () => {
   assert.equal(
-    withPublicBase('/data-lab/generated/data-types-feature-vectors.png', '/ML_tutorial_Site/'),
-    '/ML_tutorial_Site/data-lab/generated/data-types-feature-vectors.png',
+    withPublicBase('/data-lab/generated/feature-vector-pipeline-v2.png', '/ML_tutorial_Site/'),
+    '/ML_tutorial_Site/data-lab/generated/feature-vector-pipeline-v2.png',
   )
   assert.equal(
     withPublicBase('/manim/data-lab/pandas-method-chain.mp4', '/ML_tutorial_Site/'),
