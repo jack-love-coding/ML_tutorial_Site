@@ -112,6 +112,21 @@ export interface DataQuizItem {
   explanation: LocalizedCopy
 }
 
+export interface DataQuizAttempt {
+  quizId: string
+  moduleId: DataLabModuleId
+  selected: string
+  correct: boolean
+  attemptedAt: string
+}
+
+export interface DataLabProgress {
+  completedModuleIds: DataLabModuleId[]
+  quizAttempts: DataQuizAttempt[]
+  lastVisitedModuleId?: DataLabModuleId
+  updatedAt: string
+}
+
 export interface DataMisconception {
   id: string
   statement: LocalizedCopy

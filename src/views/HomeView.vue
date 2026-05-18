@@ -5,66 +5,62 @@ import { moduleOrder } from '../data/moduleCatalog'
 
 const { t, locale } = useI18n()
 
-const primaryRoute = computed(() => moduleOrder[0]?.route ?? '/learn/loss-functions')
+const primaryRoute = computed(() => '/math-lab')
 
 const highlights = computed(() =>
   locale.value === 'zh-CN'
-    ? ['6 个互动课程模块', '从损失、优化到回归、分类评估与表示学习的连续主线', '全部在浏览器本地实时运行']
+    ? ['Math Lab 建立数学直觉', 'Data Lab 连接表格和特征', 'ML Models 用实验理解训练行为']
     : [
-        '6 interactive lesson modules',
-        'A continuous path from loss to regression, classification metrics, and representation learning',
-        'Runs entirely in the browser',
+        'Math Lab builds the math intuition',
+        'Data Lab connects tables to features',
+        'ML Models make training behavior visible',
       ],
 )
 
 const posterBody = computed(() =>
   locale.value === 'zh-CN'
-    ? '六节课程共用一套双语教学框架：公式讲解、章节实验、可重复的数据演示，以及从损失到评估再到模型的连续学习路径。'
-    : 'Six lessons share one bilingual teaching frame: formula-first explanations, embedded labs, reproducible data demos, and a continuous path from loss to evaluation to models.',
+    ? '先用 Math Lab 补数学直觉，再用 Data Lab 处理输入，之后进入可交互的 ML Models 和深度学习扩展。'
+    : 'Start with Math Lab, move through Data Lab, then enter interactive ML Models and the deep-learning extension path.',
 )
 
 const modulesBody = computed(() =>
   locale.value === 'zh-CN'
-    ? '从损失函数出发，依次进入优化、线性回归、逻辑回归、分类评估与浅层神经网络，把“模型为什么这样学、怎样评估”拆成连续的六节课。'
-    : 'Start from loss functions, then move into optimization, linear regression, logistic regression, classification metrics, and shallow neural networks as one continuous sequence.',
+    ? '站点主线不是单独堆章节，而是把 Math Lab、Data Lab、ML Models 和 Deep Learning 串成零基础学生能跟下去的学习闭环。'
+    : 'The site connects Math Lab, Data Lab, ML Models, and Deep Learning into one beginner-friendly learning loop.',
 )
 
 const modulesNote = computed(() =>
   locale.value === 'zh-CN'
-    ? '第一课先把损失和似然讲清楚，后面再接优化、线性回归、逻辑回归、分类评估和表示学习，整条路径更完整。'
-    : 'Lesson one now stands on its own as Loss Functions & Likelihood, and the later lessons carry that idea into optimization, linear regression, logistic regression, classification evaluation, and representation learning.',
+    ? '当前优先补齐自测、进度和继续学习入口，让学生每学完一章都能知道自己是否理解。'
+    : 'The current priority is checkpoints, progress, and continue-learning entry points so students can verify understanding after each chapter.',
 )
 
 const pathBody = computed(() =>
   locale.value === 'zh-CN'
-    ? '先理解误差如何变成损失，再看优化器怎样沿着目标函数移动，接着进入连续值预测、概率分类、分类评估，最后走到浅层网络。'
-    : 'First learn how error becomes loss, then watch optimizers move across that objective, then step into continuous prediction, probabilistic classification, classification evaluation, and shallow networks.',
+    ? '推荐顺序是数学直觉、数据处理、机器学习模型、深度学习扩展。每一段都保留可视化、互动实验和 checkpoint。'
+    : 'The recommended order is math intuition, data processing, machine-learning models, and deep-learning extensions, each with visual labs and checkpoints.',
 )
 
 const learningPath = computed(() =>
   locale.value === 'zh-CN'
     ? [
-        '损失函数与似然：先理解 MSE、MAE、交叉熵和 MLE 的关系',
-        '梯度下降：观察优化器怎样在不同 loss 地形上移动',
-        '线性回归：把 MSE 放进真实房价预测，理解斜率和截距如何学习',
-        '逻辑回归：把线性打分映射成分类概率与决策边界',
-        '分类评估：用阈值、混淆矩阵、ROC/AUC 和校准判断分类器是否适合任务',
-        '浅层 MLP：看隐藏层怎样重组空间并提升表达能力',
+        'Math Lab：向量、矩阵、Taylor、概率、优化、SVD/PCA、自动微分和深度结构数学',
+        'Data Lab：数值特征、类别特征、清洗、EDA、划分、复杂度和正则化',
+        'ML Models：loss、gradient descent、linear/logistic regression、classification 和 MLP',
+        'Deep Learning：以 MLP 为入口，后续扩展 CNN、Attention、Transformer 和优化器对比',
       ]
     : [
-        'Loss Functions & Likelihood: connect MSE, MAE, cross-entropy, and MLE',
-        'Gradient Descent: watch optimizers move across different loss landscapes',
-        'Linear Regression: learn slope and intercept through a housing-price story',
-        'Logistic Regression: map a linear score into class probabilities and boundaries',
-        'Classification: evaluate thresholds, confusion matrices, ROC/AUC, and calibration',
-        'Shallow MLP: see how hidden layers reorganize space and expand capacity',
+        'Math Lab: vectors, matrices, Taylor series, probability, optimization, SVD/PCA, autodiff, and architecture math',
+        'Data Lab: numeric features, categorical features, cleaning, EDA, splits, complexity, and regularization',
+        'ML Models: loss, gradient descent, linear/logistic regression, classification, and MLP',
+        'Deep Learning: start with MLP, then extend toward CNN, Attention, Transformers, and optimizer comparisons',
       ],
 )
 
 const footerText = computed(() =>
   locale.value === 'zh-CN'
-    ? '课程现在从损失函数与似然起步，再顺着优化、线性回归、逻辑回归、分类评估和浅层网络一路展开，学习路径更连贯。'
-    : 'The course now opens with Loss Functions & Likelihood and then flows through optimization, linear regression, logistic regression, classification evaluation, and shallow networks.',
+    ? '从 Math Lab 开始，学生能先补齐直觉，再进入数据和模型实验。'
+    : 'Start in Math Lab so students build intuition before moving into data and model labs.',
 )
 </script>
 

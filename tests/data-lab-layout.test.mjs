@@ -28,9 +28,12 @@ test('data lab components, labs, generated images, and manim assets exist', () =
   const componentPaths = [
     'src/modules/data-lab/pages/DataLabHome.vue',
     'src/modules/data-lab/pages/DataLabModulePage.vue',
+    'src/modules/data-lab/components/DataCheckpointQuiz.vue',
     'src/modules/data-lab/components/DataTableView.vue',
     'src/modules/data-lab/components/DataVisualFigure.vue',
     'src/modules/data-lab/components/DataManimPlayer.vue',
+    'src/modules/data-lab/utils/progress.ts',
+    'src/modules/data-lab/utils/quiz.ts',
     'src/modules/data-lab/labs/ColumnTypeLab.vue',
     'src/modules/data-lab/labs/CleaningPipelineLab.vue',
     'src/modules/data-lab/labs/EdaWorkbenchLab.vue',
@@ -101,6 +104,11 @@ test('data lab labs use D3, Three.js, and deterministic TS table transforms', ()
   assert.match(categoricalSource, /encodeOneHot/)
   assert.match(modulePageSource, /DataManimPlayer/)
   assert.match(modulePageSource, /DataVisualFigure/)
+  assert.match(modulePageSource, /DataCheckpointQuiz/)
+  assert.match(modulePageSource, /loadDataLabProgress/)
+  assert.match(modulePageSource, /appendDataQuizAttempt/)
+  assert.match(modulePageSource, /markDataLabModuleComplete/)
+  assert.match(modulePageSource, /completedModuleIds\.includes\(moduleDefinition\.id\)/)
   assert.match(modulePageSource, /CategoricalEncodingLab/)
   assert.match(modulePageSource, /sourceReferences/)
   assert.match(modulePageSource, /参考资料/)
@@ -109,4 +117,31 @@ test('data lab labs use D3, Three.js, and deterministic TS table transforms', ()
   assert.match(modulePageSource, /上一章/)
   assert.match(modulePageSource, /下一章/)
   assert.doesNotMatch(`${columnTypeSource}\n${cleaningSource}\n${edaSource}\n${pipelineSource}\n${categoricalSource}`, /pyodide|Pyodide/)
+})
+
+test('data lab home exposes continue-learning and completion state', () => {
+  const homeSource = read('src/modules/data-lab/pages/DataLabHome.vue')
+
+  assert.match(homeSource, /loadDataLabProgress/)
+  assert.match(homeSource, /continueRoute/)
+  assert.match(homeSource, /completedModuleIds/)
+  assert.match(homeSource, /is-complete/)
+  assert.match(homeSource, /Continue learning/)
+})
+
+test('home page and README describe the zero-foundation learning path', () => {
+  const homeSource = read('src/views/HomeView.vue')
+  const readmeSource = read('README.md')
+
+  assert.match(homeSource, /Math Lab/)
+  assert.match(homeSource, /Data Lab/)
+  assert.match(homeSource, /ML Models/)
+  assert.match(homeSource, /Deep Learning/)
+  assert.match(homeSource, /\/math-lab/)
+
+  assert.match(readmeSource, /ML Atlas/)
+  assert.match(readmeSource, /Math Lab/)
+  assert.match(readmeSource, /Data Lab/)
+  assert.match(readmeSource, /npm test/)
+  assert.doesNotMatch(readmeSource, /Vue 3 \+ TypeScript \+ Vite|template should help get you started/)
 })

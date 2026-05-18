@@ -3,6 +3,19 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import { dataLabModules } from '../src/modules/data-lab/data/modules.ts'
 import {
+  buildDataQuizAttempt,
+  evaluateDataQuizAnswer,
+} from '../src/modules/data-lab/utils/quiz.ts'
+import {
+  appendDataQuizAttempt,
+  clearDataLabProgress,
+  createDefaultDataLabProgress,
+  loadDataLabProgress,
+  markDataLabModuleComplete,
+  saveDataLabProgress,
+  setLastVisitedDataLabModule,
+} from '../src/modules/data-lab/utils/progress.ts'
+import {
   castColumn,
   activeSparseIndices,
   buildCategoryVocabulary,
@@ -40,6 +53,15 @@ function assertLocalized(copy: LocalizedCopy, message: string) {
   assert.equal(copy['zh-CN'].length >= 2, true, `${message} zh-CN text is too short`)
   assert.equal(copy.en.length > 2, true, `${message} English text is too short`)
   assert.notEqual(copy['zh-CN'], copy.en, `${message} should be bilingual, not duplicated`)
+}
+
+function createMemoryStorage(initial: Record<string, string> = {}) {
+  const values = new Map(Object.entries(initial))
+  return {
+    getItem: (key: string) => values.get(key) ?? null,
+    setItem: (key: string, value: string) => values.set(key, value),
+    removeItem: (key: string) => values.delete(key),
+  }
 }
 
 test('data lab modules expose a complete independent learning path', () => {
@@ -180,6 +202,54 @@ test('data lab references stay lightweight and visual assets are teaching-orient
 
   const dataManimMetadata = new URL('public/manim/data-lab/metadata.json', root)
   assert.ok(existsSync(dataManimMetadata), 'Data Lab Manim metadata should exist')
+})
+
+test('data lab quiz scoring records correct and review-needed attempts', () => {
+  const moduleDefinition = dataLabModules[0]
+  const quiz = moduleDefinition.quizzes[0]
+
+  const correct = evaluateDataQuizAnswer(quiz, quiz.answer)
+  assert.equal(correct.correct, true)
+  assert.equal(correct.reviewNeeded, false)
+
+  const incorrect = evaluateDataQuizAnswer(quiz, 'distractor')
+  assert.equal(incorrect.correct, false)
+  assert.equal(incorrect.reviewNeeded, true)
+  assert.equal(incorrect.expectedAnswer, quiz.answer)
+
+  const attempt = buildDataQuizAttempt(moduleDefinition.id, quiz, 'distractor')
+  assert.equal(attempt.moduleId, moduleDefinition.id)
+  assert.equal(attempt.quizId, quiz.id)
+  assert.equal(attempt.selected, 'distractor')
+  assert.equal(attempt.correct, false)
+  assert.match(attempt.attemptedAt, /^\d{4}-\d{2}-\d{2}T/)
+})
+
+test('data lab progress persists last visited, completion, and quiz attempts', () => {
+  const storage = createMemoryStorage()
+  const moduleDefinition = dataLabModules[0]
+  const quiz = moduleDefinition.quizzes[0]
+  const attempt = buildDataQuizAttempt(moduleDefinition.id, quiz, quiz.answer)
+
+  let progress = createDefaultDataLabProgress('2026-05-18T00:00:00.000Z')
+  progress = setLastVisitedDataLabModule(progress, 'categorical-data')
+  progress = appendDataQuizAttempt(progress, attempt)
+  progress = markDataLabModuleComplete(progress, moduleDefinition.id)
+  saveDataLabProgress(progress, storage)
+
+  const reloaded = loadDataLabProgress(storage)
+  assert.deepEqual(reloaded.completedModuleIds, [moduleDefinition.id])
+  assert.equal(reloaded.lastVisitedModuleId, moduleDefinition.id)
+  assert.equal(reloaded.quizAttempts.length, 1)
+  assert.equal(reloaded.quizAttempts[0]?.correct, true)
+
+  const corruptedStorage = createMemoryStorage({
+    'ml-atlas:data-lab-progress:v1': '{bad json',
+  })
+  assert.deepEqual(loadDataLabProgress(corruptedStorage).completedModuleIds, [])
+
+  clearDataLabProgress(storage)
+  assert.deepEqual(loadDataLabProgress(storage).quizAttempts, [])
 })
 
 test('categorical encoding utilities keep train-time vocabulary stable', () => {

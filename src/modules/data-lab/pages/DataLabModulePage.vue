@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
@@ -8,14 +8,29 @@ import ColumnTypeLab from '../labs/ColumnTypeLab.vue'
 import EdaWorkbenchLab from '../labs/EdaWorkbenchLab.vue'
 import PandasPipelineLab from '../labs/PandasPipelineLab.vue'
 import CategoricalEncodingLab from '../labs/CategoricalEncodingLab.vue'
+import DataCheckpointQuiz from '../components/DataCheckpointQuiz.vue'
 import DataManimPlayer from '../components/DataManimPlayer.vue'
 import DataVisualFigure from '../components/DataVisualFigure.vue'
 import { dataLabModuleRegistry, dataLabModules } from '../data/modules'
-import type { DataLabConfig, DataLabLocale, DataLabModuleId, DataLabSection } from '../types/dataLab'
+import type {
+  DataLabConfig,
+  DataLabLocale,
+  DataLabModuleId,
+  DataLabSection,
+  DataQuizAttempt,
+} from '../types/dataLab'
+import {
+  appendDataQuizAttempt,
+  loadDataLabProgress,
+  markDataLabModuleComplete,
+  saveDataLabProgress,
+  setLastVisitedDataLabModule,
+} from '../utils/progress'
 
 const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
+const progress = ref(loadDataLabProgress())
 
 const currentLocale = computed(() => locale.value as DataLabLocale)
 const moduleId = computed(() => route.params.moduleId as DataLabModuleId)
@@ -45,7 +60,9 @@ watch(
   (nextModuleId) => {
     if (!dataLabModuleRegistry[nextModuleId]) {
       router.replace('/data-lab')
+      return
     }
+    progress.value = saveDataLabProgress(setLastVisitedDataLabModule(loadDataLabProgress(), nextModuleId))
   },
   { immediate: true },
 )
@@ -66,6 +83,22 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
   if (!section.labIds?.length) return []
   const ids = new Set(section.labIds)
   return moduleDefinition.value?.labs.filter((lab) => ids.has(lab.id)) ?? []
+}
+
+function onQuizSubmit(attempts: DataQuizAttempt[]) {
+  const correct = attempts.filter((attempt) => attempt.correct).length
+  const enoughToComplete = attempts.length > 0 && correct / attempts.length >= 0.66
+  let nextProgress = loadDataLabProgress()
+
+  for (const attempt of attempts) {
+    nextProgress = appendDataQuizAttempt(nextProgress, attempt)
+  }
+
+  if (enoughToComplete) {
+    nextProgress = markDataLabModuleComplete(nextProgress, moduleId.value)
+  }
+
+  progress.value = saveDataLabProgress(nextProgress)
 }
 
 </script>
@@ -196,6 +229,14 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
           </article>
         </section>
 
+        <DataCheckpointQuiz
+          v-if="moduleDefinition.quizzes.length"
+          :module-id="moduleDefinition.id"
+          :quizzes="moduleDefinition.quizzes"
+          :locale="currentLocale"
+          @submit="onQuizSubmit"
+        />
+
         <section class="data-lab-panel data-source-section">
           <header>
             <span>{{ currentLocale === 'zh-CN' ? '参考资料' : 'References' }}</span>
@@ -242,6 +283,20 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
             <router-link v-else class="action-button action-button--primary" to="/data-lab">
               {{ currentLocale === 'zh-CN' ? '返回路径' : 'Back to path' }}
             </router-link>
+          </div>
+          <div class="data-article-meta">
+            <strong>
+              {{
+                progress.completedModuleIds.includes(moduleDefinition.id)
+                  ? currentLocale === 'zh-CN'
+                    ? '已完成'
+                    : 'Completed'
+                  : currentLocale === 'zh-CN'
+                    ? '学习中'
+                    : 'In progress'
+              }}
+            </strong>
+            <span>{{ currentLocale === 'zh-CN' ? '预计' : 'Estimated' }} {{ moduleDefinition.estimatedMinutes }} min</span>
           </div>
         </div>
       </aside>
