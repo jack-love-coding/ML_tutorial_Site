@@ -7,6 +7,7 @@ import type {
   StorySection,
 } from '../types/ml'
 import { simulateMLP } from '../simulations/mlp'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
 
 function loc(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
@@ -176,6 +177,7 @@ export const mlpModule: AlgorithmModuleDefinition = {
   theme: '#eef1ff',
   accent: '#4d63ff',
   visuals: mlpVisuals,
+  checkpoints: algorithmCheckpointsBySlug.mlp,
   sourceNote: loc(
     '本页内容综合改写自 D2L、Google Machine Learning Crash Course、OpenStax 和 TensorFlow Playground。OpenStax 内容按 CC BY-NC-SA 使用，TensorFlow Playground 作为 Apache-2.0 交互参考。',
     'This lesson synthesizes and rewrites ideas from D2L, Google Machine Learning Crash Course, OpenStax, and TensorFlow Playground. OpenStax material is used under CC BY-NC-SA; TensorFlow Playground is used as an Apache-2.0 interaction reference.',

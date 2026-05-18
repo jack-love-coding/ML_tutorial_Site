@@ -4,6 +4,7 @@ import {
   defaultGradientLossFunctionId,
   getGradientLossFunctionDefinition,
 } from '../simulations/gradientLossFunctions'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
 
 const defaultFunction = getGradientLossFunctionDefinition(defaultGradientLossFunctionId)
 
@@ -663,6 +664,7 @@ export const gradientDescentModule: AlgorithmModuleDefinition = {
   summaryKey: 'modules.gradientDescent.summary',
   theme: '#f4efe3',
   accent: '#ff7d4d',
+  checkpoints: algorithmCheckpointsBySlug['gradient-descent'],
   chapters,
   controls: [
     {
