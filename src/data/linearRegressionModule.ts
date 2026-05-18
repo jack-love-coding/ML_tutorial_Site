@@ -1,5 +1,6 @@
 import type { AlgorithmModuleDefinition, LocalizedCopy } from '../types/ml'
 import { simulateLinearRegression } from '../simulations/linearRegression'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
 
 function loc(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
@@ -453,6 +454,7 @@ export const linearRegressionModule: AlgorithmModuleDefinition = {
   summaryKey: 'modules.linearRegression.summary',
   theme: '#edf7f2',
   accent: '#db6c3a',
+  checkpoints: algorithmCheckpointsBySlug['linear-regression'],
   chapters: [
     {
       id: 'fit-line',

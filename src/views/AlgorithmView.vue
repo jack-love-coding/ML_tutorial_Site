@@ -18,11 +18,21 @@ import GradientTeachingBlocks from '../components/GradientTeachingBlocks.vue'
 import GradientChapterLab from '../components/GradientChapterLab.vue'
 import LossFunctionsLessonLab from '../components/LossFunctionsLessonLab.vue'
 import LossFunctionsResults from '../components/LossFunctionsResults.vue'
+import AlgorithmCheckpointQuiz from '../components/AlgorithmCheckpointQuiz.vue'
 import LinearRegressionPagedLesson from '../components/LinearRegressionPagedLesson.vue'
 import LogisticRegressionPagedLesson from '../components/LogisticRegressionPagedLesson.vue'
 import ClassificationLessonLab from '../components/ClassificationLessonLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
 import { withPublicBase } from '../utils/publicPath'
+import type { AlgorithmQuizAttempt } from '../types/ml'
+import {
+  appendAlgorithmQuizAttempt,
+  loadAlgorithmProgress,
+  markAlgorithmModuleComplete,
+  saveAlgorithmProgress,
+  setLastVisitedAlgorithmModule,
+  shouldCompleteAlgorithmModule,
+} from '../utils/algorithmProgress'
 
 const LinearRegressionLessonLab = defineAsyncComponent(() => import('../components/LinearRegressionLessonLab.vue'))
 const LinearRegressionResults = defineAsyncComponent(() => import('../components/LinearRegressionResults.vue'))
@@ -36,6 +46,7 @@ const { experiments } = storeToRefs(experimentStore)
 
 const activeChapter = ref('')
 const mlpPlaygroundRef = ref<HTMLElement | null>(null)
+const progress = ref(loadAlgorithmProgress())
 
 const slug = computed(() => {
   const routeSlug = route.params.slug
@@ -48,6 +59,8 @@ const requestedChapterId = computed(() =>
   typeof route.params.chapterId === 'string' ? route.params.chapterId : '',
 )
 const moduleDefinition = computed(() => moduleRegistry[slug.value])
+const currentLocale = computed(() => locale.value as AppLocale)
+const lastVisitedModuleSlug = computed(() => progress.value.lastVisitedModuleSlug)
 const isGradientPage = computed(() => slug.value === 'gradient-descent')
 const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
@@ -71,6 +84,9 @@ watch(
     }
 
     experimentStore.ensureExperiment(nextSlug)
+    progress.value = saveAlgorithmProgress(
+      setLastVisitedAlgorithmModule(loadAlgorithmProgress(), nextSlug),
+    )
     const firstChapterId = nextModuleDefinition.chapters[0]?.id ?? ''
     let nextActiveChapter = firstChapterId
 
@@ -130,6 +146,16 @@ const heroStatItems = computed(() => [
   },
   { id: 'runtime', label: t('common.runtime'), value: t('common.localBrowser') },
 ])
+
+const moduleStatusLabel = computed(() =>
+  progress.value.completedModuleSlugs.includes(slug.value)
+    ? locale.value === 'zh-CN'
+      ? '算法已完成'
+      : 'Completed'
+    : locale.value === 'zh-CN'
+      ? '学习中'
+      : 'In progress',
+)
 
 const gradientSectionInsights = computed(() => {
   if (!isGradientPage.value) return teachingInsights.value
@@ -323,6 +349,20 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
   experimentStore.pause(slug.value)
   experimentStore.patchConfig(slug.value, point)
 }
+
+function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
+  let nextProgress = loadAlgorithmProgress()
+
+  for (const attempt of attempts) {
+    nextProgress = appendAlgorithmQuizAttempt(nextProgress, attempt)
+  }
+
+  if (shouldCompleteAlgorithmModule(attempts)) {
+    nextProgress = markAlgorithmModuleComplete(nextProgress, slug.value)
+  }
+
+  progress.value = saveAlgorithmProgress(nextProgress)
+}
 </script>
 
 <template>
@@ -350,6 +390,15 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
 
       <div class="algorithm-hero__summary">
         <p>{{ t(moduleDefinition.summaryKey) }}</p>
+        <div
+          class="algorithm-hero__status"
+          :class="{ 'is-complete': progress.completedModuleSlugs.includes(moduleDefinition.slug) }"
+        >
+          <span>{{ moduleStatusLabel }}</span>
+          <small v-if="lastVisitedModuleSlug === moduleDefinition.slug">
+            {{ currentLocale === 'zh-CN' ? '最近学习' : 'Last visited' }}
+          </small>
+        </div>
         <div class="algorithm-hero__stats">
           <article v-for="item in heroStatItems" :key="item.id" class="algorithm-hero__stat">
             <span>{{ item.label }}</span>
@@ -805,6 +854,16 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
         </div>
       </aside>
     </section>
+
+    <AlgorithmCheckpointQuiz
+      v-if="moduleDefinition.checkpoints.length"
+      :module-slug="moduleDefinition.slug"
+      :module-route="moduleDefinition.route"
+      :checkpoints="moduleDefinition.checkpoints"
+      :locale="currentLocale"
+      :completed="progress.completedModuleSlugs.includes(moduleDefinition.slug)"
+      @submit="onAlgorithmQuizSubmit"
+    />
 
     <section v-if="isLossFunctionsPage" class="results-grid results-grid--loss">
       <LossFunctionsResults

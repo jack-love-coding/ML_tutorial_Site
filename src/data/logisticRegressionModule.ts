@@ -1,5 +1,6 @@
 import type { AlgorithmModuleDefinition, LocalizedCopy } from '../types/ml'
 import { simulateLogisticRegression } from '../simulations/logisticRegression'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
 
 function loc(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
@@ -29,6 +30,7 @@ export const logisticRegressionModule: AlgorithmModuleDefinition = {
   summaryKey: 'modules.logisticRegression.summary',
   theme: '#e7f4f1',
   accent: '#1ea67a',
+  checkpoints: algorithmCheckpointsBySlug['logistic-regression'],
   visuals: [
     {
       id: 'probability-field-context',

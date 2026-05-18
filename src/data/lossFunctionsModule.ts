@@ -1,5 +1,6 @@
 import type { AlgorithmModuleDefinition } from '../types/ml'
 import { simulateLossFunctions } from '../simulations/lossFunctions'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
 
 export const lossFunctionsModule: AlgorithmModuleDefinition = {
   slug: 'loss-functions',
@@ -10,6 +11,7 @@ export const lossFunctionsModule: AlgorithmModuleDefinition = {
   summaryKey: 'modules.lossFunctions.summary',
   theme: '#eef4ff',
   accent: '#3f6dff',
+  checkpoints: algorithmCheckpointsBySlug['loss-functions'],
   chapters: [
     {
       id: 'why-loss',

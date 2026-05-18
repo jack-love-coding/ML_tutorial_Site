@@ -2,6 +2,7 @@ import type { AlgorithmModuleDefinition } from '../types/ml'
 import { simulateGradientDescent } from '../simulations/gradientDescent'
 import { simulateLogisticRegression } from '../simulations/logisticRegression'
 import { simulateMLP } from '../simulations/mlp'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
 
 export const moduleOrder: AlgorithmModuleDefinition[] = [
   {
@@ -13,6 +14,7 @@ export const moduleOrder: AlgorithmModuleDefinition[] = [
     summaryKey: 'modules.gradientDescent.summary',
     theme: '#f4efe3',
     accent: '#ff7d4d',
+    checkpoints: algorithmCheckpointsBySlug['gradient-descent'],
     chapters: [
       {
         id: 'terrain',
@@ -150,6 +152,7 @@ export const moduleOrder: AlgorithmModuleDefinition[] = [
     summaryKey: 'modules.logisticRegression.summary',
     theme: '#e7f4f1',
     accent: '#1ea67a',
+    checkpoints: algorithmCheckpointsBySlug['logistic-regression'],
     chapters: [
       {
         id: 'boundary',
@@ -661,6 +664,7 @@ Switch to the XOR preset, play training to the end, and watch whether accuracy a
     summaryKey: 'modules.mlp.summary',
     theme: '#ecedf8',
     accent: '#4d63ff',
+    checkpoints: algorithmCheckpointsBySlug.mlp,
     chapters: [
       {
         id: 'features',
