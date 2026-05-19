@@ -97,6 +97,7 @@ onBeforeUnmount(() => {
       <article
         v-for="(section, index) in props.sections"
         :key="section.id"
+        :id="section.id"
         :ref="(element) => setSectionRef(element, index)"
         class="story-card"
         :class="{ 'is-active': props.activeId === section.id }"

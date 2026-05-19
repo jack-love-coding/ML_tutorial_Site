@@ -6,6 +6,7 @@ import type {
   StorySection,
 } from '../types/ml'
 import { simulateClassification } from '../simulations/classification'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
 
 function loc(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
@@ -157,6 +158,7 @@ export const classificationModule: AlgorithmModuleDefinition = {
   theme: '#eef8f6',
   accent: '#0f9f8f',
   visuals: classificationVisuals,
+  checkpoints: algorithmCheckpointsBySlug.classification,
   sourceNote: loc(
     '本模块改写并重组自 Google Machine Learning Crash Course 的 Classification 系列，补充 scikit-learn 指标定义和 D2L softmax 结构。Google 内容按 CC BY 4.0 署名使用，D2L 按 CC BY-SA 4.0 署名使用。',
     'This module rewrites and reorganizes Google Machine Learning Crash Course classification lessons, with supplemental metric framing from scikit-learn and softmax structure from D2L. Google content is attributed under CC BY 4.0; D2L is attributed under CC BY-SA 4.0.',

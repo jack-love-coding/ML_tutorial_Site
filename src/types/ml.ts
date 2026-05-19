@@ -425,6 +425,21 @@ export interface ExperimentPreset {
   config: Partial<ExperimentConfig>
 }
 
+export interface AlgorithmCheckpointChoice {
+  id: string
+  label: LocalizedCopy
+}
+
+export interface AlgorithmCheckpointItem {
+  id: string
+  prompt: LocalizedCopy
+  choices: AlgorithmCheckpointChoice[]
+  answer: string
+  explanation: LocalizedCopy
+  misconceptionTags: string[]
+  revisitChapterId: string
+}
+
 export interface TeachingInsight {
   id: string
   tone: InsightTone
@@ -444,6 +459,7 @@ export interface AlgorithmModuleDefinition {
   chapters: StorySection[]
   controls: ExperimentControl[]
   presets: ExperimentPreset[]
+  checkpoints: AlgorithmCheckpointItem[]
   visuals?: ModuleVisualAsset[]
   sourceNote?: LocalizedCopy
   createDefaultConfig: () => ExperimentConfig
@@ -455,4 +471,20 @@ export interface ExperimentState {
   snapshots: TrainingSnapshot[]
   currentStep: number
   isPlaying: boolean
+}
+
+export interface AlgorithmQuizAttempt {
+  quizId: string
+  moduleSlug: ModuleSlug
+  selected: string
+  correct: boolean
+  misconceptionTags: string[]
+  attemptedAt: string
+}
+
+export interface AlgorithmProgress {
+  completedModuleSlugs: ModuleSlug[]
+  quizAttempts: AlgorithmQuizAttempt[]
+  lastVisitedModuleSlug?: ModuleSlug
+  updatedAt: string
 }
