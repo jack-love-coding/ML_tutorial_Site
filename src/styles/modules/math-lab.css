@@ -225,6 +225,38 @@
   font-size: 1rem;
 }
 
+.math-concept-illustration {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.math-concept-illustration img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 14px;
+  object-fit: cover;
+  background: #0c1628;
+}
+
+.math-concept-illustration figcaption {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.math-concept-illustration figcaption strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1rem;
+}
+
 .math-lab-panel header > span,
 .math-code-lab header > span,
 .math-checkpoint header > span,

@@ -7,6 +7,7 @@ import CheckpointQuiz from '../components/CheckpointQuiz.vue'
 import CodeLab from '../components/CodeLab.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
+import { conceptIllustrationFor, type ConceptIllustration } from '../data/conceptIllustrations'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
 import type { LabConfig, MathLabLocale, MathLabModuleId, MathLabSection, QuizAttempt, VisualAsset } from '../types/mathLab'
 import { withPublicBase } from '../../../utils/publicPath.ts'
@@ -151,6 +152,14 @@ function labPropsFor(lab: LabConfig) {
 function imageSrc(asset: VisualAsset) {
   return withPublicBase(asset.assetPath)
 }
+
+function conceptIllustration(conceptId: string) {
+  return conceptIllustrationFor(moduleDefinition.value?.id ?? moduleId.value, conceptId)
+}
+
+function conceptIllustrationSrc(asset?: ConceptIllustration) {
+  return withPublicBase(asset?.assetPath)
+}
 </script>
 
 <template>
@@ -208,6 +217,22 @@ function imageSrc(asset: VisualAsset) {
             </article>
           </div>
           <CodeLab v-if="concept.codeExample" :title="concept.name[currentLocale]" :code="concept.codeExample" />
+          <figure
+            v-if="conceptIllustration(concept.id)?.status === 'generated'"
+            class="math-concept-illustration"
+          >
+            <img
+              :src="conceptIllustrationSrc(conceptIllustration(concept.id))"
+              :alt="conceptIllustration(concept.id)?.alt?.[currentLocale] ?? conceptIllustration(concept.id)?.title[currentLocale]"
+              loading="lazy"
+            />
+            <figcaption>
+              <strong>{{ conceptIllustration(concept.id)?.title[currentLocale] }}</strong>
+              <MarkdownMathContent
+                :source="conceptIllustration(concept.id)?.caption?.[currentLocale] ?? conceptIllustration(concept.id)?.transcript[currentLocale] ?? ''"
+              />
+            </figcaption>
+          </figure>
         </section>
 
         <template v-for="section in moduleDefinition.sections" :key="section.id">
