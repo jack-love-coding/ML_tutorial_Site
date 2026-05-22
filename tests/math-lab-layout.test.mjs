@@ -84,6 +84,8 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(homeSource, /beginner-linear-algebra-story\.png/)
   assert.match(homeSource, /beginner-calculus-story\.png/)
   assert.match(homeSource, /beginner-probability-story\.png/)
+  assert.match(homeSource, /古典概率/)
+  assert.match(homeSource, /sample space/)
   assert.match(homeSource, /withPublicBase/)
 })
 
