@@ -459,6 +459,44 @@ Check two things at once: mathematically, whether the gradient follows the inten
 
 const probabilitySections = [
   section(
+    'probability-likelihood-entropy-zero-base-story',
+    copy('零基础先看：分布是很多次结果留下的形状', 'Zero-Base First Look: A Distribution Is the Shape Left by Many Trials'),
+    copy(
+      md`概率不是“猜一次会不会中”。对 AI 来说，概率更像是在问：**如果同类事情重复很多次，结果会怎样分布？**
+
+![概率分布入门故事：随机样本进入分桶、形成分布曲线，并连接分类概率输出](/math-lab/generated/beginner-probability-story.png)
+
+把彩色小球一次次倒进盒子里，单个小球的位置看起来随机；但小球多了以后，某些盒子会稳定地更高，某些盒子会更低。这个整体形状就是分布直觉。分布不保证下一次一定落在哪里，但它告诉你长期模式。
+
+分类模型输出的 \([0.8,0.1,0.1]\) 也可以这样读：模型不是只说“选第一个”，而是在三个类别上分配不确定性。最高的概率表示当前模型最相信那个类别，但这不等于它永远可靠。校准要检查“模型说 80% 的那些样本，现实中是否真的大约 80% 正确”。
+
+本章先抓住四个问题：
+
+1. 分布：可能结果的长期形状是什么？
+2. likelihood：真实发生的结果在模型眼里有多可能？
+3. entropy：模型的不确定性有多分散？
+4. cross entropy：模型把概率放错地方时，惩罚有多大？
+
+这些问题会直接连接到分类器、语言模型 next-token prediction 和生成模型采样。`,
+      md`Probability is not just "will I guess the next outcome correctly?" For AI, probability asks: **if the same kind of event repeats many times, what shape do the outcomes form?**
+
+![Beginner probability story: random samples entering bins, forming a distribution curve, and connecting to class probability outputs](/math-lab/generated/beginner-probability-story.png)
+
+Drop colored beads into bins over and over. One bead looks random. After many beads, some bins reliably become higher and some lower. That overall shape is the intuition behind a distribution. A distribution does not guarantee the next outcome, but it describes the long-run pattern.
+
+A classifier output such as \([0.8,0.1,0.1]\) can be read the same way: the model is not only saying "pick the first class"; it is distributing uncertainty across classes. The highest probability is what the model currently trusts most, but that does not make it automatically reliable. Calibration asks whether examples predicted at 80% confidence are actually correct about 80% of the time.
+
+Keep four questions in mind:
+
+1. Distribution: what long-run shape do possible outcomes form?
+2. Likelihood: how likely does the model make the observed outcome?
+3. Entropy: how spread out is the model's uncertainty?
+4. Cross entropy: how large is the penalty when probability mass is placed in the wrong location?
+
+These questions connect directly to classifiers, language-model next-token prediction, and generative-model sampling.`,
+    ),
+  ),
+  section(
     'probability-likelihood-entropy-distribution-language',
     copy('模型输出是一种分布语言', 'Model Outputs Are Distribution Language'),
     copy(
@@ -957,11 +995,13 @@ export const aiBridgeModules: MathLabModule[] = [
       ]),
     ],
     quizzes: [
+      quiz('probability-beginner-distribution', copy('为什么一次随机结果不能代表一个概率分布？', 'Why can one random outcome not represent a probability distribution?'), 'many-trials', copy('分布描述很多次重复后的长期形状。', 'A distribution describes the long-run shape after many repeated trials.'), copy('一次结果已经给出所有长期规律。', 'One outcome already reveals every long-run pattern.'), copy('单次结果可能偶然；样本多了以后，频率形状才会逐渐稳定。', 'One outcome can be accidental; with many samples, the frequency shape gradually becomes stable.'), 'probability-distribution'),
       quiz('probability-ce', copy('交叉熵 \(-\log p_y\) 在什么时候变大？', 'When does cross entropy \(-\log p_y\) get large?'), 'low', copy('正确类别概率 \(p_y\) 很低时。', 'When target probability \(p_y\) is low.'), copy('所有 logits 都相等时一定为 0。', 'When all logits are equal it is always 0.'), copy('负对数会强烈惩罚接近 0 的正确类概率。', 'Negative log strongly penalizes target probabilities near 0.'), 'cross-entropy'),
       quiz('probability-kl', copy('KL divergence 为什么不是普通距离？', 'Why is KL divergence not an ordinary distance?'), 'asymmetric', copy('它通常不对称。', 'It is usually asymmetric.'), copy('它不能比较分布。', 'It cannot compare distributions.'), copy('\(D_{KL}(p\\Vert q)\) 和 \(D_{KL}(q\\Vert p)\) 通常不同。', '\(D_{KL}(p\\Vert q)\) and \(D_{KL}(q\\Vert p)\) usually differ.'), 'kl'),
       quiz('probability-calibration', copy('校准主要检查什么？', 'What does calibration mainly check?'), 'frequency', copy('预测概率是否接近实际正确频率。', 'Whether predicted probabilities match observed correctness frequencies.'), copy('模型参数是否全为整数。', 'Whether model parameters are all integers.'), copy('准确率只看对错，校准还看概率数值是否可信。', 'Accuracy checks correctness; calibration checks whether probability values are trustworthy.'), 'calibration'),
     ],
     misconceptions: [
+      misconception('probability-one-trial', copy('看到一次结果，就已经知道整个概率分布。', 'Seeing one result is enough to know the whole probability distribution.'), copy('一次结果只是一份样本，可能很偶然。分布要靠多次重复后的频率形状来理解。', 'One result is just one sample and can be accidental. A distribution is understood from the frequency shape after many repeated trials.'), copy('一次掷骰子得到 6，不说明骰子永远出 6；掷很多次后，每个点数出现的比例才更接近骰子的分布。', 'Rolling a 6 once does not mean the die always lands on 6; after many rolls, the proportions across faces better reveal the distribution.')),
       misconception('softmax-certainty', copy('softmax 最大概率高就说明模型一定可靠。', 'A high softmax probability means the model is definitely reliable.'), copy('softmax 是模型内部分数的归一化，不自动保证校准。', 'Softmax normalizes internal scores; it does not automatically guarantee calibration.'), copy('模型可能对分布外样本也给出很高概率。', 'A model can assign high probability to out-of-distribution inputs.')),
       misconception('entropy-accuracy', copy('熵越低，分类准确率一定越高。', 'Lower entropy always means higher accuracy.'), copy('低熵只说明分布更尖锐，不说明尖锐地指向正确类别。', 'Low entropy means a sharper distribution, not necessarily a correct one.'), copy('模型可以非常自信地预测错误类别。', 'A model can confidently predict the wrong class.')),
       misconception('kl-distance', copy('KL divergence 和欧氏距离一样对称。', 'KL divergence is symmetric like Euclidean distance.'), copy('KL 的方向有含义，两个方向通常不同。', 'KL direction matters, and the two directions usually differ.'), copy('用窄分布近似宽分布，与用宽分布近似窄分布，惩罚不同。', 'Approximating a broad distribution with a narrow one differs from the reverse.')),

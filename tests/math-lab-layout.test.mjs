@@ -78,6 +78,13 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /import\('\.\.\/labs\/VectorDotProductLab\.vue'\)/)
   assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
+
+  const homeSource = read('src/modules/math-lab/pages/MathLabHome.vue')
+  assert.match(homeSource, /math-beginner-bridge/)
+  assert.match(homeSource, /beginner-linear-algebra-story\.png/)
+  assert.match(homeSource, /beginner-calculus-story\.png/)
+  assert.match(homeSource, /beginner-probability-story\.png/)
+  assert.match(homeSource, /withPublicBase/)
 })
 
 test('math lab uses generated imported notes and local migrated assets', () => {
@@ -112,6 +119,9 @@ test('migrated note figures are stored locally', () => {
     'public/math-lab/cs357-assets/figs/pca_covar_diag.png',
     'public/math-lab/generated/monte-carlo-sampling-illustration.png',
     'public/math-lab/generated/vector-matrix-norms-illustration.png',
+    'public/math-lab/generated/beginner-linear-algebra-story.png',
+    'public/math-lab/generated/beginner-calculus-story.png',
+    'public/math-lab/generated/beginner-probability-story.png',
   ]
 
   for (const assetPath of keyAssets) {

@@ -23,6 +23,42 @@ function section(
 
 const sections: MathLabSection[] = [
   section(
+    'taylor-series-zero-base-story',
+    copy('零基础先看：微积分是在读“此刻的变化”', 'Zero-Base First Look: Calculus Reads Change Right Now'),
+    copy(
+      md`微积分不只是求复杂函数的题。对 AI 来说，它回答一个非常生活化的问题：**如果我把输入或参数轻轻动一点，结果会怎样变？**
+
+![微积分入门故事：小车轨迹、切线斜率、局部变化和梯度下降路径](/math-lab/generated/beginner-calculus-story.png)
+
+想象一辆小车沿着弯路前进。你站在某一刻看它，最关心的不是整条路的形状，而是“此刻路面朝哪个方向倾斜”。这条贴着当前位置的直线就是切线；它的斜率就是导数的直觉。
+
+机器学习训练也在问类似问题：如果把某个权重稍微调大，loss 会升高还是降低？升高得快不快？梯度把所有这些局部变化率收集成一个方向。想让 loss 下降，就沿着梯度的反方向走。
+
+Taylor 展开把这个直觉写成可计算的近似：
+
+1. \(T_0\) 只记住当前位置的值。
+2. \(T_1\) 加上当前斜率，所以能预测附近的直线变化。
+3. \(T_2\) 再加上弯曲程度，所以能看见局部曲率。
+
+因此，本章不要先背长公式。先记住：Taylor 近似是在当前点附近给复杂函数做一张“局部地图”。`,
+      md`Calculus is not just a collection of hard function exercises. For AI, it answers a very practical question: **if I nudge an input or a parameter a tiny bit, how does the result change?**
+
+![Beginner calculus story: a car path, tangent slope, local change, and a gradient descent path](/math-lab/generated/beginner-calculus-story.png)
+
+Imagine a car moving along a curved road. At one moment, the most useful thing is not the whole road; it is the direction the road is leaning right now. The line that just touches the road at the current point is the tangent line. Its slope is the intuition behind a derivative.
+
+Machine learning asks the same kind of question during training: if a weight moves slightly upward, does the loss rise or fall? How quickly? The gradient collects those local rates of change into one direction. To reduce loss, training moves in the opposite direction.
+
+Taylor expansion turns this intuition into a computable approximation:
+
+1. \(T_0\) keeps only the current value.
+2. \(T_1\) adds the current slope, so it predicts nearby straight-line change.
+3. \(T_2\) adds curvature, so it sees local bending.
+
+So do not begin by memorizing the long formula. First remember: a Taylor approximation is a local map of a complex function near the current point.`,
+    ),
+  ),
+  section(
     'taylor-series-learning-objectives',
     copy('学习目标', 'Learning Objectives'),
     copy(
@@ -781,6 +817,35 @@ export function buildTaylorSeriesModule(importedModule: MathLabModule): MathLabM
     ],
     quizzes: [
       {
+        id: 'taylor-series-beginner-local-change',
+        type: 'single-choice',
+        prompt: copy(
+          '零基础理解导数时，最应该先把它看成什么？',
+          'For a beginner, what is the best first intuition for a derivative?',
+        ),
+        choices: [
+          {
+            id: 'local-change',
+            label: copy('当前位置附近输入轻轻变化时，输出怎样变化。', 'How the output changes when the input moves slightly near the current point.'),
+          },
+          {
+            id: 'global-average',
+            label: copy('整个函数在所有位置的平均高度。', 'The average height of the function over all positions.'),
+          },
+          {
+            id: 'random-score',
+            label: copy('模型随机挑选的一个分类分数。', 'A classification score chosen randomly by the model.'),
+          },
+        ],
+        answer: 'local-change',
+        explanation: copy(
+          '导数和梯度都从局部变化开始。训练模型时，梯度告诉我们当前参数稍微移动会让 loss 往哪里变。',
+          'Derivatives and gradients start from local change. During model training, the gradient tells how a small parameter move changes the loss right now.',
+        ),
+        misconceptionTags: ['calculus-is-global-formula'],
+        revisitVisualId: 'taylor-polynomial-video',
+      },
+      {
         id: 'taylor-series-checkpoint',
         type: 'single-choice',
         prompt: copy(
@@ -839,6 +904,21 @@ export function buildTaylorSeriesModule(importedModule: MathLabModule): MathLabM
       },
     ],
     misconceptions: [
+      {
+        id: 'calculus-is-global-formula',
+        statement: copy(
+          '微积分只是背一套全局公式，和眼前这一小步变化没有关系。',
+          'Calculus is only a set of global formulas and has little to do with one small change right now.',
+        ),
+        correction: copy(
+          '导数首先描述当前位置附近的变化率。梯度下降用的正是这种局部信息：参数轻轻移动时，loss 会升高还是降低。',
+          'A derivative first describes the rate of change near the current point. Gradient descent uses exactly this local information: whether a tiny parameter move raises or lowers the loss.',
+        ),
+        example: copy(
+          '小车在某一秒的速度不是全程平均速度，而是这一瞬间附近位置变化的快慢；模型梯度也是当前点附近的“速度表”。',
+          'A car speed at one second is not the average speed for the whole trip; it is how position changes near that instant. A model gradient is the same kind of local speedometer.',
+        ),
+      },
       {
         id: 'taylor-global',
         statement: copy(

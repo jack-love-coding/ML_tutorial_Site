@@ -23,6 +23,42 @@ function section(
 
 const sections: MathLabSection[] = [
   section(
+    'vectors-matrices-norms-zero-base-story',
+    copy('零基础先看：数据为什么会变成箭头', 'Zero-Base First Look: Why Data Becomes Arrows'),
+    copy(
+      md`先不要把线性代数想成一堆大表格。对 AI 来说，线性代数最朴素的问题是：**怎样把很多信息放进同一个空间里比较、混合和移动？**
+
+![线性代数入门故事：数据卡片变成向量、向量组合、矩阵变换和长度测量](/math-lab/generated/beginner-linear-algebra-story.png)
+
+一张图片可以被拆成像素数，一句话可以被模型变成 embedding，一个学生的学习记录也可以被写成一排特征数。这一排数就是向量。把它画成箭头后，你能直观看到两件事：箭头指向哪里，以及箭头有多长。
+
+矩阵不是“更大的表格”，而是一台空间变形器。它会把每个方向拉伸、旋转、压扁或混合。神经网络里的线性层 \(Wx+b\) 就在反复做这种事：先把输入特征混合成新的方向，再交给后面的非线性模块判断。
+
+这一章只需要先抓住三句话：
+
+1. 向量回答“这个样本在特征空间里的方向和位置是什么？”
+2. 点积回答“两个方向有多同向？”
+3. 矩阵回答“如果把整个空间这样变形，样本会去哪里？”
+
+公式会让这些问题可计算；图像和实验先让这些问题可看见。`,
+      md`Do not start by treating linear algebra as a pile of big tables. For AI, the simplest question is: **how can many pieces of information live in one space so we can compare, mix, and move them?**
+
+![Beginner linear algebra story: data cards become vectors, vector combinations, matrix transforms, and length measurement](/math-lab/generated/beginner-linear-algebra-story.png)
+
+An image can become pixel numbers, a sentence can become an embedding, and a learner profile can become a row of feature values. That row is a vector. Once you draw it as an arrow, you can see two things immediately: where it points and how long it is.
+
+A matrix is not just a bigger table; it is a space transformer. It can stretch, rotate, flatten, or mix directions. A neural-network linear layer \(Wx+b\) repeatedly does this: mix input features into new directions, then pass them to nonlinear parts of the model.
+
+Keep three starter sentences in mind:
+
+1. A vector asks, "where is this sample in feature space?"
+2. A dot product asks, "how aligned are these two directions?"
+3. A matrix asks, "where does a sample go if the whole space is transformed this way?"
+
+Formulas make these questions computable; images and labs make them visible first.`,
+    ),
+  ),
+  section(
     'vectors-matrices-norms-learning-objectives',
     copy('全章地图：从向量到矩阵再到范数', 'Chapter Map: From Vectors to Matrices to Norms'),
     copy(
@@ -1671,6 +1707,32 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
     ],
     quizzes: [
       {
+        id: 'vectors-matrices-norms-beginner-arrow',
+        type: 'single-choice',
+        prompt: copy('在 AI 数学里，把一排特征数画成箭头，最先帮助我们看见什么？', 'In AI math, what does drawing a row of feature numbers as an arrow help us see first?'),
+        choices: [
+          {
+            id: 'direction-and-length',
+            label: copy('样本在特征空间里的方向和长度。', 'The sample direction and length in feature space.'),
+          },
+          {
+            id: 'file-format',
+            label: copy('图片文件的压缩格式。', 'The image file compression format.'),
+          },
+          {
+            id: 'random-label',
+            label: copy('训练标签一定会被随机打乱。', 'Training labels must be randomly shuffled.'),
+          },
+        ],
+        answer: 'direction-and-length',
+        explanation: copy(
+          '向量把多项特征放进同一个空间。方向帮助比较相似度，长度帮助比较规模、误差或强度。',
+          'A vector places multiple features in one space. Direction supports similarity comparisons, and length supports scale, error, or strength comparisons.',
+        ),
+        misconceptionTags: ['vector-is-only-list'],
+        revisitVisualId: 'vector-dot-product-video',
+      },
+      {
         id: 'vectors-matrices-norms-dot-sign',
         type: 'single-choice',
         prompt: copy('若两个非零向量的点积为 \(0\)，最直接说明什么？', 'If two nonzero vectors have dot product \(0\), what does that directly indicate?'),
@@ -1739,6 +1801,21 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
       },
     ],
     misconceptions: [
+      {
+        id: 'vector-is-only-list',
+        statement: copy(
+          '向量只是一个普通数字列表，没有几何含义。',
+          'A vector is only an ordinary list of numbers with no geometric meaning.',
+        ),
+        correction: copy(
+          '同一排数既可以当作数据列表，也可以当作特征空间里的一个方向和位置。AI 学习相似度、误差和线性层时都需要这个几何视角。',
+          'The same row of numbers can be a data list and also a direction and position in feature space. AI needs this geometric view for similarity, error, and linear layers.',
+        ),
+        example: copy(
+          md`两个 embedding 的夹角小，通常表示方向接近；这比只逐个看数字更接近“语义相似度”的直觉。`,
+          md`If two embeddings have a small angle, their directions are close; that better matches semantic similarity than inspecting each number separately.`,
+        ),
+      },
       {
         id: 'matrix-vector-entrywise',
         statement: copy(

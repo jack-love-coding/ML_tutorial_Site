@@ -328,6 +328,14 @@ test('AI bridge modules include complete V1 teaching surfaces', () => {
     ].join('\n\n'))
     assert.match(html, /katex/)
     assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+
+    if (moduleDefinition.id === 'probability-likelihood-entropy') {
+      const englishSource = moduleDefinition.sections.map((section) => section.content.en).join('\n')
+      assert.match(englishSource, /event repeats many times/i)
+      assert.match(englishSource, /\/math-lab\/generated\/beginner-probability-story\.png/)
+      assert.ok(moduleDefinition.quizzes.some((quiz) => quiz.id === 'probability-beginner-distribution'))
+      assert.ok(moduleDefinition.misconceptions.some((misconception) => misconception.id === 'probability-one-trial'))
+    }
   }
 })
 
@@ -341,6 +349,8 @@ test('taylor module presents hand-written bilingual content as an integrated rea
   assert.ok(taylor.concepts.length >= 1)
   assert.ok(taylor.quizzes.length >= 2)
   assert.ok(taylor.misconceptions.length >= 2)
+  assert.ok(taylor.quizzes.some((quiz) => quiz.id === 'taylor-series-beginner-local-change'))
+  assert.ok(taylor.misconceptions.some((misconception) => misconception.id === 'calculus-is-global-formula'))
   assert.ok(taylor.labs.some((lab) => lab.componentName === 'TaylorSeriesLab'))
   assert.ok(taylor.visuals.some((visual) => visual.id === 'taylor-polynomial-video'))
   assert.ok(taylor.sections.some((section) => section.visualIds?.includes('taylor-polynomial-video')))
@@ -348,6 +358,7 @@ test('taylor module presents hand-written bilingual content as an integrated rea
   assert.deepEqual(
     taylor.sections.map((section) => section.id),
     [
+      'taylor-series-zero-base-story',
       'taylor-series-learning-objectives',
       'taylor-series-polynomial-overview',
       'taylor-series-taylor-series-expansion',
@@ -367,6 +378,8 @@ test('taylor module presents hand-written bilingual content as an integrated rea
   assert.match(zhBody, /Lagrange 余项/)
   assert.match(zhBody, /梯度下降/)
   assert.match(enBody, /Learning Objectives/)
+  assert.match(enBody, /local map of a complex function/)
+  assert.match(enBody, /\/math-lab\/generated\/beginner-calculus-story\.png/)
   assert.match(enBody, /Polynomial Overview/)
   assert.match(enBody, /Taylor Series Expansion/)
   assert.match(enBody, /Taylor Series Error/)
@@ -452,6 +465,8 @@ test('vectors matrices norms module presents repaired bilingual content and inli
   assert.ok(vectorModule.concepts.length >= 3)
   assert.ok(vectorModule.quizzes.length >= 3)
   assert.ok(vectorModule.misconceptions.length >= 3)
+  assert.ok(vectorModule.quizzes.some((quiz) => quiz.id === 'vectors-matrices-norms-beginner-arrow'))
+  assert.ok(vectorModule.misconceptions.some((misconception) => misconception.id === 'vector-is-only-list'))
   assert.ok(vectorModule.labs.some((lab) => lab.componentName === 'VectorDotProductLab'))
   assert.ok(vectorModule.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
   assert.ok(vectorModule.visuals.some((visual) => visual.id === 'vector-span-norm-video'))
@@ -478,6 +493,8 @@ test('vectors matrices norms module presents repaired bilingual content and inli
   assert.match(zhBody, /submultiplicative/)
   assert.match(zhBody, /Embedding 相似度/)
   assert.match(enBody, /Vectors: Coordinates/)
+  assert.match(enBody, /data becomes arrows/i)
+  assert.match(enBody, /\/math-lab\/generated\/beginner-linear-algebra-story\.png/)
   assert.match(enBody, /Matrix Norms: How Much a Linear Layer Can Amplify/)
   assert.match(enBody, /Special Matrices, Rank, and Representing Linear Transformations/)
   assert.match(enBody, /Frobenius example/)
