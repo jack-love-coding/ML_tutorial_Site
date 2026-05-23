@@ -1,5 +1,6 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
 import { aiBridgeModules } from './aiBridgeModules.ts'
+import { beginnerFoundationModules } from './beginnerFoundationModules.ts'
 import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
@@ -22,10 +23,13 @@ const supplementalModules = Object.fromEntries(
 ) as Record<MathLabModuleId, MathLabModule | undefined>
 
 const aiMathPath: MathLabModuleId[] = [
+  'beginner-linear-algebra',
   'vectors-matrices-norms',
   'tensor-shapes-vectorization',
+  'beginner-calculus',
   'taylor-series',
   'matrix-calculus-autodiff',
+  'beginner-probability-distributions',
   'monte-carlo',
   'probability-likelihood-entropy',
   'lu-decomposition',
@@ -110,7 +114,7 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
 })
 
 const allModulesById = Object.fromEntries(
-  [...importedFoundationModules, ...aiBridgeModules].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
+  [...beginnerFoundationModules, ...importedFoundationModules, ...aiBridgeModules].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
 ) as Record<MathLabModuleId, MathLabModule | undefined>
 
 export const mathLabModules: MathLabModule[] = aiMathPath.map((moduleId, index) => {
@@ -122,7 +126,7 @@ export const mathLabModules: MathLabModule[] = aiMathPath.map((moduleId, index) 
 
   return {
     ...moduleDefinition,
-    order: index + 6,
+    order: index + 1,
     nextModuleIds: aiMathPath[index + 1] ? [aiMathPath[index + 1]] : [],
   }
 })
