@@ -33,8 +33,8 @@ const copy = computed(() =>
           'A chapter path from vectors and matrices to Transformers, with bilingual explanations, math rendering, visualizations, and interactive labs.',
         diagnostic: 'Start diagnostic',
         continue: 'Continue learning',
-        pathTitle: 'AI math path: chapters 6-24',
-        pathBody: 'The path inserts shape, autodiff, probability losses, training diagnostics, and deep architecture math into the numerical foundation.',
+        pathTitle: 'AI math path: chapters 1-22',
+        pathBody: 'The path starts with zero-base linear algebra, calculus, and probability distributions, then moves into shape, autodiff, training diagnostics, and deep architecture math.',
         radarTitle: 'Current foundation',
         radarEmpty: 'After the diagnostic, this panel shows your linear algebra, calculus, probability, and optimization readiness.',
       },
@@ -73,7 +73,7 @@ const beginnerCards = computed(() =>
           body: '从图片、词语、用户特征出发，看懂向量、矩阵变换、距离和相似度。',
           imagePath: '/math-lab/generated/beginner-linear-algebra-story.png',
           alt: '线性代数入门插图：数据卡片变成向量、向量组合、矩阵变换和长度测量。',
-          route: '/math-lab/modules/vectors-matrices-norms',
+          route: '/math-lab/modules/beginner-linear-algebra',
         },
         {
           id: 'calculus',
@@ -81,7 +81,7 @@ const beginnerCards = computed(() =>
           body: '用小车、切线和下坡路径理解导数、梯度和训练时的参数更新。',
           imagePath: '/math-lab/generated/beginner-calculus-story.png',
           alt: '微积分入门插图：小车轨迹、切线斜率、局部变化和梯度下降路径。',
-          route: '/math-lab/modules/taylor-series',
+          route: '/math-lab/modules/beginner-calculus',
         },
         {
           id: 'probability',
@@ -89,7 +89,7 @@ const beginnerCards = computed(() =>
           body: '从重复试验和直方图理解分布，再连接到分类器输出的概率条。',
           imagePath: '/math-lab/generated/beginner-probability-story.png',
           alt: '概率分布入门插图：随机样本进入分桶、形成分布曲线，并连接分类概率输出。',
-          route: '/math-lab/modules/probability-likelihood-entropy',
+          route: '/math-lab/modules/beginner-probability-distributions',
         },
       ]
     : [
@@ -99,7 +99,7 @@ const beginnerCards = computed(() =>
           body: 'Start from images, words, and user features, then read vectors, matrix transforms, distance, and similarity.',
           imagePath: '/math-lab/generated/beginner-linear-algebra-story.png',
           alt: 'Beginner linear algebra illustration showing data cards becoming vectors, vector combinations, matrix transforms, and length measurement.',
-          route: '/math-lab/modules/vectors-matrices-norms',
+          route: '/math-lab/modules/beginner-linear-algebra',
         },
         {
           id: 'calculus',
@@ -107,7 +107,7 @@ const beginnerCards = computed(() =>
           body: 'Use a moving car, tangent lines, and a downhill path to understand derivatives, gradients, and training updates.',
           imagePath: '/math-lab/generated/beginner-calculus-story.png',
           alt: 'Beginner calculus illustration showing a car path, tangent slope, local change, and a gradient descent path.',
-          route: '/math-lab/modules/taylor-series',
+          route: '/math-lab/modules/beginner-calculus',
         },
         {
           id: 'probability',
@@ -115,7 +115,7 @@ const beginnerCards = computed(() =>
           body: 'Move from repeated trials and histograms to distributions, then connect them to classifier probability bars.',
           imagePath: '/math-lab/generated/beginner-probability-story.png',
           alt: 'Beginner probability illustration showing random samples entering bins, forming a distribution curve, and connecting to class probability outputs.',
-          route: '/math-lab/modules/probability-likelihood-entropy',
+          route: '/math-lab/modules/beginner-probability-distributions',
         },
       ],
 )

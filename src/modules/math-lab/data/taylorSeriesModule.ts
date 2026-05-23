@@ -26,7 +26,9 @@ const sections: MathLabSection[] = [
     'taylor-series-zero-base-story',
     copy('零基础先看：微积分是在读“此刻的变化”', 'Zero-Base First Look: Calculus Reads Change Right Now'),
     copy(
-      md`微积分不只是求复杂函数的题。对 AI 来说，它回答一个非常生活化的问题：**如果我把输入或参数轻轻动一点，结果会怎样变？**
+      md`微积分不只是求复杂函数的题。函数可以先理解成一台输入输出机器：输入 \(x\)，输出 \(f(x)\)。对 AI 来说，它回答一个非常生活化的问题：**如果我把输入或参数轻轻动一点，结果会怎样变？**
+
+平均变化率比较一段区间的变化，瞬时变化率把这段区间缩小到当前点附近。导数就是此刻速度：它告诉我们当前点上输入轻轻移动时，输出会向上、向下还是几乎不变。
 
 ![微积分入门故事：小车轨迹、切线斜率、局部变化和梯度下降路径](/math-lab/generated/beginner-calculus-story.png)
 
@@ -41,7 +43,9 @@ Taylor 展开把这个直觉写成可计算的近似：
 3. \(T_2\) 再加上弯曲程度，所以能看见局部曲率。
 
 因此，本章不要先背长公式。先记住：Taylor 近似是在当前点附近给复杂函数做一张“局部地图”。`,
-      md`Calculus is not just a collection of hard function exercises. For AI, it answers a very practical question: **if I nudge an input or a parameter a tiny bit, how does the result change?**
+      md`Calculus is not just a collection of hard function exercises. A function can first be understood as an input-output machine: input \(x\), output \(f(x)\). For AI, it answers a very practical question: **if I nudge an input or a parameter a tiny bit, how does the result change?**
+
+Average rate of change compares a whole interval; instantaneous rate of change shrinks that interval down near the current point. A derivative is current speed: it says whether the output rises, falls, or barely changes when the input moves slightly right now.
 
 ![Beginner calculus story: a car path, tangent slope, local change, and a gradient descent path](/math-lab/generated/beginner-calculus-story.png)
 

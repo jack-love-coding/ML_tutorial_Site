@@ -29,6 +29,11 @@ import {
   projection,
 } from '../src/modules/math-lab/utils/math.ts'
 import {
+  evaluateDistributionBuilder,
+  evaluateFeatureVectorStory,
+  evaluateLocalChangeStory,
+} from '../src/modules/math-lab/utils/beginnerFoundations.ts'
+import {
   estimateIntegralXSquared,
   estimatePiMonteCarlo,
   findLcgPeriod,
@@ -168,19 +173,22 @@ test('AI bridge math utilities validate shapes, autodiff, probability, diagnosti
   assert.equal(evaluateAttentionShape({ batchSize: 2, tokens: 4, hiddenDim: 10, heads: 3 }).valid, false)
 })
 
-test('math lab modules include the reordered AI math path from 6-24', () => {
-  assert.equal(mathLabModules.length, 19)
+test('math lab modules include the zero-base AI math path from 1-22', () => {
+  assert.equal(mathLabModules.length, 22)
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.order),
-    [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24],
+    Array.from({ length: 22 }, (_, index) => index + 1),
   )
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.id),
     [
+      'beginner-linear-algebra',
       'vectors-matrices-norms',
       'tensor-shapes-vectorization',
+      'beginner-calculus',
       'taylor-series',
       'matrix-calculus-autodiff',
+      'beginner-probability-distributions',
       'monte-carlo',
       'probability-likelihood-entropy',
       'lu-decomposition',
@@ -201,10 +209,13 @@ test('math lab modules include the reordered AI math path from 6-24', () => {
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.title.en),
     [
+      'Linear Algebra for AI Beginners',
       'Vectors, Matrices, and Norms',
       'Tensor Shapes and Vectorization',
+      'Calculus for AI Beginners',
       'Taylor Series',
       'Matrix Calculus and Automatic Differentiation',
+      'Probability Distributions for AI Beginners',
       'Random Number Generators and Monte Carlo Methods',
       'Probability, Likelihood, and Entropy',
       'LU Decomposition for Solving Linear Equations',
@@ -233,11 +244,17 @@ test('math lab modules include the reordered AI math path from 6-24', () => {
     const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
     assert.equal(englishBody.length > 900, true, `${moduleDefinition.id} should include complete instructional body`)
     if (moduleDefinition.id === 'tensor-shapes-vectorization') {
-      assert.match(englishBody, /Broadcasting and Vectorization|shape/i)
+      assert.match(englishBody, /Beginner bridge|Broadcasting and Vectorization|shape/i)
     } else if (moduleDefinition.id === 'matrix-calculus-autodiff') {
-      assert.match(englishBody, /Computation Graph and Backpropagation|local linearization/)
+      assert.match(englishBody, /chain rule|Computation Graph and Backpropagation|local linearization/i)
     } else if (moduleDefinition.id === 'probability-likelihood-entropy') {
-      assert.match(englishBody, /softmax|cross entropy/i)
+      assert.match(englishBody, /distribution-first bridge|softmax|cross entropy/i)
+    } else if (moduleDefinition.id === 'beginner-linear-algebra') {
+      assert.match(englishBody, /data becomes a vector|matrix as a space machine/i)
+    } else if (moduleDefinition.id === 'beginner-calculus') {
+      assert.match(englishBody, /average change|instantaneous change|Taylor as a local map/i)
+    } else if (moduleDefinition.id === 'beginner-probability-distributions') {
+      assert.match(englishBody, /sample space|random variable|normal distribution/i)
     } else if (moduleDefinition.id === 'training-diagnostics') {
       assert.match(englishBody, /gradient norm|validation loss/i)
     } else if (moduleDefinition.id === 'deep-architecture-math') {
@@ -270,6 +287,55 @@ test('math lab modules include the reordered AI math path from 6-24', () => {
     assert.deepEqual(mathLabModules[index].nextModuleIds, [mathLabModules[index + 1].id])
   }
   assert.deepEqual(mathLabModules.at(-1)?.nextModuleIds, [])
+})
+
+test('zero-base beginner modules expose complete bilingual teaching surfaces', () => {
+  const beginnerModules = mathLabModules.filter((moduleDefinition) =>
+    [
+      'beginner-linear-algebra',
+      'beginner-calculus',
+      'beginner-probability-distributions',
+    ].includes(moduleDefinition.id),
+  )
+
+  assert.equal(beginnerModules.length, 3)
+
+  for (const moduleDefinition of beginnerModules) {
+    assert.equal(moduleDefinition.difficulty, 'foundation')
+    assert.equal(moduleDefinition.sections.length >= 6, true, `${moduleDefinition.id} needs a full reader flow`)
+    assert.equal(moduleDefinition.concepts.length >= 3, true, `${moduleDefinition.id} needs concept cards`)
+    assert.equal(moduleDefinition.quizzes.length >= 3, true, `${moduleDefinition.id} needs checkpoints`)
+    assert.equal(moduleDefinition.misconceptions.length >= 3, true, `${moduleDefinition.id} needs misconception cards`)
+    assert.equal(moduleDefinition.sourceReferences?.length >= 3, true, `${moduleDefinition.id} needs public source records`)
+    assert.equal(moduleDefinition.sourceNoteFile, 'math-lab-beginner-bridge-sources.md')
+    assert.equal(moduleDefinition.visuals.some((visual) => visual.type === 'image'), true)
+    assert.equal(moduleDefinition.sections.some((section) => section.labIds?.length), true)
+
+    const zhBody = moduleDefinition.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+    const enBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+    assert.equal(zhBody.length > 2800, true, `${moduleDefinition.id} Chinese body should be detailed`)
+    assert.equal(enBody.length > 3600, true, `${moduleDefinition.id} English body should be detailed`)
+    assert.doesNotMatch(`${zhBody}\n${enBody}`, /3Blue1Brown says|Seeing Theory says|StatQuest says|GPT-5\.5|Cleaned Source|Course Staff|changelog|site\.baseurl/)
+    assert.doesNotMatch(zhBody, /A vector is|The derivative is|Probability distribution is/)
+    assert.doesNotMatch(enBody, /向量只是|导数就是|古典概率/)
+
+    const html = renderMarkdownWithMath([
+      ...moduleDefinition.concepts.map((concept) => `$$${concept.formulaLatex}$$`),
+      ...moduleDefinition.sections.map((section) => `${section.title.en}\n\n${section.content.en}`),
+      ...moduleDefinition.quizzes.map((quizItem) => `${quizItem.prompt.en}\n\n${quizItem.explanation.en}`),
+    ].join('\n\n'))
+    assert.match(html, /katex/)
+    assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+
+    for (const reference of moduleDefinition.sourceReferences ?? []) {
+      assert.match(reference.href, /^https:\/\//)
+    }
+  }
+
+  const byId = Object.fromEntries(beginnerModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+  assert.ok(byId['beginner-linear-algebra']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
+  assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'LocalChangeStoryLab'))
+  assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'DistributionBuilderLab'))
 })
 
 test('key math foundation topics are connected to interactive or video enhancements', () => {
@@ -339,6 +405,7 @@ test('AI bridge modules include complete V1 teaching surfaces', () => {
       assert.match(englishSource, /sample space/i)
       assert.match(englishSource, /frequency/i)
       assert.match(englishSource, /event repeats many times/i)
+      assert.match(englishSource, /distribution-first bridge/i)
       assert.match(englishSource, /\/math-lab\/generated\/beginner-probability-story\.png/)
       assert.ok(moduleDefinition.quizzes.some((quiz) => quiz.id === 'probability-beginner-distribution'))
       assert.ok(moduleDefinition.misconceptions.some((misconception) => misconception.id === 'probability-one-trial'))
@@ -1065,6 +1132,42 @@ test('taylor approximation utilities expose expected error trends', () => {
   assert.ok(expApprox.nextTermEstimate > 0)
 })
 
+test('beginner foundation utilities expose vector, local change, and distribution trends', () => {
+  const closeVectors = evaluateFeatureVectorStory({
+    left: [2, 5, 1],
+    right: [3, 4, 1],
+    matrix: [[1, 0.5], [0.2, 1]],
+  })
+  const farVectors = evaluateFeatureVectorStory({
+    left: [2, 5, 1],
+    right: [8, 1, 4],
+    matrix: [[1, 0.5], [0.2, 1]],
+  })
+
+  assert.ok(closeVectors.distance < farVectors.distance)
+  assert.ok(closeVectors.cosine > farVectors.cosine)
+  assert.deepEqual(closeVectors.difference, [1, -1, 0])
+  assert.deepEqual(closeVectors.projectedLeft.map((value) => Number(value.toFixed(2))), [4.5, 5.4])
+
+  const wideChange = evaluateLocalChangeStory({ x: 1, h: 0.8, learningRate: 0.2 })
+  const narrowChange = evaluateLocalChangeStory({ x: 1, h: 0.05, learningRate: 0.2 })
+  assert.ok(narrowChange.secantError < wideChange.secantError)
+  assert.equal(Number(narrowChange.derivative.toFixed(6)), Number((3 * 1 ** 2 - 2).toFixed(6)))
+  assert.ok(narrowChange.nextLoss < narrowChange.currentLoss)
+
+  const uniform = evaluateDistributionBuilder({ kind: 'uniform', sampleCount: 600, seed: 11, targetBin: 2 })
+  const normal = evaluateDistributionBuilder({ kind: 'normal', sampleCount: 600, seed: 11, targetBin: 2 })
+  const binomial = evaluateDistributionBuilder({ kind: 'binomial', sampleCount: 600, seed: 11, targetBin: 4 })
+
+  assert.equal(uniform.samples.length, 600)
+  assert.equal(evaluateDistributionBuilder({ kind: 'uniform', sampleCount: 600, seed: 11, targetBin: 2 }).samples[0], uniform.samples[0])
+  assert.equal(uniform.bins.reduce((sum, bin) => sum + bin.count, 0), 600)
+  assert.ok(Math.abs(uniform.probabilities.reduce((sum, value) => sum + value, 0) - 1) < 1e-12)
+  assert.ok(normal.variance < uniform.variance)
+  assert.ok(binomial.mean > uniform.mean)
+  assert.ok(uniform.targetFrequency >= 0 && uniform.targetFrequency <= 1)
+})
+
 test('monte carlo utilities expose reproducible sampling and expected error scaling', () => {
   const stableConfig = lcgConfigForKind('stable', 17)
   const shortConfig = lcgConfigForKind('short-cycle', 17)
@@ -1484,15 +1587,18 @@ test('diagnostic scoring recommends the earliest weak math foundation module', (
     diagnosticQuestions.map((question) => [question.id, question.answer]),
   )
   const strong = scoreDiagnostic(allCorrect)
-  assert.equal(strong.recommendedStartModuleId, 'vectors-matrices-norms')
+  assert.equal(strong.recommendedStartModuleId, 'beginner-linear-algebra')
   assert.equal(strong.weakConcepts.length, 0)
 
   const weakLinearAlgebra = scoreDiagnostic({ ...allCorrect, 'diag-dot': 'elementwise' })
-  assert.equal(weakLinearAlgebra.recommendedStartModuleId, 'vectors-matrices-norms')
+  assert.equal(weakLinearAlgebra.recommendedStartModuleId, 'beginner-linear-algebra')
   assert.ok(weakLinearAlgebra.weakConcepts.includes('dot-product'))
 
+  const weakCalculus = scoreDiagnostic({ ...allCorrect, 'diag-derivative': 'global-average' })
+  assert.equal(weakCalculus.recommendedStartModuleId, 'beginner-calculus')
+
   const weakProbability = scoreDiagnostic({ ...allCorrect, 'diag-entropy': 'coordinates' })
-  assert.equal(weakProbability.recommendedStartModuleId, 'monte-carlo')
+  assert.equal(weakProbability.recommendedStartModuleId, 'beginner-probability-distributions')
 })
 
 test('quiz scoring returns misconception feedback for incorrect answers', () => {
@@ -1541,7 +1647,7 @@ test('math lab progress persists diagnostic, completion, and quiz attempts in st
   saveMathLabProgress(progress, storage)
 
   const reloaded = loadMathLabProgress(storage)
-  assert.equal(reloaded.diagnosticResult?.recommendedStartModuleId, 'vectors-matrices-norms')
+  assert.equal(reloaded.diagnosticResult?.recommendedStartModuleId, 'beginner-linear-algebra')
   assert.deepEqual(reloaded.completedModuleIds, ['taylor-series'])
   assert.equal(reloaded.quizAttempts.length, 1)
 })

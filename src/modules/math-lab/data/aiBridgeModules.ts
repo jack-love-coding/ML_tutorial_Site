@@ -464,6 +464,8 @@ const probabilitySections = [
     copy(
       md`概率不是“猜一次会不会中”。对 AI 来说，概率更像是在问：**如果同类事情重复很多次，结果会怎样分布？**
 
+古典概率先列出样本空间，也就是所有可能结果的清单。对 AI 分类器来说，类别集合就是样本空间；观察很多样本后的频率才帮助我们读出分布形状。
+
 ![概率分布入门故事：随机样本进入分桶、形成分布曲线，并连接分类概率输出](/math-lab/generated/beginner-probability-story.png)
 
 把彩色小球一次次倒进盒子里，单个小球的位置看起来随机；但小球多了以后，某些盒子会稳定地更高，某些盒子会更低。这个整体形状就是分布直觉。分布不保证下一次一定落在哪里，但它告诉你长期模式。
@@ -479,6 +481,8 @@ const probabilitySections = [
 
 这些问题会直接连接到分类器、语言模型 next-token prediction 和生成模型采样。`,
       md`Probability is not just "will I guess the next outcome correctly?" For AI, probability asks: **if the same kind of event repeats many times, what shape do the outcomes form?**
+
+This distribution-first bridge begins with classical probability: list the sample space, identify the event, then watch frequency after an event repeats many times. For a classifier, the class list is the sample space; repeated observations are what make the distribution shape meaningful.
 
 ![Beginner probability story: random samples entering bins, forming a distribution curve, and connecting to class probability outputs](/math-lab/generated/beginner-probability-story.png)
 
