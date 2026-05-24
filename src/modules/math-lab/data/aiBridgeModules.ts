@@ -324,7 +324,7 @@ const autodiffSections = [
     'matrix-calculus-autodiff-local-linearization',
     copy('导数是局部线性化', 'A Derivative Is Local Linearization'),
     copy(
-      md`矩阵微积分最重要的直觉是局部线性化。对标量函数，
+      md`矩阵微积分最重要的直觉是局部线性化。把“导数是局部变化率”升级成“局部线性映射”：标量输入时它是一条切线斜率，向量输入时它会变成 Jacobian，把小位移映射成输出的小变化。对标量函数，
 
 $$
 f(x+\Delta x)\approx f(x)+f'(x)\Delta x.
@@ -337,7 +337,7 @@ f(\mathbf{x}+\Delta\mathbf{x})\approx f(\mathbf{x})+J_f(\mathbf{x})\Delta\mathbf
 $$
 
 这不是多写几个符号，而是在说：复杂函数在当前点附近可以被一个线性映射近似。神经网络的每层都在前向中保存这些局部关系，反向时再把它们组合起来。`,
-      md`The central intuition in matrix calculus is local linearization. For a scalar function,
+      md`The central intuition in matrix calculus is local linearization. It upgrades "a derivative is local rate of change" into "a derivative is a local linear map": for scalar input it is tangent slope, and for vector input it becomes a Jacobian that maps small input movements to small output changes. For a scalar function,
 
 $$
 f(x+\Delta x)\approx f(x)+f'(x)\Delta x.
@@ -464,6 +464,8 @@ const probabilitySections = [
     copy(
       md`概率不是“猜一次会不会中”。对 AI 来说，概率更像是在问：**如果同类事情重复很多次，结果会怎样分布？**
 
+从零基础概率章节带过来的检查表是：先列样本空间，再把结果映射成随机变量，再用分布描述长期频率形状，最后用 softmax 和 cross entropy 检查模型把概率放在哪里。
+
 古典概率先列出样本空间，也就是所有可能结果的清单。对 AI 分类器来说，类别集合就是样本空间；观察很多样本后的频率才帮助我们读出分布形状。
 
 ![概率分布入门故事：随机样本进入分桶、形成分布曲线，并连接分类概率输出](/math-lab/generated/beginner-probability-story.png)
@@ -481,6 +483,8 @@ const probabilitySections = [
 
 这些问题会直接连接到分类器、语言模型 next-token prediction 和生成模型采样。`,
       md`Probability is not just "will I guess the next outcome correctly?" For AI, probability asks: **if the same kind of event repeats many times, what shape do the outcomes form?**
+
+Bring this checklist from the beginner probability chapter: list the sample space, map outcomes into random variables, use a distribution to describe long-run frequency shape, then use softmax and cross entropy to inspect where the model places probability.
 
 This distribution-first bridge begins with classical probability: list the sample space, identify the event, then watch frequency after an event repeats many times. For a classifier, the class list is the sample space; repeated observations are what make the distribution shape meaningful.
 

@@ -28,6 +28,8 @@ const sections: MathLabSection[] = [
     copy(
       md`先不要把线性代数想成一堆大表格。对 AI 来说，线性代数最朴素的问题是：**怎样把很多信息放进同一个空间里比较、混合和移动？**
 
+从零基础章节带过来的检查表是：向量先回答“一个对象在每个特征方向上走了多少”，矩阵再回答“多个输入特征如何被加权混合成新的表达”。本章会把这两句直觉升级为 vector space、basis、span、inner product 和 norm 的正式语言。
+
 ![线性代数入门故事：数据卡片变成向量、向量组合、矩阵变换和长度测量](/math-lab/generated/beginner-linear-algebra-story.png)
 
 向量可以先理解成带方向的位移：从“起点”走到“终点”，要向右走多少、向上走多少、还要沿其他特征轴走多少。这样读时，\((3,4)\) 不是两个互不相关的数字，而是“向右 3、向上 4”的一步移动；它的长度是 \(5\)，因为这一步和直角三角形的斜边一样长。
@@ -44,6 +46,8 @@ const sections: MathLabSection[] = [
 
 公式会让这些问题可计算；图像和实验先让这些问题可看见。`,
       md`Do not start by treating linear algebra as a pile of big tables. For AI, the simplest question is: **how can many pieces of information live in one space so we can compare, mix, and move them?**
+
+Bring this checklist from the beginner chapter: a vector first answers "how far did one object move along each feature direction," and a matrix answers "how are input features weighted and mixed into a new representation." This chapter upgrades those intuitions into the formal language of vector spaces, bases, span, inner products, and norms.
 
 ![Beginner linear algebra story: data cards become vectors, vector combinations, matrix transforms, and length measurement](/math-lab/generated/beginner-linear-algebra-story.png)
 
