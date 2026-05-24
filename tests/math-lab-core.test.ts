@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { existsSync } from 'node:fs'
 import { diagnosticQuestions, scoreDiagnostic } from '../src/modules/math-lab/data/diagnostic.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import {
@@ -336,6 +337,78 @@ test('zero-base beginner modules expose complete bilingual teaching surfaces', (
   assert.ok(byId['beginner-linear-algebra']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
   assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'LocalChangeStoryLab'))
   assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'DistributionBuilderLab'))
+})
+
+test('zero-base foundation expansion wires longform visuals and concept bridges', () => {
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+  const root = new URL('../', import.meta.url)
+  const expectedLongformAssets = {
+    'beginner-linear-algebra': [
+      'beginner-vector-feature-space-longform',
+      'beginner-vector-distance-similarity-longform',
+      'beginner-linear-combination-span-longform',
+      'beginner-matrix-transform-longform',
+    ],
+    'beginner-calculus': [
+      'beginner-function-machine-longform',
+      'beginner-average-to-derivative-longform',
+      'beginner-derivative-tangent-longform',
+      'beginner-gradient-taylor-update-longform',
+    ],
+    'beginner-probability-distributions': [
+      'beginner-sample-space-random-variable-longform',
+      'beginner-distribution-frequency-longform',
+      'beginner-expectation-variance-longform',
+      'beginner-softmax-cross-entropy-longform',
+    ],
+  } as const
+
+  for (const [moduleId, assetIds] of Object.entries(expectedLongformAssets)) {
+    const moduleDefinition = byId[moduleId]!
+    const sectionVisualIds = new Set(moduleDefinition.sections.flatMap((section) => section.visualIds ?? []))
+
+    for (const assetId of assetIds) {
+      const asset = moduleDefinition.visuals.find((candidate) => candidate.id === assetId)
+      assert.ok(asset, `${assetId} should be registered as a module visual`)
+      assert.equal(asset?.type, 'image')
+      assert.match(asset?.assetPath ?? '', /^\/math-lab\/generated\/[a-z0-9-]+-longform\.png$/)
+      assert.doesNotMatch(asset?.assetPath ?? '', /^https?:\/\//)
+      assert.doesNotMatch(asset?.assetPath ?? '', /^[A-Za-z]:\\/)
+      assert.ok(sectionVisualIds.has(assetId), `${assetId} should be referenced by a section visualIds entry`)
+      assert.ok(existsSync(new URL(`public/${asset!.assetPath!.replace(/^\//, '')}`, root)), `${asset!.assetPath} should exist`)
+      assert.ok((asset?.alt?.['zh-CN'] ?? '').length > 20, `${assetId} needs Chinese alt text`)
+      assert.ok((asset?.transcript?.en ?? '').length > 60, `${assetId} needs English transcript text`)
+    }
+  }
+
+  const linearBody = byId['beginner-linear-algebra']!.sections.map((section) => section.content['zh-CN']).join('\n')
+  assert.match(linearBody, /向量回答的是：一个对象在每个特征方向上走了多少/)
+  assert.match(linearBody, /矩阵回答的是：多个输入特征如何被加权混合成新的表达/)
+
+  const calculusBody = byId['beginner-calculus']!.sections.map((section) => section.content['zh-CN']).join('\n')
+  assert.match(calculusBody, /函数回答的是：输入改变时输出按什么规则改变/)
+  assert.match(calculusBody, /导数回答的是：在当前点附近，输入动一点，输出会动多少/)
+
+  const probabilityBody = byId['beginner-probability-distributions']!.sections.map((section) => section.content['zh-CN']).join('\n')
+  assert.match(probabilityBody, /概率回答的是：在明确的样本空间里，长期会怎样分配结果/)
+  assert.match(probabilityBody, /分布回答的是：很多次观察后，结果会留下什么形状/)
+})
+
+test('formal math modules include beginner bridge copy after the foundation expansion', () => {
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+  const formalBridgeExpectations = [
+    ['vectors-matrices-norms', /从零基础章节带过来的检查表/],
+    ['taylor-series', /从零基础微积分带过来的检查表/],
+    ['finite-difference-methods', /导数的零基础直觉是“局部变化率”/],
+    ['matrix-calculus-autodiff', /把“导数是局部变化率”升级成“局部线性映射”/],
+    ['probability-likelihood-entropy', /从零基础概率章节带过来的检查表/],
+  ] as const
+
+  for (const [moduleId, pattern] of formalBridgeExpectations) {
+    const moduleDefinition = byId[moduleId]!
+    const source = moduleDefinition.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+    assert.match(source, pattern, `${moduleId} should include the expected beginner bridge`)
+  }
 })
 
 test('key math foundation topics are connected to interactive or video enhancements', () => {

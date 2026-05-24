@@ -167,16 +167,16 @@ const linearSections = [
     copy(
       md`先把“向量”想成一张有方向的特征卡。一个学生的学习记录可以写成 \([2,5,80]\)：本周练习 2 次、错 5 题、测验 80 分。一张图片可以写成很多像素值，一句话可以写成 embedding，一个房子可以写成面积、房龄、位置等特征。**data becomes a vector** 的意思不是把现实变成抽象符号，而是把同一个对象的多个观察值放进同一个坐标空间。
 
-如果只有两个特征，例如练习次数和错题数，我们可以把 \([2,5]\) 画成平面上的点，也可以画成从原点出发的箭头。箭头的方向表示“这个样本偏向哪里”，箭头的长度表示“这个样本整体有多大”。当特征更多时，我们画不出全部维度，但同样的规则仍然成立：每个数字回答同一个样本沿某个特征方向走了多少。
+向量回答的是：一个对象在每个特征方向上走了多少。如果只有两个特征，例如练习次数和错题数，我们可以把 \([2,5]\) 画成平面上的点，也可以画成从原点出发的箭头。箭头的方向表示“这个样本偏向哪里”，箭头的长度表示“这个样本整体有多大”。当特征更多时，我们画不出全部维度，但同样的规则仍然成立：每个数字回答同一个样本沿某个特征方向走了多少。
 
 向量最有用的地方是可以做比较。两个学习记录 \(\mathbf{x}=[2,5,80]\)、\(\mathbf{y}=[3,4,82]\) 的差是 \(\mathbf{y}-\mathbf{x}=[1,-1,2]\)。这不是三个孤立数字，而是“多练一次、少错一题、分数高两分”的变化方向。AI 模型训练、推荐系统、图像检索和文本检索都在反复处理这样的方向与距离。`,
       md`Think of a vector as a feature card with direction. A learner record might be \([2,5,80]\): two practice sessions, five mistakes, and a quiz score of 80. An image can become pixel values, a sentence can become an embedding, and a house can become features such as size, age, and location. **Data becomes a vector** does not mean reality disappears into symbols. It means several observations about the same object are placed in one coordinate space.
 
-With only two features, such as practice count and mistakes, \([2,5]\) can be drawn as a point on a plane or as an arrow from the origin. The arrow direction tells where the example leans; its length tells how large the whole feature package is. When there are more features, the picture is harder to draw, but the rule is unchanged: each number says how far this same example moves along one feature axis.
+A vector answers: how far did one object move along each feature direction? With only two features, such as practice count and mistakes, \([2,5]\) can be drawn as a point on a plane or as an arrow from the origin. The arrow direction tells where the example leans; its length tells how large the whole feature package is. When there are more features, the picture is harder to draw, but the rule is unchanged: each number says how far this same example moves along one feature axis.
 
 The useful move is comparison. For two learner records \(\mathbf{x}=[2,5,80]\) and \(\mathbf{y}=[3,4,82]\), the difference is \(\mathbf{y}-\mathbf{x}=[1,-1,2]\). That is not three isolated numbers; it is the change direction "one more practice session, one fewer mistake, two more score points." Model training, recommendation systems, image retrieval, and text retrieval keep reusing this language of direction and distance.`,
     ),
-    { visualIds: ['beginner-linear-algebra-story'] },
+    { visualIds: ['beginner-linear-algebra-story', 'beginner-vector-feature-space-longform'] },
   ),
   section(
     'beginner-linear-distance-similarity',
@@ -213,7 +213,7 @@ $$
 
 If we only care about direction, we divide away length and get cosine similarity. When text retrieval searches for the most similar embedding, it is often searching for vectors that point in nearby directions.`,
     ),
-    { labIds: ['beginner-feature-vector-story-lab'] },
+    { visualIds: ['beginner-vector-distance-similarity-longform'], labIds: ['beginner-feature-vector-story-lab'] },
   ),
   section(
     'beginner-linear-combination-span',
@@ -238,12 +238,13 @@ The numbers \(c_1,c_2\) are mixing weights. The set of every place reachable by 
 
 Worked example: if \(\mathbf{v}_1=[2,1]\) and \(\mathbf{v}_2=[-1,1]\), then \(3\mathbf{v}_1+2\mathbf{v}_2=[4,5]\). This is more geometric than "add arrays": walk three copies along the first direction, then two copies along the second, and you arrive at a new place.`,
     ),
+    { visualIds: ['beginner-linear-combination-span-longform'] },
   ),
   section(
     'beginner-linear-matrix-machine',
     copy('第四步：把矩阵看成空间机器', 'Step 4: A Matrix as a Space Machine'),
     copy(
-      md`矩阵最容易被误读成表格。更好的入门图像是：**matrix as a space machine**。一个 \(2\times2\) 矩阵的两列告诉我们原来的横轴和纵轴会被送到哪里。于是整个网格会跟着拉伸、旋转、剪切或压扁。
+      md`矩阵最容易被误读成表格。更好的入门图像是：**matrix as a space machine**。矩阵回答的是：多个输入特征如何被加权混合成新的表达。一个 \(2\times2\) 矩阵的两列告诉我们原来的横轴和纵轴会被送到哪里。于是整个网格会跟着拉伸、旋转、剪切或压扁。
 
 例如
 
@@ -258,7 +259,7 @@ A\mathbf{x}=4\begin{bmatrix}2\\0\end{bmatrix}-1\begin{bmatrix}1\\3\end{bmatrix}=
 $$
 
 神经网络里的线性层 \(W\mathbf{x}+\mathbf{b}\) 就是在做类似事情：\(W\) 负责混合和变形，\(\mathbf{b}\) 负责平移。后面的激活函数再把直线边界弯成更复杂的边界。`,
-      md`Matrices are often misread as tables. The better first picture is **matrix as a space machine**. In a \(2\times2\) matrix, the two columns tell where the old horizontal and vertical axes go. The whole grid then stretches, rotates, shears, or flattens with those axes.
+      md`Matrices are often misread as tables. The better first picture is **matrix as a space machine**. A matrix answers: how are multiple input features weighted and mixed into a new representation? In a \(2\times2\) matrix, the two columns tell where the old horizontal and vertical axes go. The whole grid then stretches, rotates, shears, or flattens with those axes.
 
 For example,
 
@@ -274,6 +275,7 @@ $$
 
 A neural-network linear layer \(W\mathbf{x}+\mathbf{b}\) does a related job: \(W\) mixes and transforms, while \(\mathbf{b}\) shifts. Later activation functions bend straight boundaries into more complex boundaries.`,
     ),
+    { visualIds: ['beginner-matrix-transform-longform'] },
   ),
   section(
     'beginner-linear-ai-path',
@@ -338,7 +340,7 @@ const calculusSections = [
     'beginner-calculus-input-output',
     copy('第一步：函数是一台输入输出机器', 'Step 1: A Function Is an Input-Output Machine'),
     copy(
-      md`微积分先不要从长公式开始。函数可以先理解成一台输入输出机器：你给它一个 \(x\)，它返回一个 \(y=f(x)\)。如果把输入轻轻改一点，输出也会跟着变。微积分最关心的问题就是：**变化有多快？方向是什么？这个局部信息能不能预测附近的结果？**
+      md`微积分先不要从长公式开始。函数可以先理解成一台输入输出机器：你给它一个 \(x\)，它返回一个 \(y=f(x)\)。函数回答的是：输入改变时输出按什么规则改变。如果把输入轻轻改一点，输出也会跟着变。微积分最关心的问题就是：**变化有多快？方向是什么？这个局部信息能不能预测附近的结果？**
 
 平均变化率比较两个位置：
 
@@ -347,7 +349,7 @@ $$
 $$
 
 它像是在问“从 \(x\) 到 \(x+h\) 这段路平均每走一步，高度变多少”。如果 \(h\) 很大，这个平均值会掩盖中间细节；如果 \(h\) 很小，它就更接近当前位置附近的变化。`,
-      md`Do not start calculus with long formulas. A function can first be understood as an input-output machine: you give it \(x\), and it returns \(y=f(x)\). If the input moves a little, the output moves too. Calculus asks: **how fast is the change, which direction does it point, and can this local information predict nearby results?**
+      md`Do not start calculus with long formulas. A function can first be understood as an input-output machine: you give it \(x\), and it returns \(y=f(x)\). A function answers: by what rule does the output change when the input changes? If the input moves a little, the output moves too. Calculus asks: **how fast is the change, which direction does it point, and can this local information predict nearby results?**
 
 The average change compares two positions:
 
@@ -357,7 +359,7 @@ $$
 
 It asks, "from \(x\) to \(x+h\), how much does the height change per step on average?" If \(h\) is large, the average hides details in the middle. If \(h\) is small, it better describes what is happening near the current point.`,
     ),
-    { visualIds: ['beginner-calculus-story'] },
+    { visualIds: ['beginner-calculus-story', 'beginner-function-machine-longform'] },
   ),
   section(
     'beginner-calculus-average-instant',
@@ -369,16 +371,16 @@ $$
 f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}.
 $$
 
-导数就是此刻速度。这里的“速度”不只适用于位置，也适用于任何输入输出关系：输入稍微变大，输出是在上升、下降，还是几乎不变？上升或下降得快不快？`,
+导数回答的是：在当前点附近，输入动一点，输出会动多少。导数就是此刻速度。这里的“速度”不只适用于位置，也适用于任何输入输出关系：输入稍微变大，输出是在上升、下降，还是几乎不变？上升或下降得快不快？`,
       md`Imagine a small car moving along a curved road. The average speed for the whole trip is useful, but if you want to know the speed "right now," the observation window must shrink. The average rate of change becomes the instantaneous rate of change by letting \(h\) approach 0:
 
 $$
 f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}.
 $$
 
-The derivative is current speed. That "speed" is not only for position. It applies to any input-output relationship: if the input moves slightly, does the output rise, fall, or barely change? How fast does it rise or fall?`,
+The derivative answers: near the current point, how much does the output move when the input moves a little? The derivative is current speed. That "speed" is not only for position. It applies to any input-output relationship: if the input moves slightly, does the output rise, fall, or barely change? How fast does it rise or fall?`,
     ),
-    { labIds: ['beginner-local-change-story-lab'] },
+    { visualIds: ['beginner-average-to-derivative-longform'], labIds: ['beginner-local-change-story-lab'] },
   ),
   section(
     'beginner-calculus-tangent-gradient',
@@ -403,6 +405,7 @@ $$
 
 The gradient points toward fastest loss increase. Model training wants loss to decrease, so it moves along the negative gradient.`,
     ),
+    { visualIds: ['beginner-derivative-tangent-longform'] },
   ),
   section(
     'beginner-calculus-taylor-map',
@@ -423,6 +426,7 @@ $$
 
 This map is reliable near the current point. Farther from the center, the map can distort. Higher degree usually captures more nearby shape, but error still matters. **Taylor as a local map** is the core intuition for later optimization chapters: build a local model first, then decide where to step.`,
     ),
+    { visualIds: ['beginner-gradient-taylor-update-longform'] },
   ),
   section(
     'beginner-calculus-ai-training',
@@ -509,20 +513,20 @@ const probabilitySections = [
     'beginner-probability-sample-space',
     copy('第一步：样本空间是可能结果清单', 'Step 1: A Sample Space Lists Possible Outcomes'),
     copy(
-      md`概率不是一句“我感觉会发生”。它先要说清楚可能发生什么。所有可能结果组成样本空间。例如掷一枚硬币，样本空间是 \(\{\text{正面},\text{反面}\}\)；从三类图片中分类，样本空间可以是 \(\{\text{猫},\text{狗},\text{鸟}\}\)。
+      md`概率不是一句“我感觉会发生”。它先要说清楚可能发生什么。概率回答的是：在明确的样本空间里，长期会怎样分配结果。所有可能结果组成样本空间。例如掷一枚硬币，样本空间是 \(\{\text{正面},\text{反面}\}\)；从三类图片中分类，样本空间可以是 \(\{\text{猫},\text{狗},\text{鸟}\}\)。
 
 事件是样本空间中的一部分。随机变量把结果翻译成数字，例如把“正面”记为 1，“反面”记为 0。这样我们就能计算平均值、方差和分布形状。零基础时先记住：样本空间回答“可能有哪些结果”，随机变量回答“怎样把结果变成可计算的数”。`,
-      md`Probability is not a sentence like "I feel this will happen." It first has to name what can happen. All possible outcomes form the sample space. For a coin flip, the sample space is \(\{\text{heads},\text{tails}\}\). For a three-class image classifier, it might be \(\{\text{cat},\text{dog},\text{bird}\}\).
+      md`Probability is not a sentence like "I feel this will happen." It first has to name what can happen. Probability answers: within a clearly defined sample space, how do outcomes distribute in the long run? All possible outcomes form the sample space. For a coin flip, the sample space is \(\{\text{heads},\text{tails}\}\). For a three-class image classifier, it might be \(\{\text{cat},\text{dog},\text{bird}\}\).
 
 An event is a part of the sample space. A random variable translates outcomes into numbers, such as heads \(\mapsto 1\) and tails \(\mapsto 0\). Then we can compute averages, variance, and distribution shape. As a beginner, keep this split: sample space asks "what outcomes are possible"; random variable asks "how do we turn outcomes into computable numbers?"`,
     ),
-    { visualIds: ['beginner-probability-story'] },
+    { visualIds: ['beginner-probability-story', 'beginner-sample-space-random-variable-longform'] },
   ),
   section(
     'beginner-probability-distribution-shape',
     copy('第二步：分布是很多次结果留下的形状', 'Step 2: A Distribution Is the Shape Left by Many Trials'),
     copy(
-      md`一次结果可能很偶然，很多次结果会留下形状。把彩色小球重复倒进盒子里，某些盒子会越来越高，某些盒子会保持很低。每个盒子的相对高度就是频率；重复次数很多时，频率会更接近概率。
+      md`一次结果可能很偶然，很多次结果会留下形状。分布回答的是：很多次观察后，结果会留下什么形状。把彩色小球重复倒进盒子里，某些盒子会越来越高，某些盒子会保持很低。每个盒子的相对高度就是频率；重复次数很多时，频率会更接近概率。
 
 概率分布把每个可能值分配一个概率：
 
@@ -531,7 +535,7 @@ $$
 $$
 
 均匀分布表示各结果差不多一样可能；二项分布表示多次成功/失败试验里成功次数的规律；normal distribution 常出现在许多小影响相加后的测量误差或自然波动中。`,
-      md`One result can be accidental; many results leave a shape. Drop colored beads into bins repeatedly. Some bins become tall; others remain short. Each bin's relative height is frequency. After many repeats, frequency often moves closer to probability.
+      md`One result can be accidental; many results leave a shape. A distribution answers: after many observations, what shape do the results leave behind? Drop colored beads into bins repeatedly. Some bins become tall; others remain short. Each bin's relative height is frequency. After many repeats, frequency often moves closer to probability.
 
 A probability distribution assigns probability to each possible value:
 
@@ -541,7 +545,7 @@ $$
 
 A uniform distribution means outcomes are roughly equally likely. A binomial distribution describes how many successes appear in repeated success/failure trials. A normal distribution often appears when many small influences add together, such as measurement noise or natural variation.`,
     ),
-    { labIds: ['beginner-distribution-builder-lab'] },
+    { visualIds: ['beginner-distribution-frequency-longform'], labIds: ['beginner-distribution-builder-lab'] },
   ),
   section(
     'beginner-probability-ai-output',
@@ -598,6 +602,7 @@ $$
 
 If two models have the same average performance but one varies wildly while the other is stable, the user experience differs. AI uncertainty estimates, sampling stability, and data-noise checks all need these readouts.`,
     ),
+    { visualIds: ['beginner-expectation-variance-longform'] },
   ),
   section(
     'beginner-probability-loss',
@@ -618,6 +623,7 @@ $$
 
 When \(q=0.8\), the loss is about 0.223. When \(q=0.05\), the loss is about 2.996. The penalty grows quickly when probability is placed in the wrong location. This is why cross entropy is common in classifier and language-model training. A language model predicting the next token is also outputting a probability distribution over a huge vocabulary sample space.`,
     ),
+    { visualIds: ['beginner-softmax-cross-entropy-longform'] },
   ),
   section(
     'beginner-probability-checkpoint',
@@ -722,6 +728,30 @@ export const beginnerFoundationModules: MathLabModule[] = [
     sections: linearSections,
     visuals: [
       imageAsset('beginner-linear-algebra-story', 'beginner-linear-algebra-story.png', copy('线性代数入门故事', 'Beginner Linear Algebra Story'), copy('特征卡变成向量，向量被比较和混合，矩阵把网格变形。', 'Feature cards become vectors, vectors are compared and mixed, and a matrix transforms the grid.')),
+      imageAsset(
+        'beginner-vector-feature-space-longform',
+        'beginner-vector-feature-space-longform.png',
+        copy('向量：把一排特征放进同一个空间', 'Vector: Put Features into One Space'),
+        copy('学习次数、错题数和分数被写成同一个向量，展示二维箭头和三维特征空间如何帮助比较方向、距离和变化。', 'Practice count, mistakes, and score are placed in one vector, showing how 2D arrows and 3D feature space support comparisons of direction, distance, and change.'),
+      ),
+      imageAsset(
+        'beginner-vector-distance-similarity-longform',
+        'beginner-vector-distance-similarity-longform.png',
+        copy('距离与相似度：位置接近不等于方向接近', 'Distance and Similarity: Near Position Is Not Near Direction'),
+        copy('图中比较欧氏距离、夹角和 cosine similarity，提醒学生区分“多远”和“多像”这两个向量问题。', 'The illustration compares Euclidean distance, angle, and cosine similarity so learners separate the vector questions "how far" and "how similar in direction."'),
+      ),
+      imageAsset(
+        'beginner-linear-combination-span-longform',
+        'beginner-linear-combination-span-longform.png',
+        copy('线性组合与 span：用基础方向到达新位置', 'Linear Combination and Span: Reach New Places with Base Directions'),
+        copy('两支基础箭头按比例混合，形成一条线或一个平面，解释 span、线性相关和线性层混合特征的关系。', 'Two base arrows are mixed by weights to form a line or plane, connecting span, dependence, and how linear layers remix input features.'),
+      ),
+      imageAsset(
+        'beginner-matrix-transform-longform',
+        'beginner-matrix-transform-longform.png',
+        copy('矩阵变换：一台空间变形机器', 'Matrix Transform: A Space Machine'),
+        copy('矩阵的列向量决定基方向去哪里，整个网格随之拉伸、旋转、剪切，并连接到神经网络的线性层。', 'Matrix columns decide where basis directions land, causing the whole grid to stretch, rotate, or shear and linking directly to neural-network linear layers.'),
+      ),
     ],
     labs: [
       lab('beginner-feature-vector-story-lab', copy('特征向量故事实验', 'Feature Vector Story Lab'), 'FeatureVectorStoryLab', [
@@ -769,6 +799,30 @@ export const beginnerFoundationModules: MathLabModule[] = [
     sections: calculusSections,
     visuals: [
       imageAsset('beginner-calculus-story', 'beginner-calculus-story.png', copy('微积分入门故事', 'Beginner Calculus Story'), copy('小车路径、切线斜率、局部变化框和 loss 山谷中的梯度步。', 'A car path, tangent slope, local-change boxes, and a gradient step in a loss valley.')),
+      imageAsset(
+        'beginner-function-machine-longform',
+        'beginner-function-machine-longform.png',
+        copy('函数：输入输出机器', 'Function: Input-Output Machine'),
+        copy('生活输入进入函数机器后变成输出，旁边用表格和曲线说明函数规则如何连接到模型预测。', 'Life inputs go through a function machine and become outputs, with tables and curves showing how function rules connect to model prediction.'),
+      ),
+      imageAsset(
+        'beginner-average-to-derivative-longform',
+        'beginner-average-to-derivative-longform.png',
+        copy('从平均变化到导数', 'From Average Change to Derivative'),
+        copy('割线窗口逐步缩小，平均变化率靠近当前点斜率，帮助学生理解导数来自局部观察窗口。', 'The secant window shrinks and average rate approaches the current-point slope, showing that a derivative comes from a local observation window.'),
+      ),
+      imageAsset(
+        'beginner-derivative-tangent-longform',
+        'beginner-derivative-tangent-longform.png',
+        copy('导数与切线：当前点附近的速度', 'Derivative and Tangent: Speed Near the Current Point'),
+        copy('曲线、切线和正负斜率一起展示导数怎样描述当前点附近的上升、下降或变平。', 'A curve, tangent line, and positive or negative slopes show how a derivative describes rising, falling, or flattening near the current point.'),
+      ),
+      imageAsset(
+        'beginner-gradient-taylor-update-longform',
+        'beginner-gradient-taylor-update-longform.png',
+        copy('梯度与 Taylor：用局部地图更新参数', 'Gradient and Taylor: Update Parameters with a Local Map'),
+        copy('loss 地形中标出梯度、负梯度、Taylor 局部地图和学习率，解释为什么训练沿负梯度迈小步。', 'A loss landscape marks the gradient, negative gradient, Taylor local map, and learning rate to explain why training takes small downhill steps.'),
+      ),
     ],
     labs: [
       lab('beginner-local-change-story-lab', copy('局部变化故事实验', 'Local Change Story Lab'), 'LocalChangeStoryLab', [
@@ -816,6 +870,30 @@ export const beginnerFoundationModules: MathLabModule[] = [
     sections: probabilitySections,
     visuals: [
       imageAsset('beginner-probability-story', 'beginner-probability-story.png', copy('概率分布入门故事', 'Beginner Probability Distribution Story'), copy('重复样本落入分桶，形成分布曲线，并连接到分类概率条。', 'Repeated samples fall into bins, form a distribution curve, and connect to classifier probability bars.')),
+      imageAsset(
+        'beginner-sample-space-random-variable-longform',
+        'beginner-sample-space-random-variable-longform.png',
+        copy('样本空间与随机变量', 'Sample Space and Random Variable'),
+        copy('硬币、天气和课程标签先列出所有可能结果，再用随机变量把结果映射成可计算数字。', 'Coins, weather, and course labels first list all possible outcomes, then random variables map outcomes into computable numbers.'),
+      ),
+      imageAsset(
+        'beginner-distribution-frequency-longform',
+        'beginner-distribution-frequency-longform.png',
+        copy('分布与频率：很多次结果留下形状', 'Distribution and Frequency: Many Trials Leave a Shape'),
+        copy('重复抽样形成柱状图，样本越多频率形状越稳定，说明概率分布不是一次结果，而是长期模式。', 'Repeated sampling forms a histogram; with more samples the frequency shape stabilizes, showing that a distribution is a long-run pattern, not one outcome.'),
+      ),
+      imageAsset(
+        'beginner-expectation-variance-longform',
+        'beginner-expectation-variance-longform.png',
+        copy('期望与方差：中心和波动', 'Expectation and Variance: Center and Spread'),
+        copy('两组分布用同一均值但不同波动做对比，解释期望读长期中心，方差读不确定性大小。', 'Two distributions with the same mean but different spread explain that expectation reads long-run center while variance reads uncertainty size.'),
+      ),
+      imageAsset(
+        'beginner-softmax-cross-entropy-longform',
+        'beginner-softmax-cross-entropy-longform.png',
+        copy('Softmax 与交叉熵：把分数变成训练信号', 'Softmax and Cross Entropy: Turn Scores into a Training Signal'),
+        copy('logits 经过 softmax 变成概率条，真实类别概率越低，交叉熵惩罚越大，从而驱动分类模型学习。', 'Logits become probability bars through softmax; the lower the true-class probability, the larger cross entropy becomes, driving classifier training.'),
+      ),
     ],
     labs: [
       lab('beginner-distribution-builder-lab', copy('分布构造实验', 'Distribution Builder Lab'), 'DistributionBuilderLab', [

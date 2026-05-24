@@ -28,6 +28,8 @@ const sections: MathLabSection[] = [
     copy(
       md`学完本章后，应该能把“导数未知或太贵”翻译成可计算的函数采样问题：
 
+导数的零基础直觉是“局部变化率”：当前点附近输入轻轻动一点，输出会动多少。有限差分把这个直觉变成一个可执行动作：真的去取附近两个或多个函数值，再用它们估计斜率。
+
 1. 从导数极限读出前向差分，并用 Taylor 展开说明它的截断误差是 $O(h)$。
 2. 比较前向、后向和中心差分的函数调用次数、适用场景和误差阶。
 3. 解释为什么 $h$ 不能无限变小：截断误差下降时，舍入和相消误差会被 $1/h$ 放大。
@@ -35,6 +37,8 @@ const sections: MathLabSection[] = [
 5. 把同样的思想扩展到向量值函数的 Jacobian 矩阵。
 6. 说明有限差分在梯度检查、Newton 法和数值库调试中的具体用途。`,
       md`By the end of this chapter, you should be able to translate "the derivative is unknown or too expensive" into a computable function-sampling problem:
+
+The beginner intuition for a derivative is "local rate of change": near the current point, how much does output move when input moves a little? Finite differences turn that intuition into an executable action: actually sample nearby function values and use them to estimate slope.
 
 1. Read the forward difference from the derivative limit and use Taylor expansion to explain its $O(h)$ truncation error.
 2. Compare forward, backward, and central differences by function-evaluation cost, use case, and error order.
