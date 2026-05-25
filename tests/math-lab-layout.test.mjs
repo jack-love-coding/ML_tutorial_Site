@@ -56,6 +56,9 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/NumericalMiniLab.vue',
     'src/modules/math-lab/labs/PcaProjectionLab.vue',
     'src/modules/math-lab/labs/TaylorSeriesLab.vue',
+    'src/modules/math-lab/labs/FeatureVectorStoryLab.vue',
+    'src/modules/math-lab/labs/LocalChangeStoryLab.vue',
+    'src/modules/math-lab/labs/DistributionBuilderLab.vue',
   ]
 
   for (const path of componentPaths) {
@@ -76,6 +79,9 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /defineAsyncComponent/)
   assert.match(modulePageSource, /labComponentRegistry/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/VectorDotProductLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/FeatureVectorStoryLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/LocalChangeStoryLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/DistributionBuilderLab\.vue'\)/)
   assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
 
@@ -84,11 +90,15 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(homeSource, /beginner-linear-algebra-story\.png/)
   assert.match(homeSource, /beginner-calculus-story\.png/)
   assert.match(homeSource, /beginner-probability-story\.png/)
+  assert.match(homeSource, /\/math-lab\/modules\/beginner-linear-algebra/)
+  assert.match(homeSource, /\/math-lab\/modules\/beginner-calculus/)
+  assert.match(homeSource, /\/math-lab\/modules\/beginner-probability-distributions/)
   assert.match(homeSource, /withPublicBase/)
 })
 
 test('math lab uses generated imported notes and local migrated assets', () => {
   assert.ok(existsSync(new URL('src/modules/math-lab/data/mathFoundationsModules.ts', root)))
+  assert.ok(existsSync(new URL('src/modules/math-lab/data/beginnerFoundationModules.ts', root)))
   assert.ok(existsSync(new URL('src/modules/math-lab/data/aiBridgeModules.ts', root)))
   assert.ok(existsSync(new URL('scripts/import-cs357-notes.mjs', root)))
   assert.ok(existsSync(new URL('src/modules/math-lab/data/importedMathNotes.generated.ts', root)))
@@ -96,6 +106,7 @@ test('math lab uses generated imported notes and local migrated assets', () => {
 
   const modulesSource = read('src/modules/math-lab/data/modules.ts')
   assert.match(modulesSource, /importedMathNotes/)
+  assert.match(modulesSource, /beginnerFoundationModules/)
   assert.match(modulesSource, /mathFoundationsModules/)
   assert.match(modulesSource, /aiBridgeModules/)
 

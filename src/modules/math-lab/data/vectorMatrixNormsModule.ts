@@ -28,11 +28,15 @@ const sections: MathLabSection[] = [
     copy(
       md`先不要把线性代数想成一堆大表格。对 AI 来说，线性代数最朴素的问题是：**怎样把很多信息放进同一个空间里比较、混合和移动？**
 
+从零基础章节带过来的检查表是：向量先回答“一个对象在每个特征方向上走了多少”，矩阵再回答“多个输入特征如何被加权混合成新的表达”。本章会把这两句直觉升级为 vector space、basis、span、inner product 和 norm 的正式语言。
+
 ![线性代数入门故事：数据卡片变成向量、向量组合、矩阵变换和长度测量](/math-lab/generated/beginner-linear-algebra-story.png)
 
-一张图片可以被拆成像素数，一句话可以被模型变成 embedding，一个学生的学习记录也可以被写成一排特征数。这一排数就是向量。把它画成箭头后，你能直观看到两件事：箭头指向哪里，以及箭头有多长。
+向量可以先理解成带方向的位移：从“起点”走到“终点”，要向右走多少、向上走多少、还要沿其他特征轴走多少。这样读时，\((3,4)\) 不是两个互不相关的数字，而是“向右 3、向上 4”的一步移动；它的长度是 \(5\)，因为这一步和直角三角形的斜边一样长。
 
-矩阵不是“更大的表格”，而是一台空间变形器。它会把每个方向拉伸、旋转、压扁或混合。神经网络里的线性层 \(Wx+b\) 就在反复做这种事：先把输入特征混合成新的方向，再交给后面的非线性模块判断。
+一张图片可以被拆成像素数，一句话可以被模型变成 embedding，一个学生的学习记录也可以被写成一排特征数。这一排数就是向量。两个数不是两个抽屉，而是同一个点在两个方向上的坐标；更多数字只是把平面扩展成更高维的特征空间。把它画成箭头后，你能直观看到两件事：箭头指向哪里，以及箭头有多长。
+
+矩阵不是“更大的表格”，而是一台空间变形器。矩阵的列向量就是新坐标轴：第一列告诉原来的横轴会去哪里，第二列告诉原来的纵轴会去哪里。它会把每个方向拉伸、旋转、压扁或混合。神经网络里的线性层 \(Wx+b\) 就在反复做这种事：先把输入特征混合成新的方向，再交给后面的非线性模块判断。
 
 这一章只需要先抓住三句话：
 
@@ -43,11 +47,15 @@ const sections: MathLabSection[] = [
 公式会让这些问题可计算；图像和实验先让这些问题可看见。`,
       md`Do not start by treating linear algebra as a pile of big tables. For AI, the simplest question is: **how can many pieces of information live in one space so we can compare, mix, and move them?**
 
+Bring this checklist from the beginner chapter: a vector first answers "how far did one object move along each feature direction," and a matrix answers "how are input features weighted and mixed into a new representation." This chapter upgrades those intuitions into the formal language of vector spaces, bases, span, inner products, and norms.
+
 ![Beginner linear algebra story: data cards become vectors, vector combinations, matrix transforms, and length measurement](/math-lab/generated/beginner-linear-algebra-story.png)
 
-An image can become pixel numbers, a sentence can become an embedding, and a learner profile can become a row of feature values. That row is a vector. Once you draw it as an arrow, you can see two things immediately: where it points and how long it is.
+A vector can first be understood as a displacement with direction: from a start point to an end point, how far do you move right, up, and along any other feature axes? With that reading, \((3,4)\) is not two unrelated numbers; it is "move 3 right and 4 up." Its length is \(5\), the same hypotenuse idea from a right triangle.
 
-A matrix is not just a bigger table; it is a space transformer. It can stretch, rotate, flatten, or mix directions. A neural-network linear layer \(Wx+b\) repeatedly does this: mix input features into new directions, then pass them to nonlinear parts of the model.
+An image can become pixel numbers, a sentence can become an embedding, and a learner profile can become a row of feature values. That row is a vector. The important mental shift is that two numbers are not two storage boxes; they are two coordinates of one point in one space. More numbers extend the plane into a higher-dimensional feature space. Once you draw the vector as an arrow, you can see two things immediately: where it points and how long it is.
+
+A matrix is not just a bigger table; it is a space transformer. Its columns are the new coordinate axes: the first column tells where the old horizontal axis lands, and the second column tells where the old vertical axis lands. It can stretch, rotate, flatten, or mix directions. A neural-network linear layer \(Wx+b\) repeatedly does this: mix input features into new directions, then pass them to nonlinear parts of the model.
 
 Keep three starter sentences in mind:
 
@@ -121,6 +129,8 @@ x_n
 $$
 
 在数据语境中，\(\mathbf{x}\) 可以是一张图片的像素、一个词的 embedding、一位用户的特征，也可以是一组模型参数。在几何语境中，\(\mathbf{x}\) 是从原点出发的箭头。两种读法并不矛盾：数字给出坐标，坐标给出空间中的位置和方向。
+
+如果你是第一次见向量，可以先把它当成“带方向的清单”。清单里的每个数字都必须回答同一个样本在某个方向上走了多少。例如学习记录 \([2,5]\) 可以读成“本周练习 2 次、测验错 5 题”。这不是两个孤立抽屉，而是一个学习状态点；当另一个学生是 \([4,1]\) 时，两点之间的差 \([2,-4]\) 就是“多练 2 次、少错 4 题”的变化方向。
 
 向量空间要求两个动作保持封闭：向量相加仍在空间里，向量乘以标量仍在空间里。最重要的操作是**线性组合**：
 
@@ -198,6 +208,8 @@ x_n
 $$
 
 In data, \(\mathbf{x}\) might be image pixels, a word embedding, user features, or model parameters. In geometry, \(\mathbf{x}\) is an arrow from the origin. These readings agree: numbers give coordinates, and coordinates give a position and direction in space.
+
+If this is your first time seeing vectors, treat one as a directional list. Each number answers how far the same example moves along one axis. For example, a learning record \([2,5]\) can mean "2 practice sessions this week and 5 quiz mistakes." Those are not isolated boxes; they are one learning-state point. If another learner is \([4,1]\), the difference \([2,-4]\) means "2 more practice sessions and 4 fewer mistakes," a direction of change.
 
 A vector space is closed under two actions: adding vectors stays in the space, and multiplying by a scalar stays in the space. The central operation is a **linear combination**:
 
