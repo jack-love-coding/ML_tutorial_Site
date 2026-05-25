@@ -53,6 +53,23 @@ function assertLocalized(copy: { 'zh-CN': string; en: string }, label: string) {
   assert.ok(copy.en.trim().length > 0, `${label} en should not be empty`)
 }
 
+test('progress modules share one storage parsing helper', () => {
+  const sharedSource = read('src/utils/progressStorage.ts')
+  assert.match(sharedSource, /loadJsonProgress/)
+  assert.match(sharedSource, /saveJsonProgress/)
+
+  for (const path of [
+    'src/utils/algorithmProgress.ts',
+    'src/modules/math-lab/utils/progress.ts',
+    'src/modules/data-lab/utils/progress.ts',
+  ]) {
+    const source = read(path)
+    assert.match(source, /progressStorage/, `${path} should use the shared progress storage helper`)
+    assert.doesNotMatch(source, /JSON\.parse/, `${path} should not duplicate JSON parsing`)
+    assert.doesNotMatch(source, /JSON\.stringify/, `${path} should not duplicate JSON serialization`)
+  }
+})
+
 test('algorithm checkpoint scoring records misconception feedback', () => {
   const checkpoint: AlgorithmCheckpointItem = {
     id: 'loss-rule',

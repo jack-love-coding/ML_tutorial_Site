@@ -1,13 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
-import CleaningPipelineLab from '../labs/CleaningPipelineLab.vue'
-import ColumnTypeLab from '../labs/ColumnTypeLab.vue'
-import EdaWorkbenchLab from '../labs/EdaWorkbenchLab.vue'
-import PandasPipelineLab from '../labs/PandasPipelineLab.vue'
-import CategoricalEncodingLab from '../labs/CategoricalEncodingLab.vue'
 import DataCheckpointQuiz from '../components/DataCheckpointQuiz.vue'
 import DataManimPlayer from '../components/DataManimPlayer.vue'
 import DataVisualFigure from '../components/DataVisualFigure.vue'
@@ -26,6 +21,14 @@ import {
   saveDataLabProgress,
   setLastVisitedDataLabModule,
 } from '../utils/progress'
+
+const labComponentRegistry = {
+  ColumnTypeLab: defineAsyncComponent(() => import('../labs/ColumnTypeLab.vue')),
+  CleaningPipelineLab: defineAsyncComponent(() => import('../labs/CleaningPipelineLab.vue')),
+  EdaWorkbenchLab: defineAsyncComponent(() => import('../labs/EdaWorkbenchLab.vue')),
+  PandasPipelineLab: defineAsyncComponent(() => import('../labs/PandasPipelineLab.vue')),
+  CategoricalEncodingLab: defineAsyncComponent(() => import('../labs/CategoricalEncodingLab.vue')),
+} satisfies Record<DataLabConfig['componentName'], ReturnType<typeof defineAsyncComponent>>
 
 const route = useRoute()
 const router = useRouter()
@@ -83,6 +86,10 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
   if (!section.labIds?.length) return []
   const ids = new Set(section.labIds)
   return moduleDefinition.value?.labs.filter((lab) => ids.has(lab.id)) ?? []
+}
+
+function labComponentFor(componentName: DataLabConfig['componentName']) {
+  return labComponentRegistry[componentName]
 }
 
 function onQuizSubmit(attempts: DataQuizAttempt[]) {
@@ -184,13 +191,12 @@ function onQuizSubmit(attempts: DataQuizAttempt[]) {
               :accent="moduleDefinition.accent"
               :locale="currentLocale"
             />
-            <template v-for="lab in labsForSection(section)" :key="lab.id">
-              <ColumnTypeLab v-if="lab.componentName === 'ColumnTypeLab'" :locale="currentLocale" />
-              <CleaningPipelineLab v-else-if="lab.componentName === 'CleaningPipelineLab'" :locale="currentLocale" />
-              <EdaWorkbenchLab v-else-if="lab.componentName === 'EdaWorkbenchLab'" :locale="currentLocale" />
-              <PandasPipelineLab v-else-if="lab.componentName === 'PandasPipelineLab'" :locale="currentLocale" />
-              <CategoricalEncodingLab v-else-if="lab.componentName === 'CategoricalEncodingLab'" :locale="currentLocale" />
-            </template>
+            <component
+              :is="labComponentFor(lab.componentName)"
+              v-for="lab in labsForSection(section)"
+              :key="lab.id"
+              :locale="currentLocale"
+            />
           </section>
         </template>
 
@@ -211,13 +217,12 @@ function onQuizSubmit(attempts: DataQuizAttempt[]) {
             :accent="moduleDefinition.accent"
             :locale="currentLocale"
           />
-          <template v-for="lab in remainingLabs" :key="lab.id">
-            <ColumnTypeLab v-if="lab.componentName === 'ColumnTypeLab'" :locale="currentLocale" />
-            <CleaningPipelineLab v-else-if="lab.componentName === 'CleaningPipelineLab'" :locale="currentLocale" />
-            <EdaWorkbenchLab v-else-if="lab.componentName === 'EdaWorkbenchLab'" :locale="currentLocale" />
-            <PandasPipelineLab v-else-if="lab.componentName === 'PandasPipelineLab'" :locale="currentLocale" />
-            <CategoricalEncodingLab v-else-if="lab.componentName === 'CategoricalEncodingLab'" :locale="currentLocale" />
-          </template>
+          <component
+            :is="labComponentFor(lab.componentName)"
+            v-for="lab in remainingLabs"
+            :key="lab.id"
+            :locale="currentLocale"
+          />
         </section>
 
         <section class="data-misconception-grid">

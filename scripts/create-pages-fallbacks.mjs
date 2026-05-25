@@ -9,6 +9,7 @@ if (!existsSync(indexPath)) {
 }
 
 const routes = new Set([
+  '/data-lab',
   '/math-lab',
   '/math-lab/diagnostic',
 ])
@@ -52,6 +53,11 @@ for (const match of importedNotes.matchAll(/^    "id": "([^"]+)",/gm)) {
 const foundationModules = readText('src/modules/math-lab/data/mathFoundationsModules.ts')
 for (const match of foundationModules.matchAll(/^    id: '([^']+)',/gm)) {
   addRoute(`/math-lab/modules/${match[1]}`)
+}
+
+const dataLabModules = readText('src/modules/data-lab/data/modules.ts')
+for (const match of dataLabModules.matchAll(/moduleDefinition\(\{\s*id:\s*['"]([^'"]+)['"]/g)) {
+  addRoute(`/data-lab/modules/${match[1]}`)
 }
 
 copyFileSync(indexPath, join(distDir, '404.html'))

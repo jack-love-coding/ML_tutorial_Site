@@ -1,8 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const root = new URL('../', import.meta.url)
+const rootPath = fileURLToPath(root)
 
 function read(path) {
   return readFileSync(new URL(path, root), 'utf8')
@@ -22,6 +27,30 @@ test('data lab lazy routes and nav entries are wired independently of math lab',
   assert.match(appShellSource, /t\('nav\.dataLab'\)/)
   assert.match(messagesSource, /dataLab: '数据实验室'/)
   assert.match(messagesSource, /dataLab: 'Data Lab'/)
+})
+
+test('pages fallback generation covers data lab home and module routes', () => {
+  const tempDist = mkdtempSync(join(tmpdir(), 'ml-atlas-fallback-'))
+
+  try {
+    writeFileSync(join(tempDist, 'index.html'), '<!doctype html><title>ML Atlas</title>')
+    execFileSync(process.execPath, ['scripts/create-pages-fallbacks.mjs', tempDist], {
+      cwd: rootPath,
+      stdio: 'pipe',
+    })
+
+    assert.ok(existsSync(join(tempDist, 'data-lab', 'index.html')), 'data lab home fallback should exist')
+    assert.ok(
+      existsSync(join(tempDist, 'data-lab', 'modules', 'numerical-data', 'index.html')),
+      'numerical data module fallback should exist',
+    )
+    assert.ok(
+      existsSync(join(tempDist, 'data-lab', 'modules', 'categorical-data', 'index.html')),
+      'categorical data module fallback should exist',
+    )
+  } finally {
+    rmSync(tempDist, { force: true, recursive: true })
+  }
 })
 
 test('data lab components, labs, generated images, and manim assets exist', () => {
@@ -109,7 +138,11 @@ test('data lab labs use D3, Three.js, and deterministic TS table transforms', ()
   assert.match(modulePageSource, /appendDataQuizAttempt/)
   assert.match(modulePageSource, /markDataLabModuleComplete/)
   assert.match(modulePageSource, /completedModuleIds\.includes\(moduleDefinition\.id\)/)
-  assert.match(modulePageSource, /CategoricalEncodingLab/)
+  assert.match(modulePageSource, /defineAsyncComponent/)
+  assert.match(modulePageSource, /labComponentRegistry/)
+  assert.match(modulePageSource, /:is="labComponentFor\(lab\.componentName\)"/)
+  assert.doesNotMatch(modulePageSource, /v-else-if="lab\.componentName/)
+  assert.doesNotMatch(modulePageSource, /import .*Lab from '\.\.\/labs\//)
   assert.match(modulePageSource, /sourceReferences/)
   assert.match(modulePageSource, /参考资料/)
   assert.match(modulePageSource, /Further reading/)

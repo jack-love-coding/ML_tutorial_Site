@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -34,10 +34,6 @@ import {
   shouldCompleteAlgorithmModule,
 } from '../utils/algorithmProgress'
 
-const LinearRegressionLessonLab = defineAsyncComponent(() => import('../components/LinearRegressionLessonLab.vue'))
-const LinearRegressionResults = defineAsyncComponent(() => import('../components/LinearRegressionResults.vue'))
-const LogisticRegressionLessonLab = defineAsyncComponent(() => import('../components/LogisticRegressionLessonLab.vue'))
-
 const route = useRoute()
 const router = useRouter()
 const { t, locale } = useI18n()
@@ -67,8 +63,6 @@ const isLinearRegressionPage = computed(() => slug.value === 'linear-regression'
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
 const isClassificationPage = computed(() => slug.value === 'classification')
 const isMlpPage = computed(() => slug.value === 'mlp')
-const showLegacyLinearRegressionStory = false
-const showLegacyLogisticRegressionStory = false
 
 if (!moduleDefinition.value) {
   router.replace('/')
@@ -600,123 +594,6 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
     </section>
 
     <section
-      v-else-if="showLegacyLinearRegressionStory && isLinearRegressionPage"
-      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--linear-story"
-    >
-      <StoryScroller
-        :sections="moduleDefinition.chapters"
-        :active-id="activeChapter"
-        @change="onChapterChange"
-      >
-        <template #section="{ section, localizedText: slotLocalizedText }">
-          <h3>{{ t(section.titleKey) }}</h3>
-          <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
-
-          <section v-if="section.media" class="story-media story-media--linear">
-            <div class="story-media__frame">
-              <video
-                controls
-                playsinline
-                preload="metadata"
-                :poster="publicAsset(section.media?.posterPath)"
-                :aria-label="localizedText(section.media?.title)"
-              >
-                <source :src="publicAsset(section.media?.assetPath)" type="video/mp4" />
-              </video>
-            </div>
-            <div class="story-media__copy">
-              <span>{{ localizedText(section.media?.title) }}</span>
-              <MarkdownMathContent :source="localizedText(section.media?.body)" />
-            </div>
-          </section>
-
-          <LinearRegressionLessonLab
-            :config="experiment?.config || {}"
-            :snapshot="snapshot"
-            :snapshots="experiment?.snapshots || []"
-            :current-step="experiment?.currentStep || 0"
-            :is-playing="Boolean(experiment?.isPlaying)"
-            :accent="moduleDefinition.accent"
-            :section="section"
-            :presets="moduleDefinition.presets"
-            @patch-config="patchConfig"
-            @toggle-play="experimentStore.togglePlayback(slug)"
-            @step="experimentStore.advance(slug)"
-            @replay="experimentStore.replay(slug)"
-            @reset="experimentStore.reset(slug)"
-            @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
-          />
-
-          <div class="story-companion story-companion--lesson">
-            <section class="story-companion__panel story-companion__panel--guide">
-              <div class="panel__heading">
-                <span>{{ t('common.readingGuide') }}</span>
-                <strong>{{ localizedText(section.callout) }}</strong>
-              </div>
-              <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
-                {{ localizedText(section.experimentPrompt) }}
-              </div>
-            </section>
-
-            <router-link
-              class="story-companion__panel story-companion__panel--meta story-companion__link"
-              to="/learn/logistic-regression"
-            >
-              <span>{{ locale === 'zh-CN' ? '下一课' : 'Next lesson' }}</span>
-              <strong>
-                {{
-                  locale === 'zh-CN'
-                    ? '从连续值预测走向分类概率'
-                    : 'From continuous prediction to class probability'
-                }}
-              </strong>
-              <p>
-                {{
-                  locale === 'zh-CN'
-                    ? '线性回归学的是连续房价；逻辑回归会把线性打分映射成概率，用来解释分类边界。'
-                    : 'Linear regression predicts continuous prices; logistic regression maps a linear score into probability for classification.'
-                }}
-              </p>
-              <span class="action-button">
-                {{ locale === 'zh-CN' ? '进入逻辑回归' : 'Open Logistic Regression' }}
-              </span>
-            </router-link>
-          </div>
-        </template>
-      </StoryScroller>
-    </section>
-
-    <section
-      v-else-if="showLegacyLogisticRegressionStory && isLogisticRegressionPage"
-      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--logistic-story"
-    >
-      <StoryScroller
-        :sections="moduleDefinition.chapters"
-        :active-id="activeChapter"
-        @change="onChapterChange"
-      >
-        <template #section="{ section }">
-          <LogisticRegressionLessonLab
-            :config="experiment.config"
-            :snapshot="snapshot"
-            :snapshots="experiment.snapshots"
-            :current-step="experiment.currentStep"
-            :is-playing="experiment.isPlaying"
-            :accent="moduleDefinition.accent"
-            :section="section"
-            :presets="moduleDefinition.presets"
-            @patch-config="patchConfig"
-            @toggle-play="experimentStore.togglePlayback(slug)"
-            @step="experimentStore.advance(slug)"
-            @replay="experimentStore.replay(slug)"
-            @reset="experimentStore.reset(slug)"
-            @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
-          />
-        </template>
-      </StoryScroller>
-    </section>
-
-    <section
       v-else-if="isMlpPage"
       class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--mlp-story"
     >
@@ -891,82 +768,6 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
           <strong>{{ lessonBridgeFor(activeSection)?.title }}</strong>
           <p>{{ lessonBridgeFor(activeSection)?.body }}</p>
           <small>{{ lessonBridgeFor(activeSection)?.cta }}</small>
-        </router-link>
-      </section>
-    </section>
-
-    <section v-else-if="showLegacyLinearRegressionStory && isLinearRegressionPage" class="results-grid results-grid--linear">
-      <LinearRegressionResults
-        :section="activeSection"
-        :snapshot="snapshot"
-        :snapshots="experiment?.snapshots || []"
-        :current-step="experiment?.currentStep || 0"
-      />
-
-      <section class="panel lesson-panel">
-        <div class="panel__heading">
-          <span>{{ t('common.results') }}</span>
-          <strong>{{ activeSection ? t(activeSection.titleKey) : t(moduleDefinition.titleKey) }}</strong>
-        </div>
-        <p class="lesson-panel__callout">{{ localizedText(activeSection?.callout) }}</p>
-        <div v-if="localizedText(activeSection?.experimentPrompt)" class="lesson-panel__prompt">
-          {{ localizedText(activeSection?.experimentPrompt) }}
-        </div>
-
-        <router-link class="lesson-bridge-card" to="/learn/logistic-regression">
-          <span>{{ locale === 'zh-CN' ? '逻辑回归预告' : 'Logistic bridge' }}</span>
-          <strong>
-            {{
-              locale === 'zh-CN'
-                ? '线性打分下一步会变成分类概率'
-                : 'The linear score becomes a class probability next'
-            }}
-          </strong>
-          <p>
-            {{
-              locale === 'zh-CN'
-                ? '斜率和截距的直觉会保留，但输出从房价变成概率，损失也从 MSE 换成交叉熵。'
-                : 'The slope-and-intercept intuition remains, but the output becomes probability and MSE gives way to cross-entropy.'
-            }}
-          </p>
-          <small>{{ locale === 'zh-CN' ? '进入逻辑回归' : 'Open Logistic Regression' }}</small>
-        </router-link>
-      </section>
-    </section>
-
-    <section v-else-if="showLegacyLogisticRegressionStory && isLogisticRegressionPage" class="results-grid results-grid--logistic">
-      <LineChart :slug="slug" :snapshots="experiment.snapshots" :current-step="experiment.currentStep" />
-
-      <section class="panel lesson-panel">
-        <div class="panel__heading">
-          <span>{{ locale === 'zh-CN' ? '实验复盘' : 'Results' }}</span>
-          <strong>
-            {{
-              locale === 'zh-CN'
-                ? '线性分类器能解释什么，也解释不了什么'
-                : 'What a linear classifier can and cannot explain'
-            }}
-          </strong>
-        </div>
-        <p class="lesson-panel__callout">
-          {{
-            locale === 'zh-CN'
-              ? '如果概率场和准确率同步改善，问题主要在优化；如果 XOR 等结构仍然卡住，问题在模型表达能力。'
-              : 'If the probability field and accuracy improve together, the main issue is optimization. If XOR still stalls, the limit is model capacity.'
-          }}
-        </p>
-
-        <router-link class="lesson-bridge-card" to="/learn/mlp">
-          <span>{{ locale === 'zh-CN' ? '下一课' : 'Next lesson' }}</span>
-          <strong>{{ locale === 'zh-CN' ? '用隐藏层弯曲决策边界' : 'Bend the boundary with hidden layers' }}</strong>
-          <p>
-            {{
-              locale === 'zh-CN'
-                ? 'MLP 会把输入空间重构成更容易分开的表示空间，用来处理逻辑回归无法表达的非线性边界。'
-                : 'MLP rebuilds input space into a representation that can express nonlinear boundaries logistic regression cannot.'
-            }}
-          </p>
-          <small>{{ locale === 'zh-CN' ? '进入 MLP' : 'Open MLP' }}</small>
         </router-link>
       </section>
     </section>

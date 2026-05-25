@@ -1,12 +1,14 @@
 import type { AlgorithmProgress, AlgorithmQuizAttempt, ModuleSlug } from '../types/ml'
+import {
+  clearJsonProgress,
+  loadJsonProgress,
+  saveJsonProgress,
+  type StorageLike,
+} from './progressStorage.ts'
+
+export type { StorageLike } from './progressStorage.ts'
 
 const STORAGE_KEY = 'ml-atlas:algorithm-progress:v1'
-
-export interface StorageLike {
-  getItem: (key: string) => string | null
-  setItem: (key: string, value: string) => void
-  removeItem: (key: string) => void
-}
 
 export function createDefaultAlgorithmProgress(now = new Date().toISOString()): AlgorithmProgress {
   return {
@@ -16,46 +18,26 @@ export function createDefaultAlgorithmProgress(now = new Date().toISOString()): 
   }
 }
 
-function getStorage(storage?: StorageLike) {
-  if (storage) return storage
-  if (typeof window === 'undefined') return undefined
-  return window.localStorage
-}
-
 export function loadAlgorithmProgress(storage?: StorageLike): AlgorithmProgress {
-  const resolvedStorage = getStorage(storage)
-  if (!resolvedStorage) return createDefaultAlgorithmProgress()
-
-  try {
-    const raw = resolvedStorage.getItem(STORAGE_KEY)
-    if (!raw) return createDefaultAlgorithmProgress()
-    const parsed = JSON.parse(raw) as AlgorithmProgress
-
-    return {
-      ...createDefaultAlgorithmProgress(parsed.updatedAt),
+  return loadJsonProgress(
+    STORAGE_KEY,
+    createDefaultAlgorithmProgress,
+    (parsed, fallback) => ({
+      ...fallback,
       ...parsed,
       completedModuleSlugs: parsed.completedModuleSlugs ?? [],
       quizAttempts: parsed.quizAttempts ?? [],
-    }
-  } catch {
-    return createDefaultAlgorithmProgress()
-  }
+    }),
+    storage,
+  )
 }
 
 export function saveAlgorithmProgress(progress: AlgorithmProgress, storage?: StorageLike) {
-  const resolvedStorage = getStorage(storage)
-  if (!resolvedStorage) return progress
-
-  const nextProgress = {
-    ...progress,
-    updatedAt: new Date().toISOString(),
-  }
-  resolvedStorage.setItem(STORAGE_KEY, JSON.stringify(nextProgress))
-  return nextProgress
+  return saveJsonProgress(STORAGE_KEY, progress, storage)
 }
 
 export function clearAlgorithmProgress(storage?: StorageLike) {
-  getStorage(storage)?.removeItem(STORAGE_KEY)
+  clearJsonProgress(STORAGE_KEY, storage)
 }
 
 export function setLastVisitedAlgorithmModule(

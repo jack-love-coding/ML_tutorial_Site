@@ -15,10 +15,14 @@ test('logistic regression has a dedicated cockpit lesson lab', () => {
     'utf8',
   )
   const componentSource = readFileSync(componentPath, 'utf8')
+  const pagedSource = readFileSync(pagedComponentPath, 'utf8')
 
-  assert.match(algorithmViewSource, /LogisticRegressionLessonLab/)
+  assert.match(algorithmViewSource, /LogisticRegressionPagedLesson/)
+  assert.doesNotMatch(algorithmViewSource, /showLegacyLogisticRegressionStory/)
+  assert.doesNotMatch(algorithmViewSource, /LogisticRegressionLessonLab = defineAsyncComponent/)
   assert.match(algorithmViewSource, /slug\.value === 'logistic-regression'/)
   assert.match(algorithmViewSource, /algorithm-view--logistic/)
+  assert.match(pagedSource, /LogisticRegressionLessonLab/)
 
   assert.match(componentSource, /class="logistic-regression-lab"/)
   assert.match(componentSource, /variant="cockpit"/)
