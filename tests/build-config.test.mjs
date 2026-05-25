@@ -8,16 +8,11 @@ function read(path) {
   return readFileSync(new URL(path, root), 'utf8')
 }
 
-test('vite build config splits large vendor and course-content chunks explicitly', () => {
+test('vite build config does not manually split runtime vendor chunks', () => {
   const source = read('vite.config.ts')
 
-  assert.match(source, /rolldownOptions/)
-  assert.match(source, /codeSplitting/)
-  assert.match(source, /vendor-vue/)
-  assert.match(source, /vendor-three/)
-  assert.match(source, /vendor-math-render/)
-  assert.match(source, /math-lab-imported-notes/)
-  assert.match(source, /math-lab-foundations/)
-  assert.match(source, /math-lab-topic-modules/)
-  assert.match(source, /chunkSizeWarningLimit:\s*600/)
+  assert.doesNotMatch(source, /rolldownOptions/)
+  assert.doesNotMatch(source, /codeSplitting/)
+  assert.doesNotMatch(source, /vendor-vue|vendor-three|vendor-math-render|vendor-d3/)
+  assert.match(source, /chunkSizeWarningLimit:\s*1400/)
 })
