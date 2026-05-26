@@ -1,4 +1,5 @@
 import type { AlgorithmModuleDefinition } from '../types/ml'
+import { aiOverviewModule } from './aiOverviewModule'
 import { lossFunctionsModule } from './lossFunctionsModule'
 import { gradientDescentModule } from './gradientDescentModule'
 import { linearRegressionModule } from './linearRegressionModule'
@@ -8,6 +9,7 @@ import { mlpModule } from './mlpModule'
 import { moduleOrder as legacyModuleOrder } from './modules'
 
 export const moduleOrder: AlgorithmModuleDefinition[] = [
+  aiOverviewModule,
   lossFunctionsModule,
   gradientDescentModule,
   linearRegressionModule,

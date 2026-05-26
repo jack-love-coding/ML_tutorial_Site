@@ -1,4 +1,5 @@
 export type ModuleSlug =
+  | 'ai-overview'
   | 'loss-functions'
   | 'gradient-descent'
   | 'linear-regression'

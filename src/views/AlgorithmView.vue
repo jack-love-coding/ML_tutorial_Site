@@ -22,6 +22,7 @@ import AlgorithmCheckpointQuiz from '../components/AlgorithmCheckpointQuiz.vue'
 import LinearRegressionPagedLesson from '../components/LinearRegressionPagedLesson.vue'
 import LogisticRegressionPagedLesson from '../components/LogisticRegressionPagedLesson.vue'
 import ClassificationLessonLab from '../components/ClassificationLessonLab.vue'
+import AiOverviewLessonLab from '../components/AiOverviewLessonLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
 import { withPublicBase } from '../utils/publicPath'
 import type { AlgorithmQuizAttempt } from '../types/ml'
@@ -59,6 +60,7 @@ const currentLocale = computed(() => locale.value as AppLocale)
 const lastVisitedModuleSlug = computed(() => progress.value.lastVisitedModuleSlug)
 const isGradientPage = computed(() => slug.value === 'gradient-descent')
 const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
+const isAiOverviewPage = computed(() => slug.value === 'ai-overview')
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
 const isClassificationPage = computed(() => slug.value === 'classification')
@@ -366,6 +368,7 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
     :class="{
       'algorithm-view--gradient': isGradientPage,
       'algorithm-view--loss': isLossFunctionsPage,
+      'algorithm-view--ai-overview': isAiOverviewPage,
       'algorithm-view--linear': isLinearRegressionPage,
       'algorithm-view--logistic': isLogisticRegressionPage,
       'algorithm-view--classification': isClassificationPage,
@@ -402,7 +405,37 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
       </div>
     </section>
 
-    <section v-if="isGradientPage" class="algorithm-layout algorithm-layout--gradient-story">
+    <section
+      v-if="isAiOverviewPage"
+      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--ai-overview-story"
+    >
+      <StoryScroller
+        :sections="moduleDefinition.chapters"
+        :active-id="activeChapter"
+        @change="onChapterChange"
+      >
+        <template #section="{ section, localizedText: slotLocalizedText }">
+          <h3>{{ sectionTitle(section) }}</h3>
+          <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
+
+          <div class="story-companion story-companion--lesson">
+            <section class="story-companion__panel story-companion__panel--guide">
+              <div class="panel__heading">
+                <span>{{ t('common.readingGuide') }}</span>
+                <strong>{{ localizedText(section.callout) }}</strong>
+              </div>
+              <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
+                {{ localizedText(section.experimentPrompt) }}
+              </div>
+            </section>
+          </div>
+
+          <AiOverviewLessonLab :section="section" />
+        </template>
+      </StoryScroller>
+    </section>
+
+    <section v-else-if="isGradientPage" class="algorithm-layout algorithm-layout--gradient-story">
       <StoryScroller
         :sections="moduleDefinition.chapters"
         :active-id="activeChapter"

@@ -32,6 +32,40 @@ function choice(id: string, zhCN: string, en: string) {
 }
 
 export const algorithmCheckpointsBySlug: Record<ModuleSlug, AlgorithmCheckpointItem[]> = {
+  'ai-overview': [
+    checkpoint(
+      'ai-overview-task-type',
+      copy('“根据历史房屋数据预测成交价”最适合先归入哪类 ML 任务？', 'What ML task type best fits “predict sale price from historical house data”?'),
+      [
+        choice('supervised-regression', '监督学习中的回归，因为有输入特征和连续数值标签。', 'Supervised regression, because there are input features and continuous numeric labels.'),
+        choice('unsupervised', '无监督学习，因为房价不应该作为标签。', 'Unsupervised learning, because price should not be a label.'),
+        choice('generative', '生成式 AI，因为模型会生成一个数字。', 'Generative AI, because the model generates a number.'),
+      ],
+      'supervised-regression',
+      copy(
+        '房价预测有明确标签 y，并且标签是连续数值，所以它是监督学习中的回归任务。生成式 AI 通常生成文本、图像或更开放的内容，不是所有“输出”都叫生成式任务。',
+        'House-price prediction has explicit labels y, and the labels are continuous numbers, so it is supervised regression. Generative AI usually creates open-ended content like text or images; not every output is a generative task.',
+      ),
+      ['task-type-confusion'],
+      'learning-types',
+    ),
+    checkpoint(
+      'ai-overview-training-flow',
+      copy('为什么不能在 test set 上反复调参？', 'Why should you not tune repeatedly on the test set?'),
+      [
+        choice('leakage', '测试集会变成反馈来源，最终分数不再可靠估计泛化。', 'The test set becomes feedback, so the final score no longer reliably estimates generalization.'),
+        choice('faster', '因为这样训练速度会变慢，但分数仍然可靠。', 'Because it slows training down, but the score remains reliable.'),
+        choice('labels', '因为 test set 不能有标签。', 'Because a test set cannot have labels.'),
+      ],
+      'leakage',
+      copy(
+        '训练集用于学习参数，验证集用于选择模型和超参数，测试集只用于最终估计。反复看 test 分数并据此调整，会把测试集污染成选择过程的一部分。',
+        'The training set learns parameters, validation guides choices, and test gives the final estimate. Repeatedly inspecting test scores and adjusting decisions contaminates the test set as part of model selection.',
+      ),
+      ['test-set-tuning'],
+      'training-flow',
+    ),
+  ],
   'loss-functions': [
     checkpoint(
       'loss-error-rule',

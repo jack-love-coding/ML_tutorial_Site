@@ -38,7 +38,7 @@ function scrollToRoadmap(event: MouseEvent) {
   history.replaceState(null, '', '#beginner-roadmap')
 }
 
-const primaryRoute = computed(() => '/math-lab')
+const primaryRoute = computed(() => '/learn/ai-overview')
 
 const highlights = computed(() =>
   locale.value === 'zh-CN'
@@ -79,12 +79,14 @@ const learningPath = computed(() =>
     ? [
         'Math Lab：向量、矩阵、Taylor、概率、优化、SVD/PCA、自动微分和深度结构数学',
         'Data Lab：数值特征、类别特征、清洗、EDA、划分、复杂度和正则化',
+        'AI Overview：先看什么是 ML、任务类型和训练流程',
         'ML Models：loss、gradient descent、linear/logistic regression、classification 和 MLP',
         'Deep Learning：以 MLP 为入口，后续扩展 CNN、Attention、Transformer 和优化器对比',
       ]
     : [
         'Math Lab: vectors, matrices, Taylor series, probability, optimization, SVD/PCA, autodiff, and architecture math',
         'Data Lab: numeric features, categorical features, cleaning, EDA, splits, complexity, and regularization',
+        'AI Overview: start with what ML is, task types, and the training flow',
         'ML Models: loss, gradient descent, linear/logistic regression, classification, and MLP',
         'Deep Learning: start with MLP, then extend toward CNN, Attention, Transformers, and optimizer comparisons',
       ],
@@ -126,32 +128,32 @@ const roadmapLabels = computed(() =>
 const beginnerRoadmapSource: BeginnerRoadmapStage[] = [
   {
     id: 'math-intuition',
-    route: '/math-lab',
+    route: '/learn/ai-overview',
     duration: loc('第 0-1 周', 'Week 0-1'),
-    title: loc('先建立数学直觉，不急着推公式', 'Build math intuition before deriving formulas'),
+    title: loc('先建立 AI 全局地图，再进入数学和模型', 'Build the AI map before math and models'),
     summary: loc(
-      '把向量看成特征列表，把矩阵看成空间变换，把函数图像看成模型行为的可视化入口。学习目标不是证明所有定理，而是知道每个符号在实验里对应什么。',
-      'Treat vectors as feature lists, matrices as transformations, and function plots as the visual entry point to model behavior. The goal is not to prove every theorem; it is to know what each symbol means in the lab.',
+      '先用 AI 入门总览回答三个问题：什么是 ML，监督/无监督/深度学习/生成式 AI 分别是什么，一次训练流程从哪里开始、在哪里验证。',
+      'Start with AI Overview and answer three questions: what ML is, how supervised/unsupervised/deep/generative AI differ, and where a training flow starts and gets validated.',
     ),
     focus: loc(
-      '理解 x、w、b、ŷ、loss、gradient 这些变量如何在图像、公式和代码中保持同一含义。',
-      'Understand how x, w, b, ŷ, loss, and gradient keep the same meaning across visuals, formulas, and code.',
+      '先把数据、模型、预测、loss/metric、train/validation/test 和迭代流程串起来。',
+      'Connect data, model, prediction, loss/metric, train/validation/test, and iteration before drilling into formulas.',
     ),
     practice: loc(
-      '在 Math Lab 中拖动向量、观察矩阵变换、改变 Taylor 近似阶数，并用一句话解释图像为什么变化。',
-      'In Math Lab, drag vectors, inspect matrix transforms, change Taylor approximation order, and explain in one sentence why the visual changed.',
+      '在 AI Overview 中用任务卡判断回归、分类、聚类和 RAG 场景的输入、目标与反馈信号。',
+      'In AI Overview, use task cards to classify regression, classification, clustering, and RAG scenarios by input, target, and feedback.',
     ),
     outcome: loc(
-      '能说明“特征如何进入模型”“梯度为什么指向下降方向”“概率为什么能描述不确定性”。',
-      'You can explain how features enter a model, why gradients point downhill, and why probability represents uncertainty.',
+      '能用自己的话复述“input -> model -> prediction -> loss/metric -> iteration”，并区分监督、无监督、深度学习和生成式 AI。',
+      'You can retell “input -> model -> prediction -> loss/metric -> iteration” and distinguish supervised, unsupervised, deep learning, and generative AI.',
     ),
     concepts: [
-      loc('向量与特征', 'Vectors and features'),
-      loc('矩阵变换', 'Matrix transforms'),
-      loc('Taylor 与局部近似', 'Taylor and local approximation'),
-      loc('梯度与概率', 'Gradient and probability'),
+      loc('什么是 ML', 'What ML is'),
+      loc('任务类型', 'Task types'),
+      loc('训练流程', 'Training flow'),
+      loc('生成式 AI 与 RAG', 'Generative AI and RAG'),
     ],
-    action: loc('进入 Math Lab', 'Open Math Lab'),
+    action: loc('进入 AI 总览', 'Open AI Overview'),
   },
   {
     id: 'data-inputs',
@@ -333,8 +335,8 @@ const readinessChecks = computed(() =>
 
 const footerText = computed(() =>
   locale.value === 'zh-CN'
-    ? '从 Math Lab 开始，学生能先补齐直觉，再进入数据和模型实验。'
-    : 'Start in Math Lab so students build intuition before moving into data and model labs.',
+    ? '从 AI 总览开始，学生能先建立地图，再进入数学、数据和模型实验。'
+    : 'Start with AI Overview so students build a map before moving into math, data, and model labs.',
 )
 </script>
 

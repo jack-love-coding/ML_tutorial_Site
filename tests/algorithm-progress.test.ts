@@ -169,6 +169,7 @@ test('algorithm progress persists last visited, completion, and quiz attempts', 
 
 test('algorithm modules expose bilingual module-level checkpoints with revisit chapters', () => {
   const expectedSlugs: ModuleSlug[] = [
+    'ai-overview',
     'loss-functions',
     'gradient-descent',
     'linear-regression',
@@ -178,6 +179,7 @@ test('algorithm modules expose bilingual module-level checkpoints with revisit c
   ]
 
   const chapterIdsBySlug: Record<ModuleSlug, Set<string>> = {
+    'ai-overview': new Set(['what-is-ml', 'learning-types', 'deep-learning', 'generative-ai', 'training-flow']),
     'loss-functions': new Set(['why-loss', 'regression-losses', 'classification-losses', 'likelihood-intuition', 'negative-log', 'mle-bridge']),
     'gradient-descent': new Set(['loss-function', 'landscape', 'gradient-rule', 'learning-rate', 'saddle-local-minima', 'noise-and-batch']),
     'linear-regression': new Set(['fit-line', 'residual-loss', 'training-motion', 'model-limits', 'multivariate', 'polynomial', 'overfitting', 'regularization']),

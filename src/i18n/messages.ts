@@ -157,7 +157,7 @@ export const messages = {
       title: '从数学直觉、数据处理到模型训练，系统入门 ML / AI。',
       subtitle:
         '用双语讲解、可视化实验和 checkpoint，把公式、表格、代码和模型行为连成一条可复习的学习路径。',
-      ctaPrimary: '从 Math Lab 开始',
+      ctaPrimary: '从 AI 总览开始',
       ctaSecondary: '查看学习路径',
       posterTitle: 'Math Lab → Data Lab → ML Models',
       posterBody: '先补数学直觉，再处理数据输入，最后用互动实验观察模型训练、评估与表示学习。',
@@ -173,7 +173,7 @@ export const messages = {
       modulesBody: '每个模块都用讲解、实验、反馈和下一步路径帮助学生确认自己是否理解。',
       modulesNote: '本轮优先补齐自测、进度和继续学习入口，让章节之间真正形成路径。',
       highlights: ['数学直觉起步', '数据处理衔接', '模型实验验证'],
-      footer: '从 Math Lab 开始，学生能先补齐直觉，再进入数据和模型实验。',
+      footer: '从 AI 总览开始，学生能先建立地图，再进入数学、数据和模型实验。',
     },
     focus: {
       point: '当前参数点',
@@ -208,6 +208,29 @@ export const messages = {
       mlpGeneralizationGap: '训练集和验证集已经拉开差距，需要检查容量、噪声和训练轮数。',
     },
     modules: {
+      aiOverview: {
+        title: 'AI 入门总览',
+        kicker: 'AI Orientation',
+        intro: '先建立机器学习全局地图：什么是 ML，监督/无监督/深度学习/生成式 AI 有什么区别，以及完整训练流程如何闭环。',
+        summary: '从任务类型、数据标签、模型能力和训练流水线出发，让零基础学生先知道自己正在学什么、为什么学、下一步应该看哪里。',
+        sections: {
+          whatisml: {
+            title: '什么是机器学习：从写规则到从数据中学规则',
+          },
+          learningtypes: {
+            title: '监督、无监督、深度学习和生成式 AI 分别是什么',
+          },
+          deeplearning: {
+            title: '深度学习：让模型自己学习中间表示',
+          },
+          generativeai: {
+            title: '生成式 AI 与 RAG：从预测标签到生成内容',
+          },
+          trainingflow: {
+            title: '完整训练流程：input -> model -> prediction -> loss/metric -> iteration',
+          },
+        },
+      },
       lossFunctions: {
         title: '损失函数与似然',
         kicker: 'Loss Primer',
@@ -560,7 +583,7 @@ export const messages = {
       title: 'Start ML / AI through math intuition, data processing, and model training.',
       subtitle:
         'Bilingual lessons, visual labs, and checkpoints connect formulas, tables, code, and model behavior into one reviewable path.',
-      ctaPrimary: 'Start with Math Lab',
+      ctaPrimary: 'Start with AI Overview',
       ctaSecondary: 'See the learning path',
       posterTitle: 'Math Lab → Data Lab → ML Models',
       posterBody:
@@ -579,7 +602,7 @@ export const messages = {
       modulesNote:
         'This pass prioritizes checkpoints, progress, and continue-learning entry points so chapters behave like a path.',
       highlights: ['Math intuition first', 'Data processing bridge', 'Model labs for verification'],
-      footer: 'Start in Math Lab so students build intuition before moving into data and model labs.',
+      footer: 'Start with AI Overview so students build a map before moving into math, data, and model labs.',
     },
     focus: {
       point: 'Current point',
@@ -614,6 +637,31 @@ export const messages = {
       mlpGeneralizationGap: 'Training and validation have split apart, so capacity, noise, and training length need attention.',
     },
     modules: {
+      aiOverview: {
+        title: 'AI Overview',
+        kicker: 'AI Orientation',
+        intro:
+          'Build the beginner map first: what ML is, how supervised, unsupervised, deep learning, and generative AI differ, and how the full training loop closes.',
+        summary:
+          'Start from task type, labels, model capacity, and training workflow so beginners know what they are learning, why it matters, and where to go next.',
+        sections: {
+          whatisml: {
+            title: 'What machine learning is: from writing rules to learning rules from data',
+          },
+          learningtypes: {
+            title: 'Supervised, unsupervised, deep learning, and generative AI',
+          },
+          deeplearning: {
+            title: 'Deep learning: models learn intermediate representations',
+          },
+          generativeai: {
+            title: 'Generative AI and RAG: from predicting labels to generating content',
+          },
+          trainingflow: {
+            title: 'The full training flow: input -> model -> prediction -> loss/metric -> iteration',
+          },
+        },
+      },
       lossFunctions: {
         title: 'Loss Functions & Likelihood',
         kicker: 'Loss Primer',
