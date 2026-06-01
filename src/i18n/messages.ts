@@ -231,6 +231,55 @@ export const messages = {
           },
         },
       },
+      pythonNotebook: {
+        title: 'Python 与 notebook 复现实验',
+        kicker: 'Notebook Companion',
+        intro: '把站内实验搬进 Python：用 NumPy 表达数组和 shape，用 pandas 读表和做 EDA，再用 sklearn 训练第一个小模型。',
+        summary: '这一章不追求复杂模型，先让学生能从 notebook cell 复现数组、表格、划分、fit、predict 和 metric。',
+        sections: {
+          notebookRhythm: {
+            title: 'notebook 不是草稿纸：每个 cell 都要回答一个问题',
+          },
+          numpyArrays: {
+            title: 'NumPy 数组：先看 shape，再谈公式',
+          },
+          pandasTables: {
+            title: 'pandas 表格：从 CSV 到建模材料',
+          },
+          sklearnSmallModel: {
+            title: 'sklearn 小模型：split、fit、predict、metric',
+          },
+          reproducibleHandoff: {
+            title: '复现实验交付：能从头运行，也能说清下一步',
+          },
+        },
+      },
+      housingPriceProject: {
+        title: '第一个端到端项目：房价预测',
+        kicker: 'First End-to-End Project',
+        intro: '从 CSV 读入开始，走完 EDA、清洗、数据划分、线性回归、评估和复盘，让第一个真实项目有完整闭环。',
+        summary: '用 California housing 风格数据把 Data Lab、线性回归和 sklearn Pipeline 接起来，重点讲清数据泄漏、baseline、MAE、R² 和下一轮迭代。',
+        sections: {
+          csvToFrame: {
+            title: 'CSV 到 DataFrame：先定义问题和目标列',
+          },
+          edaFirstPass: {
+            title: '第一轮 EDA：图表要变成建模判断',
+          },
+          cleaningSplits: {
+            title: '清洗与划分：fit_transform 只能看训练集',
+          },
+          linearBaseline: {
+            title: '线性回归 baseline：先要诚实，再谈更强',
+          },
+          evaluation: {
+            title: '评估：MAE、R² 和最大误差样本一起看',
+          },
+          reviewNextIteration: {
+            title: '复盘：把下一轮实验说具体',
+          },
+        },
+      },
       lossFunctions: {
         title: '损失函数与似然',
         kicker: 'Loss Primer',
@@ -659,6 +708,59 @@ export const messages = {
           },
           trainingflow: {
             title: 'The full training flow: why calling fit is not enough',
+          },
+        },
+      },
+      pythonNotebook: {
+        title: 'Python and Notebook Reproduction',
+        kicker: 'Notebook Companion',
+        intro:
+          'Move site experiments into Python: use NumPy for arrays and shape, pandas for tables and EDA, then train a first small sklearn model.',
+        summary:
+          'This chapter avoids complex models at first. Students reproduce arrays, tables, split, fit, predict, and metric through notebook cells.',
+        sections: {
+          notebookRhythm: {
+            title: 'A notebook is not scratch paper: each cell answers a question',
+          },
+          numpyArrays: {
+            title: 'NumPy arrays: check shape before formulas',
+          },
+          pandasTables: {
+            title: 'pandas tables: from CSV to modeling material',
+          },
+          sklearnSmallModel: {
+            title: 'A small sklearn model: split, fit, predict, metric',
+          },
+          reproducibleHandoff: {
+            title: 'Reproducible handoff: rerunnable and ready for the next step',
+          },
+        },
+      },
+      housingPriceProject: {
+        title: 'First End-to-End Project: Housing Price Prediction',
+        kicker: 'First End-to-End Project',
+        intro:
+          'Start from CSV and complete EDA, cleaning, data split, linear regression, evaluation, and review so the first real project has a full loop.',
+        summary:
+          'Use California-housing-style data to connect Data Lab, linear regression, and sklearn Pipeline, focusing on leakage, baseline, MAE, R², and iteration.',
+        sections: {
+          csvToFrame: {
+            title: 'CSV to DataFrame: define the problem and target column first',
+          },
+          edaFirstPass: {
+            title: 'First-pass EDA: charts must become modeling decisions',
+          },
+          cleaningSplits: {
+            title: 'Cleaning and splits: fit_transform only sees training data',
+          },
+          linearBaseline: {
+            title: 'Linear regression baseline: honest before strong',
+          },
+          evaluation: {
+            title: 'Evaluation: MAE, R², and largest-error cases together',
+          },
+          reviewNextIteration: {
+            title: 'Review: make the next experiment concrete',
           },
         },
       },

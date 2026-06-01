@@ -44,6 +44,7 @@
 | NumPy: the absolute basics for beginners | REF-NUMPY-BEGINNER | 官方 NumPy 入门，覆盖数组创建、索引、基本运算、聚合、保存 CSV 和 Matplotlib 绘图。 | 作为“向量/矩阵在 Python 中是什么”的主线。 |
 | pandas Getting started | REF-PANDAS-GETTING-STARTED | 官方 pandas 入门，包含 DataFrame、列选择、过滤、缺失、聚合和可视化入口。 | 作为 Data Lab notebook companion 的主资源。 |
 | Python Data Science Handbook | REF-PYTHON-DS-HANDBOOK | 在线开放书，系统讲 NumPy、pandas、Matplotlib 和 scikit-learn。 | 用作 notebook 章节的教材级补充，尤其适合把数组、表格、图和 ML 统一起来。 |
+| scikit-learn Getting Started | REF-SKLEARN-GETTING-STARTED | 官方快速入门，展示 estimator、fit、predict 和最小训练流程。 | 用作“第一个 sklearn 小模型”的 API 校准。 |
 | PyTorch Learn the Basics | REF-PYTORCH-BASICS | 官方 PyTorch step-by-step 工作流，包含 tensors、datasets、model、autograd、optimization 和 save/load。 | 用于后续 MLP / deep learning notebook companion。 |
 
 ### 章节落地建议
@@ -63,6 +64,7 @@
 | 资源 | Ref ID | 可跟学内容 | 建议用法 |
 | --- | --- | --- | --- |
 | Inria scikit-learn MOOC: Working with numerical data | REF-INRIA-NUMERICAL-PIPELINE | 用 `train_test_split`、数值 pipeline 和模型评估处理表格数据。 | 作为“数值特征 -> pipeline -> 训练”的主参考。 |
+| scikit-learn California housing dataset | REF-SKLEARN-CALIFORNIA-HOUSING | 官方数据集 API，说明 `fetch_california_housing(as_frame=True)`、字段和房价回归目标。 | 用于校准房价预测项目的数据来源和字段命名。 |
 | scikit-learn Column Transformer with Mixed Types | REF-SKLEARN-COLUMN-TRANSFORMER | 官方例子，展示数值列 impute/scale、类别列 one-hot、`ColumnTransformer`、`Pipeline` 和 `train_test_split`。 | 用于端到端项目的工程骨架。 |
 | scikit-learn common pitfalls | REF-SKLEARN-COMMON-PITFALLS | 官方说明数据泄漏、test/train 分离、不要在 test data 上 `fit`。 | 用作项目中的“泄漏风险检查”章节。 |
 | scikit-learn linear models guide | REF-SKLEARN-LINEAR-MODELS | 官方线性模型文档，覆盖 LinearRegression、Ridge、Lasso 等。 | 用作线性基线、正则化和系数解释参考。 |

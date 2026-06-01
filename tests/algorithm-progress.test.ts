@@ -170,6 +170,8 @@ test('algorithm progress persists last visited, completion, and quiz attempts', 
 test('algorithm modules expose bilingual module-level checkpoints with revisit chapters', () => {
   const expectedSlugs: ModuleSlug[] = [
     'ai-overview',
+    'python-notebook',
+    'housing-price-project',
     'loss-functions',
     'gradient-descent',
     'linear-regression',
@@ -180,6 +182,8 @@ test('algorithm modules expose bilingual module-level checkpoints with revisit c
 
   const chapterIdsBySlug: Record<ModuleSlug, Set<string>> = {
     'ai-overview': new Set(['what-is-ml', 'learning-types', 'deep-learning', 'generative-ai', 'training-flow']),
+    'python-notebook': new Set(['notebook-rhythm', 'numpy-arrays', 'pandas-tables', 'sklearn-small-model', 'reproducible-handoff']),
+    'housing-price-project': new Set(['csv-to-frame', 'eda-first-pass', 'cleaning-splits', 'linear-baseline', 'evaluation', 'review-next-iteration']),
     'loss-functions': new Set(['why-loss', 'regression-losses', 'classification-losses', 'likelihood-intuition', 'negative-log', 'mle-bridge']),
     'gradient-descent': new Set(['loss-function', 'landscape', 'gradient-rule', 'learning-rate', 'saddle-local-minima', 'noise-and-batch']),
     'linear-regression': new Set(['fit-line', 'residual-loss', 'training-motion', 'model-limits', 'multivariate', 'polynomial', 'overfitting', 'regularization']),
@@ -222,7 +226,18 @@ test('algorithm modules expose bilingual module-level checkpoints with revisit c
       }
     }
 
-    const source = read(`src/data/${slug === 'loss-functions' ? 'lossFunctionsModule' : slug === 'gradient-descent' ? 'gradientDescentModule' : slug === 'linear-regression' ? 'linearRegressionModule' : slug === 'logistic-regression' ? 'logisticRegressionModule' : slug === 'classification' ? 'classificationModule' : 'mlpModule'}.ts`)
+    const moduleFileBySlug: Record<ModuleSlug, string> = {
+      'ai-overview': 'aiOverviewModule',
+      'python-notebook': 'pythonNotebookModule',
+      'housing-price-project': 'housingPriceProjectModule',
+      'loss-functions': 'lossFunctionsModule',
+      'gradient-descent': 'gradientDescentModule',
+      'linear-regression': 'linearRegressionModule',
+      'logistic-regression': 'logisticRegressionModule',
+      classification: 'classificationModule',
+      mlp: 'mlpModule',
+    }
+    const source = read(`src/data/${moduleFileBySlug[slug]}.ts`)
     assert.match(source, /checkpoints:/, `${slug} module should attach checkpoints`)
   }
 })

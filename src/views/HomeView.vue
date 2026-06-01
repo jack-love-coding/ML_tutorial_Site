@@ -80,6 +80,8 @@ const learningPath = computed(() =>
         'Math Lab：向量、矩阵、Taylor、概率、优化、SVD/PCA、自动微分和深度结构数学',
         'Data Lab：数值特征、类别特征、清洗、EDA、划分、复杂度和正则化',
         'AI Overview：先看什么是 ML、任务类型和训练流程',
+        'Python Notebook：用 NumPy、pandas 和 sklearn 复现第一个小实验',
+        'Housing Project：房价预测端到端项目，从 CSV 到复盘',
         'ML Models：loss、gradient descent、linear/logistic regression、classification 和 MLP',
         'Deep Learning：以 MLP 为入口，后续扩展 CNN、Attention、Transformer 和优化器对比',
       ]
@@ -87,6 +89,8 @@ const learningPath = computed(() =>
         'Math Lab: vectors, matrices, Taylor series, probability, optimization, SVD/PCA, autodiff, and architecture math',
         'Data Lab: numeric features, categorical features, cleaning, EDA, splits, complexity, and regularization',
         'AI Overview: start with what ML is, task types, and the training flow',
+        'Python Notebook: reproduce the first small experiment with NumPy, pandas, and sklearn',
+        'Housing Project: an end-to-end housing price project from CSV to review',
         'ML Models: loss, gradient descent, linear/logistic regression, classification, and MLP',
         'Deep Learning: start with MLP, then extend toward CNN, Attention, Transformers, and optimizer comparisons',
       ],
@@ -154,6 +158,64 @@ const beginnerRoadmapSource: BeginnerRoadmapStage[] = [
       loc('生成式 AI 与 RAG', 'Generative AI and RAG'),
     ],
     action: loc('进入 AI 总览', 'Open AI Overview'),
+  },
+  {
+    id: 'python-notebook',
+    route: '/learn/python-notebook',
+    duration: loc('第 1-2 周', 'Week 1-2'),
+    title: loc('用 Python notebook 复现第一个小实验', 'Reproduce the first small experiment in a Python notebook'),
+    summary: loc(
+      '把站内实验搬进 notebook：NumPy 负责数组和 shape，pandas 负责 CSV 和表格，sklearn 负责 split、fit、predict 和 metric。',
+      'Move site experiments into a notebook: NumPy handles arrays and shape, pandas handles CSV and tables, and sklearn handles split, fit, predict, and metric.',
+    ),
+    focus: loc(
+      '每个 cell 都要能说明自己的目的，先跑通小模型，再进入完整项目。',
+      'Each cell should explain its purpose. Run a small model before moving into the full project.',
+    ),
+    practice: loc(
+      '用 np.array 手算 MSE，用 DataFrame 读表，再训练一个 LinearRegression baseline。',
+      'Use np.array to compute MSE, read a table with DataFrame, then train a LinearRegression baseline.',
+    ),
+    outcome: loc(
+      '能从头运行 notebook，并解释 shape、DataFrame、train_test_split、fit、predict 和 MAE。',
+      'You can run the notebook top to bottom and explain shape, DataFrame, train_test_split, fit, predict, and MAE.',
+    ),
+    concepts: [
+      loc('NumPy 数组', 'NumPy arrays'),
+      loc('pandas 表格', 'pandas tables'),
+      loc('sklearn 小模型', 'small sklearn model'),
+      loc('可复现实验', 'reproducible experiment'),
+    ],
+    action: loc('进入 Python Notebook', 'Open Python Notebook'),
+  },
+  {
+    id: 'housing-price-project',
+    route: '/learn/housing-price-project',
+    duration: loc('第 2-3 周', 'Week 2-3'),
+    title: loc('完成第一个端到端房价预测项目', 'Complete the first end-to-end housing price project'),
+    summary: loc(
+      '按 CSV -> EDA -> 清洗 -> 线性回归 -> 评估 -> 复盘的顺序，把一个表格项目完整走完。',
+      'Follow CSV -> EDA -> cleaning -> linear regression -> evaluation -> review and complete one tabular project.',
+    ),
+    focus: loc(
+      '重点不是模型多复杂，而是数据划分、预处理、baseline、指标和复盘是否诚实。',
+      'The focus is not model complexity, but honest splitting, preprocessing, baseline, metrics, and review.',
+    ),
+    practice: loc(
+      '用 Pipeline 和 ColumnTransformer 组织清洗流程，用 LinearRegression 建 baseline，再看 MAE、R² 和错误样本。',
+      'Use Pipeline and ColumnTransformer for cleaning, build a LinearRegression baseline, then read MAE, R², and error cases.',
+    ),
+    outcome: loc(
+      '能解释为什么测试集不能参与 fit，并能根据评估结果提出下一轮实验。',
+      'You can explain why test data must not participate in fit and propose the next experiment from evaluation results.',
+    ),
+    concepts: [
+      loc('CSV 与 EDA', 'CSV and EDA'),
+      loc('数据泄漏', 'data leakage'),
+      loc('Pipeline', 'Pipeline'),
+      loc('MAE / R² / 复盘', 'MAE / R² / review'),
+    ],
+    action: loc('进入房价预测项目', 'Open Housing Project'),
   },
   {
     id: 'data-inputs',

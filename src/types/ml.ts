@@ -1,5 +1,7 @@
 export type ModuleSlug =
   | 'ai-overview'
+  | 'python-notebook'
+  | 'housing-price-project'
   | 'loss-functions'
   | 'gradient-descent'
   | 'linear-regression'

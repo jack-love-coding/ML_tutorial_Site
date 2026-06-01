@@ -66,6 +66,74 @@ export const algorithmCheckpointsBySlug: Record<ModuleSlug, AlgorithmCheckpointI
       'training-flow',
     ),
   ],
+  'python-notebook': [
+    checkpoint(
+      'python-notebook-array-shape',
+      copy('老师问：为什么 sklearn 里单个特征也常常要写成二维 X？', 'Teacher question: why does sklearn often need a two-dimensional X even for one feature?'),
+      [
+        choice('samples-features', '因为 X 的 shape 要表达“样本数、特征数”，例如 (3, 1)。', 'Because X shape represents samples and features, for example (3, 1).'),
+        choice('faster', '因为二维数组一定比一维数组训练更快。', 'Because two-dimensional arrays always train faster than one-dimensional arrays.'),
+        choice('target', '因为 y 也必须写成二维矩阵。', 'Because y must also be written as a two-dimensional matrix.'),
+      ],
+      'samples-features',
+      copy(
+        '模型需要知道哪一维是样本、哪一维是特征。一个一维数组 (3,) 只说明有 3 个数；reshape 成 (3, 1) 才清楚表达“3 个样本，每个样本 1 个特征”。',
+        'The model needs to know which dimension is samples and which is features. A one-dimensional array (3,) only says there are 3 numbers; reshaping to (3, 1) says 3 samples with 1 feature each.',
+      ),
+      ['array-shape-confusion'],
+      'numpy-arrays',
+    ),
+    checkpoint(
+      'python-notebook-sklearn-split',
+      copy('训练一个 sklearn 小模型时，哪一步应该先发生？', 'When training a small sklearn model, which step should happen first?'),
+      [
+        choice('split-first', '先 train_test_split，再 fit 模型。', 'Run train_test_split first, then fit the model.'),
+        choice('fit-first', '先在全体数据上 fit，再划分训练和测试。', 'Fit on all data first, then split train and test.'),
+        choice('metric-first', '先算 mean_absolute_error，再训练模型。', 'Compute mean_absolute_error first, then train the model.'),
+      ],
+      'split-first',
+      copy(
+        '先划分数据，是为了让测试集保留期末考试的作用。fit 如果看过全体数据，测试集就已经参与训练流程，后面的指标会偏乐观。',
+        'Splitting first preserves the test set as a final exam. If fit sees all data, the test set has joined the training workflow and later metrics become too optimistic.',
+      ),
+      ['split-after-fit'],
+      'sklearn-small-model',
+    ),
+  ],
+  'housing-price-project': [
+    checkpoint(
+      'housing-project-leakage',
+      copy('房价预测项目中，为什么测试集只能 transform，不能 fit_transform？', 'In the housing project, why should test data use transform rather than fit_transform?'),
+      [
+        choice('avoid-leakage', '因为清洗和缩放规则只能从训练集学习，测试集不能参与制定规则。', 'Because cleaning and scaling rules should be learned from training data only; test data must not help define them.'),
+        choice('same-result', '因为 transform 和 fit_transform 永远得到完全相同的结果。', 'Because transform and fit_transform always produce exactly the same result.'),
+        choice('no-labels', '因为测试集没有特征，只有标签。', 'Because the test set has no features, only labels.'),
+      ],
+      'avoid-leakage',
+      copy(
+        'fit_transform 会学习规则并应用规则。如果在测试集上 fit，就等于让测试集的信息进入预处理决策，形成数据泄漏。测试集应该只使用训练集已经学到的规则。',
+        'fit_transform learns rules and applies them. Fitting on test data lets test information enter preprocessing decisions, causing leakage. Test data should only use rules already learned from training data.',
+      ),
+      ['preprocessing-leakage'],
+      'cleaning-splits',
+    ),
+    checkpoint(
+      'housing-project-evaluation',
+      copy('只报告一个 MAE，为什么还不足以完成房价预测复盘？', 'Why is reporting only MAE not enough for the housing-project review?'),
+      [
+        choice('need-error-cases', '还要看 R²、最大误差样本和系统性偏差，才能决定下一轮怎么改。', 'We also need R², largest-error cases, and systematic bias to decide the next iteration.'),
+        choice('mae-perfect', '因为 MAE 已经包含所有复盘信息，所以不需要看别的。', 'Because MAE already contains all review information, so nothing else is needed.'),
+        choice('only-r2', '因为回归项目只能看 R²，不能看 MAE。', 'Because regression projects can only use R² and not MAE.'),
+      ],
+      'need-error-cases',
+      copy(
+        'MAE 有业务单位，能说明平均差多少；R² 说明整体解释能力；错误样本告诉你模型在哪些区域失败。复盘要能推出下一步实验，不能只停在一个分数。',
+        'MAE has business units and shows average miss; R² summarizes explanatory power; error cases show where the model fails. A review should lead to the next experiment, not stop at one score.',
+      ),
+      ['single-metric-review'],
+      'evaluation',
+    ),
+  ],
   'loss-functions': [
     checkpoint(
       'loss-error-rule',

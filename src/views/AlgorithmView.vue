@@ -23,6 +23,7 @@ import LinearRegressionPagedLesson from '../components/LinearRegressionPagedLess
 import LogisticRegressionPagedLesson from '../components/LogisticRegressionPagedLesson.vue'
 import ClassificationLessonLab from '../components/ClassificationLessonLab.vue'
 import AiOverviewLessonLab from '../components/AiOverviewLessonLab.vue'
+import AppliedWorkflowLessonLab from '../components/AppliedWorkflowLessonLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
 import { withPublicBase } from '../utils/publicPath'
 import type { AlgorithmQuizAttempt } from '../types/ml'
@@ -61,6 +62,9 @@ const lastVisitedModuleSlug = computed(() => progress.value.lastVisitedModuleSlu
 const isGradientPage = computed(() => slug.value === 'gradient-descent')
 const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
 const isAiOverviewPage = computed(() => slug.value === 'ai-overview')
+const isPythonNotebookPage = computed(() => slug.value === 'python-notebook')
+const isHousingProjectPage = computed(() => slug.value === 'housing-price-project')
+const isWorkflowLessonPage = computed(() => isPythonNotebookPage.value || isHousingProjectPage.value)
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
 const isClassificationPage = computed(() => slug.value === 'classification')
@@ -369,6 +373,7 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
       'algorithm-view--gradient': isGradientPage,
       'algorithm-view--loss': isLossFunctionsPage,
       'algorithm-view--ai-overview': isAiOverviewPage,
+      'algorithm-view--workflow': isWorkflowLessonPage,
       'algorithm-view--linear': isLinearRegressionPage,
       'algorithm-view--logistic': isLogisticRegressionPage,
       'algorithm-view--classification': isClassificationPage,
@@ -431,6 +436,36 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
           </div>
 
           <AiOverviewLessonLab :section="section" />
+        </template>
+      </StoryScroller>
+    </section>
+
+    <section
+      v-else-if="isWorkflowLessonPage"
+      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--workflow-story"
+    >
+      <StoryScroller
+        :sections="moduleDefinition.chapters"
+        :active-id="activeChapter"
+        @change="onChapterChange"
+      >
+        <template #section="{ section, localizedText: slotLocalizedText }">
+          <h3>{{ sectionTitle(section) }}</h3>
+          <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
+
+          <div class="story-companion story-companion--lesson">
+            <section class="story-companion__panel story-companion__panel--guide">
+              <div class="panel__heading">
+                <span>{{ t('common.readingGuide') }}</span>
+                <strong>{{ localizedText(section.callout) }}</strong>
+              </div>
+              <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
+                {{ localizedText(section.experimentPrompt) }}
+              </div>
+            </section>
+          </div>
+
+          <AppliedWorkflowLessonLab :module-slug="slug" :section="section" />
         </template>
       </StoryScroller>
     </section>
