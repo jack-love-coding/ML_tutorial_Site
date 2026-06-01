@@ -69,12 +69,12 @@ const pipelineSteps = computed(() =>
   localized(
     loc(
       [
-        { label: '问题', body: '定义输入、目标、成功指标和不可用信息' },
-        { label: '数据', body: '清洗、编码、EDA、划分 train/validation/test' },
-        { label: '模型', body: '选择 baseline，再逐步增加模型能力' },
-        { label: '预测', body: '输出数值、概率、分组或生成内容' },
-        { label: '反馈', body: '用 loss/metric/error cases 解释表现' },
-        { label: '迭代', body: '调参、改数据、换模型，然后复盘' },
+        { label: '问题', body: '先问：要帮谁做什么判断？哪些信息不能偷看？' },
+        { label: '数据', body: '再问：样本干净吗？是否已划分 train/validation/test？' },
+        { label: '模型', body: '从 baseline 开始，不急着上复杂模型' },
+        { label: '预测', body: '看清输出：数值、概率、分组，还是生成内容' },
+        { label: '反馈', body: '用 loss、metric 和错误样本指出哪里没学好' },
+        { label: '迭代', body: '调参、改数据、换模型之前，先解释为什么' },
       ],
       [
         { label: 'Problem', body: 'Define inputs, target, success metric, and forbidden information' },
@@ -92,10 +92,10 @@ const layerCards = computed(() =>
   localized(
     loc(
       [
-        { label: '监督学习', body: '有标签，学习 x -> y。回归预测数值，分类预测类别。' },
-        { label: '无监督学习', body: '无标准答案，寻找分组、低维结构或异常点。' },
-        { label: '深度学习', body: '多层参数学习中间表示，不等同于任务类型。' },
-        { label: '生成式 AI', body: '学习数据分布并生成新内容，仍需要训练和评估。' },
+        { label: '监督学习', body: '有标准答案，学习 x -> y。先判断答案是数值还是类别。' },
+        { label: '无监督学习', body: '没有答案本，先让模型找分组、低维结构或异常点。' },
+        { label: '深度学习', body: '多层参数学习中间表示，它是方法，不是任务标签。' },
+        { label: '生成式 AI', body: '学习数据分布并生成新内容，仍要追问事实和评价。' },
       ],
       [
         { label: 'Supervised', body: 'Uses labels and learns x -> y. Regression predicts numbers; classification predicts classes.' },
@@ -123,7 +123,7 @@ const sectionMode = computed(() => props.section.id)
   <section class="overview-lab">
     <header class="overview-lab__header">
       <span>{{ locale === 'zh-CN' ? '概览实验台' : 'Overview lab' }}</span>
-      <strong>{{ locale === 'zh-CN' ? '从任务类型到训练闭环' : 'From task type to training loop' }}</strong>
+      <strong>{{ locale === 'zh-CN' ? '老师会先问的三件事' : 'The first questions a teacher asks' }}</strong>
     </header>
 
     <div class="overview-lab__task-grid">
@@ -142,7 +142,7 @@ const sectionMode = computed(() => props.section.id)
 
     <article class="overview-lab__scenario-detail">
       <div>
-        <span>{{ locale === 'zh-CN' ? '当前场景' : 'Current scenario' }}</span>
+        <span>{{ locale === 'zh-CN' ? '当前场景：先拆任务' : 'Current scenario: decompose the task' }}</span>
         <strong>{{ localized(activeScenario.title) }}</strong>
       </div>
       <dl>

@@ -53,15 +53,26 @@ test('AI overview module covers beginner AI map and uses centralized references'
     '训练流程',
     'train/validation/test',
     'input -> model -> prediction -> loss/metric -> iteration',
+    '想一想',
+    '老师会先问',
+    '模型不是背答案',
   ]) {
     assert.match(moduleSource, new RegExp(requiredConcept.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
   }
 
-  for (const refId of ['REF-GOOGLE-MLCC', 'REF-INRIA-SKLEARN-MOOC', 'REF-D2L', 'REF-SKLEARN-USER-GUIDE']) {
+  for (const refId of [
+    'REF-GOOGLE-MLCC',
+    'REF-INRIA-SKLEARN-MOOC',
+    'REF-D2L',
+    'REF-SKLEARN-USER-GUIDE',
+    'REF-HF-LLM-COURSE',
+    'REF-HF-RAG-MILVUS',
+  ]) {
     assert.match(moduleSource, new RegExp(refId))
   }
 
   assert.doesNotMatch(moduleSource, /https?:\/\//)
+  assert.doesNotMatch(moduleSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
 })
 
 test('AI overview includes task-style checkpoints and overview visuals', () => {
@@ -82,6 +93,9 @@ test('AI overview includes task-style checkpoints and overview visuals', () => {
   ]) {
     assert.match(labSource, new RegExp(token))
   }
+
+  assert.doesNotMatch(labSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
+  assert.doesNotMatch(checkpointSource, /鈥|鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|�/)
 
   assert.match(styleIndexSource, /ai-overview\.css/)
 })

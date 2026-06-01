@@ -211,14 +211,14 @@ export const messages = {
       aiOverview: {
         title: 'AI 入门总览',
         kicker: 'AI Orientation',
-        intro: '先建立机器学习全局地图：什么是 ML，监督/无监督/深度学习/生成式 AI 有什么区别，以及完整训练流程如何闭环。',
-        summary: '从任务类型、数据标签、模型能力和训练流水线出发，让零基础学生先知道自己正在学什么、为什么学、下一步应该看哪里。',
+        intro: '像跟着一位 AI 老师上第一节课：先问输入、目标和反馈，再分清监督/无监督、深度学习、生成式 AI 与完整训练流程。',
+        summary: '用房价、垃圾邮件、用户分组和 RAG 问答这些具体例子，帮零基础学生先看懂 AI 到底在替人做什么判断。',
         sections: {
           whatisml: {
-            title: '什么是机器学习：从写规则到从数据中学规则',
+            title: '什么是机器学习：先问输入、目标和反馈',
           },
           learningtypes: {
-            title: '监督、无监督、深度学习和生成式 AI 分别是什么',
+            title: '监督、无监督、深度学习和生成式 AI 怎么分',
           },
           deeplearning: {
             title: '深度学习：让模型自己学习中间表示',
@@ -227,7 +227,7 @@ export const messages = {
             title: '生成式 AI 与 RAG：从预测标签到生成内容',
           },
           trainingflow: {
-            title: '完整训练流程：input -> model -> prediction -> loss/metric -> iteration',
+            title: '完整训练流程：为什么不能只会调用 fit',
           },
         },
       },
@@ -641,15 +641,15 @@ export const messages = {
         title: 'AI Overview',
         kicker: 'AI Orientation',
         intro:
-          'Build the beginner map first: what ML is, how supervised, unsupervised, deep learning, and generative AI differ, and how the full training loop closes.',
+          'Follow a first AI lesson: ask about inputs, targets, and feedback, then separate supervised, unsupervised, deep learning, generative AI, and the full training flow.',
         summary:
-          'Start from task type, labels, model capacity, and training workflow so beginners know what they are learning, why it matters, and where to go next.',
+          'Use house prices, spam detection, user grouping, and RAG QA to show beginners what AI is doing on behalf of people.',
         sections: {
           whatisml: {
-            title: 'What machine learning is: from writing rules to learning rules from data',
+            title: 'What machine learning is: input, target, and feedback first',
           },
           learningtypes: {
-            title: 'Supervised, unsupervised, deep learning, and generative AI',
+            title: 'How to separate supervised, unsupervised, deep learning, and generative AI',
           },
           deeplearning: {
             title: 'Deep learning: models learn intermediate representations',
@@ -658,7 +658,7 @@ export const messages = {
             title: 'Generative AI and RAG: from predicting labels to generating content',
           },
           trainingflow: {
-            title: 'The full training flow: input -> model -> prediction -> loss/metric -> iteration',
+            title: 'The full training flow: why calling fit is not enough',
           },
         },
       },
