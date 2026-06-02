@@ -840,7 +840,11 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
       </section>
     </section>
 
-    <section v-else-if="!isLinearRegressionPage" class="results-grid" :class="{ 'results-grid--gradient': isGradientPage }">
+    <section
+      v-else-if="!isLinearRegressionPage && !isWorkflowLessonPage"
+      class="results-grid"
+      :class="{ 'results-grid--gradient': isGradientPage }"
+    >
       <LineChart :slug="slug" :snapshots="experiment.snapshots" :current-step="experiment.currentStep" />
 
       <section class="panel lesson-panel">

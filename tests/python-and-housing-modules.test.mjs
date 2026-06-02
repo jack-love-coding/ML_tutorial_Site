@@ -38,6 +38,7 @@ test('Python notebook and housing project modules are registered after AI overvi
   assert.match(algorithmViewSource, /slug\.value === 'python-notebook'/)
   assert.match(algorithmViewSource, /slug\.value === 'housing-price-project'/)
   assert.match(algorithmViewSource, /algorithm-view--workflow/)
+  assert.match(algorithmViewSource, /v-else-if="!isLinearRegressionPage && !isWorkflowLessonPage"/)
   assert.match(homeSource, /python-notebook/)
   assert.match(homeSource, /housing-price-project/)
   assert.match(messagesSource, /pythonNotebook: \{/)
