@@ -37,6 +37,7 @@
 | REF-SKLEARN-RANDOM-FOREST | scikit-learn Ensembles: Random Forests | https://scikit-learn.org/stable/modules/ensemble.html#forest | 决策树与随机森林 | bootstrap sample、随机特征子集、概率平均、降方差 | 先学单棵树，再学 forest | 随机森林主参考 |
 | REF-SKLEARN-ENSEMBLE-EXAMPLES | scikit-learn ensemble examples | https://scikit-learn.org/stable/auto_examples/ensemble/index.html | 决策树与随机森林 | feature importance、bagging、boosting、forest 示例图 | 学完 tree/forest 后挑例子 | 用于实验和图形设计 |
 | REF-ISLR | An Introduction to Statistical Learning | https://www.statlearning.com/ | 决策树与随机森林、模型评估 | 树、bagging、random forests、boosting、统计学习框架 | 作为进阶教材阅读 Tree-Based Methods | 理论结构更系统 |
+| REF-CNN-EXPLAINER | CNN Explainer | https://poloclub.github.io/cnn-explainer/ | CNN 可视化入门 | overview + detail、卷积细节视图、ReLU、pooling、Flatten、Softmax、Tiny VGG 浏览器演示 | 做交互可视化前先体验，再回看公式 | CNN 可视化交互设计与 Tiny VGG 模型资产来源 |
 | REF-CS231N-CNN | CS231n CNN notes | https://cs231n.github.io/convolutional-networks/ | CNN 可视化入门 | convolution layer、pooling、architecture、shape、参数计算 | 先读 Conv layer，再读 pooling 和 architectures | CNN 章节主理论参考 |
 | REF-D2L-CNN | D2L: Convolutional Neural Networks | https://d2l.ai/chapter_convolutional-neural-networks/index.html | CNN 可视化入门 | 卷积、padding、stride、channels、LeNet、代码 | 与 CS231n 配合阅读 | 可直接搬运为可运行 notebook 结构 |
 | REF-PYTORCH-CV-TRANSFER | PyTorch Transfer Learning for Computer Vision | https://docs.pytorch.org/tutorials/beginner/transfer_learning_tutorial.html | CNN 可视化入门、项目型 CNN 练习 | 数据集加载、预训练模型、训练循环、评估 | CNN 基础后阅读 | 用于后续项目型图像分类 |

@@ -24,6 +24,7 @@ import LogisticRegressionPagedLesson from '../components/LogisticRegressionPaged
 import ClassificationLessonLab from '../components/ClassificationLessonLab.vue'
 import AiOverviewLessonLab from '../components/AiOverviewLessonLab.vue'
 import AppliedWorkflowLessonLab from '../components/AppliedWorkflowLessonLab.vue'
+import CnnExplainerLab from '../components/CnnExplainerLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
 import { withPublicBase } from '../utils/publicPath'
 import type { AlgorithmQuizAttempt } from '../types/ml'
@@ -483,7 +484,8 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
             </section>
           </div>
 
-          <AppliedWorkflowLessonLab :module-slug="slug" :section="section" />
+          <CnnExplainerLab v-if="isCnnVisualizationPage && section.id === activeChapter" :section="section" />
+          <AppliedWorkflowLessonLab v-else-if="!isCnnVisualizationPage" :module-slug="slug" :section="section" />
         </template>
       </StoryScroller>
     </section>

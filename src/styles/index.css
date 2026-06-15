@@ -7,6 +7,7 @@
 @import './views/algorithm-shell.css';
 @import './modules/ai-overview.css';
 @import './modules/workflow-lessons.css';
+@import './modules/cnn-explainer.css';
 @import './modules/loss-functions.css';
 @import './modules/gradient-descent.css';
 @import './modules/loss-functions-visuals.css';

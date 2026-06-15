@@ -12,6 +12,7 @@
     "security:audit": "npm audit --audit-level=moderate --registry=https://registry.npmjs.org"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
     "d3": "^7.9.0",
     "katex": "^0.16.44",
     "markdown-it": "^14.1.1",
