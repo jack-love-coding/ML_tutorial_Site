@@ -82,8 +82,15 @@ const learningPath = computed(() =>
         'AI Overview：先看什么是 ML、任务类型和训练流程',
         'Python Notebook：用 NumPy、pandas 和 sklearn 复现第一个小实验',
         'Housing Project：房价预测端到端项目，从 CSV 到复盘',
+        'Classification Project：垃圾邮件筛查，从文本向量化到阈值复盘',
+        'Model Selection：用交叉验证和 GridSearchCV 做可靠调参与最终测试',
+        'Tree & Forest：用 if-then split 和随机森林理解非梯度模型',
+        'CNN Visualization：从图片 shape、kernel、padding/stride 到 feature map 和迁移学习',
+        'Attention & Transformer：把 token、Q/K/V、softmax、multi-head 和 block 串起来',
+        'Optimizer Comparison：比较 SGD、Momentum、RMSProp、AdamW、schedule 和 batch size',
+        'LLM & RAG：理解 token、embedding、chunking、retrieval、prompt assembly 和 grounded answer',
         'ML Models：loss、gradient descent、linear/logistic regression、classification 和 MLP',
-        'Deep Learning：以 MLP 为入口，后续扩展 CNN、Attention、Transformer 和优化器对比',
+        'Deep Learning：以 MLP 为入口，把视觉、序列、优化和生成式应用串成复盘路径',
       ]
     : [
         'Math Lab: vectors, matrices, Taylor series, probability, optimization, SVD/PCA, autodiff, and architecture math',
@@ -91,8 +98,15 @@ const learningPath = computed(() =>
         'AI Overview: start with what ML is, task types, and the training flow',
         'Python Notebook: reproduce the first small experiment with NumPy, pandas, and sklearn',
         'Housing Project: an end-to-end housing price project from CSV to review',
+        'Classification Project: spam screening from text vectorization to threshold review',
+        'Model Selection: use cross-validation and GridSearchCV for reliable tuning and final testing',
+        'Tree & Forest: understand non-gradient models through if-then splits and random forests',
+        'CNN Visualization: move from image shape, kernels, padding/stride to feature maps and transfer learning',
+        'Attention & Transformer: connect tokens, Q/K/V, softmax, multi-head attention, and the block',
+        'Optimizer Comparison: compare SGD, Momentum, RMSProp, AdamW, schedules, and batch size',
+        'LLM & RAG: understand tokens, embeddings, chunking, retrieval, prompt assembly, and grounded answers',
         'ML Models: loss, gradient descent, linear/logistic regression, classification, and MLP',
-        'Deep Learning: start with MLP, then extend toward CNN, Attention, Transformers, and optimizer comparisons',
+        'Deep Learning: start with MLP, then connect vision, sequences, optimization, and generative applications',
       ],
 )
 
@@ -216,6 +230,209 @@ const beginnerRoadmapSource: BeginnerRoadmapStage[] = [
       loc('MAE / R² / 复盘', 'MAE / R² / review'),
     ],
     action: loc('进入房价预测项目', 'Open Housing Project'),
+  },
+  {
+    id: 'classification-project',
+    route: '/learn/classification-project',
+    duration: loc('第 3 周', 'Week 3'),
+    title: loc('完成第一个二分类项目：垃圾邮件筛查', 'Complete the first binary project: spam screening'),
+    summary: loc(
+      '把邮件文本转成 TF-IDF 稀疏向量，用 Pipeline 训练 baseline，再通过阈值、混淆矩阵和错误样本完成复盘。',
+      'Turn email text into TF-IDF sparse vectors, train a baseline with Pipeline, then review thresholds, confusion matrix, and error cases.',
+    ),
+    focus: loc(
+      '重点是正类定义、文本向量化是否泄漏、precision/recall 取舍和 false positive / false negative 的业务含义。',
+      'Focus on positive-class definition, leakage-safe vectorization, precision/recall tradeoff, and the business meaning of false positives and false negatives.',
+    ),
+    practice: loc(
+      '用 TfidfVectorizer + LogisticRegression 建 spam/ham baseline，比较不同阈值下 precision、recall、F1 和误拦样本。',
+      'Build a spam/ham baseline with TfidfVectorizer + LogisticRegression, then compare precision, recall, F1, and blocked normal messages across thresholds.',
+    ),
+    outcome: loc(
+      '能解释为什么 accuracy 不够，并能根据业务成本选择阈值和下一轮实验。',
+      'You can explain why accuracy is insufficient and choose a threshold plus next experiment from business cost.',
+    ),
+    concepts: [
+      loc('文本向量化', 'Text vectorization'),
+      loc('二分类阈值', 'Binary threshold'),
+      loc('混淆矩阵', 'Confusion matrix'),
+      loc('precision / recall', 'precision / recall'),
+    ],
+    action: loc('进入分类项目', 'Open Classification Project'),
+  },
+  {
+    id: 'model-selection',
+    route: '/learn/model-selection',
+    duration: loc('第 3-4 周', 'Week 3-4'),
+    title: loc('用交叉验证做更可靠的模型选择', 'Use cross-validation for more reliable model selection'),
+    summary: loc(
+      '学完两个项目后，补上模型选择方法：一次 split 为什么不够，validation 和 test 怎么分工，Pipeline 和 GridSearchCV 如何避免泄漏。',
+      'After two projects, add model-selection methods: why one split is not enough, how validation and test differ, and how Pipeline plus GridSearchCV avoids leakage.',
+    ),
+    focus: loc(
+      '重点是把“训练参数、选择方案、最终估计”拆开，并用 CV mean/std 判断分数是否稳定。',
+      'Focus on separating parameter fitting, workflow choice, and final estimation, then use CV mean/std to judge score stability.',
+    ),
+    practice: loc(
+      '用 cross_val_score 比较不同 split 的波动，用 GridSearchCV 搜 Ridge alpha，并只在最终 test set 上评估一次。',
+      'Use cross_val_score to inspect split variation, GridSearchCV to search Ridge alpha, and evaluate once on the final test set.',
+    ),
+    outcome: loc(
+      '能判断某个调参流程是否污染 test set，并能读懂 param_grid、mean_test_score、best_params_ 和 test score。',
+      'You can judge whether a tuning workflow contaminates the test set and explain param_grid, mean_test_score, best_params_, and test score.',
+    ),
+    concepts: [
+      loc('train / validation / test', 'train / validation / test'),
+      loc('K-fold CV', 'K-fold CV'),
+      loc('Pipeline 防泄漏', 'Pipeline leakage prevention'),
+      loc('GridSearchCV', 'GridSearchCV'),
+    ],
+    action: loc('进入模型选择', 'Open Model Selection'),
+  },
+  {
+    id: 'tree-forest',
+    route: '/learn/tree-forest',
+    duration: loc('第 4 周', 'Week 4'),
+    title: loc('用决策树和随机森林理解非梯度模型', 'Use trees and forests to understand non-gradient models'),
+    summary: loc(
+      '补一个和线性模型、梯度下降完全不同的模型族：树用 if-then split 切空间，随机森林用很多差异化树投票降低方差。',
+      'Add a model family unlike linear models and gradient descent: trees cut space with if-then splits, and random forests reduce variance by voting across different trees.',
+    ),
+    focus: loc(
+      '重点看二维矩形边界、Gini/entropy/MSE split 标准、max_depth 过拟合和 feature importance 的误读风险。',
+      'Focus on 2D rectangular boundaries, Gini/entropy/MSE split criteria, max_depth overfitting, and feature-importance misreadings.',
+    ),
+    practice: loc(
+      '比较 shallow tree、deep tree 和 random forest 的边界与验证表现，再写一条“重要性不等于因果”的复盘。',
+      'Compare shallow tree, deep tree, and random forest boundaries plus validation behavior, then write one review note on why importance is not causality.',
+    ),
+    outcome: loc(
+      '能解释树为什么不需要特征缩放，为什么深树容易过拟合，以及随机森林如何用 bagging 和随机特征降低方差。',
+      'You can explain why trees do not need feature scaling, why deep trees overfit, and how random forests lower variance with bagging and random features.',
+    ),
+    concepts: [
+      loc('if-then split', 'if-then split'),
+      loc('Gini / entropy / MSE', 'Gini / entropy / MSE'),
+      loc('max_depth 与剪枝', 'max_depth and pruning'),
+      loc('bagging / feature importance', 'bagging / feature importance'),
+    ],
+    action: loc('进入树模型', 'Open Tree Models'),
+  },
+  {
+    id: 'cnn-visualization',
+    route: '/learn/cnn-visualization',
+    duration: loc('第 5 周', 'Week 5'),
+    title: loc('用 CNN 可视化理解图像模型怎样算', 'Use CNN visualization to see how vision models compute'),
+    summary: loc(
+      '把图片拆成 H×W×C 数值体，手算 kernel 卷积，再用 padding、stride、feature map、pooling 和分类头读懂一个小 CNN。',
+      'Break images into H×W×C numeric volumes, hand-calculate a kernel convolution, then read a small CNN through padding, stride, feature maps, pooling, and the classifier head.',
+    ),
+    focus: loc(
+      '重点是 shape、参数共享、输出尺寸和参数量，而不是把 CNN 当作图片魔法。',
+      'Focus on shape, weight sharing, output size, and parameter count instead of treating CNNs as image magic.',
+    ),
+    practice: loc(
+      '用 5×5 小图和 3×3 kernel 手算一个输出格，再比较 Conv2d 和全连接层的参数量。',
+      'Use a 5×5 image and 3×3 kernel to hand-calculate one output cell, then compare Conv2d and dense parameter counts.',
+    ),
+    outcome: loc(
+      '能解释 padding/stride 如何改变输出尺寸，filter 个数如何改变 channel，以及迁移学习为什么常先换分类头。',
+      'You can explain how padding/stride change output size, how filter count changes channels, and why transfer learning often replaces the classifier head first.',
+    ),
+    concepts: [
+      loc('H×W×C shape', 'H×W×C shape'),
+      loc('kernel / feature map', 'kernel / feature map'),
+      loc('padding / stride', 'padding / stride'),
+      loc('迁移学习', 'transfer learning'),
+    ],
+    action: loc('进入 CNN 可视化', 'Open CNN Visualization'),
+  },
+  {
+    id: 'attention-transformer',
+    route: '/learn/attention-transformer',
+    duration: loc('第 5-6 周', 'Week 5-6'),
+    title: loc('把 Attention 与 Transformer block 算清楚', 'Make Attention and the Transformer block computable'),
+    summary: loc(
+      '从 token 和 embedding 开始，追踪 Q/K/V、score matrix、softmax、value weighted sum、multi-head shape 和 residual/norm/FFN。',
+      'Start from tokens and embeddings, then track Q/K/V, score matrix, softmax, value weighted sum, multi-head shapes, and residual/norm/FFN.',
+    ),
+    focus: loc(
+      '重点是每个 token 怎样分配注意力预算，以及 [B,T,H] 怎样被拆成多头再合并。',
+      'Focus on how each token allocates attention and how [B,T,H] splits into heads and merges back.',
+    ),
+    practice: loc(
+      '用 4 个 token 画 4×4 attention heatmap，并把 [B,T,128] 拆成 4 个 head 的 [B,4,T,32]。',
+      'Draw a 4-token 4×4 attention heatmap and split [B,T,128] into [B,4,T,32] for four heads.',
+    ),
+    outcome: loc(
+      '能指出 softmax 作用在哪个维度，并能说清 attention、residual、LayerNorm 和 FFN 在 block 中的分工。',
+      'You can identify the softmax dimension and explain the roles of attention, residual, LayerNorm, and FFN in the block.',
+    ),
+    concepts: [
+      loc('token / embedding', 'token / embedding'),
+      loc('Q/K/V', 'Q/K/V'),
+      loc('softmax attention', 'softmax attention'),
+      loc('multi-head / residual', 'multi-head / residual'),
+    ],
+    action: loc('进入 Transformer 入门', 'Open Transformer Primer'),
+  },
+  {
+    id: 'optimizer-comparison',
+    route: '/learn/optimizer-comparison',
+    duration: loc('第 6 周', 'Week 6'),
+    title: loc('比较优化器，学会从曲线诊断训练', 'Compare optimizers and diagnose training from curves'),
+    summary: loc(
+      '在同一训练循环里比较 SGD、Momentum、RMSProp、AdamW、weight decay、learning rate schedule 和 batch size 对 loss 曲线的影响。',
+      'Compare SGD, Momentum, RMSProp, AdamW, weight decay, learning-rate schedules, and batch size in one training-loop frame.',
+    ),
+    focus: loc(
+      '重点是控制变量：一次只改 optimizer、lr、batch size 或 weight_decay，并记录曲线现象。',
+      'Focus on controlled variables: change only optimizer, lr, batch size, or weight_decay at a time and record the curve pattern.',
+    ),
+    practice: loc(
+      '根据 loss 下降慢、震荡、发散或平台期，写出可能原因和下一步调参计划。',
+      'For slow descent, oscillation, divergence, or plateau, write the likely cause and next tuning step.',
+    ),
+    outcome: loc(
+      '能解释 zero_grad、loss.backward()、optimizer.step() 的顺序，并能根据训练曲线选择学习率或优化器调整。',
+      'You can explain the order of zero_grad, loss.backward(), and optimizer.step(), then choose learning-rate or optimizer adjustments from training curves.',
+    ),
+    concepts: [
+      loc('SGD / Momentum', 'SGD / Momentum'),
+      loc('RMSProp / AdamW', 'RMSProp / AdamW'),
+      loc('weight decay', 'weight decay'),
+      loc('learning rate schedule', 'learning-rate schedule'),
+    ],
+    action: loc('进入优化器对比', 'Open Optimizer Comparison'),
+  },
+  {
+    id: 'llm-rag',
+    route: '/learn/llm-rag',
+    duration: loc('第 6 周及之后', 'Week 6 and beyond'),
+    title: loc('理解 LLM 应用与 RAG 的真实流水线', 'Understand the real pipeline behind LLM apps and RAG'),
+    summary: loc(
+      '把 tokenization、context window、embedding、chunking、retrieval、prompt assembly、grounded answer 和评估拆成可复盘步骤。',
+      'Break tokenization, context window, embeddings, chunking, retrieval, prompt assembly, grounded answers, and evaluation into reviewable steps.',
+    ),
+    focus: loc(
+      '重点是 RAG 如何在回答时提供外部上下文，而不是把新知识写进模型参数。',
+      'Focus on how RAG provides external context at answer time instead of writing new knowledge into model parameters.',
+    ),
+    practice: loc(
+      '为一个问答任务设计 chunk size、overlap、top_k 和引用格式，并把失败样本分成 retrieval、prompt、generation 或 evaluation 问题。',
+      'Design chunk size, overlap, top_k, and citation format for a QA task, then classify failures as retrieval, prompt, generation, or evaluation problems.',
+    ),
+    outcome: loc(
+      '能解释 RAG pipeline 中 query -> embedding -> retrieval -> context -> answer 每一步的输入输出和常见失败。',
+      'You can explain the input, output, and common failures of query -> embedding -> retrieval -> context -> answer in a RAG pipeline.',
+    ),
+    concepts: [
+      loc('token / context window', 'token / context window'),
+      loc('embedding 检索', 'embedding retrieval'),
+      loc('chunking / reranking', 'chunking / reranking'),
+      loc('grounded answer', 'grounded answer'),
+    ],
+    action: loc('进入 LLM/RAG 基础', 'Open LLM/RAG Basics'),
   },
   {
     id: 'data-inputs',

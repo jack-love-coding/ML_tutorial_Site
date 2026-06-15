@@ -2,6 +2,13 @@ import type { AlgorithmModuleDefinition } from '../types/ml'
 import { aiOverviewModule } from './aiOverviewModule'
 import { pythonNotebookModule } from './pythonNotebookModule'
 import { housingPriceProjectModule } from './housingPriceProjectModule'
+import { classificationProjectModule } from './classificationProjectModule'
+import { modelSelectionModule } from './modelSelectionModule'
+import { treeForestModule } from './treeForestModule'
+import { cnnVisualizationModule } from './cnnVisualizationModule'
+import { attentionTransformerModule } from './attentionTransformerModule'
+import { optimizerComparisonModule } from './optimizerComparisonModule'
+import { llmRagModule } from './llmRagModule'
 import { lossFunctionsModule } from './lossFunctionsModule'
 import { gradientDescentModule } from './gradientDescentModule'
 import { linearRegressionModule } from './linearRegressionModule'
@@ -14,6 +21,13 @@ export const moduleOrder: AlgorithmModuleDefinition[] = [
   aiOverviewModule,
   pythonNotebookModule,
   housingPriceProjectModule,
+  classificationProjectModule,
+  modelSelectionModule,
+  treeForestModule,
+  cnnVisualizationModule,
+  attentionTransformerModule,
+  optimizerComparisonModule,
+  llmRagModule,
   lossFunctionsModule,
   gradientDescentModule,
   linearRegressionModule,

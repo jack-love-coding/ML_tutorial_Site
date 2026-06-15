@@ -280,6 +280,188 @@ export const messages = {
           },
         },
       },
+      classificationProject: {
+        title: '分类项目：垃圾邮件筛查',
+        kicker: 'Classification Project',
+        intro: '把文本邮件变成稀疏特征，用 Pipeline 训练二分类 baseline，再用阈值、混淆矩阵和错误成本完成复盘。',
+        summary: '用 spam/ham 项目连接文本向量化、LogisticRegression、precision、recall、ROC/AUC 和 false positive / false negative 取舍。',
+        sections: {
+          problemAndCosts: {
+            title: '问题和成本：先定义正类、负类和错判代价',
+          },
+          textToFeatures: {
+            title: '文本到特征：token、词表、TF-IDF 和 sparse vector',
+          },
+          pipelineBaseline: {
+            title: 'Pipeline baseline：先切分，再向量化和训练',
+          },
+          scoresThresholds: {
+            title: '分数与阈值：模型分数不变，决策会改变',
+          },
+          metricsTradeoffs: {
+            title: '指标取舍：precision、recall、F1 和 AUC 怎么一起读',
+          },
+          errorReview: {
+            title: '错误复盘：误拦、漏拦和下一轮实验',
+          },
+        },
+      },
+      modelSelection: {
+        title: '模型选择与交叉验证',
+        kicker: 'Model Selection',
+        intro: '从一次 split 的不稳定开始，学会用 validation、cross-validation、Pipeline 和 GridSearchCV 做更诚实的模型选择。',
+        summary: '把 train/validation/test、K-fold CV、预处理泄漏、param_grid、mean_test_score 和最终 test 复盘串成可复现调参流程。',
+        sections: {
+          oneSplitRisk: {
+            title: '一次 split 的风险：分数可能只是切分运气',
+          },
+          validationRole: {
+            title: 'validation 的角色：选择模型，不碰最终 test',
+          },
+          crossValidation: {
+            title: '交叉验证：同时看平均分和稳定性',
+          },
+          pipelineLeakage: {
+            title: 'Pipeline 防泄漏：预处理只能在训练折里 fit',
+          },
+          gridSearch: {
+            title: 'GridSearchCV：把超参数搜索变成可复查流程',
+          },
+          finalRefit: {
+            title: '最终 refit 与测试：选完之后只估计一次',
+          },
+        },
+      },
+      treeForest: {
+        title: '决策树与随机森林',
+        kicker: 'Tree Models',
+        intro: '换一个非梯度视角理解机器学习：用 if-then split 切开空间，再用随机森林降低单棵树的高方差。',
+        summary: '从二维矩形 split、Gini/entropy/MSE、max_depth 过拟合到 bagging、随机特征和 feature importance 误区，补齐树模型直觉。',
+        sections: {
+          nonGradientModel: {
+            title: '非梯度模型：树用 if-then 规则学习',
+          },
+          rectangularSplits: {
+            title: '矩形 split：二维平面怎样被树切开',
+          },
+          splitCriteria: {
+            title: 'split 标准：Gini、entropy 与 MSE 的直觉',
+          },
+          depthOverfitting: {
+            title: '深度与过拟合：max_depth 是容量旋钮',
+          },
+          randomForest: {
+            title: '随机森林：bagging、随机特征与降方差',
+          },
+          featureImportance: {
+            title: 'feature importance：重要性不等于因果',
+          },
+        },
+      },
+      cnnVisualization: {
+        title: 'CNN 可视化入门',
+        kicker: 'CNN Vision Lab',
+        intro: '把图片读成 H×W×C 数值体，用 kernel、padding、stride、feature map、pooling 和分类头拆开理解卷积网络。',
+        summary: '从局部连接、参数共享、输出尺寸公式、channel 变化到迁移学习复盘，让 CNN 从“图片魔法”变成可算、可解释的视觉模型。',
+        sections: {
+          imageVolume: {
+            title: '图片体积：先把图像看成 H×W×C',
+          },
+          kernelConvolution: {
+            title: 'kernel 卷积：5×5 小图里的 3×3 手算',
+          },
+          paddingStrideShape: {
+            title: 'padding 与 stride：实时计算输出尺寸',
+          },
+          channelsFeatureMaps: {
+            title: 'channel 与 feature map：filter 怎样堆出表示',
+          },
+          poolingClassifierHead: {
+            title: 'pooling 与分类头：从空间图到类别分数',
+          },
+          transferLearningReview: {
+            title: '迁移学习复盘：冻结 backbone，替换 head',
+          },
+        },
+      },
+      attentionTransformer: {
+        title: 'Attention 与 Transformer 入门',
+        kicker: 'Transformer Primer',
+        intro: '把 token、embedding、Q/K/V、attention score、softmax、multi-head、位置编码和 residual/norm 串成完整 Transformer block。',
+        summary: '用 4 个 token 的注意力矩阵、[B,T,H] 到 [B,heads,T,d_head] 的形状拆分和 block 流程，建立 Transformer 的可计算直觉。',
+        sections: {
+          tokensEmbeddings: {
+            title: 'token 与 embedding：从文本到 [B,T,H]',
+          },
+          qkvScores: {
+            title: 'Q/K/V 与 score matrix：谁看向谁',
+          },
+          softmaxWeightedSum: {
+            title: 'softmax 与 value weighted sum：每个 query 分配注意力',
+          },
+          multiHeadShapes: {
+            title: 'multi-head shape：把 H 拆成多个子空间',
+          },
+          transformerBlock: {
+            title: 'Transformer block：attention、residual、norm 与 FFN',
+          },
+          architectureToTools: {
+            title: '从架构到工具链：tokenizer、mask 和 logits',
+          },
+        },
+      },
+      optimizerComparison: {
+        title: '优化器对比',
+        kicker: 'Optimizer Clinic',
+        intro: '在已有梯度下降直觉上比较 SGD、Momentum、RMSProp、AdamW、weight decay、learning rate schedule 和 batch size。',
+        summary: '用同一训练循环和曲线诊断方法，解释优化器为何影响下降速度、震荡、稳定性、泛化和下一步调参。',
+        sections: {
+          trainingLoop: {
+            title: '训练循环：forward、loss、backward、step',
+          },
+          sgdBatchNoise: {
+            title: 'SGD 与 batch size：噪声梯度如何改变曲线',
+          },
+          momentumRmsprop: {
+            title: 'Momentum 与 RMSProp：减震和自适应步长',
+          },
+          adamWeightDecay: {
+            title: 'AdamW 与 weight decay：稳健起点不是免调参',
+          },
+          learningRateSchedules: {
+            title: 'learning rate schedule：从曲线判断步长计划',
+          },
+          curveDiagnosis: {
+            title: '曲线诊断：控制变量比较优化器',
+          },
+        },
+      },
+      llmRag: {
+        title: 'LLM 与 RAG 基础',
+        kicker: 'LLM App Lab',
+        intro: '从 tokenization、context window、embedding、chunking、retrieval、prompt assembly 到 grounded answer 和评估，拆开现代 LLM 应用。',
+        summary: '说明 RAG 不是让模型“学会”新知识，而是在回答时组织外部资料、检索片段、上下文和可审计引用。',
+        sections: {
+          tokenizationContext: {
+            title: 'tokenization 与 context window：先算上下文预算',
+          },
+          embeddingsSimilarity: {
+            title: 'embedding 与相似度：query 和 chunk 怎样匹配',
+          },
+          chunkingRetrieval: {
+            title: 'chunking 与 retrieval：size、overlap、top_k 和 reranking',
+          },
+          promptAssembly: {
+            title: 'prompt assembly：把资料放成可审计上下文',
+          },
+          ragEvaluation: {
+            title: 'RAG 评估：定位 retrieval、prompt、generation 失败',
+          },
+          ragIsNotTraining: {
+            title: 'RAG 不等于训练：回答时提供外部上下文',
+          },
+        },
+      },
       lossFunctions: {
         title: '损失函数与似然',
         kicker: 'Loss Primer',
@@ -761,6 +943,202 @@ export const messages = {
           },
           reviewNextIteration: {
             title: 'Review: make the next experiment concrete',
+          },
+        },
+      },
+      classificationProject: {
+        title: 'Classification Project: Spam Screening',
+        kicker: 'Classification Project',
+        intro:
+          'Turn email text into sparse features, train a binary baseline with Pipeline, then review thresholds, confusion matrix, and error cost.',
+        summary:
+          'Use a spam/ham project to connect text vectorization, LogisticRegression, precision, recall, ROC/AUC, and false positive / false negative tradeoffs.',
+        sections: {
+          problemAndCosts: {
+            title: 'Problem and cost: define positive class, negative class, and mistakes',
+          },
+          textToFeatures: {
+            title: 'Text to features: tokens, vocabulary, TF-IDF, and sparse vectors',
+          },
+          pipelineBaseline: {
+            title: 'Pipeline baseline: split first, then vectorize and train',
+          },
+          scoresThresholds: {
+            title: 'Scores and thresholds: fixed model scores, changing decisions',
+          },
+          metricsTradeoffs: {
+            title: 'Metric tradeoffs: reading precision, recall, F1, and AUC together',
+          },
+          errorReview: {
+            title: 'Error review: blocked, missed, and the next experiment',
+          },
+        },
+      },
+      modelSelection: {
+        title: 'Model Selection and Cross-Validation',
+        kicker: 'Model Selection',
+        intro:
+          'Start from unstable single splits, then use validation, cross-validation, Pipeline, and GridSearchCV for more honest model selection.',
+        summary:
+          'Connect train/validation/test, K-fold CV, preprocessing leakage, param_grid, mean_test_score, and final test review into a reproducible tuning workflow.',
+        sections: {
+          oneSplitRisk: {
+            title: 'The risk of one split: a score can be split luck',
+          },
+          validationRole: {
+            title: 'The role of validation: choose models without touching final test',
+          },
+          crossValidation: {
+            title: 'Cross-validation: read average score and stability together',
+          },
+          pipelineLeakage: {
+            title: 'Pipeline prevents leakage: preprocessing fits inside training folds',
+          },
+          gridSearch: {
+            title: 'GridSearchCV: make hyperparameter search auditable',
+          },
+          finalRefit: {
+            title: 'Final refit and test: estimate once after selection',
+          },
+        },
+      },
+      treeForest: {
+        title: 'Decision Trees and Random Forests',
+        kicker: 'Tree Models',
+        intro:
+          'Learn machine learning from a non-gradient angle: cut space with if-then splits, then use random forests to reduce the high variance of one tree.',
+        summary:
+          'Build tree intuition from 2D rectangular splits, Gini/entropy/MSE, max_depth overfitting, bagging, random features, and feature-importance pitfalls.',
+        sections: {
+          nonGradientModel: {
+            title: 'Non-gradient models: trees learn if-then rules',
+          },
+          rectangularSplits: {
+            title: 'Rectangular splits: how trees cut a 2D plane',
+          },
+          splitCriteria: {
+            title: 'Split criteria: intuition for Gini, entropy, and MSE',
+          },
+          depthOverfitting: {
+            title: 'Depth and overfitting: max_depth is the capacity knob',
+          },
+          randomForest: {
+            title: 'Random forests: bagging, random features, and lower variance',
+          },
+          featureImportance: {
+            title: 'Feature importance: importance is not causality',
+          },
+        },
+      },
+      cnnVisualization: {
+        title: 'CNN Visualization Primer',
+        kicker: 'CNN Vision Lab',
+        intro:
+          'Read images as H×W×C numeric volumes, then unpack convolutional networks through kernels, padding, stride, feature maps, pooling, and classifier heads.',
+        summary:
+          'Turn CNNs from image magic into computable visual models through local connectivity, weight sharing, output-size formulas, channel changes, and transfer-learning review.',
+        sections: {
+          imageVolume: {
+            title: 'Image volume: read an image as H×W×C first',
+          },
+          kernelConvolution: {
+            title: 'Kernel convolution: a 3×3 hand calculation on a 5×5 image',
+          },
+          paddingStrideShape: {
+            title: 'Padding and stride: compute output size in real time',
+          },
+          channelsFeatureMaps: {
+            title: 'Channels and feature maps: how filters stack representation',
+          },
+          poolingClassifierHead: {
+            title: 'Pooling and classifier head: from spatial maps to class scores',
+          },
+          transferLearningReview: {
+            title: 'Transfer-learning review: freeze the backbone and replace the head',
+          },
+        },
+      },
+      attentionTransformer: {
+        title: 'Attention and Transformer Primer',
+        kicker: 'Transformer Primer',
+        intro:
+          'Connect tokens, embeddings, Q/K/V, attention scores, softmax, multi-head attention, positional encoding, and residual/norm into one Transformer block.',
+        summary:
+          'Build computable Transformer intuition with a 4-token attention matrix, [B,T,H] to [B,heads,T,d_head] shape splits, and the full block flow.',
+        sections: {
+          tokensEmbeddings: {
+            title: 'Tokens and embeddings: from text to [B,T,H]',
+          },
+          qkvScores: {
+            title: 'Q/K/V and score matrix: who attends to whom',
+          },
+          softmaxWeightedSum: {
+            title: 'Softmax and value weighted sum: each query allocates attention',
+          },
+          multiHeadShapes: {
+            title: 'Multi-head shape: split H into several subspaces',
+          },
+          transformerBlock: {
+            title: 'Transformer block: attention, residual, norm, and FFN',
+          },
+          architectureToTools: {
+            title: 'From architecture to tooling: tokenizer, mask, and logits',
+          },
+        },
+      },
+      optimizerComparison: {
+        title: 'Optimizer Comparison',
+        kicker: 'Optimizer Clinic',
+        intro:
+          'Extend gradient-descent intuition by comparing SGD, Momentum, RMSProp, AdamW, weight decay, learning-rate schedules, and batch size.',
+        summary:
+          'Use one training loop and curve-diagnosis method to explain why optimizers affect descent speed, oscillation, stability, generalization, and next-step tuning.',
+        sections: {
+          trainingLoop: {
+            title: 'Training loop: forward, loss, backward, step',
+          },
+          sgdBatchNoise: {
+            title: 'SGD and batch size: how noisy gradients change curves',
+          },
+          momentumRmsprop: {
+            title: 'Momentum and RMSProp: damping and adaptive step size',
+          },
+          adamWeightDecay: {
+            title: 'AdamW and weight decay: robust start, not no-tuning',
+          },
+          learningRateSchedules: {
+            title: 'Learning-rate schedule: infer step plans from curves',
+          },
+          curveDiagnosis: {
+            title: 'Curve diagnosis: compare optimizers with controlled variables',
+          },
+        },
+      },
+      llmRag: {
+        title: 'LLM and RAG Basics',
+        kicker: 'LLM App Lab',
+        intro:
+          'Unpack modern LLM apps through tokenization, context window, embeddings, chunking, retrieval, prompt assembly, grounded answers, and evaluation.',
+        summary:
+          'Show that RAG does not make a model learn new knowledge; it organizes external material, retrieved passages, context, and auditable citations at answer time.',
+        sections: {
+          tokenizationContext: {
+            title: 'Tokenization and context window: budget context first',
+          },
+          embeddingsSimilarity: {
+            title: 'Embeddings and similarity: how query and chunks match',
+          },
+          chunkingRetrieval: {
+            title: 'Chunking and retrieval: size, overlap, top_k, and reranking',
+          },
+          promptAssembly: {
+            title: 'Prompt assembly: place material into auditable context',
+          },
+          ragEvaluation: {
+            title: 'RAG evaluation: locate retrieval, prompt, and generation failures',
+          },
+          ragIsNotTraining: {
+            title: 'RAG is not training: provide external context at answer time',
           },
         },
       },

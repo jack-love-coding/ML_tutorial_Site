@@ -64,7 +64,25 @@ const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
 const isAiOverviewPage = computed(() => slug.value === 'ai-overview')
 const isPythonNotebookPage = computed(() => slug.value === 'python-notebook')
 const isHousingProjectPage = computed(() => slug.value === 'housing-price-project')
-const isWorkflowLessonPage = computed(() => isPythonNotebookPage.value || isHousingProjectPage.value)
+const isClassificationProjectPage = computed(() => slug.value === 'classification-project')
+const isModelSelectionPage = computed(() => slug.value === 'model-selection')
+const isTreeForestPage = computed(() => slug.value === 'tree-forest')
+const isCnnVisualizationPage = computed(() => slug.value === 'cnn-visualization')
+const isAttentionTransformerPage = computed(() => slug.value === 'attention-transformer')
+const isOptimizerComparisonPage = computed(() => slug.value === 'optimizer-comparison')
+const isLlmRagPage = computed(() => slug.value === 'llm-rag')
+const isWorkflowLessonPage = computed(
+  () =>
+    isPythonNotebookPage.value ||
+    isHousingProjectPage.value ||
+    isClassificationProjectPage.value ||
+    isModelSelectionPage.value ||
+    isTreeForestPage.value ||
+    isCnnVisualizationPage.value ||
+    isAttentionTransformerPage.value ||
+    isOptimizerComparisonPage.value ||
+    isLlmRagPage.value,
+)
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
 const isClassificationPage = computed(() => slug.value === 'classification')

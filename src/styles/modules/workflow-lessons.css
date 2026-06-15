@@ -104,6 +104,34 @@
   background: linear-gradient(135deg, #fff7ed, #f8fafc);
 }
 
+.workflow-lab__focus--classification {
+  background: linear-gradient(135deg, #ecfdf5, #f8fafc);
+}
+
+.workflow-lab__focus--model-selection {
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+}
+
+.workflow-lab__focus--tree-forest {
+  background: linear-gradient(135deg, #f7fee7, #f8fafc);
+}
+
+.workflow-lab__focus--cnn {
+  background: linear-gradient(135deg, #eff6ff, #f8fafc);
+}
+
+.workflow-lab__focus--attention {
+  background: linear-gradient(135deg, #fdf4ff, #f8fafc);
+}
+
+.workflow-lab__focus--optimizer {
+  background: linear-gradient(135deg, #fff7ed, #f8fafc);
+}
+
+.workflow-lab__focus--rag {
+  background: linear-gradient(135deg, #f0fdfa, #f8fafc);
+}
+
 .workflow-lab__focus strong {
   display: block;
   margin-top: 0.35rem;

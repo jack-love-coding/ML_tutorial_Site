@@ -134,6 +134,244 @@ export const algorithmCheckpointsBySlug: Record<ModuleSlug, AlgorithmCheckpointI
       'evaluation',
     ),
   ],
+  'classification-project': [
+    checkpoint(
+      'classification-project-vectorizer-leakage',
+      copy('垃圾邮件项目中，为什么 TfidfVectorizer 应该放进 Pipeline？', 'In the spam project, why should TfidfVectorizer live inside a Pipeline?'),
+      [
+        choice('fit-train-only', '因为词表和 IDF 权重只能从训练数据学习，交叉验证时每一折也要保持隔离。', 'Because vocabulary and IDF weights should be learned from training data only, including inside each cross-validation fold.'),
+        choice('make-dense', '因为 Pipeline 会自动把稀疏矩阵变成密集矩阵，所以模型一定更准。', 'Because Pipeline automatically turns sparse matrices dense, so the model is always more accurate.'),
+        choice('skip-split', '因为用了 Pipeline 就不需要 train_test_split。', 'Because Pipeline removes the need for train_test_split.'),
+      ],
+      'fit-train-only',
+      copy(
+        '文本向量化也会学习数据规则。若在全体数据上先 fit 词表或 IDF，再切分，就让测试集词分布进入训练流程。Pipeline 能把向量化和分类器绑在一起，帮助交叉验证和调参时保持训练/测试隔离。',
+        'Text vectorization learns rules from data. If vocabulary or IDF is fit on all data before splitting, test word distribution enters training. A Pipeline binds vectorization and classifier so cross-validation and tuning preserve train/test separation.',
+      ),
+      ['text-vectorizer-leakage'],
+      'text-to-features',
+    ),
+    checkpoint(
+      'classification-project-threshold-cost',
+      copy('如果业务更怕漏掉真正的 spam，通常应该如何调整阈值？', 'If the business fears missed spam more, how should the threshold usually move?'),
+      [
+        choice('lower-threshold', '降低正类阈值，抓住更多 spam，但接受更多误拦风险。', 'Lower the positive threshold to catch more spam while accepting more false-block risk.'),
+        choice('raise-threshold', '提高正类阈值，这一定会同时提升 precision 和 recall。', 'Raise the positive threshold; this must improve both precision and recall.'),
+        choice('ignore-threshold', '阈值不会影响预测类别，只会影响训练速度。', 'Threshold does not affect predicted labels; it only affects training speed.'),
+      ],
+      'lower-threshold',
+      copy(
+        '阈值把概率改写成类别。降低阈值通常会扩大预测正类范围，提高 recall，但可能带来更多 false positives。这个取舍要由错误成本决定，而不是由 accuracy 单独决定。',
+        'The threshold turns probability into class decisions. Lowering it usually expands predicted positives and raises recall, but can add false positives. Error cost, not accuracy alone, should drive the tradeoff.',
+      ),
+      ['threshold-cost-confusion'],
+      'scores-thresholds',
+    ),
+  ],
+  'model-selection': [
+    checkpoint(
+      'model-selection-test-peeking',
+      copy('比较 8 组超参数时，为什么不应该反复在 test set 上挑最高分？', 'When comparing 8 hyperparameter settings, why should you not repeatedly choose by test-set score?'),
+      [
+        choice('test-becomes-validation', 'test set 会变成选择反馈，最终分数不再是诚实的泛化估计。', 'The test set becomes selection feedback, so the final score is no longer an honest generalization estimate.'),
+        choice('test-has-no-labels', '因为 test set 永远不能有标签。', 'Because a test set can never have labels.'),
+        choice('cv-unneeded', '因为只要用了 GridSearchCV，就完全不需要保留 test set。', 'Because once GridSearchCV is used, no test set is needed at all.'),
+      ],
+      'test-becomes-validation',
+      copy(
+        'validation 或 CV 用来选择方案；test set 用来在选择结束后估计一次。如果你反复用 test 分数挑参数，它就参与了决策，最后分数会偏向这套 test set。',
+        'Validation or CV is for choosing a workflow; the test set estimates once after selection ends. If you repeatedly choose parameters by test score, test data joins the decision process and the final score is biased toward that test set.',
+      ),
+      ['test-set-peeking'],
+      'validation-role',
+    ),
+    checkpoint(
+      'model-selection-pipeline-cv',
+      copy('做 cross-validation 时，为什么 StandardScaler 应该放进 Pipeline？', 'During cross-validation, why should StandardScaler be inside a Pipeline?'),
+      [
+        choice('fold-isolation', '因为每一折的 scaler 只能从训练折 fit，验证折只能 transform。', 'Because each fold should fit the scaler on training folds only, while the validation fold is transformed only.'),
+        choice('same-score', '因为放不放 Pipeline 分数永远完全相同。', 'Because scores are always exactly identical with or without Pipeline.'),
+        choice('skip-cv', '因为 Pipeline 会自动替代 cross_val_score。', 'Because Pipeline automatically replaces cross_val_score.'),
+      ],
+      'fold-isolation',
+      copy(
+        'Scaler 会学习均值和方差。如果先在全体开发集上 fit，再做 CV，每一轮验证折的信息都已经进入预处理。Pipeline 让 scaler 和模型在每一折内部重新 fit，减少泄漏。',
+        'A scaler learns means and variances. If it is fit on the full development set before CV, every validation fold has already influenced preprocessing. Pipeline refits scaler and model inside each fold, reducing leakage.',
+      ),
+      ['cv-preprocessing-leakage'],
+      'pipeline-leakage',
+    ),
+  ],
+  'tree-forest': [
+    checkpoint(
+      'tree-forest-depth-overfit',
+      copy('为什么一棵没有限制深度的决策树可能训练分数很高、验证分数却下降？', 'Why can an unlimited-depth decision tree score high on training but drop on validation?'),
+      [
+        choice('memorize-noise', '它可能把噪声和偶然样本切成很多小叶子，记住训练集细节。', 'It may carve noise and accidental samples into many tiny leaves, memorizing training details.'),
+        choice('needs-scaling', '因为树模型必须先做 StandardScaler，否则一定不能泛化。', 'Because tree models must use StandardScaler first or they cannot generalize.'),
+        choice('no-capacity', '因为树越深，模型容量越低。', 'Because deeper trees have lower model capacity.'),
+      ],
+      'memorize-noise',
+      copy(
+        '深树容量更高，训练集通常更容易拟合到很细。没有 max_depth、min_samples_leaf 或剪枝控制时，它可能追随噪声，导致验证表现不稳。',
+        'A deep tree has higher capacity and can fit training data very finely. Without max_depth, min_samples_leaf, or pruning control, it may follow noise and make validation performance unstable.',
+      ),
+      ['deep-tree-always-better'],
+      'depth-overfitting',
+    ),
+    checkpoint(
+      'tree-forest-importance-causality',
+      copy('随机森林显示 zipcode 很重要，最合理的解读是什么？', 'A random forest says zipcode is important. What is the safest interpretation?'),
+      [
+        choice('model-reliance', '模型经常依赖 zipcode 做 split，但这不证明 zipcode 本身造成目标变化。', 'The model often relies on zipcode for splits, but that does not prove zipcode itself causes target changes.'),
+        choice('direct-cause', 'zipcode 一定是目标变化的直接原因。', 'Zipcode must be the direct cause of target changes.'),
+        choice('ignore-errors', '只要 importance 高，就不需要看错误样本和领域知识。', 'If importance is high, there is no need to inspect errors or domain knowledge.'),
+      ],
+      'model-reliance',
+      copy(
+        'feature importance 是模型依赖线索，不是因果证据。zipcode 可能代理收入、地段、学校或采样方式；复盘时要结合错误样本、领域知识和更稳健的重要性检查。',
+        'Feature importance is evidence of model reliance, not causality. Zipcode may proxy for income, location, school quality, or sampling. Review it with error cases, domain knowledge, and more robust importance checks.',
+      ),
+      ['importance-equals-causality'],
+      'feature-importance',
+    ),
+  ],
+  'cnn-visualization': [
+    checkpoint(
+      'cnn-visualization-parameter-sharing',
+      copy('为什么 3×3 卷积通常比把整张图片接到全连接层更省参数？', 'Why does a 3×3 convolution usually use fewer parameters than connecting the whole image to a dense layer?'),
+      [
+        choice('shared-local-kernel', '卷积只看局部窗口，并在空间位置共享同一组 kernel 权重。', 'Convolution sees local windows and shares the same kernel weights across spatial positions.'),
+        choice('one-weight-per-pixel', '因为卷积会给每个像素位置单独学习一套完全不同的权重。', 'Because convolution learns a completely different weight set for every pixel position.'),
+        choice('no-parameters', '因为卷积层没有可训练参数。', 'Because convolution layers have no trainable parameters.'),
+      ],
+      'shared-local-kernel',
+      copy(
+        '卷积层的参数量来自 kernel size、输入 channel 和输出 filter 数，而不是每个空间位置都重新学权重。局部连接和参数共享是 CNN 省参数的核心。',
+        'A convolution layer parameter count comes from kernel size, input channels, and output filters, not from learning new weights at every spatial position. Local connectivity and weight sharing are the key.',
+      ),
+      ['cnn-parameter-sharing-confusion'],
+      'channels-feature-maps',
+    ),
+    checkpoint(
+      'cnn-visualization-shape',
+      copy('输入宽度 5、kernel size 3、padding 1、stride 1 时，输出宽度是多少？', 'With input width 5, kernel size 3, padding 1, and stride 1, what is the output width?'),
+      [
+        choice('five', '5，因为 (5 + 2×1 - 3) / 1 + 1 = 5。', '5, because (5 + 2×1 - 3) / 1 + 1 = 5.'),
+        choice('three', '3，因为 kernel 是 3，所以输出一定是 3。', '3, because the kernel is 3, so output must be 3.'),
+        choice('one', '1，因为卷积会把整张图压成一个数。', '1, because convolution compresses the whole image into one number.'),
+      ],
+      'five',
+      copy(
+        '常见输出尺寸公式是 floor((in + 2p - k) / s) + 1。这里 padding 保留了边缘，所以空间宽度保持为 5。',
+        'The common output-size formula is floor((in + 2p - k) / s) + 1. Here padding preserves the border, so spatial width remains 5.',
+      ),
+      ['cnn-shape-formula-confusion'],
+      'padding-stride-shape',
+    ),
+  ],
+  'attention-transformer': [
+    checkpoint(
+      'attention-transformer-softmax-dimension',
+      copy('自注意力的 score matrix 中，softmax 通常沿哪个方向做？', 'In a self-attention score matrix, along which direction is softmax usually applied?'),
+      [
+        choice('per-query-row', '每个 query 的一行，对所有 key 分配注意力权重。', 'Across each query row, allocating attention weights over all keys.'),
+        choice('whole-matrix', '整个矩阵一次性 softmax，让所有格子总和为 1。', 'Over the whole matrix at once, making all cells sum to 1.'),
+        choice('value-dimension', '只对 V 的 channel 做 softmax，和 Q/K score 无关。', 'Only over V channels, unrelated to Q/K scores.'),
+      ],
+      'per-query-row',
+      copy(
+        '每个 query 都有自己的注意力预算，所以通常对 score matrix 的最后一个维度做 softmax，也就是每一行在所有 key 上归一化。',
+        'Each query has its own attention budget, so softmax is usually applied over the last dimension of the score matrix, normalizing each row over all keys.',
+      ),
+      ['attention-softmax-axis-confusion'],
+      'softmax-weighted-sum',
+    ),
+    checkpoint(
+      'attention-transformer-qkv-role',
+      copy('Q/K/V 中，哪一部分最终被 attention 权重加权求和？', 'In Q/K/V attention, which part is finally combined by the attention weights?'),
+      [
+        choice('value', 'Value，Q/K 用来算相关性分数，权重最后乘到 V 上。', 'Value: Q/K compute relevance scores, and the weights are applied to V.'),
+        choice('query', 'Query，因为 query 表示当前 token，所以输出只能来自 Q。', 'Query, because it represents the current token, so output must come only from Q.'),
+        choice('key', 'Key，因为 key 被匹配，所以 key 就是最终答案。', 'Key, because keys are matched, so keys are the final answer.'),
+      ],
+      'value',
+      copy(
+        'Q 和 K 的点积产生 score，softmax 产生权重；这些权重用于加权求和 V，得到每个 token 的新表示。',
+        'Q and K dot products create scores, softmax creates weights, and those weights combine V to produce the new representation for each token.',
+      ),
+      ['qkv-role-confusion'],
+      'qkv-scores',
+    ),
+  ],
+  'optimizer-comparison': [
+    checkpoint(
+      'optimizer-comparison-loop-order',
+      copy('PyTorch 训练循环里，下面哪个顺序最合理？', 'In a PyTorch training loop, which order is most reasonable?'),
+      [
+        choice('zero-backward-step', 'optimizer.zero_grad() -> loss.backward() -> optimizer.step()。', 'optimizer.zero_grad() -> loss.backward() -> optimizer.step().'),
+        choice('step-before-backward', 'optimizer.step() -> loss.backward() -> optimizer.zero_grad()。', 'optimizer.step() -> loss.backward() -> optimizer.zero_grad().'),
+        choice('backward-never-clear', 'loss.backward() 之后永远不用清梯度。', 'After loss.backward(), gradients never need clearing.'),
+      ],
+      'zero-backward-step',
+      copy(
+        '先清掉上一轮累计梯度，再用 backward 写入当前梯度，最后 optimizer.step() 根据当前梯度和内部状态更新参数。',
+        'Clear accumulated gradients first, use backward to write current gradients, then optimizer.step() updates parameters from current gradients and internal state.',
+      ),
+      ['optimizer-loop-order-confusion'],
+      'training-loop',
+    ),
+    checkpoint(
+      'optimizer-comparison-learning-rate',
+      copy('如果 loss 曲线反复跳高、震荡甚至出现 NaN，最先怀疑哪个旋钮？', 'If the loss curve repeatedly spikes, oscillates, or becomes NaN, which knob should you suspect first?'),
+      [
+        choice('lr-too-large', 'learning rate 可能太大，步子跨过了稳定下降区域。', 'The learning rate may be too large, stepping past the stable descent region.'),
+        choice('batch-always-zero', 'batch size 必须设为 0，才能稳定。', 'Batch size must be 0 to become stable.'),
+        choice('more-epochs-only', '只要增加 epochs，一定能解决震荡。', 'Adding more epochs always fixes oscillation.'),
+      ],
+      'lr-too-large',
+      copy(
+        '震荡、跳高或 NaN 常见于学习率过大或数值不稳定。下一步通常是降低 lr、检查梯度爆炸，再考虑 schedule 或 optimizer。',
+        'Oscillation, spikes, or NaN often point to too high a learning rate or numerical instability. The next step is usually reducing lr, checking exploding gradients, then considering schedule or optimizer changes.',
+      ),
+      ['learning-rate-diagnosis-confusion'],
+      'learning-rate-schedules',
+    ),
+  ],
+  'llm-rag': [
+    checkpoint(
+      'llm-rag-not-training',
+      copy('为什么说 RAG 通常不等于让模型“学会”新知识？', 'Why is RAG usually not the same as making the model learn new knowledge?'),
+      [
+        choice('context-at-answer-time', 'RAG 在回答时检索并提供外部上下文，通常不改变模型参数。', 'RAG retrieves and provides external context at answer time and usually does not change model parameters.'),
+        choice('changes-weights', 'RAG 每次问答都会重新训练模型权重。', 'RAG retrains model weights on every question.'),
+        choice('no-documents', 'RAG 不需要任何外部文档，只靠 prompt。', 'RAG needs no external documents and only uses prompts.'),
+      ],
+      'context-at-answer-time',
+      copy(
+        'RAG 的核心是 retrieval + context assembly + generation。它把相关资料放进上下文，让回答有依据；这和 fine-tuning 改变参数是不同机制。',
+        'RAG is retrieval + context assembly + generation. It places relevant material into context so the answer can be grounded; this differs from fine-tuning, which changes parameters.',
+      ),
+      ['rag-equals-finetuning'],
+      'rag-is-not-training',
+    ),
+    checkpoint(
+      'llm-rag-failure-source',
+      copy('如果正确资料没有被召回，回答缺事实，最可能先排查哪一层？', 'If the correct material was not retrieved and the answer lacks facts, which layer should you inspect first?'),
+      [
+        choice('retrieval', 'retrieval：chunking、embedding、top_k 或 reranking 可能有问题。', 'retrieval: chunking, embedding, top_k, or reranking may be wrong.'),
+        choice('style-only', '只改回答语气，因为事实一定已经在上下文里。', 'Only change response style because the facts must already be in context.'),
+        choice('metric-only', '只换最终评分表，不需要看检索片段。', 'Only change the final scoring sheet and do not inspect retrieved passages.'),
+      ],
+      'retrieval',
+      copy(
+        '如果关键资料没有进 context，生成模型再强也很难 grounded。先检查 chunk size、overlap、embedding、top_k 和 reranking，再改 prompt。',
+        'If key material never enters context, even a strong generator cannot answer groundedly. Inspect chunk size, overlap, embeddings, top_k, and reranking before changing the prompt.',
+      ),
+      ['rag-failure-misdiagnosis'],
+      'chunking-retrieval',
+    ),
+  ],
   'loss-functions': [
     checkpoint(
       'loss-error-rule',
