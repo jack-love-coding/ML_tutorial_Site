@@ -23,9 +23,26 @@ This note tracks the local Tiny VGG assets used by the `cnn-visualization` modul
 The class labels used in `src/utils/cnnExplainer.ts` follow the upstream `src/config.js` class list:
 `lifeboat`, `ladybug`, `pizza`, `bell pepper`, `school bus`, `koala`, `espresso`, `red panda`, `orange`, `sport car`.
 
+## Local Demo Images
+
+The lesson ships with project-local PNG demo images in `public/cnn-explainer/samples/` so an instructor can run the browser-side forward pass without first uploading a file:
+
+- `lifeboat.png`
+- `ladybug.png`
+- `pizza.png`
+- `bell-pepper.png`
+- `school-bus.png`
+- `koala.png`
+- `espresso.png`
+- `red-panda.png`
+- `orange.png`
+- `sport-car.png`
+
+These images were generated for this repository with Codex's built-in `imagegen` workflow. The prompts requested photorealistic, square, classroom-safe demo objects with no text, logo, watermark, cartoon styling, illustration styling, or SVG/vector look. They are not copied from Tiny ImageNet or from the upstream CNN Explainer sample set.
+
 ## Import Boundaries
 
 - The Vue implementation does not copy the upstream Svelte UI. It recreates the overview/detail teaching pattern with project-local Vue, TypeScript, D3/SVG, and existing ML Atlas styles.
-- Upstream sample JPEG images were not migrated because their Tiny ImageNet image licensing is not tracked in this repository. The lesson uses a generated local demo image plus user-uploaded local images instead.
+- Upstream sample JPEG images were not migrated because their Tiny ImageNet image licensing is not tracked in this repository. The lesson uses local project-generated PNG samples plus user-uploaded local images instead.
 - Runtime model paths use project-local public URLs and should be passed through `withPublicBase` so GitHub Pages builds load from `/ML_tutorial_Site/cnn-explainer/tiny-vgg/`.
 - If the model assets are updated, update this file, `docs/ml-atlas-references.md`, and the CNN utility tests in the same change.

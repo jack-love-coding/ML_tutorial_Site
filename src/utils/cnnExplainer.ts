@@ -88,6 +88,83 @@ export interface SoftmaxScoreSummary {
   probabilities: number[]
 }
 
+export interface CnnHyperparameterSettings {
+  inputSize: number
+  kernelSize: number
+  stride: number
+  padding: number
+  selectedRow?: number
+  selectedCol?: number
+}
+
+export interface CnnHyperparameterCell {
+  id: string
+  row: number
+  col: number
+  label: string
+  isPadding: boolean
+  isKernel: boolean
+  isSelected: boolean
+}
+
+export interface CnnHyperparameterSnapshot {
+  inputSize: number
+  paddedSize: number
+  kernelSize: number
+  stride: number
+  padding: number
+  numerator: number
+  outputSize: number
+  strideFits: boolean
+  selectedRow: number
+  selectedCol: number
+  selectedStartRow: number
+  selectedStartCol: number
+  inputCells: CnnHyperparameterCell[]
+  kernelCells: CnnHyperparameterCell[]
+  outputCells: CnnHyperparameterCell[]
+}
+
+export interface CnnReceptiveFieldBounds {
+  rowStart: number
+  rowEnd: number
+  colStart: number
+  colEnd: number
+  rowSpan: number
+  colSpan: number
+}
+
+export interface CnnReceptiveFieldSnapshot {
+  layerName: string
+  layerKind: CnnLayerKind
+  nodeIndex: number
+  row: number
+  col: number
+  inputRows: number
+  inputCols: number
+  bounds: CnnReceptiveFieldBounds
+  channels: number[]
+  sourceCellCount: number
+  selectedDenseSourceIndex?: number
+  sourceVectorIndex?: number
+  sourceMapIndex?: number
+  sourceRow?: number
+  sourceCol?: number
+}
+
+interface ReceptiveFieldAccumulator {
+  rowStart: number
+  rowEnd: number
+  colStart: number
+  colEnd: number
+  channels: Set<number>
+  sourceCells: Set<string>
+}
+
+export interface CnnReceptiveFieldOptions {
+  denseSourceIndex?: number
+}
+
 type TensorflowModule = typeof import('@tensorflow/tfjs')
 
 const tinyVggModelPath = '/cnn-explainer/tiny-vgg/model.json'
@@ -205,6 +282,243 @@ export function summarizeLayerShape(layer: Pick<CnnLayerSnapshot, 'kind' | 'outp
   const parameterText = layer.parameterCount > 0 ? `${layer.parameterCount} params` : '0 params'
 
   return `${layer.kind}: ${shapeText}, ${layer.nodes.length} nodes, ${parameterText}`
+}
+
+export function calculateCnnOutputSize(inputSize: number, kernelSize: number, stride: number, padding: number) {
+  const paddedSize = inputSize + 2 * padding
+  const numerator = paddedSize - kernelSize
+  if (numerator < 0) return 0
+  return Math.floor(numerator / Math.max(1, stride)) + 1
+}
+
+export function buildCnnHyperparameterSnapshot(settings: CnnHyperparameterSettings): CnnHyperparameterSnapshot {
+  const inputSize = clampInteger(settings.inputSize, 1, 99)
+  const padding = clampInteger(settings.padding, 0, 20)
+  const paddedSize = inputSize + 2 * padding
+  const kernelSize = clampInteger(settings.kernelSize, 1, Math.max(1, paddedSize))
+  const stride = clampInteger(settings.stride, 1, Math.max(1, paddedSize - kernelSize + 1))
+  const numerator = paddedSize - kernelSize
+  const outputSize = calculateCnnOutputSize(inputSize, kernelSize, stride, padding)
+  const strideFits = numerator >= 0 && numerator % stride === 0
+  const selectedRow = clampInteger(settings.selectedRow ?? 0, 0, Math.max(0, outputSize - 1))
+  const selectedCol = clampInteger(settings.selectedCol ?? 0, 0, Math.max(0, outputSize - 1))
+  const selectedStartRow = selectedRow * stride
+  const selectedStartCol = selectedCol * stride
+
+  return {
+    inputSize,
+    paddedSize,
+    kernelSize,
+    stride,
+    padding,
+    numerator,
+    outputSize,
+    strideFits,
+    selectedRow,
+    selectedCol,
+    selectedStartRow,
+    selectedStartCol,
+    inputCells: buildHyperparameterCells(paddedSize, padding, inputSize, selectedStartRow, selectedStartCol, kernelSize, 'input'),
+    kernelCells: buildHyperparameterCells(kernelSize, 0, kernelSize, 0, 0, kernelSize, 'kernel'),
+    outputCells: buildHyperparameterCells(outputSize, 0, outputSize, selectedRow, selectedCol, 1, 'output'),
+  }
+}
+
+export function calculateReceptiveField(
+  layers: CnnLayerSnapshot[],
+  layerIndex: number,
+  nodeIndex: number,
+  row = 0,
+  col = 0,
+  options: CnnReceptiveFieldOptions = {},
+): CnnReceptiveFieldSnapshot | undefined {
+  const layer = layers[layerIndex]
+  const node = layer?.nodes[nodeIndex]
+  const inputLayer = layers[0]
+  if (!layer || !node || !inputLayer) return undefined
+
+  const inputRows = inputLayer.outputShape[0] ?? 64
+  const inputCols = inputLayer.outputShape[1] ?? 64
+  const boundedRow = clampInteger(row, 0, Math.max(0, (layer.outputShape[0] ?? 1) - 1))
+  const boundedCol = clampInteger(col, 0, Math.max(0, (layer.outputShape[1] ?? 1) - 1))
+  const memo = new Map<string, ReceptiveFieldAccumulator>()
+  const field = traceReceptiveField(layers, layerIndex, nodeIndex, boundedRow, boundedCol, options, memo)
+  if (!field) return undefined
+
+  const boundedField = boundReceptiveField(field, inputRows, inputCols)
+  const denseSourceIndex = layer.kind === 'dense'
+    ? options.denseSourceIndex ?? strongestDenseInputIndex(node, layers)
+    : undefined
+  const denseSourceLink = denseSourceIndex !== undefined
+    ? node.inputLinks.find((link) => link.sourceNodeIndex === denseSourceIndex)
+    : undefined
+  const denseSourceNode = denseSourceLink
+    ? layers[denseSourceLink.sourceLayerIndex]?.nodes.find((sourceNode) => sourceNode.index === denseSourceLink.sourceNodeIndex)
+    : undefined
+  const flattenSourceLink = layer.kind === 'flatten' ? node.inputLinks[0] : denseSourceNode?.inputLinks[0]
+
+  return {
+    layerName: layer.name,
+    layerKind: layer.kind,
+    nodeIndex,
+    row: boundedRow,
+    col: boundedCol,
+    inputRows,
+    inputCols,
+    bounds: boundedField,
+    channels: [...field.channels].sort((left, right) => left - right),
+    sourceCellCount: field.sourceCells.size,
+    selectedDenseSourceIndex: denseSourceIndex,
+    sourceVectorIndex: layer.kind === 'flatten' ? node.realIndex ?? node.index : denseSourceIndex,
+    sourceMapIndex: flattenSourceLink?.sourceNodeIndex,
+    sourceRow: flattenSourceLink?.sourcePosition?.row,
+    sourceCol: flattenSourceLink?.sourcePosition?.col,
+  }
+}
+
+function traceReceptiveField(
+  layers: CnnLayerSnapshot[],
+  layerIndex: number,
+  nodeIndex: number,
+  row: number,
+  col: number,
+  options: CnnReceptiveFieldOptions,
+  memo: Map<string, ReceptiveFieldAccumulator>,
+): ReceptiveFieldAccumulator | undefined {
+  const layer = layers[layerIndex]
+  const node = layer?.nodes.find((item) => item.index === nodeIndex)
+  if (!layer || !node) return undefined
+
+  const memoKey = `${layerIndex}:${nodeIndex}:${row}:${col}:${options.denseSourceIndex ?? 'auto'}`
+  const cached = memo.get(memoKey)
+  if (cached) return cloneReceptiveField(cached)
+
+  let field: ReceptiveFieldAccumulator | undefined
+
+  if (layer.kind === 'input') {
+    field = createInputReceptiveField(node.index, row, col)
+  } else if (layer.kind === 'conv') {
+    const fields: ReceptiveFieldAccumulator[] = []
+    for (const link of node.inputLinks) {
+      const kernel = isMatrix(link.weight) ? link.weight : [[0]]
+      const kernelRows = Math.max(1, kernel.length)
+      const kernelCols = Math.max(1, kernel[0]?.length ?? kernelRows)
+      for (let rowOffset = 0; rowOffset < kernelRows; rowOffset += 1) {
+        for (let colOffset = 0; colOffset < kernelCols; colOffset += 1) {
+          const sourceField = traceReceptiveField(layers, link.sourceLayerIndex, link.sourceNodeIndex, row + rowOffset, col + colOffset, options, memo)
+          if (sourceField) fields.push(sourceField)
+        }
+      }
+    }
+    field = mergeReceptiveFields(fields)
+  } else if (layer.kind === 'relu') {
+    const link = node.inputLinks[0]
+    field = link ? traceReceptiveField(layers, link.sourceLayerIndex, link.sourceNodeIndex, row, col, options, memo) : undefined
+  } else if (layer.kind === 'pool') {
+    const link = node.inputLinks[0]
+    const fields: ReceptiveFieldAccumulator[] = []
+    if (link) {
+      const stride = 2
+      const poolSize = 2
+      const sourceRow = row * stride
+      const sourceCol = col * stride
+      for (let rowOffset = 0; rowOffset < poolSize; rowOffset += 1) {
+        for (let colOffset = 0; colOffset < poolSize; colOffset += 1) {
+          const sourceField = traceReceptiveField(layers, link.sourceLayerIndex, link.sourceNodeIndex, sourceRow + rowOffset, sourceCol + colOffset, options, memo)
+          if (sourceField) fields.push(sourceField)
+        }
+      }
+    }
+    field = mergeReceptiveFields(fields)
+  } else if (layer.kind === 'flatten') {
+    const link = node.inputLinks[0]
+    const position = link?.sourcePosition ?? { row: 0, col: 0 }
+    field = link ? traceReceptiveField(layers, link.sourceLayerIndex, link.sourceNodeIndex, position.row, position.col, options, memo) : undefined
+  } else if (layer.kind === 'dense') {
+    const sourceIndex = options.denseSourceIndex ?? strongestDenseInputIndex(node, layers)
+    const link = sourceIndex !== undefined
+      ? node.inputLinks.find((inputLink) => inputLink.sourceNodeIndex === sourceIndex)
+      : node.inputLinks[0]
+    field = link ? traceReceptiveField(layers, link.sourceLayerIndex, link.sourceNodeIndex, 0, 0, options, memo) : undefined
+  }
+
+  if (!field) return undefined
+  memo.set(memoKey, cloneReceptiveField(field))
+  return field
+}
+
+function createInputReceptiveField(channel: number, row: number, col: number): ReceptiveFieldAccumulator {
+  const sourceCellKey = `${channel}:${row}:${col}`
+  return {
+    rowStart: row,
+    rowEnd: row + 1,
+    colStart: col,
+    colEnd: col + 1,
+    channels: new Set([channel]),
+    sourceCells: new Set([sourceCellKey]),
+  }
+}
+
+function mergeReceptiveFields(fields: ReceptiveFieldAccumulator[]) {
+  if (!fields.length) return undefined
+  const merged: ReceptiveFieldAccumulator = {
+    rowStart: Number.POSITIVE_INFINITY,
+    rowEnd: Number.NEGATIVE_INFINITY,
+    colStart: Number.POSITIVE_INFINITY,
+    colEnd: Number.NEGATIVE_INFINITY,
+    channels: new Set<number>(),
+    sourceCells: new Set<string>(),
+  }
+
+  for (const field of fields) {
+    merged.rowStart = Math.min(merged.rowStart, field.rowStart)
+    merged.rowEnd = Math.max(merged.rowEnd, field.rowEnd)
+    merged.colStart = Math.min(merged.colStart, field.colStart)
+    merged.colEnd = Math.max(merged.colEnd, field.colEnd)
+    for (const channel of field.channels) merged.channels.add(channel)
+    for (const sourceCell of field.sourceCells) merged.sourceCells.add(sourceCell)
+  }
+
+  return merged
+}
+
+function cloneReceptiveField(field: ReceptiveFieldAccumulator): ReceptiveFieldAccumulator {
+  return {
+    rowStart: field.rowStart,
+    rowEnd: field.rowEnd,
+    colStart: field.colStart,
+    colEnd: field.colEnd,
+    channels: new Set(field.channels),
+    sourceCells: new Set(field.sourceCells),
+  }
+}
+
+function boundReceptiveField(field: ReceptiveFieldAccumulator, inputRows: number, inputCols: number): CnnReceptiveFieldBounds {
+  const rowStart = clampInteger(field.rowStart, 0, Math.max(0, inputRows - 1))
+  const colStart = clampInteger(field.colStart, 0, Math.max(0, inputCols - 1))
+  const rowEnd = clampInteger(field.rowEnd, rowStart + 1, inputRows)
+  const colEnd = clampInteger(field.colEnd, colStart + 1, inputCols)
+  return {
+    rowStart,
+    rowEnd,
+    colStart,
+    colEnd,
+    rowSpan: Math.max(1, rowEnd - rowStart),
+    colSpan: Math.max(1, colEnd - colStart),
+  }
+}
+
+function strongestDenseInputIndex(node: CnnNodeSnapshot, layers: CnnLayerSnapshot[]) {
+  if (node.kind !== 'dense' || !node.inputLinks.length) return undefined
+  return [...node.inputLinks]
+    .sort((left, right) => denseLinkMagnitude(right, layers) - denseLinkMagnitude(left, layers))[0]?.sourceNodeIndex
+}
+
+function denseLinkMagnitude(link: CnnLinkSnapshot, layers: CnnLayerSnapshot[]) {
+  const sourceNode = layers[link.sourceLayerIndex]?.nodes.find((node) => node.index === link.sourceNodeIndex)
+  const activation = Math.abs(numberOutput(sourceNode?.output ?? 0))
+  const weight = typeof link.weight === 'number' ? Math.abs(link.weight) : 1
+  return activation * weight
 }
 
 export function buildCnnOperationDetail(layers: CnnLayerSnapshot[], layerIndex: number, nodeIndex: number, row = 0, col = 0): CnnOperationDetail | undefined {
@@ -395,7 +709,6 @@ function buildLayerSnapshot(modelLayer: tf.layers.Layer, kind: CnnLayerKind, out
   const name = modelLayer.name
   const weights = modelLayer.getWeights()
   const nodes = buildNodesForLayer(modelLayer, kind, output, previousLayer, layerIndex, weights)
-  for (const tensor of weights) tensor.dispose()
   const layer: CnnLayerSnapshot = {
     id: name,
     name,
@@ -565,6 +878,41 @@ function mapWidth(output: number | number[][] | undefined) {
 
 function isMatrix(value: unknown): value is number[][] {
   return Array.isArray(value) && Array.isArray(value[0])
+}
+
+function clampInteger(value: number, min: number, max: number) {
+  if (!Number.isFinite(value)) return min
+  return Math.min(Math.max(Math.round(value), min), Math.max(min, max))
+}
+
+function buildHyperparameterCells(
+  size: number,
+  padding: number,
+  inputSize: number,
+  kernelStartRow: number,
+  kernelStartCol: number,
+  kernelSize: number,
+  kind: 'input' | 'kernel' | 'output',
+): CnnHyperparameterCell[] {
+  const cells: CnnHyperparameterCell[] = []
+  for (let row = 0; row < size; row += 1) {
+    for (let col = 0; col < size; col += 1) {
+      const isPadding = kind === 'input' && (row < padding || col < padding || row >= padding + inputSize || col >= padding + inputSize)
+      const isKernel = row >= kernelStartRow && row < kernelStartRow + kernelSize && col >= kernelStartCol && col < kernelStartCol + kernelSize
+      const isSelected = kind === 'output' ? row === kernelStartRow && col === kernelStartCol : isKernel
+      const label = kind === 'kernel' ? 'w' : isPadding ? '0' : kind === 'output' ? `${row},${col}` : 'x'
+      cells.push({
+        id: `${kind}-${row}-${col}`,
+        row,
+        col,
+        label,
+        isPadding,
+        isKernel,
+        isSelected,
+      })
+    }
+  }
+  return cells
 }
 
 function inputNodeFor(node: CnnNodeSnapshot, layers: CnnLayerSnapshot[]) {
