@@ -40,6 +40,7 @@ interface CnnSampleClassCard extends CnnSampleImage {
   probability: number
   probabilityLabel: string
   isSelected: boolean
+  isPending: boolean
   isTopPrediction: boolean
   isExpectedPrediction: boolean
 }
@@ -616,6 +617,7 @@ const selectedRow = ref(0)
 const selectedCol = ref(0)
 const selectedImageUrl = ref('')
 const selectedImageName = ref('')
+const pendingImageName = ref('')
 const userObjectUrl = ref<string | undefined>()
 const fileError = ref('')
 const isPlaying = ref(false)
@@ -646,6 +648,7 @@ const hyperOutputCol = ref(0)
 
 let playbackTimer: number | undefined
 let detailPlaybackTimer: number | undefined
+let inferenceRequestId = 0
 const overviewThumbnailCache = new Map<string, string>()
 const overviewCollapsedNodeCount = 10
 const overviewExpandedNodeCount = 18
@@ -956,6 +959,7 @@ const copy = computed(() =>
         predictedClass: '预测类别',
         samplePredictionMatch: '当前 top-1 与样例标签一致',
         samplePredictionMiss: '当前 top-1 与样例标签不一致',
+        sampleInferenceLoading: '正在推理',
         topClass: 'top-1',
         notTopClass: '非 top-1',
         reducedMotion: '系统开启 reduced motion，自动播放已关闭。',
@@ -1255,6 +1259,7 @@ const copy = computed(() =>
         predictedClass: 'Predicted class',
         samplePredictionMatch: 'The current top-1 matches this demo label',
         samplePredictionMiss: 'The current top-1 differs from this demo label',
+        sampleInferenceLoading: 'Running inference',
         topClass: 'top-1',
         notTopClass: 'not top-1',
         reducedMotion: 'Reduced motion is enabled, so autoplay is disabled.',
@@ -1435,6 +1440,7 @@ const sampleClassCards = computed<CnnSampleClassCard[]>(() =>
       probability,
       probabilityLabel: formatPercent(probability),
       isSelected: sample.label === selectedImageName.value,
+      isPending: sample.label === pendingImageName.value,
       isTopPrediction: sample.label === topPrediction.value?.label,
       isExpectedPrediction: sample.label === selectedSample.value?.label,
     }
@@ -3638,6 +3644,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  inferenceRequestId += 1
   stopPlayback()
   stopDetailPlayback()
   revokeUserObjectUrl()
@@ -3673,6 +3680,7 @@ watch([hyperInputSize, hyperPadding, hyperKernelSize, hyperStride, hyperOutputRo
 })
 
 async function runInference(imageUrl: string, imageName: string) {
+  const requestId = ++inferenceRequestId
   stopPlayback()
   stopDetailPlayback()
   isPlaying.value = false
@@ -3680,19 +3688,24 @@ async function runInference(imageUrl: string, imageName: string) {
   status.value = 'loading'
   statusMessage.value = ''
   fileError.value = ''
+  pendingImageName.value = imageName
   expandedOverviewLayerIndex.value = undefined
 
   try {
     const result = await runTinyVggForwardPass(imageUrl)
+    if (requestId !== inferenceRequestId) return
     overviewThumbnailCache.clear()
     layers.value = result.layers
     scores.value = result.scores
     topPrediction.value = result.topPrediction
     selectedImageUrl.value = imageUrl
     selectedImageName.value = imageName
+    pendingImageName.value = ''
     status.value = 'ready'
     selectLayer(preferredLayerIndexForSection(), preferredNodeIndexForSection())
   } catch (error) {
+    if (requestId !== inferenceRequestId) return
+    pendingImageName.value = ''
     status.value = 'error'
     statusMessage.value = error instanceof Error ? error.message : copy.value.fallback
   }
@@ -3797,6 +3810,15 @@ function focusSoftmaxClass(classIndex: number) {
   if (score) focusSoftmaxReadout(score, highlightedSoftmaxIndex.value)
 }
 
+function selectSoftmaxClass(classIndex: number) {
+  selectLayer(selectedLayerIndex.value, classIndex)
+  focusSoftmaxClass(classIndex)
+}
+
+function softmaxTermAriaLabel(score: CnnSoftmaxContributionRow) {
+  return `${score.label}: logit ${formatNumber(score.logit)}, ${copy.value.stabilizedExp} ${formatNumber(score.expScore)}, ${copy.value.denominatorShare} ${formatPercent(score.expShare)}, ${copy.value.probability} ${formatPercent(score.probability)}`
+}
+
 function focusSoftmaxCompetitionRow(row: CnnSoftmaxCompetitionRow) {
   highlightedSoftmaxIndex.value = row.classIndex
   setHoverReadout({
@@ -3809,7 +3831,7 @@ function focusSoftmaxCompetitionRow(row: CnnSoftmaxCompetitionRow) {
 }
 
 function selectSoftmaxCompetitionRow(row: CnnSoftmaxCompetitionRow) {
-  selectLayer(selectedLayerIndex.value, row.classIndex)
+  selectSoftmaxClass(row.classIndex)
   focusSoftmaxCompetitionRow(row)
 }
 
@@ -4734,10 +4756,30 @@ function selectSampleImage(sample: CnnSampleImage) {
 }
 
 function sampleClassAriaLabel(sample: CnnSampleClassCard) {
-  return `${copy.value.expectedClass} ${sample.label}, ${copy.value.probability} ${sample.probabilityLabel}, ${sample.isTopPrediction ? copy.value.topClass : copy.value.notTopClass}`
+  return `${copy.value.expectedClass} ${sample.label}, ${copy.value.probability} ${sample.probabilityLabel}, ${sample.isPending ? copy.value.sampleInferenceLoading : sample.isTopPrediction ? copy.value.topClass : copy.value.notTopClass}`
+}
+
+function scorePanelAriaLabel(score: CnnClassScore) {
+  return `${score.label}: ${copy.value.probability} ${formatPercent(score.probability)}, logit ${formatNumber(score.logit)}, ${score.id === topPrediction.value?.id ? copy.value.topClass : copy.value.notTopClass}`
 }
 
 function focusSampleClassCard(sample: CnnSampleClassCard) {
+  if (sample.isPending) {
+    setHoverReadout({
+      eyebrow: copy.value.classGallery,
+      title: `${sample.label} · ${copy.value.sampleInferenceLoading}`,
+      body: localized(
+        loc(
+          `正在对 ${sample.label} 做浏览器端前向传播；如果你继续点击别的样例，只有最后一次推理结果会更新页面。`,
+          `The browser is running a forward pass for ${sample.label}; if you click another demo image, only the latest inference result will update the page.`,
+        ),
+      ),
+      value: copy.value.loading,
+      tone: 'activation',
+    })
+    return
+  }
+
   setHoverReadout({
     eyebrow: copy.value.classGallery,
     title: `${sample.label} · ${sample.probabilityLabel}`,
@@ -6141,7 +6183,8 @@ function rangeFromValues(values: number[]): [number, number] {
               type="button"
               :title="sample.label"
               :aria-label="sampleClassAriaLabel(sample)"
-              :class="{ 'is-selected': sample.isSelected, 'is-top': sample.isTopPrediction, 'is-expected': sample.isExpectedPrediction }"
+              :disabled="sample.isPending"
+              :class="{ 'is-selected': sample.isSelected, 'is-pending': sample.isPending, 'is-top': sample.isTopPrediction, 'is-expected': sample.isExpectedPrediction }"
               @mouseenter="focusSampleClassCard(sample)"
               @mouseleave="clearHoverReadout"
               @focus="focusSampleClassCard(sample)"
@@ -6151,7 +6194,8 @@ function rangeFromValues(values: number[]): [number, number] {
               <img :src="sample.url" :alt="sample.label" loading="eager" decoding="async" />
               <span>{{ sample.label }}</span>
               <em>{{ sample.probabilityLabel }}</em>
-              <b v-if="sample.isTopPrediction">{{ copy.topClass }}</b>
+              <b v-if="sample.isPending">{{ copy.sampleInferenceLoading }}</b>
+              <b v-else-if="sample.isTopPrediction">{{ copy.topClass }}</b>
             </button>
           </div>
         </section>
@@ -6183,6 +6227,7 @@ function rangeFromValues(values: number[]): [number, number] {
             type="button"
             class="cnn-score-panel__row"
             :class="{ 'is-top': score.id === topPrediction?.id, 'is-softmax-highlighted': isScoreHighlighted(score) }"
+            :aria-label="scorePanelAriaLabel(score)"
             @mouseenter="focusScore(score)"
             @mouseleave="clearSoftmaxFocus"
             @focus="focusScore(score)"
@@ -7264,6 +7309,51 @@ function rangeFromValues(values: number[]): [number, number] {
                   <p>{{ copy.inputDataHint }}</p>
                 </header>
 
+                <section class="cnn-input-preprocess" :aria-label="copy.inputPreprocessTitle">
+                  <header>
+                    <span>{{ copy.inputPreprocessTitle }}</span>
+                    <p>{{ copy.inputPreprocessHint }}</p>
+                  </header>
+
+                  <div class="cnn-input-preprocess__steps">
+                    <button
+                      v-for="step in inputPreprocessSteps"
+                      :key="step.id"
+                      type="button"
+                      class="cnn-input-preprocess__step"
+                      :class="`is-${step.kind}`"
+                      :aria-label="`${step.title}: ${step.body}`"
+                      @mouseenter="focusInputPreprocessStep(step)"
+                      @mouseleave="clearHoverReadout"
+                      @focus="focusInputPreprocessStep(step)"
+                      @blur="clearHoverReadout"
+                      @click="focusInputPreprocessStep(step)"
+                    >
+                      <div class="cnn-input-preprocess__visual" aria-hidden="true">
+                        <img
+                          v-if="selectedImageUrl && step.kind !== 'normalize'"
+                          :src="selectedImageUrl"
+                          :alt="selectedImageName"
+                          loading="eager"
+                          decoding="async"
+                        />
+                        <span v-if="step.kind === 'crop'" class="cnn-input-preprocess__crop-frame" />
+                        <span v-if="step.kind === 'resize'" class="cnn-input-preprocess__tensor-grid" />
+                        <template v-if="step.kind === 'normalize' && selectedInputPixel">
+                          <i :style="{ background: selectedInputPixel.color }" />
+                          <code>
+                            {{ selectedInputPixel.rgb[0] }}/255 →
+                            {{ formatNumber(selectedInputPixel.normalized[0]) }}
+                          </code>
+                        </template>
+                      </div>
+                      <span>{{ step.title }}</span>
+                      <strong>{{ step.value }}</strong>
+                      <p>{{ step.body }}</p>
+                    </button>
+                  </div>
+                </section>
+
                 <div class="cnn-input-data-view__channels">
                   <article
                     v-for="preview in inputChannelPreviews"
@@ -8206,10 +8296,10 @@ function rangeFromValues(values: number[]): [number, number] {
                         v-if="activeSoftmaxRow"
                         type="button"
                         class="cnn-softmax-detail__numerator"
-                        :aria-label="`${copy.numerator}: ${activeSoftmaxRow.label}`"
+                        :aria-label="`${copy.numerator}: ${softmaxTermAriaLabel(activeSoftmaxRow)}`"
                         @mouseenter="focusSoftmaxClass(activeSoftmaxRow.classIndex)"
                         @focus="focusSoftmaxClass(activeSoftmaxRow.classIndex)"
-                        @click="selectLayer(selectedLayerIndex, activeSoftmaxRow.classIndex)"
+                        @click="selectSoftmaxClass(activeSoftmaxRow.classIndex)"
                       >
                         exp({{ formatNumber(activeSoftmaxRow.logit) }}) =
                         {{ formatNumber(activeSoftmaxRow.expScore) }}
@@ -8225,11 +8315,12 @@ function rangeFromValues(values: number[]): [number, number] {
                         :key="`softmax-term-${score.id}`"
                         type="button"
                         :class="{ 'is-selected': score.selected, 'is-highlighted': score.highlighted }"
+                        :aria-label="softmaxTermAriaLabel(score)"
                         @mouseenter="focusSoftmaxClass(score.classIndex)"
                         @mouseleave="clearSoftmaxFocus"
                         @focus="focusSoftmaxClass(score.classIndex)"
                         @blur="clearSoftmaxFocus"
-                        @click="selectLayer(selectedLayerIndex, score.classIndex)"
+                        @click="selectSoftmaxClass(score.classIndex)"
                       >
                         exp({{ formatNumber(score.logit) }})
                       </button>
@@ -8242,11 +8333,12 @@ function rangeFromValues(values: number[]): [number, number] {
                       :key="`softmax-contribution-${score.id}`"
                       type="button"
                       :class="{ 'is-selected': score.selected, 'is-highlighted': score.highlighted }"
+                      :aria-label="softmaxTermAriaLabel(score)"
                       @mouseenter="focusSoftmaxClass(score.classIndex)"
                       @mouseleave="clearSoftmaxFocus"
                       @focus="focusSoftmaxClass(score.classIndex)"
                       @blur="clearSoftmaxFocus"
-                      @click="selectLayer(selectedLayerIndex, score.classIndex)"
+                      @click="selectSoftmaxClass(score.classIndex)"
                     >
                       <span>{{ score.label }}</span>
                       <strong>{{ formatNumber(score.expScore) }}</strong>
@@ -8303,13 +8395,14 @@ function rangeFromValues(values: number[]): [number, number] {
                   :class="{ 'is-selected': score.selected, 'is-highlighted': score.highlighted }"
                   role="button"
                   tabindex="0"
+                  :aria-label="softmaxTermAriaLabel(score)"
                   @mouseenter="focusSoftmaxClass(score.classIndex)"
                   @mouseleave="clearSoftmaxFocus"
                   @focus="focusSoftmaxClass(score.classIndex)"
                   @blur="clearSoftmaxFocus"
-                  @click="selectLayer(selectedLayerIndex, score.classIndex)"
-                  @keydown.enter.prevent="selectLayer(selectedLayerIndex, score.classIndex)"
-                  @keydown.space.prevent="selectLayer(selectedLayerIndex, score.classIndex)"
+                  @click="selectSoftmaxClass(score.classIndex)"
+                  @keydown.enter.prevent="selectSoftmaxClass(score.classIndex)"
+                  @keydown.space.prevent="selectSoftmaxClass(score.classIndex)"
                 >
                   <span>{{ score.label }}</span>
                   <strong>logit {{ formatNumber(score.logit) }}</strong>

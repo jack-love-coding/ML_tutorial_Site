@@ -303,6 +303,37 @@
   box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.24);
 }
 
+.cnn-sample-strip button.is-pending {
+  border-color: rgba(37, 99, 235, 0.46);
+  background: #eff6ff;
+  cursor: wait;
+}
+
+.cnn-sample-strip button.is-pending::after {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.18rem;
+  left: 3rem;
+  height: 0.16rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.18);
+  content: "";
+}
+
+.cnn-sample-strip button.is-pending::before {
+  position: absolute;
+  z-index: 1;
+  right: 45%;
+  bottom: 0.18rem;
+  left: 3rem;
+  height: 0.16rem;
+  border-radius: 999px;
+  background: #2563eb;
+  content: "";
+  animation: cnn-sample-loading 900ms ease-in-out infinite;
+}
+
 .cnn-sample-strip img {
   grid-area: thumb;
   display: block;
@@ -348,6 +379,10 @@
   font-size: 0.56rem;
   font-weight: 900;
   line-height: 1.1;
+}
+
+.cnn-sample-strip button.is-pending b {
+  background: #2563eb;
 }
 
 .cnn-explainer-lab__input strong,
@@ -2975,6 +3010,164 @@
   color: #475569;
   font-size: 0.82rem;
   line-height: 1.5;
+}
+
+.cnn-input-preprocess {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.62rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.cnn-input-preprocess header {
+  display: grid;
+  gap: 0.16rem;
+}
+
+.cnn-input-preprocess header span {
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.cnn-input-preprocess header p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.cnn-input-preprocess__steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.cnn-input-preprocess__step {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid rgba(100, 116, 139, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+}
+
+.cnn-input-preprocess__step:hover,
+.cnn-input-preprocess__step:focus-visible {
+  border-color: rgba(15, 118, 110, 0.44);
+  background: #f0fdfa;
+  outline: none;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.cnn-input-preprocess__visual {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 6px;
+  background:
+    linear-gradient(135deg, rgba(226, 232, 240, 0.56) 25%, transparent 25%) 0 0 / 12px 12px,
+    linear-gradient(315deg, rgba(226, 232, 240, 0.56) 25%, transparent 25%) 0 0 / 12px 12px,
+    #f8fafc;
+  place-items: center;
+}
+
+.cnn-input-preprocess__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cnn-input-preprocess__step.is-crop .cnn-input-preprocess__visual img,
+.cnn-input-preprocess__step.is-resize .cnn-input-preprocess__visual img {
+  object-fit: cover;
+}
+
+.cnn-input-preprocess__step.is-resize .cnn-input-preprocess__visual img {
+  image-rendering: pixelated;
+}
+
+.cnn-input-preprocess__crop-frame {
+  position: absolute;
+  inset: 8%;
+  border: 2px solid #f97316;
+  border-radius: 5px;
+  box-shadow:
+    0 0 0 999px rgba(15, 23, 42, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.88);
+}
+
+.cnn-input-preprocess__tensor-grid {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.54) 1px, transparent 1px) 0 0 / 25% 25%,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.54) 1px, transparent 1px) 0 0 / 25% 25%;
+  box-shadow: inset 0 0 0 2px rgba(15, 118, 110, 0.66);
+}
+
+.cnn-input-preprocess__step.is-normalize .cnn-input-preprocess__visual {
+  gap: 0.35rem;
+  padding: 0.45rem;
+}
+
+.cnn-input-preprocess__step.is-normalize .cnn-input-preprocess__visual i {
+  width: min(3.2rem, 72%);
+  aspect-ratio: 1;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38);
+}
+
+.cnn-input-preprocess__step.is-normalize .cnn-input-preprocess__visual code {
+  max-width: 100%;
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cnn-input-preprocess__step > span,
+.cnn-input-preprocess__step > strong,
+.cnn-input-preprocess__step > p {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.cnn-input-preprocess__step > span {
+  color: #334155;
+  font-size: 0.7rem;
+  font-weight: 850;
+}
+
+.cnn-input-preprocess__step > strong {
+  color: #0f172a;
+  font-size: 0.76rem;
+  line-height: 1.25;
+}
+
+.cnn-input-preprocess__step > p {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #64748b;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .cnn-input-data-view__channels {
@@ -5823,6 +6016,17 @@
   }
 }
 
+@keyframes cnn-sample-loading {
+  0%,
+  100% {
+    transform: translateX(-18%);
+  }
+
+  50% {
+    transform: translateX(58%);
+  }
+}
+
 @keyframes cnn-bridge-packet {
   0% {
     transform: translate(0, 0) scale(0.86);
@@ -5899,7 +6103,8 @@
   .cnn-spatial-bridge:focus-within .cnn-spatial-bridge__rail,
   .cnn-spatial-bridge:focus-within .cnn-spatial-bridge__pulse,
   .cnn-overview__flow-packet,
-  .cnn-overview__edge.is-selected {
+  .cnn-overview__edge.is-selected,
+  .cnn-sample-strip button.is-pending::before {
     animation: none;
   }
 
@@ -5979,6 +6184,10 @@
 
   .cnn-input-data-view__pixel i {
     grid-row: auto;
+  }
+
+  .cnn-input-preprocess__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .cnn-pool-ledger__items {
