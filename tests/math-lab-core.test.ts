@@ -31,6 +31,7 @@ import {
 } from '../src/modules/math-lab/utils/math.ts'
 import {
   evaluateBackpropBlockStory,
+  evaluateConditionalBayes,
   evaluateDistributionBuilder,
   evaluateFeatureVectorStory,
   evaluateLocalChangeStory,
@@ -256,7 +257,7 @@ test('math lab modules include the zero-base AI math path from 1-22', () => {
     } else if (moduleDefinition.id === 'beginner-calculus') {
       assert.match(englishBody, /average change|instantaneous change|chain rule|numerical gradient/i)
     } else if (moduleDefinition.id === 'beginner-probability-distributions') {
-      assert.match(englishBody, /sample space|random variable|normal distribution/i)
+      assert.match(englishBody, /sample space|random variable|normal distribution|Bayes update|calibration/i)
     } else if (moduleDefinition.id === 'training-diagnostics') {
       assert.match(englishBody, /gradient norm|validation loss/i)
     } else if (moduleDefinition.id === 'deep-architecture-math') {
@@ -339,6 +340,7 @@ test('zero-base beginner modules expose complete bilingual teaching surfaces', (
   assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'LocalChangeStoryLab'))
   assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'BackpropBlockLab'))
   assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'DistributionBuilderLab'))
+  assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'ConditionalBayesLab'))
 })
 
 test('zero-base foundation expansion wires longform visuals and concept bridges', () => {
@@ -362,9 +364,13 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
       'beginner-learning-rate-behavior-longform',
     ],
     'beginner-probability-distributions': [
+      'beginner-probability-why-longform',
       'beginner-sample-space-random-variable-longform',
       'beginner-distribution-frequency-longform',
+      'beginner-conditional-probability-longform',
+      'beginner-bayes-update-longform',
       'beginner-expectation-variance-longform',
+      'beginner-calibration-confidence-longform',
       'beginner-softmax-cross-entropy-longform',
     ],
   } as const
@@ -401,6 +407,9 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
   const probabilityBody = byId['beginner-probability-distributions']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(probabilityBody, /概率回答的是：在明确的样本空间里，长期会怎样分配结果/)
   assert.match(probabilityBody, /分布回答的是：很多次观察后，结果会留下什么形状/)
+  assert.match(probabilityBody, /条件概率是在证据下重看样本空间/)
+  assert.match(probabilityBody, /贝叶斯更新把旧信念改成新信念/)
+  assert.match(probabilityBody, /校准要检查/)
 })
 
 test('formal math modules include beginner bridge copy after the foundation expansion', () => {
@@ -1253,9 +1262,25 @@ test('beginner foundation utilities expose vector, local change, and distributio
   assert.equal(evaluateDistributionBuilder({ kind: 'uniform', sampleCount: 600, seed: 11, targetBin: 2 }).samples[0], uniform.samples[0])
   assert.equal(uniform.bins.reduce((sum, bin) => sum + bin.count, 0), 600)
   assert.ok(Math.abs(uniform.probabilities.reduce((sum, value) => sum + value, 0) - 1) < 1e-12)
+  assert.ok(Math.abs(uniform.theoreticalProbabilities.reduce((sum, value) => sum + value, 0) - 1) < 1e-12)
+  assert.ok(uniform.maxFrequencyError >= 0)
+  assert.ok(uniform.stabilityScore >= 0 && uniform.stabilityScore <= 1)
+  assert.ok(Math.abs(uniform.targetFrequency - uniform.targetProbability) === uniform.targetError)
   assert.ok(normal.variance < uniform.variance)
   assert.ok(binomial.mean > uniform.mean)
   assert.ok(uniform.targetFrequency >= 0 && uniform.targetFrequency <= 1)
+
+  const bayes = evaluateConditionalBayes({
+    priorSpam: 0.08,
+    signalGivenSpam: 0.82,
+    signalGivenNotSpam: 0.12,
+    populationSize: 1000,
+  })
+  assert.ok(Math.abs(bayes.evidence - (0.08 * 0.82 + 0.92 * 0.12)) < 1e-12)
+  assert.ok(Math.abs(bayes.posteriorSpam - 0.3727272727272727) < 1e-10)
+  assert.ok(bayes.ignoredBaseRatePosterior > bayes.posteriorSpam)
+  assert.equal(bayes.spamCount + bayes.notSpamCount, 1000)
+  assert.equal(bayes.signalCount, bayes.signalSpamCount + bayes.signalNotSpamCount)
 })
 
 test('monte carlo utilities expose reproducible sampling and expected error scaling', () => {

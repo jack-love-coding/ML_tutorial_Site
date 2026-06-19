@@ -464,7 +464,7 @@ const probabilitySections = [
     copy(
       md`概率不是“猜一次会不会中”。对 AI 来说，概率更像是在问：**如果同类事情重复很多次，结果会怎样分布？**
 
-从零基础概率章节带过来的检查表是：先列样本空间，再把结果映射成随机变量，再用分布描述长期频率形状，最后用 softmax 和 cross entropy 检查模型把概率放在哪里。
+从零基础概率章节带过来的检查表是：先列样本空间，再把结果映射成随机变量，再用分布描述长期频率形状；遇到证据时，用条件概率和 Bayes update 重新读分母；遇到模型概率条时，再用 calibration、softmax 和 cross entropy 检查概率是否可信、是否放对位置。
 
 古典概率先列出样本空间，也就是所有可能结果的清单。对 AI 分类器来说，类别集合就是样本空间；观察很多样本后的频率才帮助我们读出分布形状。
 
@@ -474,17 +474,18 @@ const probabilitySections = [
 
 分类模型输出的 \([0.8,0.1,0.1]\) 也可以这样读：模型不是只说“选第一个”，而是在三个类别上分配不确定性。最高的概率表示当前模型最相信那个类别，但这不等于它永远可靠。校准要检查“模型说 80% 的那些样本，现实中是否真的大约 80% 正确”。
 
-本章先抓住四个问题：
+本章先抓住五个问题：
 
 1. 分布：可能结果的长期形状是什么？
-2. likelihood：真实发生的结果在模型眼里有多可能？
-3. entropy：模型的不确定性有多分散？
-4. cross entropy：模型把概率放错地方时，惩罚有多大？
+2. condition：当前概率是在什么条件下说的？
+3. likelihood：真实发生的结果在模型眼里有多可能？
+4. entropy：模型的不确定性有多分散？
+5. cross entropy：模型把概率放错地方时，惩罚有多大？
 
 这些问题会直接连接到分类器、语言模型 next-token prediction 和生成模型采样。`,
       md`Probability is not just "will I guess the next outcome correctly?" For AI, probability asks: **if the same kind of event repeats many times, what shape do the outcomes form?**
 
-Bring this checklist from the beginner probability chapter: list the sample space, map outcomes into random variables, use a distribution to describe long-run frequency shape, then use softmax and cross entropy to inspect where the model places probability.
+Bring this checklist from the beginner probability chapter: list the sample space, map outcomes into random variables, use a distribution to describe long-run frequency shape; when evidence appears, reread the denominator with conditional probability and Bayes update; when model probability bars appear, use calibration, softmax, and cross entropy to inspect whether probabilities are trustworthy and placed correctly.
 
 This distribution-first bridge begins with classical probability: list the sample space, identify the event, then watch frequency after an event repeats many times. For a classifier, the class list is the sample space; repeated observations are what make the distribution shape meaningful.
 
@@ -494,12 +495,13 @@ Drop colored beads into bins over and over. One bead looks random. After many be
 
 A classifier output such as \([0.8,0.1,0.1]\) can be read the same way: the model is not only saying "pick the first class"; it is distributing uncertainty across classes. The highest probability is what the model currently trusts most, but that does not make it automatically reliable. Calibration asks whether examples predicted at 80% confidence are actually correct about 80% of the time.
 
-Keep four questions in mind:
+Keep five questions in mind:
 
 1. Distribution: what long-run shape do possible outcomes form?
-2. Likelihood: how likely does the model make the observed outcome?
-3. Entropy: how spread out is the model's uncertainty?
-4. Cross entropy: how large is the penalty when probability mass is placed in the wrong location?
+2. Condition: under what condition is this probability being stated?
+3. Likelihood: how likely does the model make the observed outcome?
+4. Entropy: how spread out is the model's uncertainty?
+5. Cross entropy: how large is the penalty when probability mass is placed in the wrong location?
 
 These questions connect directly to classifiers, language-model next-token prediction, and generative-model sampling.`,
     ),

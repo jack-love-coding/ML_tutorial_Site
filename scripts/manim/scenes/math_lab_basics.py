@@ -5,6 +5,7 @@ from manim import (
     BLUE,
     GREEN,
     ORANGE,
+    PURPLE,
     RED,
     WHITE,
     YELLOW,
@@ -326,6 +327,170 @@ class BeginnerLearningRateBehaviorScene(Scene):
         self.play(FadeOut(caption), run_time=0.3)
         caption = final_caption
         self.play(FadeIn(caption), run_time=2.7)
+        self.wait(8)
+
+
+class BeginnerProbabilityFrequencyScene(Scene):
+    def construct(self):
+        title = Text("Probability needs repeated trials", font_size=31).to_edge(UP)
+        question = Text("One outcome can be a noisy sample.", font_size=23).next_to(title, DOWN, buff=0.25)
+        bins = VGroup()
+        colors = [PURPLE, BLUE, GREEN, YELLOW, ORANGE, RED]
+        for index, color in enumerate(colors):
+            bucket = RoundedRectangle(width=0.72, height=0.42, corner_radius=0.06, color=WHITE)
+            bucket.set_fill(color, opacity=0.15)
+            bucket.move_to(LEFT * 3.1 + RIGHT * index * 1.25 + DOWN * 1.9)
+            bins.add(bucket)
+        first_dot = Dot(bins[4].get_center() + UP * 1.8, color=ORANGE)
+        caption = Text("single result: cannot reveal the distribution", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(title), FadeIn(question), FadeIn(bins), FadeIn(caption), run_time=3)
+        self.wait(4)
+        self.play(FadeIn(first_dot), first_dot.animate.move_to(bins[4].get_center() + UP * 0.32), run_time=3)
+        self.wait(4)
+
+        def histogram(counts, label):
+            bars = VGroup()
+            for index, count in enumerate(counts):
+                height = 0.18 + count * 0.12
+                bar = RoundedRectangle(width=0.62, height=height, corner_radius=0.05, color=WHITE)
+                bar.set_fill(colors[index], opacity=0.75)
+                bar.move_to(bins[index].get_center() + UP * (0.34 + height / 2))
+                bars.add(bar)
+            text = Text(label, font_size=25).to_edge(DOWN)
+            return bars, text
+
+        small_bars, small_caption = histogram([1, 0, 2, 0, 3, 1], "few trials: shape jumps around")
+        self.play(FadeOut(caption), FadeOut(first_dot), run_time=0.3)
+        caption = small_caption
+        self.play(FadeIn(caption), FadeIn(small_bars), run_time=4)
+        self.wait(4)
+
+        medium_bars, medium_caption = histogram([2, 4, 7, 9, 6, 3], "more trials: frequency begins to form a shape")
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = medium_caption
+        self.play(Transform(small_bars, medium_bars), FadeIn(caption), run_time=4)
+        self.wait(4)
+
+        large_bars, large_caption = histogram([3, 7, 12, 14, 9, 4], "many trials: frequency approaches probability")
+        curve = Line(bins[0].get_center() + UP * 0.9, bins[5].get_center() + UP * 1.05, color=GREEN, stroke_width=5)
+        curve_points = [
+            bins[0].get_center() + UP * 0.75,
+            bins[1].get_center() + UP * 1.2,
+            bins[2].get_center() + UP * 1.8,
+            bins[3].get_center() + UP * 2.05,
+            bins[4].get_center() + UP * 1.55,
+            bins[5].get_center() + UP * 0.95,
+        ]
+        curve = VGroup(*[Line(curve_points[i], curve_points[i + 1], color=GREEN, stroke_width=5) for i in range(5)])
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = large_caption
+        self.play(Transform(small_bars, large_bars), FadeIn(caption), Create(curve), run_time=4.5)
+        self.wait(5)
+
+        summary = Text("A distribution describes the long-run pattern, not one lucky result.", font_size=24).to_edge(DOWN)
+        self.play(FadeOut(caption), run_time=0.3)
+        self.play(FadeIn(summary), run_time=3)
+        self.wait(8)
+
+
+class BeginnerConditionalBayesScene(Scene):
+    def construct(self):
+        title = Text("Evidence filters the sample space", font_size=31).to_edge(UP)
+        setup = Text("Start with a base rate: only a few emails are spam.", font_size=23).next_to(title, DOWN, buff=0.25)
+        caption = Text("prior: spam is rare in the full inbox", font_size=25).to_edge(DOWN)
+
+        full_bar = VGroup(
+            RoundedRectangle(width=0.85, height=0.58, corner_radius=0.08, color=WHITE).set_fill(RED, opacity=0.75).shift(LEFT * 3.1),
+            RoundedRectangle(width=6.2, height=0.58, corner_radius=0.08, color=WHITE).set_fill(BLUE, opacity=0.45).shift(RIGHT * 0.45),
+        ).shift(UP * 1.1)
+        labels = VGroup(
+            Text("spam 8%", font_size=22, color=RED).next_to(full_bar[0], UP, buff=0.2),
+            Text("normal 92%", font_size=22, color=BLUE).next_to(full_bar[1], UP, buff=0.2),
+        )
+        signal_text = Text("signal: suspicious link", font_size=24, color=ORANGE).shift(UP * 0.05)
+        arrow = Arrow(UP * 0.72, DOWN * 0.72, color=ORANGE, buff=0)
+
+        self.play(FadeIn(title), FadeIn(setup), FadeIn(full_bar), FadeIn(labels), FadeIn(caption), run_time=3)
+        self.wait(5)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = Text("condition: keep only emails with the signal", font_size=25).to_edge(DOWN)
+        self.play(FadeIn(signal_text), Create(arrow), FadeIn(caption), run_time=3.7)
+        self.wait(5)
+
+        evidence_bar = VGroup(
+            RoundedRectangle(width=2.2, height=0.62, corner_radius=0.08, color=WHITE).set_fill(RED, opacity=0.78).shift(LEFT * 1.15),
+            RoundedRectangle(width=3.1, height=0.62, corner_radius=0.08, color=WHITE).set_fill(BLUE, opacity=0.45).shift(RIGHT * 1.5),
+        ).shift(DOWN * 1.35)
+        evidence_labels = VGroup(
+            Text("true signal", font_size=22, color=RED).next_to(evidence_bar[0], DOWN, buff=0.25),
+            Text("false alarms", font_size=22, color=BLUE).next_to(evidence_bar[1], DOWN, buff=0.25),
+        )
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = Text("posterior counts both true signals and false alarms", font_size=25).to_edge(DOWN)
+        self.play(FadeIn(evidence_bar), FadeIn(evidence_labels), FadeIn(caption), run_time=4)
+        self.wait(5)
+
+        formula = Text("posterior = prior × likelihood / evidence", font_size=25, color=YELLOW).next_to(signal_text, DOWN, buff=0.35)
+        posterior = Text("P(spam | signal) is about 38%, not 82%.", font_size=25, color=GREEN).next_to(evidence_bar, UP, buff=0.32)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = Text("Bayes update keeps the base rate in the calculation.", font_size=25).to_edge(DOWN)
+        self.play(FadeIn(formula), FadeIn(posterior), FadeIn(caption), run_time=4)
+        self.wait(14)
+
+
+class BeginnerCalibrationCrossEntropyScene(Scene):
+    def construct(self):
+        title = Text("Probability bars must be checked", font_size=31).to_edge(UP)
+        setup = Text("Softmax gives probabilities, but probability is not reliability by itself.", font_size=22).next_to(title, DOWN, buff=0.25)
+        caption = Text("model distributes confidence across classes", font_size=25).to_edge(DOWN)
+        class_labels = ["cat", "dog", "bird"]
+        probabilities = [0.68, 0.22, 0.10]
+        bars = VGroup()
+        for index, probability in enumerate(probabilities):
+            bar = RoundedRectangle(width=probability * 3.5, height=0.42, corner_radius=0.06, color=WHITE)
+            bar.set_fill([GREEN, BLUE, ORANGE][index], opacity=0.75)
+            bar.move_to(LEFT * 4.4 + RIGHT * probability * 1.75 + DOWN * index * 0.78 + UP * 1.25)
+            label = Text(f"{class_labels[index]} {probability:.2f}", font_size=22).next_to(bar, LEFT, buff=0.25)
+            bars.add(VGroup(bar, label))
+        target_note = Text("true class: bird", font_size=23, color=ORANGE).next_to(bars, DOWN, buff=0.25)
+
+        self.play(FadeIn(title), FadeIn(setup), FadeIn(bars), FadeIn(caption), run_time=3)
+        self.wait(4)
+        self.play(FadeIn(target_note), run_time=2)
+        self.wait(4)
+
+        axes = Axes(
+            x_range=[0.05, 1.0, 0.25],
+            y_range=[0, 3.2, 1],
+            x_length=4.1,
+            y_length=2.6,
+            tips=False,
+            axis_config={"stroke_opacity": 0.55},
+        ).shift(RIGHT * 2.8 + UP * 0.35)
+        curve = axes.plot(lambda x: -math.log(x), x_range=[0.05, 1], color=PURPLE, stroke_width=5)
+        loss_dot = Dot(axes.c2p(0.10, -math.log(0.10)), color=ORANGE)
+        loss_label = Text("loss = -log(p_true)", font_size=23, color=PURPLE).next_to(axes, UP, buff=0.2)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = Text("low true-class probability creates a large penalty", font_size=25).to_edge(DOWN)
+        self.play(FadeIn(axes), Create(curve), FadeIn(loss_dot), FadeIn(loss_label), FadeIn(caption), run_time=4.5)
+        self.wait(5)
+
+        calibration_bins = VGroup()
+        for index, (confidence, accuracy) in enumerate([(0.35, 0.32), (0.55, 0.52), (0.75, 0.62), (0.90, 0.68)]):
+            x = LEFT * 1.0 + RIGHT * index * 0.7 + DOWN * 1.85
+            conf_bar = Line(x, x + UP * confidence * 1.2, color=BLUE, stroke_width=10)
+            acc_bar = Line(x + RIGHT * 0.2, x + RIGHT * 0.2 + UP * accuracy * 1.2, color=GREEN, stroke_width=10)
+            calibration_bins.add(VGroup(conf_bar, acc_bar))
+        calibration_title = Text("calibration: confidence vs real frequency", font_size=23, color=GREEN).shift(DOWN * 2.75)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = Text("high confidence still needs frequency evidence", font_size=25).to_edge(DOWN)
+        self.play(FadeIn(calibration_bins), FadeIn(calibration_title), FadeIn(caption), run_time=4.5)
+        self.wait(5)
+
+        summary = Text("A useful probability is normalized, placed correctly, and calibrated.", font_size=24).to_edge(DOWN)
+        self.play(FadeOut(caption), run_time=0.3)
+        self.play(FadeIn(summary), run_time=3)
         self.wait(8)
 
 

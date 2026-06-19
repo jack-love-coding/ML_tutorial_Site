@@ -28,6 +28,13 @@ export interface DistributionBuilderInput {
   targetBin: number
 }
 
+export interface ConditionalBayesInput {
+  priorSpam: number
+  signalGivenSpam: number
+  signalGivenNotSpam: number
+  populationSize?: number
+}
+
 function vectorDot(left: number[], right: number[]) {
   const length = Math.min(left.length, right.length)
   let total = 0
@@ -97,6 +104,49 @@ function sampleBinomial(random: () => number) {
 
 function sampleUniform(random: () => number) {
   return Math.min(5, Math.floor(random() * 6))
+}
+
+function binomialCoefficient(n: number, k: number) {
+  if (k < 0 || k > n) return 0
+  let result = 1
+  for (let index = 1; index <= k; index += 1) {
+    result *= (n - index + 1) / index
+  }
+  return result
+}
+
+function normalize(values: number[]) {
+  const total = values.reduce((sum, value) => sum + value, 0)
+  if (total <= 0) return values.map(() => 0)
+  return values.map((value) => value / total)
+}
+
+function theoreticalDistribution(kind: DistributionKind) {
+  if (kind === 'uniform') {
+    return Array.from({ length: 6 }, () => 1 / 6)
+  }
+
+  if (kind === 'binomial') {
+    const n = 8
+    const probability = 0.65
+    return Array.from({ length: n + 1 }, (_, successes) =>
+      binomialCoefficient(n, successes) * probability ** successes * (1 - probability) ** (n - successes),
+    )
+  }
+
+  const center = 2.5
+  const spread = 0.92
+  return normalize(
+    Array.from({ length: 6 }, (_, value) => Math.exp(-0.5 * ((value - center) / spread) ** 2)),
+  )
+}
+
+function distributionMean(probabilities: number[]) {
+  return probabilities.reduce((sum, probability, value) => sum + value * probability, 0)
+}
+
+function distributionVariance(probabilities: number[], mean: number) {
+  return probabilities.reduce((sum, probability, value) => sum + (value - mean) ** 2 * probability, 0)
 }
 
 export function evaluateFeatureVectorStory(input: FeatureVectorStoryInput) {
@@ -213,6 +263,7 @@ export function evaluateDistributionBuilder(input: DistributionBuilderInput) {
   const sampleCount = Math.max(1, Math.round(input.sampleCount))
   const random = lcg(input.seed)
   const maxBin = input.kind === 'binomial' ? 8 : 5
+  const theoreticalProbabilities = theoreticalDistribution(input.kind)
   const samples = Array.from({ length: sampleCount }, () => {
     if (input.kind === 'normal') return sampleNormalBin(random)
     if (input.kind === 'binomial') return sampleBinomial(random)
@@ -227,6 +278,14 @@ export function evaluateDistributionBuilder(input: DistributionBuilderInput) {
   const variance = samples.reduce((sum, value) => sum + (value - mean) ** 2, 0) / sampleCount
   const targetBin = clamp(Math.round(input.targetBin), 0, maxBin)
   const targetFrequency = probabilities[targetBin] ?? 0
+  const targetProbability = theoreticalProbabilities[targetBin] ?? 0
+  const expectedMean = distributionMean(theoreticalProbabilities)
+  const expectedVariance = distributionVariance(theoreticalProbabilities, expectedMean)
+  const frequencyErrors = probabilities.map((probability, index) =>
+    Math.abs(probability - (theoreticalProbabilities[index] ?? 0)),
+  )
+  const maxFrequencyError = Math.max(...frequencyErrors, 0)
+  const stabilityScore = clamp(1 - maxFrequencyError * 3, 0, 1)
 
   return {
     kind: input.kind,
@@ -234,9 +293,54 @@ export function evaluateDistributionBuilder(input: DistributionBuilderInput) {
     samples,
     bins,
     probabilities,
+    theoreticalProbabilities,
     mean,
     variance,
+    expectedMean,
+    expectedVariance,
+    meanError: Math.abs(mean - expectedMean),
+    varianceError: Math.abs(variance - expectedVariance),
     targetBin,
     targetFrequency,
+    targetProbability,
+    targetError: Math.abs(targetFrequency - targetProbability),
+    frequencyErrors,
+    maxFrequencyError,
+    stabilityScore,
+  }
+}
+
+export function evaluateConditionalBayes(input: ConditionalBayesInput) {
+  const priorSpam = clamp(input.priorSpam, 0.01, 0.99)
+  const signalGivenSpam = clamp(input.signalGivenSpam, 0.01, 0.99)
+  const signalGivenNotSpam = clamp(input.signalGivenNotSpam, 0.01, 0.99)
+  const populationSize = clamp(Math.round(input.populationSize ?? 1000), 100, 10000)
+  const priorNotSpam = 1 - priorSpam
+  const evidence = priorSpam * signalGivenSpam + priorNotSpam * signalGivenNotSpam
+  const posteriorSpam = evidence <= 0 ? 0 : (priorSpam * signalGivenSpam) / evidence
+  const posteriorNotSpam = 1 - posteriorSpam
+  const ignoredBaseRatePosterior = signalGivenSpam / (signalGivenSpam + signalGivenNotSpam)
+  const spamCount = Math.round(populationSize * priorSpam)
+  const notSpamCount = populationSize - spamCount
+  const signalSpamCount = Math.round(spamCount * signalGivenSpam)
+  const signalNotSpamCount = Math.round(notSpamCount * signalGivenNotSpam)
+  const signalCount = signalSpamCount + signalNotSpamCount
+
+  return {
+    priorSpam,
+    priorNotSpam,
+    signalGivenSpam,
+    signalGivenNotSpam,
+    evidence,
+    posteriorSpam,
+    posteriorNotSpam,
+    ignoredBaseRatePosterior,
+    baseRateGap: Math.abs(posteriorSpam - ignoredBaseRatePosterior),
+    populationSize,
+    spamCount,
+    notSpamCount,
+    signalSpamCount,
+    signalNotSpamCount,
+    signalCount,
   }
 }

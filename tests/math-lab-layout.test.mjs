@@ -60,6 +60,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/LocalChangeStoryLab.vue',
     'src/modules/math-lab/labs/BackpropBlockLab.vue',
     'src/modules/math-lab/labs/DistributionBuilderLab.vue',
+    'src/modules/math-lab/labs/ConditionalBayesLab.vue',
   ]
 
   for (const path of componentPaths) {
@@ -84,6 +85,7 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /import\('\.\.\/labs\/LocalChangeStoryLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/BackpropBlockLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/DistributionBuilderLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/ConditionalBayesLab\.vue'\)/)
   assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
 
@@ -139,6 +141,10 @@ test('migrated note figures are stored locally', () => {
     'public/math-lab/generated/beginner-partial-gradient-longform.png',
     'public/math-lab/generated/beginner-chain-rule-backprop-longform.png',
     'public/math-lab/generated/beginner-learning-rate-behavior-longform.png',
+    'public/math-lab/generated/beginner-probability-why-longform.png',
+    'public/math-lab/generated/beginner-conditional-probability-longform.png',
+    'public/math-lab/generated/beginner-bayes-update-longform.png',
+    'public/math-lab/generated/beginner-calibration-confidence-longform.png',
   ]
 
   for (const assetPath of keyAssets) {
@@ -151,13 +157,16 @@ test('manim pipeline and existing math lab video assets remain present', () => {
   assert.ok(existsSync(new URL('scripts/manim/render_math_lab.py', root)))
 
   const metadata = JSON.parse(read('public/manim/math-lab/metadata.json'))
-  assert.equal(metadata.scenes.length, 9)
+  assert.equal(metadata.scenes.length, 12)
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'VectorSpanNormScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'TaylorPolynomialScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'MonteCarloSamplingScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerDerivativeWindowScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerChainRuleBackpropScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerLearningRateBehaviorScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerProbabilityFrequencyScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerConditionalBayesScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerCalibrationCrossEntropyScene'))
 
   for (const scene of metadata.scenes) {
     const assetPath = scene.assetPath.replace(/^\//, 'public/')
@@ -182,6 +191,35 @@ test('beginner calculus Manim labels avoid code-like gradient variable names', (
   assert.match(sceneSource, /∂ŷ\/∂z/)
   assert.match(sceneSource, /∂z\/∂w/)
   assert.match(sceneSource, /small η/)
+})
+
+test('beginner probability Manim assets and labels are registered', () => {
+  const sceneSource = read('scripts/manim/scenes/math_lab_basics.py')
+  const renderSource = read('scripts/manim/render_math_lab.py')
+
+  for (const sceneName of [
+    'BeginnerProbabilityFrequencyScene',
+    'BeginnerConditionalBayesScene',
+    'BeginnerCalibrationCrossEntropyScene',
+  ]) {
+    assert.match(sceneSource, new RegExp(`class ${sceneName}`))
+    assert.match(renderSource, new RegExp(sceneName))
+  }
+
+  for (const assetPath of [
+    'public/manim/math-lab/beginner-probability-frequency.mp4',
+    'public/manim/math-lab/beginner-probability-frequency.svg',
+    'public/manim/math-lab/beginner-conditional-bayes.mp4',
+    'public/manim/math-lab/beginner-conditional-bayes.svg',
+    'public/manim/math-lab/beginner-calibration-cross-entropy.mp4',
+    'public/manim/math-lab/beginner-calibration-cross-entropy.svg',
+  ]) {
+    assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
+  }
+
+  assert.match(sceneSource, /posterior = prior × likelihood \/ evidence/)
+  assert.match(sceneSource, /loss = -log\(p_true\)/)
+  assert.doesNotMatch(sceneSource, /ptrue|baseRate|falseAlarm/)
 })
 
 test('AI bridge generated images, source record, and Manim assets are complete', () => {

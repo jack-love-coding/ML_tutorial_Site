@@ -37,6 +37,21 @@
       "posterPath": "/manim/math-lab/beginner-learning-rate-behavior.svg"
     },
     {
+      "scene": "BeginnerProbabilityFrequencyScene",
+      "assetPath": "/manim/math-lab/beginner-probability-frequency.mp4",
+      "posterPath": "/manim/math-lab/beginner-probability-frequency.svg"
+    },
+    {
+      "scene": "BeginnerConditionalBayesScene",
+      "assetPath": "/manim/math-lab/beginner-conditional-bayes.mp4",
+      "posterPath": "/manim/math-lab/beginner-conditional-bayes.svg"
+    },
+    {
+      "scene": "BeginnerCalibrationCrossEntropyScene",
+      "assetPath": "/manim/math-lab/beginner-calibration-cross-entropy.mp4",
+      "posterPath": "/manim/math-lab/beginner-calibration-cross-entropy.svg"
+    },
+    {
       "scene": "TaylorPolynomialScene",
       "assetPath": "/manim/math-lab/taylor-polynomial.mp4",
       "posterPath": "/manim/math-lab/taylor-polynomial.svg"

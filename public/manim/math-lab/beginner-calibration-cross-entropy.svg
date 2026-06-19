@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Calibration and cross entropy">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Probability bars must be checked</text>
+  <g font-family="Arial, sans-serif" font-size="24">
+    <text x="90" y="166" fill="#10162f">cat</text><rect x="160" y="142" width="250" height="34" rx="8" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <text x="90" y="226" fill="#10162f">dog</text><rect x="160" y="202" width="120" height="34" rx="8" fill="#3868ff" stroke="#10162f" stroke-width="3"/>
+    <text x="90" y="286" fill="#10162f">bird</text><rect x="160" y="262" width="62" height="34" rx="8" fill="#f2b84b" stroke="#10162f" stroke-width="3"/>
+  </g>
+  <path d="M520 368 C570 178 650 138 810 126" fill="none" stroke="#6f42c1" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="650" cy="196" r="14" fill="#f2b84b" stroke="#10162f" stroke-width="4"/>
+  <text x="642" y="92" fill="#6f42c1" font-family="Arial, sans-serif" font-size="25">loss = -log(p_true)</text>
+  <g stroke-width="10">
+    <path d="M530 438V386" stroke="#3868ff"/><path d="M552 438V392" stroke="#0f9f7a"/>
+    <path d="M610 438V348" stroke="#3868ff"/><path d="M632 438V370" stroke="#0f9f7a"/>
+    <path d="M690 438V304" stroke="#3868ff"/><path d="M712 438V340" stroke="#0f9f7a"/>
+    <path d="M770 438V258" stroke="#3868ff"/><path d="M792 438V324" stroke="#0f9f7a"/>
+  </g>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Useful probabilities are normalized, placed correctly, and calibrated.</text>
+</svg>

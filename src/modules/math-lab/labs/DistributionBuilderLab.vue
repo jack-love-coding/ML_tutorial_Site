@@ -14,6 +14,8 @@ const sampleCount = ref(300)
 const seed = ref(11)
 const targetBin = ref(2)
 
+const samplePresets = [60, 300, 900]
+
 const evaluation = computed(() =>
   evaluateDistributionBuilder({
     kind: kind.value,
@@ -28,57 +30,99 @@ const copy = computed(() =>
     ? {
         eyebrow: '互动实验',
         title: '分布构造器',
-        subtitle: '切换分布和样本数，观察频率怎样形成长期形状。',
+        subtitle: '先看一次样本的波动，再看很多样本怎样靠近长期概率。',
         distribution: '分布',
         samples: '样本数',
         seed: '随机种子',
         target: '目标分桶',
-        mean: '均值',
-        variance: '方差',
-        frequency: '目标频率',
+        mean: '样本均值',
+        expectedMean: '理论均值',
+        variance: '样本方差',
+        targetFrequency: '目标频率',
+        targetProbability: '理论概率',
+        maxError: '最大误差',
+        stability: '稳定度',
         uniform: '均匀',
         normal: '正态',
         binomial: '二项',
-        note: '一次样本不能说明整体分布。样本越多，直方图越能显示长期频率形状。',
+        theory: '虚线是理论概率',
+        reset: '重置',
+        note: '样本少时，柱子可能很不听话；样本多时，频率会更像背后的概率分布。',
       }
     : {
         eyebrow: 'Interactive lab',
         title: 'Distribution Builder',
-        subtitle: 'Switch distribution and sample count to see frequency become a long-run shape.',
+        subtitle: 'Compare one noisy sample with the long-run probability it approaches.',
         distribution: 'distribution',
         samples: 'samples',
         seed: 'random seed',
         target: 'target bin',
-        mean: 'mean',
-        variance: 'variance',
-        frequency: 'target frequency',
+        mean: 'sample mean',
+        expectedMean: 'theory mean',
+        variance: 'sample variance',
+        targetFrequency: 'target frequency',
+        targetProbability: 'theory probability',
+        maxError: 'max error',
+        stability: 'stability',
         uniform: 'uniform',
         normal: 'normal',
         binomial: 'binomial',
-        note: 'One sample cannot explain the whole distribution. More samples make the histogram reveal the long-run frequency shape.',
+        theory: 'dashed line is theory',
+        reset: 'reset',
+        note: 'With few samples, bars can wander; with many samples, frequencies look more like the underlying distribution.',
       },
 )
 
 const maxCount = computed(() => Math.max(...evaluation.value.bins.map((bin) => bin.count), 1))
 const bars = computed(() =>
-  evaluation.value.bins.map((bin, index) => ({
-    ...bin,
-    x: 48 + index * (312 / evaluation.value.bins.length),
-    width: Math.max(18, 250 / evaluation.value.bins.length),
-    height: (bin.count / maxCount.value) * 170,
-    target: bin.value === evaluation.value.targetBin,
-  })),
+  evaluation.value.bins.map((bin, index) => {
+    const x = 48 + index * (312 / evaluation.value.bins.length)
+    const width = Math.max(18, 250 / evaluation.value.bins.length)
+    return {
+      ...bin,
+      x,
+      width,
+      center: x + width / 2,
+      height: (bin.count / maxCount.value) * 170,
+      probability: evaluation.value.probabilities[index] ?? 0,
+      theory: evaluation.value.theoreticalProbabilities[index] ?? 0,
+      target: bin.value === evaluation.value.targetBin,
+    }
+  }),
 )
 
-function format(value: number) {
-  return value.toFixed(3)
+const theoryPath = computed(() => {
+  const points = bars.value.map((bar) => {
+    const expectedCount = bar.theory * evaluation.value.sampleCount
+    return `${bar.center},${236 - (expectedCount / maxCount.value) * 170}`
+  })
+  return points.length ? `M ${points.join(' L ')}` : ''
+})
+
+function format(value: number, digits = 3) {
+  return value.toFixed(digits)
+}
+
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`
+}
+
+function setSamples(value: number) {
+  sampleCount.value = value
+}
+
+function reset() {
+  kind.value = 'uniform'
+  sampleCount.value = 300
+  seed.value = 11
+  targetBin.value = 2
 }
 </script>
 
 <template>
   <section class="math-lab-card distribution-builder-lab">
     <div class="math-lab-card__visual">
-      <svg viewBox="0 0 420 280" role="img" :aria-label="copy.title">
+      <svg viewBox="0 0 420 300" role="img" :aria-label="copy.title">
         <line x1="38" y1="236" x2="382" y2="236" class="distribution-builder-lab__axis" />
         <g v-for="bar in bars" :key="bar.value">
           <rect
@@ -88,20 +132,11 @@ function format(value: number) {
             :height="bar.height"
             :class="{ 'is-target': bar.target }"
           />
-          <text :x="bar.x + bar.width / 2" y="258">{{ bar.value }}</text>
-          <text :x="bar.x + bar.width / 2" :y="Math.max(28, 226 - bar.height)">{{ bar.count }}</text>
+          <text :x="bar.center" y="258">{{ bar.value }}</text>
+          <text :x="bar.center" :y="Math.max(28, 226 - bar.height)">{{ bar.count }}</text>
         </g>
-        <path
-          v-if="kind === 'normal'"
-          d="M52 226 C120 226 126 74 210 74 C294 74 300 226 368 226"
-          class="distribution-builder-lab__shape"
-        />
-        <path
-          v-else-if="kind === 'binomial'"
-          d="M52 226 C120 226 154 178 192 136 C238 84 292 114 368 196"
-          class="distribution-builder-lab__shape"
-        />
-        <line v-else x1="52" y1="132" x2="368" y2="132" class="distribution-builder-lab__shape" />
+        <path :d="theoryPath" class="distribution-builder-lab__theory" />
+        <text x="222" y="292">{{ copy.theory }}</text>
       </svg>
     </div>
 
@@ -130,15 +165,26 @@ function format(value: number) {
           <input v-model.number="seed" type="range" min="1" max="40" step="1" />
         </label>
         <label>
-          {{ copy.target }}: {{ targetBin }}
+          {{ copy.target }}: {{ evaluation.targetBin }}
           <input v-model.number="targetBin" type="range" min="0" :max="kind === 'binomial' ? 8 : 5" step="1" />
         </label>
       </div>
 
+      <div class="distribution-builder-lab__quick-actions" :aria-label="copy.samples">
+        <button v-for="preset in samplePresets" :key="preset" type="button" @click="setSamples(preset)">
+          {{ preset }}
+        </button>
+        <button type="button" @click="reset">{{ copy.reset }}</button>
+      </div>
+
       <div class="math-readout-grid">
         <article><span>{{ copy.mean }}</span><strong>{{ format(evaluation.mean) }}</strong></article>
+        <article><span>{{ copy.expectedMean }}</span><strong>{{ format(evaluation.expectedMean) }}</strong></article>
         <article><span>{{ copy.variance }}</span><strong>{{ format(evaluation.variance) }}</strong></article>
-        <article><span>{{ copy.frequency }}</span><strong>{{ format(evaluation.targetFrequency) }}</strong></article>
+        <article><span>{{ copy.targetFrequency }}</span><strong>{{ format(evaluation.targetFrequency) }}</strong></article>
+        <article><span>{{ copy.targetProbability }}</span><strong>{{ format(evaluation.targetProbability) }}</strong></article>
+        <article><span>{{ copy.maxError }}</span><strong>{{ format(evaluation.maxFrequencyError) }}</strong></article>
+        <article><span>{{ copy.stability }}</span><strong>{{ formatPercent(evaluation.stabilityScore) }}</strong></article>
       </div>
 
       <p class="math-lab-note">{{ copy.note }}</p>
@@ -171,7 +217,7 @@ function format(value: number) {
   fill: #ffd84d;
 }
 
-.distribution-builder-lab__shape {
+.distribution-builder-lab__theory {
   fill: none;
   stroke: #ef6f6c;
   stroke-width: 3;
@@ -187,6 +233,27 @@ function format(value: number) {
 
 .distribution-builder-lab__controls {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.distribution-builder-lab__quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.distribution-builder-lab__quick-actions button {
+  border: 2px solid var(--pixel-line, #10162f);
+  border-radius: 6px;
+  background: #fffef7;
+  color: #10162f;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+  padding: 0.38rem 0.65rem;
+}
+
+.distribution-builder-lab__quick-actions button:hover {
+  background: #ffd84d;
 }
 
 @media (max-width: 720px) {

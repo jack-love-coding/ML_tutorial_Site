@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Repeated trials form a probability distribution">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Probability needs repeated trials</text>
+  <g transform="translate(120 140)">
+    <g fill="#d8f6ff" stroke="#10162f" stroke-width="3">
+      <rect x="0" y="252" width="80" height="48" rx="10"/>
+      <rect x="104" y="212" width="80" height="88" rx="10"/>
+      <rect x="208" y="132" width="80" height="168" rx="10"/>
+      <rect x="312" y="92" width="80" height="208" rx="10"/>
+      <rect x="416" y="172" width="80" height="128" rx="10"/>
+      <rect x="520" y="236" width="80" height="64" rx="10"/>
+    </g>
+    <path d="M40 238L144 200L248 122L352 82L456 162L560 228" fill="none" stroke="#0f9f7a" stroke-width="8" stroke-linecap="round"/>
+    <g fill="#ffd84d" stroke="#10162f" stroke-width="3">
+      <circle cx="42" cy="236" r="12"/><circle cx="146" cy="196" r="12"/><circle cx="250" cy="118" r="12"/>
+      <circle cx="354" cy="78" r="12"/><circle cx="458" cy="158" r="12"/><circle cx="562" cy="224" r="12"/>
+    </g>
+  </g>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">One result is noisy; many trials reveal the long-run shape.</text>
+</svg>

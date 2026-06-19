@@ -19,6 +19,9 @@ SCENES = {
     "BeginnerDerivativeWindowScene": "beginner-derivative-window.mp4",
     "BeginnerChainRuleBackpropScene": "beginner-chain-rule-backprop.mp4",
     "BeginnerLearningRateBehaviorScene": "beginner-learning-rate-behavior.mp4",
+    "BeginnerProbabilityFrequencyScene": "beginner-probability-frequency.mp4",
+    "BeginnerConditionalBayesScene": "beginner-conditional-bayes.mp4",
+    "BeginnerCalibrationCrossEntropyScene": "beginner-calibration-cross-entropy.mp4",
     "TaylorPolynomialScene": "taylor-polynomial.mp4",
     "MonteCarloSamplingScene": "monte-carlo-sampling.mp4",
 }
@@ -74,6 +77,62 @@ POSTER_SVGS = {
     <text x="684" y="148" fill="#d9463f">large η</text>
   </g>
   <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">A large step can reuse local slope information too far away.</text>
+</svg>
+""",
+    "BeginnerProbabilityFrequencyScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Repeated trials form a probability distribution">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Probability needs repeated trials</text>
+  <g transform="translate(120 140)">
+    <g fill="#d8f6ff" stroke="#10162f" stroke-width="3">
+      <rect x="0" y="252" width="80" height="48" rx="10"/>
+      <rect x="104" y="212" width="80" height="88" rx="10"/>
+      <rect x="208" y="132" width="80" height="168" rx="10"/>
+      <rect x="312" y="92" width="80" height="208" rx="10"/>
+      <rect x="416" y="172" width="80" height="128" rx="10"/>
+      <rect x="520" y="236" width="80" height="64" rx="10"/>
+    </g>
+    <path d="M40 238L144 200L248 122L352 82L456 162L560 228" fill="none" stroke="#0f9f7a" stroke-width="8" stroke-linecap="round"/>
+    <g fill="#ffd84d" stroke="#10162f" stroke-width="3">
+      <circle cx="42" cy="236" r="12"/><circle cx="146" cy="196" r="12"/><circle cx="250" cy="118" r="12"/>
+      <circle cx="354" cy="78" r="12"/><circle cx="458" cy="158" r="12"/><circle cx="562" cy="224" r="12"/>
+    </g>
+  </g>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">One result is noisy; many trials reveal the long-run shape.</text>
+</svg>
+""",
+    "BeginnerConditionalBayesScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Conditional probability and Bayes update">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Evidence filters the sample space</text>
+  <rect x="112" y="170" width="90" height="62" rx="12" fill="#ef6f6c" stroke="#10162f" stroke-width="3"/>
+  <rect x="202" y="170" width="610" height="62" rx="12" fill="#9ee6ff" stroke="#10162f" stroke-width="3"/>
+  <text x="144" y="150" fill="#d9463f" font-family="Arial, sans-serif" font-size="24">prior spam</text>
+  <text x="510" y="150" fill="#3868ff" font-family="Arial, sans-serif" font-size="24">normal mail</text>
+  <path d="M480 256V326" stroke="#d65a31" stroke-width="8" stroke-linecap="round"/>
+  <text x="480" y="304" fill="#d65a31" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">signal</text>
+  <rect x="250" y="360" width="190" height="62" rx="12" fill="#ef6f6c" stroke="#10162f" stroke-width="3"/>
+  <rect x="440" y="360" width="270" height="62" rx="12" fill="#9ee6ff" stroke="#10162f" stroke-width="3"/>
+  <text x="480" y="462" fill="#475467" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">posterior counts true signal and false alarms</text>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Bayes update keeps the base rate in the calculation.</text>
+</svg>
+""",
+    "BeginnerCalibrationCrossEntropyScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Calibration and cross entropy">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Probability bars must be checked</text>
+  <g font-family="Arial, sans-serif" font-size="24">
+    <text x="90" y="166" fill="#10162f">cat</text><rect x="160" y="142" width="250" height="34" rx="8" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <text x="90" y="226" fill="#10162f">dog</text><rect x="160" y="202" width="120" height="34" rx="8" fill="#3868ff" stroke="#10162f" stroke-width="3"/>
+    <text x="90" y="286" fill="#10162f">bird</text><rect x="160" y="262" width="62" height="34" rx="8" fill="#f2b84b" stroke="#10162f" stroke-width="3"/>
+  </g>
+  <path d="M520 368 C570 178 650 138 810 126" fill="none" stroke="#6f42c1" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="650" cy="196" r="14" fill="#f2b84b" stroke="#10162f" stroke-width="4"/>
+  <text x="642" y="92" fill="#6f42c1" font-family="Arial, sans-serif" font-size="25">loss = -log(p_true)</text>
+  <g stroke-width="10">
+    <path d="M530 438V386" stroke="#3868ff"/><path d="M552 438V392" stroke="#0f9f7a"/>
+    <path d="M610 438V348" stroke="#3868ff"/><path d="M632 438V370" stroke="#0f9f7a"/>
+    <path d="M690 438V304" stroke="#3868ff"/><path d="M712 438V340" stroke="#0f9f7a"/>
+    <path d="M770 438V258" stroke="#3868ff"/><path d="M792 438V324" stroke="#0f9f7a"/>
+  </g>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Useful probabilities are normalized, placed correctly, and calibrated.</text>
 </svg>
 """,
     "VectorSpanNormScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Vector span and norm poster">
@@ -137,6 +196,9 @@ FALLBACK_TITLES = {
     "BeginnerDerivativeWindowScene": "Derivative window shrinks to the tangent",
     "BeginnerChainRuleBackpropScene": "Chain rule sends gradients backward",
     "BeginnerLearningRateBehaviorScene": "Same slope, different step size",
+    "BeginnerProbabilityFrequencyScene": "Probability needs repeated trials",
+    "BeginnerConditionalBayesScene": "Evidence filters the sample space",
+    "BeginnerCalibrationCrossEntropyScene": "Probability bars must be checked",
 }
 
 
@@ -238,6 +300,8 @@ def write_static_posters() -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Render Math Intuition Lab Manim videos.")
     parser.add_argument("--skip-render", action="store_true", help="Only rewrite metadata.")
+    parser.add_argument("--force", action="store_true", help="Render scenes even when the public MP4 already exists.")
+    parser.add_argument("--scene", action="append", choices=sorted(SCENES), help="Render only the selected scene. Can be repeated.")
     args = parser.parse_args()
 
     PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
@@ -245,8 +309,13 @@ def main() -> None:
 
     if not args.skip_render:
         manim_path = shutil.which("manim")
+        selected_scenes = set(args.scene or SCENES.keys())
         for scene_name, filename in SCENES.items():
+            if scene_name not in selected_scenes:
+                continue
             destination = PUBLIC_DIR / filename
+            if destination.exists() and not args.force:
+                continue
             if manim_path:
                 output = render_scene(scene_name)
                 shutil.copyfile(output, destination)
