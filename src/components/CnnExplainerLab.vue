@@ -138,6 +138,14 @@ interface CnnOverviewTraceStep {
   tone: 'input' | 'current' | 'output'
 }
 
+interface CnnLayerFunctionGuide {
+  chapterId: string
+  title: string
+  body: string
+  route: string
+  isCurrentChapter: boolean
+}
+
 interface CnnOverviewTraceSummary {
   title: string
   body: string
@@ -154,6 +162,21 @@ interface CnnPipelineStep {
   shapeText: string
   parameterText: string
   state: 'done' | 'current' | 'pending'
+}
+
+interface CnnForwardStoryStep {
+  id: string
+  index: number
+  title: string
+  kind: CnnLayerKindLabel
+  operator: string
+  body: string
+  inputText: string
+  outputText: string
+  valueLabel: string
+  value: string
+  state: 'done' | 'current' | 'pending'
+  stateLabel: string
 }
 
 interface CnnKernelPreview {
@@ -190,6 +213,15 @@ interface CnnInputPixelPreview {
   rgb: [number, number, number]
   normalized: [number, number, number]
   color: string
+}
+
+interface CnnInputPreprocessStep {
+  id: string
+  kind: 'source' | 'crop' | 'resize' | 'normalize'
+  title: string
+  body: string
+  valueLabel: string
+  value: string
 }
 
 interface CnnConvAnimatorDetail {
@@ -533,6 +565,30 @@ interface CnnPropagationBridge {
   chips: CnnPropagationChip[]
 }
 
+type CnnFormulaTraceTarget =
+  | 'input-normalize'
+  | 'conv-product'
+  | 'conv-ledger'
+  | 'relu-term'
+  | 'pool-window'
+  | 'pool-winner'
+  | 'flatten-ledger'
+  | 'dense-ledger'
+  | 'softmax-term'
+
+interface CnnFormulaTraceTerm {
+  id: string
+  label: string
+  formula: string
+  value: string
+  body: string
+  target: CnnFormulaTraceTarget
+  tone: CnnHoverReadout['tone']
+  ledgerId?: string
+  reluTerm?: CnnReluOperatorTerm
+  scoreIndex?: number
+}
+
 const maxUploadBytes = 5 * 1024 * 1024
 const acceptedImageTypes = new Set(['image/png', 'image/jpeg', 'image/webp'])
 type CnnLayerKindLabel = CnnLayerSnapshot['kind']
@@ -685,6 +741,11 @@ const copy = computed(() =>
         hoverOverviewWindow: '局部窗口',
         pipeline: '传播路径',
         currentStage: '当前阶段',
+        forwardStoryboard: '传播讲解时间线',
+        forwardStoryboardHint: '播放或单步时，沿着这条脚本看每一层用了什么算子、把什么输入变成什么输出。',
+        forwardStoryboardCurrent: '正在计算',
+        forwardStoryboardDone: '已经过',
+        forwardStoryboardNext: '下一步',
         propagationBridge: '传播说明',
         inputSide: '输入侧',
         outputSide: '输出侧',
@@ -693,6 +754,15 @@ const copy = computed(() =>
         params: '参数',
         noParams: '0 参数',
         inputDataView: '输入数据视图',
+        inputPreprocessTitle: '浏览器输入预处理',
+        inputPreprocessHint: 'Tiny VGG 读取的不是图片文件本身，而是这条本地预处理流水线输出的 64×64×3 tensor。',
+        inputPreprocessSource: '素材图',
+        inputPreprocessCrop: '中心裁剪',
+        inputPreprocessResize: '缩放成 tensor',
+        inputPreprocessNormalize: '像素归一化',
+        inputPreprocessCropBody: '先取原图中心的正方形区域；非正方形图片会裁掉较长边的两侧或上下边。',
+        inputPreprocessResizeBody: '中心方形会被画到 64×64 canvas，得到模型实际读取的空间网格。',
+        inputPreprocessNormalizeBody: '每个 RGB 通道从 0-255 除以 255，变成 [0,1] 浮点数。',
         rgbChannels: 'RGB 三通道',
         channelRed: '红色通道',
         channelGreen: '绿色通道',
@@ -746,6 +816,11 @@ const copy = computed(() =>
         shape: 'shape / 参数',
         operation: '公式视图',
         stepExplanation: '这一步在做什么',
+        layerFunctionEyebrow: '层功能说明',
+        layerFunctionOpenChapter: '打开对应章节',
+        layerFunctionCurrent: '正在读这一章',
+        formulaTrace: '公式变量映射',
+        formulaTraceHint: '悬停或聚焦任一变量，查看它在当前传播步骤里对应的局部窗口、权重或分数。',
         map: '激活图',
         kernelBank: '卷积核权重',
         denseWeightMap: '分类头权重',
@@ -965,6 +1040,11 @@ const copy = computed(() =>
         hoverOverviewWindow: 'Local window',
         pipeline: 'Propagation path',
         currentStage: 'Current stage',
+        forwardStoryboard: 'Forward-pass teaching timeline',
+        forwardStoryboardHint: 'During play or step, follow this script to see which operator each layer uses and how its input becomes output.',
+        forwardStoryboardCurrent: 'computing now',
+        forwardStoryboardDone: 'already passed',
+        forwardStoryboardNext: 'next up',
         propagationBridge: 'Propagation note',
         inputSide: 'Input side',
         outputSide: 'Output side',
@@ -973,6 +1053,15 @@ const copy = computed(() =>
         params: 'params',
         noParams: '0 params',
         inputDataView: 'Input data view',
+        inputPreprocessTitle: 'Browser input preprocessing',
+        inputPreprocessHint: 'Tiny VGG does not read the image file itself; it reads the 64x64x3 tensor produced by this local preprocessing pipeline.',
+        inputPreprocessSource: 'Source image',
+        inputPreprocessCrop: 'Center crop',
+        inputPreprocessResize: 'Resize to tensor',
+        inputPreprocessNormalize: 'Normalize pixels',
+        inputPreprocessCropBody: 'First take the centered square region; non-square images lose the extra width or height around the edges.',
+        inputPreprocessResizeBody: 'The centered square is drawn onto a 64x64 canvas, creating the spatial grid the model reads.',
+        inputPreprocessNormalizeBody: 'Each RGB channel is divided by 255, changing 0-255 pixels into [0,1] floats.',
         rgbChannels: 'RGB channels',
         channelRed: 'red channel',
         channelGreen: 'green channel',
@@ -1026,6 +1115,11 @@ const copy = computed(() =>
         shape: 'shape / parameters',
         operation: 'Formula view',
         stepExplanation: 'What this step does',
+        layerFunctionEyebrow: 'Layer function',
+        layerFunctionOpenChapter: 'Open chapter',
+        layerFunctionCurrent: 'Current chapter',
+        formulaTrace: 'Formula variable map',
+        formulaTraceHint: 'Hover or focus a variable to connect it with the current local window, weight, or score.',
         map: 'Activation map',
         kernelBank: 'Kernel weights',
         denseWeightMap: 'Classifier weights',
@@ -1266,6 +1360,55 @@ const selectedInputPixel = computed<CnnInputPixelPreview | undefined>(() => {
     normalized,
     color: `rgb(${rgbValues[0]}, ${rgbValues[1]}, ${rgbValues[2]})`,
   }
+})
+const inputPreprocessSteps = computed<CnnInputPreprocessStep[]>(() => {
+  const pixel = selectedInputPixel.value
+  const imageName = selectedImageName.value || copy.value.defaultImage
+  const pixelPosition = pixel ? `(${pixel.row}, ${pixel.col})` : '(0, 0)'
+  const rgbValue = pixel ? `rgb(${pixel.rgb[0]}, ${pixel.rgb[1]}, ${pixel.rgb[2]})` : 'rgb(0, 0, 0)'
+  const normalizedValue = pixel
+    ? `R ${formatNumber(pixel.normalized[0])} · G ${formatNumber(pixel.normalized[1])} · B ${formatNumber(pixel.normalized[2])}`
+    : copy.value.fallback
+
+  return [
+    {
+      id: 'input-preprocess-source',
+      kind: 'source',
+      title: copy.value.inputPreprocessSource,
+      body: localized(
+        loc(
+          `当前素材是 ${imageName}；图片只在浏览器本地解码，不会上传到服务器。`,
+          `The current source is ${imageName}; it is decoded locally in the browser and is not uploaded to a server.`,
+        ),
+      ),
+      valueLabel: copy.value.input,
+      value: imageName,
+    },
+    {
+      id: 'input-preprocess-crop',
+      kind: 'crop',
+      title: copy.value.inputPreprocessCrop,
+      body: copy.value.inputPreprocessCropBody,
+      valueLabel: copy.value.receptiveFieldRegion,
+      value: 'center square',
+    },
+    {
+      id: 'input-preprocess-resize',
+      kind: 'resize',
+      title: copy.value.inputPreprocessResize,
+      body: copy.value.inputPreprocessResizeBody,
+      valueLabel: copy.value.outputShapeLabel,
+      value: '64×64×3',
+    },
+    {
+      id: 'input-preprocess-normalize',
+      kind: 'normalize',
+      title: copy.value.inputPreprocessNormalize,
+      body: copy.value.inputPreprocessNormalizeBody,
+      valueLabel: `${copy.value.selectedCell} ${pixelPosition}`,
+      value: `${rgbValue} → ${normalizedValue}`,
+    },
+  ]
 })
 const selectedLayerRange = computed(() => layerRange(selectedLayer.value))
 const mapPanelTitle = computed(() => {
@@ -2701,6 +2844,27 @@ const currentPipelineLabel = computed(() => {
   if (!layer) return copy.value.fallback
   return `${layer.name} · ${layer.kind} · ${layer.outputShape.join('×')}`
 })
+const forwardStorySteps = computed<CnnForwardStoryStep[]>(() =>
+  layers.value.map((layer) => {
+    const node = forwardStoryNode(layer)
+    const state = layer.index < selectedLayerIndex.value ? 'done' : layer.index === selectedLayerIndex.value ? 'current' : 'pending'
+    return {
+      id: `story-${layer.id}`,
+      index: layer.index,
+      title: `${layer.name} · ${layer.kind}`,
+      kind: layer.kind,
+      operator: overviewLayerRecipe(layer),
+      body: node ? layerRoleDescription(layer, node) : copy.value.fallback,
+      inputText: formatShape(layer.inputShape),
+      outputText: formatShape(layer.outputShape),
+      valueLabel: forwardStoryValueLabel(layer),
+      value: node ? forwardStoryValue(layer, node) : copy.value.fallback,
+      state,
+      stateLabel: forwardStoryStateLabel(state),
+    }
+  }),
+)
+const currentForwardStoryStep = computed(() => forwardStorySteps.value.find((step) => step.state === 'current'))
 const overviewInteractionHint = computed(() => {
   const focusedWindow = activeOverviewWindow.value
   if (focusedWindow) {
@@ -2963,6 +3127,263 @@ ${copy.value.prediction}: **${topPrediction.value?.label ?? ''}**`
 
   return `$$${detail.formula}$$`
 })
+
+const formulaTraceTerms = computed<CnnFormulaTraceTerm[]>(() => {
+  const detail = selectedDetail.value
+  if (!detail) return []
+
+  if (detail.kind === 'input') {
+    const value = selectedMatrix.value?.[selectedRow.value]?.[selectedCol.value] ?? 0
+    const raw = normalizedToRawPixel(value)
+    return [
+      {
+        id: 'formula-input-normalize',
+        label: copy.value.normalizedValue,
+        formula: 'pixel / 255',
+        value: `${raw}/255 → ${formatNumber(value)}`,
+        body: localized(
+          loc(
+            `当前 channel ${selectedNodeIndex.value} 的原始像素会除以 255，成为输入张量里的归一化值。`,
+            `The raw pixel in channel ${selectedNodeIndex.value} is divided by 255 to become the normalized tensor value.`,
+          ),
+        ),
+        target: 'input-normalize',
+        tone: 'activation',
+      },
+    ]
+  }
+
+  if (detail.kind === 'conv') {
+    const term = focusedConvMathTerm.value
+    const channelLedger = convLedgerItems.value.find((item) => item.kind === 'channel')
+    const biasLedger = convLedgerItems.value.find((item) => item.kind === 'bias')
+    const weightedLedger = convLedgerItems.value.find((item) => item.kind === 'weighted')
+    const reluLedger = convLedgerItems.value.find((item) => item.kind === 'relu')
+    const traceTerms: CnnFormulaTraceTerm[] = []
+
+    if (term) {
+      traceTerms.push({
+        id: 'formula-conv-product',
+        label: `${copy.value.patch} × ${copy.value.kernel}`,
+        formula: 'x · k',
+        value: `${formatNumber(term.patchValue)} × ${formatNumber(term.kernelValue)} = ${formatNumber(term.productValue)}`,
+        body: localized(
+          loc(
+            `定位到 channel ${term.channelIndex} 的一个乘法项；它会进入该 channel 的 product sum。`,
+            `This locates one multiplication term in channel ${term.channelIndex}; it feeds that channel product sum.`,
+          ),
+        ),
+        target: 'conv-product',
+        tone: valueTone(term.productValue),
+      })
+    }
+
+    if (channelLedger) {
+      traceTerms.push({
+        id: 'formula-conv-channel-sum',
+        label: copy.value.channelSum,
+        formula: 'Σ(x · k)',
+        value: channelLedger.formattedValue,
+        body: convLedgerItemDescription(channelLedger),
+        target: 'conv-ledger',
+        tone: channelLedger.tone,
+        ledgerId: channelLedger.id,
+      })
+    }
+
+    if (biasLedger) {
+      traceTerms.push({
+        id: 'formula-conv-bias',
+        label: copy.value.bias,
+        formula: '+ b',
+        value: biasLedger.formattedValue,
+        body: convLedgerItemDescription(biasLedger),
+        target: 'conv-ledger',
+        tone: biasLedger.tone,
+        ledgerId: biasLedger.id,
+      })
+    }
+
+    if (weightedLedger) {
+      traceTerms.push({
+        id: 'formula-conv-weighted',
+        label: copy.value.beforeRelu,
+        formula: 'z',
+        value: weightedLedger.formattedValue,
+        body: convLedgerItemDescription(weightedLedger),
+        target: 'conv-ledger',
+        tone: weightedLedger.tone,
+        ledgerId: weightedLedger.id,
+      })
+    }
+
+    if (reluLedger) {
+      traceTerms.push({
+        id: 'formula-conv-relu',
+        label: copy.value.reluValue,
+        formula: 'max(0,z)',
+        value: reluLedger.formattedValue,
+        body: convLedgerItemDescription(reluLedger),
+        target: 'conv-ledger',
+        tone: reluLedger.tone,
+        ledgerId: reluLedger.id,
+      })
+    }
+
+    return traceTerms
+  }
+
+  if (detail.kind === 'relu') {
+    return [
+      {
+        id: 'formula-relu-zero',
+        label: copy.value.zeroThreshold,
+        formula: '0',
+        value: '0',
+        body: localized(loc('ReLU 总是把 0 作为候选值参与比较。', 'ReLU always includes 0 as one comparison candidate.')),
+        target: 'relu-term',
+        tone: 'neutral',
+        reluTerm: 'zero',
+      },
+      {
+        id: 'formula-relu-input',
+        label: copy.value.reluSelectedInput,
+        formula: 'z',
+        value: formatNumber(detail.weightedSum),
+        body: localized(loc('上一层传来的 z 如果为正，就会原样通过。', 'If the incoming z is positive, it passes through unchanged.')),
+        target: 'relu-term',
+        tone: valueTone(detail.weightedSum ?? 0),
+        reluTerm: 'input',
+      },
+      {
+        id: 'formula-relu-output',
+        label: copy.value.reluValue,
+        formula: 'a=max(0,z)',
+        value: formatNumber(detail.reluValue),
+        body: localized(loc('输出 a 是 0 和 z 中较大的那个。', 'Output a is whichever is larger: 0 or z.')),
+        target: 'relu-term',
+        tone: valueTone(detail.reluValue ?? 0),
+        reluTerm: 'output',
+      },
+    ]
+  }
+
+  if (detail.kind === 'pool') {
+    const winner = activePoolOperatorCell.value
+    return [
+      {
+        id: 'formula-pool-window',
+        label: copy.value.poolWindow,
+        formula: '2×2 window',
+        value: `${copy.value.row} ${selectedRow.value * 2}, ${copy.value.col} ${selectedCol.value * 2}`,
+        body: localized(
+          loc(
+            'MaxPool 只查看当前 2×2 输入窗口里的候选激活。',
+            'MaxPool only inspects the candidate activations in the current 2x2 input window.',
+          ),
+        ),
+        target: 'pool-window',
+        tone: 'activation',
+      },
+      {
+        id: 'formula-pool-winner',
+        label: copy.value.poolWinner,
+        formula: 'max(window)',
+        value: formatNumber(detail.poolMax),
+        body: localized(
+          loc(
+            `最大候选来自 row ${winner?.row ?? detail.poolMaxPosition?.row ?? 0}, col ${winner?.col ?? detail.poolMaxPosition?.col ?? 0}。`,
+            `The winning candidate comes from row ${winner?.row ?? detail.poolMaxPosition?.row ?? 0}, col ${winner?.col ?? detail.poolMaxPosition?.col ?? 0}.`,
+          ),
+        ),
+        target: 'pool-winner',
+        tone: valueTone(detail.poolMax ?? 0),
+      },
+    ]
+  }
+
+  if (detail.kind === 'flatten') {
+    return flattenLedgerItems.value.map((item) => ({
+      id: `formula-${item.id}`,
+      label: item.label,
+      formula: item.formula,
+      value: item.formattedValue,
+      body: item.description,
+      target: 'flatten-ledger',
+      tone: item.kind === 'index' ? 'activation' : 'neutral',
+      ledgerId: item.id,
+    }))
+  }
+
+  if (detail.kind === 'dense') {
+    const sourceTerm = denseLedgerItems.value.find((item) => item.sourceIndex !== undefined)
+    const biasTerm = denseLedgerItems.value.find((item) => item.kind === 'bias')
+    const logitTerm = denseLedgerItems.value.find((item) => item.kind === 'logit')
+    const activeRow = activeSoftmaxRow.value
+    const terms: CnnFormulaTraceTerm[] = []
+
+    if (sourceTerm) {
+      terms.push({
+        id: 'formula-dense-source-term',
+        label: sourceTerm.label,
+        formula: sourceTerm.formula,
+        value: sourceTerm.formattedValue,
+        body: sourceTerm.description,
+        target: 'dense-ledger',
+        tone: sourceTerm.kind === 'negative' ? 'negative' : 'positive',
+        ledgerId: sourceTerm.id,
+      })
+    }
+
+    if (biasTerm) {
+      terms.push({
+        id: 'formula-dense-bias',
+        label: copy.value.bias,
+        formula: '+ b',
+        value: biasTerm.formattedValue,
+        body: biasTerm.description,
+        target: 'dense-ledger',
+        tone: 'weight',
+        ledgerId: biasTerm.id,
+      })
+    }
+
+    if (logitTerm) {
+      terms.push({
+        id: 'formula-dense-logit',
+        label: 'logit',
+        formula: 'z',
+        value: logitTerm.formattedValue,
+        body: logitTerm.description,
+        target: 'dense-ledger',
+        tone: 'logit',
+        ledgerId: logitTerm.id,
+      })
+    }
+
+    if (activeRow) {
+      terms.push({
+        id: 'formula-softmax-active',
+        label: copy.value.softmaxFraction,
+        formula: 'exp(z_i) / Σ exp(z_j)',
+        value: formatPercent(activeRow.probability),
+        body: localized(
+          loc(
+            `${activeRow.label} 的 exp(logit) 占分母 ${formatPercent(activeRow.expShare)}，归一化后得到当前概率。`,
+            `${activeRow.label}'s exp(logit) takes ${formatPercent(activeRow.expShare)} of the denominator, then normalizes to the current probability.`,
+          ),
+        ),
+        target: 'softmax-term',
+        tone: 'logit',
+        scoreIndex: activeRow.classIndex,
+      })
+    }
+
+    return terms
+  }
+
+  return []
+})
 const operationNarration = computed(() => {
   const kind = selectedDetail.value?.kind ?? selectedLayer.value?.kind ?? 'input'
   const narrations = localized(
@@ -2987,6 +3408,101 @@ const operationNarration = computed(() => {
   )
 
   return narrations[kind]
+})
+
+const layerFunctionGuide = computed<CnnLayerFunctionGuide | undefined>(() => {
+  const kind = selectedDetail.value?.kind ?? selectedLayer.value?.kind
+  if (!kind) return undefined
+
+  const isLaterConv = kind === 'conv' && (selectedLayer.value?.index ?? 0) > 2
+  const guides: Record<CnnLayerKindLabel, { chapterId: string; title: string; body: string }> = localized(
+    loc(
+      {
+        input: {
+          chapterId: 'image-volume',
+          title: 'Input 层：图片先变成数值体',
+          body: '演示 PNG 或上传图片会在浏览器本地中心裁剪、缩放到 64×64×3，并归一化成后续层能读取的 RGB 数值矩阵。',
+        },
+        conv: isLaterConv
+          ? {
+              chapterId: 'channels-feature-maps',
+              title: 'Conv 层：多个 filter 生成 feature maps',
+              body: '这一层不只做一次卷积；每个输出 channel 都有自己的 kernel bank 与 bias，生成一张独立的 feature map。',
+            }
+          : {
+              chapterId: 'kernel-convolution',
+              title: 'Conv 层：patch 与 kernel 做局部点乘',
+              body: '当前输出 cell 来自一个局部输入窗口：逐 channel 做 patch×kernel，累加 bias 后再交给 ReLU。',
+            },
+        relu: {
+          chapterId: 'kernel-convolution',
+          title: 'ReLU 层：负值截断，正值保留',
+          body: '它没有可训练参数，只把上一层的 z 逐格变成 max(0,z)，让激活图更突出“有响应”的位置。',
+        },
+        pool: {
+          chapterId: 'pooling-classifier-head',
+          title: 'MaxPool 层：保留局部最大激活',
+          body: '当前 2×2 window 里只有最大值被复制到下一层；空间尺寸变小，但强响应可以继续传播。',
+        },
+        flatten: {
+          chapterId: 'pooling-classifier-head',
+          title: 'Flatten 层：把空间地址改写成向量地址',
+          body: 'Flatten 不改数值，只把 (channel,row,col) 映射成一维 vector index，供 Dense 分类头读取。',
+        },
+        dense: {
+          chapterId: 'pooling-classifier-head',
+          title: 'Dense / Softmax：从表示变成类别概率',
+          body: 'Dense 用 flatten 向量与权重做加权和得到 logits，Softmax 再把所有 logits 一起归一化为概率。',
+        },
+      },
+      {
+        input: {
+          chapterId: 'image-volume',
+          title: 'Input layer: the image becomes a volume',
+          body: 'A demo PNG or uploaded image is center-cropped, resized to 64x64x3, and normalized locally in the browser into RGB matrices for later layers.',
+        },
+        conv: isLaterConv
+          ? {
+              chapterId: 'channels-feature-maps',
+              title: 'Conv layer: many filters create feature maps',
+              body: 'This layer does more than one convolution; each output channel owns a kernel bank and bias, producing its own feature map.',
+            }
+          : {
+              chapterId: 'kernel-convolution',
+              title: 'Conv layer: local patch-kernel dot products',
+              body: 'The selected output cell comes from a local input window: each channel computes patch x kernel, then bias and ReLU complete the step.',
+            },
+        relu: {
+          chapterId: 'kernel-convolution',
+          title: 'ReLU layer: clip negatives, keep positives',
+          body: 'It has no trainable parameters; each z becomes max(0,z), making the activation map emphasize where a feature responded.',
+        },
+        pool: {
+          chapterId: 'pooling-classifier-head',
+          title: 'MaxPool layer: keep the local maximum',
+          body: 'Only the largest value in the current 2x2 window is copied forward; spatial size shrinks while strong responses keep flowing.',
+        },
+        flatten: {
+          chapterId: 'pooling-classifier-head',
+          title: 'Flatten layer: rewrite spatial addresses as vector addresses',
+          body: 'Flatten does not change values; it maps (channel,row,col) into one vector index for the Dense classifier head.',
+        },
+        dense: {
+          chapterId: 'pooling-classifier-head',
+          title: 'Dense / Softmax: representation becomes class probability',
+          body: 'Dense turns the flatten vector into logits with weighted sums, then Softmax normalizes all logits together into probabilities.',
+        },
+      },
+    ),
+  )
+  const guide = guides[kind]
+  if (!guide) return undefined
+
+  return {
+    ...guide,
+    route: `/learn/cnn-visualization/${guide.chapterId}`,
+    isCurrentChapter: props.section.id === guide.chapterId,
+  }
 })
 const propagationBridge = computed<CnnPropagationBridge | undefined>(() => {
   const layer = selectedLayer.value
@@ -3175,11 +3691,46 @@ async function runInference(imageUrl: string, imageName: string) {
     selectedImageUrl.value = imageUrl
     selectedImageName.value = imageName
     status.value = 'ready'
-    selectLayer(0, 0)
+    selectLayer(preferredLayerIndexForSection(), preferredNodeIndexForSection())
   } catch (error) {
     status.value = 'error'
     statusMessage.value = error instanceof Error ? error.message : copy.value.fallback
   }
+}
+
+function preferredLayerIndexForSection(sectionId = props.section.id) {
+  if (sectionId === 'image-volume') return 0
+  if (sectionId === 'kernel-convolution') {
+    const firstConvIndex = layers.value.findIndex((layer) => layer.kind === 'conv')
+    return firstConvIndex >= 0 ? firstConvIndex : 0
+  }
+  if (sectionId === 'padding-stride-shape') {
+    const firstPoolIndex = layers.value.findIndex((layer) => layer.kind === 'pool')
+    return firstPoolIndex >= 0 ? firstPoolIndex : 0
+  }
+  if (sectionId === 'channels-feature-maps') {
+    const laterConvIndex = layers.value.findIndex((layer) => layer.kind === 'conv' && layer.index > 2)
+    if (laterConvIndex >= 0) return laterConvIndex
+    const firstConvIndex = layers.value.findIndex((layer) => layer.kind === 'conv')
+    return firstConvIndex >= 0 ? firstConvIndex : 0
+  }
+  if (sectionId === 'pooling-classifier-head') {
+    const firstPoolIndex = layers.value.findIndex((layer) => layer.kind === 'pool')
+    return firstPoolIndex >= 0 ? firstPoolIndex : 0
+  }
+  if (sectionId === 'transfer-learning-review') {
+    const denseIndex = layers.value.findIndex((layer) => layer.kind === 'dense')
+    return denseIndex >= 0 ? denseIndex : 0
+  }
+  return 0
+}
+
+function preferredNodeIndexForSection(sectionId = props.section.id) {
+  if (sectionId === 'transfer-learning-review') {
+    const topIndex = scores.value.findIndex((score) => score.id === topPrediction.value?.id)
+    return topIndex >= 0 ? topIndex : 0
+  }
+  return 0
 }
 
 function onUploadClick() {
@@ -3282,6 +3833,70 @@ function selectPipelineStep(layerIndex: number) {
   selectLayer(layerIndex, 0)
 }
 
+function forwardStoryStateLabel(state: CnnForwardStoryStep['state']) {
+  if (state === 'done') return copy.value.forwardStoryboardDone
+  if (state === 'current') return copy.value.forwardStoryboardCurrent
+  return copy.value.forwardStoryboardNext
+}
+
+function forwardStoryNode(layer: CnnLayerSnapshot) {
+  if (layer.index === selectedLayerIndex.value && selectedNode.value) return selectedNode.value
+  if (layer.kind === 'dense') {
+    const topScoreIndex = scores.value.findIndex((score) => score.id === topPrediction.value?.id)
+    return layer.nodes[topScoreIndex >= 0 ? topScoreIndex : 0]
+  }
+  return layer.nodes[0]
+}
+
+function forwardStoryValueLabel(layer: CnnLayerSnapshot) {
+  if (layer.kind === 'dense') return copy.value.probability
+  if (layer.kind === 'flatten') return copy.value.vectorIndex
+  return copy.value.currentValue
+}
+
+function forwardStoryNumericValue(layer: CnnLayerSnapshot, node: CnnNodeSnapshot) {
+  if (layer.kind === 'dense') return scores.value[node.index]?.probability ?? numberFromOutput(node.output)
+  if (isMatrix(node.output)) {
+    const row = Math.min(Math.max(0, selectedRow.value), Math.max(0, node.output.length - 1))
+    const col = Math.min(Math.max(0, selectedCol.value), Math.max(0, (node.output[0]?.length ?? 1) - 1))
+    return node.output[row]?.[col] ?? 0
+  }
+  return numberFromOutput(node.output)
+}
+
+function forwardStoryValue(layer: CnnLayerSnapshot, node: CnnNodeSnapshot) {
+  if (layer.kind === 'dense') return formatPercent(forwardStoryNumericValue(layer, node))
+  if (layer.kind === 'flatten') return `v${node.realIndex ?? node.index} = ${formatNumber(numberFromOutput(node.output))}`
+  return formatNumber(forwardStoryNumericValue(layer, node))
+}
+
+function focusForwardStoryStep(step: CnnForwardStoryStep) {
+  const layer = layers.value[step.index]
+  const node = layer ? forwardStoryNode(layer) : undefined
+  const liveState = layer
+    ? layer.index < selectedLayerIndex.value
+      ? 'done'
+      : layer.index === selectedLayerIndex.value
+        ? 'current'
+        : 'pending'
+    : step.state
+  setHoverReadout({
+    eyebrow: copy.value.forwardStoryboard,
+    title: step.title,
+    body: step.body,
+    value: `${forwardStoryStateLabel(liveState)} · ${step.valueLabel}: ${step.value}`,
+    tone: layer?.kind === 'dense' ? 'logit' : valueTone(node && layer ? forwardStoryNumericValue(layer, node) : 0),
+  })
+}
+
+function selectForwardStoryStep(step: CnnForwardStoryStep) {
+  const layer = layers.value[step.index]
+  if (!layer) return
+  const node = forwardStoryNode(layer)
+  selectLayer(step.index, node?.index ?? 0)
+  focusForwardStoryStep(step)
+}
+
 function selectConnectionNode(connection: CnnConnectionSummary) {
   selectLayer(connection.layerIndex, connection.nodeIndex)
 }
@@ -3304,6 +3919,92 @@ function setHoverReadout(readout: CnnHoverReadout) {
 
 function clearHoverReadout() {
   hoverReadout.value = undefined
+}
+
+function setFormulaTraceReadout(term: CnnFormulaTraceTerm) {
+  setHoverReadout({
+    eyebrow: copy.value.formulaTrace,
+    title: term.label,
+    body: term.body,
+    value: `${term.formula} = ${term.value}`,
+    tone: term.tone,
+  })
+}
+
+function focusFormulaTraceTerm(term: CnnFormulaTraceTerm) {
+  if (term.target === 'input-normalize') {
+    setFormulaTraceReadout(term)
+    return
+  }
+
+  if (term.target === 'conv-product') {
+    const contribution = activeConvContribution.value
+    const mathTerm = focusedConvMathTerm.value
+    if (contribution && mathTerm) {
+      focusConvMathCell(contribution, mathTerm.row, mathTerm.col)
+      return
+    }
+  }
+
+  if (term.target === 'conv-ledger') {
+    const item = convLedgerItems.value.find((ledgerItem) => ledgerItem.id === term.ledgerId)
+    if (item) {
+      focusConvLedgerItem(item)
+      return
+    }
+  }
+
+  if (term.target === 'relu-term' && term.reluTerm) {
+    focusReluOperatorTerm(term.reluTerm)
+    return
+  }
+
+  if (term.target === 'pool-window') {
+    const cell = poolOperatorCells.value.flat()[0]
+    if (cell) {
+      focusPoolOperatorCell(cell)
+      return
+    }
+  }
+
+  if (term.target === 'pool-winner') {
+    const winner = poolOperatorCells.value.flat().find((cell) => cell.isMax) ?? activePoolOperatorCell.value
+    if (winner) {
+      focusPoolOperatorCell(winner)
+      return
+    }
+  }
+
+  if (term.target === 'flatten-ledger') {
+    const item = flattenLedgerItems.value.find((ledgerItem) => ledgerItem.id === term.ledgerId)
+    if (item) {
+      focusFlattenLedgerItem(item)
+      return
+    }
+  }
+
+  if (term.target === 'dense-ledger') {
+    const item = denseLedgerItems.value.find((ledgerItem) => ledgerItem.id === term.ledgerId)
+    if (item) {
+      focusDenseLedgerItem(item)
+      return
+    }
+  }
+
+  if (term.target === 'softmax-term' && term.scoreIndex !== undefined) {
+    focusSoftmaxClass(term.scoreIndex)
+    return
+  }
+
+  setFormulaTraceReadout(term)
+}
+
+function clearFormulaTraceFocus() {
+  reluFocusedTerm.value = undefined
+  poolFocusedCell.value = undefined
+  highlightedSoftmaxIndex.value = undefined
+  focusedDenseSourceIndex.value = undefined
+  clearHoverReadout()
 }
 
 function clearFocusedOverviewNode() {
@@ -3446,6 +4147,16 @@ function focusSoftmaxReadout(score: CnnClassScore, classIndex: number) {
 function focusActivationCellReadout(cell: CnnMatrixCell) {
   const layerName = selectedLayer.value?.name ?? copy.value.map
   focusMatrixCellReadout(layerName, cell, copy.value.reluValue)
+}
+
+function focusInputPreprocessStep(step: CnnInputPreprocessStep) {
+  setHoverReadout({
+    eyebrow: copy.value.inputPreprocessTitle,
+    title: step.title,
+    body: step.body,
+    value: `${step.valueLabel}: ${step.value}`,
+    tone: step.kind === 'normalize' ? 'activation' : 'neutral',
+  })
 }
 
 function focusInputChannelCellReadout(preview: CnnInputChannelPreview, cell: CnnMatrixCell) {
@@ -5513,6 +6224,43 @@ function rangeFromValues(values: number[]): [number, number] {
           </div>
         </section>
 
+        <section v-if="forwardStorySteps.length" class="cnn-forward-storyboard" :aria-label="copy.forwardStoryboard">
+          <header>
+            <div>
+              <span>{{ copy.forwardStoryboard }}</span>
+              <strong>{{ currentForwardStoryStep?.title ?? copy.fallback }}</strong>
+            </div>
+            <p>{{ copy.forwardStoryboardHint }}</p>
+          </header>
+
+          <div class="cnn-forward-storyboard__steps">
+            <button
+              v-for="step in forwardStorySteps"
+              :key="step.id"
+              type="button"
+              class="cnn-forward-storyboard__step"
+              :class="[`is-${step.kind}`, `is-${step.state}`]"
+              :aria-current="step.state === 'current' ? 'step' : undefined"
+              @mouseenter="focusForwardStoryStep(step)"
+              @mouseleave="clearHoverReadout"
+              @focus="focusForwardStoryStep(step)"
+              @blur="clearHoverReadout"
+              @click="selectForwardStoryStep(step)"
+            >
+              <b>{{ step.index + 1 }}</b>
+              <span>{{ step.stateLabel }}</span>
+              <strong>{{ step.title }}</strong>
+              <em>{{ step.operator }}</em>
+              <p>{{ step.body }}</p>
+              <small>{{ step.inputText }} → {{ step.outputText }}</small>
+              <i>
+                {{ step.valueLabel }}
+                <strong>{{ step.value }}</strong>
+              </i>
+            </button>
+          </div>
+        </section>
+
         <div class="cnn-overview" role="region" :aria-label="copy.overview" @mouseleave="clearOverviewNodeHover">
           <svg :width="svgWidth" height="318" :viewBox="`0 0 ${svgWidth} 318`" role="img" :aria-label="copy.overview">
             <g class="cnn-overview__edges">
@@ -6463,7 +7211,51 @@ function rangeFromValues(values: number[]): [number, number] {
                 <p>{{ operationNarration }}</p>
               </section>
 
+              <section
+                v-if="layerFunctionGuide"
+                class="cnn-layer-function-guide"
+                :class="{ 'is-current-chapter': layerFunctionGuide.isCurrentChapter }"
+              >
+                <div>
+                  <span>{{ copy.layerFunctionEyebrow }}</span>
+                  <strong>{{ layerFunctionGuide.title }}</strong>
+                  <p>{{ layerFunctionGuide.body }}</p>
+                </div>
+                <router-link class="cnn-layer-function-guide__link" :to="layerFunctionGuide.route">
+                  <span aria-hidden="true">i</span>
+                  {{ layerFunctionGuide.isCurrentChapter ? copy.layerFunctionCurrent : copy.layerFunctionOpenChapter }}
+                </router-link>
+              </section>
+
               <MarkdownMathContent :source="formulaMarkdown" />
+
+              <section v-if="formulaTraceTerms.length" class="cnn-formula-trace" :aria-label="copy.formulaTrace">
+                <header>
+                  <span>{{ copy.formulaTrace }}</span>
+                  <p>{{ copy.formulaTraceHint }}</p>
+                </header>
+
+                <div class="cnn-formula-trace__terms">
+                  <button
+                    v-for="term in formulaTraceTerms"
+                    :key="term.id"
+                    type="button"
+                    class="cnn-formula-trace__term"
+                    :class="`is-${term.tone ?? 'neutral'}`"
+                    :aria-label="`${term.label}: ${term.formula} = ${term.value}`"
+                    @mouseenter="focusFormulaTraceTerm(term)"
+                    @focus="focusFormulaTraceTerm(term)"
+                    @click="focusFormulaTraceTerm(term)"
+                    @mouseleave="clearFormulaTraceFocus"
+                    @blur="clearFormulaTraceFocus"
+                  >
+                    <span>{{ term.label }}</span>
+                    <code>{{ term.formula }}</code>
+                    <strong>{{ term.value }}</strong>
+                    <em>{{ term.body }}</em>
+                  </button>
+                </div>
+              </section>
 
               <div v-if="selectedDetail?.kind === 'input'" class="cnn-input-data-view">
                 <header>

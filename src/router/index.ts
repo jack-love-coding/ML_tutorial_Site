@@ -60,6 +60,11 @@ export const router = createRouter({
       component: () => import('../views/AlgorithmView.vue'),
     },
     {
+      path: '/learn/cnn-visualization/:chapterId',
+      name: 'cnn-visualization-chapter',
+      component: () => import('../views/AlgorithmView.vue'),
+    },
+    {
       path: '/learn/:slug',
       name: 'algorithm',
       component: () => import('../views/AlgorithmView.vue'),

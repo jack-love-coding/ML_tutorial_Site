@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -46,10 +46,14 @@ const { experiments } = storeToRefs(experimentStore)
 const activeChapter = ref('')
 const mlpPlaygroundRef = ref<HTMLElement | null>(null)
 const progress = ref(loadAlgorithmProgress())
+const routeChapterLock = ref('')
+let routeChapterScrollFrame = 0
+let routeChapterUnlockTimer: number | undefined
 
 const slug = computed(() => {
   const routeSlug = route.params.slug
   if (typeof routeSlug === 'string') return routeSlug as ModuleSlug
+  if (route.path.startsWith('/learn/cnn-visualization')) return 'cnn-visualization' as ModuleSlug
   if (route.path.startsWith('/learn/logistic-regression')) return 'logistic-regression' as ModuleSlug
   if (route.path.startsWith('/learn/linear-regression')) return 'linear-regression' as ModuleSlug
   return 'linear-regression' as ModuleSlug
@@ -109,14 +113,16 @@ watch(
     const firstChapterId = nextModuleDefinition.chapters[0]?.id ?? ''
     let nextActiveChapter = firstChapterId
 
-    if (nextSlug === 'linear-regression' || nextSlug === 'logistic-regression') {
+    if (nextSlug === 'linear-regression' || nextSlug === 'logistic-regression' || nextSlug === 'cnn-visualization') {
       if (nextChapterId) {
         const matchedChapter = nextModuleDefinition.chapters.find((chapter) => chapter.id === nextChapterId)
         if (!matchedChapter) {
           if (nextSlug === 'linear-regression') {
             router.replace(`/learn/linear-regression/${firstChapterId}`)
-          } else {
+          } else if (nextSlug === 'logistic-regression') {
             router.replace(`/learn/logistic-regression/${firstChapterId}`)
+          } else {
+            router.replace(`/learn/cnn-visualization/${firstChapterId}`)
           }
           return
         }
@@ -125,6 +131,9 @@ watch(
 
       activeChapter.value = nextActiveChapter
       syncChapterPreset(nextActiveChapter)
+      if (nextSlug === 'cnn-visualization' && nextChapterId) {
+        syncRouteChapterIntoView(nextActiveChapter)
+      }
       return
     }
 
@@ -327,6 +336,41 @@ function stopTimer() {
   }
 }
 
+function stopRouteChapterSync() {
+  if (routeChapterScrollFrame) {
+    window.cancelAnimationFrame(routeChapterScrollFrame)
+    routeChapterScrollFrame = 0
+  }
+  if (routeChapterUnlockTimer) {
+    window.clearTimeout(routeChapterUnlockTimer)
+    routeChapterUnlockTimer = undefined
+  }
+}
+
+function syncRouteChapterIntoView(chapterId: string) {
+  routeChapterLock.value = chapterId
+  stopRouteChapterSync()
+  nextTick(() => {
+    routeChapterScrollFrame = window.requestAnimationFrame(() => {
+      activeChapter.value = chapterId
+      document.getElementById(chapterId)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+      routeChapterScrollFrame = window.requestAnimationFrame(() => {
+        routeChapterScrollFrame = 0
+        activeChapter.value = chapterId
+        document.getElementById(chapterId)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+        routeChapterUnlockTimer = window.setTimeout(() => {
+          if (routeChapterLock.value === chapterId) {
+            activeChapter.value = chapterId
+            document.getElementById(chapterId)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+            routeChapterLock.value = ''
+          }
+          routeChapterUnlockTimer = undefined
+        }, 1200)
+      })
+    })
+  })
+}
+
 watch(
   () => [experiment.value?.isPlaying, experiment.value?.config.playbackMs, slug.value],
   () => {
@@ -340,7 +384,10 @@ watch(
   { deep: true, immediate: true },
 )
 
-onBeforeUnmount(stopTimer)
+onBeforeUnmount(() => {
+  stopTimer()
+  stopRouteChapterSync()
+})
 
 function syncChapterPreset(nextChapter: string) {
   if (isLinearRegressionPage.value || isLogisticRegressionPage.value || isClassificationPage.value || isMlpPage.value) {
@@ -356,7 +403,11 @@ function syncChapterPreset(nextChapter: string) {
 }
 
 function onChapterChange(nextChapter: string) {
+  if (routeChapterLock.value && nextChapter !== routeChapterLock.value) return
   activeChapter.value = nextChapter
+  if (routeChapterLock.value === nextChapter) {
+    routeChapterLock.value = ''
+  }
   syncChapterPreset(nextChapter)
 }
 

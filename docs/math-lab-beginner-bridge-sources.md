@@ -39,6 +39,8 @@ The three beginner-calculus video scenes are authored in `scripts/manim/scenes/m
 
 2026-06-19 symbol polish note: the local Manim environment does not include a compatible LaTeX toolchain, so beginner videos use Unicode mathematical labels instead of `MathTex`. Code-like labels such as `dyhat` and `eta` were replaced with learner-facing symbols such as `ŷ`, `σ`, `∂L/∂ŷ`, and `η`.
 
+2026-06-19 teaching-copy polish note: the beginner-calculus Chinese copy was revised with the local `humanizer-zh` editing guide. The rewrite keeps the same typed module schema and formulas, but uses more teacher-like prompts, everyday examples such as grocery pricing, and clearer bridges between functions, slope, rate of change, gradients, and loss updates.
+
 ## Prompt Set
 
 ### Linear Algebra
