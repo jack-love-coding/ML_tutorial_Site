@@ -22,6 +22,21 @@
       "posterPath": "/manim/math-lab/gradient-descent.svg"
     },
     {
+      "scene": "BeginnerDerivativeWindowScene",
+      "assetPath": "/manim/math-lab/beginner-derivative-window.mp4",
+      "posterPath": "/manim/math-lab/beginner-derivative-window.svg"
+    },
+    {
+      "scene": "BeginnerChainRuleBackpropScene",
+      "assetPath": "/manim/math-lab/beginner-chain-rule-backprop.mp4",
+      "posterPath": "/manim/math-lab/beginner-chain-rule-backprop.svg"
+    },
+    {
+      "scene": "BeginnerLearningRateBehaviorScene",
+      "assetPath": "/manim/math-lab/beginner-learning-rate-behavior.mp4",
+      "posterPath": "/manim/math-lab/beginner-learning-rate-behavior.svg"
+    },
+    {
       "scene": "TaylorPolynomialScene",
       "assetPath": "/manim/math-lab/taylor-polynomial.mp4",
       "posterPath": "/manim/math-lab/taylor-polynomial.svg"

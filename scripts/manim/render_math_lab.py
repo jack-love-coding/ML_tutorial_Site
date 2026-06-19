@@ -16,11 +16,66 @@ SCENES = {
     "MatrixTransformScene": "matrix-transform.mp4",
     "VectorSpanNormScene": "vector-span-norm.mp4",
     "GradientDescentScene": "gradient-descent.mp4",
+    "BeginnerDerivativeWindowScene": "beginner-derivative-window.mp4",
+    "BeginnerChainRuleBackpropScene": "beginner-chain-rule-backprop.mp4",
+    "BeginnerLearningRateBehaviorScene": "beginner-learning-rate-behavior.mp4",
     "TaylorPolynomialScene": "taylor-polynomial.mp4",
     "MonteCarloSamplingScene": "monte-carlo-sampling.mp4",
 }
 
 POSTER_SVGS = {
+    "BeginnerDerivativeWindowScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Derivative window shrinking to tangent slope">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <g stroke="#dbe4f2" stroke-width="1">
+    <path d="M90 120H870M90 190H870M90 260H870M90 330H870M90 400H870"/>
+    <path d="M130 90V450M240 90V450M350 90V450M460 90V450M570 90V450M680 90V450M790 90V450"/>
+  </g>
+  <path d="M110 418H840M160 90V440" stroke="#7b8497" stroke-width="3"/>
+  <path d="M180 134 C305 384 492 486 768 182" fill="none" stroke="#3868ff" stroke-width="9" stroke-linecap="round"/>
+  <path d="M500 360L725 235" stroke="#ef6f6c" stroke-width="7" stroke-linecap="round"/>
+  <path d="M500 360L628 304" stroke="#d65a31" stroke-width="7" stroke-linecap="round"/>
+  <path d="M500 360L580 332" stroke="#0f9f7a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M394 385L650 292" stroke="#0f9f7a" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="500" cy="360" r="15" fill="#ffd84d" stroke="#10162f" stroke-width="4"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Derivative window shrinks to the tangent</text>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Average change approaches local slope as h gets smaller.</text>
+</svg>
+""",
+    "BeginnerChainRuleBackpropScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Chain rule backpropagation computation graph">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Chain rule sends gradients backward</text>
+  <g font-family="Arial, sans-serif" font-size="24" text-anchor="middle">
+    <rect x="92" y="204" width="130" height="78" rx="14" fill="#ffffff" stroke="#10162f" stroke-width="3"/><text x="157" y="253" fill="#10162f">x</text>
+    <rect x="292" y="204" width="150" height="78" rx="14" fill="#ffffff" stroke="#10162f" stroke-width="3"/><text x="367" y="253" fill="#10162f">z = w·x + b</text>
+    <rect x="516" y="204" width="150" height="78" rx="14" fill="#ffffff" stroke="#10162f" stroke-width="3"/><text x="591" y="253" fill="#10162f">ŷ = σ(z)</text>
+    <rect x="736" y="204" width="130" height="78" rx="14" fill="#ffffff" stroke="#10162f" stroke-width="3"/><text x="801" y="253" fill="#10162f">L</text>
+  </g>
+  <path d="M222 243H292M442 243H516M666 243H736" stroke="#3868ff" stroke-width="8"/>
+  <path d="M736 342H666M516 342H442M292 342H222" stroke="#d65a31" stroke-width="8"/>
+  <text x="482" y="174" fill="#3868ff" font-family="Arial, sans-serif" font-size="25">forward values</text>
+  <text x="466" y="390" fill="#d65a31" font-family="Arial, sans-serif" font-size="25">upstream gradient × local derivative</text>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Backpropagation is chain rule bookkeeping on a graph.</text>
+</svg>
+""",
+    "BeginnerLearningRateBehaviorScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Learning rate paths comparing small steady and too large steps">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Same slope, different step size</text>
+  <g fill="none" stroke="#3868ff" stroke-width="7" stroke-linecap="round">
+    <path d="M92 380 C150 120 248 120 306 380"/>
+    <path d="M378 380 C436 120 534 120 592 380"/>
+    <path d="M664 380 C722 120 820 120 878 380"/>
+  </g>
+  <path d="M120 190L150 250L176 292L202 324L224 346" stroke="#f2b84b" stroke-width="7" fill="none"/>
+  <path d="M404 190L470 318L486 352" stroke="#0f9f7a" stroke-width="7" fill="none"/>
+  <path d="M692 190L850 250L704 302L826 326" stroke="#d9463f" stroke-width="7" fill="none"/>
+  <g font-family="Arial, sans-serif" font-size="24" font-weight="700">
+    <text x="108" y="148" fill="#f2b84b">small η</text>
+    <text x="396" y="148" fill="#0f9f7a">steady η</text>
+    <text x="684" y="148" fill="#d9463f">large η</text>
+  </g>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">A large step can reuse local slope information too far away.</text>
+</svg>
+""",
     "VectorSpanNormScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Vector span and norm poster">
   <rect width="960" height="540" fill="#f8fbff"/>
   <g stroke="#d7dee9" stroke-width="1">
@@ -78,6 +133,12 @@ POSTER_SVGS = {
 """,
 }
 
+FALLBACK_TITLES = {
+    "BeginnerDerivativeWindowScene": "Derivative window shrinks to the tangent",
+    "BeginnerChainRuleBackpropScene": "Chain rule sends gradients backward",
+    "BeginnerLearningRateBehaviorScene": "Same slope, different step size",
+}
+
 
 def render_scene(scene_name: str) -> Path:
     subprocess.run(
@@ -98,6 +159,59 @@ def render_scene(scene_name: str) -> Path:
     if not media_path.exists():
         raise FileNotFoundError(f"Expected Manim output not found: {media_path}")
     return media_path
+
+
+def write_fallback_video(scene_name: str, out_path: Path) -> None:
+    from PIL import Image, ImageDraw, ImageFont
+    import av
+
+    title = FALLBACK_TITLES.get(scene_name, scene_name)
+    font_title = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 44)
+    font_body = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 26)
+    width, height = 960, 540
+    container = av.open(str(out_path), "w")
+    stream = container.add_stream("libx264", rate=15)
+    stream.width = width
+    stream.height = height
+    stream.pix_fmt = "yuv420p"
+
+    for frame_index in range(90):
+        image = Image.new("RGB", (width, height), "#fffaf1")
+        draw = ImageDraw.Draw(image)
+        draw.text((72, 58), title, fill="#10162f", font=font_title)
+        progress = frame_index / 89
+        draw.rounded_rectangle((88, 150, 872, 410), radius=26, fill="#ffffff", outline="#d8dfeb", width=4)
+        if scene_name == "BeginnerChainRuleBackpropScene":
+            nodes = [(150, "x"), (340, "z = w·x + b"), (560, "ŷ = σ(z)"), (760, "L")]
+            for x, label in nodes:
+                draw.rounded_rectangle((x - 62, 235, x + 62, 300), radius=12, fill="#ffffff", outline="#10162f", width=3)
+                draw.text((x - 42, 255), label, fill="#10162f", font=font_body)
+            draw.line((212, 268, 278, 268, 498, 268, 698, 268), fill="#3868ff", width=7)
+            x_back = 760 - progress * 610
+            draw.line((760, 340, x_back, 340), fill="#d65a31", width=7)
+        elif scene_name == "BeginnerLearningRateBehaviorScene":
+            for offset, color in [(170, "#f2b84b"), (440, "#0f9f7a"), (710, "#d9463f")]:
+                draw.arc((offset - 95, 180, offset + 95, 390), 190, 350, fill="#3868ff", width=7)
+                draw.line((offset - 70, 230, offset - 70 + 130 * progress, 340 - 110 * abs(progress - 0.5)), fill=color, width=7)
+        else:
+            points = []
+            for index in range(100):
+                x = -2.4 + index * 4.8 / 99
+                y = 0.35 * (x - 0.25) ** 2
+                points.append((150 + index * 6.5, 360 - y * 95))
+            draw.line(points, fill="#3868ff", width=7)
+            x0 = 470
+            h = 210 * (1 - progress) + 34
+            draw.line((x0, 335, x0 + h, 280 + h * 0.12), fill="#d65a31", width=7)
+            draw.line((380, 350, 610, 310), fill="#0f9f7a", width=7)
+        draw.text((72, 462), "Fallback preview generated because Manim is unavailable in this environment.", fill="#475467", font=font_body)
+        video_frame = av.VideoFrame.from_image(image)
+        for packet in stream.encode(video_frame):
+            container.mux(packet)
+
+    for packet in stream.encode():
+        container.mux(packet)
+    container.close()
 
 
 def write_metadata() -> None:
@@ -130,9 +244,14 @@ def main() -> None:
     write_static_posters()
 
     if not args.skip_render:
+        manim_path = shutil.which("manim")
         for scene_name, filename in SCENES.items():
-            output = render_scene(scene_name)
-            shutil.copyfile(output, PUBLIC_DIR / filename)
+            destination = PUBLIC_DIR / filename
+            if manim_path:
+                output = render_scene(scene_name)
+                shutil.copyfile(output, destination)
+            elif not destination.exists():
+                write_fallback_video(scene_name, destination)
 
     write_metadata()
 

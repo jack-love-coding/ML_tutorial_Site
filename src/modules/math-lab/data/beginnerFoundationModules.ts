@@ -69,6 +69,23 @@ function imageAsset(id: string, filename: string, title: LocalizedCopy, transcri
   }
 }
 
+function manimAsset(id: string, filename: string, title: LocalizedCopy, transcript: LocalizedCopy): VisualAsset {
+  return {
+    id,
+    type: 'manim-video',
+    title,
+    assetPath: `/manim/math-lab/${filename}.mp4`,
+    posterPath: `/manim/math-lab/${filename}.svg`,
+    transcript,
+    alt: transcript,
+    caption: transcript,
+    learningPurpose: copy(
+      '用短动画展示静态图难以表达的连续变化过程。',
+      'Use a short animation to show the process behind the static diagram.',
+    ),
+  }
+}
+
 function lab(id: string, title: LocalizedCopy, componentName: string, successCriteria: LocalizedCopy[]): LabConfig {
   return {
     id,
@@ -348,7 +365,9 @@ $$
 \frac{f(x+h)-f(x)}{h}.
 $$
 
-它像是在问“从 \(x\) 到 \(x+h\) 这段路平均每走一步，高度变多少”。如果 \(h\) 很大，这个平均值会掩盖中间细节；如果 \(h\) 很小，它就更接近当前位置附近的变化。`,
+它像是在问“从 \(x\) 到 \(x+h\) 这段路平均每走一步，高度变多少”。如果 \(h\) 很大，这个平均值会掩盖中间细节；如果 \(h\) 很小，它就更接近当前位置附近的变化。
+
+这一章的目标不是把大学微积分全部讲完，而是给 AI 训练够用的第一层语言：函数、局部变化、梯度、链式法则、学习率和数值检查。学完后你应该能读懂“为什么模型要算梯度”，但更完整的 Jacobian、VJP、Hessian 和自动微分细节会在后续章节继续展开。`,
       md`Do not start calculus with long formulas. A function can first be understood as an input-output machine: you give it \(x\), and it returns \(y=f(x)\). A function answers: by what rule does the output change when the input changes? If the input moves a little, the output moves too. Calculus asks: **how fast is the change, which direction does it point, and can this local information predict nearby results?**
 
 The average change compares two positions:
@@ -357,7 +376,9 @@ $$
 \frac{f(x+h)-f(x)}{h}.
 $$
 
-It asks, "from \(x\) to \(x+h\), how much does the height change per step on average?" If \(h\) is large, the average hides details in the middle. If \(h\) is small, it better describes what is happening near the current point.`,
+It asks, "from \(x\) to \(x+h\), how much does the height change per step on average?" If \(h\) is large, the average hides details in the middle. If \(h\) is small, it better describes what is happening near the current point.
+
+This chapter is not the whole university calculus course. It is the first AI-ready layer: functions, local change, gradients, chain rule, learning rate, and numerical checks. After it, you should understand why model training computes gradients, while deeper Jacobian, VJP, Hessian, and autodiff details continue in later chapters.`,
     ),
     { visualIds: ['beginner-calculus-story', 'beginner-function-machine-longform'] },
   ),
@@ -380,7 +401,7 @@ $$
 
 The derivative answers: near the current point, how much does the output move when the input moves a little? The derivative is current speed. That "speed" is not only for position. It applies to any input-output relationship: if the input moves slightly, does the output rise, fall, or barely change? How fast does it rise or fall?`,
     ),
-    { visualIds: ['beginner-average-to-derivative-longform'], labIds: ['beginner-local-change-story-lab'] },
+    { visualIds: ['beginner-average-to-derivative-longform', 'beginner-derivative-window-longform', 'beginner-derivative-window-video'], labIds: ['beginner-local-change-story-lab'] },
   ),
   section(
     'beginner-calculus-tangent-gradient',
@@ -408,8 +429,90 @@ The gradient points toward fastest loss increase. Model training wants loss to d
     { visualIds: ['beginner-derivative-tangent-longform'] },
   ),
   section(
+    'beginner-calculus-partial-gradient',
+    copy('第四步：偏导数是只动一个旋钮', 'Step 4: A Partial Derivative Moves One Knob'),
+    copy(
+      md`AI 模型通常不是只有一个输入。一个很小的模型也可能有权重 \(w\)、偏置 \(b\)，更大的神经网络会有成千上万甚至更多参数。偏导数的入门读法是：**先固定其他旋钮，只轻轻动一个参数，看 loss 怎么变。**
+
+例如 \(L(\theta_1,\theta_2)\) 有两个参数时，
+
+$$
+\frac{\partial L}{\partial \theta_1}
+$$
+
+表示只沿 \(\theta_1\) 方向轻轻移动时，loss 的局部变化率。另一个方向 \(\theta_2\) 也有自己的偏导。把所有方向收集起来，就是梯度：
+
+$$
+\nabla L(\theta)=\left[\frac{\partial L}{\partial \theta_1},\frac{\partial L}{\partial \theta_2},\ldots\right].
+$$
+
+所以梯度不是一个魔法箭头，而是一张“每个旋钮往哪里调会让 loss 上升”的局部清单。训练要降低 loss，于是把这张清单反过来用。`,
+      md`AI models rarely have only one input. Even a tiny model may have a weight \(w\) and a bias \(b\), while larger neural networks have thousands or millions of parameters. The beginner reading of a partial derivative is: **hold the other knobs fixed, move one parameter a little, and watch how loss changes.**
+
+For a two-parameter loss \(L(\theta_1,\theta_2)\),
+
+$$
+\frac{\partial L}{\partial \theta_1}
+$$
+
+means the local rate of loss change when only the \(\theta_1\) direction moves. The \(\theta_2\) direction has its own partial derivative. Collect all directions and you get the gradient:
+
+$$
+\nabla L(\theta)=\left[\frac{\partial L}{\partial \theta_1},\frac{\partial L}{\partial \theta_2},\ldots\right].
+$$
+
+The gradient is not magic. It is a local list of how each knob would raise loss. Training lowers loss by using that list in the opposite direction.`,
+    ),
+    { visualIds: ['beginner-partial-gradient-longform'] },
+  ),
+  section(
+    'beginner-calculus-chain-backprop',
+    copy('第五步：链式法则把责任传回参数', 'Step 5: Chain Rule Sends Responsibility Back'),
+    copy(
+      md`神经网络是一串函数拼起来的机器：输入先经过线性层，再经过激活函数，再进入 loss。一个参数对最终 loss 的影响，往往要穿过很多中间节点。链式法则说：**总影响 = 沿路每个局部影响相乘。**
+
+如果
+
+$$
+z=wx+b,\qquad \hat y=\sigma(z),\qquad L=\frac{1}{2}(\hat y-y)^2,
+$$
+
+那么权重 \(w\) 的责任可以写成
+
+$$
+\frac{\partial L}{\partial w}
+=
+\frac{\partial L}{\partial \hat y}
+\frac{\partial \hat y}{\partial z}
+\frac{\partial z}{\partial w}.
+$$
+
+反向传播就是把这个乘法沿计算图自动做完。它不是一次性猜出答案，而是从 loss 出发，带着“上游梯度”一步步乘过每个节点的局部导数。`,
+      md`A neural network is a machine made by composing functions: an input passes through a linear layer, an activation, and finally a loss. A parameter's effect on final loss usually passes through many middle nodes. The chain rule says: **total effect equals the product of the local effects along the path.**
+
+If
+
+$$
+z=wx+b,\qquad \hat y=\sigma(z),\qquad L=\frac{1}{2}(\hat y-y)^2,
+$$
+
+then the responsibility of weight \(w\) can be written as
+
+$$
+\frac{\partial L}{\partial w}
+=
+\frac{\partial L}{\partial \hat y}
+\frac{\partial \hat y}{\partial z}
+\frac{\partial z}{\partial w}.
+$$
+
+Backpropagation performs this multiplication along the computation graph. It does not guess the answer all at once; it starts from loss and carries an upstream gradient backward through each local derivative.`,
+    ),
+    { visualIds: ['beginner-chain-rule-backprop-longform', 'beginner-chain-rule-backprop-video'], labIds: ['beginner-backprop-block-lab'] },
+  ),
+  section(
     'beginner-calculus-taylor-map',
-    copy('第四步：Taylor 是局部地图', 'Step 4: Taylor as a Local Map'),
+    copy('第六步：Taylor 是局部地图', 'Step 6: Taylor as a Local Map'),
     copy(
       md`Taylor 展开可以理解成“给复杂函数画一张附近可用的小地图”。零阶只记住当前高度，一阶加上当前斜率，二阶再加上弯曲程度：
 
@@ -429,8 +532,44 @@ This map is reliable near the current point. Farther from the center, the map ca
     { visualIds: ['beginner-gradient-taylor-update-longform'] },
   ),
   section(
+    'beginner-calculus-gradient-checking',
+    copy('第七步：数值梯度检查和不可导点', 'Step 7: Gradient Checks and Nondifferentiable Points'),
+    copy(
+      md`代码里的梯度也需要被检查。最直接的办法是回到平均变化率，用很小的 \(\epsilon\) 做有限差分：
+
+$$
+\frac{L(\theta+\epsilon)-L(\theta-\epsilon)}{2\epsilon}.
+$$
+
+如果这个数和反向传播给出的梯度很接近，说明局部导数链条大概率没有写错。这个方法慢，不适合正式训练每一步都用，但很适合调试小模型、确认公式和代码是否一致。
+
+还有一种常见情况：函数在某个点不可导。例如
+
+$$
+\operatorname{ReLU}(x)=\max(0,x)
+$$
+
+在 \(x=0\) 左右斜率突然改变。AI 框架通常会约定一个可用的次梯度或边界处理方式。初学时先记住：不可导点不是训练完全不能进行，而是要知道局部规则由框架或模型定义决定。`,
+      md`Gradients in code should also be checked. The most direct check returns to average change and uses a small \(\epsilon\) finite difference:
+
+$$
+\frac{L(\theta+\epsilon)-L(\theta-\epsilon)}{2\epsilon}.
+$$
+
+If this number is close to the backprop gradient, the local-derivative chain is probably wired correctly. This method is slow, so it is not used at every training step, but it is excellent for debugging small models and verifying that formulas and code agree.
+
+Another common case is a function that is not differentiable at one point. For example,
+
+$$
+\operatorname{ReLU}(x)=\max(0,x)
+$$
+
+changes slope abruptly at \(x=0\). AI frameworks usually choose a usable subgradient or boundary convention. As a beginner, remember: a nondifferentiable point does not automatically stop training, but the local rule depends on the framework or model definition.`,
+    ),
+  ),
+  section(
     'beginner-calculus-ai-training',
-    copy('第五步：它怎样变成训练规则', 'Step 5: How It Becomes a Training Rule'),
+    copy('第八步：它怎样变成训练规则', 'Step 8: How It Becomes a Training Rule'),
     copy(
       md`训练模型时，loss 是一台把参数输入、错误大小输出的机器。我们无法一次看完整个高维地形，所以每一步只在当前参数附近问：轻轻改变参数，loss 会怎样变？
 
@@ -463,6 +602,7 @@ $$
 
 Here \(\eta\) is the learning rate, or step size. Too small is slow; too large can jump over the valley or diverge.`,
     ),
+    { visualIds: ['beginner-learning-rate-behavior-longform', 'beginner-learning-rate-behavior-video'] },
   ),
   section(
     'beginner-calculus-checkpoint',
@@ -779,22 +919,28 @@ export const beginnerFoundationModules: MathLabModule[] = [
     title: copy('AI 零基础微积分', 'Calculus for AI Beginners'),
     subtitle: copy('从平均变化、瞬时变化和局部地图理解导数、梯度与训练更新。', 'Use average change, instantaneous change, and local maps to understand derivatives, gradients, and training updates.'),
     difficulty: 'foundation',
-    estimatedMinutes: 36,
+    estimatedMinutes: 52,
     prerequisites: ['beginner-linear-algebra'],
     aiModelConnections: [
       copy('导数和梯度解释了参数微小变化如何影响 loss。', 'Derivatives and gradients explain how tiny parameter changes affect loss.'),
+      copy('链式法则解释了反向传播怎样把 loss 的责任分配到每个权重。', 'The chain rule explains how backpropagation assigns loss responsibility to each weight.'),
       copy('Taylor 局部模型连接到梯度下降、Newton 法和数值近似。', 'Taylor local models connect to gradient descent, Newton methods, and numerical approximation.'),
     ],
     learningObjectives: [
       copy('区分平均变化率和瞬时变化率。', 'Distinguish average change from instantaneous change.'),
       copy('把导数解释成当前点附近的局部速度。', 'Explain a derivative as local speed near the current point.'),
       copy('把梯度解释成多个方向的局部变化率。', 'Explain a gradient as local rates across many directions.'),
+      copy('用链式法则解释反向传播如何把 loss 责任传回参数。', 'Use the chain rule to explain how backpropagation sends loss responsibility back to parameters.'),
+      copy('用数值梯度检查确认公式、代码和自动微分是否一致。', 'Use numerical gradient checks to compare formulas, code, and autodiff.'),
       copy('用 Taylor 局部地图连接优化更新。', 'Connect Taylor local maps to optimization updates.'),
     ],
     concepts: [
       concept('beginner-average-change', copy('平均变化率', 'Average Rate of Change'), '\\frac{f(x+h)-f(x)}{h}', [variable('h', '观察窗口或步长。', 'Observation window or step size.')], copy('平均变化率比较两个位置之间每单位输入带来的输出变化。', 'Average rate of change compares output change per input step between two positions.'), copy('像计算一段路的平均坡度。', 'Like computing average slope over a road segment.'), copy('若 \\(f(2)=5\\)、\\(f(4)=9\\)，平均变化率是 \\((9-5)/2=2\\)。', 'If \\(f(2)=5\\) and \\(f(4)=9\\), the average rate is \\((9-5)/2=2\\).'), copy('有限差分和梯度检查从这个读法开始。', 'Finite differences and gradient checking start from this reading.')),
       concept('beginner-derivative', copy('导数', 'Derivative'), 'f\\prime(x)=\\lim_{h\\to0}\\frac{f(x+h)-f(x)}{h}', [variable('h\\to0', '把观察窗口缩小到当前点附近。', 'Shrink the observation window near the current point.')], copy('导数是瞬时变化率，描述此刻输入轻微变化时输出怎样变。', 'A derivative is instantaneous change, describing how output changes when input moves slightly right now.'), copy('图像上是当前点的切线斜率。', 'On a graph it is the tangent slope at the current point.'), copy('对 \\(f(x)=x^2\\)，在 \\(x=3\\) 处导数是 6。', 'For \\(f(x)=x^2\\), the derivative at \\(x=3\\) is 6.'), copy('反向传播需要每一层的局部导数。', 'Backpropagation needs local derivatives from each layer.')),
       concept('beginner-gradient-step', copy('梯度下降步', 'Gradient Descent Step'), '\\theta_{new}=\\theta-\\eta\\nabla L(\\theta)', [variable('\\eta', '学习率或步长。', 'Learning rate or step size.'), variable('\\nabla L', 'loss 上升最快的方向。', 'The direction where loss rises fastest.')], copy('最小化 loss 时沿梯度反方向移动。', 'To minimize loss, move opposite the gradient.'), copy('像在山坡上往最陡下降方向迈一步。', 'Like stepping along the steepest downhill direction on terrain.'), copy('若 \\(\\theta=2\\)、\\(\\nabla L=3\\)、\\(\\eta=0.1\\)，新参数是 1.7。', 'If \\(\\theta=2\\), \\(\\nabla L=3\\), and \\(\\eta=0.1\\), the new parameter is 1.7.'), copy('几乎所有可微模型训练都依赖这种局部更新思想。', 'Almost all differentiable model training relies on this local update idea.')),
+      concept('beginner-partial-derivative', copy('偏导数', 'Partial Derivative'), '\\frac{\\partial L}{\\partial \\theta_i}', [variable('\\theta_i', '第 i 个参数旋钮。', 'The i-th parameter knob.'), variable('L', '训练时要降低的 loss。', 'The loss to reduce during training.')], copy('偏导数固定其他参数，只看一个方向的局部变化率。', 'A partial derivative holds other parameters fixed and reads one direction of local change.'), copy('像只转动控制台上的一个旋钮，观察 loss 表盘怎样动。', 'Like turning one knob on a control panel and watching the loss dial move.'), copy('若 \\(L(w,b)=0.5w^2+b\\)，则 \\(\\partial L/\\partial w=w\\)。', 'If \\(L(w,b)=0.5w^2+b\\), then \\(\\partial L/\\partial w=w\\).'), copy('神经网络每个权重和偏置都需要自己的偏导。', 'Each neural-network weight and bias needs its own partial derivative.')),
+      concept('beginner-chain-rule', copy('链式法则', 'Chain Rule'), '\\frac{\\partial L}{\\partial w}=\\frac{\\partial L}{\\partial \\hat y}\\frac{\\partial \\hat y}{\\partial z}\\frac{\\partial z}{\\partial w}', [variable('\\hat y', '模型预测。', 'Model prediction.'), variable('z', '中间节点。', 'Intermediate node.')], copy('链式法则把沿路每个局部影响相乘，得到参数对最终 loss 的影响。', 'The chain rule multiplies local effects along a path to get the parameter effect on final loss.'), copy('像沿着计算图把责任一站一站传回去。', 'Like passing responsibility backward station by station along a computation graph.'), copy('若上游梯度是 2，本地导数是 0.3，传回去就是 0.6。', 'If the upstream gradient is 2 and the local derivative is 0.3, the returned gradient is 0.6.'), copy('反向传播就是链式法则在计算图上的自动执行。', 'Backpropagation is the chain rule executed automatically on a computation graph.')),
+      concept('beginner-gradient-check', copy('数值梯度检查', 'Numerical Gradient Check'), '\\frac{L(\\theta+\\epsilon)-L(\\theta-\\epsilon)}{2\\epsilon}', [variable('\\epsilon', '一个很小的扰动。', 'A tiny perturbation.'), variable('\\theta', '被检查的参数。', 'The parameter being checked.')], copy('用有限差分近似梯度，检查反向传播结果是否合理。', 'Use finite differences to approximate a gradient and check whether backpropagation is reasonable.'), copy('像把旋钮分别往左右轻轻拨一下，再比较 loss 变化。', 'Like nudging a knob slightly left and right, then comparing loss change.'), copy('对 \\(L(\\theta)=0.5\\theta^2\\)，\\(\\epsilon\\) 很小时检查值接近 \\(\\theta\\)。', 'For \\(L(\\theta)=0.5\\theta^2\\), the check is close to \\(\\theta\\) when \\(\\epsilon\\) is small.'), copy('调试自定义 loss 或层时常用梯度检查。', 'Gradient checks are useful when debugging custom losses or layers.')),
     ],
     sections: calculusSections,
     visuals: [
@@ -812,10 +958,28 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('割线窗口逐步缩小，平均变化率靠近当前点斜率，帮助学生理解导数来自局部观察窗口。', 'The secant window shrinks and average rate approaches the current-point slope, showing that a derivative comes from a local observation window.'),
       ),
       imageAsset(
+        'beginner-derivative-window-longform',
+        'beginner-derivative-window-longform.png',
+        copy('导数：把观察窗口缩到当前点', 'Derivative: Shrink the Window to the Current Point'),
+        copy('同一条曲线中，较大的割线窗口逐步缩小到当前点附近，并用表格展示 h 变小时平均变化率怎样靠近导数。', 'On one curve, a wide secant window shrinks toward the current point, with a table showing average rates approaching the derivative as h gets smaller.'),
+      ),
+      imageAsset(
         'beginner-derivative-tangent-longform',
         'beginner-derivative-tangent-longform.png',
         copy('导数与切线：当前点附近的速度', 'Derivative and Tangent: Speed Near the Current Point'),
         copy('曲线、切线和正负斜率一起展示导数怎样描述当前点附近的上升、下降或变平。', 'A curve, tangent line, and positive or negative slopes show how a derivative describes rising, falling, or flattening near the current point.'),
+      ),
+      imageAsset(
+        'beginner-partial-gradient-longform',
+        'beginner-partial-gradient-longform.png',
+        copy('梯度：很多方向的局部变化率', 'Gradient: Local Rates in Many Directions'),
+        copy('两个参数旋钮分别产生自己的偏导，多个局部变化率合成梯度，连接到 loss 地形上的方向箭头。', 'Two parameter knobs each produce a partial derivative; many local rates combine into a gradient direction on the loss landscape.'),
+      ),
+      imageAsset(
+        'beginner-chain-rule-backprop-longform',
+        'beginner-chain-rule-backprop-longform.png',
+        copy('链式法则：把责任沿计算图传回去', 'Chain Rule: Send Responsibility Back Through the Graph'),
+        copy('计算图先从输入前向得到 loss，再把上游梯度乘过局部导数，得到参数的梯度责任。', 'A computation graph runs forward to loss, then sends upstream gradients backward through local derivatives to get parameter responsibilities.'),
       ),
       imageAsset(
         'beginner-gradient-taylor-update-longform',
@@ -823,22 +987,42 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('梯度与 Taylor：用局部地图更新参数', 'Gradient and Taylor: Update Parameters with a Local Map'),
         copy('loss 地形中标出梯度、负梯度、Taylor 局部地图和学习率，解释为什么训练沿负梯度迈小步。', 'A loss landscape marks the gradient, negative gradient, Taylor local map, and learning rate to explain why training takes small downhill steps.'),
       ),
+      imageAsset(
+        'beginner-learning-rate-behavior-longform',
+        'beginner-learning-rate-behavior-longform.png',
+        copy('学习率：同一个坡度，不同步长', 'Learning Rate: Same Slope, Different Step Sizes'),
+        copy('三条轨迹对比小学习率、合适学习率和过大学习率在同一 loss 谷中的不同训练行为。', 'Three paths compare small, reasonable, and too-large learning rates inside the same loss valley.'),
+      ),
+      manimAsset('beginner-derivative-window-video', 'beginner-derivative-window', copy('导数窗口动画', 'Derivative Window Animation'), copy('割线窗口逐步缩小，展示平均变化率怎样靠近当前点的切线斜率。', 'A secant window shrinks and shows average change approaching the tangent slope at the current point.')),
+      manimAsset('beginner-chain-rule-backprop-video', 'beginner-chain-rule-backprop', copy('链式法则反传动画', 'Chain Rule Backprop Animation'), copy('动画沿计算图展示前向值和反向梯度如何通过局部导数连接起来。', 'Animation showing how forward values and backward gradients connect through local derivatives in a computation graph.')),
+      manimAsset('beginner-learning-rate-behavior-video', 'beginner-learning-rate-behavior', copy('学习率行为动画', 'Learning-Rate Behavior Animation'), copy('动画对比小步、合适步长和过大步长在 loss 谷中的轨迹差异。', 'Animation comparing small, reasonable, and too-large step sizes in a loss valley.')),
     ],
     labs: [
       lab('beginner-local-change-story-lab', copy('局部变化故事实验', 'Local Change Story Lab'), 'LocalChangeStoryLab', [
         copy('能说明窗口变小时平均斜率如何接近导数。', 'Explain how average slope approaches the derivative as the window shrinks.'),
         copy('能解释学习率如何影响下一步 loss。', 'Explain how learning rate affects the next loss.'),
       ]),
+      lab('beginner-backprop-block-lab', copy('反传积木实验', 'Backprop Blocks Lab'), 'BackpropBlockLab', [
+        copy('能指出上游梯度和局部导数在计算图中的位置。', 'Identify upstream gradients and local derivatives in the computation graph.'),
+        copy('能比较解析梯度和数值梯度检查。', 'Compare the analytic gradient with a numerical gradient check.'),
+      ]),
     ],
     quizzes: [
       quiz('beginner-calculus-average', copy('平均变化率主要比较什么？', 'What does average rate of change compare?'), 'two-points', copy('两个位置之间输出变化除以输入变化。', 'Output change divided by input change between two positions.'), copy('函数在所有位置的最高值。', 'The highest value of the whole function.'), copy('平均变化率读一段区间，不是全局最高点。', 'Average rate reads an interval, not the global maximum.'), 'average-vs-instant', 'beginner-calculus-story'),
       quiz('beginner-calculus-derivative', copy('导数最适合先理解成什么？', 'What is the best first intuition for a derivative?'), 'instant', copy('当前点附近的瞬时变化率。', 'The instantaneous rate of change near the current point.'), copy('整个函数的全局平均高度。', 'The global average height of the function.'), copy('导数来自把观察窗口缩小到当前点附近。', 'A derivative comes from shrinking the observation window near the current point.'), 'calculus-is-global-formula'),
       quiz('beginner-calculus-gradient', copy('为什么梯度下降要减去梯度？', 'Why does gradient descent subtract the gradient?'), 'downhill', copy('梯度指向上升最快，负梯度指向下降。', 'The gradient points uphill, so negative gradient points downhill.'), copy('减号保证所有参数都变小。', 'The minus sign guarantees every parameter becomes smaller.'), copy('减去梯度是为了降低 loss，不是为了让每个参数数值变小。', 'Subtracting the gradient aims to lower loss, not to make every parameter value smaller.'), 'gradient-means-smaller'),
+      quiz('beginner-calculus-partial', copy('偏导数 \\(\\partial L/\\partial \\theta_i\\) 的入门读法是什么？', 'What is the beginner reading of \\(\\partial L/\\partial \\theta_i\\)?'), 'one-knob', copy('固定其他参数，只动第 i 个参数看 loss 怎么变。', 'Hold other parameters fixed and move parameter i to see how loss changes.'), copy('同时随机改变所有参数。', 'Randomly change all parameters at once.'), copy('偏导数读一个参数方向上的局部变化率。', 'A partial derivative reads local change along one parameter direction.'), 'partial-all-knobs', 'beginner-partial-gradient-longform'),
+      quiz('beginner-calculus-chain', copy('反向传播最核心地复用了哪条规则？', 'Which rule does backpropagation reuse most centrally?'), 'chain-rule', copy('链式法则：上游梯度乘以局部导数。', 'The chain rule: upstream gradient times local derivative.'), copy('只比较训练集和验证集大小。', 'Only comparing training and validation set sizes.'), copy('反向传播沿计算图重复使用链式法则。', 'Backpropagation repeatedly applies the chain rule along the computation graph.'), 'backprop-not-magic', 'beginner-chain-rule-backprop-longform'),
+      quiz('beginner-calculus-gradient-check', copy('数值梯度检查最适合用来做什么？', 'What is a numerical gradient check best used for?'), 'debug', copy('调试公式或反向传播实现是否合理。', 'Debug whether a formula or backprop implementation is reasonable.'), copy('替代每一步正式训练。', 'Replace every training step.'), copy('有限差分较慢，适合检查小模型或局部实现。', 'Finite differences are slow, so they are best for checking small models or local implementations.'), 'finite-difference-is-training'),
     ],
     misconceptions: [
       misconception('average-vs-instant', copy('平均变化率和导数是同一个东西。', 'Average change and derivative are the same thing.'), copy('平均变化率看一段区间；导数看窗口缩到当前点时的极限。', 'Average change reads an interval; a derivative is the limit as the window shrinks to the current point.'), copy('全程平均速度不等于某一秒的车速。', 'Average speed for a trip is not the speed at one second.')),
       misconception('calculus-is-global-formula', copy('导数就是整条曲线的全局平均。', 'A derivative is the global average of the whole curve.'), copy('导数是当前点附近的局部变化率。', 'A derivative is the local rate of change near the current point.'), copy('同一条曲线不同位置可以有不同斜率。', 'The same curve can have different slopes at different positions.')),
       misconception('gradient-means-smaller', copy('负梯度会让每个参数都变小。', 'Negative gradient makes every parameter smaller.'), copy('负梯度让 loss 局部下降；某些参数可能变大。', 'Negative gradient locally lowers loss; some parameters may increase.'), copy('若梯度分量为负，减去它会让对应参数变大。', 'If a gradient component is negative, subtracting it increases that parameter.')),
+      misconception('partial-all-knobs', copy('偏导数表示所有参数一起变化。', 'A partial derivative means all parameters change together.'), copy('偏导数先固定其他参数，只读一个方向。梯度才把多个方向收集起来。', 'A partial derivative holds other parameters fixed and reads one direction. The gradient collects many directions.'), copy('调权重 \\(w\\) 时，偏置 \\(b\\) 暂时当作不动的旋钮。', 'When checking weight \\(w\\), bias \\(b\\) is temporarily treated as a fixed knob.')),
+      misconception('backprop-not-magic', copy('反向传播是一个和导数无关的黑盒算法。', 'Backpropagation is a black-box algorithm unrelated to derivatives.'), copy('反向传播就是链式法则在计算图上的系统执行。', 'Backpropagation is the systematic execution of the chain rule on a computation graph.'), copy('每个节点只需要知道上游梯度和自己的局部导数。', 'Each node needs the upstream gradient and its own local derivative.')),
+      misconception('finite-difference-is-training', copy('数值梯度检查可以替代正式训练里的反向传播。', 'Numerical gradient checks can replace backpropagation during normal training.'), copy('有限差分要反复重新算 loss，通常太慢；它主要用于调试和验证。', 'Finite differences repeatedly recompute loss and are usually too slow; they are mainly for debugging and verification.'), copy('检查一个小模型的 \\(dL/dw\\) 很有用，但大模型每步都这样做会非常慢。', 'Checking \\(dL/dw\\) for a tiny model is useful, but doing it every step for a large model is very slow.')),
+      misconception('relu-stops-training', copy('ReLU 在 0 不可导，所以神经网络无法训练。', 'Because ReLU is nondifferentiable at 0, neural networks cannot train.'), copy('框架会为边界点采用约定或次梯度；大多数位置仍有清晰局部斜率。', 'Frameworks use a convention or subgradient at the boundary; most locations still have a clear local slope.'), copy('ReLU 在负区间斜率为 0，正区间斜率为 1，只有边界点需要约定。', 'ReLU has slope 0 on the negative side and 1 on the positive side; only the boundary needs a convention.')),
     ],
     accent: '#d65a31',
     theme: '#fff1e8',

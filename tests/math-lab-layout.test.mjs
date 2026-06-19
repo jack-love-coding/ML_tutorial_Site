@@ -58,6 +58,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/TaylorSeriesLab.vue',
     'src/modules/math-lab/labs/FeatureVectorStoryLab.vue',
     'src/modules/math-lab/labs/LocalChangeStoryLab.vue',
+    'src/modules/math-lab/labs/BackpropBlockLab.vue',
     'src/modules/math-lab/labs/DistributionBuilderLab.vue',
   ]
 
@@ -81,6 +82,7 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /import\('\.\.\/labs\/VectorDotProductLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/FeatureVectorStoryLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/LocalChangeStoryLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/BackpropBlockLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/DistributionBuilderLab\.vue'\)/)
   assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
@@ -133,6 +135,10 @@ test('migrated note figures are stored locally', () => {
     'public/math-lab/generated/beginner-linear-algebra-story.png',
     'public/math-lab/generated/beginner-calculus-story.png',
     'public/math-lab/generated/beginner-probability-story.png',
+    'public/math-lab/generated/beginner-derivative-window-longform.png',
+    'public/math-lab/generated/beginner-partial-gradient-longform.png',
+    'public/math-lab/generated/beginner-chain-rule-backprop-longform.png',
+    'public/math-lab/generated/beginner-learning-rate-behavior-longform.png',
   ]
 
   for (const assetPath of keyAssets) {
@@ -145,10 +151,13 @@ test('manim pipeline and existing math lab video assets remain present', () => {
   assert.ok(existsSync(new URL('scripts/manim/render_math_lab.py', root)))
 
   const metadata = JSON.parse(read('public/manim/math-lab/metadata.json'))
-  assert.equal(metadata.scenes.length, 6)
+  assert.equal(metadata.scenes.length, 9)
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'VectorSpanNormScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'TaylorPolynomialScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'MonteCarloSamplingScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerDerivativeWindowScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerChainRuleBackpropScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerLearningRateBehaviorScene'))
 
   for (const scene of metadata.scenes) {
     const assetPath = scene.assetPath.replace(/^\//, 'public/')
@@ -156,6 +165,23 @@ test('manim pipeline and existing math lab video assets remain present', () => {
     assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
     assert.ok(existsSync(new URL(posterPath, root)), `${posterPath} should exist`)
   }
+})
+
+test('beginner calculus Manim labels avoid code-like gradient variable names', () => {
+  const sceneSource = read('scripts/manim/scenes/math_lab_basics.py')
+  const renderSource = read('scripts/manim/render_math_lab.py')
+  const chainPoster = read('public/manim/math-lab/beginner-chain-rule-backprop.svg')
+  const learningRatePoster = read('public/manim/math-lab/beginner-learning-rate-behavior.svg')
+  const checkedSources = [sceneSource, renderSource, chainPoster, learningRatePoster]
+
+  for (const source of checkedSources) {
+    assert.doesNotMatch(source, /dyhat|dL\/dyhat|dyhat\/dz|dL\/dw|dL\/db|small eta|steady eta|large eta/)
+  }
+
+  assert.match(sceneSource, /∂L\/∂ŷ/)
+  assert.match(sceneSource, /∂ŷ\/∂z/)
+  assert.match(sceneSource, /∂z\/∂w/)
+  assert.match(sceneSource, /small η/)
 })
 
 test('AI bridge generated images, source record, and Manim assets are complete', () => {

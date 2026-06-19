@@ -27,6 +27,7 @@ const fallbackLabComponent = defineAsyncComponent(() => import('../labs/Numerica
 const labComponentRegistry = {
   ArchitectureMathLab: defineAsyncComponent(() => import('../labs/ArchitectureMathLab.vue')),
   AutodiffGraphLab: defineAsyncComponent(() => import('../labs/AutodiffGraphLab.vue')),
+  BackpropBlockLab: defineAsyncComponent(() => import('../labs/BackpropBlockLab.vue')),
   ConditionNumbersLab: defineAsyncComponent(() => import('../labs/ConditionNumbersLab.vue')),
   DistributionBuilderLab: defineAsyncComponent(() => import('../labs/DistributionBuilderLab.vue')),
   FeatureVectorStoryLab: defineAsyncComponent(() => import('../labs/FeatureVectorStoryLab.vue')),

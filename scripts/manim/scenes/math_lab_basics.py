@@ -14,8 +14,11 @@ from manim import (
     Dot,
     FadeIn,
     FadeOut,
+    LEFT,
     Line,
     NumberPlane,
+    RIGHT,
+    RoundedRectangle,
     DOWN,
     Scene,
     Text,
@@ -171,6 +174,159 @@ class GradientDescentScene(Scene):
         caption_path = Text("step size is controlled by learning rate", font_size=26).to_edge(DOWN)
         self.play(FadeOut(uphill), FadeOut(downhill), Transform(caption, caption_path), Create(path), FadeIn(dots))
         self.wait(0.6)
+
+
+class BeginnerDerivativeWindowScene(Scene):
+    def construct(self):
+        axes = Axes(
+            x_range=[-2.8, 2.8, 1],
+            y_range=[-0.2, 3.2, 0.5],
+            x_length=8.5,
+            y_length=4.5,
+            tips=False,
+            axis_config={"stroke_opacity": 0.55},
+        )
+        title = Text("Derivative: shrink the window", font_size=31).to_edge(UP)
+        curve = axes.plot(lambda x: 0.35 * (x - 0.25) ** 2 + 0.25, color=BLUE, stroke_width=5)
+        x0 = 0.7
+        y0 = 0.35 * (x0 - 0.25) ** 2 + 0.25
+        slope = 0.7 * (x0 - 0.25)
+        point = Dot(axes.c2p(x0, y0), color=YELLOW)
+        question = Text("How can one point have a slope?", font_size=23).next_to(title, DOWN, buff=0.25)
+        caption = Text("wide secant reads average change", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(title), FadeIn(question), FadeIn(axes), Create(curve), FadeIn(point), FadeIn(caption), run_time=3)
+        self.wait(4)
+
+        secant = None
+        for h, label in [(1.2, "h = 1.2"), (0.55, "h = 0.55"), (0.18, "h = 0.18"), (0.06, "h = 0.06")]:
+            yh = 0.35 * (x0 + h - 0.25) ** 2 + 0.25
+            next_point = Dot(axes.c2p(x0 + h, yh), color=ORANGE)
+            next_secant = Line(axes.c2p(x0, y0), axes.c2p(x0 + h, yh), color=ORANGE, stroke_width=6)
+            next_caption = Text(f"{label}: window shrinks", font_size=25).to_edge(DOWN)
+            if secant is None:
+                secant = next_secant
+                self.play(FadeOut(caption), run_time=0.3)
+                caption = next_caption
+                self.play(Create(secant), FadeIn(next_point), FadeIn(caption), run_time=3.7)
+            else:
+                self.play(FadeOut(caption), run_time=0.3)
+                caption = next_caption
+                self.play(Transform(secant, next_secant), FadeIn(next_point), FadeIn(caption), run_time=3.7)
+            self.wait(2.5)
+
+        tangent = Line(
+            axes.c2p(x0 - 1.1, y0 - 1.1 * slope),
+            axes.c2p(x0 + 1.1, y0 + 1.1 * slope),
+            color=GREEN,
+            stroke_width=7,
+        )
+        final_caption = Text("limit: tangent slope at this point", font_size=25).to_edge(DOWN)
+        summary = Text("In training, this slope tells the parameter how loss changes.", font_size=23).next_to(axes, DOWN, buff=0.25)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = final_caption
+        self.play(Create(tangent), FadeIn(caption), FadeOut(question), run_time=3.7)
+        self.wait(3)
+        self.play(FadeIn(summary), run_time=3)
+        self.wait(5)
+
+
+class BeginnerChainRuleBackpropScene(Scene):
+    def construct(self):
+        title = Text("Chain rule sends responsibility backward", font_size=30).to_edge(UP)
+        labels = ["x", "z = w·x + b", "ŷ = σ(z)", "L"]
+        nodes = VGroup()
+        for index, label in enumerate(labels):
+            box = RoundedRectangle(width=1.95, height=0.8, corner_radius=0.12, color=WHITE)
+            text = Text(label, font_size=23)
+            group = VGroup(box, text).move_to(LEFT * 4.2 + RIGHT * index * 2.75)
+            nodes.add(group)
+        forward = VGroup(
+            *[Arrow(nodes[i].get_right(), nodes[i + 1].get_left(), color=BLUE, buff=0.08) for i in range(3)]
+        )
+        backward = VGroup(
+            *[Arrow(nodes[i + 1].get_bottom(), nodes[i].get_bottom(), color=ORANGE, buff=0.08).shift(DOWN * 0.72) for i in range(3)]
+        )
+        setup = Text("Forward pass stores the local pieces.", font_size=23).next_to(title, DOWN, buff=0.25)
+        caption = Text("forward pass computes values", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(title), FadeIn(setup), FadeIn(nodes), Create(forward), FadeIn(caption), run_time=3)
+        self.wait(4)
+        back_caption = Text("backward pass multiplies upstream gradient by local derivative", font_size=24).to_edge(DOWN)
+        next_setup = Text("Backward pass reuses those pieces in reverse.", font_size=23).next_to(title, DOWN, buff=0.25)
+        self.play(FadeOut(caption), FadeOut(setup), run_time=0.4)
+        caption = back_caption
+        setup = next_setup
+        self.play(Create(backward), FadeIn(caption), FadeIn(setup), run_time=3.6)
+        self.wait(5)
+        chips = VGroup(
+            Text("∂L/∂ŷ", font_size=24, color=GREEN).next_to(backward[2], DOWN, buff=0.28),
+            Text("∂ŷ/∂z", font_size=24, color=GREEN).next_to(backward[1], DOWN, buff=0.28),
+            Text("∂z/∂w", font_size=24, color=GREEN).next_to(backward[0], DOWN, buff=0.28),
+        )
+        final_caption = Text("multiply local pieces to get ∂L/∂w", font_size=25).to_edge(DOWN)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = final_caption
+        self.play(FadeIn(chips), FadeIn(caption), run_time=3.7)
+        self.wait(5)
+        formula = Text("∂L/∂w = ∂L/∂ŷ × ∂ŷ/∂z × ∂z/∂w", font_size=24, color=YELLOW).next_to(nodes, UP, buff=0.62)
+        bias_note = Text("∂L/∂b follows the same path, with ∂z/∂b = 1", font_size=23, color=GREEN).next_to(chips, DOWN, buff=0.42)
+        self.play(FadeIn(formula), run_time=3)
+        self.wait(5)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = Text("Backprop is chain rule bookkeeping on a graph.", font_size=25).to_edge(DOWN)
+        self.play(FadeIn(bias_note), FadeIn(caption), run_time=2.7)
+        self.wait(8)
+
+
+class BeginnerLearningRateBehaviorScene(Scene):
+    def construct(self):
+        title = Text("Same slope, different step size", font_size=31).to_edge(UP)
+        valley = VGroup(
+            *[
+                Circle(radius=radius, color=ORANGE, stroke_opacity=0.25).stretch(1.55, 0)
+                for radius in [0.6, 1.0, 1.45, 1.95, 2.55]
+            ]
+        )
+        labels = VGroup(
+            Text("small η", font_size=23, color=YELLOW).shift(LEFT * 4 + UP * 2),
+            Text("steady η", font_size=23, color=GREEN).shift(UP * 2),
+            Text("large η", font_size=23, color=RED).shift(RIGHT * 4 + UP * 2),
+        )
+        caption = Text("learning rate controls how far the local slope is used", font_size=25).to_edge(DOWN)
+
+        small_points = [[-4.8, 1.25, 0], [-4.25, 0.95, 0], [-3.82, 0.68, 0], [-3.48, 0.45, 0], [-3.2, 0.27, 0]]
+        steady_points = [[-1.05, 1.25, 0], [-0.42, 0.45, 0], [-0.14, 0.14, 0], [0.0, 0.0, 0]]
+        large_points = [[3.0, 1.25, 0], [4.55, 0.42, 0], [2.65, 0.72, 0], [4.25, 0.22, 0], [2.95, 0.48, 0]]
+        small_path = VGroup(*[Line(small_points[i], small_points[i + 1], color=YELLOW, stroke_width=6) for i in range(len(small_points) - 1)])
+        steady_path = VGroup(*[Line(steady_points[i], steady_points[i + 1], color=GREEN, stroke_width=6) for i in range(len(steady_points) - 1)])
+        large_path = VGroup(*[Line(large_points[i], large_points[i + 1], color=RED, stroke_width=6) for i in range(len(large_points) - 1)])
+        small_dots = VGroup(*[Dot(point, color=WHITE, radius=0.045) for point in small_points])
+        steady_dots = VGroup(*[Dot(point, color=WHITE, radius=0.045) for point in steady_points])
+        large_dots = VGroup(*[Dot(point, color=WHITE, radius=0.045) for point in large_points])
+
+        self.play(FadeIn(title), FadeIn(valley), FadeIn(labels), FadeIn(caption), run_time=3)
+        self.wait(4)
+        small_caption = Text("small η: safe, but progress is slow", font_size=25).to_edge(DOWN)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = small_caption
+        self.play(FadeIn(caption), Create(small_path), FadeIn(small_dots), run_time=4.7)
+        self.wait(4)
+        steady_caption = Text("steady η: reaches low loss in fewer steps", font_size=25).to_edge(DOWN)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = steady_caption
+        self.play(FadeIn(caption), Create(steady_path), FadeIn(steady_dots), run_time=4.7)
+        self.wait(4)
+        large_caption = Text("large η: jumps across the valley and oscillates", font_size=25).to_edge(DOWN)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = large_caption
+        self.play(FadeIn(caption), Create(large_path), FadeIn(large_dots), run_time=4.7)
+        self.wait(4)
+        final_caption = Text("A learning rate decides how far to trust one local slope.", font_size=25).to_edge(DOWN)
+        self.play(FadeOut(caption), run_time=0.3)
+        caption = final_caption
+        self.play(FadeIn(caption), run_time=2.7)
+        self.wait(8)
 
 
 class TaylorPolynomialScene(Scene):

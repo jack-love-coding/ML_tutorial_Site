@@ -14,6 +14,13 @@ export interface LocalChangeStoryInput {
   learningRate: number
 }
 
+export interface BackpropBlockStoryInput {
+  x: number
+  weight: number
+  bias: number
+  target: number
+}
+
 export interface DistributionBuilderInput {
   kind: DistributionKind
   sampleCount: number
@@ -43,11 +50,34 @@ function lcg(seed: number) {
 }
 
 function teachingCurve(x: number) {
-  return x ** 3 - 2 * x + 1
+  return 0.5 * x * x
 }
 
 function teachingCurveDerivative(x: number) {
-  return 3 * x ** 2 - 2
+  return x
+}
+
+function sigmoid(value: number) {
+  return 1 / (1 + Math.exp(-value))
+}
+
+function backpropLoss(input: BackpropBlockStoryInput) {
+  const prediction = sigmoid(input.weight * input.x + input.bias)
+  return 0.5 * (prediction - input.target) ** 2
+}
+
+function finiteDifferenceWeight(input: BackpropBlockStoryInput, epsilon = 1e-4) {
+  const plus = backpropLoss({ ...input, weight: input.weight + epsilon })
+  const minus = backpropLoss({ ...input, weight: input.weight - epsilon })
+  return (plus - minus) / (2 * epsilon)
+}
+
+export function beginnerLocalLoss(x: number) {
+  return teachingCurve(x)
+}
+
+export function beginnerLocalLossDerivative(x: number) {
+  return teachingCurveDerivative(x)
 }
 
 function sampleNormalBin(random: () => number) {
@@ -95,14 +125,38 @@ export function evaluateFeatureVectorStory(input: FeatureVectorStoryInput) {
 export function evaluateLocalChangeStory(input: LocalChangeStoryInput) {
   const x = clamp(input.x, -2.5, 2.5)
   const h = Math.max(0.01, Math.abs(input.h))
-  const learningRate = clamp(input.learningRate, 0.01, 0.45)
+  const learningRate = clamp(input.learningRate, 0.01, 2.4)
   const y = teachingCurve(x)
   const nextY = teachingCurve(x + h)
   const secantSlope = (nextY - y) / h
   const derivative = teachingCurveDerivative(x)
   const nextX = x - learningRate * derivative
-  const currentLoss = 0.5 * x * x
-  const nextLoss = 0.5 * nextX * nextX
+  const currentLoss = y
+  const nextLoss = teachingCurve(nextX)
+  const hRows = [1, 0.5, 0.1, 0.01].map((window) => {
+    const windowSlope = (teachingCurve(x + window) - y) / window
+    return {
+      h: window,
+      secantSlope: windowSlope,
+      error: Math.abs(windowSlope - derivative),
+    }
+  })
+  const learningRateScenarios = [
+    { id: 'small', learningRate: 0.15 },
+    { id: 'steady', learningRate: 0.75 },
+    { id: 'large', learningRate: 2.1 },
+  ].map((scenario) => {
+    let position = x
+    const points = Array.from({ length: 7 }, () => {
+      const point = {
+        x: position,
+        loss: teachingCurve(position),
+      }
+      position -= scenario.learningRate * teachingCurveDerivative(position)
+      return point
+    })
+    return { ...scenario, points }
+  })
 
   return {
     x,
@@ -116,6 +170,42 @@ export function evaluateLocalChangeStory(input: LocalChangeStoryInput) {
     nextX,
     currentLoss,
     nextLoss,
+    hRows,
+    learningRateScenarios,
+  }
+}
+
+export function evaluateBackpropBlockStory(input: BackpropBlockStoryInput) {
+  const x = clamp(input.x, -3, 3)
+  const weight = clamp(input.weight, -4, 4)
+  const bias = clamp(input.bias, -4, 4)
+  const target = clamp(input.target, 0, 1)
+  const z = weight * x + bias
+  const prediction = sigmoid(z)
+  const loss = 0.5 * (prediction - target) ** 2
+  const dLossDPrediction = prediction - target
+  const dPredictionDZ = prediction * (1 - prediction)
+  const dLossDZ = dLossDPrediction * dPredictionDZ
+  const dLossDWeight = dLossDZ * x
+  const dLossDBias = dLossDZ
+  const dLossDX = dLossDZ * weight
+  const numericalWeightGradient = finiteDifferenceWeight({ x, weight, bias, target })
+
+  return {
+    x,
+    weight,
+    bias,
+    target,
+    z,
+    prediction,
+    loss,
+    dLossDPrediction,
+    dPredictionDZ,
+    dLossDZ,
+    dLossDWeight,
+    dLossDBias,
+    dLossDX,
+    numericalWeightGradient,
   }
 }
 

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Derivative window shrinking to tangent slope">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <g stroke="#dbe4f2" stroke-width="1">
+    <path d="M90 120H870M90 190H870M90 260H870M90 330H870M90 400H870"/>
+    <path d="M130 90V450M240 90V450M350 90V450M460 90V450M570 90V450M680 90V450M790 90V450"/>
+  </g>
+  <path d="M110 418H840M160 90V440" stroke="#7b8497" stroke-width="3"/>
+  <path d="M180 134 C305 384 492 486 768 182" fill="none" stroke="#3868ff" stroke-width="9" stroke-linecap="round"/>
+  <path d="M500 360L725 235" stroke="#ef6f6c" stroke-width="7" stroke-linecap="round"/>
+  <path d="M500 360L628 304" stroke="#d65a31" stroke-width="7" stroke-linecap="round"/>
+  <path d="M500 360L580 332" stroke="#0f9f7a" stroke-width="7" stroke-linecap="round"/>
+  <path d="M394 385L650 292" stroke="#0f9f7a" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="500" cy="360" r="15" fill="#ffd84d" stroke="#10162f" stroke-width="4"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Derivative window shrinks to the tangent</text>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Average change approaches local slope as h gets smaller.</text>
+</svg>

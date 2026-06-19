@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Chain rule backpropagation computation graph">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Chain rule sends gradients backward</text>
+  <g font-family="Arial, sans-serif" font-size="24" text-anchor="middle">
+    <rect x="92" y="204" width="130" height="78" rx="14" fill="#ffffff" stroke="#10162f" stroke-width="3"/><text x="157" y="253" fill="#10162f">x</text>
+    <rect x="292" y="204" width="150" height="78" rx="14" fill="#ffffff" stroke="#10162f" stroke-width="3"/><text x="367" y="253" fill="#10162f">z = w·x + b</text>
+    <rect x="516" y="204" width="150" height="78" rx="14" fill="#ffffff" stroke="#10162f" stroke-width="3"/><text x="591" y="253" fill="#10162f">ŷ = σ(z)</text>
+    <rect x="736" y="204" width="130" height="78" rx="14" fill="#ffffff" stroke="#10162f" stroke-width="3"/><text x="801" y="253" fill="#10162f">L</text>
+  </g>
+  <path d="M222 243H292M442 243H516M666 243H736" stroke="#3868ff" stroke-width="8"/>
+  <path d="M736 342H666M516 342H442M292 342H222" stroke="#d65a31" stroke-width="8"/>
+  <text x="482" y="174" fill="#3868ff" font-family="Arial, sans-serif" font-size="25">forward values</text>
+  <text x="466" y="390" fill="#d65a31" font-family="Arial, sans-serif" font-size="25">upstream gradient × local derivative</text>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Backpropagation is chain rule bookkeeping on a graph.</text>
+</svg>

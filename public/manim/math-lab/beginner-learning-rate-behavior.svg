@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Learning rate paths comparing small steady and too large steps">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Same slope, different step size</text>
+  <g fill="none" stroke="#3868ff" stroke-width="7" stroke-linecap="round">
+    <path d="M92 380 C150 120 248 120 306 380"/>
+    <path d="M378 380 C436 120 534 120 592 380"/>
+    <path d="M664 380 C722 120 820 120 878 380"/>
+  </g>
+  <path d="M120 190L150 250L176 292L202 324L224 346" stroke="#f2b84b" stroke-width="7" fill="none"/>
+  <path d="M404 190L470 318L486 352" stroke="#0f9f7a" stroke-width="7" fill="none"/>
+  <path d="M692 190L850 250L704 302L826 326" stroke="#d9463f" stroke-width="7" fill="none"/>
+  <g font-family="Arial, sans-serif" font-size="24" font-weight="700">
+    <text x="108" y="148" fill="#f2b84b">small η</text>
+    <text x="396" y="148" fill="#0f9f7a">steady η</text>
+    <text x="684" y="148" fill="#d9463f">large η</text>
+  </g>
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">A large step can reuse local slope information too far away.</text>
+</svg>

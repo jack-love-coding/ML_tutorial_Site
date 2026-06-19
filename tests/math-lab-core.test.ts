@@ -30,6 +30,7 @@ import {
   projection,
 } from '../src/modules/math-lab/utils/math.ts'
 import {
+  evaluateBackpropBlockStory,
   evaluateDistributionBuilder,
   evaluateFeatureVectorStory,
   evaluateLocalChangeStory,
@@ -253,7 +254,7 @@ test('math lab modules include the zero-base AI math path from 1-22', () => {
     } else if (moduleDefinition.id === 'beginner-linear-algebra') {
       assert.match(englishBody, /data becomes a vector|matrix as a space machine/i)
     } else if (moduleDefinition.id === 'beginner-calculus') {
-      assert.match(englishBody, /average change|instantaneous change|Taylor as a local map/i)
+      assert.match(englishBody, /average change|instantaneous change|chain rule|numerical gradient/i)
     } else if (moduleDefinition.id === 'beginner-probability-distributions') {
       assert.match(englishBody, /sample space|random variable|normal distribution/i)
     } else if (moduleDefinition.id === 'training-diagnostics') {
@@ -336,6 +337,7 @@ test('zero-base beginner modules expose complete bilingual teaching surfaces', (
   const byId = Object.fromEntries(beginnerModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
   assert.ok(byId['beginner-linear-algebra']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
   assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'LocalChangeStoryLab'))
+  assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'BackpropBlockLab'))
   assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'DistributionBuilderLab'))
 })
 
@@ -352,8 +354,12 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
     'beginner-calculus': [
       'beginner-function-machine-longform',
       'beginner-average-to-derivative-longform',
+      'beginner-derivative-window-longform',
       'beginner-derivative-tangent-longform',
+      'beginner-partial-gradient-longform',
+      'beginner-chain-rule-backprop-longform',
       'beginner-gradient-taylor-update-longform',
+      'beginner-learning-rate-behavior-longform',
     ],
     'beginner-probability-distributions': [
       'beginner-sample-space-random-variable-longform',
@@ -388,6 +394,9 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
   const calculusBody = byId['beginner-calculus']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(calculusBody, /函数回答的是：输入改变时输出按什么规则改变/)
   assert.match(calculusBody, /导数回答的是：在当前点附近，输入动一点，输出会动多少/)
+  assert.match(calculusBody, /偏导数的入门读法/)
+  assert.match(calculusBody, /上游梯度/)
+  assert.match(calculusBody, /有限差分/)
 
   const probabilityBody = byId['beginner-probability-distributions']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(probabilityBody, /概率回答的是：在明确的样本空间里，长期会怎样分配结果/)
@@ -1225,8 +1234,16 @@ test('beginner foundation utilities expose vector, local change, and distributio
   const wideChange = evaluateLocalChangeStory({ x: 1, h: 0.8, learningRate: 0.2 })
   const narrowChange = evaluateLocalChangeStory({ x: 1, h: 0.05, learningRate: 0.2 })
   assert.ok(narrowChange.secantError < wideChange.secantError)
-  assert.equal(Number(narrowChange.derivative.toFixed(6)), Number((3 * 1 ** 2 - 2).toFixed(6)))
+  assert.equal(Number(narrowChange.derivative.toFixed(6)), 1)
+  assert.equal(narrowChange.currentLoss, narrowChange.y)
   assert.ok(narrowChange.nextLoss < narrowChange.currentLoss)
+  assert.ok(narrowChange.hRows.at(-1)!.error < narrowChange.hRows[0]!.error)
+  assert.equal(narrowChange.learningRateScenarios.length, 3)
+
+  const backprop = evaluateBackpropBlockStory({ x: 1.2, weight: 1.4, bias: -0.3, target: 0.8 })
+  assert.ok(Math.abs(backprop.dLossDWeight - backprop.numericalWeightGradient) < 1e-5)
+  assert.equal(Number(backprop.dLossDBias.toFixed(8)), Number(backprop.dLossDZ.toFixed(8)))
+  assert.equal(Number(backprop.dLossDWeight.toFixed(8)), Number((backprop.dLossDZ * backprop.x).toFixed(8)))
 
   const uniform = evaluateDistributionBuilder({ kind: 'uniform', sampleCount: 600, seed: 11, targetBin: 2 })
   const normal = evaluateDistributionBuilder({ kind: 'normal', sampleCount: 600, seed: 11, targetBin: 2 })
