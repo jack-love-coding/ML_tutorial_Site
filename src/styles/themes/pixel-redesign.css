@@ -282,8 +282,10 @@ summary:focus-visible {
   left: 0;
   z-index: 50;
   display: grid;
-  gap: 6px;
-  width: min(320px, calc(100vw - 32px));
+  gap: 10px;
+  width: min(420px, calc(100vw - 32px));
+  max-height: min(72vh, 720px);
+  overflow-y: auto;
   padding: 10px;
   border: 2px solid var(--pixel-line);
   border-radius: 7px;
@@ -294,6 +296,20 @@ summary:focus-visible {
   transform: translateY(-4px);
   transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
   visibility: hidden;
+}
+
+.site-header__more-menu--wide {
+  width: min(760px, calc(100vw - 32px));
+}
+
+.site-header__more-menu--math-lab {
+  width: min(780px, calc(100vw - 32px));
+}
+
+.site-header__more-menu--modules {
+  right: 0;
+  left: auto;
+  width: min(720px, calc(100vw - 32px));
 }
 
 .site-header__more.is-open .site-header__more-menu {
@@ -309,6 +325,52 @@ summary:focus-visible {
   min-height: 40px;
   padding: 9px 10px;
   white-space: normal;
+}
+
+.site-header__menu-overview {
+  border-color: var(--pixel-line);
+  background: #dff8e8;
+}
+
+.site-header__menu-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.site-header__menu-group {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: var(--pixel-paper);
+}
+
+.site-header__menu-heading {
+  color: var(--pixel-muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.site-header__menu-items {
+  display: grid;
+  gap: 4px;
+}
+
+.site-header__more-menu .site-header__menu-link {
+  min-height: 34px;
+  padding: 7px 8px;
+  font-size: 0.82rem;
+}
+
+.site-header__menu-link-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .site-header__actions {

@@ -19,11 +19,18 @@ test('math lab lazy routes are wired outside AlgorithmView', () => {
   assert.doesNotMatch(algorithmViewSource, /MathLabModulePage/)
 })
 
-test('app shell exposes one top-level math lab nav entry', () => {
+test('app shell exposes a math lab navigation menu without importing full course data', () => {
   const appShellSource = read('src/components/AppShell.vue')
   const messagesSource = read('src/i18n/messages.ts')
+  const navigationSource = read('src/data/navigationMenus.ts')
 
-  assert.match(appShellSource, /to="\/math-lab"/)
+  assert.match(appShellSource, /site-math-lab-navigation/)
+  assert.match(appShellSource, /mathLabNavigationGroups/)
+  assert.match(appShellSource, /mathLabUtilityLinks/)
+  assert.doesNotMatch(appShellSource, /mathLabModules/)
+  assert.match(navigationSource, /route: '\/math-lab'/)
+  assert.match(navigationSource, /\/math-lab\/diagnostic/)
+  assert.match(navigationSource, /mathModule\('beginner-linear-algebra'/)
   assert.match(appShellSource, /t\('nav\.mathLab'\)/)
   assert.match(messagesSource, /mathLab: '数学直觉实验室'/)
   assert.match(messagesSource, /mathLab: 'Math Lab'/)
