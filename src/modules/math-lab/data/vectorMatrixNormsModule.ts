@@ -587,7 +587,7 @@ $$
 
 The video and lab below both focus on one idea: move the matrix columns and watch the whole space, unit circle, and determinant change.`,
     ),
-    { visualIds: ['matrix-transform-video'], labIds: ['matrix-transform-lab'] },
+    { visualIds: ['matrix-transform-video', 'matrix-column-combination-image'], labIds: ['matrix-transform-lab'] },
   ),
   section(
     'vectors-matrices-norms-special-matrices-rank-representation',
@@ -966,7 +966,7 @@ $$
 
 is not a linear transformation because it does not keep the origin fixed. This is why a neural-network layer \(W\mathbf{x}+\mathbf{b}\) is called affine, not purely linear.`,
     ),
-    { labIds: ['matrix-column-space-lab'] },
+    { visualIds: ['column-space-rank-image', 'null-space-invisible-direction-image'], labIds: ['matrix-column-space-lab'] },
   ),
   section(
     'vectors-matrices-norms-vector-norms-errors',
@@ -1770,6 +1770,72 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
         learningPurpose: copy(
           '帮助学生把矩阵列向量、基向量去向和 determinant 几何意义连在一起。',
           'Help students connect matrix columns, moved basis vectors, and the geometric meaning of the determinant.',
+        ),
+      },
+      {
+        id: 'matrix-column-combination-image',
+        type: 'image',
+        title: copy('矩阵列向量的线性组合', 'Matrix Columns as a Linear Combination'),
+        assetPath: '/math-lab/generated/matrix-column-combination.png',
+        transcript: copy(
+          '输入坐标作为比例，混合矩阵列向量得到输出。',
+          'Input coordinates act as weights that mix matrix columns into the output.',
+        ),
+        alt: copy(
+          '矩阵列向量按输入坐标混合成输出向量的示意图。',
+          'Diagram of matrix columns mixed by input coordinates into an output vector.',
+        ),
+        caption: copy(
+          '矩阵乘向量可以按列读成线性组合。',
+          'Matrix-vector multiplication can be read by columns as a linear combination.',
+        ),
+        learningPurpose: copy(
+          '帮助学生把矩阵乘法从表格计算转成列空间直觉。',
+          'Help learners turn matrix multiplication from table arithmetic into column-space intuition.',
+        ),
+      },
+      {
+        id: 'column-space-rank-image',
+        type: 'image',
+        title: copy('列空间和 rank', 'Column Space and Rank'),
+        assetPath: '/math-lab/generated/column-space-rank-intuition.png',
+        transcript: copy(
+          '两列独立时输出可以铺开平面；两列共线时输出被压到一条线上。',
+          'Independent columns can spread outputs across a plane; collinear columns collapse outputs onto a line.',
+        ),
+        alt: copy(
+          'rank 2 的列空间铺开平面，rank 1 的列空间压成线的对比图。',
+          'Comparison of a rank-2 column space spreading across a plane and a rank-1 column space collapsed to a line.',
+        ),
+        caption: copy(
+          'rank 可以先读成列空间里的有效独立方向数。',
+          'Rank can first be read as the number of effective independent directions in the column space.',
+        ),
+        learningPurpose: copy(
+          '帮助学生把 rank 从抽象数字连接到空间是否被压扁。',
+          'Help learners connect rank to whether space is flattened.',
+        ),
+      },
+      {
+        id: 'null-space-invisible-direction-image',
+        type: 'image',
+        title: copy('null space：看不见的输入方向', 'Null Space: Input Directions the Matrix Cannot See'),
+        assetPath: '/math-lab/generated/null-space-invisible-direction.png',
+        transcript: copy(
+          '一个输入方向经过矩阵后变成零输出，另一个方向产生可见输出。',
+          'One input direction becomes zero output after the matrix, while another produces a visible output.',
+        ),
+        alt: copy(
+          '输入方向进入矩阵后，一个方向被压成零输出的 null space 示意图。',
+          'Diagram of an input direction entering a matrix and collapsing to zero output as null space.',
+        ),
+        caption: copy(
+          'null space 描述哪些输入变化会被矩阵压没。',
+          'Null space describes which input changes collapse away under the matrix.',
+        ),
+        learningPurpose: copy(
+          '帮助学生区分 column space 是输出空间，null space 是输入方向。',
+          'Help learners distinguish column space as output space from null space as input directions.',
         ),
       },
     ],

@@ -211,10 +211,39 @@ test('migrated note figures are stored locally', () => {
     'public/math-lab/generated/beginner-conditional-probability-longform.png',
     'public/math-lab/generated/beginner-bayes-update-longform.png',
     'public/math-lab/generated/beginner-calibration-confidence-longform.png',
+    'public/math-lab/generated/linear-algebra-feature-cards.png',
+    'public/math-lab/generated/vector-distance-norm-intuition.png',
+    'public/math-lab/generated/cosine-vs-distance-intuition.png',
+    'public/math-lab/generated/high-dimensional-embedding-search.png',
+    'public/math-lab/generated/matrix-column-combination.png',
+    'public/math-lab/generated/column-space-rank-intuition.png',
+    'public/math-lab/generated/null-space-invisible-direction.png',
   ]
 
   for (const assetPath of keyAssets) {
     assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
+  }
+
+  const beginnerSource = read('src/modules/math-lab/data/beginnerFoundationModules.ts')
+  const vectorNormsSource = read('src/modules/math-lab/data/vectorMatrixNormsModule.ts')
+  const beginnerSourcesDoc = read('docs/math-lab-beginner-bridge-sources.md')
+  for (const assetPath of [
+    'linear-algebra-feature-cards.png',
+    'vector-distance-norm-intuition.png',
+    'cosine-vs-distance-intuition.png',
+    'high-dimensional-embedding-search.png',
+  ]) {
+    assert.match(beginnerSource, new RegExp(assetPath.replace('.', '\\.')))
+    assert.match(beginnerSourcesDoc, new RegExp(assetPath.replace('.', '\\.')))
+  }
+
+  for (const assetPath of [
+    'matrix-column-combination.png',
+    'column-space-rank-intuition.png',
+    'null-space-invisible-direction.png',
+  ]) {
+    assert.match(vectorNormsSource, new RegExp(assetPath.replace('.', '\\.')))
+    assert.match(beginnerSourcesDoc, new RegExp(assetPath.replace('.', '\\.')))
   }
 })
 

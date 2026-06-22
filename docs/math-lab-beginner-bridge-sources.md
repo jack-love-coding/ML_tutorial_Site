@@ -190,3 +190,17 @@ Rendered durations:
 - `/manim/math-lab/beginner-probability-frequency.mp4`: 51.9 seconds.
 - `/manim/math-lab/beginner-conditional-bayes.mp4`: 44.7 seconds.
 - `/manim/math-lab/beginner-calibration-cross-entropy.mp4`: 44.1 seconds.
+
+## Linear algebra vector-matrix route assets
+
+These images were generated for this repository with Codex's built-in `imagegen` workflow. The prompts requested Chinese-primary scientific teaching infographics for zero-base linear algebra, with sparse labels, no logos, no watermark, and no runtime remote assets.
+
+Generated files:
+
+- `public/math-lab/generated/linear-algebra-feature-cards.png`
+- `public/math-lab/generated/vector-distance-norm-intuition.png`
+- `public/math-lab/generated/cosine-vs-distance-intuition.png`
+- `public/math-lab/generated/high-dimensional-embedding-search.png`
+- `public/math-lab/generated/matrix-column-combination.png`
+- `public/math-lab/generated/column-space-rank-intuition.png`
+- `public/math-lab/generated/null-space-invisible-direction.png`

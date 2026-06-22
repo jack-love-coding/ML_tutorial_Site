@@ -193,7 +193,7 @@ A vector answers: how far did one object move along each feature direction? With
 
 The useful move is comparison. For two learner records \(\mathbf{x}=[2,5,80]\) and \(\mathbf{y}=[3,4,82]\), the difference is \(\mathbf{y}-\mathbf{x}=[1,-1,2]\). That is not three isolated numbers; it is the change direction "one more practice session, one fewer mistake, two more score points." Model training, recommendation systems, image retrieval, and text retrieval keep reusing this language of direction and distance.`,
     ),
-    { visualIds: ['beginner-linear-algebra-story', 'beginner-vector-feature-space-longform'] },
+    { visualIds: ['beginner-linear-algebra-story', 'linear-algebra-feature-cards', 'beginner-vector-feature-space-longform'] },
   ),
   section(
     'beginner-linear-distance-similarity',
@@ -250,7 +250,15 @@ Sometimes the comparison also uses weights. A weight says which dimension matter
 
 2D or 3D arrows are only a visual entry point. They make length, difference vectors, and angles visible. Real embeddings may have hundreds or thousands of dimensions, but the logic stays the same: numbers become vectors, norms measure length, distance measures position gap, and cosine similarity measures direction alignment.`,
     ),
-    { visualIds: ['beginner-vector-distance-similarity-longform'], labIds: ['beginner-feature-vector-story-lab', 'beginner-vector-similarity-lab'] },
+    {
+      visualIds: [
+        'beginner-vector-distance-similarity-longform',
+        'vector-distance-norm-intuition',
+        'cosine-vs-distance-intuition',
+        'high-dimensional-embedding-search',
+      ],
+      labIds: ['beginner-feature-vector-story-lab', 'beginner-vector-similarity-lab'],
+    },
   ),
   section(
     'beginner-linear-combination-span',
@@ -1042,10 +1050,34 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('学习次数、错题数和分数被写成同一个向量，展示二维箭头和三维特征空间如何帮助比较方向、距离和变化。', 'Practice count, mistakes, and score are placed in one vector, showing how 2D arrows and 3D feature space support comparisons of direction, distance, and change.'),
       ),
       imageAsset(
+        'linear-algebra-feature-cards',
+        'linear-algebra-feature-cards.png',
+        copy('对象怎样变成向量', 'How Objects Become Vectors'),
+        copy('学习记录、推荐偏好和句子 embedding 被放进同一套向量语言。', 'Learner records, recommendation preferences, and sentence embeddings enter the same vector language.'),
+      ),
+      imageAsset(
         'beginner-vector-distance-similarity-longform',
         'beginner-vector-distance-similarity-longform.png',
         copy('距离与相似度：位置接近不等于方向接近', 'Distance and Similarity: Near Position Is Not Near Direction'),
         copy('图中比较欧氏距离、夹角和 cosine similarity，提醒学生区分“多远”和“多像”这两个向量问题。', 'The illustration compares Euclidean distance, angle, and cosine similarity so learners separate the vector questions "how far" and "how similar in direction."'),
+      ),
+      imageAsset(
+        'vector-distance-norm-intuition',
+        'vector-distance-norm-intuition.png',
+        copy('距离和向量长度', 'Distance and Vector Length'),
+        copy('一条线读向量自己的长度，另一条线读两个对象之间的距离。', 'One segment reads a vector length, and another reads the distance between two objects.'),
+      ),
+      imageAsset(
+        'cosine-vs-distance-intuition',
+        'cosine-vs-distance-intuition.png',
+        copy('距离近和方向近', 'Nearby Distance and Nearby Direction'),
+        copy('图中对比位置距离和方向相似度，帮助区分 Euclidean distance 与 cosine similarity。', 'The image contrasts position distance and directional similarity to separate Euclidean distance from cosine similarity.'),
+      ),
+      imageAsset(
+        'high-dimensional-embedding-search',
+        'high-dimensional-embedding-search.png',
+        copy('高维 embedding 检索', 'High-Dimensional Embedding Search'),
+        copy('句子进入高维表示后，仍然可以用 cosine similarity 做相似检索。', 'Sentences become high-dimensional representations and can still be retrieved with cosine similarity.'),
       ),
       imageAsset(
         'beginner-linear-combination-span-longform',
