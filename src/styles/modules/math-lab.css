@@ -1880,6 +1880,223 @@
   stroke: rgba(15, 159, 122, 0.24);
 }
 
+.matrix-column-space-lab {
+  align-items: start;
+}
+
+.matrix-column-space-lab__visual,
+.matrix-column-space-lab__controls,
+.matrix-column-space-lab__control-section,
+.matrix-column-space-lab__explanation {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.matrix-column-space-lab__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 300px;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  border-radius: 22px;
+  background:
+    linear-gradient(rgba(15, 23, 40, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 40, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff, #f6f9ff);
+  background-size: 32px 32px, 32px 32px, auto;
+}
+
+.matrix-column-space-lab__grid line {
+  stroke: rgba(15, 23, 40, 0.1);
+  stroke-width: 1;
+}
+
+.matrix-column-space-lab__grid .matrix-column-space-lab__axis {
+  stroke: rgba(15, 23, 40, 0.28);
+  stroke-width: 1.7;
+}
+
+.matrix-column-space-lab__vector,
+.matrix-column-space-lab__contribution {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.matrix-column-space-lab__vector {
+  stroke-width: 5;
+}
+
+.matrix-column-space-lab__vector--a1 {
+  stroke: #3868ff;
+}
+
+.matrix-column-space-lab__vector--a2 {
+  stroke: #0f9f7a;
+}
+
+.matrix-column-space-lab__vector--ax {
+  stroke: #e26d3d;
+}
+
+.matrix-column-space-lab__contribution {
+  stroke-width: 3;
+  stroke-dasharray: 7 6;
+}
+
+.matrix-column-space-lab__contribution--x1 {
+  stroke: rgba(56, 104, 255, 0.55);
+}
+
+.matrix-column-space-lab__contribution--x2 {
+  stroke: rgba(15, 159, 122, 0.58);
+}
+
+.matrix-column-space-lab__origin {
+  fill: #0f1728;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.matrix-column-space-lab__result-dot {
+  fill: #e26d3d;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.matrix-column-space-lab__label {
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-linejoin: round;
+  stroke-width: 5px;
+  fill: #0f1728;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.matrix-column-space-lab__label--a1 {
+  fill: #244fdb;
+}
+
+.matrix-column-space-lab__label--a2 {
+  fill: #087a61;
+}
+
+.matrix-column-space-lab__label--ax {
+  fill: #b74f23;
+}
+
+.matrix-column-space-lab__label--contribution {
+  fill: #475569;
+  font-size: 0.72rem;
+}
+
+.matrix-column-space-lab__formula {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font-family: var(--font-display);
+  line-height: 1.45;
+}
+
+.matrix-column-space-lab__section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.matrix-column-space-lab__reset {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 40, 0.12);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.matrix-column-space-lab__reset:hover {
+  border-color: rgba(56, 104, 255, 0.36);
+}
+
+.matrix-column-space-lab__control-grid,
+.matrix-column-space-lab__readouts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.matrix-column-space-lab__control {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.matrix-column-space-lab__control span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.matrix-column-space-lab__control em {
+  color: var(--ink);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.matrix-column-space-lab__control input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+}
+
+.matrix-column-space-lab__readout {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.82);
+}
+
+.matrix-column-space-lab__readout--wide {
+  grid-column: 1 / -1;
+}
+
+.matrix-column-space-lab__readout span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.matrix-column-space-lab__readout strong {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.matrix-column-space-lab__explanation {
+  padding-top: 4px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.matrix-column-space-lab__explanation p {
+  margin: 0;
+}
+
 .math-gradient-contours ellipse {
   fill: none;
   stroke: rgba(226, 109, 61, 0.22);
@@ -2154,6 +2371,8 @@
   .math-misconception-grid,
   .math-readout-grid,
   .math-skill-radar__legend,
+  .matrix-column-space-lab__control-grid,
+  .matrix-column-space-lab__readouts,
   .vector-similarity-pair,
   .vector-answer-copy,
   .vector-answer-dimensions,

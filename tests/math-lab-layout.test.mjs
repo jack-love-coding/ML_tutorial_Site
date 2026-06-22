@@ -69,6 +69,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/BackpropBlockLab.vue',
     'src/modules/math-lab/labs/DistributionBuilderLab.vue',
     'src/modules/math-lab/labs/ConditionalBayesLab.vue',
+    'src/modules/math-lab/labs/MatrixColumnSpaceLab.vue',
   ]
 
   for (const path of componentPaths) {
@@ -95,8 +96,21 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /import\('\.\.\/labs\/BackpropBlockLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/DistributionBuilderLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/ConditionalBayesLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/MatrixColumnSpaceLab\.vue'\)/)
   assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
+
+  const matrixColumnSpaceSource = read('src/modules/math-lab/labs/MatrixColumnSpaceLab.vue')
+  assert.match(matrixColumnSpaceSource, /matrixColumns2x2/)
+  assert.match(matrixColumnSpaceSource, /rank2x2/)
+  assert.match(matrixColumnSpaceSource, /columnSpaceKind2x2/)
+  assert.match(matrixColumnSpaceSource, /nullDirection2x2/)
+  assert.match(matrixColumnSpaceSource, /matrixVectorMultiply/)
+  assert.match(matrixColumnSpaceSource, /x1/)
+  assert.match(matrixColumnSpaceSource, /x2/)
+  assert.match(matrixColumnSpaceSource, /rank/i)
+  assert.match(matrixColumnSpaceSource, /column space/i)
+  assert.match(matrixColumnSpaceSource, /列空间/)
 
   const vectorSimilaritySource = read('src/modules/math-lab/labs/VectorSimilarityLab.vue')
   assert.match(vectorSimilaritySource, /const objectVectors/)
