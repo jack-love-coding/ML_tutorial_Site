@@ -20,14 +20,25 @@ import {
 } from '../src/modules/math-lab/utils/aiBridgeMath.ts'
 import {
   angleBetween,
+  columnSpaceKind2x2,
   cosineSimilarity,
+  cosineSimilarityN,
   determinant2x2,
   dot,
+  dotN,
+  euclideanDistance,
   gradientDescentStep,
+  infinityNorm,
   isInvertible2x2,
+  l1Norm,
+  l2NormN,
+  matrixColumns2x2,
   matrixVectorMultiply,
+  nullDirection2x2,
   norm,
   projection,
+  rank2x2,
+  vectorDifference,
 } from '../src/modules/math-lab/utils/math.ts'
 import {
   evaluateBackpropBlockStory,
@@ -106,6 +117,23 @@ test('math lab vector utilities compute dot, norm, cosine, angle, and projection
   assert.deepEqual(projection(a, b), { x: 3, y: 0 })
 })
 
+test('linear algebra vector metrics handle distance, norms, dot, cosine, and zero-vector fallback', () => {
+  const studentA = [2, 5, 80]
+  const studentB = [3, 4, 82]
+
+  assert.deepEqual(vectorDifference(studentB, studentA), [1, -1, 2])
+  assert.equal(Math.abs(euclideanDistance(studentA, studentB) - Math.sqrt(6)) < 1e-12, true)
+  assert.equal(l1Norm([1, -1, 2]), 4)
+  assert.equal(l2NormN([3, 4, 12]), 13)
+  assert.equal(infinityNorm([1, -7, 4]), 7)
+  assert.equal(dotN([1, 2, 3], [4, 5, 6]), 32)
+  assert.equal(cosineSimilarityN([1, 0, 0], [10, 0, 0]), 1)
+  assert.equal(cosineSimilarityN([0, 0, 0], [1, 2, 3]), 0)
+  assert.deepEqual(vectorDifference([1, Number.NaN, 3], [1, 2]), [0, -2, 3])
+  assert.equal(dotN([1, Number.POSITIVE_INFINITY, 3], [2, 5, 4]), 14)
+  assert.equal(l1Norm([Number.NaN, Number.NEGATIVE_INFINITY, -2]), 2)
+})
+
 test('math lab matrix and gradient utilities expose the expected teaching behavior', () => {
   const matrix = [
     [2, 1],
@@ -119,6 +147,36 @@ test('math lab matrix and gradient utilities expose the expected teaching behavi
     x: 1.6,
     y: -0.8,
   })
+})
+
+test('linear algebra matrix helpers expose column combinations, rank, and null directions', () => {
+  const fullRank = [
+    [1, 0],
+    [0, 1],
+  ] as const
+  const rankOne = [
+    [2, 4],
+    [1, 2],
+  ] as const
+  const zero = [
+    [0, 0],
+    [0, 0],
+  ] as const
+
+  assert.deepEqual(matrixColumns2x2(rankOne), [{ x: 2, y: 1 }, { x: 4, y: 2 }])
+  assert.equal(rank2x2(fullRank), 2)
+  assert.equal(rank2x2(rankOne), 1)
+  assert.equal(rank2x2(zero), 0)
+  assert.equal(columnSpaceKind2x2(fullRank), 'plane')
+  assert.equal(columnSpaceKind2x2(rankOne), 'line')
+  assert.equal(columnSpaceKind2x2(zero), 'point')
+
+  const nullDirection = nullDirection2x2(rankOne)
+  assert.ok(nullDirection)
+  const collapsed = matrixVectorMultiply(rankOne, nullDirection!)
+  assert.equal(Math.abs(collapsed.x) < 1e-8, true)
+  assert.equal(Math.abs(collapsed.y) < 1e-8, true)
+  assert.equal(nullDirection2x2(fullRank), null)
 })
 
 test('AI bridge math utilities validate shapes, autodiff, probability, diagnostics, and architecture formulas', () => {
