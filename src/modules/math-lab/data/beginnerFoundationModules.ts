@@ -205,7 +205,13 @@ $$
 \|\mathbf{x}\|_2=\sqrt{3^2+4^2}=5.
 $$
 
-如果两个向量之间的差很短，它们的位置接近；如果夹角很小，它们的方向接近。距离和方向不是同一件事。两个学生的分数规模可能都很高，但学习模式不同；两个句子的 embedding 长度可能不同，但方向很接近，语义就可能接近。
+两个向量的欧几里得距离也是同一个想法，只是先做差，再量这条差向量有多长：
+
+$$
+\|\mathbf{x}-\mathbf{y}\|_2=\sqrt{\sum_i (x_i-y_i)^2}.
+$$
+
+距离回答的是“位置多近”。如果 \(\mathbf{x}\) 和 \(\mathbf{y}\) 的差很短，它们在特征空间里靠得近。cosine similarity 回答的是“方向多像”。它看两支箭头的夹角，而不是只看终点离得多近。两个学生的分数规模可能都很高，但学习模式不同；两个句子的 embedding 长度可能不同，但方向很接近，语义就可能接近。
 
 点积把“长度”和“夹角”放进同一个数：
 
@@ -213,14 +219,24 @@ $$
 \mathbf{x}^{\top}\mathbf{y}=\|\mathbf{x}\|\,\|\mathbf{y}\|\cos\theta.
 $$
 
-如果我们只关心方向，就把长度除掉，得到 cosine similarity。文本检索里常说“找最相似的 embedding”，本质就是找方向最接近的向量。`,
+如果我们只关心方向，就把长度除掉，得到 cosine similarity。文本检索里常说“找最相似的 embedding”，本质就是找方向最接近的向量。
+
+有时还会给维度加权。权重不是装饰，它表示这次比较更在乎哪个维度。比较学习记录时，如果“错题数”比“练习次数”更重要，就可以让错题数这一维的权重大一些。VectorSimilarityLab 会让你调整权重，看距离和方向相似度怎样变化。
+
+2D 或 3D 箭头只是一个入口，方便我们看见长度、差向量和夹角。真正的 embedding 可能有几百甚至几千维，画不出来，但逻辑没有换：数字组成向量，norm 量长度，distance 量位置差，cosine similarity 量方向像不像。`,
       md`Vector length can start from the Pythagorean theorem. The two-dimensional vector \((3,4)\) has length
 
 $$
 \|\mathbf{x}\|_2=\sqrt{3^2+4^2}=5.
 $$
 
-If the difference between two vectors is short, their positions are close. If their angle is small, their directions are close. Distance and direction are not the same idea. Two learners may both have large scores but different learning patterns; two sentence embeddings may have different lengths but very close directions, which can indicate similar meaning.
+Euclidean distance uses the same idea. First subtract the vectors, then measure the length of that difference vector:
+
+$$
+\|\mathbf{x}-\mathbf{y}\|_2=\sqrt{\sum_i (x_i-y_i)^2}.
+$$
+
+Distance answers "how close are the positions?" If \(\mathbf{x}\) and \(\mathbf{y}\) have a short difference vector, they are near each other in feature space. Cosine similarity answers "how similar are the directions?" It looks at the angle between the arrows, not only how close their endpoints are. Two learners may both have large scores but different learning patterns; two sentence embeddings may have different lengths but very close directions, which can indicate similar meaning.
 
 The dot product places length and angle into one number:
 
@@ -228,9 +244,13 @@ $$
 \mathbf{x}^{\top}\mathbf{y}=\|\mathbf{x}\|\,\|\mathbf{y}\|\cos\theta.
 $$
 
-If we only care about direction, we divide away length and get cosine similarity. When text retrieval searches for the most similar embedding, it is often searching for vectors that point in nearby directions.`,
+If we only care about direction, we divide away length and get cosine similarity. When text retrieval searches for the most similar embedding, it is often searching for vectors that point in nearby directions.
+
+Sometimes the comparison also uses weights. A weight says which dimension matters more in this comparison. If mistakes matter more than practice count in a learner record, the mistakes dimension can receive a larger weight. VectorSimilarityLab lets you adjust those weights and watch distance and direction similarity respond.
+
+2D or 3D arrows are only a visual entry point. They make length, difference vectors, and angles visible. Real embeddings may have hundreds or thousands of dimensions, but the logic stays the same: numbers become vectors, norms measure length, distance measures position gap, and cosine similarity measures direction alignment.`,
     ),
-    { visualIds: ['beginner-vector-distance-similarity-longform'], labIds: ['beginner-feature-vector-story-lab'] },
+    { visualIds: ['beginner-vector-distance-similarity-longform'], labIds: ['beginner-feature-vector-story-lab', 'beginner-vector-similarity-lab'] },
   ),
   section(
     'beginner-linear-combination-span',
@@ -976,6 +996,22 @@ export const beginnerFoundationModules: MathLabModule[] = [
         'const x = [2, 5, 80]\nconst y = [3, 4, 82]\nconst diff = y.map((value, i) => value - x[i])\nconsole.log(diff) // [1, -1, 2]',
       ),
       concept(
+        'beginner-vector-norm-distance',
+        copy('向量长度与欧几里得距离', 'Vector Norm and Euclidean Distance'),
+        '\\|\\mathbf{x}-\\mathbf{y}\\|_2=\\sqrt{\\sum_{i=1}^{n}(x_i-y_i)^2}',
+        [
+          variable('\\mathbf{x}', '第一个样本向量。', 'The first sample vector.'),
+          variable('\\mathbf{y}', '第二个样本向量。', 'The second sample vector.'),
+          variable('x_i-y_i', '两个样本在第 i 个维度上的差。', 'The difference between the two samples on dimension i.'),
+          variable('n', '参与比较的维度数量。', 'The number of dimensions being compared.'),
+        ],
+        copy('欧几里得距离先把两个向量相减，再量差向量的长度。', 'Euclidean distance subtracts two vectors first, then measures the length of the difference vector.'),
+        copy('二维时它就是两点之间的斜边；高维时仍然是在问两个位置隔了多远。', 'In 2D it is the diagonal between two points; in high dimensions it still asks how far apart two positions are.'),
+        copy('\\([2,5,80]\\) 与 \\([3,4,82]\\) 的差是 \\([1,-1,2]\\)，距离是 \\(\\sqrt{6}\\)。', 'The difference between \\([2,5,80]\\) and \\([3,4,82]\\) is \\([1,-1,2]\\), so the distance is \\(\\sqrt{6}\\).'),
+        copy('embedding 检索、推荐排序和模型 scoring 都会用距离或相似度判断两个向量是否接近。', 'Embedding retrieval, recommendation ranking, and model scoring use distance or similarity to judge whether two vectors are close.'),
+        'const distance = Math.sqrt(x.reduce((sum, value, i) => sum + (value - y[i]) ** 2, 0))',
+      ),
+      concept(
         'beginner-dot-product',
         copy('点积与方向相似度', 'Dot Product and Direction Similarity'),
         '\\mathbf{x}^{\\top}\\mathbf{y}=\\|\\mathbf{x}\\|\\,\\|\\mathbf{y}\\|\\cos\\theta',
@@ -1029,15 +1065,22 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('能解释向量差表示哪种样本变化。', 'Explain what change a vector difference represents.'),
         copy('能比较距离和 cosine similarity 的不同含义。', 'Compare the meanings of distance and cosine similarity.'),
       ]),
+      lab('beginner-vector-similarity-lab', copy('向量相似度实验', 'Vector Similarity Lab'), 'VectorSimilarityLab', [
+        copy('能从勾股定理解释 norm 和欧几里得距离。', 'Explain norm and Euclidean distance from the Pythagorean theorem.'),
+        copy('能区分距离回答“位置多近”，cosine similarity 回答“方向多像”。', 'Distinguish distance as position closeness from cosine similarity as direction alignment.'),
+        copy('能说明维度权重会改变这次比较更在乎什么。', 'Explain how dimension weights change what the comparison cares about.'),
+      ]),
     ],
     quizzes: [
       quiz('beginner-linear-vector', copy('为什么一排特征数可以看成向量？', 'Why can a row of feature values be read as a vector?'), 'same-sample', copy('因为它们描述同一个样本在多个方向上的位置。', 'Because they describe one sample position along several directions.'), copy('因为所有数字都必须相等。', 'Because all numbers must be equal.'), copy('向量把同一个对象的多个特征放进同一空间，方便比较方向和距离。', 'A vector places several features of one object in one space, making direction and distance comparable.'), 'vector-is-only-list', 'beginner-linear-algebra-story'),
       quiz('beginner-linear-dot', copy('两个非零向量点积为 0，最直接表示什么？', 'If two nonzero vectors have dot product 0, what does that most directly mean?'), 'orthogonal', copy('方向垂直，彼此没有投影重叠。', 'Their directions are perpendicular, with no projection overlap.'), copy('两个向量长度一定都是 0。', 'Both vector lengths must be 0.'), copy('点积包含 \\(\\cos\\theta\\)，非零向量点积为 0 表示夹角为 90 度。', 'The dot product contains \\(\\cos\\theta\\); for nonzero vectors, dot product 0 means a 90-degree angle.'), 'dot-product-angle'),
+      quiz('beginner-linear-cosine-distance', copy('cosine similarity 很高时，欧几里得距离一定很短吗？', 'If cosine similarity is high, must Euclidean distance be short?'), 'not-always', copy('不一定。方向很像，只说明夹角小；长度差很大时，距离仍然可能很长。', 'Not always. Similar direction means a small angle; if lengths differ a lot, distance can still be large.'), copy('一定。cosine similarity 高就等于两个点重合。', 'Yes. High cosine similarity means the two points overlap.'), copy('cosine similarity 看方向，欧几里得距离看位置差。回到向量相似度实验，把一支箭头拉长但保持方向不变，就能看到方向相似度高而距离变长。', 'Cosine similarity reads direction, while Euclidean distance reads position gap. Revisit the Vector Similarity Lab and lengthen one arrow without changing its direction to see high direction similarity with a longer distance.'), 'cosine-distance-confusion', 'beginner-vector-similarity-lab'),
       quiz('beginner-linear-matrix', copy('矩阵乘向量更适合先理解成什么？', 'What is the best first intuition for matrix times vector?'), 'transform', copy('用输入坐标混合矩阵列向量，并变换空间。', 'Mixing matrix columns with input coordinates and transforming space.'), copy('逐项相乘后原样保留。', 'Elementwise multiplication with no mixing.'), copy('矩阵乘法会混合维度，不是逐项保留。', 'Matrix multiplication mixes dimensions; it does not preserve entries one by one.'), 'matrix-entrywise'),
     ],
     misconceptions: [
       misconception('vector-is-only-list', copy('向量只是普通列表。', 'A vector is only a plain list.'), copy('向量既是数据列表，也是特征空间里的方向、长度和位置。', 'A vector is both a data list and a direction, length, and position in feature space.'), copy('embedding 相似度要看方向，而不是只逐项读数字。', 'Embedding similarity reads direction, not only each number separately.')),
       misconception('dot-product-angle', copy('点积只是在算长度。', 'A dot product only measures length.'), copy('点积同时受长度和夹角影响。', 'A dot product depends on both lengths and angle.'), copy('两个长向量若近似垂直，点积也可以接近 0。', 'Two long vectors can still have dot product near 0 if nearly perpendicular.')),
+      misconception('cosine-distance-confusion', copy('cosine similarity 高，欧氏距离就一定短。', 'High cosine similarity always means short Euclidean distance.'), copy('cosine similarity 看方向；Euclidean distance 看两个位置之间的差向量长度。', 'Cosine similarity reads direction; Euclidean distance reads the length of the difference vector between two positions.'), copy('两支箭头同向时 cosine similarity 可以是 1，但一支长度是另一支的很多倍，终点仍然相隔很远。', 'Two arrows can point in the same direction and have cosine similarity 1, but if one is many times longer than the other, their endpoints are still far apart.')),
       misconception('matrix-entrywise', copy('矩阵乘法就是逐项相乘。', 'Matrix multiplication is elementwise multiplication.'), copy('矩阵乘法包含乘法和求和，按列看是线性组合。', 'Matrix multiplication includes products and sums; by columns it is a linear combination.'), copy('线性层会把多个输入特征加权混合成新特征。', 'A linear layer mixes many input features into new features.')),
     ],
     accent: '#3868ff',

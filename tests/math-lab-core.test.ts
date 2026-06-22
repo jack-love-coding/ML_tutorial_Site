@@ -401,6 +401,41 @@ test('zero-base beginner modules expose complete bilingual teaching surfaces', (
   assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'ConditionalBayesLab'))
 })
 
+test('beginner linear algebra wires vector similarity lab and misconception guardrail', () => {
+  const linear = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'beginner-linear-algebra')
+  assert.ok(linear)
+
+  const similarityLab = linear.labs.find((lab) => lab.id === 'beginner-vector-similarity-lab')
+  assert.equal(similarityLab?.componentName, 'VectorSimilarityLab')
+  assert.equal(similarityLab?.type, 'interactive-visual')
+  assert.equal(similarityLab?.successCriteria.length, 3)
+
+  const distanceSection = linear.sections.find((section) => section.id === 'beginner-linear-distance-similarity')
+  assert.deepEqual(distanceSection?.labIds, [
+    'beginner-feature-vector-story-lab',
+    'beginner-vector-similarity-lab',
+  ])
+
+  const normDistanceConcept = linear.concepts.find((concept) => concept.id === 'beginner-vector-norm-distance')
+  assert.ok(normDistanceConcept)
+  assert.match(normDistanceConcept.formulaLatex, /\\\|\\mathbf\{x\}-\\mathbf\{y\}\\\|_2/)
+  assert.ok(normDistanceConcept.variables.every((item) => item.description['zh-CN'].length > 0 && item.description.en.length > 0))
+  assert.match(normDistanceConcept.modelConnection['zh-CN'], /embedding|检索|评分/)
+  assert.match(normDistanceConcept.modelConnection.en, /embedding|retrieval|scoring/)
+
+  const guardrailQuiz = linear.quizzes.find((quizItem) => quizItem.id === 'beginner-linear-cosine-distance')
+  assert.ok(guardrailQuiz)
+  assert.deepEqual(guardrailQuiz.misconceptionTags, ['cosine-distance-confusion'])
+  assert.equal(guardrailQuiz.revisitVisualId, 'beginner-vector-similarity-lab')
+  assert.match(guardrailQuiz.explanation['zh-CN'], /方向/)
+  assert.match(guardrailQuiz.explanation.en, /direction/)
+
+  const guardrailMisconception = linear.misconceptions.find((item) => item.id === 'cosine-distance-confusion')
+  assert.ok(guardrailMisconception)
+  assert.match(guardrailMisconception.statement['zh-CN'], /cosine/)
+  assert.match(guardrailMisconception.correction.en, /Euclidean distance/)
+})
+
 test('zero-base foundation expansion wires longform visuals and concept bridges', () => {
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
   const root = new URL('../', import.meta.url)
