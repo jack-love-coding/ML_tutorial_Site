@@ -844,6 +844,8 @@ test('vectors matrices norms module wires column space rank lab and guardrails',
   assert.match(conceptModelConnection, /linear layer|线性层/i)
   assert.match(conceptModelConnection, /feature mixing|特征混合/i)
   assert.match(conceptModelConnection, /PCA|SVD|rank bottleneck|秩瓶颈/i)
+  assert.match(conceptModelConnection, /b \+ Col\(W\)|仿射|affine/i)
+  assert.match(conceptModelConnection, /输出差分|output differences/i)
 
   const guardrailQuiz = vectorModule.quizzes.find((quiz) => quiz.id === 'vectors-matrices-norms-rank-column-space')
   assert.ok(guardrailQuiz)
@@ -856,6 +858,7 @@ test('vectors matrices norms module wires column space rank lab and guardrails',
   assert.match(guardrailQuizSource, /rank|秩/i)
   assert.match(guardrailQuizSource, /非零数字|nonzero entries/i)
   assert.match(guardrailQuizSource, /matrix-column-space-lab|matrix-transform-video/)
+  assert.equal(guardrailQuiz.revisitVisualId, 'matrix-column-space-lab')
 
   const guardrailMisconception = vectorModule.misconceptions.find(
     (misconception) => misconception.id === 'rank-is-nonzero-entry-count',

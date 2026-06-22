@@ -1684,8 +1684,8 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
         codeExample:
           'const columns = [[2, 1], [4, 2]]\nconst x = [3, -1]\nconst output = [\n  x[0] * columns[0][0] + x[1] * columns[1][0],\n  x[0] * columns[0][1] + x[1] * columns[1][1],\n]\n\nconsole.log(output) // [2, 1], still on the same column-space line',
         modelConnection: copy(
-          '线性层的特征混合只能产生 \(W\) 的 column space 中的表示；低 rank 权重、PCA/SVD 压缩或 rank bottleneck 会限制可表达方向。',
-          'Feature mixing in a linear layer can only produce representations inside the column space of \(W\); low-rank weights, PCA/SVD compression, or a rank bottleneck limit the directions the model can express.',
+          '线性层的特征混合先由 W 决定：纯线性层 Wx 的输出落在 Col(W) 中；仿射层 Wx+b 的输出落在 b + Col(W) 中，但输出差分仍受 Col(W) 约束。低 rank 权重、PCA/SVD 压缩或 rank bottleneck 会限制可表达方向。',
+          'Feature mixing in a linear layer is controlled by W: a pure linear layer Wx outputs inside Col(W). An affine layer Wx+b outputs inside b + Col(W), while output differences are still constrained by Col(W). Low-rank weights, PCA/SVD compression, or a rank bottleneck limit the directions the model can express.',
         ),
       },
       {
@@ -1909,7 +1909,7 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
           md`Rank is not the number of nonzero entries; it is the dimension of the column space, equivalently the number of independent columns. Revisit \`matrix-column-space-lab\`: drag one column until it becomes a multiple of the other. Even with many nonzero entries, every output then lands on one line.`,
         ),
         misconceptionTags: ['rank-is-nonzero-entry-count'],
-        revisitVisualId: 'matrix-transform-video',
+        revisitVisualId: 'matrix-column-space-lab',
       },
       {
         id: 'vectors-matrices-norms-relative-error',
