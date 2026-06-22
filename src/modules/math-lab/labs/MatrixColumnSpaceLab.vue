@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
+import { computed, reactive, useId } from 'vue'
 import type { MathLabLocale } from '../types/mathLab'
 import {
   clamp,
@@ -28,6 +28,12 @@ const center = size / 2
 const plotPadding = 34
 const matrixLimit = 5
 const vectorLimit = 4
+const markerIdPrefix = useId()
+const markerIds = {
+  a1: `${markerIdPrefix}-arrow-a1`,
+  a2: `${markerIdPrefix}-arrow-a2`,
+  ax: `${markerIdPrefix}-arrow-ax`,
+}
 
 const controls = reactive<Record<ControlKey, number>>({
   a11: 2,
@@ -212,13 +218,28 @@ const nullDirectionCopy = computed(() => {
 })
 
 function sanitizeInput(value: number, limit: number) {
-  if (!Number.isFinite(value)) return 0
   return round(clamp(value, -limit, limit), 2)
 }
 
-function setControl(key: ControlKey, event: Event) {
+function isTemporaryNumericDraft(rawValue: string) {
+  return ['', '-', '+', '.', '-.', '+.'].includes(rawValue)
+}
+
+function commitControlInput(key: ControlKey, event: Event) {
   const target = event.target as HTMLInputElement
-  controls[key] = sanitizeInput(Number(target.value), controlLimits[key])
+  const rawValue = target.value.trim()
+  if (isTemporaryNumericDraft(rawValue)) return
+
+  const parsedValue = Number(rawValue)
+  if (!Number.isFinite(parsedValue)) return
+
+  controls[key] = sanitizeInput(parsedValue, controlLimits[key])
+  target.value = formatNumber(controls[key])
+}
+
+function restoreControlInput(key: ControlKey, event: Event) {
+  const target = event.target as HTMLInputElement
+  target.value = formatNumber(controls[key])
 }
 
 function resetLab() {
@@ -273,13 +294,13 @@ function formatSignedTerm(value: number) {
         :aria-label="copy.aria"
       >
         <defs>
-          <marker id="matrix-column-space-arrow-a1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <marker :id="markerIds.a1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
             <path d="M0,0 L0,6 L9,3 z" fill="#3868ff" />
           </marker>
-          <marker id="matrix-column-space-arrow-a2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <marker :id="markerIds.a2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
             <path d="M0,0 L0,6 L9,3 z" fill="#0f9f7a" />
           </marker>
-          <marker id="matrix-column-space-arrow-ax" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <marker :id="markerIds.ax" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
             <path d="M0,0 L0,6 L9,3 z" fill="#e26d3d" />
           </marker>
         </defs>
@@ -311,7 +332,7 @@ function formatSignedTerm(value: number) {
           :x2="toSvg(a1).x"
           :y2="toSvg(a1).y"
           class="matrix-column-space-lab__vector matrix-column-space-lab__vector--a1"
-          marker-end="url(#matrix-column-space-arrow-a1)"
+          :marker-end="`url(#${markerIds.a1})`"
         />
         <line
           :x1="center"
@@ -319,7 +340,7 @@ function formatSignedTerm(value: number) {
           :x2="toSvg(a2).x"
           :y2="toSvg(a2).y"
           class="matrix-column-space-lab__vector matrix-column-space-lab__vector--a2"
-          marker-end="url(#matrix-column-space-arrow-a2)"
+          :marker-end="`url(#${markerIds.a2})`"
         />
         <line
           :x1="center"
@@ -341,7 +362,7 @@ function formatSignedTerm(value: number) {
           :x2="toSvg(result).x"
           :y2="toSvg(result).y"
           class="matrix-column-space-lab__vector matrix-column-space-lab__vector--ax"
-          marker-end="url(#matrix-column-space-arrow-ax)"
+          :marker-end="`url(#${markerIds.ax})`"
         />
 
         <circle :cx="center" :cy="center" r="4.5" class="matrix-column-space-lab__origin" />
@@ -415,7 +436,8 @@ function formatSignedTerm(value: number) {
               max="5"
               step="0.1"
               :value="control.value"
-              @input="setControl(control.key, $event)"
+              @input="commitControlInput(control.key, $event)"
+              @blur="restoreControlInput(control.key, $event)"
             />
           </label>
         </div>
@@ -436,7 +458,8 @@ function formatSignedTerm(value: number) {
               max="4"
               step="0.1"
               :value="control.value"
-              @input="setControl(control.key, $event)"
+              @input="commitControlInput(control.key, $event)"
+              @blur="restoreControlInput(control.key, $event)"
             />
           </label>
         </div>
