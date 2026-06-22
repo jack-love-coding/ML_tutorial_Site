@@ -117,15 +117,17 @@ const copy = computed(() =>
         weightedCosine: '加权 cosine similarity',
         closestPair: '当前最近 pair',
         mostSimilarPair: '当前最像 pair',
+        unavailablePair: '没有有效维度，无法比较最近/最像',
         answerTitle: '学生答案 vs 参考答案',
         answerSubtitle: '把评分维度也看成向量',
         studentScore: '总分',
         answerSimilarity: '答案相似度',
         answerDistance: '答案距离',
+        unavailableRubric: '不可评分：请至少打开一个评分权重',
         zeroObject:
-          '所有对象维度权重都是 0，加权向量变成零向量；cosine 用 0 作为安全 fallback，避免 NaN/Infinity。',
+          '所有对象维度权重都是 0，没有有效维度，无法比较最近/最像；cosine 用 0 作为安全 fallback，避免 NaN/Infinity。',
         zeroAnswer:
-          '所有评分权重都是 0，暂时无法给出有效分数；相似度显示为 0 作为安全 fallback。',
+          '所有评分权重都是 0，暂时不可评分。请至少打开一个评分权重，再读取总分、距离和相似度。',
       }
     : {
         title: 'Vector Similarity Lab',
@@ -140,15 +142,17 @@ const copy = computed(() =>
         weightedCosine: 'Weighted cosine similarity',
         closestPair: 'Closest pair now',
         mostSimilarPair: 'Most similar pair now',
+        unavailablePair: 'No active dimensions, so closest/most similar cannot be compared',
         answerTitle: 'Student Answer vs Reference Answer',
         answerSubtitle: 'Treat rubric scores as another vector',
         studentScore: 'Total score',
         answerSimilarity: 'Answer similarity',
         answerDistance: 'Answer distance',
+        unavailableRubric: 'Not scorable: enable at least one rubric weight',
         zeroObject:
-          'All object dimension weights are 0, so weighted vectors become zero vectors; cosine safely falls back to 0 to avoid NaN/Infinity.',
+          'All object dimension weights are 0, so there are no active dimensions for closest/most similar comparison; cosine safely falls back to 0 to avoid NaN/Infinity.',
         zeroAnswer:
-          'All rubric weights are 0, so the score is not meaningful yet; similarity displays 0 as a safe fallback.',
+          'All rubric weights are 0, so this answer is not scorable yet. Enable at least one rubric weight before reading score, distance, and similarity.',
       },
 )
 
@@ -211,34 +215,42 @@ const weightedDifference = computed(() => vectorDifference(weightedRightVector.v
 const weightedDistance = computed(() => euclideanDistance(weightedLeftVector.value, weightedRightVector.value))
 const weightedDot = computed(() => dotN(weightedLeftVector.value, weightedRightVector.value))
 const weightedCosine = computed(() => cosineSimilarityN(weightedLeftVector.value, weightedRightVector.value))
+const hasActiveWeights = computed(() => weightControls.value.some((item) => item.value > 0))
 const hasZeroWeightedVector = computed(() => l2NormN(weightedLeftVector.value) === 0 || l2NormN(weightedRightVector.value) === 0)
 const zeroVectorNote = computed(() => (hasZeroWeightedVector.value ? copy.value.zeroObject : ''))
+const unavailablePairLabel = computed(() => copy.value.unavailablePair)
 
-const closestPair = computed(() =>
-  objectPairs.reduce((best, pair) => {
+const closestPair = computed(() => {
+  if (!hasActiveWeights.value) return null
+
+  return objectPairs.reduce((best, pair) => {
     const pairDistance = weightedDistanceFor(pair.left.vector, pair.right.vector, dimensionWeights.value)
     const bestDistance = weightedDistanceFor(best.left.vector, best.right.vector, dimensionWeights.value)
     return pairDistance < bestDistance ? pair : best
-  }, objectPairs[0]!),
-)
-const mostSimilarPair = computed(() =>
-  objectPairs.reduce((best, pair) => {
+  }, objectPairs[0]!)
+})
+const mostSimilarPair = computed(() => {
+  if (!hasActiveWeights.value) return null
+
+  return objectPairs.reduce((best, pair) => {
     const pairSimilarity = weightedCosineFor(pair.left.vector, pair.right.vector, dimensionWeights.value)
     const bestSimilarity = weightedCosineFor(best.left.vector, best.right.vector, dimensionWeights.value)
     return pairSimilarity > bestSimilarity ? pair : best
-  }, objectPairs[0]!),
-)
+  }, objectPairs[0]!)
+})
+const closestPairLabel = computed(() => (closestPair.value ? pairLabel(closestPair.value) : unavailablePairLabel.value))
+const mostSimilarPairLabel = computed(() => (mostSimilarPair.value ? pairLabel(mostSimilarPair.value) : unavailablePairLabel.value))
 const dominantDimension = computed(() =>
   weightControls.value.reduce((best, item) => (item.value > best.value ? item : best), weightControls.value[0]!),
 )
 const weightedExplanation = computed(() => {
-  if (zeroVectorNote.value) return zeroVectorNote.value
+  if (!hasActiveWeights.value || zeroVectorNote.value) return zeroVectorNote.value
 
   if (props.locale === 'zh-CN') {
-    return `现在最重视「${dominantDimension.value.label['zh-CN']}」。权重改变了我们认为哪两个对象更近/更像：加权距离最小的是 ${pairLabel(closestPair.value)}，加权 cosine 最高的是 ${pairLabel(mostSimilarPair.value)}。`
+    return `现在最重视「${dominantDimension.value.label['zh-CN']}」。权重改变了我们认为哪两个对象更近/更像：加权距离最小的是 ${closestPairLabel.value}，加权 cosine 最高的是 ${mostSimilarPairLabel.value}。`
   }
 
-  return `The strongest weight is "${dominantDimension.value.label.en}". Weights change which objects we call close or similar: the smallest weighted distance is ${pairLabel(closestPair.value)}, while the highest weighted cosine is ${pairLabel(mostSimilarPair.value)}.`
+  return `The strongest weight is "${dominantDimension.value.label.en}". Weights change which objects we call close or similar: the smallest weighted distance is ${closestPairLabel.value}, while the highest weighted cosine is ${mostSimilarPairLabel.value}.`
 })
 
 const answerWeightedStudent = computed(() => applyWeights(studentAnswer.scores, answerWeights.value))
@@ -246,8 +258,10 @@ const answerWeightedReference = computed(() => applyWeights(referenceAnswer.scor
 const answerDistance = computed(() => euclideanDistance(answerWeightedStudent.value, answerWeightedReference.value))
 const answerSimilarity = computed(() => cosineSimilarityN(answerWeightedStudent.value, answerWeightedReference.value))
 const answerWeightTotal = computed(() => answerWeights.value.reduce((sum, value) => sum + safeWeight(value), 0))
+const hasActiveRubricWeights = computed(() => answerWeightTotal.value > 0)
+const unavailableRubricLabel = computed(() => copy.value.unavailableRubric)
 const scorePercent = computed(() => {
-  if (answerWeightTotal.value === 0) return 0
+  if (!hasActiveRubricWeights.value) return 0
   const weightedScore = dotN(studentAnswer.scores, answerWeights.value) / answerWeightTotal.value
   return round(Math.max(0, Math.min(1, weightedScore)) * 100, 1)
 })
@@ -259,7 +273,7 @@ const weakestAnswerDimension = computed(() =>
   }, answerWeightControls.value[0]!),
 )
 const answerExplanation = computed(() => {
-  if (answerWeightTotal.value === 0) return copy.value.zeroAnswer
+  if (!hasActiveRubricWeights.value) return copy.value.zeroAnswer
 
   const weakDimension = weakestAnswerDimension.value.label[props.locale]
 
@@ -356,8 +370,16 @@ watch(selectedRightId, (nextId) => {
           <article><span>{{ copy.weightedDistance }}</span><strong>{{ round(weightedDistance, 3) }}</strong></article>
           <article><span>{{ copy.weightedDot }}</span><strong>{{ round(weightedDot, 3) }}</strong></article>
           <article><span>{{ copy.weightedCosine }}</span><strong>{{ round(weightedCosine, 3) }}</strong></article>
-          <article><span>{{ copy.closestPair }}</span><strong>{{ pairLabel(closestPair) }}</strong></article>
-          <article><span>{{ copy.mostSimilarPair }}</span><strong>{{ pairLabel(mostSimilarPair) }}</strong></article>
+          <article>
+            <span>{{ copy.closestPair }}</span>
+            <strong v-if="hasActiveWeights">{{ closestPairLabel }}</strong>
+            <strong v-else>{{ unavailablePairLabel }}</strong>
+          </article>
+          <article>
+            <span>{{ copy.mostSimilarPair }}</span>
+            <strong v-if="hasActiveWeights">{{ mostSimilarPairLabel }}</strong>
+            <strong v-else>{{ unavailablePairLabel }}</strong>
+          </article>
         </div>
       </div>
     </section>
@@ -399,9 +421,21 @@ watch(selectedRightId, (nextId) => {
         </div>
 
         <div class="math-readout-grid">
-          <article><span>{{ copy.studentScore }}</span><strong>{{ scorePercent }}%</strong></article>
-          <article><span>{{ copy.answerSimilarity }}</span><strong>{{ round(answerSimilarity, 3) }}</strong></article>
-          <article><span>{{ copy.answerDistance }}</span><strong>{{ round(answerDistance, 3) }}</strong></article>
+          <article>
+            <span>{{ copy.studentScore }}</span>
+            <strong v-if="hasActiveRubricWeights">{{ scorePercent }}%</strong>
+            <strong v-else>{{ unavailableRubricLabel }}</strong>
+          </article>
+          <article>
+            <span>{{ copy.answerSimilarity }}</span>
+            <strong v-if="hasActiveRubricWeights">{{ round(answerSimilarity, 3) }}</strong>
+            <strong v-else>{{ unavailableRubricLabel }}</strong>
+          </article>
+          <article>
+            <span>{{ copy.answerDistance }}</span>
+            <strong v-if="hasActiveRubricWeights">{{ round(answerDistance, 3) }}</strong>
+            <strong v-else>{{ unavailableRubricLabel }}</strong>
+          </article>
         </div>
 
         <p class="math-lab-note">{{ answerExplanation }}</p>
