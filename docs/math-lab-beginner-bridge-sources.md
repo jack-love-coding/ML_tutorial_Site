@@ -194,6 +194,7 @@ Rendered durations:
 ## Linear algebra vector-matrix route assets
 
 These images were generated for this repository with Codex's built-in `imagegen` workflow. The prompts requested Chinese-primary scientific teaching infographics for zero-base linear algebra, with sparse labels, no logos, no watermark, and no runtime remote assets.
+After visual QA, `matrix-column-combination.png` was locally redrawn as a deterministic PNG so the displayed coefficients and output vector match exactly.
 
 Generated files:
 
