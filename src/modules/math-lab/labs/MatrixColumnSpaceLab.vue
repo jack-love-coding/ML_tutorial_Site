@@ -43,6 +43,14 @@ const controls = reactive<Record<ControlKey, number>>({
   x1: 1.2,
   x2: -0.7,
 })
+const controlDrafts = reactive<Record<ControlKey, string>>({
+  a11: formatNumber(controls.a11),
+  a12: formatNumber(controls.a12),
+  a21: formatNumber(controls.a21),
+  a22: formatNumber(controls.a22),
+  x1: formatNumber(controls.x1),
+  x2: formatNumber(controls.x2),
+})
 
 const controlLimits: Record<ControlKey, number> = {
   a11: matrixLimit,
@@ -193,14 +201,14 @@ const copy = computed(() =>
 )
 
 const matrixControls = computed(() => [
-  { key: 'a11' as const, label: 'a11', value: controls.a11 },
-  { key: 'a12' as const, label: 'a12', value: controls.a12 },
-  { key: 'a21' as const, label: 'a21', value: controls.a21 },
-  { key: 'a22' as const, label: 'a22', value: controls.a22 },
+  { key: 'a11' as const, label: 'a11', value: controls.a11, draft: controlDrafts.a11 },
+  { key: 'a12' as const, label: 'a12', value: controls.a12, draft: controlDrafts.a12 },
+  { key: 'a21' as const, label: 'a21', value: controls.a21, draft: controlDrafts.a21 },
+  { key: 'a22' as const, label: 'a22', value: controls.a22, draft: controlDrafts.a22 },
 ])
 const vectorControls = computed(() => [
-  { key: 'x1' as const, label: 'x1', value: controls.x1 },
-  { key: 'x2' as const, label: 'x2', value: controls.x2 },
+  { key: 'x1' as const, label: 'x1', value: controls.x1, draft: controlDrafts.x1 },
+  { key: 'x2' as const, label: 'x2', value: controls.x2, draft: controlDrafts.x2 },
 ])
 
 const columnSpaceLabel = computed(() => kindLabels[columnSpaceKind.value][currentLocale.value])
@@ -225,21 +233,35 @@ function isTemporaryNumericDraft(rawValue: string) {
   return ['', '-', '+', '.', '-.', '+.'].includes(rawValue)
 }
 
-function commitControlInput(key: ControlKey, event: Event) {
+function updateControlDraft(key: ControlKey, event: Event) {
   const target = event.target as HTMLInputElement
-  const rawValue = target.value.trim()
-  if (isTemporaryNumericDraft(rawValue)) return
+  const rawValue = target.value
+  controlDrafts[key] = rawValue
 
-  const parsedValue = Number(rawValue)
+  const trimmedValue = rawValue.trim()
+  if (isTemporaryNumericDraft(trimmedValue)) return
+
+  const parsedValue = Number(trimmedValue)
   if (!Number.isFinite(parsedValue)) return
 
   controls[key] = sanitizeInput(parsedValue, controlLimits[key])
-  target.value = formatNumber(controls[key])
 }
 
-function restoreControlInput(key: ControlKey, event: Event) {
-  const target = event.target as HTMLInputElement
-  target.value = formatNumber(controls[key])
+function commitControlDraft(key: ControlKey) {
+  const draftValue = controlDrafts[key].trim()
+  const parsedValue = Number(draftValue)
+
+  if (isTemporaryNumericDraft(draftValue) || !Number.isFinite(parsedValue)) {
+    restoreControlDraft(key)
+    return
+  }
+
+  controls[key] = sanitizeInput(parsedValue, controlLimits[key])
+  restoreControlDraft(key)
+}
+
+function restoreControlDraft(key: ControlKey) {
+  controlDrafts[key] = formatNumber(controls[key])
 }
 
 function resetLab() {
@@ -249,6 +271,13 @@ function resetLab() {
   controls.a22 = 1.8
   controls.x1 = 1.2
   controls.x2 = -0.7
+  restoreAllControlDrafts()
+}
+
+function restoreAllControlDrafts() {
+  for (const key of Object.keys(controls) as ControlKey[]) {
+    restoreControlDraft(key)
+  }
 }
 
 function toSvg(point: Vector2) {
@@ -431,13 +460,15 @@ function formatSignedTerm(value: number) {
           >
             <span><strong>{{ control.label }}</strong><em>{{ formatNumber(control.value) }}</em></span>
             <input
-              type="number"
+              type="text"
+              inputmode="decimal"
               min="-5"
               max="5"
               step="0.1"
-              :value="control.value"
-              @input="commitControlInput(control.key, $event)"
-              @blur="restoreControlInput(control.key, $event)"
+              :value="control.draft"
+              @input="updateControlDraft(control.key, $event)"
+              @blur="commitControlDraft(control.key)"
+              @keyup.enter="commitControlDraft(control.key)"
             />
           </label>
         </div>
@@ -453,13 +484,15 @@ function formatSignedTerm(value: number) {
           >
             <span><strong>{{ control.label }}</strong><em>{{ formatNumber(control.value) }}</em></span>
             <input
-              type="number"
+              type="text"
+              inputmode="decimal"
               min="-4"
               max="4"
               step="0.1"
-              :value="control.value"
-              @input="commitControlInput(control.key, $event)"
-              @blur="restoreControlInput(control.key, $event)"
+              :value="control.draft"
+              @input="updateControlDraft(control.key, $event)"
+              @blur="commitControlDraft(control.key)"
+              @keyup.enter="commitControlDraft(control.key)"
             />
           </label>
         </div>
