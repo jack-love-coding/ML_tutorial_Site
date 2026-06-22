@@ -221,7 +221,7 @@ $$
 
 如果我们只关心方向，就把长度除掉，得到 cosine similarity。文本检索里常说“找最相似的 embedding”，本质就是找方向最接近的向量。
 
-有时还会给维度加权。权重不是装饰，它表示这次比较更在乎哪个维度。比较学习记录时，如果“错题数”比“练习次数”更重要，就可以让错题数这一维的权重大一些。VectorSimilarityLab 会让你调整权重，看距离和方向相似度怎样变化。
+有时还会给维度加权。权重不是装饰，它表示这次比较更在乎哪个维度。比较学习记录时，如果“错题数”比“练习次数”更重要，就可以让错题数这一维的权重大一些。向量相似度实验会让你调整权重，看距离和方向相似度怎样变化。
 
 2D 或 3D 箭头只是一个入口，方便我们看见长度、差向量和夹角。真正的 embedding 可能有几百甚至几千维，画不出来，但逻辑没有换：数字组成向量，norm 量长度，distance 量位置差，cosine similarity 量方向像不像。`,
       md`Vector length can start from the Pythagorean theorem. The two-dimensional vector \((3,4)\) has length
@@ -246,7 +246,7 @@ $$
 
 If we only care about direction, we divide away length and get cosine similarity. When text retrieval searches for the most similar embedding, it is often searching for vectors that point in nearby directions.
 
-Sometimes the comparison also uses weights. A weight says which dimension matters more in this comparison. If mistakes matter more than practice count in a learner record, the mistakes dimension can receive a larger weight. VectorSimilarityLab lets you adjust those weights and watch distance and direction similarity respond.
+Sometimes the comparison also uses weights. A weight says which dimension matters more in this comparison. If mistakes matter more than practice count in a learner record, the mistakes dimension can receive a larger weight. The Vector Similarity Lab lets you adjust those weights and watch distance and direction similarity respond.
 
 2D or 3D arrows are only a visual entry point. They make length, difference vectors, and angles visible. Real embeddings may have hundreds or thousands of dimensions, but the logic stays the same: numbers become vectors, norms measure length, distance measures position gap, and cosine similarity measures direction alignment.`,
     ),
@@ -1009,7 +1009,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('二维时它就是两点之间的斜边；高维时仍然是在问两个位置隔了多远。', 'In 2D it is the diagonal between two points; in high dimensions it still asks how far apart two positions are.'),
         copy('\\([2,5,80]\\) 与 \\([3,4,82]\\) 的差是 \\([1,-1,2]\\)，距离是 \\(\\sqrt{6}\\)。', 'The difference between \\([2,5,80]\\) and \\([3,4,82]\\) is \\([1,-1,2]\\), so the distance is \\(\\sqrt{6}\\).'),
         copy('embedding 检索、推荐排序和模型 scoring 都会用距离或相似度判断两个向量是否接近。', 'Embedding retrieval, recommendation ranking, and model scoring use distance or similarity to judge whether two vectors are close.'),
-        'const distance = Math.sqrt(x.reduce((sum, value, i) => sum + (value - y[i]) ** 2, 0))',
+        'const x = [2, 5, 80]\nconst y = [3, 4, 82]\nconst distance = Math.sqrt(x.reduce((sum, value, i) => sum + (value - y[i]) ** 2, 0))\nconsole.log(distance) // 2.449...',
       ),
       concept(
         'beginner-dot-product',

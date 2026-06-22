@@ -415,6 +415,10 @@ test('beginner linear algebra wires vector similarity lab and misconception guar
     'beginner-feature-vector-story-lab',
     'beginner-vector-similarity-lab',
   ])
+  const distanceSectionProse = `${distanceSection?.content['zh-CN']}\n${distanceSection?.content.en}`
+  assert.doesNotMatch(distanceSectionProse, /VectorSimilarityLab/)
+  assert.match(distanceSectionProse, /向量相似度实验/)
+  assert.match(distanceSectionProse, /Vector Similarity Lab/)
 
   const normDistanceConcept = linear.concepts.find((concept) => concept.id === 'beginner-vector-norm-distance')
   assert.ok(normDistanceConcept)
@@ -422,6 +426,9 @@ test('beginner linear algebra wires vector similarity lab and misconception guar
   assert.ok(normDistanceConcept.variables.every((item) => item.description['zh-CN'].length > 0 && item.description.en.length > 0))
   assert.match(normDistanceConcept.modelConnection['zh-CN'], /embedding|检索|评分/)
   assert.match(normDistanceConcept.modelConnection.en, /embedding|retrieval|scoring/)
+  assert.match(normDistanceConcept.codeExample ?? '', /const x = \[2, 5, 80\]/)
+  assert.match(normDistanceConcept.codeExample ?? '', /const y = \[3, 4, 82\]/)
+  assert.match(normDistanceConcept.codeExample ?? '', /const distance = /)
 
   const guardrailQuiz = linear.quizzes.find((quizItem) => quizItem.id === 'beginner-linear-cosine-distance')
   assert.ok(guardrailQuiz)
