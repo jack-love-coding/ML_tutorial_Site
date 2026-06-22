@@ -1978,6 +1978,53 @@
   background: #0c1628;
 }
 
+.vector-similarity-lab__visual {
+  display: grid;
+  gap: 18px;
+}
+
+.vector-similarity-bars {
+  display: grid;
+  gap: 12px;
+}
+
+.vector-similarity-bars article {
+  display: grid;
+  gap: 7px;
+}
+
+.vector-similarity-bars article > span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.vector-similarity-bars article > div {
+  position: relative;
+  min-height: 32px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(56, 104, 255, 0.1);
+}
+
+.vector-similarity-bars i,
+.vector-similarity-bars b {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  border-radius: inherit;
+}
+
+.vector-similarity-bars i {
+  background: rgba(56, 104, 255, 0.58);
+}
+
+.vector-similarity-bars b {
+  background: rgba(15, 159, 122, 0.55);
+  transform: translateY(50%);
+  min-height: 50%;
+}
+
 @media (max-width: 1080px) {
   .math-lab-hero,
   .math-lab-dashboard,

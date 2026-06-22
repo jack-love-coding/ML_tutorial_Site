@@ -47,6 +47,7 @@ const labComponentRegistry = {
   TensorShapeLab: defineAsyncComponent(() => import('../labs/TensorShapeLab.vue')),
   TrainingDiagnosticsLab: defineAsyncComponent(() => import('../labs/TrainingDiagnosticsLab.vue')),
   VectorDotProductLab: defineAsyncComponent(() => import('../labs/VectorDotProductLab.vue')),
+  VectorSimilarityLab: defineAsyncComponent(() => import('../labs/VectorSimilarityLab.vue')),
 }
 
 type RegisteredLabComponentName = keyof typeof labComponentRegistry

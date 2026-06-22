@@ -49,6 +49,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/components/MisconceptionCard.vue',
     'src/modules/math-lab/components/ThreeSceneShell.vue',
     'src/modules/math-lab/labs/VectorDotProductLab.vue',
+    'src/modules/math-lab/labs/VectorSimilarityLab.vue',
     'src/modules/math-lab/labs/TensorShapeLab.vue',
     'src/modules/math-lab/labs/AutodiffGraphLab.vue',
     'src/modules/math-lab/labs/ProbabilityEntropyLab.vue',
@@ -88,6 +89,7 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /defineAsyncComponent/)
   assert.match(modulePageSource, /labComponentRegistry/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/VectorDotProductLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/VectorSimilarityLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/FeatureVectorStoryLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/LocalChangeStoryLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/BackpropBlockLab\.vue'\)/)
