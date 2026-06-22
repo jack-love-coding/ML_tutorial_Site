@@ -14,6 +14,11 @@ PUBLIC_DIR = ROOT / "public" / "manim" / "math-lab"
 SCENES = {
     "VectorDotProductScene": "vector-dot-product.mp4",
     "MatrixTransformScene": "matrix-transform.mp4",
+    "VectorDistanceNormScene": "vector-distance-norm.mp4",
+    "CosineSimilarityAngleScene": "cosine-similarity-angle.mp4",
+    "MatrixColumnCombinationScene": "matrix-column-combination.mp4",
+    "RankFlatteningScene": "rank-flattening.mp4",
+    "NullSpaceCollapseScene": "null-space-collapse.mp4",
     "VectorSpanNormScene": "vector-span-norm.mp4",
     "GradientDescentScene": "gradient-descent.mp4",
     "BeginnerDerivativeWindowScene": "beginner-derivative-window.mp4",
@@ -26,7 +31,102 @@ SCENES = {
     "MonteCarloSamplingScene": "monte-carlo-sampling.mp4",
 }
 
+
+def linear_algebra_poster(title: str, caption: str, mode: str) -> str:
+    drawings = {
+        "distance": """
+  <path d="M100 410H860M160 92V440" stroke="#7b8497" stroke-width="3"/>
+  <path d="M160 410L520 150" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M500 146L552 127L526 177Z" fill="#3868ff"/>
+  <circle cx="520" cy="150" r="14" fill="#ffd84d" stroke="#10162f" stroke-width="4"/>
+  <circle cx="700" cy="230" r="14" fill="#ef6f6c" stroke="#10162f" stroke-width="4"/>
+  <path d="M520 150L700 230" stroke="#d9463f" stroke-width="8" stroke-linecap="round" stroke-dasharray="14 12"/>
+  <text x="300" y="238" fill="#3868ff" font-family="Arial, sans-serif" font-size="27" font-weight="700">||x||</text>
+  <text x="594" y="184" fill="#d9463f" font-family="Arial, sans-serif" font-size="27" font-weight="700">||y - x||</text>
+""",
+        "cosine": """
+  <path d="M480 282L700 184" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M480 282L795 140" stroke="#0f9f7a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M480 282L430 108" stroke="#d9463f" stroke-width="10" stroke-linecap="round"/>
+  <path d="M685 165L730 170L700 202Z" fill="#3868ff"/>
+  <path d="M780 120L826 124L796 158Z" fill="#0f9f7a"/>
+  <path d="M410 116L419 70L449 108Z" fill="#d9463f"/>
+  <path d="M558 247C594 234 622 218 648 196" fill="none" stroke="#f2b84b" stroke-width="8" stroke-linecap="round"/>
+  <path d="M438 225C455 178 455 146 437 109" fill="none" stroke="#ef6f6c" stroke-width="8" stroke-linecap="round"/>
+  <text x="590" y="330" fill="#475467" font-family="Arial, sans-serif" font-size="25">length changes, direction can stay similar</text>
+""",
+        "combination": """
+  <path d="M160 410L400 290" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M400 290L520 122" stroke="#0f9f7a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M160 410L520 122" stroke="#e26d3d" stroke-width="10" stroke-linecap="round"/>
+  <path d="M384 270L432 274L400 309Z" fill="#3868ff"/>
+  <path d="M499 112L544 88L523 139Z" fill="#0f9f7a"/>
+  <path d="M500 106L548 84L524 134Z" fill="#e26d3d"/>
+  <text x="210" y="290" fill="#3868ff" font-family="Arial, sans-serif" font-size="27" font-weight="700">x1 a1</text>
+  <text x="430" y="214" fill="#0f9f7a" font-family="Arial, sans-serif" font-size="27" font-weight="700">x2 a2</text>
+  <text x="570" y="158" fill="#e26d3d" font-family="Arial, sans-serif" font-size="29" font-weight="700">Ax</text>
+  <text x="570" y="222" fill="#10162f" font-family="Arial, sans-serif" font-size="27">Ax = x1 a1 + x2 a2</text>
+""",
+        "rank": """
+  <path d="M170 370L360 302" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M170 370L92 182" stroke="#0f9f7a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M360 302L282 114M92 182L282 114" stroke="#8a96a8" stroke-width="5" stroke-dasharray="12 12"/>
+  <text x="116" y="96" fill="#10162f" font-family="Arial, sans-serif" font-size="27" font-weight="700">rank 2: plane</text>
+  <path d="M530 338L848 222" stroke="#f2b84b" stroke-width="11" stroke-linecap="round"/>
+  <path d="M604 310L742 260" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M604 310L715 270" stroke="#0f9f7a" stroke-width="10" stroke-linecap="round"/>
+  <text x="585" y="178" fill="#10162f" font-family="Arial, sans-serif" font-size="27" font-weight="700">rank 1: line</text>
+""",
+        "null": """
+  <path d="M178 386L380 278" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M178 386L74 208" stroke="#d9463f" stroke-width="10" stroke-linecap="round"/>
+  <rect x="430" y="230" width="116" height="96" rx="18" fill="#ffffff" stroke="#10162f" stroke-width="4"/>
+  <text x="488" y="288" fill="#10162f" font-family="Arial, sans-serif" font-size="36" font-weight="700" text-anchor="middle">A</text>
+  <path d="M565 278L760 218" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="650" cy="354" r="18" fill="#d9463f" stroke="#10162f" stroke-width="4"/>
+  <text x="680" y="362" fill="#d9463f" font-family="Arial, sans-serif" font-size="28" font-weight="700">A v = 0</text>
+  <text x="246" y="206" fill="#d9463f" font-family="Arial, sans-serif" font-size="27" font-weight="700">erased direction</text>
+""",
+    }
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="{title}">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <g stroke="#dbe4f2" stroke-width="1">
+    <path d="M90 120H870M90 190H870M90 260H870M90 330H870M90 400H870"/>
+    <path d="M130 90V450M240 90V450M350 90V450M460 90V450M570 90V450M680 90V450M790 90V450"/>
+  </g>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">{title}</text>
+{drawings[mode]}
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">{caption}</text>
+</svg>
+"""
+
+
 POSTER_SVGS = {
+    "VectorDistanceNormScene": linear_algebra_poster(
+        "Norm and distance use the same ruler",
+        "A norm measures one vector; distance measures the difference between two vectors.",
+        "distance",
+    ),
+    "CosineSimilarityAngleScene": linear_algebra_poster(
+        "Cosine similarity reads direction",
+        "Euclidean distance can change when length changes; cosine follows the angle.",
+        "cosine",
+    ),
+    "MatrixColumnCombinationScene": linear_algebra_poster(
+        "Matrix-vector multiplication mixes columns",
+        "The input coordinates choose how much of each matrix column to add.",
+        "combination",
+    ),
+    "RankFlatteningScene": linear_algebra_poster(
+        "Rank counts effective output directions",
+        "Independent columns open a plane; dependent columns flatten outputs to a line.",
+        "rank",
+    ),
+    "NullSpaceCollapseScene": linear_algebra_poster(
+        "Null space is what the matrix erases",
+        "A null-space direction is a real input change that becomes zero output.",
+        "null",
+    ),
     "BeginnerDerivativeWindowScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Derivative window shrinking to tangent slope">
   <rect width="960" height="540" fill="#fffaf1"/>
   <g stroke="#dbe4f2" stroke-width="1">
@@ -193,6 +293,11 @@ POSTER_SVGS = {
 }
 
 FALLBACK_TITLES = {
+    "VectorDistanceNormScene": "Norm and distance use the same ruler",
+    "CosineSimilarityAngleScene": "Cosine similarity reads direction",
+    "MatrixColumnCombinationScene": "Matrix-vector multiplication mixes columns",
+    "RankFlatteningScene": "Rank counts effective output directions",
+    "NullSpaceCollapseScene": "Null space is what the matrix erases",
     "BeginnerDerivativeWindowScene": "Derivative window shrinks to the tangent",
     "BeginnerChainRuleBackpropScene": "Chain rule sends gradients backward",
     "BeginnerLearningRateBehaviorScene": "Same slope, different step size",

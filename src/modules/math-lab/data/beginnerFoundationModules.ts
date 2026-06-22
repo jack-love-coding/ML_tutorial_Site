@@ -256,6 +256,8 @@ Sometimes the comparison also uses weights. A weight says which dimension matter
         'vector-distance-norm-intuition',
         'cosine-vs-distance-intuition',
         'high-dimensional-embedding-search',
+        'vector-distance-norm-video',
+        'cosine-similarity-angle-video',
       ],
       labIds: ['beginner-feature-vector-story-lab', 'beginner-vector-similarity-lab'],
     },
@@ -1078,6 +1080,24 @@ export const beginnerFoundationModules: MathLabModule[] = [
         'high-dimensional-embedding-search.png',
         copy('高维 embedding 检索', 'High-Dimensional Embedding Search'),
         copy('句子进入高维表示后，仍然可以用 cosine similarity 做相似检索。', 'Sentences become high-dimensional representations and can still be retrieved with cosine similarity.'),
+      ),
+      manimAsset(
+        'vector-distance-norm-video',
+        'vector-distance-norm',
+        copy('长度和距离使用同一把尺', 'Norm and Distance Use the Same Ruler'),
+        copy(
+          '动画先量从原点到向量终点的长度，再把尺子移到两个向量之间，说明欧几里得距离就是差向量的长度。',
+          'The animation first measures the length from the origin to a vector endpoint, then moves the same ruler between two vectors to show Euclidean distance as the length of the difference vector.',
+        ),
+      ),
+      manimAsset(
+        'cosine-similarity-angle-video',
+        'cosine-similarity-angle',
+        copy('cosine similarity 看方向', 'Cosine Similarity Reads Direction'),
+        copy(
+          '动画保持方向但改变长度，再旋转方向，帮助区分距离会受长度影响，而 cosine similarity 主要跟夹角有关。',
+          'The animation keeps direction while changing length, then rotates direction, separating distance changes from cosine similarity as an angle-based measure.',
+        ),
       ),
       imageAsset(
         'beginner-linear-combination-span-longform',

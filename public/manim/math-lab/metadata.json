@@ -12,6 +12,31 @@
       "posterPath": "/manim/math-lab/matrix-transform.svg"
     },
     {
+      "scene": "VectorDistanceNormScene",
+      "assetPath": "/manim/math-lab/vector-distance-norm.mp4",
+      "posterPath": "/manim/math-lab/vector-distance-norm.svg"
+    },
+    {
+      "scene": "CosineSimilarityAngleScene",
+      "assetPath": "/manim/math-lab/cosine-similarity-angle.mp4",
+      "posterPath": "/manim/math-lab/cosine-similarity-angle.svg"
+    },
+    {
+      "scene": "MatrixColumnCombinationScene",
+      "assetPath": "/manim/math-lab/matrix-column-combination.mp4",
+      "posterPath": "/manim/math-lab/matrix-column-combination.svg"
+    },
+    {
+      "scene": "RankFlatteningScene",
+      "assetPath": "/manim/math-lab/rank-flattening.mp4",
+      "posterPath": "/manim/math-lab/rank-flattening.svg"
+    },
+    {
+      "scene": "NullSpaceCollapseScene",
+      "assetPath": "/manim/math-lab/null-space-collapse.mp4",
+      "posterPath": "/manim/math-lab/null-space-collapse.svg"
+    },
+    {
       "scene": "VectorSpanNormScene",
       "assetPath": "/manim/math-lab/vector-span-norm.mp4",
       "posterPath": "/manim/math-lab/vector-span-norm.svg"

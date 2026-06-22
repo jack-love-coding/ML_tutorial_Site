@@ -587,7 +587,10 @@ $$
 
 The video and lab below both focus on one idea: move the matrix columns and watch the whole space, unit circle, and determinant change.`,
     ),
-    { visualIds: ['matrix-transform-video', 'matrix-column-combination-image'], labIds: ['matrix-transform-lab'] },
+    {
+      visualIds: ['matrix-transform-video', 'matrix-column-combination-image', 'matrix-column-combination-video'],
+      labIds: ['matrix-transform-lab'],
+    },
   ),
   section(
     'vectors-matrices-norms-special-matrices-rank-representation',
@@ -966,7 +969,15 @@ $$
 
 is not a linear transformation because it does not keep the origin fixed. This is why a neural-network layer \(W\mathbf{x}+\mathbf{b}\) is called affine, not purely linear.`,
     ),
-    { visualIds: ['column-space-rank-image', 'null-space-invisible-direction-image'], labIds: ['matrix-column-space-lab'] },
+    {
+      visualIds: [
+        'column-space-rank-image',
+        'rank-flattening-video',
+        'null-space-invisible-direction-image',
+        'null-space-collapse-video',
+      ],
+      labIds: ['matrix-column-space-lab'],
+    },
   ),
   section(
     'vectors-matrices-norms-vector-norms-errors',
@@ -1795,6 +1806,21 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
         ),
       },
       {
+        id: 'matrix-column-combination-video',
+        type: 'manim-video',
+        title: copy('按列读矩阵乘向量', 'Read Matrix-Vector Multiplication by Columns'),
+        assetPath: '/manim/math-lab/matrix-column-combination.mp4',
+        posterPath: '/manim/math-lab/matrix-column-combination.svg',
+        transcript: copy(
+          md`动画把矩阵两列看成两个方向，再用输入坐标把这些列首尾相接，最后得到输出向量 \(A\mathbf{x}\)。`,
+          md`The animation treats the two matrix columns as directions, places them head-to-tail using the input coordinates, and then obtains the output vector \(A\mathbf{x}\).`,
+        ),
+        learningPurpose: copy(
+          '让学生把矩阵乘向量从“行内积计算”补充为“列空间里的线性组合”。',
+          'Help learners complement row-dot-product computation with the column-space linear-combination view.',
+        ),
+      },
+      {
         id: 'column-space-rank-image',
         type: 'image',
         title: copy('列空间和 rank', 'Column Space and Rank'),
@@ -1817,6 +1843,21 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
         ),
       },
       {
+        id: 'rank-flattening-video',
+        type: 'manim-video',
+        title: copy('rank 怎样把平面压成线', 'How Rank Flattens a Plane to a Line'),
+        assetPath: '/manim/math-lab/rank-flattening.mp4',
+        posterPath: '/manim/math-lab/rank-flattening.svg',
+        transcript: copy(
+          md`动画先展示两列独立时输出能铺开一个平面，再让两列几乎同向，输出空间随之压成一条有效方向。`,
+          md`The animation first shows independent columns spreading outputs across a plane, then turns the columns toward the same direction so the output space collapses to one effective direction.`,
+        ),
+        learningPurpose: copy(
+          '把 rank 解释成有效独立输出方向数，而不是只记一个矩阵数字。',
+          'Explain rank as the number of effective independent output directions rather than only a matrix number.',
+        ),
+      },
+      {
         id: 'null-space-invisible-direction-image',
         type: 'image',
         title: copy('null space：看不见的输入方向', 'Null Space: Input Directions the Matrix Cannot See'),
@@ -1836,6 +1877,21 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
         learningPurpose: copy(
           '帮助学生区分 column space 是输出空间，null space 是输入方向。',
           'Help learners distinguish column space as output space from null space as input directions.',
+        ),
+      },
+      {
+        id: 'null-space-collapse-video',
+        type: 'manim-video',
+        title: copy('null space：矩阵看不见的方向', 'Null Space: Directions the Matrix Cannot See'),
+        assetPath: '/manim/math-lab/null-space-collapse.mp4',
+        posterPath: '/manim/math-lab/null-space-collapse.svg',
+        transcript: copy(
+          md`动画先显示两个输入方向，再让矩阵作用其中一个方向；可见方向产生输出，null-space 方向被压到零向量。`,
+          md`The animation shows two input directions before the matrix acts; the visible direction produces output, while the null-space direction collapses to the zero vector.`,
+        ),
+        learningPurpose: copy(
+          '让学生看到 null space 不是“没有东西”，而是会被矩阵擦掉的真实输入变化。',
+          'Show that null space is not "nothing"; it contains real input changes that the matrix erases.',
         ),
       },
     ],

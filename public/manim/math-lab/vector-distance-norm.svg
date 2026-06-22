@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Norm and distance use the same ruler">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <g stroke="#dbe4f2" stroke-width="1">
+    <path d="M90 120H870M90 190H870M90 260H870M90 330H870M90 400H870"/>
+    <path d="M130 90V450M240 90V450M350 90V450M460 90V450M570 90V450M680 90V450M790 90V450"/>
+  </g>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Norm and distance use the same ruler</text>
+
+  <path d="M100 410H860M160 92V440" stroke="#7b8497" stroke-width="3"/>
+  <path d="M160 410L520 150" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M500 146L552 127L526 177Z" fill="#3868ff"/>
+  <circle cx="520" cy="150" r="14" fill="#ffd84d" stroke="#10162f" stroke-width="4"/>
+  <circle cx="700" cy="230" r="14" fill="#ef6f6c" stroke="#10162f" stroke-width="4"/>
+  <path d="M520 150L700 230" stroke="#d9463f" stroke-width="8" stroke-linecap="round" stroke-dasharray="14 12"/>
+  <text x="300" y="238" fill="#3868ff" font-family="Arial, sans-serif" font-size="27" font-weight="700">||x||</text>
+  <text x="594" y="184" fill="#d9463f" font-family="Arial, sans-serif" font-size="27" font-weight="700">||y - x||</text>
+
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">A norm measures one vector; distance measures the difference between two vectors.</text>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Rank counts effective output directions">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <g stroke="#dbe4f2" stroke-width="1">
+    <path d="M90 120H870M90 190H870M90 260H870M90 330H870M90 400H870"/>
+    <path d="M130 90V450M240 90V450M350 90V450M460 90V450M570 90V450M680 90V450M790 90V450"/>
+  </g>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Rank counts effective output directions</text>
+
+  <path d="M170 370L360 302" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M170 370L92 182" stroke="#0f9f7a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M360 302L282 114M92 182L282 114" stroke="#8a96a8" stroke-width="5" stroke-dasharray="12 12"/>
+  <text x="116" y="96" fill="#10162f" font-family="Arial, sans-serif" font-size="27" font-weight="700">rank 2: plane</text>
+  <path d="M530 338L848 222" stroke="#f2b84b" stroke-width="11" stroke-linecap="round"/>
+  <path d="M604 310L742 260" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M604 310L715 270" stroke="#0f9f7a" stroke-width="10" stroke-linecap="round"/>
+  <text x="585" y="178" fill="#10162f" font-family="Arial, sans-serif" font-size="27" font-weight="700">rank 1: line</text>
+
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Independent columns open a plane; dependent columns flatten outputs to a line.</text>
+</svg>

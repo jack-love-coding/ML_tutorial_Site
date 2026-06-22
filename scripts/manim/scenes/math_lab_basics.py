@@ -97,6 +97,129 @@ class MatrixTransformScene(Scene):
         self.wait(0.6)
 
 
+class VectorDistanceNormScene(Scene):
+    def construct(self):
+        plane = NumberPlane(
+            x_range=[-1, 6, 1],
+            y_range=[-1, 5, 1],
+            background_line_style={"stroke_opacity": 0.22},
+        )
+        title = Text("Norm measures one vector; distance measures a gap", font_size=29).to_edge(UP)
+        vector = Arrow(plane.c2p(0, 0), plane.c2p(3, 4), color=BLUE, buff=0)
+        vector_label = Text("||x|| = 5", font_size=27).next_to(vector, RIGHT, buff=0.2)
+        point_x = Dot(plane.c2p(3, 4), color=YELLOW)
+        point_y = Dot(plane.c2p(5, 3), color=ORANGE)
+        distance = Arrow(plane.c2p(3, 4), plane.c2p(5, 3), color=RED, buff=0)
+        caption = Text("start at the origin: length of x", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(plane), FadeIn(title))
+        self.play(Create(vector), FadeIn(point_x), FadeIn(vector_label), FadeIn(caption))
+        self.wait(0.5)
+
+        gap_caption = Text("move the start point: distance is ||y - x||", font_size=25).to_edge(DOWN)
+        self.play(FadeIn(point_y), Create(distance), Transform(caption, gap_caption))
+        self.wait(0.8)
+
+
+class CosineSimilarityAngleScene(Scene):
+    def construct(self):
+        plane = NumberPlane(
+            x_range=[-4, 4, 1],
+            y_range=[-3, 3, 1],
+            background_line_style={"stroke_opacity": 0.22},
+        )
+        title = Text("Cosine similarity keeps direction after length changes", font_size=28).to_edge(UP)
+        a = Arrow(plane.c2p(0, 0), plane.c2p(2.3, 1.2), color=BLUE, buff=0)
+        b = Arrow(plane.c2p(0, 0), plane.c2p(1.2, 0.65), color=GREEN, buff=0)
+        caption = Text("same direction: cosine stays near 1", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(plane), FadeIn(title), Create(a), Create(b), FadeIn(caption))
+        self.wait(0.5)
+
+        b_long = Arrow(plane.c2p(0, 0), plane.c2p(3.25, 1.72), color=GREEN, buff=0)
+        long_caption = Text("longer vector: Euclidean distance changes", font_size=25).to_edge(DOWN)
+        self.play(Transform(b, b_long), Transform(caption, long_caption))
+        self.wait(0.5)
+
+        b_turned = Arrow(plane.c2p(0, 0), plane.c2p(-0.2, 2.7), color=GREEN, buff=0)
+        angle = Line(plane.c2p(1.35, 0.72), plane.c2p(-0.12, 1.55), color=ORANGE, stroke_width=7)
+        angle_caption = Text("turn the direction: cosine drops toward 0", font_size=25).to_edge(DOWN)
+        self.play(Transform(b, b_turned), Create(angle), Transform(caption, angle_caption))
+        self.wait(0.8)
+
+
+class MatrixColumnCombinationScene(Scene):
+    def construct(self):
+        plane = NumberPlane(
+            x_range=[-2, 6, 1],
+            y_range=[-2, 5, 1],
+            background_line_style={"stroke_opacity": 0.22},
+        )
+        title = Text("A x is a linear combination of matrix columns", font_size=29).to_edge(UP)
+        col1 = Arrow(plane.c2p(0, 0), plane.c2p(2, 1), color=BLUE, buff=0)
+        col2 = Arrow(plane.c2p(0, 0), plane.c2p(1, 3), color=GREEN, buff=0)
+        caption = Text("columns are the moved basis directions", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(plane), FadeIn(title), Create(col1), Create(col2), FadeIn(caption))
+        self.wait(0.4)
+
+        shifted_col2 = Arrow(plane.c2p(2, 1), plane.c2p(3, 4), color=GREEN, buff=0)
+        result = Arrow(plane.c2p(0, 0), plane.c2p(3, 4), color=ORANGE, buff=0)
+        formula = Text("x1 a1 + x2 a2", font_size=28).next_to(title, DOWN, buff=0.28)
+        combo_caption = Text("input coordinates say how many copies to mix", font_size=25).to_edge(DOWN)
+        self.play(Create(shifted_col2), Create(result), FadeIn(formula), Transform(caption, combo_caption))
+        self.wait(0.8)
+
+
+class RankFlatteningScene(Scene):
+    def construct(self):
+        plane = NumberPlane(
+            x_range=[-4, 4, 1],
+            y_range=[-3, 3, 1],
+            background_line_style={"stroke_opacity": 0.22},
+        )
+        title = Text("Rank counts independent output directions", font_size=30).to_edge(UP)
+        e1 = Arrow(plane.c2p(0, 0), plane.c2p(2.1, 0.7), color=BLUE, buff=0)
+        e2 = Arrow(plane.c2p(0, 0), plane.c2p(-0.8, 2.0), color=GREEN, buff=0)
+        patch = VGroup(
+            Line(plane.c2p(2.1, 0.7), plane.c2p(1.3, 2.7), color=WHITE, stroke_opacity=0.58),
+            Line(plane.c2p(-0.8, 2.0), plane.c2p(1.3, 2.7), color=WHITE, stroke_opacity=0.58),
+        )
+        caption = Text("rank 2: two directions open a plane", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(plane), FadeIn(title), Create(e1), Create(e2), Create(patch), FadeIn(caption))
+        self.wait(0.5)
+
+        e2_flat = Arrow(plane.c2p(0, 0), plane.c2p(1.2, 0.4), color=GREEN, buff=0)
+        span_line = Line(plane.c2p(-3.6, -1.2), plane.c2p(3.6, 1.2), color=YELLOW, stroke_width=8)
+        flat_caption = Text("rank 1: columns become one effective direction", font_size=25).to_edge(DOWN)
+        self.play(FadeOut(patch), Transform(e2, e2_flat), Create(span_line), Transform(caption, flat_caption))
+        self.wait(0.8)
+
+
+class NullSpaceCollapseScene(Scene):
+    def construct(self):
+        plane = NumberPlane(
+            x_range=[-4, 4, 1],
+            y_range=[-3, 3, 1],
+            background_line_style={"stroke_opacity": 0.22},
+        )
+        title = Text("Null space contains directions the matrix erases", font_size=28).to_edge(UP)
+        visible = Arrow(plane.c2p(0, 0), plane.c2p(2.5, 1.1), color=BLUE, buff=0)
+        invisible = Arrow(plane.c2p(0, 0), plane.c2p(-1.6, 1.6), color=RED, buff=0)
+        caption = Text("before A: two possible input directions", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(plane), FadeIn(title), Create(visible), Create(invisible), FadeIn(caption))
+        self.wait(0.5)
+
+        visible_out = Arrow(plane.c2p(0, 0), plane.c2p(2.8, 0.8), color=BLUE, buff=0)
+        collapsed = Dot(plane.c2p(0, 0), color=RED, radius=0.12)
+        zero_label = Text("A v = 0", font_size=28).next_to(collapsed, DOWN, buff=0.25)
+        collapsed_caption = Text("after A: null-space direction collapses to zero", font_size=25).to_edge(DOWN)
+        self.play(Transform(visible, visible_out), FadeOut(invisible), FadeIn(collapsed), FadeIn(zero_label), Transform(caption, collapsed_caption))
+        self.wait(0.8)
+
+
 class VectorSpanNormScene(Scene):
     def construct(self):
         plane = NumberPlane(

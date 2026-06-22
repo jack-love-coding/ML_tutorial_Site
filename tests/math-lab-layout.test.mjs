@@ -252,7 +252,7 @@ test('manim pipeline and existing math lab video assets remain present', () => {
   assert.ok(existsSync(new URL('scripts/manim/render_math_lab.py', root)))
 
   const metadata = JSON.parse(read('public/manim/math-lab/metadata.json'))
-  assert.equal(metadata.scenes.length, 12)
+  assert.equal(metadata.scenes.length, 17)
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'VectorSpanNormScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'TaylorPolynomialScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'MonteCarloSamplingScene'))
@@ -268,6 +268,37 @@ test('manim pipeline and existing math lab video assets remain present', () => {
     const posterPath = scene.posterPath.replace(/^\//, 'public/')
     assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
     assert.ok(existsSync(new URL(posterPath, root)), `${posterPath} should exist`)
+  }
+})
+
+test('linear algebra route Manim scenes are registered', () => {
+  const sceneSource = read('scripts/manim/scenes/math_lab_basics.py')
+  const renderSource = read('scripts/manim/render_math_lab.py')
+
+  for (const sceneName of [
+    'VectorDistanceNormScene',
+    'CosineSimilarityAngleScene',
+    'MatrixColumnCombinationScene',
+    'RankFlatteningScene',
+    'NullSpaceCollapseScene',
+  ]) {
+    assert.match(sceneSource, new RegExp(`class ${sceneName}`))
+    assert.match(renderSource, new RegExp(sceneName))
+  }
+
+  for (const assetPath of [
+    'public/manim/math-lab/vector-distance-norm.mp4',
+    'public/manim/math-lab/vector-distance-norm.svg',
+    'public/manim/math-lab/cosine-similarity-angle.mp4',
+    'public/manim/math-lab/cosine-similarity-angle.svg',
+    'public/manim/math-lab/matrix-column-combination.mp4',
+    'public/manim/math-lab/matrix-column-combination.svg',
+    'public/manim/math-lab/rank-flattening.mp4',
+    'public/manim/math-lab/rank-flattening.svg',
+    'public/manim/math-lab/null-space-collapse.mp4',
+    'public/manim/math-lab/null-space-collapse.svg',
+  ]) {
+    assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
   }
 })
 

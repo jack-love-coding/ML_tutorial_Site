@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Cosine similarity reads direction">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <g stroke="#dbe4f2" stroke-width="1">
+    <path d="M90 120H870M90 190H870M90 260H870M90 330H870M90 400H870"/>
+    <path d="M130 90V450M240 90V450M350 90V450M460 90V450M570 90V450M680 90V450M790 90V450"/>
+  </g>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Cosine similarity reads direction</text>
+
+  <path d="M480 282L700 184" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M480 282L795 140" stroke="#0f9f7a" stroke-width="10" stroke-linecap="round"/>
+  <path d="M480 282L430 108" stroke="#d9463f" stroke-width="10" stroke-linecap="round"/>
+  <path d="M685 165L730 170L700 202Z" fill="#3868ff"/>
+  <path d="M780 120L826 124L796 158Z" fill="#0f9f7a"/>
+  <path d="M410 116L419 70L449 108Z" fill="#d9463f"/>
+  <path d="M558 247C594 234 622 218 648 196" fill="none" stroke="#f2b84b" stroke-width="8" stroke-linecap="round"/>
+  <path d="M438 225C455 178 455 146 437 109" fill="none" stroke="#ef6f6c" stroke-width="8" stroke-linecap="round"/>
+  <text x="590" y="330" fill="#475467" font-family="Arial, sans-serif" font-size="25">length changes, direction can stay similar</text>
+
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Euclidean distance can change when length changes; cosine follows the angle.</text>
+</svg>

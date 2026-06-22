@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Null space is what the matrix erases">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <g stroke="#dbe4f2" stroke-width="1">
+    <path d="M90 120H870M90 190H870M90 260H870M90 330H870M90 400H870"/>
+    <path d="M130 90V450M240 90V450M350 90V450M460 90V450M570 90V450M680 90V450M790 90V450"/>
+  </g>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">Null space is what the matrix erases</text>
+
+  <path d="M178 386L380 278" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M178 386L74 208" stroke="#d9463f" stroke-width="10" stroke-linecap="round"/>
+  <rect x="430" y="230" width="116" height="96" rx="18" fill="#ffffff" stroke="#10162f" stroke-width="4"/>
+  <text x="488" y="288" fill="#10162f" font-family="Arial, sans-serif" font-size="36" font-weight="700" text-anchor="middle">A</text>
+  <path d="M565 278L760 218" stroke="#3868ff" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="650" cy="354" r="18" fill="#d9463f" stroke="#10162f" stroke-width="4"/>
+  <text x="680" y="362" fill="#d9463f" font-family="Arial, sans-serif" font-size="28" font-weight="700">A v = 0</text>
+  <text x="246" y="206" fill="#d9463f" font-family="Arial, sans-serif" font-size="27" font-weight="700">erased direction</text>
+
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">A null-space direction is a real input change that becomes zero output.</text>
+</svg>
