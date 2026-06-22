@@ -676,6 +676,22 @@ $$
 A\mathbf{x}=x_1\mathbf{a}_1+x_2\mathbf{a}_2+\cdots+x_n\mathbf{a}_n.
 $$
 
+请慢一点读这行公式：\(A\mathbf{x}\) 不是把矩阵和向量逐项相乘，而是把矩阵的列拿出来做线性组合。输入坐标 \(x_1,x_2,\ldots\) 像一组旋钮，分别决定第 \(1\) 列、第 \(2\) 列、一直到第 \(n\) 列要贡献多少。
+
+所有可能的输出组成 **column space**：
+
+$$
+\operatorname{Col}(A)=\{A\mathbf{x}:\mathbf{x}\in\mathbb{R}^n\}.
+$$
+
+也就是说，column space 问的是：“这个矩阵通过混合列向量，最多能把输入送到哪些地方？”rank 正是这个可达集合的维度，也可以读成独立列的数量。在二维图里：
+
+- rank=2 时，两列提供两个独立方向，column space 覆盖整个二维平面。
+- rank=1 时，一列只是另一列的倍数，所有输出只能落在一条线上。
+- rank=0 时，两列都是零向量，所有输入都只能被送到原点。
+
+接下来再看 null space。若存在非零输入 \(\mathbf{x}\ne\mathbf{0}\)，却有 \(A\mathbf{x}=\mathbf{0}\)，这个方向就是 null direction，它属于 null space。几何上，这表示某个输入方向被完全压扁；这部分信息已经被丢掉，所以方阵会不可逆。下面的 matrix-column-space-lab 可以直接拖动列向量，观察 column space 如何从平面塌成线或点，以及 null direction 何时出现。
+
 **矩阵-向量计算例。** 令
 
 $$
@@ -846,6 +862,22 @@ $$
 A\mathbf{x}=x_1\mathbf{a}_1+x_2\mathbf{a}_2+\cdots+x_n\mathbf{a}_n.
 $$
 
+Read that formula slowly: \(A\mathbf{x}\) is not elementwise multiplication between a matrix and a vector. It pulls out the columns of the matrix and forms a linear combination. The input coordinates \(x_1,x_2,\ldots\) act like knobs controlling how much column \(1\), column \(2\), and so on contribute.
+
+All possible outputs form the **column space**:
+
+$$
+\operatorname{Col}(A)=\{A\mathbf{x}:\mathbf{x}\in\mathbb{R}^n\}.
+$$
+
+So column space asks, "where can this matrix send inputs by mixing its columns?" Rank is the dimension of that reachable set, equivalently the number of independent columns. In a 2D picture:
+
+- rank=2 means the two columns provide two independent directions, so the column space covers the whole plane.
+- rank=1 means one column is a multiple of the other, so every output lands on one line.
+- rank=0 means both columns are zero vectors, so every input lands at the origin.
+
+Now connect this to null space. If some nonzero input \(\mathbf{x}\ne\mathbf{0}\) still gives \(A\mathbf{x}=\mathbf{0}\), that input direction is a null direction inside the null space. Geometrically, an input direction has been flattened completely; that information has been lost, so a square matrix becomes non-invertible. In matrix-column-space-lab, drag the columns and watch the column space collapse from plane to line or point, and watch when a null direction appears.
+
 **Matrix-vector computation example.** Let
 
 $$
@@ -934,6 +966,7 @@ $$
 
 is not a linear transformation because it does not keep the origin fixed. This is why a neural-network layer \(W\mathbf{x}+\mathbf{b}\) is called affine, not purely linear.`,
     ),
+    { labIds: ['matrix-column-space-lab'] },
   ),
   section(
     'vectors-matrices-norms-vector-norms-errors',
@@ -1611,6 +1644,51 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
         ),
       },
       {
+        id: 'matrix-column-space-rank',
+        name: copy('列空间、秩与零空间', 'Column Space, Rank, and Null Space'),
+        formulaLatex: '\\operatorname{Col}(A)=\\{A\\mathbf{x}:\\mathbf{x}\\in\\mathbb{R}^n\\},\\quad A\\mathbf{x}=\\sum_j x_j\\mathbf{a}_j',
+        variables: [
+          {
+            symbol: '\\operatorname{Col}(A)',
+            description: copy('矩阵 \(A\) 所有可能输出组成的集合，也就是所有列向量线性组合能到达的地方。', 'The set of all possible outputs of \(A\), meaning every place reachable by linear combinations of its columns.'),
+          },
+          {
+            symbol: '\\mathbf{a}_j',
+            description: copy('矩阵 \(A\) 的第 \(j\) 列，是输出空间里的一个可混合方向。', 'Column \(j\) of \(A\), a direction in output space that can be mixed into the result.'),
+          },
+          {
+            symbol: 'x_j',
+            description: copy('输入向量给第 \(j\) 列的权重。', 'The weight that the input vector gives to column \(j\).'),
+          },
+          {
+            symbol: '\\operatorname{rank}(A)',
+            description: copy('列空间的维度，也等于独立列的数量。', 'The dimension of the column space, equivalently the number of independent columns.'),
+          },
+          {
+            symbol: '\\mathcal{N}(A)',
+            description: copy('满足 \(A\mathbf{x}=\mathbf{0}\) 的输入方向集合；非零方向落入这里表示信息被压掉。', 'The set of input directions satisfying \(A\mathbf{x}=\mathbf{0}\); a nonzero direction here means information has been flattened away.'),
+          },
+        ],
+        plainExplanation: copy(
+          '矩阵输出只能落在列空间中；rank 告诉我们这个可达区域有多少独立方向。',
+          'Matrix outputs can only land in the column space; rank tells how many independent directions that reachable region has.',
+        ),
+        geometricIntuition: copy(
+          '二维里 rank=2 覆盖平面，rank=1 只覆盖一条线，rank=0 只留下原点；出现非零 null direction 时，某些输入差异会被完全抹掉。',
+          'In 2D, rank=2 covers the plane, rank=1 covers only a line, and rank=0 leaves only the origin; a nonzero null direction means some input difference is erased completely.',
+        ),
+        numericalExample: copy(
+          md`若 \(A=\begin{bmatrix}2&4\\1&2\end{bmatrix}\)，第二列是第一列的 \(2\) 倍，所以 rank=1，所有 \(A\mathbf{x}\) 都在 \((2,1)\) 这条方向线上。`,
+          md`If \(A=\begin{bmatrix}2&4\\1&2\end{bmatrix}\), the second column is twice the first, so rank=1 and every \(A\mathbf{x}\) lies on the line in direction \((2,1)\).`,
+        ),
+        codeExample:
+          'const columns = [[2, 1], [4, 2]]\nconst x = [3, -1]\nconst output = [\n  x[0] * columns[0][0] + x[1] * columns[1][0],\n  x[0] * columns[0][1] + x[1] * columns[1][1],\n]\n\nconsole.log(output) // [2, 1], still on the same column-space line',
+        modelConnection: copy(
+          '线性层的特征混合只能产生 \(W\) 的 column space 中的表示；低 rank 权重、PCA/SVD 压缩或 rank bottleneck 会限制可表达方向。',
+          'Feature mixing in a linear layer can only produce representations inside the column space of \(W\); low-rank weights, PCA/SVD compression, or a rank bottleneck limit the directions the model can express.',
+        ),
+      },
+      {
         id: 'induced-matrix-norm',
         name: copy('诱导矩阵范数', 'Induced Matrix Norm'),
         formulaLatex: '\\|A\\|=\\max_{\\|\\mathbf{x}\\|=1}\\|A\\mathbf{x}\\|',
@@ -1716,6 +1794,17 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
           copy('能解释 determinant 接近零时为什么变换接近不可逆。', 'Explain why a transformation becomes nearly non-invertible when the determinant is near zero.'),
         ],
       },
+      {
+        id: 'matrix-column-space-lab',
+        title: copy('列空间与秩实验', 'Column Space and Rank Lab'),
+        type: 'interactive-visual',
+        componentName: 'MatrixColumnSpaceLab',
+        successCriteria: [
+          copy('能把 \(A\mathbf{x}\) 解释成用输入坐标混合矩阵列向量。', 'Explain \(A\mathbf{x}\) as mixing matrix columns with the input coordinates.'),
+          copy('能根据两列是否独立判断 rank=2、rank=1 或 rank=0 的可达区域。', 'Use column independence to identify the reachable region for rank=2, rank=1, or rank=0.'),
+          copy('能说明非零零空间方向为什么会被压到零输出，并导致方阵不可逆。', 'Explain why a nonzero null direction collapses to zero output and makes a square matrix non-invertible.'),
+        ],
+      },
     ],
     quizzes: [
       {
@@ -1797,6 +1886,32 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
         revisitVisualId: 'matrix-transform-video',
       },
       {
+        id: 'vectors-matrices-norms-rank-column-space',
+        type: 'single-choice',
+        prompt: copy('判断矩阵 rank 时，最可靠的问题是什么？', 'When judging matrix rank, which question is most reliable?'),
+        choices: [
+          {
+            id: 'independent-columns',
+            label: copy('列向量能提供多少个独立方向。', 'How many independent directions the columns provide.'),
+          },
+          {
+            id: 'nonzero-entries',
+            label: copy('矩阵里有多少个非零数字。', 'How many nonzero entries the matrix contains.'),
+          },
+          {
+            id: 'largest-entry',
+            label: copy('矩阵中最大的数字有多大。', 'How large the biggest entry in the matrix is.'),
+          },
+        ],
+        answer: 'independent-columns',
+        explanation: copy(
+          md`rank 不是非零数字个数，而是 column space 的维度，也就是独立列的数量。回到 \`matrix-column-space-lab\`，把一列拖成另一列的倍数：即使矩阵里仍有很多非零数字，所有输出也只会落在一条线上。`,
+          md`Rank is not the number of nonzero entries; it is the dimension of the column space, equivalently the number of independent columns. Revisit \`matrix-column-space-lab\`: drag one column until it becomes a multiple of the other. Even with many nonzero entries, every output then lands on one line.`,
+        ),
+        misconceptionTags: ['rank-is-nonzero-entry-count'],
+        revisitVisualId: 'matrix-transform-video',
+      },
+      {
         id: 'vectors-matrices-norms-relative-error',
         type: 'numeric',
         prompt: copy(
@@ -1841,6 +1956,21 @@ export function buildVectorMatrixNormsModule(importedModule: MathLabModule): Mat
         example: copy(
           md`\(\begin{bmatrix}2&1\\0&3\end{bmatrix}\begin{bmatrix}4\\-1\end{bmatrix}=4(2,0)-1(1,3)=(7,-3)\)。`,
           md`\(\begin{bmatrix}2&1\\0&3\end{bmatrix}\begin{bmatrix}4\\-1\end{bmatrix}=4(2,0)-1(1,3)=(7,-3)\).`,
+        ),
+      },
+      {
+        id: 'rank-is-nonzero-entry-count',
+        statement: copy(
+          'rank 就是矩阵里非零数字的个数。',
+          'Rank is the number of nonzero entries in a matrix.',
+        ),
+        correction: copy(
+          'rank 看的是列空间有多少个独立方向，不是数格子里有几个非零数字。两列如果方向相同，即使每个位置都非零，也只能张成一条线。',
+          'Rank counts how many independent directions the column space has, not how many nonzero entries sit in the grid. If two columns point in the same direction, they span only one line even when every entry is nonzero.',
+        ),
+        example: copy(
+          md`在 MatrixColumnSpaceLab 或 \`matrix-column-space-lab\` 中，把 \(A=\begin{bmatrix}2&4\\1&2\end{bmatrix}\) 的两列看成箭头：四个数字都非零，但第二列是第一列的 \(2\) 倍，所以 rank=1。`,
+          md`In MatrixColumnSpaceLab or \`matrix-column-space-lab\`, read \(A=\begin{bmatrix}2&4\\1&2\end{bmatrix}\) as two column arrows: all four entries are nonzero, but the second column is twice the first, so rank=1.`,
         ),
       },
       {

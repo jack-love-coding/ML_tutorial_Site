@@ -800,6 +800,80 @@ test('vectors matrices norms module markdown renders formulas without raw delimi
   assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
 })
 
+test('vectors matrices norms module wires column space rank lab and guardrails', () => {
+  const vectorModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'vectors-matrices-norms')
+  assert.ok(vectorModule)
+
+  const columnSpaceLab = vectorModule.labs.find((lab) => lab.id === 'matrix-column-space-lab')
+  assert.ok(columnSpaceLab)
+  assert.equal(columnSpaceLab.componentName, 'MatrixColumnSpaceLab')
+  assert.equal(columnSpaceLab.title['zh-CN'], '列空间与秩实验')
+  assert.equal(columnSpaceLab.title.en, 'Column Space and Rank Lab')
+  assert.ok(columnSpaceLab.successCriteria.length >= 3)
+  const successCriteriaSource = columnSpaceLab.successCriteria
+    .map((criterion) => `${criterion['zh-CN']}\n${criterion.en}`)
+    .join('\n')
+  assert.match(successCriteriaSource, /列向量|column/i)
+  assert.match(successCriteriaSource, /rank|秩/i)
+  assert.match(successCriteriaSource, /null|零空间|不可逆/i)
+
+  const rankSection = vectorModule.sections.find(
+    (section) => section.id === 'vectors-matrices-norms-special-matrices-rank-representation',
+  )
+  assert.ok(rankSection)
+  assert.ok(rankSection.labIds?.includes('matrix-column-space-lab'))
+
+  const sectionSource = `${rankSection.content['zh-CN']}\n\n${rankSection.content.en}`
+  assert.match(sectionSource, /A\\mathbf\{x\}=x_1\\mathbf\{a\}_1\+x_2\\mathbf\{a\}_2/)
+  assert.match(sectionSource, /column space|列空间/i)
+  assert.match(sectionSource, /rank=2|rank 为 2|秩为 2/i)
+  assert.match(sectionSource, /rank=1|rank 为 1|秩为 1/i)
+  assert.match(sectionSource, /rank=0|rank 为 0|秩为 0/i)
+  assert.match(sectionSource, /null space|null direction|零空间|零方向/i)
+  assert.match(sectionSource, /信息.*丢|information.*lost/i)
+
+  const columnSpaceConcept = vectorModule.concepts.find((concept) => concept.id === 'matrix-column-space-rank')
+  assert.ok(columnSpaceConcept)
+  assert.match(columnSpaceConcept.formulaLatex, /Col|sum_\{j\}|\\sum_j/)
+  assert.ok(columnSpaceConcept.variables.length >= 3)
+  for (const variable of columnSpaceConcept.variables) {
+    assert.ok(variable.description['zh-CN'].length > 0)
+    assert.ok(variable.description.en.length > 0)
+  }
+  const conceptModelConnection = columnSpaceConcept.modelConnection['zh-CN'] + '\n' + columnSpaceConcept.modelConnection.en
+  assert.match(conceptModelConnection, /linear layer|线性层/i)
+  assert.match(conceptModelConnection, /feature mixing|特征混合/i)
+  assert.match(conceptModelConnection, /PCA|SVD|rank bottleneck|秩瓶颈/i)
+
+  const guardrailQuiz = vectorModule.quizzes.find((quiz) => quiz.id === 'vectors-matrices-norms-rank-column-space')
+  assert.ok(guardrailQuiz)
+  const guardrailQuizSource = [
+    guardrailQuiz.prompt['zh-CN'],
+    guardrailQuiz.prompt.en,
+    guardrailQuiz.explanation['zh-CN'],
+    guardrailQuiz.explanation.en,
+  ].join('\n')
+  assert.match(guardrailQuizSource, /rank|秩/i)
+  assert.match(guardrailQuizSource, /非零数字|nonzero entries/i)
+  assert.match(guardrailQuizSource, /matrix-column-space-lab|matrix-transform-video/)
+
+  const guardrailMisconception = vectorModule.misconceptions.find(
+    (misconception) => misconception.id === 'rank-is-nonzero-entry-count',
+  )
+  assert.ok(guardrailMisconception)
+  const guardrailMisconceptionSource = [
+    guardrailMisconception.statement['zh-CN'],
+    guardrailMisconception.statement.en,
+    guardrailMisconception.correction['zh-CN'],
+    guardrailMisconception.correction.en,
+    guardrailMisconception.example['zh-CN'],
+    guardrailMisconception.example.en,
+  ].join('\n')
+  assert.match(guardrailMisconceptionSource, /rank|秩/i)
+  assert.match(guardrailMisconceptionSource, /非零数字|nonzero entries/i)
+  assert.match(guardrailMisconceptionSource, /matrix-column-space-lab|MatrixColumnSpaceLab/)
+})
+
 test('lu decomposition module presents repaired bilingual content and inline LU lab', () => {
   const luModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'lu-decomposition')
   assert.ok(luModule)
