@@ -1978,9 +1978,52 @@
   background: #0c1628;
 }
 
+.vector-similarity-stack {
+  display: grid;
+  gap: 18px;
+}
+
 .vector-similarity-lab__visual {
   display: grid;
   gap: 18px;
+}
+
+.vector-similarity-pair,
+.vector-answer-copy,
+.vector-answer-dimensions,
+.vector-similarity-object-selectors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.vector-similarity-pair article,
+.vector-answer-copy article,
+.vector-answer-dimensions article {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.86);
+}
+
+.vector-similarity-pair span,
+.vector-answer-copy span,
+.vector-answer-dimensions span,
+.vector-similarity-weights > span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vector-similarity-pair p,
+.vector-answer-copy p {
+  margin: 0;
+  color: color-mix(in srgb, var(--muted) 88%, var(--ink));
+  line-height: 1.55;
 }
 
 .vector-similarity-bars {
@@ -1997,6 +2040,12 @@
   color: var(--muted);
   font-size: 0.86rem;
   font-weight: 700;
+}
+
+.vector-similarity-bars small,
+.vector-answer-dimensions small {
+  color: var(--muted);
+  font-size: 0.82rem;
 }
 
 .vector-similarity-bars article > div {
@@ -2023,6 +2072,36 @@
   background: rgba(15, 159, 122, 0.55);
   transform: translateY(50%);
   min-height: 50%;
+}
+
+.vector-similarity-object-selectors label,
+.vector-similarity-weights label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.vector-similarity-object-selectors select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+}
+
+.vector-similarity-weights,
+.vector-answer-score-card__answers {
+  display: grid;
+  gap: 12px;
+}
+
+.vector-similarity-weights input {
+  width: 100%;
+  min-height: 40px;
+  accent-color: #3868ff;
 }
 
 @media (max-width: 1080px) {
@@ -2074,7 +2153,11 @@
   .math-explanation-grid,
   .math-misconception-grid,
   .math-readout-grid,
-  .math-skill-radar__legend {
+  .math-skill-radar__legend,
+  .vector-similarity-pair,
+  .vector-answer-copy,
+  .vector-answer-dimensions,
+  .vector-similarity-object-selectors {
     grid-template-columns: 1fr;
   }
 
