@@ -5,6 +5,7 @@ import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
 import { buildLeastSquaresModule } from './leastSquaresModule.ts'
+import { linearAlgebraRouteModules } from './linearAlgebraRouteModules.ts'
 import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { buildMarkovChainsModule } from './markovChainsModule.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
@@ -24,7 +25,13 @@ const supplementalModules = Object.fromEntries(
 
 const aiMathPath: MathLabModuleId[] = [
   'beginner-linear-algebra',
-  'vectors-matrices-norms',
+  'linear-algebra-feature-space',
+  'linear-algebra-distance-similarity',
+  'linear-algebra-matrix-transformations',
+  'linear-algebra-rank-null-space',
+  'eigenvalues-eigenvectors',
+  'svd',
+  'pca',
   'tensor-shapes-vectorization',
   'beginner-calculus',
   'taylor-series',
@@ -35,15 +42,12 @@ const aiMathPath: MathLabModuleId[] = [
   'lu-decomposition',
   'sparse-matrices',
   'condition-numbers',
-  'eigenvalues-eigenvectors',
   'markov-chains',
   'finite-difference-methods',
   'nonlinear-equations',
   'optimization',
   'training-diagnostics',
   'least-squares-fitting',
-  'svd',
-  'pca',
   'deep-architecture-math',
 ]
 
@@ -113,8 +117,28 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
   }
 })
 
+const linearAlgebraRouteReferenceIds = new Set<MathLabModuleId>([
+  'eigenvalues-eigenvectors',
+  'svd',
+  'pca',
+])
+const linearAlgebraRouteSourceReferences = linearAlgebraRouteModules[0]?.sourceReferences ?? []
+
+function withLinearAlgebraRouteReferences(moduleDefinition: MathLabModule): MathLabModule {
+  if (!linearAlgebraRouteReferenceIds.has(moduleDefinition.id) || moduleDefinition.sourceReferences?.length) {
+    return moduleDefinition
+  }
+
+  return {
+    ...moduleDefinition,
+    sourceReferences: linearAlgebraRouteSourceReferences,
+  }
+}
+
 const allModulesById = Object.fromEntries(
-  [...beginnerFoundationModules, ...importedFoundationModules, ...aiBridgeModules].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
+  [...beginnerFoundationModules, ...linearAlgebraRouteModules, ...importedFoundationModules, ...aiBridgeModules]
+    .map(withLinearAlgebraRouteReferences)
+    .map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
 ) as Record<MathLabModuleId, MathLabModule | undefined>
 
 export const mathLabModules: MathLabModule[] = aiMathPath.map((moduleId, index) => {
