@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { LearningRoute, MathLabLocale, MathLabModule, MathLabModuleId } from '../types/mathLab'
 import { checkpointReportForModule } from '../data/checkpointReports'
 import { routeProgressSummary } from '../data/learningRoutes'
-import { loadCheckpointReport } from '../utils/checkpointReports'
+import { checkpointReportStorageKey, loadCheckpointReport } from '../utils/checkpointReports'
+
+type ReportStatus = 'complete' | 'draft' | 'not-started' | 'unavailable'
 
 const props = defineProps<{
   route: LearningRoute
@@ -17,13 +19,57 @@ const summary = computed(() => routeProgressSummary(props.route, props.completed
 const routeModules = computed(() => props.route.chapterModuleIds
   .map((id) => moduleById.value.get(id))
   .filter((moduleDefinition): moduleDefinition is MathLabModule => Boolean(moduleDefinition)))
+const checkpointReportStates = ref<Record<MathLabModuleId, ReportStatus>>({})
+
+function refreshCheckpointReports() {
+  checkpointReportStates.value = Object.fromEntries(
+    routeModules.value.map((moduleDefinition) => {
+      const prompt = checkpointReportForModule(moduleDefinition.id)
+      if (!prompt) return [moduleDefinition.id, 'unavailable' satisfies ReportStatus]
+
+      const saved = loadCheckpointReport(moduleDefinition.id)
+      if (saved?.completed) return [moduleDefinition.id, 'complete' satisfies ReportStatus]
+      if (saved) return [moduleDefinition.id, 'draft' satisfies ReportStatus]
+      return [moduleDefinition.id, 'not-started' satisfies ReportStatus]
+    }),
+  )
+}
+
+function handleReportVisibilityChange() {
+  if (document.visibilityState === 'visible') refreshCheckpointReports()
+}
+
+function handleReportStorageEvent(event: StorageEvent) {
+  if (
+    event.key &&
+    !routeModules.value.some((moduleDefinition) => event.key === checkpointReportStorageKey(moduleDefinition.id))
+  ) {
+    return
+  }
+  refreshCheckpointReports()
+}
+
+watch(routeModules, refreshCheckpointReports, { immediate: true })
+
+onMounted(() => {
+  refreshCheckpointReports()
+  window.addEventListener('focus', refreshCheckpointReports)
+  document.addEventListener('visibilitychange', handleReportVisibilityChange)
+  window.addEventListener('storage', handleReportStorageEvent)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('focus', refreshCheckpointReports)
+  document.removeEventListener('visibilitychange', handleReportVisibilityChange)
+  window.removeEventListener('storage', handleReportStorageEvent)
+})
 
 function reportStatus(moduleId: MathLabModuleId) {
   const prompt = checkpointReportForModule(moduleId)
   if (!prompt) return props.locale === 'zh-CN' ? '无报告卡' : 'No report'
-  const saved = loadCheckpointReport(moduleId)
-  if (saved?.completed) return props.locale === 'zh-CN' ? '报告完成' : 'Report complete'
-  if (saved) return props.locale === 'zh-CN' ? '报告草稿' : 'Report draft'
+  const status = checkpointReportStates.value[moduleId] ?? 'not-started'
+  if (status === 'complete') return props.locale === 'zh-CN' ? '报告完成' : 'Report complete'
+  if (status === 'draft') return props.locale === 'zh-CN' ? '报告草稿' : 'Report draft'
   return props.locale === 'zh-CN' ? '待填写' : 'Not started'
 }
 </script>
