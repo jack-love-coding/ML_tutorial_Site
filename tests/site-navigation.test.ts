@@ -5,6 +5,7 @@ import {
   dataLabNavigationGroups,
   mathLabNavigationGroups,
 } from '../src/data/navigationMenus.ts'
+import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 
 const registeredCoreModuleSlugs = [
   'ai-overview',
@@ -80,6 +81,10 @@ test('math lab navigation menu covers all lab module routes with localized label
     '/math-lab/modules/eigenvalues-eigenvectors',
     '/math-lab/modules/svd',
     '/math-lab/modules/pca',
+    '/math-lab/modules/tensor-shapes-vectorization',
+    '/math-lab/modules/lu-decomposition',
+    '/math-lab/modules/sparse-matrices',
+    '/math-lab/modules/condition-numbers',
     '/math-lab/modules/taylor-series',
     '/math-lab/modules/matrix-calculus-autodiff',
     '/math-lab/modules/finite-difference-methods',
@@ -93,6 +98,13 @@ test('math lab navigation menu covers all lab module routes with localized label
     '/math-lab/modules/deep-architecture-math',
   ])
   assert.equal(new Set(routes).size, routes.length, 'math lab navigation routes should not contain duplicates')
+
+  const registeredRoutes = mathLabModules.map((moduleDefinition) => `/math-lab/modules/${moduleDefinition.id}`)
+  assert.deepEqual(
+    [...routes].sort(),
+    [...registeredRoutes].sort(),
+    'math lab navigation should cover every registered module route exactly once',
+  )
 })
 
 test('data lab navigation menu covers all data lab module routes with localized labels', () => {

@@ -113,6 +113,16 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
     ],
   },
   {
+    id: 'linear-algebra-tools',
+    label: copy('线性代数工具与稳定性', 'Linear Algebra Tools and Stability'),
+    items: [
+      mathModule('tensor-shapes-vectorization', '张量 shape 与向量化', 'Tensor Shapes and Vectorization'),
+      mathModule('lu-decomposition', '用 LU 分解求解线性方程', 'LU Decomposition for Solving Linear Equations'),
+      mathModule('sparse-matrices', '稀疏矩阵', 'Sparse Matrices'),
+      mathModule('condition-numbers', '条件数', 'Condition Numbers'),
+    ],
+  },
+  {
     id: 'calculus-optimization',
     label: copy('微积分、方程与优化', 'Calculus, Equations, and Optimization'),
     items: [
