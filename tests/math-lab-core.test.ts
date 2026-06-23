@@ -2,6 +2,12 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import { diagnosticQuestions, scoreDiagnostic } from '../src/modules/math-lab/data/diagnostic.ts'
+import {
+  learningRoutes,
+  linearAlgebraRouteModuleIds,
+  nextModuleForRoute,
+  routeProgressSummary,
+} from '../src/modules/math-lab/data/learningRoutes.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import {
   calibrationBins,
@@ -407,6 +413,35 @@ test('linear algebra route split exposes seven ordered case-driven chapters', ()
     const source = readFileSync(new URL(sourcePath, root), 'utf8')
     assert.match(source, /sourceReferences:\s*\[/, `${sourcePath} should own source references`)
   }
+})
+
+test('learning routes expose a linear algebra route with next-step progress', () => {
+  assert.deepEqual(linearAlgebraRouteModuleIds, [
+    'linear-algebra-feature-space',
+    'linear-algebra-distance-similarity',
+    'linear-algebra-matrix-transformations',
+    'linear-algebra-rank-null-space',
+    'eigenvalues-eigenvectors',
+    'svd',
+    'pca',
+  ])
+
+  const route = learningRoutes.find((candidate) => candidate.id === 'linear-algebra-route')
+  assert.ok(route)
+  assert.equal(route.title['zh-CN'], '线性代数路线')
+  assert.equal(route.title.en, 'Linear Algebra Route')
+  assert.deepEqual(route.chapterModuleIds, linearAlgebraRouteModuleIds)
+
+  const summary = routeProgressSummary(route, [
+    'linear-algebra-feature-space',
+    'linear-algebra-distance-similarity',
+  ])
+  assert.equal(summary.completedCount, 2)
+  assert.equal(summary.totalCount, 7)
+  assert.equal(summary.nextModuleId, 'linear-algebra-matrix-transformations')
+  assert.equal(summary.completedModuleId, 'linear-algebra-distance-similarity')
+
+  assert.equal(nextModuleForRoute(route, linearAlgebraRouteModuleIds), undefined)
 })
 
 test('later linear algebra route chapters use concrete case studies instead of shallow AI footnotes', () => {

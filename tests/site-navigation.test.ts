@@ -5,6 +5,7 @@ import {
   dataLabNavigationGroups,
   mathLabNavigationGroups,
 } from '../src/data/navigationMenus.ts'
+import { learningRouteById } from '../src/modules/math-lab/data/learningRoutes.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 
 const registeredCoreModuleSlugs = [
@@ -68,6 +69,10 @@ test('math lab navigation menu covers all lab module routes with localized label
       'svd',
       'pca',
     ],
+  )
+  assert.deepEqual(
+    learningRouteById['linear-algebra-route'].chapterModuleIds,
+    linearAlgebraGroup.items.map((item) => item.id),
   )
 
   assert.deepEqual(routes, [

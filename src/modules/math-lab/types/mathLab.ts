@@ -170,6 +170,23 @@ export interface MathLabProgress {
   updatedAt: string
 }
 
+export interface LearningRoute {
+  id: string
+  title: LocalizedCopy
+  description: LocalizedCopy
+  audience: LocalizedCopy
+  chapterModuleIds: MathLabModuleId[]
+  nextStepRule: 'first-incomplete'
+}
+
+export interface LearningRouteProgressSummary {
+  routeId: string
+  completedCount: number
+  totalCount: number
+  completedModuleId?: MathLabModuleId
+  nextModuleId?: MathLabModuleId
+}
+
 export interface ThreeSceneController<TParams = unknown> {
   mount: (el: HTMLElement) => void
   update?: (params: TParams) => void
