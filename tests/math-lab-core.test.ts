@@ -241,10 +241,10 @@ test('AI bridge math utilities validate shapes, autodiff, probability, diagnosti
 })
 
 test('math lab modules include the zero-base AI math path with the linear algebra route split', () => {
-  assert.equal(mathLabModules.length, 25)
+  assert.equal(mathLabModules.length, 31)
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.order),
-    Array.from({ length: 25 }, (_, index) => index + 1),
+    Array.from({ length: 31 }, (_, index) => index + 1),
   )
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.id),
@@ -258,7 +258,13 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'svd',
       'pca',
       'tensor-shapes-vectorization',
-      'beginner-calculus',
+      'calculus-functions-rate-change',
+      'calculus-derivatives-local-change',
+      'calculus-partial-derivatives-gradients',
+      'calculus-gradient-descent',
+      'calculus-sgd-batch-noise',
+      'calculus-optimizer-comparison',
+      'calculus-training-code-diagnostics',
       'taylor-series',
       'matrix-calculus-autodiff',
       'beginner-probability-distributions',
@@ -302,6 +308,20 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       assert.match(englishBody, /data becomes a vector|matrix as a space machine/i)
     } else if (moduleDefinition.id === 'beginner-calculus') {
       assert.match(englishBody, /average change|instantaneous change|chain rule|numerical gradient/i)
+    } else if (moduleDefinition.id === 'calculus-functions-rate-change') {
+      assert.match(englishBody, /average rate of change|function|input-output/i)
+    } else if (moduleDefinition.id === 'calculus-derivatives-local-change') {
+      assert.match(englishBody, /derivative|secant|tangent/i)
+    } else if (moduleDefinition.id === 'calculus-partial-derivatives-gradients') {
+      assert.match(englishBody, /partial derivative|gradient|parameter/i)
+    } else if (moduleDefinition.id === 'calculus-gradient-descent') {
+      assert.match(englishBody, /negative gradient|learning rate|oscillation/i)
+    } else if (moduleDefinition.id === 'calculus-sgd-batch-noise') {
+      assert.match(englishBody, /mini-batch|SGD|epoch/i)
+    } else if (moduleDefinition.id === 'calculus-optimizer-comparison') {
+      assert.match(englishBody, /Momentum|RMSProp|Adam/)
+    } else if (moduleDefinition.id === 'calculus-training-code-diagnostics') {
+      assert.match(englishBody, /loss\.backward|optimizer\.step|gradient norm/)
     } else if (moduleDefinition.id === 'beginner-probability-distributions') {
       assert.match(englishBody, /sample space|random variable|normal distribution|Bayes update|calibration/i)
     } else if (moduleDefinition.id === 'training-diagnostics') {
@@ -413,6 +433,82 @@ test('linear algebra route split exposes seven ordered case-driven chapters', ()
     const source = readFileSync(new URL(sourcePath, root), 'utf8')
     assert.match(source, /sourceReferences:\s*\[/, `${sourcePath} should own source references`)
   }
+})
+
+test('calculus route exposes seven ordered beginner chapters from change to training code', () => {
+  const routeIds = [
+    'calculus-functions-rate-change',
+    'calculus-derivatives-local-change',
+    'calculus-partial-derivatives-gradients',
+    'calculus-gradient-descent',
+    'calculus-sgd-batch-noise',
+    'calculus-optimizer-comparison',
+    'calculus-training-code-diagnostics',
+  ]
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+
+  assert.deepEqual(
+    routeIds.map((id) => byId[id]?.nextModuleIds[0]),
+    [
+      'calculus-derivatives-local-change',
+      'calculus-partial-derivatives-gradients',
+      'calculus-gradient-descent',
+      'calculus-sgd-batch-noise',
+      'calculus-optimizer-comparison',
+      'calculus-training-code-diagnostics',
+      'taylor-series',
+    ],
+  )
+
+  for (const id of routeIds) {
+    const moduleDefinition = byId[id]
+    assert.ok(moduleDefinition, `${id} should be registered`)
+    assert.equal(moduleDefinition.difficulty, 'foundation')
+    assert.ok(moduleDefinition.title['zh-CN'])
+    assert.ok(moduleDefinition.title.en)
+    assert.ok(moduleDefinition.subtitle['zh-CN'])
+    assert.ok(moduleDefinition.subtitle.en)
+    assert.ok(moduleDefinition.learningObjectives.length >= 3, `${id} should define learning objectives`)
+    assert.ok(moduleDefinition.concepts.length >= 1, `${id} should define concepts`)
+    assert.ok(moduleDefinition.sections.length >= 4, `${id} should define route sections`)
+    assert.ok(moduleDefinition.labs.length >= 1, `${id} should expose one primary lab`)
+    assert.ok(moduleDefinition.quizzes.length >= 2, `${id} should include checkpoint questions`)
+    assert.ok(moduleDefinition.misconceptions.length >= 2, `${id} should include misconception feedback`)
+    assert.equal(moduleDefinition.sourceNoteFile, 'math-lab-calculus-route-sources.md')
+    assert.ok(moduleDefinition.sourceReferences?.length, `${id} should have source references`)
+
+    const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+    assert.match(englishBody, /Review Questions/)
+  }
+
+  assert.match(
+    byId['calculus-functions-rate-change']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /买菜|小车|平均变化率/,
+  )
+  assert.match(
+    byId['calculus-derivatives-local-change']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /观察窗口|割线|切线/,
+  )
+  assert.match(
+    byId['calculus-partial-derivatives-gradients']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /旋钮|偏导数|梯度指向/,
+  )
+  assert.match(
+    byId['calculus-gradient-descent']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /负梯度|学习率|震荡/,
+  )
+  assert.match(
+    byId['calculus-sgd-batch-noise']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /batch size|iteration|epoch/,
+  )
+  assert.match(
+    byId['calculus-optimizer-comparison']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /Momentum|RMSProp|Adam/,
+  )
+  assert.match(
+    byId['calculus-training-code-diagnostics']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /zero_grad|loss\.backward|optimizer\.step/,
+  )
 })
 
 test('learning routes expose a linear algebra route with next-step progress', () => {
