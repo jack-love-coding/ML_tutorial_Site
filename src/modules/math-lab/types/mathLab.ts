@@ -189,6 +189,57 @@ export interface LearningRouteProgressSummary {
   nextModuleId?: MathLabModuleId
 }
 
+export type CheckpointReportFieldKey = 'setup' | 'observation' | 'explanation' | 'nextStep'
+
+export interface ExperimentEvidenceMetric {
+  label: LocalizedCopy
+  value: string | number | LocalizedCopy
+  unit?: LocalizedCopy
+}
+
+export interface ExperimentEvidence {
+  moduleId: MathLabModuleId
+  sourceId: string
+  summary: LocalizedCopy
+  metrics: ExperimentEvidenceMetric[]
+  prompt: LocalizedCopy
+}
+
+export interface CheckpointReportField {
+  key: CheckpointReportFieldKey
+  label: LocalizedCopy
+  guidingPrompt: LocalizedCopy
+  minLength?: number
+}
+
+export interface CheckpointReportPrompt {
+  id: string
+  routeId: string
+  moduleId: MathLabModuleId
+  title: LocalizedCopy
+  task: LocalizedCopy
+  staticEvidence: ExperimentEvidence
+  fields: CheckpointReportField[]
+  exportTitle: LocalizedCopy
+}
+
+export interface ObservationPromptConfig {
+  id: string
+  moduleId: MathLabModuleId
+  title: LocalizedCopy
+  body: LocalizedCopy
+  targetLabId: string
+}
+
+export interface SavedCheckpointReport {
+  routeId: string
+  moduleId: MathLabModuleId
+  answers: Record<CheckpointReportFieldKey, string>
+  evidence?: ExperimentEvidence
+  completed: boolean
+  updatedAt: string
+}
+
 export interface ThreeSceneController<TParams = unknown> {
   mount: (el: HTMLElement) => void
   update?: (params: TParams) => void

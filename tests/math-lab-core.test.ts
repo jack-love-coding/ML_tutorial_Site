@@ -9,8 +9,20 @@ import {
   nextModuleForRoute,
   routeProgressSummary,
 } from '../src/modules/math-lab/data/learningRoutes.ts'
+import {
+  checkpointReportForModule,
+  linearAlgebraCheckpointReportPrompts,
+  observationPromptForModule,
+} from '../src/modules/math-lab/data/checkpointReports.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import { continueMathLabModuleId, resolveMathLabModuleId } from '../src/modules/math-lab/utils/continueRoute.ts'
+import {
+  buildCheckpointReportMarkdown,
+  createDefaultCheckpointReport,
+  isCheckpointReportComplete,
+  loadCheckpointReport,
+  saveCheckpointReport,
+} from '../src/modules/math-lab/utils/checkpointReports.ts'
 import {
   calibrationBins,
   convolutionOutputSize,
@@ -105,12 +117,17 @@ import { evaluateTaylorApproximation } from '../src/modules/math-lab/utils/taylo
 import { renderMarkdownWithMath } from '../src/utils/markdownMath.ts'
 import { withPublicBase } from '../src/utils/publicPath.ts'
 
-function createMemoryStorage(): StorageLike {
-  const values = new Map<string, string>()
+function createMemoryStorage(initial: Record<string, string> = {}): StorageLike & { dump: () => Record<string, string> } {
+  const values = new Map(Object.entries(initial))
   return {
     getItem: (key) => values.get(key) ?? null,
-    setItem: (key, value) => values.set(key, value),
-    removeItem: (key) => values.delete(key),
+    setItem: (key, value) => {
+      values.set(key, value)
+    },
+    removeItem: (key) => {
+      values.delete(key)
+    },
+    dump: () => Object.fromEntries(values),
   }
 }
 
@@ -617,6 +634,92 @@ test('learning routes expose a linear algebra route with next-step progress', ()
   assert.equal(summary.completedModuleId, 'linear-algebra-distance-similarity')
 
   assert.equal(nextModuleForRoute(route, linearAlgebraRouteModuleIds), undefined)
+})
+
+test('linear algebra checkpoint report prompts cover every route chapter', () => {
+  assert.deepEqual(
+    linearAlgebraCheckpointReportPrompts.map((prompt) => prompt.moduleId),
+    linearAlgebraRouteModuleIds,
+  )
+
+  for (const prompt of linearAlgebraCheckpointReportPrompts) {
+    assert.equal(prompt.fields.length, 4, `${prompt.moduleId} should have four report fields`)
+    assert.deepEqual(
+      prompt.fields.map((field) => field.key),
+      ['setup', 'observation', 'explanation', 'nextStep'],
+    )
+    assert.ok(prompt.staticEvidence.metrics.length >= 2, `${prompt.moduleId} needs static evidence`)
+    assert.ok(prompt.staticEvidence.summary['zh-CN'])
+    assert.ok(prompt.staticEvidence.summary.en)
+    assert.ok(prompt.task['zh-CN'])
+    assert.ok(prompt.task.en)
+  }
+
+  for (const moduleId of [
+    'linear-algebra-distance-similarity',
+    'linear-algebra-rank-null-space',
+    'svd',
+    'pca',
+  ]) {
+    assert.ok(observationPromptForModule(moduleId), `${moduleId} should have an observation prompt`)
+  }
+})
+
+test('checkpoint report storage handles drafts, completion, and malformed records', () => {
+  const storage = createMemoryStorage()
+  const report = createDefaultCheckpointReport('linear-algebra-route', 'svd', '2026-06-23T00:00:00.000Z')
+
+  assert.equal(isCheckpointReportComplete(report), false)
+
+  const saved = saveCheckpointReport({
+    ...report,
+    answers: {
+      setup: 'I kept rank k = 2.',
+      observation: 'Retained energy stayed high while fine detail faded.',
+      explanation: 'The first singular layers carry the main structure.',
+      nextStep: 'I would compare validation quality across k values.',
+    },
+  }, storage)
+
+  assert.equal(isCheckpointReportComplete(saved), true)
+
+  const loaded = loadCheckpointReport('svd', storage)
+  assert.equal(loaded?.answers.setup, 'I kept rank k = 2.')
+  assert.equal(loaded?.moduleId, 'svd')
+
+  const brokenStorage = createMemoryStorage({
+    'ml-atlas:checkpoint-report:svd': '{bad json',
+  })
+  assert.equal(loadCheckpointReport('svd', brokenStorage), undefined)
+})
+
+test('checkpoint report markdown export includes evidence and missing answer markers', () => {
+  const complete = {
+    ...createDefaultCheckpointReport('linear-algebra-route', 'svd', '2026-06-23T00:00:00.000Z'),
+    evidence: checkpointReportForModule('svd')!.staticEvidence,
+    answers: {
+      setup: 'I kept rank k = 2.',
+      observation: 'Energy stayed high.',
+      explanation: 'Large singular values carry the dominant layers.',
+      nextStep: 'Try k = 3 and compare downstream quality.',
+    },
+  }
+  const partial = createDefaultCheckpointReport('linear-algebra-route', 'pca', '2026-06-23T00:00:00.000Z')
+
+  const markdown = buildCheckpointReportMarkdown(
+    'linear-algebra-route',
+    [complete, partial],
+    mathLabModules,
+    'en',
+    '2026-06-23T12:00:00.000Z',
+  )
+
+  assert.match(markdown, /# Linear Algebra Route Report/)
+  assert.match(markdown, /## Singular Value Decomposition/)
+  assert.match(markdown, /I kept rank k = 2/)
+  assert.match(markdown, /Kept rank/)
+  assert.match(markdown, /## Principal Component Analysis/)
+  assert.match(markdown, /Not answered yet/)
 })
 
 test('learning routes expose a calculus route with next-step progress', () => {
