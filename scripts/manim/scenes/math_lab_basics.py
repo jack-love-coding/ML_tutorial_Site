@@ -220,6 +220,93 @@ class NullSpaceCollapseScene(Scene):
         self.wait(0.8)
 
 
+class SvdLowRankReconstructionScene(Scene):
+    def construct(self):
+        title = Text("SVD keeps the strongest matrix directions", font_size=29).to_edge(UP)
+        formula = Text("A_k = sum of the first k singular layers", font_size=25, color=YELLOW).next_to(title, DOWN, buff=0.25)
+        caption = Text("large singular values carry the main structure", font_size=25).to_edge(DOWN)
+
+        heights = [2.4, 1.75, 1.15, 0.62, 0.36]
+        bars = VGroup()
+        labels = VGroup()
+        for index, height in enumerate(heights):
+            bar = RoundedRectangle(width=0.5, height=height, corner_radius=0.05, color=WHITE)
+            bar.set_fill(BLUE if index < 3 else PURPLE, opacity=0.78 if index < 3 else 0.34)
+            bars.add(bar)
+        bars.arrange(RIGHT, buff=0.18).shift(LEFT * 3.0 + DOWN * 0.5)
+        for index, bar in enumerate(bars):
+            labels.add(Text(f"s{index + 1}", font_size=19).next_to(bar, DOWN, buff=0.08))
+
+        detailed_cells = VGroup()
+        coarse_cells = VGroup()
+        for row in range(5):
+            for col in range(5):
+                strong = row == col or row + col == 4 or (row == 2 and col in [1, 2, 3])
+                detail = (row + 2 * col) % 4 == 0
+                detailed_cell = RoundedRectangle(width=0.32, height=0.32, corner_radius=0.025, color=WHITE)
+                detailed_cell.set_fill(GREEN if strong else BLUE, opacity=0.82 if strong else 0.26 + 0.12 * detail)
+                coarse_cell = RoundedRectangle(width=0.32, height=0.32, corner_radius=0.025, color=WHITE)
+                coarse_cell.set_fill(GREEN if strong else BLUE, opacity=0.78 if strong else 0.12)
+                detailed_cells.add(detailed_cell)
+                coarse_cells.add(coarse_cell)
+        detailed_cells.arrange_in_grid(rows=5, cols=5, buff=0.035).shift(RIGHT * 2.45 + DOWN * 0.22)
+        coarse_cells.arrange_in_grid(rows=5, cols=5, buff=0.035).shift(RIGHT * 2.45 + DOWN * 0.22)
+        image_label = Text("matrix image", font_size=22).next_to(detailed_cells, DOWN, buff=0.22)
+
+        keep_caption = Text("keep the first k layers: structure first, detail later", font_size=25).to_edge(DOWN)
+        self.play(FadeIn(title), FadeIn(formula), FadeIn(caption))
+        self.play(FadeIn(bars), FadeIn(labels))
+        self.play(FadeIn(detailed_cells), FadeIn(image_label))
+        self.wait(0.35)
+        self.play(
+            Transform(detailed_cells, coarse_cells),
+            bars[3].animate.set_fill(PURPLE, opacity=0.12),
+            bars[4].animate.set_fill(PURPLE, opacity=0.12),
+            Transform(caption, keep_caption),
+        )
+        self.wait(0.8)
+
+
+class PcaCenteringProjectionScene(Scene):
+    def construct(self):
+        title = Text("PCA centers the cloud, then projects variance", font_size=29).to_edge(UP)
+        axes = Axes(
+            x_range=[-3, 4, 1],
+            y_range=[-2.5, 3, 1],
+            x_length=6.0,
+            y_length=4.0,
+            tips=False,
+            axis_config={"stroke_opacity": 0.55},
+        ).shift(LEFT * 1.0 + DOWN * 0.2)
+        raw_points = [(-0.1, 0.25), (0.45, 0.78), (1.0, 1.08), (1.45, 1.42), (2.05, 1.68), (2.65, 2.04)]
+        mean_x = sum(point[0] for point in raw_points) / len(raw_points)
+        mean_y = sum(point[1] for point in raw_points) / len(raw_points)
+
+        dots = VGroup(*[Dot(axes.c2p(x, y), radius=0.06, color=BLUE) for x, y in raw_points])
+        centered_dots = VGroup(*[Dot(axes.c2p(x - mean_x, y - mean_y), radius=0.06, color=GREEN) for x, y in raw_points])
+        mean = Dot(axes.c2p(mean_x, mean_y), color=YELLOW, radius=0.09)
+        mean_label = Text("mean", font_size=21, color=YELLOW).next_to(mean, RIGHT, buff=0.15)
+        caption = Text("centering moves the average point to the origin", font_size=25).to_edge(DOWN)
+
+        direction = Line(axes.c2p(-1.7, -0.95), axes.c2p(1.95, 1.1), color=ORANGE, stroke_width=7)
+        projected = VGroup(
+            *[
+                Dot(direction.point_from_proportion(t), radius=0.055, color=ORANGE)
+                for t in [0.12, 0.28, 0.42, 0.56, 0.72, 0.88]
+            ]
+        )
+        project_caption = Text("projection keeps the direction with the largest variance", font_size=25).to_edge(DOWN)
+
+        self.play(FadeIn(title), Create(axes))
+        self.play(FadeIn(dots), FadeIn(mean), FadeIn(mean_label), FadeIn(caption))
+        self.wait(0.35)
+        self.play(Transform(dots, centered_dots), mean.animate.set_opacity(0.15), mean_label.animate.set_opacity(0.15))
+        self.wait(0.25)
+        self.play(Create(direction), Transform(caption, project_caption))
+        self.play(Transform(dots, projected))
+        self.wait(0.8)
+
+
 class VectorSpanNormScene(Scene):
     def construct(self):
         plane = NumberPlane(

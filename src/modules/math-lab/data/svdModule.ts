@@ -1,4 +1,4 @@
-import type { LocalizedCopy, MathLabModule, MathLabSection } from '../types/mathLab'
+import type { LocalizedCopy, MathLabModule, MathLabSection, SourceReference } from '../types/mathLab'
 
 const md = String.raw
 
@@ -20,6 +20,33 @@ function section(
     ...placements,
   }
 }
+
+const sources = {
+  essenceLinearAlgebra: {
+    label: copy('3Blue1Brown：线性代数的本质', '3Blue1Brown: Essence of Linear Algebra'),
+    href: 'https://www.3blue1brown.com/topics/linear-algebra',
+    usage: copy(
+      '参考把矩阵分解读成方向和缩放的视觉组织方式。',
+      'Reference for visual organization of matrix decompositions as directions and scaling.',
+    ),
+  },
+  d2lLinearAlgebra: {
+    label: copy('Dive into Deep Learning：线性代数', 'Dive into Deep Learning: Linear Algebra'),
+    href: 'https://d2l.ai/chapter_preliminaries/linear-algebra.html',
+    usage: copy(
+      '参考机器学习中矩阵分解、范数和低秩结构的基础表达。',
+      'Reference for matrix decompositions, norms, and low-rank structure in machine learning.',
+    ),
+  },
+  mml: {
+    label: copy('Mathematics for Machine Learning', 'Mathematics for Machine Learning'),
+    href: 'https://mml-book.github.io/',
+    usage: copy(
+      '参考 SVD、矩阵近似和降维之间的机器学习联系。',
+      'Reference for SVD, matrix approximation, dimensionality reduction, and machine-learning links.',
+    ),
+  },
+} satisfies Record<string, SourceReference>
 
 const sections: MathLabSection[] = [
   section(
@@ -662,6 +689,8 @@ $$
 
 ![Low rank approximations](/math-lab/cs357-assets/figs/lowrank.png)
 
+图片压缩可以把灰度图看成矩阵。大的奇异值通常保留主要轮廓和大块结构，小的奇异值保留纹理、边缘细节，也可能混入噪声。用户-物品评分矩阵也是类似语言：少数强方向可能对应动作片偏好、文艺片偏好或价格敏感度。低秩近似不是“随便丢掉小数字”，而是在任务允许时保留最强结构。
+
 在 ML / AI 中，低秩近似不是装饰性技巧，而是具体工程工具：
 
 - 图像压缩把像素矩阵近似为少数 rank-one 模式。
@@ -693,6 +722,8 @@ The lab below shows the original matrix, the rank-\(k\) approximation, and the r
 
 ![Low rank approximations](/math-lab/cs357-assets/figs/lowrank.png)
 
+Image compression can read a grayscale image as a matrix. Large singular values often preserve the main silhouette and large structures; small singular values preserve texture and edge detail, and may also contain noise. A user-item rating matrix uses similar language: a few strong directions may correspond to action-movie preference, art-film preference, or price sensitivity. Low-rank approximation is not "dropping small numbers at random"; it keeps the strongest structure when the task allows it.
+
 In ML and AI, low-rank approximation is not decorative. It is an engineering tool:
 
 - Image compression approximates a pixel matrix by a small number of rank-one patterns.
@@ -701,7 +732,7 @@ In ML and AI, low-rank approximation is not decorative. It is an engineering too
 - PCA directly uses the SVD of a centered data matrix and takes the leading columns of \(V\) as principal directions.
 - Large-model weight analysis and low-rank adaptation inspect whether weight updates concentrate in a small number of singular directions.`,
     ),
-    { labIds: ['svd-low-rank-lab'] },
+    { visualIds: ['svd-low-rank-reconstruction-video'], labIds: ['svd-low-rank-lab'] },
   ),
   section(
     'svd-review-questions',
@@ -740,7 +771,8 @@ export function buildSvdModule(base: MathLabModule): MathLabModule {
       'Decompose any matrix into input directions, nonnegative scales, and output directions.',
     ),
     estimatedMinutes: 28,
-    prerequisites: ['least-squares-fitting', 'eigenvalues-eigenvectors', 'condition-numbers'],
+    prerequisites: ['eigenvalues-eigenvectors', 'linear-algebra-rank-null-space'],
+    sourceReferences: [sources.essenceLinearAlgebra, sources.d2lLinearAlgebra, sources.mml],
     aiModelConnections: [
       copy(
         '低秩 SVD 是图像压缩、推荐系统和矩阵补全的核心工具。',
@@ -896,7 +928,23 @@ export function buildSvdModule(base: MathLabModule): MathLabModule {
     ],
     sections,
     toc: sections.map(({ id, level, title }) => ({ id, level, title })),
-    visuals: [],
+    visuals: [
+      {
+        id: 'svd-low-rank-reconstruction-video',
+        type: 'manim-video',
+        title: copy('SVD 低秩重建', 'SVD Low-Rank Reconstruction'),
+        assetPath: '/manim/math-lab/svd-low-rank-reconstruction.mp4',
+        posterPath: '/manim/math-lab/svd-low-rank-reconstruction.svg',
+        transcript: copy(
+          md`动画先把奇异值按强弱排开，再把矩阵图案从“完整细节”变成“只保留强方向的低秩重建”。请注意：被保留下来的不是某几行或某几列，而是前几个 rank-one 奇异层。`,
+          md`The animation orders singular values by strength, then turns a detailed matrix pattern into a low-rank reconstruction that keeps only the strong directions. Notice that the retained pieces are not a few rows or columns; they are the leading rank-one singular layers.`,
+        ),
+        learningPurpose: copy(
+          '帮助学生把低秩近似看成按奇异值强弱逐层重建，而不是随意删掉矩阵元素。',
+          'Help learners read low-rank approximation as layered reconstruction by singular-value strength, not arbitrary deletion of matrix entries.',
+        ),
+      },
+    ],
     labs: [
       {
         id: 'svd-low-rank-lab',

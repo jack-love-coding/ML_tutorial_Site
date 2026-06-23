@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="SVD keeps the strongest matrix directions">
+  <rect width="960" height="540" fill="#fffaf1"/>
+  <g stroke="#dbe4f2" stroke-width="1">
+    <path d="M90 120H870M90 190H870M90 260H870M90 330H870M90 400H870"/>
+    <path d="M130 90V450M240 90V450M350 90V450M460 90V450M570 90V450M680 90V450M790 90V450"/>
+  </g>
+  <text x="82" y="70" fill="#10162f" font-family="Arial, sans-serif" font-size="34" font-weight="700">SVD keeps the strongest matrix directions</text>
+
+  <g transform="translate(120 126)">
+    <rect x="0" y="136" width="48" height="190" rx="8" fill="#3868ff" stroke="#10162f" stroke-width="3"/>
+    <rect x="70" y="194" width="48" height="132" rx="8" fill="#3868ff" stroke="#10162f" stroke-width="3"/>
+    <rect x="140" y="238" width="48" height="88" rx="8" fill="#3868ff" stroke="#10162f" stroke-width="3"/>
+    <rect x="210" y="282" width="48" height="44" rx="8" fill="#6f42c1" opacity="0.38" stroke="#10162f" stroke-width="3"/>
+    <rect x="280" y="302" width="48" height="24" rx="8" fill="#6f42c1" opacity="0.26" stroke="#10162f" stroke-width="3"/>
+    <text x="0" y="360" fill="#475467" font-family="Arial, sans-serif" font-size="24">keep large singular values</text>
+  </g>
+  <g transform="translate(562 146)">
+    <rect x="0" y="0" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="52" y="0" width="42" height="42" rx="6" fill="#3868ff" opacity="0.26" stroke="#10162f" stroke-width="3"/>
+    <rect x="104" y="0" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="0" y="52" width="42" height="42" rx="6" fill="#3868ff" opacity="0.24" stroke="#10162f" stroke-width="3"/>
+    <rect x="52" y="52" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="104" y="52" width="42" height="42" rx="6" fill="#3868ff" opacity="0.18" stroke="#10162f" stroke-width="3"/>
+    <rect x="0" y="104" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="52" y="104" width="42" height="42" rx="6" fill="#3868ff" opacity="0.2" stroke="#10162f" stroke-width="3"/>
+    <rect x="104" y="104" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <path d="M188 74H274" stroke="#d65a31" stroke-width="9" stroke-linecap="round"/>
+    <path d="M258 54L298 74L258 94Z" fill="#d65a31"/>
+    <rect x="328" y="26" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="380" y="26" width="42" height="42" rx="6" fill="#3868ff" opacity="0.12" stroke="#10162f" stroke-width="3"/>
+    <rect x="328" y="78" width="42" height="42" rx="6" fill="#3868ff" opacity="0.12" stroke="#10162f" stroke-width="3"/>
+    <rect x="380" y="78" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <text x="-8" y="198" fill="#475467" font-family="Arial, sans-serif" font-size="24">structure first, detail later</text>
+  </g>
+  <text x="116" y="110" fill="#10162f" font-family="Arial, sans-serif" font-size="28" font-weight="700">A_k = first k singular layers</text>
+
+  <text x="82" y="502" fill="#475467" font-family="Arial, sans-serif" font-size="24">Low-rank reconstruction keeps the large singular layers before weaker details.</text>
+</svg>

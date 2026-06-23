@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { diagnosticQuestions, scoreDiagnostic } from '../src/modules/math-lab/data/diagnostic.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import {
@@ -234,17 +234,23 @@ test('AI bridge math utilities validate shapes, autodiff, probability, diagnosti
   assert.equal(evaluateAttentionShape({ batchSize: 2, tokens: 4, hiddenDim: 10, heads: 3 }).valid, false)
 })
 
-test('math lab modules include the zero-base AI math path from 1-22', () => {
-  assert.equal(mathLabModules.length, 22)
+test('math lab modules include the zero-base AI math path with the linear algebra route split', () => {
+  assert.equal(mathLabModules.length, 25)
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.order),
-    Array.from({ length: 22 }, (_, index) => index + 1),
+    Array.from({ length: 25 }, (_, index) => index + 1),
   )
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.id),
     [
       'beginner-linear-algebra',
-      'vectors-matrices-norms',
+      'linear-algebra-feature-space',
+      'linear-algebra-distance-similarity',
+      'linear-algebra-matrix-transformations',
+      'linear-algebra-rank-null-space',
+      'eigenvalues-eigenvectors',
+      'svd',
+      'pca',
       'tensor-shapes-vectorization',
       'beginner-calculus',
       'taylor-series',
@@ -255,45 +261,21 @@ test('math lab modules include the zero-base AI math path from 1-22', () => {
       'lu-decomposition',
       'sparse-matrices',
       'condition-numbers',
-      'eigenvalues-eigenvectors',
       'markov-chains',
       'finite-difference-methods',
       'nonlinear-equations',
       'optimization',
       'training-diagnostics',
       'least-squares-fitting',
-      'svd',
-      'pca',
       'deep-architecture-math',
     ],
   )
-  assert.deepEqual(
-    mathLabModules.map((moduleDefinition) => moduleDefinition.title.en),
-    [
-      'Linear Algebra for AI Beginners',
-      'Vectors, Matrices, and Norms',
-      'Tensor Shapes and Vectorization',
-      'Calculus for AI Beginners',
-      'Taylor Series',
-      'Matrix Calculus and Automatic Differentiation',
-      'Probability Distributions for AI Beginners',
-      'Random Number Generators and Monte Carlo Methods',
-      'Probability, Likelihood, and Entropy',
-      'LU Decomposition for Solving Linear Equations',
-      'Sparse Matrices',
-      'Condition Numbers',
-      'Eigenvalues and Eigenvectors',
-      'Markov chains',
-      'Finite Difference Methods',
-      'Solving Nonlinear Equations',
-      'Optimization',
-      'Mathematics of Training Diagnostics',
-      'Least Squares Fitting',
-      'Singular Value Decomposition (SVD)',
-      'Principal Component Analysis (PCA)',
-      'Mathematics Inside Deep Architectures',
-    ],
-  )
+  for (const moduleDefinition of mathLabModules) {
+    assert.equal(typeof moduleDefinition.title['zh-CN'], 'string', `${moduleDefinition.id} needs a Chinese title`)
+    assert.equal(moduleDefinition.title['zh-CN'].trim().length > 0, true, `${moduleDefinition.id} needs a Chinese title`)
+    assert.equal(typeof moduleDefinition.title.en, 'string', `${moduleDefinition.id} needs an English title`)
+    assert.equal(moduleDefinition.title.en.trim().length > 0, true, `${moduleDefinition.id} needs an English title`)
+  }
 
   for (const moduleDefinition of mathLabModules) {
     assert.equal('attribution' in moduleDefinition, false, `${moduleDefinition.id} should not expose migrated attribution`)
@@ -348,6 +330,110 @@ test('math lab modules include the zero-base AI math path from 1-22', () => {
     assert.deepEqual(mathLabModules[index].nextModuleIds, [mathLabModules[index + 1].id])
   }
   assert.deepEqual(mathLabModules.at(-1)?.nextModuleIds, [])
+})
+
+test('linear algebra route split exposes seven ordered case-driven chapters', () => {
+  const routeIds = [
+    'linear-algebra-feature-space',
+    'linear-algebra-distance-similarity',
+    'linear-algebra-matrix-transformations',
+    'linear-algebra-rank-null-space',
+    'eigenvalues-eigenvectors',
+    'svd',
+    'pca',
+  ]
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+
+  assert.deepEqual(
+    routeIds.map((id) => byId[id]?.nextModuleIds[0]),
+    [
+      'linear-algebra-distance-similarity',
+      'linear-algebra-matrix-transformations',
+      'linear-algebra-rank-null-space',
+      'eigenvalues-eigenvectors',
+      'svd',
+      'pca',
+      'tensor-shapes-vectorization',
+    ],
+  )
+
+  for (const id of routeIds) {
+    const moduleDefinition = byId[id]
+    assert.ok(moduleDefinition, `${id} should be registered`)
+    assert.ok(moduleDefinition.title['zh-CN'])
+    assert.ok(moduleDefinition.title.en)
+    assert.ok(moduleDefinition.subtitle['zh-CN'])
+    assert.ok(moduleDefinition.subtitle.en)
+    assert.ok(moduleDefinition.learningObjectives.length >= 3, `${id} should define learning objectives`)
+    assert.ok(moduleDefinition.concepts.length >= 1, `${id} should define concepts`)
+    assert.ok(moduleDefinition.sections.length >= 4, `${id} should define case-driven sections`)
+    assert.ok(moduleDefinition.labs.length >= 1, `${id} should expose one primary lab`)
+    assert.ok(moduleDefinition.quizzes.length >= 2, `${id} should include checkpoint questions`)
+    assert.ok(moduleDefinition.misconceptions.length >= 2, `${id} should include misconception feedback`)
+    assert.ok(moduleDefinition.sourceReferences?.length, `${id} should have source references`)
+  }
+
+  assert.match(
+    byId['linear-algebra-distance-similarity']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /语义搜索|embedding|检索/,
+  )
+  assert.match(
+    byId['linear-algebra-matrix-transformations']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /线性层|房价|中间表示/,
+  )
+  assert.match(
+    byId['linear-algebra-rank-null-space']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /推荐系统|盲区|重复特征/,
+  )
+
+  assert.deepEqual(byId['eigenvalues-eigenvectors']!.prerequisites, ['linear-algebra-rank-null-space'])
+  assert.deepEqual(byId.svd!.prerequisites, ['eigenvalues-eigenvectors', 'linear-algebra-rank-null-space'])
+  assert.equal(byId.svd!.prerequisites.includes('condition-numbers'), false)
+  assert.deepEqual(byId.pca!.prerequisites, ['svd', 'eigenvalues-eigenvectors', 'linear-algebra-rank-null-space'])
+  assert.equal(byId.pca!.prerequisites.includes('vectors-matrices-norms'), false)
+  assert.ok(byId['eigenvalues-eigenvectors']!.sourceReferences?.length)
+  assert.ok(byId.svd!.sourceReferences?.length)
+  assert.ok(byId.pca!.sourceReferences?.length)
+
+  const root = new URL('../', import.meta.url)
+  const modulesSource = readFileSync(new URL('src/modules/math-lab/data/modules.ts', root), 'utf8')
+  assert.doesNotMatch(modulesSource, /withLinearAlgebraRouteReferences|linearAlgebraRouteReferenceIds/)
+
+  for (const sourcePath of [
+    'src/modules/math-lab/data/eigenvaluesModule.ts',
+    'src/modules/math-lab/data/svdModule.ts',
+    'src/modules/math-lab/data/pcaModule.ts',
+  ]) {
+    const source = readFileSync(new URL(sourcePath, root), 'utf8')
+    assert.match(source, /sourceReferences:\s*\[/, `${sourcePath} should own source references`)
+  }
+})
+
+test('later linear algebra route chapters use concrete case studies instead of shallow AI footnotes', () => {
+  const eigenModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'eigenvalues-eigenvectors')
+  const svdModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'svd')
+  const pcaModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'pca')
+  assert.ok(eigenModule)
+  assert.ok(svdModule)
+  assert.ok(pcaModule)
+
+  const eigenText = eigenModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const svdText = svdModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const pcaText = pcaModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+
+  assert.match(eigenText, /PageRank/)
+  assert.match(eigenText, /网页|链接/)
+  assert.match(eigenText, /稳定.*方向|方向.*稳定/)
+  assert.match(svdText, /图片压缩/)
+  assert.match(svdText, /用户[-—]物品/)
+  assert.match(svdText, /低秩/)
+  assert.match(svdText, /噪声/)
+  assert.match(pcaText, /embedding 可视化/)
+  assert.match(pcaText, /离群点/)
+  assert.match(pcaText, /批次/)
+  assert.match(pcaText, /中心化/)
+
+  assert.doesNotMatch(`${eigenText}\n${svdText}\n${pcaText}`, /它在 AI 里出现在哪里/)
 })
 
 test('zero-base beginner modules expose complete bilingual teaching surfaces', () => {
@@ -515,7 +601,10 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
 test('formal math modules include beginner bridge copy after the foundation expansion', () => {
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
   const formalBridgeExpectations = [
-    ['vectors-matrices-norms', /从零基础章节带过来的检查表/],
+    ['linear-algebra-feature-space', /学习记录怎样变成向量/],
+    ['linear-algebra-distance-similarity', /搜索[\s\S]*语义|embedding 空间/],
+    ['linear-algebra-matrix-transformations', /房价模型|线性层/],
+    ['linear-algebra-rank-null-space', /推荐系统为什么会有盲区/],
     ['taylor-series', /从零基础微积分带过来的检查表/],
     ['finite-difference-methods', /导数的零基础直觉是“局部变化率”/],
     ['matrix-calculus-autodiff', /把“导数是局部变化率”升级成“局部线性映射”/],
@@ -534,8 +623,10 @@ test('key math foundation topics are connected to interactive or video enhanceme
 
   assert.ok(byId['taylor-series']!.labs.some((lab) => lab.componentName === 'TaylorSeriesLab'))
   assert.ok(byId['monte-carlo']!.labs.some((lab) => lab.componentName === 'MonteCarloLab'))
-  assert.ok(byId['vectors-matrices-norms']!.labs.some((lab) => lab.componentName === 'VectorDotProductLab'))
-  assert.ok(byId['vectors-matrices-norms']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
+  assert.ok(byId['linear-algebra-feature-space']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
+  assert.ok(byId['linear-algebra-distance-similarity']!.labs.some((lab) => lab.componentName === 'VectorSimilarityLab'))
+  assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
+  assert.ok(byId['linear-algebra-rank-null-space']!.labs.some((lab) => lab.componentName === 'MatrixColumnSpaceLab'))
   assert.ok(byId['lu-decomposition']!.labs.some((lab) => lab.componentName === 'LuDecompositionLab'))
   assert.ok(byId['sparse-matrices']!.labs.some((lab) => lab.componentName === 'SparseMatrixLab'))
   assert.ok(byId['condition-numbers']!.labs.some((lab) => lab.componentName === 'ConditionNumbersLab'))
@@ -728,153 +819,71 @@ test('monte carlo module markdown renders formulas without raw delimiters', () =
   assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
 })
 
-test('vectors matrices norms module presents repaired bilingual content and inline labs', () => {
-  const vectorModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'vectors-matrices-norms')
-  assert.ok(vectorModule)
+test('linear algebra vector and matrix route modules present case-driven bilingual content', () => {
+  const routeIds = [
+    'linear-algebra-feature-space',
+    'linear-algebra-distance-similarity',
+    'linear-algebra-matrix-transformations',
+    'linear-algebra-rank-null-space',
+  ]
 
-  assert.equal(vectorModule.title['zh-CN'], '向量、矩阵与范数')
-  assert.equal(vectorModule.title.en, 'Vectors, Matrices, and Norms')
-  assert.ok(vectorModule.learningObjectives.length >= 4)
-  assert.ok(vectorModule.concepts.length >= 3)
-  assert.ok(vectorModule.quizzes.length >= 3)
-  assert.ok(vectorModule.misconceptions.length >= 3)
-  assert.ok(vectorModule.quizzes.some((quiz) => quiz.id === 'vectors-matrices-norms-beginner-arrow'))
-  assert.ok(vectorModule.misconceptions.some((misconception) => misconception.id === 'vector-is-only-list'))
-  assert.ok(vectorModule.labs.some((lab) => lab.componentName === 'VectorDotProductLab'))
-  assert.ok(vectorModule.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
-  assert.ok(vectorModule.visuals.some((visual) => visual.id === 'vector-span-norm-video'))
-  assert.ok(vectorModule.visuals.some((visual) => visual.id === 'vector-dot-product-video'))
-  assert.ok(vectorModule.visuals.some((visual) => visual.id === 'matrix-transform-video'))
-  assert.ok(vectorModule.sections.some((section) => section.visualIds?.includes('vector-span-norm-video')))
-  assert.ok(vectorModule.sections.some((section) => section.visualIds?.includes('vector-dot-product-video')))
-  assert.ok(vectorModule.sections.some((section) => section.visualIds?.includes('matrix-transform-video')))
-  assert.ok(vectorModule.sections.some((section) => section.labIds?.includes('vector-dot-product-lab')))
-  assert.ok(vectorModule.sections.some((section) => section.labIds?.includes('matrix-transform-lab')))
-
-  const zhBody = vectorModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
-  const enBody = vectorModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
-
-  assert.match(zhBody, /向量：坐标、线性组合与 span/)
-  assert.match(zhBody, /向量可以先理解成带方向的位移/)
-  assert.match(zhBody, /两个数不是两个抽屉/)
-  assert.match(zhBody, /矩阵的列向量就是新坐标轴/)
-  assert.match(zhBody, /点积：把夹角读成相似度/)
-  assert.match(zhBody, /矩阵：看列向量如何移动空间/)
-  assert.match(zhBody, /\/math-lab\/generated\/vector-matrix-norms-illustration\.png/)
-  assert.match(zhBody, /向量空间/)
-  assert.match(zhBody, /置换矩阵/)
-  assert.match(zhBody, /P\\mathbf\{x\}=\[2,4,1,3\]\^\\top/)
-  assert.match(zhBody, /\\sqrt\{78\}/)
-  assert.match(zhBody, /\\lambda\^2 - 23\\lambda \+ 49 = 0/)
-  assert.match(zhBody, /submultiplicative/)
-  assert.match(zhBody, /Embedding 相似度/)
-  assert.match(enBody, /Vectors: Coordinates/)
-  assert.match(enBody, /A vector can first be understood as a displacement/)
-  assert.match(enBody, /two numbers are not two storage boxes/i)
-  assert.match(enBody, /columns are the new coordinate axes/i)
-  assert.match(enBody, /data becomes arrows/i)
-  assert.match(enBody, /\/math-lab\/generated\/beginner-linear-algebra-story\.png/)
-  assert.match(enBody, /Matrix Norms: How Much a Linear Layer Can Amplify/)
-  assert.match(enBody, /Special Matrices, Rank, and Representing Linear Transformations/)
-  assert.match(enBody, /Frobenius example/)
-  assert.match(enBody, /lower bound on/)
-  assert.match(enBody, /What is a vector space/)
-  assert.match(enBody, /Gradient norms/)
-  const objectiveSource = vectorModule.learningObjectives.map((objective) => `${objective['zh-CN']}\n${objective.en}`).join('\n')
-  assert.match(objectiveSource, /Recognize zero, identity, diagonal, triangular, permutation, and block matrices/)
-  assert.match(objectiveSource, /Perform matrix-vector multiplication/)
-  assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Source Note/)
-  assert.doesNotMatch(zhBody, /A \*\*_vector_\*\* is an array|Perform matrix-vector multiplications|What is a vector space/)
-})
-
-test('vectors matrices norms module markdown renders formulas without raw delimiters', () => {
-  const vectorModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'vectors-matrices-norms')
-  assert.ok(vectorModule)
-
-  const source = vectorModule.sections
-    .map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`)
-    .join('\n\n')
-  const html = renderMarkdownWithMath(source)
-
-  assert.match(html, /katex/)
-  assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
-})
-
-test('vectors matrices norms module wires column space rank lab and guardrails', () => {
-  const vectorModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'vectors-matrices-norms')
-  assert.ok(vectorModule)
-
-  const columnSpaceLab = vectorModule.labs.find((lab) => lab.id === 'matrix-column-space-lab')
-  assert.ok(columnSpaceLab)
-  assert.equal(columnSpaceLab.componentName, 'MatrixColumnSpaceLab')
-  assert.equal(columnSpaceLab.title['zh-CN'], '列空间与秩实验')
-  assert.equal(columnSpaceLab.title.en, 'Column Space and Rank Lab')
-  assert.ok(columnSpaceLab.successCriteria.length >= 3)
-  const successCriteriaSource = columnSpaceLab.successCriteria
-    .map((criterion) => `${criterion['zh-CN']}\n${criterion.en}`)
-    .join('\n')
-  assert.match(successCriteriaSource, /列向量|column/i)
-  assert.match(successCriteriaSource, /rank|秩/i)
-  assert.match(successCriteriaSource, /null|零空间|不可逆/i)
-
-  const rankSection = vectorModule.sections.find(
-    (section) => section.id === 'vectors-matrices-norms-special-matrices-rank-representation',
-  )
-  assert.ok(rankSection)
-  assert.ok(rankSection.labIds?.includes('matrix-column-space-lab'))
-
-  const sectionSource = `${rankSection.content['zh-CN']}\n\n${rankSection.content.en}`
-  assert.match(sectionSource, /A\\mathbf\{x\}=x_1\\mathbf\{a\}_1\+x_2\\mathbf\{a\}_2/)
-  assert.match(sectionSource, /column space|列空间/i)
-  assert.match(sectionSource, /rank=2|rank 为 2|秩为 2/i)
-  assert.match(sectionSource, /rank=1|rank 为 1|秩为 1/i)
-  assert.match(sectionSource, /rank=0|rank 为 0|秩为 0/i)
-  assert.match(sectionSource, /null space|null direction|零空间|零方向/i)
-  assert.match(sectionSource, /信息.*丢|information.*lost/i)
-
-  const columnSpaceConcept = vectorModule.concepts.find((concept) => concept.id === 'matrix-column-space-rank')
-  assert.ok(columnSpaceConcept)
-  assert.match(columnSpaceConcept.formulaLatex, /Col|sum_\{j\}|\\sum_j/)
-  assert.ok(columnSpaceConcept.variables.length >= 3)
-  for (const variable of columnSpaceConcept.variables) {
-    assert.ok(variable.description['zh-CN'].length > 0)
-    assert.ok(variable.description.en.length > 0)
+  for (const id of routeIds) {
+    const moduleDefinition = mathLabModules.find((candidate) => candidate.id === id)
+    assert.ok(moduleDefinition, `${id} should exist`)
+    assert.ok(moduleDefinition.sections.every((section) => section.title['zh-CN'] && section.title.en))
+    assert.ok(moduleDefinition.concepts.every((concept) => concept.name['zh-CN'] && concept.name.en))
+    assert.ok(moduleDefinition.quizzes.every((quiz) => quiz.explanation['zh-CN'] && quiz.explanation.en))
+    assert.ok(moduleDefinition.misconceptions.every((item) => item.correction['zh-CN'] && item.correction.en))
   }
-  const conceptModelConnection = columnSpaceConcept.modelConnection['zh-CN'] + '\n' + columnSpaceConcept.modelConnection.en
-  assert.match(conceptModelConnection, /linear layer|线性层/i)
-  assert.match(conceptModelConnection, /feature mixing|特征混合/i)
-  assert.match(conceptModelConnection, /PCA|SVD|rank bottleneck|秩瓶颈/i)
-  assert.match(conceptModelConnection, /b \+ Col\(W\)|仿射|affine/i)
-  assert.match(conceptModelConnection, /输出差分|output differences/i)
 
-  const guardrailQuiz = vectorModule.quizzes.find((quiz) => quiz.id === 'vectors-matrices-norms-rank-column-space')
-  assert.ok(guardrailQuiz)
-  const guardrailQuizSource = [
-    guardrailQuiz.prompt['zh-CN'],
-    guardrailQuiz.prompt.en,
-    guardrailQuiz.explanation['zh-CN'],
-    guardrailQuiz.explanation.en,
-  ].join('\n')
-  assert.match(guardrailQuizSource, /rank|秩/i)
-  assert.match(guardrailQuizSource, /非零数字|nonzero entries/i)
-  assert.match(guardrailQuizSource, /matrix-column-space-lab|matrix-transform-video/)
-  assert.equal(guardrailQuiz.revisitVisualId, 'matrix-column-space-lab')
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+  assert.ok(byId['linear-algebra-feature-space']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
+  assert.ok(byId['linear-algebra-distance-similarity']!.labs.some((lab) => lab.componentName === 'VectorSimilarityLab'))
+  assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
+  assert.ok(byId['linear-algebra-rank-null-space']!.labs.some((lab) => lab.componentName === 'MatrixColumnSpaceLab'))
 
-  const guardrailMisconception = vectorModule.misconceptions.find(
-    (misconception) => misconception.id === 'rank-is-nonzero-entry-count',
+  assert.match(
+    byId['linear-algebra-distance-similarity']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /搜索[\s\S]*语义|embedding 空间/,
   )
-  assert.ok(guardrailMisconception)
-  const guardrailMisconceptionSource = [
-    guardrailMisconception.statement['zh-CN'],
-    guardrailMisconception.statement.en,
-    guardrailMisconception.correction['zh-CN'],
-    guardrailMisconception.correction.en,
-    guardrailMisconception.example['zh-CN'],
-    guardrailMisconception.example.en,
-  ].join('\n')
-  assert.match(guardrailMisconceptionSource, /rank|秩/i)
-  assert.match(guardrailMisconceptionSource, /非零数字|nonzero entries/i)
-  assert.match(guardrailMisconceptionSource, /matrix-column-space-lab|MatrixColumnSpaceLab/)
+  assert.match(byId['linear-algebra-matrix-transformations']!.sections.map((section) => section.content['zh-CN']).join('\n'), /房价|线性层/)
+  assert.match(byId['linear-algebra-rank-null-space']!.sections.map((section) => section.content['zh-CN']).join('\n'), /推荐系统|盲区/)
+})
+
+test('linear algebra route markdown renders formulas without raw delimiters', () => {
+  const routeIds = [
+    'linear-algebra-feature-space',
+    'linear-algebra-distance-similarity',
+    'linear-algebra-matrix-transformations',
+    'linear-algebra-rank-null-space',
+  ]
+
+  for (const id of routeIds) {
+    const moduleDefinition = mathLabModules.find((candidate) => candidate.id === id)
+    assert.ok(moduleDefinition, `${id} should exist`)
+    const source = [
+      ...moduleDefinition.learningObjectives.map((item) => item['zh-CN']),
+      ...moduleDefinition.concepts.flatMap((concept) => [
+        concept.plainExplanation['zh-CN'],
+        concept.geometricIntuition['zh-CN'],
+        concept.numericalExample['zh-CN'],
+      ]),
+      ...moduleDefinition.sections.map((section) => `${section.title['zh-CN']}\n\n${section.content['zh-CN']}`),
+      ...moduleDefinition.quizzes.map((quiz) => `${quiz.prompt['zh-CN']}\n\n${quiz.explanation['zh-CN']}`),
+      ...moduleDefinition.misconceptions.map((item) => `${item.correction['zh-CN']}\n\n${item.example['zh-CN']}`),
+    ].join('\n\n')
+    const html = renderMarkdownWithMath(source)
+
+    assert.match(html, /katex|向量|矩阵|rank|cosine|embedding/i)
+    assert.doesNotMatch(html, /\\\(|\\\)|\\\[|\\\]|\$\$/)
+  }
+})
+
+test('linear algebra route keeps vector similarity and column space guardrails', () => {
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+  assert.ok(byId['linear-algebra-distance-similarity']!.quizzes.some((quiz) => quiz.misconceptionTags.includes('cosine-distance-confusion')))
+  assert.ok(byId['linear-algebra-rank-null-space']!.quizzes.some((quiz) => quiz.misconceptionTags.includes('rank-is-nonzero-entry-count')))
+  assert.ok(byId['linear-algebra-rank-null-space']!.misconceptions.some((item) => item.id === 'null-space-is-empty'))
 })
 
 test('lu decomposition module presents repaired bilingual content and inline LU lab', () => {

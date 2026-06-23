@@ -103,12 +103,23 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
     id: 'linear-algebra',
     label: copy('线性代数与数值稳定', 'Linear Algebra and Stability'),
     items: [
-      mathModule('vectors-matrices-norms', '向量、矩阵与范数', 'Vectors, Matrices, and Norms'),
+      mathModule('linear-algebra-feature-space', '向量与特征空间', 'Vectors and Feature Space'),
+      mathModule('linear-algebra-distance-similarity', '距离、范数与相似度', 'Distance, Norms, and Similarity'),
+      mathModule('linear-algebra-matrix-transformations', '矩阵与线性变换', 'Matrices and Linear Transformations'),
+      mathModule('linear-algebra-rank-null-space', '列空间、rank 与 null space', 'Column Space, Rank, and Null Space'),
+      mathModule('eigenvalues-eigenvectors', '特征值与特征向量', 'Eigenvalues and Eigenvectors'),
+      mathModule('svd', '奇异值分解（SVD）', 'Singular Value Decomposition (SVD)'),
+      mathModule('pca', '主成分分析（PCA）', 'Principal Component Analysis (PCA)'),
+    ],
+  },
+  {
+    id: 'linear-algebra-tools',
+    label: copy('线性代数工具与稳定性', 'Linear Algebra Tools and Stability'),
+    items: [
       mathModule('tensor-shapes-vectorization', '张量 shape 与向量化', 'Tensor Shapes and Vectorization'),
       mathModule('lu-decomposition', '用 LU 分解求解线性方程', 'LU Decomposition for Solving Linear Equations'),
       mathModule('sparse-matrices', '稀疏矩阵', 'Sparse Matrices'),
       mathModule('condition-numbers', '条件数', 'Condition Numbers'),
-      mathModule('eigenvalues-eigenvectors', '特征值与特征向量', 'Eigenvalues and Eigenvectors'),
     ],
   },
   {
@@ -137,8 +148,6 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
     label: copy('数据几何与深度结构', 'Data Geometry and Deep Architectures'),
     items: [
       mathModule('least-squares-fitting', '最小二乘拟合', 'Least Squares Fitting'),
-      mathModule('svd', '奇异值分解（SVD）', 'Singular Value Decomposition (SVD)'),
-      mathModule('pca', '主成分分析（PCA）', 'Principal Component Analysis (PCA)'),
       mathModule('deep-architecture-math', '深度结构中的数学', 'Mathematics Inside Deep Architectures'),
     ],
   },

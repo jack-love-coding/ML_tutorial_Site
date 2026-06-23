@@ -37,6 +37,16 @@
       "posterPath": "/manim/math-lab/null-space-collapse.svg"
     },
     {
+      "scene": "SvdLowRankReconstructionScene",
+      "assetPath": "/manim/math-lab/svd-low-rank-reconstruction.mp4",
+      "posterPath": "/manim/math-lab/svd-low-rank-reconstruction.svg"
+    },
+    {
+      "scene": "PcaCenteringProjectionScene",
+      "assetPath": "/manim/math-lab/pca-centering-projection.mp4",
+      "posterPath": "/manim/math-lab/pca-centering-projection.svg"
+    },
+    {
       "scene": "VectorSpanNormScene",
       "assetPath": "/manim/math-lab/vector-span-norm.mp4",
       "posterPath": "/manim/math-lab/vector-span-norm.svg"
