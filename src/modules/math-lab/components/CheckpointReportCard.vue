@@ -26,31 +26,27 @@ const props = defineProps<{
 }>()
 
 const saveMessage = ref('')
-const dynamicEvidenceActive = ref(false)
+const liveEvidence = ref<ExperimentEvidence | undefined>()
 const report = reactive<SavedCheckpointReport>(createDefaultCheckpointReport(props.prompt.routeId, props.prompt.moduleId))
 
-const activeEvidence = computed(() => report.evidence ?? props.prompt.staticEvidence)
+const activeEvidence = computed(() => liveEvidence.value ?? report.evidence ?? props.prompt.staticEvidence)
 const completed = computed(() => isCheckpointReportComplete(report))
 
 function resetReportForPrompt() {
   const saved = loadCheckpointReport(props.prompt.moduleId)
   Object.assign(report, saved ?? createDefaultCheckpointReport(props.prompt.routeId, props.prompt.moduleId))
+  liveEvidence.value = undefined
   saveMessage.value = ''
-  dynamicEvidenceActive.value = false
   applyEvidence(props.evidence)
 }
 
 function applyEvidence(evidence: ExperimentEvidence | undefined) {
-  if (evidence) {
-    report.evidence = evidence
-    dynamicEvidenceActive.value = true
+  if (!evidence || evidence.moduleId !== props.prompt.moduleId) {
+    liveEvidence.value = undefined
     return
   }
 
-  if (dynamicEvidenceActive.value || report.moduleId === props.prompt.moduleId) {
-    delete report.evidence
-  }
-  dynamicEvidenceActive.value = false
+  liveEvidence.value = evidence
 }
 
 watch(
@@ -89,6 +85,7 @@ function textareaName(key: CheckpointReportFieldKey) {
 function saveDraft() {
   const savedReport = saveCheckpointReport({
     ...report,
+    evidence: activeEvidence.value,
     completed: completed.value,
   })
   Object.assign(report, savedReport)

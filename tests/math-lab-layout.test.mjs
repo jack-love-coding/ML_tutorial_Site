@@ -214,8 +214,9 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(reportCardSource, /textarea/)
   assert.match(reportCardSource, /download/)
   assert.match(reportCardSource, /watch\(\s*\(\) => props\.prompt\.moduleId/)
-  assert.match(reportCardSource, /dynamicEvidenceActive/)
-  assert.match(reportCardSource, /delete report\.evidence/)
+  assert.match(reportCardSource, /const liveEvidence = ref<ExperimentEvidence \| undefined>/)
+  assert.match(reportCardSource, /liveEvidence\.value \?\? report\.evidence \?\? props\.prompt\.staticEvidence/)
+  assert.match(reportCardSource, /evidence\.moduleId !== props\.prompt\.moduleId/)
   assert.match(reportCardSource, /document\.body\.appendChild\(link\)/)
   assert.match(reportCardSource, /queueMicrotask/)
   assert.match(reportCardSource, /role="status"/)
@@ -476,6 +477,74 @@ test('checkpoint report card renders saved draft answers from storage', async ()
     assert.match(html, /Saved observation answer/)
     assert.match(html, /Saved explanation answer/)
     assert.match(html, /Saved next step answer/)
+  } finally {
+    if (previousWindow === undefined) {
+      delete globalThis.window
+    } else {
+      globalThis.window = previousWindow
+    }
+  }
+})
+
+test('checkpoint report card preserves saved evidence when no live evidence is provided', async () => {
+  const previousWindow = globalThis.window
+  try {
+    const storageKey = 'ml-atlas:checkpoint-report:linear-algebra-feature-space'
+    globalThis.window = {
+      localStorage: createMemoryStorage([
+        [
+          storageKey,
+          JSON.stringify({
+            routeId: 'linear-algebra-route',
+            moduleId: 'linear-algebra-feature-space',
+            answers: {
+              setup: 'Saved setup answer',
+              observation: 'Saved observation answer',
+              explanation: 'Saved explanation answer',
+              nextStep: 'Saved next step answer',
+            },
+            evidence: {
+              moduleId: 'linear-algebra-feature-space',
+              sourceId: 'saved-feature-vector-story-lab',
+              summary: {
+                'zh-CN': '已保存证据摘要',
+                en: 'Saved evidence summary from draft',
+              },
+              metrics: [
+                {
+                  label: { 'zh-CN': '已保存指标', en: 'Saved evidence metric' },
+                  value: 'saved-value',
+                },
+              ],
+              prompt: {
+                'zh-CN': '解释已保存证据。',
+                en: 'Explain the saved evidence.',
+              },
+            },
+            completed: true,
+            updatedAt: '2026-06-24T00:00:00.000Z',
+          }),
+        ],
+      ]),
+    }
+
+    const html = await renderSfcWithVite(
+      '/src/modules/math-lab/components/CheckpointReportCard.vue',
+      async (server) => {
+        const { checkpointReportForModule } = await server.ssrLoadModule('/src/modules/math-lab/data/checkpointReports.ts')
+        const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+        return {
+          prompt: checkpointReportForModule('linear-algebra-feature-space'),
+          modules: mathLabModules,
+          locale: 'en',
+        }
+      },
+    )
+
+    assert.match(html, /Saved evidence summary from draft/)
+    assert.match(html, /Saved evidence metric/)
+    assert.match(html, /saved-value/)
+    assert.doesNotMatch(html, /The same object becomes an ordered set of feature coordinates/)
   } finally {
     if (previousWindow === undefined) {
       delete globalThis.window
