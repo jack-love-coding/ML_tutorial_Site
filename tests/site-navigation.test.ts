@@ -90,6 +90,19 @@ test('math lab navigation menu covers all lab module routes with localized label
     ],
   )
 
+  assert.deepEqual(
+    mathLabNavigationGroups.map((group) => group.id),
+    [
+      'zero-foundation',
+      'linear-algebra',
+      'linear-algebra-tools',
+      'calculus-route',
+      'calculus-optimization',
+      'probability-sampling',
+      'data-geometry-architectures',
+    ],
+  )
+
   assert.deepEqual(routes, [
     '/math-lab/modules/beginner-linear-algebra',
     '/math-lab/modules/beginner-probability-distributions',
