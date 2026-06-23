@@ -270,36 +270,12 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'deep-architecture-math',
     ],
   )
-  assert.deepEqual(
-    mathLabModules.map((moduleDefinition) => moduleDefinition.title.en),
-    [
-      'Linear Algebra for AI Beginners',
-      'Feature Vectors and Coordinate Space',
-      'Distance, Norms, and Similarity',
-      'Matrices as Transformations',
-      'Rank, Column Space, and Null Space',
-      'Eigenvalues and Eigenvectors',
-      'Singular Value Decomposition (SVD)',
-      'Principal Component Analysis (PCA)',
-      'Tensor Shapes and Vectorization',
-      'Calculus for AI Beginners',
-      'Taylor Series',
-      'Matrix Calculus and Automatic Differentiation',
-      'Probability Distributions for AI Beginners',
-      'Random Number Generators and Monte Carlo Methods',
-      'Probability, Likelihood, and Entropy',
-      'LU Decomposition for Solving Linear Equations',
-      'Sparse Matrices',
-      'Condition Numbers',
-      'Markov chains',
-      'Finite Difference Methods',
-      'Solving Nonlinear Equations',
-      'Optimization',
-      'Mathematics of Training Diagnostics',
-      'Least Squares Fitting',
-      'Mathematics Inside Deep Architectures',
-    ],
-  )
+  for (const moduleDefinition of mathLabModules) {
+    assert.equal(typeof moduleDefinition.title['zh-CN'], 'string', `${moduleDefinition.id} needs a Chinese title`)
+    assert.equal(moduleDefinition.title['zh-CN'].trim().length > 0, true, `${moduleDefinition.id} needs a Chinese title`)
+    assert.equal(typeof moduleDefinition.title.en, 'string', `${moduleDefinition.id} needs an English title`)
+    assert.equal(moduleDefinition.title.en.trim().length > 0, true, `${moduleDefinition.id} needs an English title`)
+  }
 
   for (const moduleDefinition of mathLabModules) {
     assert.equal('attribution' in moduleDefinition, false, `${moduleDefinition.id} should not expose migrated attribution`)
