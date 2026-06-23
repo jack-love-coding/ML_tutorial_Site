@@ -671,6 +671,22 @@ test('checkpoint report storage handles drafts, completion, and malformed record
 
   assert.equal(isCheckpointReportComplete(report), false)
 
+  const draftStorage = createMemoryStorage()
+  const draft = saveCheckpointReport({
+    ...report,
+    answers: {
+      ...report.answers,
+      setup: 'I kept rank k = 2.',
+    },
+  }, draftStorage)
+  const loadedDraft = loadCheckpointReport('svd', draftStorage)
+
+  assert.equal(draft.completed, false)
+  assert.equal(isCheckpointReportComplete(draft), false)
+  assert.equal(loadedDraft?.answers.setup, 'I kept rank k = 2.')
+  assert.equal(loadedDraft?.completed, false)
+  assert.equal(loadedDraft ? isCheckpointReportComplete(loadedDraft) : true, false)
+
   const saved = saveCheckpointReport({
     ...report,
     answers: {
