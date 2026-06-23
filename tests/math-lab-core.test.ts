@@ -234,17 +234,23 @@ test('AI bridge math utilities validate shapes, autodiff, probability, diagnosti
   assert.equal(evaluateAttentionShape({ batchSize: 2, tokens: 4, hiddenDim: 10, heads: 3 }).valid, false)
 })
 
-test('math lab modules include the zero-base AI math path from 1-22', () => {
-  assert.equal(mathLabModules.length, 22)
+test('math lab modules include the zero-base AI math path with the linear algebra route split', () => {
+  assert.equal(mathLabModules.length, 25)
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.order),
-    Array.from({ length: 22 }, (_, index) => index + 1),
+    Array.from({ length: 25 }, (_, index) => index + 1),
   )
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.id),
     [
       'beginner-linear-algebra',
-      'vectors-matrices-norms',
+      'linear-algebra-feature-space',
+      'linear-algebra-distance-similarity',
+      'linear-algebra-matrix-transformations',
+      'linear-algebra-rank-null-space',
+      'eigenvalues-eigenvectors',
+      'svd',
+      'pca',
       'tensor-shapes-vectorization',
       'beginner-calculus',
       'taylor-series',
@@ -255,15 +261,12 @@ test('math lab modules include the zero-base AI math path from 1-22', () => {
       'lu-decomposition',
       'sparse-matrices',
       'condition-numbers',
-      'eigenvalues-eigenvectors',
       'markov-chains',
       'finite-difference-methods',
       'nonlinear-equations',
       'optimization',
       'training-diagnostics',
       'least-squares-fitting',
-      'svd',
-      'pca',
       'deep-architecture-math',
     ],
   )
@@ -348,6 +351,61 @@ test('math lab modules include the zero-base AI math path from 1-22', () => {
     assert.deepEqual(mathLabModules[index].nextModuleIds, [mathLabModules[index + 1].id])
   }
   assert.deepEqual(mathLabModules.at(-1)?.nextModuleIds, [])
+})
+
+test('linear algebra route split exposes seven ordered case-driven chapters', () => {
+  const routeIds = [
+    'linear-algebra-feature-space',
+    'linear-algebra-distance-similarity',
+    'linear-algebra-matrix-transformations',
+    'linear-algebra-rank-null-space',
+    'eigenvalues-eigenvectors',
+    'svd',
+    'pca',
+  ]
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+
+  assert.deepEqual(
+    routeIds.map((id) => byId[id]?.nextModuleIds[0]),
+    [
+      'linear-algebra-distance-similarity',
+      'linear-algebra-matrix-transformations',
+      'linear-algebra-rank-null-space',
+      'eigenvalues-eigenvectors',
+      'svd',
+      'pca',
+      'tensor-shapes-vectorization',
+    ],
+  )
+
+  for (const id of routeIds) {
+    const moduleDefinition = byId[id]
+    assert.ok(moduleDefinition, `${id} should be registered`)
+    assert.ok(moduleDefinition.title['zh-CN'])
+    assert.ok(moduleDefinition.title.en)
+    assert.ok(moduleDefinition.subtitle['zh-CN'])
+    assert.ok(moduleDefinition.subtitle.en)
+    assert.ok(moduleDefinition.learningObjectives.length >= 3, `${id} should define learning objectives`)
+    assert.ok(moduleDefinition.concepts.length >= 1, `${id} should define concepts`)
+    assert.ok(moduleDefinition.sections.length >= 4, `${id} should define case-driven sections`)
+    assert.ok(moduleDefinition.labs.length >= 1, `${id} should expose one primary lab`)
+    assert.ok(moduleDefinition.quizzes.length >= 2, `${id} should include checkpoint questions`)
+    assert.ok(moduleDefinition.misconceptions.length >= 2, `${id} should include misconception feedback`)
+    assert.ok(moduleDefinition.sourceReferences?.length, `${id} should have source references`)
+  }
+
+  assert.match(
+    byId['linear-algebra-distance-similarity']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /语义搜索|embedding|检索/,
+  )
+  assert.match(
+    byId['linear-algebra-matrix-transformations']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /线性层|房价|中间表示/,
+  )
+  assert.match(
+    byId['linear-algebra-rank-null-space']!.sections.map((section) => section.content['zh-CN']).join('\n'),
+    /推荐系统|盲区|重复特征/,
+  )
 })
 
 test('zero-base beginner modules expose complete bilingual teaching surfaces', () => {
