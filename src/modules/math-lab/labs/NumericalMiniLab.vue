@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { MathLabLocale, MathLabModuleId } from '../types/mathLab'
+import { computed, ref, watch } from 'vue'
+import type { ExperimentEvidence, MathLabLocale, MathLabModuleId } from '../types/mathLab'
 import { evaluatePowerIteration, type EigenPowerMatrixKind } from '../utils/eigenPower'
 import { evaluateLeastSquaresLine } from '../utils/leastSquares'
 import { evaluateSvdLowRank, type SvdSpectrumKind } from '../utils/svd'
@@ -8,6 +8,10 @@ import { evaluateSvdLowRank, type SvdSpectrumKind } from '../utils/svd'
 const props = defineProps<{
   moduleId: MathLabModuleId
   locale: MathLabLocale
+}>()
+
+const emit = defineEmits<{
+  'evidence-change': [evidence: ExperimentEvidence]
 }>()
 
 type LabKind = 'taylor' | 'monteCarlo' | 'lu' | 'power' | 'leastSquares' | 'svd' | 'pca' | 'generic'
@@ -228,6 +232,60 @@ const pca = computed(() => {
     explained: retained / total,
   }
 })
+
+const evidence = computed<ExperimentEvidence | undefined>(() => {
+  if (labKind.value === 'power') {
+    return {
+      moduleId: 'eigenvalues-eigenvectors',
+      sourceId: 'eigen-power-iteration-lab',
+      summary: {
+        'zh-CN': 'power iteration 显示当前方向、Rayleigh quotient 和 residual。',
+        en: 'Power iteration shows the current direction, Rayleigh quotient, and residual.',
+      },
+      metrics: [
+        { label: { 'zh-CN': '矩阵类型', en: 'Matrix kind' }, value: eigenMatrixKind.value },
+        { label: { 'zh-CN': 'Rayleigh quotient', en: 'Rayleigh quotient' }, value: powerIteration.value.rayleighQuotient.toFixed(4) },
+        { label: { 'zh-CN': 'residual', en: 'residual' }, value: powerIteration.value.residualNorm.toExponential(2) },
+        { label: { 'zh-CN': 'spectral ratio', en: 'spectral ratio' }, value: powerIteration.value.spectralRatio.toFixed(3) },
+      ],
+      prompt: {
+        'zh-CN': '解释为什么 residual 变小时，方向更接近稳定方向。',
+        en: 'Explain why a smaller residual means the direction is closer to a stable direction.',
+      },
+    }
+  }
+
+  if (labKind.value === 'svd') {
+    return {
+      moduleId: 'svd',
+      sourceId: 'svd-low-rank-lab',
+      summary: {
+        'zh-CN': 'SVD 低秩实验显示保留能量、谱误差和重建残差。',
+        en: 'The SVD low-rank lab shows retained energy, spectral error, and reconstruction residual.',
+      },
+      metrics: [
+        { label: { 'zh-CN': '保留秩 k', en: 'Kept rank k' }, value: svd.value.keptRank },
+        { label: { 'zh-CN': 'retainedEnergy', en: 'retainedEnergy' }, value: `${(svd.value.retainedEnergy * 100).toFixed(1)}%` },
+        { label: { 'zh-CN': 'spectralError', en: 'spectralError' }, value: svd.value.spectralError.toFixed(3) },
+        { label: { 'zh-CN': 'frobeniusError', en: 'frobeniusError' }, value: svd.value.frobeniusError.toFixed(3) },
+      ],
+      prompt: {
+        'zh-CN': '解释保留能量高时，为什么仍可能丢掉小细节。',
+        en: 'Explain why small details may still be lost even when retained energy is high.',
+      },
+    }
+  }
+
+  return undefined
+})
+
+watch(
+  evidence,
+  (nextEvidence) => {
+    if (nextEvidence) emit('evidence-change', nextEvidence)
+  },
+  { immediate: true },
+)
 
 function matrixCells(matrix: number[][], xOffset: number, yOffset: number) {
   const maxAbs = Math.max(1e-12, ...matrix.flat().map((value) => Math.abs(value)))

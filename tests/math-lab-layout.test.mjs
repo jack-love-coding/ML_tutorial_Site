@@ -130,6 +130,30 @@ test('math lab components and labs exist with expected contracts', () => {
     assert.ok(existsSync(new URL(path, root)), `${path} should exist`)
   }
 
+  for (const labPath of [
+    'src/modules/math-lab/labs/FeatureVectorStoryLab.vue',
+    'src/modules/math-lab/labs/VectorSimilarityLab.vue',
+    'src/modules/math-lab/labs/MatrixTransformLab.vue',
+    'src/modules/math-lab/labs/MatrixColumnSpaceLab.vue',
+    'src/modules/math-lab/labs/NumericalMiniLab.vue',
+    'src/modules/math-lab/labs/PcaProjectionLab.vue',
+  ]) {
+    const labSource = read(labPath)
+    assert.match(labSource, /defineEmits/)
+    assert.match(labSource, /evidence-change/)
+    assert.match(labSource, /ExperimentEvidence/)
+  }
+
+  const numericalMiniLabSource = read('src/modules/math-lab/labs/NumericalMiniLab.vue')
+  assert.match(numericalMiniLabSource, /retainedEnergy/)
+  assert.match(numericalMiniLabSource, /spectralError/)
+  assert.match(numericalMiniLabSource, /rayleighQuotient/)
+  assert.match(numericalMiniLabSource, /residualNorm/)
+
+  const pcaProjectionLabSource = read('src/modules/math-lab/labs/PcaProjectionLab.vue')
+  assert.match(pcaProjectionLabSource, /retainedVariance/)
+  assert.match(pcaProjectionLabSource, /reconstructionRmse/)
+
   const shellSource = read('src/modules/math-lab/components/ThreeSceneShell.vue')
   assert.match(shellSource, /onBeforeUnmount/)
   assert.match(shellSource, /controller\.dispose\(\)/)

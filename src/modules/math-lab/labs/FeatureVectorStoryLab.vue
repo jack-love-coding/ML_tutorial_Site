@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { MathLabLocale } from '../types/mathLab'
+import { computed, ref, watch } from 'vue'
+import type { ExperimentEvidence, MathLabLocale } from '../types/mathLab'
 import { evaluateFeatureVectorStory } from '../utils/beginnerFoundations'
 
 const props = withDefaults(defineProps<{
@@ -8,6 +8,10 @@ const props = withDefaults(defineProps<{
 }>(), {
   locale: 'zh-CN',
 })
+
+const emit = defineEmits<{
+  'evidence-change': [evidence: ExperimentEvidence]
+}>()
 
 const practice = ref(2)
 const mistakes = ref(5)
@@ -61,6 +65,32 @@ const copy = computed(() =>
 function format(value: number) {
   return value.toFixed(2)
 }
+
+const evidence = computed<ExperimentEvidence>(() => ({
+  moduleId: 'linear-algebra-feature-space',
+  sourceId: 'feature-vector-story-lab',
+  summary: {
+    'zh-CN': '两个学习记录被读取为三维特征向量，并可比较距离、方向和投影。',
+    en: 'Two learner records are read as 3D feature vectors, then compared by distance, direction, and projection.',
+  },
+  metrics: [
+    { label: { 'zh-CN': '样本 A 向量', en: 'Sample A vector' }, value: [practice.value, mistakes.value, score.value].map(format).join(', ') },
+    { label: { 'zh-CN': '样本 B 向量', en: 'Sample B vector' }, value: [otherPractice.value, otherMistakes.value, otherScore.value].map(format).join(', ') },
+    { label: { 'zh-CN': '距离', en: 'distance' }, value: format(evaluation.value.distance) },
+    { label: { 'zh-CN': 'cosine', en: 'cosine' }, value: format(evaluation.value.cosine) },
+    { label: { 'zh-CN': '矩阵后 A', en: 'A after matrix' }, value: evaluation.value.projectedLeft.map(format).join(', ') },
+  ],
+  prompt: {
+    'zh-CN': '解释为什么练习次数、错题数和分数强度要作为一个整体描述学习状态。',
+    en: 'Explain why practice count, mistakes, and score scale should describe the learning state as one whole.',
+  },
+}))
+
+watch(
+  evidence,
+  (nextEvidence) => emit('evidence-change', nextEvidence),
+  { immediate: true },
+)
 
 function pointX(values: number[]) {
   return 56 + (values[0] ?? 0) * 28

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { MathLabLocale } from '../types/mathLab'
+import { computed, ref, watch } from 'vue'
+import type { ExperimentEvidence, MathLabLocale } from '../types/mathLab'
 import {
   evaluatePcaProjection,
   type PcaDatasetKind,
@@ -12,6 +12,10 @@ const props = withDefaults(defineProps<{
 }>(), {
   locale: 'zh-CN',
 })
+
+const emit = defineEmits<{
+  'evidence-change': [evidence: ExperimentEvidence]
+}>()
 
 const datasetKind = ref<PcaDatasetKind>('lecture')
 const keptComponents = ref(1)
@@ -99,6 +103,32 @@ const statusNote = computed(() => {
   if (evaluation.value.retainedVariance > 0.86) return labels.value.strongNote
   return labels.value.balancedNote
 })
+
+const evidence = computed<ExperimentEvidence>(() => ({
+  moduleId: 'pca',
+  sourceId: 'pca-projection-lab',
+  summary: {
+    'zh-CN': 'PCA 实验显示中心化后投影、解释方差和重建误差。',
+    en: 'The PCA lab shows centered projection, explained variance, and reconstruction error.',
+  },
+  metrics: [
+    { label: { 'zh-CN': '保留主成分', en: 'Kept components' }, value: keptComponents.value },
+    { label: { 'zh-CN': 'explainedVariance', en: 'explainedVariance' }, value: `${(evaluation.value.retainedVariance * 100).toFixed(1)}%` },
+    { label: { 'zh-CN': 'reconstructionError', en: 'reconstructionError' }, value: evaluation.value.reconstructionRmse.toFixed(3) },
+    { label: { 'zh-CN': '整体平移', en: 'Common shift' }, value: meanShift.value.toFixed(2) },
+    { label: { 'zh-CN': '点云类型', en: 'Point cloud' }, value: datasetKind.value },
+  ],
+  prompt: {
+    'zh-CN': '解释中心化、解释方差和重建误差如何共同说明 PCA 投影。',
+    en: 'Explain how centering, explained variance, and reconstruction error together explain PCA projection.',
+  },
+}))
+
+watch(
+  evidence,
+  (nextEvidence) => emit('evidence-change', nextEvidence),
+  { immediate: true },
+)
 
 function formatNumber(value: number, digits = 3) {
   if (Math.abs(value) >= 1000 || (Math.abs(value) > 0 && Math.abs(value) < 0.001)) {
