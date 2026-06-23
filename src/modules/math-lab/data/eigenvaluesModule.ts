@@ -1,4 +1,4 @@
-import type { LocalizedCopy, MathLabModule, MathLabSection } from '../types/mathLab'
+import type { LocalizedCopy, MathLabModule, MathLabSection, SourceReference } from '../types/mathLab'
 
 const md = String.raw
 
@@ -20,6 +20,33 @@ function section(
     ...placements,
   }
 }
+
+const sources = {
+  essenceLinearAlgebra: {
+    label: copy('3Blue1Brown：线性代数的本质', '3Blue1Brown: Essence of Linear Algebra'),
+    href: 'https://www.3blue1brown.com/topics/linear-algebra',
+    usage: copy(
+      '参考特征方向、矩阵反复作用和几何直觉的组织方式。',
+      'Reference for organizing eigen directions, repeated matrix action, and geometric intuition.',
+    ),
+  },
+  d2lLinearAlgebra: {
+    label: copy('Dive into Deep Learning：线性代数', 'Dive into Deep Learning: Linear Algebra'),
+    href: 'https://d2l.ai/chapter_preliminaries/linear-algebra.html',
+    usage: copy(
+      '参考机器学习预备线性代数中的矩阵和特征结构表述。',
+      'Reference for matrix and spectral-structure notation in machine-learning preliminaries.',
+    ),
+  },
+  mml: {
+    label: copy('Mathematics for Machine Learning', 'Mathematics for Machine Learning'),
+    href: 'https://mml-book.github.io/',
+    usage: copy(
+      '参考特征值、向量空间和机器学习联系的边界。',
+      'Reference for eigenvalues, vector spaces, and machine-learning connections.',
+    ),
+  },
+} satisfies Record<string, SourceReference>
 
 const sections: MathLabSection[] = [
   section(
@@ -482,6 +509,8 @@ $$
 
 并且初始向量在 \(\mathbf{u}_1\) 方向上的系数 \(\alpha_1\ne 0\)，那么比值 \(\left|\lambda_i/\lambda_1\right|^k\) 会逐渐衰减，方向会接近主特征向量。
 
+把这个想法放进 PageRank：每个网页把重要性沿链接分给其他网页，整张网络就像一个转移矩阵。反复乘这个矩阵，不是在背公式，而是在模拟“重要性流动很多轮以后还会剩下什么方向”。最后稳定下来的方向就是网页重要性的长期结构。
+
 直接使用 \(\mathbf{x}_k=A\mathbf{x}_{k-1}\) 会遇到数值尺度问题：若 \(|\lambda_1|>1\)，向量范数会爆炸；若 \(|\lambda_1|<1\)，向量范数会趋近零。因此实际使用归一化幂迭代：
 
 $$
@@ -516,6 +545,8 @@ $$
 $$
 
 and the initial vector has a nonzero component \(\alpha_1\ne 0\) in the dominant eigenvector direction, then the ratios \(\left|\lambda_i/\lambda_1\right|^k\) decay, and the direction approaches the dominant eigenvector.
+
+Place the same idea inside PageRank: each page sends importance through its outgoing links, so the whole web acts like a transition matrix. Repeated multiplication is not formula memorization; it simulates which direction remains after importance has flowed for many rounds. The stable direction becomes the long-run structure of page importance.
 
 Using \(\mathbf{x}_k=A\mathbf{x}_{k-1}\) directly creates a numerical scale problem: if \(|\lambda_1|>1\), the norm grows; if \(|\lambda_1|<1\), the norm shrinks toward zero. So practical power iteration normalizes every step:
 
@@ -808,7 +839,8 @@ export function buildEigenvaluesModule(base: MathLabModule): MathLabModule {
       'Find the special directions that are only scaled under a linear transformation.',
     ),
     estimatedMinutes: 26,
-    prerequisites: ['condition-numbers'],
+    prerequisites: ['linear-algebra-rank-null-space'],
+    sourceReferences: [sources.essenceLinearAlgebra, sources.d2lLinearAlgebra, sources.mml],
     aiModelConnections: [
       copy(
         'PCA 用协方差矩阵的特征向量找到最大方差方向。',

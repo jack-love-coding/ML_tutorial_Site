@@ -385,6 +385,34 @@ test('linear algebra route split exposes seven ordered case-driven chapters', ()
     byId['linear-algebra-rank-null-space']!.sections.map((section) => section.content['zh-CN']).join('\n'),
     /推荐系统|盲区|重复特征/,
   )
+
+  assert.deepEqual(byId['eigenvalues-eigenvectors']!.prerequisites, ['linear-algebra-rank-null-space'])
+  assert.deepEqual(byId.svd!.prerequisites, ['eigenvalues-eigenvectors', 'linear-algebra-rank-null-space'])
+  assert.equal(byId.svd!.prerequisites.includes('condition-numbers'), false)
+  assert.deepEqual(byId.pca!.prerequisites, ['svd', 'eigenvalues-eigenvectors', 'linear-algebra-rank-null-space'])
+  assert.equal(byId.pca!.prerequisites.includes('vectors-matrices-norms'), false)
+  assert.ok(byId['eigenvalues-eigenvectors']!.sourceReferences?.length)
+  assert.ok(byId.svd!.sourceReferences?.length)
+  assert.ok(byId.pca!.sourceReferences?.length)
+})
+
+test('later linear algebra route chapters use concrete case studies instead of shallow AI footnotes', () => {
+  const eigenModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'eigenvalues-eigenvectors')
+  const svdModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'svd')
+  const pcaModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'pca')
+  assert.ok(eigenModule)
+  assert.ok(svdModule)
+  assert.ok(pcaModule)
+
+  const eigenText = eigenModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const svdText = svdModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+  const pcaText = pcaModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+
+  assert.match(eigenText, /PageRank|网页|链接网络|稳定方向/)
+  assert.match(svdText, /图片压缩|用户[-—]物品|低秩|噪声/)
+  assert.match(pcaText, /embedding 可视化|离群点|批次|中心化/)
+
+  assert.doesNotMatch(`${eigenText}\n${svdText}\n${pcaText}`, /它在 AI 里出现在哪里/)
 })
 
 test('zero-base beginner modules expose complete bilingual teaching surfaces', () => {

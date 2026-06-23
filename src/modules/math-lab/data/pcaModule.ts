@@ -1,4 +1,4 @@
-import type { LocalizedCopy, MathLabModule, MathLabSection } from '../types/mathLab'
+import type { LocalizedCopy, MathLabModule, MathLabSection, SourceReference } from '../types/mathLab'
 
 const md = String.raw
 
@@ -20,6 +20,33 @@ function section(
     ...placements,
   }
 }
+
+const sources = {
+  essenceLinearAlgebra: {
+    label: copy('3Blue1Brown：线性代数的本质', '3Blue1Brown: Essence of Linear Algebra'),
+    href: 'https://www.3blue1brown.com/topics/linear-algebra',
+    usage: copy(
+      '参考用方向、投影和坐标变化解释 PCA 的视觉直觉。',
+      'Reference for visual intuition around directions, projections, and coordinate changes in PCA.',
+    ),
+  },
+  d2lLinearAlgebra: {
+    label: copy('Dive into Deep Learning：线性代数', 'Dive into Deep Learning: Linear Algebra'),
+    href: 'https://d2l.ai/chapter_preliminaries/linear-algebra.html',
+    usage: copy(
+      '参考机器学习预备知识中矩阵、范数和降维相关表达。',
+      'Reference for matrix, norm, and dimensionality-reduction notation in machine-learning preliminaries.',
+    ),
+  },
+  mml: {
+    label: copy('Mathematics for Machine Learning', 'Mathematics for Machine Learning'),
+    href: 'https://mml-book.github.io/',
+    usage: copy(
+      '参考 PCA、SVD 和高维数据表示之间的机器学习联系。',
+      'Reference for links among PCA, SVD, and high-dimensional data representation in machine learning.',
+    ),
+  },
+} satisfies Record<string, SourceReference>
 
 const sections: MathLabSection[] = [
   section(
@@ -431,7 +458,7 @@ Real projects often scale features before PCA. If one feature is measured in met
     copy(
       md`PCA 在机器学习里常见，但它的适用边界也很清楚。
 
-**可视化 embedding。** 把高维向量先投到 2D 或 3D，可以快速检查是否有明显簇、离群点或批次效应。这里 PCA 是诊断工具，不是最终证明。
+Embedding 可视化是 PCA 最容易被误用也最有用的场景之一。把几百维句子向量投到二维，可以快速看到主题簇、离群点和批次效应；但这张图不是最终证明，因为 PCA 只保留最大方差方向。若分类信息藏在低方差方向，PCA 的第一张图可能很好看，却没有解释真正的标签差异。
 
 **特征压缩。** 对高度相关的传感器、图像块、词频或中间表示，PCA 可以用更少维度保存大部分方差，减少后续模型的输入维度。
 
@@ -450,7 +477,7 @@ Real projects often scale features before PCA. If one feature is measured in met
 实践中，一个负责任的 PCA 报告至少说明：是否中心化、是否缩放、保留了多少解释方差、前几个主方向由哪些原始特征主导，以及降维后的任务是否真的变好。`,
       md`PCA is common in machine learning, but its boundaries are clear.
 
-**Embedding visualization.** Projecting high-dimensional vectors to 2D or 3D can quickly reveal visible clusters, outliers, or batch effects. Here PCA is a diagnostic tool, not final proof.
+Embedding visualization is one of the most useful and most easily misused PCA scenarios. Projecting hundreds-dimensional sentence vectors to two dimensions can quickly reveal topic clusters, outliers, and batch effects; but the plot is not final proof because PCA keeps maximum-variance directions. If class information lies in a low-variance direction, the first PCA plot may look clean while missing the real label difference.
 
 **Feature compression.** For correlated sensors, image patches, word counts, or internal representations, PCA can keep most variance in fewer dimensions and reduce the input size for later models.
 
@@ -512,7 +539,8 @@ export function buildPcaModule(base: MathLabModule): MathLabModule {
     ),
     difficulty: 'advanced',
     estimatedMinutes: 34,
-    prerequisites: ['svd', 'eigenvalues-eigenvectors', 'vectors-matrices-norms'],
+    prerequisites: ['svd', 'eigenvalues-eigenvectors', 'linear-algebra-rank-null-space'],
+    sourceReferences: [sources.essenceLinearAlgebra, sources.d2lLinearAlgebra, sources.mml],
     aiModelConnections: [
       copy(
         'PCA 常用于 embedding 可视化、特征压缩和去噪：它把高维数据投影到解释方差最大的低维子空间。',

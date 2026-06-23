@@ -1,4 +1,4 @@
-import type { LocalizedCopy, MathLabModule, MathLabSection } from '../types/mathLab'
+import type { LocalizedCopy, MathLabModule, MathLabSection, SourceReference } from '../types/mathLab'
 
 const md = String.raw
 
@@ -20,6 +20,33 @@ function section(
     ...placements,
   }
 }
+
+const sources = {
+  essenceLinearAlgebra: {
+    label: copy('3Blue1Brown：线性代数的本质', '3Blue1Brown: Essence of Linear Algebra'),
+    href: 'https://www.3blue1brown.com/topics/linear-algebra',
+    usage: copy(
+      '参考把矩阵分解读成方向和缩放的视觉组织方式。',
+      'Reference for visual organization of matrix decompositions as directions and scaling.',
+    ),
+  },
+  d2lLinearAlgebra: {
+    label: copy('Dive into Deep Learning：线性代数', 'Dive into Deep Learning: Linear Algebra'),
+    href: 'https://d2l.ai/chapter_preliminaries/linear-algebra.html',
+    usage: copy(
+      '参考机器学习中矩阵分解、范数和低秩结构的基础表达。',
+      'Reference for matrix decompositions, norms, and low-rank structure in machine learning.',
+    ),
+  },
+  mml: {
+    label: copy('Mathematics for Machine Learning', 'Mathematics for Machine Learning'),
+    href: 'https://mml-book.github.io/',
+    usage: copy(
+      '参考 SVD、矩阵近似和降维之间的机器学习联系。',
+      'Reference for SVD, matrix approximation, dimensionality reduction, and machine-learning links.',
+    ),
+  },
+} satisfies Record<string, SourceReference>
 
 const sections: MathLabSection[] = [
   section(
@@ -662,6 +689,8 @@ $$
 
 ![Low rank approximations](/math-lab/cs357-assets/figs/lowrank.png)
 
+图片压缩可以把灰度图看成矩阵。大的奇异值通常保留主要轮廓和大块结构，小的奇异值保留纹理、边缘细节，也可能混入噪声。用户-物品评分矩阵也是类似语言：少数强方向可能对应动作片偏好、文艺片偏好或价格敏感度。低秩近似不是“随便丢掉小数字”，而是在任务允许时保留最强结构。
+
 在 ML / AI 中，低秩近似不是装饰性技巧，而是具体工程工具：
 
 - 图像压缩把像素矩阵近似为少数 rank-one 模式。
@@ -692,6 +721,8 @@ which measures how much squared energy the first \(k\) directions retain.
 The lab below shows the original matrix, the rank-\(k\) approximation, and the residual side by side. Switching the singular-value spectrum shows three cases: the 5-by-3 example has three gradually decreasing singular values; the image-compression spectrum concentrates energy in the leading directions; the ill-conditioned spectrum has a tiny smallest singular value, so the condition-number readout grows quickly.
 
 ![Low rank approximations](/math-lab/cs357-assets/figs/lowrank.png)
+
+Image compression can read a grayscale image as a matrix. Large singular values often preserve the main silhouette and large structures; small singular values preserve texture and edge detail, and may also contain noise. A user-item rating matrix uses similar language: a few strong directions may correspond to action-movie preference, art-film preference, or price sensitivity. Low-rank approximation is not "dropping small numbers at random"; it keeps the strongest structure when the task allows it.
 
 In ML and AI, low-rank approximation is not decorative. It is an engineering tool:
 
@@ -740,7 +771,8 @@ export function buildSvdModule(base: MathLabModule): MathLabModule {
       'Decompose any matrix into input directions, nonnegative scales, and output directions.',
     ),
     estimatedMinutes: 28,
-    prerequisites: ['least-squares-fitting', 'eigenvalues-eigenvectors', 'condition-numbers'],
+    prerequisites: ['eigenvalues-eigenvectors', 'linear-algebra-rank-null-space'],
+    sourceReferences: [sources.essenceLinearAlgebra, sources.d2lLinearAlgebra, sources.mml],
     aiModelConnections: [
       copy(
         '低秩 SVD 是图像压缩、推荐系统和矩阵补全的核心工具。',

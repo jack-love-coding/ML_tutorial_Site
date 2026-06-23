@@ -117,27 +117,8 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
   }
 })
 
-const linearAlgebraRouteReferenceIds = new Set<MathLabModuleId>([
-  'eigenvalues-eigenvectors',
-  'svd',
-  'pca',
-])
-const linearAlgebraRouteSourceReferences = linearAlgebraRouteModules[0]?.sourceReferences ?? []
-
-function withLinearAlgebraRouteReferences(moduleDefinition: MathLabModule): MathLabModule {
-  if (!linearAlgebraRouteReferenceIds.has(moduleDefinition.id) || moduleDefinition.sourceReferences?.length) {
-    return moduleDefinition
-  }
-
-  return {
-    ...moduleDefinition,
-    sourceReferences: linearAlgebraRouteSourceReferences,
-  }
-}
-
 const allModulesById = Object.fromEntries(
   [...beginnerFoundationModules, ...linearAlgebraRouteModules, ...importedFoundationModules, ...aiBridgeModules]
-    .map(withLinearAlgebraRouteReferences)
     .map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
 ) as Record<MathLabModuleId, MathLabModule | undefined>
 
