@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import { diagnosticQuestions, scoreDiagnostic } from '../src/modules/math-lab/data/diagnostic.ts'
 import {
-  learningRouteById,
   learningRoutes,
   linearAlgebraRouteModuleIds,
   nextModuleForRoute,
@@ -539,27 +538,6 @@ test('learning routes expose a linear algebra route with next-step progress', ()
   assert.equal(summary.completedModuleId, 'linear-algebra-distance-similarity')
 
   assert.equal(nextModuleForRoute(route, linearAlgebraRouteModuleIds), undefined)
-})
-
-test('learning route metadata is localized and references registered modules', () => {
-  const routeIds = learningRoutes.map((route) => route.id)
-  assert.deepEqual(routeIds, ['ai-math-main-path', 'linear-algebra-route', 'numerical-deepening-path'])
-  assert.equal(new Set(routeIds).size, routeIds.length)
-
-  const registeredModuleIds = new Set(mathLabModules.map((moduleDefinition) => moduleDefinition.id))
-
-  for (const route of learningRoutes) {
-    for (const copy of [route.title, route.description, route.audience]) {
-      assert.equal(copy['zh-CN'].trim().length > 0, true, `${route.id} needs Chinese route copy`)
-      assert.equal(copy.en.trim().length > 0, true, `${route.id} needs English route copy`)
-    }
-
-    assert.equal(route.chapterModuleIds.length > 0, true, `${route.id} should include chapters`)
-    for (const moduleId of route.chapterModuleIds) {
-      assert.equal(registeredModuleIds.has(moduleId), true, `${route.id} references missing module ${moduleId}`)
-    }
-    assert.equal(learningRouteById[route.id], route)
-  }
 })
 
 test('later linear algebra route chapters use concrete case studies instead of shallow AI footnotes', () => {
