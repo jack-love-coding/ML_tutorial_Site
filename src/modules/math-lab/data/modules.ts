@@ -2,6 +2,7 @@ import { importedMathNotes } from './importedMathNotes.generated.ts'
 import { aiBridgeModules } from './aiBridgeModules.ts'
 import { beginnerFoundationModules } from './beginnerFoundationModules.ts'
 import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
+import { calculusRouteModules } from './calculusRouteModules.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
 import { buildLeastSquaresModule } from './leastSquaresModule.ts'
@@ -33,7 +34,13 @@ const aiMathPath: MathLabModuleId[] = [
   'svd',
   'pca',
   'tensor-shapes-vectorization',
-  'beginner-calculus',
+  'calculus-functions-rate-change',
+  'calculus-derivatives-local-change',
+  'calculus-partial-derivatives-gradients',
+  'calculus-gradient-descent',
+  'calculus-sgd-batch-noise',
+  'calculus-optimizer-comparison',
+  'calculus-training-code-diagnostics',
   'taylor-series',
   'matrix-calculus-autodiff',
   'beginner-probability-distributions',
@@ -118,8 +125,13 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
 })
 
 const allModulesById = Object.fromEntries(
-  [...beginnerFoundationModules, ...linearAlgebraRouteModules, ...importedFoundationModules, ...aiBridgeModules]
-    .map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
+  [
+    ...beginnerFoundationModules,
+    ...linearAlgebraRouteModules,
+    ...calculusRouteModules,
+    ...importedFoundationModules,
+    ...aiBridgeModules,
+  ].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
 ) as Record<MathLabModuleId, MathLabModule | undefined>
 
 export const mathLabModules: MathLabModule[] = aiMathPath.map((moduleId, index) => {

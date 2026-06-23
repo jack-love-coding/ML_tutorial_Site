@@ -19,6 +19,16 @@ export const linearAlgebraRouteModuleIds: MathLabModuleId[] = [
   'pca',
 ]
 
+export const calculusRouteModuleIds: MathLabModuleId[] = [
+  'calculus-functions-rate-change',
+  'calculus-derivatives-local-change',
+  'calculus-partial-derivatives-gradients',
+  'calculus-gradient-descent',
+  'calculus-sgd-batch-noise',
+  'calculus-optimizer-comparison',
+  'calculus-training-code-diagnostics',
+]
+
 export const learningRoutes: LearningRoute[] = [
   {
     id: 'ai-math-main-path',
@@ -35,7 +45,7 @@ export const learningRoutes: LearningRoute[] = [
       'linear-algebra-matrix-transformations',
       'linear-algebra-rank-null-space',
       'tensor-shapes-vectorization',
-      'beginner-calculus',
+      ...calculusRouteModuleIds,
       'taylor-series',
       'matrix-calculus-autodiff',
       'beginner-probability-distributions',
@@ -56,6 +66,17 @@ export const learningRoutes: LearningRoute[] = [
     ),
     audience: copy('想把线性代数和 AI 表示学习连起来的学习者。', 'Learners connecting linear algebra with AI representation learning.'),
     chapterModuleIds: linearAlgebraRouteModuleIds,
+    nextStepRule: 'first-incomplete',
+  },
+  {
+    id: 'calculus-route',
+    title: copy('微积分路线', 'Calculus Route'),
+    description: copy(
+      '从函数和局部变化走到梯度下降、随机批量、优化器和训练曲线诊断。',
+      'Move from functions and local change to gradient descent, stochastic batches, optimizers, and training-curve diagnostics.',
+    ),
+    audience: copy('想把微积分直接连接到机器学习训练循环的学习者。', 'Learners who want to connect calculus directly to machine-learning training loops.'),
+    chapterModuleIds: calculusRouteModuleIds,
     nextStepRule: 'first-incomplete',
   },
   {

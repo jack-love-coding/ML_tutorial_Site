@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import { diagnosticQuestions, scoreDiagnostic } from '../src/modules/math-lab/data/diagnostic.ts'
+import { beginnerFoundationModules } from '../src/modules/math-lab/data/beginnerFoundationModules.ts'
 import {
   learningRoutes,
   linearAlgebraRouteModuleIds,
@@ -597,7 +598,7 @@ test('later linear algebra route chapters use concrete case studies instead of s
 })
 
 test('zero-base beginner modules expose complete bilingual teaching surfaces', () => {
-  const beginnerModules = mathLabModules.filter((moduleDefinition) =>
+  const beginnerModules = beginnerFoundationModules.filter((moduleDefinition) =>
     [
       'beginner-linear-algebra',
       'beginner-calculus',
@@ -690,7 +691,9 @@ test('beginner linear algebra wires vector similarity lab and misconception guar
 })
 
 test('zero-base foundation expansion wires longform visuals and concept bridges', () => {
-  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+  const byId = Object.fromEntries(
+    [...mathLabModules, ...beginnerFoundationModules].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
+  )
   const root = new URL('../', import.meta.url)
   const expectedLongformAssets = {
     'beginner-linear-algebra': [

@@ -81,7 +81,7 @@ const beginnerCards = computed(() =>
           body: '用小车、切线和下坡路径理解导数、梯度和训练时的参数更新。',
           imagePath: '/math-lab/generated/beginner-calculus-story.png',
           alt: '微积分入门插图：小车轨迹、切线斜率、局部变化和梯度下降路径。',
-          route: '/math-lab/modules/beginner-calculus',
+          route: '/math-lab/modules/calculus-functions-rate-change',
         },
         {
           id: 'probability',
@@ -107,7 +107,7 @@ const beginnerCards = computed(() =>
           body: 'Use a moving car, tangent lines, and a downhill path to understand derivatives, gradients, and training updates.',
           imagePath: '/math-lab/generated/beginner-calculus-story.png',
           alt: 'Beginner calculus illustration showing a car path, tangent slope, local change, and a gradient descent path.',
-          route: '/math-lab/modules/beginner-calculus',
+          route: '/math-lab/modules/calculus-functions-rate-change',
         },
         {
           id: 'probability',

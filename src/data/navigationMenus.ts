@@ -95,7 +95,6 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
     label: copy('零基础桥接', 'Beginner Bridge'),
     items: [
       mathModule('beginner-linear-algebra', 'AI 零基础线性代数', 'Linear Algebra for AI Beginners'),
-      mathModule('beginner-calculus', 'AI 零基础微积分', 'Calculus for AI Beginners'),
       mathModule('beginner-probability-distributions', 'AI 零基础概率分布', 'Probability Distributions for AI Beginners'),
     ],
   },
@@ -120,6 +119,19 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
       mathModule('lu-decomposition', '用 LU 分解求解线性方程', 'LU Decomposition for Solving Linear Equations'),
       mathModule('sparse-matrices', '稀疏矩阵', 'Sparse Matrices'),
       mathModule('condition-numbers', '条件数', 'Condition Numbers'),
+    ],
+  },
+  {
+    id: 'calculus-route',
+    label: copy('微积分学习路线', 'Calculus Learning Route'),
+    items: [
+      mathModule('calculus-functions-rate-change', '函数和变化率', 'Functions and Rate of Change'),
+      mathModule('calculus-derivatives-local-change', '导数：当前点附近的变化', 'Derivatives as Local Change'),
+      mathModule('calculus-partial-derivatives-gradients', '偏导数和梯度', 'Partial Derivatives and Gradients'),
+      mathModule('calculus-gradient-descent', '梯度下降', 'Gradient Descent'),
+      mathModule('calculus-sgd-batch-noise', 'Full Batch、Mini-Batch 和 SGD', 'Full Batch, Mini-Batch, and SGD'),
+      mathModule('calculus-optimizer-comparison', '优化器比较', 'Optimizer Comparison'),
+      mathModule('calculus-training-code-diagnostics', '训练代码和曲线诊断', 'Training Code and Curve Diagnostics'),
     ],
   },
   {
