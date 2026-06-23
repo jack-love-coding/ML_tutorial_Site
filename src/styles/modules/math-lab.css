@@ -356,6 +356,58 @@
   gap: 14px;
 }
 
+.learning-route-summary,
+.learning-route-dashboard {
+  border: 1px solid var(--color-border, #d8dfeb);
+  background: var(--color-surface, #ffffff);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.learning-route-summary {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.learning-route-summary__meta,
+.learning-route-summary__next {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.learning-route-dashboard {
+  display: grid;
+  gap: 1rem;
+}
+
+.learning-route-dashboard__list {
+  display: grid;
+  gap: 0.65rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.learning-route-dashboard__list a {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.learning-route-dashboard__list strong,
+.learning-route-dashboard__list small {
+  min-width: 0;
+}
+
+.learning-route-dashboard__list .is-next a {
+  outline: 2px solid var(--math-accent, #3868ff);
+  outline-offset: 3px;
+}
+
 .math-path-node {
   display: grid;
   gap: 10px;

@@ -2,6 +2,10 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { moduleOrder } from '../data/moduleCatalog'
+import LearningRouteSummary from '../modules/math-lab/components/LearningRouteSummary.vue'
+import { learningRoutes } from '../modules/math-lab/data/learningRoutes'
+import { mathLabModules } from '../modules/math-lab/data/modules'
+import { loadMathLabProgress } from '../modules/math-lab/utils/progress'
 import type { LocalizedCopy } from '../types/ml'
 
 const { t, locale } = useI18n()
@@ -39,6 +43,11 @@ function scrollToRoadmap(event: MouseEvent) {
 }
 
 const primaryRoute = computed(() => '/learn/ai-overview')
+const mathLabProgress = computed(() => loadMathLabProgress())
+const currentMathLocale = computed(() => locale.value === 'zh-CN' ? 'zh-CN' : 'en')
+const highlightedLearningRoutes = computed(() =>
+  learningRoutes.filter((route) => ['ai-math-main-path', 'linear-algebra-route', 'numerical-deepening-path'].includes(route.id)),
+)
 
 const highlights = computed(() =>
   locale.value === 'zh-CN'
@@ -684,6 +693,23 @@ const footerText = computed(() =>
           <p>{{ t(moduleDefinition.summaryKey) }}</p>
           <small>{{ t('actions.openModule') }}</small>
         </router-link>
+      </div>
+    </section>
+
+    <section class="home-learning-routes" aria-labelledby="home-learning-routes-title">
+      <div class="section-header">
+        <span class="eyebrow">{{ locale === 'zh-CN' ? '路线入口' : 'Route entry' }}</span>
+        <h2 id="home-learning-routes-title">{{ locale === 'zh-CN' ? '按路线继续学习' : 'Continue by route' }}</h2>
+      </div>
+      <div class="home-learning-routes__grid">
+        <LearningRouteSummary
+          v-for="routeDefinition in highlightedLearningRoutes"
+          :key="routeDefinition.id"
+          :route="routeDefinition"
+          :modules="mathLabModules"
+          :completed-module-ids="mathLabProgress.completedModuleIds"
+          :locale="currentMathLocale"
+        />
       </div>
     </section>
 

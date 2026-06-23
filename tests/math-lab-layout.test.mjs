@@ -48,6 +48,8 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/components/SkillRadarChart.vue',
     'src/modules/math-lab/components/MisconceptionCard.vue',
     'src/modules/math-lab/components/ThreeSceneShell.vue',
+    'src/modules/math-lab/components/LearningRouteSummary.vue',
+    'src/modules/math-lab/components/LearningRouteDashboard.vue',
     'src/modules/math-lab/labs/VectorDotProductLab.vue',
     'src/modules/math-lab/labs/VectorSimilarityLab.vue',
     'src/modules/math-lab/labs/TensorShapeLab.vue',
@@ -83,6 +85,20 @@ test('math lab components and labs exist with expected contracts', () => {
   const playerSource = read('src/modules/math-lab/components/ManimPlayer.vue')
   assert.match(playerSource, /<video/)
   assert.match(playerSource, /data-asset-path/)
+
+  const homeViewSource = read('src/views/HomeView.vue')
+  const mathLabHomeSource = read('src/modules/math-lab/pages/MathLabHome.vue')
+  const routeSummarySource = read('src/modules/math-lab/components/LearningRouteSummary.vue')
+  const routeDashboardSource = read('src/modules/math-lab/components/LearningRouteDashboard.vue')
+
+  assert.match(homeViewSource, /LearningRouteSummary/)
+  assert.match(homeViewSource, /learningRoutes/)
+  assert.match(mathLabHomeSource, /LearningRouteDashboard/)
+  assert.match(mathLabHomeSource, /linear-algebra-route/)
+  assert.match(routeSummarySource, /completedCount/)
+  assert.match(routeSummarySource, /nextModuleId/)
+  assert.match(routeDashboardSource, /reportStatus/)
+  assert.match(routeDashboardSource, /checkpointReportForModule/)
 
   const modulePageSource = read('src/modules/math-lab/pages/MathLabModulePage.vue')
   assert.match(modulePageSource, /asset\.type === 'image'/)
