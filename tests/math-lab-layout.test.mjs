@@ -172,11 +172,13 @@ test('math lab uses generated imported notes and local migrated assets', () => {
   assert.ok(existsSync(new URL('src/modules/math-lab/data/aiBridgeModules.ts', root)))
   assert.ok(existsSync(new URL('scripts/import-cs357-notes.mjs', root)))
   assert.ok(existsSync(new URL('src/modules/math-lab/data/importedMathNotes.generated.ts', root)))
+  assert.ok(existsSync(new URL('docs/math-lab-linear-algebra-route-sources.md', root)))
   assert.ok(existsSync(new URL('public/math-lab/cs357-assets/figs', root)))
 
   const modulesSource = read('src/modules/math-lab/data/modules.ts')
   assert.match(modulesSource, /importedMathNotes/)
   assert.match(modulesSource, /beginnerFoundationModules/)
+  assert.match(modulesSource, /linearAlgebraRouteModules/)
   assert.match(modulesSource, /mathFoundationsModules/)
   assert.match(modulesSource, /aiBridgeModules/)
 
@@ -226,7 +228,9 @@ test('migrated note figures are stored locally', () => {
 
   const beginnerSource = read('src/modules/math-lab/data/beginnerFoundationModules.ts')
   const vectorNormsSource = read('src/modules/math-lab/data/vectorMatrixNormsModule.ts')
+  const linearAlgebraRouteSource = read('src/modules/math-lab/data/linearAlgebraRouteModules.ts')
   const beginnerSourcesDoc = read('docs/math-lab-beginner-bridge-sources.md')
+  const linearAlgebraRouteDoc = read('docs/math-lab-linear-algebra-route-sources.md')
   for (const assetPath of [
     'linear-algebra-feature-cards.png',
     'vector-distance-norm-intuition.png',
@@ -244,6 +248,19 @@ test('migrated note figures are stored locally', () => {
   ]) {
     assert.match(vectorNormsSource, new RegExp(assetPath.replace('.', '\\.')))
     assert.match(beginnerSourcesDoc, new RegExp(assetPath.replace('.', '\\.')))
+  }
+
+  for (const assetPath of [
+    'linear-algebra-feature-cards.png',
+    'vector-distance-norm-intuition.png',
+    'cosine-vs-distance-intuition.png',
+    'high-dimensional-embedding-search.png',
+    'matrix-column-combination.png',
+    'column-space-rank-intuition.png',
+    'null-space-invisible-direction.png',
+  ]) {
+    assert.match(linearAlgebraRouteSource, new RegExp(assetPath.replace('.', '\\.')))
+    assert.match(linearAlgebraRouteDoc, new RegExp(assetPath.replace('.', '\\.')))
   }
 })
 

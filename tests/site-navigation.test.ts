@@ -54,6 +54,21 @@ test('math lab navigation menu covers all lab module routes with localized label
     })
   })
 
+  const linearAlgebraGroup = mathLabNavigationGroups.find((group) => group.id === 'linear-algebra')
+  assert.ok(linearAlgebraGroup)
+  assert.deepEqual(
+    linearAlgebraGroup.items.map((item) => item.id),
+    [
+      'linear-algebra-feature-space',
+      'linear-algebra-distance-similarity',
+      'linear-algebra-matrix-transformations',
+      'linear-algebra-rank-null-space',
+      'eigenvalues-eigenvectors',
+      'svd',
+      'pca',
+    ],
+  )
+
   assert.deepEqual(routes, [
     '/math-lab/modules/beginner-linear-algebra',
     '/math-lab/modules/beginner-calculus',
@@ -62,11 +77,9 @@ test('math lab navigation menu covers all lab module routes with localized label
     '/math-lab/modules/linear-algebra-distance-similarity',
     '/math-lab/modules/linear-algebra-matrix-transformations',
     '/math-lab/modules/linear-algebra-rank-null-space',
-    '/math-lab/modules/tensor-shapes-vectorization',
-    '/math-lab/modules/lu-decomposition',
-    '/math-lab/modules/sparse-matrices',
-    '/math-lab/modules/condition-numbers',
     '/math-lab/modules/eigenvalues-eigenvectors',
+    '/math-lab/modules/svd',
+    '/math-lab/modules/pca',
     '/math-lab/modules/taylor-series',
     '/math-lab/modules/matrix-calculus-autodiff',
     '/math-lab/modules/finite-difference-methods',
@@ -77,11 +90,9 @@ test('math lab navigation menu covers all lab module routes with localized label
     '/math-lab/modules/probability-likelihood-entropy',
     '/math-lab/modules/markov-chains',
     '/math-lab/modules/least-squares-fitting',
-    '/math-lab/modules/svd',
-    '/math-lab/modules/pca',
     '/math-lab/modules/deep-architecture-math',
   ])
-  assert.equal(new Set(routes).size, routes.length)
+  assert.equal(new Set(routes).size, routes.length, 'math lab navigation routes should not contain duplicates')
 })
 
 test('data lab navigation menu covers all data lab module routes with localized labels', () => {
