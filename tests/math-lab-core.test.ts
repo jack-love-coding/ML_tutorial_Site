@@ -12,12 +12,14 @@ import {
 import {
   checkpointReportForModule,
   linearAlgebraCheckpointReportPrompts,
+  observationPrompts,
   observationPromptForModule,
 } from '../src/modules/math-lab/data/checkpointReports.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import { continueMathLabModuleId, resolveMathLabModuleId } from '../src/modules/math-lab/utils/continueRoute.ts'
 import {
   buildCheckpointReportMarkdown,
+  checkpointReportStorageKey,
   createDefaultCheckpointReport,
   isCheckpointReportComplete,
   loadCheckpointReport,
@@ -663,6 +665,15 @@ test('linear algebra checkpoint report prompts cover every route chapter', () =>
   ]) {
     assert.ok(observationPromptForModule(moduleId), `${moduleId} should have an observation prompt`)
   }
+
+  assert.equal(observationPrompts.length, 4)
+  for (const prompt of observationPrompts) {
+    assert.ok(prompt.title['zh-CN'])
+    assert.ok(prompt.title.en)
+    assert.ok(prompt.body['zh-CN'])
+    assert.ok(prompt.body.en)
+    assert.ok(prompt.targetLabId)
+  }
 })
 
 test('checkpoint report storage handles drafts, completion, and malformed records', () => {
@@ -687,6 +698,18 @@ test('checkpoint report storage handles drafts, completion, and malformed record
   assert.equal(loadedDraft?.completed, false)
   assert.equal(loadedDraft ? isCheckpointReportComplete(loadedDraft) : true, false)
 
+  const tooShort = saveCheckpointReport({
+    ...report,
+    answers: {
+      setup: 'short',
+      observation: 'short',
+      explanation: 'too short',
+      nextStep: 'short',
+    },
+  }, createMemoryStorage())
+  assert.equal(tooShort.completed, false)
+  assert.equal(isCheckpointReportComplete(tooShort), false)
+
   const saved = saveCheckpointReport({
     ...report,
     answers: {
@@ -703,10 +726,65 @@ test('checkpoint report storage handles drafts, completion, and malformed record
   assert.equal(loaded?.answers.setup, 'I kept rank k = 2.')
   assert.equal(loaded?.moduleId, 'svd')
 
+  const mismatchedStorage = createMemoryStorage({
+    [checkpointReportStorageKey('svd')]: JSON.stringify({
+      ...saved,
+      moduleId: 'pca',
+    }),
+  })
+  assert.equal(loadCheckpointReport('svd', mismatchedStorage), undefined)
+
   const brokenStorage = createMemoryStorage({
-    'ml-atlas:checkpoint-report:svd': '{bad json',
+    [checkpointReportStorageKey('svd')]: '{bad json',
   })
   assert.equal(loadCheckpointReport('svd', brokenStorage), undefined)
+})
+
+test('checkpoint report storage tolerates write failures and malformed evidence', () => {
+  const report = {
+    ...createDefaultCheckpointReport('linear-algebra-route', 'svd', '2026-06-23T00:00:00.000Z'),
+    answers: {
+      setup: 'I kept rank k = 2.',
+      observation: 'Retained energy stayed high while fine detail faded.',
+      explanation: 'The first singular layers carry the main structure.',
+      nextStep: 'I would compare validation quality across k values.',
+    },
+  }
+  const throwingStorage: StorageLike = {
+    getItem: () => null,
+    setItem: () => {
+      throw new Error('quota exceeded')
+    },
+    removeItem: () => undefined,
+  }
+
+  assert.doesNotThrow(() => saveCheckpointReport(report, throwingStorage))
+  const saved = saveCheckpointReport(report, throwingStorage)
+  assert.equal(saved.completed, true)
+
+  const malformedEvidenceStorage = createMemoryStorage({
+    [checkpointReportStorageKey('svd')]: JSON.stringify({
+      ...report,
+      evidence: {
+        moduleId: 'svd',
+        sourceId: 'broken-evidence',
+        summary: 'not localized copy',
+        metrics: 'not metric array',
+        prompt: null,
+      },
+    }),
+  })
+  const loaded = loadCheckpointReport('svd', malformedEvidenceStorage)
+  assert.equal(loaded?.evidence, undefined)
+
+  const markdown = buildCheckpointReportMarkdown(
+    'linear-algebra-route',
+    loaded ? [loaded] : [],
+    mathLabModules,
+    'en',
+    '2026-06-23T12:00:00.000Z',
+  )
+  assert.match(markdown, /Kept rank/)
 })
 
 test('checkpoint report markdown export includes evidence and missing answer markers', () => {

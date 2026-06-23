@@ -19,10 +19,21 @@ const fallbackFieldLabels: Record<CheckpointReportFieldKey, LocalizedCopy> = {
   nextStep: { 'zh-CN': '下一步', en: 'Next Step' },
 }
 
+const defaultMinLengths: Record<CheckpointReportFieldKey, number> = {
+  setup: 8,
+  observation: 8,
+  explanation: 12,
+  nextStep: 8,
+}
+
 function storageFor(storage?: StorageLike) {
   if (storage) return storage
   if (typeof window === 'undefined') return undefined
-  return window.localStorage
+  try {
+    return window.localStorage
+  } catch {
+    return undefined
+  }
 }
 
 export function checkpointReportStorageKey(moduleId: MathLabModuleId) {
@@ -53,11 +64,53 @@ export function createDefaultCheckpointReport(
 }
 
 export function isCheckpointReportComplete(report: SavedCheckpointReport) {
-  return fieldKeys.every((key) => report.answers[key]?.trim())
+  const prompt = checkpointReportForModule(report.moduleId)
+  return fieldKeys.every((key) => {
+    const minLength = prompt?.fields.find((field) => field.key === key)?.minLength ?? defaultMinLengths[key]
+    return report.answers[key]?.trim().length >= minLength
+  })
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+function isLocalizedCopy(value: unknown): value is LocalizedCopy {
+  return isRecord(value) && typeof value['zh-CN'] === 'string' && typeof value.en === 'string'
+}
+
+function isEvidenceValue(value: unknown): value is string | number | LocalizedCopy {
+  return typeof value === 'string' || typeof value === 'number' || isLocalizedCopy(value)
+}
+
+function normalizeEvidence(value: unknown): ExperimentEvidence | undefined {
+  if (!isRecord(value)) return undefined
+  if (typeof value.moduleId !== 'string') return undefined
+  if (typeof value.sourceId !== 'string') return undefined
+  if (!isLocalizedCopy(value.summary) || !isLocalizedCopy(value.prompt)) return undefined
+  if (!Array.isArray(value.metrics)) return undefined
+
+  const metrics = value.metrics
+  if (!metrics.every((metric) =>
+    isRecord(metric) &&
+    isLocalizedCopy(metric.label) &&
+    isEvidenceValue(metric.value) &&
+    (metric.unit === undefined || isLocalizedCopy(metric.unit))
+  )) {
+    return undefined
+  }
+
+  return {
+    moduleId: value.moduleId,
+    sourceId: value.sourceId,
+    summary: value.summary,
+    metrics: metrics.map((metric) => ({
+      label: metric.label,
+      value: metric.value,
+      unit: metric.unit,
+    })),
+    prompt: value.prompt,
+  }
 }
 
 function normalizeAnswers(value: unknown): Record<CheckpointReportFieldKey, string> {
@@ -71,10 +124,10 @@ function normalizeAnswers(value: unknown): Record<CheckpointReportFieldKey, stri
 }
 
 export function loadCheckpointReport(moduleId: MathLabModuleId, storage?: StorageLike): SavedCheckpointReport | undefined {
-  const resolvedStorage = storageFor(storage)
-  if (!resolvedStorage) return undefined
-
   try {
+    const resolvedStorage = storageFor(storage)
+    if (!resolvedStorage) return undefined
+
     const raw = resolvedStorage.getItem(checkpointReportStorageKey(moduleId))
     if (!raw) return undefined
 
@@ -86,7 +139,7 @@ export function loadCheckpointReport(moduleId: MathLabModuleId, storage?: Storag
       routeId: parsed.routeId,
       moduleId,
       answers: normalizeAnswers(parsed.answers),
-      evidence: isRecord(parsed.evidence) ? parsed.evidence as unknown as ExperimentEvidence : undefined,
+      evidence: normalizeEvidence(parsed.evidence),
       completed: Boolean(parsed.completed),
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : new Date().toISOString(),
     }
@@ -101,14 +154,20 @@ export function loadCheckpointReport(moduleId: MathLabModuleId, storage?: Storag
 }
 
 export function saveCheckpointReport(report: SavedCheckpointReport, storage?: StorageLike): SavedCheckpointReport {
+  const answers = normalizeAnswers(report.answers)
   const nextReport: SavedCheckpointReport = {
     ...report,
-    answers: normalizeAnswers(report.answers),
-    completed: isCheckpointReportComplete(report),
+    answers,
+    evidence: normalizeEvidence(report.evidence),
+    completed: isCheckpointReportComplete({ ...report, answers }),
     updatedAt: new Date().toISOString(),
   }
 
-  storageFor(storage)?.setItem(checkpointReportStorageKey(report.moduleId), JSON.stringify(nextReport))
+  try {
+    storageFor(storage)?.setItem(checkpointReportStorageKey(report.moduleId), JSON.stringify(nextReport))
+  } catch {
+    // Storage can be blocked, unavailable, or over quota; callers still receive the normalized report.
+  }
   return nextReport
 }
 
@@ -153,7 +212,7 @@ export function buildCheckpointReportMarkdown(
 
   for (const report of reports) {
     const prompt = checkpointReportForModule(report.moduleId)
-    const evidence = report.evidence ?? prompt?.staticEvidence
+    const evidence = normalizeEvidence(report.evidence) ?? prompt?.staticEvidence
     lines.push('', `## ${moduleTitle(report.moduleId, modules, locale)}`)
 
     if (evidence) {
