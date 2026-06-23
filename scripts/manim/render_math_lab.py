@@ -19,6 +19,8 @@ SCENES = {
     "MatrixColumnCombinationScene": "matrix-column-combination.mp4",
     "RankFlatteningScene": "rank-flattening.mp4",
     "NullSpaceCollapseScene": "null-space-collapse.mp4",
+    "SvdLowRankReconstructionScene": "svd-low-rank-reconstruction.mp4",
+    "PcaCenteringProjectionScene": "pca-centering-projection.mp4",
     "VectorSpanNormScene": "vector-span-norm.mp4",
     "GradientDescentScene": "gradient-descent.mp4",
     "BeginnerDerivativeWindowScene": "beginner-derivative-window.mp4",
@@ -87,6 +89,52 @@ def linear_algebra_poster(title: str, caption: str, mode: str) -> str:
   <text x="680" y="362" fill="#d9463f" font-family="Arial, sans-serif" font-size="28" font-weight="700">A v = 0</text>
   <text x="246" y="206" fill="#d9463f" font-family="Arial, sans-serif" font-size="27" font-weight="700">erased direction</text>
 """,
+        "svd": """
+  <g transform="translate(120 126)">
+    <rect x="0" y="136" width="48" height="190" rx="8" fill="#3868ff" stroke="#10162f" stroke-width="3"/>
+    <rect x="70" y="194" width="48" height="132" rx="8" fill="#3868ff" stroke="#10162f" stroke-width="3"/>
+    <rect x="140" y="238" width="48" height="88" rx="8" fill="#3868ff" stroke="#10162f" stroke-width="3"/>
+    <rect x="210" y="282" width="48" height="44" rx="8" fill="#6f42c1" opacity="0.38" stroke="#10162f" stroke-width="3"/>
+    <rect x="280" y="302" width="48" height="24" rx="8" fill="#6f42c1" opacity="0.26" stroke="#10162f" stroke-width="3"/>
+    <text x="0" y="360" fill="#475467" font-family="Arial, sans-serif" font-size="24">keep large singular values</text>
+  </g>
+  <g transform="translate(562 146)">
+    <rect x="0" y="0" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="52" y="0" width="42" height="42" rx="6" fill="#3868ff" opacity="0.26" stroke="#10162f" stroke-width="3"/>
+    <rect x="104" y="0" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="0" y="52" width="42" height="42" rx="6" fill="#3868ff" opacity="0.24" stroke="#10162f" stroke-width="3"/>
+    <rect x="52" y="52" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="104" y="52" width="42" height="42" rx="6" fill="#3868ff" opacity="0.18" stroke="#10162f" stroke-width="3"/>
+    <rect x="0" y="104" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="52" y="104" width="42" height="42" rx="6" fill="#3868ff" opacity="0.2" stroke="#10162f" stroke-width="3"/>
+    <rect x="104" y="104" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <path d="M188 74H274" stroke="#d65a31" stroke-width="9" stroke-linecap="round"/>
+    <path d="M258 54L298 74L258 94Z" fill="#d65a31"/>
+    <rect x="328" y="26" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <rect x="380" y="26" width="42" height="42" rx="6" fill="#3868ff" opacity="0.12" stroke="#10162f" stroke-width="3"/>
+    <rect x="328" y="78" width="42" height="42" rx="6" fill="#3868ff" opacity="0.12" stroke="#10162f" stroke-width="3"/>
+    <rect x="380" y="78" width="42" height="42" rx="6" fill="#0f9f7a" stroke="#10162f" stroke-width="3"/>
+    <text x="-8" y="198" fill="#475467" font-family="Arial, sans-serif" font-size="24">structure first, detail later</text>
+  </g>
+  <text x="116" y="110" fill="#10162f" font-family="Arial, sans-serif" font-size="28" font-weight="700">A_k = first k singular layers</text>
+""",
+        "pca": """
+  <path d="M118 392H548M170 120V426" stroke="#7b8497" stroke-width="3"/>
+  <g fill="#3868ff" stroke="#10162f" stroke-width="3">
+    <circle cx="216" cy="312" r="12"/><circle cx="258" cy="282" r="12"/><circle cx="306" cy="260" r="12"/>
+    <circle cx="348" cy="236" r="12"/><circle cx="400" cy="214" r="12"/><circle cx="452" cy="186" r="12"/>
+  </g>
+  <circle cx="330" cy="248" r="15" fill="#ffd84d" stroke="#10162f" stroke-width="4"/>
+  <path d="M330 248L220 328" stroke="#d65a31" stroke-width="7" stroke-linecap="round" stroke-dasharray="12 10"/>
+  <path d="M220 328L500 170" stroke="#f2b84b" stroke-width="10" stroke-linecap="round"/>
+  <g fill="#f2b84b" stroke="#10162f" stroke-width="3">
+    <circle cx="252" cy="310" r="10"/><circle cx="296" cy="286" r="10"/><circle cx="336" cy="263" r="10"/>
+    <circle cx="374" cy="242" r="10"/><circle cx="420" cy="216" r="10"/><circle cx="468" cy="190" r="10"/>
+  </g>
+  <text x="596" y="190" fill="#10162f" font-family="Arial, sans-serif" font-size="28" font-weight="700">1. subtract the mean</text>
+  <text x="596" y="250" fill="#10162f" font-family="Arial, sans-serif" font-size="28" font-weight="700">2. find max variance</text>
+  <text x="596" y="310" fill="#10162f" font-family="Arial, sans-serif" font-size="28" font-weight="700">3. project onto it</text>
+""",
     }
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="{title}">
   <rect width="960" height="540" fill="#fffaf1"/>
@@ -126,6 +174,16 @@ POSTER_SVGS = {
         "Null space is what the matrix erases",
         "A null-space direction is a real input change that becomes zero output.",
         "null",
+    ),
+    "SvdLowRankReconstructionScene": linear_algebra_poster(
+        "SVD keeps the strongest matrix directions",
+        "Low-rank reconstruction keeps the large singular layers before weaker details.",
+        "svd",
+    ),
+    "PcaCenteringProjectionScene": linear_algebra_poster(
+        "PCA centers before projecting variance",
+        "Center the cloud, then keep the direction with the largest projection variance.",
+        "pca",
     ),
     "BeginnerDerivativeWindowScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Derivative window shrinking to tangent slope">
   <rect width="960" height="540" fill="#fffaf1"/>
@@ -298,6 +356,8 @@ FALLBACK_TITLES = {
     "MatrixColumnCombinationScene": "Matrix-vector multiplication mixes columns",
     "RankFlatteningScene": "Rank counts effective output directions",
     "NullSpaceCollapseScene": "Null space is what the matrix erases",
+    "SvdLowRankReconstructionScene": "SVD keeps the strongest matrix directions",
+    "PcaCenteringProjectionScene": "PCA centers before projecting variance",
     "BeginnerDerivativeWindowScene": "Derivative window shrinks to the tangent",
     "BeginnerChainRuleBackpropScene": "Chain rule sends gradients backward",
     "BeginnerLearningRateBehaviorScene": "Same slope, different step size",
@@ -360,6 +420,40 @@ def write_fallback_video(scene_name: str, out_path: Path) -> None:
             for offset, color in [(170, "#f2b84b"), (440, "#0f9f7a"), (710, "#d9463f")]:
                 draw.arc((offset - 95, 180, offset + 95, 390), 190, 350, fill="#3868ff", width=7)
                 draw.line((offset - 70, 230, offset - 70 + 130 * progress, 340 - 110 * abs(progress - 0.5)), fill=color, width=7)
+        elif scene_name == "SvdLowRankReconstructionScene":
+            for index, height in enumerate([190, 138, 92, 46, 26]):
+                x = 128 + index * 68
+                color = "#3868ff" if index < 3 or progress < 0.55 else "#d7dbea"
+                draw.rounded_rectangle((x, 382 - height, x + 46, 382), radius=8, fill=color, outline="#10162f", width=3)
+                draw.text((x + 8, 396), f"s{index + 1}", fill="#475467", font=font_body)
+            draw.text((108, 152), "A_k keeps the first k singular layers", fill="#10162f", font=font_body)
+            for row in range(4):
+                for col in range(4):
+                    strong = row == col or row + col == 3
+                    color = "#0f9f7a" if strong else ("#9ee6ff" if progress < 0.55 else "#e7eef7")
+                    x = 560 + col * 48
+                    y = 192 + row * 48
+                    draw.rounded_rectangle((x, y, x + 38, y + 38), radius=6, fill=color, outline="#10162f", width=2)
+            draw.text((532, 414), "structure first, detail later", fill="#475467", font=font_body)
+        elif scene_name == "PcaCenteringProjectionScene":
+            draw.line((130, 384, 600, 384), fill="#7b8497", width=3)
+            draw.line((190, 132, 190, 420), fill="#7b8497", width=3)
+            raw_points = [(236, 310), (282, 280), (330, 258), (374, 236), (424, 214), (476, 188)]
+            mean = (354, 248)
+            if progress < 0.48:
+                for point in raw_points:
+                    draw.ellipse((point[0] - 11, point[1] - 11, point[0] + 11, point[1] + 11), fill="#3868ff", outline="#10162f", width=3)
+                draw.ellipse((mean[0] - 14, mean[1] - 14, mean[0] + 14, mean[1] + 14), fill="#ffd84d", outline="#10162f", width=3)
+                draw.text((560, 174), "subtract the mean", fill="#10162f", font=font_body)
+            else:
+                centered = [(x - 164, y + 88) for x, y in raw_points]
+                draw.line((210, 346, 526, 168), fill="#f2b84b", width=8)
+                for index, point in enumerate(centered):
+                    draw.ellipse((point[0] - 11, point[1] - 11, point[0] + 11, point[1] + 11), fill="#0f9f7a", outline="#10162f", width=3)
+                    projected_x = 230 + index * 48
+                    projected_y = 335 - index * 27
+                    draw.ellipse((projected_x - 9, projected_y - 9, projected_x + 9, projected_y + 9), fill="#f2b84b", outline="#10162f", width=2)
+                draw.text((560, 174), "project max variance", fill="#10162f", font=font_body)
         else:
             points = []
             for index in range(100):

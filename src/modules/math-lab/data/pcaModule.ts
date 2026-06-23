@@ -234,6 +234,7 @@ Read it in layers:
 
 When original features are strongly correlated, the covariance matrix has large off-diagonal entries. PCA aims to rotate into a new coordinate system where the covariance matrix becomes diagonal: new coordinates have zero covariance and are ordered by decreasing variance.`,
     ),
+    { visualIds: ['pca-centering-projection-video'] },
   ),
   section(
     'pca-diagonalization-and-projection',
@@ -662,7 +663,23 @@ export function buildPcaModule(base: MathLabModule): MathLabModule {
     ],
     sections,
     toc: sections.map(({ id, level, title }) => ({ id, level, title })),
-    visuals: [],
+    visuals: [
+      {
+        id: 'pca-centering-projection-video',
+        type: 'manim-video',
+        title: copy('PCA 中心化与投影', 'PCA Centering and Projection'),
+        assetPath: '/manim/math-lab/pca-centering-projection.mp4',
+        posterPath: '/manim/math-lab/pca-centering-projection.svg',
+        transcript: copy(
+          md`动画先标出原始点云的均值，再把点云平移到均值为零的位置；随后沿最大方差方向投影。请把这个顺序记牢：不先中心化，PCA 读到的会混入“离原点多远”。`,
+          md`The animation first marks the mean of the raw point cloud, moves the cloud to zero mean, and then projects along the maximum-variance direction. Keep the order: without centering first, PCA also reads "how far the cloud is from the origin."`,
+        ),
+        learningPurpose: copy(
+          '把中心化、主方向和投影误差连成一个连续动作，帮助学生理解 PCA 为什么不是直接删特征。',
+          'Connect centering, principal direction, and projection into one continuous action, helping learners see why PCA is not just dropping features.',
+        ),
+      },
+    ],
     labs: [
       {
         id: 'pca-projection-lab',

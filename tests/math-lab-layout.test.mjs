@@ -269,7 +269,7 @@ test('manim pipeline and existing math lab video assets remain present', () => {
   assert.ok(existsSync(new URL('scripts/manim/render_math_lab.py', root)))
 
   const metadata = JSON.parse(read('public/manim/math-lab/metadata.json'))
-  assert.equal(metadata.scenes.length, 17)
+  assert.equal(metadata.scenes.length, 19)
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'VectorSpanNormScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'TaylorPolynomialScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'MonteCarloSamplingScene'))
@@ -279,6 +279,8 @@ test('manim pipeline and existing math lab video assets remain present', () => {
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerProbabilityFrequencyScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerConditionalBayesScene'))
   assert.ok(metadata.scenes.some((scene) => scene.scene === 'BeginnerCalibrationCrossEntropyScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'SvdLowRankReconstructionScene'))
+  assert.ok(metadata.scenes.some((scene) => scene.scene === 'PcaCenteringProjectionScene'))
 
   for (const scene of metadata.scenes) {
     const assetPath = scene.assetPath.replace(/^\//, 'public/')
@@ -291,6 +293,7 @@ test('manim pipeline and existing math lab video assets remain present', () => {
 test('linear algebra route Manim scenes are registered', () => {
   const sceneSource = read('scripts/manim/scenes/math_lab_basics.py')
   const renderSource = read('scripts/manim/render_math_lab.py')
+  const metadata = JSON.parse(read('public/manim/math-lab/metadata.json'))
 
   for (const sceneName of [
     'VectorDistanceNormScene',
@@ -298,9 +301,12 @@ test('linear algebra route Manim scenes are registered', () => {
     'MatrixColumnCombinationScene',
     'RankFlatteningScene',
     'NullSpaceCollapseScene',
+    'SvdLowRankReconstructionScene',
+    'PcaCenteringProjectionScene',
   ]) {
     assert.match(sceneSource, new RegExp(`class ${sceneName}`))
     assert.match(renderSource, new RegExp(sceneName))
+    assert.ok(metadata.scenes.some((scene) => scene.scene === sceneName), `${sceneName} should be in metadata`)
   }
 
   for (const assetPath of [
@@ -314,6 +320,10 @@ test('linear algebra route Manim scenes are registered', () => {
     'public/manim/math-lab/rank-flattening.svg',
     'public/manim/math-lab/null-space-collapse.mp4',
     'public/manim/math-lab/null-space-collapse.svg',
+    'public/manim/math-lab/svd-low-rank-reconstruction.mp4',
+    'public/manim/math-lab/svd-low-rank-reconstruction.svg',
+    'public/manim/math-lab/pca-centering-projection.mp4',
+    'public/manim/math-lab/pca-centering-projection.svg',
   ]) {
     assert.ok(existsSync(new URL(assetPath, root)), `${assetPath} should exist`)
   }

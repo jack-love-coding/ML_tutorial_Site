@@ -732,7 +732,7 @@ In ML and AI, low-rank approximation is not decorative. It is an engineering too
 - PCA directly uses the SVD of a centered data matrix and takes the leading columns of \(V\) as principal directions.
 - Large-model weight analysis and low-rank adaptation inspect whether weight updates concentrate in a small number of singular directions.`,
     ),
-    { labIds: ['svd-low-rank-lab'] },
+    { visualIds: ['svd-low-rank-reconstruction-video'], labIds: ['svd-low-rank-lab'] },
   ),
   section(
     'svd-review-questions',
@@ -928,7 +928,23 @@ export function buildSvdModule(base: MathLabModule): MathLabModule {
     ],
     sections,
     toc: sections.map(({ id, level, title }) => ({ id, level, title })),
-    visuals: [],
+    visuals: [
+      {
+        id: 'svd-low-rank-reconstruction-video',
+        type: 'manim-video',
+        title: copy('SVD 低秩重建', 'SVD Low-Rank Reconstruction'),
+        assetPath: '/manim/math-lab/svd-low-rank-reconstruction.mp4',
+        posterPath: '/manim/math-lab/svd-low-rank-reconstruction.svg',
+        transcript: copy(
+          md`动画先把奇异值按强弱排开，再把矩阵图案从“完整细节”变成“只保留强方向的低秩重建”。请注意：被保留下来的不是某几行或某几列，而是前几个 rank-one 奇异层。`,
+          md`The animation orders singular values by strength, then turns a detailed matrix pattern into a low-rank reconstruction that keeps only the strong directions. Notice that the retained pieces are not a few rows or columns; they are the leading rank-one singular layers.`,
+        ),
+        learningPurpose: copy(
+          '帮助学生把低秩近似看成按奇异值强弱逐层重建，而不是随意删掉矩阵元素。',
+          'Help learners read low-rank approximation as layered reconstruction by singular-value strength, not arbitrary deletion of matrix entries.',
+        ),
+      },
+    ],
     labs: [
       {
         id: 'svd-low-rank-lab',
