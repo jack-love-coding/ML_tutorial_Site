@@ -447,24 +447,31 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     'calculus-training-code-diagnostics',
   ]
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+  const expectedPrimaryLabs: Record<string, string> = {
+    'calculus-functions-rate-change': 'LocalChangeStoryLab',
+    'calculus-derivatives-local-change': 'LocalChangeStoryLab',
+    'calculus-partial-derivatives-gradients': 'MathGradientLab',
+    'calculus-gradient-descent': 'MathGradientLab',
+    'calculus-sgd-batch-noise': 'MathGradientLab',
+    'calculus-optimizer-comparison': 'MathGradientLab',
+    'calculus-training-code-diagnostics': 'TrainingDiagnosticsLab',
+  }
 
-  assert.deepEqual(
-    routeIds.map((id) => byId[id]?.nextModuleIds[0]),
-    [
-      'calculus-derivatives-local-change',
-      'calculus-partial-derivatives-gradients',
-      'calculus-gradient-descent',
-      'calculus-sgd-batch-noise',
-      'calculus-optimizer-comparison',
-      'calculus-training-code-diagnostics',
-      'taylor-series',
-    ],
-  )
+  const requiredChineseAnchors: Record<string, string[]> = {
+    'calculus-functions-rate-change': ['买菜', '小车', '平均变化率'],
+    'calculus-derivatives-local-change': ['观察窗口', '割线', '切线'],
+    'calculus-partial-derivatives-gradients': ['旋钮', '偏导数', '梯度指向'],
+    'calculus-gradient-descent': ['负梯度', '学习率', '震荡'],
+    'calculus-sgd-batch-noise': ['batch size', 'iteration', 'epoch'],
+    'calculus-optimizer-comparison': ['Momentum', 'RMSProp', 'Adam'],
+    'calculus-training-code-diagnostics': ['zero_grad', 'loss.backward', 'optimizer.step'],
+  }
 
   for (const id of routeIds) {
     const moduleDefinition = byId[id]
     assert.ok(moduleDefinition, `${id} should be registered`)
     assert.equal(moduleDefinition.difficulty, 'foundation')
+    assert.equal(moduleDefinition.enhancementTier, 'interactive')
     assert.ok(moduleDefinition.title['zh-CN'])
     assert.ok(moduleDefinition.title.en)
     assert.ok(moduleDefinition.subtitle['zh-CN'])
@@ -477,38 +484,39 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     assert.ok(moduleDefinition.misconceptions.length >= 2, `${id} should include misconception feedback`)
     assert.equal(moduleDefinition.sourceNoteFile, 'math-lab-calculus-route-sources.md')
     assert.ok(moduleDefinition.sourceReferences?.length, `${id} should have source references`)
+    assert.equal(moduleDefinition.labs[0]?.componentName, expectedPrimaryLabs[id], `${id} should use the planned primary lab`)
+
+    const visualIds = new Set(moduleDefinition.visuals.map((visual) => visual.id))
+    const labIds = new Set(moduleDefinition.labs.map((lab) => lab.id))
+    for (const section of moduleDefinition.sections) {
+      for (const visualId of section.visualIds ?? []) {
+        assert.equal(visualIds.has(visualId), true, `${id} references missing visual ${visualId}`)
+      }
+      for (const labId of section.labIds ?? []) {
+        assert.equal(labIds.has(labId), true, `${id} references missing lab ${labId}`)
+      }
+    }
 
     const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
     assert.match(englishBody, /Review Questions/)
+
+    const zhBody = moduleDefinition.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+    for (const anchor of requiredChineseAnchors[id] ?? []) {
+      assert.match(zhBody, new RegExp(anchor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${id} should include ${anchor}`)
+    }
   }
 
-  assert.match(
-    byId['calculus-functions-rate-change']!.sections.map((section) => section.content['zh-CN']).join('\n'),
-    /买菜|小车|平均变化率/,
-  )
-  assert.match(
-    byId['calculus-derivatives-local-change']!.sections.map((section) => section.content['zh-CN']).join('\n'),
-    /观察窗口|割线|切线/,
-  )
-  assert.match(
-    byId['calculus-partial-derivatives-gradients']!.sections.map((section) => section.content['zh-CN']).join('\n'),
-    /旋钮|偏导数|梯度指向/,
-  )
-  assert.match(
-    byId['calculus-gradient-descent']!.sections.map((section) => section.content['zh-CN']).join('\n'),
-    /负梯度|学习率|震荡/,
-  )
-  assert.match(
-    byId['calculus-sgd-batch-noise']!.sections.map((section) => section.content['zh-CN']).join('\n'),
-    /batch size|iteration|epoch/,
-  )
-  assert.match(
-    byId['calculus-optimizer-comparison']!.sections.map((section) => section.content['zh-CN']).join('\n'),
-    /Momentum|RMSProp|Adam/,
-  )
-  assert.match(
-    byId['calculus-training-code-diagnostics']!.sections.map((section) => section.content['zh-CN']).join('\n'),
-    /zero_grad|loss\.backward|optimizer\.step/,
+  assert.deepEqual(
+    routeIds.map((id) => byId[id]?.nextModuleIds[0]),
+    [
+      'calculus-derivatives-local-change',
+      'calculus-partial-derivatives-gradients',
+      'calculus-gradient-descent',
+      'calculus-sgd-batch-noise',
+      'calculus-optimizer-comparison',
+      'calculus-training-code-diagnostics',
+      'taylor-series',
+    ],
   )
 })
 
@@ -601,12 +609,11 @@ test('zero-base beginner modules expose complete bilingual teaching surfaces', (
   const beginnerModules = beginnerFoundationModules.filter((moduleDefinition) =>
     [
       'beginner-linear-algebra',
-      'beginner-calculus',
       'beginner-probability-distributions',
     ].includes(moduleDefinition.id),
   )
 
-  assert.equal(beginnerModules.length, 3)
+  assert.equal(beginnerModules.length, 2)
 
   for (const moduleDefinition of beginnerModules) {
     assert.equal(moduleDefinition.difficulty, 'foundation')
@@ -642,8 +649,6 @@ test('zero-base beginner modules expose complete bilingual teaching surfaces', (
 
   const byId = Object.fromEntries(beginnerModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
   assert.ok(byId['beginner-linear-algebra']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
-  assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'LocalChangeStoryLab'))
-  assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'BackpropBlockLab'))
   assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'DistributionBuilderLab'))
   assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'ConditionalBayesLab'))
 })
@@ -702,16 +707,6 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
       'beginner-linear-combination-span-longform',
       'beginner-matrix-transform-longform',
     ],
-    'beginner-calculus': [
-      'beginner-function-machine-longform',
-      'beginner-average-to-derivative-longform',
-      'beginner-derivative-window-longform',
-      'beginner-derivative-tangent-longform',
-      'beginner-partial-gradient-longform',
-      'beginner-chain-rule-backprop-longform',
-      'beginner-gradient-taylor-update-longform',
-      'beginner-learning-rate-behavior-longform',
-    ],
     'beginner-probability-distributions': [
       'beginner-probability-why-longform',
       'beginner-sample-space-random-variable-longform',
@@ -745,13 +740,6 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
   const linearBody = byId['beginner-linear-algebra']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(linearBody, /向量回答的是：一个对象在每个特征方向上走了多少/)
   assert.match(linearBody, /矩阵回答的是：多个输入特征如何被加权混合成新的表达/)
-
-  const calculusBody = byId['beginner-calculus']!.sections.map((section) => section.content['zh-CN']).join('\n')
-  assert.match(calculusBody, /函数回答的是：输入改变时输出按什么规则改变/)
-  assert.match(calculusBody, /导数回答的是：在当前点附近，输入动一点，输出会动多少/)
-  assert.match(calculusBody, /偏导数的入门读法/)
-  assert.match(calculusBody, /上游梯度/)
-  assert.match(calculusBody, /有限差分/)
 
   const probabilityBody = byId['beginner-probability-distributions']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(probabilityBody, /概率回答的是：在明确的样本空间里，长期会怎样分配结果/)
@@ -2059,7 +2047,7 @@ test('diagnostic scoring recommends the earliest weak math foundation module', (
   assert.ok(weakLinearAlgebra.weakConcepts.includes('dot-product'))
 
   const weakCalculus = scoreDiagnostic({ ...allCorrect, 'diag-derivative': 'global-average' })
-  assert.equal(weakCalculus.recommendedStartModuleId, 'beginner-calculus')
+  assert.equal(weakCalculus.recommendedStartModuleId, 'calculus-functions-rate-change')
 
   const weakProbability = scoreDiagnostic({ ...allCorrect, 'diag-entropy': 'coordinates' })
   assert.equal(weakProbability.recommendedStartModuleId, 'beginner-probability-distributions')

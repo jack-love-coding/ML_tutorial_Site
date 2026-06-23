@@ -138,7 +138,7 @@ function emptyDimensionScores() {
 
 function recommendStartModule(scores: Record<DiagnosticDimension, number>): MathLabModuleId {
   if (scores.linearAlgebra < 0.75) return 'beginner-linear-algebra'
-  if (scores.calculus < 0.75) return 'beginner-calculus'
+  if (scores.calculus < 0.75) return 'calculus-functions-rate-change'
   if (scores.probability < 0.75) return 'beginner-probability-distributions'
   if (scores.optimization < 0.75) return 'optimization'
   return 'beginner-linear-algebra'
