@@ -2,6 +2,8 @@ export type MathLabLocale = 'zh-CN' | 'en'
 
 export type MathLabModuleId = string
 
+export type LearningRouteId = 'ai-math-main-path' | 'linear-algebra-route' | 'numerical-deepening-path'
+
 export type MathLabDifficulty = 'foundation' | 'intermediate' | 'advanced'
 
 export type EnhancementTier = 'core' | 'interactive' | 'video'
@@ -171,16 +173,16 @@ export interface MathLabProgress {
 }
 
 export interface LearningRoute {
-  id: string
+  id: LearningRouteId
   title: LocalizedCopy
   description: LocalizedCopy
   audience: LocalizedCopy
-  chapterModuleIds: MathLabModuleId[]
+  chapterModuleIds: readonly MathLabModuleId[]
   nextStepRule: 'first-incomplete'
 }
 
 export interface LearningRouteProgressSummary {
-  routeId: string
+  routeId: LearningRouteId
   completedCount: number
   totalCount: number
   completedModuleId?: MathLabModuleId
