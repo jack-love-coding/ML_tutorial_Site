@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { diagnosticQuestions, scoreDiagnostic } from '../src/modules/math-lab/data/diagnostic.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import {
@@ -394,6 +394,19 @@ test('linear algebra route split exposes seven ordered case-driven chapters', ()
   assert.ok(byId['eigenvalues-eigenvectors']!.sourceReferences?.length)
   assert.ok(byId.svd!.sourceReferences?.length)
   assert.ok(byId.pca!.sourceReferences?.length)
+
+  const root = new URL('../', import.meta.url)
+  const modulesSource = readFileSync(new URL('src/modules/math-lab/data/modules.ts', root), 'utf8')
+  assert.doesNotMatch(modulesSource, /withLinearAlgebraRouteReferences|linearAlgebraRouteReferenceIds/)
+
+  for (const sourcePath of [
+    'src/modules/math-lab/data/eigenvaluesModule.ts',
+    'src/modules/math-lab/data/svdModule.ts',
+    'src/modules/math-lab/data/pcaModule.ts',
+  ]) {
+    const source = readFileSync(new URL(sourcePath, root), 'utf8')
+    assert.match(source, /sourceReferences:\s*\[/, `${sourcePath} should own source references`)
+  }
 })
 
 test('later linear algebra route chapters use concrete case studies instead of shallow AI footnotes', () => {
@@ -408,9 +421,17 @@ test('later linear algebra route chapters use concrete case studies instead of s
   const svdText = svdModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
   const pcaText = pcaModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
 
-  assert.match(eigenText, /PageRank|网页|链接网络|稳定方向/)
-  assert.match(svdText, /图片压缩|用户[-—]物品|低秩|噪声/)
-  assert.match(pcaText, /embedding 可视化|离群点|批次|中心化/)
+  assert.match(eigenText, /PageRank/)
+  assert.match(eigenText, /网页|链接/)
+  assert.match(eigenText, /稳定.*方向|方向.*稳定/)
+  assert.match(svdText, /图片压缩/)
+  assert.match(svdText, /用户[-—]物品/)
+  assert.match(svdText, /低秩/)
+  assert.match(svdText, /噪声/)
+  assert.match(pcaText, /embedding 可视化/)
+  assert.match(pcaText, /离群点/)
+  assert.match(pcaText, /批次/)
+  assert.match(pcaText, /中心化/)
 
   assert.doesNotMatch(`${eigenText}\n${svdText}\n${pcaText}`, /它在 AI 里出现在哪里/)
 })
