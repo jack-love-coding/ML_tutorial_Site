@@ -540,6 +540,35 @@ test('learning routes expose a linear algebra route with next-step progress', ()
   assert.equal(nextModuleForRoute(route, linearAlgebraRouteModuleIds), undefined)
 })
 
+test('learning routes expose a calculus route with next-step progress', () => {
+  const calculusRouteModuleIds = [
+    'calculus-functions-rate-change',
+    'calculus-derivatives-local-change',
+    'calculus-partial-derivatives-gradients',
+    'calculus-gradient-descent',
+    'calculus-sgd-batch-noise',
+    'calculus-optimizer-comparison',
+    'calculus-training-code-diagnostics',
+  ]
+
+  const route = learningRoutes.find((candidate) => candidate.id === 'calculus-route')
+  assert.ok(route)
+  assert.equal(route.title['zh-CN'], '微积分路线')
+  assert.equal(route.title.en, 'Calculus Route')
+  assert.deepEqual(route.chapterModuleIds, calculusRouteModuleIds)
+
+  const summary = routeProgressSummary(route, [
+    'calculus-functions-rate-change',
+    'calculus-derivatives-local-change',
+  ])
+  assert.equal(summary.completedCount, 2)
+  assert.equal(summary.totalCount, 7)
+  assert.equal(summary.nextModuleId, 'calculus-partial-derivatives-gradients')
+  assert.equal(summary.completedModuleId, 'calculus-derivatives-local-change')
+
+  assert.equal(nextModuleForRoute(route, calculusRouteModuleIds), undefined)
+})
+
 test('later linear algebra route chapters use concrete case studies instead of shallow AI footnotes', () => {
   const eigenModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'eigenvalues-eigenvectors')
   const svdModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'svd')

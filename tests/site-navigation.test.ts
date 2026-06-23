@@ -89,6 +89,10 @@ test('math lab navigation menu covers all lab module routes with localized label
       'calculus-training-code-diagnostics',
     ],
   )
+  assert.deepEqual(
+    learningRouteById['calculus-route']?.chapterModuleIds,
+    calculusRouteGroup.items.map((item) => item.id),
+  )
 
   assert.deepEqual(
     mathLabNavigationGroups.map((group) => group.id),
