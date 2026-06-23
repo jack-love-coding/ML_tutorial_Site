@@ -113,8 +113,8 @@ const evidence = computed<ExperimentEvidence>(() => ({
   },
   metrics: [
     { label: { 'zh-CN': '保留主成分', en: 'Kept components' }, value: keptComponents.value },
-    { label: { 'zh-CN': 'explainedVariance', en: 'explainedVariance' }, value: `${(evaluation.value.retainedVariance * 100).toFixed(1)}%` },
-    { label: { 'zh-CN': 'reconstructionError', en: 'reconstructionError' }, value: evaluation.value.reconstructionRmse.toFixed(3) },
+    { label: { 'zh-CN': '解释方差', en: 'explainedVariance' }, value: `${(evaluation.value.retainedVariance * 100).toFixed(1)}%` },
+    { label: { 'zh-CN': '重建误差', en: 'reconstructionError' }, value: evaluation.value.reconstructionRmse.toFixed(3) },
     { label: { 'zh-CN': '整体平移', en: 'Common shift' }, value: meanShift.value.toFixed(2) },
     { label: { 'zh-CN': '点云类型', en: 'Point cloud' }, value: datasetKind.value },
   ],

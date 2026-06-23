@@ -305,6 +305,8 @@ const evidence = computed<ExperimentEvidence>(() => ({
     { label: { 'zh-CN': '欧氏距离', en: 'Euclidean distance' }, value: round(weightedDistance.value, 3) },
     { label: { 'zh-CN': '点积', en: 'Dot product' }, value: round(weightedDot.value, 3) },
     { label: { 'zh-CN': 'cosine', en: 'cosine' }, value: round(weightedCosine.value, 3) },
+    { label: { 'zh-CN': '最近 pair', en: 'Closest pair' }, value: closestPairLabel.value },
+    { label: { 'zh-CN': '最像 pair', en: 'Most similar pair' }, value: mostSimilarPairLabel.value },
   ],
   prompt: {
     'zh-CN': '解释距离和方向相似度是否给出同一种判断。',

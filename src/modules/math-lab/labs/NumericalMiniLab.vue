@@ -265,9 +265,9 @@ const evidence = computed<ExperimentEvidence | undefined>(() => {
       },
       metrics: [
         { label: { 'zh-CN': '保留秩 k', en: 'Kept rank k' }, value: svd.value.keptRank },
-        { label: { 'zh-CN': 'retainedEnergy', en: 'retainedEnergy' }, value: `${(svd.value.retainedEnergy * 100).toFixed(1)}%` },
-        { label: { 'zh-CN': 'spectralError', en: 'spectralError' }, value: svd.value.spectralError.toFixed(3) },
-        { label: { 'zh-CN': 'frobeniusError', en: 'frobeniusError' }, value: svd.value.frobeniusError.toFixed(3) },
+        { label: { 'zh-CN': '保留能量', en: 'retainedEnergy' }, value: `${(svd.value.retainedEnergy * 100).toFixed(1)}%` },
+        { label: { 'zh-CN': '谱误差', en: 'spectralError' }, value: svd.value.spectralError.toFixed(3) },
+        { label: { 'zh-CN': 'Frobenius 误差', en: 'frobeniusError' }, value: svd.value.frobeniusError.toFixed(3) },
       ],
       prompt: {
         'zh-CN': '解释保留能量高时，为什么仍可能丢掉小细节。',

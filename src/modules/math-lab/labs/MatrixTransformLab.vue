@@ -39,6 +39,8 @@ const determinant = computed(() => determinant2x2(matrixValue.value))
 const invertible = computed(() => isInvertible2x2(matrixValue.value, 0.05))
 const basisI = computed(() => matrixVectorMultiply(matrixValue.value, { x: 1, y: 0 }))
 const basisJ = computed(() => matrixVectorMultiply(matrixValue.value, { x: 0, y: 1 }))
+const probeVector: Vector2 = { x: 1.5, y: -0.5 }
+const transformedProbe = computed(() => matrixVectorMultiply(matrixValue.value, probeVector))
 
 function formatVector2(vector: { x: number; y: number }) {
   return `(${round(vector.x, 2)}, ${round(vector.y, 2)})`
@@ -106,6 +108,9 @@ const evidence = computed<ExperimentEvidence>(() => ({
     { label: { 'zh-CN': '矩阵 W', en: 'Matrix W' }, value: matrixValue.value.map((row) => `[${row.map((value) => round(value, 2)).join(', ')}]`).join(' ') },
     { label: { 'zh-CN': 'W e1', en: 'W e1' }, value: formatVector2(basisI.value) },
     { label: { 'zh-CN': 'W e2', en: 'W e2' }, value: formatVector2(basisJ.value) },
+    { label: { 'zh-CN': '探针 x', en: 'Probe x' }, value: formatVector2(probeVector) },
+    { label: { 'zh-CN': 'W x', en: 'W x' }, value: formatVector2(transformedProbe.value) },
+    { label: { 'zh-CN': '列组合', en: 'column combination' }, value: `${probeVector.x} W e1 + ${probeVector.y} W e2 = ${formatVector2(transformedProbe.value)}` },
     { label: { 'zh-CN': 'det(W)', en: 'det(W)' }, value: round(determinant.value, 3) },
     { label: { 'zh-CN': '可逆', en: 'invertible' }, value: invertible.value ? { 'zh-CN': '是', en: 'yes' } : { 'zh-CN': '接近不可逆', en: 'near no' } },
   ],

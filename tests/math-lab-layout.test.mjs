@@ -1,11 +1,22 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
-import { createSSRApp, h } from 'vue'
+import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
+import { createRenderer, createSSRApp, h, nextTick } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { createServer } from 'vite'
 
 const root = new URL('../', import.meta.url)
+const require = createRequire(import.meta.url)
+const vueRuntimeUrl = pathToFileURL(require.resolve('vue/dist/vue.runtime.esm-bundler.js')).href
+const exportHelperUrl = `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+export default function exportSfc(component, props) {
+  for (const [key, value] of props) component[key] = value
+  return component
+}
+`)}`
+const emptyModuleUrl = 'data:text/javascript;charset=utf-8,export default {}'
 
 function read(path) {
   return readFileSync(new URL(path, root), 'utf8')
@@ -55,6 +66,164 @@ async function renderSfcWithVite(path, propsOrLoader, setupApp) {
     return await renderToString(app)
   } finally {
     await server.close()
+  }
+}
+
+function createMemoryRenderer() {
+  return createRenderer({
+    patchProp(el, key, previousValue, nextValue) {
+      el.props[key] = nextValue
+    },
+    insert(el, parent) {
+      el.parent = parent
+      parent.children.push(el)
+    },
+    remove(el) {
+      if (!el.parent) return
+      el.parent.children = el.parent.children.filter((child) => child !== el)
+      el.parent = null
+    },
+    createElement(type) {
+      const el = {
+        type,
+        props: {},
+        children: [],
+        eventListeners: {},
+        parent: null,
+        addEventListener(eventName, handler) {
+          this.eventListeners[eventName] = this.eventListeners[eventName] ?? []
+          this.eventListeners[eventName].push(handler)
+        },
+        removeEventListener(eventName, handler) {
+          this.eventListeners[eventName] = (this.eventListeners[eventName] ?? []).filter((item) => item !== handler)
+        },
+      }
+      return el
+    },
+    createText(text) {
+      return { type: '#text', text, props: {}, children: [], parent: null }
+    },
+    createComment(text) {
+      return { type: '#comment', text, props: {}, children: [], parent: null }
+    },
+    setText(node, text) {
+      node.text = text
+    },
+    setElementText(node, text) {
+      node.text = text
+      node.children = []
+    },
+    parentNode(node) {
+      return node.parent
+    },
+    nextSibling() {
+      return null
+    },
+  })
+}
+
+function flattenRenderedNodes(node, nodes = []) {
+  nodes.push(node)
+  for (const child of node.children ?? []) {
+    flattenRenderedNodes(child, nodes)
+  }
+  return nodes
+}
+
+async function loadClientModuleWithVite(server, path, cache = new Map()) {
+  if (cache.has(path)) return cache.get(path)
+
+  const transformed = await server.transformRequest(path)
+  assert.ok(transformed?.code, `${path} should transform`)
+  let code = transformed.code
+    .replace(/import\s+\{\s*createHotContext[\s\S]*?;\s*/, '')
+    .replace(/import\.meta\.hot\s*=\s*__vite__createHotContext\([^;]+;\s*/, '')
+    .replace(/\n_sfc_main\.__hmrId[\s\S]*?import _export_sfc/, '\nimport _export_sfc')
+
+  const specifiers = new Set()
+  for (const match of code.matchAll(/(?:from\s+|import\s*)["']([^"']+)["']/g)) {
+    specifiers.add(match[1])
+  }
+
+  const replacements = new Map()
+  for (const specifier of specifiers) {
+    if (specifier.startsWith('/node_modules/.vite/deps/vue.js')) {
+      replacements.set(specifier, vueRuntimeUrl)
+    } else if (specifier.startsWith('/@id/__x00__plugin-vue:export-helper')) {
+      replacements.set(specifier, exportHelperUrl)
+    } else if (specifier.startsWith('/@vite/client') || specifier.includes('type=style')) {
+      replacements.set(specifier, emptyModuleUrl)
+    } else if (specifier.startsWith('/src/')) {
+      replacements.set(specifier, await loadClientModuleWithVite(server, specifier, cache))
+    }
+  }
+
+  for (const [specifier, replacement] of replacements) {
+    code = code.replaceAll(JSON.stringify(specifier), JSON.stringify(replacement))
+    code = code.replaceAll(`'${specifier}'`, `'${replacement}'`)
+  }
+
+  const moduleUrl = `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`
+  cache.set(path, moduleUrl)
+  return moduleUrl
+}
+
+async function mountClientSfc(path, props) {
+  const server = await createServer({
+    appType: 'custom',
+    logLevel: 'silent',
+    root: new URL('.', root).pathname,
+    server: { middlewareMode: true },
+  })
+  const container = { type: 'root', props: {}, children: [], parent: null }
+  const renderer = createMemoryRenderer()
+
+  try {
+    const moduleUrl = await loadClientModuleWithVite(server, path)
+    const module = await import(moduleUrl)
+    const app = renderer.createApp({
+      render: () => h(module.default, props),
+    })
+    app.mount(container)
+    await nextTick()
+    return {
+      container,
+      async update() {
+        await nextTick()
+        await nextTick()
+      },
+      async unmount() {
+        app.unmount()
+        await server.close()
+      },
+    }
+  } catch (error) {
+    await server.close()
+    throw error
+  }
+}
+
+async function collectSsrEvidence(path, props) {
+  const evidenceEvents = []
+  const html = await renderSfcWithVite(path, {
+    ...props,
+    onEvidenceChange: (evidence) => evidenceEvents.push(evidence),
+  })
+  assert.ok(html.length > 0)
+  return evidenceEvents
+}
+
+function metricValue(evidence, englishLabel) {
+  const metric = evidence.metrics.find((item) => item.label.en === englishLabel)
+  assert.ok(metric, `expected ${englishLabel} metric`)
+  return metric.value
+}
+
+function dispatchNodeEvent(node, eventName, event) {
+  const handlers = node.eventListeners?.[eventName] ?? []
+  assert.ok(handlers.length > 0, `expected ${eventName} listener on ${node.type}`)
+  for (const handler of handlers) {
+    handler(event)
   }
 }
 
@@ -576,6 +745,89 @@ test('checkpoint report card preserves saved evidence when no live evidence is p
       globalThis.window = previousWindow
     }
   }
+})
+
+test('matrix transform lab emits initial and updated dynamic checkpoint evidence', async () => {
+  const evidenceEvents = []
+  const mounted = await mountClientSfc('/src/modules/math-lab/labs/MatrixTransformLab.vue', {
+    locale: 'en',
+    onEvidenceChange: (evidence) => evidenceEvents.push(evidence),
+  })
+
+  try {
+    assert.ok(evidenceEvents.length >= 1)
+    const initialEvidence = evidenceEvents.at(-1)
+    assert.equal(initialEvidence.moduleId, 'linear-algebra-matrix-transformations')
+    assert.equal(initialEvidence.sourceId, 'matrix-transform-lab')
+    assert.match(String(metricValue(initialEvidence, 'Matrix W')), /\[1\.2, 0\.6\]/)
+
+    const firstMatrixInput = flattenRenderedNodes(mounted.container).find((node) => node.type === 'input')
+    assert.ok(firstMatrixInput, 'expected a matrix control input')
+    firstMatrixInput.value = '2'
+    dispatchNodeEvent(firstMatrixInput, 'input', { target: firstMatrixInput })
+    await mounted.update()
+
+    const updatedEvidence = evidenceEvents.at(-1)
+    assert.notEqual(metricValue(updatedEvidence, 'Matrix W'), metricValue(initialEvidence, 'Matrix W'))
+    assert.equal(metricValue(updatedEvidence, 'Probe x'), '(1.5, -0.5)')
+    assert.equal(metricValue(updatedEvidence, 'W x'), '(2.7, -0.95)')
+    assert.match(String(metricValue(updatedEvidence, 'column combination')), /1\.5 W e1 \+ -0\.5 W e2/)
+  } finally {
+    await mounted.unmount()
+  }
+})
+
+test('vector similarity lab evidence includes distance and similarity ranking readouts', async () => {
+  const evidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/VectorSimilarityLab.vue', {
+    locale: 'en',
+  })
+
+  assert.equal(evidenceEvents.length, 1)
+  assert.equal(evidenceEvents[0].moduleId, 'linear-algebra-distance-similarity')
+  assert.equal(evidenceEvents[0].sourceId, 'vector-similarity-lab')
+  assert.ok(metricValue(evidenceEvents[0], 'Closest pair'))
+  assert.ok(metricValue(evidenceEvents[0], 'Most similar pair'))
+})
+
+test('numerical mini lab emits evidence only for power iteration and svd modules', async () => {
+  const powerEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/NumericalMiniLab.vue', {
+    moduleId: 'eigenvalues-eigenvectors',
+    locale: 'en',
+  })
+  assert.equal(powerEvidenceEvents.length, 1)
+  assert.equal(powerEvidenceEvents[0].moduleId, 'eigenvalues-eigenvectors')
+  assert.equal(powerEvidenceEvents[0].sourceId, 'eigen-power-iteration-lab')
+  assert.ok(metricValue(powerEvidenceEvents[0], 'Rayleigh quotient'))
+  assert.ok(metricValue(powerEvidenceEvents[0], 'residual'))
+
+  const svdEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/NumericalMiniLab.vue', {
+    moduleId: 'svd',
+    locale: 'zh-CN',
+  })
+  assert.equal(svdEvidenceEvents.length, 1)
+  assert.equal(svdEvidenceEvents[0].moduleId, 'svd')
+  assert.equal(svdEvidenceEvents[0].sourceId, 'svd-low-rank-lab')
+  assert.ok(svdEvidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === '保留能量'))
+  assert.ok(svdEvidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === '谱误差'))
+  assert.ok(svdEvidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === 'Frobenius 误差'))
+
+  const taylorEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/NumericalMiniLab.vue', {
+    moduleId: 'taylor-series',
+    locale: 'en',
+  })
+  assert.equal(taylorEvidenceEvents.length, 0)
+})
+
+test('pca projection lab emits localized evidence labels for projection metrics', async () => {
+  const evidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/PcaProjectionLab.vue', {
+    locale: 'zh-CN',
+  })
+
+  assert.equal(evidenceEvents.length, 1)
+  assert.equal(evidenceEvents[0].moduleId, 'pca')
+  assert.equal(evidenceEvents[0].sourceId, 'pca-projection-lab')
+  assert.ok(evidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === '解释方差'))
+  assert.ok(evidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === '重建误差'))
 })
 
 test('math lab uses generated imported notes and local migrated assets', () => {
