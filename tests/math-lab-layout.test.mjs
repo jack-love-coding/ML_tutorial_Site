@@ -1,11 +1,61 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { createSSRApp, h } from 'vue'
+import { renderToString } from '@vue/server-renderer'
+import { createServer } from 'vite'
 
 const root = new URL('../', import.meta.url)
 
 function read(path) {
   return readFileSync(new URL(path, root), 'utf8')
+}
+
+function createMemoryStorage(initialEntries = []) {
+  const values = new Map(initialEntries)
+  return {
+    getItem(key) {
+      return values.has(key) ? values.get(key) : null
+    },
+    setItem(key, value) {
+      values.set(key, String(value))
+    },
+    removeItem(key) {
+      values.delete(key)
+    },
+    clear() {
+      values.clear()
+    },
+  }
+}
+
+async function renderSfcWithVite(path, propsOrLoader, setupApp) {
+  const server = await createServer({
+    appType: 'custom',
+    logLevel: 'silent',
+    root: new URL('.', root).pathname,
+    server: { middlewareMode: true },
+  })
+
+  try {
+    const props = typeof propsOrLoader === 'function' ? await propsOrLoader(server) : propsOrLoader
+    const module = await server.ssrLoadModule(path)
+    const app = createSSRApp({
+      render: () => h(module.default, props),
+    })
+
+    app.component('RouterLink', {
+      props: ['to'],
+      setup(linkProps, { slots }) {
+        return () => h('a', { href: String(linkProps.to) }, slots.default?.())
+      },
+    })
+
+    setupApp?.(app, server)
+    return await renderToString(app)
+  } finally {
+    await server.close()
+  }
 }
 
 test('math lab lazy routes are wired outside AlgorithmView', () => {
@@ -212,6 +262,92 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.doesNotMatch(homeSource, /\/math-lab\/modules\/beginner-calculus/)
   assert.match(homeSource, /\/math-lab\/modules\/beginner-probability-distributions/)
   assert.match(homeSource, /withPublicBase/)
+})
+
+test('learning route summary renders progress, next module, and action link', async () => {
+  let expectedNextTitle = ''
+  let expectedNextRoute = ''
+  const html = await renderSfcWithVite(
+    '/src/modules/math-lab/components/LearningRouteSummary.vue',
+    async (server) => {
+      const { learningRouteById } = await server.ssrLoadModule('/src/modules/math-lab/data/learningRoutes.ts')
+      const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+      const route = learningRouteById['linear-algebra-route']
+      const nextModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === route.chapterModuleIds[1])
+      expectedNextTitle = nextModule.title.en
+      expectedNextRoute = `/math-lab/modules/${route.chapterModuleIds[1]}`
+      return {
+        route,
+        modules: mathLabModules,
+        completedModuleIds: [route.chapterModuleIds[0]],
+        locale: 'en',
+      }
+    },
+  )
+
+  assert.match(html, /Linear Algebra Route/)
+  assert.match(html, /1 \/ 7/)
+  assert.match(html, new RegExp(expectedNextTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  assert.match(html, new RegExp(`href="${expectedNextRoute.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`))
+})
+
+test('learning route dashboard renders checkpoint report states from storage', async () => {
+  const storage = createMemoryStorage()
+  const previousWindow = globalThis.window
+
+  const html = await renderSfcWithVite(
+    '/src/modules/math-lab/components/LearningRouteDashboard.vue',
+    async (server) => {
+      const { learningRouteById } = await server.ssrLoadModule('/src/modules/math-lab/data/learningRoutes.ts')
+      const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+      const {
+        checkpointReportStorageKey,
+        createDefaultCheckpointReport,
+        saveCheckpointReport,
+      } = await server.ssrLoadModule('/src/modules/math-lab/utils/checkpointReports.ts')
+      const route = learningRouteById['linear-algebra-route']
+      const draftModuleId = route.chapterModuleIds[1]
+      const completeModuleId = route.chapterModuleIds[2]
+
+      const draftReport = createDefaultCheckpointReport(route.id, draftModuleId)
+      saveCheckpointReport({ ...draftReport, answers: { ...draftReport.answers, setup: 'short draft setup' } }, storage)
+
+      const completeReport = createDefaultCheckpointReport(route.id, completeModuleId)
+      saveCheckpointReport({
+        ...completeReport,
+        answers: {
+          setup: 'This setup is long enough for the checkpoint report.',
+          observation: 'This observation is long enough for the checkpoint report.',
+          explanation: 'This explanation connects the visual evidence to the math concept clearly.',
+          nextStep: 'This next step is long enough for the checkpoint report.',
+        },
+        completed: true,
+      }, storage)
+
+      assert.ok(storage.getItem(checkpointReportStorageKey(draftModuleId)))
+      assert.ok(storage.getItem(checkpointReportStorageKey(completeModuleId)))
+
+      return {
+        route,
+        modules: mathLabModules,
+        completedModuleIds: [],
+        locale: 'en',
+      }
+    },
+    () => {
+      globalThis.window = { localStorage: storage }
+    },
+  ).finally(() => {
+    if (previousWindow === undefined) {
+      delete globalThis.window
+    } else {
+      globalThis.window = previousWindow
+    }
+  })
+
+  assert.match(html, /Not started/)
+  assert.match(html, /Report draft/)
+  assert.match(html, /Report complete/)
 })
 
 test('math lab uses generated imported notes and local migrated assets', () => {
