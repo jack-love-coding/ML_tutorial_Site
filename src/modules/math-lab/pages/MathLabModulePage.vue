@@ -4,12 +4,23 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
 import CheckpointQuiz from '../components/CheckpointQuiz.vue'
+import CheckpointReportCard from '../components/CheckpointReportCard.vue'
 import CodeLab from '../components/CodeLab.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
+import ObservationPrompt from '../components/ObservationPrompt.vue'
 import { conceptIllustrationFor, type ConceptIllustration } from '../data/conceptIllustrations'
+import { checkpointReportForModule, observationPromptForModule } from '../data/checkpointReports'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
-import type { LabConfig, MathLabLocale, MathLabModuleId, MathLabSection, QuizAttempt, VisualAsset } from '../types/mathLab'
+import type {
+  ExperimentEvidence,
+  LabConfig,
+  MathLabLocale,
+  MathLabModuleId,
+  MathLabSection,
+  QuizAttempt,
+  VisualAsset,
+} from '../types/mathLab'
 import { withPublicBase } from '../../../utils/publicPath.ts'
 import {
   appendQuizAttempt,
@@ -23,6 +34,7 @@ const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
 const progress = ref(loadMathLabProgress())
+const latestEvidence = ref<Record<string, ExperimentEvidence>>({})
 const fallbackLabComponent = defineAsyncComponent(() => import('../labs/NumericalMiniLab.vue'))
 const labComponentRegistry = {
   ArchitectureMathLab: defineAsyncComponent(() => import('../labs/ArchitectureMathLab.vue')),
@@ -85,6 +97,13 @@ const remainingLabs = computed(() =>
   moduleDefinition.value?.labs.filter((lab) => !inlineLabIds.value.has(lab.id)) ?? [],
 )
 const hasSupplements = computed(() => remainingDisplayAssets.value.length > 0 || remainingLabs.value.length > 0)
+const checkpointReportPrompt = computed(() => checkpointReportForModule(moduleDefinition.value?.id ?? moduleId.value))
+const observationPrompt = computed(() => observationPromptForModule(moduleDefinition.value?.id ?? moduleId.value))
+const activeReportEvidence = computed(() => {
+  const prompt = checkpointReportPrompt.value
+  if (!prompt) return undefined
+  return latestEvidence.value[prompt.moduleId] ?? prompt.staticEvidence
+})
 
 if (!moduleDefinition.value) {
   router.replace('/math-lab')
@@ -116,6 +135,13 @@ function onQuizSubmit(attempts: QuizAttempt[]) {
   }
 
   progress.value = saveMathLabProgress(nextProgress)
+}
+
+function onExperimentEvidence(evidence: ExperimentEvidence) {
+  latestEvidence.value = {
+    ...latestEvidence.value,
+    [evidence.moduleId]: evidence,
+  }
 }
 
 function manimAssetsForSection(section: MathLabSection) {
@@ -284,12 +310,17 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
             />
 
             <section v-if="labsForSection(section).length" class="math-module-labs">
-              <component
-                :is="labComponentFor(lab.componentName)"
+              <div
                 v-for="lab in labsForSection(section)"
+                :id="lab.id"
                 :key="lab.id"
-                v-bind="labPropsFor(lab)"
-              />
+              >
+                <component
+                  :is="labComponentFor(lab.componentName)"
+                  v-bind="labPropsFor(lab)"
+                  @evidence-change="onExperimentEvidence"
+                />
+              </div>
             </section>
           </section>
         </template>
@@ -322,12 +353,17 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           </template>
 
           <section v-if="remainingLabs.length" class="math-module-labs">
-            <component
-              :is="labComponentFor(lab.componentName)"
+            <div
               v-for="lab in remainingLabs"
+              :id="lab.id"
               :key="lab.id"
-              v-bind="labPropsFor(lab)"
-            />
+            >
+              <component
+                :is="labComponentFor(lab.componentName)"
+                v-bind="labPropsFor(lab)"
+                @evidence-change="onExperimentEvidence"
+              />
+            </div>
           </section>
         </section>
 
@@ -339,6 +375,22 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
             :locale="currentLocale"
           />
         </section>
+
+        <ObservationPrompt
+          v-if="observationPrompt"
+          :key="observationPrompt.id"
+          :prompt="observationPrompt"
+          :locale="currentLocale"
+        />
+
+        <CheckpointReportCard
+          v-if="checkpointReportPrompt"
+          :key="checkpointReportPrompt.id"
+          :prompt="checkpointReportPrompt"
+          :evidence="activeReportEvidence"
+          :modules="mathLabModules"
+          :locale="currentLocale"
+        />
 
         <CheckpointQuiz
           v-if="moduleDefinition.quizzes.length"

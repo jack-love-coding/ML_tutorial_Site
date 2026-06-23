@@ -100,6 +100,8 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/components/ThreeSceneShell.vue',
     'src/modules/math-lab/components/LearningRouteSummary.vue',
     'src/modules/math-lab/components/LearningRouteDashboard.vue',
+    'src/modules/math-lab/components/CheckpointReportCard.vue',
+    'src/modules/math-lab/components/ObservationPrompt.vue',
     'src/modules/math-lab/labs/VectorDotProductLab.vue',
     'src/modules/math-lab/labs/VectorSimilarityLab.vue',
     'src/modules/math-lab/labs/TensorShapeLab.vue',
@@ -194,8 +196,22 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /import\('\.\.\/labs\/DistributionBuilderLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/ConditionalBayesLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/MatrixColumnSpaceLab\.vue'\)/)
+  assert.match(modulePageSource, /CheckpointReportCard/)
+  assert.match(modulePageSource, /ObservationPrompt/)
+  assert.match(modulePageSource, /checkpointReportForModule/)
+  assert.match(modulePageSource, /observationPromptForModule/)
+  assert.match(modulePageSource, /onExperimentEvidence/)
+  assert.match(modulePageSource, /@evidence-change="onExperimentEvidence"/)
   assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
+
+  const reportCardSource = read('src/modules/math-lab/components/CheckpointReportCard.vue')
+  const observationPromptSource = read('src/modules/math-lab/components/ObservationPrompt.vue')
+  assert.match(reportCardSource, /saveCheckpointReport/)
+  assert.match(reportCardSource, /buildCheckpointReportMarkdown/)
+  assert.match(reportCardSource, /textarea/)
+  assert.match(reportCardSource, /download/)
+  assert.match(observationPromptSource, /targetLabId/)
 
   const matrixColumnSpaceSource = read('src/modules/math-lab/labs/MatrixColumnSpaceLab.vue')
   assert.match(matrixColumnSpaceSource, /matrixColumns2x2/)
