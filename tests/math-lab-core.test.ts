@@ -10,6 +10,7 @@ import {
   routeProgressSummary,
 } from '../src/modules/math-lab/data/learningRoutes.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
+import { continueMathLabModuleId, resolveMathLabModuleId } from '../src/modules/math-lab/utils/continueRoute.ts'
 import {
   calibrationBins,
   convolutionOutputSize,
@@ -307,8 +308,6 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       assert.match(englishBody, /distribution-first bridge|softmax|cross entropy/i)
     } else if (moduleDefinition.id === 'beginner-linear-algebra') {
       assert.match(englishBody, /data becomes a vector|matrix as a space machine/i)
-    } else if (moduleDefinition.id === 'beginner-calculus') {
-      assert.match(englishBody, /average change|instantaneous change|chain rule|numerical gradient/i)
     } else if (moduleDefinition.id === 'calculus-functions-rate-change') {
       assert.match(englishBody, /average rate of change|function|input-output/i)
     } else if (moduleDefinition.id === 'calculus-derivatives-local-change') {
@@ -357,6 +356,57 @@ test('math lab modules include the zero-base AI math path with the linear algebr
     assert.deepEqual(mathLabModules[index].nextModuleIds, [mathLabModules[index + 1].id])
   }
   assert.deepEqual(mathLabModules.at(-1)?.nextModuleIds, [])
+})
+
+test('primary math path prerequisites do not point at retired calculus bridge', () => {
+  const retiredPrimaryIds = new Set(['beginner-calculus'])
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+
+  for (const moduleDefinition of mathLabModules) {
+    for (const prerequisite of moduleDefinition.prerequisites) {
+      assert.equal(
+        retiredPrimaryIds.has(prerequisite),
+        false,
+        `${moduleDefinition.id} should not depend on retired prerequisite ${prerequisite}`,
+      )
+    }
+  }
+
+  assert.deepEqual(byId['beginner-probability-distributions']!.prerequisites, ['calculus-training-code-diagnostics'])
+})
+
+test('math lab continue route redirects retired calculus progress to the new route start', () => {
+  assert.equal(resolveMathLabModuleId('beginner-calculus'), 'calculus-functions-rate-change')
+  assert.equal(resolveMathLabModuleId('not-a-real-module'), undefined)
+
+  assert.equal(
+    continueMathLabModuleId({
+      lastVisitedModuleId: 'beginner-calculus',
+      diagnosticResult: undefined,
+    }),
+    'calculus-functions-rate-change',
+  )
+  assert.equal(
+    continueMathLabModuleId({
+      lastVisitedModuleId: undefined,
+      diagnosticResult: {
+        linearAlgebra: 1,
+        calculus: 0,
+        probability: 1,
+        optimization: 1,
+        recommendedStartModuleId: 'beginner-calculus',
+        weakConcepts: ['derivative'],
+      },
+    }),
+    'calculus-functions-rate-change',
+  )
+  assert.equal(
+    continueMathLabModuleId({
+      lastVisitedModuleId: 'missing-module',
+      diagnosticResult: undefined,
+    }),
+    mathLabModules[0]!.id,
+  )
 })
 
 test('linear algebra route split exposes seven ordered case-driven chapters', () => {
@@ -456,6 +506,9 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     'calculus-optimizer-comparison': 'MathGradientLab',
     'calculus-training-code-diagnostics': 'TrainingDiagnosticsLab',
   }
+  const expectedSupportLabs: Record<string, string[]> = {
+    'calculus-training-code-diagnostics': ['BackpropBlockLab'],
+  }
 
   const requiredChineseAnchors: Record<string, string[]> = {
     'calculus-functions-rate-change': ['买菜', '小车', '平均变化率'],
@@ -485,6 +538,23 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     assert.equal(moduleDefinition.sourceNoteFile, 'math-lab-calculus-route-sources.md')
     assert.ok(moduleDefinition.sourceReferences?.length, `${id} should have source references`)
     assert.equal(moduleDefinition.labs[0]?.componentName, expectedPrimaryLabs[id], `${id} should use the planned primary lab`)
+    for (const componentName of expectedSupportLabs[id] ?? []) {
+      assert.ok(moduleDefinition.labs.some((lab) => lab.componentName === componentName), `${id} should include ${componentName}`)
+    }
+
+    assert.ok(
+      moduleDefinition.concepts.some((concept) =>
+        concept.variables.length > 0 &&
+        concept.variables.every((variable) => variable.symbol && variable.description['zh-CN'] && variable.description.en),
+      ),
+      `${id} should include a concept with variable explanations`,
+    )
+
+    for (const quiz of moduleDefinition.quizzes) {
+      assert.ok(quiz.explanation['zh-CN'], `${id} quiz ${quiz.id} should explain the answer in Chinese`)
+      assert.ok(quiz.explanation.en, `${id} quiz ${quiz.id} should explain the answer in English`)
+      assert.ok(quiz.misconceptionTags.length >= 1, `${id} quiz ${quiz.id} should link to a misconception`)
+    }
 
     const visualIds = new Set(moduleDefinition.visuals.map((visual) => visual.id))
     const labIds = new Set(moduleDefinition.labs.map((lab) => lab.id))
@@ -562,8 +632,8 @@ test('learning routes expose a calculus route with next-step progress', () => {
 
   const route = learningRoutes.find((candidate) => candidate.id === 'calculus-route')
   assert.ok(route)
-  assert.equal(route.title['zh-CN'], '微积分路线')
-  assert.equal(route.title.en, 'Calculus Route')
+  assert.equal(route.title['zh-CN'], '微积分学习路线')
+  assert.equal(route.title.en, 'Calculus Learning Route')
   assert.deepEqual(route.chapterModuleIds, calculusRouteModuleIds)
 
   const summary = routeProgressSummary(route, [

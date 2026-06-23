@@ -6,6 +6,7 @@ import { calculusRouteModules } from './calculusRouteModules.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
 import { buildLeastSquaresModule } from './leastSquaresModule.ts'
+import { calculusRouteModuleIds } from './learningRoutes.ts'
 import { linearAlgebraRouteModules } from './linearAlgebraRouteModules.ts'
 import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { buildMarkovChainsModule } from './markovChainsModule.ts'
@@ -34,13 +35,7 @@ const aiMathPath: MathLabModuleId[] = [
   'svd',
   'pca',
   'tensor-shapes-vectorization',
-  'calculus-functions-rate-change',
-  'calculus-derivatives-local-change',
-  'calculus-partial-derivatives-gradients',
-  'calculus-gradient-descent',
-  'calculus-sgd-batch-noise',
-  'calculus-optimizer-comparison',
-  'calculus-training-code-diagnostics',
+  ...calculusRouteModuleIds,
   'taylor-series',
   'matrix-calculus-autodiff',
   'beginner-probability-distributions',

@@ -196,6 +196,16 @@ const trainingDiagnosticsLab = lab(
   ],
 )
 
+const backpropBridgeLab = lab(
+  'calculus-backprop-bridge-lab',
+  copy('backward 计算图桥接实验', 'Backward Computation Graph Bridge Lab'),
+  'BackpropBlockLab',
+  [
+    copy('能把 loss.backward 连接到计算图上的局部导数传递。', 'Connect loss.backward to local derivative flow through a computation graph.'),
+    copy('能区分计算梯度和更新参数这两个动作。', 'Separate gradient computation from parameter updates.'),
+  ],
+)
+
 const firstChapter = moduleDefinition({
   id: 'calculus-functions-rate-change',
   enhancementTier: 'interactive',
@@ -555,12 +565,12 @@ optimizer.step()`),
   ],
   sections: [
     section('training-loop-order', copy('训练循环顺序', 'Training Loop Order'), copy(md`标准训练步先 zero_grad，再计算 loss，然后 loss.backward，最后 optimizer.step。旧梯度没清会累积；只 backward 不 step，参数不会更新。`, md`A standard training step calls zero_grad, computes loss, calls loss.backward, and then calls optimizer.step. The order matters. If old gradients are not cleared, they accumulate into the next step. If backward is called without step, parameters do not update. If step is called before current gradients exist, the optimizer cannot use the current loss signal. The code order is the practical face of the calculus update.`), { labIds: ['calculus-training-diagnostics-lab'] }),
-    section('training-backward-meaning', copy('backward：计算图上的梯度计算', 'Backward: Gradient Computation Through the Computation Graph'), copy(md`loss.backward 不是直接更新参数。它做 gradient computation through computation graph，把上游梯度乘过局部导数，写入参数的 grad。optimizer.step 才真正改变参数。`, md`loss.backward is not the call that directly updates parameters. It performs gradient computation through computation graph: starting at loss, upstream gradients are multiplied through local derivatives until each parameter receives a gradient value. The call that actually changes parameter values is optimizer.step. This distinction explains many silent bugs in training code, especially loops that compute gradients but never step.`)),
+    section('training-backward-meaning', copy('backward：计算图上的梯度计算', 'Backward: Gradient Computation Through the Computation Graph'), copy(md`loss.backward 不是直接更新参数。它做 gradient computation through computation graph，把上游梯度乘过局部导数，写入参数的 grad。optimizer.step 才真正改变参数。`, md`loss.backward is not the call that directly updates parameters. It performs gradient computation through computation graph: starting at loss, upstream gradients are multiplied through local derivatives until each parameter receives a gradient value. The call that actually changes parameter values is optimizer.step. This distinction explains many silent bugs in training code, especially loops that compute gradients but never step.`), { labIds: ['calculus-backprop-bridge-lab'] }),
     section('training-curves-diagnostics', copy('曲线诊断', 'Curve Diagnostics'), copy(md`gradient norm、validation loss、overfitting、exploding gradients、vanishing gradients 都是训练曲线里的诊断词。train loss 降而 validation loss 升，常见于过拟合；loss 和 gradient norm 暴涨，可能是梯度爆炸。`, md`gradient norm, validation loss, overfitting, exploding gradients, and vanishing gradients are diagnostic words for training curves. If train loss falls while validation loss rises, overfitting is likely. If loss and gradient norm rise sharply together, exploding gradients or an oversized learning rate should be checked. If loss remains high while gradient norm becomes tiny, vanishing gradients, saturation, or poor initialization may be involved. Curves point to the next test rather than acting as decoration.`)),
     section('training-code-review', copy('复盘：代码和证据', 'Review: Code and Evidence'), copy(md`复习时把代码和曲线对应：zero_grad 清旧账，loss.backward 算梯度，optimizer.step 更新参数。再用 loss、validation loss 和 gradient norm 判断问题。`, md`Review Questions: Which line clears old gradients? Which line computes gradients through the computation graph? Which line updates parameters? If train loss falls while validation loss rises, what diagnosis fits? If gradient norm explodes with loss, what should be checked? If gradients vanish while loss remains high, why might training longer not fix the problem? The goal is to connect calculus, code order, and curve evidence in one loop.`)),
   ],
   visuals: [],
-  labs: [trainingDiagnosticsLab],
+  labs: [trainingDiagnosticsLab, backpropBridgeLab],
   quizzes: [
     quiz('training-loop-order', copy('哪一行真正更新参数？', 'Which line actually updates parameters?'), 'step', copy('optimizer.step()。', 'optimizer.step().'), copy('loss.backward()。', 'loss.backward().'), copy('backward 计算梯度，step 更新参数。', 'backward computes gradients; step updates parameters.'), 'backward-updates-parameters'),
     quiz('training-curve-diagnosis', copy('train loss 降、validation loss 升，像什么？', 'Train loss falls while validation loss rises. What does this resemble?'), 'overfit', copy('overfitting。', 'Overfitting.'), copy('只要训练更久。', 'Just train longer.'), copy('训练集变好但验证集变差，说明泛化没有跟上。', 'Training improves while validation worsens, so generalization is not keeping up.'), 'train-longer-fixes-all'),

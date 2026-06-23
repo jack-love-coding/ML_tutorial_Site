@@ -72,7 +72,7 @@ const linearAlgebraRoute: LearningRoute = {
 
 const calculusRoute: LearningRoute = {
   id: 'calculus-route',
-  title: copy('微积分路线', 'Calculus Route'),
+  title: copy('微积分学习路线', 'Calculus Learning Route'),
   description: copy(
     '从函数和局部变化走到梯度下降、随机批量、优化器和训练曲线诊断。',
     'Move from functions and local change to gradient descent, stochastic batches, optimizers, and training-curve diagnostics.',

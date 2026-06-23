@@ -5,6 +5,7 @@ import LearningPathMap from '../components/LearningPathMap.vue'
 import SkillRadarChart from '../components/SkillRadarChart.vue'
 import { mathLabModules } from '../data/modules'
 import type { MathLabLocale, MathLabProgress } from '../types/mathLab'
+import { continueMathLabModuleId } from '../utils/continueRoute'
 import { loadMathLabProgress } from '../utils/progress'
 import { withPublicBase } from '../../../utils/publicPath.ts'
 
@@ -21,7 +22,7 @@ const copy = computed(() =>
           '从向量矩阵到 Transformer，用双语讲解、公式渲染、可视化和互动实验串起 AI 前置数学直觉。',
         diagnostic: '开始入门诊断',
         continue: '继续学习',
-        pathTitle: '第 6-24 章 AI 数学主线',
+        pathTitle: '31 章 AI 数学主线',
         pathBody: '路径把 shape、自动微分、概率损失、训练诊断和深度结构数学插入原数值计算地基中。',
         radarTitle: '当前数学地基',
         radarEmpty: '完成诊断后，这里会显示线性代数、微积分、概率和优化的准备度。',
@@ -33,20 +34,14 @@ const copy = computed(() =>
           'A chapter path from vectors and matrices to Transformers, with bilingual explanations, math rendering, visualizations, and interactive labs.',
         diagnostic: 'Start diagnostic',
         continue: 'Continue learning',
-        pathTitle: 'AI math path: chapters 1-22',
+        pathTitle: 'AI math path: 31 chapters',
         pathBody: 'The path starts with zero-base linear algebra, calculus, and probability distributions, then moves into shape, autodiff, training diagnostics, and deep architecture math.',
         radarTitle: 'Current foundation',
         radarEmpty: 'After the diagnostic, this panel shows your linear algebra, calculus, probability, and optimization readiness.',
       },
 )
 
-const continueRoute = computed(() => {
-  const preferred = progress.value.lastVisitedModuleId
-    ?? progress.value.diagnosticResult?.recommendedStartModuleId
-    ?? mathLabModules[0]?.id
-    ?? 'taylor-series'
-  return `/math-lab/modules/${preferred}`
-})
+const continueRoute = computed(() => `/math-lab/modules/${continueMathLabModuleId(progress.value)}`)
 
 const beginnerBridgeCopy = computed(() =>
   currentLocale.value === 'zh-CN'

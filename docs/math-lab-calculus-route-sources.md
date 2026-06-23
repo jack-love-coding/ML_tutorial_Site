@@ -40,4 +40,4 @@ Date: 2026-06-23
 
 ## First-Pass Boundary
 
-This first pass reuses existing labs and public assets. It does not add new optimizer visualization, new Manim scenes, or a new training-loop component.
+This first pass reuses existing labs and public assets, including `LocalChangeStoryLab`, `MathGradientLab`, `TrainingDiagnosticsLab`, and `BackpropBlockLab`. It does not add new optimizer visualization, new Manim scenes, or a new training-loop component.
