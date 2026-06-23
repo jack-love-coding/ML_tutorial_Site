@@ -26,21 +26,42 @@ const props = defineProps<{
 }>()
 
 const saveMessage = ref('')
-const saved = loadCheckpointReport(props.prompt.moduleId)
-const report = reactive<SavedCheckpointReport>(
-  saved ?? createDefaultCheckpointReport(props.prompt.routeId, props.prompt.moduleId),
-)
+const dynamicEvidenceActive = ref(false)
+const report = reactive<SavedCheckpointReport>(createDefaultCheckpointReport(props.prompt.routeId, props.prompt.moduleId))
 
 const activeEvidence = computed(() => report.evidence ?? props.prompt.staticEvidence)
 const completed = computed(() => isCheckpointReportComplete(report))
 
+function resetReportForPrompt() {
+  const saved = loadCheckpointReport(props.prompt.moduleId)
+  Object.assign(report, saved ?? createDefaultCheckpointReport(props.prompt.routeId, props.prompt.moduleId))
+  saveMessage.value = ''
+  dynamicEvidenceActive.value = false
+  applyEvidence(props.evidence)
+}
+
+function applyEvidence(evidence: ExperimentEvidence | undefined) {
+  if (evidence) {
+    report.evidence = evidence
+    dynamicEvidenceActive.value = true
+    return
+  }
+
+  if (dynamicEvidenceActive.value || report.moduleId === props.prompt.moduleId) {
+    delete report.evidence
+  }
+  dynamicEvidenceActive.value = false
+}
+
 watch(
   () => props.evidence,
-  (evidence) => {
-    if (evidence) {
-      report.evidence = evidence
-    }
-  },
+  (evidence) => applyEvidence(evidence),
+  { immediate: true },
+)
+
+watch(
+  () => props.prompt.moduleId,
+  () => resetReportForPrompt(),
   { immediate: true },
 )
 
@@ -55,6 +76,14 @@ function updateField(key: CheckpointReportFieldKey, value: string) {
 
 function updateFieldFromEvent(key: CheckpointReportFieldKey, event: Event) {
   updateField(key, (event.target as HTMLTextAreaElement).value)
+}
+
+function textareaId(key: CheckpointReportFieldKey) {
+  return `${props.prompt.moduleId}-${key}-report-answer`
+}
+
+function textareaName(key: CheckpointReportFieldKey) {
+  return `${props.prompt.moduleId}-${key}`
 }
 
 function saveDraft() {
@@ -80,8 +109,13 @@ function downloadMarkdown() {
   const link = document.createElement('a')
   link.href = url
   link.download = `${props.prompt.moduleId}-checkpoint-report.md`
+  link.hidden = true
+  document.body.appendChild(link)
   link.click()
-  URL.revokeObjectURL(url)
+  queueMicrotask(() => {
+    link.remove()
+    URL.revokeObjectURL(url)
+  })
 }
 </script>
 
@@ -116,6 +150,8 @@ function downloadMarkdown() {
         <span>{{ field.label[locale] }}</span>
         <small>{{ field.guidingPrompt[locale] }}</small>
         <textarea
+          :id="textareaId(field.key)"
+          :name="textareaName(field.key)"
           :value="report.answers[field.key]"
           rows="4"
           @input="updateFieldFromEvent(field.key, $event)"
@@ -142,7 +178,7 @@ function downloadMarkdown() {
       <button type="button" class="action-button action-button--primary" @click="downloadMarkdown">
         {{ locale === 'zh-CN' ? '导出 Markdown' : 'Export Markdown' }}
       </button>
-      <span v-if="saveMessage">{{ saveMessage }}</span>
+      <span v-if="saveMessage" role="status">{{ saveMessage }}</span>
     </div>
   </section>
 </template>

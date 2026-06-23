@@ -201,6 +201,8 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /checkpointReportForModule/)
   assert.match(modulePageSource, /observationPromptForModule/)
   assert.match(modulePageSource, /onExperimentEvidence/)
+  assert.match(modulePageSource, /function onExperimentEvidence\(evidence: ExperimentEvidence \| undefined\)/)
+  assert.match(modulePageSource, /delete nextEvidence\[prompt\.moduleId\]/)
   assert.match(modulePageSource, /@evidence-change="onExperimentEvidence"/)
   assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
@@ -211,6 +213,14 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(reportCardSource, /buildCheckpointReportMarkdown/)
   assert.match(reportCardSource, /textarea/)
   assert.match(reportCardSource, /download/)
+  assert.match(reportCardSource, /watch\(\s*\(\) => props\.prompt\.moduleId/)
+  assert.match(reportCardSource, /dynamicEvidenceActive/)
+  assert.match(reportCardSource, /delete report\.evidence/)
+  assert.match(reportCardSource, /document\.body\.appendChild\(link\)/)
+  assert.match(reportCardSource, /queueMicrotask/)
+  assert.match(reportCardSource, /role="status"/)
+  assert.match(reportCardSource, /:id="textareaId\(field\.key\)"/)
+  assert.match(reportCardSource, /:name="textareaName\(field\.key\)"/)
   assert.match(observationPromptSource, /targetLabId/)
 
   const matrixColumnSpaceSource = read('src/modules/math-lab/labs/MatrixColumnSpaceLab.vue')
@@ -364,6 +374,115 @@ test('learning route dashboard renders checkpoint report states from storage', a
   assert.match(html, /Not started/)
   assert.match(html, /Report draft/)
   assert.match(html, /Report complete/)
+})
+
+test('checkpoint report card renders static evidence and four answer fields', async () => {
+  const html = await renderSfcWithVite(
+    '/src/modules/math-lab/components/CheckpointReportCard.vue',
+    async (server) => {
+      const { checkpointReportForModule } = await server.ssrLoadModule('/src/modules/math-lab/data/checkpointReports.ts')
+      const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+      return {
+        prompt: checkpointReportForModule('linear-algebra-feature-space'),
+        modules: mathLabModules,
+        locale: 'en',
+      }
+    },
+  )
+
+  assert.match(html, /The same object becomes an ordered set of feature coordinates/)
+  assert.equal([...html.matchAll(/<textarea/g)].length, 4)
+  assert.match(html, /id="linear-algebra-feature-space-setup-report-answer"/)
+  assert.match(html, /name="linear-algebra-feature-space-setup"/)
+})
+
+test('checkpoint report card renders dynamic evidence over static evidence', async () => {
+  const html = await renderSfcWithVite(
+    '/src/modules/math-lab/components/CheckpointReportCard.vue',
+    async (server) => {
+      const { checkpointReportForModule } = await server.ssrLoadModule('/src/modules/math-lab/data/checkpointReports.ts')
+      const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+      return {
+        prompt: checkpointReportForModule('linear-algebra-feature-space'),
+        evidence: {
+          moduleId: 'linear-algebra-feature-space',
+          sourceId: 'feature-vector-story-lab',
+          summary: {
+            'zh-CN': '动态证据摘要',
+            en: 'Dynamic feature evidence summary',
+          },
+          metrics: [
+            {
+              label: { 'zh-CN': '动态指标', en: 'Dynamic metric' },
+              value: 42,
+              unit: { 'zh-CN': '次', en: 'trials' },
+            },
+          ],
+          prompt: {
+            'zh-CN': '解释动态证据。',
+            en: 'Explain the dynamic evidence.',
+          },
+        },
+        modules: mathLabModules,
+        locale: 'en',
+      }
+    },
+  )
+
+  assert.match(html, /Dynamic feature evidence summary/)
+  assert.match(html, /Dynamic metric/)
+  assert.match(html, /42 trials/)
+  assert.doesNotMatch(html, /The same object becomes an ordered set of feature coordinates/)
+})
+
+test('checkpoint report card renders saved draft answers from storage', async () => {
+  const previousWindow = globalThis.window
+  try {
+    const storageKey = 'ml-atlas:checkpoint-report:linear-algebra-feature-space'
+    globalThis.window = {
+      localStorage: createMemoryStorage([
+        [
+          storageKey,
+          JSON.stringify({
+            routeId: 'linear-algebra-route',
+            moduleId: 'linear-algebra-feature-space',
+            answers: {
+              setup: 'Saved setup answer',
+              observation: 'Saved observation answer',
+              explanation: 'Saved explanation answer',
+              nextStep: 'Saved next step answer',
+            },
+            completed: true,
+            updatedAt: '2026-06-24T00:00:00.000Z',
+          }),
+        ],
+      ]),
+    }
+
+    const html = await renderSfcWithVite(
+      '/src/modules/math-lab/components/CheckpointReportCard.vue',
+      async (server) => {
+        const { checkpointReportForModule } = await server.ssrLoadModule('/src/modules/math-lab/data/checkpointReports.ts')
+        const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+        return {
+          prompt: checkpointReportForModule('linear-algebra-feature-space'),
+          modules: mathLabModules,
+          locale: 'en',
+        }
+      },
+    )
+
+    assert.match(html, /Saved setup answer/)
+    assert.match(html, /Saved observation answer/)
+    assert.match(html, /Saved explanation answer/)
+    assert.match(html, /Saved next step answer/)
+  } finally {
+    if (previousWindow === undefined) {
+      delete globalThis.window
+    } else {
+      globalThis.window = previousWindow
+    }
+  }
 })
 
 test('math lab uses generated imported notes and local migrated assets', () => {

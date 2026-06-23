@@ -102,7 +102,7 @@ const observationPrompt = computed(() => observationPromptForModule(moduleDefini
 const activeReportEvidence = computed(() => {
   const prompt = checkpointReportPrompt.value
   if (!prompt) return undefined
-  return latestEvidence.value[prompt.moduleId] ?? prompt.staticEvidence
+  return latestEvidence.value[prompt.moduleId]
 })
 
 if (!moduleDefinition.value) {
@@ -137,11 +137,22 @@ function onQuizSubmit(attempts: QuizAttempt[]) {
   progress.value = saveMathLabProgress(nextProgress)
 }
 
-function onExperimentEvidence(evidence: ExperimentEvidence) {
-  latestEvidence.value = {
+function onExperimentEvidence(evidence: ExperimentEvidence | undefined) {
+  const nextEvidence = {
     ...latestEvidence.value,
-    [evidence.moduleId]: evidence,
   }
+
+  if (!evidence) {
+    const prompt = checkpointReportPrompt.value
+    if (prompt) {
+      delete nextEvidence[prompt.moduleId]
+    }
+    latestEvidence.value = nextEvidence
+    return
+  }
+
+  nextEvidence[evidence.moduleId] = evidence
+  latestEvidence.value = nextEvidence
 }
 
 function manimAssetsForSection(section: MathLabSection) {
