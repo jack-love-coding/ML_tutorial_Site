@@ -175,7 +175,7 @@ function downloadMarkdown() {
       <button type="button" class="action-button action-button--primary" @click="downloadMarkdown">
         {{ locale === 'zh-CN' ? '导出 Markdown' : 'Export Markdown' }}
       </button>
-      <span v-if="saveMessage" role="status">{{ saveMessage }}</span>
+      <span v-if="saveMessage" role="status" aria-live="polite">{{ saveMessage }}</span>
     </div>
   </section>
 </template>

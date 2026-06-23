@@ -814,6 +814,22 @@ test('checkpoint report markdown export includes evidence and missing answer mar
   assert.match(markdown, /Kept rank/)
   assert.match(markdown, /## Principal Component Analysis/)
   assert.match(markdown, /Not answered yet/)
+
+  const allReports = linearAlgebraRouteModuleIds.map((moduleId) => ({
+    ...createDefaultCheckpointReport('linear-algebra-route', moduleId, '2026-06-23T00:00:00.000Z'),
+    evidence: checkpointReportForModule(moduleId)!.staticEvidence,
+  }))
+  const fullMarkdown = buildCheckpointReportMarkdown(
+    'linear-algebra-route',
+    allReports,
+    mathLabModules,
+    'zh-CN',
+    '2026-06-23T12:00:00.000Z',
+  )
+  for (const moduleId of linearAlgebraRouteModuleIds) {
+    const moduleDefinition = mathLabModules.find((candidate) => candidate.id === moduleId)!
+    assert.ok(fullMarkdown.includes(moduleDefinition.title['zh-CN']))
+  }
 })
 
 test('learning routes expose a calculus route with next-step progress', () => {

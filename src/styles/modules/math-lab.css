@@ -383,6 +383,7 @@
 
 .learning-route-dashboard__list {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 0.65rem;
   list-style: none;
   margin: 0;
@@ -2576,6 +2577,23 @@
   .lu-decomposition-lab__factorization,
   .lu-decomposition-lab__control-grid {
     grid-template-columns: 1fr;
+  }
+
+  .learning-route-dashboard__list a {
+    grid-template-columns: auto 1fr;
+  }
+
+  .learning-route-dashboard__list small {
+    grid-column: 2;
+  }
+
+  .math-checkpoint-report__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .math-checkpoint-report__actions .action-button {
+    width: 100%;
   }
 }
 
