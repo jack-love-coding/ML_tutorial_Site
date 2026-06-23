@@ -4,7 +4,7 @@
 
 **Goal:** Add a seven-chapter beginner calculus route that starts with functions and rate of change, then connects derivatives, gradients, gradient descent, SGD, optimizers, and training diagnostics.
 
-**Architecture:** Keep the existing `MathLabModule` schema, page component, and lab registry. Add a focused `calculusRouteModules.ts` data file, register those modules in the explicit `aiMathPath`, and update navigation so the learner-facing calculus route is a visible sequence while existing calculus-related modules remain available as advanced follow-ups.
+**Architecture:** Keep the existing `MathLabModule` schema, page component, and lab registry. Add a focused `calculusRouteModules.ts` data file, register those modules in the explicit `aiMathPath` and learning-route metadata, and update navigation so the learner-facing calculus route is a visible sequence while existing calculus-related modules remain available as advanced follow-ups.
 
 **Tech Stack:** Vue 3, TypeScript, Vite, Node test runner, existing Math Lab typed data, existing public image/Manim assets, existing lab components (`LocalChangeStoryLab`, `MathGradientLab`, `BackpropBlockLab`, `TrainingDiagnosticsLab`, and fallback `NumericalMiniLab` if needed).
 
@@ -37,6 +37,13 @@ Modify:
   - Include `calculusRouteModules` in `allModulesById`.
   - Leave `beginnerFoundationModules` imported because it still provides beginner linear algebra and probability modules.
 
+- `src/modules/math-lab/data/learningRoutes.ts`
+  - Add a `calculus-route` metadata record using the seven route module IDs in order.
+  - Keep route metadata aligned with navigation and the `aiMathPath` edge sequence.
+
+- `src/modules/math-lab/data/diagnostic.ts`
+  - Route weak calculus diagnostics to `calculus-functions-rate-change` instead of the replaced one-page beginner calculus entry.
+
 - `src/data/navigationMenus.ts`
   - Remove `beginner-calculus` from the `zero-foundation` navigation group.
   - Add a new `calculus-route` group with the seven route modules in order.
@@ -49,6 +56,9 @@ Modify:
 - `tests/math-lab-core.test.ts`
   - Update module count and route order.
   - Add a calculus route completeness test.
+  - Add learning-route metadata coverage for `calculus-route`.
+  - Remove stale zero-base route expectations for `beginner-calculus`.
+  - Update diagnostic routing expectations so weak calculus starts at `calculus-functions-rate-change`.
 
 - `tests/site-navigation.test.ts`
   - Update expected math-lab navigation routes and add a calculus route group order assertion.
@@ -326,7 +336,7 @@ Run:
 npm test -- tests/math-lab-core.test.ts tests/site-navigation.test.ts tests/math-lab-layout.test.mjs
 ```
 
-Expected: FAIL because `calculusRouteModules.ts` and `docs/math-lab-calculus-route-sources.md` do not exist, route IDs are not registered, navigation has no `calculus-route` group, and home still links to `beginner-calculus`.
+Expected: FAIL because `calculusRouteModules.ts` and `docs/math-lab-calculus-route-sources.md` do not exist, route IDs are not registered, learning-route metadata has no `calculus-route`, diagnostic weak-calculus routing still points at the old one-page entry, navigation has no `calculus-route` group, and home still links to `beginner-calculus`.
 
 - [ ] **Step 7: Commit failing tests**
 
@@ -739,6 +749,8 @@ git commit -m "Add calculus route module data"
 
 **Files:**
 - Modify: `src/modules/math-lab/data/modules.ts`
+- Modify: `src/modules/math-lab/data/learningRoutes.ts`
+- Modify: `src/modules/math-lab/data/diagnostic.ts`
 - Modify: `src/data/navigationMenus.ts`
 - Modify: `src/modules/math-lab/pages/MathLabHome.vue`
 - Test: `tests/math-lab-core.test.ts`
@@ -795,6 +807,34 @@ to:
 
 Keep this formatting if the project formatter preserves it. If the file stays single-line after formatting, keep the order exactly the same.
 
+- [ ] **Step 3a: Add the learning-route metadata record**
+
+In `src/modules/math-lab/data/learningRoutes.ts`, add `calculus-route` with the seven route IDs in the approved order:
+
+```ts
+const calculusRouteModuleIds: MathLabModuleId[] = [
+  'calculus-functions-rate-change',
+  'calculus-derivatives-local-change',
+  'calculus-partial-derivatives-gradients',
+  'calculus-gradient-descent',
+  'calculus-sgd-batch-noise',
+  'calculus-optimizer-comparison',
+  'calculus-training-code-diagnostics',
+]
+```
+
+The route record should use the localized title `微积分学习路线` / `Calculus Learning Route`, describe the path from everyday change to training code, and expose a progress label that counts completed route chapters.
+
+- [ ] **Step 3b: Update diagnostic calculus entry**
+
+In `src/modules/math-lab/data/diagnostic.ts`, update `recommendStartModule` so a weak calculus score returns:
+
+```ts
+'calculus-functions-rate-change'
+```
+
+instead of `beginner-calculus`.
+
 - [ ] **Step 4: Update Math Lab navigation groups**
 
 In `src/data/navigationMenus.ts`, remove this item from `zero-foundation`:
@@ -848,7 +888,7 @@ Expected: PASS for route order, navigation coverage, and home route checks if th
 - [ ] **Step 7: Commit registration and navigation**
 
 ```bash
-git add src/modules/math-lab/data/modules.ts src/data/navigationMenus.ts src/modules/math-lab/pages/MathLabHome.vue
+git add src/modules/math-lab/data/modules.ts src/modules/math-lab/data/learningRoutes.ts src/modules/math-lab/data/diagnostic.ts src/data/navigationMenus.ts src/modules/math-lab/pages/MathLabHome.vue
 git commit -m "Register calculus learning route"
 ```
 
