@@ -63,6 +63,16 @@ import {
   vectorDifference,
 } from '../src/modules/math-lab/utils/math.ts'
 import {
+  directionalDerivative2D,
+  evaluatePartialDerivativePoint,
+  quadraticGradient2D,
+  quadraticLoss2D,
+  sampleQuadraticSlice,
+} from '../src/modules/math-lab/utils/calculus.ts'
+import {
+  evaluateBatchGradientNoise,
+} from '../src/modules/math-lab/utils/stochasticGradients.ts'
+import {
   evaluateBackpropBlockStory,
   evaluateConditionalBayes,
   evaluateDistributionBuilder,
@@ -174,6 +184,66 @@ test('math lab matrix and gradient utilities expose the expected teaching behavi
     x: 1.6,
     y: -0.8,
   })
+})
+
+test('calculus utilities keep quadratic loss, partials, gradient, and direction derivative consistent', () => {
+  const point = { x: 2, y: -1 }
+  const direction = { x: 3, y: 4 }
+  const loss = quadraticLoss2D(point)
+  const gradient = quadraticGradient2D(point)
+  const derivative = directionalDerivative2D(point, direction)
+  const evaluation = evaluatePartialDerivativePoint({ ...point, direction })
+  const xSlice = sampleQuadraticSlice({ point, axis: 'x', radius: 1, samples: 3 })
+
+  assert.equal(Math.abs(loss - 2.76) < 1e-12, true)
+  assert.equal(Math.abs(gradient.x - 2.56) < 1e-12, true)
+  assert.equal(Math.abs(gradient.y + 0.4) < 1e-12, true)
+  assert.equal(Math.abs(derivative - 1.216) < 1e-12, true)
+  assert.deepEqual(evaluation.gradient, gradient)
+  assert.equal(evaluation.partialX, gradient.x)
+  assert.equal(evaluation.partialY, gradient.y)
+  assert.equal(Math.abs(evaluation.directionalDerivative - derivative) < 1e-12, true)
+  assert.deepEqual(xSlice.map((sample) => sample.x), [1, 2, 3])
+  assert.deepEqual(xSlice.map((sample) => sample.y), [-1, -1, -1])
+})
+
+test('stochastic gradient utilities make mini-batch noise reproducible and full batch exact', () => {
+  const noisy = evaluateBatchGradientNoise({
+    datasetSize: 12,
+    batchSize: 3,
+    seed: 23,
+    learningRate: 0.08,
+    includeOutlier: true,
+    shuffle: true,
+    theta: { x: 0.4, y: -0.2 },
+  })
+  const replay = evaluateBatchGradientNoise({
+    datasetSize: 12,
+    batchSize: 3,
+    seed: 23,
+    learningRate: 0.08,
+    includeOutlier: true,
+    shuffle: true,
+    theta: { x: 0.4, y: -0.2 },
+  })
+  const full = evaluateBatchGradientNoise({
+    datasetSize: 12,
+    batchSize: 12,
+    seed: 23,
+    learningRate: 0.08,
+    includeOutlier: true,
+    shuffle: true,
+    theta: { x: 0.4, y: -0.2 },
+  })
+
+  assert.deepEqual(noisy.batchIndices, replay.batchIndices)
+  assert.deepEqual(noisy.batchGradient, replay.batchGradient)
+  assert.equal(noisy.gradientError > 0, true)
+  assert.equal(noisy.path.length, 9)
+  assert.equal(Math.abs(full.batchGradient.x - full.fullGradient.x) < 1e-12, true)
+  assert.equal(Math.abs(full.batchGradient.y - full.fullGradient.y) < 1e-12, true)
+  assert.equal(full.gradientError < 1e-12, true)
+  assert.equal(full.gradientAngle, 0)
 })
 
 test('linear algebra matrix helpers expose column combinations, rank, and null directions', () => {
@@ -519,9 +589,9 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
   const expectedPrimaryLabs: Record<string, string> = {
     'calculus-functions-rate-change': 'LocalChangeStoryLab',
     'calculus-derivatives-local-change': 'LocalChangeStoryLab',
-    'calculus-partial-derivatives-gradients': 'MathGradientLab',
+    'calculus-partial-derivatives-gradients': 'PartialDerivativeContourLab',
     'calculus-gradient-descent': 'MathGradientLab',
-    'calculus-sgd-batch-noise': 'MathGradientLab',
+    'calculus-sgd-batch-noise': 'BatchGradientNoiseLab',
     'calculus-optimizer-comparison': 'MathGradientLab',
     'calculus-training-code-diagnostics': 'TrainingDiagnosticsLab',
   }
