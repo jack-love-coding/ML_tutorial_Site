@@ -22,6 +22,7 @@ import type {
   VisualAsset,
 } from '../types/mathLab'
 import { withPublicBase } from '../../../utils/publicPath.ts'
+import { resolveMathLabModuleId } from '../utils/continueRoute'
 import {
   appendQuizAttempt,
   loadMathLabProgress,
@@ -105,18 +106,19 @@ const activeReportEvidence = computed(() => {
   return latestEvidence.value[prompt.moduleId]
 })
 
-if (!moduleDefinition.value) {
-  router.replace('/math-lab')
-}
-
 watch(
   moduleId,
   (nextModuleId) => {
-    if (!mathLabModuleRegistry[nextModuleId]) {
+    const resolvedModuleId = resolveMathLabModuleId(nextModuleId)
+    if (!resolvedModuleId) {
       router.replace('/math-lab')
       return
     }
-    progress.value = saveMathLabProgress(setLastVisitedModule(loadMathLabProgress(), nextModuleId))
+    if (resolvedModuleId !== nextModuleId) {
+      router.replace(`/math-lab/modules/${resolvedModuleId}`)
+      return
+    }
+    progress.value = saveMathLabProgress(setLastVisitedModule(loadMathLabProgress(), resolvedModuleId))
   },
   { immediate: true },
 )

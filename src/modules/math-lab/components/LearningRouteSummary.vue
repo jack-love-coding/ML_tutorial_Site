@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LearningRoute, MathLabLocale, MathLabModule, MathLabModuleId } from '../types/mathLab'
+import type { LearningRoute, MathLabLocale, MathLabModuleId } from '../types/mathLab'
+import type { LearningRouteSummaryModule } from '../data/learningRouteSummaryModules'
 import { routeProgressSummary } from '../data/learningRoutes'
 
 const props = defineProps<{
   route: LearningRoute
-  modules: MathLabModule[]
+  modules: readonly LearningRouteSummaryModule[]
   completedModuleIds: MathLabModuleId[]
   locale: MathLabLocale
 }>()

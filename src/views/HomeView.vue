@@ -3,8 +3,8 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { moduleOrder } from '../data/moduleCatalog'
 import LearningRouteSummary from '../modules/math-lab/components/LearningRouteSummary.vue'
+import { learningRouteSummaryModules } from '../modules/math-lab/data/learningRouteSummaryModules'
 import { learningRoutes } from '../modules/math-lab/data/learningRoutes'
-import { mathLabModules } from '../modules/math-lab/data/modules'
 import { loadMathLabProgress, mathLabProgressStorageKey } from '../modules/math-lab/utils/progress'
 import type { LearningRouteId } from '../modules/math-lab/types/mathLab'
 import type { LocalizedCopy } from '../types/ml'
@@ -738,7 +738,7 @@ const footerText = computed(() =>
           v-for="routeDefinition in highlightedLearningRoutes"
           :key="routeDefinition.id"
           :route="routeDefinition"
-          :modules="mathLabModules"
+          :modules="learningRouteSummaryModules"
           :completed-module-ids="mathLabProgress.completedModuleIds"
           :locale="currentMathLocale"
         />

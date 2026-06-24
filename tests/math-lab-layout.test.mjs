@@ -230,12 +230,15 @@ function dispatchNodeEvent(node, eventName, event) {
 test('math lab lazy routes are wired outside AlgorithmView', () => {
   const routerSource = read('src/router/index.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
+  const homeViewSource = read('src/views/HomeView.vue')
 
   assert.match(routerSource, /path: '\/math-lab'/)
   assert.match(routerSource, /path: '\/math-lab\/diagnostic'/)
   assert.match(routerSource, /path: '\/math-lab\/modules\/:moduleId'/)
   assert.match(routerSource, /modules\/math-lab\/pages\/MathLabHome\.vue/)
   assert.doesNotMatch(algorithmViewSource, /MathLabModulePage/)
+  assert.doesNotMatch(homeViewSource, /modules\/math-lab\/data\/modules/)
+  assert.match(homeViewSource, /learningRouteSummaryModules/)
 })
 
 test('app shell exposes a math lab navigation menu without importing full course data', () => {
@@ -271,6 +274,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/components/LearningRouteDashboard.vue',
     'src/modules/math-lab/components/CheckpointReportCard.vue',
     'src/modules/math-lab/components/ObservationPrompt.vue',
+    'src/modules/math-lab/data/learningRouteSummaryModules.ts',
     'src/modules/math-lab/labs/VectorDotProductLab.vue',
     'src/modules/math-lab/labs/VectorSimilarityLab.vue',
     'src/modules/math-lab/labs/TensorShapeLab.vue',
@@ -338,6 +342,8 @@ test('math lab components and labs exist with expected contracts', () => {
 
   assert.match(homeViewSource, /LearningRouteSummary/)
   assert.match(homeViewSource, /learningRoutes/)
+  assert.match(homeViewSource, /learningRouteSummaryModules/)
+  assert.doesNotMatch(homeViewSource, /modules\/math-lab\/data\/modules/)
   assert.match(homeViewSource, /import type \{ LearningRouteId \} from '\.\.\/modules\/math-lab\/types\/mathLab'/)
   assert.match(homeViewSource, /const highlightedLearningRouteIds: readonly LearningRouteId\[\]/)
   assert.match(homeViewSource, /const mathLabProgress = ref\(loadMathLabProgress\(\)\)/)
@@ -397,12 +403,15 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /ObservationPrompt/)
   assert.match(modulePageSource, /checkpointReportForModule/)
   assert.match(modulePageSource, /observationPromptForModule/)
+  assert.match(modulePageSource, /resolveMathLabModuleId/)
+  assert.match(modulePageSource, /\/math-lab\/modules\/\$\{resolvedModuleId\}/)
   assert.match(modulePageSource, /onExperimentEvidence/)
   assert.match(modulePageSource, /function onExperimentEvidence\(evidence: ExperimentEvidence \| undefined\)/)
   assert.match(modulePageSource, /delete nextEvidence\[prompt\.moduleId\]/)
   assert.match(modulePageSource, /@evidence-change="onExperimentEvidence"/)
   assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
+  assert.doesNotMatch(modulePageSource, /if \(!moduleDefinition\.value\)\s*\{\s*router\.replace\('\/math-lab'\)/)
 
   const reportCardSource = read('src/modules/math-lab/components/CheckpointReportCard.vue')
   const mathLabStyles = read('src/styles/modules/math-lab.css')

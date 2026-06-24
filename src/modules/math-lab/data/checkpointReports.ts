@@ -272,7 +272,7 @@ export const linearAlgebraCheckpointReportPrompts: CheckpointReportPrompt[] = [
 
 const promptByModuleId = new Map(linearAlgebraCheckpointReportPrompts.map((prompt) => [prompt.moduleId, prompt]))
 
-export const checkpointReportByModuleId = Object.fromEntries(promptByModuleId) as Record<MathLabModuleId, CheckpointReportPrompt>
+export const checkpointReportByModuleId = Object.fromEntries(promptByModuleId) as Partial<Record<MathLabModuleId, CheckpointReportPrompt>>
 
 export function checkpointReportForModule(moduleId: MathLabModuleId) {
   return promptByModuleId.get(moduleId)
