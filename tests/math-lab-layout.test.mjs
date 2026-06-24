@@ -1,22 +1,244 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
+import { createRenderer, createSSRApp, h, nextTick } from 'vue'
+import { renderToString } from '@vue/server-renderer'
+import { createServer } from 'vite'
 
 const root = new URL('../', import.meta.url)
+const require = createRequire(import.meta.url)
+const vueRuntimeUrl = pathToFileURL(require.resolve('vue/dist/vue.runtime.esm-bundler.js')).href
+const exportHelperUrl = `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+export default function exportSfc(component, props) {
+  for (const [key, value] of props) component[key] = value
+  return component
+}
+`)}`
+const emptyModuleUrl = 'data:text/javascript;charset=utf-8,export default {}'
 
 function read(path) {
   return readFileSync(new URL(path, root), 'utf8')
 }
 
+function createMemoryStorage(initialEntries = []) {
+  const values = new Map(initialEntries)
+  return {
+    getItem(key) {
+      return values.has(key) ? values.get(key) : null
+    },
+    setItem(key, value) {
+      values.set(key, String(value))
+    },
+    removeItem(key) {
+      values.delete(key)
+    },
+    clear() {
+      values.clear()
+    },
+  }
+}
+
+async function renderSfcWithVite(path, propsOrLoader, setupApp) {
+  const server = await createServer({
+    appType: 'custom',
+    logLevel: 'silent',
+    root: new URL('.', root).pathname,
+    server: { middlewareMode: true },
+  })
+
+  try {
+    const props = typeof propsOrLoader === 'function' ? await propsOrLoader(server) : propsOrLoader
+    const module = await server.ssrLoadModule(path)
+    const app = createSSRApp({
+      render: () => h(module.default, props),
+    })
+
+    app.component('RouterLink', {
+      props: ['to'],
+      setup(linkProps, { slots }) {
+        return () => h('a', { href: String(linkProps.to) }, slots.default?.())
+      },
+    })
+
+    setupApp?.(app, server)
+    return await renderToString(app)
+  } finally {
+    await server.close()
+  }
+}
+
+function createMemoryRenderer() {
+  return createRenderer({
+    patchProp(el, key, previousValue, nextValue) {
+      el.props[key] = nextValue
+    },
+    insert(el, parent) {
+      el.parent = parent
+      parent.children.push(el)
+    },
+    remove(el) {
+      if (!el.parent) return
+      el.parent.children = el.parent.children.filter((child) => child !== el)
+      el.parent = null
+    },
+    createElement(type) {
+      const el = {
+        type,
+        props: {},
+        children: [],
+        eventListeners: {},
+        parent: null,
+        addEventListener(eventName, handler) {
+          this.eventListeners[eventName] = this.eventListeners[eventName] ?? []
+          this.eventListeners[eventName].push(handler)
+        },
+        removeEventListener(eventName, handler) {
+          this.eventListeners[eventName] = (this.eventListeners[eventName] ?? []).filter((item) => item !== handler)
+        },
+      }
+      return el
+    },
+    createText(text) {
+      return { type: '#text', text, props: {}, children: [], parent: null }
+    },
+    createComment(text) {
+      return { type: '#comment', text, props: {}, children: [], parent: null }
+    },
+    setText(node, text) {
+      node.text = text
+    },
+    setElementText(node, text) {
+      node.text = text
+      node.children = []
+    },
+    parentNode(node) {
+      return node.parent
+    },
+    nextSibling() {
+      return null
+    },
+  })
+}
+
+function flattenRenderedNodes(node, nodes = []) {
+  nodes.push(node)
+  for (const child of node.children ?? []) {
+    flattenRenderedNodes(child, nodes)
+  }
+  return nodes
+}
+
+async function loadClientModuleWithVite(server, path, cache = new Map()) {
+  if (cache.has(path)) return cache.get(path)
+
+  const transformed = await server.transformRequest(path)
+  assert.ok(transformed?.code, `${path} should transform`)
+  let code = transformed.code
+    .replace(/import\s+\{\s*createHotContext[\s\S]*?;\s*/, '')
+    .replace(/import\.meta\.hot\s*=\s*__vite__createHotContext\([^;]+;\s*/, '')
+    .replace(/\n_sfc_main\.__hmrId[\s\S]*?import _export_sfc/, '\nimport _export_sfc')
+
+  const specifiers = new Set()
+  for (const match of code.matchAll(/(?:from\s+|import\s*)["']([^"']+)["']/g)) {
+    specifiers.add(match[1])
+  }
+
+  const replacements = new Map()
+  for (const specifier of specifiers) {
+    if (specifier.startsWith('/node_modules/.vite/deps/vue.js')) {
+      replacements.set(specifier, vueRuntimeUrl)
+    } else if (specifier.startsWith('/@id/__x00__plugin-vue:export-helper')) {
+      replacements.set(specifier, exportHelperUrl)
+    } else if (specifier.startsWith('/@vite/client') || specifier.includes('type=style')) {
+      replacements.set(specifier, emptyModuleUrl)
+    } else if (specifier.startsWith('/src/')) {
+      replacements.set(specifier, await loadClientModuleWithVite(server, specifier, cache))
+    }
+  }
+
+  for (const [specifier, replacement] of replacements) {
+    code = code.replaceAll(JSON.stringify(specifier), JSON.stringify(replacement))
+    code = code.replaceAll(`'${specifier}'`, `'${replacement}'`)
+  }
+
+  const moduleUrl = `data:text/javascript;charset=utf-8,${encodeURIComponent(code)}`
+  cache.set(path, moduleUrl)
+  return moduleUrl
+}
+
+async function mountClientSfc(path, props) {
+  const server = await createServer({
+    appType: 'custom',
+    logLevel: 'silent',
+    root: new URL('.', root).pathname,
+    server: { middlewareMode: true },
+  })
+  const container = { type: 'root', props: {}, children: [], parent: null }
+  const renderer = createMemoryRenderer()
+
+  try {
+    const moduleUrl = await loadClientModuleWithVite(server, path)
+    const module = await import(moduleUrl)
+    const app = renderer.createApp({
+      render: () => h(module.default, props),
+    })
+    app.mount(container)
+    await nextTick()
+    return {
+      container,
+      async update() {
+        await nextTick()
+        await nextTick()
+      },
+      async unmount() {
+        app.unmount()
+        await server.close()
+      },
+    }
+  } catch (error) {
+    await server.close()
+    throw error
+  }
+}
+
+async function collectSsrEvidence(path, props) {
+  const evidenceEvents = []
+  const html = await renderSfcWithVite(path, {
+    ...props,
+    onEvidenceChange: (evidence) => evidenceEvents.push(evidence),
+  })
+  assert.ok(html.length > 0)
+  return evidenceEvents
+}
+
+function metricValue(evidence, englishLabel) {
+  const metric = evidence.metrics.find((item) => item.label.en === englishLabel)
+  assert.ok(metric, `expected ${englishLabel} metric`)
+  return metric.value
+}
+
+function dispatchNodeEvent(node, eventName, event) {
+  const handlers = node.eventListeners?.[eventName] ?? []
+  assert.ok(handlers.length > 0, `expected ${eventName} listener on ${node.type}`)
+  for (const handler of handlers) {
+    handler(event)
+  }
+}
+
 test('math lab lazy routes are wired outside AlgorithmView', () => {
   const routerSource = read('src/router/index.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
+  const homeViewSource = read('src/views/HomeView.vue')
 
   assert.match(routerSource, /path: '\/math-lab'/)
   assert.match(routerSource, /path: '\/math-lab\/diagnostic'/)
   assert.match(routerSource, /path: '\/math-lab\/modules\/:moduleId'/)
   assert.match(routerSource, /modules\/math-lab\/pages\/MathLabHome\.vue/)
   assert.doesNotMatch(algorithmViewSource, /MathLabModulePage/)
+  assert.doesNotMatch(homeViewSource, /modules\/math-lab\/data\/modules/)
+  assert.match(homeViewSource, /learningRouteSummaryModules/)
 })
 
 test('app shell exposes a math lab navigation menu without importing full course data', () => {
@@ -48,6 +270,11 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/components/SkillRadarChart.vue',
     'src/modules/math-lab/components/MisconceptionCard.vue',
     'src/modules/math-lab/components/ThreeSceneShell.vue',
+    'src/modules/math-lab/components/LearningRouteSummary.vue',
+    'src/modules/math-lab/components/LearningRouteDashboard.vue',
+    'src/modules/math-lab/components/CheckpointReportCard.vue',
+    'src/modules/math-lab/components/ObservationPrompt.vue',
+    'src/modules/math-lab/data/learningRouteSummaryModules.ts',
     'src/modules/math-lab/labs/VectorDotProductLab.vue',
     'src/modules/math-lab/labs/VectorSimilarityLab.vue',
     'src/modules/math-lab/labs/TensorShapeLab.vue',
@@ -76,6 +303,30 @@ test('math lab components and labs exist with expected contracts', () => {
     assert.ok(existsSync(new URL(path, root)), `${path} should exist`)
   }
 
+  for (const labPath of [
+    'src/modules/math-lab/labs/FeatureVectorStoryLab.vue',
+    'src/modules/math-lab/labs/VectorSimilarityLab.vue',
+    'src/modules/math-lab/labs/MatrixTransformLab.vue',
+    'src/modules/math-lab/labs/MatrixColumnSpaceLab.vue',
+    'src/modules/math-lab/labs/NumericalMiniLab.vue',
+    'src/modules/math-lab/labs/PcaProjectionLab.vue',
+  ]) {
+    const labSource = read(labPath)
+    assert.match(labSource, /defineEmits/)
+    assert.match(labSource, /evidence-change/)
+    assert.match(labSource, /ExperimentEvidence/)
+  }
+
+  const numericalMiniLabSource = read('src/modules/math-lab/labs/NumericalMiniLab.vue')
+  assert.match(numericalMiniLabSource, /retainedEnergy/)
+  assert.match(numericalMiniLabSource, /spectralError/)
+  assert.match(numericalMiniLabSource, /rayleighQuotient/)
+  assert.match(numericalMiniLabSource, /residualNorm/)
+
+  const pcaProjectionLabSource = read('src/modules/math-lab/labs/PcaProjectionLab.vue')
+  assert.match(pcaProjectionLabSource, /retainedVariance/)
+  assert.match(pcaProjectionLabSource, /reconstructionRmse/)
+
   const shellSource = read('src/modules/math-lab/components/ThreeSceneShell.vue')
   assert.match(shellSource, /onBeforeUnmount/)
   assert.match(shellSource, /controller\.dispose\(\)/)
@@ -83,6 +334,57 @@ test('math lab components and labs exist with expected contracts', () => {
   const playerSource = read('src/modules/math-lab/components/ManimPlayer.vue')
   assert.match(playerSource, /<video/)
   assert.match(playerSource, /data-asset-path/)
+
+  const homeViewSource = read('src/views/HomeView.vue')
+  const mathLabHomeSource = read('src/modules/math-lab/pages/MathLabHome.vue')
+  const routeSummarySource = read('src/modules/math-lab/components/LearningRouteSummary.vue')
+  const routeDashboardSource = read('src/modules/math-lab/components/LearningRouteDashboard.vue')
+
+  assert.match(homeViewSource, /LearningRouteSummary/)
+  assert.match(homeViewSource, /learningRoutes/)
+  assert.match(homeViewSource, /learningRouteSummaryModules/)
+  assert.doesNotMatch(homeViewSource, /modules\/math-lab\/data\/modules/)
+  assert.match(homeViewSource, /import type \{ LearningRouteId \} from '\.\.\/modules\/math-lab\/types\/mathLab'/)
+  assert.match(homeViewSource, /const highlightedLearningRouteIds: readonly LearningRouteId\[\]/)
+  assert.match(homeViewSource, /const mathLabProgress = ref\(loadMathLabProgress\(\)\)/)
+  assert.match(homeViewSource, /function refreshMathLabProgress\(\)/)
+  assert.match(homeViewSource, /window\.addEventListener\('focus', refreshMathLabProgress\)/)
+  assert.match(homeViewSource, /document\.addEventListener\('visibilitychange', handleProgressVisibilityChange\)/)
+  assert.match(homeViewSource, /window\.addEventListener\('storage', handleProgressStorageEvent\)/)
+  assert.match(homeViewSource, /onBeforeUnmount\(\(\) =>/)
+  assert.match(homeViewSource, /window\.removeEventListener\('focus', refreshMathLabProgress\)/)
+  assert.match(homeViewSource, /document\.removeEventListener\('visibilitychange', handleProgressVisibilityChange\)/)
+  assert.match(homeViewSource, /window\.removeEventListener\('storage', handleProgressStorageEvent\)/)
+  assert.match(mathLabHomeSource, /LearningRouteDashboard/)
+  assert.match(mathLabHomeSource, /linear-algebra-route/)
+  assert.match(routeSummarySource, /completedCount/)
+  assert.match(routeSummarySource, /nextModuleId/)
+  assert.match(routeDashboardSource, /reportStatus/)
+  assert.match(routeDashboardSource, /checkpointReportForModule/)
+  assert.match(routeDashboardSource, /type ReportStatus = 'complete' \| 'draft' \| 'not-started' \| 'unavailable'/)
+  assert.match(routeDashboardSource, /const checkpointReportStates = ref/)
+  assert.match(routeDashboardSource, /function refreshCheckpointReports\(\)/)
+  assert.match(routeDashboardSource, /loadCheckpointReport\(moduleDefinition\.id\)/)
+  assert.match(routeDashboardSource, /function exportRouteMarkdown\(\)/)
+  assert.match(routeDashboardSource, /buildCheckpointReportMarkdown/)
+  assert.match(routeDashboardSource, /createDefaultCheckpointReport/)
+  assert.match(routeDashboardSource, /Export route report/)
+  assert.match(routeDashboardSource, /window\.addEventListener\('focus', refreshCheckpointReports\)/)
+  assert.match(routeDashboardSource, /document\.addEventListener\('visibilitychange', handleReportVisibilityChange\)/)
+  assert.match(routeDashboardSource, /window\.addEventListener\('storage', handleReportStorageEvent\)/)
+  assert.match(routeDashboardSource, /onBeforeUnmount\(\(\) =>/)
+  assert.match(routeDashboardSource, /window\.removeEventListener\('focus', refreshCheckpointReports\)/)
+  assert.match(routeDashboardSource, /document\.removeEventListener\('visibilitychange', handleReportVisibilityChange\)/)
+  assert.match(routeDashboardSource, /window\.removeEventListener\('storage', handleReportStorageEvent\)/)
+  assert.match(routeDashboardSource, /报告完成/)
+  assert.match(routeDashboardSource, /Report complete/)
+  assert.match(routeDashboardSource, /报告草稿/)
+  assert.match(routeDashboardSource, /Report draft/)
+  assert.match(routeDashboardSource, /待填写/)
+  assert.match(routeDashboardSource, /Not started/)
+
+  const reportStatusBody = routeDashboardSource.match(/function reportStatus\(moduleId: MathLabModuleId\) \{([\s\S]*?)\n\}/)?.[1] ?? ''
+  assert.doesNotMatch(reportStatusBody, /loadCheckpointReport/)
 
   const modulePageSource = read('src/modules/math-lab/pages/MathLabModulePage.vue')
   assert.match(modulePageSource, /asset\.type === 'image'/)
@@ -97,8 +399,42 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /import\('\.\.\/labs\/DistributionBuilderLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/ConditionalBayesLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/MatrixColumnSpaceLab\.vue'\)/)
+  assert.match(modulePageSource, /CheckpointReportCard/)
+  assert.match(modulePageSource, /ObservationPrompt/)
+  assert.match(modulePageSource, /checkpointReportForModule/)
+  assert.match(modulePageSource, /observationPromptForModule/)
+  assert.match(modulePageSource, /resolveMathLabModuleId/)
+  assert.match(modulePageSource, /\/math-lab\/modules\/\$\{resolvedModuleId\}/)
+  assert.match(modulePageSource, /onExperimentEvidence/)
+  assert.match(modulePageSource, /function onExperimentEvidence\(evidence: ExperimentEvidence \| undefined\)/)
+  assert.match(modulePageSource, /delete nextEvidence\[prompt\.moduleId\]/)
+  assert.match(modulePageSource, /@evidence-change="onExperimentEvidence"/)
   assert.doesNotMatch(modulePageSource, /import VectorDotProductLab from/)
   assert.doesNotMatch(modulePageSource, /sourceReferences/)
+  assert.doesNotMatch(modulePageSource, /if \(!moduleDefinition\.value\)\s*\{\s*router\.replace\('\/math-lab'\)/)
+
+  const reportCardSource = read('src/modules/math-lab/components/CheckpointReportCard.vue')
+  const mathLabStyles = read('src/styles/modules/math-lab.css')
+  const observationPromptSource = read('src/modules/math-lab/components/ObservationPrompt.vue')
+  assert.match(reportCardSource, /saveCheckpointReport/)
+  assert.match(reportCardSource, /buildCheckpointReportMarkdown/)
+  assert.match(reportCardSource, /textarea/)
+  assert.match(reportCardSource, /download/)
+  assert.match(reportCardSource, /watch\(\s*\(\) => props\.prompt\.moduleId/)
+  assert.match(reportCardSource, /const liveEvidence = ref<ExperimentEvidence \| undefined>/)
+  assert.match(reportCardSource, /liveEvidence\.value \?\? report\.evidence \?\? props\.prompt\.staticEvidence/)
+  assert.match(reportCardSource, /evidence\.moduleId !== props\.prompt\.moduleId/)
+  assert.match(reportCardSource, /document\.body\.appendChild\(link\)/)
+  assert.match(reportCardSource, /queueMicrotask/)
+  assert.match(reportCardSource, /role="status"/)
+  assert.match(reportCardSource, /aria-live/)
+  assert.match(reportCardSource, /type="button"/)
+  assert.match(reportCardSource, /:id="textareaId\(field\.key\)"/)
+  assert.match(reportCardSource, /:name="textareaName\(field\.key\)"/)
+  assert.match(routeDashboardSource, /aria-label/)
+  assert.match(mathLabStyles, /grid-template-columns:\s*repeat\(auto-fit/)
+  assert.match(mathLabStyles, /@media \(max-width: 720px\)/)
+  assert.match(observationPromptSource, /targetLabId/)
 
   const matrixColumnSpaceSource = read('src/modules/math-lab/labs/MatrixColumnSpaceLab.vue')
   assert.match(matrixColumnSpaceSource, /matrixColumns2x2/)
@@ -161,24 +497,374 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(homeSource, /beginner-calculus-story\.png/)
   assert.match(homeSource, /beginner-probability-story\.png/)
   assert.match(homeSource, /\/math-lab\/modules\/beginner-linear-algebra/)
-  assert.match(homeSource, /\/math-lab\/modules\/beginner-calculus/)
+  assert.match(homeSource, /\/math-lab\/modules\/calculus-functions-rate-change/)
+  assert.doesNotMatch(homeSource, /\/math-lab\/modules\/beginner-calculus/)
   assert.match(homeSource, /\/math-lab\/modules\/beginner-probability-distributions/)
   assert.match(homeSource, /withPublicBase/)
+})
+
+test('learning route summary renders progress, next module, and action link', async () => {
+  let expectedNextTitle = ''
+  let expectedNextRoute = ''
+  const html = await renderSfcWithVite(
+    '/src/modules/math-lab/components/LearningRouteSummary.vue',
+    async (server) => {
+      const { learningRouteById } = await server.ssrLoadModule('/src/modules/math-lab/data/learningRoutes.ts')
+      const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+      const route = learningRouteById['linear-algebra-route']
+      const nextModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === route.chapterModuleIds[1])
+      expectedNextTitle = nextModule.title.en
+      expectedNextRoute = `/math-lab/modules/${route.chapterModuleIds[1]}`
+      return {
+        route,
+        modules: mathLabModules,
+        completedModuleIds: [route.chapterModuleIds[0]],
+        locale: 'en',
+      }
+    },
+  )
+
+  assert.match(html, /Linear Algebra Route/)
+  assert.match(html, /1 \/ 7/)
+  assert.match(html, new RegExp(expectedNextTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  assert.match(html, new RegExp(`href="${expectedNextRoute.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`))
+})
+
+test('learning route dashboard renders checkpoint report states from storage', async () => {
+  const storage = createMemoryStorage()
+  const previousWindow = globalThis.window
+
+  const html = await renderSfcWithVite(
+    '/src/modules/math-lab/components/LearningRouteDashboard.vue',
+    async (server) => {
+      const { learningRouteById } = await server.ssrLoadModule('/src/modules/math-lab/data/learningRoutes.ts')
+      const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+      const {
+        checkpointReportStorageKey,
+        createDefaultCheckpointReport,
+        saveCheckpointReport,
+      } = await server.ssrLoadModule('/src/modules/math-lab/utils/checkpointReports.ts')
+      const route = learningRouteById['linear-algebra-route']
+      const draftModuleId = route.chapterModuleIds[1]
+      const completeModuleId = route.chapterModuleIds[2]
+
+      const draftReport = createDefaultCheckpointReport(route.id, draftModuleId)
+      saveCheckpointReport({ ...draftReport, answers: { ...draftReport.answers, setup: 'short draft setup' } }, storage)
+
+      const completeReport = createDefaultCheckpointReport(route.id, completeModuleId)
+      saveCheckpointReport({
+        ...completeReport,
+        answers: {
+          setup: 'This setup is long enough for the checkpoint report.',
+          observation: 'This observation is long enough for the checkpoint report.',
+          explanation: 'This explanation connects the visual evidence to the math concept clearly.',
+          nextStep: 'This next step is long enough for the checkpoint report.',
+        },
+        completed: true,
+      }, storage)
+
+      assert.ok(storage.getItem(checkpointReportStorageKey(draftModuleId)))
+      assert.ok(storage.getItem(checkpointReportStorageKey(completeModuleId)))
+
+      return {
+        route,
+        modules: mathLabModules,
+        completedModuleIds: [],
+        locale: 'en',
+      }
+    },
+    () => {
+      globalThis.window = { localStorage: storage }
+    },
+  ).finally(() => {
+    if (previousWindow === undefined) {
+      delete globalThis.window
+    } else {
+      globalThis.window = previousWindow
+    }
+  })
+
+  assert.match(html, /Not started/)
+  assert.match(html, /Report draft/)
+  assert.match(html, /Report complete/)
+})
+
+test('checkpoint report card renders static evidence and four answer fields', async () => {
+  const html = await renderSfcWithVite(
+    '/src/modules/math-lab/components/CheckpointReportCard.vue',
+    async (server) => {
+      const { checkpointReportForModule } = await server.ssrLoadModule('/src/modules/math-lab/data/checkpointReports.ts')
+      const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+      return {
+        prompt: checkpointReportForModule('linear-algebra-feature-space'),
+        modules: mathLabModules,
+        locale: 'en',
+      }
+    },
+  )
+
+  assert.match(html, /The same object becomes an ordered set of feature coordinates/)
+  assert.equal([...html.matchAll(/<textarea/g)].length, 4)
+  assert.match(html, /id="linear-algebra-feature-space-setup-report-answer"/)
+  assert.match(html, /name="linear-algebra-feature-space-setup"/)
+})
+
+test('checkpoint report card renders dynamic evidence over static evidence', async () => {
+  const html = await renderSfcWithVite(
+    '/src/modules/math-lab/components/CheckpointReportCard.vue',
+    async (server) => {
+      const { checkpointReportForModule } = await server.ssrLoadModule('/src/modules/math-lab/data/checkpointReports.ts')
+      const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+      return {
+        prompt: checkpointReportForModule('linear-algebra-feature-space'),
+        evidence: {
+          moduleId: 'linear-algebra-feature-space',
+          sourceId: 'feature-vector-story-lab',
+          summary: {
+            'zh-CN': '动态证据摘要',
+            en: 'Dynamic feature evidence summary',
+          },
+          metrics: [
+            {
+              label: { 'zh-CN': '动态指标', en: 'Dynamic metric' },
+              value: 42,
+              unit: { 'zh-CN': '次', en: 'trials' },
+            },
+          ],
+          prompt: {
+            'zh-CN': '解释动态证据。',
+            en: 'Explain the dynamic evidence.',
+          },
+        },
+        modules: mathLabModules,
+        locale: 'en',
+      }
+    },
+  )
+
+  assert.match(html, /Dynamic feature evidence summary/)
+  assert.match(html, /Dynamic metric/)
+  assert.match(html, /42 trials/)
+  assert.doesNotMatch(html, /The same object becomes an ordered set of feature coordinates/)
+})
+
+test('checkpoint report card renders saved draft answers from storage', async () => {
+  const previousWindow = globalThis.window
+  try {
+    const storageKey = 'ml-atlas:checkpoint-report:linear-algebra-feature-space'
+    globalThis.window = {
+      localStorage: createMemoryStorage([
+        [
+          storageKey,
+          JSON.stringify({
+            routeId: 'linear-algebra-route',
+            moduleId: 'linear-algebra-feature-space',
+            answers: {
+              setup: 'Saved setup answer',
+              observation: 'Saved observation answer',
+              explanation: 'Saved explanation answer',
+              nextStep: 'Saved next step answer',
+            },
+            completed: true,
+            updatedAt: '2026-06-24T00:00:00.000Z',
+          }),
+        ],
+      ]),
+    }
+
+    const html = await renderSfcWithVite(
+      '/src/modules/math-lab/components/CheckpointReportCard.vue',
+      async (server) => {
+        const { checkpointReportForModule } = await server.ssrLoadModule('/src/modules/math-lab/data/checkpointReports.ts')
+        const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+        return {
+          prompt: checkpointReportForModule('linear-algebra-feature-space'),
+          modules: mathLabModules,
+          locale: 'en',
+        }
+      },
+    )
+
+    assert.match(html, /Saved setup answer/)
+    assert.match(html, /Saved observation answer/)
+    assert.match(html, /Saved explanation answer/)
+    assert.match(html, /Saved next step answer/)
+  } finally {
+    if (previousWindow === undefined) {
+      delete globalThis.window
+    } else {
+      globalThis.window = previousWindow
+    }
+  }
+})
+
+test('checkpoint report card preserves saved evidence when no live evidence is provided', async () => {
+  const previousWindow = globalThis.window
+  try {
+    const storageKey = 'ml-atlas:checkpoint-report:linear-algebra-feature-space'
+    globalThis.window = {
+      localStorage: createMemoryStorage([
+        [
+          storageKey,
+          JSON.stringify({
+            routeId: 'linear-algebra-route',
+            moduleId: 'linear-algebra-feature-space',
+            answers: {
+              setup: 'Saved setup answer',
+              observation: 'Saved observation answer',
+              explanation: 'Saved explanation answer',
+              nextStep: 'Saved next step answer',
+            },
+            evidence: {
+              moduleId: 'linear-algebra-feature-space',
+              sourceId: 'saved-feature-vector-story-lab',
+              summary: {
+                'zh-CN': '已保存证据摘要',
+                en: 'Saved evidence summary from draft',
+              },
+              metrics: [
+                {
+                  label: { 'zh-CN': '已保存指标', en: 'Saved evidence metric' },
+                  value: 'saved-value',
+                },
+              ],
+              prompt: {
+                'zh-CN': '解释已保存证据。',
+                en: 'Explain the saved evidence.',
+              },
+            },
+            completed: true,
+            updatedAt: '2026-06-24T00:00:00.000Z',
+          }),
+        ],
+      ]),
+    }
+
+    const html = await renderSfcWithVite(
+      '/src/modules/math-lab/components/CheckpointReportCard.vue',
+      async (server) => {
+        const { checkpointReportForModule } = await server.ssrLoadModule('/src/modules/math-lab/data/checkpointReports.ts')
+        const { mathLabModules } = await server.ssrLoadModule('/src/modules/math-lab/data/modules.ts')
+        return {
+          prompt: checkpointReportForModule('linear-algebra-feature-space'),
+          modules: mathLabModules,
+          locale: 'en',
+        }
+      },
+    )
+
+    assert.match(html, /Saved evidence summary from draft/)
+    assert.match(html, /Saved evidence metric/)
+    assert.match(html, /saved-value/)
+    assert.doesNotMatch(html, /The same object becomes an ordered set of feature coordinates/)
+  } finally {
+    if (previousWindow === undefined) {
+      delete globalThis.window
+    } else {
+      globalThis.window = previousWindow
+    }
+  }
+})
+
+test('matrix transform lab emits initial and updated dynamic checkpoint evidence', async () => {
+  const evidenceEvents = []
+  const mounted = await mountClientSfc('/src/modules/math-lab/labs/MatrixTransformLab.vue', {
+    locale: 'en',
+    onEvidenceChange: (evidence) => evidenceEvents.push(evidence),
+  })
+
+  try {
+    assert.ok(evidenceEvents.length >= 1)
+    const initialEvidence = evidenceEvents.at(-1)
+    assert.equal(initialEvidence.moduleId, 'linear-algebra-matrix-transformations')
+    assert.equal(initialEvidence.sourceId, 'matrix-transform-lab')
+    assert.match(String(metricValue(initialEvidence, 'Matrix W')), /\[1\.2, 0\.6\]/)
+
+    const firstMatrixInput = flattenRenderedNodes(mounted.container).find((node) => node.type === 'input')
+    assert.ok(firstMatrixInput, 'expected a matrix control input')
+    firstMatrixInput.value = '2'
+    dispatchNodeEvent(firstMatrixInput, 'input', { target: firstMatrixInput })
+    await mounted.update()
+
+    const updatedEvidence = evidenceEvents.at(-1)
+    assert.notEqual(metricValue(updatedEvidence, 'Matrix W'), metricValue(initialEvidence, 'Matrix W'))
+    assert.equal(metricValue(updatedEvidence, 'Probe x'), '(1.5, -0.5)')
+    assert.equal(metricValue(updatedEvidence, 'W x'), '(2.7, -0.95)')
+    assert.match(String(metricValue(updatedEvidence, 'column combination')), /1\.5 W e1 \+ -0\.5 W e2/)
+  } finally {
+    await mounted.unmount()
+  }
+})
+
+test('vector similarity lab evidence includes distance and similarity ranking readouts', async () => {
+  const evidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/VectorSimilarityLab.vue', {
+    locale: 'en',
+  })
+
+  assert.equal(evidenceEvents.length, 1)
+  assert.equal(evidenceEvents[0].moduleId, 'linear-algebra-distance-similarity')
+  assert.equal(evidenceEvents[0].sourceId, 'vector-similarity-lab')
+  assert.ok(metricValue(evidenceEvents[0], 'Closest pair'))
+  assert.ok(metricValue(evidenceEvents[0], 'Most similar pair'))
+})
+
+test('numerical mini lab emits evidence only for power iteration and svd modules', async () => {
+  const powerEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/NumericalMiniLab.vue', {
+    moduleId: 'eigenvalues-eigenvectors',
+    locale: 'en',
+  })
+  assert.equal(powerEvidenceEvents.length, 1)
+  assert.equal(powerEvidenceEvents[0].moduleId, 'eigenvalues-eigenvectors')
+  assert.equal(powerEvidenceEvents[0].sourceId, 'eigen-power-iteration-lab')
+  assert.ok(metricValue(powerEvidenceEvents[0], 'Rayleigh quotient'))
+  assert.ok(metricValue(powerEvidenceEvents[0], 'residual'))
+
+  const svdEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/NumericalMiniLab.vue', {
+    moduleId: 'svd',
+    locale: 'zh-CN',
+  })
+  assert.equal(svdEvidenceEvents.length, 1)
+  assert.equal(svdEvidenceEvents[0].moduleId, 'svd')
+  assert.equal(svdEvidenceEvents[0].sourceId, 'svd-low-rank-lab')
+  assert.ok(svdEvidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === '保留能量'))
+  assert.ok(svdEvidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === '谱误差'))
+  assert.ok(svdEvidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === 'Frobenius 误差'))
+
+  const taylorEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/NumericalMiniLab.vue', {
+    moduleId: 'taylor-series',
+    locale: 'en',
+  })
+  assert.equal(taylorEvidenceEvents.length, 0)
+})
+
+test('pca projection lab emits localized evidence labels for projection metrics', async () => {
+  const evidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/PcaProjectionLab.vue', {
+    locale: 'zh-CN',
+  })
+
+  assert.equal(evidenceEvents.length, 1)
+  assert.equal(evidenceEvents[0].moduleId, 'pca')
+  assert.equal(evidenceEvents[0].sourceId, 'pca-projection-lab')
+  assert.ok(evidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === '解释方差'))
+  assert.ok(evidenceEvents[0].metrics.some((metric) => metric.label['zh-CN'] === '重建误差'))
 })
 
 test('math lab uses generated imported notes and local migrated assets', () => {
   assert.ok(existsSync(new URL('src/modules/math-lab/data/mathFoundationsModules.ts', root)))
   assert.ok(existsSync(new URL('src/modules/math-lab/data/beginnerFoundationModules.ts', root)))
   assert.ok(existsSync(new URL('src/modules/math-lab/data/aiBridgeModules.ts', root)))
+  assert.ok(existsSync(new URL('src/modules/math-lab/data/calculusRouteModules.ts', root)))
   assert.ok(existsSync(new URL('scripts/import-cs357-notes.mjs', root)))
   assert.ok(existsSync(new URL('src/modules/math-lab/data/importedMathNotes.generated.ts', root)))
   assert.ok(existsSync(new URL('docs/math-lab-linear-algebra-route-sources.md', root)))
+  assert.ok(existsSync(new URL('docs/math-lab-calculus-route-sources.md', root)))
   assert.ok(existsSync(new URL('public/math-lab/cs357-assets/figs', root)))
 
   const modulesSource = read('src/modules/math-lab/data/modules.ts')
   assert.match(modulesSource, /importedMathNotes/)
   assert.match(modulesSource, /beginnerFoundationModules/)
   assert.match(modulesSource, /linearAlgebraRouteModules/)
+  assert.match(modulesSource, /calculusRouteModules/)
   assert.match(modulesSource, /mathFoundationsModules/)
   assert.match(modulesSource, /aiBridgeModules/)
 

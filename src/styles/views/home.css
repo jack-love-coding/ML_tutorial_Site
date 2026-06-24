@@ -166,6 +166,19 @@
   margin-bottom: 26px;
 }
 
+.home-learning-routes {
+  display: grid;
+  gap: 1rem;
+  margin: 2rem auto;
+  max-width: 1180px;
+}
+
+.home-learning-routes__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
 .modules-section,
 .path-section {
   padding: 38px;

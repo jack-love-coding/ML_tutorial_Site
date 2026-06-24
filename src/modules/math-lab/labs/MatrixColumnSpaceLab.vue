@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, reactive, useId } from 'vue'
-import type { MathLabLocale } from '../types/mathLab'
+import { computed, reactive, useId, watch } from 'vue'
+import type { ExperimentEvidence, MathLabLocale } from '../types/mathLab'
 import {
   clamp,
   columnSpaceKind2x2,
@@ -22,6 +22,10 @@ const props = withDefaults(defineProps<{
 }>(), {
   locale: 'zh-CN',
 })
+
+const emit = defineEmits<{
+  'evidence-change': [evidence: ExperimentEvidence]
+}>()
 
 const size = 380
 const center = size / 2
@@ -224,6 +228,31 @@ const nullDirectionCopy = computed(() => {
 
   return `${copy.value.nullPrefix} n = ${formatVector(nullDirection.value)}, A n = ${formatVector(nullDirectionResult.value)}`
 })
+
+const evidence = computed<ExperimentEvidence>(() => ({
+  moduleId: 'linear-algebra-rank-null-space',
+  sourceId: 'matrix-column-space-lab',
+  summary: {
+    'zh-CN': '当前矩阵显示 rank、列空间状态和 null direction。',
+    en: 'The current matrix shows rank, column-space state, and null direction.',
+  },
+  metrics: [
+    { label: { 'zh-CN': 'rank', en: 'rank' }, value: rank.value },
+    { label: { 'zh-CN': '列空间', en: 'column space' }, value: columnSpaceLabel.value },
+    { label: { 'zh-CN': 'det(A)', en: 'det(A)' }, value: determinant.value.toFixed(3) },
+    { label: { 'zh-CN': 'null direction', en: 'null direction' }, value: nullDirection.value ? formatVector(nullDirection.value) : (currentLocale.value === 'zh-CN' ? '只有零向量' : 'zero vector only') },
+  ],
+  prompt: {
+    'zh-CN': '解释这些读数怎样说明模型能看见或看不见的输入变化。',
+    en: 'Explain how these readouts show input changes the model can or cannot see.',
+  },
+}))
+
+watch(
+  evidence,
+  (nextEvidence) => emit('evidence-change', nextEvidence),
+  { immediate: true },
+)
 
 function sanitizeInput(value: number, limit: number) {
   return round(clamp(value, -limit, limit), 2)

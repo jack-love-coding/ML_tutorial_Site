@@ -2,7 +2,29 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import { diagnosticQuestions, scoreDiagnostic } from '../src/modules/math-lab/data/diagnostic.ts'
+import { beginnerFoundationModules } from '../src/modules/math-lab/data/beginnerFoundationModules.ts'
+import {
+  learningRoutes,
+  linearAlgebraRouteModuleIds,
+  nextModuleForRoute,
+  routeProgressSummary,
+} from '../src/modules/math-lab/data/learningRoutes.ts'
+import {
+  checkpointReportForModule,
+  linearAlgebraCheckpointReportPrompts,
+  observationPrompts,
+  observationPromptForModule,
+} from '../src/modules/math-lab/data/checkpointReports.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
+import { continueMathLabModuleId, resolveMathLabModuleId } from '../src/modules/math-lab/utils/continueRoute.ts'
+import {
+  buildCheckpointReportMarkdown,
+  checkpointReportStorageKey,
+  createDefaultCheckpointReport,
+  isCheckpointReportComplete,
+  loadCheckpointReport,
+  saveCheckpointReport,
+} from '../src/modules/math-lab/utils/checkpointReports.ts'
 import {
   calibrationBins,
   convolutionOutputSize,
@@ -97,12 +119,17 @@ import { evaluateTaylorApproximation } from '../src/modules/math-lab/utils/taylo
 import { renderMarkdownWithMath } from '../src/utils/markdownMath.ts'
 import { withPublicBase } from '../src/utils/publicPath.ts'
 
-function createMemoryStorage(): StorageLike {
-  const values = new Map<string, string>()
+function createMemoryStorage(initial: Record<string, string> = {}): StorageLike & { dump: () => Record<string, string> } {
+  const values = new Map(Object.entries(initial))
   return {
     getItem: (key) => values.get(key) ?? null,
-    setItem: (key, value) => values.set(key, value),
-    removeItem: (key) => values.delete(key),
+    setItem: (key, value) => {
+      values.set(key, value)
+    },
+    removeItem: (key) => {
+      values.delete(key)
+    },
+    dump: () => Object.fromEntries(values),
   }
 }
 
@@ -235,10 +262,10 @@ test('AI bridge math utilities validate shapes, autodiff, probability, diagnosti
 })
 
 test('math lab modules include the zero-base AI math path with the linear algebra route split', () => {
-  assert.equal(mathLabModules.length, 25)
+  assert.equal(mathLabModules.length, 31)
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.order),
-    Array.from({ length: 25 }, (_, index) => index + 1),
+    Array.from({ length: 31 }, (_, index) => index + 1),
   )
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.id),
@@ -252,7 +279,13 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'svd',
       'pca',
       'tensor-shapes-vectorization',
-      'beginner-calculus',
+      'calculus-functions-rate-change',
+      'calculus-derivatives-local-change',
+      'calculus-partial-derivatives-gradients',
+      'calculus-gradient-descent',
+      'calculus-sgd-batch-noise',
+      'calculus-optimizer-comparison',
+      'calculus-training-code-diagnostics',
       'taylor-series',
       'matrix-calculus-autodiff',
       'beginner-probability-distributions',
@@ -294,8 +327,20 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       assert.match(englishBody, /distribution-first bridge|softmax|cross entropy/i)
     } else if (moduleDefinition.id === 'beginner-linear-algebra') {
       assert.match(englishBody, /data becomes a vector|matrix as a space machine/i)
-    } else if (moduleDefinition.id === 'beginner-calculus') {
-      assert.match(englishBody, /average change|instantaneous change|chain rule|numerical gradient/i)
+    } else if (moduleDefinition.id === 'calculus-functions-rate-change') {
+      assert.match(englishBody, /average rate of change|function|input-output/i)
+    } else if (moduleDefinition.id === 'calculus-derivatives-local-change') {
+      assert.match(englishBody, /derivative|secant|tangent/i)
+    } else if (moduleDefinition.id === 'calculus-partial-derivatives-gradients') {
+      assert.match(englishBody, /partial derivative|gradient|parameter/i)
+    } else if (moduleDefinition.id === 'calculus-gradient-descent') {
+      assert.match(englishBody, /negative gradient|learning rate|oscillation/i)
+    } else if (moduleDefinition.id === 'calculus-sgd-batch-noise') {
+      assert.match(englishBody, /mini-batch|SGD|epoch/i)
+    } else if (moduleDefinition.id === 'calculus-optimizer-comparison') {
+      assert.match(englishBody, /Momentum|RMSProp|Adam/)
+    } else if (moduleDefinition.id === 'calculus-training-code-diagnostics') {
+      assert.match(englishBody, /loss\.backward|optimizer\.step|gradient norm/)
     } else if (moduleDefinition.id === 'beginner-probability-distributions') {
       assert.match(englishBody, /sample space|random variable|normal distribution|Bayes update|calibration/i)
     } else if (moduleDefinition.id === 'training-diagnostics') {
@@ -330,6 +375,57 @@ test('math lab modules include the zero-base AI math path with the linear algebr
     assert.deepEqual(mathLabModules[index].nextModuleIds, [mathLabModules[index + 1].id])
   }
   assert.deepEqual(mathLabModules.at(-1)?.nextModuleIds, [])
+})
+
+test('primary math path prerequisites do not point at retired calculus bridge', () => {
+  const retiredPrimaryIds = new Set(['beginner-calculus'])
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+
+  for (const moduleDefinition of mathLabModules) {
+    for (const prerequisite of moduleDefinition.prerequisites) {
+      assert.equal(
+        retiredPrimaryIds.has(prerequisite),
+        false,
+        `${moduleDefinition.id} should not depend on retired prerequisite ${prerequisite}`,
+      )
+    }
+  }
+
+  assert.deepEqual(byId['beginner-probability-distributions']!.prerequisites, ['calculus-training-code-diagnostics'])
+})
+
+test('math lab continue route redirects retired calculus progress to the new route start', () => {
+  assert.equal(resolveMathLabModuleId('beginner-calculus'), 'calculus-functions-rate-change')
+  assert.equal(resolveMathLabModuleId('not-a-real-module'), undefined)
+
+  assert.equal(
+    continueMathLabModuleId({
+      lastVisitedModuleId: 'beginner-calculus',
+      diagnosticResult: undefined,
+    }),
+    'calculus-functions-rate-change',
+  )
+  assert.equal(
+    continueMathLabModuleId({
+      lastVisitedModuleId: undefined,
+      diagnosticResult: {
+        linearAlgebra: 1,
+        calculus: 0,
+        probability: 1,
+        optimization: 1,
+        recommendedStartModuleId: 'beginner-calculus',
+        weakConcepts: ['derivative'],
+      },
+    }),
+    'calculus-functions-rate-change',
+  )
+  assert.equal(
+    continueMathLabModuleId({
+      lastVisitedModuleId: 'missing-module',
+      diagnosticResult: undefined,
+    }),
+    mathLabModules[0]!.id,
+  )
 })
 
 test('linear algebra route split exposes seven ordered case-driven chapters', () => {
@@ -409,6 +505,362 @@ test('linear algebra route split exposes seven ordered case-driven chapters', ()
   }
 })
 
+test('calculus route exposes seven ordered beginner chapters from change to training code', () => {
+  const routeIds = [
+    'calculus-functions-rate-change',
+    'calculus-derivatives-local-change',
+    'calculus-partial-derivatives-gradients',
+    'calculus-gradient-descent',
+    'calculus-sgd-batch-noise',
+    'calculus-optimizer-comparison',
+    'calculus-training-code-diagnostics',
+  ]
+  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+  const expectedPrimaryLabs: Record<string, string> = {
+    'calculus-functions-rate-change': 'LocalChangeStoryLab',
+    'calculus-derivatives-local-change': 'LocalChangeStoryLab',
+    'calculus-partial-derivatives-gradients': 'MathGradientLab',
+    'calculus-gradient-descent': 'MathGradientLab',
+    'calculus-sgd-batch-noise': 'MathGradientLab',
+    'calculus-optimizer-comparison': 'MathGradientLab',
+    'calculus-training-code-diagnostics': 'TrainingDiagnosticsLab',
+  }
+  const expectedSupportLabs: Record<string, string[]> = {
+    'calculus-training-code-diagnostics': ['BackpropBlockLab'],
+  }
+
+  const requiredChineseAnchors: Record<string, string[]> = {
+    'calculus-functions-rate-change': ['买菜', '小车', '平均变化率'],
+    'calculus-derivatives-local-change': ['观察窗口', '割线', '切线'],
+    'calculus-partial-derivatives-gradients': ['旋钮', '偏导数', '梯度指向'],
+    'calculus-gradient-descent': ['负梯度', '学习率', '震荡'],
+    'calculus-sgd-batch-noise': ['batch size', 'iteration', 'epoch'],
+    'calculus-optimizer-comparison': ['Momentum', 'RMSProp', 'Adam'],
+    'calculus-training-code-diagnostics': ['zero_grad', 'loss.backward', 'optimizer.step'],
+  }
+
+  for (const id of routeIds) {
+    const moduleDefinition = byId[id]
+    assert.ok(moduleDefinition, `${id} should be registered`)
+    assert.equal(moduleDefinition.difficulty, 'foundation')
+    assert.equal(moduleDefinition.enhancementTier, 'interactive')
+    assert.ok(moduleDefinition.title['zh-CN'])
+    assert.ok(moduleDefinition.title.en)
+    assert.ok(moduleDefinition.subtitle['zh-CN'])
+    assert.ok(moduleDefinition.subtitle.en)
+    assert.ok(moduleDefinition.learningObjectives.length >= 3, `${id} should define learning objectives`)
+    assert.ok(moduleDefinition.concepts.length >= 1, `${id} should define concepts`)
+    assert.ok(moduleDefinition.sections.length >= 4, `${id} should define route sections`)
+    assert.ok(moduleDefinition.labs.length >= 1, `${id} should expose one primary lab`)
+    assert.ok(moduleDefinition.quizzes.length >= 2, `${id} should include checkpoint questions`)
+    assert.ok(moduleDefinition.misconceptions.length >= 2, `${id} should include misconception feedback`)
+    assert.equal(moduleDefinition.sourceNoteFile, 'math-lab-calculus-route-sources.md')
+    assert.ok(moduleDefinition.sourceReferences?.length, `${id} should have source references`)
+    assert.equal(moduleDefinition.labs[0]?.componentName, expectedPrimaryLabs[id], `${id} should use the planned primary lab`)
+    for (const componentName of expectedSupportLabs[id] ?? []) {
+      assert.ok(moduleDefinition.labs.some((lab) => lab.componentName === componentName), `${id} should include ${componentName}`)
+    }
+
+    assert.ok(
+      moduleDefinition.concepts.some((concept) =>
+        concept.variables.length > 0 &&
+        concept.variables.every((variable) => variable.symbol && variable.description['zh-CN'] && variable.description.en),
+      ),
+      `${id} should include a concept with variable explanations`,
+    )
+
+    for (const quiz of moduleDefinition.quizzes) {
+      assert.ok(quiz.explanation['zh-CN'], `${id} quiz ${quiz.id} should explain the answer in Chinese`)
+      assert.ok(quiz.explanation.en, `${id} quiz ${quiz.id} should explain the answer in English`)
+      assert.ok(quiz.misconceptionTags.length >= 1, `${id} quiz ${quiz.id} should link to a misconception`)
+    }
+
+    const visualIds = new Set(moduleDefinition.visuals.map((visual) => visual.id))
+    const labIds = new Set(moduleDefinition.labs.map((lab) => lab.id))
+    for (const section of moduleDefinition.sections) {
+      for (const visualId of section.visualIds ?? []) {
+        assert.equal(visualIds.has(visualId), true, `${id} references missing visual ${visualId}`)
+      }
+      for (const labId of section.labIds ?? []) {
+        assert.equal(labIds.has(labId), true, `${id} references missing lab ${labId}`)
+      }
+    }
+
+    const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
+    assert.match(englishBody, /Review Questions/)
+
+    const zhBody = moduleDefinition.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
+    for (const anchor of requiredChineseAnchors[id] ?? []) {
+      assert.match(zhBody, new RegExp(anchor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${id} should include ${anchor}`)
+    }
+  }
+
+  assert.deepEqual(
+    routeIds.map((id) => byId[id]?.nextModuleIds[0]),
+    [
+      'calculus-derivatives-local-change',
+      'calculus-partial-derivatives-gradients',
+      'calculus-gradient-descent',
+      'calculus-sgd-batch-noise',
+      'calculus-optimizer-comparison',
+      'calculus-training-code-diagnostics',
+      'taylor-series',
+    ],
+  )
+})
+
+test('learning routes expose a linear algebra route with next-step progress', () => {
+  assert.deepEqual(linearAlgebraRouteModuleIds, [
+    'linear-algebra-feature-space',
+    'linear-algebra-distance-similarity',
+    'linear-algebra-matrix-transformations',
+    'linear-algebra-rank-null-space',
+    'eigenvalues-eigenvectors',
+    'svd',
+    'pca',
+  ])
+
+  const route = learningRoutes.find((candidate) => candidate.id === 'linear-algebra-route')
+  assert.ok(route)
+  assert.equal(route.title['zh-CN'], '线性代数路线')
+  assert.equal(route.title.en, 'Linear Algebra Route')
+  assert.deepEqual(route.chapterModuleIds, linearAlgebraRouteModuleIds)
+
+  const summary = routeProgressSummary(route, [
+    'linear-algebra-feature-space',
+    'linear-algebra-distance-similarity',
+  ])
+  assert.equal(summary.completedCount, 2)
+  assert.equal(summary.totalCount, 7)
+  assert.equal(summary.nextModuleId, 'linear-algebra-matrix-transformations')
+  assert.equal(summary.completedModuleId, 'linear-algebra-distance-similarity')
+
+  assert.equal(nextModuleForRoute(route, linearAlgebraRouteModuleIds), undefined)
+})
+
+test('linear algebra checkpoint report prompts cover every route chapter', () => {
+  assert.deepEqual(
+    linearAlgebraCheckpointReportPrompts.map((prompt) => prompt.moduleId),
+    linearAlgebraRouteModuleIds,
+  )
+
+  for (const prompt of linearAlgebraCheckpointReportPrompts) {
+    assert.equal(prompt.fields.length, 4, `${prompt.moduleId} should have four report fields`)
+    assert.deepEqual(
+      prompt.fields.map((field) => field.key),
+      ['setup', 'observation', 'explanation', 'nextStep'],
+    )
+    assert.ok(prompt.staticEvidence.metrics.length >= 2, `${prompt.moduleId} needs static evidence`)
+    assert.ok(prompt.staticEvidence.summary['zh-CN'])
+    assert.ok(prompt.staticEvidence.summary.en)
+    assert.ok(prompt.task['zh-CN'])
+    assert.ok(prompt.task.en)
+  }
+
+  for (const moduleId of [
+    'linear-algebra-distance-similarity',
+    'linear-algebra-rank-null-space',
+    'svd',
+    'pca',
+  ]) {
+    assert.ok(observationPromptForModule(moduleId), `${moduleId} should have an observation prompt`)
+  }
+
+  assert.equal(observationPrompts.length, 4)
+  for (const prompt of observationPrompts) {
+    assert.ok(prompt.title['zh-CN'])
+    assert.ok(prompt.title.en)
+    assert.ok(prompt.body['zh-CN'])
+    assert.ok(prompt.body.en)
+    assert.ok(prompt.targetLabId)
+  }
+})
+
+test('checkpoint report storage handles drafts, completion, and malformed records', () => {
+  const storage = createMemoryStorage()
+  const report = createDefaultCheckpointReport('linear-algebra-route', 'svd', '2026-06-23T00:00:00.000Z')
+
+  assert.equal(isCheckpointReportComplete(report), false)
+
+  const draftStorage = createMemoryStorage()
+  const draft = saveCheckpointReport({
+    ...report,
+    answers: {
+      ...report.answers,
+      setup: 'I kept rank k = 2.',
+    },
+  }, draftStorage)
+  const loadedDraft = loadCheckpointReport('svd', draftStorage)
+
+  assert.equal(draft.completed, false)
+  assert.equal(isCheckpointReportComplete(draft), false)
+  assert.equal(loadedDraft?.answers.setup, 'I kept rank k = 2.')
+  assert.equal(loadedDraft?.completed, false)
+  assert.equal(loadedDraft ? isCheckpointReportComplete(loadedDraft) : true, false)
+
+  const tooShort = saveCheckpointReport({
+    ...report,
+    answers: {
+      setup: 'short',
+      observation: 'short',
+      explanation: 'too short',
+      nextStep: 'short',
+    },
+  }, createMemoryStorage())
+  assert.equal(tooShort.completed, false)
+  assert.equal(isCheckpointReportComplete(tooShort), false)
+
+  const saved = saveCheckpointReport({
+    ...report,
+    answers: {
+      setup: 'I kept rank k = 2.',
+      observation: 'Retained energy stayed high while fine detail faded.',
+      explanation: 'The first singular layers carry the main structure.',
+      nextStep: 'I would compare validation quality across k values.',
+    },
+  }, storage)
+
+  assert.equal(isCheckpointReportComplete(saved), true)
+
+  const loaded = loadCheckpointReport('svd', storage)
+  assert.equal(loaded?.answers.setup, 'I kept rank k = 2.')
+  assert.equal(loaded?.moduleId, 'svd')
+
+  const mismatchedStorage = createMemoryStorage({
+    [checkpointReportStorageKey('svd')]: JSON.stringify({
+      ...saved,
+      moduleId: 'pca',
+    }),
+  })
+  assert.equal(loadCheckpointReport('svd', mismatchedStorage), undefined)
+
+  const brokenStorage = createMemoryStorage({
+    [checkpointReportStorageKey('svd')]: '{bad json',
+  })
+  assert.equal(loadCheckpointReport('svd', brokenStorage), undefined)
+})
+
+test('checkpoint report storage tolerates write failures and malformed evidence', () => {
+  const report = {
+    ...createDefaultCheckpointReport('linear-algebra-route', 'svd', '2026-06-23T00:00:00.000Z'),
+    answers: {
+      setup: 'I kept rank k = 2.',
+      observation: 'Retained energy stayed high while fine detail faded.',
+      explanation: 'The first singular layers carry the main structure.',
+      nextStep: 'I would compare validation quality across k values.',
+    },
+  }
+  const throwingStorage: StorageLike = {
+    getItem: () => null,
+    setItem: () => {
+      throw new Error('quota exceeded')
+    },
+    removeItem: () => undefined,
+  }
+
+  assert.doesNotThrow(() => saveCheckpointReport(report, throwingStorage))
+  const saved = saveCheckpointReport(report, throwingStorage)
+  assert.equal(saved.completed, true)
+
+  const malformedEvidenceStorage = createMemoryStorage({
+    [checkpointReportStorageKey('svd')]: JSON.stringify({
+      ...report,
+      evidence: {
+        moduleId: 'svd',
+        sourceId: 'broken-evidence',
+        summary: 'not localized copy',
+        metrics: 'not metric array',
+        prompt: null,
+      },
+    }),
+  })
+  const loaded = loadCheckpointReport('svd', malformedEvidenceStorage)
+  assert.equal(loaded?.evidence, undefined)
+
+  const markdown = buildCheckpointReportMarkdown(
+    'linear-algebra-route',
+    loaded ? [loaded] : [],
+    mathLabModules,
+    'en',
+    '2026-06-23T12:00:00.000Z',
+  )
+  assert.match(markdown, /Kept rank/)
+})
+
+test('checkpoint report markdown export includes evidence and missing answer markers', () => {
+  const complete = {
+    ...createDefaultCheckpointReport('linear-algebra-route', 'svd', '2026-06-23T00:00:00.000Z'),
+    evidence: checkpointReportForModule('svd')!.staticEvidence,
+    answers: {
+      setup: 'I kept rank k = 2.',
+      observation: 'Energy stayed high.',
+      explanation: 'Large singular values carry the dominant layers.',
+      nextStep: 'Try k = 3 and compare downstream quality.',
+    },
+  }
+  const partial = createDefaultCheckpointReport('linear-algebra-route', 'pca', '2026-06-23T00:00:00.000Z')
+
+  const markdown = buildCheckpointReportMarkdown(
+    'linear-algebra-route',
+    [complete, partial],
+    mathLabModules,
+    'en',
+    '2026-06-23T12:00:00.000Z',
+  )
+
+  assert.match(markdown, /# Linear Algebra Route Report/)
+  assert.match(markdown, /## Singular Value Decomposition/)
+  assert.match(markdown, /I kept rank k = 2/)
+  assert.match(markdown, /Kept rank/)
+  assert.match(markdown, /## Principal Component Analysis/)
+  assert.match(markdown, /Not answered yet/)
+
+  const allReports = linearAlgebraRouteModuleIds.map((moduleId) => ({
+    ...createDefaultCheckpointReport('linear-algebra-route', moduleId, '2026-06-23T00:00:00.000Z'),
+    evidence: checkpointReportForModule(moduleId)!.staticEvidence,
+  }))
+  const fullMarkdown = buildCheckpointReportMarkdown(
+    'linear-algebra-route',
+    allReports,
+    mathLabModules,
+    'zh-CN',
+    '2026-06-23T12:00:00.000Z',
+  )
+  for (const moduleId of linearAlgebraRouteModuleIds) {
+    const moduleDefinition = mathLabModules.find((candidate) => candidate.id === moduleId)!
+    assert.ok(fullMarkdown.includes(moduleDefinition.title['zh-CN']))
+  }
+})
+
+test('learning routes expose a calculus route with next-step progress', () => {
+  const calculusRouteModuleIds = [
+    'calculus-functions-rate-change',
+    'calculus-derivatives-local-change',
+    'calculus-partial-derivatives-gradients',
+    'calculus-gradient-descent',
+    'calculus-sgd-batch-noise',
+    'calculus-optimizer-comparison',
+    'calculus-training-code-diagnostics',
+  ]
+
+  const route = learningRoutes.find((candidate) => candidate.id === 'calculus-route')
+  assert.ok(route)
+  assert.equal(route.title['zh-CN'], '微积分学习路线')
+  assert.equal(route.title.en, 'Calculus Learning Route')
+  assert.deepEqual(route.chapterModuleIds, calculusRouteModuleIds)
+
+  const summary = routeProgressSummary(route, [
+    'calculus-functions-rate-change',
+    'calculus-derivatives-local-change',
+  ])
+  assert.equal(summary.completedCount, 2)
+  assert.equal(summary.totalCount, 7)
+  assert.equal(summary.nextModuleId, 'calculus-partial-derivatives-gradients')
+  assert.equal(summary.completedModuleId, 'calculus-derivatives-local-change')
+
+  assert.equal(nextModuleForRoute(route, calculusRouteModuleIds), undefined)
+})
+
 test('later linear algebra route chapters use concrete case studies instead of shallow AI footnotes', () => {
   const eigenModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'eigenvalues-eigenvectors')
   const svdModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === 'svd')
@@ -437,15 +889,14 @@ test('later linear algebra route chapters use concrete case studies instead of s
 })
 
 test('zero-base beginner modules expose complete bilingual teaching surfaces', () => {
-  const beginnerModules = mathLabModules.filter((moduleDefinition) =>
+  const beginnerModules = beginnerFoundationModules.filter((moduleDefinition) =>
     [
       'beginner-linear-algebra',
-      'beginner-calculus',
       'beginner-probability-distributions',
     ].includes(moduleDefinition.id),
   )
 
-  assert.equal(beginnerModules.length, 3)
+  assert.equal(beginnerModules.length, 2)
 
   for (const moduleDefinition of beginnerModules) {
     assert.equal(moduleDefinition.difficulty, 'foundation')
@@ -481,8 +932,6 @@ test('zero-base beginner modules expose complete bilingual teaching surfaces', (
 
   const byId = Object.fromEntries(beginnerModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
   assert.ok(byId['beginner-linear-algebra']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
-  assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'LocalChangeStoryLab'))
-  assert.ok(byId['beginner-calculus']!.labs.some((lab) => lab.componentName === 'BackpropBlockLab'))
   assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'DistributionBuilderLab'))
   assert.ok(byId['beginner-probability-distributions']!.labs.some((lab) => lab.componentName === 'ConditionalBayesLab'))
 })
@@ -530,7 +979,9 @@ test('beginner linear algebra wires vector similarity lab and misconception guar
 })
 
 test('zero-base foundation expansion wires longform visuals and concept bridges', () => {
-  const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
+  const byId = Object.fromEntries(
+    [...mathLabModules, ...beginnerFoundationModules].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
+  )
   const root = new URL('../', import.meta.url)
   const expectedLongformAssets = {
     'beginner-linear-algebra': [
@@ -538,16 +989,6 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
       'beginner-vector-distance-similarity-longform',
       'beginner-linear-combination-span-longform',
       'beginner-matrix-transform-longform',
-    ],
-    'beginner-calculus': [
-      'beginner-function-machine-longform',
-      'beginner-average-to-derivative-longform',
-      'beginner-derivative-window-longform',
-      'beginner-derivative-tangent-longform',
-      'beginner-partial-gradient-longform',
-      'beginner-chain-rule-backprop-longform',
-      'beginner-gradient-taylor-update-longform',
-      'beginner-learning-rate-behavior-longform',
     ],
     'beginner-probability-distributions': [
       'beginner-probability-why-longform',
@@ -582,13 +1023,6 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
   const linearBody = byId['beginner-linear-algebra']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(linearBody, /向量回答的是：一个对象在每个特征方向上走了多少/)
   assert.match(linearBody, /矩阵回答的是：多个输入特征如何被加权混合成新的表达/)
-
-  const calculusBody = byId['beginner-calculus']!.sections.map((section) => section.content['zh-CN']).join('\n')
-  assert.match(calculusBody, /函数回答的是：输入改变时输出按什么规则改变/)
-  assert.match(calculusBody, /导数回答的是：在当前点附近，输入动一点，输出会动多少/)
-  assert.match(calculusBody, /偏导数的入门读法/)
-  assert.match(calculusBody, /上游梯度/)
-  assert.match(calculusBody, /有限差分/)
 
   const probabilityBody = byId['beginner-probability-distributions']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(probabilityBody, /概率回答的是：在明确的样本空间里，长期会怎样分配结果/)
@@ -1896,7 +2330,7 @@ test('diagnostic scoring recommends the earliest weak math foundation module', (
   assert.ok(weakLinearAlgebra.weakConcepts.includes('dot-product'))
 
   const weakCalculus = scoreDiagnostic({ ...allCorrect, 'diag-derivative': 'global-average' })
-  assert.equal(weakCalculus.recommendedStartModuleId, 'beginner-calculus')
+  assert.equal(weakCalculus.recommendedStartModuleId, 'calculus-functions-rate-change')
 
   const weakProbability = scoreDiagnostic({ ...allCorrect, 'diag-entropy': 'coordinates' })
   assert.equal(weakProbability.recommendedStartModuleId, 'beginner-probability-distributions')

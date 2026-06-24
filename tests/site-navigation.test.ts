@@ -5,6 +5,7 @@ import {
   dataLabNavigationGroups,
   mathLabNavigationGroups,
 } from '../src/data/navigationMenus.ts'
+import { learningRouteById } from '../src/modules/math-lab/data/learningRoutes.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 
 const registeredCoreModuleSlugs = [
@@ -69,10 +70,45 @@ test('math lab navigation menu covers all lab module routes with localized label
       'pca',
     ],
   )
+  assert.deepEqual(
+    learningRouteById['linear-algebra-route'].chapterModuleIds,
+    linearAlgebraGroup.items.map((item) => item.id),
+  )
+
+  const calculusRouteGroup = mathLabNavigationGroups.find((group) => group.id === 'calculus-route')
+  assert.ok(calculusRouteGroup)
+  assert.deepEqual(
+    calculusRouteGroup.items.map((item) => item.id),
+    [
+      'calculus-functions-rate-change',
+      'calculus-derivatives-local-change',
+      'calculus-partial-derivatives-gradients',
+      'calculus-gradient-descent',
+      'calculus-sgd-batch-noise',
+      'calculus-optimizer-comparison',
+      'calculus-training-code-diagnostics',
+    ],
+  )
+  assert.deepEqual(
+    learningRouteById['calculus-route']?.chapterModuleIds,
+    calculusRouteGroup.items.map((item) => item.id),
+  )
+
+  assert.deepEqual(
+    mathLabNavigationGroups.map((group) => group.id),
+    [
+      'zero-foundation',
+      'linear-algebra',
+      'linear-algebra-tools',
+      'calculus-route',
+      'calculus-optimization',
+      'probability-sampling',
+      'data-geometry-architectures',
+    ],
+  )
 
   assert.deepEqual(routes, [
     '/math-lab/modules/beginner-linear-algebra',
-    '/math-lab/modules/beginner-calculus',
     '/math-lab/modules/beginner-probability-distributions',
     '/math-lab/modules/linear-algebra-feature-space',
     '/math-lab/modules/linear-algebra-distance-similarity',
@@ -85,6 +121,13 @@ test('math lab navigation menu covers all lab module routes with localized label
     '/math-lab/modules/lu-decomposition',
     '/math-lab/modules/sparse-matrices',
     '/math-lab/modules/condition-numbers',
+    '/math-lab/modules/calculus-functions-rate-change',
+    '/math-lab/modules/calculus-derivatives-local-change',
+    '/math-lab/modules/calculus-partial-derivatives-gradients',
+    '/math-lab/modules/calculus-gradient-descent',
+    '/math-lab/modules/calculus-sgd-batch-noise',
+    '/math-lab/modules/calculus-optimizer-comparison',
+    '/math-lab/modules/calculus-training-code-diagnostics',
     '/math-lab/modules/taylor-series',
     '/math-lab/modules/matrix-calculus-autodiff',
     '/math-lab/modules/finite-difference-methods',

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import type { MathLabLocale } from '../types/mathLab'
+import type { ExperimentEvidence, MathLabLocale } from '../types/mathLab'
 import {
   cosineSimilarityN,
   dotN,
@@ -14,6 +14,10 @@ import {
 const props = withDefaults(defineProps<{ locale?: MathLabLocale }>(), {
   locale: 'zh-CN',
 })
+
+const emit = defineEmits<{
+  'evidence-change': [evidence: ExperimentEvidence]
+}>()
 
 type ObjectId = 'cat' | 'dog' | 'car' | 'robot'
 type DimensionId = 'warmth' | 'independence' | 'mobility'
@@ -287,6 +291,34 @@ const answerExplanation = computed(() => {
     ? `The score is high because the answer captures the main concept; the main remaining deduction comes from "${weakDimension}".`
     : `The score is pulled down by "${weakDimension}": that dimension has meaningful weight, and the student answer still differs from the reference.`
 })
+
+const evidence = computed<ExperimentEvidence>(() => ({
+  moduleId: 'linear-algebra-distance-similarity',
+  sourceId: 'vector-similarity-lab',
+  summary: {
+    'zh-CN': '当前 pair 同时给出距离、点积和 cosine 读数。',
+    en: 'The current pair exposes distance, dot product, and cosine readouts together.',
+  },
+  metrics: [
+    { label: { 'zh-CN': '对象 A', en: 'Object A' }, value: leftObject.value.label[props.locale] },
+    { label: { 'zh-CN': '对象 B', en: 'Object B' }, value: rightObject.value.label[props.locale] },
+    { label: { 'zh-CN': '欧氏距离', en: 'Euclidean distance' }, value: round(weightedDistance.value, 3) },
+    { label: { 'zh-CN': '点积', en: 'Dot product' }, value: round(weightedDot.value, 3) },
+    { label: { 'zh-CN': 'cosine', en: 'cosine' }, value: round(weightedCosine.value, 3) },
+    { label: { 'zh-CN': '最近 pair', en: 'Closest pair' }, value: closestPairLabel.value },
+    { label: { 'zh-CN': '最像 pair', en: 'Most similar pair' }, value: mostSimilarPairLabel.value },
+  ],
+  prompt: {
+    'zh-CN': '解释距离和方向相似度是否给出同一种判断。',
+    en: 'Explain whether distance and directional similarity give the same judgment.',
+  },
+}))
+
+watch(
+  evidence,
+  (nextEvidence) => emit('evidence-change', nextEvidence),
+  { immediate: true },
+)
 
 watch(selectedLeftId, (nextId) => {
   if (nextId === selectedRightId.value) {

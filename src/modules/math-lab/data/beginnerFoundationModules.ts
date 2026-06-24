@@ -1261,7 +1261,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
     subtitle: copy('从样本空间、随机变量、重复试验和概率条理解 AI 的不确定性语言。', 'Start from sample spaces, random variables, repeated trials, and probability bars to understand AI uncertainty.'),
     difficulty: 'foundation',
     estimatedMinutes: 36,
-    prerequisites: ['beginner-calculus'],
+    prerequisites: ['calculus-training-code-diagnostics'],
     aiModelConnections: [
       copy('分类器、语言模型和生成模型都会输出或使用概率分布。', 'Classifiers, language models, and generative models output or use probability distributions.'),
       copy('交叉熵、似然、采样和校准都需要先理解分布。', 'Cross entropy, likelihood, sampling, and calibration require distribution intuition first.'),

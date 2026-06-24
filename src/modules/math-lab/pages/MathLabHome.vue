@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import LearningRouteDashboard from '../components/LearningRouteDashboard.vue'
 import LearningPathMap from '../components/LearningPathMap.vue'
 import SkillRadarChart from '../components/SkillRadarChart.vue'
+import { learningRouteById } from '../data/learningRoutes'
 import { mathLabModules } from '../data/modules'
 import type { MathLabLocale, MathLabProgress } from '../types/mathLab'
+import { continueMathLabModuleId } from '../utils/continueRoute'
 import { loadMathLabProgress } from '../utils/progress'
 import { withPublicBase } from '../../../utils/publicPath.ts'
 
 const { locale } = useI18n()
 const progress = ref<MathLabProgress>(loadMathLabProgress())
 const currentLocale = computed(() => locale.value as MathLabLocale)
+const linearAlgebraRoute = computed(() => learningRouteById['linear-algebra-route'])
 
 const copy = computed(() =>
   currentLocale.value === 'zh-CN'
@@ -21,7 +25,7 @@ const copy = computed(() =>
           '从向量矩阵到 Transformer，用双语讲解、公式渲染、可视化和互动实验串起 AI 前置数学直觉。',
         diagnostic: '开始入门诊断',
         continue: '继续学习',
-        pathTitle: '第 6-24 章 AI 数学主线',
+        pathTitle: '31 章 AI 数学主线',
         pathBody: '路径把 shape、自动微分、概率损失、训练诊断和深度结构数学插入原数值计算地基中。',
         radarTitle: '当前数学地基',
         radarEmpty: '完成诊断后，这里会显示线性代数、微积分、概率和优化的准备度。',
@@ -33,20 +37,14 @@ const copy = computed(() =>
           'A chapter path from vectors and matrices to Transformers, with bilingual explanations, math rendering, visualizations, and interactive labs.',
         diagnostic: 'Start diagnostic',
         continue: 'Continue learning',
-        pathTitle: 'AI math path: chapters 1-22',
+        pathTitle: 'AI math path: 31 chapters',
         pathBody: 'The path starts with zero-base linear algebra, calculus, and probability distributions, then moves into shape, autodiff, training diagnostics, and deep architecture math.',
         radarTitle: 'Current foundation',
         radarEmpty: 'After the diagnostic, this panel shows your linear algebra, calculus, probability, and optimization readiness.',
       },
 )
 
-const continueRoute = computed(() => {
-  const preferred = progress.value.lastVisitedModuleId
-    ?? progress.value.diagnosticResult?.recommendedStartModuleId
-    ?? mathLabModules[0]?.id
-    ?? 'taylor-series'
-  return `/math-lab/modules/${preferred}`
-})
+const continueRoute = computed(() => `/math-lab/modules/${continueMathLabModuleId(progress.value)}`)
 
 const beginnerBridgeCopy = computed(() =>
   currentLocale.value === 'zh-CN'
@@ -81,7 +79,7 @@ const beginnerCards = computed(() =>
           body: '用小车、切线和下坡路径理解导数、梯度和训练时的参数更新。',
           imagePath: '/math-lab/generated/beginner-calculus-story.png',
           alt: '微积分入门插图：小车轨迹、切线斜率、局部变化和梯度下降路径。',
-          route: '/math-lab/modules/beginner-calculus',
+          route: '/math-lab/modules/calculus-functions-rate-change',
         },
         {
           id: 'probability',
@@ -107,7 +105,7 @@ const beginnerCards = computed(() =>
           body: 'Use a moving car, tangent lines, and a downhill path to understand derivatives, gradients, and training updates.',
           imagePath: '/math-lab/generated/beginner-calculus-story.png',
           alt: 'Beginner calculus illustration showing a car path, tangent slope, local change, and a gradient descent path.',
-          route: '/math-lab/modules/beginner-calculus',
+          route: '/math-lab/modules/calculus-functions-rate-change',
         },
         {
           id: 'probability',
@@ -167,6 +165,13 @@ const beginnerCards = computed(() =>
         </router-link>
       </div>
     </section>
+
+    <LearningRouteDashboard
+      :route="linearAlgebraRoute"
+      :modules="mathLabModules"
+      :completed-module-ids="progress.completedModuleIds"
+      :locale="currentLocale"
+    />
 
     <section class="math-lab-dashboard">
       <article class="math-lab-panel">

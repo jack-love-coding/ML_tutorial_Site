@@ -2,6 +2,8 @@ export type MathLabLocale = 'zh-CN' | 'en'
 
 export type MathLabModuleId = string
 
+export type LearningRouteId = 'ai-math-main-path' | 'linear-algebra-route' | 'calculus-route' | 'numerical-deepening-path'
+
 export type MathLabDifficulty = 'foundation' | 'intermediate' | 'advanced'
 
 export type EnhancementTier = 'core' | 'interactive' | 'video'
@@ -167,6 +169,74 @@ export interface MathLabProgress {
   weakConceptTags: string[]
   lastVisitedModuleId?: MathLabModuleId
   mastery: MasteryScore[]
+  updatedAt: string
+}
+
+export interface LearningRoute {
+  id: LearningRouteId
+  title: LocalizedCopy
+  description: LocalizedCopy
+  audience: LocalizedCopy
+  chapterModuleIds: readonly MathLabModuleId[]
+  nextStepRule: 'first-incomplete'
+}
+
+export interface LearningRouteProgressSummary {
+  routeId: LearningRouteId
+  completedCount: number
+  totalCount: number
+  completedModuleId?: MathLabModuleId
+  nextModuleId?: MathLabModuleId
+}
+
+export type CheckpointReportFieldKey = 'setup' | 'observation' | 'explanation' | 'nextStep'
+
+export interface ExperimentEvidenceMetric {
+  label: LocalizedCopy
+  value: string | number | LocalizedCopy
+  unit?: LocalizedCopy
+}
+
+export interface ExperimentEvidence {
+  moduleId: MathLabModuleId
+  sourceId: string
+  summary: LocalizedCopy
+  metrics: ExperimentEvidenceMetric[]
+  prompt: LocalizedCopy
+}
+
+export interface CheckpointReportField {
+  key: CheckpointReportFieldKey
+  label: LocalizedCopy
+  guidingPrompt: LocalizedCopy
+  minLength?: number
+}
+
+export interface CheckpointReportPrompt {
+  id: string
+  routeId: string
+  moduleId: MathLabModuleId
+  title: LocalizedCopy
+  task: LocalizedCopy
+  staticEvidence: ExperimentEvidence
+  fields: CheckpointReportField[]
+  exportTitle: LocalizedCopy
+}
+
+export interface ObservationPromptConfig {
+  id: string
+  moduleId: MathLabModuleId
+  title: LocalizedCopy
+  body: LocalizedCopy
+  targetLabId: string
+}
+
+export interface SavedCheckpointReport {
+  routeId: string
+  moduleId: MathLabModuleId
+  answers: Record<CheckpointReportFieldKey, string>
+  evidence?: ExperimentEvidence
+  completed: boolean
   updatedAt: string
 }
 

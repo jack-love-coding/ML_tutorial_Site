@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue'
-import type { MathLabLocale } from '../types/mathLab'
+import { computed, reactive, watch } from 'vue'
+import type { ExperimentEvidence, MathLabLocale } from '../types/mathLab'
 import {
   determinant2x2,
   isInvertible2x2,
@@ -15,6 +15,10 @@ const props = withDefaults(defineProps<{
 }>(), {
   locale: 'zh-CN',
 })
+
+const emit = defineEmits<{
+  'evidence-change': [evidence: ExperimentEvidence]
+}>()
 
 const size = 380
 const center = size / 2
@@ -35,6 +39,12 @@ const determinant = computed(() => determinant2x2(matrixValue.value))
 const invertible = computed(() => isInvertible2x2(matrixValue.value, 0.05))
 const basisI = computed(() => matrixVectorMultiply(matrixValue.value, { x: 1, y: 0 }))
 const basisJ = computed(() => matrixVectorMultiply(matrixValue.value, { x: 0, y: 1 }))
+const probeVector: Vector2 = { x: 1.5, y: -0.5 }
+const transformedProbe = computed(() => matrixVectorMultiply(matrixValue.value, probeVector))
+
+function formatVector2(vector: { x: number; y: number }) {
+  return `(${round(vector.x, 2)}, ${round(vector.y, 2)})`
+}
 
 function toSvg(point: Vector2) {
   return {
@@ -85,6 +95,35 @@ const copy = computed(() =>
         nearNo: 'near no',
         note: 'A linear layer y = Wx + b uses W to transform features first, then shifts the result by b.',
       },
+)
+
+const evidence = computed<ExperimentEvidence>(() => ({
+  moduleId: 'linear-algebra-matrix-transformations',
+  sourceId: 'matrix-transform-lab',
+  summary: {
+    'zh-CN': '当前矩阵通过改变 e1、e2 的去向来变形整张网格。',
+    en: 'The current matrix deforms the whole grid by moving where e1 and e2 land.',
+  },
+  metrics: [
+    { label: { 'zh-CN': '矩阵 W', en: 'Matrix W' }, value: matrixValue.value.map((row) => `[${row.map((value) => round(value, 2)).join(', ')}]`).join(' ') },
+    { label: { 'zh-CN': 'W e1', en: 'W e1' }, value: formatVector2(basisI.value) },
+    { label: { 'zh-CN': 'W e2', en: 'W e2' }, value: formatVector2(basisJ.value) },
+    { label: { 'zh-CN': '探针 x', en: 'Probe x' }, value: formatVector2(probeVector) },
+    { label: { 'zh-CN': 'W x', en: 'W x' }, value: formatVector2(transformedProbe.value) },
+    { label: { 'zh-CN': '列组合', en: 'column combination' }, value: `${probeVector.x} W e1 + ${probeVector.y} W e2 = ${formatVector2(transformedProbe.value)}` },
+    { label: { 'zh-CN': 'det(W)', en: 'det(W)' }, value: round(determinant.value, 3) },
+    { label: { 'zh-CN': '可逆', en: 'invertible' }, value: invertible.value ? { 'zh-CN': '是', en: 'yes' } : { 'zh-CN': '接近不可逆', en: 'near no' } },
+  ],
+  prompt: {
+    'zh-CN': '解释为什么只看 W e1 和 W e2 就能预测网格如何变形。',
+    en: 'Explain why W e1 and W e2 are enough to predict how the grid deforms.',
+  },
+}))
+
+watch(
+  evidence,
+  (nextEvidence) => emit('evidence-change', nextEvidence),
+  { immediate: true },
 )
 </script>
 
