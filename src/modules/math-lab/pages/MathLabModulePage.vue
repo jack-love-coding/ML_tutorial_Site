@@ -54,6 +54,7 @@ const labComponentRegistry = {
   MatrixTransformLab: defineAsyncComponent(() => import('../labs/MatrixTransformLab.vue')),
   MonteCarloLab: defineAsyncComponent(() => import('../labs/MonteCarloLab.vue')),
   NonlinearEquationsLab: defineAsyncComponent(() => import('../labs/NonlinearEquationsLab.vue')),
+  PartialDerivativeContourLab: defineAsyncComponent(() => import('../labs/PartialDerivativeContourLab.vue')),
   PcaProjectionLab: defineAsyncComponent(() => import('../labs/PcaProjectionLab.vue')),
   ProbabilityEntropyLab: defineAsyncComponent(() => import('../labs/ProbabilityEntropyLab.vue')),
   SparseMatrixLab: defineAsyncComponent(() => import('../labs/SparseMatrixLab.vue')),
@@ -62,6 +63,7 @@ const labComponentRegistry = {
   TrainingDiagnosticsLab: defineAsyncComponent(() => import('../labs/TrainingDiagnosticsLab.vue')),
   VectorDotProductLab: defineAsyncComponent(() => import('../labs/VectorDotProductLab.vue')),
   VectorSimilarityLab: defineAsyncComponent(() => import('../labs/VectorSimilarityLab.vue')),
+  BatchGradientNoiseLab: defineAsyncComponent(() => import('../labs/BatchGradientNoiseLab.vue')),
 }
 
 type RegisteredLabComponentName = keyof typeof labComponentRegistry

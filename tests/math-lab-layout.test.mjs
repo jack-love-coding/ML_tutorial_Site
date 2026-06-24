@@ -274,6 +274,11 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/components/LearningRouteDashboard.vue',
     'src/modules/math-lab/components/CheckpointReportCard.vue',
     'src/modules/math-lab/components/ObservationPrompt.vue',
+    'src/modules/math-lab/components/interactive/InteractivePlane.vue',
+    'src/modules/math-lab/components/interactive/DraggablePoint.vue',
+    'src/modules/math-lab/composables/useCartesianViewport.ts',
+    'src/modules/math-lab/composables/usePointerDrag.ts',
+    'src/modules/math-lab/composables/useKeyboardNudge.ts',
     'src/modules/math-lab/data/learningRouteSummaryModules.ts',
     'src/modules/math-lab/labs/VectorDotProductLab.vue',
     'src/modules/math-lab/labs/VectorSimilarityLab.vue',
@@ -293,6 +298,8 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/TaylorSeriesLab.vue',
     'src/modules/math-lab/labs/FeatureVectorStoryLab.vue',
     'src/modules/math-lab/labs/LocalChangeStoryLab.vue',
+    'src/modules/math-lab/labs/PartialDerivativeContourLab.vue',
+    'src/modules/math-lab/labs/BatchGradientNoiseLab.vue',
     'src/modules/math-lab/labs/BackpropBlockLab.vue',
     'src/modules/math-lab/labs/DistributionBuilderLab.vue',
     'src/modules/math-lab/labs/ConditionalBayesLab.vue',
@@ -308,6 +315,8 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/VectorSimilarityLab.vue',
     'src/modules/math-lab/labs/MatrixTransformLab.vue',
     'src/modules/math-lab/labs/MatrixColumnSpaceLab.vue',
+    'src/modules/math-lab/labs/PartialDerivativeContourLab.vue',
+    'src/modules/math-lab/labs/BatchGradientNoiseLab.vue',
     'src/modules/math-lab/labs/NumericalMiniLab.vue',
     'src/modules/math-lab/labs/PcaProjectionLab.vue',
   ]) {
@@ -395,6 +404,8 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /import\('\.\.\/labs\/VectorSimilarityLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/FeatureVectorStoryLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/LocalChangeStoryLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/PartialDerivativeContourLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/BatchGradientNoiseLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/BackpropBlockLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/DistributionBuilderLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/ConditionalBayesLab\.vue'\)/)
@@ -806,6 +817,28 @@ test('vector similarity lab evidence includes distance and similarity ranking re
   assert.equal(evidenceEvents[0].sourceId, 'vector-similarity-lab')
   assert.ok(metricValue(evidenceEvents[0], 'Closest pair'))
   assert.ok(metricValue(evidenceEvents[0], 'Most similar pair'))
+})
+
+test('new calculus labs emit focused dynamic evidence for partials and batch noise', async () => {
+  const partialEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/PartialDerivativeContourLab.vue', {
+    locale: 'en',
+  })
+  assert.equal(partialEvidenceEvents.length, 1)
+  assert.equal(partialEvidenceEvents[0].moduleId, 'calculus-partial-derivatives-gradients')
+  assert.equal(partialEvidenceEvents[0].sourceId, 'partial-derivative-contour-lab')
+  assert.ok(metricValue(partialEvidenceEvents[0], 'partial x'))
+  assert.ok(metricValue(partialEvidenceEvents[0], 'partial y'))
+  assert.ok(metricValue(partialEvidenceEvents[0], 'directional derivative'))
+
+  const batchEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/BatchGradientNoiseLab.vue', {
+    locale: 'en',
+  })
+  assert.equal(batchEvidenceEvents.length, 1)
+  assert.equal(batchEvidenceEvents[0].moduleId, 'calculus-sgd-batch-noise')
+  assert.equal(batchEvidenceEvents[0].sourceId, 'batch-gradient-noise-lab')
+  assert.ok(metricValue(batchEvidenceEvents[0], 'batch size'))
+  assert.ok(metricValue(batchEvidenceEvents[0], 'gradient error'))
+  assert.ok(metricValue(batchEvidenceEvents[0], 'direction angle'))
 })
 
 test('numerical mini lab emits evidence only for power iteration and svd modules', async () => {
