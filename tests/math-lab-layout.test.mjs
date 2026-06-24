@@ -276,9 +276,14 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/components/ObservationPrompt.vue',
     'src/modules/math-lab/components/interactive/InteractivePlane.vue',
     'src/modules/math-lab/components/interactive/DraggablePoint.vue',
+    'src/modules/math-lab/components/interactive/DraggableVector.vue',
+    'src/modules/math-lab/components/interactive/LabReadout.vue',
     'src/modules/math-lab/composables/useCartesianViewport.ts',
     'src/modules/math-lab/composables/usePointerDrag.ts',
     'src/modules/math-lab/composables/useKeyboardNudge.ts',
+    'src/modules/math-lab/utils/linearTransforms.ts',
+    'src/modules/math-lab/utils/optimizers.ts',
+    'src/modules/math-lab/utils/eigenDirections.ts',
     'src/modules/math-lab/data/learningRouteSummaryModules.ts',
     'src/modules/math-lab/labs/VectorDotProductLab.vue',
     'src/modules/math-lab/labs/VectorSimilarityLab.vue',
@@ -300,6 +305,8 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/LocalChangeStoryLab.vue',
     'src/modules/math-lab/labs/PartialDerivativeContourLab.vue',
     'src/modules/math-lab/labs/BatchGradientNoiseLab.vue',
+    'src/modules/math-lab/labs/OptimizerRaceLab.vue',
+    'src/modules/math-lab/labs/EigenDirectionLab.vue',
     'src/modules/math-lab/labs/BackpropBlockLab.vue',
     'src/modules/math-lab/labs/DistributionBuilderLab.vue',
     'src/modules/math-lab/labs/ConditionalBayesLab.vue',
@@ -317,6 +324,8 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/MatrixColumnSpaceLab.vue',
     'src/modules/math-lab/labs/PartialDerivativeContourLab.vue',
     'src/modules/math-lab/labs/BatchGradientNoiseLab.vue',
+    'src/modules/math-lab/labs/OptimizerRaceLab.vue',
+    'src/modules/math-lab/labs/EigenDirectionLab.vue',
     'src/modules/math-lab/labs/NumericalMiniLab.vue',
     'src/modules/math-lab/labs/PcaProjectionLab.vue',
   ]) {
@@ -335,6 +344,14 @@ test('math lab components and labs exist with expected contracts', () => {
   const pcaProjectionLabSource = read('src/modules/math-lab/labs/PcaProjectionLab.vue')
   assert.match(pcaProjectionLabSource, /retainedVariance/)
   assert.match(pcaProjectionLabSource, /reconstructionRmse/)
+
+  const matrixTransformLabSource = read('src/modules/math-lab/labs/MatrixTransformLab.vue')
+  assert.match(matrixTransformLabSource, /DraggableVector/)
+  assert.match(matrixTransformLabSource, /matrixTransformPresets/)
+  assert.match(matrixTransformLabSource, /orientation/)
+  assert.match(matrixTransformLabSource, /rank/)
+  assert.match(matrixTransformLabSource, /area scale/i)
+  assert.match(matrixTransformLabSource, /@update:vector/)
 
   const shellSource = read('src/modules/math-lab/components/ThreeSceneShell.vue')
   assert.match(shellSource, /onBeforeUnmount/)
@@ -406,6 +423,8 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /import\('\.\.\/labs\/LocalChangeStoryLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/PartialDerivativeContourLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/BatchGradientNoiseLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/OptimizerRaceLab\.vue'\)/)
+  assert.match(modulePageSource, /import\('\.\.\/labs\/EigenDirectionLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/BackpropBlockLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/DistributionBuilderLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/ConditionalBayesLab\.vue'\)/)
@@ -839,6 +858,28 @@ test('new calculus labs emit focused dynamic evidence for partials and batch noi
   assert.ok(metricValue(batchEvidenceEvents[0], 'batch size'))
   assert.ok(metricValue(batchEvidenceEvents[0], 'gradient error'))
   assert.ok(metricValue(batchEvidenceEvents[0], 'direction angle'))
+})
+
+test('optimizer and eigen direction labs emit focused dynamic evidence', async () => {
+  const optimizerEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/OptimizerRaceLab.vue', {
+    locale: 'en',
+  })
+  assert.equal(optimizerEvidenceEvents.length, 1)
+  assert.equal(optimizerEvidenceEvents[0].moduleId, 'calculus-optimizer-comparison')
+  assert.equal(optimizerEvidenceEvents[0].sourceId, 'optimizer-race-lab')
+  assert.ok(metricValue(optimizerEvidenceEvents[0], 'SGD final loss'))
+  assert.ok(metricValue(optimizerEvidenceEvents[0], 'Adam final loss'))
+  assert.ok(metricValue(optimizerEvidenceEvents[0], 'Adam state'))
+
+  const eigenEvidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/EigenDirectionLab.vue', {
+    locale: 'en',
+  })
+  assert.equal(eigenEvidenceEvents.length, 1)
+  assert.equal(eigenEvidenceEvents[0].moduleId, 'eigenvalues-eigenvectors')
+  assert.equal(eigenEvidenceEvents[0].sourceId, 'eigen-direction-lab')
+  assert.ok(metricValue(eigenEvidenceEvents[0], 'Rayleigh quotient'))
+  assert.ok(metricValue(eigenEvidenceEvents[0], 'residual'))
+  assert.ok(metricValue(eigenEvidenceEvents[0], 'angle to Av'))
 })
 
 test('numerical mini lab emits evidence only for power iteration and svd modules', async () => {

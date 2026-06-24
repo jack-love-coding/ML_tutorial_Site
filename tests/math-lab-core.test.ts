@@ -73,6 +73,16 @@ import {
   evaluateBatchGradientNoise,
 } from '../src/modules/math-lab/utils/stochasticGradients.ts'
 import {
+  evaluateEigenDirection,
+} from '../src/modules/math-lab/utils/eigenDirections.ts'
+import {
+  matrixFromBasisVectors,
+  evaluateMatrixTransform,
+} from '../src/modules/math-lab/utils/linearTransforms.ts'
+import {
+  evaluateOptimizerRace,
+} from '../src/modules/math-lab/utils/optimizers.ts'
+import {
   evaluateBackpropBlockStory,
   evaluateConditionalBayes,
   evaluateDistributionBuilder,
@@ -274,6 +284,81 @@ test('linear algebra matrix helpers expose column combinations, rank, and null d
   assert.equal(Math.abs(collapsed.x) < 1e-8, true)
   assert.equal(Math.abs(collapsed.y) < 1e-8, true)
   assert.equal(nullDirection2x2(fullRank), null)
+})
+
+test('linear transform utilities evaluate draggable basis vectors as matrix columns', () => {
+  const matrix = matrixFromBasisVectors({ x: 2, y: 1 }, { x: -0.5, y: 3 })
+  const evaluation = evaluateMatrixTransform({
+    basisI: { x: 2, y: 1 },
+    basisJ: { x: -0.5, y: 3 },
+    probe: { x: 1.5, y: -0.5 },
+  })
+  const collapsed = evaluateMatrixTransform({
+    basisI: { x: 2, y: 1 },
+    basisJ: { x: 4, y: 2 },
+  })
+
+  assert.deepEqual(matrix, [[2, -0.5], [1, 3]])
+  assert.deepEqual(evaluation.matrix, matrix)
+  assert.equal(evaluation.rank, 2)
+  assert.equal(evaluation.orientation, 'preserved')
+  assert.equal(evaluation.invertible, true)
+  assert.equal(Math.abs(evaluation.determinant - 6.5) < 1e-12, true)
+  assert.equal(evaluation.areaScale, 6.5)
+  assert.deepEqual(evaluation.transformedProbe, { x: 3.25, y: 0 })
+  assert.equal(collapsed.rank, 1)
+  assert.equal(collapsed.orientation, 'collapsed')
+  assert.equal(collapsed.invertible, false)
+  assert.equal(collapsed.areaScale, 0)
+})
+
+test('optimizer race utilities expose deterministic paths and optimizer state', () => {
+  const race = evaluateOptimizerRace({
+    preset: 'narrow-ravine',
+    start: { x: 2.4, y: -1.6 },
+    learningRate: 0.08,
+    steps: 12,
+    momentumBeta: 0.85,
+    beta2: 0.95,
+    epsilon: 1e-8,
+  })
+
+  assert.deepEqual(race.optimizerOrder, ['sgd', 'momentum', 'rmsprop', 'adam'])
+  assert.equal(race.runs.sgd.path.length, 13)
+  assert.equal(race.runs.momentum.path.length, 13)
+  assert.equal(race.runs.rmsprop.path.length, 13)
+  assert.equal(race.runs.adam.path.length, 13)
+  assert.equal(race.runs.sgd.losses[0], race.runs.adam.losses[0])
+  assert.equal(Number.isFinite(race.runs.sgd.finalLoss), true)
+  assert.equal(Number.isFinite(race.runs.adam.finalLoss), true)
+  assert.equal(race.runs.momentum.state.velocity.x !== 0 || race.runs.momentum.state.velocity.y !== 0, true)
+  assert.equal(race.runs.rmsprop.state.squareAverage.x > 0, true)
+  assert.equal(race.runs.adam.state.firstMoment.x !== 0 || race.runs.adam.state.firstMoment.y !== 0, true)
+  assert.equal(race.runs.adam.state.secondMoment.x > 0, true)
+  assert.equal(race.runs.adam.state.biasCorrection.t, 12)
+  assert.equal(Math.min(...race.optimizerOrder.map((key) => race.runs[key].finalLoss)) <= race.runs.sgd.finalLoss, true)
+})
+
+test('eigen direction utilities connect alignment, Rayleigh quotient, and power iteration residuals', () => {
+  const starting = evaluateEigenDirection({
+    matrixKind: 'well-separated',
+    vector: { x: 1, y: 0 },
+    iterations: 0,
+  })
+  const iterated = evaluateEigenDirection({
+    matrixKind: 'well-separated',
+    vector: { x: 1, y: 0 },
+    iterations: 8,
+  })
+
+  assert.equal(Math.abs(norm(iterated.normalizedVector) - 1) < 1e-12, true)
+  assert.equal(Number.isFinite(iterated.rayleighQuotient), true)
+  assert.equal(iterated.residualNorm >= 0, true)
+  assert.equal(iterated.powerPath.length, 9)
+  assert.equal(Number.isFinite(iterated.angleToImage), true)
+  assert.equal(typeof iterated.nearEigenDirection, 'boolean')
+  assert.equal(iterated.residualNorm < starting.residualNorm, true)
+  assert.equal(iterated.angleToImage < starting.angleToImage, true)
 })
 
 test('AI bridge math utilities validate shapes, autodiff, probability, diagnostics, and architecture formulas', () => {
@@ -592,7 +677,7 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     'calculus-partial-derivatives-gradients': 'PartialDerivativeContourLab',
     'calculus-gradient-descent': 'MathGradientLab',
     'calculus-sgd-batch-noise': 'BatchGradientNoiseLab',
-    'calculus-optimizer-comparison': 'MathGradientLab',
+    'calculus-optimizer-comparison': 'OptimizerRaceLab',
     'calculus-training-code-diagnostics': 'TrainingDiagnosticsLab',
   }
   const expectedSupportLabs: Record<string, string[]> = {
@@ -1134,7 +1219,7 @@ test('key math foundation topics are connected to interactive or video enhanceme
   assert.ok(byId['lu-decomposition']!.labs.some((lab) => lab.componentName === 'LuDecompositionLab'))
   assert.ok(byId['sparse-matrices']!.labs.some((lab) => lab.componentName === 'SparseMatrixLab'))
   assert.ok(byId['condition-numbers']!.labs.some((lab) => lab.componentName === 'ConditionNumbersLab'))
-  assert.ok(byId['eigenvalues-eigenvectors']!.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
+  assert.ok(byId['eigenvalues-eigenvectors']!.labs.some((lab) => lab.componentName === 'EigenDirectionLab'))
   assert.ok(byId['markov-chains']!.labs.some((lab) => lab.componentName === 'MarkovChainLab'))
   assert.ok(byId['finite-difference-methods']!.labs.some((lab) => lab.componentName === 'FiniteDifferenceLab'))
   assert.ok(byId['nonlinear-equations']!.labs.some((lab) => lab.componentName === 'NonlinearEquationsLab'))
@@ -1561,7 +1646,7 @@ test('eigenvalues module presents repaired bilingual content with inline power i
   assert.ok(eigenModule.concepts.length >= 3)
   assert.ok(eigenModule.quizzes.length >= 4)
   assert.ok(eigenModule.misconceptions.length >= 3)
-  assert.ok(eigenModule.labs.some((lab) => lab.componentName === 'NumericalMiniLab'))
+  assert.ok(eigenModule.labs.some((lab) => lab.componentName === 'EigenDirectionLab'))
   assert.ok(eigenModule.sections.some((section) => section.labIds?.includes('eigen-power-iteration-lab')))
 
   const sectionIds = eigenModule.sections.map((section) => section.id)
