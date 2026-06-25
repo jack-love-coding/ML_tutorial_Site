@@ -965,12 +965,12 @@ export function buildEigenvaluesModule(base: MathLabModule): MathLabModule {
     labs: [
       {
         id: 'eigen-power-iteration-lab',
-        title: copy('幂迭代主方向实验台', 'Power Iteration Dominant Direction Lab'),
+        title: copy('特征方向探针实验台', 'Eigen Direction Probe Lab'),
         type: 'interactive-visual',
-        componentName: 'NumericalMiniLab',
+        componentName: 'EigenDirectionLab',
         successCriteria: [
-          copy('能解释迭代次数增加时路径为什么靠近主特征方向。', 'Explain why the path approaches the dominant eigen direction as iterations increase.'),
-          copy('能用谱比值读数判断收敛快慢。', 'Use the spectral-ratio readout to judge convergence speed.'),
+          copy('能解释拖动方向后 Av 是否仍在同一方向线上。', 'Explain whether Av stays on the same line after dragging a direction.'),
+          copy('能描述迭代次数增加时路径为什么靠近主特征方向。', 'Describe why the path approaches the dominant eigen direction as iterations increase.'),
           copy('能用 residual 判断当前方向是否接近特征向量。', 'Use the residual to judge whether the current direction is close to an eigenvector.'),
         ],
       },

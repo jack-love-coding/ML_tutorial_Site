@@ -2347,6 +2347,23 @@
   max-width: 260px;
 }
 
+.matrix-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.matrix-preset-row button {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+}
+
 .matrix-input-grid input,
 .math-checkpoint__numeric input {
   padding: 0 12px;

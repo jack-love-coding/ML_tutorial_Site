@@ -38,6 +38,14 @@ Date: 2026-06-23
 - `/manim/math-lab/beginner-learning-rate-behavior.mp4`
 - `/manim/math-lab/beginner-learning-rate-behavior.svg`
 
-## First-Pass Boundary
+## Implemented Interaction Boundary
 
-This first pass reuses existing labs and public assets, including `LocalChangeStoryLab`, `MathGradientLab`, `TrainingDiagnosticsLab`, and `BackpropBlockLab`. It does not add new optimizer visualization, new Manim scenes, or a new training-loop component.
+The route keeps the existing public image and Manim assets, while using focused interactive labs where the original reuse caused teaching mismatch:
+
+- `calculus-partial-derivatives-gradients`: `PartialDerivativeContourLab`.
+- `calculus-gradient-descent`: `MathGradientLab`.
+- `calculus-sgd-batch-noise`: `BatchGradientNoiseLab`.
+- `calculus-optimizer-comparison`: `OptimizerRaceLab`.
+- `calculus-training-code-diagnostics`: `TrainingDiagnosticsLab` and `BackpropBlockLab`.
+
+This pass does not add new Manim scenes or a new training-loop component.
