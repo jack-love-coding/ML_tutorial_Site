@@ -325,6 +325,101 @@
   width: fit-content;
 }
 
+.lesson-interaction-protocol {
+  display: grid;
+  gap: 16px;
+  margin: 8px 0 20px;
+  padding: 18px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-left: 4px solid var(--module-accent, #4d63ff);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 42px rgba(15, 23, 40, 0.06);
+}
+
+.lesson-interaction-protocol__header {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(240px, 0.68fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.lesson-interaction-protocol__header span,
+.lesson-interaction-protocol__grid article > span,
+.lesson-interaction-protocol__reflection span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lesson-interaction-protocol h4 {
+  margin: 6px 0 0;
+  font-size: 1.1rem;
+  line-height: 1.35;
+}
+
+.lesson-interaction-protocol__header p,
+.lesson-interaction-protocol__reflection strong {
+  margin: 0;
+  color: #25304a;
+  line-height: 1.55;
+}
+
+.lesson-interaction-protocol__header p strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #111827;
+}
+
+.lesson-interaction-protocol__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.lesson-interaction-protocol__grid article {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 12px;
+  background: rgba(248, 248, 245, 0.82);
+}
+
+.lesson-interaction-protocol ul,
+.lesson-interaction-protocol ol {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.lesson-interaction-protocol li {
+  line-height: 1.45;
+}
+
+.lesson-interaction-protocol li strong,
+.lesson-interaction-protocol li small {
+  display: block;
+}
+
+.lesson-interaction-protocol li small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.lesson-interaction-protocol__reflection {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(15, 23, 40, 0.04);
+}
+
 .story-media {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.75fr);
@@ -576,6 +671,15 @@
   .algorithm-checkpoint,
   .algorithm-hero {
     border-radius: 22px;
+  }
+
+  .lesson-interaction-protocol {
+    padding: 16px;
+  }
+
+  .lesson-interaction-protocol__header,
+  .lesson-interaction-protocol__grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .algorithm-checkpoint {

@@ -16,7 +16,6 @@ test('model selection module is registered after classification project', () => 
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
-  const homeSource = read('src/views/HomeView.vue')
   const messagesSource = read('src/i18n/messages.ts')
 
   assert.match(typesSource, /\| 'model-selection'/)
@@ -31,8 +30,6 @@ test('model selection module is registered after classification project', () => 
 
   assert.match(algorithmViewSource, /slug\.value === 'model-selection'/)
   assert.match(algorithmViewSource, /isModelSelectionPage/)
-  assert.match(homeSource, /model-selection/)
-  assert.match(homeSource, /交叉验证/)
   assert.match(messagesSource, /modelSelection: \{/)
 })
 

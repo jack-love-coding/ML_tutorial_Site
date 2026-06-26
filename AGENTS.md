@@ -129,3 +129,14 @@
 - `npm test` 和必要的 `npm run build` 或 `npm run build:pages` 已按改动风险执行。
 - 没有无关文件修改，没有覆盖用户已有工作。
 - 最终说明列出改动文件、验证命令和未运行的检查。
+
+## Curriculum V2 重构护栏
+
+- 本轮采用渐进式迁移，禁止一次性重写 Math Lab、Data Lab 和 Algorithm 模块。
+- 在旧 URL 有对应 redirect 和测试前，不得删除旧路由。
+- 在 Progress V2 迁移测试通过前，不得删除三个现有 localStorage 数据源。
+- Curriculum Catalog 必须先通过 adapter 接入现有内容，不在同一阶段搬迁全部课程正文。
+- Lesson Block Renderer 第一轮只迁移 AI Overview、Gradient Descent 和 MLP。
+- 每个阶段必须保持现有课程可访问、双语可用、checkpoint 可提交。
+- 每个阶段单独验证、单独提交、单独 PR；禁止积累为一个大型重构 PR。
+- 没有明确验收条件的阶段不得进入 execute。

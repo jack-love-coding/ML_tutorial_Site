@@ -37,7 +37,9 @@ test('algorithm view has a dedicated linear regression lesson branch', () => {
 
   assert.match(algorithmViewSource, /LinearRegressionPagedLesson/)
   assert.match(algorithmViewSource, /requestedChapterId/)
-  assert.match(algorithmViewSource, /router\.replace\(`\/learn\/linear-regression\/\$\{firstChapterId\}`\)/)
+  assert.match(algorithmViewSource, /route\.params\.moduleId/)
+  assert.match(algorithmViewSource, /route\.params\.lessonId/)
+  assert.match(algorithmViewSource, /router\.replace\(`\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`\)/)
   assert.match(algorithmViewSource, /slug\.value === 'linear-regression'/)
   assert.doesNotMatch(algorithmViewSource, /showLegacyLinearRegressionStory/)
   assert.doesNotMatch(algorithmViewSource, /LinearRegressionResults = defineAsyncComponent/)
@@ -54,13 +56,15 @@ test('linear regression chapter routes are wired before the generic algorithm ro
 
   const redirectIndex = routerSource.indexOf("path: '/learn/linear-regression'")
   const chapterIndex = routerSource.indexOf("path: '/learn/linear-regression/:chapterId'")
-  const genericIndex = routerSource.indexOf("path: '/learn/:slug'")
+  const genericLessonIndex = routerSource.indexOf("path: '/learn/:moduleId/:lessonId'")
+  const genericIndex = routerSource.indexOf("path: '/learn/:moduleId',")
 
   assert.notEqual(redirectIndex, -1, 'base linear regression route should redirect to the first chapter')
   assert.notEqual(chapterIndex, -1, 'chapter route should be declared')
   assert.notEqual(genericIndex, -1, 'generic algorithm route should remain declared')
+  assert.notEqual(genericLessonIndex, -1, 'generic lesson route should be declared')
   assert.ok(redirectIndex < genericIndex, 'base linear regression route must come before generic route')
-  assert.ok(chapterIndex < genericIndex, 'chapter route must come before generic route')
+  assert.ok(chapterIndex < genericLessonIndex, 'chapter route must come before generic lesson route')
   assert.match(routerSource, /redirect: '\/learn\/linear-regression\/fit-line'/)
 })
 

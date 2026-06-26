@@ -1,0 +1,186 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { existsSync, readFileSync } from 'node:fs'
+import { algorithmProgressStorageKey } from '../src/utils/algorithmProgress.ts'
+import { mathLabProgressStorageKey } from '../src/modules/math-lab/utils/progress.ts'
+import { dataLabProgressStorageKey } from '../src/modules/data-lab/utils/progress.ts'
+import { curriculumCatalog } from '../src/curriculum/catalog.ts'
+import {
+  coreLearningPathModuleIds,
+  curriculumRouteManifest,
+  curriculumRouteManifestById,
+  projectPracticeModuleIds,
+} from '../src/curriculum/routeManifest.ts'
+import {
+  resolveCanonicalLearnRedirect,
+  resolveCanonicalLearnRoute,
+} from '../src/curriculum/routes.ts'
+import {
+  learningProgressV2MigrationKey,
+  learningProgressV2StorageKey,
+  migrateLearningProgressV2,
+} from '../src/curriculum/progress.ts'
+import {
+  validateCurriculumLocalization,
+  validateUniqueCurriculumIds,
+} from '../src/curriculum/validation.ts'
+import { lessonInteractionProtocols } from '../src/lessons/interactionProtocol.ts'
+import { lessonLabRegistry, lessonPagePilotSlugs } from '../src/lessons/labRegistry.ts'
+
+class MemoryStorage {
+  private values = new Map<string, string>()
+
+  constructor(initial: Record<string, string> = {}) {
+    for (const [key, value] of Object.entries(initial)) this.values.set(key, value)
+  }
+
+  getItem(key: string) {
+    return this.values.get(key) ?? null
+  }
+
+  setItem(key: string, value: string) {
+    this.values.set(key, value)
+  }
+
+  removeItem(key: string) {
+    this.values.delete(key)
+  }
+}
+
+const root = new URL('../', import.meta.url)
+
+function read(path: string) {
+  return readFileSync(new URL(path, root), 'utf8')
+}
+
+function json(value: unknown) {
+  return JSON.stringify(value)
+}
+
+test('milestone audit keeps current curriculum modules reachable through the manifest and canonical resolver', () => {
+  assert.equal(curriculumRouteManifest.length, curriculumCatalog.length)
+  assert.equal(curriculumRouteManifestById.size, curriculumCatalog.length)
+  assert.deepEqual(validateUniqueCurriculumIds(curriculumCatalog), [])
+
+  for (const moduleDefinition of curriculumCatalog) {
+    const manifestEntry = curriculumRouteManifestById.get(moduleDefinition.id)
+
+    assert.ok(manifestEntry, `${moduleDefinition.id} needs a manifest entry`)
+    assert.equal(manifestEntry.route, moduleDefinition.route)
+    assert.equal(manifestEntry.source, moduleDefinition.source.namespace)
+
+    const resolvedRoute = resolveCanonicalLearnRoute(moduleDefinition.id, manifestEntry.firstLessonId)
+    assert.ok(resolvedRoute, `${moduleDefinition.id} should resolve from canonical route helper`)
+
+    if (moduleDefinition.source.namespace === 'algorithm') {
+      assert.equal(resolvedRoute, manifestEntry.firstLessonId
+        ? `/learn/${moduleDefinition.id}/${manifestEntry.firstLessonId}`
+        : `/learn/${moduleDefinition.id}`)
+      assert.equal(resolveCanonicalLearnRedirect(moduleDefinition.id, manifestEntry.firstLessonId), undefined)
+    } else {
+      assert.equal(resolvedRoute, moduleDefinition.route)
+      assert.equal(resolveCanonicalLearnRedirect(moduleDefinition.id, manifestEntry.firstLessonId), moduleDefinition.route)
+    }
+  }
+
+  for (const moduleId of [...coreLearningPathModuleIds, ...projectPracticeModuleIds]) {
+    assert.ok(curriculumRouteManifestById.has(moduleId), `${moduleId} should stay in the route manifest`)
+  }
+})
+
+test('milestone audit preserves legacy URL handlers alongside canonical routes', () => {
+  const routerSource = read('src/router/index.ts')
+  const fallbackScript = read('scripts/create-pages-fallbacks.mjs')
+
+  for (const routePattern of [
+    "path: '/learn/:moduleId'",
+    "path: '/learn/:moduleId/:lessonId'",
+    "path: '/math-lab/modules/:moduleId'",
+    "path: '/data-lab/modules/:moduleId'",
+    "path: '/learn/linear-regression/:chapterId'",
+    "path: '/learn/logistic-regression/:chapterId'",
+    "path: '/learn/cnn-visualization/:chapterId'",
+    "path: '/tracks/:trackId'",
+    "path: '/library/:domain'",
+    "path: '/progress'",
+  ]) {
+    assert.ok(routerSource.includes(routePattern), `${routePattern} should remain wired`)
+  }
+
+  assert.match(fallbackScript, /data-lab\/modules/)
+  assert.match(fallbackScript, /math-lab\/modules/)
+})
+
+test('milestone audit keeps progress v1 storage intact while writing progress v2', () => {
+  const algorithmRaw = json({
+    completedModuleSlugs: ['ai-overview'],
+    lastVisitedModuleSlug: 'gradient-descent',
+    quizAttempts: [],
+    updatedAt: '2026-06-20T09:00:00.000Z',
+  })
+  const mathRaw = json({
+    completedModuleIds: ['beginner-linear-algebra'],
+    quizAttempts: [],
+    updatedAt: '2026-06-21T09:00:00.000Z',
+  })
+  const dataRaw = json({
+    completedModuleIds: ['numerical-data'],
+    quizAttempts: [],
+    updatedAt: '2026-06-22T09:00:00.000Z',
+  })
+  const storage = new MemoryStorage({
+    [algorithmProgressStorageKey]: algorithmRaw,
+    [mathLabProgressStorageKey]: mathRaw,
+    [dataLabProgressStorageKey]: dataRaw,
+  })
+
+  const progress = migrateLearningProgressV2(storage, '2026-06-25T00:00:00.000Z')
+
+  assert.equal(progress.modules['ai-overview']?.completed, true)
+  assert.equal(progress.modules['beginner-linear-algebra']?.completed, true)
+  assert.equal(progress.modules['numerical-data']?.completed, true)
+  assert.equal(storage.getItem(algorithmProgressStorageKey), algorithmRaw)
+  assert.equal(storage.getItem(mathLabProgressStorageKey), mathRaw)
+  assert.equal(storage.getItem(dataLabProgressStorageKey), dataRaw)
+  assert.ok(storage.getItem(learningProgressV2StorageKey))
+  assert.ok(storage.getItem(learningProgressV2MigrationKey))
+  assert.deepEqual(progress.migration?.sourceKeys, [
+    algorithmProgressStorageKey,
+    mathLabProgressStorageKey,
+    dataLabProgressStorageKey,
+  ])
+})
+
+test('milestone audit keeps bilingual catalog validation and pilot protocols complete', () => {
+  assert.deepEqual(validateCurriculumLocalization(curriculumCatalog), [])
+
+  const protocolModules = new Set(lessonInteractionProtocols.map((protocol) => protocol.moduleSlug))
+  for (const slug of lessonPagePilotSlugs) {
+    const protocol = lessonInteractionProtocols.find((item) => item.moduleSlug === slug)
+    assert.ok(protocolModules.has(slug), `${slug} should keep a teaching interaction protocol`)
+    assert.equal(protocol?.labId, lessonLabRegistry[slug].labId)
+  }
+})
+
+test('milestone audit documents every completed phase and the current refactor state', () => {
+  for (const path of [
+    '.planning/PROJECT.md',
+    '.planning/ROADMAP.md',
+    '.planning/STATE.md',
+    'docs/refactor/baseline.md',
+    'docs/refactor/curriculum-v2-brief.md',
+  ]) {
+    assert.ok(existsSync(new URL(path, root)), `${path} should exist`)
+  }
+
+  for (const phase of [1, 2, 3, 4, 5, 6]) {
+    assert.ok(existsSync(new URL(`docs/refactor/decisions/phase-${phase}.md`, root)))
+    assert.ok(existsSync(new URL(`docs/refactor/summaries/phase-${phase}.md`, root)))
+  }
+  assert.ok(existsSync(new URL('docs/refactor/summaries/phase-7.md', root)))
+  assert.ok(existsSync(new URL('docs/refactor/audits/curriculum-v2-milestone-audit.md', root)))
+
+  const stateSource = read('.planning/STATE.md')
+  assert.match(stateSource, /Phase 7 implemented and verified/)
+  assert.match(stateSource, /Current focus:\*\* Ready for review \/ ship/)
+})

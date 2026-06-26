@@ -1,9 +1,28 @@
 import { ref } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { resolveCanonicalLearnRedirect, resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
+
 export const routeNavigating = ref(false)
 export const pendingRoutePath = ref('/')
 
 let navigationTimer: number | undefined
+
+function routeParamValue(value: unknown) {
+  if (typeof value === 'string') return value
+  if (Array.isArray(value) && typeof value[0] === 'string') return value[0]
+  return ''
+}
+
+function redirectCanonicalLearnRoute(to: RouteLocationNormalized) {
+  const moduleId = routeParamValue(to.params.moduleId)
+  const lessonId = routeParamValue(to.params.lessonId)
+  const canonicalRoute = resolveCanonicalLearnRoute(moduleId, lessonId)
+  const redirectRoute = resolveCanonicalLearnRedirect(moduleId, lessonId)
+
+  if (redirectRoute && redirectRoute !== to.path) return { path: redirectRoute }
+  if (!canonicalRoute) return { path: '/' }
+  return true
+}
 
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +61,25 @@ export const router = createRouter({
       component: () => import('../modules/data-lab/pages/DataLabModulePage.vue'),
     },
     {
+      path: '/tracks/:trackId',
+      name: 'curriculum-track',
+      component: () => import('../views/CurriculumTrackView.vue'),
+    },
+    {
+      path: '/library/:domain',
+      name: 'curriculum-library',
+      component: () => import('../views/CurriculumLibraryView.vue'),
+    },
+    {
+      path: '/projects',
+      redirect: '/tracks/project-practice',
+    },
+    {
+      path: '/progress',
+      name: 'curriculum-progress',
+      component: () => import('../views/CurriculumProgressView.vue'),
+    },
+    {
       path: '/learn/linear-regression',
       redirect: '/learn/linear-regression/fit-line',
     },
@@ -65,8 +103,15 @@ export const router = createRouter({
       component: () => import('../views/AlgorithmView.vue'),
     },
     {
-      path: '/learn/:slug',
+      path: '/learn/:moduleId/:lessonId',
+      name: 'canonical-lesson',
+      beforeEnter: redirectCanonicalLearnRoute,
+      component: () => import('../views/AlgorithmView.vue'),
+    },
+    {
+      path: '/learn/:moduleId',
       name: 'algorithm',
+      beforeEnter: redirectCanonicalLearnRoute,
       component: () => import('../views/AlgorithmView.vue'),
     },
   ],

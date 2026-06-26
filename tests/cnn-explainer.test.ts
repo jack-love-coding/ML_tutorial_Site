@@ -1402,13 +1402,16 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
     algorithmViewSource,
     /<CnnExplainerLab v-if="isCnnVisualizationPage && section\.id === activeChapter"/,
   )
-  assert.match(
-    algorithmViewSource,
-    /nextSlug === 'linear-regression' \|\| nextSlug === 'logistic-regression' \|\| nextSlug === 'cnn-visualization'/,
-  )
-  assert.match(algorithmViewSource, /router\.replace\(`\/learn\/cnn-visualization\/\$\{firstChapterId\}`\)/)
+  assert.match(algorithmViewSource, /route\.params\.lessonId/)
+  assert.match(algorithmViewSource, /syncRouteChapterIntoView\(matchedChapter\.id\)/)
+  assert.match(algorithmViewSource, /router\.replace\(`\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`\)/)
   assert.match(routerSource, /path: '\/learn\/cnn-visualization\/:chapterId'/)
   assert.match(routerSource, /name: 'cnn-visualization-chapter'/)
+
+  const cnnChapterIndex = routerSource.indexOf("path: '/learn/cnn-visualization/:chapterId'")
+  const canonicalLessonIndex = routerSource.indexOf("path: '/learn/:moduleId/:lessonId'")
+  assert.ok(cnnChapterIndex > -1 && cnnChapterIndex < canonicalLessonIndex)
+
   assert.match(moduleSource, /Tiny VGG/)
   assert.match(moduleSource, /browser-side forward pass/)
   assert.match(moduleSource, /REF-CNN-EXPLAINER/)

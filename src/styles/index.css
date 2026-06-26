@@ -5,6 +5,7 @@
 @import './layout/site-header.css';
 @import './views/home.css';
 @import './views/algorithm-shell.css';
+@import './views/curriculum.css';
 @import './modules/ai-overview.css';
 @import './modules/workflow-lessons.css';
 @import './modules/cnn-explainer.css';

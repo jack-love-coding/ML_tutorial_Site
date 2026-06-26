@@ -2,19 +2,13 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { moduleOrder } from '../data/moduleCatalog'
 import {
-  coreExperimentNavigationGroups,
-  dataLabNavigationGroups,
-  dataLabOverviewLink,
-  mathLabNavigationGroups,
-  mathLabOverviewLink,
-  mathLabUtilityLinks,
+  curriculumNavigationMenus,
   type NavigationGroup,
   type NavigationLink,
   type SiteNavigationMenuId,
 } from '../data/navigationMenus'
-import type { AppLocale, ModuleSlug, LocalizedCopy } from '../types/ml'
+import type { AppLocale, LocalizedCopy } from '../types/ml'
 import LanguageToggle from './LanguageToggle.vue'
 
 const route = useRoute()
@@ -22,9 +16,7 @@ const { t, locale } = useI18n()
 const isMenuOpen = ref(false)
 const openNavigationMenuId = ref<SiteNavigationMenuId | null>(null)
 
-const isLearningRoute = computed(() => route.path.startsWith('/learn'))
 const currentLocale = computed(() => locale.value as AppLocale)
-const moduleBySlug = new Map(moduleOrder.map((moduleDefinition) => [moduleDefinition.slug, moduleDefinition]))
 
 interface RenderedNavigationItem {
   id: string
@@ -68,54 +60,23 @@ function renderNavigationGroups(groups: NavigationGroup[]): RenderedNavigationGr
   }))
 }
 
-const coreExperimentGroups = computed<RenderedNavigationGroup[]>(() =>
-  coreExperimentNavigationGroups.map((group) => ({
-    id: group.id,
-    label: localizedText(group.label),
-    items: group.moduleSlugs.flatMap((slug: ModuleSlug) => {
-      const moduleDefinition = moduleBySlug.get(slug)
+function isMenuActive(activePrefixes: string[]) {
+  return activePrefixes.some((prefix) => route.path === prefix || route.path.startsWith(`${prefix}/`))
+}
 
-      return moduleDefinition
-        ? [
-            {
-              id: moduleDefinition.slug,
-              route: moduleDefinition.route,
-              label: t(moduleDefinition.titleKey),
-            },
-          ]
-        : []
-    }),
+const navigationMenus = computed<SiteNavigationMenu[]>(() =>
+  curriculumNavigationMenus.map((menuDefinition) => ({
+    id: menuDefinition.id,
+    label: localizedText(menuDefinition.label),
+    controlsId: `site-${menuDefinition.id}-navigation`,
+    active: isMenuActive(menuDefinition.activePrefixes),
+    overviewLink: menuDefinition.overviewLink
+      ? renderNavigationLink(menuDefinition.overviewLink)
+      : undefined,
+    utilityLinks: menuDefinition.utilityLinks.map(renderNavigationLink),
+    groups: renderNavigationGroups(menuDefinition.groups),
   })),
 )
-
-const navigationMenus = computed<SiteNavigationMenu[]>(() => [
-  {
-    id: 'math-lab',
-    label: t('nav.mathLab'),
-    controlsId: 'site-math-lab-navigation',
-    active: route.path.startsWith('/math-lab'),
-    overviewLink: renderNavigationLink(mathLabOverviewLink),
-    utilityLinks: mathLabUtilityLinks.map(renderNavigationLink),
-    groups: renderNavigationGroups(mathLabNavigationGroups),
-  },
-  {
-    id: 'data-lab',
-    label: t('nav.dataLab'),
-    controlsId: 'site-data-lab-navigation',
-    active: route.path.startsWith('/data-lab'),
-    overviewLink: renderNavigationLink(dataLabOverviewLink),
-    utilityLinks: [],
-    groups: renderNavigationGroups(dataLabNavigationGroups),
-  },
-  {
-    id: 'modules',
-    label: t('nav.modules'),
-    controlsId: 'site-module-navigation',
-    active: isLearningRoute.value,
-    utilityLinks: [],
-    groups: coreExperimentGroups.value,
-  },
-])
 
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value

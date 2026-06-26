@@ -16,7 +16,6 @@ test('tree forest module is registered after model selection', () => {
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
-  const homeSource = read('src/views/HomeView.vue')
   const messagesSource = read('src/i18n/messages.ts')
 
   assert.match(typesSource, /\| 'tree-forest'/)
@@ -31,8 +30,6 @@ test('tree forest module is registered after model selection', () => {
 
   assert.match(algorithmViewSource, /slug\.value === 'tree-forest'/)
   assert.match(algorithmViewSource, /isTreeForestPage/)
-  assert.match(homeSource, /tree-forest/)
-  assert.match(homeSource, /决策树/)
   assert.match(messagesSource, /treeForest: \{/)
 })
 

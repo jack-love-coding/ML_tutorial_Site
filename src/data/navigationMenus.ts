@@ -1,7 +1,15 @@
 import type { DataLabModuleId } from '../modules/data-lab/types/dataLab'
+import {
+  coreLearningPathModuleIds,
+  curriculumRouteManifestByDomain,
+  curriculumRouteManifestById,
+  projectPracticeModuleIds,
+} from '../curriculum/routeManifest.ts'
+import { resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
+import type { CurriculumDomain } from '../curriculum/types.ts'
 import type { LocalizedCopy, ModuleSlug } from '../types/ml'
 
-export type SiteNavigationMenuId = 'math-lab' | 'data-lab' | 'modules'
+export type SiteNavigationMenuId = 'learning-path' | 'topic-library' | 'projects' | 'progress'
 
 export interface NavigationLink<TId extends string = string> {
   id: TId
@@ -19,6 +27,15 @@ export interface CoreExperimentNavigationGroup {
   id: string
   label: LocalizedCopy
   moduleSlugs: ModuleSlug[]
+}
+
+export interface CurriculumNavigationMenu {
+  id: SiteNavigationMenuId
+  label: LocalizedCopy
+  overviewLink?: NavigationLink
+  utilityLinks: NavigationLink[]
+  groups: NavigationGroup[]
+  activePrefixes: string[]
 }
 
 function copy(zhCN: string, en: string): LocalizedCopy {
@@ -39,6 +56,21 @@ function dataModule(id: DataLabModuleId, zhCN: string, en: string): NavigationLi
     route: `/data-lab/modules/${id}`,
     label: copy(zhCN, en),
   }
+}
+
+function moduleLink(moduleId: string): NavigationLink {
+  const moduleDefinition = curriculumRouteManifestById.get(moduleId)
+  const fallbackLabel = copy(moduleId, moduleId)
+
+  return {
+    id: moduleId,
+    route: resolveCanonicalLearnRoute(moduleId) ?? `/learn/${moduleId}`,
+    label: moduleDefinition?.title ?? fallbackLabel,
+  }
+}
+
+function domainModules(domain: CurriculumDomain) {
+  return curriculumRouteManifestByDomain(domain).map((moduleDefinition) => moduleDefinition.id)
 }
 
 export const mathLabOverviewLink: NavigationLink<'math-lab-overview'> = {
@@ -188,5 +220,89 @@ export const dataLabNavigationGroups: Array<NavigationGroup<DataLabModuleId>> = 
       dataModule('splits-generalization', '划分与泛化：让评估像未来一样未知', 'Splits and Generalization: Make Evaluation Look Like the Future'),
       dataModule('complexity-regularization', '复杂度、正则化与损失曲线', 'Complexity, Regularization, and Loss Curves'),
     ],
+  },
+]
+
+export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
+  {
+    id: 'learning-path',
+    label: copy('学习路径', 'Learning Path'),
+    overviewLink: {
+      id: 'core-learning-path',
+      route: '/tracks/core-learning-path',
+      label: copy('核心学习路径', 'Core Learning Path'),
+    },
+    utilityLinks: [],
+    activePrefixes: ['/tracks/core-learning-path', '/learn'],
+    groups: [
+      {
+        id: 'core-learning-path',
+        label: copy('核心学习路径', 'Core Learning Path'),
+        items: coreLearningPathModuleIds.map(moduleLink),
+      },
+    ],
+  },
+  {
+    id: 'topic-library',
+    label: copy('专题库', 'Topic Library'),
+    overviewLink: {
+      id: 'library-math',
+      route: '/library/math',
+      label: copy('数学专题库', 'Math Library'),
+    },
+    utilityLinks: [],
+    activePrefixes: ['/library', '/math-lab', '/data-lab'],
+    groups: [
+      {
+        id: 'math',
+        label: copy('数学', 'Math'),
+        items: domainModules('math').map(moduleLink),
+      },
+      {
+        id: 'data',
+        label: copy('数据', 'Data'),
+        items: domainModules('data').map(moduleLink),
+      },
+      {
+        id: 'models',
+        label: copy('模型与训练', 'Models and Training'),
+        items: domainModules('model').map(moduleLink),
+      },
+      {
+        id: 'deep-learning',
+        label: copy('深度学习专项', 'Deep Learning'),
+        items: domainModules('deep-learning').map(moduleLink),
+      },
+    ],
+  },
+  {
+    id: 'projects',
+    label: copy('项目实战', 'Projects'),
+    overviewLink: {
+      id: 'project-practice',
+      route: '/tracks/project-practice',
+      label: copy('项目实战', 'Project Practice'),
+    },
+    utilityLinks: [],
+    activePrefixes: ['/tracks/project-practice', '/projects'],
+    groups: [
+      {
+        id: 'project-practice',
+        label: copy('项目实战', 'Project Practice'),
+        items: projectPracticeModuleIds.map(moduleLink),
+      },
+    ],
+  },
+  {
+    id: 'progress',
+    label: copy('我的进度', 'Progress'),
+    overviewLink: {
+      id: 'progress-overview',
+      route: '/progress',
+      label: copy('学习进度', 'Learning Progress'),
+    },
+    utilityLinks: [],
+    activePrefixes: ['/progress'],
+    groups: [],
   },
 ]

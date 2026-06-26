@@ -14,7 +14,6 @@ import TeachingDashboard from '../components/TeachingDashboard.vue'
 import LineChart from '../components/LineChart.vue'
 import PlaybackDock from '../components/PlaybackDock.vue'
 import MarkdownMathContent from '../components/MarkdownMathContent.vue'
-import GradientTeachingBlocks from '../components/GradientTeachingBlocks.vue'
 import GradientChapterLab from '../components/GradientChapterLab.vue'
 import LossFunctionsLessonLab from '../components/LossFunctionsLessonLab.vue'
 import LossFunctionsResults from '../components/LossFunctionsResults.vue'
@@ -26,6 +25,8 @@ import AiOverviewLessonLab from '../components/AiOverviewLessonLab.vue'
 import AppliedWorkflowLessonLab from '../components/AppliedWorkflowLessonLab.vue'
 import CnnExplainerLab from '../components/CnnExplainerLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
+import LessonPage from '../lessons/LessonPage.vue'
+import { isLessonPagePilotSlug, lessonLabRegistry } from '../lessons/labRegistry'
 import { withPublicBase } from '../utils/publicPath'
 import type { AlgorithmQuizAttempt } from '../types/ml'
 import {
@@ -52,15 +53,21 @@ let routeChapterUnlockTimer: number | undefined
 
 const slug = computed(() => {
   const routeSlug = route.params.slug
+  const routeModuleId = route.params.moduleId
   if (typeof routeSlug === 'string') return routeSlug as ModuleSlug
+  if (typeof routeModuleId === 'string') return routeModuleId as ModuleSlug
   if (route.path.startsWith('/learn/cnn-visualization')) return 'cnn-visualization' as ModuleSlug
   if (route.path.startsWith('/learn/logistic-regression')) return 'logistic-regression' as ModuleSlug
   if (route.path.startsWith('/learn/linear-regression')) return 'linear-regression' as ModuleSlug
   return 'linear-regression' as ModuleSlug
 })
-const requestedChapterId = computed(() =>
-  typeof route.params.chapterId === 'string' ? route.params.chapterId : '',
-)
+const requestedChapterId = computed(() => {
+  const routeChapterId = route.params.chapterId
+  const routeLessonId = route.params.lessonId
+
+  if (typeof routeChapterId === 'string') return routeChapterId
+  return typeof routeLessonId === 'string' ? routeLessonId : ''
+})
 const moduleDefinition = computed(() => moduleRegistry[slug.value])
 const currentLocale = computed(() => locale.value as AppLocale)
 const lastVisitedModuleSlug = computed(() => progress.value.lastVisitedModuleSlug)
@@ -92,6 +99,10 @@ const isLinearRegressionPage = computed(() => slug.value === 'linear-regression'
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
 const isClassificationPage = computed(() => slug.value === 'classification')
 const isMlpPage = computed(() => slug.value === 'mlp')
+const isLessonPagePilot = computed(() => isLessonPagePilotSlug(slug.value))
+const activeLessonLab = computed(() =>
+  isLessonPagePilotSlug(slug.value) ? lessonLabRegistry[slug.value] : undefined,
+)
 
 if (!moduleDefinition.value) {
   router.replace('/')
@@ -111,33 +122,21 @@ watch(
       setLastVisitedAlgorithmModule(loadAlgorithmProgress(), nextSlug),
     )
     const firstChapterId = nextModuleDefinition.chapters[0]?.id ?? ''
-    let nextActiveChapter = firstChapterId
+    if (nextChapterId) {
+      const matchedChapter = nextModuleDefinition.chapters.find((chapter) => chapter.id === nextChapterId)
 
-    if (nextSlug === 'linear-regression' || nextSlug === 'logistic-regression' || nextSlug === 'cnn-visualization') {
-      if (nextChapterId) {
-        const matchedChapter = nextModuleDefinition.chapters.find((chapter) => chapter.id === nextChapterId)
-        if (!matchedChapter) {
-          if (nextSlug === 'linear-regression') {
-            router.replace(`/learn/linear-regression/${firstChapterId}`)
-          } else if (nextSlug === 'logistic-regression') {
-            router.replace(`/learn/logistic-regression/${firstChapterId}`)
-          } else {
-            router.replace(`/learn/cnn-visualization/${firstChapterId}`)
-          }
-          return
-        }
-        nextActiveChapter = matchedChapter.id
+      if (!matchedChapter) {
+        router.replace(`/learn/${nextSlug}/${firstChapterId}`)
+        return
       }
 
-      activeChapter.value = nextActiveChapter
-      syncChapterPreset(nextActiveChapter)
-      if (nextSlug === 'cnn-visualization' && nextChapterId) {
-        syncRouteChapterIntoView(nextActiveChapter)
-      }
+      activeChapter.value = matchedChapter.id
+      syncChapterPreset(matchedChapter.id)
+      syncRouteChapterIntoView(matchedChapter.id)
       return
     }
 
-    activeChapter.value = nextActiveChapter
+    activeChapter.value = firstChapterId
   },
   { immediate: true },
 )
@@ -480,35 +479,63 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
       </div>
     </section>
 
-    <section
-      v-if="isAiOverviewPage"
-      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--ai-overview-story"
+    <LessonPage
+      v-if="isLessonPagePilot"
+      :module-definition="moduleDefinition"
+      :active-id="activeChapter"
+      :variant="slug"
+      :render-mode="activeLessonLab?.renderMode"
+      :show-visuals="activeLessonLab?.showVisuals"
+      :show-sources="activeLessonLab?.showSources"
+      @change="onChapterChange"
     >
-      <StoryScroller
-        :sections="moduleDefinition.chapters"
-        :active-id="activeChapter"
-        @change="onChapterChange"
-      >
-        <template #section="{ section, localizedText: slotLocalizedText }">
-          <h3>{{ sectionTitle(section) }}</h3>
-          <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
+      <template #before-story>
+        <template v-if="activeLessonLab?.placement === 'top' && isMlpPage">
+          <section ref="mlpPlaygroundRef" class="mlp-playground-stage">
+            <MlpPlaygroundCockpit
+              :accent="moduleDefinition.accent"
+              :section="activeSection"
+            />
+          </section>
 
-          <div class="story-companion story-companion--lesson">
-            <section class="story-companion__panel story-companion__panel--guide">
-              <div class="panel__heading">
-                <span>{{ t('common.readingGuide') }}</span>
-                <strong>{{ localizedText(section.callout) }}</strong>
-              </div>
-              <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
-                {{ localizedText(section.experimentPrompt) }}
-              </div>
-            </section>
-          </div>
-
-          <AiOverviewLessonLab :section="section" />
+          <button
+            type="button"
+            class="mlp-playground-jump"
+            :aria-label="locale === 'zh-CN' ? '回到 MLP 实验台' : 'Back to MLP playground'"
+            @click="scrollToMlpPlayground"
+          >
+            <span>{{ locale === 'zh-CN' ? '实验台' : 'Lab' }}</span>
+            <strong>↑</strong>
+          </button>
         </template>
-      </StoryScroller>
-    </section>
+      </template>
+
+      <template #lab="{ section }">
+        <AiOverviewLessonLab
+          v-if="activeLessonLab?.labId === 'ai-overview-task-lab'"
+          :section="section"
+        />
+
+        <GradientChapterLab
+          v-else-if="activeLessonLab?.labId === 'gradient-chapter-lab'"
+          :config="experiment.config"
+          :snapshot="snapshot"
+          :is-playing="experiment.isPlaying"
+          :accent="moduleDefinition.accent"
+          :section="section"
+          :presets="moduleDefinition.presets"
+          :insights="gradientSectionInsights"
+          @update-config="(key, value) => experimentStore.updateConfig(slug, key, value)"
+          @patch-config="patchConfig"
+          @toggle-play="experimentStore.togglePlayback(slug)"
+          @step="experimentStore.advance(slug)"
+          @replay="experimentStore.replay(slug)"
+          @reset="experimentStore.reset(slug)"
+          @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
+          @update-start-point="updateGradientStartPoint"
+        />
+      </template>
+    </LessonPage>
 
     <section
       v-else-if="isWorkflowLessonPage"
@@ -537,49 +564,6 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
 
           <CnnExplainerLab v-if="isCnnVisualizationPage && section.id === activeChapter" :section="section" />
           <AppliedWorkflowLessonLab v-else-if="!isCnnVisualizationPage" :module-slug="slug" :section="section" />
-        </template>
-      </StoryScroller>
-    </section>
-
-    <section v-else-if="isGradientPage" class="algorithm-layout algorithm-layout--gradient-story">
-      <StoryScroller
-        :sections="moduleDefinition.chapters"
-        :active-id="activeChapter"
-        @change="onChapterChange"
-      >
-        <template #section="{ section, localizedText: slotLocalizedText }">
-          <h3>{{ t(section.titleKey) }}</h3>
-
-          <GradientTeachingBlocks v-if="section.teachingBlocks" :section="section" />
-          <MarkdownMathContent v-else :source="slotLocalizedText(section.markdown)" />
-
-          <section class="story-companion__panel story-companion__panel--guide gradient-story-guide">
-            <div class="panel__heading">
-              <span>{{ t('common.readingGuide') }}</span>
-              <strong>{{ localizedText(section.callout) }}</strong>
-            </div>
-            <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
-              {{ localizedText(section.experimentPrompt) }}
-            </div>
-          </section>
-
-          <GradientChapterLab
-            :config="experiment.config"
-            :snapshot="snapshot"
-            :is-playing="experiment.isPlaying"
-            :accent="moduleDefinition.accent"
-            :section="section"
-            :presets="moduleDefinition.presets"
-            :insights="gradientSectionInsights"
-            @update-config="(key, value) => experimentStore.updateConfig(slug, key, value)"
-            @patch-config="patchConfig"
-            @toggle-play="experimentStore.togglePlayback(slug)"
-            @step="experimentStore.advance(slug)"
-            @replay="experimentStore.replay(slug)"
-            @reset="experimentStore.reset(slug)"
-            @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
-            @update-start-point="updateGradientStartPoint"
-          />
         </template>
       </StoryScroller>
     </section>
@@ -732,88 +716,6 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
       </StoryScroller>
     </section>
 
-    <section
-      v-else-if="isMlpPage"
-      class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--mlp-story"
-    >
-      <section ref="mlpPlaygroundRef" class="mlp-playground-stage">
-        <MlpPlaygroundCockpit
-          :accent="moduleDefinition.accent"
-          :section="activeSection"
-        />
-      </section>
-
-      <button
-        type="button"
-        class="mlp-playground-jump"
-        :aria-label="locale === 'zh-CN' ? '回到 MLP 实验台' : 'Back to MLP playground'"
-        @click="scrollToMlpPlayground"
-      >
-        <span>{{ locale === 'zh-CN' ? '实验台' : 'Lab' }}</span>
-        <strong>↑</strong>
-      </button>
-
-      <StoryScroller
-        :sections="moduleDefinition.chapters"
-        :active-id="activeChapter"
-        @change="onChapterChange"
-      >
-        <template #section="{ section, localizedText: slotLocalizedText }">
-          <h3>{{ sectionTitle(section) }}</h3>
-          <MarkdownMathContent :source="slotLocalizedText(section.markdown)" />
-
-          <div v-if="visualAssetsFor(section).length" class="mlp-story-visuals">
-            <figure
-              v-for="asset in visualAssetsFor(section)"
-              :key="asset.id"
-              class="mlp-story-visual"
-              :class="`mlp-story-visual--${asset.type}`"
-            >
-              <video
-                v-if="asset.type === 'manim-video'"
-                controls
-                preload="metadata"
-                playsinline
-                :poster="publicAsset(asset.posterPath)"
-              >
-                <source :src="publicAsset(asset.assetPath)" type="video/mp4" />
-              </video>
-              <img v-else :src="publicAsset(asset.assetPath)" :alt="localizedText(asset.title)" loading="lazy" />
-              <figcaption>
-                <strong>{{ localizedText(asset.title) }}</strong>
-                <span>{{ localizedText(asset.caption) }}</span>
-              </figcaption>
-            </figure>
-          </div>
-
-          <div class="story-companion story-companion--lesson">
-            <section class="story-companion__panel story-companion__panel--guide">
-              <div class="panel__heading">
-                <span>{{ t('common.readingGuide') }}</span>
-                <strong>{{ localizedText(section.callout) }}</strong>
-              </div>
-              <div v-if="localizedText(section.experimentPrompt)" class="guide-prompt">
-                {{ localizedText(section.experimentPrompt) }}
-              </div>
-            </section>
-
-            <section v-if="section.sources?.length" class="story-companion__panel story-companion__panel--sources">
-              <div class="panel__heading">
-                <span>{{ locale === 'zh-CN' ? '来源' : 'Sources' }}</span>
-                <strong>{{ locale === 'zh-CN' ? '改写与归因' : 'Rewrite and attribution' }}</strong>
-              </div>
-              <ul class="mlp-source-list">
-                <li v-for="source in section.sources" :key="source.href">
-                  <a :href="source.href" target="_blank" rel="noreferrer">{{ localizedText(source.label) }}</a>
-                  <small v-if="source.license">{{ source.license }}</small>
-                </li>
-              </ul>
-            </section>
-          </div>
-        </template>
-      </StoryScroller>
-    </section>
-
     <section v-else class="algorithm-layout">
       <StoryScroller
         :sections="moduleDefinition.chapters"
@@ -921,7 +823,7 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
       <section class="panel lesson-panel">
         <div class="panel__heading">
           <span>{{ t('common.results') }}</span>
-          <strong>{{ activeSection ? t(activeSection.titleKey) : t('common.modelSignal') }}</strong>
+          <strong>{{ activeSection ? sectionTitle(activeSection) : t('common.modelSignal') }}</strong>
         </div>
         <p class="lesson-panel__callout">{{ localizedText(activeSection?.callout) }}</p>
         <div v-if="localizedText(activeSection?.experimentPrompt)" class="lesson-panel__prompt">

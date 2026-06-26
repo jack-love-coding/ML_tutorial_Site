@@ -18,7 +18,6 @@ function assertFile(path) {
 test('classification is registered between logistic regression and MLP', () => {
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
-  const homeSource = read('src/views/HomeView.vue')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
   const messagesSource = read('src/i18n/messages.ts')
 
@@ -33,7 +32,6 @@ test('classification is registered between logistic regression and MLP', () => {
   assert.ok(classificationIndex < legacyIndex, 'classification should stay before the legacy filtered modules')
   assert.ok(classificationIndex < mlpIndex, 'classification should stay before MLP')
 
-  assert.match(homeSource, /classification/)
   assert.match(messagesSource, /classification: \{/)
   assert.match(algorithmViewSource, /ClassificationLessonLab/)
   assert.match(algorithmViewSource, /slug\.value === 'classification'/)

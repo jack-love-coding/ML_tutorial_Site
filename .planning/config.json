@@ -1,0 +1,28 @@
+{
+  "project": "ML Atlas Curriculum V2",
+  "createdAt": "2026-06-25",
+  "workflow": {
+    "phasePolicy": "one-phase-one-pr",
+    "validationCommands": [
+      "npm test",
+      "npm run build",
+      "npm run build:pages"
+    ],
+    "preserveLegacyRoutes": true,
+    "preserveV1ProgressStorage": true,
+    "allowBigBangRewrite": false
+  },
+  "curriculumV2": {
+    "adapterFirst": true,
+    "pilotModules": [
+      "ai-overview",
+      "gradient-descent",
+      "mlp"
+    ],
+    "legacyProgressKeys": [
+      "ml-atlas:algorithm-progress:v1",
+      "ml-atlas:math-lab-progress:v1",
+      "ml-atlas:data-lab-progress:v1"
+    ]
+  }
+}

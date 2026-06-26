@@ -12,7 +12,6 @@ test('AI overview is the first registered learning module', () => {
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
-  const homeSource = read('src/views/HomeView.vue')
   const messagesSource = read('src/i18n/messages.ts')
 
   assert.match(typesSource, /\| 'ai-overview'/)
@@ -26,7 +25,6 @@ test('AI overview is the first registered learning module', () => {
   assert.match(algorithmViewSource, /AiOverviewLessonLab/)
   assert.match(algorithmViewSource, /slug\.value === 'ai-overview'/)
   assert.match(algorithmViewSource, /algorithm-view--ai-overview/)
-  assert.match(homeSource, /ai-overview/)
   assert.match(messagesSource, /aiOverview: \{/)
 })
 
