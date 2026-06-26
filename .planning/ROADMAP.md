@@ -166,5 +166,29 @@
 - Recent evidence is visible from `/progress`.
 - `npm test` and `npm run build` pass.
 
+## Phase 8B: Optimization Task Loop
+
+**Goal:** Turn selected optimization/calculus labs from observation-only evidence into a full prediction, experiment, explanation, and checkpoint loop.
+
+**Deliverables:**
+- Optional typed `LabTaskConfig` for Math Lab labs.
+- Progress V2 task payload for prediction, explanation, completion state, and save timestamp.
+- Task card UI rendered next to selected Math Lab labs.
+- Task prompts for partial derivatives, batch-gradient noise, and optimizer comparison.
+- `/progress` evidence status labels for observed evidence, explanation completion, and checkpoint completion.
+- Tests for task schema, persistence merge behavior, Math Lab task wiring, and progress-page statuses.
+
+**Must Not Do:**
+- Do not convert every Math Lab lab in one phase.
+- Do not remove checkpoint report drafts or v1 progress storage.
+- Do not require a backend account or remote persistence for task notes.
+
+**Exit Criteria:**
+- A learner can run one selected optimization lab, save a prediction and explanation, reload, and see the task state preserved.
+- Later lab metric updates do not erase the saved task text.
+- `/progress` distinguishes observed evidence, missing/completed explanation, and missing/completed checkpoint.
+- Desktop and mobile layouts have no horizontal overflow.
+- `npm test`, `npm run build`, and `npm run build:pages` pass.
+
 ---
 *Roadmap created: 2026-06-25*

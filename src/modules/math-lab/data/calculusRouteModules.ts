@@ -1,5 +1,6 @@
 import type {
   LabConfig,
+  LabTaskConfig,
   LocalizedCopy,
   MathConcept,
   MathLabModule,
@@ -86,13 +87,20 @@ function manimAsset(id: string, assetPath: string, posterPath: string, title: Lo
   }
 }
 
-function lab(id: string, title: LocalizedCopy, componentName: string, successCriteria: LocalizedCopy[]): LabConfig {
+function lab(
+  id: string,
+  title: LocalizedCopy,
+  componentName: string,
+  successCriteria: LocalizedCopy[],
+  task?: LabTaskConfig,
+): LabConfig {
   return {
     id,
     title,
     type: 'interactive-visual',
     componentName,
     successCriteria,
+    ...(task ? { task } : {}),
   }
 }
 
@@ -194,6 +202,16 @@ const partialDerivativeLab = lab(
     copy('能分别解释两个偏导数，并指出完整梯度方向。', 'Explain both partial derivatives and identify the full gradient direction.'),
     copy('能用方向导数说明任意方向上的局部变化。', 'Use the directional derivative to explain local change along any chosen direction.'),
   ],
+  {
+    predictionPrompt: copy(
+      '先预测：如果只沿 x 方向移动，loss 会比沿 y 方向变化更快吗？写下你判断的依据。',
+      'Predict first: if you move only along x, will the loss change faster than along y? Write the basis for your judgment.',
+    ),
+    reflectionPrompt: copy(
+      '结合 ∂L/∂x、∂L/∂y 和方向导数，解释完整梯度为什么不是只看一个坐标。',
+      'Use ∂L/∂x, ∂L/∂y, and the directional derivative to explain why the full gradient is not just one coordinate.',
+    ),
+  },
 )
 
 const batchGradientNoiseLab = lab(
@@ -204,6 +222,16 @@ const batchGradientNoiseLab = lab(
     copy('能比较全数据梯度和当前 batch 梯度。', 'Compare the full-data gradient and the current batch gradient.'),
     copy('能解释 batch size 如何影响梯度估计方差。', 'Explain how batch size changes gradient-estimate variance.'),
   ],
+  {
+    predictionPrompt: copy(
+      '先预测：把 batch size 从 4 调到 16 后，梯度误差和方向夹角会怎样变化？',
+      'Predict first: when batch size changes from 4 to 16, what should happen to gradient error and direction angle?',
+    ),
+    reflectionPrompt: copy(
+      '用全数据梯度、batch 梯度和方向夹角解释 batch size 为什么会影响稳定性。',
+      'Use the full-data gradient, batch gradient, and direction angle to explain why batch size changes stability.',
+    ),
+  },
 )
 
 const optimizerRaceLab = lab(
@@ -214,6 +242,16 @@ const optimizerRaceLab = lab(
     copy('能比较 SGD、Momentum、RMSProp 和 Adam 的路径差异。', 'Compare the trajectory differences among SGD, Momentum, RMSProp, and Adam.'),
     copy('能解释每个优化器状态如何改变更新方向。', 'Explain how each optimizer state changes the update direction.'),
   ],
+  {
+    predictionPrompt: copy(
+      '先预测：在狭长谷底里，哪条优化器路径会最稳？为什么？',
+      'Predict first: in a narrow valley, which optimizer path should be most stable, and why?',
+    ),
+    reflectionPrompt: copy(
+      '比较最终 loss 和内部状态，解释 Adam 为什么不只是学习率更大的 SGD。',
+      'Compare final loss and internal state to explain why Adam is not just SGD with a larger learning rate.',
+    ),
+  },
 )
 
 const trainingDiagnosticsLab = lab(

@@ -679,6 +679,112 @@
   gap: 18px;
 }
 
+.lab-task-card {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid rgba(15, 23, 40, 0.12);
+  border-left: 4px solid var(--math-accent, #2563eb);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.lab-task-card header {
+  display: grid;
+  gap: 4px;
+}
+
+.lab-task-card header span,
+.lab-task-card__evidence > span,
+.lab-task-card__criteria > span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.lab-task-card h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.lab-task-card__field {
+  display: grid;
+  gap: 8px;
+  color: var(--ink);
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.lab-task-card__field textarea {
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  font: inherit;
+  font-weight: 500;
+}
+
+.lab-task-card__evidence,
+.lab-task-card__criteria {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 8px;
+  background: rgba(248, 250, 252, 0.82);
+}
+
+.lab-task-card__evidence p,
+.lab-task-card__status {
+  margin: 0;
+  color: var(--muted);
+}
+
+.lab-task-card__evidence ul,
+.lab-task-card__criteria ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lab-task-card__evidence li,
+.lab-task-card__criteria li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  justify-content: space-between;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.lab-task-card__evidence strong {
+  color: var(--ink);
+}
+
+.lab-task-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lab-task-card__actions > span {
+  flex: 1 1 220px;
+  color: var(--muted);
+}
+
+.lab-task-card__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .math-supplement-section {
   display: grid;
   gap: 18px;

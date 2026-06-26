@@ -185,6 +185,23 @@
   color: var(--pixel-ink);
 }
 
+.curriculum-evidence-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.curriculum-evidence-statuses span {
+  padding: 6px 8px;
+  border: 1px solid rgba(16, 22, 47, 0.16);
+  border-radius: 7px;
+  background: rgba(248, 250, 252, 0.9);
+  color: var(--pixel-ink);
+  font-size: 0.82rem;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
 @media (max-width: 760px) {
   .curriculum-hero,
   .curriculum-module-row {
