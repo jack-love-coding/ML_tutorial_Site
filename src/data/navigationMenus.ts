@@ -226,51 +226,51 @@ export const dataLabNavigationGroups: Array<NavigationGroup<DataLabModuleId>> = 
 export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
   {
     id: 'learning-path',
-    label: copy('学习路径', 'Learning Path'),
+    label: copy('默认学习主线', 'Default Spine'),
     overviewLink: {
       id: 'core-learning-path',
       route: '/tracks/core-learning-path',
-      label: copy('核心学习路径', 'Core Learning Path'),
+      label: copy('默认学习主线', 'Default Spine'),
     },
     utilityLinks: [],
     activePrefixes: ['/tracks/core-learning-path', '/learn'],
     groups: [
       {
-        id: 'core-learning-path',
-        label: copy('核心学习路径', 'Core Learning Path'),
+        id: 'default-spine',
+        label: copy('Spine V1 主线', 'Spine V1'),
         items: coreLearningPathModuleIds.map(moduleLink),
       },
     ],
   },
   {
     id: 'topic-library',
-    label: copy('专题库', 'Topic Library'),
+    label: copy('支持镜头', 'Support Lenses'),
     overviewLink: {
       id: 'library-math',
       route: '/library/math',
-      label: copy('数学专题库', 'Math Library'),
+      label: copy('数学镜头', 'Math Lens'),
     },
     utilityLinks: [],
     activePrefixes: ['/library', '/math-lab', '/data-lab'],
     groups: [
       {
-        id: 'math',
-        label: copy('数学', 'Math'),
+        id: 'math-lens',
+        label: copy('数学镜头', 'Math Lens'),
         items: domainModules('math').map(moduleLink),
       },
       {
-        id: 'data',
-        label: copy('数据', 'Data'),
+        id: 'data-lens',
+        label: copy('数据镜头', 'Data Lens'),
         items: domainModules('data').map(moduleLink),
       },
       {
-        id: 'models',
-        label: copy('模型与训练', 'Models and Training'),
+        id: 'model-lens',
+        label: copy('模型与训练镜头', 'Model Lens'),
         items: domainModules('model').map(moduleLink),
       },
       {
-        id: 'deep-learning',
-        label: copy('深度学习专项', 'Deep Learning'),
+        id: 'deep-learning-lens',
+        label: copy('深度学习镜头', 'Deep Learning Lens'),
         items: domainModules('deep-learning').map(moduleLink),
       },
     ],

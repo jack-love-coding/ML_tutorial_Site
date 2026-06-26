@@ -92,7 +92,7 @@ const nextLinks = [
   {
     id: 'core-learning-path',
     route: '/tracks/core-learning-path',
-    label: copy('核心学习路径', 'Core Learning Path'),
+    label: copy('默认学习主线', 'Default Spine'),
   },
   {
     id: 'project-practice',
