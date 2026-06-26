@@ -176,7 +176,7 @@ const navigationMenuLabels = computed(
 const homeDecisionCardSource: HomeDecisionCardSource[] = [
   {
     id: 'core-learning-path',
-    route: '/tracks/core-learning-path',
+    route: '/spine',
     menuId: 'learning-path',
     title: loc('默认学习主线', 'Default Spine'),
     body: loc(

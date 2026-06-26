@@ -45,6 +45,7 @@ test('pages fallback generation covers data lab home and module routes', () => {
     })
 
     assert.ok(existsSync(join(tempDist, 'data-lab', 'index.html')), 'data lab home fallback should exist')
+    assert.ok(existsSync(join(tempDist, 'spine', 'index.html')), 'spine landing fallback should exist')
     assert.ok(
       existsSync(join(tempDist, 'data-lab', 'modules', 'numerical-data', 'index.html')),
       'numerical data module fallback should exist',
@@ -185,7 +186,7 @@ test('home page and README describe the zero-foundation learning path', () => {
   assert.match(homeSource, /Data Lab/)
   assert.match(homeSource, /ML Models/)
   assert.match(homeSource, /Deep Learning/)
-  assert.match(homeSource, /\/tracks\/core-learning-path/)
+  assert.match(homeSource, /\/spine/)
   assert.match(homeSource, /\/library\/math/)
   assert.match(homeSource, /\/tracks\/project-practice/)
   assert.match(homeSource, /\/progress/)

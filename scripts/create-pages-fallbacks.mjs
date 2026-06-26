@@ -12,6 +12,7 @@ const routes = new Set([
   '/data-lab',
   '/math-lab',
   '/math-lab/diagnostic',
+  '/spine',
 ])
 
 function addRoute(route) {

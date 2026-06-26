@@ -61,6 +61,11 @@ export const router = createRouter({
       component: () => import('../modules/data-lab/pages/DataLabModulePage.vue'),
     },
     {
+      path: '/spine',
+      name: 'curriculum-spine',
+      component: () => import('../views/CurriculumSpineView.vue'),
+    },
+    {
       path: '/tracks/:trackId',
       name: 'curriculum-track',
       component: () => import('../views/CurriculumTrackView.vue'),
