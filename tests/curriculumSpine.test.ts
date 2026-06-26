@@ -1,0 +1,66 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { curriculumCatalog, curriculumModuleById } from '../src/curriculum/catalog.ts'
+import {
+  curriculumSpineRequiredModuleIds,
+  curriculumSpineStages,
+  curriculumSpineValidationIssues,
+} from '../src/curriculum/spine.ts'
+
+test('curriculum spine defines a data-first route to deep-learning intro', () => {
+  assert.ok(curriculumSpineStages.length >= 10)
+  assert.equal(curriculumSpineStages.at(0)?.id, 'orientation')
+
+  const requiredIds = curriculumSpineRequiredModuleIds()
+  assert.equal(requiredIds[0], 'ai-overview')
+  assert.equal(requiredIds[1], 'python-notebook')
+  assert.equal(requiredIds[2], 'numerical-data')
+  assert.equal(requiredIds[3], 'categorical-data')
+  assert.equal(requiredIds[4], 'dataset-quality')
+  assert.ok(requiredIds.indexOf('numerical-data') < requiredIds.indexOf('beginner-linear-algebra'))
+  assert.ok(requiredIds.indexOf('dataset-quality') < requiredIds.indexOf('linear-algebra-feature-space'))
+  assert.equal(requiredIds.at(-1), 'attention-transformer')
+  assert.ok(!requiredIds.includes('llm-rag'), 'LLM/RAG should remain outside Spine V1')
+})
+
+test('curriculum spine keeps optimizer comparison required and projects as validation capstones', () => {
+  const requiredIds = curriculumSpineRequiredModuleIds()
+  assert.ok(requiredIds.includes('optimizer-comparison'))
+  assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('cnn-visualization'))
+  assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('attention-transformer'))
+  assert.ok(!requiredIds.includes('housing-price-project'))
+  assert.ok(!requiredIds.includes('classification-project'))
+
+  const projectIds = curriculumSpineStages.flatMap((stage) => stage.projectModuleIds ?? [])
+  assert.deepEqual(projectIds, ['housing-price-project', 'classification-project'])
+})
+
+test('curriculum spine stage records are localized and reference existing modules', () => {
+  const catalogIds = new Set(curriculumCatalog.map((moduleDefinition) => moduleDefinition.id))
+
+  for (const stage of curriculumSpineStages) {
+    assert.ok(stage.title['zh-CN'], `${stage.id} should have zh-CN title`)
+    assert.ok(stage.title.en, `${stage.id} should have en title`)
+    assert.ok(stage.learnerQuestion['zh-CN'], `${stage.id} should have zh-CN learner question`)
+    assert.ok(stage.learnerQuestion.en, `${stage.id} should have en learner question`)
+    assert.ok(stage.requiredModuleIds.length > 0, `${stage.id} should have required modules`)
+    assert.ok(stage.outcomes.length > 0, `${stage.id} should describe outcomes`)
+
+    for (const moduleId of [
+      ...stage.requiredModuleIds,
+      ...stage.supportModuleIds,
+      ...(stage.projectModuleIds ?? []),
+    ]) {
+      assert.ok(catalogIds.has(moduleId), `${stage.id} references unknown module ${moduleId}`)
+    }
+  }
+
+  assert.deepEqual(curriculumSpineValidationIssues(), [])
+  assert.equal(curriculumModuleById.has('sequence-embedding-bridge'), false)
+  assert.ok(
+    curriculumSpineStages
+      .find((stage) => stage.id === 'sequence-attention')
+      ?.knownGaps?.some((gap) => gap.en.includes('sequence/embedding bridge')),
+    'missing sequence/embedding bridge should be captured as a known gap, not a fake module ID',
+  )
+})

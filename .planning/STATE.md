@@ -1,14 +1,14 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-06-26
-**Status:** Phase 8B implemented and verified on a stacked branch
+**Status:** Phase 9A curriculum spine data contract implemented and verified
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Optimization learning experience task loop
+**Current focus:** Curriculum Spine V1 route clarity and content coverage
 
 ## Baseline
 
@@ -40,6 +40,11 @@ See `.planning/codebase/`:
 - One phase should remain independently reviewable and releasable.
 - Lab evidence should persist into Progress V2, not only live inside a page-level checkpoint prompt.
 - Selected optimization labs should require prediction and explanation task notes before the learning loop is considered complete.
+- Curriculum route clarity and content coverage are higher priority than more progress tracking until backend/database work is ready.
+- The default route should be a mixed spiral route from data-first foundations to deep-learning introduction ability.
+- `optimizer-comparison` is required in Spine V1 before CNN/Attention.
+- `attention-transformer` is the Spine V1 endpoint; `llm-rag` remains an advanced application extension.
+- Housing and classification projects are recommended validation capstones, not hard blockers.
 
 ## Completed Work
 
@@ -235,9 +240,29 @@ See `.planning/codebase/`:
   - `npm run build:pages`: pass with existing large-chunk warning.
   - Browser walkthrough with local Chrome: task save persisted, `/progress` showed task statuses, desktop and 390px mobile overflow checks passed, 0 console errors.
 
+### Phase 9A - Curriculum Spine Data Contract
+
+- Added `CurriculumSpineStage` to the shared curriculum contract.
+- Added `src/curriculum/spine.ts` with a stage-level default route from orientation to `attention-transformer`.
+- Encoded approved decisions:
+  - data modules come before formal linear algebra,
+  - `optimizer-comparison` is required before CNN/Attention,
+  - `attention-transformer` is the endpoint,
+  - `housing-price-project` and `classification-project` are project capstones rather than required blockers,
+  - `llm-rag` stays outside Spine V1.
+- Captured the missing sequence/embedding bridge as a known gap instead of inventing a fake catalog module.
+- Added `tests/curriculumSpine.test.ts`.
+- Updated Phase 9 design documentation.
+- Verified:
+  - `node --test tests/curriculumSpine.test.ts`: pass.
+  - `node --test tests/curriculumSpine.test.ts tests/curriculumMilestoneAudit.test.ts tests/curriculumPrerequisites.test.ts tests/curriculumCatalog.test.ts`: pass.
+  - `npm test`: pass, 244 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+
 ## Next Recommended Command
 
-Review the stacked Phase 8B PR after Phase 8A PR #8 is merged or retargeted:
+Review the Phase 9A spine data contract PR, then start Phase 9B homepage and navigation realignment:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -250,6 +275,8 @@ Review the stacked Phase 8B PR after Phase 8A PR #8 is merged or retargeted:
 - `docs/refactor/summaries/phase-6.md`
 - `docs/refactor/summaries/phase-7.md`
 - `docs/refactor/summaries/phase-8.md`
+- `docs/refactor/summaries/phase-9.md`
+- `docs/refactor/designs/phase-9-curriculum-spine-v1.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: expand the same task protocol to one Data Lab transformation lab or one Algorithm LessonPage pilot after the Phase 8 PRs land.
+Suggested next direction: make the homepage and navigation point learners to the default spine first, while keeping Math Lab and Data Lab available as support lenses and preserving all legacy routes.

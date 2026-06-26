@@ -12,6 +12,11 @@ import {
   projectPracticeModuleIds,
 } from '../src/curriculum/routeManifest.ts'
 import {
+  curriculumSpineRequiredModuleIds,
+  curriculumSpineStages,
+  curriculumSpineValidationIssues,
+} from '../src/curriculum/spine.ts'
+import {
   resolveCanonicalLearnRedirect,
   resolveCanonicalLearnRoute,
 } from '../src/curriculum/routes.ts'
@@ -162,6 +167,26 @@ test('milestone audit keeps bilingual catalog validation and pilot protocols com
   }
 })
 
+test('milestone audit keeps the approved Curriculum Spine V1 contract valid', () => {
+  assert.deepEqual(curriculumSpineValidationIssues(), [])
+  assert.equal(curriculumSpineStages.at(0)?.id, 'orientation')
+
+  const requiredIds = curriculumSpineRequiredModuleIds()
+  assert.deepEqual(requiredIds.slice(0, 5), [
+    'ai-overview',
+    'python-notebook',
+    'numerical-data',
+    'categorical-data',
+    'dataset-quality',
+  ])
+  assert.ok(requiredIds.includes('optimizer-comparison'))
+  assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('cnn-visualization'))
+  assert.equal(requiredIds.at(-1), 'attention-transformer')
+  assert.ok(!requiredIds.includes('llm-rag'))
+  assert.ok(!requiredIds.includes('housing-price-project'))
+  assert.ok(!requiredIds.includes('classification-project'))
+})
+
 test('milestone audit documents every completed phase and the current refactor state', () => {
   for (const path of [
     '.planning/PROJECT.md',
@@ -169,6 +194,7 @@ test('milestone audit documents every completed phase and the current refactor s
     '.planning/STATE.md',
     'docs/refactor/baseline.md',
     'docs/refactor/curriculum-v2-brief.md',
+    'docs/refactor/designs/phase-9-curriculum-spine-v1.md',
   ]) {
     assert.ok(existsSync(new URL(path, root)), `${path} should exist`)
   }
@@ -179,9 +205,10 @@ test('milestone audit documents every completed phase and the current refactor s
   }
   assert.ok(existsSync(new URL('docs/refactor/summaries/phase-7.md', root)))
   assert.ok(existsSync(new URL('docs/refactor/summaries/phase-8.md', root)))
+  assert.ok(existsSync(new URL('docs/refactor/summaries/phase-9.md', root)))
   assert.ok(existsSync(new URL('docs/refactor/audits/curriculum-v2-milestone-audit.md', root)))
 
   const stateSource = read('.planning/STATE.md')
-  assert.match(stateSource, /Phase 8B implemented and verified/)
-  assert.match(stateSource, /Current focus:\*\* Optimization learning experience task loop/)
+  assert.match(stateSource, /Phase 9A curriculum spine data contract implemented and verified/)
+  assert.match(stateSource, /Current focus:\*\* Curriculum Spine V1 route clarity and content coverage/)
 })

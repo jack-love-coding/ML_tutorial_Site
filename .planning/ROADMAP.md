@@ -190,5 +190,31 @@
 - Desktop and mobile layouts have no horizontal overflow.
 - `npm test`, `npm run build`, and `npm run build:pages` pass.
 
+## Phase 9A: Curriculum Spine Data Contract
+
+**Goal:** Encode the approved Curriculum Spine V1 route as a typed stage contract before changing homepage, navigation, progress, backend, or lesson bodies.
+
+**Deliverables:**
+- `src/curriculum/spine.ts`
+- `CurriculumSpineStage` in `src/curriculum/types.ts`
+- `tests/curriculumSpine.test.ts`
+- Phase 9 design notes in `docs/refactor/designs/phase-9-curriculum-spine-v1.md`
+- Phase summary in `docs/refactor/summaries/phase-9.md`
+
+**Must Not Do:**
+- Do not redesign homepage or navigation in this phase.
+- Do not delete or redirect legacy routes.
+- Do not add backend, account, database, or new progress tracking behavior.
+- Do not add fake module IDs for known content gaps.
+- Do not bulk rewrite Math Lab, Data Lab, or Algorithm lesson body content.
+
+**Exit Criteria:**
+- The default spine starts data-first: `ai-overview`, `python-notebook`, `numerical-data`, `categorical-data`, and `dataset-quality`.
+- `optimizer-comparison` is required before CNN and Attention.
+- `attention-transformer` is the Spine V1 endpoint; `llm-rag` remains outside the required route.
+- Housing and classification projects are represented as recommended validation capstones, not hard blockers.
+- All required, support, and project IDs resolve to existing catalog modules.
+- `npm test`, `npm run build`, and `npm run build:pages` pass.
+
 ---
 *Roadmap created: 2026-06-25*

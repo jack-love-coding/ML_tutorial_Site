@@ -49,3 +49,14 @@ export interface CurriculumTrack {
   moduleIds: string[]
   kind: 'core' | 'topic-library' | 'project' | 'advanced'
 }
+
+export interface CurriculumSpineStage {
+  id: string
+  title: LocalizedCopy
+  learnerQuestion: LocalizedCopy
+  requiredModuleIds: string[]
+  supportModuleIds: string[]
+  projectModuleIds?: string[]
+  outcomes: LocalizedCopy[]
+  knownGaps?: LocalizedCopy[]
+}
