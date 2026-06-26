@@ -10,6 +10,7 @@ import {
   learningProgressV2StorageKey,
   loadLearningProgressV2,
   migrateLearningProgressV2,
+  recordLearningProgressLabEvidence,
   selectContinueLearning,
   type LearningProgressV2,
 } from '../src/curriculum/progress.ts'
@@ -187,6 +188,7 @@ test('progress v2 migration keeps completed status and de-duplicates attempts du
       },
     },
     weakConceptTags: [],
+    labEvidence: [],
     updatedAt: '2026-06-20T10:00:00.000Z',
   }
   const storage = new MemoryStorage({
@@ -211,6 +213,108 @@ test('progress v2 migration keeps completed status and de-duplicates attempts du
 
   assert.equal(progress.modules['loss-functions']?.completed, true)
   assert.equal(progress.modules['loss-functions']?.attempts.length, 1)
+})
+
+test('progress v2 records latest lab evidence per module and lab source', () => {
+  const storage = new MemoryStorage()
+  const progress = createDefaultLearningProgressV2('2026-06-25T00:00:00.000Z')
+
+  const first = recordLearningProgressLabEvidence(
+    progress,
+    {
+      moduleId: 'calculus-sgd-batch-noise',
+      sourceId: 'batch-gradient-noise-lab',
+      summary: {
+        'zh-CN': '当前实验比较了全数据梯度和 mini-batch 梯度。',
+        en: 'The experiment compares the full-data gradient with a mini-batch gradient.',
+      },
+      metrics: [
+        { label: { 'zh-CN': 'batch size', en: 'batch size' }, value: 4 },
+        { label: { 'zh-CN': '梯度误差', en: 'gradient error' }, value: '0.42' },
+      ],
+      prompt: {
+        'zh-CN': '解释 batch size 增大时梯度估计为什么更稳定。',
+        en: 'Explain why the gradient estimate becomes more stable as batch size grows.',
+      },
+    },
+    storage,
+    '2026-06-25T10:00:00.000Z',
+  )
+
+  const second = recordLearningProgressLabEvidence(
+    first,
+    {
+      moduleId: 'calculus-sgd-batch-noise',
+      sourceId: 'batch-gradient-noise-lab',
+      summary: {
+        'zh-CN': '更新后的实验记录。',
+        en: 'Updated experiment record.',
+      },
+      metrics: [
+        { label: { 'zh-CN': 'batch size', en: 'batch size' }, value: 16 },
+        { label: { 'zh-CN': '梯度误差', en: 'gradient error' }, value: '0.18' },
+      ],
+      prompt: {
+        'zh-CN': '解释 batch size 增大时梯度估计为什么更稳定。',
+        en: 'Explain why the gradient estimate becomes more stable as batch size grows.',
+      },
+    },
+    storage,
+    '2026-06-25T10:02:00.000Z',
+  )
+
+  assert.equal(first.labEvidence.length, 1)
+  assert.equal(second.labEvidence.length, 1)
+  assert.equal(second.labEvidence[0]?.id, 'math-lab:calculus-sgd-batch-noise:batch-gradient-noise-lab')
+  assert.equal(second.labEvidence[0]?.source, 'math-lab')
+  assert.equal(second.labEvidence[0]?.capturedAt, '2026-06-25T10:02:00.000Z')
+  assert.equal(second.labEvidence[0]?.metrics[0]?.value, 16)
+  assert.equal(second.modules['calculus-sgd-batch-noise']?.lastVisitedAt, '2026-06-25T10:02:00.000Z')
+  assert.equal(second.lastVisited?.moduleId, 'calculus-sgd-batch-noise')
+
+  const stored = loadLearningProgressV2(storage)
+  assert.deepEqual(stored.labEvidence, second.labEvidence)
+})
+
+test('progress v2 drops malformed and unknown lab evidence when loading', () => {
+  const storage = new MemoryStorage({
+    [learningProgressV2StorageKey]: json({
+      schemaVersion: 1,
+      modules: {},
+      weakConceptTags: [],
+      labEvidence: [
+        {
+          id: 'math-lab:calculus-optimizer-comparison:optimizer-race-lab',
+          source: 'math-lab',
+          moduleId: 'calculus-optimizer-comparison',
+          sourceId: 'optimizer-race-lab',
+          capturedAt: '2026-06-25T10:10:00.000Z',
+          summary: { 'zh-CN': '四种优化器路径不同。', en: 'The optimizers take different paths.' },
+          metrics: [
+            { label: { 'zh-CN': 'Adam 最终 loss', en: 'Adam final loss' }, value: '0.03' },
+          ],
+          prompt: { 'zh-CN': '解释状态差异。', en: 'Explain the state differences.' },
+        },
+        {
+          id: 'math-lab:missing:broken',
+          source: 'math-lab',
+          moduleId: 'missing-module',
+          sourceId: 'broken',
+          capturedAt: '2026-06-25T10:10:00.000Z',
+          summary: { en: 'Broken' },
+          metrics: [],
+          prompt: { en: 'Broken' },
+        },
+      ],
+      updatedAt: '2026-06-25T10:10:00.000Z',
+    }),
+  })
+
+  const loaded = loadLearningProgressV2(storage)
+
+  assert.equal(loaded.labEvidence.length, 1)
+  assert.equal(loaded.labEvidence[0]?.moduleId, 'calculus-optimizer-comparison')
+  assert.equal(loaded.labEvidence[0]?.metrics[0]?.label.en, 'Adam final loss')
 })
 
 test('continue-learning selects unfinished last visited module before first incomplete core lesson', () => {
@@ -285,5 +389,8 @@ test('progress route reads progress v2 and renders a continue-learning target', 
   assert.match(progressViewSource, /selectContinueLearning/)
   assert.match(progressViewSource, /continueTarget/)
   assert.match(progressViewSource, /completedCount/)
+  assert.match(progressViewSource, /recentLabEvidence/)
+  assert.match(progressViewSource, /labEvidence/)
+  assert.match(progressViewSource, /recentEvidence/)
   assert.doesNotMatch(progressViewSource, /Progress is moving onto the new curriculum route/)
 })

@@ -22,6 +22,10 @@ import type {
   VisualAsset,
 } from '../types/mathLab'
 import { withPublicBase } from '../../../utils/publicPath.ts'
+import {
+  loadLearningProgressV2,
+  recordLearningProgressLabEvidence,
+} from '../../../curriculum/progress.ts'
 import { resolveMathLabModuleId } from '../utils/continueRoute'
 import {
   appendQuizAttempt,
@@ -159,6 +163,7 @@ function onExperimentEvidence(evidence: ExperimentEvidence | undefined) {
 
   nextEvidence[evidence.moduleId] = evidence
   latestEvidence.value = nextEvidence
+  recordLearningProgressLabEvidence(loadLearningProgressV2(), evidence)
 }
 
 function manimAssetsForSection(section: MathLabSection) {

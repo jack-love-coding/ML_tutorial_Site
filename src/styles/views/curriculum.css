@@ -163,6 +163,28 @@
   justify-self: start;
 }
 
+.curriculum-evidence-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.curriculum-evidence-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px solid rgba(16, 22, 47, 0.12);
+  color: var(--muted);
+}
+
+.curriculum-evidence-list strong {
+  color: var(--pixel-ink);
+}
+
 @media (max-width: 760px) {
   .curriculum-hero,
   .curriculum-module-row {

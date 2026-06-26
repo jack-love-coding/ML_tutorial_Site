@@ -1,14 +1,14 @@
 # GSD State: ML Atlas Curriculum V2
 
-**Updated:** 2026-06-25
-**Status:** Phase 7 implemented and verified
+**Updated:** 2026-06-26
+**Status:** Phase 8A implemented; final verification in progress
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Ready for review / ship
+**Current focus:** Optimization learning experience evidence persistence
 
 ## Baseline
 
@@ -38,6 +38,7 @@ See `.planning/codebase/`:
 - Pilot LessonPage with AI Overview, Gradient Descent, and MLP.
 - Treat effective core interactions as prediction, manipulation, evidence, reflection, and success criteria.
 - One phase should remain independently reviewable and releasable.
+- Lab evidence should persist into Progress V2, not only live inside a page-level checkpoint prompt.
 
 ## Completed Work
 

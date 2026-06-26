@@ -39,6 +39,11 @@ const attemptCount = computed(() =>
     0,
   ),
 )
+const recentLabEvidence = computed(() =>
+  [...progress.value.labEvidence]
+    .sort((left, right) => right.capturedAt.localeCompare(left.capturedAt))
+    .slice(0, 3),
+)
 
 const pageCopy = computed(() =>
   currentLocale.value === 'zh-CN'
@@ -52,6 +57,9 @@ const pageCopy = computed(() =>
         attempts: 'Checkpoint 记录',
         total: '课程模块',
         routes: '路线入口',
+        recentEvidence: '最近实验证据',
+        noEvidence: '完成一次互动实验后，这里会显示最近记录的观察指标。',
+        capturedAt: '记录时间',
       }
     : {
         eyebrow: 'Progress',
@@ -63,6 +71,9 @@ const pageCopy = computed(() =>
         attempts: 'Checkpoint Records',
         total: 'Course Modules',
         routes: 'Route Entrypoints',
+        recentEvidence: 'Recent Experiment Evidence',
+        noEvidence: 'Complete an interactive lab and the latest observed metrics will appear here.',
+        capturedAt: 'Captured',
       },
 )
 
@@ -78,6 +89,25 @@ const nextLinks = [
     label: copy('项目实战', 'Project Practice'),
   },
 ]
+
+function evidenceModuleTitle(moduleId: string) {
+  return localizedText(curriculumModuleById.get(moduleId)?.title ?? copy(moduleId, moduleId))
+}
+
+function evidenceValueText(value: string | number | LocalizedCopy) {
+  if (typeof value === 'string' || typeof value === 'number') return String(value)
+  return localizedText(value)
+}
+
+function formattedEvidenceTime(capturedAt: string) {
+  const date = new Date(capturedAt)
+  if (Number.isNaN(date.getTime())) return capturedAt
+
+  return new Intl.DateTimeFormat(currentLocale.value === 'zh-CN' ? 'zh-CN' : 'en', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date)
+}
 </script>
 
 <template>
@@ -120,6 +150,34 @@ const nextLinks = [
       >
         {{ pageCopy.continue }}
       </router-link>
+    </section>
+
+    <section class="curriculum-hero curriculum-hero--compact">
+      <div>
+        <span class="eyebrow">{{ pageCopy.recentEvidence }}</span>
+        <h2>{{ pageCopy.recentEvidence }}</h2>
+        <p>{{ recentLabEvidence.length ? localizedText(recentLabEvidence[0].summary) : pageCopy.noEvidence }}</p>
+      </div>
+    </section>
+
+    <section v-if="recentLabEvidence.length" class="curriculum-grid" :aria-label="pageCopy.recentEvidence">
+      <article
+        v-for="evidence in recentLabEvidence"
+        :key="evidence.id"
+        class="curriculum-module-card"
+      >
+        <span>{{ evidenceModuleTitle(evidence.moduleId) }}</span>
+        <h2>{{ localizedText(evidence.summary) }}</h2>
+        <p>{{ pageCopy.capturedAt }}: {{ formattedEvidenceTime(evidence.capturedAt) }}</p>
+        <ul class="curriculum-evidence-list">
+          <li v-for="metric in evidence.metrics.slice(0, 3)" :key="metric.label.en">
+            <strong>{{ localizedText(metric.label) }}</strong>
+            <span>
+              {{ evidenceValueText(metric.value) }}{{ metric.unit ? ` ${localizedText(metric.unit)}` : '' }}
+            </span>
+          </li>
+        </ul>
+      </article>
     </section>
 
     <section class="curriculum-hero curriculum-hero--compact">
