@@ -683,6 +683,11 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
   const expectedSupportLabs: Record<string, string[]> = {
     'calculus-training-code-diagnostics': ['BackpropBlockLab'],
   }
+  const expectedTaskLabs = new Set([
+    'calculus-partial-derivatives-gradients',
+    'calculus-sgd-batch-noise',
+    'calculus-optimizer-comparison',
+  ])
 
   const requiredChineseAnchors: Record<string, string[]> = {
     'calculus-functions-rate-change': ['买菜', '小车', '平均变化率'],
@@ -712,6 +717,14 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     assert.equal(moduleDefinition.sourceNoteFile, 'math-lab-calculus-route-sources.md')
     assert.ok(moduleDefinition.sourceReferences?.length, `${id} should have source references`)
     assert.equal(moduleDefinition.labs[0]?.componentName, expectedPrimaryLabs[id], `${id} should use the planned primary lab`)
+    if (expectedTaskLabs.has(id)) {
+      const labTask = moduleDefinition.labs[0]?.task
+      assert.ok(labTask, `${id} should turn its lab into a task`)
+      assert.ok(labTask.predictionPrompt['zh-CN'])
+      assert.ok(labTask.predictionPrompt.en)
+      assert.ok(labTask.reflectionPrompt['zh-CN'])
+      assert.ok(labTask.reflectionPrompt.en)
+    }
     for (const componentName of expectedSupportLabs[id] ?? []) {
       assert.ok(moduleDefinition.labs.some((lab) => lab.componentName === componentName), `${id} should include ${componentName}`)
     }

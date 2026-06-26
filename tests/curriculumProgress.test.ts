@@ -276,6 +276,64 @@ test('progress v2 records latest lab evidence per module and lab source', () => 
   assert.deepEqual(stored.labEvidence, second.labEvidence)
 })
 
+test('progress v2 saves lab prediction and explanation without losing later metric updates', () => {
+  const storage = new MemoryStorage()
+  const progress = createDefaultLearningProgressV2('2026-06-25T00:00:00.000Z')
+  const withTask = recordLearningProgressLabEvidence(
+    progress,
+    {
+      moduleId: 'calculus-optimizer-comparison',
+      sourceId: 'optimizer-race-lab',
+      summary: {
+        'zh-CN': '同一个 loss 上四种优化器的路径和内部状态不同。',
+        en: 'The four optimizers take different paths and carry different state on the same loss.',
+      },
+      metrics: [
+        { label: { 'zh-CN': 'Adam 最终 loss', en: 'Adam final loss' }, value: '0.12' },
+      ],
+      prompt: {
+        'zh-CN': '比较四条路径，解释 Adam 为什么不只是学习率更大的 SGD。',
+        en: 'Compare the four paths and explain why Adam is not just SGD with a larger learning rate.',
+      },
+      task: {
+        prediction: 'Adam 会更稳，因为它会记录一阶和二阶矩。',
+        explanation: 'Adam 的路径不只是更大的步长，它会用一阶矩和二阶矩改变每个坐标的更新尺度。',
+        completed: true,
+      },
+    },
+    storage,
+    '2026-06-25T11:00:00.000Z',
+  )
+
+  const afterMetricUpdate = recordLearningProgressLabEvidence(
+    withTask,
+    {
+      moduleId: 'calculus-optimizer-comparison',
+      sourceId: 'optimizer-race-lab',
+      summary: {
+        'zh-CN': '同一个 loss 上四种优化器的路径和内部状态不同。',
+        en: 'The four optimizers take different paths and carry different state on the same loss.',
+      },
+      metrics: [
+        { label: { 'zh-CN': 'Adam 最终 loss', en: 'Adam final loss' }, value: '0.03' },
+      ],
+      prompt: {
+        'zh-CN': '比较四条路径，解释 Adam 为什么不只是学习率更大的 SGD。',
+        en: 'Compare the four paths and explain why Adam is not just SGD with a larger learning rate.',
+      },
+    },
+    storage,
+    '2026-06-25T11:05:00.000Z',
+  )
+
+  assert.equal(afterMetricUpdate.labEvidence.length, 1)
+  assert.equal(afterMetricUpdate.labEvidence[0]?.metrics[0]?.value, '0.03')
+  assert.equal(afterMetricUpdate.labEvidence[0]?.task?.completed, true)
+  assert.equal(afterMetricUpdate.labEvidence[0]?.task?.savedAt, '2026-06-25T11:00:00.000Z')
+  assert.match(afterMetricUpdate.labEvidence[0]?.task?.prediction ?? '', /Adam/)
+  assert.match(afterMetricUpdate.labEvidence[0]?.task?.explanation ?? '', /一阶矩/)
+})
+
 test('progress v2 drops malformed and unknown lab evidence when loading', () => {
   const storage = new MemoryStorage({
     [learningProgressV2StorageKey]: json({
@@ -294,6 +352,12 @@ test('progress v2 drops malformed and unknown lab evidence when loading', () => 
             { label: { 'zh-CN': 'Adam 最终 loss', en: 'Adam final loss' }, value: '0.03' },
           ],
           prompt: { 'zh-CN': '解释状态差异。', en: 'Explain the state differences.' },
+          task: {
+            prediction: 'Adam 会更稳。',
+            explanation: 'Adam 记录一阶矩和二阶矩，所以路径和 SGD 不同。',
+            completed: true,
+            savedAt: '2026-06-25T10:11:00.000Z',
+          },
         },
         {
           id: 'math-lab:missing:broken',
@@ -315,6 +379,7 @@ test('progress v2 drops malformed and unknown lab evidence when loading', () => 
   assert.equal(loaded.labEvidence.length, 1)
   assert.equal(loaded.labEvidence[0]?.moduleId, 'calculus-optimizer-comparison')
   assert.equal(loaded.labEvidence[0]?.metrics[0]?.label.en, 'Adam final loss')
+  assert.equal(loaded.labEvidence[0]?.task?.completed, true)
 })
 
 test('continue-learning selects unfinished last visited module before first incomplete core lesson', () => {
@@ -392,5 +457,8 @@ test('progress route reads progress v2 and renders a continue-learning target', 
   assert.match(progressViewSource, /recentLabEvidence/)
   assert.match(progressViewSource, /labEvidence/)
   assert.match(progressViewSource, /recentEvidence/)
+  assert.match(progressViewSource, /evidenceTaskStatuses/)
+  assert.match(progressViewSource, /needsExplanation/)
+  assert.match(progressViewSource, /checkpointMissing/)
   assert.doesNotMatch(progressViewSource, /Progress is moving onto the new curriculum route/)
 })

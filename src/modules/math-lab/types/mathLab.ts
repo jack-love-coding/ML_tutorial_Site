@@ -69,6 +69,12 @@ export interface LabConfig {
   type: 'interactive-visual' | 'code' | 'hybrid'
   componentName: string
   successCriteria: LocalizedCopy[]
+  task?: LabTaskConfig
+}
+
+export interface LabTaskConfig {
+  predictionPrompt: LocalizedCopy
+  reflectionPrompt: LocalizedCopy
 }
 
 export interface QuizChoice {
