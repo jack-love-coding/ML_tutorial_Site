@@ -6,6 +6,7 @@ import {
   createDefaultLearningProgressV2,
   migrateLearningProgressV2,
   selectContinueLearning,
+  type LearningProgressLabEvidence,
   type LearningProgressV2,
 } from '../curriculum/progress.ts'
 import type { AppLocale, LocalizedCopy } from '../types/ml'
@@ -60,6 +61,11 @@ const pageCopy = computed(() =>
         recentEvidence: '最近实验证据',
         noEvidence: '完成一次互动实验后，这里会显示最近记录的观察指标。',
         capturedAt: '记录时间',
+        observationRecorded: '已记录观察',
+        explanationComplete: '解释已完成',
+        needsExplanation: '待补充解释',
+        checkpointComplete: 'checkpoint 已完成',
+        checkpointMissing: 'checkpoint 待完成',
       }
     : {
         eyebrow: 'Progress',
@@ -74,6 +80,11 @@ const pageCopy = computed(() =>
         recentEvidence: 'Recent Experiment Evidence',
         noEvidence: 'Complete an interactive lab and the latest observed metrics will appear here.',
         capturedAt: 'Captured',
+        observationRecorded: 'Observation recorded',
+        explanationComplete: 'Explanation complete',
+        needsExplanation: 'Needs explanation',
+        checkpointComplete: 'Checkpoint complete',
+        checkpointMissing: 'Checkpoint pending',
       },
 )
 
@@ -97,6 +108,15 @@ function evidenceModuleTitle(moduleId: string) {
 function evidenceValueText(value: string | number | LocalizedCopy) {
   if (typeof value === 'string' || typeof value === 'number') return String(value)
   return localizedText(value)
+}
+
+function evidenceTaskStatuses(evidence: LearningProgressLabEvidence) {
+  const moduleState = progress.value.modules[evidence.moduleId]
+  return [
+    pageCopy.value.observationRecorded,
+    evidence.task?.completed ? pageCopy.value.explanationComplete : pageCopy.value.needsExplanation,
+    moduleState?.completed ? pageCopy.value.checkpointComplete : pageCopy.value.checkpointMissing,
+  ]
 }
 
 function formattedEvidenceTime(capturedAt: string) {
@@ -177,6 +197,11 @@ function formattedEvidenceTime(capturedAt: string) {
             </span>
           </li>
         </ul>
+        <div class="curriculum-evidence-statuses" :aria-label="localizedText(evidence.prompt)">
+          <span v-for="status in evidenceTaskStatuses(evidence)" :key="status">
+            {{ status }}
+          </span>
+        </div>
       </article>
     </section>
 

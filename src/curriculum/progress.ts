@@ -54,6 +54,14 @@ export interface LearningProgressLabEvidence {
   summary: LocalizedCopy
   metrics: LearningProgressEvidenceMetric[]
   prompt: LocalizedCopy
+  task?: LearningProgressLabTask
+}
+
+export interface LearningProgressLabTask {
+  prediction: string
+  explanation: string
+  completed: boolean
+  savedAt: string
 }
 
 export interface LearningProgressMigrationMarker {
@@ -80,6 +88,13 @@ export interface LearningProgressLabEvidenceInput {
   summary: LocalizedCopy
   metrics: LearningProgressEvidenceMetric[]
   prompt: LocalizedCopy
+  task?: LearningProgressLabTaskInput
+}
+
+export interface LearningProgressLabTaskInput {
+  prediction: string
+  explanation: string
+  completed: boolean
 }
 
 export interface ContinueLearningTarget {
@@ -335,6 +350,23 @@ function normalizeEvidenceMetric(value: unknown) {
   } satisfies LearningProgressEvidenceMetric
 }
 
+function normalizeLabTask(value: unknown) {
+  const task = objectRecord(value)
+  if (!task) return undefined
+
+  const prediction = stringValue(task.prediction)
+  const explanation = stringValue(task.explanation)
+  const savedAt = stringValue(task.savedAt)
+  if (prediction === undefined || explanation === undefined || !savedAt) return undefined
+
+  return {
+    prediction,
+    explanation,
+    completed: booleanValue(task.completed),
+    savedAt,
+  } satisfies LearningProgressLabTask
+}
+
 function normalizeLabEvidence(value: unknown) {
   const evidence = objectRecord(value)
   if (!evidence) return undefined
@@ -345,6 +377,7 @@ function normalizeLabEvidence(value: unknown) {
   const capturedAt = stringValue(evidence.capturedAt)
   const summary = localizedCopy(evidence.summary)
   const prompt = localizedCopy(evidence.prompt)
+  const task = normalizeLabTask(evidence.task)
 
   if (
     !moduleId ||
@@ -369,6 +402,7 @@ function normalizeLabEvidence(value: unknown) {
       return normalized ? [normalized] : []
     }),
     prompt,
+    ...(task ? { task } : {}),
   } satisfies LearningProgressLabEvidence
 }
 
@@ -461,6 +495,7 @@ function cloneProgress(progress: LearningProgressV2): LearningProgressV2 {
         unit: metric.unit ? { ...metric.unit } : undefined,
       })),
       prompt: { ...evidence.prompt },
+      task: evidence.task ? { ...evidence.task } : undefined,
     })),
     lastVisited: progress.lastVisited ? { ...progress.lastVisited } : undefined,
     migration: progress.migration
@@ -669,8 +704,18 @@ export function recordLearningProgressLabEvidence(
   if (!source) return progress
 
   const nextProgress = cloneProgress(progress)
+  const evidenceId = createLabEvidenceId(source, moduleId, input.sourceId)
+  const existingTask = nextProgress.labEvidence.find((item) => item.id === evidenceId)?.task
+  const task = input.task
+    ? {
+        prediction: input.task.prediction,
+        explanation: input.task.explanation,
+        completed: input.task.completed,
+        savedAt: now,
+      } satisfies LearningProgressLabTask
+    : existingTask
   const evidence: LearningProgressLabEvidence = {
-    id: createLabEvidenceId(source, moduleId, input.sourceId),
+    id: evidenceId,
     source,
     moduleId,
     sourceId: input.sourceId,
@@ -678,6 +723,7 @@ export function recordLearningProgressLabEvidence(
     summary: input.summary,
     metrics: input.metrics,
     prompt: input.prompt,
+    ...(task ? { task } : {}),
   }
 
   upsertLabEvidence(nextProgress, evidence)

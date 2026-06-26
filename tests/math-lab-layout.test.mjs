@@ -274,6 +274,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/components/LearningRouteSummary.vue',
     'src/modules/math-lab/components/LearningRouteDashboard.vue',
     'src/modules/math-lab/components/CheckpointReportCard.vue',
+    'src/modules/math-lab/components/LabTaskCard.vue',
     'src/modules/math-lab/components/ObservationPrompt.vue',
     'src/modules/math-lab/components/interactive/InteractivePlane.vue',
     'src/modules/math-lab/components/interactive/DraggablePoint.vue',
@@ -432,11 +433,14 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /import\('\.\.\/labs\/ConditionalBayesLab\.vue'\)/)
   assert.match(modulePageSource, /import\('\.\.\/labs\/MatrixColumnSpaceLab\.vue'\)/)
   assert.match(modulePageSource, /CheckpointReportCard/)
+  assert.match(modulePageSource, /LabTaskCard/)
   assert.match(modulePageSource, /ObservationPrompt/)
   assert.match(modulePageSource, /checkpointReportForModule/)
   assert.match(modulePageSource, /observationPromptForModule/)
   assert.match(modulePageSource, /recordLearningProgressLabEvidence/)
   assert.match(modulePageSource, /loadLearningProgressV2/)
+  assert.match(modulePageSource, /onLabTaskSave/)
+  assert.match(modulePageSource, /savedLabEvidenceFor/)
   assert.match(modulePageSource, /resolveMathLabModuleId/)
   assert.match(modulePageSource, /\/math-lab\/modules\/\$\{resolvedModuleId\}/)
   assert.match(modulePageSource, /onExperimentEvidence/)
@@ -448,6 +452,7 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.doesNotMatch(modulePageSource, /if \(!moduleDefinition\.value\)\s*\{\s*router\.replace\('\/math-lab'\)/)
 
   const reportCardSource = read('src/modules/math-lab/components/CheckpointReportCard.vue')
+  const labTaskCardSource = read('src/modules/math-lab/components/LabTaskCard.vue')
   const mathLabStyles = read('src/styles/modules/math-lab.css')
   const observationPromptSource = read('src/modules/math-lab/components/ObservationPrompt.vue')
   assert.match(reportCardSource, /saveCheckpointReport/)
@@ -465,6 +470,12 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(reportCardSource, /type="button"/)
   assert.match(reportCardSource, /:id="textareaId\(field\.key\)"/)
   assert.match(reportCardSource, /:name="textareaName\(field\.key\)"/)
+  assert.match(labTaskCardSource, /predictionPrompt/)
+  assert.match(labTaskCardSource, /reflectionPrompt/)
+  assert.match(labTaskCardSource, /defineEmits/)
+  assert.match(labTaskCardSource, /task-save/)
+  assert.match(labTaskCardSource, /textarea/)
+  assert.match(labTaskCardSource, /role="status"/)
   assert.match(routeDashboardSource, /aria-label/)
   assert.match(mathLabStyles, /grid-template-columns:\s*repeat\(auto-fit/)
   assert.match(mathLabStyles, /@media \(max-width: 720px\)/)

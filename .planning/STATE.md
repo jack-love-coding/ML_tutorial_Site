@@ -1,18 +1,18 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-06-26
-**Status:** Phase 8A implemented; final verification in progress
+**Status:** Phase 8B implemented and verified on a stacked branch
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Optimization learning experience evidence persistence
+**Current focus:** Optimization learning experience task loop
 
 ## Baseline
 
-- `npm test`: pass, 202 tests.
+- `npm test`: pass, 240 tests.
 - `npm run build`: pass with existing Vite large-chunk warning.
 - `npm run build:pages`: pass with existing Vite large-chunk warning.
 - Baseline details: `docs/refactor/baseline.md`.
@@ -39,6 +39,7 @@ See `.planning/codebase/`:
 - Treat effective core interactions as prediction, manipulation, evidence, reflection, and success criteria.
 - One phase should remain independently reviewable and releasable.
 - Lab evidence should persist into Progress V2, not only live inside a page-level checkpoint prompt.
+- Selected optimization labs should require prediction and explanation task notes before the learning loop is considered complete.
 
 ## Completed Work
 
@@ -206,9 +207,37 @@ See `.planning/codebase/`:
   - `npm run build`: pass with existing large-chunk warning.
   - `npm run build:pages`: pass with existing large-chunk warning.
 
+### Phase 8A - Optimization Evidence Persistence
+
+- Added Progress V2 lab evidence records for localized summary, metrics, prompt, source, module, source lab, and capture time.
+- Added source-aware evidence upsert behavior so repeated lab control changes update the latest module/lab evidence record.
+- Wired Math Lab `ExperimentEvidence` emissions into Progress V2.
+- Added recent experiment evidence to `/progress`.
+- Opened draft PR #8 from `codex/phase-8-optimization-learning`.
+- Verified:
+  - `npm test`: pass, 239 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - Browser walkthrough for `/math-lab/modules/calculus-sgd-batch-noise` to `/progress`: pass.
+
+### Phase 8B - Optimization Task Loop
+
+- Added optional Math Lab `LabTaskConfig` for prediction and reflection prompts.
+- Added Progress V2 task state for prediction, explanation, completion, and saved timestamp.
+- Preserved saved task state when later evidence metrics refresh the same lab record.
+- Added `LabTaskCard.vue` and rendered it next to selected task-enabled labs.
+- Added task prompts to partial derivatives, SGD batch noise, and optimizer comparison.
+- Added `/progress` status labels for observed evidence, explanation completion, and checkpoint completion.
+- Verified:
+  - `node --test tests/curriculumProgress.test.ts tests/math-lab-core.test.ts tests/math-lab-layout.test.mjs`: pass.
+  - `npm test`: pass, 240 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - Browser walkthrough with local Chrome: task save persisted, `/progress` showed task statuses, desktop and 390px mobile overflow checks passed, 0 console errors.
+
 ## Next Recommended Command
 
-Prepare review/ship from:
+Review the stacked Phase 8B PR after Phase 8A PR #8 is merged or retargeted:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -220,6 +249,7 @@ Prepare review/ship from:
 - `docs/refactor/summaries/phase-5.md`
 - `docs/refactor/summaries/phase-6.md`
 - `docs/refactor/summaries/phase-7.md`
+- `docs/refactor/summaries/phase-8.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next artifact: PR description and final review notes.
+Suggested next direction: expand the same task protocol to one Data Lab transformation lab or one Algorithm LessonPage pilot after the Phase 8 PRs land.

@@ -6,6 +6,7 @@ import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
 import CheckpointQuiz from '../components/CheckpointQuiz.vue'
 import CheckpointReportCard from '../components/CheckpointReportCard.vue'
 import CodeLab from '../components/CodeLab.vue'
+import LabTaskCard from '../components/LabTaskCard.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
 import ObservationPrompt from '../components/ObservationPrompt.vue'
@@ -25,6 +26,8 @@ import { withPublicBase } from '../../../utils/publicPath.ts'
 import {
   loadLearningProgressV2,
   recordLearningProgressLabEvidence,
+  type LearningProgressLabEvidence,
+  type LearningProgressLabTaskInput,
 } from '../../../curriculum/progress.ts'
 import { resolveMathLabModuleId } from '../utils/continueRoute'
 import {
@@ -39,6 +42,7 @@ const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
 const progress = ref(loadMathLabProgress())
+const learningProgress = ref(loadLearningProgressV2())
 const latestEvidence = ref<Record<string, ExperimentEvidence>>({})
 const fallbackLabComponent = defineAsyncComponent(() => import('../labs/NumericalMiniLab.vue'))
 const labComponentRegistry = {
@@ -127,6 +131,7 @@ watch(
       return
     }
     progress.value = saveMathLabProgress(setLastVisitedModule(loadMathLabProgress(), resolvedModuleId))
+    learningProgress.value = loadLearningProgressV2()
   },
   { immediate: true },
 )
@@ -163,7 +168,42 @@ function onExperimentEvidence(evidence: ExperimentEvidence | undefined) {
 
   nextEvidence[evidence.moduleId] = evidence
   latestEvidence.value = nextEvidence
-  recordLearningProgressLabEvidence(loadLearningProgressV2(), evidence)
+  learningProgress.value = recordLearningProgressLabEvidence(loadLearningProgressV2(), evidence)
+}
+
+function latestEvidenceForLab(lab: LabConfig) {
+  if (!lab.task) return undefined
+  return latestEvidence.value[moduleDefinition.value?.id ?? moduleId.value]
+}
+
+function savedLabEvidenceFor(lab: LabConfig): LearningProgressLabEvidence | undefined {
+  if (!lab.task) return undefined
+
+  const activeModuleId = moduleDefinition.value?.id ?? moduleId.value
+  const liveEvidence = latestEvidenceForLab(lab)
+  return learningProgress.value.labEvidence.find((evidence) =>
+    evidence.moduleId === activeModuleId &&
+    (!liveEvidence || evidence.sourceId === liveEvidence.sourceId),
+  ) ?? learningProgress.value.labEvidence.find((evidence) => evidence.moduleId === activeModuleId)
+}
+
+function onLabTaskSave(payload: {
+  lab: LabConfig
+  evidence: ExperimentEvidence
+  task: LearningProgressLabTaskInput
+}) {
+  const nextEvidence = {
+    ...latestEvidence.value,
+    [payload.evidence.moduleId]: payload.evidence,
+  }
+  latestEvidence.value = nextEvidence
+  learningProgress.value = recordLearningProgressLabEvidence(
+    loadLearningProgressV2(),
+    {
+      ...payload.evidence,
+      task: payload.task,
+    },
+  )
 }
 
 function manimAssetsForSection(section: MathLabSection) {
@@ -342,6 +382,14 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
                   v-bind="labPropsFor(lab)"
                   @evidence-change="onExperimentEvidence"
                 />
+                <LabTaskCard
+                  v-if="lab.task"
+                  :lab="lab"
+                  :locale="currentLocale"
+                  :evidence="latestEvidenceForLab(lab)"
+                  :saved-evidence="savedLabEvidenceFor(lab)"
+                  @task-save="onLabTaskSave"
+                />
               </div>
             </section>
           </section>
@@ -384,6 +432,14 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
                 :is="labComponentFor(lab.componentName)"
                 v-bind="labPropsFor(lab)"
                 @evidence-change="onExperimentEvidence"
+              />
+              <LabTaskCard
+                v-if="lab.task"
+                :lab="lab"
+                :locale="currentLocale"
+                :evidence="latestEvidenceForLab(lab)"
+                :saved-evidence="savedLabEvidenceFor(lab)"
+                @task-save="onLabTaskSave"
               />
             </div>
           </section>
