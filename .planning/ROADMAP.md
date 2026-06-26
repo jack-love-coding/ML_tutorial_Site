@@ -144,5 +144,27 @@
 - Tests and builds pass.
 - Remaining risks are documented for the next milestone.
 
+## Phase 8A: Optimization Learning Evidence
+
+**Goal:** Turn the optimization/calculus lab line into the first durable evidence slice by saving experiment evidence into Progress V2 and surfacing recent evidence on the progress page.
+
+**Deliverables:**
+- `LearningProgressV2.labEvidence` with source-aware, module-aware evidence records.
+- `recordLearningProgressLabEvidence()` helper that upserts the latest evidence per module/lab source.
+- Math Lab module page integration so dynamic lab evidence writes to Progress V2.
+- `/progress` recent experiment evidence display.
+- Tests for evidence persistence, malformed evidence tolerance, page integration, and progress page wiring.
+
+**Must Not Do:**
+- Do not rewrite the existing optimization labs from scratch.
+- Do not delete v1 progress stores or checkpoint report drafts.
+- Do not turn every lab into Progress V2 evidence in this slice.
+
+**Exit Criteria:**
+- Optimization/math lab evidence survives reload via Progress V2.
+- Repeated slider or control changes update the latest evidence record instead of appending unbounded duplicates.
+- Recent evidence is visible from `/progress`.
+- `npm test` and `npm run build` pass.
+
 ---
 *Roadmap created: 2026-06-25*

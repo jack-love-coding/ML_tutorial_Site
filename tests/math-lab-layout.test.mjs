@@ -435,6 +435,8 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(modulePageSource, /ObservationPrompt/)
   assert.match(modulePageSource, /checkpointReportForModule/)
   assert.match(modulePageSource, /observationPromptForModule/)
+  assert.match(modulePageSource, /recordLearningProgressLabEvidence/)
+  assert.match(modulePageSource, /loadLearningProgressV2/)
   assert.match(modulePageSource, /resolveMathLabModuleId/)
   assert.match(modulePageSource, /\/math-lab\/modules\/\$\{resolvedModuleId\}/)
   assert.match(modulePageSource, /onExperimentEvidence/)

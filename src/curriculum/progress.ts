@@ -8,6 +8,7 @@ import {
 } from './routeManifest.ts'
 import { resolveCanonicalLearnRoute } from './routes.ts'
 import type { CurriculumSourceNamespace } from './types.ts'
+import type { LocalizedCopy } from '../types/ml.ts'
 
 export const learningProgressV2StorageKey = 'ml-atlas:learning-progress:v2'
 export const learningProgressV2MigrationKey = 'ml-atlas:learning-progress:v2:migration'
@@ -38,6 +39,23 @@ export interface LearningProgressLastVisited {
   visitedAt: string
 }
 
+export interface LearningProgressEvidenceMetric {
+  label: LocalizedCopy
+  value: string | number | LocalizedCopy
+  unit?: LocalizedCopy
+}
+
+export interface LearningProgressLabEvidence {
+  id: string
+  source: CurriculumSourceNamespace
+  moduleId: string
+  sourceId: string
+  capturedAt: string
+  summary: LocalizedCopy
+  metrics: LearningProgressEvidenceMetric[]
+  prompt: LocalizedCopy
+}
+
 export interface LearningProgressMigrationMarker {
   schemaVersion: 1
   sourceFingerprint: string
@@ -49,9 +67,19 @@ export interface LearningProgressV2 {
   schemaVersion: 1
   modules: Record<string, LearningProgressModuleState>
   weakConceptTags: string[]
+  labEvidence: LearningProgressLabEvidence[]
   lastVisited?: LearningProgressLastVisited
   migration?: LearningProgressMigrationMarker
   updatedAt: string
+}
+
+export interface LearningProgressLabEvidenceInput {
+  source?: CurriculumSourceNamespace
+  moduleId: string
+  sourceId: string
+  summary: LocalizedCopy
+  metrics: LearningProgressEvidenceMetric[]
+  prompt: LocalizedCopy
 }
 
 export interface ContinueLearningTarget {
@@ -146,6 +174,14 @@ function createAttemptId(
   return `${source}:${moduleId}:${quizId}:${attemptedAt}`
 }
 
+function createLabEvidenceId(
+  source: CurriculumSourceNamespace,
+  moduleId: string,
+  sourceId: string,
+) {
+  return `${source}:${moduleId}:${sourceId}`
+}
+
 function sortAttempts(attempts: LearningProgressQuizAttempt[]) {
   return [...attempts].sort(
     (left, right) =>
@@ -168,6 +204,19 @@ function mergeAttempts(
 
 function addUniqueStrings(existing: string[], incoming: string[]) {
   return Array.from(new Set([...existing, ...incoming]))
+}
+
+function localizedCopy(value: unknown): LocalizedCopy | undefined {
+  const copy = objectRecord(value)
+  const zh = stringValue(copy?.['zh-CN'])
+  const en = stringValue(copy?.en)
+  if (!zh || !en) return undefined
+  return { 'zh-CN': zh, en }
+}
+
+function metricValue(value: unknown): LearningProgressEvidenceMetric['value'] | undefined {
+  if (typeof value === 'string' || typeof value === 'number') return value
+  return localizedCopy(value)
 }
 
 function upsertModule(
@@ -214,6 +263,7 @@ export function createDefaultLearningProgressV2(now = new Date().toISOString()):
     schemaVersion: 1,
     modules: {},
     weakConceptTags: [],
+    labEvidence: [],
     updatedAt: now,
   }
 }
@@ -269,6 +319,59 @@ function normalizeModuleState(value: unknown) {
   } satisfies LearningProgressModuleState
 }
 
+function normalizeEvidenceMetric(value: unknown) {
+  const metric = objectRecord(value)
+  if (!metric) return undefined
+
+  const label = localizedCopy(metric.label)
+  const normalizedValue = metricValue(metric.value)
+  if (!label || normalizedValue === undefined) return undefined
+
+  const unit = localizedCopy(metric.unit)
+  return {
+    label,
+    value: normalizedValue,
+    ...(unit ? { unit } : {}),
+  } satisfies LearningProgressEvidenceMetric
+}
+
+function normalizeLabEvidence(value: unknown) {
+  const evidence = objectRecord(value)
+  if (!evidence) return undefined
+
+  const source = stringValue(evidence.source)
+  const moduleId = canonicalModuleId(stringValue(evidence.moduleId))
+  const sourceId = stringValue(evidence.sourceId)
+  const capturedAt = stringValue(evidence.capturedAt)
+  const summary = localizedCopy(evidence.summary)
+  const prompt = localizedCopy(evidence.prompt)
+
+  if (
+    !moduleId ||
+    !sourceId ||
+    !capturedAt ||
+    !summary ||
+    !prompt ||
+    (source !== 'algorithm' && source !== 'math-lab' && source !== 'data-lab')
+  ) {
+    return undefined
+  }
+
+  return {
+    id: stringValue(evidence.id) ?? createLabEvidenceId(source, moduleId, sourceId),
+    source,
+    moduleId,
+    sourceId,
+    capturedAt,
+    summary,
+    metrics: objectArray(evidence.metrics).flatMap((metric) => {
+      const normalized = normalizeEvidenceMetric(metric)
+      return normalized ? [normalized] : []
+    }),
+    prompt,
+  } satisfies LearningProgressLabEvidence
+}
+
 export function loadLearningProgressV2(storage?: StorageLike, now = new Date().toISOString()): LearningProgressV2 {
   const resolvedStorage = progressStorage(storage)
   if (!resolvedStorage) return createDefaultLearningProgressV2(now)
@@ -288,6 +391,10 @@ export function loadLearningProgressV2(storage?: StorageLike, now = new Date().t
     schemaVersion: 1,
     modules,
     weakConceptTags: stringArray(parsed.weakConceptTags),
+    labEvidence: objectArray(parsed.labEvidence).flatMap((evidence) => {
+      const normalized = normalizeLabEvidence(evidence)
+      return normalized ? [normalized] : []
+    }),
     updatedAt: stringValue(parsed.updatedAt) ?? now,
   }
 
@@ -344,6 +451,17 @@ function cloneProgress(progress: LearningProgressV2): LearningProgressV2 {
       ]),
     ),
     weakConceptTags: [...progress.weakConceptTags],
+    labEvidence: progress.labEvidence.map((evidence) => ({
+      ...evidence,
+      summary: { ...evidence.summary },
+      metrics: evidence.metrics.map((metric) => ({
+        ...metric,
+        label: { ...metric.label },
+        value: typeof metric.value === 'object' ? { ...metric.value } : metric.value,
+        unit: metric.unit ? { ...metric.unit } : undefined,
+      })),
+      prompt: { ...evidence.prompt },
+    })),
     lastVisited: progress.lastVisited ? { ...progress.lastVisited } : undefined,
     migration: progress.migration
       ? {
@@ -523,6 +641,49 @@ export function migrateLearningProgressV2(
   writeMigrationMarker(migration, resolvedStorage)
 
   return nextProgress
+}
+
+function upsertLabEvidence(
+  progress: LearningProgressV2,
+  evidence: LearningProgressLabEvidence,
+) {
+  const existingIndex = progress.labEvidence.findIndex((item) => item.id === evidence.id)
+  if (existingIndex >= 0) {
+    progress.labEvidence.splice(existingIndex, 1, evidence)
+    return
+  }
+
+  progress.labEvidence.push(evidence)
+}
+
+export function recordLearningProgressLabEvidence(
+  progress: LearningProgressV2,
+  input: LearningProgressLabEvidenceInput,
+  storage?: StorageLike,
+  now = new Date().toISOString(),
+): LearningProgressV2 {
+  const moduleId = canonicalModuleId(input.moduleId)
+  if (!moduleId) return progress
+
+  const source = input.source ?? moduleSource(moduleId)
+  if (!source) return progress
+
+  const nextProgress = cloneProgress(progress)
+  const evidence: LearningProgressLabEvidence = {
+    id: createLabEvidenceId(source, moduleId, input.sourceId),
+    source,
+    moduleId,
+    sourceId: input.sourceId,
+    capturedAt: now,
+    summary: input.summary,
+    metrics: input.metrics,
+    prompt: input.prompt,
+  }
+
+  upsertLabEvidence(nextProgress, evidence)
+  setLastVisited(nextProgress, moduleId, now)
+
+  return saveLearningProgressV2(nextProgress, storage, now)
 }
 
 function targetForModule(moduleId: string, reason: ContinueLearningTarget['reason']) {
