@@ -97,13 +97,15 @@ test('logistic regression chapter routes are wired before the generic algorithm 
 
   const redirectIndex = routerSource.indexOf("path: '/learn/logistic-regression'")
   const chapterIndex = routerSource.indexOf("path: '/learn/logistic-regression/:chapterId'")
-  const genericIndex = routerSource.indexOf("path: '/learn/:slug'")
+  const genericLessonIndex = routerSource.indexOf("path: '/learn/:moduleId/:lessonId'")
+  const genericIndex = routerSource.indexOf("path: '/learn/:moduleId',")
 
   assert.notEqual(redirectIndex, -1, 'base logistic regression route should redirect to the first chapter')
   assert.notEqual(chapterIndex, -1, 'chapter route should be declared')
   assert.notEqual(genericIndex, -1, 'generic algorithm route should remain declared')
+  assert.notEqual(genericLessonIndex, -1, 'generic lesson route should be declared')
   assert.ok(redirectIndex < genericIndex, 'base logistic regression route must come before generic route')
-  assert.ok(chapterIndex < genericIndex, 'chapter route must come before generic route')
+  assert.ok(chapterIndex < genericLessonIndex, 'chapter route must come before generic lesson route')
   assert.match(routerSource, /redirect: '\/learn\/logistic-regression\/linear-score'/)
 })
 

@@ -1,13 +1,20 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { moduleOrder } from '../data/moduleCatalog'
-import LearningRouteSummary from '../modules/math-lab/components/LearningRouteSummary.vue'
-import { learningRouteSummaryModules } from '../modules/math-lab/data/learningRouteSummaryModules'
-import { learningRoutes } from '../modules/math-lab/data/learningRoutes'
-import { loadMathLabProgress, mathLabProgressStorageKey } from '../modules/math-lab/utils/progress'
-import type { LearningRouteId } from '../modules/math-lab/types/mathLab'
+import { curriculumRouteManifestById } from '../curriculum/routeManifest.ts'
+import {
+  createDefaultLearningProgressV2,
+  learningProgressV2MigrationKey,
+  learningProgressV2StorageKey,
+  migrateLearningProgressV2,
+  selectContinueLearning,
+  type LearningProgressV2,
+} from '../curriculum/progress.ts'
+import { curriculumNavigationMenus, type SiteNavigationMenuId } from '../data/navigationMenus'
+import { dataLabProgressStorageKey } from '../modules/data-lab/utils/progress'
+import { mathLabProgressStorageKey } from '../modules/math-lab/utils/progress'
 import type { LocalizedCopy } from '../types/ml'
+import { algorithmProgressStorageKey } from '../utils/algorithmProgress'
 
 const { t, locale } = useI18n()
 
@@ -29,6 +36,16 @@ interface ReadinessCheck {
   description: LocalizedCopy
 }
 
+interface HomeDecisionCardSource {
+  id: string
+  route: string
+  menuId?: SiteNavigationMenuId
+  title: LocalizedCopy
+  body: LocalizedCopy
+  meta: LocalizedCopy
+  action: LocalizedCopy
+}
+
 function loc(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
 }
@@ -37,118 +54,184 @@ function localizedText(value: LocalizedCopy) {
   return locale.value === 'zh-CN' ? value['zh-CN'] : value.en
 }
 
+function stageNumber(index: number) {
+  return String(index + 1).padStart(2, '0')
+}
+
 function scrollToRoadmap(event: MouseEvent) {
   event.preventDefault()
   document.getElementById('beginner-roadmap')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   history.replaceState(null, '', '#beginner-roadmap')
 }
 
-const primaryRoute = computed(() => '/learn/ai-overview')
-const mathLabProgress = ref(loadMathLabProgress())
-const currentMathLocale = computed(() => locale.value === 'zh-CN' ? 'zh-CN' : 'en')
-const highlightedLearningRouteIds: readonly LearningRouteId[] = [
-  'ai-math-main-path',
-  'linear-algebra-route',
-  'numerical-deepening-path',
-]
-const highlightedLearningRoutes = computed(() =>
-  learningRoutes.filter((route) => highlightedLearningRouteIds.includes(route.id)),
-)
+const startRoute = '/learn/ai-overview'
+const learningProgress = ref<LearningProgressV2>(createDefaultLearningProgressV2())
+const progressStorageKeys = new Set([
+  learningProgressV2StorageKey,
+  learningProgressV2MigrationKey,
+  algorithmProgressStorageKey,
+  mathLabProgressStorageKey,
+  dataLabProgressStorageKey,
+])
 
-function refreshMathLabProgress() {
-  mathLabProgress.value = loadMathLabProgress()
+function refreshLearningProgress() {
+  learningProgress.value = migrateLearningProgressV2()
 }
 
 function handleProgressVisibilityChange() {
-  if (document.visibilityState === 'visible') refreshMathLabProgress()
+  if (document.visibilityState === 'visible') refreshLearningProgress()
 }
 
 function handleProgressStorageEvent(event: StorageEvent) {
-  if (event.key && event.key !== mathLabProgressStorageKey) return
-  refreshMathLabProgress()
+  if (event.key && !progressStorageKeys.has(event.key)) return
+  refreshLearningProgress()
 }
 
 onMounted(() => {
-  refreshMathLabProgress()
-  window.addEventListener('focus', refreshMathLabProgress)
+  refreshLearningProgress()
+  window.addEventListener('focus', refreshLearningProgress)
   document.addEventListener('visibilitychange', handleProgressVisibilityChange)
   window.addEventListener('storage', handleProgressStorageEvent)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('focus', refreshMathLabProgress)
+  window.removeEventListener('focus', refreshLearningProgress)
   document.removeEventListener('visibilitychange', handleProgressVisibilityChange)
   window.removeEventListener('storage', handleProgressStorageEvent)
 })
 
-const highlights = computed(() =>
+const progressLabels = computed(() =>
   locale.value === 'zh-CN'
-    ? ['Math Lab 建立数学直觉', 'Data Lab 连接表格和特征', 'ML Models 用实验理解训练行为']
-    : [
-        'Math Lab builds the math intuition',
-        'Data Lab connects tables to features',
-        'ML Models make training behavior visible',
-      ],
+    ? {
+        continueEyebrow: '继续学习',
+        startTitle: '从 AI 入门总览开始',
+        lastVisitedBody: '回到你上次停下的位置，继续把概念、实验和 checkpoint 串起来。',
+        firstIncompleteBody: '下一步推荐从核心路线中第一个未完成模块继续。',
+        noProgressBody: '还没有学习记录时，先用 AI 总览建立地图，再进入数学、数据和模型实验。',
+        completed: '已完成模块',
+        attempts: 'checkpoint 尝试',
+        routes: '统一入口',
+        continueAction: '继续学习',
+        startAction: '开始学习',
+      }
+    : {
+        continueEyebrow: 'Continue learning',
+        startTitle: 'Start with AI Overview',
+        lastVisitedBody: 'Return to the place you last touched and keep connecting concepts, labs, and checkpoints.',
+        firstIncompleteBody: 'Continue with the first unfinished module in the core path.',
+        noProgressBody: 'With no saved progress yet, begin with AI Overview before moving into math, data, and model labs.',
+        completed: 'Completed modules',
+        attempts: 'Checkpoint attempts',
+        routes: 'Unified entries',
+        continueAction: 'Continue learning',
+        startAction: 'Start learning',
+      },
 )
 
-const posterBody = computed(() =>
-  locale.value === 'zh-CN'
-    ? '先用 Math Lab 补数学直觉，再用 Data Lab 处理输入，之后进入可交互的 ML Models 和深度学习扩展。'
-    : 'Start with Math Lab, move through Data Lab, then enter interactive ML Models and the deep-learning extension path.',
+const continueTarget = computed(() => selectContinueLearning(learningProgress.value))
+const continueRoute = computed(() => continueTarget.value?.route ?? startRoute)
+const continueModuleTitle = computed(() => {
+  const moduleId = continueTarget.value?.moduleId
+  if (!moduleId) return progressLabels.value.startTitle
+  return localizedText(curriculumRouteManifestById.get(moduleId)?.title ?? loc(moduleId, moduleId))
+})
+const continueBody = computed(() => {
+  if (!continueTarget.value) return progressLabels.value.noProgressBody
+  return continueTarget.value.reason === 'last-visited'
+    ? progressLabels.value.lastVisitedBody
+    : progressLabels.value.firstIncompleteBody
+})
+const continueActionLabel = computed(() =>
+  continueTarget.value ? progressLabels.value.continueAction : progressLabels.value.startAction,
+)
+const completedModuleCount = computed(() =>
+  Object.values(learningProgress.value.modules).filter((moduleProgress) => moduleProgress.completed).length,
+)
+const checkpointAttemptCount = computed(() =>
+  Object.values(learningProgress.value.modules).reduce(
+    (total, moduleProgress) => total + moduleProgress.attempts.length,
+    0,
+  ),
+)
+const progressMetrics = computed(() => [
+  {
+    label: progressLabels.value.completed,
+    value: String(completedModuleCount.value),
+  },
+  {
+    label: progressLabels.value.attempts,
+    value: String(checkpointAttemptCount.value),
+  },
+  {
+    label: progressLabels.value.routes,
+    value: String(curriculumNavigationMenus.length),
+  },
+])
+
+const navigationMenuLabels = computed(
+  () => new Map(curriculumNavigationMenus.map((menuDefinition) => [menuDefinition.id, localizedText(menuDefinition.label)])),
 )
 
-const modulesBody = computed(() =>
-  locale.value === 'zh-CN'
-    ? '站点主线不是单独堆章节，而是把 Math Lab、Data Lab、ML Models 和 Deep Learning 串成零基础学生能跟下去的学习闭环。'
-    : 'The site connects Math Lab, Data Lab, ML Models, and Deep Learning into one beginner-friendly learning loop.',
-)
+const homeDecisionCardSource: HomeDecisionCardSource[] = [
+  {
+    id: 'core-learning-path',
+    route: '/tracks/core-learning-path',
+    menuId: 'learning-path',
+    title: loc('主线学习路径', 'Core learning path'),
+    body: loc(
+      '按 AI 总览、Python、项目、模型和深度学习的顺序推进，适合希望从零开始建立完整地图的学习者。',
+      'Move through AI Overview, Python, projects, models, and deep learning in a guided order for a complete beginner map.',
+    ),
+    meta: loc('推荐起点', 'Recommended start'),
+    action: loc('查看主线', 'Open path'),
+  },
+  {
+    id: 'topic-library',
+    route: '/library/math',
+    menuId: 'topic-library',
+    title: loc('主题库', 'Topic library'),
+    body: loc(
+      '按 Math Lab、Data Lab、ML Models 和 Deep Learning 查找概念、实验与复盘材料。',
+      'Browse Math Lab, Data Lab, ML Models, and Deep Learning by concept, lab, and review need.',
+    ),
+    meta: loc('按主题补课', 'Review by topic'),
+    action: loc('打开主题库', 'Open library'),
+  },
+  {
+    id: 'project-practice',
+    route: '/tracks/project-practice',
+    menuId: 'projects',
+    title: loc('项目实战', 'Project practice'),
+    body: loc(
+      '把数据清洗、特征、模型选择和指标复盘放进房价预测、分类筛查等可复现实验。',
+      'Put cleaning, features, model selection, and metric review into reproducible housing and classification projects.',
+    ),
+    meta: loc('从任务倒推概念', 'Learn from tasks'),
+    action: loc('进入项目', 'Open projects'),
+  },
+  {
+    id: 'progress',
+    route: '/progress',
+    menuId: 'progress',
+    title: loc('学习进度', 'Learning progress'),
+    body: loc(
+      '查看已完成模块、checkpoint 尝试和下一步建议，避免在多个实验室之间迷路。',
+      'Review completed modules, checkpoint attempts, and the next recommendation across every lab.',
+    ),
+    meta: loc('复盘与下一步', 'Review and next step'),
+    action: loc('查看进度', 'Open progress'),
+  },
+]
 
-const modulesNote = computed(() =>
-  locale.value === 'zh-CN'
-    ? '当前优先补齐自测、进度和继续学习入口，让学生每学完一章都能知道自己是否理解。'
-    : 'The current priority is checkpoints, progress, and continue-learning entry points so students can verify understanding after each chapter.',
-)
-
-const pathBody = computed(() =>
-  locale.value === 'zh-CN'
-    ? '推荐顺序是数学直觉、数据处理、机器学习模型、深度学习扩展。每一段都保留可视化、互动实验和 checkpoint。'
-    : 'The recommended order is math intuition, data processing, machine-learning models, and deep-learning extensions, each with visual labs and checkpoints.',
-)
-
-const learningPath = computed(() =>
-  locale.value === 'zh-CN'
-    ? [
-        'Math Lab：向量、矩阵、Taylor、概率、优化、SVD/PCA、自动微分和深度结构数学',
-        'Data Lab：数值特征、类别特征、清洗、EDA、划分、复杂度和正则化',
-        'AI Overview：先看什么是 ML、任务类型和训练流程',
-        'Python Notebook：用 NumPy、pandas 和 sklearn 复现第一个小实验',
-        'Housing Project：房价预测端到端项目，从 CSV 到复盘',
-        'Classification Project：垃圾邮件筛查，从文本向量化到阈值复盘',
-        'Model Selection：用交叉验证和 GridSearchCV 做可靠调参与最终测试',
-        'Tree & Forest：用 if-then split 和随机森林理解非梯度模型',
-        'CNN Visualization：从图片 shape、kernel、padding/stride 到 feature map 和迁移学习',
-        'Attention & Transformer：把 token、Q/K/V、softmax、multi-head 和 block 串起来',
-        'Optimizer Comparison：比较 SGD、Momentum、RMSProp、AdamW、schedule 和 batch size',
-        'LLM & RAG：理解 token、embedding、chunking、retrieval、prompt assembly 和 grounded answer',
-        'ML Models：loss、gradient descent、linear/logistic regression、classification 和 MLP',
-        'Deep Learning：以 MLP 为入口，把视觉、序列、优化和生成式应用串成复盘路径',
-      ]
-    : [
-        'Math Lab: vectors, matrices, Taylor series, probability, optimization, SVD/PCA, autodiff, and architecture math',
-        'Data Lab: numeric features, categorical features, cleaning, EDA, splits, complexity, and regularization',
-        'AI Overview: start with what ML is, task types, and the training flow',
-        'Python Notebook: reproduce the first small experiment with NumPy, pandas, and sklearn',
-        'Housing Project: an end-to-end housing price project from CSV to review',
-        'Classification Project: spam screening from text vectorization to threshold review',
-        'Model Selection: use cross-validation and GridSearchCV for reliable tuning and final testing',
-        'Tree & Forest: understand non-gradient models through if-then splits and random forests',
-        'CNN Visualization: move from image shape, kernels, padding/stride to feature maps and transfer learning',
-        'Attention & Transformer: connect tokens, Q/K/V, softmax, multi-head attention, and the block',
-        'Optimizer Comparison: compare SGD, Momentum, RMSProp, AdamW, schedules, and batch size',
-        'LLM & RAG: understand tokens, embeddings, chunking, retrieval, prompt assembly, and grounded answers',
-        'ML Models: loss, gradient descent, linear/logistic regression, classification, and MLP',
-        'Deep Learning: start with MLP, then connect vision, sequences, optimization, and generative applications',
-      ],
+const homeDecisionCards = computed(() =>
+  homeDecisionCardSource.map((card) => ({
+    id: card.id,
+    route: card.route,
+    title: card.menuId ? navigationMenuLabels.value.get(card.menuId) ?? localizedText(card.title) : localizedText(card.title),
+    body: localizedText(card.body),
+    meta: localizedText(card.meta),
+    action: localizedText(card.action),
+  })),
 )
 
 const beginnerRoadmapIntro = {
@@ -668,8 +751,8 @@ const footerText = computed(() =>
         <h1>{{ t('home.title') }}</h1>
         <p>{{ t('home.subtitle') }}</p>
         <div class="hero__actions">
-          <router-link class="action-button action-button--primary" :to="primaryRoute">
-            {{ t('home.ctaPrimary') }}
+          <router-link class="action-button action-button--primary" :to="continueRoute">
+            {{ continueActionLabel }}
           </router-link>
           <a class="action-button" href="#beginner-roadmap" @click="scrollToRoadmap">
             {{ t('home.ctaSecondary') }}
@@ -678,70 +761,57 @@ const footerText = computed(() =>
       </div>
 
       <div class="hero__visual">
-        <div class="hero__poster">
-          <div class="hero__grid" />
-          <div class="hero__poster-copy">
-            <span>{{ t('home.posterTitle') }}</span>
-            <p>{{ posterBody }}</p>
+        <aside class="home-progress-panel" aria-labelledby="home-progress-title">
+          <span class="eyebrow">{{ progressLabels.continueEyebrow }}</span>
+          <h2 id="home-progress-title">{{ continueModuleTitle }}</h2>
+          <p>{{ continueBody }}</p>
+
+          <router-link class="action-button action-button--primary" :to="continueRoute">
+            {{ continueActionLabel }}
+          </router-link>
+
+          <div class="home-progress-panel__metrics">
+            <div v-for="metric in progressMetrics" :key="metric.label" class="home-progress-metric">
+              <strong>{{ metric.value }}</strong>
+              <span>{{ metric.label }}</span>
+            </div>
           </div>
-        </div>
+        </aside>
 
-        <div class="hero__highlights">
-          <article
-            v-for="(highlight, index) in highlights"
-            :key="`${highlight}-${index}`"
-            class="hero-highlight"
-          >
-            <span>{{ `0${index + 1}` }}</span>
-            <p>{{ highlight }}</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="modules" class="modules-section">
-      <div class="modules-section__intro">
-        <header class="section-header">
-          <span class="eyebrow">{{ t('nav.modules') }}</span>
-          <h2>{{ t('home.modulesTitle') }}</h2>
-          <p>{{ modulesBody }}</p>
-        </header>
-        <p class="modules-section__note">{{ modulesNote }}</p>
-      </div>
-
-      <div class="module-gallery">
         <router-link
-          v-for="(moduleDefinition, index) in moduleOrder"
-          :key="moduleDefinition.slug"
-          class="module-teaser"
-          :style="{ '--teaser-accent': moduleDefinition.accent, '--teaser-bg': moduleDefinition.theme }"
-          :to="moduleDefinition.route"
+          v-for="card in homeDecisionCards.slice(0, 2)"
+          :key="`hero-${card.id}`"
+          class="home-route-chip"
+          :to="card.route"
         >
-          <div class="module-teaser__meta">
-            <span>{{ t(moduleDefinition.kickerKey) }}</span>
-            <em>{{ `0${index + 1}` }}</em>
-          </div>
-          <strong>{{ t(moduleDefinition.titleKey) }}</strong>
-          <p>{{ t(moduleDefinition.summaryKey) }}</p>
-          <small>{{ t('actions.openModule') }}</small>
+          <span>{{ card.meta }}</span>
+          <strong>{{ card.title }}</strong>
         </router-link>
       </div>
     </section>
 
-    <section class="home-learning-routes" aria-labelledby="home-learning-routes-title">
-      <div class="section-header">
-        <span class="eyebrow">{{ locale === 'zh-CN' ? '路线入口' : 'Route entry' }}</span>
-        <h2 id="home-learning-routes-title">{{ locale === 'zh-CN' ? '按路线继续学习' : 'Continue by route' }}</h2>
-      </div>
-      <div class="home-learning-routes__grid">
-        <LearningRouteSummary
-          v-for="routeDefinition in highlightedLearningRoutes"
-          :key="routeDefinition.id"
-          :route="routeDefinition"
-          :modules="learningRouteSummaryModules"
-          :completed-module-ids="mathLabProgress.completedModuleIds"
-          :locale="currentMathLocale"
-        />
+    <section class="home-decision-section" aria-labelledby="home-decision-title">
+      <header class="section-header">
+        <span class="eyebrow">{{ locale === 'zh-CN' ? '路线入口' : 'Route entries' }}</span>
+        <h2 id="home-decision-title">
+          {{ locale === 'zh-CN' ? '先决定怎么学，再进入具体章节' : 'Choose how to learn before opening chapters' }}
+        </h2>
+        <p>
+          {{
+            locale === 'zh-CN'
+              ? '主线、主题库、项目和进度页分别承担不同任务：首页只保留决策入口，完整目录交给专门页面。'
+              : 'The path, library, projects, and progress pages each have a separate job. The homepage keeps the decision entry points and leaves full catalogs to dedicated pages.'
+          }}
+        </p>
+      </header>
+
+      <div class="home-decision-grid">
+        <router-link v-for="card in homeDecisionCards" :key="card.id" class="home-decision-card" :to="card.route">
+          <span>{{ card.meta }}</span>
+          <strong>{{ card.title }}</strong>
+          <p>{{ card.body }}</p>
+          <small>{{ card.action }}</small>
+        </router-link>
       </div>
     </section>
 
@@ -762,7 +832,7 @@ const footerText = computed(() =>
           class="roadmap-stage"
         >
           <div class="roadmap-stage__marker" aria-hidden="true">
-            <span>{{ `0${index + 1}` }}</span>
+            <span>{{ stageNumber(index) }}</span>
           </div>
 
           <div class="roadmap-stage__body">
@@ -816,27 +886,10 @@ const footerText = computed(() =>
       </aside>
     </section>
 
-    <section class="path-section">
-      <div class="path-layout">
-        <header class="section-header">
-          <span class="eyebrow">{{ t('common.overview') }}</span>
-          <h2>{{ t('home.pathTitle') }}</h2>
-          <p>{{ pathBody }}</p>
-        </header>
-
-        <div class="path-grid">
-          <article v-for="(step, index) in learningPath" :key="index" class="path-step">
-            <span>{{ `0${index + 1}` }}</span>
-            <p>{{ step }}</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
     <footer class="home-footer">
       <p>{{ footerText }}</p>
-      <router-link class="action-button" :to="primaryRoute">
-        {{ t('actions.launch') }}
+      <router-link class="action-button" :to="continueRoute">
+        {{ continueActionLabel }}
       </router-link>
     </footer>
   </div>

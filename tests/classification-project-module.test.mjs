@@ -16,7 +16,6 @@ test('classification project module is registered after housing project', () => 
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
-  const homeSource = read('src/views/HomeView.vue')
   const messagesSource = read('src/i18n/messages.ts')
 
   assert.match(typesSource, /\| 'classification-project'/)
@@ -31,8 +30,6 @@ test('classification project module is registered after housing project', () => 
 
   assert.match(algorithmViewSource, /slug\.value === 'classification-project'/)
   assert.match(algorithmViewSource, /isClassificationProjectPage/)
-  assert.match(homeSource, /classification-project/)
-  assert.match(homeSource, /垃圾邮件筛查/)
   assert.match(messagesSource, /classificationProject: \{/)
 })
 

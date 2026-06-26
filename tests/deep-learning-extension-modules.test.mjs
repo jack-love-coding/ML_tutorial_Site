@@ -198,7 +198,6 @@ test('deep learning extension modules are registered between tree forest and fou
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
-  const homeSource = read('src/views/HomeView.vue')
   const messagesSource = read('src/i18n/messages.ts')
 
   const orderedCatalogTokens = [
@@ -221,7 +220,6 @@ test('deep learning extension modules are registered between tree forest and fou
     assert.match(typesSource, new RegExp(`\\| '${expectation.slug}'`))
     assert.match(catalogSource, new RegExp(`import \\{ ${expectation.file} \\} from '\\./${expectation.file}'`))
     assert.match(algorithmViewSource, new RegExp(`slug\\.value === '${expectation.slug}'`))
-    assert.match(homeSource, new RegExp(escaped(expectation.slug)))
     assert.match(messagesSource, new RegExp(`${expectation.messageKey}: \\{`))
   }
 })
