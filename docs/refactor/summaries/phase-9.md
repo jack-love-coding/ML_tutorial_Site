@@ -1,6 +1,6 @@
 # Phase 9 Summary: Curriculum Spine V1
 
-**Status:** Phase 9E implemented and verified.
+**Status:** Phase 9F implemented and verified.
 
 ## Phase 9A - Spine Data Contract
 
@@ -30,6 +30,12 @@ Phase 9E makes `/spine` read more like a guided learning route instead of a stag
 
 The implementation stays intentionally narrow: no lesson-body rewrites, no new modules, no progress/backend scope, and no redesign of the `/spine` layout.
 
+## Phase 9F - Support Lens Guidance
+
+Phase 9F makes support lenses stage-specific instead of generic. Stages with support modules now carry bilingual `supportNote` copy explaining what those math, data, or model lenses help the learner inspect at that point in the route.
+
+The implementation remains narrow: no per-module relationship schema, no hard prerequisites, no new modules, no progress/backend scope, and no layout redesign.
+
 ## Decisions Encoded
 
 - The beginner-facing route is a mixed spiral route, not separate Math Lab, Data Lab, and Algorithm tracks.
@@ -46,6 +52,7 @@ The implementation stays intentionally narrow: no lesson-body rewrites, no new m
 - `src/curriculum/spine.ts`
 - `tests/curriculumSpine.test.ts`
 - `docs/refactor/designs/phase-9-curriculum-spine-v1.md`
+- `docs/refactor/designs/phase-9f-support-lens-guidance.md`
 - `src/views/HomeView.vue`
 - `src/data/navigationMenus.ts`
 - `src/curriculum/routeManifest.ts`
@@ -110,7 +117,15 @@ The implementation stays intentionally narrow: no lesson-body rewrites, no new m
 - `npm run build:pages`: pass with existing large-chunk warning.
 - `node scripts/create-pages-fallbacks.mjs`: pass, 46 GitHub Pages SPA fallback routes.
 - Playwright `/spine` Phase 9E check: desktop and 390px mobile both show 11 stages and 11 bridge paragraphs; hero copy now explains why each stage comes next; sequence bridge still hands off from token/embedding to `[B,T,H]` and attention; no horizontal overflow; console errors remain 0.
+- `node --test tests/curriculumSpine.test.ts tests/curriculumSpineLanding.test.ts`: pass, 6 tests.
+- `node --test tests/curriculumSpine.test.ts tests/curriculumSpineLanding.test.ts tests/curriculumRoutingNavigation.test.ts tests/curriculumCatalog.test.ts tests/homeCurriculumIA.test.ts`: pass, 18 tests.
+- `git diff --check`: pass.
+- `npm test`: pass, 248 tests.
+- `npm run build`: pass with existing large-chunk warning.
+- `npm run build:pages`: pass with existing large-chunk warning.
+- `node scripts/create-pages-fallbacks.mjs`: pass, 46 GitHub Pages SPA fallback routes.
+- Playwright `/spine` Phase 9F check: desktop and 390px mobile both show 11 stages, 11 bridge paragraphs, and 7 stage-specific support notes; training and sequence support notes are visible; no horizontal overflow; console errors remain 0.
 
 ## Next Step
 
-After Phase 9E, decide whether to implement a small Phase 9F for stage-specific support-lens hints, or pause curriculum routing work and move to lesson-level content depth.
+After Phase 9F, pause route-copy work and move to lesson-level content depth: identify one flagship module whose body and interaction task should be upgraded next.

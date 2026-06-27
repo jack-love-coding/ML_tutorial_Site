@@ -248,6 +248,10 @@
   margin-top: 10px;
 }
 
+.spine-stage-card__support-note {
+  max-width: 36rem;
+}
+
 .spine-stage-card__modules {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.95fr) minmax(0, 0.75fr);
