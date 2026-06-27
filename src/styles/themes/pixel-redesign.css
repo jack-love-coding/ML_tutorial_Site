@@ -302,6 +302,12 @@ summary:focus-visible {
   width: min(760px, calc(100vw - 32px));
 }
 
+.site-header__more-menu--topic-library {
+  right: auto;
+  left: 50%;
+  transform: translate(-50%, -4px);
+}
+
 .site-header__more-menu--math-lab {
   width: min(780px, calc(100vw - 32px));
 }
@@ -317,6 +323,10 @@ summary:focus-visible {
   pointer-events: auto;
   transform: translateY(0);
   visibility: visible;
+}
+
+.site-header__more.is-open .site-header__more-menu--topic-library {
+  transform: translate(-50%, 0);
 }
 
 .site-header__more-menu .site-header__link {

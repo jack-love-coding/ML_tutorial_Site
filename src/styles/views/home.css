@@ -241,6 +241,10 @@
   backdrop-filter: blur(24px);
 }
 
+.home-spine-roadmap {
+  scroll-margin-top: 96px;
+}
+
 .beginner-roadmap__intro {
   display: grid;
   grid-template-columns: minmax(260px, 0.92fr) minmax(220px, 0.52fr);

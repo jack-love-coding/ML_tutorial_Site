@@ -209,6 +209,6 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.ok(existsSync(new URL('docs/refactor/audits/curriculum-v2-milestone-audit.md', root)))
 
   const stateSource = read('.planning/STATE.md')
-  assert.match(stateSource, /Phase 9A curriculum spine data contract implemented and verified/)
+  assert.match(stateSource, /Phase 9B homepage\/navigation realignment implemented/)
   assert.match(stateSource, /Current focus:\*\* Curriculum Spine V1 route clarity and content coverage/)
 })

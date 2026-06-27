@@ -8,8 +8,13 @@ import {
   mathLabNavigationGroups,
 } from '../src/data/navigationMenus.ts'
 import { curriculumCatalog } from '../src/curriculum/catalog.ts'
-import { curriculumRouteManifestById } from '../src/curriculum/routeManifest.ts'
+import {
+  coreLearningPathModuleIds,
+  curriculumRouteManifestById,
+} from '../src/curriculum/routeManifest.ts'
 import { resolveCanonicalLearnRoute } from '../src/curriculum/routes.ts'
+import { curriculumSpineRequiredModuleIds } from '../src/curriculum/spine.ts'
+import { curriculumTracks } from '../src/curriculum/tracks.ts'
 
 const root = new URL('../', import.meta.url)
 
@@ -28,15 +33,22 @@ test('curriculum navigation exposes the unified top-level IA', () => {
   const projects = curriculumNavigationMenus.find((menu) => menu.id === 'projects')
   const progress = curriculumNavigationMenus.find((menu) => menu.id === 'progress')
 
+  assert.equal(learningPath?.label.en, 'Default Spine')
+  assert.equal(learningPath?.label['zh-CN'], '默认学习主线')
   assert.equal(learningPath?.overviewLink?.route, '/tracks/core-learning-path')
+  assert.equal(learningPath?.overviewLink?.label.en, 'Default Spine')
+  assert.equal(learningPath?.groups[0]?.id, 'default-spine')
+  assert.equal(learningPath?.groups[0]?.label.en, 'Spine V1')
   assert.ok(learningPath?.groups[0]?.items.some((item) => item.id === 'ai-overview'))
-  assert.ok(learningPath?.groups[0]?.items.some((item) => item.id === 'mlp'))
+  assert.ok(learningPath?.groups[0]?.items.some((item) => item.id === 'attention-transformer'))
 
+  assert.equal(topicLibrary?.label.en, 'Support Lenses')
+  assert.equal(topicLibrary?.label['zh-CN'], '支持镜头')
   assert.deepEqual(topicLibrary?.groups.map((group) => group.id), [
-    'math',
-    'data',
-    'models',
-    'deep-learning',
+    'math-lens',
+    'data-lens',
+    'model-lens',
+    'deep-learning-lens',
   ])
   assert.equal(projects?.overviewLink?.route, '/tracks/project-practice')
   assert.equal(progress?.overviewLink?.route, '/progress')
@@ -45,6 +57,26 @@ test('curriculum navigation exposes the unified top-level IA', () => {
     assert.ok(menu.label['zh-CN'].trim().length > 0)
     assert.ok(menu.label.en.trim().length > 0)
   }
+})
+
+test('default learning path mirrors the approved Curriculum Spine V1 order', () => {
+  const spineRequiredIds = curriculumSpineRequiredModuleIds()
+  const coreTrack = curriculumTracks.find((track) => track.id === 'core-learning-path')
+
+  assert.deepEqual(coreLearningPathModuleIds, spineRequiredIds)
+  assert.deepEqual(coreTrack?.moduleIds, spineRequiredIds)
+  assert.deepEqual(spineRequiredIds.slice(0, 5), [
+    'ai-overview',
+    'python-notebook',
+    'numerical-data',
+    'categorical-data',
+    'dataset-quality',
+  ])
+  assert.ok(spineRequiredIds.includes('optimizer-comparison'))
+  assert.equal(spineRequiredIds.at(-1), 'attention-transformer')
+  assert.ok(!spineRequiredIds.includes('llm-rag'))
+  assert.ok(!spineRequiredIds.includes('housing-price-project'))
+  assert.ok(!spineRequiredIds.includes('classification-project'))
 })
 
 test('legacy navigation groups remain exported during Phase 2', () => {

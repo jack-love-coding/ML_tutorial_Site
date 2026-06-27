@@ -420,10 +420,12 @@ test('continue-learning selects unfinished last visited module before first inco
 
 test('continue-learning falls back to the first incomplete core path module', () => {
   const progress = createDefaultLearningProgressV2('2026-06-25T00:00:00.000Z')
-  for (const moduleId of ['ai-overview', 'beginner-linear-algebra', 'numerical-data', 'loss-functions']) {
+  for (const moduleId of ['ai-overview', 'python-notebook', 'numerical-data', 'categorical-data', 'dataset-quality']) {
     progress.modules[moduleId] = {
       moduleId,
-      source: moduleId === 'beginner-linear-algebra' ? 'math-lab' : moduleId === 'numerical-data' ? 'data-lab' : 'algorithm',
+      source: moduleId.endsWith('data') || moduleId === 'categorical-data' || moduleId === 'dataset-quality'
+        ? 'data-lab'
+        : 'algorithm',
       completed: true,
       attempts: [],
     }
@@ -431,9 +433,9 @@ test('continue-learning falls back to the first incomplete core path module', ()
 
   const next = selectContinueLearning(progress)
 
-  assert.equal(next?.moduleId, 'linear-regression')
-  assert.equal(next?.lessonId, 'fit-line')
-  assert.equal(next?.route, '/learn/linear-regression/fit-line')
+  assert.equal(next?.moduleId, 'beginner-linear-algebra')
+  assert.equal(next?.lessonId, undefined)
+  assert.equal(next?.route, '/math-lab/modules/beginner-linear-algebra')
   assert.equal(next?.reason, 'first-incomplete')
 })
 

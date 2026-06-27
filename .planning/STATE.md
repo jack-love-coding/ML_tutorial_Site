@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-06-26
-**Status:** Phase 9A curriculum spine data contract implemented and verified
+**Status:** Phase 9B homepage/navigation realignment implemented and verified
 
 ## Project Reference
 
@@ -260,9 +260,24 @@ See `.planning/codebase/`:
   - `npm run build`: pass with existing large-chunk warning.
   - `npm run build:pages`: pass with existing large-chunk warning.
 
+### Phase 9B - Homepage And Navigation Realignment
+
+- Aligned `coreLearningPathModuleIds` and `core-learning-path` with `curriculumSpineRequiredModuleIds()`.
+- Updated top navigation labels to make Default Spine the first entry and Support Lenses the second entry.
+- Rebuilt the homepage roadmap from `curriculumSpineStages` instead of a hard-coded old beginner route.
+- Kept Math Lab, Data Lab, model, deep-learning, projects, and progress as reachable support surfaces.
+- Updated continue-learning fallback tests so the first incomplete recommendation follows the data-first spine order.
+- Centered the wide Support Lenses desktop menu so it remains inside the viewport when opened.
+- Verified:
+  - `node --test tests/curriculumRoutingNavigation.test.ts tests/homeCurriculumIA.test.ts tests/curriculumPrerequisites.test.ts tests/curriculumProgress.test.ts tests/curriculumMilestoneAudit.test.ts tests/data-lab-layout.test.mjs`: pass.
+  - `npm test`: pass, 245 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - Playwright homepage check: desktop and mobile show Default Spine / Support Lenses, 11 spine stages render, desktop Support Lenses menu stays in viewport, no horizontal overflow, 0 console errors.
+
 ## Next Recommended Command
 
-Review the Phase 9A spine data contract PR, then start Phase 9B homepage and navigation realignment:
+Review the Phase 9B homepage/navigation realignment PR, then start Phase 9C stage landing view:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -279,4 +294,4 @@ Review the Phase 9A spine data contract PR, then start Phase 9B homepage and nav
 - `docs/refactor/designs/phase-9-curriculum-spine-v1.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: make the homepage and navigation point learners to the default spine first, while keeping Math Lab and Data Lab available as support lenses and preserving all legacy routes.
+Suggested next direction: add a dedicated stage landing route/view that explains each spine stage, required modules, support lenses, project capstones, and known gaps without adding progress/backend scope.

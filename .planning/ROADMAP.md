@@ -216,5 +216,28 @@
 - All required, support, and project IDs resolve to existing catalog modules.
 - `npm test`, `npm run build`, and `npm run build:pages` pass.
 
+## Phase 9B: Homepage And Navigation Realignment
+
+**Goal:** Make the approved Curriculum Spine V1 the first learner-facing entry across homepage, top navigation, core track, and continue-learning fallback order without adding new routes or progress/backend behavior.
+
+**Deliverables:**
+- Homepage decision cards and roadmap generated from the spine contract.
+- Navigation labels that present Default Spine, Support Lenses, Projects, and Progress.
+- `coreLearningPathModuleIds` and the `core-learning-path` track aligned with `curriculumSpineRequiredModuleIds()`.
+- Tests for navigation labels, spine order, homepage source wiring, progress fallback order, and prerequisite safety.
+
+**Must Not Do:**
+- Do not create the dedicated stage landing view yet.
+- Do not delete or redirect legacy routes.
+- Do not add backend, account, database, or new progress tracking behavior.
+- Do not rewrite lesson body content.
+
+**Exit Criteria:**
+- Homepage presents Default Spine as the primary path and Math/Data/Model/Deep Learning as support lenses.
+- `/tracks/core-learning-path` follows the required Spine V1 order.
+- Continue-learning fallback uses the data-first spine order.
+- Legacy Math Lab, Data Lab, Algorithm, project, library, and progress routes remain reachable.
+- `npm test`, `npm run build`, and `npm run build:pages` pass.
+
 ---
 *Roadmap created: 2026-06-25*

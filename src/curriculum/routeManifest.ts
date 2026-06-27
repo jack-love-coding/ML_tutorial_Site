@@ -405,15 +405,28 @@ const dataEntries: CurriculumRouteManifestEntry[] = [
 
 export const coreLearningPathModuleIds = [
   'ai-overview',
-  'beginner-linear-algebra',
+  'python-notebook',
   'numerical-data',
+  'categorical-data',
+  'dataset-quality',
+  'beginner-linear-algebra',
+  'linear-algebra-feature-space',
   'loss-functions',
   'linear-regression',
   'gradient-descent',
   'logistic-regression',
+  'beginner-probability-distributions',
+  'probability-likelihood-entropy',
   'classification',
+  'splits-generalization',
   'model-selection',
+  'complexity-regularization',
+  'tree-forest',
   'mlp',
+  'optimizer-comparison',
+  'tensor-shapes-vectorization',
+  'cnn-visualization',
+  'attention-transformer',
 ]
 
 export const projectPracticeModuleIds = ['housing-price-project', 'classification-project']

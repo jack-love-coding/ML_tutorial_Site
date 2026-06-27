@@ -1,7 +1,7 @@
 # Phase 9: Curriculum Spine V1 - Design Draft
 
 **Created:** 2026-06-26  
-**Status:** Phase 9A data contract implemented; Phase 9B navigation realignment pending.  
+**Status:** Phase 9B homepage/navigation realignment implemented and verified; Phase 9C stage landing view pending.
 **Scope:** Teaching-route design, coverage audit, and reordering blueprint only.
 
 ## User Decisions Locked
@@ -437,6 +437,8 @@ This keeps the main route human-readable while preserving support lenses.
 - Rename or reposition Math/Data Lab as topic lenses.
 - Keep legacy routes reachable.
 
+**Implementation status:** Done in `src/views/HomeView.vue`, `src/data/navigationMenus.ts`, `src/curriculum/routeManifest.ts`, and `src/curriculum/tracks.ts`.
+
 ### Phase 9C - Stage Landing View
 
 - Add a route/view that presents the spine as stages with required and support modules.
@@ -461,9 +463,9 @@ This keeps the main route human-readable while preserving support lenses.
 
 ## Implementation Recommendation
 
-Phase 9A has encoded the approved stage model and validation contract. The next implementation step should be **Phase 9B - Homepage And Navigation Realignment**:
+Phase 9A has encoded the approved stage model and validation contract. Phase 9B has aligned the homepage, navigation labels, and core track with that spine. The next implementation step should be **Phase 9C - Stage Landing View**:
 
-- make the default spine the primary learner-facing entry,
-- reposition Math Lab and Data Lab as lenses instead of beginner-parallel products,
-- preserve legacy routes,
+- add a dedicated route/view for reading the spine as stages,
+- keep the current `/tracks/core-learning-path` flat module list reachable,
+- preserve legacy routes and current progress stores,
 - and continue avoiding backend/progress expansion until the route is coherent.
