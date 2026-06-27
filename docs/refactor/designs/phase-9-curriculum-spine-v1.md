@@ -1,7 +1,8 @@
 # Phase 9: Curriculum Spine V1 - Design Draft
 
 **Created:** 2026-06-26  
-**Status:** Phase 9A data contract implemented; Phase 9B navigation realignment pending.  
+**Status:** Phase 9C spine stage landing implemented and verified.
+
 **Scope:** Teaching-route design, coverage audit, and reordering blueprint only.
 
 ## User Decisions Locked
@@ -256,7 +257,7 @@ They should finish Spine V1 able to:
 **Learner question:** How do models handle ordered tokens and use attention to mix context?
 
 **Main modules:**
-- a missing sequence/embedding bridge module
+- `sequence-embedding-bridge`
 - `attention-transformer`
 
 **Support lenses:**
@@ -264,9 +265,9 @@ They should finish Spine V1 able to:
 - Data: token, sequence, embedding, context length.
 - Experiment: attention matrix, Q/K/V scores, multi-head shape.
 
-**Current status:** `attention-transformer` exists, but the route lacks an RNN/sequence/embedding bridge. `llm-rag` exists but is too advanced for the Spine V1 endpoint.
+**Current status:** `sequence-embedding-bridge` and `attention-transformer` now cover the required Spine V1 endpoint. `llm-rag` exists but is too advanced for the Spine V1 endpoint.
 
-**Design action:** Add a new bridge requirement before `attention-transformer`; keep `llm-rag` outside Spine V1 as advanced/application extension.
+**Design action:** Keep the new bridge requirement before `attention-transformer`; keep `llm-rag` outside Spine V1 as advanced/application extension.
 
 ## Proposed Default Spine Order
 
@@ -320,7 +321,7 @@ This is intentionally not the exact final implementation order. The implementati
 | Tree models | `tree-forest` | Add before MLP | Need verify module depth fits core path |
 | MLP | `mlp` | Core | Mostly covered |
 | CNN | `cnn-visualization` | Add after MLP | Need tensor-shape bridge placement |
-| Sequence and attention | `attention-transformer` | Add as endpoint | Missing sequence/embedding bridge |
+| Sequence and attention | `sequence-embedding-bridge`, `attention-transformer` | Add bridge plus endpoint | Mostly covered |
 | LLM/RAG | `llm-rag` | Advanced extension, not Spine V1 | Defer |
 | Numerical advanced math | SVD, PCA, LU, sparse, condition, Markov, finite difference, nonlinear equations, optimization | Topic library only | Not required for default spine |
 
@@ -437,20 +438,28 @@ This keeps the main route human-readable while preserving support lenses.
 - Rename or reposition Math/Data Lab as topic lenses.
 - Keep legacy routes reachable.
 
+**Implementation status:** Done in `src/views/HomeView.vue`, `src/data/navigationMenus.ts`, `src/curriculum/routeManifest.ts`, and `src/curriculum/tracks.ts`.
+
 ### Phase 9C - Stage Landing View
 
 - Add a route/view that presents the spine as stages with required and support modules.
 - Avoid progress-heavy UI. Focus on "where am I in the curriculum?" and "why next?"
+
+**Implementation status:** Done in `src/views/CurriculumSpineView.vue`, `src/router/index.ts`, `src/data/navigationMenus.ts`, `src/views/HomeView.vue`, `src/views/CurriculumProgressView.vue`, and `scripts/create-pages-fallbacks.mjs`.
 
 ### Phase 9D - Content Gap Fill: Sequence Bridge
 
 - Add the missing sequence/embedding bridge before `attention-transformer`.
 - Keep it small, bilingual, and tied to existing attention content.
 
+**Implementation status:** Done in `src/data/sequenceEmbeddingBridgeModule.ts`, `src/curriculum/spine.ts`, `src/curriculum/routeManifest.ts`, `src/curriculum/tracks.ts`, `src/data/moduleCatalog.ts`, `src/data/algorithmCheckpoints.ts`, `src/components/AppliedWorkflowLessonLab.vue`, and matching tests.
+
 ### Phase 9E - Route Copy Harmonization
 
 - Rewrite only stage-level and bridge copy first.
 - Do not rewrite every lesson body.
+
+**Implementation status:** Done in `src/curriculum/types.ts`, `src/curriculum/spine.ts`, `src/views/CurriculumSpineView.vue`, `src/styles/views/curriculum.css`, and matching tests.
 
 ## Resolved Review Decisions
 
@@ -461,9 +470,9 @@ This keeps the main route human-readable while preserving support lenses.
 
 ## Implementation Recommendation
 
-Phase 9A has encoded the approved stage model and validation contract. The next implementation step should be **Phase 9B - Homepage And Navigation Realignment**:
+Phase 9A has encoded the approved stage model and validation contract. Phase 9B has aligned the homepage, navigation labels, and core track with that spine. Phase 9C has added the dedicated stage landing view. Phase 9D has filled the sequence/embedding bridge gap before `attention-transformer`. The next implementation step should be **Phase 9E - Route Copy Harmonization**:
 
-- make the default spine the primary learner-facing entry,
-- reposition Math Lab and Data Lab as lenses instead of beginner-parallel products,
-- preserve legacy routes,
+- improve stage-level and bridge copy for the highest-friction transitions,
+- keep `/spine` and `/tracks/core-learning-path` both reachable,
+- preserve legacy routes and current progress stores,
 - and continue avoiding backend/progress expansion until the route is coherent.

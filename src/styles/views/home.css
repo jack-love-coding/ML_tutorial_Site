@@ -241,11 +241,21 @@
   backdrop-filter: blur(24px);
 }
 
+.home-spine-roadmap {
+  scroll-margin-top: 96px;
+}
+
 .beginner-roadmap__intro {
   display: grid;
   grid-template-columns: minmax(260px, 0.92fr) minmax(220px, 0.52fr);
   gap: 24px;
   align-items: end;
+}
+
+.beginner-roadmap__aside {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
 }
 
 .beginner-roadmap__note {
@@ -255,6 +265,10 @@
   border-radius: 0 18px 18px 0;
   background: rgba(255, 255, 255, 0.58);
   color: var(--ink);
+}
+
+.beginner-roadmap__aside .action-button {
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .roadmap-timeline {

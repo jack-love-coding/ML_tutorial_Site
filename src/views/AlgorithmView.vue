@@ -80,6 +80,7 @@ const isClassificationProjectPage = computed(() => slug.value === 'classificatio
 const isModelSelectionPage = computed(() => slug.value === 'model-selection')
 const isTreeForestPage = computed(() => slug.value === 'tree-forest')
 const isCnnVisualizationPage = computed(() => slug.value === 'cnn-visualization')
+const isSequenceEmbeddingBridgePage = computed(() => slug.value === 'sequence-embedding-bridge')
 const isAttentionTransformerPage = computed(() => slug.value === 'attention-transformer')
 const isOptimizerComparisonPage = computed(() => slug.value === 'optimizer-comparison')
 const isLlmRagPage = computed(() => slug.value === 'llm-rag')
@@ -91,6 +92,7 @@ const isWorkflowLessonPage = computed(
     isModelSelectionPage.value ||
     isTreeForestPage.value ||
     isCnnVisualizationPage.value ||
+    isSequenceEmbeddingBridgePage.value ||
     isAttentionTransformerPage.value ||
     isOptimizerComparisonPage.value ||
     isLlmRagPage.value,

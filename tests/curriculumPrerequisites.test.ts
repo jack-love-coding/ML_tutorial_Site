@@ -6,6 +6,7 @@ import {
   findPrerequisiteCycles,
   trackRespectsPrerequisites,
 } from '../src/curriculum/prerequisites.ts'
+import { curriculumSpineRequiredModuleIds } from '../src/curriculum/spine.ts'
 import { curriculumTracks } from '../src/curriculum/tracks.ts'
 
 test('curriculum prerequisites point at known modules and form a DAG', () => {
@@ -18,12 +19,13 @@ test('core learning track is explicit and prerequisite-safe', () => {
 
   assert.ok(coreTrack)
   assert.equal(coreTrack.kind, 'core')
+  assert.deepEqual(coreTrack.moduleIds, curriculumSpineRequiredModuleIds())
   assert.deepEqual(coreTrack.moduleIds.slice(0, 5), [
     'ai-overview',
-    'beginner-linear-algebra',
+    'python-notebook',
     'numerical-data',
-    'loss-functions',
-    'linear-regression',
+    'categorical-data',
+    'dataset-quality',
   ])
   assert.deepEqual(trackRespectsPrerequisites(curriculumCatalog, coreTrack.moduleIds), [])
 })

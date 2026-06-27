@@ -72,6 +72,14 @@ const algorithmEntries: CurriculumRouteManifestEntry[] = [
     firstLessonId: 'image-volume',
   },
   {
+    id: 'sequence-embedding-bridge',
+    source: 'algorithm',
+    domain: 'deep-learning',
+    route: '/learn/sequence-embedding-bridge',
+    title: copy('序列与 Embedding 桥接', 'Sequence and Embedding Bridge'),
+    firstLessonId: 'why-sequences',
+  },
+  {
     id: 'attention-transformer',
     source: 'algorithm',
     domain: 'deep-learning',
@@ -405,15 +413,29 @@ const dataEntries: CurriculumRouteManifestEntry[] = [
 
 export const coreLearningPathModuleIds = [
   'ai-overview',
-  'beginner-linear-algebra',
+  'python-notebook',
   'numerical-data',
+  'categorical-data',
+  'dataset-quality',
+  'beginner-linear-algebra',
+  'linear-algebra-feature-space',
   'loss-functions',
   'linear-regression',
   'gradient-descent',
   'logistic-regression',
+  'beginner-probability-distributions',
+  'probability-likelihood-entropy',
   'classification',
+  'splits-generalization',
   'model-selection',
+  'complexity-regularization',
+  'tree-forest',
   'mlp',
+  'optimizer-comparison',
+  'tensor-shapes-vectorization',
+  'cnn-visualization',
+  'sequence-embedding-bridge',
+  'attention-transformer',
 ]
 
 export const projectPracticeModuleIds = ['housing-price-project', 'classification-project']

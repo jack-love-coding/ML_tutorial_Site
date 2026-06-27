@@ -54,6 +54,7 @@ export interface CurriculumSpineStage {
   id: string
   title: LocalizedCopy
   learnerQuestion: LocalizedCopy
+  bridge: LocalizedCopy
   requiredModuleIds: string[]
   supportModuleIds: string[]
   projectModuleIds?: string[]

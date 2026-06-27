@@ -15,6 +15,7 @@ const selectedClassificationStage = ref('text')
 const selectedModelSelectionStage = ref('split')
 const selectedTreeForestStage = ref('tree')
 const selectedCnnStage = ref('volume')
+const selectedSequenceBridgeStage = ref('sequence')
 const selectedAttentionStage = ref('token')
 const selectedOptimizerStage = ref('loop')
 const selectedRagStage = ref('token')
@@ -33,6 +34,7 @@ const activeWorkflow = computed(() => {
   if (props.moduleSlug === 'model-selection') return 'model-selection'
   if (props.moduleSlug === 'tree-forest') return 'tree-forest'
   if (props.moduleSlug === 'cnn-visualization') return 'cnn'
+  if (props.moduleSlug === 'sequence-embedding-bridge') return 'sequence-bridge'
   if (props.moduleSlug === 'attention-transformer') return 'attention'
   if (props.moduleSlug === 'optimizer-comparison') return 'optimizer'
   if (props.moduleSlug === 'llm-rag') return 'rag'
@@ -175,6 +177,27 @@ const cnnStages = computed(() =>
   ),
 )
 
+const sequenceBridgeStages = computed(() =>
+  localized(
+    loc(
+      [
+        { id: 'sequence', label: 'sequence', title: '从样本到有序单元', body: '表格是一行配列，图像是 H×W×C，文本序列则是在同一样本里排列多个 token 位置。' },
+        { id: 'token', label: 'token', title: 'token id 只是索引', body: 'token id 指向词表中的一行，不像面积或温度那样有连续数值距离。' },
+        { id: 'embed', label: 'embed', title: 'embedding lookup', body: 'embedding table 用 token id 查出 H 维向量，把 [B,T] 变成 [B,T,H]。' },
+        { id: 'position', label: 'position', title: '位置与 mask', body: 'position 补顺序，attention mask 告诉模型 padding 或未来位置能不能被看见。' },
+        { id: 'handoff', label: 'handoff', title: '交给 attention', body: '[B,T,H] hidden states 加上 mask 后，才进入 Q/K/V 和 attention score 计算。' },
+      ],
+      [
+        { id: 'sequence', label: 'sequence', title: 'From sample to ordered units', body: 'A table is a row with columns, an image is H×W×C, and a text sequence has multiple ordered token positions inside one sample.' },
+        { id: 'token', label: 'token', title: 'Token id is only an index', body: 'A token id points to one vocabulary row; it does not carry continuous distance like area or temperature.' },
+        { id: 'embed', label: 'embed', title: 'Embedding lookup', body: 'An embedding table uses token ids to retrieve H-dimensional vectors, turning [B,T] into [B,T,H].' },
+        { id: 'position', label: 'position', title: 'Position and mask', body: 'Position adds order, while the attention mask says whether padding or future positions can be seen.' },
+        { id: 'handoff', label: 'handoff', title: 'Hand off to attention', body: '[B,T,H] hidden states plus mask then enter Q/K/V and attention-score computation.' },
+      ],
+    ),
+  ),
+)
+
 const attentionStages = computed(() =>
   localized(
     loc(
@@ -274,6 +297,12 @@ const activeCnnStage = computed(
   () => cnnStages.value.find((stage) => stage.id === selectedCnnStage.value) ?? cnnStages.value[0],
 )
 
+const activeSequenceBridgeStage = computed(
+  () =>
+    sequenceBridgeStages.value.find((stage) => stage.id === selectedSequenceBridgeStage.value) ??
+    sequenceBridgeStages.value[0],
+)
+
 const activeAttentionStage = computed(
   () =>
     attentionStages.value.find((stage) => stage.id === selectedAttentionStage.value) ??
@@ -348,6 +377,17 @@ const sectionHint = computed(() => {
       'transfer-learning-review': loc('迁移学习要检查数据划分、增强和错误样本。', 'Transfer learning still needs split, augmentation, and error review checks.'),
     }
     return localized(hints[props.section.id] ?? loc('把图像、shape、代码和参数量对齐。', 'Align image, shape, code, and parameter count.'))
+  }
+
+  if (activeWorkflow.value === 'sequence-bridge') {
+    const hints: Record<string, { 'zh-CN': string; en: string }> = {
+      'why-sequences': loc('先区分表格列、图像空间和 token 位置轴。', 'First separate table columns, image space, and token position axis.'),
+      'token-ids': loc('token id 是词表索引，不是连续特征。', 'A token id is a vocabulary index, not a continuous feature.'),
+      'embedding-lookup': loc('重点追踪 [B,T] 怎样查表成 [B,T,H]。', 'Track how [B,T] becomes [B,T,H] by lookup.'),
+      'positions-and-masks': loc('position 管顺序，mask 管可见性。', 'Position handles order; mask handles visibility.'),
+      'shape-handoff': loc('把 hidden states 接到 Q/K/V 前再进入 attention。', 'Connect hidden states to Q/K/V before entering attention.'),
+    }
+    return localized(hints[props.section.id] ?? loc('把 token、embedding、position、mask 和 shape 连成一条线。', 'Connect tokens, embeddings, position, mask, and shape into one chain.'))
   }
 
   if (activeWorkflow.value === 'attention') {
@@ -545,6 +585,28 @@ const sectionHint = computed(() => {
         <span>{{ activeCnnStage?.label }}</span>
         <strong>{{ activeCnnStage?.title }}</strong>
         <p>{{ activeCnnStage?.body }}</p>
+      </article>
+    </section>
+
+    <section v-else-if="activeWorkflow === 'sequence-bridge'" class="workflow-lab__pipeline workflow-lab__pipeline--sequence-bridge">
+      <div class="workflow-lab__stage-list">
+        <button
+          v-for="stage in sequenceBridgeStages"
+          :key="stage.id"
+          type="button"
+          class="workflow-lab__stage"
+          :class="{ 'is-active': selectedSequenceBridgeStage === stage.id }"
+          @click="selectedSequenceBridgeStage = stage.id"
+        >
+          <span>{{ stage.label }}</span>
+          <strong>{{ stage.title }}</strong>
+        </button>
+      </div>
+
+      <article class="workflow-lab__focus workflow-lab__focus--sequence-bridge">
+        <span>{{ activeSequenceBridgeStage?.label }}</span>
+        <strong>{{ activeSequenceBridgeStage?.title }}</strong>
+        <p>{{ activeSequenceBridgeStage?.body }}</p>
       </article>
     </section>
 

@@ -90,9 +90,14 @@ const pageCopy = computed(() =>
 
 const nextLinks = [
   {
+    id: 'spine-stage-landing',
+    route: '/spine',
+    label: copy('主线阶段视图', 'Spine Stage View'),
+  },
+  {
     id: 'core-learning-path',
     route: '/tracks/core-learning-path',
-    label: copy('核心学习路径', 'Core Learning Path'),
+    label: copy('平铺模块列表', 'Flat Module List'),
   },
   {
     id: 'project-practice',

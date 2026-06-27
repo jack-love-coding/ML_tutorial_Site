@@ -152,6 +152,22 @@ const algorithmManifests: AlgorithmModuleManifest[] = [
     ],
   },
   {
+    slug: 'sequence-embedding-bridge',
+    route: '/learn/sequence-embedding-bridge',
+    titleKey: 'modules.sequenceEmbeddingBridge.title',
+    summaryKey: 'modules.sequenceEmbeddingBridge.summary',
+    domain: 'deep-learning',
+    level: 'intermediate',
+    lessons: [
+      { id: 'why-sequences', titleKey: 'modules.sequenceEmbeddingBridge.sections.whySequences.title' },
+      { id: 'token-ids', titleKey: 'modules.sequenceEmbeddingBridge.sections.tokenIds.title' },
+      { id: 'embedding-lookup', titleKey: 'modules.sequenceEmbeddingBridge.sections.embeddingLookup.title' },
+      { id: 'positions-and-masks', titleKey: 'modules.sequenceEmbeddingBridge.sections.positionsAndMasks.title' },
+      { id: 'shape-handoff', titleKey: 'modules.sequenceEmbeddingBridge.sections.shapeHandoff.title' },
+    ],
+    related: ['tensor-shapes-vectorization', 'attention-transformer'],
+  },
+  {
     slug: 'attention-transformer',
     route: '/learn/attention-transformer',
     titleKey: 'modules.attentionTransformer.title',

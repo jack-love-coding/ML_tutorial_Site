@@ -270,6 +270,40 @@ export const algorithmCheckpointsBySlug: Record<ModuleSlug, AlgorithmCheckpointI
       'padding-stride-shape',
     ),
   ],
+  'sequence-embedding-bridge': [
+    checkpoint(
+      'sequence-embedding-token-axis',
+      copy('老师问：为什么 token id 轴 T 不能直接看成表格里的特征列？', 'Teacher question: why should the token-id axis T not be read as feature columns in a table?'),
+      [
+        choice('ordered-token-axis', 'T 表示同一样本里的有序 token 位置，token id 只是词表索引。', 'T represents ordered token positions inside one sample, and a token id is only a vocabulary index.'),
+        choice('feature-axis', 'T 表示一组连续数值特征，id 越大语义越强。', 'T represents continuous numeric features, and larger ids mean stronger semantics.'),
+        choice('batch-axis', 'T 表示 batch 里有多少条样本。', 'T represents how many samples are in the batch.'),
+      ],
+      'ordered-token-axis',
+      copy(
+        '序列里的 T 是位置轴：第 1 个 token、第 2 个 token、第 3 个 token。token id 的数字大小只是词表编号，不像面积、温度或价格那样自带数值距离。',
+        'In a sequence, T is the position axis: token 1, token 2, token 3. Token-id magnitude is only a vocabulary index, not a numeric distance like area, temperature, or price.',
+      ),
+      ['token-id-as-feature-confusion'],
+      'token-ids',
+    ),
+    checkpoint(
+      'sequence-embedding-position-role',
+      copy('embedding lookup 之后，position 和 attention mask 分别补了什么？', 'After embedding lookup, what do position and attention mask add?'),
+      [
+        choice('order-visibility', 'position 补顺序，mask 控制 padding、未来 token 等位置是否可见。', 'Position adds order; mask controls whether positions such as padding or future tokens are visible.'),
+        choice('replace-values', 'position 会替代 token embedding，mask 会生成最终分类标签。', 'Position replaces token embeddings, and mask creates the final class label.'),
+        choice('remove-batch', 'position 和 mask 的作用是去掉 batch 维度。', 'Position and mask remove the batch dimension.'),
+      ],
+      'order-visibility',
+      copy(
+        'embedding 说明每个 token 当前是什么向量；position 让模型知道顺序；attention mask 告诉后续 attention 哪些位置可以参与计算，哪些要屏蔽。',
+        'Embeddings say what vector each token currently has; position gives order; attention mask tells later attention which positions can participate and which should be blocked.',
+      ),
+      ['position-mask-role-confusion'],
+      'positions-and-masks',
+    ),
+  ],
   'attention-transformer': [
     checkpoint(
       'attention-transformer-softmax-dimension',

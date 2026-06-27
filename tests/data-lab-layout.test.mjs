@@ -45,6 +45,15 @@ test('pages fallback generation covers data lab home and module routes', () => {
     })
 
     assert.ok(existsSync(join(tempDist, 'data-lab', 'index.html')), 'data lab home fallback should exist')
+    assert.ok(existsSync(join(tempDist, 'spine', 'index.html')), 'spine landing fallback should exist')
+    assert.ok(
+      existsSync(join(tempDist, 'tracks', 'core-learning-path', 'index.html')),
+      'flat core track fallback should remain available',
+    )
+    assert.ok(
+      existsSync(join(tempDist, 'tracks', 'project-practice', 'index.html')),
+      'project practice track fallback should exist',
+    )
     assert.ok(
       existsSync(join(tempDist, 'data-lab', 'modules', 'numerical-data', 'index.html')),
       'numerical data module fallback should exist',
@@ -174,14 +183,19 @@ test('home page and README describe the zero-foundation learning path', () => {
   assert.match(homeSource, /migrateLearningProgressV2/)
   assert.match(homeSource, /selectContinueLearning/)
   assert.match(homeSource, /curriculumNavigationMenus/)
+  assert.match(homeSource, /curriculumSpineStages/)
   assert.match(homeSource, /homeDecisionCards/)
   assert.match(homeSource, /home-progress-panel/)
   assert.match(homeSource, /home-decision-grid/)
+  assert.match(homeSource, /home-spine-roadmap/)
+  assert.match(homeSource, /spinePreviewRoadmap/)
+  assert.match(homeSource, /curriculumSpineStages\.slice\(0, 4\)/)
+  assert.match(homeSource, /moduleRoute/)
   assert.match(homeSource, /Math Lab/)
   assert.match(homeSource, /Data Lab/)
   assert.match(homeSource, /ML Models/)
   assert.match(homeSource, /Deep Learning/)
-  assert.match(homeSource, /\/tracks\/core-learning-path/)
+  assert.match(homeSource, /\/spine/)
   assert.match(homeSource, /\/library\/math/)
   assert.match(homeSource, /\/tracks\/project-practice/)
   assert.match(homeSource, /\/progress/)
@@ -191,15 +205,15 @@ test('home page and README describe the zero-foundation learning path', () => {
   assert.match(homeSource, /history\.replaceState/)
   assert.match(homeSource, /roadmap-stage__body/)
   assert.match(homeSource, /roadmapStage\.route/)
-  assert.match(homeSource, /\/math-lab\/diagnostic/)
-  assert.match(homeSource, /\/data-lab/)
-  assert.match(homeSource, /\/learn\/loss-functions/)
   assert.doesNotMatch(homeSource, /moduleOrder/)
   assert.doesNotMatch(homeSource, /module-gallery/)
+  assert.doesNotMatch(homeSource, /const beginnerRoadmapSource/)
 
   assert.match(readmeSource, /ML Atlas/)
-  assert.match(readmeSource, /Math Lab/)
-  assert.match(readmeSource, /Data Lab/)
+  assert.match(readmeSource, /Default Spine/)
+  assert.match(readmeSource, /Support Lenses/)
+  assert.match(readmeSource, /Projects/)
+  assert.match(readmeSource, /Progress/)
   assert.match(readmeSource, /npm test/)
   assert.doesNotMatch(readmeSource, /Vue 3 \+ TypeScript \+ Vite|template should help get you started/)
 })

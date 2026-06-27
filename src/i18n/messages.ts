@@ -384,6 +384,29 @@ export const messages = {
           },
         },
       },
+      sequenceEmbeddingBridge: {
+        title: '序列与 Embedding 桥接',
+        kicker: 'Sequence Bridge',
+        intro: '把表格和图像后的输入直觉接到 token、embedding lookup、位置编码、attention mask 和 [B,T,H] 形状。',
+        summary: '用一个小型桥接课说明 token id 不是连续特征，embedding 是可训练查表，position 和 mask 如何让序列安全交给 attention。',
+        sections: {
+          whySequences: {
+            title: '为什么需要序列视角：从样本到有序位置',
+          },
+          tokenIds: {
+            title: 'token id：词表索引不是连续特征',
+          },
+          embeddingLookup: {
+            title: 'embedding lookup：从 [B,T] 到 [B,T,H]',
+          },
+          positionsAndMasks: {
+            title: 'position 与 mask：顺序和可见性',
+          },
+          shapeHandoff: {
+            title: 'shape handoff：把 [B,T,H] 交给 attention',
+          },
+        },
+      },
       attentionTransformer: {
         title: 'Attention 与 Transformer 入门',
         kicker: 'Transformer Primer',
@@ -1055,6 +1078,31 @@ export const messages = {
           },
           transferLearningReview: {
             title: 'Transfer-learning review: freeze the backbone and replace the head',
+          },
+        },
+      },
+      sequenceEmbeddingBridge: {
+        title: 'Sequence and Embedding Bridge',
+        kicker: 'Sequence Bridge',
+        intro:
+          'Connect post-table and post-image input intuition to tokens, embedding lookup, positional information, attention masks, and [B,T,H] shape.',
+        summary:
+          'Use one small bridge lesson to show that token ids are not continuous features, embeddings are trainable lookup, and position plus mask prepare sequences for attention.',
+        sections: {
+          whySequences: {
+            title: 'Why sequences: from samples to ordered positions',
+          },
+          tokenIds: {
+            title: 'Token ids: vocabulary indexes are not continuous features',
+          },
+          embeddingLookup: {
+            title: 'Embedding lookup: from [B,T] to [B,T,H]',
+          },
+          positionsAndMasks: {
+            title: 'Position and mask: order and visibility',
+          },
+          shapeHandoff: {
+            title: 'Shape handoff: send [B,T,H] to attention',
           },
         },
       },
