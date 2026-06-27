@@ -56,6 +56,21 @@ test('curriculum spine stage records are localized and reference existing module
     assert.ok(stage.requiredModuleIds.length > 0, `${stage.id} should have required modules`)
     assert.ok(stage.outcomes.length > 0, `${stage.id} should describe outcomes`)
 
+    if (stage.supportModuleIds.length > 0) {
+      assert.ok(stage.supportNote?.['zh-CN'], `${stage.id} should explain its zh-CN support lenses`)
+      assert.ok(stage.supportNote?.en, `${stage.id} should explain its en support lenses`)
+      assert.ok(
+        stage.supportNote['zh-CN'].length <= 120,
+        `${stage.id} zh-CN support lens note should stay concise`,
+      )
+      assert.ok(
+        stage.supportNote.en.length <= 180,
+        `${stage.id} en support lens note should stay concise`,
+      )
+    } else {
+      assert.equal(stage.supportNote, undefined, `${stage.id} should not carry unused support copy`)
+    }
+
     for (const moduleId of [
       ...stage.requiredModuleIds,
       ...stage.supportModuleIds,
@@ -71,6 +86,16 @@ test('curriculum spine stage records are localized and reference existing module
     curriculumSpineStages.find((stage) => stage.id === 'sequence-attention')?.bridge.en ?? '',
     /\[B,T,H\].*attention/i,
     'sequence stage bridge should explain the handoff into attention',
+  )
+  assert.match(
+    curriculumSpineStages.find((stage) => stage.id === 'training-motion')?.supportNote?.en ?? '',
+    /derivative.*gradient.*batch/i,
+    'training stage support note should explain the math lenses behind motion',
+  )
+  assert.match(
+    curriculumSpineStages.find((stage) => stage.id === 'sequence-attention')?.supportNote?.en ?? '',
+    /similarity.*entropy.*shape/i,
+    'sequence stage support note should explain why its support lenses are just-in-time',
   )
   assert.equal(
     Boolean(

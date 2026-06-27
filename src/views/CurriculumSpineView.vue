@@ -15,6 +15,10 @@ function localizedText(value: LocalizedCopy) {
   return value[currentLocale.value]
 }
 
+function localizedSupportNote(stage: { supportNote?: LocalizedCopy }) {
+  return stage.supportNote ? localizedText(stage.supportNote) : labels.value.supportNote
+}
+
 function moduleDefinition(moduleId: string) {
   return curriculumModuleById.get(moduleId)
 }
@@ -185,7 +189,7 @@ const firstRequiredModuleId = computed(() => curriculumSpineStages[0]?.requiredM
 
           <section v-if="stage.supportModules.length">
             <h3>{{ labels.supportLenses }}</h3>
-            <p>{{ labels.supportNote }}</p>
+            <p class="spine-stage-card__support-note">{{ localizedSupportNote(stage) }}</p>
             <ul>
               <li v-for="module in stage.supportModules" :key="module.id">
                 <router-link :to="moduleRoute(module.id)">

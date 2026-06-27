@@ -58,6 +58,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     ),
     requiredModuleIds: ['beginner-linear-algebra', 'linear-algebra-feature-space', 'loss-functions'],
     supportModuleIds: ['linear-algebra-distance-similarity'],
+    supportNote: copy(
+      '距离和相似度让特征向量可读；后面的 loss、分类边界和 attention 都会反复用到这个视角。',
+      'Distance and similarity make feature vectors readable; later loss, boundaries, and attention reuse this lens.',
+    ),
     outcomes: [
       copy(
         '能把一行数据追踪成特征向量，并解释 loss 怎样给一次预测打分。',
@@ -78,6 +82,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     ),
     requiredModuleIds: ['linear-regression'],
     supportModuleIds: ['linear-algebra-matrix-transformations', 'least-squares-fitting'],
+    supportNote: copy(
+      '矩阵变换解释多特征权重怎样合成预测，最小二乘解释为什么这条线是当前 baseline 的最优解。',
+      'Matrix transforms explain multifeature weights; least squares explains why the fitted line is the current best baseline.',
+    ),
     projectModuleIds: ['housing-price-project'],
     outcomes: [
       copy(
@@ -104,6 +112,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       'calculus-gradient-descent',
       'calculus-sgd-batch-noise',
     ],
+    supportNote: copy(
+      '导数说明局部变化，梯度说明参数该往哪走，batch 视角解释为什么训练轨迹会有噪声。',
+      'Derivatives define local change, gradients choose direction, and batch views explain noisy updates.',
+    ),
     outcomes: [
       copy(
         '能判断收敛、震荡、发散和 mini-batch 噪声的基本原因。',
@@ -129,6 +141,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       'classification',
     ],
     supportModuleIds: ['categorical-data', 'dataset-quality'],
+    supportNote: copy(
+      '类别编码和数据质量提醒你：阈值之前，词表、未知值和标签偏差已经在影响分类结果。',
+      'Categorical encoding and data quality show how vocabularies, unknown values, and labels affect classification before thresholds.',
+    ),
     projectModuleIds: ['classification-project'],
     outcomes: [
       copy(
@@ -150,6 +166,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     ),
     requiredModuleIds: ['splits-generalization', 'model-selection', 'complexity-regularization'],
     supportModuleIds: ['training-diagnostics'],
+    supportNote: copy(
+      '训练诊断把 train/validation 曲线翻译成泄漏、过拟合、欠拟合或正则化不足的信号。',
+      'Training diagnostics translate train/validation curves into leakage, overfitting, underfitting, or regularization signals.',
+    ),
     outcomes: [
       copy(
         '能区分训练、验证和最终测试的职责，并用曲线判断泄漏、过拟合或欠拟合。',
@@ -194,6 +214,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       'calculus-training-code-diagnostics',
       'deep-architecture-math',
     ],
+    supportNote: copy(
+      '矩阵微积分解释反传的 shape，训练代码诊断把优化器状态和深层结构变成可检查线索。',
+      'Matrix calculus explains backprop shapes; training-code diagnostics expose optimizer state and deep-architecture clues.',
+    ),
     outcomes: [
       copy(
         '能把隐藏层表示、优化器状态和 loss 曲线连起来诊断训练行为。',
@@ -238,6 +262,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       'probability-likelihood-entropy',
       'tensor-shapes-vectorization',
     ],
+    supportNote: copy(
+      '相似度、熵和张量 shape 帮你看懂 attention 权重，以及多头拆分时数据怎样流动。',
+      'Similarity scores, entropy, and tensor shape make attention weights and multi-head flow easier to inspect.',
+    ),
     outcomes: [
       copy(
         '能从 token id 追踪到 [B,T,H]，再解释 attention 怎样混合上下文。',

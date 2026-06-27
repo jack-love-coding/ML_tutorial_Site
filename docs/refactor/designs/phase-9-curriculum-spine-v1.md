@@ -470,9 +470,6 @@ This keeps the main route human-readable while preserving support lenses.
 
 ## Implementation Recommendation
 
-Phase 9A has encoded the approved stage model and validation contract. Phase 9B has aligned the homepage, navigation labels, and core track with that spine. Phase 9C has added the dedicated stage landing view. Phase 9D has filled the sequence/embedding bridge gap before `attention-transformer`. The next implementation step should be **Phase 9E - Route Copy Harmonization**:
+Phase 9A has encoded the approved stage model and validation contract. Phase 9B has aligned the homepage, navigation labels, and core track with that spine. Phase 9C has added the dedicated stage landing view. Phase 9D has filled the sequence/embedding bridge gap before `attention-transformer`. Phase 9E has harmonized stage bridge copy, and Phase 9F has made support-lens notes stage-specific.
 
-- improve stage-level and bridge copy for the highest-friction transitions,
-- keep `/spine` and `/tracks/core-learning-path` both reachable,
-- preserve legacy routes and current progress stores,
-- and continue avoiding backend/progress expansion until the route is coherent.
+The route-copy pass should pause here. The next curriculum refactor should move from route narration into lesson-level content depth for one flagship module, while keeping `/spine` and `/tracks/core-learning-path` reachable and preserving legacy routes plus current progress stores.
