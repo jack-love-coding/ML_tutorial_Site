@@ -99,3 +99,5 @@ The module is now part of the required Default Spine between `cnn-visualization`
 ## Next Step
 
 Phase 9E should harmonize stage-level and bridge copy for the highest-friction transitions without rewriting every lesson body.
+
+Design draft for review: `docs/refactor/designs/phase-9e-route-copy-harmonization.md`.

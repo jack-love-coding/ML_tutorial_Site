@@ -459,6 +459,8 @@ This keeps the main route human-readable while preserving support lenses.
 - Rewrite only stage-level and bridge copy first.
 - Do not rewrite every lesson body.
 
+**Design status:** Drafted in `docs/refactor/designs/phase-9e-route-copy-harmonization.md`; implementation should wait for review approval.
+
 ## Resolved Review Decisions
 
 1. **Data first.** `numerical-data`, `categorical-data`, and `dataset-quality` should come before formal linear algebra in the learner-facing route. Linear algebra enters just-in-time when feature vectors need explanation.
