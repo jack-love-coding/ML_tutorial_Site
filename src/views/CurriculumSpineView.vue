@@ -51,7 +51,7 @@ const labels = computed(() =>
     ? {
         eyebrow: '默认学习主线',
         title: '按阶段走完 Data First 主线',
-        body: '这页把 Curriculum Spine V1 展开成 11 个阶段：每个阶段说明核心问题、必修模块、支持镜头、推荐项目验证和已知覆盖缺口。旧的平铺模块列表仍保留，方便快速跳转。',
+        body: '这页把 Curriculum Spine V1 展开成 11 个阶段：每个阶段说明核心问题、为什么下一步学它、必修模块、支持镜头、项目验证和完成标准。旧的平铺模块列表仍保留，方便快速跳转。',
         stages: '阶段',
         requiredModules: '必修模块',
         supportLenses: '支持镜头',
@@ -69,7 +69,7 @@ const labels = computed(() =>
     : {
         eyebrow: 'Default Spine',
         title: 'Move Through the Data-First Spine by Stage',
-        body: 'This page expands Curriculum Spine V1 into 11 stages: each stage shows the guiding question, required modules, support lenses, recommended project validation, and known coverage gaps. The existing flat module list stays available for quick jumping.',
+        body: 'This page expands Curriculum Spine V1 into 11 stages: each stage shows the guiding question, why it comes next, required modules, support lenses, project validation, and completion standards. The existing flat module list stays available for quick jumping.',
         stages: 'Stages',
         requiredModules: 'Required Modules',
         supportLenses: 'Support Lenses',
@@ -166,6 +166,7 @@ const firstRequiredModuleId = computed(() => curriculumSpineStages[0]?.requiredM
             <p>{{ stageLabel(stage.index) }}</p>
             <h2>{{ localizedText(stage.title) }}</h2>
             <strong>{{ localizedText(stage.learnerQuestion) }}</strong>
+            <p class="spine-stage-card__bridge">{{ localizedText(stage.bridge) }}</p>
           </div>
         </header>
 

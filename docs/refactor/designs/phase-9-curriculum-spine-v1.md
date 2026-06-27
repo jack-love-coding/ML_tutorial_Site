@@ -459,7 +459,7 @@ This keeps the main route human-readable while preserving support lenses.
 - Rewrite only stage-level and bridge copy first.
 - Do not rewrite every lesson body.
 
-**Design status:** Drafted in `docs/refactor/designs/phase-9e-route-copy-harmonization.md`; implementation should wait for review approval.
+**Implementation status:** Done in `src/curriculum/types.ts`, `src/curriculum/spine.ts`, `src/views/CurriculumSpineView.vue`, `src/styles/views/curriculum.css`, and matching tests.
 
 ## Resolved Review Decisions
 

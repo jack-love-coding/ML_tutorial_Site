@@ -12,6 +12,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       '模型从数据中学习到底是什么意思？',
       'What does it mean for a model to learn from data?',
     ),
+    bridge: copy(
+      '先建立共同词汇：样本、特征、标签、预测、误差和训练循环。后面的数据、模型和数学都会反复回到这几个词。',
+      'Start with the shared vocabulary: sample, feature, label, prediction, error, and training loop. Later stages keep returning to these words.',
+    ),
     requiredModuleIds: ['ai-overview', 'python-notebook'],
     supportModuleIds: [],
     outcomes: [
@@ -27,6 +31,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     learnerQuestion: copy(
       '原始表格怎样变成模型可以读取的特征？',
       'How does a raw table become features a model can read?',
+    ),
+    bridge: copy(
+      '知道模型会学习之后，先看它到底吃进去什么。原始列、缺失、类别和标签质量会决定后面所有模型的输入。',
+      'Once learning is defined, inspect what the model consumes. Raw columns, missing values, categories, and labels shape later inputs.',
     ),
     requiredModuleIds: ['numerical-data', 'categorical-data', 'dataset-quality'],
     supportModuleIds: [],
@@ -44,12 +52,16 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       '模型怎么知道自己错了，特征向量又为什么有方向和距离？',
       'How does a model know it is wrong, and why do feature vectors have direction and distance?',
     ),
+    bridge: copy(
+      '当数据变成特征向量，下一步就是给预测错误一个评分规则。loss 把数据选择、模型输出和训练反馈连起来。',
+      'Once data becomes feature vectors, the next step is scoring prediction error. Loss connects data choices, output, and feedback.',
+    ),
     requiredModuleIds: ['beginner-linear-algebra', 'linear-algebra-feature-space', 'loss-functions'],
     supportModuleIds: ['linear-algebra-distance-similarity'],
     outcomes: [
       copy(
-        '能把样本读成特征向量，并把 loss 读成训练反馈信号。',
-        'Read a sample as a feature vector and read loss as the feedback signal for training.',
+        '能把一行数据追踪成特征向量，并解释 loss 怎样给一次预测打分。',
+        'Trace a row into a feature vector and explain how loss scores one prediction.',
       ),
     ],
   },
@@ -59,6 +71,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     learnerQuestion: copy(
       '线性模型如何用权重拟合数值目标？',
       'How does a linear model use weights to fit a numeric target?',
+    ),
+    bridge: copy(
+      '有了特征和 loss，线性回归就是第一个能手算、能画图、能复盘误差的完整模型。房价项目用它做诚实 baseline。',
+      'With features and loss in place, linear regression becomes the first complete model you can calculate, draw, and review.',
     ),
     requiredModuleIds: ['linear-regression'],
     supportModuleIds: ['linear-algebra-matrix-transformations', 'least-squares-fitting'],
@@ -76,6 +92,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     learnerQuestion: copy(
       '梯度、学习率和 batch noise 怎样改变训练轨迹？',
       'How do gradients, learning rate, and batch noise change the training trajectory?',
+    ),
+    bridge: copy(
+      '线性模型让误差可见，梯度下降解释参数为什么会动。这里把 loss surface、学习率和 batch noise 变成训练轨迹。',
+      'Linear models make error visible; gradient descent explains why parameters move through loss surface, learning rate, and batch noise.',
     ),
     requiredModuleIds: ['gradient-descent'],
     supportModuleIds: [
@@ -98,6 +118,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       '分类模型怎样把分数或概率变成决策？',
       'How does a classifier turn scores or probabilities into decisions?',
     ),
+    bridge: copy(
+      '回归预测连续数值，分类要把分数或概率变成决策。这里先建立概率、阈值和错误成本，再进入项目复盘。',
+      'Regression predicts continuous values; classification turns scores or probabilities into decisions through thresholds and error costs.',
+    ),
     requiredModuleIds: [
       'logistic-regression',
       'beginner-probability-distributions',
@@ -108,8 +132,8 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     projectModuleIds: ['classification-project'],
     outcomes: [
       copy(
-        '能解释 sigmoid/probability、阈值、混淆矩阵、precision/recall、ROC 和校准。',
-        'Explain sigmoid/probability, thresholds, confusion matrix, precision/recall, ROC, and calibration.',
+        '能按错误成本选择阈值，并解释混淆矩阵、precision 和 recall 的取舍。',
+        'Choose a threshold by error cost and explain confusion-matrix, precision, and recall tradeoffs.',
       ),
     ],
   },
@@ -120,12 +144,16 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       '为什么训练集表现好，不代表未来数据也会好？',
       'Why does strong training performance not guarantee future performance?',
     ),
+    bridge: copy(
+      '能训练一个模型还不够，还要知道它离开训练集后会不会可靠。这里把 split、泄漏、交叉验证和正则化放成评估协议。',
+      'Training a model is not enough; this stage turns splits, leakage, cross-validation, and regularization into an evaluation protocol.',
+    ),
     requiredModuleIds: ['splits-generalization', 'model-selection', 'complexity-regularization'],
     supportModuleIds: ['training-diagnostics'],
     outcomes: [
       copy(
-        '能解释数据泄漏、验证集、交叉验证、正则化和 train/validation 曲线。',
-        'Explain leakage, validation sets, cross-validation, regularization, and train/validation curves.',
+        '能区分训练、验证和最终测试的职责，并用曲线判断泄漏、过拟合或欠拟合。',
+        'Separate train, validation, and final test roles, then use curves to diagnose leakage, overfitting, or underfitting.',
       ),
     ],
   },
@@ -135,6 +163,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     learnerQuestion: copy(
       '不用神经网络时，模型怎样学习规则和特征交互？',
       'How can a model learn rules and feature interactions without a neural network?',
+    ),
+    bridge: copy(
+      '在进入神经网络前，先看不用梯度也能学习非线性规则的模型。树和森林帮助区分规则、交互、复杂度和重要性。',
+      'Before neural networks, study nonlinear rules without gradients. Trees and forests separate rules, interactions, complexity, and importance.',
     ),
     requiredModuleIds: ['tree-forest'],
     supportModuleIds: [],
@@ -152,6 +184,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       '层、激活函数、反向传播和优化器状态怎样产生非线性表示？',
       'How do layers, activations, backpropagation, and optimizer state create nonlinear representations?',
     ),
+    bridge: copy(
+      '树模型会切规则，神经网络会学习表示。这里把层、激活函数、反向传播和优化器状态接成可诊断的训练系统。',
+      'Trees cut rules; neural networks learn representations. This stage connects layers, activations, backpropagation, and optimizer state.',
+    ),
     requiredModuleIds: ['mlp', 'optimizer-comparison'],
     supportModuleIds: [
       'matrix-calculus-autodiff',
@@ -160,8 +196,8 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     ],
     outcomes: [
       copy(
-        '能解释隐藏层表示、激活函数、反向传播、优化器差异和过拟合诊断。',
-        'Explain hidden representations, activations, backpropagation, optimizer differences, and overfitting diagnostics.',
+        '能把隐藏层表示、优化器状态和 loss 曲线连起来诊断训练行为。',
+        'Connect hidden representations, optimizer state, and loss curves to diagnose training behavior.',
       ),
     ],
   },
@@ -171,6 +207,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     learnerQuestion: copy(
       'CNN 为什么比全连接网络更适合图像？',
       'Why are CNNs better suited to images than fully connected networks?',
+    ),
+    bridge: copy(
+      '理解 MLP 后，再看图像为什么需要空间结构。CNN 把 H×W×C、局部窗口、参数共享和 shape 变化连成视觉模型。',
+      'After MLPs, study why images need spatial structure. CNNs connect H×W×C, local windows, weight sharing, and shape changes.',
     ),
     requiredModuleIds: ['tensor-shapes-vectorization', 'cnn-visualization'],
     supportModuleIds: [],
@@ -188,6 +228,10 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       '模型怎样处理 token 顺序，并用注意力混合上下文？',
       'How does a model handle token order and use attention to mix context?',
     ),
+    bridge: copy(
+      '图像强调空间位置，序列强调 token 位置。先把 token id、embedding、position 和 mask 接成 [B,T,H]，再进入 attention。',
+      'Images emphasize spatial position; sequences emphasize token position. Connect token ids, embeddings, position, and mask into [B,T,H] before attention.',
+    ),
     requiredModuleIds: ['sequence-embedding-bridge', 'attention-transformer'],
     supportModuleIds: [
       'linear-algebra-distance-similarity',
@@ -196,8 +240,8 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     ],
     outcomes: [
       copy(
-        '能解释 token id、embedding lookup、位置/mask、Q/K/V、softmax weighted sum、multi-head shape 和 Transformer block。',
-        'Explain token ids, embedding lookup, position/mask, Q/K/V, softmax weighted sums, multi-head shapes, and Transformer blocks.',
+        '能从 token id 追踪到 [B,T,H]，再解释 attention 怎样混合上下文。',
+        'Trace token ids to [B,T,H], then explain how attention mixes context.',
       ),
     ],
   },

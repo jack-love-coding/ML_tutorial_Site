@@ -1,6 +1,6 @@
 # Phase 9 Summary: Curriculum Spine V1
 
-**Status:** Phase 9D implemented and targeted tests pass.
+**Status:** Phase 9E implemented and verified.
 
 ## Phase 9A - Spine Data Contract
 
@@ -23,6 +23,12 @@ The stage view is generated from `curriculumSpineStages` and shows required modu
 Phase 9D fills the documented sequence/embedding bridge gap before Attention/Transformer. The new `sequence-embedding-bridge` module stays intentionally small: token sequence framing, token ids, embedding lookup, position/mask, and the `[B,T,H]` handoff into Q/K/V.
 
 The module is now part of the required Default Spine between `cnn-visualization` and `attention-transformer`, appears in the core track and legacy advanced-architecture navigation group, and includes bilingual checkpoints plus the existing workflow-lab interaction pattern.
+
+## Phase 9E - Route Copy Harmonization
+
+Phase 9E makes `/spine` read more like a guided learning route instead of a stage inventory. Each `curriculumSpineStages` record now has bilingual `bridge` copy explaining why the stage comes next, the landing page renders that bridge copy in the stage header, and selected completion standards were tightened into action-shaped outcomes.
+
+The implementation stays intentionally narrow: no lesson-body rewrites, no new modules, no progress/backend scope, and no redesign of the `/spine` layout.
 
 ## Decisions Encoded
 
@@ -68,6 +74,7 @@ The module is now part of the required Default Spine between `cnn-visualization`
 - `tests/algorithm-progress.test.ts`
 - `tests/curriculumCatalog.test.ts`
 - `tests/site-navigation.test.ts`
+- `src/styles/views/curriculum.css`
 
 ## Verification
 
@@ -95,9 +102,15 @@ The module is now part of the required Default Spine between `cnn-visualization`
 - `node scripts/create-pages-fallbacks.mjs`: pass, 46 GitHub Pages SPA fallback routes including `/learn/sequence-embedding-bridge`.
 - Playwright `/learn/sequence-embedding-bridge` check: desktop and mobile show 5 chapter buttons, sequence-bridge workflow lab, 2 checkpoints, no horizontal overflow, and no console errors.
 - Playwright `/spine` check after Phase 9D: desktop and mobile show 11 stages; `sequence-embedding-bridge` is visible between CNN and Attention; no horizontal overflow.
+- `node --test tests/curriculumSpine.test.ts tests/curriculumSpineLanding.test.ts`: pass, 6 tests.
+- `node --test tests/curriculumSpine.test.ts tests/curriculumSpineLanding.test.ts tests/curriculumRoutingNavigation.test.ts tests/curriculumCatalog.test.ts tests/homeCurriculumIA.test.ts`: pass, 18 tests.
+- `git diff --check`: pass.
+- `npm test`: pass, 248 tests.
+- `npm run build`: pass with existing large-chunk warning.
+- `npm run build:pages`: pass with existing large-chunk warning.
+- `node scripts/create-pages-fallbacks.mjs`: pass, 46 GitHub Pages SPA fallback routes.
+- Playwright `/spine` Phase 9E check: desktop and 390px mobile both show 11 stages and 11 bridge paragraphs; hero copy now explains why each stage comes next; sequence bridge still hands off from token/embedding to `[B,T,H]` and attention; no horizontal overflow; console errors remain 0.
 
 ## Next Step
 
-Phase 9E should harmonize stage-level and bridge copy for the highest-friction transitions without rewriting every lesson body.
-
-Design draft for review: `docs/refactor/designs/phase-9e-route-copy-harmonization.md`.
+After Phase 9E, decide whether to implement a small Phase 9F for stage-specific support-lens hints, or pause curriculum routing work and move to lesson-level content depth.

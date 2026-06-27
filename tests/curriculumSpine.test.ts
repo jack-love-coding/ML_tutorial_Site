@@ -46,6 +46,13 @@ test('curriculum spine stage records are localized and reference existing module
     assert.ok(stage.title.en, `${stage.id} should have en title`)
     assert.ok(stage.learnerQuestion['zh-CN'], `${stage.id} should have zh-CN learner question`)
     assert.ok(stage.learnerQuestion.en, `${stage.id} should have en learner question`)
+    assert.ok(stage.bridge?.['zh-CN'], `${stage.id} should have zh-CN bridge copy`)
+    assert.ok(stage.bridge?.en, `${stage.id} should have en bridge copy`)
+    assert.ok(
+      stage.bridge['zh-CN'].length <= 120,
+      `${stage.id} zh-CN bridge copy should stay concise`,
+    )
+    assert.ok(stage.bridge.en.length <= 180, `${stage.id} en bridge copy should stay concise`)
     assert.ok(stage.requiredModuleIds.length > 0, `${stage.id} should have required modules`)
     assert.ok(stage.outcomes.length > 0, `${stage.id} should describe outcomes`)
 
@@ -60,6 +67,11 @@ test('curriculum spine stage records are localized and reference existing module
 
   assert.deepEqual(curriculumSpineValidationIssues(), [])
   assert.equal(curriculumModuleById.has('sequence-embedding-bridge'), true)
+  assert.match(
+    curriculumSpineStages.find((stage) => stage.id === 'sequence-attention')?.bridge.en ?? '',
+    /\[B,T,H\].*attention/i,
+    'sequence stage bridge should explain the handoff into attention',
+  )
   assert.equal(
     Boolean(
       curriculumSpineStages
