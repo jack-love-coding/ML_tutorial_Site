@@ -36,11 +36,13 @@ test('spine landing source renders stages, support lenses, project validation, a
   assert.match(spineSource, /projectModuleIds/)
   assert.match(spineSource, /knownGaps/)
   assert.match(spineSource, /resolveCanonicalLearnRoute/)
+  assert.match(spineSource, /function stageLabel\(index: number\)/)
   assert.match(spineSource, /\/tracks\/core-learning-path/)
   assert.match(spineSource, /spine-stage-card/)
   assert.match(spineSource, /spine-stage-card__modules/)
   assert.match(spineSource, /spine-stage-card__gap/)
   assert.match(spineSource, /spine-stage-nav/)
+  assert.doesNotMatch(spineSource, /labels\.stages }} {{ stage\.index/)
   assert.doesNotMatch(spineSource, /migrateLearningProgressV2|localStorage|learningProgress/)
 
   assert.match(stylesSource, /\.spine-stage-nav/)

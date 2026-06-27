@@ -1,6 +1,5 @@
 import type { DataLabModuleId } from '../modules/data-lab/types/dataLab'
 import {
-  coreLearningPathModuleIds,
   curriculumRouteManifestByDomain,
   curriculumRouteManifestById,
   projectPracticeModuleIds,
@@ -232,15 +231,15 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
       route: '/spine',
       label: copy('默认学习主线', 'Default Spine'),
     },
-    utilityLinks: [],
-    activePrefixes: ['/spine', '/tracks/core-learning-path', '/learn'],
-    groups: [
+    utilityLinks: [
       {
-        id: 'default-spine',
-        label: copy('Spine V1 主线', 'Spine V1'),
-        items: coreLearningPathModuleIds.map(moduleLink),
+        id: 'core-flat-list',
+        route: '/tracks/core-learning-path',
+        label: copy('平铺模块列表', 'Flat Module List'),
       },
     ],
+    activePrefixes: ['/spine', '/tracks/core-learning-path', '/learn'],
+    groups: [],
   },
   {
     id: 'topic-library',

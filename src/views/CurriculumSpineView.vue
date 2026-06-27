@@ -42,6 +42,10 @@ function stageNumber(index: number) {
   return String(index + 1).padStart(2, '0')
 }
 
+function stageLabel(index: number) {
+  return currentLocale.value === 'zh-CN' ? `第 ${index} 阶段` : `Stage ${index}`
+}
+
 const labels = computed(() =>
   currentLocale.value === 'zh-CN'
     ? {
@@ -57,7 +61,7 @@ const labels = computed(() =>
         stageNav: '主线阶段导航',
         stageList: 'Curriculum Spine V1 阶段列表',
         openModule: '进入模块',
-        start: '从第一阶段开始',
+        start: '从阶段 0 开始',
         flatList: '查看平铺模块列表',
         supportNote: '这些模块用于补足当前阶段需要的数学、数据或模型直觉。',
         projectNote: '项目是推荐验证，不是继续学习的硬阻塞。',
@@ -75,7 +79,7 @@ const labels = computed(() =>
         stageNav: 'Spine stage navigation',
         stageList: 'Curriculum Spine V1 stage list',
         openModule: 'Open Module',
-        start: 'Start Stage One',
+        start: 'Start Stage 0',
         flatList: 'View Flat Module List',
         supportNote: 'Use these modules to fill the math, data, or model intuition needed for this stage.',
         projectNote: 'Projects are recommended validation, not hard blockers for continuing.',
@@ -159,7 +163,7 @@ const firstRequiredModuleId = computed(() => curriculumSpineStages[0]?.requiredM
         <header class="spine-stage-card__header">
           <span>{{ stageNumber(stage.index) }}</span>
           <div>
-            <p>{{ labels.stages }} {{ stage.index }}</p>
+            <p>{{ stageLabel(stage.index) }}</p>
             <h2>{{ localizedText(stage.title) }}</h2>
             <strong>{{ localizedText(stage.learnerQuestion) }}</strong>
           </div>

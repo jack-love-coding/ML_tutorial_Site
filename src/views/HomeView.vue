@@ -243,9 +243,10 @@ const beginnerRoadmapIntro = {
     'This spine puts Math Lab and Data Lab back into the right places: learners first understand tables, features, and feedback signals, then move through linear models, training dynamics, generalization, nonlinear models, CNNs, and Attention.',
   ),
   note: loc(
-    '项目是推荐验证，不是硬阻塞；支持镜头用于补足当前阶段需要的数学或数据直觉。',
-    'Projects are recommended validation, not hard blockers; support lenses fill the math or data intuition needed at each stage.',
+    '首页只预览前四个阶段，完整阶段地图、支持镜头和项目验证放在主线页里继续展开。',
+    'The homepage previews the first four stages only; the full stage map, support lenses, and project validation continue on the spine page.',
   ),
+  action: loc('查看完整阶段地图', 'View full stage map'),
 }
 
 const roadmapLabels = computed(() =>
@@ -310,8 +311,8 @@ function spineStageActionText(firstModuleId: string) {
   return locale.value === 'zh-CN' ? `进入 ${title}` : `Open ${title}`
 }
 
-const spineRoadmap = computed<BeginnerRoadmapStage[]>(() =>
-  curriculumSpineStages.map((spineStage, index) => {
+const spinePreviewRoadmap = computed<BeginnerRoadmapStage[]>(() =>
+  curriculumSpineStages.slice(0, 4).map((spineStage, index) => {
     const projectModuleIds = spineStage.projectModuleIds ?? []
     const conceptModuleIds = [
       ...spineStage.requiredModuleIds,
@@ -335,13 +336,14 @@ const spineRoadmap = computed<BeginnerRoadmapStage[]>(() =>
   }),
 )
 
-const beginnerRoadmap = computed(() => spineRoadmap.value)
+const beginnerRoadmap = computed(() => spinePreviewRoadmap.value)
 
 const roadmapIntro = computed(() => ({
   eyebrow: localizedText(beginnerRoadmapIntro.eyebrow),
   title: localizedText(beginnerRoadmapIntro.title),
   body: localizedText(beginnerRoadmapIntro.body),
   note: localizedText(beginnerRoadmapIntro.note),
+  action: localizedText(beginnerRoadmapIntro.action),
 }))
 
 const readinessCheckSource: ReadinessCheck[] = [
@@ -472,7 +474,12 @@ const footerText = computed(() =>
           <h2 id="beginner-roadmap-title">{{ roadmapIntro.title }}</h2>
           <p>{{ roadmapIntro.body }}</p>
         </header>
-        <p class="beginner-roadmap__note">{{ roadmapIntro.note }}</p>
+        <div class="beginner-roadmap__aside">
+          <p class="beginner-roadmap__note">{{ roadmapIntro.note }}</p>
+          <router-link class="action-button" to="/spine">
+            {{ roadmapIntro.action }}
+          </router-link>
+        </div>
       </div>
 
       <div class="roadmap-timeline">

@@ -61,6 +61,11 @@ for (const match of dataLabModules.matchAll(/moduleDefinition\(\{\s*id:\s*['"]([
   addRoute(`/data-lab/modules/${match[1]}`)
 }
 
+const curriculumTracks = readText('src/curriculum/tracks.ts')
+for (const match of curriculumTracks.matchAll(/^\s*id:\s*['"]([^'"]+)['"],/gm)) {
+  addRoute(`/tracks/${match[1]}`)
+}
+
 copyFileSync(indexPath, join(distDir, '404.html'))
 
 for (const route of [...routes].sort()) {

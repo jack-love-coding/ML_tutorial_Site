@@ -38,7 +38,7 @@ test('home page first screen is a curriculum decision surface rather than a full
   assert.match(homeSource, /curriculumNavigationMenus/)
   assert.match(homeSource, /curriculumRouteManifestById/)
   assert.match(homeSource, /curriculumSpineStages/)
-  assert.match(homeSource, /spineRoadmap/)
+  assert.match(homeSource, /spinePreviewRoadmap/)
   assert.match(homeSource, /homeDecisionCards/)
   assert.match(homeSource, /home-progress-panel/)
   assert.match(homeSource, /home-decision-section/)
@@ -59,11 +59,13 @@ test('home page first screen is a curriculum decision surface rather than a full
   assert.doesNotMatch(homeSource, /path-section/)
 })
 
-test('home page keeps the beginner roadmap but removes duplicated catalog responsibilities', () => {
+test('home page keeps a compressed spine preview but removes duplicated catalog responsibilities', () => {
   const homeSource = read('src/views/HomeView.vue')
   const homeStyles = read('src/styles/views/home.css')
 
   assert.match(homeSource, /beginnerRoadmap/)
+  assert.match(homeSource, /curriculumSpineStages\.slice\(0, 4\)/)
+  assert.match(homeSource, /beginner-roadmap__aside/)
   assert.match(homeSource, /moduleTitle/)
   assert.match(homeSource, /moduleRoute/)
   assert.match(homeSource, /readinessChecks/)
@@ -76,6 +78,8 @@ test('home page keeps the beginner roadmap but removes duplicated catalog respon
   assert.match(homeStyles, /\.home-decision-section/)
   assert.match(homeStyles, /\.home-decision-card/)
   assert.match(homeStyles, /\.home-spine-roadmap/)
+  assert.match(homeStyles, /\.beginner-roadmap__aside/)
+  assert.doesNotMatch(homeSource, /curriculumSpineStages\.map/)
   assert.doesNotMatch(homeSource, /const beginnerRoadmapSource/)
   assert.doesNotMatch(homeStyles, /\.module-gallery/)
   assert.doesNotMatch(homeStyles, /\.module-teaser/)
