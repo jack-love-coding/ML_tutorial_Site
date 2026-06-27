@@ -105,6 +105,7 @@ test('milestone audit preserves legacy URL handlers alongside canonical routes',
     "path: '/learn/linear-regression/:chapterId'",
     "path: '/learn/logistic-regression/:chapterId'",
     "path: '/learn/cnn-visualization/:chapterId'",
+    "path: '/spine'",
     "path: '/tracks/:trackId'",
     "path: '/library/:domain'",
     "path: '/progress'",
@@ -112,6 +113,7 @@ test('milestone audit preserves legacy URL handlers alongside canonical routes',
     assert.ok(routerSource.includes(routePattern), `${routePattern} should remain wired`)
   }
 
+  assert.match(fallbackScript, /'\/spine'/)
   assert.match(fallbackScript, /data-lab\/modules/)
   assert.match(fallbackScript, /math-lab\/modules/)
 })
@@ -209,6 +211,6 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.ok(existsSync(new URL('docs/refactor/audits/curriculum-v2-milestone-audit.md', root)))
 
   const stateSource = read('.planning/STATE.md')
-  assert.match(stateSource, /Phase 9B homepage\/navigation realignment implemented/)
+  assert.match(stateSource, /Phase 9C spine stage landing implemented/)
   assert.match(stateSource, /Current focus:\*\* Curriculum Spine V1 route clarity and content coverage/)
 })

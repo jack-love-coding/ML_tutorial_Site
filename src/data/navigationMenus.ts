@@ -229,11 +229,11 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
     label: copy('默认学习主线', 'Default Spine'),
     overviewLink: {
       id: 'core-learning-path',
-      route: '/tracks/core-learning-path',
+      route: '/spine',
       label: copy('默认学习主线', 'Default Spine'),
     },
     utilityLinks: [],
-    activePrefixes: ['/tracks/core-learning-path', '/learn'],
+    activePrefixes: ['/spine', '/tracks/core-learning-path', '/learn'],
     groups: [
       {
         id: 'default-spine',

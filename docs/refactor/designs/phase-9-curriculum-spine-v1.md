@@ -1,7 +1,8 @@
 # Phase 9: Curriculum Spine V1 - Design Draft
 
 **Created:** 2026-06-26  
-**Status:** Phase 9B homepage/navigation realignment implemented and verified; Phase 9C stage landing view pending.
+**Status:** Phase 9C spine stage landing implemented and verified.
+
 **Scope:** Teaching-route design, coverage audit, and reordering blueprint only.
 
 ## User Decisions Locked
@@ -444,6 +445,8 @@ This keeps the main route human-readable while preserving support lenses.
 - Add a route/view that presents the spine as stages with required and support modules.
 - Avoid progress-heavy UI. Focus on "where am I in the curriculum?" and "why next?"
 
+**Implementation status:** Done in `src/views/CurriculumSpineView.vue`, `src/router/index.ts`, `src/data/navigationMenus.ts`, `src/views/HomeView.vue`, `src/views/CurriculumProgressView.vue`, and `scripts/create-pages-fallbacks.mjs`.
+
 ### Phase 9D - Content Gap Fill: Sequence Bridge
 
 - Add the missing sequence/embedding bridge before `attention-transformer`.
@@ -463,9 +466,9 @@ This keeps the main route human-readable while preserving support lenses.
 
 ## Implementation Recommendation
 
-Phase 9A has encoded the approved stage model and validation contract. Phase 9B has aligned the homepage, navigation labels, and core track with that spine. The next implementation step should be **Phase 9C - Stage Landing View**:
+Phase 9A has encoded the approved stage model and validation contract. Phase 9B has aligned the homepage, navigation labels, and core track with that spine. Phase 9C has added the dedicated stage landing view. The next implementation step should be **Phase 9D - Content Gap Fill: Sequence Bridge**:
 
-- add a dedicated route/view for reading the spine as stages,
-- keep the current `/tracks/core-learning-path` flat module list reachable,
+- fill the sequence/embedding bridge gap before `attention-transformer`,
+- keep `/spine` and `/tracks/core-learning-path` both reachable,
 - preserve legacy routes and current progress stores,
 - and continue avoiding backend/progress expansion until the route is coherent.

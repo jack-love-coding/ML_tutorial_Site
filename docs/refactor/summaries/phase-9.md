@@ -1,6 +1,6 @@
 # Phase 9 Summary: Curriculum Spine V1
 
-**Status:** Phase 9B implemented and verified.
+**Status:** Phase 9C implemented and verified.
 
 ## Phase 9A - Spine Data Contract
 
@@ -11,6 +11,12 @@ Phase 9A turns the approved Curriculum Spine V1 design into a typed, testable co
 Phase 9B makes the spine learner-facing without adding a new stage route yet. The homepage, top navigation, core track, and continue-learning fallback now treat the data-first spine as the default path. Math Lab, Data Lab, model, and deep-learning catalogs are presented as support lenses rather than parallel beginner products.
 
 The wide Support Lenses desktop menu is centered under its trigger so the expanded menu remains inside the viewport.
+
+## Phase 9C - Spine Stage Landing View
+
+Phase 9C adds `/spine` as the learner-facing stage view for Curriculum Spine V1. The existing `/tracks/core-learning-path` flat module list remains available, while Default Spine navigation, homepage decision cards, and progress-page route links now point to the stage view first.
+
+The stage view is generated from `curriculumSpineStages` and shows required modules, support lenses, project validation, completion standards, and known gaps without adding progress/backend scope or rewriting lesson bodies.
 
 ## Decisions Encoded
 
@@ -40,6 +46,11 @@ The wide Support Lenses desktop menu is centered under its trigger so the expand
 - `tests/data-lab-layout.test.mjs`
 - `src/styles/views/home.css`
 - `src/styles/themes/pixel-redesign.css`
+- `src/views/CurriculumSpineView.vue`
+- `src/router/index.ts`
+- `src/styles/views/curriculum.css`
+- `scripts/create-pages-fallbacks.mjs`
+- `tests/curriculumSpineLanding.test.ts`
 
 ## Verification
 
@@ -53,7 +64,13 @@ The wide Support Lenses desktop menu is centered under its trigger so the expand
 - `npm run build`: pass with existing large-chunk warning.
 - `npm run build:pages`: pass with existing large-chunk warning.
 - Playwright homepage check: desktop and mobile show Default Spine / Support Lenses, 11 spine stages render, the expanded Support Lenses menu stays within the desktop viewport, no horizontal overflow, and console errors remain 0.
+- `node --test tests/curriculumSpineLanding.test.ts tests/curriculumRoutingNavigation.test.ts tests/homeCurriculumIA.test.ts tests/data-lab-layout.test.mjs tests/curriculumMilestoneAudit.test.ts`: pass, 25 tests.
+- `node --test tests/curriculumSpine.test.ts tests/curriculumPrerequisites.test.ts tests/curriculumProgress.test.ts tests/curriculumSpineLanding.test.ts tests/curriculumRoutingNavigation.test.ts`: pass, 28 tests.
+- `npm test`: pass, 248 tests.
+- `npm run build`: pass with existing large-chunk warning.
+- `npm run build:pages`: pass with existing large-chunk warning.
+- Playwright `/spine` check: desktop and mobile show 11 stages and 11 stage-nav links, known gaps and project validation are visible, flat module list remains linked, no horizontal overflow, and console errors remain 0.
 
 ## Next Step
 
-Phase 9C should add a dedicated stage landing view for the spine while preserving `/tracks/core-learning-path` as the flat module list.
+Phase 9D should either fill the documented sequence/embedding bridge gap or improve stage-level lesson introductions for the highest-friction transitions.

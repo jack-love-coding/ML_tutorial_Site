@@ -46,7 +46,7 @@ test('home page first screen is a curriculum decision surface rather than a full
   assert.match(homeSource, /home-spine-roadmap/)
   assert.match(homeSource, /默认学习主线/)
   assert.match(homeSource, /Default Spine/)
-  assert.match(homeSource, /\/tracks\/core-learning-path/)
+  assert.match(homeSource, /\/spine/)
   assert.match(homeSource, /\/library\/math/)
   assert.match(homeSource, /\/tracks\/project-practice/)
   assert.match(homeSource, /\/progress/)

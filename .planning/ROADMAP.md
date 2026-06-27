@@ -239,5 +239,29 @@
 - Legacy Math Lab, Data Lab, Algorithm, project, library, and progress routes remain reachable.
 - `npm test`, `npm run build`, and `npm run build:pages` pass.
 
+## Phase 9C: Spine Stage Landing View
+
+**Goal:** Add a dedicated stage-oriented Default Spine route that explains Curriculum Spine V1 as learner stages while preserving `/tracks/core-learning-path` as the flat module list.
+
+**Deliverables:**
+- `/spine` lazy route and `CurriculumSpineView.vue`.
+- Stage cards generated from `curriculumSpineStages`, including required modules, support lenses, project validation, outcomes, and known gaps.
+- Navigation, homepage, and progress-page entry links that send learners to `/spine` first.
+- GitHub Pages fallback coverage for `/spine`.
+- Tests for route wiring, stage source wiring, fallback generation, and preservation of the flat core track.
+
+**Must Not Do:**
+- Do not delete or redirect `/tracks/core-learning-path`.
+- Do not add backend, account, database, or new progress tracking behavior.
+- Do not rewrite lesson body content or move module source files.
+- Do not hide known content gaps such as the sequence/embedding bridge.
+
+**Exit Criteria:**
+- Default Spine opens a stage landing page.
+- `/tracks/core-learning-path` remains reachable as a flat module list.
+- Stage cards expose required modules, support lenses, project validation, completion standards, and known gaps.
+- Legacy Math Lab, Data Lab, Algorithm, project, library, progress, and canonical learn routes remain reachable.
+- `npm test`, `npm run build`, and `npm run build:pages` pass.
+
 ---
 *Roadmap created: 2026-06-25*

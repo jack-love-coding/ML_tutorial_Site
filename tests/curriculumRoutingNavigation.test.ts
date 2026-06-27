@@ -35,7 +35,7 @@ test('curriculum navigation exposes the unified top-level IA', () => {
 
   assert.equal(learningPath?.label.en, 'Default Spine')
   assert.equal(learningPath?.label['zh-CN'], '默认学习主线')
-  assert.equal(learningPath?.overviewLink?.route, '/tracks/core-learning-path')
+  assert.equal(learningPath?.overviewLink?.route, '/spine')
   assert.equal(learningPath?.overviewLink?.label.en, 'Default Spine')
   assert.equal(learningPath?.groups[0]?.id, 'default-spine')
   assert.equal(learningPath?.groups[0]?.label.en, 'Spine V1')
@@ -117,6 +117,7 @@ test('router wires canonical routes while preserving legacy deep links', () => {
   assert.match(routerSource, /path: '\/learn\/:moduleId'/)
   assert.match(routerSource, /path: '\/learn\/:moduleId\/:lessonId'/)
   assert.match(routerSource, /resolveCanonicalLearnRoute/)
+  assert.match(routerSource, /path: '\/spine'/)
   assert.match(routerSource, /path: '\/tracks\/:trackId'/)
   assert.match(routerSource, /path: '\/library\/:domain'/)
   assert.match(routerSource, /path: '\/progress'/)
