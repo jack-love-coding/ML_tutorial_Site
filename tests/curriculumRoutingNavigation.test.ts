@@ -72,6 +72,8 @@ test('default learning path mirrors the approved Curriculum Spine V1 order', () 
     'dataset-quality',
   ])
   assert.ok(spineRequiredIds.includes('optimizer-comparison'))
+  assert.ok(spineRequiredIds.indexOf('sequence-embedding-bridge') > spineRequiredIds.indexOf('cnn-visualization'))
+  assert.ok(spineRequiredIds.indexOf('sequence-embedding-bridge') < spineRequiredIds.indexOf('attention-transformer'))
   assert.equal(spineRequiredIds.at(-1), 'attention-transformer')
   assert.ok(!spineRequiredIds.includes('llm-rag'))
   assert.ok(!spineRequiredIds.includes('housing-price-project'))

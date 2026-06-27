@@ -6,6 +6,7 @@ import { classificationProjectModule } from './classificationProjectModule'
 import { modelSelectionModule } from './modelSelectionModule'
 import { treeForestModule } from './treeForestModule'
 import { cnnVisualizationModule } from './cnnVisualizationModule'
+import { sequenceEmbeddingBridgeModule } from './sequenceEmbeddingBridgeModule'
 import { attentionTransformerModule } from './attentionTransformerModule'
 import { optimizerComparisonModule } from './optimizerComparisonModule'
 import { llmRagModule } from './llmRagModule'
@@ -25,6 +26,7 @@ export const moduleOrder: AlgorithmModuleDefinition[] = [
   modelSelectionModule,
   treeForestModule,
   cnnVisualizationModule,
+  sequenceEmbeddingBridgeModule,
   attentionTransformerModule,
   optimizerComparisonModule,
   llmRagModule,

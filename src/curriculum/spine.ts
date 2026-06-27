@@ -188,7 +188,7 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       '模型怎样处理 token 顺序，并用注意力混合上下文？',
       'How does a model handle token order and use attention to mix context?',
     ),
-    requiredModuleIds: ['attention-transformer'],
+    requiredModuleIds: ['sequence-embedding-bridge', 'attention-transformer'],
     supportModuleIds: [
       'linear-algebra-distance-similarity',
       'probability-likelihood-entropy',
@@ -196,14 +196,8 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
     ],
     outcomes: [
       copy(
-        '能解释 token、embedding、Q/K/V、softmax weighted sum、multi-head shape 和 Transformer block。',
-        'Explain tokens, embeddings, Q/K/V, softmax weighted sums, multi-head shapes, and Transformer blocks.',
-      ),
-    ],
-    knownGaps: [
-      copy(
-        '缺少一个独立的序列/embedding 桥接模块，连接表格/图像之后的 token 与 context 概念。',
-        'Missing a sequence/embedding bridge module that connects tabular/image learning to tokens and context.',
+        '能解释 token id、embedding lookup、位置/mask、Q/K/V、softmax weighted sum、multi-head shape 和 Transformer block。',
+        'Explain token ids, embedding lookup, position/mask, Q/K/V, softmax weighted sums, multi-head shapes, and Transformer blocks.',
       ),
     ],
   },

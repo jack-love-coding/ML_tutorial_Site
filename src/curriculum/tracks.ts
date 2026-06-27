@@ -13,8 +13,8 @@ export const curriculumTracks: CurriculumTrack[] = [
     kind: 'core',
     title: copy('默认学习主线', 'Default Spine'),
     description: copy(
-      '从 AI 地图和数据表开始，穿过特征、损失、训练、泛化、非线性模型、CNN，最后到 Attention/Transformer 入门。',
-      'The data-first main route from the AI map and tables through features, loss, training, generalization, nonlinear models, CNNs, and Attention/Transformer basics.',
+      '从 AI 地图和数据表开始，穿过特征、损失、训练、泛化、非线性模型、CNN 和序列桥接，最后到 Attention/Transformer 入门。',
+      'The data-first main route from the AI map and tables through features, loss, training, generalization, nonlinear models, CNNs, a sequence bridge, and Attention/Transformer basics.',
     ),
     moduleIds: [
       'ai-overview',
@@ -39,6 +39,7 @@ export const curriculumTracks: CurriculumTrack[] = [
       'optimizer-comparison',
       'tensor-shapes-vectorization',
       'cnn-visualization',
+      'sequence-embedding-bridge',
       'attention-transformer',
     ],
   },

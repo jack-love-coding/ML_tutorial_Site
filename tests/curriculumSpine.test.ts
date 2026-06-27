@@ -19,6 +19,8 @@ test('curriculum spine defines a data-first route to deep-learning intro', () =>
   assert.equal(requiredIds[4], 'dataset-quality')
   assert.ok(requiredIds.indexOf('numerical-data') < requiredIds.indexOf('beginner-linear-algebra'))
   assert.ok(requiredIds.indexOf('dataset-quality') < requiredIds.indexOf('linear-algebra-feature-space'))
+  assert.ok(requiredIds.indexOf('cnn-visualization') < requiredIds.indexOf('sequence-embedding-bridge'))
+  assert.ok(requiredIds.indexOf('sequence-embedding-bridge') < requiredIds.indexOf('attention-transformer'))
   assert.equal(requiredIds.at(-1), 'attention-transformer')
   assert.ok(!requiredIds.includes('llm-rag'), 'LLM/RAG should remain outside Spine V1')
 })
@@ -27,6 +29,7 @@ test('curriculum spine keeps optimizer comparison required and projects as valid
   const requiredIds = curriculumSpineRequiredModuleIds()
   assert.ok(requiredIds.includes('optimizer-comparison'))
   assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('cnn-visualization'))
+  assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('sequence-embedding-bridge'))
   assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('attention-transformer'))
   assert.ok(!requiredIds.includes('housing-price-project'))
   assert.ok(!requiredIds.includes('classification-project'))
@@ -56,11 +59,14 @@ test('curriculum spine stage records are localized and reference existing module
   }
 
   assert.deepEqual(curriculumSpineValidationIssues(), [])
-  assert.equal(curriculumModuleById.has('sequence-embedding-bridge'), false)
-  assert.ok(
-    curriculumSpineStages
-      .find((stage) => stage.id === 'sequence-attention')
-      ?.knownGaps?.some((gap) => gap.en.includes('sequence/embedding bridge')),
-    'missing sequence/embedding bridge should be captured as a known gap, not a fake module ID',
+  assert.equal(curriculumModuleById.has('sequence-embedding-bridge'), true)
+  assert.equal(
+    Boolean(
+      curriculumSpineStages
+        .find((stage) => stage.id === 'sequence-attention')
+        ?.knownGaps?.some((gap) => gap.en.includes('sequence/embedding bridge')),
+    ),
+    false,
+    'filled sequence/embedding bridge should remove the old known gap',
   )
 })

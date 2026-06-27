@@ -59,6 +59,47 @@ const moduleExpectations = [
     ],
   },
   {
+    slug: 'sequence-embedding-bridge',
+    file: 'sequenceEmbeddingBridgeModule',
+    messageKey: 'sequenceEmbeddingBridge',
+    route: '/learn/sequence-embedding-bridge',
+    chapterCount: 5,
+    chapters: [
+      'why-sequences',
+      'token-ids',
+      'embedding-lookup',
+      'positions-and-masks',
+      'shape-handoff',
+    ],
+    concepts: [
+      'token id',
+      'embedding lookup',
+      '[B,T,H]',
+      'position',
+      'attention mask',
+      '表格',
+      '图像',
+      '老师会先问',
+      '想一想',
+    ],
+    refIds: [
+      'REF-HF-LLM-COURSE',
+      'REF-D2L-ATTENTION',
+      'REF-ANNOTATED-TRANSFORMER',
+    ],
+    checkpointIds: [
+      'sequence-embedding-token-axis',
+      'sequence-embedding-position-role',
+    ],
+    labTokens: [
+      "props.moduleSlug === 'sequence-embedding-bridge'",
+      'sequenceBridgeStages',
+      'selectedSequenceBridgeStage',
+      'workflow-lab__pipeline--sequence-bridge',
+      'workflow-lab__focus--sequence-bridge',
+    ],
+  },
+  {
     slug: 'attention-transformer',
     file: 'attentionTransformerModule',
     messageKey: 'attentionTransformer',
@@ -203,6 +244,7 @@ test('deep learning extension modules are registered between tree forest and fou
   const orderedCatalogTokens = [
     'treeForestModule,',
     'cnnVisualizationModule,',
+    'sequenceEmbeddingBridgeModule,',
     'attentionTransformerModule,',
     'optimizerComparisonModule,',
     'llmRagModule,',
@@ -232,7 +274,7 @@ test('deep learning extension modules cover required learning loops and referenc
     const moduleSource = read(`src/data/${expectation.file}.ts`)
     assert.match(moduleSource, new RegExp(`slug: '${expectation.slug}'`))
     assert.match(moduleSource, new RegExp(`route: '${expectation.route}'`))
-    assert.equal([...moduleSource.matchAll(/chapter\(\s*'/g)].length, 6)
+    assert.equal([...moduleSource.matchAll(/chapter\(\s*'/g)].length, expectation.chapterCount ?? 6)
 
     for (const chapterId of expectation.chapters) {
       assert.match(moduleSource, new RegExp(`chapter\\(\\s*'${chapterId}'`))

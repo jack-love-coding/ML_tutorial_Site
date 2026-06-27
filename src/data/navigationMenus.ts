@@ -116,7 +116,14 @@ export const coreExperimentNavigationGroups: CoreExperimentNavigationGroup[] = [
   {
     id: 'advanced-architectures',
     label: copy('树模型、深度与生成', 'Trees, Deep Learning, and Generative AI'),
-    moduleSlugs: ['tree-forest', 'mlp', 'cnn-visualization', 'attention-transformer', 'llm-rag'],
+    moduleSlugs: [
+      'tree-forest',
+      'mlp',
+      'cnn-visualization',
+      'sequence-embedding-bridge',
+      'attention-transformer',
+      'llm-rag',
+    ],
   },
 ]
 

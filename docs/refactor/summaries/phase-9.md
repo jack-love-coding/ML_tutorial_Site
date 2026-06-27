@@ -1,6 +1,6 @@
 # Phase 9 Summary: Curriculum Spine V1
 
-**Status:** Phase 9C implemented and verified.
+**Status:** Phase 9D implemented and targeted tests pass.
 
 ## Phase 9A - Spine Data Contract
 
@@ -18,6 +18,12 @@ Phase 9C adds `/spine` as the learner-facing stage view for Curriculum Spine V1.
 
 The stage view is generated from `curriculumSpineStages` and shows required modules, support lenses, project validation, completion standards, and known gaps without adding progress/backend scope or rewriting lesson bodies.
 
+## Phase 9D - Content Gap Fill: Sequence Bridge
+
+Phase 9D fills the documented sequence/embedding bridge gap before Attention/Transformer. The new `sequence-embedding-bridge` module stays intentionally small: token sequence framing, token ids, embedding lookup, position/mask, and the `[B,T,H]` handoff into Q/K/V.
+
+The module is now part of the required Default Spine between `cnn-visualization` and `attention-transformer`, appears in the core track and legacy advanced-architecture navigation group, and includes bilingual checkpoints plus the existing workflow-lab interaction pattern.
+
 ## Decisions Encoded
 
 - The beginner-facing route is a mixed spiral route, not separate Math Lab, Data Lab, and Algorithm tracks.
@@ -26,7 +32,7 @@ The stage view is generated from `curriculumSpineStages` and shows required modu
 - `attention-transformer` is the Spine V1 endpoint.
 - `llm-rag` remains an advanced application extension outside the required route.
 - `housing-price-project` and `classification-project` are recommended validation capstones, not hard blockers.
-- The missing sequence/embedding bridge is documented as a known gap instead of added as a fake module reference.
+- The sequence/embedding bridge is now a real required module instead of a known gap.
 
 ## Files
 
@@ -51,6 +57,17 @@ The stage view is generated from `curriculumSpineStages` and shows required modu
 - `src/styles/views/curriculum.css`
 - `scripts/create-pages-fallbacks.mjs`
 - `tests/curriculumSpineLanding.test.ts`
+- `src/data/sequenceEmbeddingBridgeModule.ts`
+- `src/components/AppliedWorkflowLessonLab.vue`
+- `src/curriculum/adapters/algorithmAdapter.ts`
+- `src/data/algorithmCheckpoints.ts`
+- `src/i18n/messages.ts`
+- `src/types/ml.ts`
+- `src/views/AlgorithmView.vue`
+- `tests/deep-learning-extension-modules.test.mjs`
+- `tests/algorithm-progress.test.ts`
+- `tests/curriculumCatalog.test.ts`
+- `tests/site-navigation.test.ts`
 
 ## Verification
 
@@ -69,8 +86,16 @@ The stage view is generated from `curriculumSpineStages` and shows required modu
 - `npm test`: pass, 248 tests.
 - `npm run build`: pass with existing large-chunk warning.
 - `npm run build:pages`: pass with existing large-chunk warning.
-- Playwright `/spine` check: desktop and mobile show 11 stages and 11 stage-nav links, known gaps and project validation are visible, flat module list remains linked, no horizontal overflow, and console errors remain 0.
+- Playwright `/spine` check: desktop and mobile show 11 stages and 11 stage-nav links, project validation is visible, flat module list remains linked, no horizontal overflow, and console errors remain 0.
+- `node --test tests/deep-learning-extension-modules.test.mjs tests/curriculumSpine.test.ts tests/curriculumRoutingNavigation.test.ts tests/curriculumCatalog.test.ts tests/algorithm-progress.test.ts tests/site-navigation.test.ts`: pass, 23 tests.
+- `git diff --check`: pass.
+- `npm test`: pass, 248 tests.
+- `npm run build`: pass with existing large-chunk warning.
+- `npm run build:pages`: pass with existing large-chunk warning.
+- `node scripts/create-pages-fallbacks.mjs`: pass, 46 GitHub Pages SPA fallback routes including `/learn/sequence-embedding-bridge`.
+- Playwright `/learn/sequence-embedding-bridge` check: desktop and mobile show 5 chapter buttons, sequence-bridge workflow lab, 2 checkpoints, no horizontal overflow, and no console errors.
+- Playwright `/spine` check after Phase 9D: desktop and mobile show 11 stages; `sequence-embedding-bridge` is visible between CNN and Attention; no horizontal overflow.
 
 ## Next Step
 
-Phase 9D should either fill the documented sequence/embedding bridge gap or improve stage-level lesson introductions for the highest-friction transitions.
+Phase 9E should harmonize stage-level and bridge copy for the highest-friction transitions without rewriting every lesson body.

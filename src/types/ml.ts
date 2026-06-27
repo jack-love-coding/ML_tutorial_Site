@@ -6,6 +6,7 @@ export type ModuleSlug =
   | 'model-selection'
   | 'tree-forest'
   | 'cnn-visualization'
+  | 'sequence-embedding-bridge'
   | 'attention-transformer'
   | 'optimizer-comparison'
   | 'llm-rag'

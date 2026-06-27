@@ -72,7 +72,14 @@ test('spine landing stage references resolve to current catalog modules', () => 
     'stage landing should expose recommended project validation capstones',
   )
   assert.ok(
-    curriculumSpineStages.some((stage) => stage.knownGaps?.length),
-    'stage landing should expose known coverage gaps instead of hiding them',
+    curriculumSpineStages.some((stage) => stage.requiredModuleIds.includes('sequence-embedding-bridge')),
+    'stage landing should expose the filled sequence/embedding bridge as a required module',
+  )
+  assert.equal(
+    curriculumSpineStages.some((stage) =>
+      stage.knownGaps?.some((gap) => gap.en.includes('sequence/embedding bridge')),
+    ),
+    false,
+    'stage landing should not keep the old sequence/embedding known gap after the bridge module ships',
   )
 })

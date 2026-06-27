@@ -72,6 +72,14 @@ const algorithmEntries: CurriculumRouteManifestEntry[] = [
     firstLessonId: 'image-volume',
   },
   {
+    id: 'sequence-embedding-bridge',
+    source: 'algorithm',
+    domain: 'deep-learning',
+    route: '/learn/sequence-embedding-bridge',
+    title: copy('序列与 Embedding 桥接', 'Sequence and Embedding Bridge'),
+    firstLessonId: 'why-sequences',
+  },
+  {
     id: 'attention-transformer',
     source: 'algorithm',
     domain: 'deep-learning',
@@ -426,6 +434,7 @@ export const coreLearningPathModuleIds = [
   'optimizer-comparison',
   'tensor-shapes-vectorization',
   'cnn-visualization',
+  'sequence-embedding-bridge',
   'attention-transformer',
 ]
 
