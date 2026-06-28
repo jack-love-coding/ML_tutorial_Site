@@ -1,7 +1,7 @@
 # Phase 11: Data Pipeline Task Lab Design
 
 **Created:** 2026-06-28  
-**Status:** Draft for review.
+**Status:** Implemented and verified.
 
 **Scope:** Upgrade one early data-first lesson into a task interaction for split/fit/transform order, leakage detection, and feature matrix shape.
 
