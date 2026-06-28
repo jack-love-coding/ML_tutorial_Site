@@ -1,14 +1,14 @@
 # GSD State: ML Atlas Curriculum V2
 
-**Updated:** 2026-06-26
-**Status:** Phase 9C spine stage landing implemented and verified
+**Updated:** 2026-06-28
+**Status:** Phase 10 sequence bridge shape lab merged into main; Phase 11 data pipeline task lab design is next
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Curriculum Spine V1 route clarity and content coverage
+**Current focus:** Data-first lesson depth without adding backend, database, or durable progress scope
 
 ## Baseline
 
@@ -45,6 +45,8 @@ See `.planning/codebase/`:
 - `optimizer-comparison` is required in Spine V1 before CNN/Attention.
 - `attention-transformer` is the Spine V1 endpoint; `llm-rag` remains an advanced application extension.
 - Housing and classification projects are recommended validation capstones, not hard blockers.
+- The sequence/embedding bridge is now a required Spine V1 module before Attention.
+- Lesson-depth work should prioritize early required data pipeline understanding before adding more progress UI.
 
 ## Completed Work
 
@@ -296,9 +298,73 @@ See `.planning/codebase/`:
   - `npm run build:pages`: pass with existing large-chunk warning.
   - Playwright `/spine` check: desktop and mobile show 11 stages and 11 stage-nav links, known gaps and project validation are visible, flat module list remains linked, no horizontal overflow, 0 console errors.
 
+### Phase 9D - Sequence Embedding Bridge Module
+
+- Added `sequence-embedding-bridge` as a compact required module before Attention/Transformer.
+- Covered token sequence framing, token ids, embedding lookup, position/mask, and `[B,T,H]` handoff into Q/K/V.
+- Inserted the module between `cnn-visualization` and `attention-transformer` in the default spine.
+- Registered the module in the core track and legacy advanced-architecture navigation group.
+- Added bilingual checkpoints, algorithm progress support, catalog coverage, and GitHub Pages fallback coverage.
+- Verified:
+  - `node --test tests/deep-learning-extension-modules.test.mjs tests/curriculumSpine.test.ts tests/curriculumRoutingNavigation.test.ts tests/curriculumCatalog.test.ts tests/algorithm-progress.test.ts tests/site-navigation.test.ts`: pass, 23 tests.
+  - `git diff --check`: pass.
+  - `npm test`: pass, 248 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - `node scripts/create-pages-fallbacks.mjs`: pass, 46 GitHub Pages SPA fallback routes.
+  - Playwright `/learn/sequence-embedding-bridge` check: desktop and mobile show 5 chapter buttons, sequence-bridge workflow lab, 2 checkpoints, no horizontal overflow, and 0 console errors.
+
+### Phase 9E - Route Copy Harmonization
+
+- Added bilingual `bridge` copy to every `CurriculumSpineStage`.
+- Rendered route bridge copy under each `/spine` stage learner question.
+- Updated `/spine` hero copy so it reads as route guidance rather than gap tracking.
+- Tightened selected completion standards into action-shaped outcomes.
+- Verified:
+  - `node --test tests/curriculumSpine.test.ts tests/curriculumSpineLanding.test.ts`: pass, 6 tests.
+  - `node --test tests/curriculumSpine.test.ts tests/curriculumSpineLanding.test.ts tests/curriculumRoutingNavigation.test.ts tests/curriculumCatalog.test.ts tests/homeCurriculumIA.test.ts`: pass, 18 tests.
+  - `git diff --check`: pass.
+  - `npm test`: pass, 248 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - `node scripts/create-pages-fallbacks.mjs`: pass, 46 GitHub Pages SPA fallback routes.
+  - Playwright `/spine` Phase 9E check: desktop and 390px mobile both show 11 stages and 11 bridge paragraphs, no horizontal overflow, 0 console errors.
+
+### Phase 9F - Support Lens Guidance
+
+- Added optional bilingual `supportNote` to `CurriculumSpineStage`.
+- Added stage-specific support-lens notes for stages with support modules.
+- Rendered support notes inside the existing `/spine` support-lens section while keeping the old generic copy as fallback.
+- Verified:
+  - `node --test tests/curriculumSpine.test.ts tests/curriculumSpineLanding.test.ts`: pass, 6 tests.
+  - `node --test tests/curriculumSpine.test.ts tests/curriculumSpineLanding.test.ts tests/curriculumRoutingNavigation.test.ts tests/curriculumCatalog.test.ts tests/homeCurriculumIA.test.ts`: pass, 18 tests.
+  - `git diff --check`: pass.
+  - `npm test`: pass, 248 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - `node scripts/create-pages-fallbacks.mjs`: pass, 46 GitHub Pages SPA fallback routes.
+  - Playwright `/spine` Phase 9F check: desktop and 390px mobile both show 11 stages, 11 bridge paragraphs, and 7 stage-specific support notes; no horizontal overflow; 0 console errors.
+
+### Phase 10 - Sequence Bridge Shape Lab
+
+- Added `src/simulations/sequenceBridgeLab.ts` for deterministic sequence shape and mask calculations.
+- Added `src/components/SequenceBridgeShapeLab.vue` with controls for `B`, `T`, `H`, padding, mask mode, and query token.
+- Replaced the sequence bridge workflow branch in `AppliedWorkflowLessonLab.vue` with the dedicated task lab.
+- Added workflow styles for shape cards, mask visibility cells, controls, and mobile layout.
+- Added `tests/sequence-bridge-lab.test.ts` and updated deep-learning extension module wiring tests.
+- Added Phase 10 design, summary, and implementation plan docs.
+- Verified:
+  - `node --test tests/sequence-bridge-lab.test.ts tests/deep-learning-extension-modules.test.mjs`: pass, 6 tests.
+  - `git diff --check`: pass.
+  - `npm test`: pass, 251 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
+  - Playwright `/learn/sequence-embedding-bridge/embedding-lookup`: desktop and 390px mobile render the shape lab, shape/mask controls update readouts, horizontal overflow is 0, console errors are 0.
+
 ## Next Recommended Command
 
-Review the Phase 9C spine stage landing PR, then decide whether Phase 9D should fill the sequence/embedding bridge gap or improve stage-level lesson introductions:
+Design Phase 11 as a narrow data pipeline task lab, then review the design before implementation:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -312,7 +378,10 @@ Review the Phase 9C spine stage landing PR, then decide whether Phase 9D should 
 - `docs/refactor/summaries/phase-7.md`
 - `docs/refactor/summaries/phase-8.md`
 - `docs/refactor/summaries/phase-9.md`
+- `docs/refactor/summaries/phase-10.md`
 - `docs/refactor/designs/phase-9-curriculum-spine-v1.md`
+- `docs/refactor/designs/phase-10-sequence-bridge-shape-lab.md`
+- `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: turn the most visible Stage 10 known gap into a small sequence/embedding bridge module or stage introduction, still without adding progress/backend scope.
+Suggested next direction: upgrade one required early data module into a split/fit/transform task lab that exposes leakage, feature-vector shape, and safe model-input handoff, still without adding backend/progress scope.

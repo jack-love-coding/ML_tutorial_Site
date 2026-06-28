@@ -263,5 +263,115 @@
 - Legacy Math Lab, Data Lab, Algorithm, project, library, progress, and canonical learn routes remain reachable.
 - `npm test`, `npm run build`, and `npm run build:pages` pass.
 
+## Phase 9D: Sequence Embedding Bridge Module
+
+**Goal:** Fill the required sequence/embedding bridge gap before Attention and Transformer without broadening into a full LLM/RAG rewrite.
+
+**Deliverables:**
+- `sequence-embedding-bridge` algorithm module.
+- Spine insertion between CNN and Attention.
+- Core track and advanced architecture navigation coverage.
+- Bilingual checkpoints and workflow-lab coverage.
+- Route, catalog, progress, navigation, and Pages fallback tests.
+
+**Must Not Do:**
+- Do not add backend, account, database, or new progress tracking behavior.
+- Do not rewrite Attention, Transformer, or RAG content.
+- Do not make LLM/RAG part of the required Spine V1 endpoint.
+
+**Exit Criteria:**
+- A learner can reach the sequence bridge from `/spine`, `/tracks/core-learning-path`, and `/learn/sequence-embedding-bridge`.
+- The module explains token ids, embedding lookup, position/mask, and `[B,T,H]` handoff before Attention.
+- Existing deep-learning, catalog, progress, navigation, build, and Pages checks pass.
+
+## Phase 9E: Route Copy Harmonization
+
+**Goal:** Make `/spine` read like a guided learner route by explaining why each stage comes next.
+
+**Deliverables:**
+- Bilingual `bridge` copy on every `CurriculumSpineStage`.
+- `/spine` rendering for stage bridge copy.
+- Hero copy that frames the page around route guidance instead of gap tracking.
+- Action-shaped completion standards where the previous copy read like topic lists.
+- Contract and landing-page tests for bridge copy.
+
+**Must Not Do:**
+- Do not rewrite lesson bodies.
+- Do not add new modules, routes, progress tracking, backend, or layout concepts.
+- Do not turn support lenses into hard prerequisites.
+
+**Exit Criteria:**
+- Every spine stage has non-empty bilingual bridge copy.
+- `/spine` renders stage bridge paragraphs on desktop and mobile without horizontal overflow.
+- Existing flat track, required module order, and legacy routes remain reachable.
+
+## Phase 9F: Support Lens Guidance
+
+**Goal:** Make support lenses stage-specific and just-in-time, without turning them into hard blockers.
+
+**Deliverables:**
+- Optional bilingual `supportNote` on `CurriculumSpineStage`.
+- Stage-specific support note copy for each stage with support modules.
+- `/spine` rendering for `supportNote` in the existing support-lens section.
+- Tests for support note completeness and landing-page rendering.
+
+**Must Not Do:**
+- Do not add a per-module relationship schema.
+- Do not add new modules, routes, progress tracking, backend, or layout redesign.
+- Do not convert support lenses into prerequisites.
+
+**Exit Criteria:**
+- Every stage with support modules has bilingual support guidance.
+- Stages without support modules do not carry unused support-copy fields.
+- `/spine` keeps required modules, project validation, and flat-track behavior unchanged.
+
+## Phase 10: Sequence Bridge Shape Lab
+
+**Goal:** Upgrade the sequence bridge workflow lab from static stage switching into an interactive shape and mask task.
+
+**Deliverables:**
+- `src/simulations/sequenceBridgeLab.ts` for deterministic sequence shape and mask calculations.
+- `src/components/SequenceBridgeShapeLab.vue`.
+- Sequence bridge branch wiring in `AppliedWorkflowLessonLab.vue`.
+- Shape-card, mask-cell, control, and mobile styles.
+- Targeted sequence bridge tests and deep-learning module wiring updates.
+- Phase 10 design and summary docs.
+
+**Must Not Do:**
+- Do not migrate every workflow lab.
+- Do not add backend, database, or Progress V2 persistence.
+- Do not rewrite Attention/Transformer content.
+- Do not introduce a new lesson-block schema.
+
+**Exit Criteria:**
+- The lab lets learners manipulate `B`, `T`, `H`, padding, mask mode, and query token.
+- Shape and mask behavior are covered by Node tests.
+- `/learn/sequence-embedding-bridge/embedding-lookup` renders on desktop and mobile without horizontal overflow.
+- `npm test`, `npm run build`, `npm run build:pages`, and Pages fallback generation pass.
+
+## Phase 11: Data Pipeline Task Lab
+
+**Goal:** Turn the early data-first route into a task interaction where learners identify split/fit/transform order, leakage risk, and the final `[B,F]` feature matrix handed to a model.
+
+**Deliverables:**
+- A small deterministic pipeline simulation for train/validation/test split, fit-only-on-train transforms, numeric scaling, category vocabulary, and leakage warnings.
+- A dedicated Vue task lab for one required data-first module.
+- Integration into the selected Data Lab or workflow lesson without changing backend/progress scope.
+- Tests for pipeline order, leakage detection, feature-shape readouts, and component wiring.
+- Phase 11 design, summary, and verification notes.
+
+**Must Not Do:**
+- Do not add backend, database, accounts, or durable progress tracking.
+- Do not migrate every Data Lab module.
+- Do not replace the full Data Lab schema or route system.
+- Do not make this a broad pandas/sklearn project rewrite.
+
+**Exit Criteria:**
+- A learner can distinguish split, fit, transform, and evaluate responsibilities.
+- The lab exposes at least one leakage state and one safe pipeline state.
+- The final feature matrix shape is visible and consistent with selected numeric/category columns.
+- Desktop and mobile layouts have no horizontal overflow.
+- `npm test`, relevant targeted tests, `npm run build`, and `npm run build:pages` pass.
+
 ---
 *Roadmap created: 2026-06-25*
