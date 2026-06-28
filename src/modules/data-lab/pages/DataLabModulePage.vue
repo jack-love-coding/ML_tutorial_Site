@@ -27,6 +27,7 @@ const labComponentRegistry = {
   CleaningPipelineLab: defineAsyncComponent(() => import('../labs/CleaningPipelineLab.vue')),
   EdaWorkbenchLab: defineAsyncComponent(() => import('../labs/EdaWorkbenchLab.vue')),
   PandasPipelineLab: defineAsyncComponent(() => import('../labs/PandasPipelineLab.vue')),
+  DataPipelineTaskLab: defineAsyncComponent(() => import('../labs/DataPipelineTaskLab.vue')),
   CategoricalEncodingLab: defineAsyncComponent(() => import('../labs/CategoricalEncodingLab.vue')),
 } satisfies Record<DataLabConfig['componentName'], ReturnType<typeof defineAsyncComponent>>
 

@@ -97,6 +97,7 @@ export interface DataLabConfig {
     | 'CleaningPipelineLab'
     | 'EdaWorkbenchLab'
     | 'PandasPipelineLab'
+    | 'DataPipelineTaskLab'
     | 'CategoricalEncodingLab'
   successCriteria: LocalizedCopy[]
 }
