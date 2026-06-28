@@ -93,10 +93,9 @@ const moduleExpectations = [
     ],
     labTokens: [
       "props.moduleSlug === 'sequence-embedding-bridge'",
-      'sequenceBridgeStages',
-      'selectedSequenceBridgeStage',
+      'import SequenceBridgeShapeLab',
+      '<SequenceBridgeShapeLab',
       'workflow-lab__pipeline--sequence-bridge',
-      'workflow-lab__focus--sequence-bridge',
     ],
   },
   {
@@ -317,6 +316,7 @@ test('deep learning extension modules expose checkpoints, lab stages, and centra
 
   for (const className of [
     'workflow-lab__focus--cnn',
+    'sequence-shape-lab',
     'workflow-lab__focus--attention',
     'workflow-lab__focus--optimizer',
     'workflow-lab__focus--rag',
