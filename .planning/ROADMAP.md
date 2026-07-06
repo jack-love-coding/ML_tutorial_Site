@@ -455,5 +455,35 @@
 - Core logic is tested outside Vue, and source wiring tests confirm the lab is reachable.
 - `npm test`, relevant targeted tests, `npm run build`, and `npm run build:pages` pass if runtime code changes.
 
+## Phase 15: Curriculum Architecture and Teaching Route Audit
+
+**Goal:** Return the refactor to curriculum architecture, teaching route clarity, module responsibility, and content coverage before adding more checklist or progress surfaces.
+
+**Deliverables:**
+- `docs/refactor/designs/phase-15-curriculum-architecture-teaching-route-audit.md`.
+- `docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md`.
+- A full catalog responsibility table covering every current Curriculum V2 module.
+- A coverage matrix for the default spine, topic library, project validation, advanced extensions, and known gaps.
+- Findings for route conflicts, duplicated or misplaced content, weak interactions, overdesigned surfaces, and missing high-value teaching content.
+- A prioritized implementation sequence for the next 3 to 5 phases.
+- `.planning/STATE.md` update with the approved next direction.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add a project readiness checklist in this phase.
+- Do not rewrite lesson bodies or migrate all modules into `LessonPage`.
+- Do not delete, redirect, or deprecate legacy routes.
+- Do not add new course inventory before the audit proves the gap.
+- Do not make checklist/progress mechanics the primary next milestone.
+
+**Exit Criteria:**
+- Every catalog module is classified exactly once by primary responsibility.
+- Every required-core module receives a teaching quality classification.
+- Every capability band has adequate coverage, an explicit gap, or a deliberate non-goal.
+- Findings cite local files or prior phase docs.
+- P0 route/content blockers are separated from P1 quality improvements and P2 polish.
+- The proposed next phases prioritize route clarity and teaching content quality.
+- `git diff --check` passes.
+
 ---
 *Roadmap created: 2026-06-25*
