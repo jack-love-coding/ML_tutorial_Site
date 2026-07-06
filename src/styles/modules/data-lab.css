@@ -766,6 +766,173 @@
   accent-color: var(--data-accent, #2563eb);
 }
 
+.categorical-vocabulary-task-lab__visual,
+.categorical-vocabulary-task-lab__section {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.categorical-vocabulary-task-lab__matrix,
+.categorical-vocabulary-task-lab__features,
+.categorical-vocabulary-task-lab__vocabulary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.categorical-vocabulary-task-lab__matrix article,
+.categorical-vocabulary-task-lab__slot-map,
+.categorical-vocabulary-task-lab__status,
+.categorical-vocabulary-task-lab__vocabulary article,
+.categorical-vocabulary-task-lab__mapped {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.categorical-vocabulary-task-lab__matrix span,
+.categorical-vocabulary-task-lab__slot-map header span,
+.categorical-vocabulary-task-lab__status span,
+.categorical-vocabulary-task-lab__vocabulary span,
+.categorical-vocabulary-task-lab__mapped span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.categorical-vocabulary-task-lab__matrix strong,
+.categorical-vocabulary-task-lab__status strong,
+.categorical-vocabulary-task-lab__vocabulary strong {
+  min-width: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.categorical-vocabulary-task-lab__slot-map header,
+.categorical-vocabulary-task-lab__heading,
+.categorical-vocabulary-task-lab__mapped div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.categorical-vocabulary-task-lab__slot-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: white;
+}
+
+.categorical-vocabulary-task-lab__slot-row strong,
+.categorical-vocabulary-task-lab__slot-row em,
+.categorical-vocabulary-task-lab__mapped code {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.categorical-vocabulary-task-lab__slot-row em {
+  color: var(--muted);
+  font-style: normal;
+}
+
+.categorical-vocabulary-task-lab__slot-row.is-drift {
+  background: rgba(190, 18, 60, 0.08);
+}
+
+.categorical-vocabulary-task-lab__heading button,
+.categorical-vocabulary-task-lab__scenarios button {
+  min-width: 0;
+  min-height: 38px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  background: white;
+  color: var(--ink);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.categorical-vocabulary-task-lab__heading button {
+  padding: 0 12px;
+  border-radius: 999px;
+}
+
+.categorical-vocabulary-task-lab__scenarios {
+  display: grid;
+  gap: 10px;
+}
+
+.categorical-vocabulary-task-lab__scenarios button {
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.categorical-vocabulary-task-lab__scenarios button.is-active {
+  border-color: color-mix(in srgb, var(--data-accent, #2563eb) 44%, white);
+  background: color-mix(in srgb, var(--data-accent, #2563eb) 11%, white);
+}
+
+.categorical-vocabulary-task-lab__scenarios small,
+.categorical-vocabulary-task-lab__status p,
+.categorical-vocabulary-task-lab__vocabulary small {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.categorical-vocabulary-task-lab__features {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.categorical-vocabulary-task-lab__features legend {
+  grid-column: 1 / -1;
+  padding: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.categorical-vocabulary-task-lab__features label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 14px;
+  background: rgba(248, 250, 252, 0.92);
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.categorical-vocabulary-task-lab__features input {
+  accent-color: var(--data-accent, #2563eb);
+}
+
+.categorical-vocabulary-task-lab__status.is-warning {
+  border-color: rgba(190, 18, 60, 0.24);
+  background: rgba(190, 18, 60, 0.08);
+}
+
+.categorical-vocabulary-task-lab__status.is-safe {
+  border-color: rgba(15, 159, 122, 0.24);
+  background: rgba(15, 159, 122, 0.1);
+}
+
 .data-article-nav {
   display: grid;
   gap: 4px;
@@ -921,7 +1088,10 @@
   .data-pipeline-steps,
   .data-pipeline-task-lab__readouts,
   .data-pipeline-task-lab__fit,
-  .data-pipeline-task-lab__features {
+  .data-pipeline-task-lab__features,
+  .categorical-vocabulary-task-lab__matrix,
+  .categorical-vocabulary-task-lab__features,
+  .categorical-vocabulary-task-lab__vocabulary {
     grid-template-columns: 1fr;
   }
 

@@ -138,6 +138,7 @@ test('data lab modules expose a complete independent learning path', () => {
 
   assert.deepEqual([...componentNames].sort(), [
     'CategoricalEncodingLab',
+    'CategoricalVocabularyTaskLab',
     'CleaningPipelineLab',
     'ColumnTypeLab',
     'DataPipelineTaskLab',

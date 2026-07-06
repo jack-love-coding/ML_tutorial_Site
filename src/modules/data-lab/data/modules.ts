@@ -370,7 +370,7 @@ In pandas, object, string, category, and int dtype are technical appearances, no
 
 A classroom exercise can build value_counts from training data, set a minFrequency, merge rare categories into RARE, and map post-training categories into OOV. Students then see that a stable input contract matters more than merely converting strings into numbers.`,
         ),
-        { visualIds: ['categorical-vocabulary'], labIds: ['categorical-encoding-lab'] },
+        { visualIds: ['categorical-vocabulary'], labIds: ['categorical-vocabulary-task-lab', 'categorical-encoding-lab'] },
       ),
       section(
         'one-hot-and-sparsity',
@@ -435,6 +435,10 @@ The classroom goal is to propose a combination hypothesis first and check valida
       video('feature-cross-video', 'feature-cross-sparsity', copy('特征交叉动画', 'Feature-cross animation'), copy('展示交叉维度如何随词表增长。', 'Shows cross dimensionality growing with vocabularies.')),
     ],
     labs: [
+      lab('categorical-vocabulary-task-lab', copy('词表契约任务实验', 'Vocabulary Contract Task Lab'), 'CategoricalVocabularyTaskLab', [
+        copy('能说明验证、测试和线上样本必须复用训练词表与槽位顺序。', 'Explain why validation, test, and serving examples must reuse the training vocabulary and slot order.'),
+        copy('能判断 OOV、RARE 和高基数 ID 对最终 [B,F] 的影响。', 'Judge how OOV, RARE, and high-cardinality IDs affect the final [B,F] matrix.'),
+      ]),
       lab('categorical-encoding-lab', copy('类别编码实验室', 'Categorical Encoding Lab'), 'CategoricalEncodingLab', [
         copy('能构建训练词表并处理未知类别。', 'Build a training vocabulary and handle unknown categories.'),
         copy('能比较 one-hot、低频合并、哈希和特征交叉的影响。', 'Compare one-hot, rare merging, hashing, and feature crosses.'),
