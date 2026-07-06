@@ -100,6 +100,7 @@ export interface DataLabConfig {
     | 'DataPipelineTaskLab'
     | 'CategoricalVocabularyTaskLab'
     | 'CategoricalEncodingLab'
+    | 'DataQualityDecisionRecordLab'
   successCriteria: LocalizedCopy[]
 }
 

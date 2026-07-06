@@ -1,14 +1,14 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-07
-**Status:** Phase 13 categorical vocabulary contract task lab merged; Phase 14 Data Quality Decision Record design is drafted for review.
+**Status:** Phase 14 data quality decision record task lab implemented and verified; Phase 15 should return to curriculum architecture, teaching route clarity, and content coverage before adding more checklist/progress surfaces.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Data-first lesson depth without adding backend, database, or durable progress scope
+**Current focus:** Curriculum route clarity, module responsibility, and high-quality content coverage before backend, database, or durable progress scope
 
 ## Baseline
 
@@ -55,6 +55,8 @@ See `.planning/codebase/`:
 - Phase 14 should target `dataset-quality` with a narrow decision-record task before project-readiness checklist work.
 - Phase 14 design should add a `DataQualityDecisionRecordLab` near `quality-report`, while keeping `EdaWorkbenchLab` and `CleaningPipelineLab` available as observation and cleaning-policy surfaces.
 - Phase 14 should not add backend, database, durable progress tracking, route changes, project readiness checklist work, or a general EDA/report builder.
+- The `housing-price-project` readiness checklist remains a P2 local improvement, not the next milestone driver.
+- Phase 15 should audit and design curriculum architecture, teaching route, module responsibilities, and content coverage before adding more checklist/progress surfaces.
 
 ## Completed Work
 
@@ -416,9 +418,26 @@ See `.planning/codebase/`:
   - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
   - Playwright `/data-lab/modules/categorical-data`: desktop and 390px mobile render the task lab; safe scenario has no slot drift; validation recompute shows slot drift; horizontal overflow is false; console errors are 0.
 
+### Phase 14 - Data Quality Decision Record
+
+- Added `src/modules/data-lab/utils/dataQualityDecisionTask.ts` for deterministic missingness, duplicate, outlier, label-timing, and imbalance decision scenarios.
+- Added `src/modules/data-lab/labs/DataQualityDecisionRecordLab.vue` with scenario controls, issue/treatment/risk selection, evidence card, shape impact, status feedback, code sketch, and decision-record preview.
+- Registered `DataQualityDecisionRecordLab` in the typed Data Lab schema and lazy lab registry.
+- Attached the task lab to `dataset-quality` near `quality-report` while keeping `EdaWorkbenchLab` and `CleaningPipelineLab` reachable.
+- Added responsive Data Lab styles and source-wiring tests.
+- Preserved non-goals: no backend, database, durable progress tracking, new route, Data Lab schema migration, project readiness checklist, general EDA/report builder, or extra Three.js interaction.
+- Verified:
+  - `node --test tests/data-quality-decision-record-lab.test.ts tests/data-lab.test.ts tests/data-lab-layout.test.mjs`: pass, 20 tests.
+  - `git diff --check`: pass.
+  - `npm test`: pass, 266 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
+  - Playwright `/data-lab/modules/dataset-quality`: desktop and 390px mobile render the task lab; 5 scenarios are visible; default scenario is ready to record; under-stated duplicate risk shows review warning; horizontal overflow is false; console errors are 0.
+
 ## Next Recommended Command
 
-Review the Phase 14 `dataset-quality` decision-record design before implementation:
+Design Phase 15 as a curriculum architecture and teaching-route audit before expanding checklist, progress, or project handoff surfaces:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -429,6 +448,7 @@ Review the Phase 14 `dataset-quality` decision-record design before implementati
 - `docs/refactor/designs/phase-13-categorical-vocabulary-contract-task-lab.md`
 - `docs/refactor/designs/phase-14-data-quality-decision-record.md`
 - `docs/refactor/summaries/phase-13.md`
+- `docs/refactor/summaries/phase-14.md`
 - `docs/refactor/summaries/phase-1.md`
 - `docs/refactor/summaries/phase-2.md`
 - `docs/refactor/summaries/phase-3.md`
@@ -445,4 +465,4 @@ Review the Phase 14 `dataset-quality` decision-record design before implementati
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: review and approve Phase 14 design, then implement `dataset-quality` as a narrow decision-record task. It should make learners choose one quality finding, one treatment, and one risk level from EDA/cleaning evidence before the housing project handoff. Do not add backend, database, account, durable progress scope, routes, schema migration, project readiness checklist work, or broad project UI work.
+Suggested next direction: design Phase 15 as a curriculum architecture and teaching-route audit. It should reconcile the current Default Spine, Topic Library, Project modules, and existing Math/Data/Algorithm content against the site goal: a coherent, high-quality ML learning route. The phase should produce a coverage matrix, module responsibility map, content gap list, overdesign/underdesign findings, and a prioritized implementation sequence. Do not add backend, database, account, durable progress scope, or Progress V2 expansion in this phase. Treat project readiness checklists as a later local enhancement unless the architecture audit proves they are the highest-impact content gap.

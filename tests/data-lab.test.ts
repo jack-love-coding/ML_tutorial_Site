@@ -142,6 +142,7 @@ test('data lab modules expose a complete independent learning path', () => {
     'CleaningPipelineLab',
     'ColumnTypeLab',
     'DataPipelineTaskLab',
+    'DataQualityDecisionRecordLab',
     'EdaWorkbenchLab',
     'PandasPipelineLab',
   ])
