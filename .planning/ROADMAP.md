@@ -373,5 +373,58 @@
 - Desktop and mobile layouts have no horizontal overflow.
 - `npm test`, relevant targeted tests, `npm run build`, and `npm run build:pages` pass.
 
+## Phase 12: Data-first Corridor Audit
+
+**Goal:** Audit the required data-first corridor from orientation through the first project handoff before adding more lesson interactions.
+
+**Deliverables:**
+- `docs/refactor/designs/phase-12-data-first-corridor-audit.md`.
+- `docs/refactor/audits/phase-12-data-first-corridor-audit.md`.
+- Evidence matrix covering `ai-overview`, `python-notebook`, `numerical-data`, `categorical-data`, `dataset-quality`, and `housing-price-project`.
+- Boundary checks for `splits-generalization` and `classification-project`.
+- One recommended narrow Phase 13 implementation target with scope, non-goals, and acceptance criteria.
+
+**Must Not Do:**
+- Do not rewrite lesson bodies during the audit phase.
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add new routes, schemas, modules, or LessonPage migrations.
+- Do not implement Phase 13 fixes inside the audit PR.
+- Do not broaden the audit to the full math, deep-learning, or LLM/RAG route.
+
+**Exit Criteria:**
+- Every audited module has cited local evidence for gaps or an explicit no-gap finding.
+- Findings classify gap type and severity as `P0`, `P1`, or `P2`.
+- The audit identifies overdesign/simplification risks and coverage/handoff risks, or documents why evidence shows none.
+- The next implementation phase is small enough to review and ship independently.
+- `git diff --check` passes, and targeted documentation/audit tests run if test-covered planning invariants change.
+
+## Phase 13: Categorical Vocabulary Contract Task Lab
+
+**Goal:** Turn the required categorical lesson into a narrow task interaction where learners predict and verify how training vocabulary, unknown categories, rare buckets, and fixed slot order determine the final feature matrix.
+
+**Deliverables:**
+- Deterministic categorical vocabulary task helper.
+- Task lab or task-first branch in the existing `categorical-data` lab surface.
+- Safe and unsafe scenarios for train vocabulary, validation/test recomputed columns, all-data vocabulary leakage, and high-cardinality ID expansion.
+- Readouts for vocabulary source, OOV/RARE mapping, column alignment, sparse active slots, and `[B,F]`.
+- Tests for vocabulary source, slot order, unknown handling, feature counts, and Data Lab source wiring.
+- Phase 13 design and summary docs.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add new routes or migrate the Data Lab schema.
+- Do not rewrite all Data Lab modules.
+- Do not build a general-purpose sklearn encoder simulator.
+- Do not add more 3D or decorative interaction; the task should make the required concept clearer.
+
+**Exit Criteria:**
+- A learner can distinguish training vocabulary from recomputed validation/test vocabulary.
+- At least two unsafe scenarios report explicit reasons.
+- Unknown and rare categories map to stable slots.
+- `[B,F]` changes are visible and consistent with selected categories.
+- Existing `categorical-data` route remains available and bilingual.
+- Core logic is tested outside Vue, and source wiring tests confirm the lab is reachable.
+- `npm test`, relevant targeted tests, `npm run build`, and `npm run build:pages` pass if runtime code changes.
+
 ---
 *Roadmap created: 2026-06-25*
