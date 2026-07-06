@@ -275,7 +275,7 @@ In class, students can compare three inputs: raw values, one-hot bins, and value
 
 The browser lab simulates pandas-style table changes in TypeScript so students can safely adjust options and observe shape and statistics. The matching pandas snippets provide the notebook pattern for carrying the concept to their own datasets.`,
         ),
-        { visualIds: ['pandas-workflow'], labIds: ['pandas-pipeline-lab'] },
+        { visualIds: ['pandas-workflow'], labIds: ['pandas-pipeline-lab', 'data-pipeline-task-lab'] },
       ),
     ],
     visuals: [
@@ -303,6 +303,10 @@ The browser lab simulates pandas-style table changes in TypeScript so students c
       lab('pandas-pipeline-lab', copy('pandas 数值流水线', 'pandas Numeric Pipeline'), 'PandasPipelineLab', [
         copy('能把选择、过滤、派生和聚合对应到 pandas 代码。', 'Map selection, filtering, derivation, and aggregation to pandas code.'),
         copy('能用 shape 变化检查流水线是否合理。', 'Use shape changes to audit whether a pipeline is reasonable.'),
+      ]),
+      lab('data-pipeline-task-lab', copy('split / fit / transform 任务实验', 'split / fit / transform Task Lab'), 'DataPipelineTaskLab', [
+        copy('能判断缩放器和类别词表是否只从训练集估计。', 'Judge whether the scaler and category vocabulary are fit from training data only.'),
+        copy('能把特征选择对应到 [B,F] 矩阵形状变化。', 'Connect feature selection to changes in [B,F] matrix shape.'),
       ]),
     ],
     quizzes: [

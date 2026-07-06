@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
-**Updated:** 2026-06-28
-**Status:** Phase 10 sequence bridge shape lab merged into main; Phase 11 data pipeline task lab design is next
+**Updated:** 2026-07-06
+**Status:** Phase 11 data pipeline task lab implemented and verified; Phase 12 Data-first Corridor Audit is next
 
 ## Project Reference
 
@@ -12,7 +12,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 ## Baseline
 
-- `npm test`: pass, 240 tests.
+- `npm test`: pass, 255 tests.
 - `npm run build`: pass with existing Vite large-chunk warning.
 - `npm run build:pages`: pass with existing Vite large-chunk warning.
 - Baseline details: `docs/refactor/baseline.md`.
@@ -362,9 +362,26 @@ See `.planning/codebase/`:
   - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
   - Playwright `/learn/sequence-embedding-bridge/embedding-lookup`: desktop and 390px mobile render the shape lab, shape/mask controls update readouts, horizontal overflow is 0, console errors are 0.
 
+### Phase 11 - Data Pipeline Task Lab
+
+- Added `src/modules/data-lab/utils/pipelineTask.ts` for deterministic split/fit/transform, leakage, feature-count, and `[B,F]` matrix-shape calculations.
+- Added `src/modules/data-lab/labs/DataPipelineTaskLab.vue` with scenario buttons for safe pipeline, leaky scaler, and leaky category vocabulary.
+- Registered `DataPipelineTaskLab` in the typed Data Lab schema and lazy lab registry.
+- Attached the task lab to the required `numerical-data` module near the existing pandas numeric pipeline.
+- Added responsive Data Lab styles and source-wiring tests.
+- Preserved non-goals: no backend, database, durable progress tracking, new route, full Data Lab migration, or general sklearn/pandas workflow editor.
+- Verified:
+  - `node --test tests/data-pipeline-task-lab.test.ts tests/data-lab.test.ts tests/data-lab-layout.test.mjs`: pass, 18 tests.
+  - `git diff --check`: pass.
+  - `npm test`: pass, 255 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
+  - Playwright `/data-lab/modules/numerical-data`: desktop task lab renders, leaky scaler and vocabulary scenarios update readouts, feature toggles update `[B,F]`, 390px mobile has no horizontal overflow, console errors are 0.
+
 ## Next Recommended Command
 
-Design Phase 11 as a narrow data pipeline task lab, then review the design before implementation:
+Design Phase 12 as a Data-first Corridor Audit before adding more lesson interactions:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -379,9 +396,10 @@ Design Phase 11 as a narrow data pipeline task lab, then review the design befor
 - `docs/refactor/summaries/phase-8.md`
 - `docs/refactor/summaries/phase-9.md`
 - `docs/refactor/summaries/phase-10.md`
+- `docs/refactor/summaries/phase-11.md`
 - `docs/refactor/designs/phase-9-curriculum-spine-v1.md`
 - `docs/refactor/designs/phase-10-sequence-bridge-shape-lab.md`
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: upgrade one required early data module into a split/fit/transform task lab that exposes leakage, feature-vector shape, and safe model-input handoff, still without adding backend/progress scope.
+Suggested next direction: audit the required data-first corridor from `ai-overview` through `housing-price-project`, identify coverage gaps and overdesigned surfaces, then choose the next narrow implementation phase. Do not add backend, database, account, or durable progress scope yet.
