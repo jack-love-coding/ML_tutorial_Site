@@ -426,5 +426,34 @@
 - Core logic is tested outside Vue, and source wiring tests confirm the lab is reachable.
 - `npm test`, relevant targeted tests, `npm run build`, and `npm run build:pages` pass if runtime code changes.
 
+## Phase 14: Data Quality Decision Record
+
+**Goal:** Turn the required `dataset-quality` lesson into a narrow task interaction where learners convert one EDA/cleaning signal into a reviewable quality decision before the housing project handoff.
+
+**Deliverables:**
+- Deterministic data-quality decision helper.
+- Task lab or task-first branch in the existing `dataset-quality` lab surface.
+- Scenarios for missingness, duplicate rows, outliers, label timing, and imbalance baseline.
+- Readouts for evidence, affected rows/columns, treatment choice, risk level, project impact, and compact decision record.
+- Tests for scenario recommendations, wrong issue/treatment/risk warnings, shape impact, decision-record output, and Data Lab source wiring.
+- Phase 14 design and summary docs.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add new routes or migrate the Data Lab schema.
+- Do not rewrite all Data Lab modules or all `dataset-quality` copy.
+- Do not build a general-purpose EDA dashboard, spreadsheet editor, pandas notebook, or report builder.
+- Do not add project readiness checklist work in this phase.
+- Do not remove `EdaWorkbenchLab` or `CleaningPipelineLab`.
+
+**Exit Criteria:**
+- A learner can turn one quality signal into issue, evidence, treatment, risk, and project impact.
+- At least four quality scenarios are available.
+- Wrong issue, risky treatment, or under-stated risk report explicit reasons.
+- Shape or row-count impact is visible when a treatment changes examples.
+- Existing `dataset-quality` route remains available and bilingual.
+- Core logic is tested outside Vue, and source wiring tests confirm the lab is reachable.
+- `npm test`, relevant targeted tests, `npm run build`, and `npm run build:pages` pass if runtime code changes.
+
 ---
 *Roadmap created: 2026-06-25*
