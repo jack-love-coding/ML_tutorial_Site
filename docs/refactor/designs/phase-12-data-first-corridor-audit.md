@@ -1,6 +1,6 @@
 # Phase 12: Data-first Corridor Audit Design
 
-**Created:** 2026-07-06  
+**Created:** 2026-07-06
 **Status:** Draft for review.
 
 **Scope:** Audit the required data-first corridor before adding more lesson interactions: `ai-overview` -> `python-notebook` -> `numerical-data` -> `categorical-data` -> `dataset-quality` -> `housing-price-project`, with `splits-generalization` and `classification-project` checked as downstream boundary modules.

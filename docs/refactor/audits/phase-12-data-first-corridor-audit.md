@@ -1,7 +1,7 @@
 # Phase 12 Audit: Data-first Corridor
 
-**Date:** 2026-07-06  
-**Status:** Audit complete.  
+**Date:** 2026-07-06
+**Status:** Audit complete.
 **Scope:** `ai-overview` -> `python-notebook` -> `numerical-data` -> `categorical-data` -> `dataset-quality` -> `housing-price-project`, with `splits-generalization` and `classification-project` as downstream boundary checks.
 
 ## Executive Finding
