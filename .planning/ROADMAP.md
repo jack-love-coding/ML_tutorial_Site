@@ -485,5 +485,29 @@
 - The proposed next phases prioritize route clarity and teaching content quality.
 - `git diff --check` passes.
 
+## Phase 16: Curriculum Role Metadata and Legacy Order Cleanup
+
+**Goal:** Make curriculum role and learner-facing order explicit across the catalog, library, and legacy algorithm surfaces.
+
+**Deliverables:**
+- Typed role metadata or a derived role helper for required core, just-in-time support, project validation, advanced extension, reference library, and duplicate/overlap modules.
+- Legacy algorithm `moduleOrder` alignment or quarantine so it cannot contradict the approved spine.
+- Route-role context on Topic Library/module cards.
+- Tests for role classification, spine order, project validation, advanced extension placement, and legacy order safety.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add project readiness checklist work.
+- Do not rewrite lesson bodies.
+- Do not bulk migrate modules into `LessonPage`.
+- Do not add new course inventory.
+
+**Exit Criteria:**
+- Learner-facing route order cannot place projects or advanced modules before their required foundations.
+- Every catalog module exposes or derives exactly one primary curriculum role.
+- Topic Library pages indicate whether a module is required, support, project validation, advanced, reference, or overlap.
+- Tests protect role classification and route order.
+- `npm test`, `npm run build`, and `npm run build:pages` pass if runtime code changes.
+
 ---
 *Roadmap created: 2026-06-25*
