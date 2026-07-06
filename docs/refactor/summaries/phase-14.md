@@ -44,4 +44,12 @@ Browser evidence:
 
 ## Recommended Next Phase
 
-Phase 15 should target the first project handoff with a narrow housing-project readiness checklist. The goal should be to map the prior data-first skills into one pre-project gate: notebook reproducibility, split / fit / transform order, categorical vocabulary contract, and data-quality decision record.
+Phase 15 should return to curriculum architecture and teaching-route design instead of continuing into another checklist surface. The next risk is not that the first project lacks a readiness gate; that remains a P2 local improvement. The larger risk is that the site still needs a clearer module responsibility model, content coverage matrix, route sequence, and implementation order for high-quality teaching content.
+
+Recommended Phase 15 deliverables:
+
+- Audit the Default Spine, Topic Library, Projects, Math Lab, Data Lab, and Algorithm modules against the intended learning route.
+- Classify each module as required core, support lens, project validation, advanced extension, duplicate, or gap.
+- Identify missing high-value teaching content and weak interactions before adding more progress/checklist mechanics.
+- Produce a prioritized implementation sequence for content quality and route clarity.
+- Keep backend, database, account, durable progress expansion, and project readiness checklist work out of scope unless the audit explicitly reprioritizes them.

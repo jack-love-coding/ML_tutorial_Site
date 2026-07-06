@@ -1,14 +1,14 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-07
-**Status:** Phase 14 data quality decision record task lab implemented and verified; Phase 15 housing project readiness checklist is the next recommended data-first handoff slice.
+**Status:** Phase 14 data quality decision record task lab implemented and verified; Phase 15 should return to curriculum architecture, teaching route clarity, and content coverage before adding more checklist/progress surfaces.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Data-first lesson depth without adding backend, database, or durable progress scope
+**Current focus:** Curriculum route clarity, module responsibility, and high-quality content coverage before backend, database, or durable progress scope
 
 ## Baseline
 
@@ -55,7 +55,8 @@ See `.planning/codebase/`:
 - Phase 14 should target `dataset-quality` with a narrow decision-record task before project-readiness checklist work.
 - Phase 14 design should add a `DataQualityDecisionRecordLab` near `quality-report`, while keeping `EdaWorkbenchLab` and `CleaningPipelineLab` available as observation and cleaning-policy surfaces.
 - Phase 14 should not add backend, database, durable progress tracking, route changes, project readiness checklist work, or a general EDA/report builder.
-- Phase 15 should target the `housing-price-project` handoff with a narrow readiness checklist that reuses data-first skills rather than adding new modeling content.
+- The `housing-price-project` readiness checklist remains a P2 local improvement, not the next milestone driver.
+- Phase 15 should audit and design curriculum architecture, teaching route, module responsibilities, and content coverage before adding more checklist/progress surfaces.
 
 ## Completed Work
 
@@ -436,7 +437,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Design Phase 15 as a `housing-price-project` readiness checklist before expanding project content:
+Design Phase 15 as a curriculum architecture and teaching-route audit before expanding checklist, progress, or project handoff surfaces:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -464,4 +465,4 @@ Design Phase 15 as a `housing-price-project` readiness checklist before expandin
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: design Phase 15 for `housing-price-project` as a narrow readiness checklist. It should help learners confirm notebook reproducibility, split / fit / transform order, categorical vocabulary contract, and data-quality decision record before the first project. Do not add backend, database, account, durable progress scope, routes, schema migration, broad project UI work, or new modeling content.
+Suggested next direction: design Phase 15 as a curriculum architecture and teaching-route audit. It should reconcile the current Default Spine, Topic Library, Project modules, and existing Math/Data/Algorithm content against the site goal: a coherent, high-quality ML learning route. The phase should produce a coverage matrix, module responsibility map, content gap list, overdesign/underdesign findings, and a prioritized implementation sequence. Do not add backend, database, account, durable progress scope, or Progress V2 expansion in this phase. Treat project readiness checklists as a later local enhancement unless the architecture audit proves they are the highest-impact content gap.
