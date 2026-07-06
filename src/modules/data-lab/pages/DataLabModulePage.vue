@@ -30,6 +30,7 @@ const labComponentRegistry = {
   DataPipelineTaskLab: defineAsyncComponent(() => import('../labs/DataPipelineTaskLab.vue')),
   CategoricalVocabularyTaskLab: defineAsyncComponent(() => import('../labs/CategoricalVocabularyTaskLab.vue')),
   CategoricalEncodingLab: defineAsyncComponent(() => import('../labs/CategoricalEncodingLab.vue')),
+  DataQualityDecisionRecordLab: defineAsyncComponent(() => import('../labs/DataQualityDecisionRecordLab.vue')),
 } satisfies Record<DataLabConfig['componentName'], ReturnType<typeof defineAsyncComponent>>
 
 const route = useRoute()

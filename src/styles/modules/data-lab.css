@@ -933,6 +933,132 @@
   background: rgba(15, 159, 122, 0.1);
 }
 
+.data-quality-decision-record-lab__visual,
+.data-quality-decision-record-lab__evidence,
+.data-quality-decision-record-lab__impact,
+.data-quality-decision-record-lab__decision,
+.data-quality-decision-record-lab__record {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.data-quality-decision-record-lab__evidence,
+.data-quality-decision-record-lab__impact article,
+.data-quality-decision-record-lab__status,
+.data-quality-decision-record-lab__record {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.data-quality-decision-record-lab__evidence header,
+.data-quality-decision-record-lab__evidence article,
+.data-quality-decision-record-lab__impact,
+.data-quality-decision-record-lab__record dl,
+.data-quality-decision-record-lab__record dl div {
+  display: grid;
+  gap: 8px;
+}
+
+.data-quality-decision-record-lab__impact {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+}
+
+.data-quality-decision-record-lab__evidence span,
+.data-quality-decision-record-lab__impact span,
+.data-quality-decision-record-lab__status span,
+.data-quality-decision-record-lab__record dt,
+.data-quality-decision-record-lab__decision label span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.data-quality-decision-record-lab__evidence strong,
+.data-quality-decision-record-lab__impact strong,
+.data-quality-decision-record-lab__status strong,
+.data-quality-decision-record-lab__record strong,
+.data-quality-decision-record-lab__record dd,
+.data-quality-decision-record-lab__evidence code {
+  min-width: 0;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.data-quality-decision-record-lab__evidence p,
+.data-quality-decision-record-lab__impact p,
+.data-quality-decision-record-lab__status p,
+.data-quality-decision-record-lab__record dl,
+.data-quality-decision-record-lab__record dd {
+  margin: 0;
+}
+
+.data-quality-decision-record-lab__scenarios {
+  display: grid;
+  gap: 10px;
+}
+
+.data-quality-decision-record-lab__scenarios button {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  min-height: 38px;
+  padding: 12px 14px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 16px;
+  background: white;
+  color: var(--ink);
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.data-quality-decision-record-lab__scenarios button.is-active {
+  border-color: color-mix(in srgb, var(--data-accent, #2563eb) 44%, white);
+  background: color-mix(in srgb, var(--data-accent, #2563eb) 11%, white);
+}
+
+.data-quality-decision-record-lab__scenarios small {
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.data-quality-decision-record-lab__decision {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.data-quality-decision-record-lab__decision label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.data-quality-decision-record-lab__decision select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid rgba(15, 23, 40, 0.12);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.data-quality-decision-record-lab__status.is-warning {
+  border-color: rgba(190, 18, 60, 0.24);
+  background: rgba(190, 18, 60, 0.08);
+}
+
+.data-quality-decision-record-lab__status.is-safe {
+  border-color: rgba(15, 159, 122, 0.24);
+  background: rgba(15, 159, 122, 0.1);
+}
+
 .data-article-nav {
   display: grid;
   gap: 4px;
@@ -1091,7 +1217,9 @@
   .data-pipeline-task-lab__features,
   .categorical-vocabulary-task-lab__matrix,
   .categorical-vocabulary-task-lab__features,
-  .categorical-vocabulary-task-lab__vocabulary {
+  .categorical-vocabulary-task-lab__vocabulary,
+  .data-quality-decision-record-lab__impact,
+  .data-quality-decision-record-lab__decision {
     grid-template-columns: 1fr;
   }
 

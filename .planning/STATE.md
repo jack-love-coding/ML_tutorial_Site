@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-07
-**Status:** Phase 13 categorical vocabulary contract task lab merged; Phase 14 Data Quality Decision Record design is drafted for review.
+**Status:** Phase 14 data quality decision record task lab implemented and verified; Phase 15 housing project readiness checklist is the next recommended data-first handoff slice.
 
 ## Project Reference
 
@@ -55,6 +55,7 @@ See `.planning/codebase/`:
 - Phase 14 should target `dataset-quality` with a narrow decision-record task before project-readiness checklist work.
 - Phase 14 design should add a `DataQualityDecisionRecordLab` near `quality-report`, while keeping `EdaWorkbenchLab` and `CleaningPipelineLab` available as observation and cleaning-policy surfaces.
 - Phase 14 should not add backend, database, durable progress tracking, route changes, project readiness checklist work, or a general EDA/report builder.
+- Phase 15 should target the `housing-price-project` handoff with a narrow readiness checklist that reuses data-first skills rather than adding new modeling content.
 
 ## Completed Work
 
@@ -416,9 +417,26 @@ See `.planning/codebase/`:
   - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
   - Playwright `/data-lab/modules/categorical-data`: desktop and 390px mobile render the task lab; safe scenario has no slot drift; validation recompute shows slot drift; horizontal overflow is false; console errors are 0.
 
+### Phase 14 - Data Quality Decision Record
+
+- Added `src/modules/data-lab/utils/dataQualityDecisionTask.ts` for deterministic missingness, duplicate, outlier, label-timing, and imbalance decision scenarios.
+- Added `src/modules/data-lab/labs/DataQualityDecisionRecordLab.vue` with scenario controls, issue/treatment/risk selection, evidence card, shape impact, status feedback, code sketch, and decision-record preview.
+- Registered `DataQualityDecisionRecordLab` in the typed Data Lab schema and lazy lab registry.
+- Attached the task lab to `dataset-quality` near `quality-report` while keeping `EdaWorkbenchLab` and `CleaningPipelineLab` reachable.
+- Added responsive Data Lab styles and source-wiring tests.
+- Preserved non-goals: no backend, database, durable progress tracking, new route, Data Lab schema migration, project readiness checklist, general EDA/report builder, or extra Three.js interaction.
+- Verified:
+  - `node --test tests/data-quality-decision-record-lab.test.ts tests/data-lab.test.ts tests/data-lab-layout.test.mjs`: pass, 20 tests.
+  - `git diff --check`: pass.
+  - `npm test`: pass, 266 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
+  - Playwright `/data-lab/modules/dataset-quality`: desktop and 390px mobile render the task lab; 5 scenarios are visible; default scenario is ready to record; under-stated duplicate risk shows review warning; horizontal overflow is false; console errors are 0.
+
 ## Next Recommended Command
 
-Review the Phase 14 `dataset-quality` decision-record design before implementation:
+Design Phase 15 as a `housing-price-project` readiness checklist before expanding project content:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -429,6 +447,7 @@ Review the Phase 14 `dataset-quality` decision-record design before implementati
 - `docs/refactor/designs/phase-13-categorical-vocabulary-contract-task-lab.md`
 - `docs/refactor/designs/phase-14-data-quality-decision-record.md`
 - `docs/refactor/summaries/phase-13.md`
+- `docs/refactor/summaries/phase-14.md`
 - `docs/refactor/summaries/phase-1.md`
 - `docs/refactor/summaries/phase-2.md`
 - `docs/refactor/summaries/phase-3.md`
@@ -445,4 +464,4 @@ Review the Phase 14 `dataset-quality` decision-record design before implementati
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: review and approve Phase 14 design, then implement `dataset-quality` as a narrow decision-record task. It should make learners choose one quality finding, one treatment, and one risk level from EDA/cleaning evidence before the housing project handoff. Do not add backend, database, account, durable progress scope, routes, schema migration, project readiness checklist work, or broad project UI work.
+Suggested next direction: design Phase 15 for `housing-price-project` as a narrow readiness checklist. It should help learners confirm notebook reproducibility, split / fit / transform order, categorical vocabulary contract, and data-quality decision record before the first project. Do not add backend, database, account, durable progress scope, routes, schema migration, broad project UI work, or new modeling content.

@@ -542,7 +542,7 @@ In Data Lab, the focus is to discover the proportion problem early. pandas value
 
 A classroom deliverable can be a one-page table: each issue maps to a pandas check, a finding, a suggested treatment, and a risk level. Students then move from looking at charts to forming explainable conclusions.`,
         ),
-        { visualIds: ['pandas-shape-audit'], labIds: ['eda-workbench-lab'] },
+        { visualIds: ['pandas-shape-audit'], labIds: ['data-quality-decision-record-lab', 'eda-workbench-lab'] },
       ),
     ],
     visuals: [
@@ -573,6 +573,10 @@ A classroom deliverable can be a one-page table: each issue maps to a pandas che
       lab('cleaning-pipeline-lab', copy('清洗策略实验室', 'Cleaning Policy Lab'), 'CleaningPipelineLab', [
         copy('能比较删除、补值、裁剪和保留异常的后果。', 'Compare deletion, imputation, clipping, and anomaly retention.'),
         copy('能说明清洗策略如何改变样本集合。', 'Explain how cleaning policies change the example set.'),
+      ]),
+      lab('data-quality-decision-record-lab', copy('数据质量决策记录', 'Data Quality Decision Record'), 'DataQualityDecisionRecordLab', [
+        copy('能把一个 EDA 发现写成检查、发现、处理建议和风险等级。', 'Turn one EDA finding into a check, finding, treatment, and risk level.'),
+        copy('能说明该质量决策如何影响后续房价项目建模。', 'Explain how the quality decision affects the later housing project.'),
       ]),
       lab('eda-workbench-lab', copy('数据质量工作台', 'Data Quality Workbench'), 'EdaWorkbenchLab', [
         copy('能用分布和分组统计发现数据风险。', 'Use distributions and grouped statistics to find data risks.'),
