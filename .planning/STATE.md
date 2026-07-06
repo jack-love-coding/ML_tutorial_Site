@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
-**Updated:** 2026-07-06
-**Status:** Phase 13 categorical vocabulary contract task lab implemented and verified; Phase 14 Data Quality Decision Record is the next recommended data-first slice.
+**Updated:** 2026-07-07
+**Status:** Phase 13 categorical vocabulary contract task lab merged; Phase 14 Data Quality Decision Record design is drafted for review.
 
 ## Project Reference
 
@@ -53,6 +53,8 @@ See `.planning/codebase/`:
 - Phase 13 should prioritize categorical vocabulary, OOV/RARE handling, slot alignment, and `[B,F]` shape before data-quality decision records.
 - Phase 13 should add a narrow `CategoricalVocabularyTaskLab` near `vocabulary-contract`, while keeping the existing broad `CategoricalEncodingLab` available as an optional comparison surface.
 - Phase 14 should target `dataset-quality` with a narrow decision-record task before project-readiness checklist work.
+- Phase 14 design should add a `DataQualityDecisionRecordLab` near `quality-report`, while keeping `EdaWorkbenchLab` and `CleaningPipelineLab` available as observation and cleaning-policy surfaces.
+- Phase 14 should not add backend, database, durable progress tracking, route changes, project readiness checklist work, or a general EDA/report builder.
 
 ## Completed Work
 
@@ -416,7 +418,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Design Phase 14 as a `dataset-quality` decision-record task before project-readiness checklist work:
+Review the Phase 14 `dataset-quality` decision-record design before implementation:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -425,6 +427,7 @@ Design Phase 14 as a `dataset-quality` decision-record task before project-readi
 - `docs/refactor/audits/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/summaries/phase-12.md`
 - `docs/refactor/designs/phase-13-categorical-vocabulary-contract-task-lab.md`
+- `docs/refactor/designs/phase-14-data-quality-decision-record.md`
 - `docs/refactor/summaries/phase-13.md`
 - `docs/refactor/summaries/phase-1.md`
 - `docs/refactor/summaries/phase-2.md`
@@ -442,4 +445,4 @@ Design Phase 14 as a `dataset-quality` decision-record task before project-readi
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: design Phase 14 for `dataset-quality` as a narrow decision-record task. It should make learners choose one quality finding, one treatment, and one risk level from EDA/cleaning evidence before the housing project handoff. Do not add backend, database, account, durable progress scope, routes, schema migration, or broad project UI work.
+Suggested next direction: review and approve Phase 14 design, then implement `dataset-quality` as a narrow decision-record task. It should make learners choose one quality finding, one treatment, and one risk level from EDA/cleaning evidence before the housing project handoff. Do not add backend, database, account, durable progress scope, routes, schema migration, project readiness checklist work, or broad project UI work.
