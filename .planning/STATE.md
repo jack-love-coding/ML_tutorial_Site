@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-06
-**Status:** Phase 12 Data-first Corridor Audit completed and merged; Phase 13 categorical vocabulary contract task lab design is in review.
+**Status:** Phase 13 categorical vocabulary contract task lab implemented and verified; Phase 14 Data Quality Decision Record is the next recommended data-first slice.
 
 ## Project Reference
 
@@ -52,6 +52,7 @@ See `.planning/codebase/`:
 - Phase 12 found no P0 corridor blocker; the highest-priority P1 is narrowing `categorical-data` into a vocabulary contract task.
 - Phase 13 should prioritize categorical vocabulary, OOV/RARE handling, slot alignment, and `[B,F]` shape before data-quality decision records.
 - Phase 13 should add a narrow `CategoricalVocabularyTaskLab` near `vocabulary-contract`, while keeping the existing broad `CategoricalEncodingLab` available as an optional comparison surface.
+- Phase 14 should target `dataset-quality` with a narrow decision-record task before project-readiness checklist work.
 
 ## Completed Work
 
@@ -384,9 +385,38 @@ See `.planning/codebase/`:
   - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
   - Playwright `/data-lab/modules/numerical-data`: desktop task lab renders, leaky scaler and vocabulary scenarios update readouts, feature toggles update `[B,F]`, 390px mobile has no horizontal overflow, console errors are 0.
 
+### Phase 12 - Data-first Corridor Audit
+
+- Added the Phase 12 design and completed audit for the required data-first corridor.
+- Audited `ai-overview`, `python-notebook`, `numerical-data`, `categorical-data`, `dataset-quality`, and `housing-price-project`.
+- Checked `splits-generalization` and `classification-project` as downstream boundaries.
+- Found no P0 corridor blocker.
+- Identified `categorical-data` as the highest-priority P1 because the existing broad lab did not force the vocabulary-contract decision.
+- Recommended Phase 13 as the narrow categorical vocabulary contract task lab.
+- Verified:
+  - `git diff --check`: pass.
+  - `node --test tests/curriculumMilestoneAudit.test.ts`: pass.
+
+### Phase 13 - Categorical Vocabulary Contract Task Lab
+
+- Added `src/modules/data-lab/utils/categoricalVocabularyTask.ts` for deterministic train-vocabulary, validation-recompute, all-data-vocabulary, and high-cardinality ID scenarios.
+- Added `src/modules/data-lab/labs/CategoricalVocabularyTaskLab.vue` with scenario controls, feature toggles, rare threshold, slot alignment, OOV/RARE mapping, warnings, and `[B,F]` readouts.
+- Registered `CategoricalVocabularyTaskLab` in the typed Data Lab schema and lazy lab registry.
+- Attached the task lab to `categorical-data` near `vocabulary-contract` while keeping `CategoricalEncodingLab` reachable.
+- Added responsive Data Lab styles and source-wiring tests.
+- Preserved non-goals: no backend, database, durable progress tracking, new route, Data Lab schema migration, broad Data Lab rewrite, or extra Three.js interaction.
+- Verified:
+  - `node --test tests/categorical-vocabulary-task-lab.test.ts tests/data-lab.test.ts tests/data-lab-layout.test.mjs`: pass, 19 tests.
+  - `git diff --check`: pass.
+  - `npm test`: pass, 260 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
+  - Playwright `/data-lab/modules/categorical-data`: desktop and 390px mobile render the task lab; safe scenario has no slot drift; validation recompute shows slot drift; horizontal overflow is false; console errors are 0.
+
 ## Next Recommended Command
 
-Review the Phase 13 categorical vocabulary contract design, then implement it as the next narrow Data Lab task slice:
+Design Phase 14 as a `dataset-quality` decision-record task before project-readiness checklist work:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -395,6 +425,7 @@ Review the Phase 13 categorical vocabulary contract design, then implement it as
 - `docs/refactor/audits/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/summaries/phase-12.md`
 - `docs/refactor/designs/phase-13-categorical-vocabulary-contract-task-lab.md`
+- `docs/refactor/summaries/phase-13.md`
 - `docs/refactor/summaries/phase-1.md`
 - `docs/refactor/summaries/phase-2.md`
 - `docs/refactor/summaries/phase-3.md`
@@ -411,4 +442,4 @@ Review the Phase 13 categorical vocabulary contract design, then implement it as
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: implement Phase 13 for `categorical-data` as a narrow vocabulary contract task lab. It should teach training vocabulary, OOV/RARE handling, slot alignment, and `[B,F]` shape with explicit safe/unsafe scenarios. Do not add backend, database, account, durable progress scope, routes, schema migration, or decorative 3D work.
+Suggested next direction: design Phase 14 for `dataset-quality` as a narrow decision-record task. It should make learners choose one quality finding, one treatment, and one risk level from EDA/cleaning evidence before the housing project handoff. Do not add backend, database, account, durable progress scope, routes, schema migration, or broad project UI work.
