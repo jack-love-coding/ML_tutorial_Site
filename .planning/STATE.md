@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-07
-**Status:** Phase 14 data quality decision record task lab implemented and verified; Phase 15 should return to curriculum architecture, teaching route clarity, and content coverage before adding more checklist/progress surfaces.
+**Status:** Phase 14 merged; Phase 15 curriculum architecture and teaching-route audit design drafted for review.
 
 ## Project Reference
 
@@ -57,6 +57,7 @@ See `.planning/codebase/`:
 - Phase 14 should not add backend, database, durable progress tracking, route changes, project readiness checklist work, or a general EDA/report builder.
 - The `housing-price-project` readiness checklist remains a P2 local improvement, not the next milestone driver.
 - Phase 15 should audit and design curriculum architecture, teaching route, module responsibilities, and content coverage before adding more checklist/progress surfaces.
+- Phase 15 design should produce a docs-only audit plan first, then an evidence-backed audit before any route or runtime implementation.
 
 ## Completed Work
 
@@ -437,11 +438,12 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Design Phase 15 as a curriculum architecture and teaching-route audit before expanding checklist, progress, or project handoff surfaces:
+Execute Phase 15 as a curriculum architecture and teaching-route audit before expanding checklist, progress, or project handoff surfaces:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
 - `.planning/codebase/*`
+- `docs/refactor/designs/phase-15-curriculum-architecture-teaching-route-audit.md`
 - `docs/refactor/designs/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/audits/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/summaries/phase-12.md`
@@ -465,4 +467,4 @@ Design Phase 15 as a curriculum architecture and teaching-route audit before exp
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: design Phase 15 as a curriculum architecture and teaching-route audit. It should reconcile the current Default Spine, Topic Library, Project modules, and existing Math/Data/Algorithm content against the site goal: a coherent, high-quality ML learning route. The phase should produce a coverage matrix, module responsibility map, content gap list, overdesign/underdesign findings, and a prioritized implementation sequence. Do not add backend, database, account, durable progress scope, or Progress V2 expansion in this phase. Treat project readiness checklists as a later local enhancement unless the architecture audit proves they are the highest-impact content gap.
+Suggested next direction: execute Phase 15 using `docs/refactor/designs/phase-15-curriculum-architecture-teaching-route-audit.md`. It should reconcile the current Default Spine, Topic Library, Project modules, and existing Math/Data/Algorithm content against the site goal: a coherent, high-quality ML learning route. The audit should produce a coverage matrix, module responsibility map, content gap list, overdesign/underdesign findings, and a prioritized implementation sequence. Do not add backend, database, account, durable progress scope, or Progress V2 expansion in this phase. Treat project readiness checklists as a later local enhancement unless the architecture audit proves they are the highest-impact content gap.
