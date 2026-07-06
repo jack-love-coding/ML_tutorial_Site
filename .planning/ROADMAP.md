@@ -398,5 +398,33 @@
 - The next implementation phase is small enough to review and ship independently.
 - `git diff --check` passes, and targeted documentation/audit tests run if test-covered planning invariants change.
 
+## Phase 13: Categorical Vocabulary Contract Task Lab
+
+**Goal:** Turn the required categorical lesson into a narrow task interaction where learners predict and verify how training vocabulary, unknown categories, rare buckets, and fixed slot order determine the final feature matrix.
+
+**Deliverables:**
+- Deterministic categorical vocabulary task helper.
+- Task lab or task-first branch in the existing `categorical-data` lab surface.
+- Safe and unsafe scenarios for train vocabulary, validation/test recomputed columns, all-data vocabulary leakage, and high-cardinality ID expansion.
+- Readouts for vocabulary source, OOV/RARE mapping, column alignment, sparse active slots, and `[B,F]`.
+- Tests for vocabulary source, slot order, unknown handling, feature counts, and Data Lab source wiring.
+- Phase 13 design and summary docs.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add new routes or migrate the Data Lab schema.
+- Do not rewrite all Data Lab modules.
+- Do not build a general-purpose sklearn encoder simulator.
+- Do not add more 3D or decorative interaction; the task should make the required concept clearer.
+
+**Exit Criteria:**
+- A learner can distinguish training vocabulary from recomputed validation/test vocabulary.
+- At least two unsafe scenarios report explicit reasons.
+- Unknown and rare categories map to stable slots.
+- `[B,F]` changes are visible and consistent with selected categories.
+- Existing `categorical-data` route remains available and bilingual.
+- Core logic is tested outside Vue, and source wiring tests confirm the lab is reachable.
+- `npm test`, relevant targeted tests, `npm run build`, and `npm run build:pages` pass if runtime code changes.
+
 ---
 *Roadmap created: 2026-06-25*
