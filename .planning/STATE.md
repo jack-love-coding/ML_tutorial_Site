@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-06
-**Status:** Phase 11 data pipeline task lab implemented and verified; Phase 12 Data-first Corridor Audit is next
+**Status:** Phase 11 data pipeline task lab implemented and verified; Phase 12 Data-first Corridor Audit is next as a design-only audit.
 
 ## Project Reference
 
@@ -47,6 +47,8 @@ See `.planning/codebase/`:
 - Housing and classification projects are recommended validation capstones, not hard blockers.
 - The sequence/embedding bridge is now a required Spine V1 module before Attention.
 - Lesson-depth work should prioritize early required data pipeline understanding before adding more progress UI.
+- Phase 12 should audit the required data-first corridor before another implementation phase.
+- Do not implement Phase 13 fixes inside the Phase 12 audit PR.
 
 ## Completed Work
 
@@ -381,11 +383,12 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Design Phase 12 as a Data-first Corridor Audit before adding more lesson interactions:
+Review the Phase 12 Data-first Corridor Audit design, then execute the audit before adding more lesson interactions:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
 - `.planning/codebase/*`
+- `docs/refactor/designs/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/summaries/phase-1.md`
 - `docs/refactor/summaries/phase-2.md`
 - `docs/refactor/summaries/phase-3.md`
@@ -402,4 +405,4 @@ Design Phase 12 as a Data-first Corridor Audit before adding more lesson interac
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: audit the required data-first corridor from `ai-overview` through `housing-price-project`, identify coverage gaps and overdesigned surfaces, then choose the next narrow implementation phase. Do not add backend, database, account, or durable progress scope yet.
+Suggested next direction: execute the required data-first corridor audit from `ai-overview` through `housing-price-project`, include `splits-generalization` and `classification-project` as downstream boundary checks, identify coverage gaps and overdesigned surfaces, then choose the next narrow implementation phase. Do not add backend, database, account, or durable progress scope yet.

@@ -373,5 +373,30 @@
 - Desktop and mobile layouts have no horizontal overflow.
 - `npm test`, relevant targeted tests, `npm run build`, and `npm run build:pages` pass.
 
+## Phase 12: Data-first Corridor Audit
+
+**Goal:** Audit the required data-first corridor from orientation through the first project handoff before adding more lesson interactions.
+
+**Deliverables:**
+- `docs/refactor/designs/phase-12-data-first-corridor-audit.md`.
+- `docs/refactor/audits/phase-12-data-first-corridor-audit.md`.
+- Evidence matrix covering `ai-overview`, `python-notebook`, `numerical-data`, `categorical-data`, `dataset-quality`, and `housing-price-project`.
+- Boundary checks for `splits-generalization` and `classification-project`.
+- One recommended narrow Phase 13 implementation target with scope, non-goals, and acceptance criteria.
+
+**Must Not Do:**
+- Do not rewrite lesson bodies during the audit phase.
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add new routes, schemas, modules, or LessonPage migrations.
+- Do not implement Phase 13 fixes inside the audit PR.
+- Do not broaden the audit to the full math, deep-learning, or LLM/RAG route.
+
+**Exit Criteria:**
+- Every audited module has cited local evidence for gaps or an explicit no-gap finding.
+- Findings classify gap type and severity as `P0`, `P1`, or `P2`.
+- The audit identifies overdesign/simplification risks and coverage/handoff risks, or documents why evidence shows none.
+- The next implementation phase is small enough to review and ship independently.
+- `git diff --check` passes, and targeted documentation/audit tests run if test-covered planning invariants change.
+
 ---
 *Roadmap created: 2026-06-25*
