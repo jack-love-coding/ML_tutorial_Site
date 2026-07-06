@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-06
-**Status:** Phase 11 data pipeline task lab implemented and verified; Phase 12 Data-first Corridor Audit is next and now recommends Phase 13 categorical vocabulary contract work.
+**Status:** Phase 12 Data-first Corridor Audit completed and merged; Phase 13 categorical vocabulary contract task lab design is in review.
 
 ## Project Reference
 
@@ -51,6 +51,7 @@ See `.planning/codebase/`:
 - Do not implement Phase 13 fixes inside the Phase 12 audit PR.
 - Phase 12 found no P0 corridor blocker; the highest-priority P1 is narrowing `categorical-data` into a vocabulary contract task.
 - Phase 13 should prioritize categorical vocabulary, OOV/RARE handling, slot alignment, and `[B,F]` shape before data-quality decision records.
+- Phase 13 should add a narrow `CategoricalVocabularyTaskLab` near `vocabulary-contract`, while keeping the existing broad `CategoricalEncodingLab` available as an optional comparison surface.
 
 ## Completed Work
 
@@ -385,7 +386,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Review the completed Phase 12 Data-first Corridor Audit, then design Phase 13 as a categorical vocabulary contract task lab:
+Review the Phase 13 categorical vocabulary contract design, then implement it as the next narrow Data Lab task slice:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -393,6 +394,7 @@ Review the completed Phase 12 Data-first Corridor Audit, then design Phase 13 as
 - `docs/refactor/designs/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/audits/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/summaries/phase-12.md`
+- `docs/refactor/designs/phase-13-categorical-vocabulary-contract-task-lab.md`
 - `docs/refactor/summaries/phase-1.md`
 - `docs/refactor/summaries/phase-2.md`
 - `docs/refactor/summaries/phase-3.md`
@@ -409,4 +411,4 @@ Review the completed Phase 12 Data-first Corridor Audit, then design Phase 13 as
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: design Phase 13 for `categorical-data` as a narrow vocabulary contract task lab. It should teach training vocabulary, OOV/RARE handling, slot alignment, and `[B,F]` shape with explicit safe/unsafe scenarios. Do not add backend, database, account, durable progress scope, routes, schema migration, or decorative 3D work.
+Suggested next direction: implement Phase 13 for `categorical-data` as a narrow vocabulary contract task lab. It should teach training vocabulary, OOV/RARE handling, slot alignment, and `[B,F]` shape with explicit safe/unsafe scenarios. Do not add backend, database, account, durable progress scope, routes, schema migration, or decorative 3D work.
