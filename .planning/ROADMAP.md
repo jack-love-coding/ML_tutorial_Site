@@ -534,5 +534,28 @@
 - Existing spine, Topic Library roles, legacy routes, and checkpoint submissions remain intact.
 - `npm test`, `npm run build`, and `npm run build:pages` pass if runtime code changes.
 
+## Phase 18: Optimizer To CNN Handoff Audit
+
+**Goal:** Audit the required-route handoff from neural-network foundations into visual deep learning and choose the narrowest next content-quality slice.
+
+**Deliverables:**
+- Evidence-backed audit of `optimizer-comparison`, `tensor-shapes-vectorization`, and `cnn-visualization`.
+- Decision on whether the next slice should be optimizer diagnosis, CNN shape/parameter reasoning, or route-copy cleanup.
+- Phase 18 summary and state update.
+- Tests that keep completed phase documentation discoverable.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add project readiness checklist work.
+- Do not add a new transition module between optimizer and CNN.
+- Do not bulk migrate optimizer, CNN, or Attention into a new lesson architecture.
+- Do not implement runtime lab code inside this audit phase.
+
+**Exit Criteria:**
+- The route is correctly described as `optimizer-comparison -> tensor-shapes-vectorization -> cnn-visualization`.
+- The next implementation direction is a single content-quality task.
+- Any recommendation is grounded in current module content, checkpoints, and lab surfaces.
+- `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
+
 ---
 *Roadmap created: 2026-06-25*

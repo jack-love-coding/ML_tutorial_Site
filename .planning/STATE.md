@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-07
-**Status:** Phase 17 MLP backprop mechanism bridge completed; next work should continue required-core teaching depth and route clarity.
+**Status:** Phase 18 optimizer-to-CNN handoff audit completed; next work should design the CNN shape/parameter challenge.
 
 ## Project Reference
 
@@ -64,6 +64,7 @@ See `.planning/codebase/`:
 - Phase 17 should resolve the neural-network foundation depth decision around backpropagation/autodiff before more checklist or project-readiness work.
 - Phase 17 design chooses compact MLP chain-rule/computation-graph backprop depth; `matrix-calculus-autodiff` remains just-in-time support rather than required core.
 - Phase 17 MLP backprop mechanism bridge completed the compact required-route task without adding backend, database, durable progress scope, project readiness, bulk LessonPage migration, or a new lab registry.
+- Phase 18 optimizer-to-CNN handoff audit completed; the route is `optimizer-comparison -> tensor-shapes-vectorization -> cnn-visualization`, and the next implementation slice should be a CNN shape/parameter challenge rather than a new transition module or optimizer task first.
 
 ## Completed Work
 
@@ -485,17 +486,32 @@ See `.planning/codebase/`:
 - Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new course inventory, broad lab registry redesign, or legacy route removal.
 - Verification is tracked in `docs/refactor/summaries/phase-17.md`.
 
+### Phase 18 - Optimizer To CNN Handoff Audit
+
+- Added `docs/refactor/audits/phase-18-optimizer-cnn-handoff-audit.md`.
+- Added `docs/refactor/summaries/phase-18.md`.
+- Confirmed the required route is `optimizer-comparison -> tensor-shapes-vectorization -> cnn-visualization`, not a direct optimizer-to-CNN jump.
+- Classified `tensor-shapes-vectorization` as the existing required bridge for shape literacy.
+- Chose the next implementation direction: a CNN shape/parameter challenge that connects formula, code, output shape, convolution parameter count, and dense-layer comparison.
+- Kept optimizer comparison as a later interaction-upgrade candidate; it is weak but not the immediate handoff blocker.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new inventory, route rewrite, runtime lab code, or broad LessonPage migration.
+- Verified:
+  - `node --test tests/curriculumMilestoneAudit.test.ts`: pass.
+  - `git diff --check`: pass.
+
 ## Next Recommended Command
 
-Review the next required-core deep-learning content gap after Phase 17:
+Design Phase 19 as the CNN shape/parameter challenge:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
 - `.planning/codebase/*`
 - `docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md`
+- `docs/refactor/audits/phase-18-optimizer-cnn-handoff-audit.md`
 - `docs/refactor/summaries/phase-15.md`
 - `docs/refactor/summaries/phase-16.md`
 - `docs/refactor/summaries/phase-17.md`
+- `docs/refactor/summaries/phase-18.md`
 - `docs/refactor/designs/phase-15-curriculum-architecture-teaching-route-audit.md`
 - `docs/refactor/designs/phase-17-mlp-backprop-mechanism-bridge.md`
 - `docs/refactor/designs/phase-12-data-first-corridor-audit.md`
@@ -521,4 +537,4 @@ Review the next required-core deep-learning content gap after Phase 17:
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: audit the required deep-learning handoff after MLP, especially `optimizer-comparison -> cnn-visualization`, and choose one narrow teaching-content gap to design next. Keep the focus on learner mental models, formulas-to-code consistency, and interaction evidence. Do not add backend, database, account, durable progress scope, project readiness checklists, LessonPage bulk migration, or new course inventory in the next slice.
+Suggested next direction: design Phase 19 as a narrow `CnnShapeParameterChallengeLab` near `cnn-visualization` `padding-stride-shape` or `channels-feature-maps`. It should ask learners to predict output shape and parameter count for one `Conv2d` configuration, compare it with a dense layer reading the same image, and show formula/code evidence. Do not add backend, database, account, durable progress scope, project readiness checklists, new transition modules, LessonPage bulk migration, or new course inventory in Phase 19.
