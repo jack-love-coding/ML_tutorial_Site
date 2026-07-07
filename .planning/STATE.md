@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-07
-**Status:** Phase 14 merged; Phase 15 curriculum architecture and teaching-route audit design drafted for review.
+**Status:** Phase 15 curriculum architecture and teaching-route audit completed; Phase 16 curriculum role metadata and legacy order cleanup is the next recommended implementation slice.
 
 ## Project Reference
 
@@ -58,6 +58,8 @@ See `.planning/codebase/`:
 - The `housing-price-project` readiness checklist remains a P2 local improvement, not the next milestone driver.
 - Phase 15 should audit and design curriculum architecture, teaching route, module responsibilities, and content coverage before adding more checklist/progress surfaces.
 - Phase 15 design should produce a docs-only audit plan first, then an evidence-backed audit before any route or runtime implementation.
+- Phase 15 found that route/source-of-truth cleanup and explicit curriculum role metadata should precede project readiness, progress expansion, or more checklist mechanics.
+- Phase 16 should make required-core, support, project-validation, advanced-extension, reference-library, and overlap roles explicit, and prevent legacy algorithm order from contradicting the spine.
 
 ## Completed Work
 
@@ -436,13 +438,32 @@ See `.planning/codebase/`:
   - `node scripts/create-pages-fallbacks.mjs`: pass, 46 routes.
   - Playwright `/data-lab/modules/dataset-quality`: desktop and 390px mobile render the task lab; 5 scenarios are visible; default scenario is ready to record; under-stated duplicate risk shows review warning; horizontal overflow is false; console errors are 0.
 
+### Phase 15 - Curriculum Architecture and Teaching Route Audit
+
+- Added `docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md`.
+- Added `docs/refactor/summaries/phase-15.md`.
+- Classified all 53 catalog modules by primary curriculum responsibility.
+- Scored all 24 required-core modules with teaching quality classifications.
+- Audited capability coverage across orientation, data-to-features, feature/loss, linear models, training mechanics, generalization, neural networks, vision, sequence/attention, projects, and advanced applications.
+- Findings:
+  - P0: legacy algorithm order can still contradict the approved spine.
+  - P1: curriculum role is implicit outside the spine page.
+  - P1: neural-network foundation depth needs a backprop/autodiff decision.
+  - P1: required-core interaction quality is uneven.
+  - P1: homepage readiness/progress framing should not become the next milestone driver.
+  - P2: project readiness is useful but should wait.
+- Verified:
+  - `git diff --check`: pass.
+
 ## Next Recommended Command
 
-Execute Phase 15 as a curriculum architecture and teaching-route audit before expanding checklist, progress, or project handoff surfaces:
+Design Phase 16 as curriculum role metadata and legacy order cleanup:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
 - `.planning/codebase/*`
+- `docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md`
+- `docs/refactor/summaries/phase-15.md`
 - `docs/refactor/designs/phase-15-curriculum-architecture-teaching-route-audit.md`
 - `docs/refactor/designs/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/audits/phase-12-data-first-corridor-audit.md`
@@ -467,4 +488,4 @@ Execute Phase 15 as a curriculum architecture and teaching-route audit before ex
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: execute Phase 15 using `docs/refactor/designs/phase-15-curriculum-architecture-teaching-route-audit.md`. It should reconcile the current Default Spine, Topic Library, Project modules, and existing Math/Data/Algorithm content against the site goal: a coherent, high-quality ML learning route. The audit should produce a coverage matrix, module responsibility map, content gap list, overdesign/underdesign findings, and a prioritized implementation sequence. Do not add backend, database, account, durable progress scope, or Progress V2 expansion in this phase. Treat project readiness checklists as a later local enhancement unless the architecture audit proves they are the highest-impact content gap.
+Suggested next direction: design Phase 16 for curriculum role metadata and legacy order cleanup. It should make module roles explicit across the catalog and Topic Library, then align or quarantine legacy `moduleOrder` so projects and advanced modules cannot reintroduce the old route confusion. Do not add backend, database, account, durable progress scope, project readiness checklists, LessonPage bulk migration, or new course inventory in Phase 16.
