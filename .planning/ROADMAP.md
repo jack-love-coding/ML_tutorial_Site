@@ -514,9 +514,9 @@
 **Goal:** Resolve the required-route ambiguity around how much backpropagation and autodiff a learner must understand before CNN, optimizer comparison, and Attention.
 
 **Deliverables:**
-- A design decision for `matrix-calculus-autodiff`: required module, compact MLP bridge, or support-only lens.
+- Design decision: use a compact MLP bridge for chain-rule/computation-graph backprop depth; keep `matrix-calculus-autodiff` as a just-in-time support lens.
 - Updated route copy or required module wiring that makes the chosen neural-network learning depth explicit.
-- A narrow teaching interaction only if needed to connect forward pass, loss, gradients, and parameter update evidence.
+- A narrow MLP `backprop` interaction that connects forward pass, loss, local derivatives, gradients, and parameter update evidence.
 - Tests for role/order consistency, route copy, and any new deterministic learning-mechanism helper.
 - Phase 17 design and summary docs.
 
@@ -529,7 +529,7 @@
 
 **Exit Criteria:**
 - The neural-network stage no longer overclaims backprop/autodiff depth.
-- Learners can tell whether autodiff is required, support, or an in-lesson bridge.
+- Learners can tell that full autodiff is support material while the required MLP route teaches chain-rule responsibility flow.
 - Any new interaction asks for prediction/evidence rather than another static stage switch.
 - Existing spine, Topic Library roles, legacy routes, and checkpoint submissions remain intact.
 - `npm test`, `npm run build`, and `npm run build:pages` pass if runtime code changes.

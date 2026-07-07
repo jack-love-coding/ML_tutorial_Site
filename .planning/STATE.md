@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-07
-**Status:** Phase 16 curriculum role metadata and legacy order cleanup completed; Phase 17 neural-network learning mechanism bridge is the next recommended design slice.
+**Status:** Phase 17 MLP backprop mechanism bridge design drafted for review; implementation should start only after design approval.
 
 ## Project Reference
 
@@ -62,6 +62,7 @@ See `.planning/codebase/`:
 - Phase 16 should make required-core, support, project-validation, advanced-extension, reference-library, and overlap roles explicit, and prevent legacy algorithm order from contradicting the spine.
 - Phase 16 completed the role metadata and legacy order cleanup without adding backend, database, durable progress scope, project readiness, or new course inventory.
 - Phase 17 should resolve the neural-network foundation depth decision around backpropagation/autodiff before more checklist or project-readiness work.
+- Phase 17 design chooses compact MLP chain-rule/computation-graph backprop depth; `matrix-calculus-autodiff` remains just-in-time support rather than required core.
 
 ## Completed Work
 
@@ -507,4 +508,4 @@ Design Phase 17 as the neural-network learning mechanism bridge:
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: design Phase 17 for the neural-network learning mechanism bridge. It should decide whether backpropagation/autodiff belongs as a required module, a compact MLP bridge, or support-only material; then add only the narrowest teaching interaction needed to make the decision visible to learners. Do not add backend, database, account, durable progress scope, project readiness checklists, LessonPage bulk migration, or new course inventory in Phase 17.
+Suggested next direction: after review, implement Phase 17 as the compact MLP backprop mechanism bridge. It should add one deterministic scalar helper and one narrow `backprop` section task that teaches chain-rule responsibility flow. Do not promote `matrix-calculus-autodiff` into required core, and do not add backend, database, account, durable progress scope, project readiness checklists, LessonPage bulk migration, or new course inventory in Phase 17.
