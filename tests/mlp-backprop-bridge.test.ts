@@ -59,3 +59,13 @@ test('mlp backprop bridge component renders prediction and evidence controls', (
   assert.match(source, /w2/)
   assert.match(source, /b2/)
 })
+
+test('mlp backprop bridge is wired only into the backprop lesson section', () => {
+  const algorithmViewSource = read('src/views/AlgorithmView.vue')
+  const mlpModuleSource = read('src/data/mlpModule.ts')
+
+  assert.match(algorithmViewSource, /import MlpBackpropBridgeLab/)
+  assert.match(algorithmViewSource, /isMlpPage && section\.id === 'backprop'/)
+  assert.match(algorithmViewSource, /<MlpBackpropBridgeLab/)
+  assert.match(mlpModuleSource, /chain rule|链式法则|计算图/)
+})
