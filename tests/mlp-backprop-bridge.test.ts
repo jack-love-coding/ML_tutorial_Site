@@ -1,9 +1,16 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { existsSync, readFileSync } from 'node:fs'
 import {
   evaluateMlpBackpropBridge,
   type MlpBackpropBridgeInput,
 } from '../src/simulations/mlpBackpropBridge.ts'
+
+const root = new URL('../', import.meta.url)
+
+function read(path: string) {
+  return readFileSync(new URL(path, root), 'utf8')
+}
 
 const input: MlpBackpropBridgeInput = {
   x: 1.2,
@@ -38,4 +45,17 @@ test('mlp backprop bridge checks predicted update direction', () => {
   assert.equal(snapshot.inspected.parameter, 'w1')
   assert.equal(snapshot.inspected.predictedDirection, 'decrease')
   assert.equal(snapshot.inspected.correct, true)
+})
+
+test('mlp backprop bridge component renders prediction and evidence controls', () => {
+  assert.ok(existsSync(new URL('src/components/MlpBackpropBridgeLab.vue', root)))
+  const source = read('src/components/MlpBackpropBridgeLab.vue')
+
+  assert.match(source, /evaluateMlpBackpropBridge/)
+  assert.match(source, /predictedDirection/)
+  assert.match(source, /actualDirection/)
+  assert.match(source, /w1/)
+  assert.match(source, /b1/)
+  assert.match(source, /w2/)
+  assert.match(source, /b2/)
 })
