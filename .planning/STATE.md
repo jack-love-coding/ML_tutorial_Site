@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-07
-**Status:** Phase 17 MLP backprop mechanism bridge design drafted for review; implementation should start only after design approval.
+**Status:** Phase 17 MLP backprop mechanism bridge completed; next work should continue required-core teaching depth and route clarity.
 
 ## Project Reference
 
@@ -63,6 +63,7 @@ See `.planning/codebase/`:
 - Phase 16 completed the role metadata and legacy order cleanup without adding backend, database, durable progress scope, project readiness, or new course inventory.
 - Phase 17 should resolve the neural-network foundation depth decision around backpropagation/autodiff before more checklist or project-readiness work.
 - Phase 17 design chooses compact MLP chain-rule/computation-graph backprop depth; `matrix-calculus-autodiff` remains just-in-time support rather than required core.
+- Phase 17 MLP backprop mechanism bridge completed the compact required-route task without adding backend, database, durable progress scope, project readiness, bulk LessonPage migration, or a new lab registry.
 
 ## Completed Work
 
@@ -474,9 +475,19 @@ See `.planning/codebase/`:
   - `npm run build:pages`: pass with existing large-chunk warning.
   - Playwright Topic Library check: `/library/math` desktop and `/library/deep-learning` at 390px render role badges, have no horizontal overflow, and report 0 console errors.
 
+### Phase 17 - MLP Backprop Mechanism Bridge
+
+- Added `src/simulations/mlpBackpropBridge.ts` as a deterministic scalar one-hidden-unit MLP helper.
+- Added `src/components/MlpBackpropBridgeLab.vue` as a narrow prediction/evidence task for the MLP `backprop` lesson.
+- Wired the bridge directly in `src/views/AlgorithmView.vue` only for `isMlpPage && section.id === 'backprop'`.
+- Kept the existing top-level `MlpPlaygroundCockpit` intact.
+- Kept `matrix-calculus-autodiff` as just-in-time support instead of promoting it into required core.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new course inventory, broad lab registry redesign, or legacy route removal.
+- Verification is tracked in `docs/refactor/summaries/phase-17.md`.
+
 ## Next Recommended Command
 
-Design Phase 17 as the neural-network learning mechanism bridge:
+Review the next required-core deep-learning content gap after Phase 17:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -484,7 +495,9 @@ Design Phase 17 as the neural-network learning mechanism bridge:
 - `docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md`
 - `docs/refactor/summaries/phase-15.md`
 - `docs/refactor/summaries/phase-16.md`
+- `docs/refactor/summaries/phase-17.md`
 - `docs/refactor/designs/phase-15-curriculum-architecture-teaching-route-audit.md`
+- `docs/refactor/designs/phase-17-mlp-backprop-mechanism-bridge.md`
 - `docs/refactor/designs/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/audits/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/summaries/phase-12.md`
@@ -508,4 +521,4 @@ Design Phase 17 as the neural-network learning mechanism bridge:
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: after review, implement Phase 17 as the compact MLP backprop mechanism bridge. It should add one deterministic scalar helper and one narrow `backprop` section task that teaches chain-rule responsibility flow. Do not promote `matrix-calculus-autodiff` into required core, and do not add backend, database, account, durable progress scope, project readiness checklists, LessonPage bulk migration, or new course inventory in Phase 17.
+Suggested next direction: audit the required deep-learning handoff after MLP, especially `optimizer-comparison -> cnn-visualization`, and choose one narrow teaching-content gap to design next. Keep the focus on learner mental models, formulas-to-code consistency, and interaction evidence. Do not add backend, database, account, durable progress scope, project readiness checklists, LessonPage bulk migration, or new course inventory in the next slice.

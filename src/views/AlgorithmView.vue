@@ -25,6 +25,7 @@ import AiOverviewLessonLab from '../components/AiOverviewLessonLab.vue'
 import AppliedWorkflowLessonLab from '../components/AppliedWorkflowLessonLab.vue'
 import CnnExplainerLab from '../components/CnnExplainerLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
+import MlpBackpropBridgeLab from '../components/MlpBackpropBridgeLab.vue'
 import LessonPage from '../lessons/LessonPage.vue'
 import { isLessonPagePilotSlug, lessonLabRegistry } from '../lessons/labRegistry'
 import { withPublicBase } from '../utils/publicPath'
@@ -535,6 +536,11 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
           @reset="experimentStore.reset(slug)"
           @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
           @update-start-point="updateGradientStartPoint"
+        />
+
+        <MlpBackpropBridgeLab
+          v-else-if="isMlpPage && section.id === 'backprop'"
+          :accent="moduleDefinition.accent"
         />
       </template>
     </LessonPage>
