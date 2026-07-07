@@ -509,5 +509,30 @@
 - Tests protect role classification and route order.
 - `npm test`, `npm run build`, and `npm run build:pages` pass if runtime code changes.
 
+## Phase 17: Neural-Network Learning Mechanism Bridge
+
+**Goal:** Resolve the required-route ambiguity around how much backpropagation and autodiff a learner must understand before CNN, optimizer comparison, and Attention.
+
+**Deliverables:**
+- A design decision for `matrix-calculus-autodiff`: required module, compact MLP bridge, or support-only lens.
+- Updated route copy or required module wiring that makes the chosen neural-network learning depth explicit.
+- A narrow teaching interaction only if needed to connect forward pass, loss, gradients, and parameter update evidence.
+- Tests for role/order consistency, route copy, and any new deterministic learning-mechanism helper.
+- Phase 17 design and summary docs.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add project readiness checklist work.
+- Do not bulk migrate MLP, optimizer, CNN, or Attention into a new lesson architecture.
+- Do not turn advanced matrix calculus into a long required detour unless the design explicitly chooses that route.
+- Do not add new course inventory before deciding whether existing MLP/autodiff material can carry the outcome.
+
+**Exit Criteria:**
+- The neural-network stage no longer overclaims backprop/autodiff depth.
+- Learners can tell whether autodiff is required, support, or an in-lesson bridge.
+- Any new interaction asks for prediction/evidence rather than another static stage switch.
+- Existing spine, Topic Library roles, legacy routes, and checkpoint submissions remain intact.
+- `npm test`, `npm run build`, and `npm run build:pages` pass if runtime code changes.
+
 ---
 *Roadmap created: 2026-06-25*

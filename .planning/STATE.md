@@ -1,18 +1,18 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-07
-**Status:** Phase 15 curriculum architecture and teaching-route audit completed; Phase 16 curriculum role metadata and legacy order cleanup is the next recommended implementation slice.
+**Status:** Phase 16 curriculum role metadata and legacy order cleanup completed; Phase 17 neural-network learning mechanism bridge is the next recommended design slice.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Curriculum route clarity, module responsibility, and high-quality content coverage before backend, database, or durable progress scope
+**Current focus:** Required-core content quality and explicit neural-network learning depth before backend, database, or durable progress scope
 
 ## Baseline
 
-- `npm test`: pass, 255 tests.
+- `npm test`: pass, 270 tests.
 - `npm run build`: pass with existing Vite large-chunk warning.
 - `npm run build:pages`: pass with existing Vite large-chunk warning.
 - Baseline details: `docs/refactor/baseline.md`.
@@ -60,6 +60,8 @@ See `.planning/codebase/`:
 - Phase 15 design should produce a docs-only audit plan first, then an evidence-backed audit before any route or runtime implementation.
 - Phase 15 found that route/source-of-truth cleanup and explicit curriculum role metadata should precede project readiness, progress expansion, or more checklist mechanics.
 - Phase 16 should make required-core, support, project-validation, advanced-extension, reference-library, and overlap roles explicit, and prevent legacy algorithm order from contradicting the spine.
+- Phase 16 completed the role metadata and legacy order cleanup without adding backend, database, durable progress scope, project readiness, or new course inventory.
+- Phase 17 should resolve the neural-network foundation depth decision around backpropagation/autodiff before more checklist or project-readiness work.
 
 ## Completed Work
 
@@ -455,15 +457,32 @@ See `.planning/codebase/`:
 - Verified:
   - `git diff --check`: pass.
 
+### Phase 16 - Curriculum Role Metadata and Legacy Order Cleanup
+
+- Added `src/curriculum/roles.ts` to derive one primary curriculum role for every catalog module.
+- Classified modules as required core, just-in-time support, project validation, advanced extension, reference library, or duplicate/overlap.
+- Rendered localized role badges on Topic Library cards.
+- Realigned legacy algorithm `moduleOrder` so projects and advanced modules no longer appear before required foundations.
+- Updated old order tests that still encoded pre-spine migration assumptions.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new inventory, bulk LessonPage migration, or legacy route removal.
+- Verified:
+  - `node --test tests/curriculumRoles.test.ts tests/curriculumRoutingNavigation.test.ts tests/curriculumCatalog.test.ts tests/curriculumSpine.test.ts tests/curriculumMilestoneAudit.test.ts tests/linear-regression-layout.test.mjs tests/deep-learning-extension-modules.test.mjs tests/logistic-regression-cockpit.test.mjs`: pass, 44 tests.
+  - `node --test tests/classification-project-module.test.mjs tests/mlp-workbench.test.mjs tests/model-selection-module.test.mjs tests/python-and-housing-modules.test.mjs tests/tree-forest-module.test.mjs`: pass, 18 tests.
+  - `npm test`: pass, 270 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - Playwright Topic Library check: `/library/math` desktop and `/library/deep-learning` at 390px render role badges, have no horizontal overflow, and report 0 console errors.
+
 ## Next Recommended Command
 
-Design Phase 16 as curriculum role metadata and legacy order cleanup:
+Design Phase 17 as the neural-network learning mechanism bridge:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
 - `.planning/codebase/*`
 - `docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md`
 - `docs/refactor/summaries/phase-15.md`
+- `docs/refactor/summaries/phase-16.md`
 - `docs/refactor/designs/phase-15-curriculum-architecture-teaching-route-audit.md`
 - `docs/refactor/designs/phase-12-data-first-corridor-audit.md`
 - `docs/refactor/audits/phase-12-data-first-corridor-audit.md`
@@ -488,4 +507,4 @@ Design Phase 16 as curriculum role metadata and legacy order cleanup:
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: design Phase 16 for curriculum role metadata and legacy order cleanup. It should make module roles explicit across the catalog and Topic Library, then align or quarantine legacy `moduleOrder` so projects and advanced modules cannot reintroduce the old route confusion. Do not add backend, database, account, durable progress scope, project readiness checklists, LessonPage bulk migration, or new course inventory in Phase 16.
+Suggested next direction: design Phase 17 for the neural-network learning mechanism bridge. It should decide whether backpropagation/autodiff belongs as a required module, a compact MLP bridge, or support-only material; then add only the narrowest teaching interaction needed to make the decision visible to learners. Do not add backend, database, account, durable progress scope, project readiness checklists, LessonPage bulk migration, or new course inventory in Phase 17.

@@ -21,20 +21,21 @@ import { moduleOrder as legacyModuleOrder } from './modules'
 export const moduleOrder: AlgorithmModuleDefinition[] = [
   aiOverviewModule,
   pythonNotebookModule,
-  housingPriceProjectModule,
-  classificationProjectModule,
-  modelSelectionModule,
-  treeForestModule,
-  cnnVisualizationModule,
-  sequenceEmbeddingBridgeModule,
-  attentionTransformerModule,
-  optimizerComparisonModule,
-  llmRagModule,
   lossFunctionsModule,
   gradientDescentModule,
   linearRegressionModule,
   logisticRegressionModule,
   classificationModule,
+  housingPriceProjectModule,
+  classificationProjectModule,
+  modelSelectionModule,
+  treeForestModule,
+  mlpModule,
+  optimizerComparisonModule,
+  cnnVisualizationModule,
+  sequenceEmbeddingBridgeModule,
+  attentionTransformerModule,
+  llmRagModule,
   ...legacyModuleOrder.filter(
     (moduleDefinition) =>
       moduleDefinition.slug !== 'gradient-descent' &&
@@ -43,7 +44,6 @@ export const moduleOrder: AlgorithmModuleDefinition[] = [
       moduleDefinition.slug !== 'classification' &&
       moduleDefinition.slug !== 'mlp',
   ),
-  mlpModule,
 ]
 
 export const moduleRegistry = Object.fromEntries(

@@ -22,16 +22,25 @@ function walkFiles(dir, files = []) {
   return files
 }
 
-test('MLP is promoted to an independent guided module', () => {
+test('MLP remains an independent guided module in the required-core order', () => {
   const catalogSource = read('src/data/moduleCatalog.ts')
   const mlpModuleSource = read('src/data/mlpModule.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
+  const orderStart = catalogSource.indexOf('export const moduleOrder')
+  const registryStart = catalogSource.indexOf('export const moduleRegistry')
+  assert.ok(orderStart >= 0, 'moduleOrder should be exported')
+  assert.ok(registryStart > orderStart, 'moduleRegistry should follow moduleOrder')
+  const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
   assert.match(catalogSource, /import \{ mlpModule \} from '\.\/mlpModule'/)
   assert.match(catalogSource, /moduleDefinition\.slug !== 'mlp'/)
   assert.ok(
-    catalogSource.indexOf('...legacyModuleOrder.filter') < catalogSource.lastIndexOf('mlpModule'),
-    'MLP should follow the legacy logistic-regression module in the public course order',
+    moduleOrderSource.indexOf('treeForestModule,') < moduleOrderSource.indexOf('mlpModule,'),
+    'MLP should follow tree-forest in the public course order',
+  )
+  assert.ok(
+    moduleOrderSource.indexOf('mlpModule,') < moduleOrderSource.indexOf('optimizerComparisonModule,'),
+    'MLP should precede optimizer-comparison in the public course order',
   )
 
   assert.equal([...mlpModuleSource.matchAll(/titleKey: `modules\.mlp\.sections\.\$\{id\}\.title`/g)].length, 1)

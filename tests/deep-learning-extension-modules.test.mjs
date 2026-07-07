@@ -234,25 +234,31 @@ const moduleExpectations = [
   },
 ]
 
-test('deep learning extension modules are registered between tree forest and foundation modules', () => {
+test('deep learning extension modules follow the required-core spine order', () => {
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
   const messagesSource = read('src/i18n/messages.ts')
+  const orderStart = catalogSource.indexOf('export const moduleOrder')
+  const registryStart = catalogSource.indexOf('export const moduleRegistry')
+  assert.ok(orderStart >= 0, 'moduleOrder should be exported')
+  assert.ok(registryStart > orderStart, 'moduleRegistry should follow moduleOrder')
+  const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
   const orderedCatalogTokens = [
     'treeForestModule,',
+    'mlpModule,',
+    'optimizerComparisonModule,',
     'cnnVisualizationModule,',
     'sequenceEmbeddingBridgeModule,',
     'attentionTransformerModule,',
-    'optimizerComparisonModule,',
     'llmRagModule,',
-    'lossFunctionsModule,',
+    '...legacyModuleOrder.filter',
   ]
 
   for (let index = 1; index < orderedCatalogTokens.length; index += 1) {
     assert.ok(
-      catalogSource.indexOf(orderedCatalogTokens[index]) > catalogSource.indexOf(orderedCatalogTokens[index - 1]),
+      moduleOrderSource.indexOf(orderedCatalogTokens[index]) > moduleOrderSource.indexOf(orderedCatalogTokens[index - 1]),
       `${orderedCatalogTokens[index]} should follow ${orderedCatalogTokens[index - 1]}`,
     )
   }

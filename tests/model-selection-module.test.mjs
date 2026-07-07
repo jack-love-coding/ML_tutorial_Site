@@ -12,21 +12,26 @@ function escaped(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-test('model selection module is registered after classification project', () => {
+test('model selection module is registered after classification validation', () => {
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
   const messagesSource = read('src/i18n/messages.ts')
+  const orderStart = catalogSource.indexOf('export const moduleOrder')
+  const registryStart = catalogSource.indexOf('export const moduleRegistry')
+  assert.ok(orderStart >= 0, 'moduleOrder should be exported')
+  assert.ok(registryStart > orderStart, 'moduleRegistry should follow moduleOrder')
+  const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
   assert.match(typesSource, /\| 'model-selection'/)
   assert.match(catalogSource, /import \{ modelSelectionModule \} from '\.\/modelSelectionModule'/)
 
-  const classificationProjectIndex = catalogSource.indexOf('classificationProjectModule,')
-  const modelSelectionIndex = catalogSource.indexOf('modelSelectionModule,')
-  const lossIndex = catalogSource.indexOf('lossFunctionsModule,')
+  const classificationProjectIndex = moduleOrderSource.indexOf('classificationProjectModule,')
+  const modelSelectionIndex = moduleOrderSource.indexOf('modelSelectionModule,')
+  const lossIndex = moduleOrderSource.indexOf('lossFunctionsModule,')
 
   assert.ok(modelSelectionIndex > classificationProjectIndex, 'model-selection should follow classification-project')
-  assert.ok(modelSelectionIndex < lossIndex, 'model-selection should come before foundation loss modules')
+  assert.ok(modelSelectionIndex > lossIndex, 'model-selection should follow foundation loss modules')
 
   assert.match(algorithmViewSource, /slug\.value === 'model-selection'/)
   assert.match(algorithmViewSource, /isModelSelectionPage/)

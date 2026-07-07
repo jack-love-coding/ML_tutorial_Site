@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { curriculumCatalog } from '../curriculum/catalog.ts'
+import { curriculumRoleForModule } from '../curriculum/roles.ts'
 import { resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
 import type { AppLocale, LocalizedCopy } from '../types/ml'
 import type { CurriculumDomain, CurriculumModule } from '../curriculum/types.ts'
@@ -70,6 +71,11 @@ function moduleRoute(moduleDefinition: CurriculumModule) {
   return resolveCanonicalLearnRoute(moduleDefinition.id) ?? moduleDefinition.route
 }
 
+function roleLabel(moduleId: string) {
+  const role = curriculumRoleForModule(moduleId)
+  return role ? localizedText(role.label) : moduleId
+}
+
 const labels = computed(() =>
   currentLocale.value === 'zh-CN'
     ? {
@@ -111,7 +117,10 @@ const labels = computed(() =>
         :key="moduleDefinition.id"
         class="curriculum-module-card"
       >
-        <span>{{ moduleDefinition.estimatedMinutes }} {{ labels.minutes }}</span>
+        <div class="curriculum-module-card__meta">
+          <span>{{ moduleDefinition.estimatedMinutes }} {{ labels.minutes }}</span>
+          <span class="curriculum-module-card__role">{{ roleLabel(moduleDefinition.id) }}</span>
+        </div>
         <h2>{{ localizedText(moduleDefinition.title) }}</h2>
         <p>{{ localizedText(moduleDefinition.summary) }}</p>
         <router-link :to="moduleRoute(moduleDefinition)">

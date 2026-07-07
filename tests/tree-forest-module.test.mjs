@@ -12,21 +12,26 @@ function escaped(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-test('tree forest module is registered after model selection', () => {
+test('tree forest module is registered after generalization foundations', () => {
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
   const messagesSource = read('src/i18n/messages.ts')
+  const orderStart = catalogSource.indexOf('export const moduleOrder')
+  const registryStart = catalogSource.indexOf('export const moduleRegistry')
+  assert.ok(orderStart >= 0, 'moduleOrder should be exported')
+  assert.ok(registryStart > orderStart, 'moduleRegistry should follow moduleOrder')
+  const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
   assert.match(typesSource, /\| 'tree-forest'/)
   assert.match(catalogSource, /import \{ treeForestModule \} from '\.\/treeForestModule'/)
 
-  const modelSelectionIndex = catalogSource.indexOf('modelSelectionModule,')
-  const treeForestIndex = catalogSource.indexOf('treeForestModule,')
-  const lossIndex = catalogSource.indexOf('lossFunctionsModule,')
+  const modelSelectionIndex = moduleOrderSource.indexOf('modelSelectionModule,')
+  const treeForestIndex = moduleOrderSource.indexOf('treeForestModule,')
+  const lossIndex = moduleOrderSource.indexOf('lossFunctionsModule,')
 
   assert.ok(treeForestIndex > modelSelectionIndex, 'tree-forest should follow model-selection')
-  assert.ok(treeForestIndex < lossIndex, 'tree-forest should come before foundation loss modules')
+  assert.ok(treeForestIndex > lossIndex, 'tree-forest should follow foundation loss modules')
 
   assert.match(algorithmViewSource, /slug\.value === 'tree-forest'/)
   assert.match(algorithmViewSource, /isTreeForestPage/)

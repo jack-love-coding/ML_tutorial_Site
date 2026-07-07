@@ -12,26 +12,32 @@ function escaped(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-test('Python notebook and housing project modules are registered after AI overview', () => {
+test('Python notebook and housing project modules follow their curriculum roles', () => {
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
   const messagesSource = read('src/i18n/messages.ts')
+  const orderStart = catalogSource.indexOf('export const moduleOrder')
+  const registryStart = catalogSource.indexOf('export const moduleRegistry')
+  assert.ok(orderStart >= 0, 'moduleOrder should be exported')
+  assert.ok(registryStart > orderStart, 'moduleRegistry should follow moduleOrder')
+  const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
   assert.match(typesSource, /\| 'python-notebook'/)
   assert.match(typesSource, /\| 'housing-price-project'/)
   assert.match(catalogSource, /import \{ pythonNotebookModule \} from '\.\/pythonNotebookModule'/)
   assert.match(catalogSource, /import \{ housingPriceProjectModule \} from '\.\/housingPriceProjectModule'/)
 
-  const aiIndex = catalogSource.indexOf('aiOverviewModule,')
-  const pythonIndex = catalogSource.indexOf('pythonNotebookModule,')
-  const housingIndex = catalogSource.indexOf('housingPriceProjectModule,')
-  const lossIndex = catalogSource.indexOf('lossFunctionsModule,')
+  const aiIndex = moduleOrderSource.indexOf('aiOverviewModule,')
+  const pythonIndex = moduleOrderSource.indexOf('pythonNotebookModule,')
+  const housingIndex = moduleOrderSource.indexOf('housingPriceProjectModule,')
+  const lossIndex = moduleOrderSource.indexOf('lossFunctionsModule,')
+  const linearRegressionIndex = moduleOrderSource.indexOf('linearRegressionModule,')
 
   assert.ok(aiIndex >= 0)
   assert.ok(pythonIndex > aiIndex, 'python-notebook should follow AI overview')
-  assert.ok(housingIndex > pythonIndex, 'housing-price-project should follow python-notebook')
-  assert.ok(housingIndex < lossIndex, 'both new beginner project chapters should come before loss functions')
+  assert.ok(housingIndex > lossIndex, 'housing-price-project should follow loss functions')
+  assert.ok(housingIndex > linearRegressionIndex, 'housing-price-project should follow linear regression')
 
   assert.match(algorithmViewSource, /AppliedWorkflowLessonLab/)
   assert.match(algorithmViewSource, /slug\.value === 'python-notebook'/)
