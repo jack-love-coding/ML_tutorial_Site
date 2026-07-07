@@ -51,7 +51,8 @@
 
 .curriculum-hero__metrics span,
 .curriculum-module-row__copy > span,
-.curriculum-module-card > span {
+.curriculum-module-card > span,
+.curriculum-module-card__meta span {
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 800;
@@ -102,6 +103,21 @@
   margin: 0;
   font-family: var(--font-display);
   font-size: 1.3rem;
+}
+
+.curriculum-module-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.curriculum-module-card__role {
+  padding: 3px 8px;
+  border: 2px solid var(--pixel-line);
+  border-radius: 6px;
+  background: #dff8e8;
+  color: var(--pixel-ink);
 }
 
 .curriculum-module-row p,

@@ -12,21 +12,26 @@ function escaped(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-test('classification project module is registered after housing project', () => {
+test('classification project module is registered after its required foundations', () => {
   const typesSource = read('src/types/ml.ts')
   const catalogSource = read('src/data/moduleCatalog.ts')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
   const messagesSource = read('src/i18n/messages.ts')
+  const orderStart = catalogSource.indexOf('export const moduleOrder')
+  const registryStart = catalogSource.indexOf('export const moduleRegistry')
+  assert.ok(orderStart >= 0, 'moduleOrder should be exported')
+  assert.ok(registryStart > orderStart, 'moduleRegistry should follow moduleOrder')
+  const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
   assert.match(typesSource, /\| 'classification-project'/)
   assert.match(catalogSource, /import \{ classificationProjectModule \} from '\.\/classificationProjectModule'/)
 
-  const housingIndex = catalogSource.indexOf('housingPriceProjectModule,')
-  const classificationProjectIndex = catalogSource.indexOf('classificationProjectModule,')
-  const lossIndex = catalogSource.indexOf('lossFunctionsModule,')
+  const housingIndex = moduleOrderSource.indexOf('housingPriceProjectModule,')
+  const classificationIndex = moduleOrderSource.indexOf('classificationModule,')
+  const classificationProjectIndex = moduleOrderSource.indexOf('classificationProjectModule,')
 
   assert.ok(classificationProjectIndex > housingIndex, 'classification-project should follow housing-price-project')
-  assert.ok(classificationProjectIndex < lossIndex, 'classification-project should come before foundation loss modules')
+  assert.ok(classificationProjectIndex > classificationIndex, 'classification-project should follow classification')
 
   assert.match(algorithmViewSource, /slug\.value === 'classification-project'/)
   assert.match(algorithmViewSource, /isClassificationProjectPage/)
