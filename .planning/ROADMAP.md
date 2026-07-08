@@ -583,5 +583,31 @@
 - Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
 - Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
 
+## Phase 20: Optimizer Curve Diagnosis Challenge
+
+**Goal:** Turn optimizer curve diagnosis into one active prediction/evidence task inside the required `optimizer-comparison` route.
+
+**Deliverables:**
+- Design contract for `OptimizerCurveDiagnosisChallengeLab`.
+- Deterministic helper contract for fixed training-curve scenarios, evidence metrics, likely-issue scoring, and next-experiment scoring.
+- Implementation plan that wires the task directly into the optimizer `curve-diagnosis` chapter while keeping the existing `optimizerStages` explanation available.
+- Tests that keep Phase 20 design artifacts discoverable before runtime implementation.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add project readiness checklist work.
+- Do not add a new optimizer course module or freeform training simulator.
+- Do not migrate `optimizer-comparison` into `LessonPage`.
+- Do not rewrite `AppliedWorkflowLessonLab` beyond one section-level conditional.
+- Do not migrate Math Lab `calculus-optimizer-comparison` into required core.
+
+**Exit Criteria:**
+- The task asks learners to predict likely issue and next controlled experiment before computed evidence is shown.
+- The scenarios cover learning-rate divergence, batch noise, momentum/adaptive behavior, and schedule plateau.
+- Evidence is derived from deterministic curve arrays outside Vue.
+- The implementation scope remains one helper, one component, one section-level wiring point, focused tests, and summary/state docs.
+- Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
+- Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
+
 ---
 *Roadmap created: 2026-06-25*

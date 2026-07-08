@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-08
-**Status:** Phase 19 CNN shape/parameter challenge design drafted for review; runtime implementation should wait for design approval.
+**Status:** Phase 20 optimizer curve diagnosis challenge design drafted for review; Phase 19 implementation is tracked separately in draft PR #29.
 
 ## Project Reference
 
@@ -66,6 +66,8 @@ See `.planning/codebase/`:
 - Phase 17 MLP backprop mechanism bridge completed the compact required-route task without adding backend, database, durable progress scope, project readiness, bulk LessonPage migration, or a new lab registry.
 - Phase 18 optimizer-to-CNN handoff audit completed; the route is `optimizer-comparison -> tensor-shapes-vectorization -> cnn-visualization`, and the next implementation slice should be a CNN shape/parameter challenge rather than a new transition module or optimizer task first.
 - Phase 19 design chooses a narrow `CnnShapeParameterChallengeLab` in `cnn-visualization` `channels-feature-maps`; it should reuse existing CNN output-size logic, compare convolution parameters with a dense layer reading the same image, and avoid backend, progress persistence, route rewrites, CNN explainer replacement, or `AppliedWorkflowLessonLab` wiring.
+- Phase 20 design chooses a narrow `OptimizerCurveDiagnosisChallengeLab` in `optimizer-comparison` `curve-diagnosis`; it should ask for likely issue and next single-variable experiment before showing evidence, and avoid backend, durable progress, route rewrites, project readiness, new optimizer inventory, or `LessonPage` migration.
+- Phase 20 runtime implementation should wait until Phase 19 implementation PR #29 lands on `main`, then branch from updated `main` to preserve one independently reviewable phase per PR.
 
 ## Completed Work
 
@@ -512,9 +514,21 @@ See `.planning/codebase/`:
   - `node --test tests/curriculumMilestoneAudit.test.ts`: pass.
   - `git diff --check`: pass.
 
+### Phase 20 - Optimizer Curve Diagnosis Challenge Design
+
+- Added `docs/refactor/designs/phase-20-optimizer-curve-diagnosis-challenge.md`.
+- Added `docs/superpowers/specs/2026-07-08-optimizer-curve-diagnosis-design.md`.
+- Added `docs/superpowers/plans/2026-07-08-optimizer-curve-diagnosis-challenge.md`.
+- Chose a narrow `OptimizerCurveDiagnosisChallengeLab` for `optimizer-comparison` `curve-diagnosis`.
+- Confirmed the implementation should wire directly in `src/components/AppliedWorkflowLessonLab.vue`, because the active optimizer runtime uses `optimizerStages` inside that shared workflow component.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new optimizer module, route rewrite, broad simulator, Math Lab migration, `LessonPage` migration, or existing optimizer stage replacement.
+- Verified:
+  - `node --test tests/curriculumMilestoneAudit.test.ts`: pass.
+  - `git diff --check`: pass.
+
 ## Next Recommended Command
 
-Review the Phase 19 design, then execute the implementation plan if approved:
+Review the Phase 20 design, then execute the implementation plan after Phase 19 implementation PR #29 is merged:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -524,6 +538,9 @@ Review the Phase 19 design, then execute the implementation plan if approved:
 - `docs/refactor/designs/phase-19-cnn-shape-parameter-challenge.md`
 - `docs/superpowers/specs/2026-07-08-cnn-shape-parameter-challenge-design.md`
 - `docs/superpowers/plans/2026-07-08-cnn-shape-parameter-challenge.md`
+- `docs/refactor/designs/phase-20-optimizer-curve-diagnosis-challenge.md`
+- `docs/superpowers/specs/2026-07-08-optimizer-curve-diagnosis-design.md`
+- `docs/superpowers/plans/2026-07-08-optimizer-curve-diagnosis-challenge.md`
 - `docs/refactor/summaries/phase-15.md`
 - `docs/refactor/summaries/phase-16.md`
 - `docs/refactor/summaries/phase-17.md`
@@ -553,4 +570,4 @@ Review the Phase 19 design, then execute the implementation plan if approved:
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: implement Phase 19 exactly as the approved design: a narrow `CnnShapeParameterChallengeLab` in `cnn-visualization` `channels-feature-maps`. It should ask learners to predict output shape and parameter count for one `Conv2d` configuration, compare it with a dense layer reading the same image, and show formula/code evidence. Do not add backend, database, account, durable progress scope, project readiness checklists, new transition modules, LessonPage bulk migration, CNN explainer replacement, or new course inventory in Phase 19.
+Suggested next direction: after Phase 19 implementation PR #29 lands, implement Phase 20 exactly as the approved design: a narrow `OptimizerCurveDiagnosisChallengeLab` in `optimizer-comparison` `curve-diagnosis`. It should ask learners to diagnose a curve pattern, choose the likely issue, choose the next single-variable experiment, and inspect evidence tied to learning rate, batch noise, momentum/adaptive behavior, or schedule. Do not add backend, database, account, durable progress scope, project readiness checklists, new modules, LessonPage bulk migration, broad optimizer simulator work, or new course inventory in Phase 20.
