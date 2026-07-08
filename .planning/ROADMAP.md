@@ -636,5 +636,33 @@
 - Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
 - Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
 
+## Phase 22: Transformer Block Assembly Challenge
+
+**Goal:** Turn Transformer block structure into one active prediction/evidence task inside the required `attention-transformer` route before moving into optional `llm-rag` application content.
+
+**Deliverables:**
+- Design contract for `TransformerBlockAssemblyChallengeLab`.
+- Deterministic helper contract for fixed block scenarios, missing/misplaced sublayer scoring, consequence scoring, shape invariants, and evidence labels.
+- Implementation plan, after design review, that wires the task directly into the Attention `transformer-block` chapter while keeping the existing `attentionStages` explanation available.
+- Tests that keep Phase 22 design artifacts discoverable before runtime implementation.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add project readiness checklist work.
+- Do not add a new Attention, Transformer, LLM, or RAG course module.
+- Do not promote `llm-rag` into required core or change curriculum roles.
+- Do not migrate `attention-transformer` or `llm-rag` into `LessonPage`.
+- Do not rewrite `AppliedWorkflowLessonLab` beyond one section-level conditional.
+- Do not build a full Transformer simulator, generation demo, RAG surface, semantic NLP task, or multi-head visualization.
+
+**Exit Criteria:**
+- The task asks learners to predict block order or missing sublayer before computed evidence is shown.
+- The scenarios cover residual, LayerNorm, FFN, and attention-only misconceptions.
+- Evidence is derived from deterministic block traces outside Vue.
+- The existing Attention stage explanation remains visible; routes, roles, and checkpoints remain unchanged.
+- The implementation scope remains one helper, one component, one section-level wiring point, focused tests, and summary/state docs.
+- Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
+- Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
+
 ---
 *Roadmap created: 2026-06-25*
