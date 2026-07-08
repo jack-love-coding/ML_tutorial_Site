@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-08
-**Status:** Phase 20 optimizer curve diagnosis challenge design drafted and ready for runtime implementation; Phase 19 implementation merged via PR #29.
+**Status:** Phase 20 optimizer curve diagnosis challenge implementation completed; next work should verify, self-review, and ship the phase PR.
 
 ## Project Reference
 
@@ -69,6 +69,7 @@ See `.planning/codebase/`:
 - Phase 19 CNN shape/parameter challenge implementation completed the required CNN prediction/evidence task without replacing `CnnExplainerLab`, adding backend/progress persistence, changing routes, or widening the lesson architecture.
 - Phase 20 design chooses a narrow `OptimizerCurveDiagnosisChallengeLab` in `optimizer-comparison` `curve-diagnosis`; it should ask for likely issue and next single-variable experiment before showing evidence, and avoid backend, durable progress, route rewrites, project readiness, new optimizer inventory, or `LessonPage` migration.
 - Phase 20 runtime implementation should start from updated `main` after Phase 19 PR #29, preserving one independently reviewable phase per PR.
+- Phase 20 optimizer curve diagnosis challenge implementation completed the required optimizer prediction/evidence task without adding backend/progress persistence, changing routes, creating a new optimizer module, replacing the existing optimizer stage explanation, or migrating the lesson to `LessonPage`.
 
 ## Completed Work
 
@@ -537,9 +538,27 @@ See `.planning/codebase/`:
   - `node --test tests/curriculumMilestoneAudit.test.ts`: pass.
   - `git diff --check`: pass.
 
+### Phase 20 - Optimizer Curve Diagnosis Challenge Implementation
+
+- Added `src/simulations/optimizerCurveDiagnosisChallenge.ts`.
+- Added `src/components/OptimizerCurveDiagnosisChallengeLab.vue`.
+- Wired the challenge directly into `src/components/AppliedWorkflowLessonLab.vue` for `optimizer-comparison` `curve-diagnosis`.
+- Updated `src/data/optimizerComparisonModule.ts` to point the learner prompt at the prediction task.
+- Added `tests/optimizer-curve-diagnosis-challenge.test.ts`.
+- Added `docs/refactor/summaries/phase-20.md`.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new optimizer module, route rewrite, broad simulator, Math Lab migration, `LessonPage` migration, or existing optimizer stage replacement.
+- Verified:
+  - `node --test tests/optimizer-curve-diagnosis-challenge.test.ts`: pass, 3 tests.
+  - `node --test tests/optimizer-curve-diagnosis-challenge.test.ts tests/deep-learning-extension-modules.test.mjs`: pass, 6 tests.
+  - `node --test tests/optimizer-curve-diagnosis-challenge.test.ts tests/deep-learning-extension-modules.test.mjs tests/curriculumMilestoneAudit.test.ts`: pass, 12 tests.
+  - `npm test`: pass, 282 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - Playwright desktop and 390px mobile checks on `/learn/optimizer-comparison/curve-diagnosis`: no horizontal overflow, console errors 0, challenge and existing optimizer stage explanation both render.
+
 ## Next Recommended Command
 
-Execute the Phase 20 implementation plan from updated `main`:
+Verify and ship the Phase 20 implementation PR:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
@@ -582,4 +601,4 @@ Execute the Phase 20 implementation plan from updated `main`:
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: implement Phase 20 exactly as the approved design: a narrow `OptimizerCurveDiagnosisChallengeLab` in `optimizer-comparison` `curve-diagnosis`. It should ask learners to diagnose a curve pattern, choose the likely issue, choose the next single-variable experiment, and inspect evidence tied to learning rate, batch noise, momentum/adaptive behavior, or schedule. Do not add backend, database, account, durable progress scope, project readiness checklists, new modules, LessonPage bulk migration, broad optimizer simulator work, or new course inventory in Phase 20.
+Suggested next direction: complete verification and PR review for Phase 20. After it lands, choose the next narrow required-core teaching-content gap rather than adding backend, database, account, durable progress scope, project readiness checklists, broad route migration, or new course inventory.

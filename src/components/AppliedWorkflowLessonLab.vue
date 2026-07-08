@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import OptimizerCurveDiagnosisChallengeLab from './OptimizerCurveDiagnosisChallengeLab.vue'
 import SequenceBridgeShapeLab from './SequenceBridgeShapeLab.vue'
 import type { AppLocale, ModuleSlug, StorySection } from '../types/ml'
 
@@ -588,6 +589,10 @@ const sectionHint = computed(() => {
     </section>
 
     <section v-else-if="activeWorkflow === 'optimizer'" class="workflow-lab__pipeline workflow-lab__pipeline--optimizer">
+      <OptimizerCurveDiagnosisChallengeLab
+        v-if="props.moduleSlug === 'optimizer-comparison' && props.section.id === 'curve-diagnosis'"
+      />
+
       <div class="workflow-lab__stage-list">
         <button
           v-for="stage in optimizerStages"
