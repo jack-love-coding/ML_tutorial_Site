@@ -88,6 +88,9 @@ test('cnn shape parameter challenge component renders prediction and evidence co
 
   assert.match(source, /evaluateCnnShapeParameterChallenge/)
   assert.match(source, /cnnShapeParameterScenarios/)
+  assert.match(source, /hasChecked/)
+  assert.match(source, /revealEvidence/)
+  assert.match(source, /v-if="hasChecked"/)
   assert.match(source, /convParameterCount/)
   assert.match(source, /denseParameterCount/)
   assert.match(source, /outputHeight/)

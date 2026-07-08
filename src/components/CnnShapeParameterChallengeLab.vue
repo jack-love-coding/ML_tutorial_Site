@@ -124,6 +124,8 @@ const copy = computed(() =>
         convParameterCount: 'Conv 参数量',
         comparison: '谁的参数更少？',
         evidence: '公式证据',
+        checkEvidence: '查看证据',
+        beforeEvidence: '先完成预测，再查看公式证据和反馈。',
         feedback: '反馈',
         correct: '全部关键判断正确',
         partial: '还有判断需要修正',
@@ -153,6 +155,8 @@ const copy = computed(() =>
         convParameterCount: 'Conv parameters',
         comparison: 'Which has fewer parameters?',
         evidence: 'Formula evidence',
+        checkEvidence: 'Check evidence',
+        beforeEvidence: 'Finish your prediction first, then check formula evidence and feedback.',
         feedback: 'Feedback',
         correct: 'All key checks are correct',
         partial: 'Some checks still need revision',
@@ -172,6 +176,7 @@ const copy = computed(() =>
 
 const selectedScenarioId = ref<CnnShapeParameterScenarioId>('same-padding-rgb')
 const prediction = ref<CnnShapeParameterPrediction>({ ...scenarioCopy[0].defaultPrediction })
+const hasChecked = ref(false)
 
 const activeScenario = computed<CnnShapeParameterScenario>(
   () => cnnShapeParameterScenarios.find((scenario) => scenario.id === selectedScenarioId.value) ?? cnnShapeParameterScenarios[0],
@@ -241,10 +246,16 @@ const resultRows = computed(() => [
 function chooseScenario(scenario: ScenarioCopy) {
   selectedScenarioId.value = scenario.id
   prediction.value = { ...scenario.defaultPrediction }
+  hasChecked.value = false
 }
 
 function resetPrediction() {
   prediction.value = { ...activeScenarioCopy.value.defaultPrediction }
+  hasChecked.value = false
+}
+
+function revealEvidence() {
+  hasChecked.value = true
 }
 </script>
 
@@ -312,7 +323,14 @@ function resetPrediction() {
       </label>
     </fieldset>
 
-    <section class="cnn-shape-challenge__evidence" :aria-label="copy.evidence">
+    <section v-if="!hasChecked" class="cnn-shape-challenge__gate">
+      <span>{{ copy.beforeEvidence }}</span>
+      <button type="button" class="cnn-shape-challenge__reset" @click="revealEvidence">
+        {{ copy.checkEvidence }}
+      </button>
+    </section>
+
+    <section v-if="hasChecked" class="cnn-shape-challenge__evidence" :aria-label="copy.evidence">
       <article v-for="card in evidenceCards" :key="card.id">
         <span>{{ card.label }}</span>
         <strong>{{ card.value }}</strong>
@@ -322,6 +340,7 @@ function resetPrediction() {
     </section>
 
     <section
+      v-if="hasChecked"
       class="cnn-shape-challenge__feedback"
       :class="{ 'is-correct': snapshot.result.allCorrect }"
       :aria-label="copy.feedback"

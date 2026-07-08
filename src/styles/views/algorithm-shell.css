@@ -1002,6 +1002,23 @@
   line-height: 1.45;
 }
 
+.cnn-shape-challenge__gate {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px dashed rgba(15, 23, 40, 0.18);
+  border-radius: 16px;
+  background: rgba(248, 249, 252, 0.72);
+}
+
+.cnn-shape-challenge__gate span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
 .cnn-shape-challenge__evidence {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -1241,6 +1258,7 @@
   }
 
   .cnn-shape-challenge__header,
+  .cnn-shape-challenge__gate,
   .cnn-shape-challenge__feedback > div {
     display: grid;
   }
