@@ -125,7 +125,7 @@ Validation rules:
 
 - Unknown scenario IDs fall back to `matching-key`.
 - Unknown prediction values are normalized to safe incorrect defaults rather than throwing.
-- Raw scores come from Q/K dot products, optionally scaled by `sqrt(d_k)` if the scenario config includes scaling.
+- Raw scores come from Q/K dot products scaled by `sqrt(d_k)`, matching the chapter formula.
 - Masked scores use `null` for masked entries in public evidence instead of exposing `-Infinity` to the component.
 - Softmax is computed row-wise over unmasked scores only.
 - `rowWeightSum` should be approximately 1 for valid scenarios.
@@ -154,7 +154,6 @@ The learner can change predictions at any time. There is no persistence and no r
 ```vue
 <AttentionQkvChallengeLab
   v-if="props.moduleSlug === 'attention-transformer' && props.section.id === 'softmax-weighted-sum'"
-  :accent="props.accent"
 />
 ```
 
