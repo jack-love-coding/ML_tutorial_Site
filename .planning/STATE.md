@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-08
-**Status:** Phase 21 Attention Q/K/V softmax task design recorded; next work should review the design before implementation planning.
+**Status:** Phase 21 Attention Q/K/V softmax task implementation completed; next work should review and merge the phase PR.
 
 ## Project Reference
 
@@ -72,6 +72,7 @@ See `.planning/codebase/`:
 - Phase 20 optimizer curve diagnosis challenge implementation completed the required optimizer prediction/evidence task without adding backend/progress persistence, changing routes, creating a new optimizer module, replacing the existing optimizer stage explanation, or migrating the lesson to `LessonPage`.
 - Phase 21 design chooses a narrow `AttentionQkvChallengeLab` in `attention-transformer` `softmax-weighted-sum`; it should ask for top attended key and mask effect before showing Q/K score, row-wise softmax, and weighted V evidence.
 - Phase 21 should avoid backend, durable progress, route rewrites, project readiness, new Attention inventory, full Transformer simulation, multi-head expansion, Math Lab migration, semantic NLP tasks, or `LessonPage` migration.
+- Phase 21 Attention Q/K/V softmax task implementation completed the required Attention prediction/evidence task without adding backend/progress persistence, changing routes, creating a new Attention module, replacing the existing Attention stage explanation, or migrating the lesson to `LessonPage`.
 
 ## Completed Work
 
@@ -567,11 +568,36 @@ See `.planning/codebase/`:
 - Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new Attention module, route rewrite, broad Transformer simulator, multi-head expansion, semantic NLP task, Math Lab migration, `LessonPage` migration, or existing Attention stage replacement.
 - Design review should happen before creating the formal implementation plan or runtime code.
 
+### Phase 21 - Attention Q/K/V Softmax Task Implementation
+
+- Added `src/simulations/attentionQkvChallenge.ts`.
+- Added `src/components/AttentionQkvChallengeLab.vue`.
+- Wired the challenge directly into `src/components/AppliedWorkflowLessonLab.vue` for `attention-transformer` `softmax-weighted-sum`.
+- Updated `src/data/attentionTransformerModule.ts` to point the learner prompt at the prediction task.
+- Added `tests/attention-qkv-challenge.test.ts`.
+- Added `docs/refactor/summaries/phase-21.md`.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new Attention module, route rewrite, broad Transformer simulator, multi-head expansion, semantic NLP task, Math Lab migration, `LessonPage` migration, or existing Attention stage replacement.
+- Verified:
+  - `node --test tests/attention-qkv-challenge.test.ts`: pass, 3 tests.
+  - `node --test tests/attention-qkv-challenge.test.ts tests/deep-learning-extension-modules.test.mjs tests/curriculumMilestoneAudit.test.ts`: pass, 12 tests.
+  - `npm test`: pass, 285 tests.
+  - `npm run build`: pass with existing large-chunk warning.
+  - `npm run build:pages`: pass with existing large-chunk warning.
+  - Browser desktop and 390px mobile checks on `/learn/attention-transformer/softmax-weighted-sum`: no horizontal overflow, console errors 0, challenge and existing Attention stage explanation both render.
+
 ## Next Recommended Command
 
-Review Phase 21 design:
+Review and merge the Phase 21 implementation PR:
 
-- `docs/refactor/designs/phase-21-attention-qkv-softmax-task.md`
-- `docs/superpowers/specs/2026-07-08-attention-qkv-softmax-task-design.md`
+- `src/simulations/attentionQkvChallenge.ts`
+- `src/components/AttentionQkvChallengeLab.vue`
+- `src/components/AppliedWorkflowLessonLab.vue`
+- `src/styles/views/algorithm-shell.css`
+- `src/data/attentionTransformerModule.ts`
+- `tests/attention-qkv-challenge.test.ts`
+- `tests/deep-learning-extension-modules.test.mjs`
+- `docs/refactor/summaries/phase-21.md`
+- `.planning/STATE.md`
+- `tests/curriculumMilestoneAudit.test.ts`
 
-Suggested next direction after review: create the formal implementation plan for `AttentionQkvChallengeLab`, then implement the narrow required-core Attention prediction/evidence task. Continue avoiding backend, database, account, durable progress scope, project readiness checklists, broad route migration, new course inventory, full Transformer simulation, and multi-head expansion.
+Suggested next direction after Phase 21 lands: audit the remaining required-core endpoint quality around `attention-transformer -> llm-rag` optional handoff and decide whether the next slice should strengthen Transformer block reasoning, RAG grounding diagnostics, or route copy. Continue avoiding backend, database, account, durable progress scope, project readiness checklists, broad route migration, new course inventory, full Transformer simulation, and multi-head expansion unless a later design explicitly chooses it.
