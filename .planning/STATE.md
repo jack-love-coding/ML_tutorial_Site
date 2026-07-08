@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-08
-**Status:** Phase 20 optimizer curve diagnosis challenge implementation completed; next work should verify, self-review, and ship the phase PR.
+**Status:** Phase 21 Attention Q/K/V softmax task design recorded; next work should review the design before implementation planning.
 
 ## Project Reference
 
@@ -70,6 +70,8 @@ See `.planning/codebase/`:
 - Phase 20 design chooses a narrow `OptimizerCurveDiagnosisChallengeLab` in `optimizer-comparison` `curve-diagnosis`; it should ask for likely issue and next single-variable experiment before showing evidence, and avoid backend, durable progress, route rewrites, project readiness, new optimizer inventory, or `LessonPage` migration.
 - Phase 20 runtime implementation should start from updated `main` after Phase 19 PR #29, preserving one independently reviewable phase per PR.
 - Phase 20 optimizer curve diagnosis challenge implementation completed the required optimizer prediction/evidence task without adding backend/progress persistence, changing routes, creating a new optimizer module, replacing the existing optimizer stage explanation, or migrating the lesson to `LessonPage`.
+- Phase 21 design chooses a narrow `AttentionQkvChallengeLab` in `attention-transformer` `softmax-weighted-sum`; it should ask for top attended key and mask effect before showing Q/K score, row-wise softmax, and weighted V evidence.
+- Phase 21 should avoid backend, durable progress, route rewrites, project readiness, new Attention inventory, full Transformer simulation, multi-head expansion, Math Lab migration, semantic NLP tasks, or `LessonPage` migration.
 
 ## Completed Work
 
@@ -556,49 +558,20 @@ See `.planning/codebase/`:
   - `npm run build:pages`: pass with existing large-chunk warning.
   - Playwright desktop and 390px mobile checks on `/learn/optimizer-comparison/curve-diagnosis`: no horizontal overflow, console errors 0, challenge and existing optimizer stage explanation both render.
 
+### Phase 21 - Attention Q/K/V Softmax Task Design
+
+- Added `docs/refactor/designs/phase-21-attention-qkv-softmax-task.md`.
+- Added `docs/superpowers/specs/2026-07-08-attention-qkv-softmax-task-design.md`.
+- Chose a narrow `AttentionQkvChallengeLab` for `attention-transformer` `softmax-weighted-sum`.
+- Confirmed the implementation should wire directly in `src/components/AppliedWorkflowLessonLab.vue`, because the active Attention runtime uses `attentionStages` inside that shared workflow component.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new Attention module, route rewrite, broad Transformer simulator, multi-head expansion, semantic NLP task, Math Lab migration, `LessonPage` migration, or existing Attention stage replacement.
+- Design review should happen before creating the formal implementation plan or runtime code.
+
 ## Next Recommended Command
 
-Verify and ship the Phase 20 implementation PR:
+Review Phase 21 design:
 
-- `docs/refactor/curriculum-v2-brief.md`
-- `.planning/ROADMAP.md`
-- `.planning/codebase/*`
-- `docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md`
-- `docs/refactor/audits/phase-18-optimizer-cnn-handoff-audit.md`
-- `docs/refactor/designs/phase-19-cnn-shape-parameter-challenge.md`
-- `docs/superpowers/specs/2026-07-08-cnn-shape-parameter-challenge-design.md`
-- `docs/superpowers/plans/2026-07-08-cnn-shape-parameter-challenge.md`
-- `docs/refactor/designs/phase-20-optimizer-curve-diagnosis-challenge.md`
-- `docs/superpowers/specs/2026-07-08-optimizer-curve-diagnosis-design.md`
-- `docs/superpowers/plans/2026-07-08-optimizer-curve-diagnosis-challenge.md`
-- `docs/refactor/summaries/phase-15.md`
-- `docs/refactor/summaries/phase-16.md`
-- `docs/refactor/summaries/phase-17.md`
-- `docs/refactor/summaries/phase-18.md`
-- `docs/refactor/summaries/phase-19.md`
-- `docs/refactor/designs/phase-15-curriculum-architecture-teaching-route-audit.md`
-- `docs/refactor/designs/phase-17-mlp-backprop-mechanism-bridge.md`
-- `docs/refactor/designs/phase-12-data-first-corridor-audit.md`
-- `docs/refactor/audits/phase-12-data-first-corridor-audit.md`
-- `docs/refactor/summaries/phase-12.md`
-- `docs/refactor/designs/phase-13-categorical-vocabulary-contract-task-lab.md`
-- `docs/refactor/designs/phase-14-data-quality-decision-record.md`
-- `docs/refactor/summaries/phase-13.md`
-- `docs/refactor/summaries/phase-14.md`
-- `docs/refactor/summaries/phase-1.md`
-- `docs/refactor/summaries/phase-2.md`
-- `docs/refactor/summaries/phase-3.md`
-- `docs/refactor/summaries/phase-4.md`
-- `docs/refactor/summaries/phase-5.md`
-- `docs/refactor/summaries/phase-6.md`
-- `docs/refactor/summaries/phase-7.md`
-- `docs/refactor/summaries/phase-8.md`
-- `docs/refactor/summaries/phase-9.md`
-- `docs/refactor/summaries/phase-10.md`
-- `docs/refactor/summaries/phase-11.md`
-- `docs/refactor/designs/phase-9-curriculum-spine-v1.md`
-- `docs/refactor/designs/phase-10-sequence-bridge-shape-lab.md`
-- `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
-- `docs/refactor/audits/curriculum-v2-milestone-audit.md`
+- `docs/refactor/designs/phase-21-attention-qkv-softmax-task.md`
+- `docs/superpowers/specs/2026-07-08-attention-qkv-softmax-task-design.md`
 
-Suggested next direction: complete verification and PR review for Phase 20. After it lands, choose the next narrow required-core teaching-content gap rather than adding backend, database, account, durable progress scope, project readiness checklists, broad route migration, or new course inventory.
+Suggested next direction after review: create the formal implementation plan for `AttentionQkvChallengeLab`, then implement the narrow required-core Attention prediction/evidence task. Continue avoiding backend, database, account, durable progress scope, project readiness checklists, broad route migration, new course inventory, full Transformer simulation, and multi-head expansion.
