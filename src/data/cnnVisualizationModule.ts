@@ -295,8 +295,8 @@ REF-CNN-EXPLAINER, REF-CS231N-CNN, REF-D2L-CNN`,
         'The number of filters sets output channels; parameter count comes from kernel size, input channels, and output channels.',
       ),
       loc(
-        '在右侧 feature 阶段，对比 Conv2d 参数量和把整张图接到全连接层的参数量。',
-        'Use the feature stage to compare Conv2d parameter count with connecting the whole image to a dense layer.',
+        '先在挑战里预测输出 shape 和 Conv2d 参数量，再对比把整张图接到全连接层的参数量。',
+        'First predict output shape and Conv2d parameter count in the challenge, then compare with connecting the whole image to a dense layer.',
       ),
     ),
     chapter(

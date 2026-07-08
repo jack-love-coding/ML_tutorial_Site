@@ -93,3 +93,12 @@ test('cnn shape parameter challenge component renders prediction and evidence co
   assert.match(source, /outputHeight/)
   assert.match(source, /comparison/)
 })
+
+test('cnn shape parameter challenge is wired only into the CNN feature-map chapter', () => {
+  const algorithmViewSource = read('src/views/AlgorithmView.vue')
+
+  assert.match(algorithmViewSource, /import CnnShapeParameterChallengeLab/)
+  assert.match(algorithmViewSource, /<CnnShapeParameterChallengeLab/)
+  assert.match(algorithmViewSource, /section\.id === 'channels-feature-maps'/)
+  assert.match(algorithmViewSource, /<CnnExplainerLab/)
+})
