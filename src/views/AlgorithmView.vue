@@ -24,6 +24,7 @@ import ClassificationLessonLab from '../components/ClassificationLessonLab.vue'
 import AiOverviewLessonLab from '../components/AiOverviewLessonLab.vue'
 import AppliedWorkflowLessonLab from '../components/AppliedWorkflowLessonLab.vue'
 import CnnExplainerLab from '../components/CnnExplainerLab.vue'
+import CnnShapeParameterChallengeLab from '../components/CnnShapeParameterChallengeLab.vue'
 import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
 import MlpBackpropBridgeLab from '../components/MlpBackpropBridgeLab.vue'
 import LessonPage from '../lessons/LessonPage.vue'
@@ -570,6 +571,10 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
             </section>
           </div>
 
+          <CnnShapeParameterChallengeLab
+            v-if="isCnnVisualizationPage && section.id === 'channels-feature-maps'"
+            :accent="moduleDefinition.accent"
+          />
           <CnnExplainerLab v-if="isCnnVisualizationPage && section.id === activeChapter" :section="section" />
           <AppliedWorkflowLessonLab v-else-if="!isCnnVisualizationPage" :module-slug="slug" :section="section" />
         </template>
