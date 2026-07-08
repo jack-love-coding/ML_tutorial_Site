@@ -1663,6 +1663,240 @@
   margin: 0;
 }
 
+.transformer-block-challenge {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 36px rgba(15, 23, 40, 0.08);
+}
+
+.transformer-block-challenge__header,
+.transformer-block-challenge__gate,
+.transformer-block-challenge__feedback > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+}
+
+.transformer-block-challenge__header div,
+.transformer-block-challenge__prediction,
+.transformer-block-challenge__evidence article {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.transformer-block-challenge__header span,
+.transformer-block-challenge__prediction > span,
+.transformer-block-challenge__evidence article > span,
+.transformer-block-challenge__feedback > div span,
+.transformer-block-challenge__feedback dt {
+  color: var(--module-accent, #7c3aed);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.transformer-block-challenge__header h4 {
+  margin: 0;
+  font-size: 1.28rem;
+}
+
+.transformer-block-challenge__reset {
+  min-height: 38px;
+  padding: 9px 13px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.transformer-block-challenge__scenarios,
+.transformer-block-challenge__prediction,
+.transformer-block-challenge__evidence,
+.transformer-block-challenge__feedback dl {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.transformer-block-challenge__scenarios {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.transformer-block-challenge__scenarios button {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  min-height: 104px;
+  padding: 13px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 16px;
+  background: rgba(248, 249, 252, 0.78);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.transformer-block-challenge__scenarios button.is-active {
+  border-color: var(--module-accent, #7c3aed);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--module-accent, #7c3aed) 34%, transparent);
+}
+
+.transformer-block-challenge__scenarios span,
+.transformer-block-challenge__prediction small,
+.transformer-block-challenge__gate span,
+.transformer-block-challenge__evidence p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.transformer-block-challenge__prediction {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 16px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.transformer-block-challenge__prediction > span {
+  grid-column: 1 / -1;
+}
+
+.transformer-block-challenge__prediction fieldset {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 16px;
+}
+
+.transformer-block-challenge__prediction legend {
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.transformer-block-challenge__prediction label {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(248, 249, 252, 0.8);
+}
+
+.transformer-block-challenge__prediction input {
+  margin-top: 4px;
+}
+
+.transformer-block-challenge__prediction label span {
+  display: grid;
+  gap: 3px;
+}
+
+.transformer-block-challenge__gate,
+.transformer-block-challenge__evidence article,
+.transformer-block-challenge__feedback {
+  padding: 16px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.72);
+}
+
+.transformer-block-challenge__gate {
+  align-items: center;
+  border-style: dashed;
+}
+
+.transformer-block-challenge__evidence {
+  grid-template-columns: minmax(320px, 1fr) minmax(240px, 0.75fr);
+}
+
+.transformer-block-challenge__evidence ol {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.transformer-block-challenge__evidence li {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.transformer-block-challenge__evidence li.is-missing {
+  border: 1px dashed rgba(236, 129, 57, 0.35);
+  background: rgba(255, 247, 237, 0.8);
+}
+
+.transformer-block-challenge__evidence em {
+  display: inline-block;
+  margin-left: 8px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.transformer-block-challenge__evidence p {
+  margin: 6px 0 0;
+}
+
+.transformer-block-challenge__evidence article > strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.08rem;
+}
+
+.transformer-block-challenge__feedback {
+  display: grid;
+  gap: 12px;
+  border-color: rgba(236, 129, 57, 0.2);
+  background: rgba(255, 247, 237, 0.84);
+}
+
+.transformer-block-challenge__feedback.is-correct {
+  border-color: rgba(30, 166, 122, 0.22);
+  background: rgba(239, 250, 244, 0.9);
+}
+
+.transformer-block-challenge__feedback > div strong {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.transformer-block-challenge__feedback dl {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.transformer-block-challenge__feedback dl div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.transformer-block-challenge__feedback dd {
+  margin: 0;
+  font-weight: 850;
+}
+
 .algorithm-checkpoint {
   display: grid;
   gap: 20px;
@@ -1908,5 +2142,31 @@
 
   .attention-qkv-challenge table {
     font-size: 0.78rem;
+  }
+
+  .transformer-block-challenge {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .transformer-block-challenge__header,
+  .transformer-block-challenge__gate,
+  .transformer-block-challenge__feedback > div {
+    display: grid;
+  }
+
+  .transformer-block-challenge__reset {
+    width: fit-content;
+  }
+
+  .transformer-block-challenge__scenarios,
+  .transformer-block-challenge__prediction,
+  .transformer-block-challenge__evidence,
+  .transformer-block-challenge__feedback dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .transformer-block-challenge__scenarios button {
+    min-height: auto;
   }
 }
