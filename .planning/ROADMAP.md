@@ -609,5 +609,32 @@
 - Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
 - Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
 
+## Phase 21: Attention Q/K/V Softmax Task
+
+**Goal:** Turn row-wise Attention Q/K/V and softmax content into one active prediction/evidence task inside the required `attention-transformer` route.
+
+**Deliverables:**
+- Design contract for `AttentionQkvChallengeLab`.
+- Deterministic helper contract for fixed token scenarios, Q/K dot scores, optional masks, row-wise softmax, top-key scoring, and weighted-value evidence.
+- Implementation plan, after design review, that wires the task directly into the Attention `softmax-weighted-sum` chapter while keeping the existing `attentionStages` explanation available.
+- Tests that keep Phase 21 design artifacts discoverable before runtime implementation.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add project readiness checklist work.
+- Do not add a new Attention or Transformer course module.
+- Do not migrate `attention-transformer` into `LessonPage`.
+- Do not rewrite `AppliedWorkflowLessonLab` beyond one section-level conditional.
+- Do not migrate Math Lab AI bridge content into required core.
+- Do not build a full Transformer simulator, LLM demo, RAG surface, semantic NLP task, or multi-head visualization in the first implementation slice.
+
+**Exit Criteria:**
+- The task asks learners to predict the top attended key and mask effect before computed evidence is shown.
+- The scenarios cover clean Q/K alignment, causal masking, padding masking, and weighted V mixture.
+- Evidence is derived from deterministic token/vector rows outside Vue.
+- The implementation scope remains one helper, one component, one section-level wiring point, focused tests, and summary/state docs.
+- Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
+- Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
+
 ---
 *Roadmap created: 2026-06-25*
