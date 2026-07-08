@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
-**Updated:** 2026-07-07
-**Status:** Phase 18 optimizer-to-CNN handoff audit completed; next work should design the CNN shape/parameter challenge.
+**Updated:** 2026-07-08
+**Status:** Phase 19 CNN shape/parameter challenge design drafted for review; runtime implementation should wait for design approval.
 
 ## Project Reference
 
@@ -65,6 +65,7 @@ See `.planning/codebase/`:
 - Phase 17 design chooses compact MLP chain-rule/computation-graph backprop depth; `matrix-calculus-autodiff` remains just-in-time support rather than required core.
 - Phase 17 MLP backprop mechanism bridge completed the compact required-route task without adding backend, database, durable progress scope, project readiness, bulk LessonPage migration, or a new lab registry.
 - Phase 18 optimizer-to-CNN handoff audit completed; the route is `optimizer-comparison -> tensor-shapes-vectorization -> cnn-visualization`, and the next implementation slice should be a CNN shape/parameter challenge rather than a new transition module or optimizer task first.
+- Phase 19 design chooses a narrow `CnnShapeParameterChallengeLab` in `cnn-visualization` `channels-feature-maps`; it should reuse existing CNN output-size logic, compare convolution parameters with a dense layer reading the same image, and avoid backend, progress persistence, route rewrites, CNN explainer replacement, or `AppliedWorkflowLessonLab` wiring.
 
 ## Completed Work
 
@@ -499,15 +500,30 @@ See `.planning/codebase/`:
   - `node --test tests/curriculumMilestoneAudit.test.ts`: pass.
   - `git diff --check`: pass.
 
+### Phase 19 - CNN Shape/Parameter Challenge Design
+
+- Added `docs/refactor/designs/phase-19-cnn-shape-parameter-challenge.md`.
+- Added `docs/superpowers/specs/2026-07-08-cnn-shape-parameter-challenge-design.md`.
+- Added `docs/superpowers/plans/2026-07-08-cnn-shape-parameter-challenge.md`.
+- Chose a narrow `CnnShapeParameterChallengeLab` for `cnn-visualization` `channels-feature-maps`.
+- Confirmed the implementation should wire directly in `src/views/AlgorithmView.vue`, because the active CNN runtime uses `CnnExplainerLab` rather than the CNN branch in `AppliedWorkflowLessonLab.vue`.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new transition module, route rewrite, CNN explainer replacement, or bulk LessonPage migration.
+- Verified:
+  - `node --test tests/curriculumMilestoneAudit.test.ts`: pass.
+  - `git diff --check`: pass.
+
 ## Next Recommended Command
 
-Design Phase 19 as the CNN shape/parameter challenge:
+Review the Phase 19 design, then execute the implementation plan if approved:
 
 - `docs/refactor/curriculum-v2-brief.md`
 - `.planning/ROADMAP.md`
 - `.planning/codebase/*`
 - `docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md`
 - `docs/refactor/audits/phase-18-optimizer-cnn-handoff-audit.md`
+- `docs/refactor/designs/phase-19-cnn-shape-parameter-challenge.md`
+- `docs/superpowers/specs/2026-07-08-cnn-shape-parameter-challenge-design.md`
+- `docs/superpowers/plans/2026-07-08-cnn-shape-parameter-challenge.md`
 - `docs/refactor/summaries/phase-15.md`
 - `docs/refactor/summaries/phase-16.md`
 - `docs/refactor/summaries/phase-17.md`
@@ -537,4 +553,4 @@ Design Phase 19 as the CNN shape/parameter challenge:
 - `docs/refactor/designs/phase-11-data-pipeline-task-lab.md`
 - `docs/refactor/audits/curriculum-v2-milestone-audit.md`
 
-Suggested next direction: design Phase 19 as a narrow `CnnShapeParameterChallengeLab` near `cnn-visualization` `padding-stride-shape` or `channels-feature-maps`. It should ask learners to predict output shape and parameter count for one `Conv2d` configuration, compare it with a dense layer reading the same image, and show formula/code evidence. Do not add backend, database, account, durable progress scope, project readiness checklists, new transition modules, LessonPage bulk migration, or new course inventory in Phase 19.
+Suggested next direction: implement Phase 19 exactly as the approved design: a narrow `CnnShapeParameterChallengeLab` in `cnn-visualization` `channels-feature-maps`. It should ask learners to predict output shape and parameter count for one `Conv2d` configuration, compare it with a dense layer reading the same image, and show formula/code evidence. Do not add backend, database, account, durable progress scope, project readiness checklists, new transition modules, LessonPage bulk migration, CNN explainer replacement, or new course inventory in Phase 19.

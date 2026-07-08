@@ -557,5 +557,31 @@
 - Any recommendation is grounded in current module content, checkpoints, and lab surfaces.
 - `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
 
+## Phase 19: CNN Shape/Parameter Challenge
+
+**Goal:** Turn CNN output-shape and parameter-sharing content into one active prediction/evidence task inside the required `cnn-visualization` route.
+
+**Deliverables:**
+- Design contract for `CnnShapeParameterChallengeLab`.
+- Deterministic helper contract for output shape, convolution parameters, dense-equivalent parameters, and learner prediction scoring.
+- Implementation plan that wires the task directly into the CNN `channels-feature-maps` chapter without replacing `CnnExplainerLab`.
+- Tests that keep Phase 19 design artifacts discoverable before runtime implementation.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add project readiness checklist work.
+- Do not add a new transition module between optimizer and CNN.
+- Do not rewrite or replace `CnnExplainerLab`.
+- Do not wire the task through `AppliedWorkflowLessonLab`, because CNN currently renders through `AlgorithmView.vue`.
+- Do not bulk migrate CNN or other algorithm modules into a new lesson architecture.
+
+**Exit Criteria:**
+- The task asks learners to predict output shape and parameter count before computed evidence is shown.
+- The dense-layer comparison maps the same flattened input image to the same output tensor.
+- The design reuses existing CNN output-size logic instead of duplicating formula math in Vue.
+- The implementation scope remains one helper, one component, one section-level wiring point, focused tests, and summary/state docs.
+- Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
+- Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
+
 ---
 *Roadmap created: 2026-06-25*
