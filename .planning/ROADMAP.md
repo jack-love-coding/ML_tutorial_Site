@@ -664,5 +664,33 @@
 - Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
 - Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
 
+## Phase 23: Architecture-to-Tools Handoff Challenge
+
+**Goal:** Turn the final required `attention-transformer` `architecture-to-tools` chapter into one active prediction/evidence task before moving into optional `llm-rag` application content.
+
+**Deliverables:**
+- Design contract for `ArchitectureToolsHandoffChallengeLab`.
+- Deterministic helper contract for fixed tooling trace scenarios, tool-object scoring, architecture-concept scoring, trace evidence, and misconception feedback.
+- Implementation plan, after design review, that wires the task directly into the Attention `architecture-to-tools` chapter while keeping the existing `attentionStages` explanation available.
+- Tests that keep Phase 23 design artifacts discoverable before runtime implementation.
+
+**Must Not Do:**
+- Do not add backend, database, account, or durable progress behavior.
+- Do not add project readiness checklist work.
+- Do not add a new Attention, Transformer, LLM, tooling, or RAG course module.
+- Do not promote `llm-rag` into required core or change curriculum roles.
+- Do not migrate `attention-transformer` or `llm-rag` into `LessonPage`.
+- Do not rewrite `AppliedWorkflowLessonLab` beyond one section-level conditional.
+- Do not build a real tokenizer integration, model call, generation demo, RAG surface, chat UI, semantic NLP task, full Transformer simulator, or multi-head visualization.
+
+**Exit Criteria:**
+- The task asks learners to predict the tooling object and architecture concept before computed evidence is shown.
+- The scenarios cover tokenizer segmentation, attention mask visibility, Transformer block hidden-state updates, and logits/next-token scores.
+- Evidence is derived from deterministic trace records outside Vue.
+- The existing Attention stage explanation remains visible; routes, roles, checkpoints, and `llm-rag` advanced-extension status remain unchanged.
+- The implementation scope remains one helper, one component, one section-level wiring point, focused tests, and summary/state docs.
+- Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
+- Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
+
 ---
 *Roadmap created: 2026-06-25*

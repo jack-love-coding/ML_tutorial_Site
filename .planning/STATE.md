@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-08
-**Status:** Phase 22 Transformer block assembly challenge implementation completed; next work should verify and ship the phase PR.
+**Status:** Phase 23 Architecture-to-tools handoff challenge design recorded; next work should review the design before implementation planning.
 
 ## Project Reference
 
@@ -76,6 +76,7 @@ See `.planning/codebase/`:
 - Phase 22 audit keeps `llm-rag` as an advanced extension and chooses required-core Transformer block reasoning before optional RAG diagnostics or route-copy-only work.
 - Phase 22 design chooses a narrow `TransformerBlockAssemblyChallengeLab` in `attention-transformer` `transformer-block`; it should ask learners to predict block order or missing sublayer before showing deterministic block-trace evidence.
 - Phase 22 Transformer block assembly challenge implementation completed the required Attention block prediction/evidence task without changing routes, roles, checkpoints, durable progress, or `llm-rag` advanced-extension status.
+- Phase 23 design chooses a narrow `ArchitectureToolsHandoffChallengeLab` in `attention-transformer` `architecture-to-tools`; it should ask learners to map tokenizer, attention mask, Transformer blocks/model, and logits back to architecture evidence before optional RAG content.
 
 ## Completed Work
 
@@ -609,19 +610,22 @@ See `.planning/codebase/`:
 - Added `docs/refactor/summaries/phase-22.md`.
 - Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new Attention/Transformer/LLM/RAG module, route rewrite, curriculum role change, full Transformer simulator, generation demo, RAG surface, semantic NLP task, multi-head visualization, `LessonPage` migration, or existing Attention stage replacement.
 
+### Phase 23 - Architecture-to-Tools Handoff Challenge Design
+
+- Added `docs/refactor/designs/phase-23-architecture-tools-handoff-challenge.md`.
+- Added `docs/superpowers/specs/2026-07-08-architecture-tools-handoff-design.md`.
+- Architecture-to-tools handoff challenge design recorded the chosen narrow task, non-goals, and implementation handoff.
+- Audited the final `attention-transformer` chapter and confirmed `llm-rag` remains an advanced extension, not a required Spine V1 module.
+- Chose a narrow `ArchitectureToolsHandoffChallengeLab` for `attention-transformer` `architecture-to-tools`.
+- Rejected route-copy-only work as too weak and deferred RAG grounding diagnostics until the required Attention endpoint has active tooling-mapping evidence.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new Attention/Transformer/LLM/tooling/RAG module, route rewrite, curriculum role change, real tokenizer integration, model call, generation demo, RAG surface, chat UI, semantic NLP task, full Transformer simulator, multi-head visualization, `LessonPage` migration, or existing Attention stage replacement.
+- Design review should happen before creating the formal implementation plan or runtime code.
+
 ## Next Recommended Command
 
-Verify and ship the Phase 22 implementation PR:
+Review Phase 23 design:
 
-- `src/simulations/transformerBlockAssemblyChallenge.ts`
-- `src/components/TransformerBlockAssemblyChallengeLab.vue`
-- `src/components/AppliedWorkflowLessonLab.vue`
-- `src/styles/views/algorithm-shell.css`
-- `src/data/attentionTransformerModule.ts`
-- `tests/transformer-block-assembly-challenge.test.ts`
-- `tests/deep-learning-extension-modules.test.mjs`
-- `docs/refactor/summaries/phase-22.md`
-- `.planning/STATE.md`
-- `tests/curriculumMilestoneAudit.test.ts`
+- `docs/refactor/designs/phase-23-architecture-tools-handoff-challenge.md`
+- `docs/superpowers/specs/2026-07-08-architecture-tools-handoff-design.md`
 
-Suggested next direction after Phase 22 lands: decide whether the next content-quality slice should strengthen `architecture-to-tools` LLM tooling handoff or move into optional `llm-rag` grounding diagnostics. Continue avoiding backend, database, account, durable progress scope, project readiness checklists, broad route migration, new course inventory, full Transformer simulation, generation demos, RAG surfaces, semantic NLP tasks, and multi-head expansion unless a later design explicitly chooses it.
+Suggested next direction after review: create the formal implementation plan for `ArchitectureToolsHandoffChallengeLab`, then implement the narrow required-core Attention tooling prediction/evidence task. Continue avoiding backend, database, account, durable progress scope, project readiness checklists, broad route migration, new course inventory, real tokenizer integration, model calls, full Transformer simulation, generation demos, RAG surfaces, chat UI, semantic NLP tasks, and multi-head expansion unless a later design explicitly chooses it.
