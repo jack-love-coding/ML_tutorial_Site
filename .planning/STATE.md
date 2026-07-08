@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-08
-**Status:** Phase 21 Attention Q/K/V softmax task implementation completed; next work should review and merge the phase PR.
+**Status:** Phase 22 Transformer block assembly challenge design recorded; next work should review the design before implementation planning.
 
 ## Project Reference
 
@@ -73,6 +73,8 @@ See `.planning/codebase/`:
 - Phase 21 design chooses a narrow `AttentionQkvChallengeLab` in `attention-transformer` `softmax-weighted-sum`; it should ask for top attended key and mask effect before showing Q/K score, row-wise softmax, and weighted V evidence.
 - Phase 21 should avoid backend, durable progress, route rewrites, project readiness, new Attention inventory, full Transformer simulation, multi-head expansion, Math Lab migration, semantic NLP tasks, or `LessonPage` migration.
 - Phase 21 Attention Q/K/V softmax task implementation completed the required Attention prediction/evidence task without adding backend/progress persistence, changing routes, creating a new Attention module, replacing the existing Attention stage explanation, or migrating the lesson to `LessonPage`.
+- Phase 22 audit keeps `llm-rag` as an advanced extension and chooses required-core Transformer block reasoning before optional RAG diagnostics or route-copy-only work.
+- Phase 22 design chooses a narrow `TransformerBlockAssemblyChallengeLab` in `attention-transformer` `transformer-block`; it should ask learners to predict block order or missing sublayer before showing deterministic block-trace evidence.
 
 ## Completed Work
 
@@ -585,19 +587,21 @@ See `.planning/codebase/`:
   - `npm run build:pages`: pass with existing large-chunk warning.
   - Browser desktop and 390px mobile checks on `/learn/attention-transformer/softmax-weighted-sum`: no horizontal overflow, console errors 0, challenge and existing Attention stage explanation both render.
 
+### Phase 22 - Transformer Block Assembly Challenge Design
+
+- Added `docs/refactor/designs/phase-22-transformer-block-assembly-challenge.md`.
+- Added `docs/superpowers/specs/2026-07-08-transformer-block-assembly-design.md`.
+- Audited the `attention-transformer -> llm-rag` handoff and confirmed `llm-rag` remains an advanced extension, not a required Spine V1 module.
+- Chose a narrow `TransformerBlockAssemblyChallengeLab` for `attention-transformer` `transformer-block`.
+- Rejected route-copy-only work as too weak and deferred RAG grounding diagnostics until the required Attention endpoint has active block-level reasoning.
+- Preserved non-goals: no backend, database, durable progress expansion, project readiness checklist, new Attention/Transformer/LLM/RAG module, route rewrite, curriculum role change, full Transformer simulator, generation demo, RAG surface, semantic NLP task, multi-head visualization, `LessonPage` migration, or existing Attention stage replacement.
+- Design review should happen before creating the formal implementation plan or runtime code.
+
 ## Next Recommended Command
 
-Review and merge the Phase 21 implementation PR:
+Review Phase 22 design:
 
-- `src/simulations/attentionQkvChallenge.ts`
-- `src/components/AttentionQkvChallengeLab.vue`
-- `src/components/AppliedWorkflowLessonLab.vue`
-- `src/styles/views/algorithm-shell.css`
-- `src/data/attentionTransformerModule.ts`
-- `tests/attention-qkv-challenge.test.ts`
-- `tests/deep-learning-extension-modules.test.mjs`
-- `docs/refactor/summaries/phase-21.md`
-- `.planning/STATE.md`
-- `tests/curriculumMilestoneAudit.test.ts`
+- `docs/refactor/designs/phase-22-transformer-block-assembly-challenge.md`
+- `docs/superpowers/specs/2026-07-08-transformer-block-assembly-design.md`
 
-Suggested next direction after Phase 21 lands: audit the remaining required-core endpoint quality around `attention-transformer -> llm-rag` optional handoff and decide whether the next slice should strengthen Transformer block reasoning, RAG grounding diagnostics, or route copy. Continue avoiding backend, database, account, durable progress scope, project readiness checklists, broad route migration, new course inventory, full Transformer simulation, and multi-head expansion unless a later design explicitly chooses it.
+Suggested next direction after review: create the formal implementation plan for `TransformerBlockAssemblyChallengeLab`, then implement the narrow required-core Attention block prediction/evidence task. Continue avoiding backend, database, account, durable progress scope, project readiness checklists, broad route migration, new course inventory, full Transformer simulation, generation demos, RAG surfaces, semantic NLP tasks, and multi-head expansion unless a later design explicitly chooses it.
