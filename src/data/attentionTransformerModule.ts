@@ -212,8 +212,8 @@ REF-D2L-ATTENTION, REF-ANNOTATED-TRANSFORMER`,
         'Softmax usually acts row-wise on the score matrix so each query allocates its own attention.',
       ),
       loc(
-        '在右侧 softmax 阶段，选一行 score，把它改写成权重，再加权求和 value。',
-        'Use the softmax stage to turn one score row into weights, then compute a weighted sum of values.',
+        '在右侧 softmax 挑战中，先预测当前 query 最会看向哪个 key、mask 是否会改变答案，再查看 Q/K score、softmax 权重和 value 加权结果。',
+        'Use the softmax challenge to predict the top key for the current query and whether the mask changes the answer, then inspect Q/K scores, softmax weights, and weighted value output.',
       ),
     ),
     chapter(

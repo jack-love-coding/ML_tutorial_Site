@@ -136,6 +136,9 @@ const moduleExpectations = [
     ],
     labTokens: [
       "props.moduleSlug === 'attention-transformer'",
+      'import AttentionQkvChallengeLab',
+      '<AttentionQkvChallengeLab',
+      "section.id === 'softmax-weighted-sum'",
       'attentionStages',
       'selectedAttentionStage',
       'workflow-lab__pipeline--attention',

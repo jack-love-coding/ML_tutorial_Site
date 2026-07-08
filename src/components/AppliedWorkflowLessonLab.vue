@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AttentionQkvChallengeLab from './AttentionQkvChallengeLab.vue'
 import OptimizerCurveDiagnosisChallengeLab from './OptimizerCurveDiagnosisChallengeLab.vue'
 import SequenceBridgeShapeLab from './SequenceBridgeShapeLab.vue'
 import type { AppLocale, ModuleSlug, StorySection } from '../types/ml'
@@ -567,6 +568,10 @@ const sectionHint = computed(() => {
     </section>
 
     <section v-else-if="activeWorkflow === 'attention'" class="workflow-lab__pipeline workflow-lab__pipeline--attention">
+      <AttentionQkvChallengeLab
+        v-if="props.moduleSlug === 'attention-transformer' && props.section.id === 'softmax-weighted-sum'"
+      />
+
       <div class="workflow-lab__stage-list">
         <button
           v-for="stage in attentionStages"
