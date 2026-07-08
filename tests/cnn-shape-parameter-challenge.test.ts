@@ -1,10 +1,17 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { existsSync, readFileSync } from 'node:fs'
 import {
   cnnShapeParameterScenarios,
   evaluateCnnShapeParameterChallenge,
   type CnnShapeParameterChallengeInput,
 } from '../src/simulations/cnnShapeParameterChallenge.ts'
+
+const root = new URL('../', import.meta.url)
+
+function read(path: string) {
+  return readFileSync(new URL(path, root), 'utf8')
+}
 
 test('cnn shape parameter challenge computes same-padding RGB scenario', () => {
   const snapshot = evaluateCnnShapeParameterChallenge({
@@ -73,4 +80,16 @@ test('cnn shape parameter challenge normalizes invalid learner predictions', () 
   assert.equal(snapshot.result.outputChannelsCorrect, false)
   assert.equal(snapshot.result.convParameterCountCorrect, true)
   assert.equal(snapshot.result.comparisonCorrect, false)
+})
+
+test('cnn shape parameter challenge component renders prediction and evidence controls', () => {
+  assert.ok(existsSync(new URL('src/components/CnnShapeParameterChallengeLab.vue', root)))
+  const source = read('src/components/CnnShapeParameterChallengeLab.vue')
+
+  assert.match(source, /evaluateCnnShapeParameterChallenge/)
+  assert.match(source, /cnnShapeParameterScenarios/)
+  assert.match(source, /convParameterCount/)
+  assert.match(source, /denseParameterCount/)
+  assert.match(source, /outputHeight/)
+  assert.match(source, /comparison/)
 })

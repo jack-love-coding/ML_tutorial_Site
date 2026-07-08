@@ -805,6 +805,273 @@
   line-height: 1.55;
 }
 
+.cnn-shape-challenge {
+  --cnn-shape-accent: var(--module-accent);
+  display: grid;
+  gap: 16px;
+  margin: 10px 0 24px;
+  padding: 22px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  box-shadow: var(--shadow-soft);
+}
+
+.cnn-shape-challenge__header,
+.cnn-shape-challenge__feedback > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+}
+
+.cnn-shape-challenge__header div {
+  display: grid;
+  gap: 6px;
+}
+
+.cnn-shape-challenge__header span,
+.cnn-shape-challenge__code span,
+.cnn-shape-challenge__evidence article > span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cnn-shape-challenge__header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.24;
+}
+
+.cnn-shape-challenge__reset,
+.cnn-shape-challenge__scenario {
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  background: rgba(248, 249, 252, 0.88);
+  color: var(--ink);
+}
+
+.cnn-shape-challenge__reset {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.cnn-shape-challenge__scenarios,
+.cnn-shape-challenge__prediction,
+.cnn-shape-challenge__evidence {
+  display: grid;
+  gap: 10px;
+}
+
+.cnn-shape-challenge__scenarios {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cnn-shape-challenge__scenario {
+  display: grid;
+  gap: 6px;
+  min-height: 108px;
+  padding: 13px;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.cnn-shape-challenge__scenario strong {
+  font-size: 0.98rem;
+}
+
+.cnn-shape-challenge__scenario span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.cnn-shape-challenge__scenario.is-active,
+.cnn-shape-challenge__comparison label.is-active {
+  border-color: color-mix(in srgb, var(--cnn-shape-accent) 46%, rgba(15, 23, 40, 0.08));
+  background: color-mix(in srgb, var(--cnn-shape-accent) 12%, white);
+}
+
+.cnn-shape-challenge__code {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.38fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.cnn-shape-challenge__code > div,
+.cnn-shape-challenge__code > code {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(248, 249, 252, 0.8);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.cnn-shape-challenge__code > div {
+  display: grid;
+  gap: 6px;
+}
+
+.cnn-shape-challenge__code strong,
+.cnn-shape-challenge__evidence strong {
+  font-family: var(--font-display);
+  overflow-wrap: anywhere;
+}
+
+.cnn-shape-challenge__code code,
+.cnn-shape-challenge__evidence code {
+  color: var(--ink);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.cnn-shape-challenge__prediction {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cnn-shape-challenge__prediction label,
+.cnn-shape-challenge__comparison label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 15px;
+  background: rgba(248, 249, 252, 0.72);
+}
+
+.cnn-shape-challenge__prediction label span,
+.cnn-shape-challenge__comparison legend {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.cnn-shape-challenge__prediction input {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(15, 23, 40, 0.12);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+}
+
+.cnn-shape-challenge__comparison {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 18px;
+  background: rgba(248, 249, 252, 0.58);
+}
+
+.cnn-shape-challenge__comparison legend {
+  padding: 0 4px;
+}
+
+.cnn-shape-challenge__comparison label {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.cnn-shape-challenge__comparison input {
+  margin-top: 4px;
+}
+
+.cnn-shape-challenge__comparison label span {
+  display: grid;
+  gap: 3px;
+}
+
+.cnn-shape-challenge__comparison small,
+.cnn-shape-challenge__evidence small,
+.cnn-shape-challenge__feedback p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.cnn-shape-challenge__evidence {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cnn-shape-challenge__evidence article {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(248, 249, 252, 0.8);
+  border: 1px solid rgba(15, 23, 40, 0.06);
+}
+
+.cnn-shape-challenge__evidence strong {
+  font-size: 1.12rem;
+}
+
+.cnn-shape-challenge__feedback {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 247, 237, 0.84);
+  border: 1px solid rgba(236, 129, 57, 0.2);
+}
+
+.cnn-shape-challenge__feedback.is-correct {
+  background: rgba(239, 250, 244, 0.9);
+  border-color: rgba(30, 166, 122, 0.22);
+}
+
+.cnn-shape-challenge__feedback > div span {
+  font-weight: 900;
+}
+
+.cnn-shape-challenge__feedback > div strong {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.cnn-shape-challenge__feedback dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.cnn-shape-challenge__feedback dl div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cnn-shape-challenge__feedback dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.cnn-shape-challenge__feedback dd {
+  margin: 0;
+  font-weight: 800;
+}
+
+.cnn-shape-challenge__feedback p {
+  margin: 0;
+}
+
 .algorithm-checkpoint {
   display: grid;
   gap: 20px;
@@ -965,6 +1232,33 @@
   }
 
   .mlp-backprop-bridge__choice {
+    min-height: auto;
+  }
+
+  .cnn-shape-challenge {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .cnn-shape-challenge__header,
+  .cnn-shape-challenge__feedback > div {
+    display: grid;
+  }
+
+  .cnn-shape-challenge__reset {
+    width: fit-content;
+  }
+
+  .cnn-shape-challenge__scenarios,
+  .cnn-shape-challenge__code,
+  .cnn-shape-challenge__prediction,
+  .cnn-shape-challenge__comparison,
+  .cnn-shape-challenge__evidence,
+  .cnn-shape-challenge__feedback dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cnn-shape-challenge__scenario {
     min-height: auto;
   }
 }
