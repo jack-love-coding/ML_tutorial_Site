@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import AttentionQkvChallengeLab from './AttentionQkvChallengeLab.vue'
 import OptimizerCurveDiagnosisChallengeLab from './OptimizerCurveDiagnosisChallengeLab.vue'
 import SequenceBridgeShapeLab from './SequenceBridgeShapeLab.vue'
+import TransformerBlockAssemblyChallengeLab from './TransformerBlockAssemblyChallengeLab.vue'
 import type { AppLocale, ModuleSlug, StorySection } from '../types/ml'
 
 const props = defineProps<{
@@ -570,6 +571,9 @@ const sectionHint = computed(() => {
     <section v-else-if="activeWorkflow === 'attention'" class="workflow-lab__pipeline workflow-lab__pipeline--attention">
       <AttentionQkvChallengeLab
         v-if="props.moduleSlug === 'attention-transformer' && props.section.id === 'softmax-weighted-sum'"
+      />
+      <TransformerBlockAssemblyChallengeLab
+        v-if="props.moduleSlug === 'attention-transformer' && props.section.id === 'transformer-block'"
       />
 
       <div class="workflow-lab__stage-list">

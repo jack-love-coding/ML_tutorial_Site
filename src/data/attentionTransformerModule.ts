@@ -326,8 +326,8 @@ REF-D2L-TRANSFORMER, REF-ANNOTATED-TRANSFORMER`,
         'Transformer block = self-attention + residual/norm + position-wise FFN.',
       ),
       loc(
-        '在右侧 block 阶段，把 attention、residual、LayerNorm 和 FFN 分别放到自己的作用位置。',
-        'Use the block stage to place attention, residual, LayerNorm, and FFN in their roles.',
+        '在右侧 block 挑战中，先判断 Transformer block 少了哪一部分或误把 attention 当成完整 block，再查看 trace、shape 和角色证据。',
+        'Use the block challenge to identify the missing part or the mistake of treating attention as the full block, then inspect trace, shape, and role evidence.',
       ),
     ),
     chapter(
