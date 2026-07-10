@@ -694,5 +694,33 @@
 - Design phase: `node --test tests/curriculumMilestoneAudit.test.ts` and `git diff --check` pass.
 - Runtime implementation phase: targeted tests, `npm test`, `npm run build`, `npm run build:pages`, and browser checks pass.
 
+## Phase 24A: Navigation and Topic Library
+
+**Status:** Implemented 2026-07-10.
+
+**Goal:** Make the Default Spine, Topic Library, Projects, and Progress hierarchy explicit while removing the full module inventory from the global header.
+
+**Deliverables:**
+- Typed bilingual Topic Library domain contract and invalid-domain redirect to `/library/math`.
+- Direct Default Spine, Projects, and Progress links plus one four-domain Topic Library menu using “专题学习” / “Topic Library”.
+- Extracted header and shared desktop/mobile navigation renderer with Escape, focus-return, route-change closure, and ARIA behavior.
+- One stylesheet owner for header, dropdown, mobile navigation, and locale-switch layout selectors.
+- Focused navigation/layout tests, milestone audit coverage, and Phase 24A summary/state records.
+
+**Must Not Do:**
+- Do not begin the Phase 24B homepage focus redesign or Phase 24C Spine progressive disclosure.
+- Do not change course bodies, checkpoints, curriculum roles, Spine order, Progress V1/V2 storage, or canonical and legacy course routes.
+- Do not expose individual course modules in the global Topic Library menu.
+- Do not broaden CSS cleanup beyond the header/navigation selectors touched by this phase.
+- Do not add backend, database, account, or durable-progress behavior.
+
+**Exit Criteria:**
+- Global navigation presents Home, Default Spine, Topic Library, Projects, and Progress; only Topic Library opens a category menu.
+- Topic Library exposes exactly Math, Data, Models and Training, and Deep Learning domains in Chinese and English.
+- Invalid Topic Library domains redirect to `/library/math`.
+- Desktop and mobile navigation consume one rendered model and preserve keyboard focus, Escape closing, route-change closure, and ARIA semantics.
+- Desktop and 390px browser checks cover the five primary routes with no horizontal overflow or console errors.
+- `npm test`, `npm run build`, `npm run build:pages`, and `git diff --check` pass with only the existing Vite large-chunk warning.
+
 ---
 *Roadmap created: 2026-06-25*

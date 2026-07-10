@@ -1,7 +1,7 @@
 # GSD State: ML Atlas Curriculum V2
 
-**Updated:** 2026-07-09
-**Status:** Phase 23 Architecture-to-tools handoff challenge implementation completed; next work should audit the required Attention endpoint before choosing optional RAG diagnostics.
+**Updated:** 2026-07-10
+**Status:** Phase 24A navigation and Topic Library implementation completed; Phase 24B Homepage Focus is next but has not started.
 
 ## Project Reference
 
@@ -78,6 +78,9 @@ See `.planning/codebase/`:
 - Phase 22 Transformer block assembly challenge implementation completed the required Attention block prediction/evidence task without changing routes, roles, checkpoints, durable progress, or `llm-rag` advanced-extension status.
 - Phase 23 design chooses a narrow `ArchitectureToolsHandoffChallengeLab` in `attention-transformer` `architecture-to-tools`; it should ask learners to map tokenizer, attention mask, Transformer blocks/model, and logits back to architecture evidence before optional RAG content.
 - Phase 23 Architecture-to-tools handoff challenge implementation completed the required Attention endpoint tooling-mapping task without changing routes, roles, checkpoints, durable progress, or `llm-rag` advanced-extension status.
+- The post-Phase-23 content direction remains an optional `llm-rag` diagnostic task after the required Attention endpoint audit; Phase 24A does not implement or reprioritize that content work.
+- Phase 24A navigation and Topic Library implementation completed the typed domain contract, invalid-domain redirect, simplified five-destination global IA, shared desktop/mobile renderer, keyboard/focus repairs, and scoped navigation-style consolidation.
+- Phase 24A preserves course bodies, checkpoints, curriculum roles, Spine order, Progress V1/V2 storage, and canonical and legacy course routes; Phase 24B Homepage Focus remains planned and has not started.
 
 ## Completed Work
 
@@ -639,12 +642,22 @@ See `.planning/codebase/`:
   - `npm run build:pages`: pass with existing large-chunk warning.
   - Browser desktop and 390px mobile checks on `/learn/attention-transformer/architecture-to-tools`: console errors 0, no horizontal overflow, challenge/evidence/feedback and existing Attention stage explanation render.
 
+### Phase 24A - Navigation and Topic Library
+
+- Added the typed bilingual Topic Library domain contract and redirected invalid `/library/:domain` values to `/library/math`.
+- Simplified global navigation to Home, Default Spine, Topic Library, Projects, and Progress; Topic Library now contains only four domain links and no module inventory.
+- Extracted `SiteHeader.vue` and `SiteNavigation.vue` so desktop and mobile navigation consume the same rendered model.
+- Preserved Escape closing, focus return, route-change menu closure, ARIA state, English/Chinese labels, and 390px readability.
+- Consolidated header/navigation layout selectors under `src/styles/layout/site-header.css` while keeping Progress secondary styling transparent at 390px.
+- Added `docs/refactor/summaries/phase-24a.md` and milestone audit coverage.
+- Preserved non-goals: no Phase 24B homepage implementation, Phase 24C Spine implementation, course-body/checkpoint changes, curriculum role or Spine-order changes, Progress V1/V2 changes, backend/database/account scope, or broad CSS cleanup.
+- Browser acceptance was supplied by the main agent from local Vite at `http://127.0.0.1:5174`: the five primary routes had no overflow or console errors at 1280×900 and 390×844; invalid-domain redirect, four-domain menus, Escape/focus return, mobile route closure, transparent mobile Progress styling, and English labels passed.
+- Verified:
+  - `npm test`: pass, 295 tests, 0 failures.
+  - `npm run build`: pass; Vite 8.0.16 transformed 2399 modules with the existing chunks-larger-than-1400-kB warning.
+  - `npm run build:pages`: pass; Vite 8.0.16 transformed 2399 modules with the same existing warning.
+  - `git diff --check`: pass, no whitespace errors.
+
 ## Next Recommended Command
 
-Audit the required Attention endpoint after Phase 21-23:
-
-- `attention-transformer -> softmax-weighted-sum`
-- `attention-transformer -> transformer-block`
-- `attention-transformer -> architecture-to-tools`
-
-Suggested next direction after audit: if the required Attention endpoint is coherent, design the first optional `llm-rag` diagnostic task around retrieval/prompt/evidence failure classification. Continue avoiding backend, database, account, durable progress scope, project readiness checklists, broad route migration, new course inventory, real model calls, generation demos, chat UI, and broad RAG surfaces unless a later design explicitly chooses them.
+Begin Phase 24B Homepage Focus from Phase 24A as a merged or explicitly reviewed stacked base. Phase 24B has not started. Preserve the five-destination global IA, Topic Library naming, existing routes, checkpoints, curriculum roles, Spine order, and Progress V1/V2 storage while narrowing the homepage to one primary Spine task and secondary exploration links.

@@ -222,6 +222,7 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.ok(existsSync(new URL('docs/refactor/summaries/phase-21.md', root)))
   assert.ok(existsSync(new URL('docs/refactor/summaries/phase-22.md', root)))
   assert.ok(existsSync(new URL('docs/refactor/summaries/phase-23.md', root)))
+  assert.ok(existsSync(new URL('docs/refactor/summaries/phase-24a.md', root)))
   assert.ok(existsSync(new URL('docs/refactor/designs/phase-10-sequence-bridge-shape-lab.md', root)))
   assert.ok(existsSync(new URL('docs/refactor/designs/phase-11-data-pipeline-task-lab.md', root)))
   assert.ok(existsSync(new URL('docs/refactor/designs/phase-12-data-first-corridor-audit.md', root)))
@@ -258,6 +259,7 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.match(roadmapSource, /real tokenizer integration/)
 
   const stateSource = read('.planning/STATE.md')
+  assert.match(stateSource, /Phase 24A navigation and Topic Library implementation completed/)
   assert.match(stateSource, /Phase 15 - Curriculum Architecture and Teaching Route Audit/)
   assert.match(stateSource, /Phase 16 completed the role metadata and legacy order cleanup/)
   assert.match(stateSource, /Phase 17 MLP backprop mechanism bridge completed/)
