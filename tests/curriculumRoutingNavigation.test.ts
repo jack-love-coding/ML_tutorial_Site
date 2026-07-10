@@ -9,6 +9,11 @@ import {
 } from '../src/data/navigationMenus.ts'
 import { curriculumCatalog } from '../src/curriculum/catalog.ts'
 import {
+  curriculumLibraryDomains,
+  isCurriculumLibraryDomain,
+  resolveCurriculumLibraryDomain,
+} from '../src/curriculum/library.ts'
+import {
   coreLearningPathModuleIds,
   curriculumRouteManifestById,
 } from '../src/curriculum/routeManifest.ts'
@@ -56,6 +61,30 @@ test('curriculum navigation exposes the unified top-level IA', () => {
     assert.ok(menu.label['zh-CN'].trim().length > 0)
     assert.ok(menu.label.en.trim().length > 0)
   }
+})
+
+test('topic library domains are bilingual and reject invalid route params', () => {
+  assert.deepEqual(curriculumLibraryDomains.map((domain) => domain.id), [
+    'math',
+    'data',
+    'model',
+    'deep-learning',
+    'project',
+  ])
+  assert.equal(isCurriculumLibraryDomain('deep-learning'), true)
+  assert.equal(isCurriculumLibraryDomain('unknown'), false)
+  assert.equal(resolveCurriculumLibraryDomain('unknown'), 'math')
+  for (const domain of curriculumLibraryDomains) {
+    assert.ok(domain.title['zh-CN'].trim())
+    assert.ok(domain.title.en.trim())
+  }
+})
+
+test('invalid topic library domains redirect to the math library', () => {
+  const routerSource = read('src/router/index.ts')
+  assert.match(routerSource, /redirectInvalidLibraryDomain/)
+  assert.match(routerSource, /path: '\/library\/:domain'/)
+  assert.match(routerSource, /beforeEnter: redirectInvalidLibraryDomain/)
 })
 
 test('default learning path mirrors the approved Curriculum Spine V1 order', () => {

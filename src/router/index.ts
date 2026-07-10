@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { isCurriculumLibraryDomain } from '../curriculum/library.ts'
 import { resolveCanonicalLearnRedirect, resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
 
 export const routeNavigating = ref(false)
@@ -22,6 +23,11 @@ function redirectCanonicalLearnRoute(to: RouteLocationNormalized) {
   if (redirectRoute && redirectRoute !== to.path) return { path: redirectRoute }
   if (!canonicalRoute) return { path: '/' }
   return true
+}
+
+function redirectInvalidLibraryDomain(to: RouteLocationNormalized) {
+  const domain = routeParamValue(to.params.domain)
+  return isCurriculumLibraryDomain(domain) ? true : { path: '/library/math' }
 }
 
 export const router = createRouter({
@@ -73,6 +79,7 @@ export const router = createRouter({
     {
       path: '/library/:domain',
       name: 'curriculum-library',
+      beforeEnter: redirectInvalidLibraryDomain,
       component: () => import('../views/CurriculumLibraryView.vue'),
     },
     {
