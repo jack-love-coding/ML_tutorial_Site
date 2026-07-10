@@ -666,13 +666,15 @@
 
 ## Phase 23: Architecture-to-Tools Handoff Challenge
 
+**Status:** Implemented 2026-07-09.
+
 **Goal:** Turn the final required `attention-transformer` `architecture-to-tools` chapter into one active prediction/evidence task before moving into optional `llm-rag` application content.
 
 **Deliverables:**
 - Design contract for `ArchitectureToolsHandoffChallengeLab`.
 - Deterministic helper contract for fixed tooling trace scenarios, tool-object scoring, architecture-concept scoring, trace evidence, and misconception feedback.
-- Implementation plan, after design review, that wires the task directly into the Attention `architecture-to-tools` chapter while keeping the existing `attentionStages` explanation available.
-- Tests that keep Phase 23 design artifacts discoverable before runtime implementation.
+- Runtime implementation of `ArchitectureToolsHandoffChallengeLab` in the Attention `architecture-to-tools` chapter while keeping the existing `attentionStages` explanation available.
+- Focused helper/source tests, milestone audit coverage, and Phase 23 summary/state docs.
 
 **Must Not Do:**
 - Do not add backend, database, account, or durable progress behavior.

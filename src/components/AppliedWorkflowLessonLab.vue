@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import ArchitectureToolsHandoffChallengeLab from './ArchitectureToolsHandoffChallengeLab.vue'
 import AttentionQkvChallengeLab from './AttentionQkvChallengeLab.vue'
 import OptimizerCurveDiagnosisChallengeLab from './OptimizerCurveDiagnosisChallengeLab.vue'
 import SequenceBridgeShapeLab from './SequenceBridgeShapeLab.vue'
@@ -574,6 +575,9 @@ const sectionHint = computed(() => {
       />
       <TransformerBlockAssemblyChallengeLab
         v-if="props.moduleSlug === 'attention-transformer' && props.section.id === 'transformer-block'"
+      />
+      <ArchitectureToolsHandoffChallengeLab
+        v-if="props.moduleSlug === 'attention-transformer' && props.section.id === 'architecture-to-tools'"
       />
 
       <div class="workflow-lab__stage-list">
