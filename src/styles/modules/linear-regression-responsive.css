@@ -1,12 +1,6 @@
 @media (max-width: 1080px) {
-  .site-header,
   .site-main {
     width: min(100vw - 28px, 1240px);
-  }
-
-  .site-header {
-    grid-template-columns: 1fr;
-    justify-items: start;
   }
 
   .hero,
@@ -231,27 +225,6 @@
     max-width: 100%;
   }
 
-  .site-header {
-    width: min(100vw - 20px, 1240px);
-    gap: 12px;
-  }
-
-  .site-header__brand {
-    width: 100%;
-  }
-
-  .site-header__nav {
-    width: 100%;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 4px;
-  }
-
-  .site-header__link {
-    white-space: nowrap;
-  }
-
   .hero,
   .modules-section,
   .path-section,
@@ -363,10 +336,6 @@
 
   .toss-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .site-header__nav {
-    justify-content: flex-start;
   }
 
   .home-footer {

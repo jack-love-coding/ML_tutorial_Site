@@ -7,7 +7,7 @@
 - Added `src/curriculum/library.ts` as the typed, bilingual Topic Library domain contract shared by the library view, global navigation, and router validation.
 - Added invalid-domain handling so unsupported `/library/:domain` values redirect to `/library/math`.
 - Simplified the learner-facing global navigation to Home, Default Spine, Topic Library, Projects, and Progress. Default Spine, Projects, and Progress are direct links; Topic Library exposes only Math, Data, Models and Training, and Deep Learning category links rather than the full module inventory.
-- Replaced learner-facing “支持镜头” with “专题学习” and retained the English “Topic Library” label.
+- Replaced “支持镜头” with “专题学习” / “Topic Library” only in the Phase 24A header and Topic Library navigation-discovery layer.
 - Extracted `SiteHeader.vue`, `SiteNavigation.vue`, and their rendered navigation types from `AppShell.vue`, while keeping desktop and mobile navigation on one localized rendered model.
 - Restored keyboard and focus behavior: Escape closes the Topic Library dropdown and returns focus to its trigger; mobile route activation closes the menu and returns focus to the mobile-menu button.
 - Consolidated header, dropdown, mobile-navigation, and locale-switch layout ownership in `src/styles/layout/site-header.css`; preserved a transparent secondary Progress treatment at 390px.
@@ -27,6 +27,7 @@
 
 - No homepage focus redesign or readiness-checklist removal; that remains Phase 24B work.
 - No Spine progressive-disclosure or hash-navigation work; that remains Phase 24C work.
+- Existing homepage discovery copy remains intentionally unchanged for Phase 24B, and existing Curriculum Spine terminology remains intentionally unchanged for Phase 24C. Neither Phase 24B nor Phase 24C has started.
 - No changes to course bodies, checkpoints, catalog roles, Curriculum Spine order, Progress V1/V2 storage, or canonical and legacy course routes.
 - No broad CSS cleanup outside the header/navigation selectors owned by this phase.
 - No backend, database, account, or durable-progress expansion.
@@ -34,7 +35,9 @@
 ## Verification
 
 - `node --test tests/curriculumMilestoneAudit.test.ts`: RED before planning records (5 passed, 1 failed on the missing Phase 24A summary), then GREEN after the records were added (6 passed, 0 failed).
-- `npm test`: pass, 295 tests, 0 failures.
+- Final review fixes used a fresh TDD cycle: the focused navigation suite first failed exactly on duplicate `/library/project` ownership and the stray responsive header selectors (10 passed, 2 failed), then passed after the minimal fixes (12 passed, 0 failed).
+- Focused curriculum/navigation/layout verification: pass, 34 tests, 0 failures.
+- `npm test`: pass, 296 tests, 0 failures.
 - `npm run build`: pass with Vite 8.0.16; 2399 modules transformed; the existing warning reports chunks larger than 1400 kB after minification.
 - `npm run build:pages`: pass with Vite 8.0.16; 2399 modules transformed; the same existing chunks-larger-than-1400-kB warning remains.
 - `git diff --check`: pass, no whitespace errors.
@@ -53,4 +56,4 @@ The task implementation agent did not run these browser checks. The main agent s
 
 ## Next Phase
 
-Phase 24B Homepage Focus is the next planned phase. It has not started and must begin from Phase 24A as a merged or explicitly reviewed stacked base.
+Phase 24B Homepage Focus is the next planned phase. It has not started and must begin from Phase 24A as a merged or explicitly reviewed stacked base. Phase 24C Spine Progressive Disclosure also has not started and follows the separately approved phase boundary.

@@ -218,7 +218,14 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
   {
     id: 'topic-library',
     label: copy('专题学习', 'Topic Library'),
-    activePrefixes: ['/library', '/math-lab', '/data-lab'],
+    activePrefixes: [
+      '/library/math',
+      '/library/data',
+      '/library/model',
+      '/library/deep-learning',
+      '/math-lab',
+      '/data-lab',
+    ],
     groups: [
       {
         id: 'topic-domains',

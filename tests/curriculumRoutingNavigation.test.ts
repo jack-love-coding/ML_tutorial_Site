@@ -1,6 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
   curriculumNavigationMenus,
   coreExperimentNavigationGroups,
@@ -54,6 +56,20 @@ test('curriculum navigation exposes direct primary destinations and one category
   }
 })
 
+test('each curriculum route has one navigation owner without changing canonical or legacy coverage', () => {
+  const activeOwners = (path: string) => curriculumNavigationMenus
+    .filter((item) => item.activePrefixes.some(
+      (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+    ))
+    .map((item) => item.id)
+
+  assert.deepEqual(activeOwners('/library/project'), ['projects'])
+  assert.deepEqual(activeOwners('/library/math'), ['topic-library'])
+  assert.deepEqual(activeOwners('/learn/gradient-descent'), ['learning-path'])
+  assert.deepEqual(activeOwners('/tracks/core-learning-path'), ['learning-path'])
+  assert.deepEqual(activeOwners('/math-lab/modules/beginner-linear-algebra'), ['topic-library'])
+})
+
 test('topic library domains are bilingual and reject invalid route params', () => {
   assert.deepEqual(curriculumLibraryDomains.map((domain) => domain.id), [
     'math',
@@ -68,6 +84,8 @@ test('topic library domains are bilingual and reject invalid route params', () =
   for (const domain of curriculumLibraryDomains) {
     assert.ok(domain.title['zh-CN'].trim())
     assert.ok(domain.title.en.trim())
+    assert.ok(domain.summary['zh-CN'].trim())
+    assert.ok(domain.summary.en.trim())
   }
 })
 
@@ -182,9 +200,17 @@ test('app shell delegates header and controlled navigation rendering', () => {
   assert.match(renderedNavigationSource, /toggleButtons/)
   assert.match(renderedNavigationSource, /nextTick\(.*\.focus/s)
   assert.match(renderedNavigationSource, /navigateAndRestoreFocus/)
-  assert.match(renderedNavigationSource, /emit\('toggle'/)
-  assert.match(renderedNavigationSource, /emit\('close'/)
-  assert.match(renderedNavigationSource, /emit\('navigate'/)
+  assert.match(renderedNavigationSource, /@click="emit\('toggle', item\.id\)"/)
+  assert.match(
+    renderedNavigationSource,
+    /function closeAndRestoreFocus\(\)[\s\S]*?emit\('close', props\.mobile\)/,
+  )
+  assert.match(
+    renderedNavigationSource,
+    /function navigateAndRestoreFocus\(\)[\s\S]*?emit\('navigate', props\.mobile\)/,
+  )
+  assert.match(renderedNavigationSource, /@keydown\.esc\.stop="closeAndRestoreFocus"/)
+  assert.match(renderedNavigationSource, /@click="navigateAndRestoreFocus"/)
   assert.doesNotMatch(renderedNavigationSource, /const openItemId = ref/)
   assert.doesNotMatch(navigationSource, /coreLearningPathModuleIds\.map\(moduleLink\)/)
   assert.doesNotMatch(navigationSource, /curriculumCatalog/)
@@ -206,9 +232,6 @@ test('navigation ARIA distinguishes exact pages from active sections', () => {
 
 test('site header layout selectors have one stylesheet owner', () => {
   const layout = read('src/styles/layout/site-header.css')
-  const theme = read('src/styles/themes/pixel-redesign.css')
-  const responsive = read('src/styles/overrides/final-responsive.css')
-  const shell = read('src/styles/overrides/final-shell.css')
 
   assert.match(layout, /\.site-header__more-menu/)
   assert.match(layout, /\.site-header__nav--mobile/)
@@ -217,15 +240,17 @@ test('site header layout selectors have one stylesheet owner', () => {
     /\.site-header__nav--mobile \.site-header__link--secondary\s*\{\s*color: var\(--pixel-muted\);\s*background: transparent;\s*\}/,
   )
 
-  const migratedSources = [theme, responsive, shell]
-  for (const source of migratedSources) {
-    assert.doesNotMatch(source, /\.locale-switch(?:__button)?(?=[\s:.{,])/)
+  const stylesDirectory = fileURLToPath(new URL('../src/styles', import.meta.url))
+  const stylesheetPaths = readdirSync(stylesDirectory, { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && path.endsWith('.css'))
+    .filter((path) => path !== join('layout', 'site-header.css'))
+
+  for (const stylesheetPath of stylesheetPaths) {
+    const source = read(`src/styles/${stylesheetPath}`)
     assert.doesNotMatch(
       source,
-      /\.site-header__(?:more-menu|nav--mobile|actions|menu)(?=[\s:.{,])/,
+      /\.(?:site-header|locale-switch)[a-zA-Z0-9_-]*/,
+      `${stylesheetPath} must not own header or locale selectors`,
     )
   }
-  assert.doesNotMatch(theme, /\.site-header__more-menu/)
-  assert.doesNotMatch(responsive, /\.site-header__nav--mobile/)
-  assert.doesNotMatch(shell, /\.site-header\s*\{/)
 })
