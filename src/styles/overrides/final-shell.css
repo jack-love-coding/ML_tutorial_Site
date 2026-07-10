@@ -39,155 +39,15 @@
   }
 }
 
-/* Final shell overrides keep the pixel navigation stable after older responsive rules. */
 @media (max-width: 1080px) {
   .app-shell {
     --page-gutter: 14px;
   }
 
-  .site-header,
   .site-main {
     width: min(1280px, calc(100vw - var(--page-gutter) - var(--page-gutter)));
   }
 
-  .site-header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    justify-items: stretch;
-    gap: 10px;
-    padding: 8px;
-  }
-
-  .site-header__brand {
-    grid-column: 1;
-    width: auto;
-  }
-
-  .site-header__brand small {
-    max-width: min(34vw, 16rem);
-  }
-
-  .site-header__actions {
-    grid-column: 2;
-    justify-self: end;
-    gap: 8px;
-  }
-
-  .site-header__menu {
-    display: grid;
-  }
-
-  .site-header__nav--desktop {
-    display: none;
-  }
-
-  .site-header__nav--mobile {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
-    max-height: 0;
-    overflow: hidden;
-    padding: 0;
-    border-top: 0 solid transparent;
-    opacity: 0;
-    pointer-events: none;
-    visibility: hidden;
-    transition: max-height 180ms ease, opacity 140ms ease, padding-top 140ms ease, border-color 140ms ease;
-  }
-
-  .site-header.is-menu-open .site-header__nav--mobile {
-    max-height: min(78vh, 920px);
-    overflow-y: auto;
-    padding-top: 10px;
-    border-top: 2px solid var(--pixel-line);
-    opacity: 1;
-    pointer-events: auto;
-    visibility: visible;
-  }
-
-  .site-header__nav--mobile .site-header__link {
-    justify-content: flex-start;
-    min-height: 44px;
-    border-color: var(--pixel-line);
-    background: #ffffff;
-    box-shadow: 2px 2px 0 var(--pixel-line);
-    white-space: normal;
-  }
-
-  .site-header__nav--mobile .site-header__link:hover,
-  .site-header__nav--mobile .site-header__link.is-current,
-  .site-header__nav--mobile .site-header__link.router-link-active {
-    background: var(--pixel-yellow);
-    box-shadow: 3px 3px 0 var(--pixel-line);
-    transform: none;
-  }
-
-  .site-header__mobile-menu {
-    display: grid;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .site-header__mobile-toggle {
-    width: 100%;
-    justify-content: space-between;
-    gap: 10px;
-    text-align: left;
-  }
-
-  .site-header__mobile-menu.is-open .site-header__mobile-toggle {
-    background: var(--pixel-yellow);
-    box-shadow: 3px 3px 0 var(--pixel-line);
-  }
-
-  .site-header__mobile-menu.is-open .site-header__more-caret {
-    transform: rotate(180deg);
-  }
-
-  .site-header__mobile-panel {
-    display: none;
-    gap: 8px;
-    min-width: 0;
-    padding: 8px;
-    border: 2px solid var(--pixel-line);
-    border-radius: 6px;
-    background: #ffffff;
-    box-shadow: 2px 2px 0 var(--pixel-line);
-  }
-
-  .site-header__mobile-menu.is-open .site-header__mobile-panel {
-    display: grid;
-  }
-
-  .site-header__mobile-section {
-    display: grid;
-    gap: 6px;
-    min-width: 0;
-    padding-top: 6px;
-    border-top: 2px solid rgba(16, 25, 47, 0.12);
-  }
-
-  .site-header__mobile-heading {
-    color: var(--pixel-muted);
-    font-size: 0.72rem;
-    font-weight: 800;
-    line-height: 1.2;
-    text-transform: uppercase;
-  }
-
-  .site-header__mobile-items {
-    display: grid;
-    gap: 6px;
-    min-width: 0;
-  }
-
-  .site-header__nav--mobile .site-header__mobile-link {
-    min-height: 38px;
-    padding: 8px 10px;
-    font-size: 0.88rem;
-    line-height: 1.2;
-    overflow-wrap: anywhere;
-  }
 }
 
 @media (max-width: 720px) {
@@ -197,59 +57,6 @@
 
   .site-main {
     padding-top: 20px;
-  }
-
-  .site-header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    margin-top: 10px;
-    gap: 8px;
-    padding: 8px;
-    box-shadow: 4px 4px 0 var(--pixel-line);
-  }
-
-  .site-header__brand {
-    gap: 8px;
-  }
-
-  .site-header__brand strong {
-    font-size: 0.94rem;
-  }
-
-  .site-header__brand small {
-    display: none;
-  }
-
-  .site-header__mark {
-    width: 40px;
-    height: 40px;
-  }
-
-  .site-header__actions {
-    gap: 6px;
-  }
-
-  .site-header__menu {
-    width: 42px;
-    height: 42px;
-  }
-
-  .locale-switch__button {
-    min-width: 40px;
-    min-height: 32px;
-    padding: 6px 8px;
-  }
-
-  .site-header__nav--mobile {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .site-header.is-menu-open .site-header__nav--mobile {
-    max-height: min(76vh, 820px);
-  }
-
-  .site-header__nav--mobile .site-header__link {
-    min-height: 44px;
-    padding: 10px 12px;
   }
 
   .home-view,

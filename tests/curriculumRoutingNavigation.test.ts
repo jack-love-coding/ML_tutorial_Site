@@ -203,3 +203,16 @@ test('navigation ARIA distinguishes exact pages from active sections', () => {
   assert.doesNotMatch(renderedNavigationSource, /item\.active \? 'page'/)
   assert.doesNotMatch(renderedNavigationSource, /link\.active \? 'page'/)
 })
+
+test('site header layout selectors have one stylesheet owner', () => {
+  const layout = read('src/styles/layout/site-header.css')
+  const theme = read('src/styles/themes/pixel-redesign.css')
+  const responsive = read('src/styles/overrides/final-responsive.css')
+  const shell = read('src/styles/overrides/final-shell.css')
+
+  assert.match(layout, /\.site-header__more-menu/)
+  assert.match(layout, /\.site-header__nav--mobile/)
+  assert.doesNotMatch(theme, /\.site-header__more-menu/)
+  assert.doesNotMatch(responsive, /\.site-header__nav--mobile/)
+  assert.doesNotMatch(shell, /\.site-header\s*\{/)
+})

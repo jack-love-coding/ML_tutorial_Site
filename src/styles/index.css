@@ -2,7 +2,6 @@
 @import './foundation/reset.css';
 @import './layout/app-shell.css';
 @import './layout/route-skeleton.css';
-@import './layout/site-header.css';
 @import './views/home.css';
 @import './views/algorithm-shell.css';
 @import './views/curriculum.css';
@@ -27,3 +26,4 @@
 @import './modules/logistic-regression.css';
 @import './overrides/cockpit-details.css';
 @import './overrides/final-shell.css';
+@import './layout/site-header.css';
