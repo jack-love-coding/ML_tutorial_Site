@@ -212,6 +212,19 @@ test('site header layout selectors have one stylesheet owner', () => {
 
   assert.match(layout, /\.site-header__more-menu/)
   assert.match(layout, /\.site-header__nav--mobile/)
+  assert.match(
+    layout,
+    /\.site-header__nav--mobile \.site-header__link--secondary\s*\{\s*color: var\(--pixel-muted\);\s*background: transparent;\s*\}/,
+  )
+
+  const migratedSources = [theme, responsive, shell]
+  for (const source of migratedSources) {
+    assert.doesNotMatch(source, /\.locale-switch(?:__button)?(?=[\s:.{,])/)
+    assert.doesNotMatch(
+      source,
+      /\.site-header__(?:more-menu|nav--mobile|actions|menu)(?=[\s:.{,])/,
+    )
+  }
   assert.doesNotMatch(theme, /\.site-header__more-menu/)
   assert.doesNotMatch(responsive, /\.site-header__nav--mobile/)
   assert.doesNotMatch(shell, /\.site-header\s*\{/)

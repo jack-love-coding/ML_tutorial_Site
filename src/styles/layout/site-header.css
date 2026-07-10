@@ -445,6 +445,11 @@
     white-space: normal;
   }
 
+  .site-header__nav--mobile .site-header__link--secondary {
+    color: var(--pixel-muted);
+    background: transparent;
+  }
+
   .site-header__nav--mobile .site-header__link:hover,
   .site-header__nav--mobile .site-header__link.is-current,
   .site-header__nav--mobile .site-header__link.router-link-active {
