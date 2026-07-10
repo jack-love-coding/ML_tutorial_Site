@@ -5,6 +5,7 @@ export interface RenderedNavigationLink {
   route: string
   label: string
   active: boolean
+  exact: boolean
 }
 
 export interface RenderedNavigationGroup {
@@ -18,5 +19,17 @@ export interface RenderedNavigationItem {
   label: string
   route?: string
   active: boolean
+  exact: boolean
   groups: RenderedNavigationGroup[]
+}
+
+export type NavigationAriaCurrent = 'page' | 'location' | undefined
+
+export function getNavigationAriaCurrent(
+  exact: boolean,
+  active: boolean,
+): NavigationAriaCurrent {
+  if (exact) return 'page'
+  if (active) return 'location'
+  return undefined
 }

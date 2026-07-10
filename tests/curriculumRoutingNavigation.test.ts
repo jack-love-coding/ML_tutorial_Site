@@ -20,6 +20,7 @@ import {
 import { resolveCanonicalLearnRoute } from '../src/curriculum/routes.ts'
 import { curriculumSpineRequiredModuleIds } from '../src/curriculum/spine.ts'
 import { curriculumTracks } from '../src/curriculum/tracks.ts'
+import { getNavigationAriaCurrent } from '../src/components/navigation/types.ts'
 
 const root = new URL('../', import.meta.url)
 
@@ -170,18 +171,35 @@ test('app shell delegates header and controlled navigation rendering', () => {
   assert.match(headerSource, /<SiteNavigation/)
   assert.match(headerSource, /openItemId/)
   assert.match(headerSource, /route\.fullPath/)
+  assert.match(headerSource, /mobileMenuTrigger/)
+  assert.match(headerSource, /nextTick\(.*\.focus/s)
+  assert.match(headerSource, /closeNavigation\(isMenuOpen\.value\)/)
   assert.doesNotMatch(headerSource, /overviewLink|utilityLinks/)
   assert.match(renderedNavigationSource, /mobile: boolean/)
   assert.match(renderedNavigationSource, /openItemId/)
   assert.match(renderedNavigationSource, /aria-expanded/)
   assert.match(renderedNavigationSource, /keydown\.esc/)
+  assert.match(renderedNavigationSource, /toggleButtons/)
+  assert.match(renderedNavigationSource, /nextTick\(.*\.focus/s)
+  assert.match(renderedNavigationSource, /navigateAndRestoreFocus/)
   assert.match(renderedNavigationSource, /emit\('toggle'/)
   assert.match(renderedNavigationSource, /emit\('close'/)
   assert.match(renderedNavigationSource, /emit\('navigate'/)
-  assert.doesNotMatch(renderedNavigationSource, /ref\(/)
+  assert.doesNotMatch(renderedNavigationSource, /const openItemId = ref/)
   assert.doesNotMatch(navigationSource, /coreLearningPathModuleIds\.map\(moduleLink\)/)
   assert.doesNotMatch(navigationSource, /curriculumCatalog/)
   assert.doesNotMatch(navigationSource, /curriculumTracks/)
   assert.doesNotMatch(routesSource, /curriculumCatalog/)
   assert.doesNotMatch(routesSource, /curriculumModuleById/)
+})
+
+test('navigation ARIA distinguishes exact pages from active sections', () => {
+  assert.equal(getNavigationAriaCurrent(true, true), 'page')
+  assert.equal(getNavigationAriaCurrent(false, true), 'location')
+  assert.equal(getNavigationAriaCurrent(false, false), undefined)
+
+  const renderedNavigationSource = read('src/components/navigation/SiteNavigation.vue')
+  assert.match(renderedNavigationSource, /getNavigationAriaCurrent/)
+  assert.doesNotMatch(renderedNavigationSource, /item\.active \? 'page'/)
+  assert.doesNotMatch(renderedNavigationSource, /link\.active \? 'page'/)
 })

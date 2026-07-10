@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { nextTick } from 'vue'
 import type { SiteNavigationMenuId } from '../../data/navigationMenus.ts'
-import type { RenderedNavigationItem } from './types.ts'
+import { getNavigationAriaCurrent, type RenderedNavigationItem } from './types.ts'
 
 const props = defineProps<{
   items: RenderedNavigationItem[]
@@ -10,12 +11,37 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   toggle: [itemId: SiteNavigationMenuId]
-  close: []
-  navigate: []
+  close: [mobile: boolean]
+  navigate: [mobile: boolean]
 }>()
+
+const toggleButtons = new Map<SiteNavigationMenuId, HTMLButtonElement>()
 
 function controlsId(itemId: SiteNavigationMenuId) {
   return `site-${itemId}-navigation${props.mobile ? '-mobile' : ''}`
+}
+
+function setToggleButton(itemId: SiteNavigationMenuId, element: unknown) {
+  if (element instanceof HTMLButtonElement) toggleButtons.set(itemId, element)
+  else toggleButtons.delete(itemId)
+}
+
+function closeAndRestoreFocus() {
+  const openItemId = props.openItemId
+  emit('close', props.mobile)
+
+  if (!props.mobile && openItemId) {
+    nextTick(() => toggleButtons.get(openItemId)?.focus())
+  }
+}
+
+function navigateAndRestoreFocus() {
+  const openItemId = props.openItemId
+  emit('navigate', props.mobile)
+
+  if (!props.mobile && openItemId) {
+    nextTick(() => toggleButtons.get(openItemId)?.focus())
+  }
 }
 </script>
 
@@ -24,7 +50,7 @@ function controlsId(itemId: SiteNavigationMenuId) {
     :id="props.mobile ? 'site-mobile-navigation' : undefined"
     class="site-header__nav"
     :class="props.mobile ? 'site-header__nav--mobile' : 'site-header__nav--desktop'"
-    @keydown.esc.stop="emit('close')"
+    @keydown.esc.stop="closeAndRestoreFocus"
   >
     <slot />
 
@@ -37,8 +63,8 @@ function controlsId(itemId: SiteNavigationMenuId) {
           'site-header__link--secondary': item.id === 'progress',
         }"
         :to="item.route"
-        :aria-current="item.active ? 'page' : undefined"
-        @click="emit('navigate')"
+        :aria-current="getNavigationAriaCurrent(item.exact, item.active)"
+        @click="navigateAndRestoreFocus"
       >
         {{ item.label }}
       </router-link>
@@ -51,12 +77,13 @@ function controlsId(itemId: SiteNavigationMenuId) {
         ]"
       >
         <button
+          :ref="(element) => setToggleButton(item.id, element)"
           type="button"
           class="site-header__link"
           :class="props.mobile ? 'site-header__mobile-toggle' : 'site-header__more-button'"
           :aria-controls="controlsId(item.id)"
           :aria-expanded="props.openItemId === item.id"
-          :aria-current="item.active ? 'page' : undefined"
+          :aria-current="getNavigationAriaCurrent(item.exact, item.active)"
           @click="emit('toggle', item.id)"
         >
           <span>{{ item.label }}</span>
@@ -81,8 +108,8 @@ function controlsId(itemId: SiteNavigationMenuId) {
                   class="site-header__link site-header__menu-link"
                   :class="{ 'is-current': link.active }"
                   :to="link.route"
-                  :aria-current="link.active ? 'page' : undefined"
-                  @click="emit('navigate')"
+                  :aria-current="getNavigationAriaCurrent(link.exact, link.active)"
+                  @click="navigateAndRestoreFocus"
                 >
                   <span class="site-header__menu-link-label">{{ link.label }}</span>
                 </router-link>
@@ -103,8 +130,8 @@ function controlsId(itemId: SiteNavigationMenuId) {
                 class="site-header__link site-header__mobile-link"
                 :class="{ 'is-current': link.active }"
                 :to="link.route"
-                :aria-current="link.active ? 'page' : undefined"
-                @click="emit('navigate')"
+                :aria-current="getNavigationAriaCurrent(link.exact, link.active)"
+                @click="navigateAndRestoreFocus"
               >
                 {{ link.label }}
               </router-link>
