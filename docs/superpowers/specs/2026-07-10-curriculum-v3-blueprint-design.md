@@ -1,7 +1,7 @@
 # Curriculum V3 Blueprint Design
 
 **Date:** 2026-07-10
-**Status:** Awaiting written-spec approval
+**Status:** Approved
 **Scope:** Curriculum architecture and content governance only. No runtime course, route, progress, or UI implementation.
 
 ## 1. Purpose
