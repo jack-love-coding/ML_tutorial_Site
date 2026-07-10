@@ -1,11 +1,5 @@
 import type { DataLabModuleId } from '../modules/data-lab/types/dataLab'
-import {
-  curriculumRouteManifestByDomain,
-  curriculumRouteManifestById,
-  projectPracticeModuleIds,
-} from '../curriculum/routeManifest.ts'
-import { resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
-import type { CurriculumDomain } from '../curriculum/types.ts'
+import { curriculumLibraryDomains } from '../curriculum/library.ts'
 import type { LocalizedCopy, ModuleSlug } from '../types/ml'
 
 export type SiteNavigationMenuId = 'learning-path' | 'topic-library' | 'projects' | 'progress'
@@ -31,8 +25,7 @@ export interface CoreExperimentNavigationGroup {
 export interface CurriculumNavigationMenu {
   id: SiteNavigationMenuId
   label: LocalizedCopy
-  overviewLink?: NavigationLink
-  utilityLinks: NavigationLink[]
+  route?: string
   groups: NavigationGroup[]
   activePrefixes: string[]
 }
@@ -55,21 +48,6 @@ function dataModule(id: DataLabModuleId, zhCN: string, en: string): NavigationLi
     route: `/data-lab/modules/${id}`,
     label: copy(zhCN, en),
   }
-}
-
-function moduleLink(moduleId: string): NavigationLink {
-  const moduleDefinition = curriculumRouteManifestById.get(moduleId)
-  const fallbackLabel = copy(moduleId, moduleId)
-
-  return {
-    id: moduleId,
-    route: resolveCanonicalLearnRoute(moduleId) ?? `/learn/${moduleId}`,
-    label: moduleDefinition?.title ?? fallbackLabel,
-  }
-}
-
-function domainModules(domain: CurriculumDomain) {
-  return curriculumRouteManifestByDomain(domain).map((moduleDefinition) => moduleDefinition.id)
 }
 
 export const mathLabOverviewLink: NavigationLink<'math-lab-overview'> = {
@@ -233,81 +211,35 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
   {
     id: 'learning-path',
     label: copy('默认学习主线', 'Default Spine'),
-    overviewLink: {
-      id: 'core-learning-path',
-      route: '/spine',
-      label: copy('默认学习主线', 'Default Spine'),
-    },
-    utilityLinks: [
-      {
-        id: 'core-flat-list',
-        route: '/tracks/core-learning-path',
-        label: copy('平铺模块列表', 'Flat Module List'),
-      },
-    ],
+    route: '/spine',
     activePrefixes: ['/spine', '/tracks/core-learning-path', '/learn'],
     groups: [],
   },
   {
     id: 'topic-library',
-    label: copy('支持镜头', 'Support Lenses'),
-    overviewLink: {
-      id: 'library-math',
-      route: '/library/math',
-      label: copy('数学镜头', 'Math Lens'),
-    },
-    utilityLinks: [],
+    label: copy('专题学习', 'Topic Library'),
     activePrefixes: ['/library', '/math-lab', '/data-lab'],
     groups: [
       {
-        id: 'math-lens',
-        label: copy('数学镜头', 'Math Lens'),
-        items: domainModules('math').map(moduleLink),
-      },
-      {
-        id: 'data-lens',
-        label: copy('数据镜头', 'Data Lens'),
-        items: domainModules('data').map(moduleLink),
-      },
-      {
-        id: 'model-lens',
-        label: copy('模型与训练镜头', 'Model Lens'),
-        items: domainModules('model').map(moduleLink),
-      },
-      {
-        id: 'deep-learning-lens',
-        label: copy('深度学习镜头', 'Deep Learning Lens'),
-        items: domainModules('deep-learning').map(moduleLink),
+        id: 'topic-domains',
+        label: copy('按专题浏览', 'Browse by topic'),
+        items: curriculumLibraryDomains
+          .filter((domain) => domain.id !== 'project')
+          .map((domain) => ({ id: domain.id, route: `/library/${domain.id}`, label: domain.title })),
       },
     ],
   },
   {
     id: 'projects',
     label: copy('项目实战', 'Projects'),
-    overviewLink: {
-      id: 'project-practice',
-      route: '/tracks/project-practice',
-      label: copy('项目实战', 'Project Practice'),
-    },
-    utilityLinks: [],
-    activePrefixes: ['/tracks/project-practice', '/projects'],
-    groups: [
-      {
-        id: 'project-practice',
-        label: copy('项目实战', 'Project Practice'),
-        items: projectPracticeModuleIds.map(moduleLink),
-      },
-    ],
+    route: '/tracks/project-practice',
+    activePrefixes: ['/tracks/project-practice', '/projects', '/library/project'],
+    groups: [],
   },
   {
     id: 'progress',
     label: copy('我的进度', 'Progress'),
-    overviewLink: {
-      id: 'progress-overview',
-      route: '/progress',
-      label: copy('学习进度', 'Learning Progress'),
-    },
-    utilityLinks: [],
+    route: '/progress',
     activePrefixes: ['/progress'],
     groups: [],
   },

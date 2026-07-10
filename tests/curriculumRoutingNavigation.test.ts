@@ -27,35 +27,25 @@ function read(path: string) {
   return readFileSync(new URL(path, root), 'utf8')
 }
 
-test('curriculum navigation exposes the unified top-level IA', () => {
+test('curriculum navigation exposes direct primary destinations and one category menu', () => {
   assert.deepEqual(
     curriculumNavigationMenus.map((menu) => menu.id),
     ['learning-path', 'topic-library', 'projects', 'progress'],
   )
 
-  const learningPath = curriculumNavigationMenus.find((menu) => menu.id === 'learning-path')
-  const topicLibrary = curriculumNavigationMenus.find((menu) => menu.id === 'topic-library')
-  const projects = curriculumNavigationMenus.find((menu) => menu.id === 'projects')
-  const progress = curriculumNavigationMenus.find((menu) => menu.id === 'progress')
-
-  assert.equal(learningPath?.label.en, 'Default Spine')
-  assert.equal(learningPath?.label['zh-CN'], '默认学习主线')
-  assert.equal(learningPath?.overviewLink?.route, '/spine')
-  assert.equal(learningPath?.overviewLink?.label.en, 'Default Spine')
-  assert.equal(learningPath?.utilityLinks[0]?.route, '/tracks/core-learning-path')
-  assert.equal(learningPath?.utilityLinks[0]?.label.en, 'Flat Module List')
-  assert.equal(learningPath?.groups.length, 0)
-
-  assert.equal(topicLibrary?.label.en, 'Support Lenses')
-  assert.equal(topicLibrary?.label['zh-CN'], '支持镜头')
-  assert.deepEqual(topicLibrary?.groups.map((group) => group.id), [
-    'math-lens',
-    'data-lens',
-    'model-lens',
-    'deep-learning-lens',
-  ])
-  assert.equal(projects?.overviewLink?.route, '/tracks/project-practice')
-  assert.equal(progress?.overviewLink?.route, '/progress')
+  const byId = new Map(curriculumNavigationMenus.map((item) => [item.id, item]))
+  assert.equal(byId.get('learning-path')?.route, '/spine')
+  assert.equal(byId.get('projects')?.route, '/tracks/project-practice')
+  assert.equal(byId.get('progress')?.route, '/progress')
+  assert.equal(byId.get('topic-library')?.label['zh-CN'], '专题学习')
+  assert.equal(byId.get('topic-library')?.label.en, 'Topic Library')
+  const topicItems = byId.get('topic-library')?.groups.flatMap((group) => group.items) ?? []
+  assert.deepEqual(
+    topicItems.map((item) => item.route),
+    ['/library/math', '/library/data', '/library/model', '/library/deep-learning'],
+  )
+  assert.equal(topicItems.some((item) => item.route.startsWith('/learn/')), false)
+  assert.equal(topicItems.some((item) => item.route.startsWith('/math-lab/modules/')), false)
 
   for (const menu of curriculumNavigationMenus) {
     assert.ok(menu.label['zh-CN'].trim().length > 0)
