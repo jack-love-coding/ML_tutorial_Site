@@ -16,6 +16,7 @@ function read(path) {
 test('data lab lazy routes and nav entries are wired independently of math lab', () => {
   const routerSource = read('src/router/index.ts')
   const appShellSource = read('src/components/AppShell.vue')
+  const siteHeaderSource = read('src/components/navigation/SiteHeader.vue')
   const navigationSource = read('src/data/navigationMenus.ts')
 
   assert.match(routerSource, /path: '\/data-lab'/)
@@ -23,10 +24,11 @@ test('data lab lazy routes and nav entries are wired independently of math lab',
   assert.match(routerSource, /modules\/data-lab\/pages\/DataLabHome\.vue/)
   assert.match(routerSource, /modules\/data-lab\/pages\/DataLabModulePage\.vue/)
 
-  assert.match(appShellSource, /curriculumNavigationMenus/)
-  assert.match(appShellSource, /site-\$\{menuDefinition\.id\}-navigation/)
-  assert.doesNotMatch(appShellSource, /dataLabNavigationGroups/)
-  assert.doesNotMatch(appShellSource, /dataLabModules/)
+  assert.match(appShellSource, /<SiteHeader/)
+  assert.match(siteHeaderSource, /curriculumNavigationMenus/)
+  assert.match(siteHeaderSource, /SiteNavigation/)
+  assert.doesNotMatch(siteHeaderSource, /dataLabNavigationGroups/)
+  assert.doesNotMatch(siteHeaderSource, /dataLabModules/)
   assert.match(navigationSource, /id: 'topic-library'/)
   assert.match(navigationSource, /dataLabNavigationGroups/)
   assert.match(navigationSource, /route: '\/data-lab'/)

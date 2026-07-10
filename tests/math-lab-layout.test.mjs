@@ -244,13 +244,15 @@ test('math lab lazy routes are wired outside AlgorithmView', () => {
 
 test('app shell exposes a math lab navigation menu without importing full course data', () => {
   const appShellSource = read('src/components/AppShell.vue')
+  const siteHeaderSource = read('src/components/navigation/SiteHeader.vue')
   const navigationSource = read('src/data/navigationMenus.ts')
 
-  assert.match(appShellSource, /curriculumNavigationMenus/)
-  assert.match(appShellSource, /site-\$\{menuDefinition\.id\}-navigation/)
-  assert.doesNotMatch(appShellSource, /mathLabNavigationGroups/)
-  assert.doesNotMatch(appShellSource, /mathLabUtilityLinks/)
-  assert.doesNotMatch(appShellSource, /mathLabModules/)
+  assert.match(appShellSource, /<SiteHeader/)
+  assert.match(siteHeaderSource, /curriculumNavigationMenus/)
+  assert.match(siteHeaderSource, /SiteNavigation/)
+  assert.doesNotMatch(siteHeaderSource, /mathLabNavigationGroups/)
+  assert.doesNotMatch(siteHeaderSource, /mathLabUtilityLinks/)
+  assert.doesNotMatch(siteHeaderSource, /mathLabModules/)
   assert.match(navigationSource, /id: 'topic-library'/)
   assert.match(navigationSource, /mathLabNavigationGroups/)
   assert.match(navigationSource, /mathLabUtilityLinks/)
