@@ -14,6 +14,7 @@ output/playwright/css-split/
 *.local
 .superpowers/
 .playwright-cli/
+.worktrees/
 
 # Editor directories and files
 .vscode/*
