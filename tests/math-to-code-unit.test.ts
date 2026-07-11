@@ -18,7 +18,7 @@ const cases = [
   },
   {
     id: 'calculus-derivatives-local-change', prefix: 'derivatives', formula: /L\(\\theta\+h\)-L\(\\theta-h\)/,
-    anchors: ['central difference', '中央差分', '[0, -5, -1]', 's(t)=2+3t', 'not gradient descent', '不等于梯度下降'],
+    anchors: ['central difference', '中央差分', '[0, -5, -1]', 's(t) = t^2', 'slope_at_3 = 6', 'not gradient descent', '不等于梯度下降'],
     handoff: /NumPy/i,
   },
   {

@@ -789,6 +789,7 @@ function promotedModule(input: {
   quizzes: QuizItem[]
   lab?: LabConfig
   sourceNoteFile: string
+  sourceReferences?: MathLabModule['sourceReferences']
   accent: string
   theme: string
 }): MathLabModule {
@@ -804,7 +805,7 @@ function promotedModule(input: {
     visuals: [], labs: input.lab ? [input.lab] : [], quizzes: input.quizzes,
     misconceptions: input.misconceptions, nextModuleIds: [input.next],
     accent: input.accent, theme: input.theme, sourceNoteFile: input.sourceNoteFile,
-    sourceReferences: [
+    sourceReferences: input.sourceReferences ?? [
       { label: copy('Mathematics for Machine Learning', 'Mathematics for Machine Learning'), href: 'https://mml-book.github.io/', license: 'CC BY-NC-SA 4.0', usage: copy('用于核对数学定义、shape 与机器学习连接。', 'Used to verify mathematical definitions, shape contracts, and machine-learning connections.') },
       { label: copy('NumPy 官方文档', 'NumPy Documentation'), href: 'https://numpy.org/doc/stable/', usage: copy('用于核对数组、矩阵乘法、广播、轴与有限值 API。', 'Used to verify array, matrix multiplication, broadcasting, axis, and finite-value APIs.') },
     ],
@@ -925,17 +926,18 @@ const derivativesModule = promotedModule({
   ],
   concepts: [
     simpleConcept('central-difference-sensitivity', '中央差分敏感度', 'Central-Difference Sensitivity', '\\frac{L(\\theta+h)-L(\\theta-h)}{2h}', [['theta', '被单独探测的当前参数。', 'The current parameter probed in isolation.'], ['h', '正且有限的对称观察半宽。', 'A positive finite symmetric half-window.']], '对称地比较参数两侧的 loss，估计当前局部斜率。', 'Compare loss symmetrically on both sides to estimate the current local slope.', '窗口缩小让割线靠近局部切线，但过小会受浮点误差影响。', 'Shrinking the window approaches a local tangent, but an overly small window suffers floating error.', '当前批量敏感度约为 [0,-5,-1]。', 'Current batch sensitivities are approximately [0,-5,-1].', '这是 gradient checking 的数值基线，不是参数更新。', 'This is a numerical baseline for gradient checking, not a parameter update.', `from math import isfinite\ndef central_difference(fn, value, h=1e-4):\n    if not isfinite(value) or not isfinite(h) or h <= 0:\n        raise ValueError("value and positive h must be finite")\n    plus, minus = fn(value + h), fn(value - h)\n    result = (plus - minus) / (2 * h)\n    if not all(map(isfinite, (plus, minus, result))):\n        raise ValueError("difference must be finite")\n    return result`),
-    simpleConcept('motion-local-slope', '运动的局部斜率', 'Local Motion Slope', "s'(t)=3", [['t', '时间输入，单位秒。', 'Time input in seconds.'], ['s', '位置输出，单位米。', 'Position output in meters.']], '位置对时间的导数是局部速度。', 'The derivative of position with respect to time is local velocity.', '线性运动的任意对称窗口都给出相同斜率。', 'Every symmetric window of linear motion gives the same slope.', 's(t)=2+3t 的导数为 3 米/秒。', 's(t)=2+3t has derivative 3 meters/second.', '同样的局部率思想用于解释 loss 对参数的敏感度。', 'The same local-rate idea explains loss sensitivity to a parameter.'),
+    simpleConcept('motion-local-slope', '运动的局部斜率', 'Local Motion Slope', "s'(t)=2t", [['t', '时间输入，单位秒。', 'Time input in seconds.'], ['s', '位置输出，单位米。', 'Position output in meters.']], '位置对时间的导数是局部速度。', 'The derivative of position with respect to time is local velocity.', '对称窗口比较 t 两侧的位置，得到当前局部斜率。', 'A symmetric window compares positions on both sides of t to obtain the current local slope.', 's(t)=t^2 在 t=3、h=0.1 时中央差分为 6 米/秒。', 'For s(t)=t^2 at t=3 with h=0.1, central difference is 6 meters/second.', '同样的局部率思想用于解释 loss 对参数的敏感度。', 'The same local-rate idea explains loss sensitivity to a parameter.'),
   ],
   misconceptions: [
     misconception('derivative-is-update', '中央差分就是梯度下降。', 'Central difference is gradient descent.', '中央差分估计斜率；更新还需要学习率与参数赋值。', 'Central difference estimates slope; an update also needs a learning rate and assignment.', '本课返回 -5，不执行 w2 <- w2-eta*(-5)。', 'This lesson returns -5 and does not execute w2 <- w2-eta*(-5).'),
     misconception('derivative-is-global', '当前导数决定整条曲线的方向。', 'The current derivative determines the whole curve.', '导数只描述当前点附近。', 'A derivative describes only the current neighborhood.', '远离当前点后曲线可能转向。', 'The curve may turn away from the current point.'),
     misconception('derivative-smallest-h', 'h 越小结果必然越准确。', 'A smaller h is always more accurate.', '过小 h 会让相近浮点数相减丢失有效位。', 'An overly small h loses significant digits when close floats are subtracted.', '应寻找稳定区间并与解析例核对。', 'Seek a stable range and compare with an analytic case.'),
     misconception('derivative-mutate-shared', '可以在同一个 w 上依次做 plus/minus 扰动。', 'The same w can be mutated for plus and minus probes.', '两侧计算必须从同一基线的独立副本开始。', 'Both sides must begin from independent copies of one baseline.', '否则 minus 侧继承 plus 状态，破坏对称。', 'Otherwise the minus side inherits the plus state and breaks symmetry.'),
+    misconception('derivative-sign-is-parameter-sign', '导数为负表示参数本身必须为负。', 'A negative derivative means the parameter itself must be negative.', '导数符号描述当前点附近参数向右小移时 loss 的局部变化方向，不描述参数值的符号。', 'The derivative sign describes the local loss direction when the parameter moves slightly right; it does not describe the parameter value sign.', 'w2=-1 的导数是 -5，而正参数 b=5 的导数也是 -1；两者都只说明局部增加参数会使 loss 倾向下降。', 'w2=-1 has derivative -5, while positive parameter b=5 has derivative -1; both signs only say that a small local increase tends to lower loss.'),
   ],
   quizzes: [
     formativeQuiz('derivative-role-check', '中央差分输出是什么？', 'What does central difference output?', 'slope', '局部斜率估计', 'A local slope estimate', '更新后的参数', 'An updated parameter', '估计与更新必须分离。', 'Estimation and updating must remain separate.', 'derivative-is-update', 'derivatives-formal'),
-    formativeQuiz('derivative-w2-check', '当前 dL/dw2 约为多少？', 'What is the current approximate dL/dw2?', 'minus-five', '-5', '-5', '+5', '+5', '残差与第二特征列配对得到 -5。', 'Pairing residuals with the second feature column gives -5.', 'derivative-is-global', 'derivatives-worked-shared'),
+    formativeQuiz('derivative-w2-check', '当前 dL/dw2 约为多少？', 'What is the current approximate dL/dw2?', 'minus-five', '-5', '-5', '+5', '+5', '残差与第二特征列配对得到 -5；负号描述当前局部 loss 方向，不是参数符号。', 'Pairing residuals with the second feature column gives -5; its sign describes the current local loss direction, not the parameter sign.', 'derivative-sign-is-parameter-sign', 'derivatives-worked-shared'),
     formativeQuiz('derivative-h-check', '为什么不总选最小 h？', 'Why not always choose the smallest h?', 'roundoff', '浮点消去可能主导', 'Floating cancellation may dominate', '因为中央差分要求 h=1', 'Because central difference requires h=1', 'h sweep 用于寻找稳定范围。', 'The h sweep seeks a stable range.', 'derivative-smallest-h', 'derivatives-experiment'),
     formativeQuiz('derivative-copy-check', 'plus/minus 探测应如何创建参数？', 'How should plus/minus probe parameters be created?', 'copies', '从同一基线各自复制', 'Copy each independently from one baseline', '依次修改同一数组', 'Mutate one array sequentially', '独立副本保护对称比较。', 'Independent copies protect the symmetric comparison.', 'derivative-mutate-shared', 'derivatives-code'),
   ],
@@ -945,7 +947,13 @@ const numpyModule = promotedModule({
   id: 'numpy-mathematics-implementation', key: 'numpy',
   zhTitle: 'NumPy 数学实现：让公式、shape 与失败一致', enTitle: 'NumPy Mathematics Implementation: Align Formulas, Shapes, and Failures',
   zhSubtitle: '用真实输出、循环 oracle、广播诊断与安全失败复现完整预测任务。', enSubtitle: 'Reproduce the full prediction task with real outputs, a loop oracle, broadcasting diagnostics, and safe failures.',
-  prerequisites: ['calculus-derivatives-local-change'], next: 'math-to-code-guided-studio', sourceNoteFile: 'math-lab-beginner-bridge-sources.md', accent: '#6d28d9', theme: '#f5f3ff',
+  prerequisites: ['calculus-derivatives-local-change'], next: 'math-to-code-guided-studio', sourceNoteFile: 'math-to-code-numpy-sources.md', accent: '#6d28d9', theme: '#f5f3ff',
+  sourceReferences: [
+    { label: copy('NumPy 广播', 'NumPy Broadcasting'), href: 'https://numpy.org/doc/stable/user/basics.broadcasting.html', usage: copy('核对末轴对齐、标量复用与合法但语义错误的广播结果。', 'Verify trailing-axis alignment, scalar reuse, and legal but semantically wrong broadcast results.') },
+    { label: copy('NumPy 矩阵乘法', 'NumPy Matrix Multiplication'), href: 'https://numpy.org/doc/stable/reference/generated/numpy.matmul.html', usage: copy('核对 @ 的内维收缩与批量输出 shape。', 'Verify inner-dimension contraction and batched output shape for @.') },
+    { label: copy('NumPy 有限值检查', 'NumPy Finite-Value Checking'), href: 'https://numpy.org/doc/stable/reference/generated/numpy.isfinite.html', usage: copy('核对 NaN 与 Infinity 的显式失败边界。', 'Verify explicit failure boundaries for NaN and Infinity.') },
+    { label: copy('NumPy 数组转换', 'NumPy Array Conversion'), href: 'https://numpy.org/doc/stable/reference/generated/numpy.asarray.html', usage: copy('核对 list/ndarray 到 float 数组的转换合同。', 'Verify the conversion contract from lists or ndarrays to floating arrays.') },
+  ],
   objectives: [
     ['把每个 NumPy 变量、shape 与数学角色逐项对齐。', 'Align every NumPy variable and shape with its mathematical role.'],
     ['复现 predictions=[10,5]、MSE=2.5 与敏感度 [0,-5,-1]。', 'Reproduce predictions=[10,5], MSE=2.5, and sensitivities [0,-5,-1].'],
@@ -965,10 +973,12 @@ const numpyModule = promotedModule({
     misconception('numpy-int-safe', '整数数组可安全接收浮点原地结果。', 'Integer arrays safely accept floating in-place results.', 'dtype 可能报错或截断，需要显式 float 合同。', 'Dtype may error or truncate; require an explicit float contract.', '用 np.asarray(..., dtype=float) 建立数值接口。', 'Use np.asarray(..., dtype=float) to establish the numeric interface.'),
     misconception('numpy-view-independent', '切片 view 是独立参数副本。', 'A slice view is an independent parameter copy.', 'view 可能修改父数组，扰动必须显式 copy。', 'A view may mutate its parent; perturbations require explicit copies.', 'plus 探测污染 baseline 会破坏 minus 结果。', 'A plus probe that contaminates baseline breaks the minus result.'),
     misconception('numpy-nan-will-raise', 'NaN 会自动抛错。', 'NaN automatically raises an error.', 'NaN 常会静默传播，必须显式检查。', 'NaN often propagates silently and must be checked explicitly.', 'np.isfinite(...).all() 在计算前后建立失败边界。', 'np.isfinite(...).all() establishes failure boundaries before and after computation.'),
+    misconception('numpy-missing-bias', 'X@w 得到 [5,0]，所以这已经是最终预测。', 'X@w gives [5,0], so it is already the final prediction.', '加权和仍缺少共享偏置 b=5；完整预测必须执行 X@w+b。', 'The weighted sums still miss shared bias b=5; complete prediction must execute X@w+b.', '给 [5,0] 加 bias=5 才得到 predictions=[10,5]。', 'Adding bias=5 to [5,0] produces predictions=[10,5].'),
+    misconception('numpy-sensor-axis', '列校准量必须改成 (3,1) 才能沿传感器轴相加。', 'Column calibration must be reshaped to (3,1) to add along the sensor axis.', '传感器列位于 shape (2,3) 的末轴，column_bias 应保持 (3,)；NumPy 会把它复用到每一行。', 'Sensor columns are the trailing axis of shape (2,3), so column_bias stays (3,) and NumPy reuses it across rows.', '单行 (3,) 加 wrong_column_bias (3,1) 会广播成错误的 (3,3)，而 (2,3)+(3,) 保持 (2,3)。', 'A row (3,) plus wrong_column_bias (3,1) broadcasts to a wrong (3,3), while (2,3)+(3,) remains (2,3).'),
   ],
   quizzes: [
-    formativeQuiz('numpy-output-check', '安全实现的 predictions 是什么？', 'What are predictions from the safe implementation?', 'ten-five', '[10.0, 5.0]', '[10.0, 5.0]', '[5.0, 0.0]', '[5.0, 0.0]', '加权和 [5,0] 还需加 bias=5。', 'Weighted sums [5,0] still need bias=5.', 'numpy-broadcast-means-correct', 'numpy-worked-shared'),
-    formativeQuiz('numpy-axis-check', '每个传感器均值应收缩哪个轴？', 'Which axis should per-sensor means reduce?', 'axis-zero', 'axis 0', 'axis 0', 'axis 1', 'axis 1', 'axis 0 穿过时间/样本并保留传感器。', 'Axis 0 traverses times/samples and preserves sensors.', 'numpy-broadcast-means-correct', 'numpy-worked-auxiliary'),
+    formativeQuiz('numpy-output-check', '安全实现的 predictions 是什么？', 'What are predictions from the safe implementation?', 'ten-five', '[10.0, 5.0]', '[10.0, 5.0]', '[5.0, 0.0]', '[5.0, 0.0]', 'X@w 的加权和 [5,0] 仍缺少 bias=5；加偏置后才得到 [10,5]。', 'Weighted sums X@w=[5,0] still miss bias=5; adding bias produces [10,5].', 'numpy-missing-bias', 'numpy-worked-shared'),
+    formativeQuiz('numpy-axis-check', '给 shape (2,3) 的 sensor_grid 每列加 [1,2,3]，column_bias 应是什么 shape？', 'To add [1,2,3] to sensor columns of a (2,3) sensor_grid, what shape should column_bias have?', 'column-vector', '(3,)', '(3,)', '(3,1)', '(3,1)', '传感器列是末轴；(3,) 会复用到两行，而 (3,1) 与单行相加会错误广播为 (3,3)。', 'The sensor axis is trailing: (3,) is reused across rows, while (3,1) with one row wrongly broadcasts to (3,3).', 'numpy-sensor-axis', 'numpy-worked-auxiliary'),
     formativeQuiz('numpy-copy-check', '中央差分扰动前必须做什么？', 'What is required before central-difference perturbation?', 'copy', '复制参数数组', 'Copy the parameter array', '创建共享 view', 'Create a shared view', '副本阻止相邻探测互相污染。', 'Copies stop neighboring probes from contaminating one another.', 'numpy-view-independent', 'numpy-code'),
     formativeQuiz('numpy-finite-check', '哪个 API 建立非有限值失败边界？', 'Which API establishes the non-finite failure boundary?', 'finite', 'np.isfinite', 'np.isfinite', 'np.reshape', 'np.reshape', 'shape 操作不会检测 NaN/Infinity。', 'Shape operations do not detect NaN/Infinity.', 'numpy-nan-will-raise', 'numpy-code'),
   ],
