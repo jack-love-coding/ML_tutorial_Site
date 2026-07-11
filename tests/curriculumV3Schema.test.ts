@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { curriculumV3Arcs } from '../src/curriculum/v3/arcs.ts'
 import { curriculumV3FoundationModules } from '../src/curriculum/v3/modules/foundations.ts'
+import { curriculumV3MachineLearningModules } from '../src/curriculum/v3/modules/machineLearning.ts'
 
 test('Curriculum V3 defines ten ordered bilingual arcs', () => {
   assert.deepEqual(curriculumV3Arcs.map((arc) => arc.id), [
@@ -23,6 +24,16 @@ test('Curriculum V3 defines ten ordered bilingual arcs', () => {
     assert.ok(arc.purpose['zh-CN'].trim())
     assert.ok(arc.purpose.en.trim())
   }
+})
+
+test('V3 machine learning inventory walks from data to reliable evaluation', () => {
+  assert.equal(curriculumV3MachineLearningModules.length, 14)
+  assert.equal(curriculumV3MachineLearningModules[0]?.id, 'numerical-data')
+  assert.equal(curriculumV3MachineLearningModules.at(-1)?.id, 'training-diagnostics')
+  const byId = new Map(curriculumV3MachineLearningModules.map((module) => [module.id, module]))
+  assert.ok(byId.get('linear-regression')?.prerequisiteIds.includes('loss-functions'))
+  assert.ok(byId.get('classification')?.prerequisiteIds.includes('logistic-regression'))
+  assert.ok(byId.get('model-selection')?.prerequisiteIds.includes('splits-generalization'))
 })
 
 test('V3 foundations contain 22 substantive bilingual modules', () => {

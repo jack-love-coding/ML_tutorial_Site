@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { curriculumV3FoundationModules } from '../src/curriculum/v3/modules/foundations.ts'
+import {
+  curriculumV3MachineLearningModules,
+  v3MachineLearningOrder,
+} from '../src/curriculum/v3/modules/machineLearning.ts'
 
 const expectedDependencies = [
   ['ai-overview', 'required-core', [], ['ai-overview'], 'rebuild'],
@@ -58,5 +62,25 @@ test('mathematics uses introduction then explicit revisit', () => {
   assert.ok(byId.get('gradient-descent')?.revisits.includes('gradient'))
   assert.ok(
     byId.get('probability-likelihood-entropy')?.revisits.includes('probability-distribution'),
+  )
+})
+
+test('machine learning required core does not depend on an optional depth topic', () => {
+  const depthIds = new Set(
+    curriculumV3MachineLearningModules
+      .filter((module) => module.role === 'depth-topic')
+      .map((module) => module.id),
+  )
+  for (const module of curriculumV3MachineLearningModules) {
+    if (module.role === 'required-core') {
+      assert.equal(module.prerequisiteIds.some((id) => depthIds.has(id)), false)
+    }
+  }
+})
+
+test('machine learning dependency metadata matches the approved order', () => {
+  assert.deepEqual(
+    curriculumV3MachineLearningModules.map((module) => [module.id, module.prerequisiteIds]),
+    v3MachineLearningOrder,
   )
 })
