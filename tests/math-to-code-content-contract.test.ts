@@ -214,6 +214,21 @@ function combinedModuleText(module: (typeof mathToCodeModules)[number]) {
   ].join('\n')
 }
 
+function markdownFragmentIssues(content: string, sectionIds: ReadonlySet<string>): string[] {
+  const issues: string[] = []
+  for (const match of content.matchAll(/\]\(#([^)]*)\)/g)) {
+    const fragment = match[1]!
+    if (fragment.length === 0) {
+      issues.push('empty fragment')
+    } else if (!/^[a-z0-9-]+$/.test(fragment)) {
+      issues.push(`unsafe fragment ${fragment}`)
+    } else if (!sectionIds.has(fragment)) {
+      issues.push(`unknown section ${fragment}`)
+    }
+  }
+  return issues
+}
+
 test('the pilot consumes exactly six registered modules with globally unique teaching IDs', () => {
   assert.equal(mathToCodeModules.length, 6)
   assert.deepEqual(mathToCodeModules.map(({ id }) => id), moduleIds)
@@ -270,11 +285,7 @@ test('module-local references and route-level prerequisite/next references all r
       for (const labId of section.labIds ?? []) assert.ok(labIds.has(labId), `${module.id}/${section.id} references unknown lab ${labId}`)
       for (const visualId of section.visualIds ?? []) assert.ok(visualIds.has(visualId), `${module.id}/${section.id} references unknown visual ${visualId}`)
       for (const locale of ['zh-CN', 'en'] as const) {
-        for (const match of section.content[locale].matchAll(/\]\(#([^)]+)\)/g)) {
-          const fragment = match[1]!
-          assert.match(fragment, /^[a-z0-9-]+$/, `${module.id}/${section.id}/${locale} has unsafe fragment ${fragment}`)
-          assert.ok(sectionIds.has(fragment), `${module.id}/${section.id}/${locale} links to unknown section ${fragment}`)
-        }
+        assert.deepEqual(markdownFragmentIssues(section.content[locale], sectionIds), [], `${module.id}/${section.id}/${locale}`)
       }
     }
     for (const quiz of module.quizzes) {
@@ -286,6 +297,10 @@ test('module-local references and route-level prerequisite/next references all r
       assert.ok(mathLabModuleRegistry[dependency], `${module.id} references unknown module ${dependency}`)
     }
   }
+  const sectionIds = new Set(['legal-target'])
+  assert.deepEqual(markdownFragmentIssues('[legal](#legal-target)', sectionIds), [])
+  assert.deepEqual(markdownFragmentIssues('看这里](#)', sectionIds), ['empty fragment'])
+  assert.deepEqual(markdownFragmentIssues('[unsafe](#Bad Target)', sectionIds), ['unsafe fragment Bad Target'])
 })
 
 test('each module binds exact concept formulas and code to exact worked sections and outputs', () => {

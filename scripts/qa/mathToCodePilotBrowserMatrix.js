@@ -11,8 +11,10 @@ async (page) => {
   ]
   const results = []
   let activeErrors = []
+  let activeWarnings = []
   page.on('console', (message) => {
     if (message.type() === 'error') activeErrors.push(`console: ${message.text()}`)
+    if (message.type() === 'warning') activeWarnings.push(message.text())
   })
   page.on('pageerror', (error) => activeErrors.push(`pageerror: ${error.message}`))
 
@@ -22,6 +24,7 @@ async (page) => {
       await page.setViewportSize({ width, height })
       for (let index = 0; index < modules.length; index += 1) {
         activeErrors = []
+        activeWarnings = []
         const [id, zhTitle, enTitle] = modules[index]
         const response = await page.goto(`${origin}/math-lab/modules/${id}?route=${route}`)
         await page.waitForLoadState('networkidle')
@@ -81,6 +84,8 @@ async (page) => {
           status: response?.status(),
           ...probe,
           consoleErrors: [...activeErrors],
+          consoleWarnings: [...activeWarnings],
+          warningCount: activeWarnings.length,
         })
       }
     }
@@ -95,6 +100,7 @@ async (page) => {
     || result.emptyLinks.length > 0
     || result.overlaps.length > 0
     || result.consoleErrors.length > 0
+    || result.warningCount > 0
   ))
   if (failures.length > 0) throw new Error(`Math-to-Code browser matrix failed: ${JSON.stringify(failures)}`)
   return { cases: results.length, failures: failures.length, results }

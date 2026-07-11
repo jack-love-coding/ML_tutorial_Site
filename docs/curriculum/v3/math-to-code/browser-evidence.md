@@ -15,36 +15,37 @@ Every row below reports:
 - `sw/vw`: document scroll width / viewport width;
 - `dead`: missing fragments plus empty links;
 - `overlap`: overlapping visible interactive element pairs;
-- `console`: console errors plus uncaught page errors.
+- `console`: console errors plus uncaught page errors;
+- `warnings`: per-case Playwright console-warning count.
 
 ## Per-page matrix
 
-| Module | Locale | Viewport | HTTP | title/lang | route | sw/vw | dead | overlap | console |
-|---|---|---:|---:|---|---|---:|---:|---:|---:|
-| functions | zh-CN | 1440×1000 | 200 | ✓ | next ✓ | 1440/1440 | 0 | 0 | 0 |
-| vectors | zh-CN | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 |
-| matrices | zh-CN | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 |
-| derivatives | zh-CN | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 |
-| NumPy | zh-CN | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 |
-| studio | zh-CN | 1440×1000 | 200 | ✓ | prev ✓ | 1440/1440 | 0 | 0 | 0 |
-| functions | zh-CN | 390×844 | 200 | ✓ | next ✓ | 390/390 | 0 | 0 | 0 |
-| vectors | zh-CN | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 |
-| matrices | zh-CN | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 |
-| derivatives | zh-CN | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 |
-| NumPy | zh-CN | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 |
-| studio | zh-CN | 390×844 | 200 | ✓ | prev ✓ | 390/390 | 0 | 0 | 0 |
-| functions | en | 1440×1000 | 200 | ✓ | next ✓ | 1440/1440 | 0 | 0 | 0 |
-| vectors | en | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 |
-| matrices | en | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 |
-| derivatives | en | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 |
-| NumPy | en | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 |
-| studio | en | 1440×1000 | 200 | ✓ | prev ✓ | 1440/1440 | 0 | 0 | 0 |
-| functions | en | 390×844 | 200 | ✓ | next ✓ | 390/390 | 0 | 0 | 0 |
-| vectors | en | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 |
-| matrices | en | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 |
-| derivatives | en | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 |
-| NumPy | en | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 |
-| studio | en | 390×844 | 200 | ✓ | prev ✓ | 390/390 | 0 | 0 | 0 |
+| Module | Locale | Viewport | HTTP | title/lang | route | sw/vw | dead | overlap | console | warnings |
+|---|---|---:|---:|---|---|---:|---:|---:|---:|---:|
+| functions | zh-CN | 1440×1000 | 200 | ✓ | next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| vectors | zh-CN | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| matrices | zh-CN | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| derivatives | zh-CN | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| NumPy | zh-CN | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| studio | zh-CN | 1440×1000 | 200 | ✓ | prev ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| functions | zh-CN | 390×844 | 200 | ✓ | next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| vectors | zh-CN | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| matrices | zh-CN | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| derivatives | zh-CN | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| NumPy | zh-CN | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| studio | zh-CN | 390×844 | 200 | ✓ | prev ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| functions | en | 1440×1000 | 200 | ✓ | next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| vectors | en | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| matrices | en | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| derivatives | en | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| NumPy | en | 1440×1000 | 200 | ✓ | prev+next ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| studio | en | 1440×1000 | 200 | ✓ | prev ✓ | 1440/1440 | 0 | 0 | 0 | 0 |
+| functions | en | 390×844 | 200 | ✓ | next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| vectors | en | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| matrices | en | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| derivatives | en | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| NumPy | en | 390×844 | 200 | ✓ | prev+next ✓ | 390/390 | 0 | 0 | 0 | 0 |
+| studio | en | 390×844 | 200 | ✓ | prev ✓ | 390/390 | 0 | 0 | 0 | 0 |
 
 ## Exact command result
 
@@ -62,4 +63,4 @@ The top-level returned object was:
 {"cases":24,"failures":0}
 ```
 
-Each result object also contained the exact title, route hrefs and response statuses, widths, and empty arrays for `deadFragments`, `emptyLinks`, `overlaps`, and `consoleErrors`. The script throws with the complete failing objects when any array becomes nonempty or a scalar contract changes.
+Each result object also contained the exact title, route hrefs and response statuses, widths, empty arrays for `deadFragments`, `emptyLinks`, `overlaps`, `consoleErrors`, and `consoleWarnings`, plus `warningCount: 0`. The script throws with the complete failing objects when an array becomes nonempty, `warningCount` becomes nonzero, or another scalar contract changes.

@@ -41,11 +41,13 @@ export PLAYWRIGHT_CLI_SESSION=math-to-code-task8-review
 "$PWCLI" run-code --filename scripts/qa/mathToCodePilotBrowserMatrix.js
 ```
 
-The matrix command returns `{"cases":24,"failures":0,...}` and exits with an error if any expected title, locale, route link, response, overflow, fragment, empty link, overlap, or console contract fails.
+The matrix command returns `{"cases":24,"failures":0,...}` and exits with an error if any expected title, locale, route link, response, overflow, fragment, empty link, overlap, console error, page error, or console warning contract fails. Each case includes `warningCount`; production returned zero for all 24 cases.
 
-## Stable selectors used for interaction QA
+## Replayable manual CLI interaction steps
 
-Snapshot refs are intentionally not recorded because they change after navigation. The successful commands used these semantic selectors after a fresh snapshot:
+The 24-case matrix script automates page smoke coverage only. Functions/studio interactions were separate, replayable manual Playwright CLI steps using `run-code` after a fresh snapshot; they are not executed by `mathToCodePilotBrowserMatrix.js`.
+
+Snapshot refs are intentionally not recorded because they change after navigation. The manual CLI steps used these semantic selectors:
 
 - Functions slider: `page.getByRole('slider', { name: /第一个权重/ })`
 - Functions reset: `page.getByRole('button', { name: /重置为 w1/ })`
@@ -77,7 +79,7 @@ It also:
 - compares each visible `h1` with the exact localized module title;
 - compares `document.documentElement.lang` with the requested locale;
 - checks pairwise rectangles of visible `button`, `a`, and `input` elements for overlap;
-- records browser `console.error` and uncaught `pageerror` events per case;
+- records browser `console.error`, console `warning`, and uncaught `pageerror` events per case, including `warningCount`;
 - throws with the failing case payload instead of returning a false-positive success.
 
 ## Production preview observations
@@ -87,7 +89,7 @@ It also:
 - Every document and route-link `HEAD` response was HTTP 200.
 - Every localized title and document language matched.
 - Desktop `scrollWidth` was `1440`; mobile `scrollWidth` was `390`.
-- Dead fragments, empty links, interactive overlaps, browser console errors, and page errors were zero in all cases.
+- Dead fragments, empty links, interactive overlaps, browser console errors, page errors, and console warnings were zero in all cases; every `warningCount` was 0.
 - Production preview console after interaction QA: 0 errors and 0 warnings.
 
 ## Functions interaction evidence
