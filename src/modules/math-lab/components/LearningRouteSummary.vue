@@ -14,7 +14,9 @@ const props = defineProps<{
 const moduleById = computed(() => new Map(props.modules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition])))
 const summary = computed(() => routeProgressSummary(props.route, props.completedModuleIds))
 const nextModule = computed(() => summary.value.nextModuleId ? moduleById.value.get(summary.value.nextModuleId) : undefined)
-const actionRoute = computed(() => nextModule.value ? `/math-lab/modules/${nextModule.value.id}` : '/math-lab')
+const actionRoute = computed(() => nextModule.value
+  ? `/math-lab/modules/${nextModule.value.id}?route=${props.route.id}`
+  : '/math-lab')
 const actionLabel = computed(() => {
   if (!nextModule.value) return props.locale === 'zh-CN' ? '回到路线' : 'Back to route'
   return props.locale === 'zh-CN' ? '继续下一章' : 'Continue next chapter'

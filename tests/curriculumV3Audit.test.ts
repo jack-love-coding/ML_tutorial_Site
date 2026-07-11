@@ -220,6 +220,7 @@ test('V3 audit covers the two pilot additions exactly once with valid and specif
     const entries = curriculumV3AuditEntries.filter((entry) => entry.currentModuleId === currentId)
     assert.equal(entries.length, 1, `${currentId} must occur exactly once`)
     assert.deepEqual(entries[0]!.targetModuleIds, targetModuleIds)
+    assert.equal(entries[0]!.action, 'merge')
     assert.ok(entries[0]!.strengths.join(' ').length > 80)
     assert.ok(entries[0]!.contractGaps.join(' ').length > 80)
     for (const targetId of targetModuleIds) assert.ok(curriculumV3ModuleById.has(targetId))

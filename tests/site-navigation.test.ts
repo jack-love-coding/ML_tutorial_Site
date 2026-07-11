@@ -101,11 +101,12 @@ test('math lab navigation menu covers all lab module routes with localized label
     calculusRouteGroup.items.map((item) => item.id),
   )
 
-  const pilotGroup = mathLabNavigationGroups.find((group) => group.id === 'math-to-code-pilot')
+  const pilotGroup = mathLabNavigationGroups.find((group) => group.id === 'pilot-additions')
   assert.ok(pilotGroup)
+  assert.deepEqual(pilotGroup.label, { 'zh-CN': '试点新增课程', en: 'Pilot additions' })
   assert.deepEqual(
     pilotGroup.items.map((item) => item.id),
-    learningRouteById['math-to-code-pilot'].chapterModuleIds.slice(4),
+    ['numpy-mathematics-implementation', 'math-to-code-guided-studio'],
   )
 
   assert.deepEqual(
@@ -115,7 +116,7 @@ test('math lab navigation menu covers all lab module routes with localized label
       'linear-algebra',
       'linear-algebra-tools',
       'calculus-route',
-      'math-to-code-pilot',
+      'pilot-additions',
       'calculus-optimization',
       'probability-sampling',
       'data-geometry-architectures',

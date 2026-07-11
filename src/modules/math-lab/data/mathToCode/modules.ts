@@ -726,55 +726,13 @@ const functionsAndMappingsModule: MathLabModule = {
   ],
 }
 
-const runtimeTitles = {
-  vectors: [
-    '1. Opening: How Can Two Values Represent One Sample?', '2. Recap: Ordered Lists, Coordinates, and Squared Error',
-    '3. Shared Task: A Vector Binds One Sample’s Features', '4. Intuition: Coefficients Convert Features into Minutes',
-    '5. Formal Contract: Dimension, Linear Functionals, and Units', '6. Example One: Dot Product, Prediction, and Error',
-    '7. Example Two: Projection in a Dimensionless Geometry', '8. Code Translation: Preserve Shapes and Contributions',
-    '9. Controlled Experiment: Change Contribution Coefficients', '10. Misconceptions: Plausible Vector Errors',
-    '11. Three-Layer Practice: Representation to Observation', '12. Summary and Matrix Handoff',
-  ],
-  matrices: [
-    '1. Opening: Why Not Repeat the Dot Product?', '2. Recap: Dot Products and Reading Rows and Columns',
-    '3. Shared Task: The Xw+b Shape Ledger', '4. Intuition: Tables, Pipelines, and Image Grids',
-    '5. Formal Contract: Rows, Columns, Multiplication, and Broadcasting', '6. Example One: Expand the Whole Batch with Shapes',
-    '7. Example Two: A Linear Mirror of Grid Points', '8. Code Translation: Vectorize but Keep a Row Oracle',
-    '9. Controlled Experiment: Add or Reorder One Row', '10. Misconceptions: Executable Is Not Necessarily Correct',
-    '11. Three-Layer Practice: Shapes and Batch Observation', '12. Summary and Derivative Handoff',
-  ],
-  derivatives: [
-    '1. Opening: Which Way Does Error Move Here?', '2. Recap: Average Change, MSE, and Controlled Variables',
-    '3. Shared Task: From x,w,b to y_hat,y,L', '4. Intuition: Local Motion Slope and Loss Terrain',
-    '5. Formal Contract: Derivatives, Partials, and Central Difference', '6. Example One: Check Three Loss Sensitivities',
-    '7. Example Two: Local Slope of Motion', '8. Code Translation: Wrap the Probed Parameter',
-    '9. Controlled Experiment: Change h, Not the Question', '10. Misconceptions: Boundaries of Local Information',
-    '11. Three-Layer Practice: Symbols to Local Experiments', '12. Summary and NumPy Handoff',
-  ],
-  numpy: [
-    '1. Opening: How Can One Line Silently Be Wrong?', '2. Recap: Scalar-to-Batch Contracts',
-    '3. Shared Task: Map Every Code Variable to Mathematics', '4. Intuition: Shape as a Data-Flow Type',
-    '5. Formal Contract: Arrays, Broadcasting, and Axes', '6. Example One: Reproduce Every Task 1 Output',
-    '7. Example Two: Debug a Sensor Grid by Shape', '8. Implementation: Validation, Vectorization, and Pure Differences',
-    '9. Controlled Experiment: Loop and Vectorized Outputs Must Match', '10. Misconceptions: NumPy’s Legal Errors',
-    '11. Three-Layer Practice: Read, Calculate, and Debug Shapes', '12. Summary and Studio Handoff',
-  ],
-  studio: [
-    'Stage 1: Reproduce the Task and Input Contract', 'Stage 2: Build a Transparent Scalar Baseline',
-    'Stage 3: Translate the Scalar Chain into a Vector Prediction', 'Stage 4: Extend to Batch Prediction',
-    'Stage 5: Compare Errors and Rebuild MSE', 'Stage 6: Estimate Numerical Sensitivity',
-    'Stage 7: Probability Preview (Not a Complete Probability Course)', 'Stage 8: Failure Analysis and Minimal Repairs',
-    'Stage 9: Evidence Review and Learning Reflection',
-  ],
-} as const
-
-type RuntimeLessonKey = keyof typeof runtimeTitles
+type RuntimeLessonKey = keyof typeof runtimeLessonContent
 
 function runtimeSections(key: RuntimeLessonKey, labId?: string): MathLabSection[] {
   return runtimeLessonContent[key].map((item: RuntimeLessonSection, index) => ({
     id: item.originalId,
     level: 2,
-    title: copy(item.title, runtimeTitles[key][index]!),
+    title: copy(item.title, item.enTitle),
     content: copy(item.content, item.en),
     ...(labId && index === 8 ? { labIds: [labId] } : {}),
   }))
@@ -799,10 +757,12 @@ function promotedModule(input: {
   sourceReferences?: MathLabModule['sourceReferences']
   accent: string
   theme: string
+  completionMode?: MathLabModule['completionMode']
 }): MathLabModule {
   const sections = runtimeSections(input.key, input.lab?.id)
   return {
     id: input.id, enhancementTier: input.lab ? 'interactive' : 'core', order: 0,
+    ...(input.completionMode ? { completionMode: input.completionMode } : {}),
     title: copy(input.zhTitle, input.enTitle), subtitle: copy(input.zhSubtitle, input.enSubtitle),
     difficulty: 'foundation', estimatedMinutes: 80, prerequisites: input.prerequisites,
     aiModelConnections: input.connections.map(([zh, en]) => copy(zh, en)),
@@ -1008,7 +968,7 @@ const studioModule = promotedModule({
   zhSubtitle: '按同一 notebook 顺序重建标量、向量、批量预测、MSE、数值敏感度、概率预告与失败诊断。',
   enSubtitle: 'Rebuild scalar, vector, batch, MSE, numerical-sensitivity, probability-preview, and failure-diagnosis evidence in one ordered notebook.',
   prerequisites: ['numpy-mathematics-implementation'], sourceNoteFile: 'math-to-code-guided-studio-sources.md',
-  accent: '#0f766e', theme: '#ecfdf5', lab: studioLab,
+  accent: '#0f766e', theme: '#ecfdf5', lab: studioLab, completionMode: 'self-attested',
   objectives: [
     ['用同一组 X、w、b、targets 重建完整预测与误差链。', 'Rebuild the complete prediction and error chain from one X, w, b, and targets contract.'],
     ['保留矩阵、目标、预测、残差、平方误差、MSE 与导数中间值。', 'Preserve matrix, target, prediction, residual, squared-error, MSE, and derivative intermediates.'],

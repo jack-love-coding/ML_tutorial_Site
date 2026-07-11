@@ -116,7 +116,7 @@ function exportRouteMarkdown() {
         :key="moduleDefinition.id"
         :class="{ 'is-complete': completedModuleIds.includes(moduleDefinition.id), 'is-next': summary.nextModuleId === moduleDefinition.id }"
       >
-        <router-link :to="`/math-lab/modules/${moduleDefinition.id}`">
+        <router-link :to="`/math-lab/modules/${moduleDefinition.id}?route=${route.id}`">
           <span>{{ moduleDefinition.order }}</span>
           <strong>{{ moduleDefinition.title[locale] }}</strong>
           <small>{{ reportStatus(moduleDefinition.id) }}</small>

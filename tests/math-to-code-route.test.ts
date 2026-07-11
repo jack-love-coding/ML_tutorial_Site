@@ -12,6 +12,7 @@ import {
   nextModuleForRoute,
   routeProgressSummary,
 } from '../src/modules/math-lab/data/learningRoutes.ts'
+import * as learningRouteData from '../src/modules/math-lab/data/learningRoutes.ts'
 import { mathLabModuleRegistry } from '../src/modules/math-lab/data/modules.ts'
 import { renderMarkdownWithMath } from '../src/utils/markdownMath.ts'
 
@@ -54,6 +55,28 @@ test('pilot route has the exact six-module order and first-incomplete behavior',
   })
 })
 
+test('route-aware navigation follows every pilot edge and rejects invalid route context', () => {
+  assert.equal(typeof learningRouteData.routeNavigationForModule, 'function')
+  const routeNavigationForModule = learningRouteData.routeNavigationForModule!
+  for (const [index, moduleId] of routeIds.entries()) {
+    const navigation = routeNavigationForModule('math-to-code-pilot', moduleId)
+    assert.equal(navigation?.previousModuleId, routeIds[index - 1])
+    assert.equal(navigation?.nextModuleId, routeIds[index + 1])
+    assert.equal(navigation?.routeId, 'math-to-code-pilot')
+  }
+  assert.equal(routeNavigationForModule('math-to-code-pilot', 'pca'), undefined)
+  assert.equal(routeNavigationForModule('not-a-route', routeIds[0]), undefined)
+  assert.equal(routeNavigationForModule(undefined, routeIds[0]), undefined)
+  assert.equal(
+    routeNavigationForModule('calculus-route', 'calculus-functions-rate-change')?.nextModuleId,
+    'calculus-derivatives-local-change',
+  )
+  assert.equal(
+    routeNavigationForModule('linear-algebra-route', 'linear-algebra-feature-space')?.nextModuleId,
+    'linear-algebra-distance-similarity',
+  )
+})
+
 test('NumPy and studio are registered in the runtime registry and Curriculum Catalog', () => {
   for (const id of routeIds) assert.ok(mathLabModuleRegistry[id], `${id} missing from runtime registry`)
   for (const id of ['numpy-mathematics-implementation', 'math-to-code-guided-studio']) {
@@ -82,6 +105,19 @@ test('guided studio is the exact full Chinese master plus equivalent complete En
     content: section.content['zh-CN'],
   })), expected)
 
+  const englishSource = readFileSync(new URL('../docs/curriculum/v3/math-to-code/06-guided-studio.en.md', import.meta.url), 'utf8')
+  const englishHeadings = [...englishSource.matchAll(/^##\s+(.+?)\s+\{#([a-z0-9-]+)\}\s*$/gm)]
+  const expectedEnglish = englishHeadings.map((heading, index) => ({
+    id: heading[2],
+    title: heading[1],
+    content: englishSource.slice(heading.index + heading[0].length, englishHeadings[index + 1]?.index ?? englishSource.length).trim(),
+  }))
+  assert.deepEqual(module.sections.map((section) => ({
+    id: section.id,
+    title: section.title.en,
+    content: section.content.en,
+  })), expectedEnglish)
+
   for (const section of module.sections) {
     const zh = section.content['zh-CN']
     const en = section.content.en
@@ -104,12 +140,36 @@ test('guided studio is the exact full Chinese master plus equivalent complete En
   assert.match(bilingual, /project-math-to-code.*Gradient Descent.*Monte Carlo|Gradient Descent.*Monte Carlo.*project-math-to-code/is)
 })
 
+test('runtime generator owns English stage titles and runtime consumes generated enTitle', () => {
+  const generated = readFileSync(new URL('../src/modules/math-lab/data/mathToCode/runtimeLessonContent.generated.ts', import.meta.url), 'utf8')
+  const moduleSource = readFileSync(new URL('../src/modules/math-lab/data/mathToCode/modules.ts', import.meta.url), 'utf8')
+  assert.match(generated, /readonly enTitle: string/)
+  assert.match(generated, /"enTitle": "Stage 1: Reproduce the Task and Input Contract"/)
+  assert.match(moduleSource, /copy\(item\.title, item\.enTitle\)/)
+  assert.doesNotMatch(moduleSource, /studio:\s*\[\s*'Stage 1:/)
+})
+
 test('studio and lab stay local-only with no grading, upload, evidence, or progress contract', () => {
   const module = mathToCodeModules.find(({ id }) => id === 'math-to-code-guided-studio')!
   const labSource = readFileSync(new URL('../src/modules/math-lab/labs/MathToCodeStudioLab.vue', import.meta.url), 'utf8')
   const combined = `${JSON.stringify(module)}\n${labSource}`
   assert.doesNotMatch(combined, /evidence-change|ExperimentEvidence|defineEmits|recordLearningProgress|markModuleComplete|localStorage|upload|submit|score|grade|passed|正式评分|提交作业/i)
   assert.equal(module.labs[0]?.task, undefined)
+  assert.equal(module.completionMode, 'self-attested')
+  assert.ok(mathToCodeModules.filter((item) => item.id !== module.id).every((item) => item.completionMode === undefined))
+})
+
+test('module page owns self-paced completion and route-aware query-preserving links', () => {
+  const page = readFileSync(new URL('../src/modules/math-lab/pages/MathLabModulePage.vue', import.meta.url), 'utf8')
+  assert.match(page, /SelfPacedCompletionButton/)
+  assert.match(page, /onSelfPacedReview[\s\S]*markModuleComplete/)
+  assert.match(page, /routeNavigationForModule/)
+  assert.match(page, /route\.query\.route/)
+  assert.match(page, /query:\s*\{\s*route:/)
+  const dashboard = readFileSync(new URL('../src/modules/math-lab/components/LearningRouteDashboard.vue', import.meta.url), 'utf8')
+  const summary = readFileSync(new URL('../src/modules/math-lab/components/LearningRouteSummary.vue', import.meta.url), 'utf8')
+  assert.match(dashboard, /\?route=\$\{route\.id\}/)
+  assert.match(summary, /\?route=\$\{props\.route\.id\}/)
 })
 
 test('studio lab is lazy registered once and SSR exposes full intermediate text fallback', async () => {

@@ -12,15 +12,19 @@ const INITIAL_INPUTS: StudioInputs = {
   x00: 2, x01: 3, x10: 1, x11: 4,
   w0: 4, w1: -1, bias: 5, y0: 9, y1: 7,
 }
+const MAX_ABS_INPUT = 1_000_000
 const values = ref<StudioInputs>({ ...INITIAL_INPUTS })
-const invalidKey = ref<InputKey | undefined>()
+const drafts = ref<Record<InputKey, string>>(Object.fromEntries(
+  Object.entries(INITIAL_INPUTS).map(([key, value]) => [key, String(value)]),
+) as Record<InputKey, string>)
+const errors = ref<Partial<Record<InputKey, string>>>({})
 
 const text = computed(() => props.locale === 'zh-CN' ? {
   eyebrow: '引导式 notebook 实验台',
   title: '逐层检查公式到代码的数据流',
   description: '修改有限数值后，保留每一层中间值。目标只在预测完成后进入残差。',
   matrix: '输入矩阵 X', targets: '目标 y', weights: '权重 w', bias: '偏置 b',
-  reset: '重置输入', error: '所有输入必须是有限数值。请修复标出的输入或重置。',
+  reset: '重置输入', error: '请输入绝对值不超过 1,000,000 的有限数值。',
   results: '中间结果文本表', predictions: '预测 y_hat', residuals: '残差',
   squares: '平方误差', mse: 'MSE', derivatives: '参数导数',
   weightDerivatives: '权重导数', biasDerivative: '偏置导数', shape: 'shape',
@@ -32,7 +36,7 @@ const text = computed(() => props.locale === 'zh-CN' ? {
   title: 'Inspect the formula-to-code dataflow layer by layer',
   description: 'Change finite values while preserving every intermediate. Targets enter residuals only after prediction.',
   matrix: 'Input matrix X', targets: 'Targets y', weights: 'Weights w', bias: 'Bias b',
-  reset: 'Reset inputs', error: 'All inputs must be finite. Enter a finite number in the marked field or reset.',
+  reset: 'Reset inputs', error: 'Enter a finite number with absolute value at most 1,000,000.',
   results: 'Intermediate-result text table', predictions: 'Predictions y_hat', residuals: 'Residuals',
   squares: 'Squared errors', mse: 'MSE', derivatives: 'Parameter derivatives',
   weightDerivatives: 'Weight derivatives', biasDerivative: 'Bias derivative', shape: 'shape',
@@ -53,24 +57,7 @@ const fields = computed(() => [
   { key: 'y1' as const, label: 'y[1]', role: text.value.targetRole },
 ])
 
-function setInput(key: InputKey, event: Event) {
-  const candidate = Number((event.target as HTMLInputElement).value)
-  if (!Number.isFinite(candidate)) {
-    invalidKey.value = key
-    return
-  }
-  invalidKey.value = undefined
-  values.value = { ...values.value, [key]: candidate }
-}
-
-function reset() {
-  values.value = { ...INITIAL_INPUTS }
-  invalidKey.value = undefined
-}
-
-const calculation = computed(() => {
-  if (invalidKey.value) return undefined
-  const input = values.value
+function evaluateValues(input: StudioInputs) {
   const evaluation = evaluatePredictionTask({
     samples: [
       { features: [input.x00, input.x01], target: input.y0 },
@@ -81,7 +68,40 @@ const calculation = computed(() => {
   const residuals = evaluation.predictions.map((prediction, index) => prediction - evaluation.targets[index]!)
   const squaredErrors = residuals.map((residual) => residual * residual)
   return { evaluation, residuals, squaredErrors }
-})
+}
+
+const calculation = ref(evaluateValues(INITIAL_INPUTS))
+
+function setInput(key: InputKey, event: Event) {
+  const draft = (event.target as HTMLInputElement).value
+  drafts.value = { ...drafts.value, [key]: draft }
+  const candidate = draft.trim() === '' ? Number.NaN : Number(draft)
+  if (!Number.isFinite(candidate) || Math.abs(candidate) > MAX_ABS_INPUT) {
+    errors.value = { ...errors.value, [key]: text.value.error }
+    return
+  }
+
+  const candidateValues = { ...values.value, [key]: candidate }
+  try {
+    const nextCalculation = evaluateValues(candidateValues)
+    values.value = candidateValues
+    calculation.value = nextCalculation
+    const nextErrors = { ...errors.value }
+    delete nextErrors[key]
+    errors.value = nextErrors
+  } catch {
+    errors.value = { ...errors.value, [key]: text.value.error }
+  }
+}
+
+function reset() {
+  values.value = { ...INITIAL_INPUTS }
+  drafts.value = Object.fromEntries(
+    Object.entries(INITIAL_INPUTS).map(([key, value]) => [key, String(value)]),
+  ) as Record<InputKey, string>
+  errors.value = {}
+  calculation.value = evaluateValues(INITIAL_INPUTS)
+}
 
 function number(value: number): string {
   const normalized = Math.abs(value) < 1e-9 ? 0 : value
@@ -118,23 +138,29 @@ function matrix(rows: readonly (readonly number[])[]): string {
                   :id="`studio-${field.key}`"
                   type="number"
                   step="any"
-                  :value="values[field.key]"
-                  :aria-invalid="invalidKey === field.key ? 'true' : undefined"
+                  :value="drafts[field.key]"
+                  :aria-invalid="errors[field.key] ? 'true' : undefined"
+                  :aria-describedby="errors[field.key] ? `studio-${field.key}-error` : undefined"
                   @input="setInput(field.key, $event)"
                 >
+                <span
+                  v-if="errors[field.key]"
+                  :id="`studio-${field.key}-error`"
+                  class="math-to-code-studio-lab__field-error"
+                  role="alert"
+                >{{ field.label }}: {{ errors[field.key] }}</span>
               </td>
               <td>{{ field.role }}</td>
             </tr>
           </tbody>
         </table>
-        <p v-if="invalidKey" class="math-to-code-studio-lab__error" role="alert">{{ text.error }}</p>
         <button type="button" @click="reset">{{ text.reset }}</button>
       </div>
 
       <div class="math-to-code-studio-lab__results" aria-live="polite">
         <table data-motion-fallback="prefers-reduced-motion">
           <caption>{{ text.results }}</caption>
-          <tbody v-if="calculation">
+          <tbody>
             <tr><th scope="row">{{ text.matrix }}</th><td>{{ matrix(calculation.evaluation.matrix) }}</td><td>{{ text.shape }} (2, 2)</td></tr>
             <tr><th scope="row">{{ text.weights }}</th><td>{{ vector(values ? [values.w0, values.w1] : []) }}</td><td>{{ text.shape }} (2,)</td></tr>
             <tr><th scope="row">{{ text.bias }}</th><td>{{ number(values.bias) }}</td><td>{{ text.shape }} scalar</td></tr>
@@ -168,7 +194,7 @@ function matrix(rows: readonly (readonly number[])[]): string {
 .math-to-code-studio-lab th, .math-to-code-studio-lab td { padding: .45rem; border-bottom: 1px solid var(--border-subtle, #cbd5e1); text-align: left; vertical-align: top; }
 .math-to-code-studio-lab input { width: 6.5rem; min-height: 2.5rem; }
 .math-to-code-studio-lab input[aria-invalid="true"] { outline: 2px solid #b91c1c; }
-.math-to-code-studio-lab__error { color: #991b1b; font-weight: 700; }
+.math-to-code-studio-lab__field-error { display: block; margin-top: .25rem; color: #991b1b; font-size: .8rem; font-weight: 700; }
 @media (max-width: 820px) { .math-to-code-studio-lab__layout { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .math-to-code-studio-lab * { animation: none !important; scroll-behavior: auto; transition: none !important; } }
 </style>

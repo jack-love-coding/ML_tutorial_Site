@@ -597,7 +597,7 @@ test('learning route summary renders progress, next module, and action link', as
       const route = learningRouteById['linear-algebra-route']
       const nextModule = mathLabModules.find((moduleDefinition) => moduleDefinition.id === route.chapterModuleIds[1])
       expectedNextTitle = nextModule.title.en
-      expectedNextRoute = `/math-lab/modules/${route.chapterModuleIds[1]}`
+      expectedNextRoute = `/math-lab/modules/${route.chapterModuleIds[1]}?route=${route.id}`
       return {
         route,
         modules: mathLabModules,
@@ -670,6 +670,7 @@ test('learning route dashboard renders checkpoint report states from storage', a
   assert.match(html, /Not started/)
   assert.match(html, /Report draft/)
   assert.match(html, /Report complete/)
+  assert.match(html, /\?route=linear-algebra-route/)
 })
 
 test('checkpoint report card renders static evidence and four answer fields', async () => {
@@ -981,6 +982,28 @@ test('math-to-code studio client mount recomputes intermediates, rejects invalid
     assert.match(text(), /All inputs must be finite|Enter a finite number/)
     assert.doesNotMatch(text(), /MSE.*NaN|MSE.*Infinity/s)
 
+    inputs[1].value = ''
+    dispatchNodeEvent(inputs[1], 'input', { target: inputs[1] })
+    await mounted.update()
+    assert.match(text(), /X\[0,0\].*(finite|有限).*X\[0,1\].*(finite|有限)/s)
+
+    inputs[2].value = '1e308'
+    dispatchNodeEvent(inputs[2], 'input', { target: inputs[2] })
+    await mounted.update()
+    assert.match(text(), /finite|有限/)
+
+    inputs[0].value = '2'
+    dispatchNodeEvent(inputs[0], 'input', { target: inputs[0] })
+    await mounted.update()
+    assert.match(text(), /X\[0,1\].*(finite|有限)/s)
+
+    inputs[1].value = '3'
+    inputs[2].value = '1'
+    dispatchNodeEvent(inputs[1], 'input', { target: inputs[1] })
+    dispatchNodeEvent(inputs[2], 'input', { target: inputs[2] })
+    await mounted.update()
+    assert.match(text(), /Predictions y_hat.*\[10, 5\].*MSE.*2\.5/s)
+
     const reset = nodes().find((node) => node.type === 'button')
     assert.ok(reset)
     dispatchNodeEvent(reset, 'click', {})
@@ -988,6 +1011,52 @@ test('math-to-code studio client mount recomputes intermediates, rejects invalid
     assert.match(text(), /Predictions y_hat.*\[10, 5\].*MSE.*2\.5/s)
     assert.equal(evidenceEvents.length, 0)
     assert.equal(storageWrites, 0)
+  } finally {
+    await mounted.unmount()
+    if (previousWindow === undefined) delete globalThis.window
+    else globalThis.window = previousWindow
+  }
+})
+
+test('self-paced completion click marks the studio reviewed and completes the pilot route locally', async () => {
+  const storage = createMemoryStorage()
+  const previousWindow = globalThis.window
+  globalThis.window = { localStorage: storage }
+  const { loadMathLabProgress, markModuleComplete, saveMathLabProgress } = await import('../src/modules/math-lab/utils/progress.ts')
+  const mounted = await mountClientSfc('/src/modules/math-lab/components/SelfPacedCompletionButton.vue', {
+    locale: 'en',
+    completed: false,
+    onReview: () => saveMathLabProgress(
+      markModuleComplete(loadMathLabProgress(storage), 'math-to-code-guided-studio'),
+      storage,
+    ),
+  })
+  const text = () => flattenRenderedNodes(mounted.container).map((node) => node.text ?? '').join(' ')
+  try {
+    assert.match(text(), /Mark as reviewed/)
+    const button = flattenRenderedNodes(mounted.container).find((node) => node.type === 'button')
+    assert.ok(button)
+    dispatchNodeEvent(button, 'click', {})
+    await mounted.update()
+    assert.match(text(), /Reviewed locally.*not a graded or formal acceptance/i)
+
+    const { learningRouteById, routeProgressSummary } = await import('../src/modules/math-lab/data/learningRoutes.ts')
+    const progress = loadMathLabProgress(storage)
+    assert.ok(progress.completedModuleIds.includes('math-to-code-guided-studio'))
+    const summary = routeProgressSummary(learningRouteById['math-to-code-pilot'], [
+      'calculus-functions-rate-change',
+      'linear-algebra-feature-space',
+      'linear-algebra-matrix-transformations',
+      'calculus-derivatives-local-change',
+      'numpy-mathematics-implementation',
+      ...progress.completedModuleIds,
+    ])
+    assert.equal(summary.completedCount, 6)
+    assert.equal(summary.totalCount, 6)
+
+    dispatchNodeEvent(button, 'click', {})
+    await mounted.update()
+    assert.equal(loadMathLabProgress(storage).completedModuleIds.filter((id) => id === 'math-to-code-guided-studio').length, 1)
   } finally {
     await mounted.unmount()
     if (previousWindow === undefined) delete globalThis.window

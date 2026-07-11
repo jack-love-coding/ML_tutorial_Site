@@ -151,8 +151,8 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
     ],
   },
   {
-    id: 'math-to-code-pilot',
-    label: copy('数学到代码试学路线', 'Math-to-Code Pilot Route'),
+    id: 'pilot-additions',
+    label: copy('试点新增课程', 'Pilot additions'),
     items: [
       mathModule('numpy-mathematics-implementation', 'NumPy 数学实现', 'NumPy Mathematics Implementation'),
       mathModule('math-to-code-guided-studio', '引导式实践：从数学到可复现代码', 'Guided Studio: From Mathematics to Reproducible Code'),

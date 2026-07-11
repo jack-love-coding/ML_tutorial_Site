@@ -7,6 +7,7 @@ export type LearningRouteId = 'ai-math-main-path' | 'linear-algebra-route' | 'ca
 export type MathLabDifficulty = 'foundation' | 'intermediate' | 'advanced'
 
 export type EnhancementTier = 'core' | 'interactive' | 'video'
+export type MathLabCompletionMode = 'quiz-or-checkpoint' | 'self-attested'
 
 export interface LocalizedCopy {
   'zh-CN': string
@@ -104,6 +105,7 @@ export interface Misconception {
 export interface MathLabModule {
   id: MathLabModuleId
   enhancementTier: EnhancementTier
+  completionMode?: MathLabCompletionMode
   order: number
   title: LocalizedCopy
   subtitle: LocalizedCopy

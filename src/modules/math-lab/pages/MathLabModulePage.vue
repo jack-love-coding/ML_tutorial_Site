@@ -10,8 +10,10 @@ import LabTaskCard from '../components/LabTaskCard.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
 import ObservationPrompt from '../components/ObservationPrompt.vue'
+import SelfPacedCompletionButton from '../components/SelfPacedCompletionButton.vue'
 import { conceptIllustrationFor, type ConceptIllustration } from '../data/conceptIllustrations'
 import { checkpointReportForModule, observationPromptForModule } from '../data/checkpointReports'
+import { routeNavigationForModule } from '../data/learningRoutes'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
 import type {
   ExperimentEvidence,
@@ -86,10 +88,27 @@ const moduleDefinition = computed(() => mathLabModuleRegistry[moduleId.value])
 const moduleIndex = computed(() =>
   mathLabModules.findIndex((candidate) => candidate.id === moduleDefinition.value?.id),
 )
-const previousModule = computed(() => (moduleIndex.value > 0 ? mathLabModules[moduleIndex.value - 1] : undefined))
-const nextModule = computed(() => moduleDefinition.value?.nextModuleIds[0]
-  ? mathLabModuleRegistry[moduleDefinition.value.nextModuleIds[0]]
-  : undefined)
+const routeNavigation = computed(() => routeNavigationForModule(route.query.route, moduleId.value))
+const previousModule = computed(() => {
+  if (routeNavigation.value) return routeNavigation.value.previousModuleId
+    ? mathLabModuleRegistry[routeNavigation.value.previousModuleId]
+    : undefined
+  return moduleIndex.value > 0 ? mathLabModules[moduleIndex.value - 1] : undefined
+})
+const nextModule = computed(() => {
+  if (routeNavigation.value) return routeNavigation.value.nextModuleId
+    ? mathLabModuleRegistry[routeNavigation.value.nextModuleId]
+    : undefined
+  return moduleDefinition.value?.nextModuleIds[0]
+    ? mathLabModuleRegistry[moduleDefinition.value.nextModuleIds[0]]
+    : undefined
+})
+function moduleRouteFor(targetModuleId: MathLabModuleId) {
+  const path = `/math-lab/modules/${targetModuleId}`
+  return routeNavigation.value
+    ? { path, query: { route: routeNavigation.value.routeId } }
+    : path
+}
 const manimAssets = computed(() =>
   moduleDefinition.value?.visuals.filter((visual) => visual.type === 'manim-video') ?? [],
 )
@@ -161,6 +180,10 @@ function onQuizSubmit(attempts: QuizAttempt[]) {
   }
 
   progress.value = saveMathLabProgress(nextProgress)
+}
+
+function onSelfPacedReview() {
+  progress.value = saveMathLabProgress(markModuleComplete(loadMathLabProgress(), moduleId.value))
 }
 
 function onExperimentEvidence(evidence: ExperimentEvidence | undefined) {
@@ -500,6 +523,13 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           :locale="currentLocale"
           @submit="onQuizSubmit"
         />
+
+        <SelfPacedCompletionButton
+          v-if="moduleDefinition.completionMode === 'self-attested'"
+          :locale="currentLocale"
+          :completed="progress.completedModuleIds.includes(moduleDefinition.id)"
+          @review="onSelfPacedReview"
+        />
       </main>
 
       <aside class="math-module-side">
@@ -532,10 +562,10 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           </div>
 
           <div class="math-article-nav__actions">
-            <router-link v-if="previousModule" class="action-button" :to="`/math-lab/modules/${previousModule.id}`">
+            <router-link v-if="previousModule" class="action-button" :to="moduleRouteFor(previousModule.id)">
               {{ currentLocale === 'zh-CN' ? '上一章' : 'Previous chapter' }}
             </router-link>
-            <router-link v-if="nextModule" class="action-button action-button--primary" :to="`/math-lab/modules/${nextModule.id}`">
+            <router-link v-if="nextModule" class="action-button action-button--primary" :to="moduleRouteFor(nextModule.id)">
               {{ currentLocale === 'zh-CN' ? '下一章' : 'Next chapter' }}
             </router-link>
             <router-link v-else class="action-button action-button--primary" to="/math-lab">

@@ -162,3 +162,25 @@ export function routeProgressSummary(
     nextModuleId: nextModuleForRoute(route, completedModuleIds),
   }
 }
+
+export interface RouteModuleNavigation {
+  routeId: LearningRouteId
+  previousModuleId?: MathLabModuleId
+  nextModuleId?: MathLabModuleId
+}
+
+export function routeNavigationForModule(
+  routeId: unknown,
+  moduleId: MathLabModuleId,
+): RouteModuleNavigation | undefined {
+  if (typeof routeId !== 'string' || !(routeId in learningRouteById)) return undefined
+  const typedRouteId = routeId as LearningRouteId
+  const route = learningRouteById[typedRouteId]
+  const index = route.chapterModuleIds.indexOf(moduleId)
+  if (index < 0) return undefined
+  return {
+    routeId: typedRouteId,
+    previousModuleId: route.chapterModuleIds[index - 1],
+    nextModuleId: route.chapterModuleIds[index + 1],
+  }
+}
