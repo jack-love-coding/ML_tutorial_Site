@@ -152,6 +152,30 @@ test('V3 machine learning inventory walks from data to reliable evaluation', () 
   assert.ok(byId.get('model-selection')?.prerequisiteIds.includes('splits-generalization'))
 })
 
+test('V3 machine learning modules link only to the responsible formal projects', () => {
+  assert.deepEqual(
+    Object.fromEntries(
+      curriculumV3MachineLearningModules.map((module) => [module.id, module.projectIds]),
+    ),
+    {
+      'numerical-data': ['project-tabular-regression', 'project-classification-evaluation'],
+      'categorical-data': ['project-tabular-regression', 'project-classification-evaluation'],
+      'dataset-quality': ['project-tabular-regression', 'project-classification-evaluation'],
+      'splits-generalization': ['project-tabular-regression', 'project-classification-evaluation'],
+      'data-exploration-pipelines': ['project-tabular-regression', 'project-classification-evaluation'],
+      'loss-functions': ['project-tabular-regression', 'project-classification-evaluation'],
+      'linear-regression': ['project-tabular-regression'],
+      'logistic-regression': ['project-classification-evaluation'],
+      classification: ['project-classification-evaluation'],
+      'tree-forest': ['project-classification-evaluation'],
+      'ensemble-learning': ['project-classification-evaluation'],
+      'complexity-regularization': ['project-classification-evaluation'],
+      'model-selection': ['project-classification-evaluation'],
+      'training-diagnostics': ['project-classification-evaluation'],
+    },
+  )
+})
+
 test('V3 foundations contain 22 substantive bilingual modules', () => {
   assert.equal(curriculumV3FoundationModules.length, 22)
   assert.deepEqual(

@@ -21,6 +21,49 @@ test('V3 validation helpers expose no blueprint issues', () => {
   assert.deepEqual(curriculumV3WaveIssues(), [])
 })
 
+test('V3 dependency validation reports unknown project references with a stable prefix', () => {
+  const modules = [...curriculumV3ModuleById.values()].map((module) => ({
+    ...module,
+    projectIds: [...module.projectIds],
+  }))
+  modules[0]!.projectIds.push('project-does-not-exist')
+
+  assert.ok(
+    curriculumV3DependencyIssues(modules).includes(
+      'unknown-project-reference:ai-overview:project-does-not-exist',
+    ),
+  )
+})
+
+test('V3 dependency validation rejects revisits before concept introduction', () => {
+  const modules = [...curriculumV3ModuleById.values()].map((module) => ({
+    ...module,
+    revisits: [...module.revisits],
+  }))
+  modules.find((module) => module.id === 'numerical-data')!.revisits.push('never-introduced')
+
+  assert.ok(
+    curriculumV3DependencyIssues(modules).includes(
+      'concept-revisit-before-introduction:numerical-data:never-introduced',
+    ),
+  )
+})
+
+test('V3 project revisits are concepts rather than prerequisite module IDs', () => {
+  const modules = [...curriculumV3ModuleById.values()].map((module) => ({
+    ...module,
+    revisits: [...module.revisits],
+  }))
+  const project = modules.find((module) => module.id === 'project-tabular-regression')!
+  project.revisits = ['linear-regression']
+
+  assert.ok(
+    curriculumV3DependencyIssues(modules).includes(
+      'project-revisit-module-id:project-tabular-regression:linear-regression',
+    ),
+  )
+})
+
 const clonedWaves = () => curriculumV3Waves.map((wave) => ({
   ...wave,
   moduleIds: [...wave.moduleIds],
@@ -60,6 +103,20 @@ test('V3 wave validation diagnoses prerequisite wave inversions', () => {
   assert.ok(
     curriculumV3WaveIssues(waves).includes(
       'prerequisite-after-consumer:wave:calculus-partial-derivatives-gradients:calculus-derivatives-local-change',
+    ),
+  )
+})
+
+test('V3 wave validation enforces approved stage responsibilities', () => {
+  const waves = clonedWaves()
+  const dataWave = waves.find((wave) => wave.moduleIds.includes('numerical-data'))!
+  const classicalWave = waves.find((wave) => wave.moduleIds.includes('loss-functions'))!
+  dataWave.moduleIds = dataWave.moduleIds.filter((id) => id !== 'numerical-data')
+  classicalWave.moduleIds.push('numerical-data')
+
+  assert.ok(
+    curriculumV3WaveIssues(waves).includes(
+      `wave-stage-responsibility:${classicalWave.id}:numerical-data`,
     ),
   )
 })
@@ -152,6 +209,14 @@ test('V3 audit uses required non-obvious migration mappings and actions', () => 
   assert.equal(curriculumV3AuditByCurrentModuleId.get('lu-decomposition')?.action, 'merge')
   assert.equal(curriculumV3AuditByCurrentModuleId.get('finite-difference-methods')?.action, 'merge')
   assert.equal(curriculumV3AuditByCurrentModuleId.get('taylor-series')?.action, 'demote-to-depth')
+  assert.deepEqual(
+    [
+      curriculumV3AuditByCurrentModuleId.get('complexity-regularization')?.targetModuleIds,
+      curriculumV3AuditByCurrentModuleId.get('complexity-regularization')?.action,
+      curriculumV3ModuleById.get('complexity-regularization')?.migrationAction,
+    ],
+    [['complexity-regularization'], 'rebuild', 'rebuild'],
+  )
 })
 
 test('V3 audit locks the exact keep set and convergence classifications', () => {
@@ -162,7 +227,6 @@ test('V3 audit locks the exact keep set and convergence classifications', () => 
 
   assert.deepEqual(idsFor('keep'), [
     'categorical-data',
-    'complexity-regularization',
     'dataset-quality',
     'numerical-data',
     'sequence-embedding-bridge',

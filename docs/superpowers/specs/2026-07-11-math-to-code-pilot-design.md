@@ -1,7 +1,7 @@
 # Mathematics-to-Code Pilot Unit Design
 
-**Date:** 2026-07-11  
-**Status:** Awaiting written-spec review  
+**Date:** 2026-07-11
+**Status:** Approved
 **Scope:** A high-detail, frontend-only pilot unit for Curriculum V3. No formal assessment backend.
 
 ## 1. Purpose

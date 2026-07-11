@@ -199,7 +199,7 @@ export const curriculumV3FoundationModules = [
     learnerQuestion: copy('两个样本“接近”或“相似”时，模型究竟比较的是长度、距离还是方向？', 'When two examples are close or similar, is the model comparing length, distance, or direction?'),
     outcomes: [copy('能计算范数、欧氏距离、点积和余弦相似度，并说明特征缩放如何改变结论。', 'Calculate norms, Euclidean distance, dot products, and cosine similarity and explain how feature scaling changes the conclusion.')],
     prerequisiteIds: ['linear-algebra-feature-space'],
-    introduces: ['norm', 'distance', 'dot-product', 'cosine-similarity'],
+    introduces: ['norm', 'distance', 'dot-product', 'cosine-similarity', 'vector-similarity'],
     revisits: ['vector', 'feature-space'],
     mathCapabilities: ['compare-distance-and-directional-similarity', 'diagnose-scale-sensitive-geometry'],
     pythonCapabilities: ['implement-vector-metrics-with-numpy', 'test-similarity-under-rescaling'],

@@ -460,7 +460,7 @@ export const v3DeepLearningOrder = [
 ] as const
 ```
 
-`deep-architecture-math` is a depth topic; `sequence-models-rnn` remains required because the approved route uses it as the conceptual bridge into sequence embeddings. All others are required-core. New modules use `add`; `attention-transformer` splits into `attention-qkv-multihead`, `transformer-blocks`, `small-transformer-training`, and `decoding-sampling`; `llm-rag` splits into the four Arc 10 records. Existing aligned modules use `rebuild`, except `sequence-embedding-bridge`, which uses `keep`.
+`deep-architecture-math` is a depth topic; `sequence-models-rnn` remains required because the approved route uses it as the conceptual bridge into sequence embeddings. Catalog has no current `sequence-models-rnn` source, so it uses `sourceModuleIds: []` and `add`. Other genuinely new modules also use `add`; `attention-transformer` splits into `attention-qkv-multihead`, `transformer-blocks`, `small-transformer-training`, and `decoding-sampling`; `llm-rag` splits into the four Arc 10 records. Existing aligned modules use `rebuild`, except `sequence-embedding-bridge`, which uses `keep`.
 
 - [ ] **Step 1: Add failing total-count and endpoint tests**
 
@@ -698,7 +698,7 @@ Entry assumptions are exactly `high-school-algebra-functions` and `basic-python-
 
 - [ ] **Step 4: Implement wave and validation rules**
 
-Create at least 12 waves spanning V3.1–V3.7. Every non-project required module appears in exactly one wave; depth topics may be assigned to an adjacent wave but cannot be prerequisites for a required module. Project waves may contain a project plus three to five adjacent instructional modules so every wave remains within the four-to-six-item rule.
+Create at least 12 waves spanning V3.1–V3.7. Every non-project required module appears in exactly one wave; depth topics may be assigned to an adjacent wave but cannot be prerequisites for a required module. Project waves may contain a project plus three to five adjacent instructional modules so every wave remains within the four-to-six-item rule. Stage responsibility is exact: V3.2 contains the complete data-to-feature pipeline, V3.3 classical ML, V3.4 neural foundations, and V3.5 deep-learning structures.
 
 `validateCurriculumV3Blueprint()` returns stable strings for:
 
@@ -709,6 +709,9 @@ type V3ValidationPrefix =
   | 'prerequisite-after-consumer'
   | 'dependency-cycle'
   | 'required-depends-on-depth'
+  | 'unknown-project-reference'
+  | 'concept-revisit-before-introduction'
+  | 'project-revisit-module-id'
   | 'missing-bilingual-metadata'
   | 'missing-content-evidence'
   | 'audit-current-coverage'
@@ -718,9 +721,10 @@ type V3ValidationPrefix =
   | 'exit-capability-coverage'
   | 'wave-size'
   | 'wave-required-coverage'
+  | 'wave-stage-responsibility'
 ```
 
-Export pure helpers `curriculumV3DependencyIssues()`, `curriculumV3AuditIssues()`, `curriculumV3CoverageIssues()`, and `curriculumV3WaveIssues()` so failures remain diagnosable.
+Export pure helpers `curriculumV3DependencyIssues()`, `curriculumV3AuditIssues()`, `curriculumV3CoverageIssues()`, and `curriculumV3WaveIssues()` so failures remain diagnosable. Dependency validation checks project references and requires every revisit to name a previously introduced or explicitly declared entry concept; project revisits cannot substitute prerequisite module IDs for concept IDs.
 
 - [ ] **Step 5: Run and confirm GREEN**
 

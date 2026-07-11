@@ -260,7 +260,7 @@ const auditEvidence: Record<string, AuditEvidence> = {
 const splitIds = new Set(['attention-transformer', 'llm-rag'])
 const keepIds = new Set([
   'numerical-data', 'categorical-data', 'dataset-quality', 'splits-generalization',
-  'complexity-regularization', 'sequence-embedding-bridge',
+  'sequence-embedding-bridge',
 ])
 const depthIds = new Set([
   'lu-decomposition', 'sparse-matrices', 'condition-numbers', 'finite-difference-methods',

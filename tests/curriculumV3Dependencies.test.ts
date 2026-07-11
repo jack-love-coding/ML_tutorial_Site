@@ -179,7 +179,7 @@ test('deep learning roles, sources, and migration actions match the approved pla
       ['deep-architecture-math', 'depth-topic', ['deep-architecture-math'], 'rebuild'],
       ['tensor-shapes-vectorization', 'required-core', ['tensor-shapes-vectorization'], 'rebuild'],
       ['cnn-visualization', 'required-core', ['cnn-visualization'], 'rebuild'],
-      ['sequence-models-rnn', 'required-core', ['sequence-models-rnn'], 'rebuild'],
+      ['sequence-models-rnn', 'required-core', [], 'add'],
       ['sequence-embedding-bridge', 'required-core', ['sequence-embedding-bridge'], 'keep'],
       ['tokenization-language-modeling', 'required-core', [], 'add'],
       ...['attention-qkv-multihead', 'transformer-blocks', 'small-transformer-training', 'decoding-sampling'].map((id) => [id, 'required-core', ['attention-transformer'], 'split']),

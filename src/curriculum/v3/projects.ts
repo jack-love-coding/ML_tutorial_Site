@@ -28,6 +28,15 @@ const deliverables = [
   'limitations-reflection',
 ] as const
 
+const projectRevisits = {
+  'project-math-to-code': ['vector', 'matrix-multiplication', 'gradient', 'probability-distribution', 'random-seed'],
+  'project-tabular-regression': ['fit-transform-pipeline', 'linear-regression-model', 'regression-residual', 'data-leakage'],
+  'project-classification-evaluation': ['decision-boundary', 'threshold', 'confusion-matrix', 'cross-validation', 'data-leakage'],
+  'project-neural-representation': ['mlp-forward-pass', 'backpropagation', 'optimizer', 'convolution-kernel'],
+  'project-small-transformer': ['tokenization', 'token-embedding', 'self-attention', 'transformer-block', 'causal-transformer-training', 'autoregressive-decoding'],
+  'project-llm-application': ['context-window', 'lora', 'retrieval-augmented-generation', 'retrieval-evidence', 'llm-evaluation-rubric'],
+} as const
+
 const projectDetails = {
   'project-math-to-code': {
     arcId: 'calculus-probability-optimization', order: 1,
@@ -79,7 +88,7 @@ export const curriculumV3Projects: CurriculumV3ProjectBlueprint[] = Object.entri
     }],
     prerequisiteIds: [...prerequisiteIds],
     introduces: [...projectCapabilities[projectId]],
-    revisits: [...prerequisiteIds],
+    revisits: [...projectRevisits[projectId]],
     mathCapabilities: ['formula-code-behavior-explanation'],
     pythonCapabilities: ['reproducible-experiment'],
     projectIds: [],

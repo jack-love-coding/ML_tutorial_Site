@@ -6,6 +6,11 @@ export const curriculumV3EntryAssumptions = [
   'basic-python-reading-editing',
 ] as const
 
+export const curriculumV3EntryConcepts = [
+  'high-school-algebra',
+  'basic-python',
+] as const
+
 export const curriculumV3EntryRequirements = {
   'ai-overview': curriculumV3EntryAssumptions,
 } as const

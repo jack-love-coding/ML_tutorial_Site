@@ -68,7 +68,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['interpret-feature-matrix-axes-and-units', 'compute-column-location-and-scale'],
     pythonCapabilities: ['validate-numeric-dtypes-and-finite-values', 'standardize-columns-with-training-statistics'],
     formulaVocabulary: ['X ∈ ℝ^{n×d}', 'x_{ij}', 'z_{ij}=(x_{ij}-μ_j)/σ_j'],
-    scratchCodeId: 'numerical-data-scratch-code', checkpointEvidence: 'code', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'numerical-data-scratch-code', checkpointEvidence: 'code', projectIds: ['project-tabular-regression', 'project-classification-evaluation'],
     sourceModuleIds: ['numerical-data'], migrationAction: 'keep',
   }),
   defineModule({
@@ -81,7 +81,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['represent-categories-as-basis-vectors', 'calculate-encoded-feature-dimension'],
     pythonCapabilities: ['fit-vocabulary-on-training-data', 'encode-unseen-categories-with-an-oov-policy'],
     formulaVocabulary: ['V={c_1,…,c_k}', 'onehot(c_i)=e_i', 'X_cat ∈ {0,1}^{n×k}'],
-    scratchCodeId: 'categorical-data-scratch-code', checkpointEvidence: 'code', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'categorical-data-scratch-code', checkpointEvidence: 'code', projectIds: ['project-tabular-regression', 'project-classification-evaluation'],
     sourceModuleIds: ['categorical-data'], migrationAction: 'keep',
   }),
   defineModule({
@@ -93,7 +93,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['calculate-quality-rates-and-robust-summaries', 'compare-distributions-before-and-after-cleaning'],
     pythonCapabilities: ['profile-null-duplicate-and-range-violations', 'apply-auditable-cleaning-rules'],
     formulaVocabulary: ['r_missing(j)=n_missing(j)/n', 'IQR=Q_3-Q_1', 'x∉[Q_1-1.5IQR,Q_3+1.5IQR]'],
-    scratchCodeId: 'dataset-quality-scratch-code', checkpointEvidence: 'experiment', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'dataset-quality-scratch-code', checkpointEvidence: 'experiment', projectIds: ['project-tabular-regression', 'project-classification-evaluation'],
     sourceModuleIds: ['dataset-quality'], migrationAction: 'keep',
   }),
   defineModule({
@@ -101,11 +101,11 @@ export const curriculumV3MachineLearningModules = [
     title: copy('数据划分与泛化', 'Data Splits and Generalization'),
     learnerQuestion: copy('怎样划分有限数据，才能调参而不偷看最终测试答案，并让评估代表真实部署？', 'How should finite data be split so we can tune without peeking at final test answers and still represent deployment?'),
     outcomes: [copy('能按随机、分层、分组或时间策略建立互斥 train/validation/test，并识别预处理、重复实体和未来信息造成的数据泄漏。', 'Create disjoint train/validation/test sets using random, stratified, grouped, or temporal strategies and detect leakage from preprocessing, repeated entities, or future information.')],
-    prerequisiteIds: ['dataset-quality'], introduces: ['train-validation-test', 'data-leakage'], revisits: ['reproducibility', 'random-seed'],
+    prerequisiteIds: ['dataset-quality'], introduces: ['train-validation-test', 'data-leakage', 'generalization-gap'], revisits: ['reproducibility', 'random-seed'],
     mathCapabilities: ['estimate-generalization-gap', 'reason-about-sampling-and-deployment-distributions'],
     pythonCapabilities: ['construct-reproducible-disjoint-splits', 'assert-entity-and-time-boundary-integrity'],
     formulaVocabulary: ['D=D_train ⊔ D_val ⊔ D_test', 'gap=L_test-L_train', 'D_train∩D_test=∅'],
-    scratchCodeId: 'splits-generalization-scratch-code', checkpointEvidence: 'explanation', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'splits-generalization-scratch-code', checkpointEvidence: 'explanation', projectIds: ['project-tabular-regression', 'project-classification-evaluation'],
     sourceModuleIds: ['splits-generalization'], migrationAction: 'keep',
   }),
   defineModule({
@@ -117,7 +117,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['compare-conditional-feature-distributions', 'interpret-correlation-without-causal-claims'],
     pythonCapabilities: ['build-column-wise-preprocessing-pipelines', 'fit-transform-without-validation-leakage'],
     formulaVocabulary: ['p(x_j|y)', 'ρ_{jk}=cov(X_j,X_k)/(σ_jσ_k)', 'T_val=T_fit(D_train)(D_val)'],
-    frameworkCodeId: 'scikit-learn-data-pipeline', checkpointEvidence: 'code', projectIds: ['project-tabular-baseline'],
+    frameworkCodeId: 'scikit-learn-data-pipeline', checkpointEvidence: 'code', projectIds: ['project-tabular-regression', 'project-classification-evaluation'],
     sourceModuleIds: [], migrationAction: 'add',
   }),
   defineModule({
@@ -129,7 +129,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['derive-and-compare-mse-and-bce-gradients', 'aggregate-example-losses-into-an-objective'],
     pythonCapabilities: ['implement-vectorized-mse-and-clipped-bce', 'check-loss-gradients-by-finite-differences'],
     formulaVocabulary: ['J(θ)=n^{-1}Σ_iℓ_i(θ)', 'MSE=n^{-1}Σ_i(y_i-ŷ_i)^2', 'BCE=-n^{-1}Σ_i[y_i log p_i+(1-y_i)log(1-p_i)]'],
-    scratchCodeId: 'loss-functions-scratch-code', checkpointEvidence: 'calculation', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'loss-functions-scratch-code', checkpointEvidence: 'calculation', projectIds: ['project-tabular-regression', 'project-classification-evaluation'],
     sourceModuleIds: ['loss-functions'], migrationAction: 'rebuild',
   }),
   defineModule({
@@ -137,11 +137,11 @@ export const curriculumV3MachineLearningModules = [
     title: copy('线性回归：从矩阵预测到残差诊断', 'Linear Regression: From Matrix Predictions to Residual Diagnostics'),
     learnerQuestion: copy('如何从零训练线性预测器，并验证库模型的系数、预测和误差与自己的实现一致？', 'How do we train a linear predictor from scratch and verify that a library model agrees on coefficients, predictions, and errors?'),
     outcomes: [copy('能用 NumPy 实现批量梯度下降拟合 w、b，与 scikit-learn LinearRegression 对照，并通过残差图识别非线性和异方差。', 'Fit w and b with batch gradient descent in NumPy, compare against scikit-learn LinearRegression, and use residual plots to detect nonlinearity and heteroscedasticity.')],
-    prerequisiteIds: ['least-squares-fitting', 'loss-functions', 'data-exploration-pipelines'], introduces: ['linear-regression-model', 'regression-residual'], revisits: ['matrix-multiplication', 'least-squares', 'objective-function'],
+    prerequisiteIds: ['least-squares-fitting', 'loss-functions', 'data-exploration-pipelines'], introduces: ['linear-regression-model', 'linear-prediction', 'regression-residual'], revisits: ['matrix-multiplication', 'least-squares', 'objective-function'],
     mathCapabilities: ['derive-linear-regression-mse-gradients', 'interpret-coefficients-and-residual-structure'],
     pythonCapabilities: ['train-linear-regression-from-scratch-with-numpy', 'compare-numpy-fit-with-scikit-learn-linear-regression'],
     formulaVocabulary: ['ŷ=Xw+b', 'J(w,b)=n^{-1}‖Xw+b-y‖_2^2', '∇_wJ=2X^T(ŷ-y)/n'],
-    scratchCodeId: 'linear-regression-numpy-from-scratch', frameworkCodeId: 'scikit-learn-linear-regression', checkpointEvidence: 'code', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'linear-regression-numpy-from-scratch', frameworkCodeId: 'scikit-learn-linear-regression', checkpointEvidence: 'code', projectIds: ['project-tabular-regression'],
     sourceModuleIds: ['linear-regression'], migrationAction: 'rebuild',
   }),
   defineModule({
@@ -153,7 +153,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['connect-log-odds-likelihood-and-bce', 'derive-logistic-regression-gradients'],
     pythonCapabilities: ['train-logistic-regression-from-scratch-with-numpy', 'compare-numpy-probabilities-with-scikit-learn-logistic-regression'],
     formulaVocabulary: ['z=Xw+b', 'p(y=1|x)=σ(z)=1/(1+e^{-z})', 'log(p/(1-p))=z', '∇_wJ=X^T(p-y)/n'],
-    scratchCodeId: 'logistic-regression-numpy-from-scratch', frameworkCodeId: 'scikit-learn-logistic-regression', checkpointEvidence: 'code', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'logistic-regression-numpy-from-scratch', frameworkCodeId: 'scikit-learn-logistic-regression', checkpointEvidence: 'code', projectIds: ['project-classification-evaluation'],
     sourceModuleIds: ['logistic-regression'], migrationAction: 'rebuild',
   }),
   defineModule({
@@ -165,7 +165,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['calculate-classification-metrics-from-counts', 'reason-about-threshold-cost-tradeoffs'],
     pythonCapabilities: ['implement-confusion-counts-and-metrics', 'sweep-thresholds-and-plot-precision-recall'],
     formulaVocabulary: ['ŷ=𝟙[p≥τ]', 'precision=TP/(TP+FP)', 'recall=TP/(TP+FN)', 'F1=2PR/(P+R)'],
-    scratchCodeId: 'classification-metrics-scratch-code', checkpointEvidence: 'calculation', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'classification-metrics-scratch-code', checkpointEvidence: 'calculation', projectIds: ['project-classification-evaluation'],
     sourceModuleIds: ['classification'], migrationAction: 'rebuild',
   }),
   defineModule({
@@ -177,7 +177,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['calculate-gini-and-weighted-split-gain', 'explain-bagging-variance-reduction'],
     pythonCapabilities: ['enumerate-small-tree-splits', 'train-and-audit-scikit-learn-tree-and-forest-models'],
     formulaVocabulary: ['Gini(S)=1-Σ_k p_k^2', 'ΔI=I(S)-n_L I(S_L)/n-n_R I(S_R)/n', 'f_RF(x)=mode_b f_b(x)'],
-    scratchCodeId: 'tree-split-scratch-code', frameworkCodeId: 'scikit-learn-tree-forest', checkpointEvidence: 'experiment', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'tree-split-scratch-code', frameworkCodeId: 'scikit-learn-tree-forest', checkpointEvidence: 'experiment', projectIds: ['project-classification-evaluation'],
     sourceModuleIds: ['tree-forest'], migrationAction: 'rebuild',
   }),
   defineModule({
@@ -189,7 +189,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['decompose-ensemble-error-using-member-correlation', 'interpret-additive-boosting-updates'],
     pythonCapabilities: ['compare-voting-bagging-and-boosting', 'trace-validation-performance-by-ensemble-size'],
     formulaVocabulary: ['f_ens(x)=B^{-1}Σ_b f_b(x)', 'Var(f̄)=σ²[ρ+(1-ρ)/B]', 'F_m=F_{m-1}+ηh_m'],
-    frameworkCodeId: 'scikit-learn-ensemble-learning', checkpointEvidence: 'experiment', projectIds: ['project-tabular-baseline'],
+    frameworkCodeId: 'scikit-learn-ensemble-learning', checkpointEvidence: 'experiment', projectIds: ['project-classification-evaluation'],
     sourceModuleIds: [], migrationAction: 'add',
   }),
   defineModule({
@@ -201,7 +201,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['form-regularized-objectives', 'interpret-bias-variance-and-parameter-norms'],
     pythonCapabilities: ['trace-l1-and-l2-regularization-paths', 'plot-training-and-validation-learning-curves'],
     formulaVocabulary: ['J_λ(θ)=J(θ)+λΩ(θ)', 'Ω_1(w)=‖w‖_1', 'Ω_2(w)=‖w‖_2^2'],
-    scratchCodeId: 'complexity-regularization-scratch-code', frameworkCodeId: 'scikit-learn-regularization', checkpointEvidence: 'experiment', projectIds: ['project-tabular-baseline'],
+    scratchCodeId: 'complexity-regularization-scratch-code', frameworkCodeId: 'scikit-learn-regularization', checkpointEvidence: 'experiment', projectIds: ['project-classification-evaluation'],
     sourceModuleIds: ['complexity-regularization'], migrationAction: 'rebuild',
   }),
   defineModule({
@@ -213,7 +213,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['aggregate-fold-estimates-and-uncertainty', 'distinguish-selection-from-final-estimation'],
     pythonCapabilities: ['run-leakage-safe-cross-validation-search', 'record-and-replay-a-locked-final-evaluation'],
     formulaVocabulary: ['CV_K(λ)=K^{-1}Σ_k L_k(λ)', 'SE=s/√K', 'λ*=argmin_λ CV_K(λ)'],
-    frameworkCodeId: 'scikit-learn-model-selection', checkpointEvidence: 'code', projectIds: ['project-tabular-baseline'],
+    frameworkCodeId: 'scikit-learn-model-selection', checkpointEvidence: 'code', projectIds: ['project-classification-evaluation'],
     sourceModuleIds: ['model-selection'], migrationAction: 'rebuild',
   }),
   defineModule({
@@ -225,7 +225,7 @@ export const curriculumV3MachineLearningModules = [
     mathCapabilities: ['separate-optimization-estimation-and-approximation-errors', 'quantify-slice-performance-and-uncertainty'],
     pythonCapabilities: ['log-and-plot-training-diagnostics', 'generate-reproducible-metric-and-slice-reports'],
     formulaVocabulary: ['gap(n)=L_val(n)-L_train(n)', 'Δ_slice=L_slice-L_overall', 'CI=estimate±critical·SE'],
-    frameworkCodeId: 'scikit-learn-training-diagnostics', checkpointEvidence: 'explanation', projectIds: ['project-tabular-baseline'],
+    frameworkCodeId: 'scikit-learn-training-diagnostics', checkpointEvidence: 'explanation', projectIds: ['project-classification-evaluation'],
     sourceModuleIds: ['training-diagnostics'], migrationAction: 'rebuild',
   }),
 ] satisfies CurriculumV3ModuleBlueprint[]

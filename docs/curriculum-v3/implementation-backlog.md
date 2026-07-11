@@ -4,65 +4,65 @@
 
 The backlog spans V3.1–V3.7. Module assignments and exit criteria below are rendered verbatim from the typed wave declarations.
 
-## `v3.1-learning-language` — 学习系统与变化语言 / Learning Systems and the Language of Change
+## `v3.1-minimum-foundation` — 最低数学与计算基础 / Minimum Mathematical and Computational Foundation
 
-- Modules: `ai-overview`, `python-notebook`, `calculus-functions-rate-change`, `beginner-linear-algebra`, `calculus-derivatives-local-change`
+- Modules: `ai-overview`, `python-notebook`, `calculus-functions-rate-change`, `beginner-linear-algebra`, `calculus-derivatives-local-change`, `beginner-probability-distributions`
 - Exact exit criteria:
-  - 能用可复现实验追踪函数、数组与局部变化。 / Trace functions, arrays, and local change in a reproducible experiment.
+  - 能用函数、向量、矩阵、导数与概率语言追踪可复现计算。 / Trace reproducible computations using functions, vectors, matrices, derivatives, and probability language.
 
-## `v3.1-vector-probability-language` — 向量与概率语言 / Vector and Probability Language
+## `v3.2-vector-matrix-language` — 向量与矩阵语言 / Vector and Matrix Language
 
-- Modules: `beginner-probability-distributions`, `linear-algebra-feature-space`, `linear-algebra-distance-similarity`, `linear-algebra-matrix-transformations`, `linear-algebra-rank-null-space`
+- Modules: `linear-algebra-feature-space`, `linear-algebra-distance-similarity`, `linear-algebra-matrix-transformations`, `linear-algebra-rank-null-space`
 - Exact exit criteria:
-  - 能检查向量运算、形状与概率分布。 / Check vector operations, shapes, and probability distributions.
+  - 能检查特征空间、相似度、矩阵变换与秩。 / Check feature spaces, similarity, matrix transformations, and rank.
 
 ## `v3.2-linear-systems` — 线性系统与表示 / Linear Systems and Representations
 
-- Modules: `least-squares-fitting`, `eigenvalues-eigenvectors`, `svd-pca-representation`, `numerical-linear-algebra`, `calculus-partial-derivatives-gradients`
+- Modules: `least-squares-fitting`, `eigenvalues-eigenvectors`, `svd-pca-representation`, `numerical-linear-algebra`
 - Exact exit criteria:
-  - 能连接最小二乘、矩阵表示与多变量梯度。 / Connect least squares, matrix representations, and multivariable gradients.
+  - 能连接最小二乘、谱分解与数值稳定性。 / Connect least squares, spectral decompositions, and numerical stability.
 
-## `v3.2-probability-optimization` — 概率与优化基础 / Probability and Optimization Foundations
+## `v3.2-calculus-optimization` — 微积分与优化 / Calculus and Optimization
 
-- Modules: `chain-rule-local-approximation`, `numerical-differentiation-root-finding`, `probability-expectation-variance`, `conditional-probability-markov`, `probability-likelihood-entropy`
+- Modules: `calculus-partial-derivatives-gradients`, `chain-rule-local-approximation`, `numerical-differentiation-root-finding`, `gradient-descent`
 - Exact exit criteria:
-  - 能用链式法则、期望与似然解释优化证据。 / Use the chain rule, expectation, and likelihood to explain optimization evidence.
+  - 能用偏导数、链式法则与数值检查解释梯度下降。 / Explain gradient descent with partial derivatives, the chain rule, and numerical checks.
 
-## `v3.3-math-to-data` — 从数学代码到数据 / From Mathematical Code to Data
+## `v3.2-probability-project` — 概率、信息与数学代码项目 / Probability, Information, and the Mathematics-to-Code Project
 
-- Modules: `monte-carlo`, `gradient-descent`, `project-math-to-code`, `numerical-data`, `categorical-data`
+- Modules: `probability-expectation-variance`, `conditional-probability-markov`, `probability-likelihood-entropy`, `monte-carlo`, `project-math-to-code`
 - Exact exit criteria:
-  - 能提交由数值检查支持的公式到代码项目。 / Submit a formula-to-code project supported by numerical checks.
+  - 能提交由概率模拟与数值梯度检查支持的公式到代码项目。 / Submit a formula-to-code project supported by probability simulation and numerical gradient checks.
 
-## `v3.3-honest-regression` — 诚实的回归流程 / An Honest Regression Workflow
+## `v3.2-data-pipeline` — 完整数据到特征管线 / Complete Data-to-Feature Pipeline
 
-- Modules: `dataset-quality`, `splits-generalization`, `data-exploration-pipelines`, `loss-functions`, `linear-regression`, `project-tabular-regression`
+- Modules: `numerical-data`, `categorical-data`, `dataset-quality`, `splits-generalization`, `data-exploration-pipelines`
 - Exact exit criteria:
-  - 能建立无泄漏、可复现的回归基线。 / Build a leakage-safe, reproducible regression baseline.
+  - 能建立从原始表格到无泄漏特征矩阵的完整可复现管线。 / Build a complete reproducible pipeline from raw tables to leakage-safe feature matrices.
 
-## `v3.4-classification-generalization` — 分类与泛化 / Classification and Generalization
+## `v3.3-regression-classification` — 回归与分类基线 / Regression and Classification Baselines
 
-- Modules: `logistic-regression`, `classification`, `tree-forest`, `ensemble-learning`, `complexity-regularization`
+- Modules: `loss-functions`, `linear-regression`, `project-tabular-regression`, `logistic-regression`, `classification`
 - Exact exit criteria:
-  - 能比较分类决策、模型复杂度与泛化表现。 / Compare classification decisions, model complexity, and generalization performance.
+  - 能建立诚实回归基线，并把分类分数转换为可解释决策。 / Build an honest regression baseline and turn classification scores into explainable decisions.
 
-## `v3.4-evaluation-to-neurons` — 从可靠评估到神经元 / From Reliable Evaluation to Neurons
+## `v3.3-generalization-evaluation` — 经典模型的泛化与评估 / Generalization and Evaluation for Classical Models
 
-- Modules: `model-selection`, `training-diagnostics`, `project-classification-evaluation`, `neuron-activation-foundations`, `mlp`
+- Modules: `tree-forest`, `ensemble-learning`, `complexity-regularization`, `model-selection`, `training-diagnostics`, `project-classification-evaluation`
 - Exact exit criteria:
-  - 能提交分类评估证据并追踪多层感知机。 / Submit classification evaluation evidence and trace an MLP.
+  - 能用复杂度、模型选择与诊断证据提交可靠分类评估。 / Submit a reliable classification evaluation using complexity, model-selection, and diagnostic evidence.
 
-## `v3.5-neural-training` — 神经网络训练诊断 / Neural Training Diagnostics
+## `v3.4-neural-foundations` — 神经网络基础 / Neural-Network Foundations
 
-- Modules: `backpropagation-mechanism`, `matrix-calculus-autodiff`, `initialization-normalization`, `optimizer-comparison`, `deep-architecture-math`
+- Modules: `neuron-activation-foundations`, `mlp`, `backpropagation-mechanism`, `matrix-calculus-autodiff`, `initialization-normalization`, `optimizer-comparison`
 - Exact exit criteria:
-  - 能用梯度、优化曲线和表示证据诊断训练。 / Diagnose training with gradients, optimization curves, and representation evidence.
+  - 能追踪 MLP 前后向传播并比较初始化、归一化与优化器。 / Trace MLP forward and backward passes and compare initialization, normalization, and optimizers.
 
-## `v3.5-deep-representations` — 深度表示与序列 / Deep Representations and Sequences
+## `v3.5-deep-structures` — 深度学习结构与表示 / Deep-Learning Structures and Representations
 
-- Modules: `tensor-shapes-vectorization`, `cnn-visualization`, `sequence-models-rnn`, `sequence-embedding-bridge`, `project-neural-representation`
+- Modules: `deep-architecture-math`, `tensor-shapes-vectorization`, `cnn-visualization`, `sequence-models-rnn`, `sequence-embedding-bridge`, `project-neural-representation`
 - Exact exit criteria:
-  - 能追踪卷积与序列模型中的张量形状。 / Trace tensor shapes through convolutional and sequence models.
+  - 能追踪卷积与序列结构中的形状、共享参数和表示证据。 / Trace shapes, shared parameters, and representation evidence through convolutional and sequence structures.
 
 ## `v3.6-small-transformer` — 小型 Transformer / A Small Transformer
 

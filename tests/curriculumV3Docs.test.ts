@@ -25,3 +25,12 @@ test('checked-in V3 docs match deterministic rendering', () => {
     assert.equal(readFileSync(new URL(`../docs/curriculum-v3/${filename}`, import.meta.url), 'utf8'), markdown)
   }
 })
+
+test('mathematics-to-code pilot design is approved and whitespace-clean', () => {
+  const design = readFileSync(
+    new URL('../docs/superpowers/specs/2026-07-11-math-to-code-pilot-design.md', import.meta.url),
+    'utf8',
+  )
+  assert.match(design, /^\*\*Status:\*\* Approved$/m)
+  assert.doesNotMatch(design, /[ \t]+$/m)
+})
