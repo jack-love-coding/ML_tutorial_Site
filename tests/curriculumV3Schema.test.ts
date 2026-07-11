@@ -7,12 +7,54 @@ import { curriculumV3DeepLearningModules } from '../src/curriculum/v3/modules/de
 import {
   curriculumV3InstructionalModuleById,
   curriculumV3InstructionalModules,
+  curriculumV3ModuleById,
+  curriculumV3Modules,
 } from '../src/curriculum/v3/inventory.ts'
+import {
+  curriculumV3ProjectPrerequisites,
+  curriculumV3Projects,
+} from '../src/curriculum/v3/projects.ts'
 
 type DeepLearningModuleId = (typeof curriculumV3DeepLearningModules)[number]['id']
 type IsExactlyString<T> = string extends T ? (T extends string ? true : false) : false
 const deepLearningIdsRemainLiteral: IsExactlyString<DeepLearningModuleId> extends true ? never : true = true
 void deepLearningIdsRemainLiteral
+
+test('V3 has 56 instructional modules plus six staged projects', () => {
+  assert.equal(curriculumV3Projects.length, 6)
+  assert.equal(curriculumV3Modules.length, 62)
+  assert.equal(curriculumV3ModuleById.size, 62)
+  assert.deepEqual(
+    curriculumV3Projects.map((project) => project.id),
+    Object.keys(curriculumV3ProjectPrerequisites),
+  )
+})
+
+test('V3 projects preserve exact prerequisites, capabilities, and evidence deliverables', () => {
+  const expectedCapabilities = {
+    'project-math-to-code': ['formula-to-code', 'numerical-verification'],
+    'project-tabular-regression': ['data-pipeline', 'honest-baseline', 'residual-analysis'],
+    'project-classification-evaluation': ['threshold-decision', 'cross-validation', 'leakage-diagnosis'],
+    'project-neural-representation': ['backprop-implementation', 'optimizer-comparison', 'representation-inspection'],
+    'project-small-transformer': ['causal-language-model', 'training-loop', 'sampling'],
+    'project-llm-application': ['parameter-efficient-adaptation', 'rag-evaluation', 'hallucination-analysis'],
+  }
+  const expectedDeliverables = [
+    'reproducible-config',
+    'baseline',
+    'controlled-improvement',
+    'metrics-and-plots',
+    'failure-examples',
+    'formula-code-behavior-explanation',
+    'limitations-reflection',
+  ]
+
+  for (const project of curriculumV3Projects) {
+    assert.deepEqual(project.prerequisiteIds, curriculumV3ProjectPrerequisites[project.id])
+    assert.deepEqual(project.capabilityIds, expectedCapabilities[project.id])
+    assert.deepEqual(project.deliverables, expectedDeliverables)
+  }
+})
 
 const expectedDeepLearningIds = [
   'neuron-activation-foundations', 'mlp', 'backpropagation-mechanism',
