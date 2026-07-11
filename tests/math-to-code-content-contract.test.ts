@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { createServer } from 'vite'
@@ -24,6 +24,176 @@ import { withPublicBase } from '../src/utils/publicPath.ts'
 
 const root = new URL('../', import.meta.url)
 const moduleIds = [...mathToCodePilotModuleIds]
+type PilotModule = (typeof mathToCodeModules)[number]
+
+interface TeachingContract {
+  concepts: Array<{
+    id: string
+    formula: string
+    codeIncludes?: string[]
+    examplePatterns: RegExp[]
+  }>
+  sections: Array<{
+    id: string
+    patterns: RegExp[]
+  }>
+}
+
+const teachingContracts: Record<string, TeachingContract> = {
+  'calculus-functions-rate-change': {
+    concepts: [
+      {
+        id: 'function-prediction-mapping',
+        formula: '\\hat y=w_1x_1+w_2x_2+b',
+        codeIncludes: ['features = [2, 3]', 'weights = [4, -1]', 'prediction = weights[0] * features[0] + weights[1] * features[1] + bias', '# 10'],
+        examplePatterns: [/prediction\s*=\s*10/],
+      },
+      {
+        id: 'prediction-residual-error',
+        formula: 'r=\\hat y-y,\\qquad \\operatorname{MSE}=\\frac{1}{n}\\sum_{i=1}^{n}(\\hat y_i-y_i)^2',
+        examplePatterns: [/prediction\s*=\s*10/, /target\s*=\s*9/, /residual\s*=\s*1/, /MSE\s*=\s*1/],
+      },
+    ],
+    sections: [
+      { id: 'shared-prediction-task', patterns: [/\\hat y=w_1x_1\+w_2x_2\+b=8\+\(-3\)\+5=10/, /prediction\s*=\s*10/, /target\s*=\s*9/] },
+      { id: 'worked-prediction', patterns: [/8\+\(-3\)\+5=10/, /r=\\hat y-y=10-9=1/] },
+      { id: 'python-translation', patterns: [/prediction = weighted_sum \+ bias\s*(?:#|#\s*)10/, /residual = prediction - target\s*(?:#|#\s*)1/] },
+    ],
+  },
+  'linear-algebra-feature-space': {
+    concepts: [
+      {
+        id: 'unit-bearing-linear-functional',
+        formula: '\\hat y=w^\\mathsf T x+b',
+        codeIncludes: ['x = np.array([2.0, 3.0])', 'w = np.array([4.0, -1.0])', 'prediction = w @ x + 5.0', '# [8. -3.] 10.0'],
+        examplePatterns: [/4×2\+\(-1\)×3=5/, /prediction\s+10/],
+      },
+      {
+        id: 'dimensionless-projection',
+        formula: '\\operatorname{proj}_v(u)=\\frac{u^\\mathsf T v}{v^\\mathsf T v}v',
+        examplePatterns: [/u=\[3,4\]/, /v=\[4,0\]/, /\[3,0\]/],
+      },
+    ],
+    sections: [
+      { id: 'vectors-shared-task', patterns: [/x = \[2, 3\]/, /w = \[4, -1\]/, /y_hat = 10/, /y = 9/, /L = 1/, /y_hat = w\^T x \+ b/] },
+      { id: 'vectors-worked-shared', patterns: [/w\^T x = 4\*2 \+ \(-1\)\*3 = 5/, /y_hat = 5 \+ 5 = 10/, /L = \(10 - 9\)\^2 = 1/] },
+      { id: 'vectors-code', patterns: [/weighted_sum = w @ x/, /y_hat = weighted_sum \+ b/, /L = \(y_hat - y\) \*\* 2/, /\[\s*8\.?\s*,?\s*-3\.?\]/, /5\.0/, /10\.0/, /1\.0/] },
+    ],
+  },
+  'linear-algebra-matrix-transformations': {
+    concepts: [
+      {
+        id: 'batch-affine-map',
+        formula: '\\hat y=Xw+b',
+        codeIncludes: ['X = np.array([[2., 3.], [1., 4.]])', 'predictions = X @ w + 5.0', 'predictions.shape == (2,)', '# [10.  5.]'],
+        examplePatterns: [/\(2,2\) @ \(2,\) -> \(2,\)/, /\[10,5\]/],
+      },
+      {
+        id: 'batch-mse',
+        formula: 'L=\\frac1n\\sum_i(\\hat y_i-y_i)^2',
+        examplePatterns: [/\[1,-2\]/, /\[1,4\]/, /MSE=2\.5/],
+      },
+    ],
+    sections: [
+      { id: 'matrices-shared-task', patterns: [/X(?::| =).*\(2,\s?2\)/s, /w(?::| =).*\(2,\)/s, /y_hat = Xw ?\+ ?b/, /(?:MSE|L =?)\s*2\.5/] },
+      { id: 'matrices-worked-shared', patterns: [/(?:\[5,0\]|\\begin\{bmatrix\}5\\\\0\\end\{bmatrix\})/, /\[10,\s?5\]/, /\[1,-2\]/, /\[1,4\]/, /2\.5/] },
+      { id: 'matrices-code', patterns: [/weighted\s*=\s*X\s*@\s*w/, /y_hat\s*=\s*weighted\s*\+\s*b/, /residuals\s*=\s*y_hat\s*-\s*y/, /L\s*=\s*(?:np\.)?mean\(residuals\s*\*\*\s*2\)/, /2\.5/] },
+    ],
+  },
+  'calculus-derivatives-local-change': {
+    concepts: [
+      {
+        id: 'central-difference-sensitivity',
+        formula: '\\frac{L(\\theta+h)-L(\\theta-h)}{2h}',
+        codeIncludes: ['plus, minus = fn(value + h), fn(value - h)', 'result = (plus - minus) / (2 * h)', 'h <= 0', 'isfinite'],
+        examplePatterns: [/\[0,-5,-1\]/],
+      },
+      {
+        id: 'motion-local-slope',
+        formula: "s'(t)=2t",
+        examplePatterns: [/s\(t\)=t\^2/, /t=3/, /0\.1/, /6 meters\/second/],
+      },
+    ],
+    sections: [
+      { id: 'derivatives-worked-shared', patterns: [/L\s*=\s*2\.5/, /dL\/dw_?1\s*=\s*1\*2\s*\+\s*\(-2\)\*1\s*=\s*0/, /dL\/dw_?2\s*=\s*1\*3\s*\+\s*\(-2\)\*4\s*=\s*-5/, /dL\/db\s*=\s*1\s*\+\s*\(-2\)\s*=\s*-1/] },
+      { id: 'derivatives-code', patterns: [/return \(fn\(theta \+ h\) - fn\(theta - h\)\) \/ \(2 \* h\)/, /candidate_w = w\.copy\(\)/, /gradient_w.*\[0\.0, -5\.0\]/s, /gradient_b.*-1\.0/s] },
+    ],
+  },
+  'numpy-mathematics-implementation': {
+    concepts: [
+      {
+        id: 'checked-numpy-batch',
+        formula: '\\hat y=Xw+b',
+        codeIncludes: ['np.asarray([[2., 3.], [1., 4.]], dtype=float)', 'predictions = X @ w + 5.0', 'MSE = np.mean((predictions - targets) ** 2)', '# [10.0, 5.0]', '# 2.5', 'np.isfinite'],
+        examplePatterns: [/predictions = \[10\.0, 5\.0\]/, /MSE = 2\.5/],
+      },
+      {
+        id: 'numpy-broadcast-contract',
+        formula: '(n,)+(n,)\\to(n,)',
+        examplePatterns: [/2D prediction column/, /1D target/, /pairwise matrix/],
+      },
+    ],
+    sections: [
+      { id: 'numpy-worked-shared', patterns: [/predictions = (?:weighted_sums \+ b|X @ w \+ b)/, /predictions = \[10\.0, 5\.0\]/, /\[1(?:\.0)?,\s*-2(?:\.0)?\]/, /\[1(?:\.0)?,\s*4(?:\.0)?\]/, /(?:MSE =|mse ==|MSE)\s*2\.5/, /\[0(?:\.0)?,\s*-5(?:\.0)?/, /-1(?:\.0)?/] },
+      { id: 'numpy-code', patterns: [/np\.asarray\([^\n]+dtype=float\)\.copy\(\)/, /X\.shape\[1\] != w\.shape\[0\]/, /np\.isfinite/, /predictions\.shape != targets\.shape/, /candidate_w = normalized_w\.copy\(\)/, /return predictions, L, gradient_w, gradient_b/, /\[10\., 5\.\]/, /\[0\., -5\.\]/] },
+    ],
+  },
+  'math-to-code-guided-studio': {
+    concepts: [
+      {
+        id: 'studio-forward-error-chain',
+        formula: '\\hat y=Xw+b,\\quad L=\\frac1n\\sum_i(\\hat y_i-y_i)^2',
+        examplePatterns: [/predictions=\[10,5\]/, /residuals=\[1,-2\]/, /squares=\[1,4\]/, /MSE=2\.5/],
+      },
+      {
+        id: 'studio-local-sensitivity',
+        formula: '\\frac{L(\\theta+h)-L(\\theta-h)}{2h}',
+        examplePatterns: [/w=\[0,-5\]/, /b=-1/],
+      },
+    ],
+    sections: [
+      { id: 'studio-reproduce-task', patterns: [/X = \[\[2\.0, 3\.0\], \[1\.0, 4\.0\]\]/, /w = \[4\.0, -1\.0\]/, /b = 5\.0/, /targets = \[9\.0, 7\.0\]/, /np\.isfinite/] },
+      { id: 'studio-vector-prediction', patterns: [/weighted_sum = float\(contributions\.sum\(\)\)/, /weighted_sum_at = float\(x @ w\)/, /prediction = weighted_sum \+ b/, /\[8\.0,\s*-3\.0\]/, /10\.0/] },
+      { id: 'studio-batch-prediction', patterns: [/weighted_batch = X @ w/, /predictions = weighted_batch \+ b/, /weighted_batch = \[5\.0, 0\.0\]/, /predictions = \[10\.0, 5\.0\]/] },
+      { id: 'studio-error-comparison', patterns: [/residuals = predictions - targets/, /squared_errors = residuals \*\* 2/, /MSE = float\(np\.mean\(squared_errors\)\)/, /residuals = \[1\.0, -2\.0\]/, /MSE = 2\.5/] },
+      { id: 'studio-numerical-sensitivity', patterns: [/candidate_predictions = X @ candidate_w \+ candidate_b/, /denominator = 2 \* h/, /candidate_w = w\.copy\(\)/, /gradient_b = central_difference_safe/, /\[0\.0, -5\.0\] -1\.0/] },
+    ],
+  },
+}
+
+function teachingContractIssues(module: PilotModule): string[] {
+  const contract = teachingContracts[module.id]
+  if (!contract) return [`${module.id}: missing teaching contract`]
+  const issues: string[] = []
+  for (const expected of contract.concepts) {
+    const concept = module.concepts.find(({ id }) => id === expected.id)
+    if (!concept) {
+      issues.push(`${module.id}: missing concept ${expected.id}`)
+      continue
+    }
+    if (concept.formulaLatex !== expected.formula) issues.push(`${module.id}/${expected.id}: formula drift`)
+    for (const token of expected.codeIncludes ?? []) {
+      if (!(concept.codeExample ?? '').includes(token)) issues.push(`${module.id}/${expected.id}: code missing ${token}`)
+    }
+    const example = `${concept.numericalExample['zh-CN']}\n${concept.numericalExample.en}`
+    for (const pattern of expected.examplePatterns) {
+      if (!pattern.test(example)) issues.push(`${module.id}/${expected.id}: example missing ${pattern}`)
+    }
+  }
+  for (const expected of contract.sections) {
+    const section = module.sections.find(({ id }) => id === expected.id)
+    if (!section) {
+      issues.push(`${module.id}: missing section ${expected.id}`)
+      continue
+    }
+    for (const locale of ['zh-CN', 'en'] as const) {
+      for (const pattern of expected.patterns) {
+        if (!pattern.test(section.content[locale])) issues.push(`${module.id}/${expected.id}/${locale}: missing ${pattern}`)
+      }
+    }
+  }
+  return issues
+}
 
 function assertGloballyUnique(
   category: string,
@@ -63,12 +233,25 @@ test('the pilot consumes exactly six registered modules with globally unique tea
     ['section', (module: (typeof mathToCodeModules)[number]) => module.sections],
     ['concept', (module: (typeof mathToCodeModules)[number]) => module.concepts],
     ['lab', (module: (typeof mathToCodeModules)[number]) => module.labs],
+    ['visual', (module: (typeof mathToCodeModules)[number]) => module.visuals],
     ['quiz', (module: (typeof mathToCodeModules)[number]) => module.quizzes],
     ['misconception', (module: (typeof mathToCodeModules)[number]) => module.misconceptions],
   ] as const) {
     assertGloballyUnique(category, mathToCodeModules.flatMap((module) => (
       select(module).map(({ id }) => ({ moduleId: module.id, id }))
     )))
+  }
+
+  const allDomIds = mathToCodeModules.flatMap((module) => [
+    ...module.sections.map(({ id }) => ({ moduleId: module.id, category: 'section', id })),
+    ...module.labs.map(({ id }) => ({ moduleId: module.id, category: 'lab', id })),
+    ...module.visuals.map(({ id }) => ({ moduleId: module.id, category: 'visual', id })),
+  ])
+  const globalOwners = new Map<string, string>()
+  for (const entry of allDomIds) {
+    const owner = `${entry.moduleId}/${entry.category}`
+    assert.equal(globalOwners.get(entry.id), undefined, `DOM id ${entry.id} collides between ${globalOwners.get(entry.id)} and ${owner}`)
+    globalOwners.set(entry.id, owner)
   }
 })
 
@@ -79,14 +262,18 @@ test('module-local references and route-level prerequisite/next references all r
     const visualIds = new Set(module.visuals.map(({ id }) => id))
     const misconceptionIds = new Set(module.misconceptions.map(({ id }) => id))
     const reviewIds = new Set([...sectionIds, ...labIds, ...visualIds])
+    const domIds = [...sectionIds, ...labIds, ...visualIds]
+    assert.equal(new Set(domIds).size, domIds.length, `${module.id} has a cross-category DOM id collision`)
 
     assert.deepEqual(module.toc.map(({ id }) => id), module.sections.map(({ id }) => id))
     for (const section of module.sections) {
       for (const labId of section.labIds ?? []) assert.ok(labIds.has(labId), `${module.id}/${section.id} references unknown lab ${labId}`)
       for (const visualId of section.visualIds ?? []) assert.ok(visualIds.has(visualId), `${module.id}/${section.id} references unknown visual ${visualId}`)
       for (const locale of ['zh-CN', 'en'] as const) {
-        for (const match of section.content[locale].matchAll(/\]\(#([a-z0-9-]+)\)/g)) {
-          assert.ok(sectionIds.has(match[1]!), `${module.id}/${section.id}/${locale} links to unknown section ${match[1]}`)
+        for (const match of section.content[locale].matchAll(/\]\(#([^)]+)\)/g)) {
+          const fragment = match[1]!
+          assert.match(fragment, /^[a-z0-9-]+$/, `${module.id}/${section.id}/${locale} has unsafe fragment ${fragment}`)
+          assert.ok(sectionIds.has(fragment), `${module.id}/${section.id}/${locale} links to unknown section ${fragment}`)
         }
       }
     }
@@ -99,6 +286,30 @@ test('module-local references and route-level prerequisite/next references all r
       assert.ok(mathLabModuleRegistry[dependency], `${module.id} references unknown module ${dependency}`)
     }
   }
+})
+
+test('each module binds exact concept formulas and code to exact worked sections and outputs', () => {
+  assert.deepEqual(Object.keys(teachingContracts), moduleIds)
+  for (const module of mathToCodeModules) {
+    assert.deepEqual(teachingContractIssues(module), [], module.id)
+  }
+})
+
+test('exact teaching contracts reject changed worked outputs, MSE, and concept code', () => {
+  const matrices = structuredClone(mathToCodeModules.find(({ id }) => id === 'linear-algebra-matrix-transformations')!)
+  const matrixWorked = matrices.sections.find(({ id }) => id === 'matrices-worked-shared')!
+  matrixWorked.content.en = matrixWorked.content.en.replace('[10,5]', '[99,99]')
+  assert.ok(teachingContractIssues(matrices).some((issue) => issue.includes('matrices-worked-shared/en')))
+
+  const numpy = structuredClone(mathToCodeModules.find(({ id }) => id === 'numpy-mathematics-implementation')!)
+  const numpyWorked = numpy.sections.find(({ id }) => id === 'numpy-worked-shared')!
+  numpyWorked.content.en = numpyWorked.content.en.replace('MSE = 2.5', 'MSE = 9.9')
+  assert.ok(teachingContractIssues(numpy).some((issue) => issue.includes('numpy-worked-shared/en')))
+
+  const functions = structuredClone(mathToCodeModules.find(({ id }) => id === 'calculus-functions-rate-change')!)
+  const functionConcept = functions.concepts.find(({ id }) => id === 'function-prediction-mapping')!
+  functionConcept.codeExample = functionConcept.codeExample!.replace('# 10', '# 99')
+  assert.ok(teachingContractIssues(functions).some((issue) => issue.includes('function-prediction-mapping: code')))
 })
 
 test('all lessons preserve the shared x, w, b, y_hat, y, L formula-to-code vocabulary', () => {
@@ -157,23 +368,33 @@ test('bilingual titles and bodies stay paired and render through the safe Markdo
   assert.doesNotMatch(hostile, /<script|onerror|javascript:/i)
 })
 
-test('public and source paths are deployable and GitHub Pages compatible', () => {
+test('pilot asset records are explicit and any declared public file exists after base normalization', () => {
+  const publicFileFor = (path: string) => {
+    const withoutBase = path.replace(/^\/ML_tutorial_Site\//, '/').replace(/^\//, '')
+    return new URL(`../public/${withoutBase}`, import.meta.url)
+  }
   for (const module of mathToCodeModules) {
+    assert.equal(module.visuals.length, 0, `${module.id} unexpectedly gained a visual; add explicit asset assertions`)
+    assert.equal(module.importedAssetPaths?.length ?? 0, 0, `${module.id} unexpectedly gained an imported asset; add explicit asset assertions`)
     for (const asset of module.visuals) {
       for (const path of [asset.assetPath, asset.posterPath].filter((value): value is string => Boolean(value))) {
         assert.match(path, /^\//, `${module.id}/${asset.id} must use a public-root path`)
-        assert.equal(withPublicBase(path, '/ML_tutorial_Site/'), `/ML_tutorial_Site${path}`)
+        const rebased = withPublicBase(path, '/ML_tutorial_Site/')
+        assert.match(rebased, /^\/ML_tutorial_Site\//)
+        assert.ok(existsSync(publicFileFor(rebased)), `${module.id}/${asset.id} missing ${path}`)
       }
     }
     for (const path of module.importedAssetPaths ?? []) {
       assert.match(path, /^\//, `${module.id} imported asset must use a public-root path`)
-      assert.equal(withPublicBase(path, '/ML_tutorial_Site/'), `/ML_tutorial_Site${path}`)
+      const rebased = withPublicBase(path, '/ML_tutorial_Site/')
+      assert.ok(existsSync(publicFileFor(rebased)), `${module.id} missing ${path}`)
     }
     for (const reference of module.sourceReferences ?? []) {
       assert.match(reference.href, /^https:\/\//, `${module.id} source reference is not deployable`)
     }
   }
-  assert.equal(withPublicBase('/manim/math-lab/example.mp4', '/ML_tutorial_Site/'), '/ML_tutorial_Site/manim/math-lab/example.mp4')
+  // The pilot intentionally declares no runtime visual assets. The repository's
+  // public-path utility behavior and real Math Lab asset existence are covered in math-lab-core.test.ts.
   assert.equal(withPublicBase('#shared-prediction-task', '/ML_tutorial_Site/'), '#shared-prediction-task')
 })
 
