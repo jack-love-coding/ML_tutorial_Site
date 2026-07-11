@@ -195,11 +195,20 @@ def central_difference(fn, theta, h=1e-4):
     h = _scalar(h, "h")
     if not np.isfinite(theta) or not np.isfinite(h) or h <= 0:
         raise ValueError("theta and positive h must be finite")
-    left = _scalar(fn(theta - h), "left function result")
-    right = _scalar(fn(theta + h), "right function result")
+    left_theta = theta - h
+    right_theta = theta + h
+    denominator = 2 * h
+    if (
+        not np.isfinite(left_theta)
+        or not np.isfinite(right_theta)
+        or not np.isfinite(denominator)
+    ):
+        raise ValueError("difference inputs and denominator must be finite")
+    left = _scalar(fn(left_theta), "left function result")
+    right = _scalar(fn(right_theta), "right function result")
     if not np.isfinite(left) or not np.isfinite(right):
         raise ValueError("left and right function results must be finite")
-    result = (right - left) / (2 * h)
+    result = (right - left) / denominator
     if not np.isfinite(result):
         raise ValueError("central difference must be finite")
     return result

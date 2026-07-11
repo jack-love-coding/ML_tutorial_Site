@@ -295,6 +295,29 @@ test('vectors keeps dimensional geometry out of the unit-bearing prediction func
   assert.doesNotMatch(auxiliary, /完成时长|权重|y_hat|\bw\s*=|\bx\s*=/)
 })
 
+test('vector geometry exercises keep u and v conditions, notation, and review links', () => {
+  const manuscript = readRemainingLesson('02-vectors-samples.zh-CN.md')
+  const practice = sliceRemainingLesson(manuscript, 'vectors').get('vectors-practice')!
+  const exercises = [...practice.matchAll(/^\*\*练习 ([123][ABC])\*\*.*$/gm)]
+  const exercise = (id: string): string => {
+    const index = exercises.findIndex((heading) => heading[1] === id)
+    assert.notEqual(index, -1)
+    return practice.slice(exercises[index]!.index, exercises[index + 1]?.index ?? practice.length)
+  }
+
+  const exercise1C = exercise('1C')
+  assert.match(exercise1C, /无量纲.*同尺度|同尺度.*无量纲/s)
+  assert.match(exercise1C, /\[回看：[^\]]+\]\(#vectors-worked-auxiliary\)/)
+
+  const exercise2C = exercise('2C')
+  assert.match(exercise2C, /分母是 \$v\^Tv=2\$/)
+  assert.doesNotMatch(exercise2C, /w\^Tw|w.*(?:范数|长度|夹角|投影)/s)
+
+  const exercise3B = exercise('3B')
+  assert.match(exercise3B, /2[^\n]{0,20}0\.2[^\n]{0,30}4[^\n]{0,20}40/)
+  assert.doesNotMatch(practice, /(?:norm|\\lVert)\s*\(?w|proj(?:ection)?_?w|w\^Tw|w[^\n]{0,80}(?:范数|夹角|投影)/)
+})
+
 function extractMarkedPythonReference(codeSection: string): string {
   const block = codeSection.match(/```python\n(# MATH_TO_CODE_REFERENCE_BEGIN[\s\S]*?# MATH_TO_CODE_REFERENCE_END)\n```/)
   assert.ok(block, 'missing single marked Python reference implementation')
@@ -343,6 +366,28 @@ test('NumPy reference block encodes every Task 1 validation and copy contract', 
   const workedAuxiliary = sections.get('numpy-worked-auxiliary')!
   assert.match(workedShared, /print\(predictions\)\s+# \[10\.  5\.\]/)
   assert.match(workedAuxiliary, /# \[\[11\. 22\. 33\.\]\n#  \[41\. 52\. 63\.\]\]/)
+})
+
+test('NumPy central difference rejects non-finite perturbation points before calling fn', () => {
+  const codeSection = sliceRemainingLesson(
+    readRemainingLesson('05-numpy-implementation.zh-CN.md'),
+    'numpy',
+  ).get('numpy-code')!
+  const code = extractMarkedPythonReference(codeSection)
+  const central = code.slice(code.indexOf('def central_difference'), code.indexOf('def evaluate'))
+
+  assert.match(central, /left_theta = theta - h/)
+  assert.match(central, /right_theta = theta \+ h/)
+  assert.match(central, /denominator = 2 \* h/)
+  for (const name of ['left_theta', 'right_theta', 'denominator']) {
+    assert.match(central, new RegExp(`np\\.isfinite\\(${name}\\)`))
+  }
+  assert.match(central, /left = _scalar\(fn\(left_theta\)/)
+  assert.match(central, /right = _scalar\(fn\(right_theta\)/)
+  assert.match(central, /result = \(right - left\) \/ denominator/)
+  assert.ok(central.indexOf('np.isfinite(left_theta)') < central.indexOf('fn(left_theta)'))
+  assert.ok(central.indexOf('np.isfinite(right_theta)') < central.indexOf('fn(right_theta)'))
+  assert.ok(central.indexOf('np.isfinite(denominator)') < central.indexOf('fn(left_theta)'))
 })
 
 test('NumPy manuscript contract agrees with the executable Task 1 implementation', () => {
