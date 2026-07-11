@@ -220,7 +220,11 @@ function metricValue(evidence, englishLabel) {
 }
 
 function dispatchNodeEvent(node, eventName, event) {
-  const handlers = node.eventListeners?.[eventName] ?? []
+  const listenerHandlers = node.eventListeners?.[eventName] ?? []
+  const propHandler = node.props?.[`on${eventName[0].toUpperCase()}${eventName.slice(1)}`]
+  const handlers = listenerHandlers.length > 0
+    ? listenerHandlers
+    : Array.isArray(propHandler) ? propHandler : propHandler ? [propHandler] : []
   assert.ok(handlers.length > 0, `expected ${eventName} listener on ${node.type}`)
   for (const handler of handlers) {
     handler(event)
@@ -840,6 +844,62 @@ test('matrix transform lab emits initial and updated dynamic checkpoint evidence
     assert.match(String(metricValue(updatedEvidence, 'column combination')), /1\.5 W e1 \+ -0\.5 W e2/)
   } finally {
     await mounted.unmount()
+  }
+})
+
+test('prediction mapping lab normalizes bounds, resets readouts, marks the current row, and emits no evidence', async () => {
+  const evidenceEvents = []
+  let storageWrites = 0
+  const previousWindow = globalThis.window
+  globalThis.window = { localStorage: { getItem: () => null, setItem: () => { storageWrites += 1 } } }
+  const mounted = await mountClientSfc('/src/modules/math-lab/labs/PredictionMappingLab.vue', {
+    locale: 'en',
+    onEvidenceChange: (evidence) => evidenceEvents.push(evidence),
+  })
+
+  const text = () => flattenRenderedNodes(mounted.container).map((node) => node.text ?? '').join(' ')
+  const nodes = () => flattenRenderedNodes(mounted.container)
+  try {
+    const range = nodes().find((node) => node.type === 'input' && node.props?.type === 'range')
+    assert.ok(range)
+    assert.equal(range.props.min, '2')
+    assert.equal(range.props.max, '6')
+    assert.equal(range.props.step, '0.5')
+    assert.match(text(), /Current value\s*:\s*4.*Prediction\s*10.*Residual\s*1.*MSE\s*1/s)
+
+    range.value = '2'
+    dispatchNodeEvent(range, 'input', { target: range })
+    await mounted.update()
+    assert.match(text(), /Current value\s*:\s*2.*Prediction\s*6.*Residual\s*-3.*MSE\s*9/s)
+
+    range.value = '99'
+    dispatchNodeEvent(range, 'input', { target: range })
+    await mounted.update()
+    assert.match(text(), /Current value\s*:\s*6.*Prediction\s*14.*Residual\s*5.*MSE\s*25/s)
+
+    range.value = 'not-a-number'
+    dispatchNodeEvent(range, 'input', { target: range })
+    await mounted.update()
+    assert.match(text(), /Current value\s*:\s*4.*Prediction\s*10.*Residual\s*1.*MSE\s*1/s)
+
+    range.value = '5'
+    dispatchNodeEvent(range, 'input', { target: range })
+    await mounted.update()
+    const reset = nodes().find((node) => node.type === 'button')
+    assert.ok(reset)
+    dispatchNodeEvent(reset, 'click', {})
+    await mounted.update()
+    assert.match(text(), /Current value\s*:\s*4.*Prediction\s*10.*Residual\s*1.*MSE\s*1/s)
+
+    const currentRows = nodes().filter((node) => node.type === 'tr' && node.props?.['aria-current'] === 'true')
+    assert.equal(currentRows.length, 1)
+    assert.match(flattenRenderedNodes(currentRows[0]).map((node) => node.text ?? '').join(' '), /Current setting/)
+    assert.equal(evidenceEvents.length, 0)
+    assert.equal(storageWrites, 0)
+  } finally {
+    await mounted.unmount()
+    if (previousWindow === undefined) delete globalThis.window
+    else globalThis.window = previousWindow
   }
 })
 

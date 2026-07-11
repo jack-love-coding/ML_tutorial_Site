@@ -186,6 +186,7 @@ test('V3 audit records module-specific evidence instead of shared templates', ()
     'gradient-descent': ['3D', 'contour', 'learning rate'],
     svd: ['pseudoinverse', 'low-rank'],
     'numerical-data': ['training data', 'column order', 'scaling'],
+    'calculus-functions-rate-change': ['prediction', 'w1', 'residual', 'Python'],
   } as const
 
   for (const [id, evidenceTerms] of Object.entries(representativeEvidence)) {
@@ -194,6 +195,11 @@ test('V3 audit records module-specific evidence instead of shared templates', ()
       assert.match(strength, new RegExp(term, 'i'), `${id} strength must cite ${term}`)
     }
   }
+
+  assert.match(
+    curriculumV3AuditByCurrentModuleId.get('calculus-functions-rate-change')?.contractGaps.join(' ') ?? '',
+    /multi-sample.*generalization.*derivative/i,
+  )
 
   assert.match(
     curriculumV3AuditByCurrentModuleId.get('attention-transformer')?.contractGaps.join(' ') ?? '',

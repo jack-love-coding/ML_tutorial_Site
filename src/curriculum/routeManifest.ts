@@ -250,7 +250,7 @@ const mathEntries: CurriculumRouteManifestEntry[] = [
     source: 'math-lab',
     domain: 'math',
     route: '/math-lab/modules/calculus-functions-rate-change',
-    title: copy('函数和变化率', 'Functions and Rate of Change'),
+    title: copy('函数与映射：输入怎样变成预测', 'Functions and Mappings: How Inputs Become Predictions'),
   },
   {
     id: 'calculus-derivatives-local-change',

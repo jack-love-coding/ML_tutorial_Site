@@ -141,7 +141,7 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
     id: 'calculus-route',
     label: copy('微积分学习路线', 'Calculus Learning Route'),
     items: [
-      mathModule('calculus-functions-rate-change', '函数和变化率', 'Functions and Rate of Change'),
+      mathModule('calculus-functions-rate-change', '函数与映射：输入怎样变成预测', 'Functions and Mappings: How Inputs Become Predictions'),
       mathModule('calculus-derivatives-local-change', '导数：当前点附近的变化', 'Derivatives as Local Change'),
       mathModule('calculus-partial-derivatives-gradients', '偏导数和梯度', 'Partial Derivatives and Gradients'),
       mathModule('calculus-gradient-descent', '梯度下降', 'Gradient Descent'),

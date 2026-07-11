@@ -148,8 +148,8 @@ const auditEvidence: Record<string, AuditEvidence> = {
     contractGaps: ['Needs executable shape assertions, vectorized-versus-loop equivalence and timing evidence, plus a silent broadcasting bug assessment.'],
   },
   'calculus-functions-rate-change': {
-    strengths: ['Uses grocery and car cases to move from input-output functions and secant rates toward loss as a function.'],
-    contractGaps: ['Needs learners to implement and plot a rate calculation, track units, and identify a nonlinear interval where average rate misrepresents local behavior.'],
+    strengths: ['Uses one reproducible prediction task to connect function contracts, feature-weight pairing, shape checks, Python and NumPy code, a w1-only controlled experiment, residuals, and MSE.'],
+    contractGaps: ['Needs a later multi-sample experiment to test generalization and a derivative lesson to explain how local loss sensitivity guides parameter updates.'],
   },
   'calculus-derivatives-local-change': {
     strengths: ['Shrinks a speedometer secant window to local change and uses derivative signs to reason near the current point.'],

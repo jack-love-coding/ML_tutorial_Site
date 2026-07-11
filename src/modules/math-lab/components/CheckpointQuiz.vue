@@ -94,6 +94,9 @@ function submit() {
             }}
           </strong>
           <MarkdownMathContent :source="quiz.explanation[locale]" />
+          <a v-if="quiz.revisitVisualId" :href="`#${quiz.revisitVisualId}`" class="math-checkpoint__revisit-link">
+            {{ locale === 'zh-CN' ? '回看相关章节或实验' : 'Review the related section or lab' }}
+          </a>
         </div>
       </article>
     </div>

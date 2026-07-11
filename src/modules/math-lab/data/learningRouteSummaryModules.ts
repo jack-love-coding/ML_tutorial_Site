@@ -16,7 +16,7 @@ export const learningRouteSummaryModules: readonly LearningRouteSummaryModule[] 
   { id: 'linear-algebra-matrix-transformations', title: title('矩阵与线性变换', 'Matrices and Linear Transformations') },
   { id: 'linear-algebra-rank-null-space', title: title('列空间、rank 与 null space', 'Column Space, Rank, and Null Space') },
   { id: 'tensor-shapes-vectorization', title: title('张量 shape 与向量化', 'Tensor Shapes and Vectorization') },
-  { id: 'calculus-functions-rate-change', title: title('函数和变化率', 'Functions and Rate of Change') },
+  { id: 'calculus-functions-rate-change', title: title('函数与映射：输入怎样变成预测', 'Functions and Mappings: How Inputs Become Predictions') },
   { id: 'calculus-derivatives-local-change', title: title('导数：当前点附近的变化', 'Derivatives as Local Change') },
   { id: 'calculus-partial-derivatives-gradients', title: title('偏导数和梯度', 'Partial Derivatives and Gradients') },
   { id: 'calculus-gradient-descent', title: title('梯度下降', 'Gradient Descent') },

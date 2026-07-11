@@ -11,7 +11,7 @@
 
 - Twelve stable sections follow the approved Chinese master in order.
 - Chinese and English preserve the same formulas, variables, fixed values, two worked examples, controlled experiment, formative feedback, four misconceptions, layered practice, and vector/dot-product handoff.
-- The approved master remains auditable through `sourceNoteFile` and `sourceReferences`.
+- The approved master is retained as the internal authoring artifact; runtime provenance uses the canonical calculus source note plus deployable HTTPS references to the external authorities actually used.
 - Markdown is rendered through the existing safe renderer in tests; all 24 localized section bodies reject unsafe output, raw display delimiters, KaTeX errors, and malformed inline-code escapes.
 
 ## Lab contract
@@ -20,7 +20,7 @@
 - Prediction and one-sample MSE come from Task 1 `evaluatePredictionTask`; residual is derived from the same finite output and target.
 - The range has a visible label/current value, native keyboard operation, reset button, and localized ARIA value text.
 - Prediction, residual, and MSE remain visible in text, and an always-rendered table provides a static/reduced-motion fallback.
-- `ExperimentEvidence` is emitted for formative display only and contains no completion or grading state.
+- The lab is deliberately local-only: it emits no `ExperimentEvidence`, exposes no progress-writing path, and its readouts do not imply completion or grading.
 
 ## TDD evidence
 
@@ -44,7 +44,7 @@ The two Math Lab failures directly conflict with the approved Task 5 runtime rep
 
 After explicit approval to minimally extend Task 5 scope, the three full-suite failures were repaired at their sources:
 
-- `sourceNoteFile` was restored to the calculus route's canonical `math-lab-calculus-route-sources.md`; the approved Chinese master remains directly auditable in `sourceReferences`. The Task 5 test now locks this distinction.
+- `sourceNoteFile` was restored to the calculus route's canonical `math-lab-calculus-route-sources.md`; `sourceReferences` contains only deployable external authorities with specific usage notes. The approved Chinese master remains an internal authoring artifact rather than a broken runtime `/docs` link. The Task 5 test locks this distinction.
 - `tests/math-lab-core.test.ts` had two duplicated generic `Review Questions` assumptions plus old module-specific expectations for `LocalChangeStoryLab` and grocery/rate copy. Only the `calculus-functions-rate-change` branches were migrated to the gold lesson's `Three-Layer Practice`, `PredictionMappingLab`, and actual Chinese anchors (`输入`, `参数`, `控制变量实验`). All other module contracts remain unchanged.
 - `docs/curriculum-v3/content-audit.md` was regenerated with `node scripts/generateCurriculumV3Docs.ts`; this was the only generated document changed, and docs parity now passes.
 
@@ -56,4 +56,23 @@ Final follow-up verification:
 - PASS — `node --test tests/math-to-code-functions.test.ts` (5/5)
 - PASS — `npm test` (368/368)
 - PASS — `npm run build`
+- PASS — generated-doc parity and `git diff --check`
+
+## Content-integrity and interaction hardening
+
+The final review expanded scope only to direct dependencies and their tests:
+
+- Migrated the full teaching depth of all 12 approved sections into runtime copy, including shape contracts, `zip` truncation, complete Python/NumPy code, worked tables, four cause-diagnosis-repair misconceptions, and all nine exercises with bilingual hints, reference reasoning, and section links.
+- Changed `PredictionMappingLab` from emitted evidence to local formative state. A real client mount now drives lower/upper bounds, invalid normalization, reset, visible current value, prediction/residual/MSE, current-row semantics, zero evidence events, and zero storage writes.
+- Made quiz misconception tags referentially valid, added real section/lab review anchors, and rendered those anchors in checkpoint feedback.
+- Added an accessible table caption, visible “current setting” label, and `aria-current`; the current state is no longer communicated by color alone.
+- Updated the V3 audit to describe the actual prediction/shape/Python/w1/residual lesson and its remaining multi-sample/generalization/derivative gap, then regenerated only `content-audit.md`.
+- Synchronized the new bilingual title in navigation menus, the route manifest, and learning-route summaries.
+
+Final content-integrity verification:
+
+- PASS — Task 5 plus related Math Lab core, catalog, audit, docs, navigation, SSR, and client-mount tests (127/127)
+- PASS — complete repository suite (368/368)
+- PASS — `npm run build`
+- PASS — `npm run build:pages`
 - PASS — generated-doc parity and `git diff --check`
