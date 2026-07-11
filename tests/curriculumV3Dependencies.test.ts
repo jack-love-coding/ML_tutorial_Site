@@ -5,6 +5,10 @@ import {
   curriculumV3MachineLearningModules,
   v3MachineLearningOrder,
 } from '../src/curriculum/v3/modules/machineLearning.ts'
+import {
+  curriculumV3DeepLearningModules,
+  v3DeepLearningOrder,
+} from '../src/curriculum/v3/modules/deepLearning.ts'
 
 const expectedDependencies = [
   ['ai-overview', 'required-core', [], ['ai-overview'], 'rebuild'],
@@ -82,5 +86,43 @@ test('machine learning dependency metadata matches the approved order', () => {
   assert.deepEqual(
     curriculumV3MachineLearningModules.map((module) => [module.id, module.prerequisiteIds]),
     v3MachineLearningOrder,
+  )
+})
+
+test('deep learning dependency metadata matches the approved order', () => {
+  assert.deepEqual(
+    curriculumV3DeepLearningModules.map((module) => [module.id, module.prerequisiteIds]),
+    v3DeepLearningOrder,
+  )
+})
+
+test('required deep learning route does not depend on deep architecture math', () => {
+  for (const module of curriculumV3DeepLearningModules) {
+    if (module.role === 'required-core') {
+      assert.equal(module.prerequisiteIds.includes('deep-architecture-math'), false)
+    }
+  }
+  assert.equal(curriculumV3DeepLearningModules.find((module) => module.id === 'sequence-models-rnn')?.role, 'required-core')
+})
+
+test('deep learning roles, sources, and migration actions match the approved plan', () => {
+  assert.deepEqual(
+    curriculumV3DeepLearningModules.map((module) => [module.id, module.role, module.sourceModuleIds, module.migrationAction]),
+    [
+      ['neuron-activation-foundations', 'required-core', [], 'add'],
+      ['mlp', 'required-core', ['mlp'], 'rebuild'],
+      ['backpropagation-mechanism', 'required-core', [], 'add'],
+      ['matrix-calculus-autodiff', 'required-core', ['matrix-calculus-autodiff'], 'rebuild'],
+      ['initialization-normalization', 'required-core', [], 'add'],
+      ['optimizer-comparison', 'required-core', ['optimizer-comparison'], 'rebuild'],
+      ['deep-architecture-math', 'depth-topic', ['deep-architecture-math'], 'rebuild'],
+      ['tensor-shapes-vectorization', 'required-core', ['tensor-shapes-vectorization'], 'rebuild'],
+      ['cnn-visualization', 'required-core', ['cnn-visualization'], 'rebuild'],
+      ['sequence-models-rnn', 'required-core', ['sequence-models-rnn'], 'rebuild'],
+      ['sequence-embedding-bridge', 'required-core', ['sequence-embedding-bridge'], 'keep'],
+      ['tokenization-language-modeling', 'required-core', [], 'add'],
+      ...['attention-qkv-multihead', 'transformer-blocks', 'small-transformer-training', 'decoding-sampling'].map((id) => [id, 'required-core', ['attention-transformer'], 'split']),
+      ...['llm-inference-context', 'peft-lora', 'retrieval-rag-systems', 'llm-evaluation-reliability'].map((id) => [id, 'required-core', ['llm-rag'], 'split']),
+    ],
   )
 })

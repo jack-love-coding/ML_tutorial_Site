@@ -3,6 +3,25 @@ import assert from 'node:assert/strict'
 import { curriculumV3Arcs } from '../src/curriculum/v3/arcs.ts'
 import { curriculumV3FoundationModules } from '../src/curriculum/v3/modules/foundations.ts'
 import { curriculumV3MachineLearningModules } from '../src/curriculum/v3/modules/machineLearning.ts'
+import { curriculumV3DeepLearningModules } from '../src/curriculum/v3/modules/deepLearning.ts'
+import {
+  curriculumV3InstructionalModuleById,
+  curriculumV3InstructionalModules,
+} from '../src/curriculum/v3/inventory.ts'
+
+test('V3 instructional inventory has 56 ordered modules ending in reliable LLM systems', () => {
+  assert.equal(curriculumV3DeepLearningModules.length, 20)
+  assert.equal(curriculumV3InstructionalModules.length, 56)
+  assert.equal(curriculumV3InstructionalModuleById.size, 56)
+  assert.equal(curriculumV3InstructionalModules[0]?.id, 'ai-overview')
+  assert.equal(curriculumV3InstructionalModules.at(-1)?.id, 'llm-evaluation-reliability')
+})
+
+test('Transformer and LLM modules expose required mathematical revisits', () => {
+  assert.ok(curriculumV3InstructionalModuleById.get('attention-qkv-multihead')?.revisits.includes('matrix-multiplication'))
+  assert.ok(curriculumV3InstructionalModuleById.get('decoding-sampling')?.revisits.includes('probability-distribution'))
+  assert.ok(curriculumV3InstructionalModuleById.get('retrieval-rag-systems')?.revisits.includes('vector-similarity'))
+})
 
 test('Curriculum V3 defines ten ordered bilingual arcs', () => {
   assert.deepEqual(curriculumV3Arcs.map((arc) => arc.id), [
