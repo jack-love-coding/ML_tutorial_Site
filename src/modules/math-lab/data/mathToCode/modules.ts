@@ -836,7 +836,7 @@ const vectorsModule = promotedModule({
 })
 
 const matrixLab: LabConfig = {
-  id: 'matrix-transform-lab', title: copy('独立网格矩阵变换实验', 'Independent Grid Matrix Transformation Lab'), type: 'interactive-visual', componentName: 'MatrixTransformLab',
+  id: 'matrix-transform-lab', title: copy('独立网格矩阵变换实验', 'Independent Grid Matrix Transformation Lab'), type: 'interactive-visual', componentName: 'MathToCodeMatrixLab',
   successCriteria: [
     copy('能说明实验矩阵 A 的列如何移动无量纲基向量。', 'Explain how the experiment matrix A moves dimensionless basis vectors.'),
     copy('能区分几何变换矩阵 A 与样本矩阵 X 的角色。', 'Distinguish geometric transform A from sample matrix X.'),

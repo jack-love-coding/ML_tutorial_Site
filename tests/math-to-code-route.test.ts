@@ -8,10 +8,13 @@ import { curriculumModuleById } from '../src/curriculum/catalog.ts'
 import { curriculumV3ProjectPrerequisites } from '../src/curriculum/v3/projects.ts'
 import { mathToCodeModules } from '../src/modules/math-lab/data/mathToCode/modules.ts'
 import {
+  completedModuleIdsForRoute,
   learningRouteById,
   nextModuleForRoute,
   routeProgressSummary,
+  validateLearningRoutes,
 } from '../src/modules/math-lab/data/learningRoutes.ts'
+import { createDefaultProgress, markRouteModuleComplete } from '../src/modules/math-lab/utils/progress.ts'
 import * as learningRouteData from '../src/modules/math-lab/data/learningRoutes.ts'
 import { mathLabModuleRegistry } from '../src/modules/math-lab/data/modules.ts'
 import { renderMarkdownWithMath } from '../src/utils/markdownMath.ts'
@@ -41,7 +44,16 @@ test('pilot route has the exact six-module order and first-incomplete behavior',
   const route = learningRouteById['math-to-code-pilot']
   assert.ok(route)
   assert.equal(route.nextStepRule, 'first-incomplete')
+  assert.equal(route.completionVersion, 'math-to-code-v1')
+  assert.deepEqual(route.entryAssumptions, [
+    { id: 'high-school-algebra', label: { 'zh-CN': '高中代数与基础函数', en: 'High-school algebra and basic functions' } },
+    { id: 'basic-python', label: { 'zh-CN': '基础 Python', en: 'Basic Python' } },
+  ])
   assert.deepEqual(route.chapterModuleIds, routeIds)
+  assert.deepEqual(route.prerequisiteOverrides, Object.fromEntries(routeIds.map((id, index) => [
+    id,
+    index === 0 ? [] : [routeIds[index - 1]],
+  ])))
   assert.equal(nextModuleForRoute(route, []), routeIds[0])
   assert.equal(nextModuleForRoute(route, routeIds.slice(0, 4)), routeIds[4])
   assert.equal(nextModuleForRoute(route, [routeIds[1], routeIds[0], routeIds[3]]), routeIds[2])
@@ -55,6 +67,78 @@ test('pilot route has the exact six-module order and first-incomplete behavior',
   })
 })
 
+test('pilot prerequisite overrides close all six steps and reject forward or unknown dependencies', () => {
+  assert.deepEqual(validateLearningRoutes(Object.values(learningRouteById)), [])
+
+  const pilot = learningRouteById['math-to-code-pilot']
+  const forward = {
+    ...pilot,
+    prerequisiteOverrides: {
+      ...pilot.prerequisiteOverrides,
+      [routeIds[1]]: [routeIds[4]],
+    },
+  }
+  assert.ok(validateLearningRoutes([forward]).some((issue) => issue ===
+    `route-prerequisite-not-earlier:math-to-code-pilot:${routeIds[1]}:${routeIds[4]}`))
+
+  const unknown = {
+    ...pilot,
+    prerequisiteOverrides: {
+      ...pilot.prerequisiteOverrides,
+      [routeIds[2]]: ['unknown-entry-assumption'],
+    },
+  }
+  assert.ok(validateLearningRoutes([unknown]).some((issue) => issue ===
+    `route-prerequisite-unknown:math-to-code-pilot:${routeIds[2]}:unknown-entry-assumption`))
+
+  const openChain = {
+    ...pilot,
+    prerequisiteOverrides: Object.fromEntries(
+      Object.entries(pilot.prerequisiteOverrides ?? {}).filter(([id]) => id !== routeIds[5]),
+    ),
+  }
+  assert.ok(validateLearningRoutes([openChain]).includes(
+    `route-prerequisite-override-missing:math-to-code-pilot:${routeIds[5]}`,
+  ))
+})
+
+test('versioned pilot completion ignores global history and is version-safe and idempotent', () => {
+  const pilot = learningRouteById['math-to-code-pilot']
+  let progress = {
+    ...createDefaultProgress('2026-07-11T00:00:00.000Z'),
+    completedModuleIds: [...routeIds.slice(0, 4)],
+  }
+
+  assert.deepEqual(completedModuleIdsForRoute(pilot, progress), [])
+  assert.equal(routeProgressSummary(pilot, completedModuleIdsForRoute(pilot, progress)).completedCount, 0)
+
+  for (const moduleId of routeIds) {
+    progress = markRouteModuleComplete(progress, pilot.id, pilot.completionVersion!, moduleId)
+  }
+  assert.deepEqual(completedModuleIdsForRoute(pilot, progress), routeIds)
+  assert.equal(routeProgressSummary(pilot, completedModuleIdsForRoute(pilot, progress)).completedCount, 6)
+
+  const again = markRouteModuleComplete(progress, pilot.id, pilot.completionVersion!, routeIds[5])
+  assert.deepEqual(again.routeCompletions, progress.routeCompletions)
+
+  const versionMismatch = {
+    ...progress,
+    routeCompletions: {
+      ...progress.routeCompletions,
+      [pilot.id]: { version: 'math-to-code-v0', completedModuleIds: [...routeIds] },
+    },
+  }
+  assert.deepEqual(completedModuleIdsForRoute(pilot, versionMismatch), [])
+  assert.deepEqual(
+    completedModuleIdsForRoute(learningRouteById['calculus-route'], progress),
+    routeIds.slice(0, 4),
+  )
+  assert.equal(routeProgressSummary(
+    learningRouteById['calculus-route'],
+    completedModuleIdsForRoute(learningRouteById['calculus-route'], progress),
+  ).completedCount, 2)
+})
+
 test('route-aware navigation follows every pilot edge and rejects invalid route context', () => {
   assert.equal(typeof learningRouteData.routeNavigationForModule, 'function')
   const routeNavigationForModule = learningRouteData.routeNavigationForModule!
@@ -63,6 +147,8 @@ test('route-aware navigation follows every pilot edge and rejects invalid route 
     assert.equal(navigation?.previousModuleId, routeIds[index - 1])
     assert.equal(navigation?.nextModuleId, routeIds[index + 1])
     assert.equal(navigation?.routeId, 'math-to-code-pilot')
+    assert.equal(navigation?.displayOrder, index + 1)
+    assert.deepEqual(navigation?.effectivePrerequisiteIds, index === 0 ? [] : [routeIds[index - 1]])
   }
   assert.equal(routeNavigationForModule('math-to-code-pilot', 'pca'), undefined)
   assert.equal(routeNavigationForModule('not-a-route', routeIds[0]), undefined)
@@ -162,7 +248,15 @@ test('studio and lab stay local-only with no grading, upload, evidence, or progr
 test('module page owns self-paced completion and route-aware query-preserving links', () => {
   const page = readFileSync(new URL('../src/modules/math-lab/pages/MathLabModulePage.vue', import.meta.url), 'utf8')
   assert.match(page, /SelfPacedCompletionButton/)
-  assert.match(page, /onSelfPacedReview[\s\S]*markModuleComplete/)
+  assert.match(page, /onSelfPacedReview[\s\S]*markRouteModuleComplete/)
+  assert.match(page, /onQuizSubmit[\s\S]*markRouteModuleComplete/)
+  assert.match(page, /routeNavigation\.value\?\.displayOrder/)
+  assert.match(page, /effectivePrerequisiteIds/)
+  assert.match(page, /:review-version="activeLearningRoute\?\.completionVersion"/)
+  const completion = readFileSync(new URL('../src/modules/math-lab/components/SelfPacedCompletionButton.vue', import.meta.url), 'utf8')
+  assert.match(completion, /reviewVersion/)
+  assert.match(completion, /reviewed version|复核版本/i)
+  assert.match(completion, /not.*formal acceptance|不是正式验收/i)
   assert.match(page, /routeNavigationForModule/)
   assert.match(page, /route\.query\.route/)
   assert.match(page, /query:\s*\{\s*route:/)
@@ -170,6 +264,19 @@ test('module page owns self-paced completion and route-aware query-preserving li
   const summary = readFileSync(new URL('../src/modules/math-lab/components/LearningRouteSummary.vue', import.meta.url), 'utf8')
   assert.match(dashboard, /\?route=\$\{route\.id\}/)
   assert.match(summary, /\?route=\$\{props\.route\.id\}/)
+})
+
+test('matrix lesson uses a thin A-contract wrapper and keeps the shared lab implementation', () => {
+  const module = mathToCodeModules.find(({ id }) => id === 'linear-algebra-matrix-transformations')!
+  const page = readFileSync(new URL('../src/modules/math-lab/pages/MathLabModulePage.vue', import.meta.url), 'utf8')
+  const wrapper = readFileSync(new URL('../src/modules/math-lab/labs/MathToCodeMatrixLab.vue', import.meta.url), 'utf8')
+  assert.equal(module.labs[0]?.componentName, 'MathToCodeMatrixLab')
+  assert.equal((page.match(/MathToCodeMatrixLab:\s*defineAsyncComponent/g) ?? []).length, 1)
+  assert.match(page, /import\('\.\.\/labs\/MathToCodeMatrixLab\.vue'\)/)
+  assert.match(wrapper, /MatrixTransformLab/)
+  assert.match(wrapper, /symbol="A"/)
+  assert.match(wrapper, /:emit-evidence="false"/)
+  assert.doesNotMatch(wrapper, /evaluateMatrixTransform|matrixTransformPresets/)
 })
 
 test('studio lab is lazy registered once and SSR exposes full intermediate text fallback', async () => {

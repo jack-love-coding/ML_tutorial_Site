@@ -18,21 +18,80 @@ async (page) => {
   })
   page.on('pageerror', (error) => activeErrors.push(`pageerror: ${error.message}`))
 
+  await page.evaluate(({ moduleIds }) => {
+    localStorage.setItem('ml-atlas:math-lab-progress:v1', JSON.stringify({
+      completedModuleIds: moduleIds,
+      quizAttempts: [],
+      weakConceptTags: [],
+      mastery: [],
+      updatedAt: '2026-07-11T00:00:00.000Z',
+    }))
+  }, { moduleIds: modules.map(([id]) => id) })
+
   for (const locale of ['zh-CN', 'en']) {
     await page.evaluate((value) => localStorage.setItem('ml-atlas-locale', value), locale)
     for (const [width, height] of [[1440, 1000], [390, 844]]) {
       await page.setViewportSize({ width, height })
+      activeErrors = []
+      activeWarnings = []
+      const homeResponse = await page.goto(`${origin}/math-lab`)
+      await page.waitForLoadState('networkidle')
+      const homeProbe = await page.evaluate(({ expectedRouteTitle, expectedIds, route }) => {
+        const dashboard = [...document.querySelectorAll('.learning-route-dashboard')]
+          .find((section) => section.querySelector('h2')?.textContent?.trim() === expectedRouteTitle)
+        const dashboardOrders = dashboard
+          ? [...dashboard.querySelectorAll('ol > li a > span')].map((span) => Number(span.textContent?.trim()))
+          : []
+        const dashboardHrefs = dashboard
+          ? [...dashboard.querySelectorAll('ol > li a')].map((anchor) => anchor.getAttribute('href'))
+          : []
+        const expectedHrefs = expectedIds.map((id) => `/math-lab/modules/${id}?route=${route}`)
+        return {
+          lang: document.documentElement.lang,
+          titleOk: Boolean(document.querySelector('h1')),
+          dashboardOrders,
+          dashboardOrderOk: JSON.stringify(dashboardOrders) === JSON.stringify([1, 2, 3, 4, 5, 6]),
+          dashboardHrefs,
+          dashboardHrefsOk: JSON.stringify(dashboardHrefs) === JSON.stringify(expectedHrefs),
+          routeProgressOk: /0\s*\/\s*6/.test(dashboard?.querySelector('header strong')?.textContent ?? ''),
+          routeLinksOk: true,
+          chapterOrderOk: true,
+          overflow: document.documentElement.scrollWidth > innerWidth,
+          deadFragments: [],
+          emptyLinks: [],
+          overlaps: [],
+        }
+      }, {
+        expectedRouteTitle: locale === 'zh-CN' ? '数学到代码试学路线' : 'Math-to-Code Pilot Route',
+        expectedIds: modules.map(([id]) => id),
+        route,
+      })
+      results.push({
+        kind: 'dashboard',
+        id: 'math-lab-home',
+        locale,
+        viewport: `${width}x${height}`,
+        status: homeResponse?.status(),
+        ...homeProbe,
+        consoleErrors: [...activeErrors],
+        consoleWarnings: [...activeWarnings],
+        warningCount: activeWarnings.length,
+      })
+
       for (let index = 0; index < modules.length; index += 1) {
         activeErrors = []
         activeWarnings = []
         const [id, zhTitle, enTitle] = modules[index]
         const response = await page.goto(`${origin}/math-lab/modules/${id}?route=${route}`)
         await page.waitForLoadState('networkidle')
-        const probe = await page.evaluate(async ({ index, count, expectedTitle, route }) => {
+        const expectedRouteHrefs = [
+          index > 0 ? `/math-lab/modules/${modules[index - 1][0]}?route=${route}` : undefined,
+          index < modules.length - 1 ? `/math-lab/modules/${modules[index + 1][0]}?route=${route}` : undefined,
+        ].filter(Boolean)
+        const probe = await page.evaluate(({ index, expectedTitle, route, expectedRouteHrefs }) => {
           const routeLinks = [...document.querySelectorAll(`a[href*="?route=${route}"]`)]
             .map((anchor) => anchor.getAttribute('href'))
             .filter(Boolean)
-          const expectedRouteLinkCount = index === 0 || index === count - 1 ? 1 : 2
           const anchors = [...document.querySelectorAll('a[href]')]
           const deadFragments = anchors
             .map((anchor) => anchor.getAttribute('href'))
@@ -40,10 +99,6 @@ async (page) => {
           const emptyLinks = anchors
             .map((anchor) => anchor.getAttribute('href'))
             .filter((href) => !href || href === '#')
-          const routeResponses = await Promise.all(routeLinks.map(async (href) => {
-            const result = await fetch(new URL(href, location.href), { method: 'HEAD' })
-            return { href, ok: result.ok, status: result.status }
-          }))
           const interactive = [...document.querySelectorAll('button,a,input')]
             .filter((element) => {
               const rect = element.getBoundingClientRect()
@@ -67,8 +122,11 @@ async (page) => {
             title: document.querySelector('h1')?.textContent?.trim(),
             titleOk: document.querySelector('h1')?.textContent?.trim() === expectedTitle,
             routeLinks,
-            routeLinksOk: routeLinks.length === expectedRouteLinkCount && routeResponses.every(({ ok }) => ok),
-            routeResponses,
+            expectedRouteHrefs,
+            routeLinksOk: JSON.stringify(routeLinks) === JSON.stringify(expectedRouteHrefs),
+            chapterOrderOk: new RegExp(`(?:第\\s*${index + 1}\\s*章|Chapter\\s*${index + 1})`).test(
+              document.querySelector('.math-lab-module-hero .eyebrow')?.textContent ?? '',
+            ),
             scrollWidth: document.documentElement.scrollWidth,
             viewportWidth: innerWidth,
             overflow: document.documentElement.scrollWidth > innerWidth,
@@ -76,8 +134,9 @@ async (page) => {
             emptyLinks,
             overlaps,
           }
-        }, { index, count: modules.length, expectedTitle: locale === 'zh-CN' ? zhTitle : enTitle, route })
+        }, { index, expectedTitle: locale === 'zh-CN' ? zhTitle : enTitle, route, expectedRouteHrefs })
         results.push({
+          kind: 'module',
           id,
           locale,
           viewport: `${width}x${height}`,
@@ -95,6 +154,10 @@ async (page) => {
     || result.lang !== result.locale
     || !result.titleOk
     || !result.routeLinksOk
+    || !result.chapterOrderOk
+    || result.dashboardOrderOk === false
+    || result.dashboardHrefsOk === false
+    || result.routeProgressOk === false
     || result.overflow
     || result.deadFragments.length > 0
     || result.emptyLinks.length > 0
@@ -103,5 +166,65 @@ async (page) => {
     || result.warningCount > 0
   ))
   if (failures.length > 0) throw new Error(`Math-to-Code browser matrix failed: ${JSON.stringify(failures)}`)
-  return { cases: results.length, failures: failures.length, results }
+
+  await page.goto(`${origin}/math-lab/modules/linear-algebra-matrix-transformations?route=${route}`)
+  await page.waitForLoadState('networkidle')
+  await page.waitForSelector('.matrix-transform-lab')
+  const matrixStorageKeysBefore = await page.evaluate(() => Object.keys(localStorage).sort())
+  const matrixAContract = await page.locator('.matrix-transform-lab').evaluate((lab) => {
+    const text = lab.textContent ?? ''
+    return /A e1/.test(text)
+      && /A e2/.test(text)
+      && /det\(A\)/.test(text)
+      && /A x/.test(text)
+      && /geometric transform A/i.test(text)
+      && !/W e1|W e2|det\(W\)|y\s*=\s*Wx\s*\+\s*b/.test(text)
+  })
+  await page.locator('.matrix-transform-lab input[type="number"]').first().fill('2')
+  const matrixStorageKeysAfter = await page.evaluate(() => Object.keys(localStorage).sort())
+  const matrixLocalOnly = JSON.stringify(matrixStorageKeysBefore) === JSON.stringify(matrixStorageKeysAfter)
+
+  await page.evaluate(({ route, version, moduleIds }) => {
+    localStorage.setItem('ml-atlas:math-lab-progress:v1', JSON.stringify({
+      completedModuleIds: moduleIds,
+      routeCompletions: {
+        [route]: { version, completedModuleIds: moduleIds.slice(0, 5) },
+      },
+      quizAttempts: [],
+      weakConceptTags: [],
+      mastery: [],
+      updatedAt: '2026-07-11T00:00:00.000Z',
+    }))
+  }, { route, version: 'math-to-code-v1', moduleIds: modules.map(([id]) => id) })
+  await page.goto(`${origin}/math-lab/modules/math-to-code-guided-studio?route=${route}`)
+  await page.waitForLoadState('networkidle')
+  await page.locator('.self-paced-completion button').click()
+  const routeCompletedModuleIds = await page.evaluate((route) => {
+    const progress = JSON.parse(localStorage.getItem('ml-atlas:math-lab-progress:v1') ?? '{}')
+    return progress.routeCompletions?.[route]?.completedModuleIds ?? []
+  }, route)
+  await page.goto(`${origin}/math-lab`)
+  await page.waitForLoadState('networkidle')
+  const versionedCompletion = await page.evaluate((expectedTitle) => {
+    const dashboard = [...document.querySelectorAll('.learning-route-dashboard')]
+      .find((section) => section.querySelector('h2')?.textContent?.trim() === expectedTitle)
+    return /6\s*\/\s*6/.test(dashboard?.querySelector('header strong')?.textContent ?? '')
+  }, 'Math-to-Code Pilot Route')
+  const versionedIdsOk = JSON.stringify(routeCompletedModuleIds) === JSON.stringify(modules.map(([id]) => id))
+
+  if (!matrixAContract || !matrixLocalOnly || !versionedCompletion || !versionedIdsOk) {
+    throw new Error(`Math-to-Code interactions failed: ${JSON.stringify({
+      matrixAContract,
+      matrixLocalOnly,
+      versionedCompletion,
+      routeCompletedModuleIds,
+    })}`)
+  }
+
+  return {
+    cases: results.length,
+    failures: failures.length,
+    interactions: { matrixAContract, matrixLocalOnly, versionedCompletion, routeCompletedModuleIds },
+    results,
+  }
 }

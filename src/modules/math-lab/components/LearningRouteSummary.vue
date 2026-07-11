@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { LearningRoute, MathLabLocale, MathLabModuleId } from '../types/mathLab'
+import type { LearningRoute, MathLabLocale, MathLabModuleId, MathLabProgress } from '../types/mathLab'
 import type { LearningRouteSummaryModule } from '../data/learningRouteSummaryModules'
-import { routeProgressSummary } from '../data/learningRoutes'
+import { completedModuleIdsForRoute, routeProgressSummary } from '../data/learningRoutes'
 
 const props = defineProps<{
   route: LearningRoute
   modules: readonly LearningRouteSummaryModule[]
-  completedModuleIds: MathLabModuleId[]
+  completedModuleIds?: MathLabModuleId[]
+  progress?: MathLabProgress
   locale: MathLabLocale
 }>()
 
 const moduleById = computed(() => new Map(props.modules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition])))
-const summary = computed(() => routeProgressSummary(props.route, props.completedModuleIds))
+const routeCompletedModuleIds = computed(() => props.progress
+  ? completedModuleIdsForRoute(props.route, props.progress)
+  : props.completedModuleIds ?? [])
+const summary = computed(() => routeProgressSummary(props.route, routeCompletedModuleIds.value))
 const nextModule = computed(() => summary.value.nextModuleId ? moduleById.value.get(summary.value.nextModuleId) : undefined)
 const actionRoute = computed(() => nextModule.value
   ? `/math-lab/modules/${nextModule.value.id}?route=${props.route.id}`

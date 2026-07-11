@@ -131,6 +131,7 @@ import {
   createDefaultProgress,
   loadMathLabProgress,
   markModuleComplete,
+  markRouteModuleComplete,
   saveMathLabProgress,
   setDiagnosticResult,
   type StorageLike,
@@ -1245,7 +1246,7 @@ test('key math foundation topics are connected to interactive or video enhanceme
   assert.ok(byId['monte-carlo']!.labs.some((lab) => lab.componentName === 'MonteCarloLab'))
   assert.deepEqual(byId['linear-algebra-feature-space']!.labs, [])
   assert.ok(byId['linear-algebra-distance-similarity']!.labs.some((lab) => lab.componentName === 'VectorSimilarityLab'))
-  assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
+  assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MathToCodeMatrixLab'))
   assert.ok(byId['linear-algebra-rank-null-space']!.labs.some((lab) => lab.componentName === 'MatrixColumnSpaceLab'))
   assert.ok(byId['lu-decomposition']!.labs.some((lab) => lab.componentName === 'LuDecompositionLab'))
   assert.ok(byId['sparse-matrices']!.labs.some((lab) => lab.componentName === 'SparseMatrixLab'))
@@ -1459,7 +1460,7 @@ test('linear algebra vector and matrix route modules present case-driven bilingu
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
   assert.deepEqual(byId['linear-algebra-feature-space']!.labs, [])
   assert.ok(byId['linear-algebra-distance-similarity']!.labs.some((lab) => lab.componentName === 'VectorSimilarityLab'))
-  assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
+  assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MathToCodeMatrixLab'))
   assert.ok(byId['linear-algebra-rank-null-space']!.labs.some((lab) => lab.componentName === 'MatrixColumnSpaceLab'))
 
   assert.match(
@@ -2571,4 +2572,44 @@ test('math lab progress persists diagnostic, completion, and quiz attempts in st
   assert.equal(reloaded.diagnosticResult?.recommendedStartModuleId, 'beginner-linear-algebra')
   assert.deepEqual(reloaded.completedModuleIds, ['taylor-series'])
   assert.equal(reloaded.quizAttempts.length, 1)
+})
+
+test('math lab progress serializes versioned route completion and sanitizes malformed legacy data', () => {
+  const storage = createMemoryStorage()
+  let progress = createDefaultProgress('2026-07-11T00:00:00.000Z')
+  progress = markRouteModuleComplete(progress, 'math-to-code-pilot', 'math-to-code-v1', 'calculus-functions-rate-change')
+  progress = markRouteModuleComplete(progress, 'math-to-code-pilot', 'math-to-code-v1', 'calculus-functions-rate-change')
+  saveMathLabProgress(progress, storage)
+
+  assert.deepEqual(loadMathLabProgress(storage).routeCompletions, {
+    'math-to-code-pilot': {
+      version: 'math-to-code-v1',
+      completedModuleIds: ['calculus-functions-rate-change'],
+    },
+  })
+
+  const legacy = createMemoryStorage({
+    'ml-atlas:math-lab-progress:v1': JSON.stringify({
+      completedModuleIds: ['taylor-series'],
+      quizAttempts: [],
+      weakConceptTags: [],
+      mastery: [],
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }),
+  })
+  assert.deepEqual(loadMathLabProgress(legacy).completedModuleIds, ['taylor-series'])
+  assert.deepEqual(loadMathLabProgress(legacy).routeCompletions, {})
+
+  const malformed = createMemoryStorage({
+    'ml-atlas:math-lab-progress:v1': JSON.stringify({
+      completedModuleIds: [],
+      routeCompletions: {
+        'math-to-code-pilot': { version: 42, completedModuleIds: 'all' },
+        'calculus-route': { version: 'v1', completedModuleIds: ['calculus-functions-rate-change', 7] },
+      },
+    }),
+  })
+  assert.deepEqual(loadMathLabProgress(malformed).routeCompletions, {
+    'calculus-route': { version: 'v1', completedModuleIds: ['calculus-functions-rate-change'] },
+  })
 })

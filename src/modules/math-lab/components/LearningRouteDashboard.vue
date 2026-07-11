@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import type { LearningRoute, MathLabLocale, MathLabModule, MathLabModuleId } from '../types/mathLab'
+import type { LearningRoute, MathLabLocale, MathLabModule, MathLabModuleId, MathLabProgress } from '../types/mathLab'
 import { checkpointReportForModule } from '../data/checkpointReports'
-import { routeProgressSummary } from '../data/learningRoutes'
+import { completedModuleIdsForRoute, routeProgressSummary } from '../data/learningRoutes'
 import {
   buildCheckpointReportMarkdown,
   checkpointReportStorageKey,
@@ -15,12 +15,16 @@ type ReportStatus = 'complete' | 'draft' | 'not-started' | 'unavailable'
 const props = defineProps<{
   route: LearningRoute
   modules: MathLabModule[]
-  completedModuleIds: MathLabModuleId[]
+  completedModuleIds?: MathLabModuleId[]
+  progress?: MathLabProgress
   locale: MathLabLocale
 }>()
 
 const moduleById = computed(() => new Map(props.modules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition])))
-const summary = computed(() => routeProgressSummary(props.route, props.completedModuleIds))
+const routeCompletedModuleIds = computed(() => props.progress
+  ? completedModuleIdsForRoute(props.route, props.progress)
+  : props.completedModuleIds ?? [])
+const summary = computed(() => routeProgressSummary(props.route, routeCompletedModuleIds.value))
 const routeModules = computed(() => props.route.chapterModuleIds
   .map((id) => moduleById.value.get(id))
   .filter((moduleDefinition): moduleDefinition is MathLabModule => Boolean(moduleDefinition)))
@@ -112,12 +116,12 @@ function exportRouteMarkdown() {
 
     <ol class="learning-route-dashboard__list">
       <li
-        v-for="moduleDefinition in routeModules"
+        v-for="(moduleDefinition, routeIndex) in routeModules"
         :key="moduleDefinition.id"
-        :class="{ 'is-complete': completedModuleIds.includes(moduleDefinition.id), 'is-next': summary.nextModuleId === moduleDefinition.id }"
+        :class="{ 'is-complete': routeCompletedModuleIds.includes(moduleDefinition.id), 'is-next': summary.nextModuleId === moduleDefinition.id }"
       >
         <router-link :to="`/math-lab/modules/${moduleDefinition.id}?route=${route.id}`">
-          <span>{{ moduleDefinition.order }}</span>
+          <span>{{ routeIndex + 1 }}</span>
           <strong>{{ moduleDefinition.title[locale] }}</strong>
           <small>{{ reportStatus(moduleDefinition.id) }}</small>
         </router-link>

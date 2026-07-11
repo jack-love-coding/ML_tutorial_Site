@@ -177,7 +177,18 @@ export interface MathLabProgress {
   weakConceptTags: string[]
   lastVisitedModuleId?: MathLabModuleId
   mastery: MasteryScore[]
+  routeCompletions?: Partial<Record<LearningRouteId, RouteCompletionProgress>>
   updatedAt: string
+}
+
+export interface RouteCompletionProgress {
+  version: string
+  completedModuleIds: MathLabModuleId[]
+}
+
+export interface LearningRouteEntryAssumption {
+  id: string
+  label: LocalizedCopy
 }
 
 export interface LearningRoute {
@@ -186,6 +197,9 @@ export interface LearningRoute {
   description: LocalizedCopy
   audience: LocalizedCopy
   chapterModuleIds: readonly MathLabModuleId[]
+  prerequisiteOverrides?: Partial<Record<MathLabModuleId, readonly string[]>>
+  entryAssumptions?: readonly LearningRouteEntryAssumption[]
+  completionVersion?: string
   nextStepRule: 'first-incomplete'
 }
 

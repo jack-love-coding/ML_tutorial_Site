@@ -7,6 +7,7 @@ import {
   meanSquaredError,
   predictBatch,
 } from '../src/modules/math-lab/utils/mathToCode.ts'
+import { mathToCodeModules } from '../src/modules/math-lab/data/mathToCode/modules.ts'
 
 const manuscriptUrl = new URL(
   '../docs/curriculum/v3/math-to-code/01-functions-mappings.zh-CN.md',
@@ -388,6 +389,36 @@ test('NumPy central difference rejects non-finite perturbation points before cal
   assert.ok(central.indexOf('np.isfinite(left_theta)') < central.indexOf('fn(left_theta)'))
   assert.ok(central.indexOf('np.isfinite(right_theta)') < central.indexOf('fn(right_theta)'))
   assert.ok(central.indexOf('np.isfinite(denominator)') < central.indexOf('fn(left_theta)'))
+})
+
+test('lessons 02 through 05 project exact English masters into runtime sections', () => {
+  const contracts = [
+    ['02-vectors-samples.en.md', 'linear-algebra-feature-space'],
+    ['03-matrices-batches.en.md', 'linear-algebra-matrix-transformations'],
+    ['04-derivatives-error.en.md', 'calculus-derivatives-local-change'],
+    ['05-numpy-implementation.en.md', 'numpy-mathematics-implementation'],
+  ] as const
+
+  for (const [file, moduleId] of contracts) {
+    const source = readFileSync(new URL(`../docs/curriculum/v3/math-to-code/${file}`, import.meta.url), 'utf8')
+    const headings = [...source.matchAll(/^##\s+(.+?)\s+\{#([a-z0-9-]+)\}\s*$/gm)]
+    assert.equal(headings.length, 12, `${file} section count`)
+    const expected = headings.map((heading, index) => ({
+      id: heading[2],
+      title: heading[1],
+      content: source.slice(heading.index + heading[0].length, headings[index + 1]?.index ?? source.length).trim(),
+    }))
+    const module = mathToCodeModules.find(({ id }) => id === moduleId)!
+    assert.deepEqual(module.sections.map((section) => ({
+      id: section.id,
+      title: section.title.en,
+      content: section.content.en,
+    })), expected)
+  }
+
+  const generator = readFileSync(new URL('../scripts/generateMathToCodeRuntimeContent.mjs', import.meta.url), 'utf8')
+  assert.doesNotMatch(generator, /const generatedEnglishTitles|\benglish:\s*\[/)
+  for (const file of contracts.map(([file]) => file)) assert.ok(generator.includes(`englishFile: '${file}'`))
 })
 
 test('NumPy manuscript contract agrees with the executable Task 1 implementation', () => {

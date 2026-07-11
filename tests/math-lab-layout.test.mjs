@@ -304,6 +304,7 @@ test('math lab components and labs exist with expected contracts', () => {
     'src/modules/math-lab/labs/TrainingDiagnosticsLab.vue',
     'src/modules/math-lab/labs/ArchitectureMathLab.vue',
     'src/modules/math-lab/labs/MatrixTransformLab.vue',
+    'src/modules/math-lab/labs/MathToCodeMatrixLab.vue',
     'src/modules/math-lab/labs/MathGradientLab.vue',
     'src/modules/math-lab/labs/MonteCarloLab.vue',
     'src/modules/math-lab/labs/LuDecompositionLab.vue',
@@ -880,6 +881,36 @@ test('matrix transform lab emits initial and updated dynamic checkpoint evidence
   }
 })
 
+test('math-to-code matrix wrapper renders the A geometry contract without evidence or storage', async () => {
+  const evidenceEvents = []
+  let storageWrites = 0
+  const previousWindow = globalThis.window
+  globalThis.window = { localStorage: { getItem: () => null, setItem: () => { storageWrites += 1 } } }
+  const mounted = await mountClientSfc('/src/modules/math-lab/labs/MathToCodeMatrixLab.vue', {
+    locale: 'en',
+    onEvidenceChange: (evidence) => evidenceEvents.push(evidence),
+  })
+  const text = () => flattenRenderedNodes(mounted.container).map((node) => node.text ?? '').join(' ')
+
+  try {
+    assert.match(text(), /A e1.*A e2.*det\(A\).*A x/s)
+    assert.match(text(), /geometric transform.*A|A.*geometric transform/i)
+    assert.doesNotMatch(text(), /W e1|W e2|det\(W\)|y\s*=\s*Wx\s*\+\s*b/)
+
+    const firstMatrixInput = flattenRenderedNodes(mounted.container).find((node) => node.type === 'input')
+    assert.ok(firstMatrixInput)
+    firstMatrixInput.value = '2'
+    dispatchNodeEvent(firstMatrixInput, 'input', { target: firstMatrixInput })
+    await mounted.update()
+    assert.equal(evidenceEvents.length, 0)
+    assert.equal(storageWrites, 0)
+  } finally {
+    await mounted.unmount()
+    if (previousWindow === undefined) delete globalThis.window
+    else globalThis.window = previousWindow
+  }
+})
+
 test('prediction mapping lab normalizes bounds, resets readouts, marks the current row, and emits no evidence', async () => {
   const evidenceEvents = []
   let storageWrites = 0
@@ -1018,18 +1049,32 @@ test('math-to-code studio client mount recomputes intermediates, rejects invalid
   }
 })
 
-test('self-paced completion click marks the studio reviewed and completes the pilot route locally', async () => {
+test('self-paced completion writes the versioned pilot route idempotently', async () => {
   const storage = createMemoryStorage()
   const previousWindow = globalThis.window
   globalThis.window = { localStorage: storage }
-  const { loadMathLabProgress, markModuleComplete, saveMathLabProgress } = await import('../src/modules/math-lab/utils/progress.ts')
+  const { loadMathLabProgress, markModuleComplete, markRouteModuleComplete, saveMathLabProgress } = await import('../src/modules/math-lab/utils/progress.ts')
+  const { completedModuleIdsForRoute, learningRouteById, routeProgressSummary } = await import('../src/modules/math-lab/data/learningRoutes.ts')
+  const pilot = learningRouteById['math-to-code-pilot']
+  saveMathLabProgress({
+    ...loadMathLabProgress(storage),
+    completedModuleIds: [
+      'calculus-functions-rate-change',
+      'linear-algebra-feature-space',
+      'linear-algebra-matrix-transformations',
+      'calculus-derivatives-local-change',
+      'numpy-mathematics-implementation',
+    ],
+  }, storage)
+  assert.equal(routeProgressSummary(pilot, completedModuleIdsForRoute(pilot, loadMathLabProgress(storage))).completedCount, 0)
   const mounted = await mountClientSfc('/src/modules/math-lab/components/SelfPacedCompletionButton.vue', {
     locale: 'en',
     completed: false,
-    onReview: () => saveMathLabProgress(
-      markModuleComplete(loadMathLabProgress(storage), 'math-to-code-guided-studio'),
-      storage,
-    ),
+    onReview: () => {
+      let progress = markModuleComplete(loadMathLabProgress(storage), 'math-to-code-guided-studio')
+      progress = markRouteModuleComplete(progress, pilot.id, pilot.completionVersion, 'math-to-code-guided-studio')
+      saveMathLabProgress(progress, storage)
+    },
   })
   const text = () => flattenRenderedNodes(mounted.container).map((node) => node.text ?? '').join(' ')
   try {
@@ -1040,23 +1085,16 @@ test('self-paced completion click marks the studio reviewed and completes the pi
     await mounted.update()
     assert.match(text(), /Reviewed locally.*not a graded or formal acceptance/i)
 
-    const { learningRouteById, routeProgressSummary } = await import('../src/modules/math-lab/data/learningRoutes.ts')
     const progress = loadMathLabProgress(storage)
     assert.ok(progress.completedModuleIds.includes('math-to-code-guided-studio'))
-    const summary = routeProgressSummary(learningRouteById['math-to-code-pilot'], [
-      'calculus-functions-rate-change',
-      'linear-algebra-feature-space',
-      'linear-algebra-matrix-transformations',
-      'calculus-derivatives-local-change',
-      'numpy-mathematics-implementation',
-      ...progress.completedModuleIds,
-    ])
-    assert.equal(summary.completedCount, 6)
+    const summary = routeProgressSummary(pilot, completedModuleIdsForRoute(pilot, progress))
+    assert.equal(summary.completedCount, 1)
     assert.equal(summary.totalCount, 6)
 
     dispatchNodeEvent(button, 'click', {})
     await mounted.update()
     assert.equal(loadMathLabProgress(storage).completedModuleIds.filter((id) => id === 'math-to-code-guided-studio').length, 1)
+    assert.equal(loadMathLabProgress(storage).routeCompletions['math-to-code-pilot'].completedModuleIds.filter((id) => id === 'math-to-code-guided-studio').length, 1)
   } finally {
     await mounted.unmount()
     if (previousWindow === undefined) delete globalThis.window

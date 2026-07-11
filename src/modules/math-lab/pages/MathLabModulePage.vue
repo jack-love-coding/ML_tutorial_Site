@@ -13,7 +13,7 @@ import ObservationPrompt from '../components/ObservationPrompt.vue'
 import SelfPacedCompletionButton from '../components/SelfPacedCompletionButton.vue'
 import { conceptIllustrationFor, type ConceptIllustration } from '../data/conceptIllustrations'
 import { checkpointReportForModule, observationPromptForModule } from '../data/checkpointReports'
-import { routeNavigationForModule } from '../data/learningRoutes'
+import { completedModuleIdsForRoute, learningRouteById, routeNavigationForModule } from '../data/learningRoutes'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
 import type {
   ExperimentEvidence,
@@ -36,6 +36,7 @@ import {
   appendQuizAttempt,
   loadMathLabProgress,
   markModuleComplete,
+  markRouteModuleComplete,
   saveMathLabProgress,
   setLastVisitedModule,
 } from '../utils/progress'
@@ -63,6 +64,7 @@ const labComponentRegistry = {
   MathGradientLab: defineAsyncComponent(() => import('../labs/MathGradientLab.vue')),
   MatrixColumnSpaceLab: defineAsyncComponent(() => import('../labs/MatrixColumnSpaceLab.vue')),
   MatrixTransformLab: defineAsyncComponent(() => import('../labs/MatrixTransformLab.vue')),
+  MathToCodeMatrixLab: defineAsyncComponent(() => import('../labs/MathToCodeMatrixLab.vue')),
   MathToCodeStudioLab: defineAsyncComponent(() => import('../labs/MathToCodeStudioLab.vue')),
   MonteCarloLab: defineAsyncComponent(() => import('../labs/MonteCarloLab.vue')),
   NonlinearEquationsLab: defineAsyncComponent(() => import('../labs/NonlinearEquationsLab.vue')),
@@ -89,6 +91,21 @@ const moduleIndex = computed(() =>
   mathLabModules.findIndex((candidate) => candidate.id === moduleDefinition.value?.id),
 )
 const routeNavigation = computed(() => routeNavigationForModule(route.query.route, moduleId.value))
+const activeLearningRoute = computed(() => routeNavigation.value
+  ? learningRouteById[routeNavigation.value.routeId]
+  : undefined)
+const displayOrder = computed(() => routeNavigation.value?.displayOrder ?? moduleDefinition.value?.order)
+const effectivePrerequisiteIds = computed(() => routeNavigation.value
+  ? routeNavigation.value.effectivePrerequisiteIds ?? moduleDefinition.value?.prerequisites ?? []
+  : moduleDefinition.value?.prerequisites ?? [])
+const effectivePrerequisites = computed(() => effectivePrerequisiteIds.value
+  .map((id) => mathLabModuleRegistry[id])
+  .filter((candidate) => Boolean(candidate)))
+const routeEntryAssumptions = computed(() => routeNavigation.value?.entryAssumptions ?? [])
+const currentRouteCompletedModuleIds = computed(() => activeLearningRoute.value
+  ? completedModuleIdsForRoute(activeLearningRoute.value, progress.value)
+  : progress.value.completedModuleIds)
+const isCurrentModuleCompleted = computed(() => currentRouteCompletedModuleIds.value.includes(moduleId.value))
 const previousModule = computed(() => {
   if (routeNavigation.value) return routeNavigation.value.previousModuleId
     ? mathLabModuleRegistry[routeNavigation.value.previousModuleId]
@@ -177,13 +194,22 @@ function onQuizSubmit(attempts: QuizAttempt[]) {
 
   if (enoughToComplete) {
     nextProgress = markModuleComplete(nextProgress, moduleId.value)
+    const learningRoute = activeLearningRoute.value
+    if (learningRoute?.completionVersion) {
+      nextProgress = markRouteModuleComplete(nextProgress, learningRoute.id, learningRoute.completionVersion, moduleId.value)
+    }
   }
 
   progress.value = saveMathLabProgress(nextProgress)
 }
 
 function onSelfPacedReview() {
-  progress.value = saveMathLabProgress(markModuleComplete(loadMathLabProgress(), moduleId.value))
+  let nextProgress = markModuleComplete(loadMathLabProgress(), moduleId.value)
+  const learningRoute = activeLearningRoute.value
+  if (learningRoute?.completionVersion) {
+    nextProgress = markRouteModuleComplete(nextProgress, learningRoute.id, learningRoute.completionVersion, moduleId.value)
+  }
+  progress.value = saveMathLabProgress(nextProgress)
 }
 
 function onExperimentEvidence(evidence: ExperimentEvidence | undefined) {
@@ -305,7 +331,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
     >
       <div>
         <span class="eyebrow">
-          {{ currentLocale === 'zh-CN' ? `第 ${moduleDefinition.order} 章` : `Chapter ${moduleDefinition.order}` }}
+          {{ currentLocale === 'zh-CN' ? `第 ${displayOrder} 章` : `Chapter ${displayOrder}` }}
         </span>
         <h1>{{ moduleDefinition.title[currentLocale] }}</h1>
         <p>{{ moduleDefinition.subtitle[currentLocale] }}</p>
@@ -317,6 +343,23 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           {{ connection[currentLocale] }}
         </p>
       </aside>
+    </section>
+
+    <section v-if="routeNavigation" class="math-lab-panel math-route-prerequisites">
+      <header class="section-header">
+        <span class="eyebrow">{{ currentLocale === 'zh-CN' ? '当前路线' : 'Current route' }}</span>
+        <h2>{{ currentLocale === 'zh-CN' ? '这一步实际使用的前置知识' : 'Effective prerequisites for this step' }}</h2>
+      </header>
+      <ul v-if="effectivePrerequisites.length">
+        <li v-for="prerequisite in effectivePrerequisites" :key="prerequisite.id">
+          {{ prerequisite.title[currentLocale] }}
+        </li>
+      </ul>
+      <p v-else>{{ currentLocale === 'zh-CN' ? '无需先完成本路线中的其他章节。' : 'No earlier chapter in this route is required.' }}</p>
+      <p v-if="routeEntryAssumptions.length">
+        <strong>{{ currentLocale === 'zh-CN' ? '入门假设：' : 'Entry assumptions: ' }}</strong>
+        {{ routeEntryAssumptions.map((assumption) => assumption.label[currentLocale]).join('；') }}
+      </p>
     </section>
 
     <section class="math-module-layout math-module-layout--article">
@@ -527,7 +570,8 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
         <SelfPacedCompletionButton
           v-if="moduleDefinition.completionMode === 'self-attested'"
           :locale="currentLocale"
-          :completed="progress.completedModuleIds.includes(moduleDefinition.id)"
+          :completed="isCurrentModuleCompleted"
+          :review-version="activeLearningRoute?.completionVersion"
           @review="onSelfPacedReview"
         />
       </main>
@@ -549,7 +593,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           <div class="math-article-meta">
             <strong>
               {{
-                progress.completedModuleIds.includes(moduleDefinition.id)
+                isCurrentModuleCompleted
                   ? currentLocale === 'zh-CN'
                     ? '已完成'
                     : 'Completed'

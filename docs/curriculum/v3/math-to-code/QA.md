@@ -1,7 +1,7 @@
 # Mathematics-to-Code Pilot QA
 
 **Date:** 2026-07-11
-**Status:** Passed with two existing warning classes
+**Status:** Passed; reviewed-version progress remains local and formative
 **Scope:** Six promoted Math Lab modules and the `math-to-code-pilot` route
 
 ## Environment
@@ -14,7 +14,7 @@
 - Viewports: desktop `1440 × 1000`; mobile `390 × 844`
 - Motion modes: default and `prefers-reduced-motion: reduce`
 
-No screenshot or trace was created for this pass. The complete 24-case result table and probe interpretation are in [browser-evidence.md](./browser-evidence.md).
+No screenshot or trace was created for this pass. The complete 28-case result table and probe interpretation are in [browser-evidence.md](./browser-evidence.md).
 
 ## Replay commands
 
@@ -41,11 +41,11 @@ export PLAYWRIGHT_CLI_SESSION=math-to-code-task8-review
 "$PWCLI" run-code --filename scripts/qa/mathToCodePilotBrowserMatrix.js
 ```
 
-The matrix command returns `{"cases":24,"failures":0,...}` and exits with an error if any expected title, locale, route link, response, overflow, fragment, empty link, overlap, console error, page error, or console warning contract fails. Each case includes `warningCount`; production returned zero for all 24 cases.
+The matrix command returns `{"cases":28,"failures":0,...}` and exits with an error if any dashboard order, chapter order, exact adjacent href, title, locale, overflow, fragment, empty link, overlap, console error, page error, or console warning contract fails. Each case includes `warningCount`; production returned zero for all 28 cases.
 
-## Replayable manual CLI interaction steps
+## Automated interaction checks
 
-The 24-case matrix script automates page smoke coverage only. Functions/studio interactions were separate, replayable manual Playwright CLI steps using `run-code` after a fresh snapshot; they are not executed by `mathToCodePilotBrowserMatrix.js`.
+The same matrix script now automates the route dashboard, matrix A-contract, local-storage boundary, and versioned 6/6 completion checks. The earlier functions/studio exploratory steps remain useful semantic selectors, but final-fix evidence no longer depends on manual replay.
 
 Snapshot refs are intentionally not recorded because they change after navigation. The manual CLI steps used these semantic selectors:
 
@@ -75,7 +75,9 @@ const emptyLinks = [...document.querySelectorAll('a[href]')]
 
 It also:
 
-- issues `HEAD` requests for every pilot previous/next link and requires HTTP 200;
+- opens Math Lab home in both locales and viewports, requiring route-relative card order `1..6`, exact six hrefs, and `0 / 6` when only legacy global completion exists;
+- compares every previous/next href to the exact route edge map instead of accepting any HTTP-200 link;
+- requires each module hero to show its route-relative chapter number;
 - compares each visible `h1` with the exact localized module title;
 - compares `document.documentElement.lang` with the requested locale;
 - checks pairwise rectangles of visible `button`, `a`, and `input` elements for overlap;
@@ -84,9 +86,9 @@ It also:
 
 ## Production preview observations
 
-- Browser matrix: 24/24 passed.
+- Browser matrix: 28/28 passed: 24 module cases plus 4 Math Lab home dashboard cases.
 - Every module was opened four times: Chinese desktop, Chinese mobile, English desktop, English mobile.
-- Every document and route-link `HEAD` response was HTTP 200.
+- Every document response was HTTP 200; every route href exactly matched the expected previous/next module.
 - Every localized title and document language matched.
 - Desktop `scrollWidth` was `1440`; mobile `scrollWidth` was `390`.
 - Dead fragments, empty links, interactive overlaps, browser console errors, page errors, and console warnings were zero in all cases; every `warningCount` was 0.
@@ -103,16 +105,20 @@ At Chinese desktop width:
 - next href was `/math-lab/modules/linear-algebra-feature-space?route=math-to-code-pilot`;
 - page-level overflow was false.
 
-## Studio interaction and 6/6 evidence
+## Matrix and versioned 6/6 evidence
 
-The browser local progress fixture contained the first five pilot IDs before the self-paced action. At English mobile width:
+The matrix wrapper displayed `A e1`, `A e2`, `det(A)`, and `A x`, used the geometric-transform explanation, displayed no legacy W-contract copy, and created no new local-storage key after an input edit.
+
+The browser local progress fixture contained the first five pilot IDs under `routeCompletions.math-to-code-pilot` with version `math-to-code-v1` before the self-paced action. At English mobile width:
 
 - filling `X[0,0]` with `3` produced predictions `[14,5]`, residuals `[5,-2]`, squares `[25,4]`, MSE `14.5`, weight derivatives `[13,7]`, and bias derivative `3`;
 - focusing reset and pressing `Enter` restored predictions `[10,5]`, residuals `[1,-2]`, squares `[1,4]`, MSE `2.5`, weight derivatives `[0,-5]`, and bias derivative `-1`;
 - reduced-motion matched, the static fallback remained, and running animations were zero;
-- focusing “Mark as reviewed” and pressing `Enter` produced “Reviewed locally” and six distinct completed module IDs;
+- activating “Mark as reviewed” produced six distinct route-version completion IDs;
 - local-storage keys before and after were only `ml-atlas-locale` and `ml-atlas:math-lab-progress:v1`; no evidence, submission, or learning-progress key was created;
-- returning to Math Lab displayed `6 / 6 completed`.
+- returning to Math Lab displayed `6 / 6 completed` from the route-version store.
+
+This status means “reviewed against `math-to-code-v1`.” It is local navigation state, not grading, formal acceptance, project submission, or a certificate. A future route version mismatch intentionally starts at `0 / 6` for re-review without deleting legacy storage.
 
 ## Automated contract boundary
 

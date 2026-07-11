@@ -174,14 +174,14 @@ const beginnerCards = computed(() =>
     <LearningRouteDashboard
       :route="linearAlgebraRoute"
       :modules="mathLabModules"
-      :completed-module-ids="progress.completedModuleIds"
+      :progress="progress"
       :locale="currentLocale"
     />
 
     <LearningRouteDashboard
       :route="mathToCodePilotRoute"
       :modules="mathLabModules"
-      :completed-module-ids="progress.completedModuleIds"
+      :progress="progress"
       :locale="currentLocale"
     />
 

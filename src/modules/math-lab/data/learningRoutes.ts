@@ -3,6 +3,7 @@ import type {
   LearningRouteId,
   LearningRouteProgressSummary,
   LocalizedCopy,
+  MathLabProgress,
   MathLabModuleId,
 } from '../types/mathLab'
 
@@ -120,6 +121,15 @@ const mathToCodePilotRoute: LearningRoute = {
   ),
   audience: copy('想用一条短路线核验数学、shape、代码与行为一致性的学习者。', 'Learners seeking a short route that aligns mathematics, shapes, code, and behavior.'),
   chapterModuleIds: mathToCodePilotModuleIds,
+  entryAssumptions: [
+    { id: 'high-school-algebra', label: copy('高中代数与基础函数', 'High-school algebra and basic functions') },
+    { id: 'basic-python', label: copy('基础 Python', 'Basic Python') },
+  ],
+  prerequisiteOverrides: Object.fromEntries(mathToCodePilotModuleIds.map((moduleId, index) => [
+    moduleId,
+    index === 0 ? [] : [mathToCodePilotModuleIds[index - 1]],
+  ])),
+  completionVersion: 'math-to-code-v1',
   nextStepRule: 'first-incomplete',
 }
 
@@ -163,8 +173,49 @@ export function routeProgressSummary(
   }
 }
 
+export function completedModuleIdsForRoute(
+  route: LearningRoute,
+  progress: Pick<MathLabProgress, 'completedModuleIds' | 'routeCompletions'>,
+): readonly MathLabModuleId[] {
+  if (!route.completionVersion) return progress.completedModuleIds
+  const routeProgress = progress.routeCompletions?.[route.id]
+  return routeProgress?.version === route.completionVersion ? routeProgress.completedModuleIds : []
+}
+
+export function validateLearningRoutes(routes: readonly LearningRoute[]): string[] {
+  const issues: string[] = []
+  for (const route of routes) {
+    const routeModuleIds = new Set(route.chapterModuleIds)
+    const assumptionIds = new Set(route.entryAssumptions?.map(({ id }) => id) ?? [])
+    const overrides = route.prerequisiteOverrides
+    if (!overrides) continue
+
+    for (const moduleId of route.chapterModuleIds) {
+      if (!(moduleId in overrides)) {
+        issues.push(`route-prerequisite-override-missing:${route.id}:${moduleId}`)
+        continue
+      }
+      const moduleIndex = route.chapterModuleIds.indexOf(moduleId)
+      for (const prerequisiteId of overrides[moduleId] ?? []) {
+        if (assumptionIds.has(prerequisiteId)) continue
+        if (!routeModuleIds.has(prerequisiteId)) {
+          issues.push(`route-prerequisite-unknown:${route.id}:${moduleId}:${prerequisiteId}`)
+          continue
+        }
+        if (route.chapterModuleIds.indexOf(prerequisiteId) >= moduleIndex) {
+          issues.push(`route-prerequisite-not-earlier:${route.id}:${moduleId}:${prerequisiteId}`)
+        }
+      }
+    }
+  }
+  return issues
+}
+
 export interface RouteModuleNavigation {
   routeId: LearningRouteId
+  displayOrder: number
+  effectivePrerequisiteIds?: readonly string[]
+  entryAssumptions: LearningRoute['entryAssumptions']
   previousModuleId?: MathLabModuleId
   nextModuleId?: MathLabModuleId
 }
@@ -180,6 +231,9 @@ export function routeNavigationForModule(
   if (index < 0) return undefined
   return {
     routeId: typedRouteId,
+    displayOrder: index + 1,
+    effectivePrerequisiteIds: route.prerequisiteOverrides?.[moduleId],
+    entryAssumptions: route.entryAssumptions,
     previousModuleId: route.chapterModuleIds[index - 1],
     nextModuleId: route.chapterModuleIds[index + 1],
   }

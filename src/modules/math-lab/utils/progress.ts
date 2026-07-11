@@ -3,6 +3,7 @@ import type {
   MathLabModuleId,
   MathLabProgress,
   QuizAttempt,
+  RouteCompletionProgress,
 } from '../types/mathLab'
 import {
   clearJsonProgress,
@@ -21,6 +22,7 @@ export function createDefaultProgress(now = new Date().toISOString()): MathLabPr
     quizAttempts: [],
     weakConceptTags: [],
     mastery: [],
+    routeCompletions: {},
     updatedAt: now,
   }
 }
@@ -36,9 +38,25 @@ export function loadMathLabProgress(storage?: StorageLike): MathLabProgress {
       quizAttempts: parsed.quizAttempts ?? [],
       weakConceptTags: parsed.weakConceptTags ?? [],
       mastery: parsed.mastery ?? [],
+      routeCompletions: sanitizeRouteCompletions(parsed.routeCompletions),
     }),
     storage,
   )
+}
+
+function sanitizeRouteCompletions(value: unknown): MathLabProgress['routeCompletions'] {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {}
+  const entries: Array<[string, RouteCompletionProgress]> = []
+  for (const [routeId, candidate] of Object.entries(value)) {
+    if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) continue
+    const record = candidate as Record<string, unknown>
+    if (typeof record.version !== 'string' || !Array.isArray(record.completedModuleIds)) continue
+    entries.push([routeId, {
+      version: record.version,
+      completedModuleIds: Array.from(new Set(record.completedModuleIds.filter((id): id is string => typeof id === 'string'))),
+    }])
+  }
+  return Object.fromEntries(entries)
 }
 
 export function saveMathLabProgress(progress: MathLabProgress, storage?: StorageLike) {
@@ -79,6 +97,27 @@ export function markModuleComplete(
   return {
     ...progress,
     completedModuleIds: Array.from(new Set([...progress.completedModuleIds, moduleId])),
+    lastVisitedModuleId: moduleId,
+  }
+}
+
+export function markRouteModuleComplete(
+  progress: MathLabProgress,
+  routeId: string,
+  version: string,
+  moduleId: MathLabModuleId,
+): MathLabProgress {
+  const current = progress.routeCompletions?.[routeId as keyof NonNullable<MathLabProgress['routeCompletions']>]
+  const completedModuleIds = current?.version === version ? current.completedModuleIds : []
+  return {
+    ...progress,
+    routeCompletions: {
+      ...progress.routeCompletions,
+      [routeId]: {
+        version,
+        completedModuleIds: Array.from(new Set([...completedModuleIds, moduleId])),
+      },
+    },
     lastVisitedModuleId: moduleId,
   }
 }

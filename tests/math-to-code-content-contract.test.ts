@@ -456,6 +456,9 @@ test('self-paced completion and route query navigation remain route-scoped', () 
   for (const [index, moduleId] of moduleIds.entries()) {
     assert.deepEqual(routeNavigationForModule('math-to-code-pilot', moduleId), {
       routeId: 'math-to-code-pilot',
+      displayOrder: index + 1,
+      effectivePrerequisiteIds: index === 0 ? [] : [moduleIds[index - 1]],
+      entryAssumptions: learningRouteById['math-to-code-pilot'].entryAssumptions,
       previousModuleId: moduleIds[index - 1],
       nextModuleId: moduleIds[index + 1],
     })
@@ -469,4 +472,16 @@ test('self-paced completion and route query navigation remain route-scoped', () 
   assert.match(page, /query:\s*\{\s*route:\s*routeNavigation\.value\.routeId\s*\}/)
   assert.match(page, /moduleDefinition\.completionMode === 'self-attested'/)
   assert.match(completion, /self-paced local navigation state, not a graded or formal acceptance/i)
+})
+
+test('production browser probe checks dashboard route order and exact adjacent hrefs', () => {
+  const probe = readFileSync(new URL('../scripts/qa/mathToCodePilotBrowserMatrix.js', import.meta.url), 'utf8')
+  assert.match(probe, /\/math-lab['"`]/)
+  assert.match(probe, /dashboardOrders/)
+  assert.match(probe, /\[1,\s*2,\s*3,\s*4,\s*5,\s*6\]/)
+  assert.match(probe, /expectedRouteHrefs/)
+  assert.match(probe, /chapterOrderOk/)
+  assert.match(probe, /matrixAContract/)
+  assert.match(probe, /versionedCompletion/)
+  assert.doesNotMatch(probe, /method:\s*['"]HEAD['"]/)
 })

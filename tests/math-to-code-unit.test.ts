@@ -160,5 +160,5 @@ test('only the genuinely matching existing matrix lab is mounted', () => {
   assert.deepEqual(byId['linear-algebra-feature-space']!.labs, [])
   assert.deepEqual(byId['calculus-derivatives-local-change']!.labs, [])
   assert.deepEqual(byId['numpy-mathematics-implementation']!.labs, [])
-  assert.deepEqual(byId['linear-algebra-matrix-transformations']!.labs.map(({ componentName }) => componentName), ['MatrixTransformLab'])
+  assert.deepEqual(byId['linear-algebra-matrix-transformations']!.labs.map(({ componentName }) => componentName), ['MathToCodeMatrixLab'])
 })

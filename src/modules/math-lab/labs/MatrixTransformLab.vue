@@ -19,8 +19,12 @@ import {
 
 const props = withDefaults(defineProps<{
   locale?: MathLabLocale
+  symbol?: string
+  emitEvidence?: boolean
 }>(), {
   locale: 'zh-CN',
+  symbol: 'W',
+  emitEvidence: true,
 })
 
 const emit = defineEmits<{
@@ -48,6 +52,7 @@ const matrixValue = computed<Matrix2x2>(() => [
   [finiteOr(matrix.c, 0), finiteOr(matrix.d, 0)],
 ])
 const currentLocale = computed(() => props.locale)
+const matrixSymbol = computed(() => props.symbol.trim() || 'W')
 const evaluation = computed(() => evaluateMatrixTransform({
   matrix: matrixValue.value,
   probe: probeVector,
@@ -70,7 +75,7 @@ const copy = computed(() =>
     ? {
         aria: '矩阵变换可视化',
         title: '矩阵实验',
-        subtitle: '拖动 W e1 与 W e2，观察整张网格如何变形',
+        subtitle: `拖动 ${matrixSymbol.value} e1 与 ${matrixSymbol.value} e2，观察整张网格如何变形`,
         preset: '预设',
         invertible: '可逆',
         rank: '秩',
@@ -81,12 +86,14 @@ const copy = computed(() =>
         preserved: '保持',
         flipped: '翻转',
         collapsed: '塌缩',
-        note: '线性层 y = Wx + b 先用 W 移动基向量；任意输入 x 都会按同一组列向量组合得到 Wx。',
+        note: matrixSymbol.value === 'A'
+          ? '几何变换 A 先移动基向量；任意输入 x 都由同一组列向量组合得到 A x。'
+          : `线性层 y = ${matrixSymbol.value}x + b 先用 ${matrixSymbol.value} 移动基向量；任意输入 x 都会按同一组列向量组合得到 ${matrixSymbol.value}x。`,
       }
     : {
         aria: 'Matrix transform visualization',
         title: 'Matrix Lab',
-        subtitle: 'Drag W e1 and W e2 to see how the whole grid deforms',
+        subtitle: `Drag ${matrixSymbol.value} e1 and ${matrixSymbol.value} e2 to see how the whole grid deforms`,
         preset: 'preset',
         invertible: 'invertible',
         rank: 'rank',
@@ -97,7 +104,9 @@ const copy = computed(() =>
         preserved: 'preserved',
         flipped: 'flipped',
         collapsed: 'collapsed',
-        note: 'A linear layer y = Wx + b moves basis vectors first; any input x is then rebuilt from the same column vectors.',
+        note: matrixSymbol.value === 'A'
+          ? 'The geometric transform A moves the basis vectors first; any input x is then rebuilt from the same columns as A x.'
+          : `A linear layer y = ${matrixSymbol.value}x + b moves basis vectors first; any input x is then rebuilt from the same column vectors.`,
       },
 )
 
@@ -108,7 +117,7 @@ const orientationText = computed(() => {
 })
 
 const readoutItems = computed<LabReadoutItem[]>(() => [
-  { id: 'det', label: 'det(W)', value: round(evaluation.value.determinant, 3) },
+  { id: 'det', label: `det(${matrixSymbol.value})`, value: round(evaluation.value.determinant, 3) },
   { id: 'area', label: copy.value.areaScale, value: round(evaluation.value.areaScale, 3) },
   { id: 'rank', label: copy.value.rank, value: evaluation.value.rank },
   {
@@ -123,9 +132,9 @@ const readoutItems = computed<LabReadoutItem[]>(() => [
     value: evaluation.value.invertible ? copy.value.yes : copy.value.nearNo,
     tone: evaluation.value.invertible ? 'good' : 'warn',
   },
-  { id: 'basis-i', label: 'W e1', value: formatVector2(basisI.value) },
-  { id: 'basis-j', label: 'W e2', value: formatVector2(basisJ.value) },
-  { id: 'probe', label: 'W x', value: formatVector2(transformedProbe.value) },
+  { id: 'basis-i', label: `${matrixSymbol.value} e1`, value: formatVector2(basisI.value) },
+  { id: 'basis-j', label: `${matrixSymbol.value} e2`, value: formatVector2(basisJ.value) },
+  { id: 'probe', label: `${matrixSymbol.value} x`, value: formatVector2(transformedProbe.value) },
 ])
 
 function finiteOr(value: number, fallback: number) {
@@ -181,27 +190,29 @@ const evidence = computed<ExperimentEvidence>(() => ({
     en: 'The current matrix deforms the whole grid by moving where e1 and e2 land.',
   },
   metrics: [
-    { label: { 'zh-CN': '矩阵 W', en: 'Matrix W' }, value: formatMatrix(matrixValue.value) },
-    { label: { 'zh-CN': 'W e1', en: 'W e1' }, value: formatVector2(basisI.value) },
-    { label: { 'zh-CN': 'W e2', en: 'W e2' }, value: formatVector2(basisJ.value) },
+    { label: { 'zh-CN': `矩阵 ${matrixSymbol.value}`, en: `Matrix ${matrixSymbol.value}` }, value: formatMatrix(matrixValue.value) },
+    { label: { 'zh-CN': `${matrixSymbol.value} e1`, en: `${matrixSymbol.value} e1` }, value: formatVector2(basisI.value) },
+    { label: { 'zh-CN': `${matrixSymbol.value} e2`, en: `${matrixSymbol.value} e2` }, value: formatVector2(basisJ.value) },
     { label: { 'zh-CN': '探针 x', en: 'Probe x' }, value: formatVector2(probeVector) },
-    { label: { 'zh-CN': 'W x', en: 'W x' }, value: formatVector2(transformedProbe.value) },
-    { label: { 'zh-CN': '列组合', en: 'column combination' }, value: `${probeVector.x} W e1 + ${probeVector.y} W e2 = ${formatVector2(transformedProbe.value)}` },
-    { label: { 'zh-CN': 'det(W)', en: 'det(W)' }, value: round(evaluation.value.determinant, 3) },
+    { label: { 'zh-CN': `${matrixSymbol.value} x`, en: `${matrixSymbol.value} x` }, value: formatVector2(transformedProbe.value) },
+    { label: { 'zh-CN': '列组合', en: 'column combination' }, value: `${probeVector.x} ${matrixSymbol.value} e1 + ${probeVector.y} ${matrixSymbol.value} e2 = ${formatVector2(transformedProbe.value)}` },
+    { label: { 'zh-CN': `det(${matrixSymbol.value})`, en: `det(${matrixSymbol.value})` }, value: round(evaluation.value.determinant, 3) },
     { label: { 'zh-CN': '秩', en: 'rank' }, value: evaluation.value.rank },
     { label: { 'zh-CN': '面积倍数', en: 'area scale' }, value: round(evaluation.value.areaScale, 3) },
     { label: { 'zh-CN': '方向', en: 'orientation' }, value: { 'zh-CN': orientationText.value, en: orientationText.value } },
     { label: { 'zh-CN': '可逆', en: 'invertible' }, value: evaluation.value.invertible ? { 'zh-CN': '是', en: 'yes' } : { 'zh-CN': '否', en: 'no' } },
   ],
   prompt: {
-    'zh-CN': '解释为什么只看 W e1 和 W e2 就能预测网格如何变形。',
-    en: 'Explain why W e1 and W e2 are enough to predict how the grid deforms.',
+    'zh-CN': `解释为什么只看 ${matrixSymbol.value} e1 和 ${matrixSymbol.value} e2 就能预测网格如何变形。`,
+    en: `Explain why ${matrixSymbol.value} e1 and ${matrixSymbol.value} e2 are enough to predict how the grid deforms.`,
   },
 }))
 
 watch(
   evidence,
-  (nextEvidence) => emit('evidence-change', nextEvidence),
+  (nextEvidence) => {
+    if (props.emitEvidence) emit('evidence-change', nextEvidence)
+  },
   { immediate: true },
 )
 </script>
@@ -253,7 +264,7 @@ watch(
           />
           <DraggableVector
             :vector="basisI"
-            label="W e1"
+            :label="`${matrixSymbol} e1`"
             :to-svg="toSvg"
             :from-svg="fromSvg"
             marker-id="matrix-arrow-i"
@@ -262,7 +273,7 @@ watch(
           />
           <DraggableVector
             :vector="basisJ"
-            label="W e2"
+            :label="`${matrixSymbol} e2`"
             :to-svg="toSvg"
             :from-svg="fromSvg"
             marker-id="matrix-arrow-j"
