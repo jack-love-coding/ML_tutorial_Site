@@ -50,6 +50,25 @@ test('deep learning evidence code IDs are stable and module-derived', () => {
   }
 })
 
+test('deep learning records preserve concrete Python tool decisions as capabilities', () => {
+  const byId = new Map(curriculumV3DeepLearningModules.map((module) => [module.id, module]))
+  const expectedCapabilities = {
+    mlp: ['numpy-mlp-from-scratch', 'pytorch-mlp-training'],
+    'matrix-calculus-autodiff': ['pytorch-autograd'],
+    'cnn-visualization': ['pytorch-convolution-cnn'],
+    'attention-qkv-multihead': ['numpy-attention-math', 'pytorch-multihead-attention'],
+    'small-transformer-training': ['pytorch-transformer-training'],
+    'peft-lora': ['peft-lora-adaptation'],
+    'retrieval-rag-systems': ['python-vector-index-retrieval'],
+  } as const
+
+  for (const [id, capabilities] of Object.entries(expectedCapabilities)) {
+    for (const capability of capabilities) {
+      assert.ok(byId.get(id)?.pythonCapabilities.includes(capability), `${id} must include ${capability}`)
+    }
+  }
+})
+
 test('Curriculum V3 defines ten ordered bilingual arcs', () => {
   assert.deepEqual(curriculumV3Arcs.map((arc) => arc.id), [
     'math-language',
