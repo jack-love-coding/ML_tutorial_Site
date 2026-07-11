@@ -2,7 +2,7 @@ export type MathLabLocale = 'zh-CN' | 'en'
 
 export type MathLabModuleId = string
 
-export type LearningRouteId = 'ai-math-main-path' | 'linear-algebra-route' | 'calculus-route' | 'numerical-deepening-path'
+export type LearningRouteId = 'ai-math-main-path' | 'linear-algebra-route' | 'calculus-route' | 'numerical-deepening-path' | 'math-to-code-pilot'
 
 export type MathLabDifficulty = 'foundation' | 'intermediate' | 'advanced'
 

@@ -5,7 +5,7 @@ import LearningRouteDashboard from '../components/LearningRouteDashboard.vue'
 import LearningPathMap from '../components/LearningPathMap.vue'
 import SkillRadarChart from '../components/SkillRadarChart.vue'
 import { learningRouteById } from '../data/learningRoutes'
-import { mathLabModules } from '../data/modules'
+import { aiMathPathModuleIds, mathLabModules } from '../data/modules'
 import type { MathLabLocale, MathLabProgress } from '../types/mathLab'
 import { continueMathLabModuleId } from '../utils/continueRoute'
 import { loadMathLabProgress } from '../utils/progress'
@@ -15,6 +15,11 @@ const { locale } = useI18n()
 const progress = ref<MathLabProgress>(loadMathLabProgress())
 const currentLocale = computed(() => locale.value as MathLabLocale)
 const linearAlgebraRoute = computed(() => learningRouteById['linear-algebra-route'])
+const mathToCodePilotRoute = computed(() => learningRouteById['math-to-code-pilot'])
+const aiMathPathModules = computed(() => {
+  const ids = new Set(aiMathPathModuleIds)
+  return mathLabModules.filter((moduleDefinition) => ids.has(moduleDefinition.id))
+})
 
 const copy = computed(() =>
   currentLocale.value === 'zh-CN'
@@ -173,6 +178,13 @@ const beginnerCards = computed(() =>
       :locale="currentLocale"
     />
 
+    <LearningRouteDashboard
+      :route="mathToCodePilotRoute"
+      :modules="mathLabModules"
+      :completed-module-ids="progress.completedModuleIds"
+      :locale="currentLocale"
+    />
+
     <section class="math-lab-dashboard">
       <article class="math-lab-panel">
         <header class="section-header">
@@ -181,7 +193,7 @@ const beginnerCards = computed(() =>
           <p>{{ copy.pathBody }}</p>
         </header>
         <LearningPathMap
-          :modules="mathLabModules"
+          :modules="aiMathPathModules"
           :completed-module-ids="progress.completedModuleIds"
           :locale="currentLocale"
         />

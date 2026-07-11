@@ -18,6 +18,8 @@ export const learningRouteSummaryModules: readonly LearningRouteSummaryModule[] 
   { id: 'tensor-shapes-vectorization', title: title('张量 shape 与向量化', 'Tensor Shapes and Vectorization') },
   { id: 'calculus-functions-rate-change', title: title('函数与映射：输入怎样变成预测', 'Functions and Mappings: How Inputs Become Predictions') },
   { id: 'calculus-derivatives-local-change', title: title('导数与误差敏感度', 'Derivatives and Error Sensitivity') },
+  { id: 'numpy-mathematics-implementation', title: title('NumPy 数学实现', 'NumPy Mathematics Implementation') },
+  { id: 'math-to-code-guided-studio', title: title('引导式实践：从数学到可复现代码', 'Guided Studio: From Mathematics to Reproducible Code') },
   { id: 'calculus-partial-derivatives-gradients', title: title('偏导数和梯度', 'Partial Derivatives and Gradients') },
   { id: 'calculus-gradient-descent', title: title('梯度下降', 'Gradient Descent') },
   { id: 'calculus-sgd-batch-noise', title: title('Full Batch、Mini-Batch 和 SGD', 'Full Batch, Mini-Batch, and SGD') },

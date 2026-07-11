@@ -954,6 +954,47 @@ test('prediction mapping lab normalizes bounds, resets readouts, marks the curre
   }
 })
 
+test('math-to-code studio client mount recomputes intermediates, rejects invalid input, resets, and emits no evidence', async () => {
+  const evidenceEvents = []
+  let storageWrites = 0
+  const previousWindow = globalThis.window
+  globalThis.window = { localStorage: { getItem: () => null, setItem: () => { storageWrites += 1 } } }
+  const mounted = await mountClientSfc('/src/modules/math-lab/labs/MathToCodeStudioLab.vue', {
+    locale: 'en',
+    onEvidenceChange: (evidence) => evidenceEvents.push(evidence),
+  })
+  const text = () => flattenRenderedNodes(mounted.container).map((node) => node.text ?? '').join(' ')
+  const nodes = () => flattenRenderedNodes(mounted.container)
+  try {
+    assert.match(text(), /Predictions y_hat.*\[10, 5\].*Residuals.*\[1, -2\].*Squared errors.*\[1, 4\].*MSE.*2\.5.*Weight derivatives.*\[0, -5\].*Bias derivative.*-1/s)
+    const inputs = nodes().filter((node) => node.type === 'input' && node.props?.type === 'number')
+    assert.equal(inputs.length, 9)
+
+    inputs[0].value = '3'
+    dispatchNodeEvent(inputs[0], 'input', { target: inputs[0] })
+    await mounted.update()
+    assert.match(text(), /Predictions y_hat.*\[14, 5\].*Residuals.*\[5, -2\].*Squared errors.*\[25, 4\].*MSE.*14\.5/s)
+
+    inputs[0].value = 'Infinity'
+    dispatchNodeEvent(inputs[0], 'input', { target: inputs[0] })
+    await mounted.update()
+    assert.match(text(), /All inputs must be finite|Enter a finite number/)
+    assert.doesNotMatch(text(), /MSE.*NaN|MSE.*Infinity/s)
+
+    const reset = nodes().find((node) => node.type === 'button')
+    assert.ok(reset)
+    dispatchNodeEvent(reset, 'click', {})
+    await mounted.update()
+    assert.match(text(), /Predictions y_hat.*\[10, 5\].*MSE.*2\.5/s)
+    assert.equal(evidenceEvents.length, 0)
+    assert.equal(storageWrites, 0)
+  } finally {
+    await mounted.unmount()
+    if (previousWindow === undefined) delete globalThis.window
+    else globalThis.window = previousWindow
+  }
+})
+
 test('vector similarity lab evidence includes distance and similarity ranking readouts', async () => {
   const evidenceEvents = await collectSsrEvidence('/src/modules/math-lab/labs/VectorSimilarityLab.vue', {
     locale: 'en',

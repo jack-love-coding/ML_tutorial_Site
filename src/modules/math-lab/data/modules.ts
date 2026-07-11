@@ -26,7 +26,7 @@ const supplementalModules = Object.fromEntries(
   mathFoundationsModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
 ) as Record<MathLabModuleId, MathLabModule | undefined>
 
-const aiMathPath: MathLabModuleId[] = [
+export const aiMathPathModuleIds: readonly MathLabModuleId[] = [
   'beginner-linear-algebra',
   'linear-algebra-feature-space',
   'linear-algebra-distance-similarity',
@@ -131,7 +131,7 @@ const allModulesById = Object.fromEntries(
   ].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
 ) as Record<MathLabModuleId, MathLabModule | undefined>
 
-export const mathLabModules: MathLabModule[] = aiMathPath.map((moduleId, index) => {
+const aiMathPathModules: MathLabModule[] = aiMathPathModuleIds.map((moduleId, index) => {
   const moduleDefinition = allModulesById[moduleId]
 
   if (!moduleDefinition) {
@@ -141,9 +141,22 @@ export const mathLabModules: MathLabModule[] = aiMathPath.map((moduleId, index) 
   return {
     ...moduleDefinition,
     order: index + 1,
-    nextModuleIds: aiMathPath[index + 1] ? [aiMathPath[index + 1]] : [],
+    nextModuleIds: aiMathPathModuleIds[index + 1] ? [aiMathPathModuleIds[index + 1]!] : [],
   }
 })
+
+const routeOnlyModuleIds: readonly MathLabModuleId[] = [
+  'numpy-mathematics-implementation',
+  'math-to-code-guided-studio',
+]
+
+const routeOnlyModules: MathLabModule[] = routeOnlyModuleIds.map((moduleId, index) => {
+  const moduleDefinition = allModulesById[moduleId]
+  if (!moduleDefinition) throw new Error(`Missing route-only math lab module: ${moduleId}`)
+  return { ...moduleDefinition, order: aiMathPathModules.length + index + 1 }
+})
+
+export const mathLabModules: MathLabModule[] = [...aiMathPathModules, ...routeOnlyModules]
 
 export const mathLabModuleRegistry = Object.fromEntries(
   mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),

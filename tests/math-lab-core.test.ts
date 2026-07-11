@@ -417,10 +417,10 @@ test('AI bridge math utilities validate shapes, autodiff, probability, diagnosti
 })
 
 test('math lab modules include the zero-base AI math path with the linear algebra route split', () => {
-  assert.equal(mathLabModules.length, 31)
+  assert.equal(mathLabModules.length, 33)
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.order),
-    Array.from({ length: 31 }, (_, index) => index + 1),
+    Array.from({ length: 33 }, (_, index) => index + 1),
   )
   assert.deepEqual(
     mathLabModules.map((moduleDefinition) => moduleDefinition.id),
@@ -456,6 +456,8 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'training-diagnostics',
       'least-squares-fitting',
       'deep-architecture-math',
+      'numpy-mathematics-implementation',
+      'math-to-code-guided-studio',
     ],
   )
   for (const moduleDefinition of mathLabModules) {
@@ -469,7 +471,7 @@ test('math lab modules include the zero-base AI math path with the linear algebr
     assert.equal('attribution' in moduleDefinition, false, `${moduleDefinition.id} should not expose migrated attribution`)
     assert.equal(moduleDefinition.sections.length >= 3, true, `${moduleDefinition.id} needs complete lesson sections`)
     assert.equal(moduleDefinition.toc.length > 0, true, `${moduleDefinition.id} needs toc entries`)
-    const deliberatelyStaticPilotIds = new Set(['linear-algebra-feature-space', 'calculus-derivatives-local-change'])
+    const deliberatelyStaticPilotIds = new Set(['linear-algebra-feature-space', 'calculus-derivatives-local-change', 'numpy-mathematics-implementation'])
     assert.equal(moduleDefinition.labs.length >= 1 || deliberatelyStaticPilotIds.has(moduleDefinition.id), true, `${moduleDefinition.id} needs a matching lab or an explicit static pilot contract`)
     assert.equal(moduleDefinition.sourceNoteFile?.endsWith('.md'), true, `${moduleDefinition.id} should track source filename internally`)
 
@@ -491,6 +493,10 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       assert.match(englishBody, /unit-bearing linear functional|dimensionless geometry/i)
     } else if (moduleDefinition.id === 'linear-algebra-matrix-transformations') {
       assert.match(englishBody, /shape ledger|broadcasting|batch/i)
+    } else if (moduleDefinition.id === 'numpy-mathematics-implementation') {
+      assert.match(englishBody, /np\.asarray|broadcasting|MSE/i)
+    } else if (moduleDefinition.id === 'math-to-code-guided-studio') {
+      assert.match(englishBody, /Stage goal|numerical sensitivity|Probability Preview/i)
     } else if (moduleDefinition.id === 'calculus-partial-derivatives-gradients') {
       assert.match(englishBody, /partial derivative|gradient|parameter/i)
     } else if (moduleDefinition.id === 'calculus-gradient-descent') {
@@ -527,16 +533,18 @@ test('math lab modules include the zero-base AI math path with the linear algebr
     ])
     if (['calculus-functions-rate-change', 'calculus-derivatives-local-change', 'linear-algebra-feature-space', 'linear-algebra-matrix-transformations'].includes(moduleDefinition.id)) {
       assert.match(englishBody, /Three-Layer Practice/)
-    } else if (moduleDefinition.id !== 'pca' && !aiBridgeIds.has(moduleDefinition.id)) {
+    } else if (!['pca', 'numpy-mathematics-implementation', 'math-to-code-guided-studio'].includes(moduleDefinition.id) && !aiBridgeIds.has(moduleDefinition.id)) {
       assert.match(englishBody, /Review Questions/)
     }
     assert.doesNotMatch(englishBody, /CS\s*357|Course Staff|changelog|site\.baseurl/)
   }
 
-  for (let index = 0; index < mathLabModules.length - 1; index += 1) {
+  for (let index = 0; index < 30; index += 1) {
     assert.deepEqual(mathLabModules[index].nextModuleIds, [mathLabModules[index + 1].id])
   }
-  assert.deepEqual(mathLabModules.at(-1)?.nextModuleIds, [])
+  assert.deepEqual(mathLabModules[30]?.nextModuleIds, [])
+  assert.deepEqual(mathLabModules[31]?.nextModuleIds, ['math-to-code-guided-studio'])
+  assert.deepEqual(mathLabModules[32]?.nextModuleIds, [])
 })
 
 test('primary math path prerequisites do not point at retired calculus bridge', () => {

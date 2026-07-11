@@ -211,6 +211,21 @@ test('V3 audit records module-specific evidence instead of shared templates', ()
   )
 })
 
+test('V3 audit covers the two pilot additions exactly once with valid and specific targets', () => {
+  const expected = {
+    'numpy-mathematics-implementation': ['project-math-to-code'],
+    'math-to-code-guided-studio': ['project-math-to-code'],
+  }
+  for (const [currentId, targetModuleIds] of Object.entries(expected)) {
+    const entries = curriculumV3AuditEntries.filter((entry) => entry.currentModuleId === currentId)
+    assert.equal(entries.length, 1, `${currentId} must occur exactly once`)
+    assert.deepEqual(entries[0]!.targetModuleIds, targetModuleIds)
+    assert.ok(entries[0]!.strengths.join(' ').length > 80)
+    assert.ok(entries[0]!.contractGaps.join(' ').length > 80)
+    for (const targetId of targetModuleIds) assert.ok(curriculumV3ModuleById.has(targetId))
+  }
+})
+
 test('V3 audit uses required non-obvious migration mappings and actions', () => {
   const expected = {
     'housing-price-project': ['project-tabular-regression'],
@@ -278,7 +293,9 @@ test('V3 audit locks the exact keep set and convergence classifications', () => 
     'finite-difference-methods',
     'gradient-descent',
     'lu-decomposition',
+    'math-to-code-guided-studio',
     'nonlinear-equations',
+    'numpy-mathematics-implementation',
     'optimization',
     'optimizer-comparison',
     'pca',

@@ -759,6 +759,13 @@ const runtimeTitles = {
     '9. Controlled Experiment: Loop and Vectorized Outputs Must Match', '10. Misconceptions: NumPy’s Legal Errors',
     '11. Three-Layer Practice: Read, Calculate, and Debug Shapes', '12. Summary and Studio Handoff',
   ],
+  studio: [
+    'Stage 1: Reproduce the Task and Input Contract', 'Stage 2: Build a Transparent Scalar Baseline',
+    'Stage 3: Translate the Scalar Chain into a Vector Prediction', 'Stage 4: Extend to Batch Prediction',
+    'Stage 5: Compare Errors and Rebuild MSE', 'Stage 6: Estimate Numerical Sensitivity',
+    'Stage 7: Probability Preview (Not a Complete Probability Course)', 'Stage 8: Failure Analysis and Minimal Repairs',
+    'Stage 9: Evidence Review and Learning Reflection',
+  ],
 } as const
 
 type RuntimeLessonKey = keyof typeof runtimeTitles
@@ -781,7 +788,7 @@ function promotedModule(input: {
   zhSubtitle: string
   enSubtitle: string
   prerequisites: string[]
-  next: string
+  next?: string
   concepts: MathConcept[]
   objectives: Array<[string, string]>
   connections: Array<[string, string]>
@@ -803,7 +810,7 @@ function promotedModule(input: {
     concepts: input.concepts, sections,
     toc: sections.map(({ id, level, title }) => ({ id, level, title })),
     visuals: [], labs: input.lab ? [input.lab] : [], quizzes: input.quizzes,
-    misconceptions: input.misconceptions, nextModuleIds: [input.next],
+    misconceptions: input.misconceptions, nextModuleIds: input.next ? [input.next] : [],
     accent: input.accent, theme: input.theme, sourceNoteFile: input.sourceNoteFile,
     sourceReferences: input.sourceReferences ?? [
       { label: copy('Mathematics for Machine Learning', 'Mathematics for Machine Learning'), href: 'https://mml-book.github.io/', license: 'CC BY-NC-SA 4.0', usage: copy('用于核对数学定义、shape 与机器学习连接。', 'Used to verify mathematical definitions, shape contracts, and machine-learning connections.') },
@@ -984,10 +991,52 @@ const numpyModule = promotedModule({
   ],
 })
 
+const studioLab: LabConfig = {
+  id: 'math-to-code-studio-lab',
+  title: copy('公式到代码中间值实验台', 'Formula-to-Code Intermediate-Value Studio'),
+  type: 'hybrid',
+  componentName: 'MathToCodeStudioLab',
+  successCriteria: [
+    copy('能从 X、w、b 逐层解释预测、残差、平方误差、MSE 与数值敏感度。', 'Explain predictions, residuals, squared errors, MSE, and numerical sensitivities from X, w, and b layer by layer.'),
+    copy('能用 shape 与有限值反馈定位无效输入，并恢复共同起点。', 'Use shape and finite-value feedback to locate invalid input and restore the shared baseline.'),
+  ],
+}
+
+const studioModule = promotedModule({
+  id: 'math-to-code-guided-studio', key: 'studio',
+  zhTitle: '引导式实践：从数学到可复现代码', enTitle: 'Guided Studio: From Mathematics to Reproducible Code',
+  zhSubtitle: '按同一 notebook 顺序重建标量、向量、批量预测、MSE、数值敏感度、概率预告与失败诊断。',
+  enSubtitle: 'Rebuild scalar, vector, batch, MSE, numerical-sensitivity, probability-preview, and failure-diagnosis evidence in one ordered notebook.',
+  prerequisites: ['numpy-mathematics-implementation'], sourceNoteFile: 'math-to-code-guided-studio-sources.md',
+  accent: '#0f766e', theme: '#ecfdf5', lab: studioLab,
+  objectives: [
+    ['用同一组 X、w、b、targets 重建完整预测与误差链。', 'Rebuild the complete prediction and error chain from one X, w, b, and targets contract.'],
+    ['保留矩阵、目标、预测、残差、平方误差、MSE 与导数中间值。', 'Preserve matrix, target, prediction, residual, squared-error, MSE, and derivative intermediates.'],
+    ['用 shape、有限值与循环 oracle 诊断静默错误。', 'Diagnose silent errors with shapes, finite checks, and a loop oracle.'],
+    ['区分局部数值敏感度、概率预告与后续正式项目。', 'Separate local numerical sensitivity, the probability preview, and the later formal project.'],
+  ],
+  connections: [
+    ['可审计中间值是把数学定义迁移到张量框架和训练代码的基础。', 'Auditable intermediates are the basis for moving mathematical definitions into tensor frameworks and training code.'],
+    ['固定种子预告可复现随机实验，但不替代后续 Monte Carlo 课程。', 'The fixed-seed preview demonstrates reproducible randomness without replacing the later Monte Carlo lesson.'],
+  ],
+  concepts: [
+    simpleConcept('studio-forward-error-chain', '前向预测与误差链', 'Forward Prediction and Error Chain', '\\hat y=Xw+b,\\quad L=\\frac1n\\sum_i(\\hat y_i-y_i)^2', [['X', 'shape (n,d) 的有限样本矩阵。', 'A finite sample matrix with shape (n,d).'], ['w', 'shape (d,) 的有限权重向量。', 'A finite weight vector with shape (d,).'], ['y', '预测后才进入比较的 shape (n,) 目标。', 'Shape-(n,) targets that enter only after prediction.']], '每一层保留名字与 shape，便于从 MSE 逆向定位。', 'Preserve names and shapes at each layer so a surprising MSE can be traced upstream.', '样本轴保留到逐行误差，特征轴在点积时消去。', 'The sample axis survives through row errors while the feature axis is contracted by the dot product.', 'predictions=[10,5]，residuals=[1,-2]，squares=[1,4]，MSE=2.5。', 'predictions=[10,5], residuals=[1,-2], squares=[1,4], and MSE=2.5.', '同一账本可迁移到批量神经网络前向计算与损失诊断。', 'The same ledger transfers to batched neural-network forward passes and loss diagnosis.'),
+    simpleConcept('studio-local-sensitivity', '局部数值敏感度', 'Local Numerical Sensitivity', '\\frac{L(\\theta+h)-L(\\theta-h)}{2h}', [['theta', '一次只探测的当前参数。', 'The current parameter probed one at a time.'], ['h', '有限、为正的局部扰动。', 'A finite positive local perturbation.']], '中央差分读取当前点附近的损失变化率，不更新参数。', 'Central difference reads a local loss rate near the current point and does not update parameters.', '左右探测必须从同一中心的独立副本出发。', 'Left and right probes must start from independent copies of the same center.', '敏感度约为 w=[0,-5]、b=-1。', 'Sensitivities are approximately w=[0,-5] and b=-1.', '后续梯度下降还需要学习率、更新规则与迭代证据。', 'Later gradient descent still requires a learning rate, update rule, and iteration evidence.'),
+  ],
+  misconceptions: [
+    misconception('studio-broadcast-is-alignment', '只要广播成功，预测与目标就已逐行对齐。', 'Successful broadcasting proves predictions and targets are row-aligned.', '广播只检查尾轴尺寸；损失前必须要求一维 shape 完全相同。', 'Broadcasting checks trailing sizes only; loss requires identical one-dimensional shapes.', '(2,) 减 (2,1) 会静默产生 (2,2) 交叉残差。', '(2,) minus (2,1) silently creates (2,2) cross residuals.'),
+    misconception('studio-mse-is-enough', '只保留 MSE 足以诊断所有错误。', 'MSE alone is enough to diagnose every error.', '聚合会丢失样本方向与贡献，必须保留残差和平方误差。', 'Aggregation loses sample direction and contribution, so residuals and squared errors must remain visible.', '2.5 不能反推出 [1,-2] 与 [1,4]。', 'The scalar 2.5 cannot reconstruct [1,-2] and [1,4].'),
+    misconception('studio-sensitivity-is-training', '数值敏感度计算已经训练了模型。', 'Computing numerical sensitivity has trained the model.', '敏感度只估计局部斜率；这里没有学习率、赋值或迭代。', 'Sensitivity only estimates local slope; no learning rate, assignment, or iteration occurs here.', '返回 -5 不会把 w2 改成任何新值。', 'Returning -5 does not change w2 to a new value.'),
+    misconception('studio-seed-removes-randomness', '固定种子消除了随机现象。', 'A fixed seed removes randomness from the phenomenon.', '固定种子只复现同一伪随机序列，不回答完整概率问题。', 'A fixed seed only reproduces one pseudorandom sequence; it does not answer the full probability questions.', '重新创建 seed=2026 可核对表格，但不同种子通常给出不同频率。', 'Recreating seed=2026 verifies the table, while different seeds usually produce different frequencies.'),
+  ],
+  quizzes: [],
+})
+
 export const mathToCodeModules: MathLabModule[] = [
   functionsAndMappingsModule,
   vectorsModule,
   matricesModule,
   derivativesModule,
   numpyModule,
+  studioModule,
 ]

@@ -101,6 +101,13 @@ test('math lab navigation menu covers all lab module routes with localized label
     calculusRouteGroup.items.map((item) => item.id),
   )
 
+  const pilotGroup = mathLabNavigationGroups.find((group) => group.id === 'math-to-code-pilot')
+  assert.ok(pilotGroup)
+  assert.deepEqual(
+    pilotGroup.items.map((item) => item.id),
+    learningRouteById['math-to-code-pilot'].chapterModuleIds.slice(4),
+  )
+
   assert.deepEqual(
     mathLabNavigationGroups.map((group) => group.id),
     [
@@ -108,6 +115,7 @@ test('math lab navigation menu covers all lab module routes with localized label
       'linear-algebra',
       'linear-algebra-tools',
       'calculus-route',
+      'math-to-code-pilot',
       'calculus-optimization',
       'probability-sampling',
       'data-geometry-architectures',
@@ -135,6 +143,8 @@ test('math lab navigation menu covers all lab module routes with localized label
     '/math-lab/modules/calculus-sgd-batch-noise',
     '/math-lab/modules/calculus-optimizer-comparison',
     '/math-lab/modules/calculus-training-code-diagnostics',
+    '/math-lab/modules/numpy-mathematics-implementation',
+    '/math-lab/modules/math-to-code-guided-studio',
     '/math-lab/modules/taylor-series',
     '/math-lab/modules/matrix-calculus-autodiff',
     '/math-lab/modules/finite-difference-methods',

@@ -28,4 +28,4 @@ These links are used to verify API semantics and failure boundaries. The lesson'
 - `CodeLab` renders the checked reference code as local static teaching content. This lesson adds no executable remote notebook, iframe, upload, grading, or evidence-persistence channel.
 - The `(2,3)` sensor-grid and `column_bias` example is independent of the prediction task; it teaches trailing-axis broadcasting and a legal-but-wrong `(3,3)` result.
 - The lesson reuses Task 1 utilities as the numerical oracle but does not change their API or move NumPy execution into the browser.
-- `numpy-mathematics-implementation` remains exported-only in Task 6. Task 7 owns pilot-route registration.
+- Task 7 registers `numpy-mathematics-implementation` in the runtime Catalog and places it immediately before `math-to-code-guided-studio` in `math-to-code-pilot`.

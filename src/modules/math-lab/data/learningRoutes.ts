@@ -30,6 +30,15 @@ export const calculusRouteModuleIds: readonly MathLabModuleId[] = [
   'calculus-training-code-diagnostics',
 ]
 
+export const mathToCodePilotModuleIds: readonly MathLabModuleId[] = [
+  'calculus-functions-rate-change',
+  'linear-algebra-feature-space',
+  'linear-algebra-matrix-transformations',
+  'calculus-derivatives-local-change',
+  'numpy-mathematics-implementation',
+  'math-to-code-guided-studio',
+]
+
 const aiMathMainPathRoute: LearningRoute = {
   id: 'ai-math-main-path',
   title: copy('AI 数学主线', 'AI Math Main Path'),
@@ -102,11 +111,24 @@ const numericalDeepeningRoute: LearningRoute = {
   nextStepRule: 'first-incomplete',
 }
 
+const mathToCodePilotRoute: LearningRoute = {
+  id: 'math-to-code-pilot',
+  title: copy('数学到代码试学路线', 'Math-to-Code Pilot Route'),
+  description: copy(
+    '按函数、向量、矩阵、导数、NumPy 与引导式实践的顺序，把公式翻译成可复现中间值。',
+    'Translate formulas into reproducible intermediates through functions, vectors, matrices, derivatives, NumPy, and a guided studio.',
+  ),
+  audience: copy('想用一条短路线核验数学、shape、代码与行为一致性的学习者。', 'Learners seeking a short route that aligns mathematics, shapes, code, and behavior.'),
+  chapterModuleIds: mathToCodePilotModuleIds,
+  nextStepRule: 'first-incomplete',
+}
+
 export const learningRoutes: readonly LearningRoute[] = [
   aiMathMainPathRoute,
   linearAlgebraRoute,
   calculusRoute,
   numericalDeepeningRoute,
+  mathToCodePilotRoute,
 ]
 
 export const learningRouteById: Record<LearningRouteId, LearningRoute> = {
@@ -114,6 +136,7 @@ export const learningRouteById: Record<LearningRouteId, LearningRoute> = {
   'linear-algebra-route': linearAlgebraRoute,
   'calculus-route': calculusRoute,
   'numerical-deepening-path': numericalDeepeningRoute,
+  'math-to-code-pilot': mathToCodePilotRoute,
 }
 
 export function nextModuleForRoute(

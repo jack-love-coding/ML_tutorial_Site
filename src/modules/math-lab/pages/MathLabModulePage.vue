@@ -61,6 +61,7 @@ const labComponentRegistry = {
   MathGradientLab: defineAsyncComponent(() => import('../labs/MathGradientLab.vue')),
   MatrixColumnSpaceLab: defineAsyncComponent(() => import('../labs/MatrixColumnSpaceLab.vue')),
   MatrixTransformLab: defineAsyncComponent(() => import('../labs/MatrixTransformLab.vue')),
+  MathToCodeStudioLab: defineAsyncComponent(() => import('../labs/MathToCodeStudioLab.vue')),
   MonteCarloLab: defineAsyncComponent(() => import('../labs/MonteCarloLab.vue')),
   NonlinearEquationsLab: defineAsyncComponent(() => import('../labs/NonlinearEquationsLab.vue')),
   OptimizerRaceLab: defineAsyncComponent(() => import('../labs/OptimizerRaceLab.vue')),

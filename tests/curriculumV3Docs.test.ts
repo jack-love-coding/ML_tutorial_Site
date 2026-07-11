@@ -15,7 +15,7 @@ test('V3 docs are generated from the typed blueprint', () => {
     'project-map.md',
   ])
   assert.match(rendered.get('module-inventory.md') ?? '', /56 instructional modules/)
-  assert.match(rendered.get('content-audit.md') ?? '', /53 current modules/)
+  assert.match(rendered.get('content-audit.md') ?? '', /55 current modules/)
   assert.match(rendered.get('project-map.md') ?? '', /project-small-transformer/)
   assert.match(rendered.get('coverage.md') ?? '', /llm-adaptation-and-rag/)
 })

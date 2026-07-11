@@ -19,6 +19,8 @@ const auditTargets: Record<string, string[]> = {
   'tensor-shapes-vectorization': ['tensor-shapes-vectorization'],
   'calculus-functions-rate-change': ['calculus-functions-rate-change'],
   'calculus-derivatives-local-change': ['calculus-derivatives-local-change'],
+  'numpy-mathematics-implementation': ['project-math-to-code'],
+  'math-to-code-guided-studio': ['project-math-to-code'],
   'calculus-partial-derivatives-gradients': ['calculus-partial-derivatives-gradients'],
   'calculus-gradient-descent': ['gradient-descent'],
   'calculus-sgd-batch-noise': ['gradient-descent', 'optimizer-comparison'],
@@ -154,6 +156,14 @@ const auditEvidence: Record<string, AuditEvidence> = {
   'calculus-derivatives-local-change': {
     strengths: ['Checks analytic MSE sensitivities against side-effect-free central differences, sweeps h to expose broad-window and floating-point failures, and explicitly separates derivative estimation from gradient-descent updates.'],
     contractGaps: ['Still needs a later automatic-differentiation comparison and a multivariable contour task; nonsmooth one-sided behavior is introduced but not yet implemented as an interactive probe.'],
+  },
+  'numpy-mathematics-implementation': {
+    strengths: ['Reproduces the shared X,w,b prediction chain with checked float conversion, exact shape and finite-value guards, loop-versus-vector agreement, MSE 2.5, central-difference sensitivities [0,-5,-1], and explicit broadcasting failures.'],
+    contractGaps: ['Should feed the formal math-to-code project with clean-kernel reruns, pinned environment metadata, array failure tests, framework-transfer evidence, and versioned artifacts rather than leaving NumPy safety as an isolated route stop.'],
+  },
+  'math-to-code-guided-studio': {
+    strengths: ['Connects nine ordered notebook stages from input contracts and scalar contributions through vector and batch predictions, residuals, squared errors, MSE, numerical sensitivity, a seeded probability preview, and minimal failure diagnosis.'],
+    contractGaps: ['Provides guided local practice but intentionally lacks the formal project deliverables, optimization iterations, repeated-run uncertainty analysis, versioned artifacts, and limitations evidence reserved for project-math-to-code after Gradient Descent and Monte Carlo.'],
   },
   'calculus-partial-derivatives-gradients': {
     strengths: ['Uses one-parameter-at-a-time knobs before collecting partial derivatives into a multi-parameter gradient.'],

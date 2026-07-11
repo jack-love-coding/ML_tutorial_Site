@@ -46,11 +46,12 @@ function copies(value: unknown): Array<{ 'zh-CN': string, en: string }> {
   return Object.values(value).flatMap(copies)
 }
 
-test('Task 6 exports four complete typed bilingual lessons in exact promotion order', () => {
-  assert.deepEqual(mathToCodeModules.map((module) => module.id), [
+test('Task 6 lessons retain their exact promotion prefix after the guided studio is appended', () => {
+  assert.deepEqual(mathToCodeModules.slice(0, 5).map((module) => module.id), [
     'calculus-functions-rate-change',
     ...cases.map(({ id }) => id),
   ])
+  assert.equal(mathToCodeModules[5]?.id, 'math-to-code-guided-studio')
 
   for (const lesson of cases) {
     const module = mathToCodeModules.find(({ id }) => id === lesson.id)
@@ -85,13 +86,16 @@ test('runtime Chinese sections are exact full-text projections of all four appro
   }
 })
 
-test('three legacy IDs are runtime replacements while NumPy remains exported-only until Task 7', () => {
+test('three legacy IDs remain runtime replacements and Task 7 registers NumPy', () => {
   for (const { id } of cases.slice(0, 3)) {
     const promoted = mathToCodeModules.find((module) => module.id === id)!
     assert.equal(mathLabModuleRegistry[id]?.sections, promoted.sections)
     assert.equal(mathLabModuleRegistry[id]?.title.en, promoted.title.en)
   }
-  assert.equal(mathLabModuleRegistry['numpy-mathematics-implementation'], undefined)
+  assert.equal(
+    mathLabModuleRegistry['numpy-mathematics-implementation']?.sections,
+    mathToCodeModules.find((module) => module.id === 'numpy-mathematics-implementation')?.sections,
+  )
 })
 
 test('each lesson protects vocabulary, formulas, two examples, safe failures, experiment and handoff', () => {

@@ -260,6 +260,20 @@ const mathEntries: CurriculumRouteManifestEntry[] = [
     title: copy('导数与误差敏感度', 'Derivatives and Error Sensitivity'),
   },
   {
+    id: 'numpy-mathematics-implementation',
+    source: 'math-lab',
+    domain: 'math',
+    route: '/math-lab/modules/numpy-mathematics-implementation',
+    title: copy('NumPy 数学实现：让公式、shape 与失败一致', 'NumPy Mathematics Implementation: Align Formulas, Shapes, and Failures'),
+  },
+  {
+    id: 'math-to-code-guided-studio',
+    source: 'math-lab',
+    domain: 'math',
+    route: '/math-lab/modules/math-to-code-guided-studio',
+    title: copy('引导式实践：从数学到可复现代码', 'Guided Studio: From Mathematics to Reproducible Code'),
+  },
+  {
     id: 'calculus-partial-derivatives-gradients',
     source: 'math-lab',
     domain: 'math',
