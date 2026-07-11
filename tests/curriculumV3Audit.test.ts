@@ -6,6 +6,19 @@ import {
   curriculumV3AuditEntries,
 } from '../src/curriculum/v3/audit.ts'
 import { curriculumV3ModuleById } from '../src/curriculum/v3/inventory.ts'
+import {
+  curriculumV3AuditIssues,
+  curriculumV3CoverageIssues,
+  curriculumV3DependencyIssues,
+  curriculumV3WaveIssues,
+} from '../src/curriculum/v3/validation.ts'
+
+test('V3 validation helpers expose no blueprint issues', () => {
+  assert.deepEqual(curriculumV3DependencyIssues(), [])
+  assert.deepEqual(curriculumV3AuditIssues(), [])
+  assert.deepEqual(curriculumV3CoverageIssues(), [])
+  assert.deepEqual(curriculumV3WaveIssues(), [])
+})
 
 test('V3 audit classifies every current Catalog module exactly once', () => {
   assert.equal(curriculumV3AuditEntries.length, curriculumCatalog.length)

@@ -9,6 +9,14 @@ import {
   curriculumV3DeepLearningModules,
   v3DeepLearningOrder,
 } from '../src/curriculum/v3/modules/deepLearning.ts'
+import { curriculumV3Modules } from '../src/curriculum/v3/inventory.ts'
+import {
+  curriculumV3EntryAssumptions,
+  curriculumV3ExitCapabilities,
+  reachableFromEntry,
+} from '../src/curriculum/v3/coverage.ts'
+import { curriculumV3Waves } from '../src/curriculum/v3/waves.ts'
+import { validateCurriculumV3Blueprint } from '../src/curriculum/v3/validation.ts'
 
 const expectedDependencies = [
   ['ai-overview', 'required-core', [], ['ai-overview'], 'rebuild'],
@@ -34,6 +42,23 @@ const expectedDependencies = [
   ['monte-carlo', 'depth-topic', ['probability-expectation-variance', 'python-notebook'], ['monte-carlo'], 'keep'],
   ['gradient-descent', 'required-core', ['calculus-partial-derivatives-gradients', 'chain-rule-local-approximation'], ['gradient-descent', 'calculus-gradient-descent', 'optimization'], 'merge'],
 ] as const
+
+test('V3 blueprint is acyclic, ordered, covered, and project-linked', () => {
+  assert.deepEqual(validateCurriculumV3Blueprint(), [])
+  assert.equal(curriculumV3ExitCapabilities.length, 7)
+  assert.ok(curriculumV3Waves.length >= 12)
+  assert.ok(curriculumV3Waves.every((wave) => wave.moduleIds.length >= 4 && wave.moduleIds.length <= 6))
+})
+
+test('entry assumptions reach every required module', () => {
+  assert.deepEqual(curriculumV3EntryAssumptions, [
+    'high-school-algebra-functions',
+    'basic-python-reading-editing',
+  ])
+  const required = curriculumV3Modules.filter((module) => module.role === 'required-core')
+  assert.ok(required.length >= 40)
+  for (const module of required) assert.ok(reachableFromEntry(module.id), `${module.id} is unreachable`)
+})
 
 test('foundation dependency metadata matches the approved inventory', () => {
   assert.deepEqual(
