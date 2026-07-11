@@ -173,10 +173,19 @@ if predictions.shape != targets.shape:
 if not np.isfinite(predictions).all():
     raise ValueError("predictions must be finite")
 
-loop_predictions = np.asarray([
-    float(row[0] * w[0] + row[1] * w[1] + b)
-    for row in X
-], dtype=float)
+loop_predictions = []
+for row in X:
+    if row.ndim != 1 or row.shape != w.shape:
+        raise ValueError("each row must share w shape")
+    row_prediction = float(b)
+    for index in range(w.size):
+        row_prediction += row[index] * w[index]
+    if not np.isfinite(row_prediction):
+        raise ValueError("loop prediction must be finite")
+    loop_predictions.append(row_prediction)
+loop_predictions = np.asarray(loop_predictions, dtype=float)
+if loop_predictions.shape != predictions.shape or not np.isfinite(loop_predictions).all():
+    raise ValueError("loop predictions must match finite vectorized predictions")
 np.testing.assert_allclose(predictions, loop_predictions)
 print(weighted_batch, predictions)
 ```

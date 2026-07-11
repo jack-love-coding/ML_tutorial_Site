@@ -569,6 +569,39 @@ test('guided studio code and expected outputs agree with the executable Task 1 o
   assert.match(stages.get('studio-numerical-sensitivity')!, /\[0\.0, -5\.0\].*-1\.0/s)
 })
 
+test('guided studio batch loop is dimension-generic and agrees with a d=3 oracle', () => {
+  const batch = guidedStudioPythonByStage().get('studio-batch-prediction')!
+
+  assert.doesNotMatch(batch, /row\[\d+\]|w\[\d+\]/)
+  assert.match(batch, /loop_predictions\s*=\s*\[\]/)
+  assert.match(batch, /for\s+row\s+in\s+X/)
+  assert.match(batch, /row\.ndim\s*!=\s*1/)
+  assert.match(batch, /row\.shape\s*!=\s*w\.shape/)
+  assert.match(batch, /row_prediction\s*=\s*float\(b\)/)
+  assert.match(batch, /for\s+index\s+in\s+range\(w\.size\)/)
+  assert.match(batch, /row_prediction\s*\+=\s*row\[index\]\s*\*\s*w\[index\]/)
+  assert.match(batch, /np\.isfinite\(row_prediction\)/)
+  assert.match(batch, /loop_predictions\.append\(row_prediction\)/)
+  assert.match(batch, /loop_predictions\s*=\s*np\.asarray\(loop_predictions,\s*dtype=float\)/)
+  assert.match(batch, /loop_predictions\.shape\s*!=\s*predictions\.shape/)
+  assert.match(batch, /np\.isfinite\(loop_predictions\)\.all\(\)/)
+
+  const matrix = [[1, 2, 3], [-1, 0, 2]]
+  const weights = [0.5, -2, 4]
+  const bias = 1
+  const oracle = predictBatch(matrix, weights, bias)
+  const loop = matrix.map((row) => {
+    let prediction = bias
+    for (let index = 0; index < weights.length; index += 1) {
+      prediction += row[index]! * weights[index]!
+    }
+    return prediction
+  })
+
+  assert.deepEqual(oracle, [9.5, 8.5])
+  assert.deepEqual(loop, oracle)
+})
+
 test('guided studio Python guards preserve Task 1 shape, finite-value, and mutation safety', () => {
   const code = guidedStudioPythonByStage()
   const reproduce = code.get('studio-reproduce-task')!
