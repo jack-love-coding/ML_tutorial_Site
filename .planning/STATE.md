@@ -1,14 +1,14 @@
 # GSD State: ML Atlas Curriculum V2
 
-**Updated:** 2026-07-10
-**Status:** Phase 24A navigation and Topic Library implementation completed; Phase 24B Homepage Focus is next but has not started.
+**Updated:** 2026-07-11
+**Status:** Curriculum V3.0 blueprint and 53-module content audit completed; V3.1 Minimum Mathematical Foundation is next and not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Required-core content quality and explicit neural-network learning depth before backend, database, or durable progress scope
+**Current focus:** Required-core content quality and explicit neural-network learning depth before backend, database, or durable progress scope; V3.1 Minimum Mathematical Foundation planning has not started
 
 ## Baseline
 
@@ -81,6 +81,9 @@ See `.planning/codebase/`:
 - The post-Phase-23 content direction remains an optional `llm-rag` diagnostic task after the required Attention endpoint audit; Phase 24A does not implement or reprioritize that content work.
 - Phase 24A navigation and Topic Library implementation completed the typed domain contract, invalid-domain redirect, simplified five-destination global IA, shared desktop/mobile renderer, keyboard/focus repairs, and scoped navigation-style consolidation.
 - Phase 24A preserves course bodies, checkpoints, curriculum roles, Spine order, Progress V1/V2 storage, and canonical and legacy course routes; Phase 24B Homepage Focus remains planned and has not started.
+- Curriculum V3.0 completed a typed blueprint of exactly 56 instructional modules, 6 projects, 10 learning arcs, and 7 exit capabilities, plus a classification audit of all 53 current modules.
+- V3.1 Minimum Mathematical Foundation is next and not started; Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+- Curriculum V3.0 changed no runtime lesson, route, or Progress V1/V2 data or storage behavior.
 
 ## Completed Work
 
@@ -658,6 +661,15 @@ See `.planning/codebase/`:
   - `npm run build:pages`: pass; Vite 8.0.16 transformed 2399 modules with the same existing warning.
   - `git diff --check`: pass, no whitespace errors.
 
+### Curriculum V3.0 - Blueprint and 53-Module Content Audit
+
+- Completed the typed Curriculum V3.0 blueprint for exactly 56 instructional modules and 6 projects.
+- Classified all 53 current modules against the target inventory.
+- Defined exactly 10 learning arcs and 7 exit capabilities.
+- Generated deterministic documentation under `docs/curriculum-v3/` and recorded completion in `docs/refactor/summaries/curriculum-v3-0.md`.
+- Preserved the runtime boundary: no runtime lesson, route, or Progress data changed.
+- Set V3.1 Minimum Mathematical Foundation as next and not started; Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+
 ## Next Recommended Command
 
-Begin Phase 24B Homepage Focus from Phase 24A as a merged or explicitly reviewed stacked base. Phase 24B has not started. Preserve the five-destination global IA, Topic Library naming, existing routes, checkpoints, curriculum roles, Spine order, and Progress V1/V2 storage while narrowing the homepage to one primary Spine task and secondary exploration links.
+Plan V3.1 Minimum Mathematical Foundation from separately reviewed acceptance criteria. V3.1 has not started. Keep Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused, and preserve all runtime lessons, routes, checkpoints, and Progress V1/V2 data and storage until an explicitly scoped implementation phase changes them.

@@ -722,5 +722,28 @@
 - Desktop and 390px browser checks cover the five primary routes with no horizontal overflow or console errors.
 - `npm test`, `npm run build`, `npm run build:pages`, and `git diff --check` pass with only the existing Vite large-chunk warning.
 
+## Curriculum V3.0 Blueprint and Content Audit
+
+**Status:** Completed 2026-07-11.
+
+**Deliverables:**
+- Typed blueprint for exactly 56 instructional modules, 6 projects, 10 learning arcs, and 7 exit capabilities.
+- Classification audit covering all 53 current curriculum modules.
+- Deterministic generated records under `docs/curriculum-v3/` for the blueprint overview, module inventory, content audit, project map, capability coverage, and implementation backlog.
+- Completion traceability in `docs/refactor/summaries/curriculum-v3-0.md` and milestone audit coverage.
+
+**Runtime boundary:**
+- No runtime lesson, route, or Progress data changed.
+- Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+
+## V3.1 Minimum Mathematical Foundation
+
+**Status:** Next; not started.
+
+**Decision boundary:**
+- Start only from separately reviewed acceptance criteria for the V3.1 waves declared in the generated implementation backlog.
+- Preserve current lessons, routes, checkpoints, and Progress V1/V2 storage until an explicitly scoped implementation phase changes them.
+- Keep Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused while V3.1 remains the next curriculum phase.
+
 ---
 *Roadmap created: 2026-06-25*
