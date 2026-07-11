@@ -121,6 +121,32 @@ test('V3 wave validation enforces approved stage responsibilities', () => {
   )
 })
 
+test('V3 wave validation diagnoses non-contiguous instructional members', () => {
+  const waves = clonedWaves()
+  const vectorWave = waves.find((wave) => wave.id === 'v3.2-vector-matrix-language')!
+  vectorWave.moduleIds = vectorWave.moduleIds.map((id) =>
+    id === 'linear-algebra-rank-null-space' ? 'least-squares-fitting' : id)
+
+  assert.ok(
+    curriculumV3WaveIssues(waves).includes(
+      'wave-instructional-contiguity:v3.2-vector-matrix-language:7,8,9,11',
+    ),
+  )
+})
+
+test('V3 wave validation diagnoses inventory-order regression across waves', () => {
+  const waves = clonedWaves()
+  const firstIndex = waves.findIndex((wave) => wave.id === 'v3.2-vector-matrix-language')
+  const secondIndex = waves.findIndex((wave) => wave.id === 'v3.2-linear-systems')
+  ;[waves[firstIndex], waves[secondIndex]] = [waves[secondIndex]!, waves[firstIndex]!]
+
+  assert.ok(
+    curriculumV3WaveIssues(waves).includes(
+      'wave-inventory-order:v3.2-vector-matrix-language:7',
+    ),
+  )
+})
+
 test('V3 audit classifies every current Catalog module exactly once', () => {
   assert.equal(curriculumV3AuditEntries.length, curriculumCatalog.length)
   assert.equal(curriculumV3AuditByCurrentModuleId.size, curriculumCatalog.length)

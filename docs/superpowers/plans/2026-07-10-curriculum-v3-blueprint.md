@@ -722,9 +722,11 @@ type V3ValidationPrefix =
   | 'wave-size'
   | 'wave-required-coverage'
   | 'wave-stage-responsibility'
+  | 'wave-instructional-contiguity'
+  | 'wave-inventory-order'
 ```
 
-Export pure helpers `curriculumV3DependencyIssues()`, `curriculumV3AuditIssues()`, `curriculumV3CoverageIssues()`, and `curriculumV3WaveIssues()` so failures remain diagnosable. Dependency validation checks project references and requires every revisit to name a previously introduced or explicitly declared entry concept; project revisits cannot substitute prerequisite module IDs for concept IDs.
+Export pure helpers `curriculumV3DependencyIssues()`, `curriculumV3AuditIssues()`, `curriculumV3CoverageIssues()`, and `curriculumV3WaveIssues()` so failures remain diagnosable. Dependency validation checks project references and requires every revisit to name a previously introduced or explicitly declared entry concept; project revisits cannot substitute prerequisite module IDs for concept IDs. Wave validation also requires each wave's instructional members to occupy consecutive inventory positions and the flattened wave sequence never to regress; projects may sit beside adjacent instructional members without participating in the position check.
 
 - [ ] **Step 5: Run and confirm GREEN**
 

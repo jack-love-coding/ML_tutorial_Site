@@ -22,15 +22,15 @@ export const curriculumV3Waves: CurriculumV3Wave[] = [
     exitCriteria: [copy('能连接最小二乘、谱分解与数值稳定性。', 'Connect least squares, spectral decompositions, and numerical stability.')],
   },
   {
-    id: 'v3.2-calculus-optimization',
-    title: copy('微积分与优化', 'Calculus and Optimization'),
-    moduleIds: ['calculus-partial-derivatives-gradients', 'chain-rule-local-approximation', 'numerical-differentiation-root-finding', 'gradient-descent'],
-    exitCriteria: [copy('能用偏导数、链式法则与数值检查解释梯度下降。', 'Explain gradient descent with partial derivatives, the chain rule, and numerical checks.')],
+    id: 'v3.2-calculus-probability-foundations',
+    title: copy('微积分与概率基础', 'Calculus and Probability Foundations'),
+    moduleIds: ['calculus-partial-derivatives-gradients', 'chain-rule-local-approximation', 'numerical-differentiation-root-finding', 'probability-expectation-variance', 'conditional-probability-markov'],
+    exitCriteria: [copy('能用偏导数、链式法则、数值检查与条件概率分析模型计算。', 'Analyze model computations with partial derivatives, the chain rule, numerical checks, and conditional probability.')],
   },
   {
-    id: 'v3.2-probability-project',
-    title: copy('概率、信息与数学代码项目', 'Probability, Information, and the Mathematics-to-Code Project'),
-    moduleIds: ['probability-expectation-variance', 'conditional-probability-markov', 'probability-likelihood-entropy', 'monte-carlo', 'project-math-to-code'],
+    id: 'v3.2-probability-optimization-project',
+    title: copy('概率、优化与数学代码项目', 'Probability, Optimization, and the Mathematics-to-Code Project'),
+    moduleIds: ['probability-likelihood-entropy', 'monte-carlo', 'gradient-descent', 'project-math-to-code'],
     exitCriteria: [copy('能提交由概率模拟与数值梯度检查支持的公式到代码项目。', 'Submit a formula-to-code project supported by probability simulation and numerical gradient checks.')],
   },
   {

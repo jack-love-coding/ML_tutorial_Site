@@ -36,6 +36,8 @@ export type V3ValidationPrefix =
   | 'wave-size'
   | 'wave-required-coverage'
   | 'wave-stage-responsibility'
+  | 'wave-instructional-contiguity'
+  | 'wave-inventory-order'
 
 const issue = (prefix: V3ValidationPrefix, detail: string) => `${prefix}:${detail}`
 
@@ -217,8 +219,14 @@ export function curriculumV3WaveIssues(
   const requiredIds = new Set(modules.filter((module) => module.role === 'required-core').map((module) => module.id))
   const projectIds = new Set(modules.filter((module) => module.role === 'project').map((module) => module.id))
   const depthIds = new Set(modules.filter((module) => module.role === 'depth-topic').map((module) => module.id))
+  const instructionalPositionById = new Map(
+    modules
+      .filter((module) => module.role !== 'project')
+      .map((module, index) => [module.id, index + 1]),
+  )
   const counts = new Map<string, number>()
   const firstWaveIndexByModuleId = new Map<string, number>()
+  let previousInstructionalPosition = 0
 
   if (waves.length < 12) issues.push(issue('wave-size', `wave-count:${waves.length}`))
   for (let stage = 1; stage <= 7; stage += 1) {
@@ -234,6 +242,24 @@ export function curriculumV3WaveIssues(
     if (!hasBilingualCopy(wave.title) || wave.exitCriteria.length === 0 ||
       wave.exitCriteria.some((criterion) => !hasBilingualCopy(criterion))) {
       issues.push(issue('missing-bilingual-metadata', wave.id))
+    }
+    const instructionalPositions = wave.moduleIds.flatMap((moduleId) => {
+      const position = instructionalPositionById.get(moduleId)
+      return position === undefined ? [] : [position]
+    })
+    const sortedInstructionalPositions = [...instructionalPositions].sort((left, right) => left - right)
+    if (sortedInstructionalPositions.some((position, index) =>
+      index > 0 && position !== sortedInstructionalPositions[index - 1]! + 1)) {
+      issues.push(issue(
+        'wave-instructional-contiguity',
+        `${wave.id}:${sortedInstructionalPositions.join(',')}`,
+      ))
+    }
+    for (const position of instructionalPositions) {
+      if (position <= previousInstructionalPosition) {
+        issues.push(issue('wave-inventory-order', `${wave.id}:${position}`))
+      }
+      previousInstructionalPosition = position
     }
     for (const moduleId of wave.moduleIds) {
       const module = moduleById.get(moduleId)

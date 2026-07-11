@@ -9,7 +9,7 @@
 - Classified all 53 audited current modules against the V3 target inventory.
 - Organized the curriculum into exactly 10 learning arcs and 7 exit capabilities.
 - Recorded learner entry assumptions and entry concepts, prerequisites, bilingual authoring gates, project evidence, implementation waves, and deterministic validators for project references, concept revisits, and stage responsibilities.
-- Assigned V3.2 the complete data-to-feature pipeline, V3.3 classical ML, V3.4 neural foundations, and V3.5 deep-learning structures while preserving dependency order and four-to-six-module review boundaries.
+- Assigned V3.2 the complete data-to-feature pipeline, V3.3 classical ML, V3.4 neural foundations, and V3.5 deep-learning structures while preserving dependency order, consecutive instructional inventory positions, and four-to-six-module review boundaries.
 
 ## Generated artifacts
 

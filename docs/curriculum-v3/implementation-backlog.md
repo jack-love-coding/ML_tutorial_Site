@@ -22,15 +22,15 @@ The backlog spans V3.1–V3.7. Module assignments and exit criteria below are re
 - Exact exit criteria:
   - 能连接最小二乘、谱分解与数值稳定性。 / Connect least squares, spectral decompositions, and numerical stability.
 
-## `v3.2-calculus-optimization` — 微积分与优化 / Calculus and Optimization
+## `v3.2-calculus-probability-foundations` — 微积分与概率基础 / Calculus and Probability Foundations
 
-- Modules: `calculus-partial-derivatives-gradients`, `chain-rule-local-approximation`, `numerical-differentiation-root-finding`, `gradient-descent`
+- Modules: `calculus-partial-derivatives-gradients`, `chain-rule-local-approximation`, `numerical-differentiation-root-finding`, `probability-expectation-variance`, `conditional-probability-markov`
 - Exact exit criteria:
-  - 能用偏导数、链式法则与数值检查解释梯度下降。 / Explain gradient descent with partial derivatives, the chain rule, and numerical checks.
+  - 能用偏导数、链式法则、数值检查与条件概率分析模型计算。 / Analyze model computations with partial derivatives, the chain rule, numerical checks, and conditional probability.
 
-## `v3.2-probability-project` — 概率、信息与数学代码项目 / Probability, Information, and the Mathematics-to-Code Project
+## `v3.2-probability-optimization-project` — 概率、优化与数学代码项目 / Probability, Optimization, and the Mathematics-to-Code Project
 
-- Modules: `probability-expectation-variance`, `conditional-probability-markov`, `probability-likelihood-entropy`, `monte-carlo`, `project-math-to-code`
+- Modules: `probability-likelihood-entropy`, `monte-carlo`, `gradient-descent`, `project-math-to-code`
 - Exact exit criteria:
   - 能提交由概率模拟与数值梯度检查支持的公式到代码项目。 / Submit a formula-to-code project supported by probability simulation and numerical gradient checks.
 
