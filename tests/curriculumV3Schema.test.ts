@@ -50,6 +50,15 @@ test('V3 projects preserve exact prerequisites, capabilities, and evidence deliv
   ]
 
   for (const project of curriculumV3Projects) {
+    assert.ok(project.title['zh-CN'].trim())
+    assert.ok(project.title.en.trim())
+    assert.ok(project.learnerQuestion['zh-CN'].trim())
+    assert.ok(project.learnerQuestion.en.trim())
+    assert.ok(project.outcomes.length)
+    for (const outcome of project.outcomes) {
+      assert.ok(outcome['zh-CN'].trim())
+      assert.ok(outcome.en.trim())
+    }
     assert.deepEqual(project.prerequisiteIds, curriculumV3ProjectPrerequisites[project.id])
     assert.deepEqual(project.capabilityIds, expectedCapabilities[project.id])
     assert.deepEqual(project.deliverables, expectedDeliverables)

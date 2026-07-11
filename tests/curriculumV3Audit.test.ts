@@ -17,8 +17,52 @@ test('V3 audit classifies every current Catalog module exactly once', () => {
   for (const entry of curriculumV3AuditEntries) {
     assert.ok(entry.strengths.length > 0)
     assert.ok(entry.contractGaps.length > 0)
+    assert.ok(entry.rationale['zh-CN'].trim())
+    assert.ok(entry.rationale.en.trim())
     for (const targetId of entry.targetModuleIds) assert.ok(curriculumV3ModuleById.has(targetId))
   }
+})
+
+test('V3 audit records module-specific evidence instead of shared templates', () => {
+  for (const entry of curriculumV3AuditEntries) {
+    assert.doesNotMatch(entry.strengths.join(' '), /provides \d+ bilingual lessons? on a stable route/i)
+    assert.doesNotMatch(
+      entry.contractGaps.join(' '),
+      /formula-to-code, controlled-experiment, failure-case, and checkpoint evidence contract/i,
+    )
+  }
+  assert.equal(
+    new Set(curriculumV3AuditEntries.map((entry) => JSON.stringify(entry.strengths))).size,
+    curriculumCatalog.length,
+  )
+  assert.equal(
+    new Set(curriculumV3AuditEntries.map((entry) => JSON.stringify(entry.contractGaps))).size,
+    curriculumCatalog.length,
+  )
+
+  const representativeEvidence = {
+    'housing-price-project': ['MAE', 'R²', 'leakage'],
+    classification: ['threshold', 'ROC', 'calibration'],
+    'gradient-descent': ['3D', 'contour', 'learning rate'],
+    svd: ['pseudoinverse', 'low-rank'],
+    'numerical-data': ['training data', 'column order', 'scaling'],
+  } as const
+
+  for (const [id, evidenceTerms] of Object.entries(representativeEvidence)) {
+    const strength = curriculumV3AuditByCurrentModuleId.get(id)?.strengths.join(' ') ?? ''
+    for (const term of evidenceTerms) {
+      assert.match(strength, new RegExp(term, 'i'), `${id} strength must cite ${term}`)
+    }
+  }
+
+  assert.match(
+    curriculumV3AuditByCurrentModuleId.get('attention-transformer')?.contractGaps.join(' ') ?? '',
+    /causal mask.*training.*decoding/i,
+  )
+  assert.match(
+    curriculumV3AuditByCurrentModuleId.get('dataset-quality')?.contractGaps.join(' ') ?? '',
+    /executable.*decision record.*group/i,
+  )
 })
 
 test('V3 audit uses required non-obvious migration mappings and actions', () => {
@@ -51,4 +95,42 @@ test('V3 audit uses required non-obvious migration mappings and actions', () => 
   assert.equal(curriculumV3AuditByCurrentModuleId.get('lu-decomposition')?.action, 'merge')
   assert.equal(curriculumV3AuditByCurrentModuleId.get('finite-difference-methods')?.action, 'merge')
   assert.equal(curriculumV3AuditByCurrentModuleId.get('taylor-series')?.action, 'demote-to-depth')
+})
+
+test('V3 audit locks the exact keep set and convergence classifications', () => {
+  const idsFor = (action: (typeof curriculumV3AuditEntries)[number]['action']) => curriculumV3AuditEntries
+    .filter((entry) => entry.action === action)
+    .map((entry) => entry.currentModuleId)
+    .sort()
+
+  assert.deepEqual(idsFor('keep'), [
+    'categorical-data',
+    'complexity-regularization',
+    'dataset-quality',
+    'numerical-data',
+    'sequence-embedding-bridge',
+    'splits-generalization',
+  ])
+  assert.deepEqual(idsFor('demote-to-depth'), [
+    'deep-architecture-math',
+    'markov-chains',
+    'taylor-series',
+  ])
+  assert.deepEqual(idsFor('merge'), [
+    'calculus-gradient-descent',
+    'calculus-optimizer-comparison',
+    'calculus-sgd-batch-noise',
+    'calculus-training-code-diagnostics',
+    'condition-numbers',
+    'finite-difference-methods',
+    'gradient-descent',
+    'lu-decomposition',
+    'nonlinear-equations',
+    'optimization',
+    'optimizer-comparison',
+    'pca',
+    'sparse-matrices',
+    'svd',
+    'training-diagnostics',
+  ])
 })
