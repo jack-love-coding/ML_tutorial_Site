@@ -67,6 +67,7 @@ const labComponentRegistry = {
   PartialDerivativeContourLab: defineAsyncComponent(() => import('../labs/PartialDerivativeContourLab.vue')),
   PcaProjectionLab: defineAsyncComponent(() => import('../labs/PcaProjectionLab.vue')),
   ProbabilityEntropyLab: defineAsyncComponent(() => import('../labs/ProbabilityEntropyLab.vue')),
+  PredictionMappingLab: defineAsyncComponent(() => import('../labs/PredictionMappingLab.vue')),
   SparseMatrixLab: defineAsyncComponent(() => import('../labs/SparseMatrixLab.vue')),
   TaylorSeriesLab: defineAsyncComponent(() => import('../labs/TaylorSeriesLab.vue')),
   TensorShapeLab: defineAsyncComponent(() => import('../labs/TensorShapeLab.vue')),

@@ -11,6 +11,7 @@ import { linearAlgebraRouteModules } from './linearAlgebraRouteModules.ts'
 import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { buildMarkovChainsModule } from './markovChainsModule.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
+import { mathToCodeModules } from './mathToCode/modules.ts'
 import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
 import { buildOptimizationModule } from './optimizationModule.ts'
@@ -124,6 +125,7 @@ const allModulesById = Object.fromEntries(
     ...beginnerFoundationModules,
     ...linearAlgebraRouteModules,
     ...calculusRouteModules,
+    ...mathToCodeModules,
     ...importedFoundationModules,
     ...aiBridgeModules,
   ].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
