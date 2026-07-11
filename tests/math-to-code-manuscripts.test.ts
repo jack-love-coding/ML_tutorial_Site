@@ -442,6 +442,20 @@ function sliceGuidedStudioStages(manuscript: string): Map<GuidedStudioStageId, s
   ]))
 }
 
+function extractGuidedStudioPython(stage: string, id: GuidedStudioStageId): string {
+  const blocks = [...stage.matchAll(/```python\n([\s\S]*?)\n```/g)]
+  assert.equal(blocks.length, 1, `${id} must contain exactly one executable Python block`)
+  return blocks[0]![1]!
+}
+
+function guidedStudioPythonByStage(): Map<GuidedStudioStageId, string> {
+  const stages = sliceGuidedStudioStages(readGuidedStudio())
+  return new Map(GUIDED_STUDIO_STAGE_IDS.map((id) => [
+    id,
+    extractGuidedStudioPython(stages.get(id)!, id),
+  ]))
+}
+
 test('guided studio keeps nine stable stage IDs in learning order', () => {
   const stages = sliceGuidedStudioStages(readGuidedStudio())
 
@@ -451,10 +465,12 @@ test('guided studio keeps nine stable stage IDs in learning order', () => {
   }
 })
 
-test('each guided studio stage is a self-contained learning chapter', () => {
+test('guided studio stages form a detailed sequentially executable notebook', () => {
   const stages = sliceGuidedStudioStages(readGuidedStudio())
 
-  for (const [id, stage] of stages) {
+  assert.match(readGuidedStudio().slice(0, readGuidedStudio().indexOf('## ')), /按阶段 1.*阶段 9.*同一.*notebook/s)
+  for (const [index, id] of GUIDED_STUDIO_STAGE_IDS.entries()) {
+    const stage = stages.get(id)!
     assert.ok(stage.length >= 650, `${id} is too thin to support independent study`)
     assert.match(stage, /^### 本阶段目标$/m, `${id} lacks a goal`)
     assert.match(stage, /^### 前置输入$/m, `${id} lacks prerequisite inputs`)
@@ -463,35 +479,102 @@ test('each guided studio stage is a self-contained learning chapter', () => {
     assert.match(stage, /^### 观察提示$/m, `${id} lacks observation guidance`)
     assert.match(stage, /^### 常见失败与修复$/m, `${id} lacks failure diagnosis and repair`)
     assert.match(stage, /^### 反思$/m, `${id} lacks reflection`)
+    extractGuidedStudioPython(stage, id)
+    if (index > 0) {
+      const priorStage = `阶段 ${index}`
+      const prerequisite = stage.slice(stage.indexOf('### 前置输入'), stage.indexOf('### Starter code'))
+      assert.match(prerequisite, new RegExp(`${priorStage}.*(?:同一.*notebook|保留|沿用|继承|复用)`, 's'))
+    }
   }
 })
 
-test('guided studio numerical stages reproduce the shared prediction evidence', () => {
-  const stages = sliceGuidedStudioStages(readGuidedStudio())
-  const reproduce = stages.get('studio-reproduce-task')!
-  const scalar = stages.get('studio-scalar-baseline')!
-  const vector = stages.get('studio-vector-prediction')!
-  const batch = stages.get('studio-batch-prediction')!
-  const error = stages.get('studio-error-comparison')!
+test('guided studio Python blocks preserve producer-before-consumer dataflow', () => {
+  const code = guidedStudioPythonByStage()
+  const stageCode = GUIDED_STUDIO_STAGE_IDS.map((id) => code.get(id)!)
+  const producers: Array<[string, number, RegExp]> = [
+    ['X', 0, /^X\s*=/m],
+    ['w', 0, /^w\s*=/m],
+    ['b', 0, /^b\s*=/m],
+    ['targets', 0, /^targets\s*=/m],
+    ['x', 1, /^x\s*=\s*X\[0\]\.copy\(\)/m],
+    ['prediction', 2, /^prediction\s*=/m],
+    ['predictions', 3, /^predictions\s*=/m],
+    ['residuals', 4, /^residuals\s*=/m],
+    ['MSE', 4, /^MSE\s*=/m],
+    ['gradient_w', 5, /^gradient_w\s*=/m],
+    ['gradient_b', 5, /^gradient_b\s*=/m],
+  ]
 
-  assert.match(reproduce, /X\s*=\s*\[\[2(?:\.0)?,\s*3(?:\.0)?\],\s*\[1(?:\.0)?,\s*4(?:\.0)?\]\]/)
-  assert.match(reproduce, /w\s*=\s*\[4(?:\.0)?,\s*-1(?:\.0)?\]/)
-  assert.match(reproduce, /b\s*=\s*5(?:\.0)?/)
-  assert.match(reproduce, /targets\s*=\s*\[9(?:\.0)?,\s*7(?:\.0)?\]/)
-  assert.match(scalar, /8\s*\+\s*\(-3\)\s*\+\s*5\s*=\s*10/)
-  assert.match(vector, /weighted_sum[^\n]*5(?:\.0)?/)
-  assert.match(batch, /predictions\s*=\s*\[10(?:\.0)?,\s*5(?:\.0)?\]/)
-  assert.match(error, /residuals\s*=\s*\[1(?:\.0)?,\s*-2(?:\.0)?\]/)
-  assert.match(error, /squared_errors\s*=\s*\[1(?:\.0)?,\s*4(?:\.0)?\]/)
-  assert.match(error, /MSE\s*=\s*2\.5/)
+  for (const [name, producerIndex, definition] of producers) {
+    assert.match(stageCode[producerIndex]!, definition, `${name} is not defined by its producer stage`)
+    for (let index = 0; index < producerIndex; index += 1) {
+      assert.doesNotMatch(stageCode[index]!, new RegExp(`\\b${name}\\b`), `${name} is used before definition`)
+    }
+  }
+  for (const [shared, producerIndex] of [['X', 0], ['w', 0], ['b', 0], ['targets', 0], ['x', 1]] as const) {
+    for (const laterCode of stageCode.slice(producerIndex + 1)) {
+      assert.doesNotMatch(laterCode, new RegExp(`^${shared}\\s*=`, 'm'), `${shared} must be inherited, not redefined`)
+    }
+  }
+  assert.match(stageCode[3]!, /\bX\b.*\bw\b.*\bb\b/s)
+  assert.match(stageCode[4]!, /\bpredictions\b.*\btargets\b/s)
+  for (const inherited of ['X', 'w', 'b', 'targets']) {
+    assert.match(stageCode[5]!, new RegExp(`\\b${inherited}\\b`))
+  }
+  assert.match(stageCode[8]!, /\bpredictions\b.*\btargets\b.*\bMSE\b.*\bgradient_w\b.*\bgradient_b\b/s)
 })
 
-test('guided studio code preserves Task 1 shape, finite-value, and mutation safety', () => {
+test('guided studio code and expected outputs agree with the executable Task 1 oracle', () => {
   const stages = sliceGuidedStudioStages(readGuidedStudio())
-  const reproduce = stages.get('studio-reproduce-task')!
-  const batch = stages.get('studio-batch-prediction')!
-  const sensitivity = stages.get('studio-numerical-sensitivity')!
-  const failure = stages.get('studio-failure-analysis')!
+  const code = guidedStudioPythonByStage()
+  const evaluation = evaluatePredictionTask({
+    samples: [{ features: [2, 3], target: 9 }, { features: [1, 4], target: 7 }],
+    parameters: { weights: [4, -1], bias: 5 },
+    derivativeStep: 1e-4,
+  })
+  const residuals = evaluation.predictions.map((prediction, index) => prediction - evaluation.targets[index]!)
+  const squaredErrors = residuals.map((residual) => residual ** 2)
+
+  assert.deepEqual(evaluation.predictions, [10, 5])
+  assert.deepEqual(residuals, [1, -2])
+  assert.deepEqual(squaredErrors, [1, 4])
+  assert.equal(evaluation.mse, 2.5)
+  assert.ok(Math.abs(evaluation.parameterDerivatives.weights[0]!) < 1e-8)
+  assert.ok(Math.abs(evaluation.parameterDerivatives.weights[1]! + 5) < 1e-8)
+  assert.ok(Math.abs(evaluation.parameterDerivatives.bias + 1) < 1e-8)
+
+  const reproduceCode = code.get('studio-reproduce-task')!
+  assert.match(reproduceCode, /^X\s*=\s*np\.asarray\(\[\[2\.0, 3\.0\], \[1\.0, 4\.0\]\]/m)
+  assert.match(reproduceCode, /^w\s*=\s*np\.asarray\(\[4\.0, -1\.0\]/m)
+  assert.match(reproduceCode, /^b\s*=\s*float\(5\.0\)/m)
+  assert.match(reproduceCode, /^targets\s*=\s*np\.asarray\(\[9\.0, 7\.0\]/m)
+
+  const scalarCode = code.get('studio-scalar-baseline')!
+  assert.match(scalarCode, /for\s+index\s+in\s+range\(w\.size\)/)
+  assert.match(scalarCode, /weighted_sum_scalar\s*\+=\s*x\[index\]\s*\*\s*w\[index\]/)
+  assert.match(scalarCode, /prediction_scalar\s*=\s*weighted_sum_scalar\s*\+\s*b/)
+  assert.match(code.get('studio-vector-prediction')!, /weighted_sum\s*=\s*float\(contributions\.sum\(\)\)[\s\S]*prediction\s*=\s*weighted_sum\s*\+\s*b/)
+  assert.match(code.get('studio-batch-prediction')!, /weighted_batch\s*=\s*X\s*@\s*w[\s\S]*predictions\s*=\s*weighted_batch\s*\+\s*b/)
+  assert.match(code.get('studio-error-comparison')!, /residuals\s*=\s*predictions\s*-\s*targets[\s\S]*squared_errors\s*=\s*residuals\s*\*\*\s*2[\s\S]*MSE\s*=\s*float\(np\.mean\(squared_errors\)\)/)
+  const sensitivityCode = code.get('studio-numerical-sensitivity')!
+  assert.match(sensitivityCode, /candidate_predictions\s*=\s*X\s*@\s*candidate_w\s*\+\s*candidate_b/)
+  assert.match(sensitivityCode, /result\s*=\s*\(right\s*-\s*left\)\s*\/\s*denominator/)
+  assert.match(sensitivityCode, /gradient_w\.append\(central_difference_safe\(loss_for_weight,\s*w\[j\],\s*h=1e-4\)\)/)
+  assert.match(sensitivityCode, /gradient_b\s*=\s*central_difference_safe\(lambda candidate:\s*mse_for\(w,\s*candidate\),\s*b,\s*h=1e-4\)/)
+
+  assert.match(stages.get('studio-batch-prediction')!, new RegExp(`predictions = \\[${evaluation.predictions.join('\\.0, ')}\\.0\\]`))
+  assert.match(stages.get('studio-error-comparison')!, new RegExp(`residuals = \\[${residuals.join('\\.0, ')}\\.0\\]`))
+  assert.match(stages.get('studio-error-comparison')!, new RegExp(`squared_errors = \\[${squaredErrors.join('\\.0, ')}\\.0\\]`))
+  assert.match(stages.get('studio-error-comparison')!, new RegExp(`MSE = ${evaluation.mse}`))
+  assert.match(stages.get('studio-numerical-sensitivity')!, /\[0\.0, -5\.0\].*-1\.0/s)
+})
+
+test('guided studio Python guards preserve Task 1 shape, finite-value, and mutation safety', () => {
+  const code = guidedStudioPythonByStage()
+  const reproduce = code.get('studio-reproduce-task')!
+  const batch = code.get('studio-batch-prediction')!
+  const sensitivity = code.get('studio-numerical-sensitivity')!
+  const failure = code.get('studio-failure-analysis')!
 
   assert.match(reproduce, /dtype=float/)
   assert.match(reproduce, /X\.ndim\s*!=\s*2/)
@@ -521,8 +604,10 @@ test('guided studio code preserves Task 1 shape, finite-value, and mutation safe
   }
   assert.ok(leftResultCheck < rightEvaluation)
   assert.ok(rightResultCheck < differenceEvaluation)
-  assert.match(failure, /\(2,\s*1\).*(?:广播|broadcast).*(2,\s*2)/s)
-  assert.match(failure, /wrong_axis\s*=\s*\[12(?:\.0)?,\s*-7(?:\.0)?\]/)
+  assert.match(failure, /target_column\s*=\s*targets\[:,\s*None\]/)
+  assert.match(failure, /cross_residuals\s*=\s*predictions\s*-\s*target_column/)
+  assert.match(failure, /wrong_axis\s*=\s*\(X\s*\*\s*w\)\.sum\(axis=0\)/)
+  assert.match(failure, /right_axis\s*=\s*\(X\s*\*\s*w\)\.sum\(axis=1\)/)
 })
 
 test('numerical sensitivity stage separates local evidence from optimization', () => {

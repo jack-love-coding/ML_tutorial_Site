@@ -4,6 +4,8 @@
 >
 > 本页把前五课连成一次可独立完成的实践。你会从标量手算出发，逐步建立向量、批量预测、MSE 与数值敏感度证据。每一阶段都先写预期，再运行代码，并保存值、shape 与解释三类记录。
 >
+> **运行方式：**请按阶段 1 到阶段 9 的顺序执行；所有 Python 代码块位于同一份 notebook，后一阶段继承前面已经定义并检查过的变量。不要单独跳到某个代码块，也不要为每阶段重建完整环境。
+>
 > 本页不会启动参数迭代。概率模拟只是一扇预告窗口；核心预测链仍是 `x, X, w, b -> y_hat -> y -> L`。
 
 ## 阶段 1：复现任务与输入合同 {#studio-reproduce-task}
@@ -68,30 +70,30 @@ print(X.shape, w.shape, targets.shape)
 
 ### 前置输入
 
-取第一行 `x = [2.0, 3.0]`，沿用 `w = [4.0, -1.0]` 与 `b = 5.0`。公式为 `y_hat = w^T x + b`。你应已经知道两项向量长度相等、所有数值有限。
+在同一 notebook 中先完成阶段 1，保留已经检查的 `X,w,b,targets`。本阶段只从 `X` 取第一行 `x`，不重新创建权重或偏置。公式为 `y_hat = w^T x + b`；循环应适用于任意合法特征维度 $d$，而不是只适用于当前两列。
 
 ### Starter code 与操作步骤
 
 ```python
-x = [2.0, 3.0]
-w_scalar = [4.0, -1.0]
-b_scalar = 5.0
-
-if len(x) != len(w_scalar):
+x = X[0].copy()
+if x.ndim != 1 or x.shape != w.shape:
     raise ValueError("x and w must have the same length")
 
-contribution_1 = x[0] * w_scalar[0]
-contribution_2 = x[1] * w_scalar[1]
-weighted_sum_scalar = contribution_1 + contribution_2
-prediction_scalar = weighted_sum_scalar + b_scalar
-print(contribution_1, contribution_2, weighted_sum_scalar, prediction_scalar)
+scalar_contributions = []
+weighted_sum_scalar = 0.0
+for index in range(w.size):
+    contribution = float(x[index] * w[index])
+    scalar_contributions.append(contribution)
+    weighted_sum_scalar += x[index] * w[index]
+prediction_scalar = weighted_sum_scalar + b
+print(scalar_contributions, weighted_sum_scalar, prediction_scalar)
 ```
 
 把运行结果与纸面式子逐格对齐：`4*2=8`、`(-1)*3=-3`，所以 `8 + (-3) + 5 = 10`。不要提前折叠中间名字。
 
 ### 预期中间结果
 
-四个输出依次为 `8.0 -3.0 5.0 10.0`。贡献的单位都是分钟，加权和也是分钟，偏置再增加 5 分钟。目标 9 仍未进入该计算。
+输出依次包含 `scalar_contributions = [8.0, -3.0]`、`weighted_sum_scalar = 5.0`、`prediction_scalar = 10.0`。贡献的单位都是分钟，加权和也是分钟，偏置再增加 5 分钟。目标 9 仍未进入该计算。
 
 ### 观察提示
 
@@ -113,12 +115,11 @@ print(contribution_1, contribution_2, weighted_sum_scalar, prediction_scalar)
 
 ### 前置输入
 
-复用阶段 1 的 `X,w,b`，令 `x = X[0].copy()`。预期 `x.shape == w.shape == (2,)`。标量基线给出贡献 `[8,-3]`、加权和 5、预测 10，作为独立参照。
+在同一 notebook 中先完成阶段 2，沿用它已经定义的 `x`，并保留阶段 1 的 `X,w,b,targets`。预期 `x.shape == w.shape == (2,)`。标量基线给出贡献 `[8,-3]`、加权和 5、预测 10，作为独立参照。
 
 ### Starter code 与操作步骤
 
 ```python
-x = X[0].copy()
 if x.ndim != 1 or x.shape != w.shape:
     raise ValueError("x and w must share one vector shape")
 
@@ -157,7 +158,7 @@ print(contributions, weighted_sum, prediction)
 
 ### 前置输入
 
-复用已检查的 `X,w,b,targets`。shape 预期为 `(n,d) @ (d,) -> (n,)`，本例 `n=2,d=2`。两个 2 的角色不同：前者是样本数，后者是特征数。
+在同一 notebook 中先完成阶段 3，沿用已检查的 `X,w,b,targets` 与单行核验结果。shape 预期为 `(n,d) @ (d,) -> (n,)`，本例 `n=2,d=2`。两个 2 的角色不同：前者是样本数，后者是特征数。
 
 ### Starter code 与操作步骤
 
@@ -204,7 +205,7 @@ print(weighted_batch, predictions)
 
 ### 前置输入
 
-使用阶段 4 的 `predictions = [10.0, 5.0]` 与阶段 1 的 `targets = [9.0, 7.0]`。两者必须都是有限的一维数组，shape 完全相同且非空。
+在同一 notebook 中先完成阶段 4，保留它定义的 `predictions`，并沿用阶段 1 的 `targets`。预期值分别是 `[10.0, 5.0]` 与 `[9.0, 7.0]`；两者必须都是有限的一维数组，shape 完全相同且非空。
 
 ### Starter code 与操作步骤
 
@@ -246,7 +247,7 @@ print(residuals, squared_errors, MSE)
 
 ### 前置输入
 
-固定 `X,targets,w,b` 与 MSE 定义，选择 `h = 1e-4`。预期 `dL/dw_1 = 0`、`dL/dw_2 = -5`、`dL/db = -1`。`h`、中心点、左右扰动点与函数结果都必须有限，且 `h>0`。
+在同一 notebook 中先完成阶段 5，沿用其中的 `X,targets,w,b` 与 MSE 定义，选择 `h = 1e-4`。预期 `dL/dw_1 = 0`、`dL/dw_2 = -5`、`dL/db = -1`。`h`、中心点、左右扰动点与函数结果都必须有限，且 `h>0`。
 
 ### Starter code 与操作步骤
 
@@ -314,7 +315,7 @@ print(gradient_w, gradient_b)
 
 ### 前置输入
 
-核心预测链已经给出固定 `[10,5]` 与 MSE 2.5。本阶段另建独立变量，不把随机数混入 `X,w,b,targets`。准备样本量 `n_values=[10,100,1000]` 和理论参考值 0.5。
+在同一 notebook 中先完成阶段 6，保留核心预测链的固定 `[10,5]`、MSE 2.5 与敏感度记录。本阶段另建独立变量，不把随机数混入 `X,w,b,targets`。准备样本量 `n_values=[10,100,1000]` 和理论参考值 0.5。
 
 ### Starter code 与操作步骤
 
@@ -355,7 +356,7 @@ print(frequency_rows)
 
 ### 前置输入
 
-保留一份正确快照：`weighted=[5,0]`、`predictions=[10,5]`、`residuals=[1,-2]`、`squared_errors=[1,4]`、MSE 2.5。每次只制造一个故障，并在下一次实验前恢复正确输入。
+在同一 notebook 中先完成阶段 7，并保留前序阶段的正确快照：`weighted=[5,0]`、`predictions=[10,5]`、`residuals=[1,-2]`、`squared_errors=[1,4]`、MSE 2.5。每次只制造一个故障，并在下一次实验前恢复正确输入。
 
 ### Starter code 与操作步骤
 
@@ -400,7 +401,7 @@ except ValueError as error:
 
 ### 前置输入
 
-准备你的阶段记录：输入与 shape 表、标量贡献、向量点积、批量预测、残差与 MSE、三个局部敏感度、一张概率预告表，以及至少一个故障的症状—原因—修复记录。
+在同一 notebook 中先完成阶段 8，继承此前定义的 `predictions,targets,MSE,gradient_w,gradient_b`。同时准备输入与 shape 表、标量贡献、向量点积、残差、一张概率预告表，以及至少一个故障的症状—原因—修复记录。
 
 ### Starter code 与操作步骤
 
