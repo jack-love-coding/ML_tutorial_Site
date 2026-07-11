@@ -83,7 +83,7 @@ assert y.shape == (2,)
 predictions = X @ w + b
 mse = np.mean((predictions - y) ** 2)
 
-print(predictions)  # [10.0, 5.0]
+print(predictions)  # [10.  5.]
 print(mse)          # 2.5
 ```
 
@@ -95,68 +95,160 @@ print(mse)          # 2.5
 
 按这个顺序打印能定位错误层。贡献或点积错，检查列序和轴；点积正确但预测错，检查偏置；预测正确但残差错，检查目标；平方正确但 MSE 错，检查汇总轴。
 
-## 7. 算例二：广播贡献表而非黑箱 {#numpy-worked-auxiliary}
+## 7. 算例二：独立传感器网格的 shape 调试 {#numpy-worked-auxiliary}
 
 ```python
-contributions = X * w
-print(contributions)
-# [[8.0, -3.0], [4.0, -4.0]]
-assert contributions.shape == (2, 2)
-weighted = contributions.sum(axis=1)
+sensor_grid = np.array([
+    [10.0, 20.0, 30.0],
+    [40.0, 50.0, 60.0],
+])
+column_bias = np.array([1.0, 2.0, 3.0])
+print(sensor_grid.shape)  # (2, 3)
+
+wrong_column_bias = column_bias[:, None]  # shape (3, 1)
+wrong = sensor_grid[0] + wrong_column_bias
+print(wrong.shape)  # (3, 3)，合法广播却不是目标
+
+fixed_column_bias = column_bias            # shape (3,)
+fixed = sensor_grid + fixed_column_bias
+print(fixed)
+# [[11. 22. 33.]
+#  [41. 52. 63.]]
 ```
 
-这里 `broadcast` 把 `w` 应用于每一行，得到 `[[8.0, -3.0], [4.0, -4.0]]`。第一轴仍是样本，第二轴仍是特征贡献。沿 axis 1 汇总得到 `[5,0]`。
+这个例子不使用主线的 $X,w,b$，而是一张两行三列的传感器读数表。目标是把三个列校准量 `[1,2,3]` 加到每一行，所以 `(2,3) + (3,) -> (2,3)`：NumPy 从末轴对齐，三项列校准被复用到两行。
 
-若沿 axis 0 汇总会得到 `[12,-7]`，它回答“每列对整批的总贡献”，不是“每个样本的加权和”。同一数组可以支持不同问题，轴必须由问题决定。
+`wrong_column_bias` 被人为改成 `(3,1)`。它与单行 `(3,)` 广播成 `(3,3)`，程序不报错，却生成三组彼此交叉的加法。诊断证据是实际 shape，不是“输出看起来有数字”。修复不是随意 `squeeze()`，而是确认列校准合同本来就是 `(3,)`。
+
+实际 NumPy 输出数组不用逗号，二维数组会换行。本节注释按真实格式写成 `[[11. 22. 33.]` 与下一行 `[41. 52. 63.]]`，避免学习者把 Python 列表显示与 `ndarray` 显示混为一谈。
 
 ## 8. 代码实现：验证、向量化与无副作用差分 {#numpy-code}
 
+下面是本课唯一的完整参考实现。`BEGIN/END` 标记让内容测试能独立定位合同代码，而不把周围讲解误当实现。
+
 ```python
+# MATH_TO_CODE_REFERENCE_BEGIN
+import numpy as np
+
+def _matrix(X):
+    X = np.asarray(X, dtype=float).copy()
+    if X.ndim != 2 or X.shape[0] == 0 or X.shape[1] == 0:
+        raise ValueError("X must be a nonempty 2D matrix")
+    if not np.isfinite(X).all():
+        raise ValueError("X must contain only finite values")
+    return X
+
+def _vector(values, name):
+    values = np.asarray(values, dtype=float).copy()
+    if values.ndim != 1 or values.size == 0:
+        raise ValueError(f"{name} must be a nonempty 1D vector")
+    if not np.isfinite(values).all():
+        raise ValueError(f"{name} must contain only finite values")
+    return values
+
+def _scalar(value, name):
+    value = np.asarray(value, dtype=float).copy()
+    if value.ndim != 0:
+        raise ValueError(f"{name} must be a scalar")
+    result = float(value)
+    if not np.isfinite(result):
+        raise ValueError(f"{name} must be finite")
+    return result
+
 def predict_batch(X, w, b):
-    X = np.asarray(X, dtype=float)
-    w = np.asarray(w, dtype=float)
-    if X.ndim != 2 or w.ndim != 1 or X.shape[1] != w.shape[0]:
-        raise ValueError("expected X (n,d) and w (d,)")
-    if not np.isfinite(X).all() or not np.isfinite(w).all() or not np.isfinite(b):
-        raise ValueError("all inputs must be finite")
-    return X @ w + b
+    X = np.asarray(X, dtype=float).copy()
+    w = np.asarray(w, dtype=float).copy()
+    if X.ndim != 2 or X.shape[0] == 0 or X.shape[1] == 0:
+        raise ValueError("X must be a nonempty 2D matrix")
+    if w.ndim != 1 or w.size == 0:
+        raise ValueError("w must be a nonempty 1D vector")
+    if X.shape[1] != w.shape[0]:
+        raise ValueError("X feature count must equal w length")
+    if not np.isfinite(X).all() or not np.isfinite(w).all():
+        raise ValueError("X and w must contain only finite values")
+    b = _scalar(b, "b")
+    if not np.isfinite(b):
+        raise ValueError("b must be finite")
+    result = X @ w + b
+    if not np.isfinite(result).all():
+        raise ValueError("predictions must be finite")
+    return result
 
 def mse_loss(predictions, targets):
-    predictions = np.asarray(predictions, dtype=float)
-    targets = np.asarray(targets, dtype=float)
-    if predictions.shape != targets.shape or predictions.size == 0:
-        raise ValueError("prediction and target shapes must match and be nonempty")
-    return np.mean((predictions - targets) ** 2)
+    predictions = np.asarray(predictions, dtype=float).copy()
+    targets = np.asarray(targets, dtype=float).copy()
+    if predictions.ndim != 1 or targets.ndim != 1:
+        raise ValueError("predictions and targets must be 1D")
+    if predictions.size == 0 or targets.size == 0:
+        raise ValueError("predictions and targets must be nonempty")
+    if predictions.shape != targets.shape:
+        raise ValueError("prediction and target shapes must match")
+    if not np.isfinite(predictions).all() or not np.isfinite(targets).all():
+        raise ValueError("predictions and targets must be finite")
+    result = float(np.mean((predictions - targets) ** 2))
+    if not np.isfinite(result):
+        raise ValueError("MSE must be finite")
+    return result
 
 def central_difference(fn, theta, h=1e-4):
+    theta = _scalar(theta, "theta")
+    h = _scalar(h, "h")
     if not np.isfinite(theta) or not np.isfinite(h) or h <= 0:
-        raise ValueError("finite theta and positive finite h required")
-    return (fn(theta + h) - fn(theta - h)) / (2*h)
+        raise ValueError("theta and positive h must be finite")
+    left = _scalar(fn(theta - h), "left function result")
+    right = _scalar(fn(theta + h), "right function result")
+    if not np.isfinite(left) or not np.isfinite(right):
+        raise ValueError("left and right function results must be finite")
+    result = (right - left) / (2 * h)
+    if not np.isfinite(result):
+        raise ValueError("central difference must be finite")
+    return result
+
+def evaluate(X, y, w, b, h=1e-4):
+    normalized_X = _matrix(X)
+    normalized_y = _vector(y, "y")
+    normalized_w = _vector(w, "w")
+    normalized_b = _scalar(b, "b")
+    normalized_h = _scalar(h, "h")
+    if normalized_X.shape[1] != normalized_w.shape[0]:
+        raise ValueError("X feature count must equal w length")
+    if normalized_X.shape[0] != normalized_y.shape[0]:
+        raise ValueError("X row count must equal y length")
+    if normalized_h <= 0:
+        raise ValueError("h must be positive")
+
+    predictions = predict_batch(normalized_X, normalized_w, normalized_b)
+    L = mse_loss(predictions, normalized_y)
+    gradient_w = np.empty_like(normalized_w, dtype=float)
+    for j in range(normalized_w.size):
+        def loss_for(candidate, j=j):
+            candidate_w = normalized_w.copy()
+            candidate_w[j] = candidate
+            candidate_predictions = predict_batch(
+                normalized_X, candidate_w, normalized_b
+            )
+            return mse_loss(candidate_predictions, normalized_y)
+        gradient_w[j] = central_difference(
+            loss_for, normalized_w[j], normalized_h
+        )
+    gradient_b = central_difference(
+        lambda candidate: mse_loss(
+            predict_batch(normalized_X, normalized_w, candidate), normalized_y
+        ),
+        normalized_b,
+        normalized_h,
+    )
+    if not np.isfinite(gradient_w).all() or not np.isfinite(gradient_b):
+        raise ValueError("gradient must be finite")
+    return predictions, L, gradient_w, gradient_b
+# MATH_TO_CODE_REFERENCE_END
 ```
 
-探测权重时使用 `candidate = w.copy()` 再替换一项，避免修改共享参数。测试应覆盖 shape 错误、空数组、`NaN`、`Infinity` 和非正步长。
+入口先用 `np.asarray(..., dtype=float).copy()` 接受 Python list 与整数数组，同时切断可变别名；随后严格检查预期 ndim、非空、shape 和有限值。没有 `zip`，所以不可能静默截断多余特征。每个运算结果也在返回前检查有限值。
 
 ### 完整评估与回归测试
 
-```python
-def evaluate(X, y, w, b, h=1e-4):
-    predictions = predict_batch(X, w, b)
-    y = np.asarray(y, dtype=float)
-    L = mse_loss(predictions, y)
-    gradient_w = np.empty_like(w, dtype=float)
-    for j in range(w.size):
-        def loss_for(candidate, j=j):
-            candidate_w = w.copy()
-            candidate_w[j] = candidate
-            return mse_loss(predict_batch(X, candidate_w, b), y)
-        gradient_w[j] = central_difference(loss_for, w[j], h)
-    gradient_b = central_difference(
-        lambda candidate: mse_loss(predict_batch(X, w, candidate), y), b, h
-    )
-    return predictions, L, gradient_w, gradient_b
-```
-
-期望返回 `[10,5]`、2.5、`[0,-5]`、-1。前向计算向量化，跨参数的数值差分使用循环；vectorization 不表示所有层面都禁止循环。
+`evaluate` 只把规范化副本传给后续函数，候选权重每次再复制。它既接受 list，也接受整数 dtype 的 `ndarray`，不会改变调用者输入。期望返回 `[10,5]`、2.5、`[0,-5]`、-1。前向计算向量化，跨参数的数值差分使用循环；vectorization 不表示所有层面都禁止循环。
 
 ```python
 w_before = w.copy()
@@ -172,7 +264,7 @@ np.testing.assert_array_equal(w, w_before)
 
 ## 9. 控制实验：从循环到向量化，输出必须相同 {#numpy-experiment}
 
-先写显式循环基线，每行调用单样本函数；再写 `X @ w + b`。固定所有数据，比较两份预测必须逐项相同。然后只把 `X` 增加第三行 `[3,2]`，两种实现都应追加 15，不改变前两项。
+先写显式循环基线，每行调用单样本函数；再写 `X @ w + b`。固定 `X,w,b`，只改变实现方式，两份预测必须逐项等于 `[10,5]`。随后共同交换两行输入，循环与向量化都应输出 `[5,10]`；这检验实现尊重行独立性，而没有引入新数值算例。
 
 第二个独立实验只改变目标 shape：把 `(2,)` 改成 `(2,1)`。观察原始减法生成 `(2,2)`；加入严格 shape 断言后应立即拒绝。这个失败演示说明广播既是能力也是风险。
 
@@ -182,7 +274,7 @@ np.testing.assert_array_equal(w, w_before)
 
 广播实验应打印预测 `(2,)`、目标列 `(2,1)` 与差值 `(2,2)`。二维差值表把每个目标与所有预测交叉组合。修复不是盲目 `squeeze()`，而是回到数据来源确认当前任务目标本应是一维；随意压缩可能破坏真正的多输出任务。
 
-新增第三行时必须同步新增目标并断言样本数一致；新增特征时必须扩展 `w` 并更新列名。这两类变化分别保护样本对齐与特征对齐，不能用同一个“shape 看起来变大了”概括。
+一般地，新增任意样本行时必须同步新增目标并断言样本数一致；新增特征列时必须扩展 `w` 并更新列名。这两类变化分别保护样本对齐与特征对齐，不能用同一个“shape 看起来变大了”概括。
 
 ## 10. 误区诊断：NumPy 的“合法错误” {#numpy-misconceptions}
 
@@ -248,13 +340,13 @@ np.testing.assert_array_equal(w, w_before)
 
 ### 第二层：读码与调试
 
-**练习 2A** 预测下面代码输出 shape：`(X*w).sum(axis=0)`。
+**练习 2A** 在传感器例中，预测 `sensor_grid[0] + column_bias[:, None]` 的 shape。
 
-**提示：**axis 0 被消去。
+**提示：**比较 `(3,)` 与 `(3,1)`，从末轴对齐。
 
-**参考推理：**得到 `(2,)`，但两项是列贡献总和 `[12,-7]`，不是两条预测。
+**参考推理：**得到 `(3,3)`。一维行被视作 `(1,3)`，与 `(3,1)` 分别扩展，产生外加法网格，而不是一行校准结果。
 
-[回看：广播算例](#numpy-worked-auxiliary)
+[回看：独立 shape 调试算例](#numpy-worked-auxiliary)
 
 **练习 2B** 找出 `np.mean(predictions-y)**2` 的问题。
 

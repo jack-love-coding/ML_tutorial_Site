@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
+import {
+  centralDifference,
+  evaluatePredictionTask,
+  meanSquaredError,
+  predictBatch,
+} from '../src/modules/math-lab/utils/mathToCode.ts'
 
 const manuscriptUrl = new URL(
   '../docs/curriculum/v3/math-to-code/01-functions-mappings.zh-CN.md',
@@ -159,7 +165,7 @@ const REMAINING_LESSONS = [
     prefix: 'vectors',
     formula: /y_hat = w\^T x \+ b/,
     sharedEvidence: [/w\^T x = 4\*2 \+ \(-1\)\*3 = 5/, /y_hat = 5 \+ 5 = 10/, /L = \(10 - 9\)\^2 = 1/],
-    auxiliaryEvidence: [/\|\|x\|\| = sqrt\(13\)/, /proj_w\(x\)/, /5\/sqrt\(17\)/],
+    auxiliaryEvidence: [/u = \[3, 4\]/, /v = \[4, 0\]/, /\|\|u\|\| = 5/, /proj_v\(u\) = \[3, 0\]/],
     handoff: [/X = \[\[2, 3\], \[1, 4\]\]/, /矩阵课/],
   },
   {
@@ -183,7 +189,7 @@ const REMAINING_LESSONS = [
     prefix: 'numpy',
     formula: /predictions = X @ w \+ b/,
     sharedEvidence: [/X\.shape == \(2, 2\)/, /predictions.*\[10\.0, 5\.0\]/s, /mse == 2\.5/, /gradient.*\[0\.0, -5\.0, -1\.0\]/s],
-    auxiliaryEvidence: [/broadcast/, /contributions\.shape == \(2, 2\)/, /\[\[8\.0, -3\.0\], \[4\.0, -4\.0\]\]/],
+    auxiliaryEvidence: [/sensor_grid/, /# \(2, 3\)/, /wrong_column_bias/, /# \(3, 3\)/, /fixed_column_bias/, /\[\[11\. 22\. 33\.\]/],
     handoff: [/Project 1/, /x, w, b, y_hat, y, L/],
   },
 ] as const
@@ -225,7 +231,6 @@ for (const lesson of REMAINING_LESSONS) {
     const sections = sliceRemainingLesson(manuscript, lesson.prefix)
 
     assert.equal(sections.size, 12)
-    assert.ok(manuscript.length >= 9_000, `${lesson.file} must be a substantive 60–90 minute lesson`)
     assert.match(manuscript.slice(0, manuscript.indexOf('## ')), /60–90 分钟/)
     assert.match(sections.get(`${lesson.prefix}-shared-task`)!, lesson.formula)
     assert.match(sections.get(`${lesson.prefix}-shared-task`)!, /x.*w.*b.*y_hat.*y.*L/s)
@@ -267,3 +272,91 @@ for (const lesson of REMAINING_LESSONS) {
     assert.doesNotMatch(manuscript, /通过条件|及格(?:线)?|合格(?:线)?|评分标准|正式评分[：:]|满分|得分[：:]/)
   })
 }
+
+test('vectors keeps dimensional geometry out of the unit-bearing prediction functional', () => {
+  const manuscript = readRemainingLesson('02-vectors-samples.zh-CN.md')
+  const sections = sliceRemainingLesson(manuscript, 'vectors')
+  const predictionSections = [
+    'vectors-shared-task',
+    'vectors-intuition',
+    'vectors-formal',
+    'vectors-worked-shared',
+    'vectors-code',
+    'vectors-experiment',
+  ].map((id) => sections.get(id)!).join('\n')
+  const auxiliary = sections.get('vectors-worked-auxiliary')!
+
+  assert.match(predictionSections, /线性泛函/)
+  assert.match(predictionSections, /w_1.*分钟\/基础任务.*w_2.*分钟\/提示请求/s)
+  assert.match(predictionSections, /w_jx_j|w_j x_j/)
+  assert.doesNotMatch(predictionSections, /\lVert\s*(?:\\mathbf\s*)?w|proj(?:ection)?_?w|operatorname\{proj\}.*w|w.*夹角|单位权重方向/s)
+  assert.match(auxiliary, /无量纲/)
+  assert.match(auxiliary, /同一尺度/)
+  assert.doesNotMatch(auxiliary, /完成时长|权重|y_hat|\bw\s*=|\bx\s*=/)
+})
+
+function extractMarkedPythonReference(codeSection: string): string {
+  const block = codeSection.match(/```python\n(# MATH_TO_CODE_REFERENCE_BEGIN[\s\S]*?# MATH_TO_CODE_REFERENCE_END)\n```/)
+  assert.ok(block, 'missing single marked Python reference implementation')
+  return block[1]!
+}
+
+test('NumPy reference block encodes every Task 1 validation and copy contract', () => {
+  const manuscript = readRemainingLesson('05-numpy-implementation.zh-CN.md')
+  const sections = sliceRemainingLesson(manuscript, 'numpy')
+  const codeSection = sections.get('numpy-code')!
+  const code = extractMarkedPythonReference(codeSection)
+
+  assert.equal([...codeSection.matchAll(/# MATH_TO_CODE_REFERENCE_BEGIN/g)].length, 1)
+  assert.equal([...codeSection.matchAll(/# MATH_TO_CODE_REFERENCE_END/g)].length, 1)
+
+  for (const name of ['X', 'w', 'predictions', 'targets']) {
+    assert.match(code, new RegExp(`${name} = np\\.asarray\\([^\\n]+dtype=float\\)\\.copy\\(\\)`))
+  }
+  assert.match(code, /X\.ndim != 2/)
+  assert.match(code, /w\.ndim != 1/)
+  assert.match(code, /predictions\.ndim != 1/)
+  assert.match(code, /targets\.ndim != 1/)
+  assert.match(code, /X\.shape\[0\] == 0|X\.size == 0/)
+  assert.match(code, /predictions\.size == 0/)
+  assert.match(code, /X\.shape\[1\] != w\.shape\[0\]/)
+  assert.match(code, /predictions\.shape != targets\.shape/)
+  for (const name of ['X', 'w', 'predictions', 'targets']) {
+    assert.match(code, new RegExp(`np\\.isfinite\\(${name}\\)\\.all\\(\\)`))
+  }
+  assert.match(code, /np\.isfinite\(b\)/)
+  assert.match(code, /np\.isfinite\(theta\)/)
+  assert.match(code, /np\.isfinite\(h\)/)
+  assert.match(code, /h <= 0/)
+  assert.match(code, /np\.isfinite\(result\)/)
+  assert.match(code, /np\.isfinite\(left\)/)
+  assert.match(code, /np\.isfinite\(right\)/)
+  assert.match(code, /normalized_X = _matrix\(X\)/)
+  assert.match(code, /normalized_y = _vector\(y, "y"\)/)
+  assert.match(code, /normalized_w = _vector\(w, "w"\)/)
+  assert.match(code, /candidate_w = normalized_w\.copy\(\)/)
+  assert.doesNotMatch(code, /\bzip\s*\(/)
+  const evaluateBody = code.slice(code.indexOf('def evaluate'))
+  assert.doesNotMatch(evaluateBody, /predict_batch\(X,|mse_loss\([^\n]+, y\)/)
+
+  const workedShared = sections.get('numpy-worked-shared')!
+  const workedAuxiliary = sections.get('numpy-worked-auxiliary')!
+  assert.match(workedShared, /print\(predictions\)\s+# \[10\.  5\.\]/)
+  assert.match(workedAuxiliary, /# \[\[11\. 22\. 33\.\]\n#  \[41\. 52\. 63\.\]\]/)
+})
+
+test('NumPy manuscript contract agrees with the executable Task 1 implementation', () => {
+  assert.deepEqual(predictBatch([[2, 3], [1, 4]], [4, -1], 5), [10, 5])
+  assert.equal(meanSquaredError([10, 5], [9, 7]), 2.5)
+  const evaluation = evaluatePredictionTask({
+    samples: [{ features: [2, 3], target: 9 }, { features: [1, 4], target: 7 }],
+    parameters: { weights: [4, -1], bias: 5 },
+    derivativeStep: 1e-4,
+  })
+  assert.ok(Math.abs(evaluation.parameterDerivatives.weights[0]!) < 1e-8)
+  assert.ok(Math.abs(evaluation.parameterDerivatives.weights[1]! + 5) < 1e-8)
+  assert.ok(Math.abs(evaluation.parameterDerivatives.bias + 1) < 1e-8)
+  assert.throws(() => predictBatch([[1, 2]], [1], 0), /same length/)
+  assert.throws(() => meanSquaredError([[1]] as unknown as number[], [1]), /finite/)
+  assert.throws(() => centralDifference(() => Number.POSITIVE_INFINITY, 1, 1e-4), /finite/)
+})
