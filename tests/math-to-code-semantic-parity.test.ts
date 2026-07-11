@@ -34,7 +34,7 @@ const perSectionEnglishContracts: Record<string, Record<string, string[]>> = {
     'vectors-worked-auxiliary': ['u = [3, 4]', 'v = [4, 0]', '0.6'],
     'vectors-code': ['contributions = w * x', 'weighted_sum = w @ x', 'zip'],
     'vectors-experiment': ['[8,-2]', '[-4,1]', '[3,-1]', '36', '81'],
-    'vectors-misconceptions': ['Dimension is not Euclidean norm', 'Elementwise multiplication', 'Matching lengths'],
+    'vectors-misconceptions': ['Dimension is vector length', 'Elementwise product is the dot product', 'Prediction coefficients'],
     'vectors-practice': ['Exercise 1A', 'Exercise 3C'],
     'vectors-handoff': ['X = [[2, 3], [1, 4]]', 'predictions [10,5]', 'targets [9,7]'],
   },
@@ -43,12 +43,12 @@ const perSectionEnglishContracts: Record<string, Record<string, string[]>> = {
     'matrices-recap': ['one row x', 'w^T x', '[10,5]'],
     'matrices-shared-task': ['Xw+b', 'residuals [1,-2]', 'MSE 2.5'],
     'matrices-intuition': ['Adding one row adds one output', 'geometric transformation'],
-    'matrices-formal': ['(2,2) @ (2,) -> (2,)', '(n,1)', '(n,n)', 'Axis 0', 'axis 1'],
+    'matrices-formal': ['(n,d)@(d,)->(n,)', '(X+b)@w', 'residual', 'average across samples', 'Row/column semantic audit'],
     'matrices-worked-shared': ['[[8,-3],[4,-4]]', '[5,0]', '[10,5]', '2.5'],
     'matrices-worked-auxiliary': ['[[1, 0], [0, -1]]', '[2, 3] -> [2, -3]'],
-    'matrices-code': ['X.ndim==2', 'X.shape[1]==w.shape[0]', 'loop_predictions', 'X @ w + b'],
-    'matrices-experiment': ['[3,2]', '[10,5,15]', 'swap the first two rows'],
-    'matrices-misconceptions': ['Transposing X', 'Elementwise X*w', '(n,1)', 'Reordering rows'],
+    'matrices-code': ['X.ndim==2', 'X.shape[1]==w.shape[0]', 'loop_predictions', 'weighted=X@w', 'y_hat=weighted+b'],
+    'matrices-experiment': ['[3,2]', 'prediction 15', 'old predictions remain [10,5]', 'swap the first two rows'],
+    'matrices-misconceptions': ['two reductions with indices', 'If transpose still runs', 'Square the average residual', 'Binary strategy'],
     'matrices-practice': ['Exercise 1A', 'Exercise 3C'],
     'matrices-handoff': ['predictions=[10,5]', 'MSE=2.5', 'not confuse estimating a derivative'],
   },
@@ -57,12 +57,12 @@ const perSectionEnglishContracts: Record<string, Record<string, string[]>> = {
     'derivatives-recap': ['Average rate', 'x,w,b -> y_hat', 'y_hat,y -> L'],
     'derivatives-shared-task': ['L(w,b)', '[0,-5]', '-1', 'copied parameter'],
     'derivatives-intuition': ['positive sensitivity', 'negative', 'locally flat', 'global guarantee'],
-    'derivatives-formal': ['L(\\theta+h)-L(\\theta-h)', '2h', 'positive and finite', 'too small'],
-    'derivatives-worked-shared': ['dL/dw1', 'dL/dw2', 'dL/db', '[0, -5, -1]'],
+    'derivatives-formal': ['f(a+h)-f(a-h)', '2h', 'derivative unit', 'numerical approximation', 'automatic differentiation'],
+    'derivatives-worked-shared': ['dL/dw1', 'dL/dw2', 'dL/db', '[0,-5,-1]'],
     'derivatives-worked-auxiliary': ['s(t) = t^2', '9.61', '8.41', 'slope_at_3 = 6'],
     'derivatives-code': ['def central_difference', 'candidate_w = w.copy()', 'gradient_b'],
     'derivatives-experiment': ['1, 0.1, 0.01, 1e-4', 'floating-point noise', 'only h changed'],
-    'derivatives-misconceptions': ['not gradient descent', 'local', 'Smaller h', 'Mutating'],
+    'derivatives-misconceptions': ['negative derivative', 'global optimum', 'local', 'chooses no update'],
     'derivatives-practice': ['Exercise 1A', 'Exercise 3C'],
     'derivatives-handoff': ['MSE 2.5', 'w=[0,-5]', 'b=-1', 'not introduce a learning-rate update'],
   },
@@ -71,12 +71,12 @@ const perSectionEnglishContracts: Record<string, Record<string, string[]>> = {
     'numpy-recap': ['X has shape (n,d)', 'predictions and targets', 'Central difference'],
     'numpy-shared-task': ['predictions = X @ w + b', 'residuals', 'squared_errors', 'MSE 2.5'],
     'numpy-intuition': ['runtime type', 'shape alone', 'Intermediate arrays'],
-    'numpy-formal': ['np.asarray', 'dtype=float', 'X.ndim==2', 'np.isfinite', 'axis 1'],
+    'numpy-formal': ['np.asarray', 'dtype=float', 'np.isfinite', 'axis 1', 'broadcasting'],
     'numpy-worked-shared': ['weighted_sums', 'predictions = [10.0, 5.0]', 'MSE = 2.5', '[0.0,-5.0]'],
     'numpy-worked-auxiliary': ['sensor_grid', 'column_bias', '(3,3)', '[[11. 22. 33.]'],
     'numpy-code': ['MATH_TO_CODE_REFERENCE_BEGIN', 'def evaluate', 'MATH_TO_CODE_REFERENCE_END'],
     'numpy-experiment': ['nested-loop', 'X @ w + b', 'allclose', 'two-row'],
-    'numpy-misconceptions': ['(n,1)', 'Integer arrays', 'view', 'NaN'],
+    'numpy-misconceptions': ['backward diagnostic', 'cross residuals (2,2)', 'Vectorization means deleting', 'w.copy()'],
     'numpy-practice': ['Exercise 1A', 'Exercise 3C'],
     'numpy-handoff': ['predictions [10,5]', 'MSE 2.5', '[0,-5,-1]', 'Gradient Descent and Monte Carlo'],
   },
@@ -90,6 +90,75 @@ test('every English section preserves its approved semantic anchors rather than 
       for (const token of tokens) assert.ok(content.toLowerCase().includes(token.toLowerCase()), `${sectionId}/en needs ${token}`)
     }
   }
+})
+
+test('English sections preserve approved subsection structure for derivations, experiments, and diagnoses', () => {
+  for (const module of mathToCodeModules.slice(1)) {
+    for (const section of module.sections) {
+      const zhHeadings = section.content['zh-CN'].match(/^### /gm) ?? []
+      const enHeadings = section.content.en.match(/^### /gm) ?? []
+      assert.equal(enHeadings.length, zhHeadings.length, `${section.id} subsection parity`)
+    }
+  }
+})
+
+test('derivative formal section preserves units, rate-versus-change, gradient, MSE factors, and three-way checking', () => {
+  const content = byId['calculus-derivatives-local-change']!.sections.find(({ id }) => id === 'derivatives-formal')!.content.en
+  const goals = [
+    /loss.*minutes(?:\^?2|²).*divid.*weight unit/is,
+    /### Deeper 1: Rate is not change/i,
+    /Delta L.*partial L.*Delta theta|\\Delta L.*\\partial L.*\\Delta\\theta/is,
+    /-5.*0\.01.*-0\.05/s,
+    /gradient.*\[.*dL\/dw1.*dL\/dw2.*dL\/db.*\]/is,
+    /gradient.*not.*parameter/is,
+    /### Deeper 2: Where every MSE derivative factor comes from/i,
+    /2.*comes from squaring.*1\/n.*comes from averaging/is,
+    /r_i.*prediction minus target.*X_ij.*bias.*1/is,
+    /numerical.*analytic.*automatic differentiation/is,
+    /same MSE.*residual direction.*same parameter.*same batch/is,
+  ]
+  for (const goal of goals) assert.match(content, goal)
+})
+
+test('derivative shared example preserves the numerical probe and both explicit loss polynomials', () => {
+  const content = byId['calculus-derivatives-local-change']!.sections.find(({ id }) => id === 'derivatives-worked-shared')!.content.en
+  for (const token of [
+    'w2=-0.99', '[10.03,5.04]', '[1.03,-1.96]', '2.45125', '-0.04875',
+    'L(w2)', '(4+3w2)^2', '(2+4w2)^2', '12.5w2^2+20w2+10', '25w2+20', '-0.8',
+    'L(b)', '(b-4)^2', '(b-7)^2', '2b-11',
+  ]) assert.ok(content.replaceAll(' ', '').includes(token.replaceAll(' ', '')), `derivative shared example needs ${token}`)
+})
+
+test('derivative misconceptions preserve approved probes and sign, zero, global, and update diagnoses', () => {
+  const content = byId['calculus-derivatives-local-change']!.sections.find(({ id }) => id === 'derivatives-misconceptions')!.content.en
+  const goals = [
+    /w2=-0\.9.*\[10\.3,5\.4\].*2\.125.*w2=-1\.1.*\[9\.7,4\.6\].*3\.125.*-5/is,
+    /bias.*\[1\.1,-1\.9\].*2\.41.*\[0\.9,-2\.1\].*2\.61.*-1/is,
+    /w1.*\[1\.2,-1\.9\].*2\.525.*\[0\.8,-2\.1\].*2\.525.*zero/is,
+    /local linear approximation[\s\S]*step 0\.1.*2\.0.*actual.*2\.125.*step 0\.01.*2\.45125/is,
+    /increas(?:e|ing).*1.*impossible negative MSE.*-2\.5/is,
+    /### Misconception 1: A negative derivative means the parameter is negative/i,
+    /### Misconception 2: A zero derivative proves a global optimum/i,
+    /### Misconception 3: A numerical derivative is gradient descent/i,
+    /estimate_gradient.*update_parameters/is,
+  ]
+  for (const goal of goals) assert.match(content, goal)
+})
+
+test('NumPy misconceptions preserve backward diagnosis and approved vectorization and mutation repairs', () => {
+  const content = byId['numpy-mathematics-implementation']!.sections.find(({ id }) => id === 'numpy-misconceptions')!.content.en
+  const goals = [
+    /MSE.*2\.5.*residuals.*\[1,-2\].*predictions.*\[10,5\].*weighted.*\[5,0\].*contribution matrix/is,
+    /one layer upstream.*smallest transformation/is,
+    /arrays.*finite.*inputs.*modified.*repeat.*same/is,
+    /sum\(axis=1\).*sum feature contributions, keep one value per sample/is,
+    /### Misconception 1: No error means the shape is correct/i,
+    /### Misconception 2: Vectorization means deleting all intermediate values/i,
+    /contribution.*weighted sum.*prediction.*residual.*squared error/is,
+    /### Misconception 3: Numerical derivatives may modify w in place/i,
+    /candidate.*w\.copy\(\).*before.*after.*unchanged/is,
+  ]
+  for (const goal of goals) assert.match(content, goal)
 })
 
 const practiceContracts: Record<string, Record<string, string[]>> = {
