@@ -116,16 +116,16 @@ const auditEvidence: Record<string, AuditEvidence> = {
     contractGaps: ['Needs executable vector and matrix calculations with shape assertions plus an assessment that distinguishes invalid distance and transformation interpretations.'],
   },
   'linear-algebra-feature-space': {
-    strengths: ['Uses learner records, profiles and sentence embeddings to explain coordinate features, difference vectors, and high-dimensional shared spaces.'],
-    contractGaps: ['Needs a code-built feature matrix with units and schema checks, followed by a counterexample showing incomparable or badly scaled coordinates.'],
+    strengths: ['Uses one prediction task to enforce ordered feature schemas, a unit-bearing linear functional w, checked dot-product code, controlled coefficient experiments, and a strictly separate dimensionless u/v projection example.'],
+    contractGaps: ['Still needs a later multi-sample feature-scaling study that compares normalization choices on held-out model behavior without turning unit-bearing coefficients into Euclidean geometry.'],
   },
   'linear-algebra-distance-similarity': {
     strengths: ['Uses semantic search to compare norm distance, cosine ranking, and weighted combinations so position closeness is separated from directional similarity.'],
     contractGaps: ['Needs learners to reproduce rankings in code, test normalization and zero-vector edge cases, and justify metric choice from retrieval failures.'],
   },
   'linear-algebra-matrix-transformations': {
-    strengths: ['Reads matrix columns and basis-grid motion before connecting affine feature mixing to neural-network layers and housing features.'],
-    contractGaps: ['Needs elementwise and vectorized implementations with dimension checks plus a singular or ill-shaped transform failure learners must repair.'],
+    strengths: ['Expands Xw+b with a complete sample/feature shape ledger, loop-versus-vectorized agreement, aligned batch MSE, row and column permutation controls, broadcasting failures, and a separately labelled grid transform.'],
+    contractGaps: ['Still needs a later learned multi-output matrix layer and held-out batch experiment; singularity and rank consequences remain in the following rank/null-space lesson.'],
   },
   'linear-algebra-rank-null-space': {
     strengths: ['Uses recommendation blind spots, repeated features, column space and null space to explain what a matrix can express, ignore, or compress.'],
@@ -152,8 +152,8 @@ const auditEvidence: Record<string, AuditEvidence> = {
     contractGaps: ['Needs a later multi-sample experiment to test generalization and a derivative lesson to explain how local loss sensitivity guides parameter updates.'],
   },
   'calculus-derivatives-local-change': {
-    strengths: ['Shrinks a speedometer secant window to local change and uses derivative signs to reason near the current point.'],
-    contractGaps: ['Needs symbolic, automatic and finite-difference derivatives compared numerically, including a nonsmooth-point or bad-step-size failure.'],
+    strengths: ['Checks analytic MSE sensitivities against side-effect-free central differences, sweeps h to expose broad-window and floating-point failures, and explicitly separates derivative estimation from gradient-descent updates.'],
+    contractGaps: ['Still needs a later automatic-differentiation comparison and a multivariable contour task; nonsmooth one-sided behavior is introduced but not yet implemented as an interactive probe.'],
   },
   'calculus-partial-derivatives-gradients': {
     strengths: ['Uses one-parameter-at-a-time knobs before collecting partial derivatives into a multi-parameter gradient.'],

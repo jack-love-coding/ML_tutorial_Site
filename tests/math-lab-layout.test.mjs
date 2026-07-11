@@ -575,9 +575,10 @@ test('math module page SSR gives every inline image and Manim visual one unique 
 
   const html = await renderModulePage('calculus-derivatives-local-change')
 
-  for (const visualId of ['derivative-window-image', 'derivative-window-video']) {
-    assert.equal([...html.matchAll(new RegExp(`id="${visualId}"`, 'g'))].length, 1, `${visualId} needs one DOM anchor`)
+  for (const sectionId of ['derivatives-opening', 'derivatives-formal', 'derivatives-experiment']) {
+    assert.equal([...html.matchAll(new RegExp(`id="${sectionId}"`, 'g'))].length, 1, `${sectionId} needs one DOM anchor`)
   }
+  assert.doesNotMatch(html, /id="derivative-window-(?:image|video)"/)
   const repeatedReferenceHtml = await renderModulePage('beginner-probability-distributions')
   assert.equal([...repeatedReferenceHtml.matchAll(/id="beginner-probability-story"/g)].length, 1)
   assert.equal([...repeatedReferenceHtml.matchAll(/id="beginner-probability-story--beginner-probability-sample-space"/g)].length, 1)

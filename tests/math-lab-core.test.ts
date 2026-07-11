@@ -469,7 +469,8 @@ test('math lab modules include the zero-base AI math path with the linear algebr
     assert.equal('attribution' in moduleDefinition, false, `${moduleDefinition.id} should not expose migrated attribution`)
     assert.equal(moduleDefinition.sections.length >= 3, true, `${moduleDefinition.id} needs complete lesson sections`)
     assert.equal(moduleDefinition.toc.length > 0, true, `${moduleDefinition.id} needs toc entries`)
-    assert.equal(moduleDefinition.labs.length >= 1, true, `${moduleDefinition.id} needs an interactive lab entry`)
+    const deliberatelyStaticPilotIds = new Set(['linear-algebra-feature-space', 'calculus-derivatives-local-change'])
+    assert.equal(moduleDefinition.labs.length >= 1 || deliberatelyStaticPilotIds.has(moduleDefinition.id), true, `${moduleDefinition.id} needs a matching lab or an explicit static pilot contract`)
     assert.equal(moduleDefinition.sourceNoteFile?.endsWith('.md'), true, `${moduleDefinition.id} should track source filename internally`)
 
     const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
@@ -485,7 +486,11 @@ test('math lab modules include the zero-base AI math path with the linear algebr
     } else if (moduleDefinition.id === 'calculus-functions-rate-change') {
       assert.match(englishBody, /average rate of change|function|input-output/i)
     } else if (moduleDefinition.id === 'calculus-derivatives-local-change') {
-      assert.match(englishBody, /derivative|secant|tangent/i)
+      assert.match(englishBody, /derivative|central difference|local slope/i)
+    } else if (moduleDefinition.id === 'linear-algebra-feature-space') {
+      assert.match(englishBody, /unit-bearing linear functional|dimensionless geometry/i)
+    } else if (moduleDefinition.id === 'linear-algebra-matrix-transformations') {
+      assert.match(englishBody, /shape ledger|broadcasting|batch/i)
     } else if (moduleDefinition.id === 'calculus-partial-derivatives-gradients') {
       assert.match(englishBody, /partial derivative|gradient|parameter/i)
     } else if (moduleDefinition.id === 'calculus-gradient-descent') {
@@ -520,7 +525,7 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'training-diagnostics',
       'deep-architecture-math',
     ])
-    if (moduleDefinition.id === 'calculus-functions-rate-change') {
+    if (['calculus-functions-rate-change', 'calculus-derivatives-local-change', 'linear-algebra-feature-space', 'linear-algebra-matrix-transformations'].includes(moduleDefinition.id)) {
       assert.match(englishBody, /Three-Layer Practice/)
     } else if (moduleDefinition.id !== 'pca' && !aiBridgeIds.has(moduleDefinition.id)) {
       assert.match(englishBody, /Review Questions/)
@@ -620,7 +625,7 @@ test('linear algebra route split exposes seven ordered case-driven chapters', ()
     assert.ok(moduleDefinition.learningObjectives.length >= 3, `${id} should define learning objectives`)
     assert.ok(moduleDefinition.concepts.length >= 1, `${id} should define concepts`)
     assert.ok(moduleDefinition.sections.length >= 4, `${id} should define case-driven sections`)
-    assert.ok(moduleDefinition.labs.length >= 1, `${id} should expose one primary lab`)
+    assert.ok(moduleDefinition.labs.length >= 1 || id === 'linear-algebra-feature-space', `${id} should expose one matching lab or the static vector pilot`)
     assert.ok(moduleDefinition.quizzes.length >= 2, `${id} should include checkpoint questions`)
     assert.ok(moduleDefinition.misconceptions.length >= 2, `${id} should include misconception feedback`)
     assert.ok(moduleDefinition.sourceReferences?.length, `${id} should have source references`)
@@ -632,7 +637,7 @@ test('linear algebra route split exposes seven ordered case-driven chapters', ()
   )
   assert.match(
     byId['linear-algebra-matrix-transformations']!.sections.map((section) => section.content['zh-CN']).join('\n'),
-    /线性层|房价|中间表示/,
+    /Xw\+b|批量|广播/,
   )
   assert.match(
     byId['linear-algebra-rank-null-space']!.sections.map((section) => section.content['zh-CN']).join('\n'),
@@ -675,7 +680,6 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
   const expectedPrimaryLabs: Record<string, string> = {
     'calculus-functions-rate-change': 'PredictionMappingLab',
-    'calculus-derivatives-local-change': 'LocalChangeStoryLab',
     'calculus-partial-derivatives-gradients': 'PartialDerivativeContourLab',
     'calculus-gradient-descent': 'MathGradientLab',
     'calculus-sgd-batch-noise': 'BatchGradientNoiseLab',
@@ -693,7 +697,7 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
 
   const requiredChineseAnchors: Record<string, string[]> = {
     'calculus-functions-rate-change': ['输入', '参数', '控制变量实验'],
-    'calculus-derivatives-local-change': ['观察窗口', '割线', '切线'],
+    'calculus-derivatives-local-change': ['中央差分', '局部', '不等于梯度下降'],
     'calculus-partial-derivatives-gradients': ['旋钮', '偏导数', '梯度指向'],
     'calculus-gradient-descent': ['负梯度', '学习率', '震荡'],
     'calculus-sgd-batch-noise': ['batch size', 'iteration', 'epoch'],
@@ -705,7 +709,7 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     const moduleDefinition = byId[id]
     assert.ok(moduleDefinition, `${id} should be registered`)
     assert.equal(moduleDefinition.difficulty, 'foundation')
-    assert.equal(moduleDefinition.enhancementTier, 'interactive')
+    assert.equal(moduleDefinition.enhancementTier, id === 'calculus-derivatives-local-change' ? 'core' : 'interactive')
     assert.ok(moduleDefinition.title['zh-CN'])
     assert.ok(moduleDefinition.title.en)
     assert.ok(moduleDefinition.subtitle['zh-CN'])
@@ -713,12 +717,12 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     assert.ok(moduleDefinition.learningObjectives.length >= 3, `${id} should define learning objectives`)
     assert.ok(moduleDefinition.concepts.length >= 1, `${id} should define concepts`)
     assert.ok(moduleDefinition.sections.length >= 4, `${id} should define route sections`)
-    assert.ok(moduleDefinition.labs.length >= 1, `${id} should expose one primary lab`)
+    assert.ok(moduleDefinition.labs.length >= 1 || id === 'calculus-derivatives-local-change', `${id} should expose one matching lab or the static derivative pilot`)
     assert.ok(moduleDefinition.quizzes.length >= 2, `${id} should include checkpoint questions`)
     assert.ok(moduleDefinition.misconceptions.length >= 2, `${id} should include misconception feedback`)
     assert.equal(moduleDefinition.sourceNoteFile, 'math-lab-calculus-route-sources.md')
     assert.ok(moduleDefinition.sourceReferences?.length, `${id} should have source references`)
-    assert.equal(moduleDefinition.labs[0]?.componentName, expectedPrimaryLabs[id], `${id} should use the planned primary lab`)
+    if (expectedPrimaryLabs[id]) assert.equal(moduleDefinition.labs[0]?.componentName, expectedPrimaryLabs[id], `${id} should use the planned primary lab`)
     if (expectedTaskLabs.has(id)) {
       const labTask = moduleDefinition.labs[0]?.task
       assert.ok(labTask, `${id} should turn its lab into a task`)
@@ -757,7 +761,7 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     }
 
     const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
-    if (id === 'calculus-functions-rate-change') {
+    if (id === 'calculus-functions-rate-change' || id === 'calculus-derivatives-local-change') {
       assert.match(englishBody, /Three-Layer Practice/)
     } else {
       assert.match(englishBody, /Review Questions/)
@@ -1209,9 +1213,9 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
 test('formal math modules include beginner bridge copy after the foundation expansion', () => {
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
   const formalBridgeExpectations = [
-    ['linear-algebra-feature-space', /学习记录怎样变成向量/],
+    ['linear-algebra-feature-space', /带单位线性泛函/],
     ['linear-algebra-distance-similarity', /搜索[\s\S]*语义|embedding 空间/],
-    ['linear-algebra-matrix-transformations', /房价模型|线性层/],
+    ['linear-algebra-matrix-transformations', /Xw\+b|批量预测/],
     ['linear-algebra-rank-null-space', /推荐系统为什么会有盲区/],
     ['taylor-series', /从零基础微积分带过来的检查表/],
     ['finite-difference-methods', /导数的零基础直觉是“局部变化率”/],
@@ -1231,7 +1235,7 @@ test('key math foundation topics are connected to interactive or video enhanceme
 
   assert.ok(byId['taylor-series']!.labs.some((lab) => lab.componentName === 'TaylorSeriesLab'))
   assert.ok(byId['monte-carlo']!.labs.some((lab) => lab.componentName === 'MonteCarloLab'))
-  assert.ok(byId['linear-algebra-feature-space']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
+  assert.deepEqual(byId['linear-algebra-feature-space']!.labs, [])
   assert.ok(byId['linear-algebra-distance-similarity']!.labs.some((lab) => lab.componentName === 'VectorSimilarityLab'))
   assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
   assert.ok(byId['linear-algebra-rank-null-space']!.labs.some((lab) => lab.componentName === 'MatrixColumnSpaceLab'))
@@ -1445,7 +1449,7 @@ test('linear algebra vector and matrix route modules present case-driven bilingu
   }
 
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
-  assert.ok(byId['linear-algebra-feature-space']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
+  assert.deepEqual(byId['linear-algebra-feature-space']!.labs, [])
   assert.ok(byId['linear-algebra-distance-similarity']!.labs.some((lab) => lab.componentName === 'VectorSimilarityLab'))
   assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MatrixTransformLab'))
   assert.ok(byId['linear-algebra-rank-null-space']!.labs.some((lab) => lab.componentName === 'MatrixColumnSpaceLab'))
@@ -1454,7 +1458,7 @@ test('linear algebra vector and matrix route modules present case-driven bilingu
     byId['linear-algebra-distance-similarity']!.sections.map((section) => section.content['zh-CN']).join('\n'),
     /搜索[\s\S]*语义|embedding 空间/,
   )
-  assert.match(byId['linear-algebra-matrix-transformations']!.sections.map((section) => section.content['zh-CN']).join('\n'), /房价|线性层/)
+  assert.match(byId['linear-algebra-matrix-transformations']!.sections.map((section) => section.content['zh-CN']).join('\n'), /Xw\+b|批量|广播/)
   assert.match(byId['linear-algebra-rank-null-space']!.sections.map((section) => section.content['zh-CN']).join('\n'), /推荐系统|盲区/)
 })
 

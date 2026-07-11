@@ -118,9 +118,9 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
     id: 'linear-algebra',
     label: copy('线性代数与数值稳定', 'Linear Algebra and Stability'),
     items: [
-      mathModule('linear-algebra-feature-space', '向量与特征空间', 'Vectors and Feature Space'),
+      mathModule('linear-algebra-feature-space', '向量与样本表示', 'Vectors and Sample Representation'),
       mathModule('linear-algebra-distance-similarity', '距离、范数与相似度', 'Distance, Norms, and Similarity'),
-      mathModule('linear-algebra-matrix-transformations', '矩阵与线性变换', 'Matrices and Linear Transformations'),
+      mathModule('linear-algebra-matrix-transformations', '矩阵与批量计算', 'Matrices and Batch Computation'),
       mathModule('linear-algebra-rank-null-space', '列空间、rank 与 null space', 'Column Space, Rank, and Null Space'),
       mathModule('eigenvalues-eigenvectors', '特征值与特征向量', 'Eigenvalues and Eigenvectors'),
       mathModule('svd', '奇异值分解（SVD）', 'Singular Value Decomposition (SVD)'),
@@ -142,7 +142,7 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
     label: copy('微积分学习路线', 'Calculus Learning Route'),
     items: [
       mathModule('calculus-functions-rate-change', '函数与映射：输入怎样变成预测', 'Functions and Mappings: How Inputs Become Predictions'),
-      mathModule('calculus-derivatives-local-change', '导数：当前点附近的变化', 'Derivatives as Local Change'),
+      mathModule('calculus-derivatives-local-change', '导数与误差敏感度', 'Derivatives and Error Sensitivity'),
       mathModule('calculus-partial-derivatives-gradients', '偏导数和梯度', 'Partial Derivatives and Gradients'),
       mathModule('calculus-gradient-descent', '梯度下降', 'Gradient Descent'),
       mathModule('calculus-sgd-batch-noise', 'Full Batch、Mini-Batch 和 SGD', 'Full Batch, Mini-Batch, and SGD'),

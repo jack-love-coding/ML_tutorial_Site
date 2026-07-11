@@ -173,7 +173,7 @@ const mathEntries: CurriculumRouteManifestEntry[] = [
     source: 'math-lab',
     domain: 'math',
     route: '/math-lab/modules/linear-algebra-feature-space',
-    title: copy('向量与特征空间', 'Vectors and Feature Space'),
+    title: copy('向量与样本表示', 'Vectors and Sample Representation'),
   },
   {
     id: 'linear-algebra-distance-similarity',
@@ -187,7 +187,7 @@ const mathEntries: CurriculumRouteManifestEntry[] = [
     source: 'math-lab',
     domain: 'math',
     route: '/math-lab/modules/linear-algebra-matrix-transformations',
-    title: copy('矩阵与线性变换', 'Matrices and Linear Transformations'),
+    title: copy('矩阵与批量计算', 'Matrices and Batch Computation'),
   },
   {
     id: 'linear-algebra-rank-null-space',
@@ -257,7 +257,7 @@ const mathEntries: CurriculumRouteManifestEntry[] = [
     source: 'math-lab',
     domain: 'math',
     route: '/math-lab/modules/calculus-derivatives-local-change',
-    title: copy('导数：当前点附近的变化', 'Derivatives as Local Change'),
+    title: copy('导数与误差敏感度', 'Derivatives and Error Sensitivity'),
   },
   {
     id: 'calculus-partial-derivatives-gradients',

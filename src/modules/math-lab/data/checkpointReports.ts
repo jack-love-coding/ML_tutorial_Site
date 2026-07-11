@@ -68,7 +68,7 @@ export const linearAlgebraCheckpointReportPrompts: CheckpointReportPrompt[] = [
       copy('为什么这个对象可以被模型当作向量处理？', 'Why can the model treat this object as a vector?'),
       copy('下一步你会检查哪个特征是否需要缩放、清洗或重新定义？', 'Which feature would you inspect next for scaling, cleaning, or redefinition?'),
     ),
-    exportTitle: copy('向量与特征空间报告', 'Vectors and Feature Space Report'),
+    exportTitle: copy('向量与样本表示报告', 'Vectors and Sample Representation Report'),
   },
   {
     id: 'distance-similarity-report',

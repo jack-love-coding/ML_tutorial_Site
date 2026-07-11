@@ -5,7 +5,7 @@ Date: 2026-06-23
 ## Route Chapters
 
 - `calculus-functions-rate-change`: Functions and Mappings: How Inputs Become Predictions.
-- `calculus-derivatives-local-change`: Derivatives as Local Change.
+- `calculus-derivatives-local-change`: Derivatives and Error Sensitivity.
 - `calculus-partial-derivatives-gradients`: Partial Derivatives and Gradients.
 - `calculus-gradient-descent`: Gradient Descent.
 - `calculus-sgd-batch-noise`: Full Batch, Mini-Batch, and SGD.
@@ -43,6 +43,7 @@ Date: 2026-06-23
 The route keeps the existing public image and Manim assets, while using focused interactive labs where the original reuse caused teaching mismatch:
 
 - `calculus-functions-rate-change`: `PredictionMappingLab` changes only bounded `w1`, keeps `x = [2, 3]`, `w2 = -1`, `bias = 5`, and `target = 9` fixed, and shows local-only formative readouts for prediction, residual, and MSE without emitting progress evidence.
+- `calculus-derivatives-local-change`: the promoted lesson deliberately does not reuse `LocalChangeStoryLab`, because that component combines derivative readouts with a learning-rate update. The lesson instead keeps central-difference estimation separate from gradient descent and provides complete code, an h-sweep table, analytic checks, and static formative feedback without a new evidence channel.
 - `calculus-partial-derivatives-gradients`: `PartialDerivativeContourLab`.
 - `calculus-gradient-descent`: `MathGradientLab`.
 - `calculus-sgd-batch-noise`: `BatchGradientNoiseLab`.

@@ -11,13 +11,13 @@ function title(zhCN: string, en: string): LocalizedCopy {
 
 export const learningRouteSummaryModules: readonly LearningRouteSummaryModule[] = [
   { id: 'beginner-linear-algebra', title: title('AI 零基础线性代数', 'Linear Algebra for AI Beginners') },
-  { id: 'linear-algebra-feature-space', title: title('向量与特征空间', 'Vectors and Feature Space') },
+  { id: 'linear-algebra-feature-space', title: title('向量与样本表示', 'Vectors and Sample Representation') },
   { id: 'linear-algebra-distance-similarity', title: title('距离、范数与相似度', 'Distance, Norms, and Similarity') },
-  { id: 'linear-algebra-matrix-transformations', title: title('矩阵与线性变换', 'Matrices and Linear Transformations') },
+  { id: 'linear-algebra-matrix-transformations', title: title('矩阵与批量计算', 'Matrices and Batch Computation') },
   { id: 'linear-algebra-rank-null-space', title: title('列空间、rank 与 null space', 'Column Space, Rank, and Null Space') },
   { id: 'tensor-shapes-vectorization', title: title('张量 shape 与向量化', 'Tensor Shapes and Vectorization') },
   { id: 'calculus-functions-rate-change', title: title('函数与映射：输入怎样变成预测', 'Functions and Mappings: How Inputs Become Predictions') },
-  { id: 'calculus-derivatives-local-change', title: title('导数：当前点附近的变化', 'Derivatives as Local Change') },
+  { id: 'calculus-derivatives-local-change', title: title('导数与误差敏感度', 'Derivatives and Error Sensitivity') },
   { id: 'calculus-partial-derivatives-gradients', title: title('偏导数和梯度', 'Partial Derivatives and Gradients') },
   { id: 'calculus-gradient-descent', title: title('梯度下降', 'Gradient Descent') },
   { id: 'calculus-sgd-batch-noise', title: title('Full Batch、Mini-Batch 和 SGD', 'Full Batch, Mini-Batch, and SGD') },
