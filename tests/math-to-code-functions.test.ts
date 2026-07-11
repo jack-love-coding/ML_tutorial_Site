@@ -129,6 +129,38 @@ test('quiz feedback references real misconceptions and real review anchors', () 
     assert.ok(quiz.misconceptionTags.every((tag) => misconceptionIds.has(tag)), `${quiz.id} has an unknown misconception tag`)
     assert.ok(quiz.revisitVisualId && reviewIds.has(quiz.revisitVisualId), `${quiz.id} needs a real review anchor`)
   }
+  const misconceptionById = new Map(module.misconceptions.map((item) => [item.id, item]))
+  const parameterChange = misconceptionById.get('parameter-change-one-to-one')
+  assert.ok(parameterChange)
+  assert.match(`${parameterChange.statement.en} ${parameterChange.correction.en} ${parameterChange.example.en}`, /w1.*x1.*increase.*2/i)
+  const largerIsBetter = misconceptionById.get('larger-is-better')
+  assert.ok(largerIsBetter)
+  assert.match(`${largerIsBetter.statement.en} ${largerIsBetter.correction.en} ${largerIsBetter.example.en}`, /larger.*target.*error.*25/i)
+  assert.equal(module.quizzes.find((quiz) => quiz.id === 'mapping-control-check')?.misconceptionTags[0], 'parameter-change-one-to-one')
+  assert.equal(module.quizzes.find((quiz) => quiz.id === 'mapping-error-check')?.misconceptionTags[0], 'larger-is-better')
+})
+
+test('NumPy translation preserves the complete named variable chain in both locales', () => {
+  const section = mathToCodeModules[0]!.sections.find((item) => item.id === 'python-translation')!
+  for (const locale of ['zh-CN', 'en'] as const) {
+    const body = section.content[locale]
+    for (const line of [
+      'bias = 5.0',
+      'target = 9.0',
+      'weighted_sum = weights @ features',
+      'prediction = weighted_sum + bias',
+      'residual = prediction - target',
+    ]) assert.ok(body.includes(line), `${locale} NumPy code needs ${line}`)
+  }
+})
+
+test('calculus route source record names the gold lesson, local-only lab, and actual authorities', () => {
+  const source = readFileSync(new URL('../docs/math-lab-calculus-route-sources.md', import.meta.url), 'utf8')
+  assert.match(source, /Functions and Mappings: How Inputs Become Predictions/)
+  assert.match(source, /PredictionMappingLab/)
+  assert.match(source, /local-only formative readouts|本地形成性读数/i)
+  assert.match(source, /3Blue1Brown.*Mathematics for Machine Learning/s)
+  assert.doesNotMatch(source, /This pass does not add new Manim scenes/)
 })
 
 test('source references are deployable external authorities with specific usage', () => {

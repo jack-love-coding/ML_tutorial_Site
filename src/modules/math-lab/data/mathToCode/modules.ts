@@ -323,10 +323,13 @@ def predict_one(features, weights, bias):
 import numpy as np
 features = np.array([2.0, 3.0])
 weights = np.array([4.0, -1.0])
+bias = 5.0
+target = 9.0
 print(features.shape, weights.shape)  # (2,) (2,)
 contributions = weights * features   # [8, -3]
-weighted_sum = contributions.sum()   # 5
-prediction = weights @ features + 5 # 10
+weighted_sum = weights @ features    # 5
+prediction = weighted_sum + bias     # 10
+residual = prediction - target       # 1
 \`\`\`
 
 \`weights * features\` 仍有两个数；\`contributions.sum()\` 或 \`@\` 才完成汇总。预期一个标量却得到 shape \`(2,)\`，就是映射尚未完成的证据。
@@ -376,10 +379,13 @@ The loop adds $2\\times4=8$, then $3\\times(-1)=-3$, and finally bias. The lengt
 import numpy as np
 features = np.array([2.0, 3.0])
 weights = np.array([4.0, -1.0])
+bias = 5.0
+target = 9.0
 print(features.shape, weights.shape)  # (2,) (2,)
 contributions = weights * features   # [8, -3]
-weighted_sum = contributions.sum()   # 5
-prediction = weights @ features + 5 # 10
+weighted_sum = weights @ features    # 5
+prediction = weighted_sum + bias     # 10
+residual = prediction - target       # 1
 \`\`\`
 
 \`weights * features\` still contains two values. \`contributions.sum()\` or \`@\` performs the reduction. Expecting a scalar but seeing shape \`(2,)\` is evidence that the mapping is unfinished.
@@ -700,14 +706,16 @@ const functionsAndMappingsModule: MathLabModule = {
   quizzes: [
     quiz('mapping-role-check', '哪个量不参与生成本次 prediction？', 'Which quantity does not generate the current prediction?', 'target', [['target', 'target = 9', 'target = 9'], ['bias', 'bias = 5', 'bias = 5'], ['features', 'features = [2, 3]', 'features = [2, 3]']], '目标只在预测完成后用于计算残差；把目标放进预测会造成答案泄漏。回看“共同预测任务”中的信息边界。', 'The target is used only after prediction to compute the residual; feeding it into prediction would leak the answer. Revisit the information boundary in the shared prediction task.', 'target-leakage', 'shared-prediction-task'),
     quiz('mapping-contribution-check', '第二个特征对预测的贡献是多少？', 'What is the second feature’s contribution?', 'minus-three', [['minus-three', '-3', '-3'], ['three', '+3', '+3'], ['zero', '0', '0']], '贡献是 w2x2 = (-1)×3 = -3；负号表示方向，不能把这一项删除。回看例一的贡献账本。', 'The contribution is w2x2 = (-1)×3 = -3; the negative sign carries direction and does not delete the term. Revisit the contribution ledger in Example One.', 'negative-weight-useless', 'worked-prediction'),
-    quiz('mapping-control-check', 'w1 从 4 增至 5 时，prediction 怎样变化？', 'How does prediction change when w1 increases from 4 to 5?', 'plus-two', [['plus-two', '增加 2，从 10 到 12', 'It increases by 2, from 10 to 12'], ['plus-one', '增加 1', 'It increases by 1'], ['no-change', '不变', 'It does not change']], '因为固定 x1 = 2，所以 w1 每增加 1，w1x1 与 prediction 都增加 2。回看控制变量实验的直线切片。', 'Because x1 = 2 is fixed, each increase of 1 in w1 increases w1x1 and prediction by 2. Revisit the linear slice in the controlled experiment.', 'function-is-line', 'controlled-experiment'),
-    quiz('mapping-error-check', '哪个 w1 让当前单样本预测恰好命中 target = 9？', 'Which w1 makes this one sample hit target = 9 exactly?', 'three-point-five', [['three-point-five', '3.5', '3.5'], ['four', '4', '4'], ['six', '6', '6']], '解 2w1+2=9 得 w1=3.5；这只说明当前样本命中，不代表所有样本都最优。回看目标只用于反馈的约定。', 'Solving 2w1+2=9 gives w1=3.5; this fits the current sample only and does not prove it is best for all samples. Revisit the rule that targets are feedback only.', 'target-leakage', 'controlled-experiment'),
+    quiz('mapping-control-check', 'w1 从 4 增至 5 时，prediction 怎样变化？', 'How does prediction change when w1 increases from 4 to 5?', 'plus-two', [['plus-two', '增加 2，从 10 到 12', 'It increases by 2, from 10 to 12'], ['plus-one', '增加 1', 'It increases by 1'], ['no-change', '不变', 'It does not change']], '因为固定 x1 = 2，所以 w1 每增加 1，w1x1 与 prediction 都增加 2。回看控制变量实验的直线切片。', 'Because x1 = 2 is fixed, each increase of 1 in w1 increases w1x1 and prediction by 2. Revisit the linear slice in the controlled experiment.', 'parameter-change-one-to-one', 'controlled-experiment'),
+    quiz('mapping-error-check', '哪个 w1 让当前单样本预测恰好命中 target = 9？', 'Which w1 makes this one sample hit target = 9 exactly?', 'three-point-five', [['three-point-five', '3.5', '3.5'], ['four', '4', '4'], ['six', '6', '6']], '解 2w1+2=9 得 w1=3.5；这只说明当前样本命中，不代表所有样本都最优。回看目标只用于反馈的约定。', 'Solving 2w1+2=9 gives w1=3.5; this fits the current sample only and does not prove it is best for all samples. Revisit the rule that targets are feedback only.', 'larger-is-better', 'controlled-experiment'),
   ],
   misconceptions: [
     misconception('negative-weight-useless', '负权重表示特征无效，应当删除。', 'A negative weight means the feature is useless and should be removed.', '负号表示当前线性规则中的影响方向；是否删除特征需要数据证据。', 'The sign indicates effect direction in the current linear rule; feature removal requires evidence from data.', '删除 -3 会把预测从 10 错改为 13。', 'Deleting -3 incorrectly changes prediction from 10 to 13.'),
     misconception('target-leakage', '目标 9 应放进预测函数，才能得到准确结果。', 'Target 9 should enter the prediction function to make it accurate.', '目标是预测后的监督反馈，不是新样本预测时可用的输入。', 'The target is supervision after prediction, not an available input for a new sample.', '先调用 predict_one，再单独计算 residual = prediction - target。', 'Call predict_one first, then separately compute residual = prediction - target.'),
     misconception('elementwise-is-prediction', 'weights * features 已经是加权预测。', 'weights * features is already the weighted prediction.', '逐元素乘法只得到贡献列表，还需求和并加偏置。', 'Elementwise multiplication only produces a contribution list; it must be summed and then biased.', '[8, -3] 是两个数；求和得 5，加偏置才得 10。', '[8, -3] contains two values; summing gives 5, and adding bias gives 10.'),
     misconception('function-is-line', '函数的图像必须是一条直线。', 'A function’s graph must be a straight line.', '函数的核心是合法输入对应唯一输出，图形可以弯曲或分段。', 'A function is defined by each valid input having one output; its graph may curve or be piecewise.', '本实验是直线，只因控制切片恰好为 2w1+2。', 'This experiment is linear only because the controlled slice happens to be 2w1+2.'),
+    misconception('parameter-change-one-to-one', 'w1 增加 1，prediction 也只增加 1。', 'If w1 increases by 1, prediction must also increase by 1.', '参数变化会先乘对应特征；本例 x1 = 2，所以 prediction 增加 2。', 'Parameter change is multiplied by its paired feature; here x1 = 2, so prediction increases by 2.', 'w1 从 4 到 5 时，prediction 从 10 到 12。', 'When w1 moves from 4 to 5, prediction moves from 10 to 12.'),
+    misconception('larger-is-better', '更大的 w1 或 prediction 一定更好。', 'A larger w1 or prediction is always better.', '好坏取决于 prediction 离 target 多远，而不是数值是否更大。', 'Quality depends on distance from the target, not whether the value is larger.', 'w1 = 6 时 prediction = 14，距离 target = 9 更远，squared error = 25。', 'At w1 = 6, prediction = 14 is farther from target = 9 and squared error is 25.'),
   ],
   nextModuleIds: [], accent: '#d65a31', theme: '#fff1e8',
   sourceNoteFile: 'math-lab-calculus-route-sources.md',

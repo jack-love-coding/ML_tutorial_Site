@@ -101,6 +101,15 @@ const displayAssets = computed(() =>
 const inlineVisualIds = computed(
   () => new Set(moduleDefinition.value?.sections.flatMap((section) => section.visualIds ?? []) ?? []),
 )
+const firstInlineVisualSectionById = computed(() => {
+  const sectionByVisualId = new Map<string, string>()
+  for (const section of moduleDefinition.value?.sections ?? []) {
+    for (const visualId of section.visualIds ?? []) {
+      if (!sectionByVisualId.has(visualId)) sectionByVisualId.set(visualId, section.id)
+    }
+  }
+  return sectionByVisualId
+})
 const inlineLabIds = computed(
   () => new Set(moduleDefinition.value?.sections.flatMap((section) => section.labIds ?? []) ?? []),
 )
@@ -217,6 +226,12 @@ function imageAssetsForSection(section: MathLabSection) {
   if (!section.visualIds?.length) return []
   const sectionVisualIds = new Set(section.visualIds)
   return imageAssets.value.filter((asset) => sectionVisualIds.has(asset.id))
+}
+
+function visualDomId(assetId: string, sectionId: string) {
+  return firstInlineVisualSectionById.value.get(assetId) === sectionId
+    ? assetId
+    : `${assetId}--${sectionId}`
 }
 
 function labsForSection(section: MathLabSection): LabConfig[] {
@@ -349,6 +364,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           >
             <figure
               v-for="asset in imageAssetsForSection(section)"
+              :id="visualDomId(asset.id, section.id)"
               :key="asset.id"
               class="math-visual-asset"
             >
@@ -364,13 +380,17 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
               </figcaption>
             </figure>
 
-            <ManimPlayer
+            <div
               v-for="asset in manimAssetsForSection(section)"
+              :id="visualDomId(asset.id, section.id)"
               :key="asset.id"
-              :asset="asset"
-              :accent="moduleDefinition.accent"
-              :locale="currentLocale"
-            />
+            >
+              <ManimPlayer
+                :asset="asset"
+                :accent="moduleDefinition.accent"
+                :locale="currentLocale"
+              />
+            </div>
 
             <section v-if="labsForSection(section).length" class="math-module-labs">
               <div
@@ -403,7 +423,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           </header>
 
           <template v-for="asset in remainingDisplayAssets" :key="asset.id">
-            <figure v-if="asset.type === 'image'" class="math-visual-asset">
+            <figure v-if="asset.type === 'image'" :id="asset.id" class="math-visual-asset">
               <img
                 v-if="asset.assetPath"
                 :src="imageSrc(asset)"
@@ -415,12 +435,13 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
                 <MarkdownMathContent :source="asset.caption?.[currentLocale] ?? asset.transcript[currentLocale]" />
               </figcaption>
             </figure>
-            <ManimPlayer
-              v-else
-              :asset="asset"
-              :accent="moduleDefinition.accent"
-              :locale="currentLocale"
-            />
+            <div v-else :id="asset.id">
+              <ManimPlayer
+                :asset="asset"
+                :accent="moduleDefinition.accent"
+                :locale="currentLocale"
+              />
+            </div>
           </template>
 
           <section v-if="remainingLabs.length" class="math-module-labs">

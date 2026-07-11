@@ -4,6 +4,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { createRenderer, createSSRApp, h, nextTick } from 'vue'
+import { createI18n } from 'vue-i18n'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import { renderToString } from '@vue/server-renderer'
 import { createServer } from 'vite'
 
@@ -55,14 +57,15 @@ async function renderSfcWithVite(path, propsOrLoader, setupApp) {
       render: () => h(module.default, props),
     })
 
-    app.component('RouterLink', {
-      props: ['to'],
-      setup(linkProps, { slots }) {
-        return () => h('a', { href: String(linkProps.to) }, slots.default?.())
-      },
-    })
-
-    setupApp?.(app, server)
+    await setupApp?.(app, server)
+    if (!app.component('RouterLink')) {
+      app.component('RouterLink', {
+        props: ['to'],
+        setup(linkProps, { slots }) {
+          return () => h('a', { href: String(linkProps.to) }, slots.default?.())
+        },
+      })
+    }
     return await renderToString(app)
   } finally {
     await server.close()
@@ -554,6 +557,34 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(homeSource, /withPublicBase/)
 })
 
+test('math module page SSR gives every inline image and Manim visual one unique review anchor', async () => {
+  const renderModulePage = (moduleId) => renderSfcWithVite(
+    '/src/modules/math-lab/pages/MathLabModulePage.vue',
+    {},
+    async (app) => {
+      const router = createRouter({
+        history: createMemoryHistory(),
+        routes: [{ path: '/math-lab/modules/:moduleId', component: { render: () => null } }],
+      })
+      app.use(router)
+      app.use(createI18n({ legacy: false, locale: 'en', messages: { en: {}, 'zh-CN': {} } }))
+      await router.push(`/math-lab/modules/${moduleId}`)
+      await router.isReady()
+    },
+  )
+
+  const html = await renderModulePage('calculus-derivatives-local-change')
+
+  for (const visualId of ['derivative-window-image', 'derivative-window-video']) {
+    assert.equal([...html.matchAll(new RegExp(`id="${visualId}"`, 'g'))].length, 1, `${visualId} needs one DOM anchor`)
+  }
+  const repeatedReferenceHtml = await renderModulePage('beginner-probability-distributions')
+  assert.equal([...repeatedReferenceHtml.matchAll(/id="beginner-probability-story"/g)].length, 1)
+  assert.equal([...repeatedReferenceHtml.matchAll(/id="beginner-probability-story--beginner-probability-sample-space"/g)].length, 1)
+  const visualIds = [...repeatedReferenceHtml.matchAll(/id="(beginner-probability-story[^\"]*)"/g)].map((match) => match[1])
+  assert.equal(new Set(visualIds).size, visualIds.length)
+})
+
 test('learning route summary renders progress, next module, and action link', async () => {
   let expectedNextTitle = ''
   let expectedNextRoute = ''
@@ -868,6 +899,25 @@ test('prediction mapping lab normalizes bounds, resets readouts, marks the curre
     assert.match(text(), /Current value\s*:\s*4.*Prediction\s*10.*Residual\s*1.*MSE\s*1/s)
 
     range.value = '2'
+    dispatchNodeEvent(range, 'input', { target: range })
+    await mounted.update()
+    assert.match(text(), /Current value\s*:\s*2.*Prediction\s*6.*Residual\s*-3.*MSE\s*9/s)
+
+    for (const [value, prediction, residual, mse] of [
+      ['2.5', '7', '-2', '4'],
+      ['4.5', '11', '2', '4'],
+      ['5.5', '13', '4', '16'],
+    ]) {
+      range.value = value
+      dispatchNodeEvent(range, 'input', { target: range })
+      await mounted.update()
+      assert.match(text(), new RegExp(`Current value\\s*:\\s*${value}.*Prediction\\s*${prediction}.*Residual\\s*${residual}.*MSE\\s*${mse}`, 's'))
+      const currentRows = nodes().filter((node) => node.type === 'tr' && node.props?.['aria-current'] === 'true')
+      assert.equal(currentRows.length, 1)
+      assert.match(flattenRenderedNodes(currentRows[0]).map((node) => node.text ?? '').join(' '), new RegExp(`${value}.*Current setting`))
+    }
+
+    range.value = '-99'
     dispatchNodeEvent(range, 'input', { target: range })
     await mounted.update()
     assert.match(text(), /Current value\s*:\s*2.*Prediction\s*6.*Residual\s*-3.*MSE\s*9/s)

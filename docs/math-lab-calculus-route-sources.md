@@ -4,7 +4,7 @@ Date: 2026-06-23
 
 ## Route Chapters
 
-- `calculus-functions-rate-change`: Functions and Rate of Change.
+- `calculus-functions-rate-change`: Functions and Mappings: How Inputs Become Predictions.
 - `calculus-derivatives-local-change`: Derivatives as Local Change.
 - `calculus-partial-derivatives-gradients`: Partial Derivatives and Gradients.
 - `calculus-gradient-descent`: Gradient Descent.
@@ -42,10 +42,11 @@ Date: 2026-06-23
 
 The route keeps the existing public image and Manim assets, while using focused interactive labs where the original reuse caused teaching mismatch:
 
+- `calculus-functions-rate-change`: `PredictionMappingLab` changes only bounded `w1`, keeps `x = [2, 3]`, `w2 = -1`, `bias = 5`, and `target = 9` fixed, and shows local-only formative readouts for prediction, residual, and MSE without emitting progress evidence.
 - `calculus-partial-derivatives-gradients`: `PartialDerivativeContourLab`.
 - `calculus-gradient-descent`: `MathGradientLab`.
 - `calculus-sgd-batch-noise`: `BatchGradientNoiseLab`.
 - `calculus-optimizer-comparison`: `OptimizerRaceLab`.
 - `calculus-training-code-diagnostics`: `TrainingDiagnosticsLab` and `BackpropBlockLab`.
 
-This pass does not add new Manim scenes or a new training-loop component.
+The functions-and-mappings lesson uses 3Blue1Brown for function-graph intuition and Mathematics for Machine Learning for function, vector, and linear-prediction notation. The approved internal manuscript supplies the lesson sequence and examples but is not exposed as a runtime `/docs` link.

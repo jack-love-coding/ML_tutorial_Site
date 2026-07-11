@@ -57,7 +57,10 @@ const current = computed(() => {
   return { prediction, residual: prediction - result.targets[0]!, mse: result.mse }
 })
 
-const rows = [2, 3, 3.5, 4, 5, 6].map((candidateW1) => {
+const rows = Array.from(
+  { length: Math.round((MAX_W1 - MIN_W1) / STEP_W1) + 1 },
+  (_, index) => MIN_W1 + index * STEP_W1,
+).map((candidateW1) => {
   const result = evaluate(candidateW1)
   const prediction = result.predictions[0]!
   const residual = prediction - result.targets[0]!

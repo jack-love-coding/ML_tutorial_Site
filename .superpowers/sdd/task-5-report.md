@@ -58,6 +58,16 @@ Final follow-up verification:
 - PASS — `npm run build`
 - PASS — generated-doc parity and `git diff --check`
 
+## Review-anchor and coverage follow-up
+
+- Added one unique DOM anchor for every inline and supplemental image/Manim visual at the `MathLabModulePage` wrapper layer. The first section reference keeps the canonical review ID and later references receive section-suffixed IDs, so a real page SSR test verifies quiz targets resolve exactly once without suppressing repeated teaching visuals or giving child media duplicate IDs.
+- Added the semantic misconceptions `parameter-change-one-to-one` and `larger-is-better`, restored the corresponding quiz tags, and locked their bilingual mathematical meaning in tests.
+- Generated the static experiment rows from the same `[2, 6]`, step `0.5` control contract, covering all nine legal settings. Client-mount tests now exercise 2.5, 4.5, 5.5, below/above bounds, invalid input, and reset while requiring one visible/ARIA current row.
+- Expanded both NumPy examples to define `bias = 5.0` and `target = 9.0`, then expose `weighted_sum`, `prediction = weighted_sum + bias`, and `residual = prediction - target` as a test-locked variable chain.
+- Updated the canonical calculus source record with the new lesson title, `PredictionMappingLab`, local-only interaction boundary, and actual authority usage.
+
+Review follow-up verification: related tests 125/125, full repository suite 376/376, standard build, GitHub Pages build, docs parity, and diff-check all pass.
+
 ## Content-integrity and interaction hardening
 
 The final review expanded scope only to direct dependencies and their tests:
