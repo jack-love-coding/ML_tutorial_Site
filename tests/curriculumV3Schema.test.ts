@@ -9,6 +9,21 @@ import {
   curriculumV3InstructionalModules,
 } from '../src/curriculum/v3/inventory.ts'
 
+type DeepLearningModuleId = (typeof curriculumV3DeepLearningModules)[number]['id']
+type IsExactlyString<T> = string extends T ? (T extends string ? true : false) : false
+const deepLearningIdsRemainLiteral: IsExactlyString<DeepLearningModuleId> extends true ? never : true = true
+void deepLearningIdsRemainLiteral
+
+const expectedDeepLearningIds = [
+  'neuron-activation-foundations', 'mlp', 'backpropagation-mechanism',
+  'matrix-calculus-autodiff', 'initialization-normalization', 'optimizer-comparison',
+  'deep-architecture-math', 'tensor-shapes-vectorization', 'cnn-visualization',
+  'sequence-models-rnn', 'sequence-embedding-bridge', 'tokenization-language-modeling',
+  'attention-qkv-multihead', 'transformer-blocks', 'small-transformer-training',
+  'decoding-sampling', 'llm-inference-context', 'peft-lora', 'retrieval-rag-systems',
+  'llm-evaluation-reliability',
+] as const satisfies readonly DeepLearningModuleId[]
+
 test('V3 instructional inventory has 56 ordered modules ending in reliable LLM systems', () => {
   assert.equal(curriculumV3DeepLearningModules.length, 20)
   assert.equal(curriculumV3InstructionalModules.length, 56)
@@ -21,6 +36,18 @@ test('Transformer and LLM modules expose required mathematical revisits', () => 
   assert.ok(curriculumV3InstructionalModuleById.get('attention-qkv-multihead')?.revisits.includes('matrix-multiplication'))
   assert.ok(curriculumV3InstructionalModuleById.get('decoding-sampling')?.revisits.includes('probability-distribution'))
   assert.ok(curriculumV3InstructionalModuleById.get('retrieval-rag-systems')?.revisits.includes('vector-similarity'))
+})
+
+test('deep learning evidence code IDs are stable and module-derived', () => {
+  assert.deepEqual(curriculumV3DeepLearningModules.map((module) => module.id), expectedDeepLearningIds)
+  for (const module of curriculumV3DeepLearningModules) {
+    if (module.contentEvidence.scratchCodeId !== undefined) {
+      assert.equal(module.contentEvidence.scratchCodeId, `${module.id}-scratch-code`)
+    }
+    if (module.contentEvidence.frameworkCodeId !== undefined) {
+      assert.equal(module.contentEvidence.frameworkCodeId, `${module.id}-framework-code`)
+    }
+  }
 })
 
 test('Curriculum V3 defines ten ordered bilingual arcs', () => {
