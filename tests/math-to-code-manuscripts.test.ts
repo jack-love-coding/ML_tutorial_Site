@@ -405,3 +405,165 @@ test('NumPy manuscript contract agrees with the executable Task 1 implementation
   assert.throws(() => meanSquaredError([[1]] as unknown as number[], [1]), /finite/)
   assert.throws(() => centralDifference(() => Number.POSITIVE_INFINITY, 1, 1e-4), /finite/)
 })
+
+const guidedStudioUrl = new URL(
+  '../docs/curriculum/v3/math-to-code/06-guided-studio.zh-CN.md',
+  import.meta.url,
+)
+
+const GUIDED_STUDIO_STAGE_IDS = [
+  'studio-reproduce-task',
+  'studio-scalar-baseline',
+  'studio-vector-prediction',
+  'studio-batch-prediction',
+  'studio-error-comparison',
+  'studio-numerical-sensitivity',
+  'studio-probability-preview',
+  'studio-failure-analysis',
+  'studio-reflection',
+] as const
+
+type GuidedStudioStageId = typeof GUIDED_STUDIO_STAGE_IDS[number]
+
+function readGuidedStudio(): string {
+  return readFileSync(guidedStudioUrl, 'utf8')
+}
+
+function sliceGuidedStudioStages(manuscript: string): Map<GuidedStudioStageId, string> {
+  const headings = [...manuscript.matchAll(/^##\s+(.+?)\s+\{#([a-z0-9-]+)\}\s*$/gm)]
+
+  assert.equal([...manuscript.matchAll(/^##\s+.+$/gm)].length, GUIDED_STUDIO_STAGE_IDS.length)
+  assert.deepEqual(headings.map((heading) => heading[2]), GUIDED_STUDIO_STAGE_IDS)
+  assert.equal(new Set(headings.map((heading) => heading[2])).size, GUIDED_STUDIO_STAGE_IDS.length)
+
+  return new Map(headings.map((heading, index) => [
+    heading[2] as GuidedStudioStageId,
+    manuscript.slice(heading.index, headings[index + 1]?.index ?? manuscript.length),
+  ]))
+}
+
+test('guided studio keeps nine stable stage IDs in learning order', () => {
+  const stages = sliceGuidedStudioStages(readGuidedStudio())
+
+  assert.equal(stages.size, 9)
+  for (const id of GUIDED_STUDIO_STAGE_IDS) {
+    assert.match(stages.get(id)!, new RegExp(`^##\\s+.+\\{#${id}\\}\\s*$`, 'm'))
+  }
+})
+
+test('each guided studio stage is a self-contained learning chapter', () => {
+  const stages = sliceGuidedStudioStages(readGuidedStudio())
+
+  for (const [id, stage] of stages) {
+    assert.ok(stage.length >= 650, `${id} is too thin to support independent study`)
+    assert.match(stage, /^### 本阶段目标$/m, `${id} lacks a goal`)
+    assert.match(stage, /^### 前置输入$/m, `${id} lacks prerequisite inputs`)
+    assert.match(stage, /^### Starter code 与操作步骤$/m, `${id} lacks starter code or steps`)
+    assert.match(stage, /^### 预期中间结果$/m, `${id} lacks inspectable intermediate results`)
+    assert.match(stage, /^### 观察提示$/m, `${id} lacks observation guidance`)
+    assert.match(stage, /^### 常见失败与修复$/m, `${id} lacks failure diagnosis and repair`)
+    assert.match(stage, /^### 反思$/m, `${id} lacks reflection`)
+  }
+})
+
+test('guided studio numerical stages reproduce the shared prediction evidence', () => {
+  const stages = sliceGuidedStudioStages(readGuidedStudio())
+  const reproduce = stages.get('studio-reproduce-task')!
+  const scalar = stages.get('studio-scalar-baseline')!
+  const vector = stages.get('studio-vector-prediction')!
+  const batch = stages.get('studio-batch-prediction')!
+  const error = stages.get('studio-error-comparison')!
+
+  assert.match(reproduce, /X\s*=\s*\[\[2(?:\.0)?,\s*3(?:\.0)?\],\s*\[1(?:\.0)?,\s*4(?:\.0)?\]\]/)
+  assert.match(reproduce, /w\s*=\s*\[4(?:\.0)?,\s*-1(?:\.0)?\]/)
+  assert.match(reproduce, /b\s*=\s*5(?:\.0)?/)
+  assert.match(reproduce, /targets\s*=\s*\[9(?:\.0)?,\s*7(?:\.0)?\]/)
+  assert.match(scalar, /8\s*\+\s*\(-3\)\s*\+\s*5\s*=\s*10/)
+  assert.match(vector, /weighted_sum[^\n]*5(?:\.0)?/)
+  assert.match(batch, /predictions\s*=\s*\[10(?:\.0)?,\s*5(?:\.0)?\]/)
+  assert.match(error, /residuals\s*=\s*\[1(?:\.0)?,\s*-2(?:\.0)?\]/)
+  assert.match(error, /squared_errors\s*=\s*\[1(?:\.0)?,\s*4(?:\.0)?\]/)
+  assert.match(error, /MSE\s*=\s*2\.5/)
+})
+
+test('guided studio code preserves Task 1 shape, finite-value, and mutation safety', () => {
+  const stages = sliceGuidedStudioStages(readGuidedStudio())
+  const reproduce = stages.get('studio-reproduce-task')!
+  const batch = stages.get('studio-batch-prediction')!
+  const sensitivity = stages.get('studio-numerical-sensitivity')!
+  const failure = stages.get('studio-failure-analysis')!
+
+  assert.match(reproduce, /dtype=float/)
+  assert.match(reproduce, /X\.ndim\s*!=\s*2/)
+  assert.match(reproduce, /w\.ndim\s*!=\s*1/)
+  assert.match(reproduce, /targets\.ndim\s*!=\s*1/)
+  assert.match(reproduce, /X\.shape\[0\]\s*==\s*0|X\.size\s*==\s*0/)
+  assert.match(reproduce, /np\.isfinite\(X\)\.all\(\)/)
+  assert.match(reproduce, /np\.isfinite\(w\)\.all\(\)/)
+  assert.match(reproduce, /np\.isfinite\(targets\)\.all\(\)/)
+  assert.match(reproduce, /np\.isfinite\(b\)/)
+  assert.match(batch, /X\.shape\[1\]\s*!=\s*w\.shape\[0\]/)
+  assert.match(batch, /predictions\.shape\s*!=\s*targets\.shape/)
+  assert.match(sensitivity, /candidate_w\s*=\s*w\.copy\(\)/)
+  assert.match(sensitivity, /np\.isfinite\(h\)/)
+  assert.match(sensitivity, /h\s*<=\s*0/)
+  assert.match(sensitivity, /np\.isfinite\(left_theta\)/)
+  assert.match(sensitivity, /np\.isfinite\(right_theta\)/)
+  assert.match(sensitivity, /denominator\s*=\s*2\s*\*\s*h/)
+  assert.match(sensitivity, /np\.isfinite\(denominator\)/)
+  assert.match(sensitivity, /np\.isfinite\(result\)/)
+  const leftResultCheck = sensitivity.indexOf('if not np.isfinite(left):')
+  const rightEvaluation = sensitivity.indexOf('fn(right_theta)')
+  const rightResultCheck = sensitivity.indexOf('if not np.isfinite(right):')
+  const differenceEvaluation = sensitivity.indexOf('result =')
+  for (const position of [leftResultCheck, rightEvaluation, rightResultCheck, differenceEvaluation]) {
+    assert.notEqual(position, -1)
+  }
+  assert.ok(leftResultCheck < rightEvaluation)
+  assert.ok(rightResultCheck < differenceEvaluation)
+  assert.match(failure, /\(2,\s*1\).*(?:广播|broadcast).*(2,\s*2)/s)
+  assert.match(failure, /wrong_axis\s*=\s*\[12(?:\.0)?,\s*-7(?:\.0)?\]/)
+})
+
+test('numerical sensitivity stage separates local evidence from optimization', () => {
+  const sensitivity = sliceGuidedStudioStages(readGuidedStudio()).get('studio-numerical-sensitivity')!
+
+  assert.match(sensitivity, /h\s*=\s*1e-4|10\^\{-4\}/)
+  assert.match(sensitivity, /dL\/dw_1\s*=\s*0/)
+  assert.match(sensitivity, /dL\/dw_2\s*=\s*-5/)
+  assert.match(sensitivity, /dL\/db\s*=\s*-1/)
+  assert.match(sensitivity, /局部/)
+  assert.match(sensitivity, /不等于梯度下降|不是梯度下降/)
+})
+
+test('probability stage is visibly a non-blocking preview with a reproducible simulation', () => {
+  const preview = sliceGuidedStudioStages(readGuidedStudio()).get('studio-probability-preview')!
+
+  assert.match(preview, /预告（非完整概率课程）|预告：非完整概率课程/)
+  assert.match(preview, /rng\s*=\s*np\.random\.default_rng\(2026\)/)
+  assert.match(preview, /可选扩展/)
+  assert.match(preview, /不影响|不阻塞/)
+  assert.doesNotMatch(preview, /已经掌握概率|替代.*概率课程|覆盖概率课程全部/)
+})
+
+test('reflection stage preserves the formal project prerequisite boundary', () => {
+  const reflection = sliceGuidedStudioStages(readGuidedStudio()).get('studio-reflection')!
+
+  assert.match(
+    reflection,
+    /正式的\s*`?project-math-to-code`?.*Gradient Descent.*Monte Carlo\s*之后/s,
+  )
+  assert.match(reflection, /当前.*guided studio|本页.*guided studio/i)
+  assert.match(reflection, /不是.*正式的\s*`?project-math-to-code`?/s)
+})
+
+test('guided studio stages contain no unsafe, unfinished, or summative workflow language', () => {
+  const stages = sliceGuidedStudioStages(readGuidedStudio())
+  const forbiddenWorkflow = /上传|提交|评分|通过|证书|及格|合格|得分|满分|\b(?:upload|submit|grade|grading|pass|certificate|score)\b/i
+  const unsafeOrUnfinished = /\b(?:TODO|TBD|FIXME|XXX)\b|待补|待写|占位文本|内容未完成|lorem ipsum|<script\b|<iframe\b|<object\b|<embed\b|\son[a-z]+\s*=|javascript:/i
+
+  for (const [id, stage] of stages) {
+    assert.doesNotMatch(stage, forbiddenWorkflow, `${id} introduces a summative workflow`)
+    assert.doesNotMatch(stage, unsafeOrUnfinished, `${id} contains unsafe or unfinished content`)
+  }
+})
