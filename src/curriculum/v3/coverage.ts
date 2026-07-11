@@ -6,6 +6,10 @@ export const curriculumV3EntryAssumptions = [
   'basic-python-reading-editing',
 ] as const
 
+export const curriculumV3EntryRequirements = {
+  'ai-overview': curriculumV3EntryAssumptions,
+} as const
+
 export const curriculumV3CapabilityEndpoints = {
   'mathematics-to-computation': ['gradient-descent', 'project-math-to-code'],
   'data-to-honest-model': ['linear-regression', 'project-tabular-regression'],
@@ -35,17 +39,31 @@ export const curriculumV3ExitCapabilities: CurriculumV3ExitCapability[] = Object
   projectIds: endpointIds.filter((endpointId) => endpointId.startsWith('project-')),
 }))
 
-export function reachableFromEntry(moduleId: string): boolean {
+interface ReachableModule {
+  prerequisiteIds: readonly string[]
+}
+
+export function reachableFromEntry(
+  moduleId: string,
+  moduleById: ReadonlyMap<string, ReachableModule> = curriculumV3ModuleById,
+  entryAssumptions: readonly string[] = curriculumV3EntryAssumptions,
+  entryRequirements: Readonly<Record<string, readonly string[]>> = curriculumV3EntryRequirements,
+): boolean {
   const visited = new Set<string>()
   const visiting = new Set<string>()
+  const entryCapabilityIds = new Set(entryAssumptions)
 
   const visit = (id: string): boolean => {
     if (visited.has(id)) return true
     if (visiting.has(id)) return false
-    const module = curriculumV3ModuleById.get(id)
+    const module = moduleById.get(id)
     if (!module) return false
     visiting.add(id)
-    const reachable = module.prerequisiteIds.every(visit)
+    const entryCapabilityRequirements = entryRequirements[id]
+    const reachable = module.prerequisiteIds.length === 0
+      ? entryCapabilityRequirements !== undefined &&
+        entryCapabilityRequirements.every((capabilityId) => entryCapabilityIds.has(capabilityId))
+      : module.prerequisiteIds.every(visit)
     visiting.delete(id)
     if (reachable) visited.add(id)
     return reachable

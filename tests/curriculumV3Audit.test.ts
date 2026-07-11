@@ -6,6 +6,7 @@ import {
   curriculumV3AuditEntries,
 } from '../src/curriculum/v3/audit.ts'
 import { curriculumV3ModuleById } from '../src/curriculum/v3/inventory.ts'
+import { curriculumV3Waves } from '../src/curriculum/v3/waves.ts'
 import {
   curriculumV3AuditIssues,
   curriculumV3CoverageIssues,
@@ -18,6 +19,49 @@ test('V3 validation helpers expose no blueprint issues', () => {
   assert.deepEqual(curriculumV3AuditIssues(), [])
   assert.deepEqual(curriculumV3CoverageIssues(), [])
   assert.deepEqual(curriculumV3WaveIssues(), [])
+})
+
+const clonedWaves = () => curriculumV3Waves.map((wave) => ({
+  ...wave,
+  moduleIds: [...wave.moduleIds],
+  exitCriteria: [...wave.exitCriteria],
+}))
+
+test('V3 wave validation diagnoses unknown module IDs and duplicate depth assignments', () => {
+  const waves = clonedWaves()
+  waves[0]!.moduleIds.push('unknown-wave-module')
+  waves[1]!.moduleIds.push('linear-algebra-rank-null-space')
+
+  const issues = curriculumV3WaveIssues(waves)
+  assert.ok(issues.includes('wave-required-coverage:unknown-module:unknown-wave-module'))
+  assert.ok(issues.includes('wave-required-coverage:duplicate:linear-algebra-rank-null-space'))
+})
+
+test('V3 wave validation requires at least 12 waves spanning V3.1 through V3.7', () => {
+  const waves = clonedWaves().filter((wave) => !wave.id.startsWith('v3.7-'))
+
+  const issues = curriculumV3WaveIssues(waves)
+  assert.ok(issues.includes('wave-size:wave-count:11'))
+  assert.ok(issues.includes('wave-required-coverage:missing-stage:v3.7'))
+})
+
+test('V3 wave validation diagnoses prerequisite wave inversions', () => {
+  const waves = clonedWaves()
+  const firstWave = waves[0]!
+  const secondWave = waves[1]!
+  firstWave.moduleIds = firstWave.moduleIds.filter((id) => id !== 'calculus-derivatives-local-change')
+  secondWave.moduleIds.push('calculus-derivatives-local-change')
+  firstWave.moduleIds.push('calculus-partial-derivatives-gradients')
+  const linearSystemsWave = waves.find((wave) => wave.id === 'v3.2-linear-systems')!
+  linearSystemsWave.moduleIds = linearSystemsWave.moduleIds.filter(
+    (id) => id !== 'calculus-partial-derivatives-gradients',
+  )
+
+  assert.ok(
+    curriculumV3WaveIssues(waves).includes(
+      'prerequisite-after-consumer:wave:calculus-partial-derivatives-gradients:calculus-derivatives-local-change',
+    ),
+  )
 })
 
 test('V3 audit classifies every current Catalog module exactly once', () => {

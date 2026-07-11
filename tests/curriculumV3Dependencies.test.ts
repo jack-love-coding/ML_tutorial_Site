@@ -45,7 +45,22 @@ const expectedDependencies = [
 
 test('V3 blueprint is acyclic, ordered, covered, and project-linked', () => {
   assert.deepEqual(validateCurriculumV3Blueprint(), [])
-  assert.equal(curriculumV3ExitCapabilities.length, 7)
+  assert.deepEqual(
+    curriculumV3ExitCapabilities.map((capability) => [
+      capability.id,
+      capability.moduleIds,
+      capability.projectIds,
+    ]),
+    [
+      ['mathematics-to-computation', ['gradient-descent'], ['project-math-to-code']],
+      ['data-to-honest-model', ['linear-regression'], ['project-tabular-regression']],
+      ['classification-and-evaluation', ['model-selection'], ['project-classification-evaluation']],
+      ['neural-training-diagnosis', ['optimizer-comparison'], ['project-neural-representation']],
+      ['deep-representation-shapes', ['cnn-visualization', 'sequence-embedding-bridge'], []],
+      ['small-transformer-language-model', ['decoding-sampling'], ['project-small-transformer']],
+      ['llm-adaptation-and-rag', ['llm-evaluation-reliability'], ['project-llm-application']],
+    ],
+  )
   assert.ok(curriculumV3Waves.length >= 12)
   assert.ok(curriculumV3Waves.every((wave) => wave.moduleIds.length >= 4 && wave.moduleIds.length <= 6))
 })
@@ -58,6 +73,27 @@ test('entry assumptions reach every required module', () => {
   const required = curriculumV3Modules.filter((module) => module.role === 'required-core')
   assert.ok(required.length >= 40)
   for (const module of required) assert.ok(reachableFromEntry(module.id), `${module.id} is unreachable`)
+})
+
+test('a disconnected required root is not reachable from entry assumptions', () => {
+  const disconnectedId = 'disconnected-required-root'
+  const modules = new Map(curriculumV3Modules.map((module) => [module.id, module]))
+  modules.set(disconnectedId, {
+    ...curriculumV3Modules[0]!,
+    id: disconnectedId,
+    prerequisiteIds: [],
+  })
+  const pythonNotebook = modules.get('python-notebook')!
+  modules.set('python-notebook', {
+    ...pythonNotebook,
+    prerequisiteIds: [disconnectedId],
+  })
+
+  assert.equal(reachableFromEntry('python-notebook', modules), false)
+  assert.equal(
+    reachableFromEntry('ai-overview', modules, ['high-school-algebra-functions']),
+    false,
+  )
 })
 
 test('foundation dependency metadata matches the approved inventory', () => {

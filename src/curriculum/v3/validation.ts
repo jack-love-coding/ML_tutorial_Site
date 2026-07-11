@@ -14,6 +14,7 @@ import {
   curriculumV3Projects,
 } from './projects.ts'
 import { curriculumV3Waves } from './waves.ts'
+import type { CurriculumV3ModuleBlueprint, CurriculumV3ProjectBlueprint, CurriculumV3Wave } from './types.ts'
 
 export type V3ValidationPrefix =
   | 'duplicate-module'
@@ -157,12 +158,26 @@ export function curriculumV3CoverageIssues(): string[] {
   return issues
 }
 
-export function curriculumV3WaveIssues(): string[] {
+export function curriculumV3WaveIssues(
+  waves: readonly CurriculumV3Wave[] = curriculumV3Waves,
+  modules: readonly (CurriculumV3ModuleBlueprint | CurriculumV3ProjectBlueprint)[] = curriculumV3Modules,
+): string[] {
   const issues: string[] = []
-  const requiredIds = new Set(curriculumV3Modules.filter((module) => module.role === 'required-core').map((module) => module.id))
-  const projectIds = new Set(curriculumV3Projects.map((project) => project.id))
+  const moduleById = new Map(modules.map((module) => [module.id, module]))
+  const requiredIds = new Set(modules.filter((module) => module.role === 'required-core').map((module) => module.id))
+  const projectIds = new Set(modules.filter((module) => module.role === 'project').map((module) => module.id))
+  const depthIds = new Set(modules.filter((module) => module.role === 'depth-topic').map((module) => module.id))
   const counts = new Map<string, number>()
-  for (const wave of curriculumV3Waves) {
+  const firstWaveIndexByModuleId = new Map<string, number>()
+
+  if (waves.length < 12) issues.push(issue('wave-size', `wave-count:${waves.length}`))
+  for (let stage = 1; stage <= 7; stage += 1) {
+    if (!waves.some((wave) => wave.id.startsWith(`v3.${stage}-`))) {
+      issues.push(issue('wave-required-coverage', `missing-stage:v3.${stage}`))
+    }
+  }
+
+  for (const [waveIndex, wave] of waves.entries()) {
     if (wave.moduleIds.length < 4 || wave.moduleIds.length > 6) {
       issues.push(issue('wave-size', wave.id))
     }
@@ -170,10 +185,32 @@ export function curriculumV3WaveIssues(): string[] {
       wave.exitCriteria.some((criterion) => !hasBilingualCopy(criterion))) {
       issues.push(issue('missing-bilingual-metadata', wave.id))
     }
-    for (const moduleId of wave.moduleIds) counts.set(moduleId, (counts.get(moduleId) ?? 0) + 1)
+    for (const moduleId of wave.moduleIds) {
+      if (!moduleById.has(moduleId)) {
+        issues.push(issue('wave-required-coverage', `unknown-module:${moduleId}`))
+      }
+      counts.set(moduleId, (counts.get(moduleId) ?? 0) + 1)
+      if (!firstWaveIndexByModuleId.has(moduleId)) {
+        firstWaveIndexByModuleId.set(moduleId, waveIndex)
+      }
+    }
   }
   for (const id of [...requiredIds, ...projectIds].sort()) {
     if (counts.get(id) !== 1) issues.push(issue('wave-required-coverage', id))
+  }
+  for (const id of [...depthIds].sort()) {
+    if ((counts.get(id) ?? 0) > 1) issues.push(issue('wave-required-coverage', `duplicate:${id}`))
+  }
+
+  for (const module of modules) {
+    const consumerWaveIndex = firstWaveIndexByModuleId.get(module.id)
+    if (consumerWaveIndex === undefined) continue
+    for (const prerequisiteId of module.prerequisiteIds) {
+      const prerequisiteWaveIndex = firstWaveIndexByModuleId.get(prerequisiteId)
+      if (prerequisiteWaveIndex !== undefined && prerequisiteWaveIndex > consumerWaveIndex) {
+        issues.push(issue('prerequisite-after-consumer', `wave:${module.id}:${prerequisiteId}`))
+      }
+    }
   }
   return issues
 }
