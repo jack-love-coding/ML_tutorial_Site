@@ -25,6 +25,7 @@ test('gold lesson replaces the existing runtime ID with a complete bilingual 12-
   const module = mathToCodeModules.find((candidate) => candidate.id === 'calculus-functions-rate-change')
   assert.ok(module)
   const runtimeModule = mathLabModuleRegistry[module.id]
+  assert.equal(module.sourceNoteFile, 'math-lab-calculus-route-sources.md')
   assert.equal(runtimeModule.sourceNoteFile, module.sourceNoteFile)
   assert.equal(runtimeModule.title.en, module.title.en)
   assert.equal(runtimeModule.sections, module.sections)

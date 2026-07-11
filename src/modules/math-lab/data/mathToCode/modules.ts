@@ -210,7 +210,7 @@ const functionsAndMappingsModule: MathLabModule = {
     misconception('function-is-line', '函数的图像必须是一条直线。', 'A function’s graph must be a straight line.', '函数的核心是合法输入对应唯一输出，图形可以弯曲或分段。', 'A function is defined by each valid input having one output; its graph may curve or be piecewise.', '本实验是直线，只因控制切片恰好为 2w1+2。', 'This experiment is linear only because the controlled slice happens to be 2w1+2.'),
   ],
   nextModuleIds: [], accent: '#d65a31', theme: '#fff1e8',
-  sourceNoteFile: 'docs/curriculum/v3/math-to-code/01-functions-mappings.zh-CN.md',
+  sourceNoteFile: 'math-lab-calculus-route-sources.md',
   sourceReferences: [
     { label: copy('批准的中文母稿', 'Approved Chinese master manuscript'), href: '/docs/curriculum/v3/math-to-code/01-functions-mappings.zh-CN.md', usage: copy('课程结构、数值、例题、误区、练习与 handoff 的直接来源。', 'Direct source for lesson structure, numbers, examples, misconceptions, practice, and handoff.') },
   ],

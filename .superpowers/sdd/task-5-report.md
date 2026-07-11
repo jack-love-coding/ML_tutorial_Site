@@ -39,3 +39,21 @@
   - two legacy `tests/math-lab-core.test.ts` assertions still require the replaced lesson's `Review Questions`, old source note, old Chinese grocery/rate anchors, and `LocalChangeStoryLab`.
 
 The two Math Lab failures directly conflict with the approved Task 5 runtime replacement and focused `PredictionMappingLab`. They were not changed because the task explicitly restricts edits to the Task 5 brief files. No legacy lab or obsolete copy was reintroduced merely to satisfy stale assertions.
+
+## Follow-up root-cause repair
+
+After explicit approval to minimally extend Task 5 scope, the three full-suite failures were repaired at their sources:
+
+- `sourceNoteFile` was restored to the calculus route's canonical `math-lab-calculus-route-sources.md`; the approved Chinese master remains directly auditable in `sourceReferences`. The Task 5 test now locks this distinction.
+- `tests/math-lab-core.test.ts` had two duplicated generic `Review Questions` assumptions plus old module-specific expectations for `LocalChangeStoryLab` and grocery/rate copy. Only the `calculus-functions-rate-change` branches were migrated to the gold lesson's `Three-Layer Practice`, `PredictionMappingLab`, and actual Chinese anchors (`输入`, `参数`, `控制变量实验`). All other module contracts remain unchanged.
+- `docs/curriculum-v3/content-audit.md` was regenerated with `node scripts/generateCurriculumV3Docs.ts`; this was the only generated document changed, and docs parity now passes.
+
+The expanded scope is limited to the two explicitly approved files above plus the original Task 5 module, test, and report. The old lesson and old lab were not reintroduced.
+
+Final follow-up verification:
+
+- PASS — the three previously failing focused cases (3/3)
+- PASS — `node --test tests/math-to-code-functions.test.ts` (5/5)
+- PASS — `npm test` (368/368)
+- PASS — `npm run build`
+- PASS — generated-doc parity and `git diff --check`

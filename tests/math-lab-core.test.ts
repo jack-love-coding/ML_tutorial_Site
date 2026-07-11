@@ -520,7 +520,9 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'training-diagnostics',
       'deep-architecture-math',
     ])
-    if (moduleDefinition.id !== 'pca' && !aiBridgeIds.has(moduleDefinition.id)) {
+    if (moduleDefinition.id === 'calculus-functions-rate-change') {
+      assert.match(englishBody, /Three-Layer Practice/)
+    } else if (moduleDefinition.id !== 'pca' && !aiBridgeIds.has(moduleDefinition.id)) {
       assert.match(englishBody, /Review Questions/)
     }
     assert.doesNotMatch(englishBody, /CS\s*357|Course Staff|changelog|site\.baseurl/)
@@ -672,7 +674,7 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
   ]
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
   const expectedPrimaryLabs: Record<string, string> = {
-    'calculus-functions-rate-change': 'LocalChangeStoryLab',
+    'calculus-functions-rate-change': 'PredictionMappingLab',
     'calculus-derivatives-local-change': 'LocalChangeStoryLab',
     'calculus-partial-derivatives-gradients': 'PartialDerivativeContourLab',
     'calculus-gradient-descent': 'MathGradientLab',
@@ -690,7 +692,7 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
   ])
 
   const requiredChineseAnchors: Record<string, string[]> = {
-    'calculus-functions-rate-change': ['买菜', '小车', '平均变化率'],
+    'calculus-functions-rate-change': ['输入', '参数', '控制变量实验'],
     'calculus-derivatives-local-change': ['观察窗口', '割线', '切线'],
     'calculus-partial-derivatives-gradients': ['旋钮', '偏导数', '梯度指向'],
     'calculus-gradient-descent': ['负梯度', '学习率', '震荡'],
@@ -755,7 +757,11 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     }
 
     const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
-    assert.match(englishBody, /Review Questions/)
+    if (id === 'calculus-functions-rate-change') {
+      assert.match(englishBody, /Three-Layer Practice/)
+    } else {
+      assert.match(englishBody, /Review Questions/)
+    }
 
     const zhBody = moduleDefinition.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
     for (const anchor of requiredChineseAnchors[id] ?? []) {
