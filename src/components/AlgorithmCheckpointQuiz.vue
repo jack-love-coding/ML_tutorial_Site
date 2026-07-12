@@ -4,13 +4,16 @@ import MarkdownMathContent from './MarkdownMathContent.vue'
 import type { AlgorithmCheckpointItem, AlgorithmQuizAttempt, AppLocale, ModuleSlug } from '../types/ml'
 import { buildAlgorithmQuizAttempt, evaluateAlgorithmCheckpointAnswer } from '../utils/algorithmQuiz'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   moduleSlug: ModuleSlug
   moduleRoute: string
   checkpoints: AlgorithmCheckpointItem[]
   locale: AppLocale
   completed: boolean
-}>()
+  mode?: 'scored' | 'formative'
+}>(), {
+  mode: 'scored',
+})
 
 const emit = defineEmits<{
   submit: [attempts: AlgorithmQuizAttempt[]]
@@ -48,6 +51,7 @@ function revisitRoute(checkpoint: AlgorithmCheckpointItem) {
 }
 
 function submit() {
+  if (props.mode !== 'scored') return
   submitted.value = true
   emit(
     'submit',
@@ -62,10 +66,22 @@ function submit() {
   <section class="algorithm-checkpoint">
     <header class="algorithm-checkpoint__header">
       <div>
-        <span>{{ locale === 'zh-CN' ? '模块 checkpoint' : 'Module checkpoint' }}</span>
-        <h2>{{ locale === 'zh-CN' ? '完成前确认你真的看懂了' : 'Confirm the module clicked before moving on' }}</h2>
+        <span>
+          {{
+            mode === 'formative'
+              ? locale === 'zh-CN' ? '形成性 checkpoint' : 'Formative checkpoint'
+              : locale === 'zh-CN' ? '模块 checkpoint' : 'Module checkpoint'
+          }}
+        </span>
+        <h2>
+          {{
+            mode === 'formative'
+              ? locale === 'zh-CN' ? '选择后立即查看解释与易混误区' : 'Choose an answer to reveal the explanation and misconceptions'
+              : locale === 'zh-CN' ? '完成前确认你真的看懂了' : 'Confirm the module clicked before moving on'
+          }}
+        </h2>
       </div>
-      <strong :class="{ 'is-complete': completed }">
+      <strong v-if="mode === 'scored'" :class="{ 'is-complete': completed }">
         {{
           completed
             ? locale === 'zh-CN'
@@ -94,14 +110,16 @@ function submit() {
         </div>
 
         <div
-          v-if="submitted"
+          v-if="submitted || (mode === 'formative' && answers[checkpoint.id])"
           class="algorithm-checkpoint__feedback"
-          :class="{ 'is-correct': evaluations[checkpoint.id]?.correct }"
+          :class="{ 'is-correct': mode === 'scored' && evaluations[checkpoint.id]?.correct }"
         >
           <div>
             <strong>
               {{
-                evaluations[checkpoint.id]?.correct
+                mode === 'formative'
+                  ? locale === 'zh-CN' ? '解释与误区' : 'Explanation and misconceptions'
+                  : evaluations[checkpoint.id]?.correct
                   ? locale === 'zh-CN'
                     ? '正确'
                     : 'Correct'
@@ -115,11 +133,14 @@ function submit() {
             </router-link>
           </div>
           <MarkdownMathContent :source="checkpoint.explanation[locale]" />
+          <ul v-if="mode === 'formative'" class="algorithm-checkpoint__misconception-tags" aria-label="Misconception tags">
+            <li v-for="tag in checkpoint.misconceptionTags" :key="tag">{{ tag }}</li>
+          </ul>
         </div>
       </article>
     </div>
 
-    <button type="button" class="action-button action-button--primary" @click="submit">
+    <button v-if="mode === 'scored'" type="button" class="action-button action-button--primary" @click="submit">
       {{ locale === 'zh-CN' ? '提交检测' : 'Submit checkpoint' }}
     </button>
   </section>

@@ -67,18 +67,33 @@ export const algorithmCheckpointsBySlug: Record<ModuleSlug, AlgorithmCheckpointI
     ),
     checkpoint(
       'ai-overview-paradigm-signal',
-      copy('系统根据长期留存变化来连续安排通知。最关键的范式与学习信号是什么？', 'A system schedules notifications sequentially from changes in long-term retention. What are the paradigm and learning signal?'),
-      [
-        choice('reinforcement-reward', '强化学习；通知行动后观察到的长期留存变化是 reward。', 'Reinforcement learning; long-term retention observed after notification actions is reward.'),
-        choice('supervised-label', '监督学习；reward 就是提前附在每条样本上的标准答案。', 'Supervised learning; reward is an answer label attached to every example in advance.'),
-        choice('unsupervised-none', '无监督学习；因为没有逐条标签，所以系统没有 objective。', 'Unsupervised learning; without per-example labels the system has no objective.'),
-      ],
-      'reinforcement-reward',
       copy(
-        '连续行动及其延迟后果指向强化学习。误区“reward 等于标签”忽略奖励在行动后出现且可能延迟；误区“无标签就无目标”忽略长期回报正是优化方向。',
-        'Sequential actions and delayed consequences indicate reinforcement learning. The “reward equals a label” misconception ignores that reward follows an action and may be delayed; the “no labels means no objective” misconception ignores long-term return as the optimization direction.',
+        '同时判断三个新场景的范式与信号：①预测明日电力需求；②把新闻按主题分组；③根据路口等待时间连续调节交通灯。哪组对应关系完整正确？',
+        'Classify three new scenarios and their signals together: (1) predict tomorrow’s electricity demand, (2) group news by topic, and (3) adjust traffic lights sequentially from intersection waiting time. Which complete mapping is correct?',
       ),
-      ['reward-as-label', 'unsupervised-means-no-objective'],
+      [
+        choice(
+          'three-signals-correct',
+          '电力：监督学习，历史真实需求是 label；新闻：无监督学习，内容相似度是结构信号；交通：强化学习，等待时间变化形成 reward。',
+          'Electricity: supervised, observed historical demand is the label; news: unsupervised, content similarity is the structural signal; traffic: reinforcement, waiting-time reward follows signal-control actions.',
+        ),
+        choice(
+          'signals-swapped',
+          '电力靠等待时间 reward；新闻靠人工主题 label；交通靠内容相似度聚类。',
+          'Electricity uses waiting-time reward; news uses human topic labels; traffic clusters by content similarity.',
+        ),
+        choice(
+          'all-supervised',
+          '三者都是监督学习，因为任何数字或分组结果都能当作预先给定的 label。',
+          'All three are supervised because any number or grouping result can be treated as a pre-attached label.',
+        ),
+      ],
+      'three-signals-correct',
+      copy(
+        '电力需求有历史真实数值作为 label，因此学习输入到需求的监督映射；新闻没有主题答案时，以内容相似度寻找结构；交通控制在连续行动后观察等待时间变化，并把它转成 reward 来学习策略。误区“交换信号”忽略了信号属于哪个数据流程；误区“输出数字或分组就都是 label”混淆了观察答案、结构准则与行动后奖励。',
+        'Electricity demand has observed historical values as labels, so it learns a supervised mapping from inputs to demand. News without topic answers uses content similarity to discover structure. Traffic control observes waiting-time change after sequential actions and turns it into reward for learning a policy. The “swap the signals” misconception ignores which data flow produces each signal; the “every number or group is a label” misconception confuses observed answers, structural criteria, and post-action reward.',
+      ),
+      ['learning-signals-swapped', 'every-output-is-a-label'],
       'learning-paradigms',
     ),
     checkpoint(

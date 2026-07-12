@@ -38,3 +38,29 @@ test('algorithm checkpoint component renders feedback and revisit links', () => 
   assert.match(componentSource, /revisitChapterId/)
   assert.match(componentSource, /提交检测|Submit checkpoint/)
 })
+
+test('AI Overview uses immediate local formative feedback while other modules stay scored', () => {
+  const componentSource = read('src/components/AlgorithmCheckpointQuiz.vue')
+  const algorithmViewSource = read('src/views/AlgorithmView.vue')
+
+  assert.match(componentSource, /mode\?: 'scored' \| 'formative'/)
+  assert.match(componentSource, /mode: 'scored'/)
+  assert.match(componentSource, /mode === 'formative'.*answers\[checkpoint\.id\]/s)
+  assert.match(componentSource, /checkpoint\.misconceptionTags/)
+  assert.match(componentSource, /v-if="mode === 'scored'"/)
+  assert.match(componentSource, /if \(props\.mode !== 'scored'\) return/)
+  assert.match(algorithmViewSource, /:mode="isAiOverviewPage \? 'formative' : 'scored'"/)
+  assert.doesNotMatch(componentSource, /saveAlgorithmProgress|appendAlgorithmQuizAttempt|markAlgorithmModuleComplete/)
+
+  const submitFunction = componentSource.slice(
+    componentSource.indexOf('function submit()'),
+    componentSource.indexOf('</script>'),
+  )
+  assert.ok(submitFunction.indexOf("if (props.mode !== 'scored') return") < submitFunction.indexOf('emit('))
+
+  const formativeHeader = componentSource.slice(
+    componentSource.indexOf("mode === 'formative'"),
+    componentSource.indexOf('<strong v-if="mode === \'scored\'"'),
+  )
+  assert.doesNotMatch(formativeHeader, /答对|correct|score|submit/i)
+})

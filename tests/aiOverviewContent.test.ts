@@ -29,9 +29,18 @@ test('AI Overview preserves the approved teaching numbers, variables, seeds, and
     llmRouteStages,
     traditionalAiMethods,
   } = await import('../src/modules/ai-overview/data/course.ts')
-  const content = aiOverviewModule.chapters.map((chapter) => `${chapter.markdown['zh-CN']}\n${chapter.markdown.en}`).join('\n')
-  for (const token of ['x', 'y', 'ŷ', 'w', 'b', 'MSE', 'K=3', '4×4', '+10', '-1', '-3', '3103', '7107']) {
-    assert.match(content, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `missing ${token}`)
+  const requiredTokens = ['x', 'y', 'ŷ', 'w', 'b', 'MSE', 'K=3', '4×4', '+10', '-1', '-3', '3103', '7107']
+  for (const locale of ['zh-CN', 'en'] as const) {
+    const localized = aiOverviewModule.chapters.map((chapter) => chapter.markdown[locale]).join('\n')
+    for (const token of requiredTokens) {
+      assert.match(localized, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${locale} missing ${token}`)
+    }
+    for (const token of ['w=6', 'b=47', 'MSE=0.6', '91.67', '32.67', '2+0.5×11.6=7.8']) {
+      assert.match(localized, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${locale} missing ${token}`)
+    }
+    assert.match(localized, /\\sqrt\{/)
+    assert.match(localized, /\\leftarrow/)
+    assert.match(localized, /\\max_/)
   }
   assert.equal(AI_OVERVIEW_SEEDS.kmeans, 3103)
   assert.equal(AI_OVERVIEW_SEEDS.qLearning, 7107)
@@ -41,11 +50,41 @@ test('AI Overview preserves the approved teaching numbers, variables, seeds, and
   assert.equal(aiOverviewScenarioCards.length, 3)
   assert.equal(traditionalAiMethods.length, 4)
   assert.equal(learningParadigmRows.length, 3)
-  for (const locale of ['zh-CN', 'en'] as const) {
-    const localized = aiOverviewModule.chapters.map((chapter) => chapter.markdown[locale]).join('\n')
-    assert.match(localized, /\\sqrt\{/)
-    assert.match(localized, /\\leftarrow/)
-    assert.match(localized, /\\max_/)
+  for (const row of learningParadigmRows) {
+    assert.deepEqual(Object.keys(row), [
+      'id', 'availableInfo', 'learningSignal', 'learnedObject', 'output', 'typicalProblem', 'applications',
+    ])
+    assert.equal(row.applications.length, 2)
+    for (const field of ['availableInfo', 'learningSignal', 'learnedObject', 'output', 'typicalProblem'] as const) {
+      assert.ok(row[field]['zh-CN'] && row[field].en)
+    }
+  }
+  assert.match(learningParadigmRows.find((row) => row.id === 'supervised')!.learnedObject.en, /mapping/i)
+  assert.match(learningParadigmRows.find((row) => row.id === 'unsupervised')!.learnedObject.en, /structure/i)
+  assert.match(learningParadigmRows.find((row) => row.id === 'reinforcement')!.learnedObject.en, /policy/i)
+  assert.deepEqual(
+    learningParadigmRows.map((row) => row.applications.map((application) => application.en)),
+    [
+      ['Spam detection', 'Electricity-demand prediction'],
+      ['News-topic grouping', 'Image color compression'],
+      ['Robot-arm control', 'Traffic-signal scheduling'],
+    ],
+  )
+  assert.deepEqual(
+    learningParadigmRows.map((row) => row.applications.map((application) => application['zh-CN'])),
+    [
+      ['垃圾邮件检测', '电力需求预测'],
+      ['新闻主题分组', '图像颜色压缩'],
+      ['机器人手臂控制', '交通信号调度'],
+    ],
+  )
+
+  for (const method of traditionalAiMethods) {
+    assert.deepEqual(method.steps.map((step) => step.id), ['current-state', 'candidate-set', 'selected-step', 'result'])
+    for (const step of method.steps) {
+      assert.ok(step.label['zh-CN'] && step.label.en)
+      assert.ok(step.description['zh-CN'] && step.description.en)
+    }
   }
 })
 
@@ -64,6 +103,15 @@ test('AI Overview checkpoints are formative and revisit real chapters', () => {
     assert.ok(item.misconceptionTags.length > 0)
     assert.match(item.explanation['zh-CN'], /误区/)
     assert.match(item.explanation.en, /misconception/i)
+  }
+  const combined = aiOverviewModule.checkpoints.find((item) => item.id === 'ai-overview-paradigm-signal')!
+  const combinedCopy = [
+    combined.prompt['zh-CN'], combined.prompt.en,
+    ...combined.choices.flatMap((choice) => [choice.label['zh-CN'], choice.label.en]),
+    combined.explanation['zh-CN'], combined.explanation.en,
+  ].join(' ')
+  for (const token of ['电力', '新闻', '交通', 'electricity', 'news', 'traffic', 'label', 'similarity', 'waiting-time reward']) {
+    assert.match(combinedCopy, new RegExp(token, 'i'))
   }
 })
 

@@ -39,20 +39,101 @@ export const aiOverviewScenarioCards: readonly ScenarioCard[] = [
   },
 ] as const
 
-export const traditionalAiMethods = [
-  { id: 'search', label: loc('搜索', 'Search'), mechanism: loc('枚举候选状态，按目标选择下一步。', 'Enumerate candidate states and select the next step toward a goal.') },
-  { id: 'planning', label: loc('规划', 'Planning'), mechanism: loc('组合动作与前提，形成从当前状态到目标的计划。', 'Compose actions and preconditions into a plan from current state to goal.') },
-  { id: 'expert-system', label: loc('专家系统', 'Expert system'), mechanism: loc('匹配知识库中的条件—结论规则。', 'Match condition–conclusion rules in a knowledge base.') },
-  { id: 'logic', label: loc('逻辑推理', 'Logic reasoning'), mechanism: loc('从事实和逻辑规则推出可证明的结论。', 'Derive provable conclusions from facts and logical rules.') },
-] as const
+type TraditionalAiStepId = 'current-state' | 'candidate-set' | 'selected-step' | 'result'
+type TraditionalAiStep = { id: TraditionalAiStepId; label: LocalizedCopy; description: LocalizedCopy }
+type TraditionalAiMethod = {
+  id: 'search' | 'planning' | 'expert-system' | 'logic'
+  label: LocalizedCopy
+  mechanism: LocalizedCopy
+  steps: readonly TraditionalAiStep[]
+}
 
-export const learningParadigmRows = aiOverviewScenarioCards.map((card) => ({
-  id: card.id,
-  availableInformation: card.availableInformation,
-  learningSignal: card.learningSignal,
-  learnedObject: card.problem,
-  output: card.output,
-}))
+export const traditionalAiMethods: readonly TraditionalAiMethod[] = [
+  {
+    id: 'search',
+    label: loc('搜索', 'Search'),
+    mechanism: loc('枚举候选状态，按目标选择下一步。', 'Enumerate candidate states and select the next step toward a goal.'),
+    steps: [
+      { id: 'current-state', label: loc('当前状态', 'Current state'), description: loc('机器人位于迷宫入口。', 'The robot is at the maze entrance.') },
+      { id: 'candidate-set', label: loc('候选集合', 'Candidate set'), description: loc('比较可到达的上、右两格。', 'Compare the reachable upper and right cells.') },
+      { id: 'selected-step', label: loc('选中一步', 'Selected step'), description: loc('选择离目标估计更近的右格。', 'Select the right cell estimated closer to the goal.') },
+      { id: 'result', label: loc('结果', 'Result'), description: loc('机器人右移，并从新位置继续搜索。', 'The robot moves right and continues searching from the new state.') },
+    ],
+  },
+  {
+    id: 'planning',
+    label: loc('规划', 'Planning'),
+    mechanism: loc('组合动作与前提，形成从当前状态到目标的计划。', 'Compose actions and preconditions into a plan from current state to goal.'),
+    steps: [
+      { id: 'current-state', label: loc('当前状态', 'Current state'), description: loc('学习者要修 Transformer，但尚未完成概率。', 'The learner wants Transformer but has not completed probability.') },
+      { id: 'candidate-set', label: loc('可用动作', 'Applicable actions'), description: loc('检查概率、深度学习与 Transformer 的先修条件。', 'Check prerequisites for probability, deep learning, and Transformer.') },
+      { id: 'selected-step', label: loc('选中一步', 'Selected step'), description: loc('先安排满足当前前提的概率课程。', 'Schedule probability first because its current preconditions hold.') },
+      { id: 'result', label: loc('结果', 'Result'), description: loc('得到概率→深度学习→Transformer 的可执行计划。', 'Produce an executable probability → deep learning → Transformer plan.') },
+    ],
+  },
+  {
+    id: 'expert-system',
+    label: loc('专家系统', 'Expert system'),
+    mechanism: loc('匹配知识库中的条件—结论规则。', 'Match condition–conclusion rules in a knowledge base.'),
+    steps: [
+      { id: 'current-state', label: loc('当前事实', 'Current state'), description: loc('设备高温且风扇无转速。', 'The device is hot and the fan reports zero speed.') },
+      { id: 'candidate-set', label: loc('候选规则', 'Candidate rules'), description: loc('知识库提供过热、传感器故障和风扇故障规则。', 'The knowledge base offers overheat, sensor-failure, and fan-failure rules.') },
+      { id: 'selected-step', label: loc('选中规则', 'Selected step'), description: loc('匹配“高温且零转速→检查风扇”。', 'Match “high temperature and zero speed → inspect fan.”') },
+      { id: 'result', label: loc('结果', 'Result'), description: loc('输出检查风扇与断电保护建议。', 'Output fan-inspection and power-protection advice.') },
+    ],
+  },
+  {
+    id: 'logic',
+    label: loc('逻辑推理', 'Logic reasoning'),
+    mechanism: loc('从事实和逻辑规则推出可证明的结论。', 'Derive provable conclusions from facts and logical rules.'),
+    steps: [
+      { id: 'current-state', label: loc('当前事实', 'Current state'), description: loc('所有进阶课程都需先修检查；本课是进阶课程。', 'All advanced courses require prerequisite checks; this is an advanced course.') },
+      { id: 'candidate-set', label: loc('可用规则', 'Candidate rules'), description: loc('选择全称规则与当前课程事实。', 'Use the universal rule and the fact about this course.') },
+      { id: 'selected-step', label: loc('推理一步', 'Selected step'), description: loc('把“本课”代入“所有进阶课程”。', 'Substitute “this course” into “all advanced courses.”') },
+      { id: 'result', label: loc('结论', 'Result'), description: loc('推出本课需要先修检查。', 'Conclude that this course requires a prerequisite check.') },
+    ],
+  },
+]
+
+type LearningParadigmRow = {
+  id: LearningParadigm
+  availableInfo: LocalizedCopy
+  learningSignal: LocalizedCopy
+  learnedObject: LocalizedCopy
+  output: LocalizedCopy
+  typicalProblem: LocalizedCopy
+  applications: readonly LocalizedCopy[]
+}
+
+export const learningParadigmRows: readonly LearningParadigmRow[] = [
+  {
+    id: 'supervised',
+    availableInfo: loc('输入样本与对应目标标签。', 'Input examples paired with target labels.'),
+    learningSignal: loc('预测与真实标签之间的误差。', 'Error between prediction and observed label.'),
+    learnedObject: loc('从输入到目标的映射。', 'A mapping from inputs to targets.'),
+    output: loc('连续预测值或类别。', 'A continuous prediction or class.'),
+    typicalProblem: loc('为新样本预测已定义的目标。', 'Predict a defined target for a new example.'),
+    applications: [loc('垃圾邮件检测', 'Spam detection'), loc('电力需求预测', 'Electricity-demand prediction')],
+  },
+  {
+    id: 'unsupervised',
+    availableInfo: loc('没有目标标签的样本。', 'Examples without target labels.'),
+    learningSignal: loc('距离、密度或重建质量等结构准则。', 'Structural criteria such as distance, density, or reconstruction quality.'),
+    learnedObject: loc('数据中的分组、结构或低维表示。', 'Groups, structure, or lower-dimensional representations in data.'),
+    output: loc('需要人工解释的簇或表示。', 'Clusters or representations that require interpretation.'),
+    typicalProblem: loc('在没有答案标签时发现结构。', 'Discover structure without answer labels.'),
+    applications: [loc('新闻主题分组', 'News-topic grouping'), loc('图像颜色压缩', 'Image color compression')],
+  },
+  {
+    id: 'reinforcement',
+    availableInfo: loc('状态、可选动作与行动后的奖励。', 'States, available actions, and rewards after actions.'),
+    learningSignal: loc('即时与延迟回报形成的修正。', 'Corrections driven by immediate and delayed return.'),
+    learnedObject: loc('状态下选择动作的策略与行动价值。', 'A policy and action values for choosing actions in states.'),
+    output: loc('当前状态下的动作选择。', 'An action choice in the current state.'),
+    typicalProblem: loc('通过连续行动优化长期结果。', 'Optimize a long-term outcome through sequential actions.'),
+    applications: [loc('机器人手臂控制', 'Robot-arm control'), loc('交通信号调度', 'Traffic-signal scheduling')],
+  },
+]
 
 export const llmRouteStages = [
   { id: 'python', label: loc('Python', 'Python') },

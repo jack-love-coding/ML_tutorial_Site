@@ -793,6 +793,7 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
       :checkpoints="moduleDefinition.checkpoints"
       :locale="currentLocale"
       :completed="progress.completedModuleSlugs.includes(moduleDefinition.slug)"
+      :mode="isAiOverviewPage ? 'formative' : 'scored'"
       @submit="onAlgorithmQuizSubmit"
     />
 
