@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { AppLocale } from '../../../types/ml'
-import type { GridAction, GridCell, QTable } from '../types'
+import type { GridAction, GridCell, QTable, QUpdate } from '../types'
 import { aiOverviewLabCopy, aiOverviewVisualCopy } from '../data/course'
 import { AI_OVERVIEW_SEEDS, qLearningEnvironment } from '../data/experiments'
 import { createSeededRandom } from '../utils/random'
@@ -28,6 +28,8 @@ const episode = ref(0)
 const qTable = ref<QTable>(createQTable(qLearningEnvironment))
 const currentState = ref<GridCell>({ ...qLearningEnvironment.start })
 const cumulativeReward = ref(0)
+const episodeStep = ref(0)
+const lastUpdate = ref<QUpdate | null>(null)
 const playing = ref(false)
 let timer: ReturnType<typeof setInterval> | undefined
 let random = createSeededRandom(AI_OVERVIEW_SEEDS.qLearning)
@@ -60,8 +62,16 @@ function oneAction() {
     random,
   })
   qTable.value = result.qTable
-  currentState.value = result.nextState
+  lastUpdate.value = result.update
   cumulativeReward.value += result.reward
+  if (result.reachedGoal) {
+    episode.value += 1
+    episodeStep.value = 0
+    currentState.value = { ...qLearningEnvironment.start }
+  } else {
+    episodeStep.value += 1
+    currentState.value = result.nextState
+  }
 }
 function oneEpisode() {
   const result = runEpisode(qLearningEnvironment, structuredClone(qTable.value), {
@@ -72,7 +82,9 @@ function oneEpisode() {
   })
   episode.value += 1
   qTable.value = result.qTable
-  currentState.value = result.finalState
+  lastUpdate.value = result.updates.at(-1) ?? lastUpdate.value
+  episodeStep.value = 0
+  currentState.value = { ...qLearningEnvironment.start }
   cumulativeReward.value += result.cumulativeReward
 }
 function continuousTraining() {
@@ -86,6 +98,8 @@ function resetTraining() {
   qTable.value = createQTable(qLearningEnvironment)
   currentState.value = { ...qLearningEnvironment.start }
   cumulativeReward.value = 0
+  episodeStep.value = 0
+  lastUpdate.value = null
   random = createSeededRandom(effectiveSeed.value)
 }
 function reset() {
@@ -127,6 +141,8 @@ onBeforeUnmount(pause)
         <div><dt>{{ copy.episode[locale as AppLocale] }}</dt><dd>{{ episode }}</dd></div>
         <div><dt>{{ copy.currentState[locale as AppLocale] }}</dt><dd>{{ currentStateKey }}</dd></div>
         <div><dt>{{ copy.cumulativeReward[locale as AppLocale] }}</dt><dd>{{ cumulativeReward }}</dd></div>
+        <div><dt>{{ aiOverviewLabCopy.episodeStep[locale as AppLocale] }}</dt><dd>{{ episodeStep }}</dd></div>
+        <div><dt>{{ aiOverviewLabCopy.lastUpdate[locale as AppLocale] }}</dt><dd>{{ lastUpdate ? `${lastUpdate.stateKey} · ${aiOverviewLabCopy.actions[lastUpdate.action][locale as AppLocale]} · ${lastUpdate.newValue.toFixed(2)}` : '—' }}</dd></div>
       </dl>
       <section :aria-label="copy.currentState[locale as AppLocale]" class="q-lab__values">
         <article v-for="action in Q_LEARNING_ACTIONS" :key="action">
@@ -134,7 +150,7 @@ onBeforeUnmount(pause)
         </article>
       </section>
       <h3>{{ copy.policy[locale as AppLocale] }}</h3>
-      <div class="q-grid" role="img" :aria-label="`${copy.policy[locale as AppLocale]}: ${evaluation.steps} steps`">
+      <div class="q-grid" role="img" :aria-label="`${copy.policy[locale as AppLocale]}: ${evaluation.steps} ${aiOverviewLabCopy.stepUnit[locale as AppLocale]}`">
         <template v-for="row in qLearningEnvironment.height" :key="row">
           <div v-for="column in qLearningEnvironment.width" :key="`${row}-${column}`" class="q-grid__cell">
             <span v-if="qLearningEnvironment.obstacles.some((cell) => cell.row === row - 1 && cell.column === column - 1)">■</span>

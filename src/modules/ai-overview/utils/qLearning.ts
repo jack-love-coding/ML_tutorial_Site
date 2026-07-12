@@ -254,6 +254,9 @@ function cloneQTable(qTable: QTable): QTable {
 export function stepQLearningSession(input: QLearningSessionStepInput): QLearningSessionStepResult {
   validateEnvironment(input.environment)
   validateCell(input.currentState, 'currentState')
+  if (sameCell(input.currentState, input.environment.goal)) {
+    throw new Error('currentState is already a terminal state')
+  }
   const qTable = cloneQTable(input.qTable)
   const currentValues = requireStateValues(qTable, input.currentState)
   const action = selectAction(qTable, input.currentState, input.explorationRate, input.random)

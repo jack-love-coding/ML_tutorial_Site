@@ -182,3 +182,23 @@ test('episode training starts at the environment start and preserves existing le
   assert.equal(trained.qTable['0,0'].left, 7.25)
   assert.notEqual(trained.qTable['3,0'].right, 0)
 })
+
+test('session stepping rejects an already-terminal cell without mutating the Q table', () => {
+  const qTable = createQTable(qLearningEnvironment)
+  qTable['0,3'].left = 4.5
+  const before = structuredClone(qTable)
+
+  assert.throws(
+    () => stepQLearningSession({
+      environment: qLearningEnvironment,
+      currentState: qLearningEnvironment.goal,
+      qTable,
+      explorationRate: 0.3,
+      learningRate: 0.5,
+      discountFactor: 0.9,
+      random: () => 0.5,
+    }),
+    /terminal state/i,
+  )
+  assert.deepEqual(qTable, before)
+})

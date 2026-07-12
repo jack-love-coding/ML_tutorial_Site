@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { AppLocale } from '../../../types/ml'
-import { aiOverviewVisualCopy } from '../data/course'
+import { aiOverviewLabCopy, aiOverviewVisualCopy } from '../data/course'
 import { AI_OVERVIEW_SEEDS, learnerClusterPoints } from '../data/experiments'
 import { normalizeK, normalizeSeed } from '../utils/labInputs'
 import { runKMeans, withinGroupDistanceTotal } from '../utils/kmeans'
@@ -83,7 +83,7 @@ onBeforeUnmount(pause)
           <text :x="x(point.x) + 9" :y="y(point.y) + 4">{{ snapshot.assignments.length ? snapshot.assignments[index] + 1 : '–' }}</text>
         </g>
         <g v-for="(center, index) in snapshot.centers" :key="center.id">
-          <path :transform="`translate(${x(center.x)} ${y(center.y)})`" d="M -9 -9 L 9 9 M 9 -9 L -9 9" :stroke="colors[index]" stroke-width="5"><title>{{ `Center ${index + 1}` }}</title></path>
+          <path :transform="`translate(${x(center.x)} ${y(center.y)})`" d="M -9 -9 L 9 9 M 9 -9 L -9 9" :stroke="colors[index]" stroke-width="5"><title>{{ `${aiOverviewLabCopy.centerLabel[locale as AppLocale]} ${index + 1}` }}</title></path>
         </g>
       </svg>
       <figcaption>{{ copy.withinGroupDistance[locale as AppLocale] }}: {{ distance.toFixed(1) }}</figcaption>

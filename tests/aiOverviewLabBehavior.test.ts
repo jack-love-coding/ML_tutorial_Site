@@ -37,4 +37,8 @@ test('all focused lab copy is recursively complete in both locales', () => {
   }
 
   visit(aiOverviewLabCopy, 'aiOverviewLabCopy')
+  assert.equal(aiOverviewLabCopy.stepUnit['zh-CN'], '步')
+  assert.equal(aiOverviewLabCopy.stepUnit.en, 'steps')
+  assert.equal(aiOverviewLabCopy.centerLabel['zh-CN'], '中心')
+  assert.equal(aiOverviewLabCopy.centerLabel.en, 'Center')
 })

@@ -93,6 +93,10 @@ export const aiOverviewVisualCopy = {
 } as const
 
 export const aiOverviewLabCopy = {
+  stepUnit: loc('步', 'steps'),
+  centerLabel: loc('中心', 'Center'),
+  episodeStep: loc('回合内步数', 'Episode step'),
+  lastUpdate: loc('最近一次更新', 'Last update'),
   actions: {
     up: loc('向上', 'Up'),
     right: loc('向右', 'Right'),
