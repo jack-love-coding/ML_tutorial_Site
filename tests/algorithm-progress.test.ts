@@ -189,7 +189,16 @@ test('algorithm modules expose bilingual module-level checkpoints with revisit c
   ]
 
   const chapterIdsBySlug: Record<ModuleSlug, Set<string>> = {
-    'ai-overview': new Set(['what-is-ml', 'learning-types', 'deep-learning', 'generative-ai', 'training-flow']),
+    'ai-overview': new Set([
+      'three-problems',
+      'ai-world-map',
+      'ml-common-language',
+      'supervised-linear-regression',
+      'learning-paradigms',
+      'unsupervised-kmeans',
+      'reinforcement-q-learning',
+      'choose-learning-approach',
+    ]),
     'python-notebook': new Set(['notebook-rhythm', 'numpy-arrays', 'pandas-tables', 'sklearn-small-model', 'reproducible-handoff']),
     'housing-price-project': new Set(['csv-to-frame', 'eda-first-pass', 'cleaning-splits', 'linear-baseline', 'evaluation', 'review-next-iteration']),
     'classification-project': new Set(['problem-and-costs', 'text-to-features', 'pipeline-baseline', 'scores-thresholds', 'metrics-tradeoffs', 'error-review']),

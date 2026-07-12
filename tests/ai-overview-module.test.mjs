@@ -33,14 +33,23 @@ test('AI overview module covers beginner AI map and uses centralized references'
   assert.ok(existsSync(modulePath), 'src/data/aiOverviewModule.ts should exist')
 
   const moduleSource = read('src/data/aiOverviewModule.ts')
+  const courseSource = read('src/modules/ai-overview/data/course.ts')
 
   assert.match(moduleSource, /slug: 'ai-overview'/)
   assert.match(moduleSource, /route: '\/learn\/ai-overview'/)
-  assert.equal([...moduleSource.matchAll(/chapter\(\s*'/g)].length, 5)
+  assert.match(moduleSource, /aiOverviewChapters/)
 
-  for (const id of ['what-is-ml', 'learning-types', 'deep-learning', 'generative-ai', 'training-flow']) {
-    assert.match(moduleSource, new RegExp(`chapter\\(\\s*'${id}'`))
-    assert.match(moduleSource, new RegExp(`modules\\.aiOverview\\.sections\\.${id.replaceAll('-', '')}\\.title`))
+  for (const id of [
+    'three-problems',
+    'ai-world-map',
+    'ml-common-language',
+    'supervised-linear-regression',
+    'learning-paradigms',
+    'unsupervised-kmeans',
+    'reinforcement-q-learning',
+    'choose-learning-approach',
+  ]) {
+    assert.match(courseSource, new RegExp(`chapter\\(\\s*'${id}'`))
   }
 
   for (const requiredConcept of [
@@ -48,14 +57,14 @@ test('AI overview module covers beginner AI map and uses centralized references'
     '无监督学习',
     '深度学习',
     '生成式 AI',
-    '训练流程',
-    'train/validation/test',
-    'input -> model -> prediction -> loss/metric -> iteration',
-    '想一想',
-    '老师会先问',
-    '模型不是背答案',
+    '训练数据',
+    '未见测试数据',
+    'data → feature/target → model → prediction → error → parameter update → evaluation on unseen data',
+    'K-means',
+    'Q-learning',
+    '决策树',
   ]) {
-    assert.match(moduleSource, new RegExp(requiredConcept.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+    assert.match(courseSource, new RegExp(requiredConcept.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
   }
 
   for (const refId of [
@@ -70,7 +79,9 @@ test('AI overview module covers beginner AI map and uses centralized references'
   }
 
   assert.doesNotMatch(moduleSource, /https?:\/\//)
+  assert.doesNotMatch(courseSource, /https?:\/\//)
   assert.doesNotMatch(moduleSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
+  assert.doesNotMatch(courseSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
 })
 
 test('AI overview includes task-style checkpoints and overview visuals', () => {
@@ -79,8 +90,11 @@ test('AI overview includes task-style checkpoints and overview visuals', () => {
   const styleIndexSource = read('src/styles/index.css')
 
   assert.match(checkpointSource, /'ai-overview': \[/)
-  assert.match(checkpointSource, /ai-overview-task-type/)
-  assert.match(checkpointSource, /ai-overview-training-flow/)
+  assert.match(checkpointSource, /ai-overview-training-loop-order/)
+  assert.match(checkpointSource, /ai-overview-field-roles/)
+  assert.match(checkpointSource, /ai-overview-paradigm-signal/)
+  assert.match(checkpointSource, /ai-overview-kmeans-direction/)
+  assert.match(checkpointSource, /ai-overview-q-value-direction/)
 
   for (const token of [
     'overview-lab__pipeline',

@@ -51,56 +51,56 @@ function evidence(
 
 export const lessonInteractionProtocols: readonly TeachingInteractionProtocol[] = [
   {
-    id: 'ai-overview:task-decomposition',
+    id: 'ai-overview:learning-signal-comparison',
     moduleSlug: 'ai-overview',
     labId: 'ai-overview-task-lab',
-    sectionIds: ['what-is-ml'],
+    sectionIds: ['three-problems', 'learning-paradigms', 'choose-learning-approach'],
     level: 4,
     learningGoal: loc(
-      '把一个 AI 场景拆成输入、目标、模型反馈和泛化风险。',
-      'Decompose an AI scenario into input, target, model feedback, and generalization risk.',
+      '把智能学习助手的三个问题拆成可用信息、学习信号、输出与解释边界。',
+      'Decompose the learning assistant’s three problems into available information, learning signal, output, and interpretation boundary.',
     ),
     predictionPrompt: loc(
-      '先预测：切换到另一个任务卡后，输入、目标和反馈中哪一项会变化最大？为什么？',
-      'Predict first: after switching to another task card, which part changes most: input, target, or feedback? Why?',
+      '先预测：从分数预测切到学习模式发现或练习选择后，信号会变成标签误差、结构距离还是行动奖励？',
+      'Predict first: after switching from numerical prediction to pattern discovery or exercise choice, does the signal become label error, structural distance, or action reward?',
     ),
     manipulableVariables: [
       item(
         'scenario-card',
         loc('任务场景卡', 'Task scenario card'),
-        loc('在房价、垃圾邮件、用户聚类和 RAG 问答之间切换。', 'Switch among housing price, spam, user clustering, and RAG QA.'),
+        loc('在预测下一次练习结果、发现学习模式和选择下一道练习之间切换。', 'Switch among predicting the next result, discovering learning patterns, and choosing the next exercise.'),
       ),
       item(
         'story-lens',
-        loc('当前章节视角', 'Current section lens'),
-        loc('在 ML 闭环、学习类型和深度学习表示之间切换阅读焦点。', 'Move the reading focus across the ML loop, learning types, and representation learning.'),
+        loc('比较维度', 'Comparison dimension'),
+        loc('依次查看可用信息、学习信号、学到什么和输出。', 'Inspect available information, learning signal, learned object, and output in turn.'),
       ),
     ],
     observableMetrics: [
       item(
-        'task-type',
-        loc('任务类型', 'Task type'),
-        loc('读出当前场景是回归、分类、聚类还是生成式/RAG。', 'Read whether the current scenario is regression, classification, clustering, or generative/RAG.'),
+        'paradigm',
+        loc('学习范式', 'Learning paradigm'),
+        loc('读出当前场景是监督、无监督还是强化学习。', 'Read whether the current scenario is supervised, unsupervised, or reinforcement learning.'),
       ),
       item(
         'feedback-signal',
-        loc('反馈信号', 'Feedback signal'),
-        loc('判断反馈来自 loss、metric、结构质量、引用覆盖还是人工复盘。', 'Decide whether feedback comes from loss, metrics, structure quality, citation coverage, or human review.'),
+        loc('学习信号', 'Learning signal'),
+        loc('判断信号来自标签误差、结构距离还是行动后的奖励。', 'Decide whether the signal comes from label error, structural distance, or reward after an action.'),
       ),
     ],
     successCriteria: [
       loc(
-        '能在不背算法名的情况下说出当前任务的输入、目标和反馈。',
-        'You can name the input, target, and feedback without relying on algorithm names.',
+        '能在不背算法名的情况下说出当前任务的可用信息、信号和输出。',
+        'You can name the available information, signal, and output without relying on algorithm names.',
       ),
       loc(
-        '能解释为什么“有输出”不等于“就是生成式 AI”。',
-        'You can explain why having an output does not automatically make a task generative AI.',
+        '能解释为什么无标签不等于无目标、reward 也不等于监督标签。',
+        'You can explain why no labels does not mean no objective and why reward is not a supervised label.',
       ),
     ],
     reflectionPrompt: loc(
-      '你选择的场景如果换一批新样本，最可能在哪里失效：输入、目标标签、反馈指标，还是泛化？',
-      'If your chosen scenario sees new examples, where is failure most likely: input, target labels, feedback metric, or generalization?',
+      '如果把当前场景的学习信号换成另一个范式的信号，哪个关键假设会先失效？',
+      'If the current learning signal were replaced by another paradigm’s signal, which key assumption would fail first?',
     ),
     evidence: [
       evidence(
@@ -110,16 +110,16 @@ export const lessonInteractionProtocols: readonly TeachingInteractionProtocol[] 
         loc('概览实验台中的高亮任务卡。', 'The highlighted task card in the overview lab.'),
       ),
       evidence(
-        'decomposition-readout',
+        'signal-readout',
         'observation',
-        loc('输入/目标/反馈读数', 'Input/target/feedback readout'),
-        loc('当前场景详情里的三项拆解。', 'The three-part decomposition in the current scenario detail.'),
+        loc('信息/信号/输出读数', 'Information/signal/output readout'),
+        loc('当前场景详情中的可用信息、学习信号与输出。', 'Available information, learning signal, and output in the current scenario detail.'),
       ),
       evidence(
         'learner-explanation',
         'explanation',
-        loc('一句话解释', 'One-sentence explanation'),
-        loc('用自己的话说明这个任务为什么属于当前类别。', 'Explain in your own words why the task belongs to the current category.'),
+        loc('范式解释', 'Paradigm explanation'),
+        loc('用自己的话说明该信号为什么支持当前范式，并指出一个易混误区。', 'Explain why the signal supports the current paradigm and name one tempting misconception.'),
       ),
     ],
   },
