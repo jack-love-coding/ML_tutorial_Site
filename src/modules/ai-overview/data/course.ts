@@ -3,6 +3,79 @@ import type { AiOverviewChapterId, LearningParadigm } from '../types'
 
 const loc = (zhCN: string, en: string): LocalizedCopy => ({ 'zh-CN': zhCN, en })
 
+type AiWorldNodeId = 'ai' | 'machine-learning' | 'deep-learning' | 'generative-ai' | 'llm'
+type AiWorldNode = {
+  id: AiWorldNodeId
+  parentId: AiWorldNodeId | null
+  label: LocalizedCopy
+  relationship: LocalizedCopy
+}
+
+export const aiWorldNodes: readonly AiWorldNode[] = [
+  { id: 'ai', parentId: null, label: loc('人工智能', 'Artificial intelligence'), relationship: loc('最广的范围：机器执行涉及感知、推理、规划或学习的任务。', 'The broadest scope: machines perform tasks involving perception, reasoning, planning, or learning.') },
+  { id: 'machine-learning', parentId: 'ai', label: loc('机器学习', 'Machine learning'), relationship: loc('人工智能的一部分：系统从数据与反馈中调整行为。', 'A part of AI in which systems adjust behavior from data and feedback.') },
+  { id: 'deep-learning', parentId: 'machine-learning', label: loc('深度学习', 'Deep learning'), relationship: loc('机器学习的一部分：多层参数化结构学习数据表示。', 'A part of ML that learns representations through many parameterized layers.') },
+  { id: 'generative-ai', parentId: 'deep-learning', label: loc('生成式人工智能', 'Generative AI'), relationship: loc('在本入门地图中位于深度学习内，用于生成新的内容。', 'Within deep learning on this introductory map, it generates new content.') },
+  { id: 'llm', parentId: 'generative-ai', label: loc('大语言模型', 'Large language model'), relationship: loc('以语言处理与生成为中心的大规模生成模型。', 'A large generative model centered on processing and generating language.') },
+] as const
+
+type MlProcessStepId = 'data' | 'roles' | 'model' | 'prediction' | 'error' | 'parameter-update' | 'unseen-evaluation'
+type MlProcessStep = { id: MlProcessStepId; label: LocalizedCopy; description: LocalizedCopy }
+
+export const mlProcessSteps: readonly MlProcessStep[] = [
+  { id: 'data', label: loc('数据', 'Data'), description: loc('从学习记录收集可复现的训练样本。', 'Collect reproducible training examples from learner records.') },
+  { id: 'roles', label: loc('变量角色', 'Variable roles'), description: loc('区分学习者标识、输入特征与目标变量。', 'Separate learner identifiers, input features, and the target variable.') },
+  { id: 'model', label: loc('模型', 'Model'), description: loc('模型用参数表达从特征到目标的映射。', 'The model uses parameters to express a mapping from features to the target.') },
+  { id: 'prediction', label: loc('预测', 'Prediction'), description: loc('当前参数为训练样本产生预测 ŷ。', 'Current parameters produce a prediction ŷ for a training example.') },
+  { id: 'error', label: loc('误差', 'Error'), description: loc('比较预测 ŷ 与已观察目标 y。', 'Compare prediction ŷ with the observed target y.') },
+  { id: 'parameter-update', label: loc('参数更新', 'Parameter update'), description: loc('根据误差信号调整模型参数。', 'Adjust model parameters using the error signal.') },
+  { id: 'unseen-evaluation', label: loc('未见数据评估', 'Unseen-data evaluation'), description: loc('在未参与参数更新的数据上检查模型。', 'Check the model on data that did not participate in parameter updates.') },
+] as const
+
+export const aiOverviewVisualCopy = {
+  nestedMap: loc('AI 概念嵌套地图', 'Nested AI concept map'),
+  traditionalAi: loc('传统人工智能方法', 'Traditional AI methods'),
+  currentState: loc('当前状态', 'Current state'),
+  candidatesRules: loc('候选项或规则', 'Candidates or rules'),
+  selectedStep: loc('选中的一步', 'Selected step'),
+  result: loc('结果', 'Result'),
+  previous: loc('上一步', 'Previous'),
+  next: loc('下一步', 'Next'),
+  reset: loc('重置', 'Reset'),
+  currentStep: loc('当前步骤', 'Current step'),
+  processTrace: loc('机器学习过程追踪', 'Machine-learning process trace'),
+  learnerId: loc('学习者标识', 'Learner ID'),
+  feature: loc('输入特征', 'Feature'),
+  target: loc('目标变量', 'Target'),
+  unseenData: loc('未见数据', 'Unseen data'),
+  paradigmComparison: loc('学习范式比较', 'Learning-paradigm comparison'),
+  availableInformation: loc('可用信息', 'Available information'),
+  learningSignal: loc('学习信号', 'Learning signal'),
+  learnedObject: loc('学习对象', 'Learned object'),
+  output: loc('输出', 'Output'),
+  typicalProblem: loc('典型问题', 'Typical problem'),
+  applications: loc('应用', 'Applications'),
+  decisionTree: loc('学习范式决策树', 'Learning-paradigm decision tree'),
+  learningAssistantMap: loc('智能学习助手方法图', 'Learning-assistant method map'),
+  llmRoute: loc('通往大语言模型的路线', 'Route to LLMs'),
+  knowledgeMap: loc('AI 概览知识图', 'AI overview knowledge map'),
+  print: loc('打印知识图', 'Print knowledge map'),
+} as const
+
+type ParadigmDecisionQuestionId = 'explicit-target' | 'sequential-reward' | 'structure-without-targets'
+type ParadigmDecisionQuestion = {
+  id: ParadigmDecisionQuestionId
+  question: LocalizedCopy
+  yes: LocalizedCopy
+  no: LocalizedCopy
+}
+
+export const paradigmDecisionQuestions: readonly ParadigmDecisionQuestion[] = [
+  { id: 'explicit-target', question: loc('每个训练样本是否有明确的目标答案？', 'Does each training example have an explicit target answer?'), yes: loc('是：检查监督学习。', 'Yes: inspect supervised learning.'), no: loc('否：继续检查反馈结构。', 'No: continue checking the feedback structure.') },
+  { id: 'sequential-reward', question: loc('是否要连续行动，并从即时或延迟奖励中学习？', 'Must the system act sequentially and learn from immediate or delayed reward?'), yes: loc('是：检查强化学习。', 'Yes: inspect reinforcement learning.'), no: loc('否：继续检查数据中的结构。', 'No: continue checking structure in the data.') },
+  { id: 'structure-without-targets', question: loc('是否要在没有目标标签时发现结构？', 'Must the system discover structure without target labels?'), yes: loc('是：检查无监督学习。', 'Yes: inspect unsupervised learning.'), no: loc('否：重新描述问题与可用信息。', 'No: restate the problem and available information.') },
+] as const
+
 type ScenarioCard = {
   id: LearningParadigm
   title: LocalizedCopy
