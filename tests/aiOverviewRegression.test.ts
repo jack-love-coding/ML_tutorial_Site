@@ -36,6 +36,59 @@ test('candidate ranking is stable and rejects non-finite parameters', () => {
   assert.throws(() => meanSquaredError(samples, Number.NaN, 0), /finite/)
 })
 
+test('prediction rejects non-finite sample coordinates', () => {
+  for (const sample of [
+    { id: 'nan-x', x: Number.NaN, y: 0 },
+    { id: 'infinite-x', x: Number.POSITIVE_INFINITY, y: 0 },
+    { id: 'nan-y', x: 0, y: Number.NaN },
+    { id: 'infinite-y', x: 0, y: Number.NEGATIVE_INFINITY },
+  ]) {
+    assert.throws(() => predict(sample, 1, 0), /finite/)
+  }
+})
+
+test('prediction rejects finite operands whose arithmetic overflows', () => {
+  const sample = { id: 'large-x', x: Number.MAX_VALUE, y: 0 }
+
+  assert.throws(() => predict(sample, 2, 0), /finite/)
+  assert.throws(() => predict(sample, 1, Number.MAX_VALUE), /finite/)
+})
+
+test('regression rows and MSE reject overflow in derived values and accumulation', () => {
+  assert.throws(
+    () => regressionRows([{ id: 'residual-overflow', x: 0, y: Number.MAX_VALUE }], 0, -Number.MAX_VALUE),
+    /finite/,
+  )
+  assert.throws(
+    () => regressionRows([{ id: 'squared-residual-overflow', x: 0, y: 1e200 }], 0, 0),
+    /finite/,
+  )
+  assert.throws(
+    () =>
+      meanSquaredError(
+        [
+          { id: 'sum-overflow-a', x: 0, y: 1e154 },
+          { id: 'sum-overflow-b', x: 0, y: 1e154 },
+        ],
+        0,
+        0,
+      ),
+    /finite/,
+  )
+})
+
+test('equal-MSE candidate ranking preserves input order', () => {
+  const tiedCandidates = [
+    { w: 2, b: 2 },
+    { w: 2, b: 0 },
+  ]
+
+  assert.deepEqual(
+    rankRegressionCandidates(samples, tiedCandidates).map(({ w, b }) => ({ w, b })),
+    tiedCandidates,
+  )
+})
+
 test('seeded random generators reproduce the same sequence and require integer seeds', () => {
   const first = createSeededRandom(3103)
   const second = createSeededRandom(3103)
