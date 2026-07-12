@@ -62,6 +62,43 @@ export const aiOverviewVisualCopy = {
   print: loc('打印知识图', 'Print knowledge map'),
 } as const
 
+type LearningAssistantAlgorithmId = 'linear-regression' | 'k-means' | 'q-learning'
+type LearningAssistantAlgorithm = {
+  id: LearningAssistantAlgorithmId
+  label: LocalizedCopy
+  taskRole: LocalizedCopy
+  input: LocalizedCopy
+  learningSignal: LocalizedCopy
+  output: LocalizedCopy
+}
+
+export const learningAssistantAlgorithms: readonly LearningAssistantAlgorithm[] = [
+  {
+    id: 'linear-regression',
+    label: loc('线性回归', 'Linear regression'),
+    taskRole: loc('预测下一次练习分数。', 'Predict the next exercise score.'),
+    input: loc('练习时长、历史分数与已观察目标。', 'Practice duration, historical score, and observed targets.'),
+    learningSignal: loc('预测分数与目标分数之间的误差。', 'Error between predicted and target scores.'),
+    output: loc('连续的分数预测。', 'A continuous score prediction.'),
+  },
+  {
+    id: 'k-means',
+    label: loc('K-means 聚类', 'K-means clustering'),
+    taskRole: loc('发现相似的学习模式。', 'Find similar learning patterns.'),
+    input: loc('没有分组答案的正确率与作答时间。', 'Accuracy and response time without group answers.'),
+    learningSignal: loc('样本到簇中心的距离。', 'Distance from examples to cluster centers.'),
+    output: loc('需要人工解释的学习者簇。', 'Learner clusters that require human interpretation.'),
+  },
+  {
+    id: 'q-learning',
+    label: loc('Q-learning', 'Q-learning'),
+    taskRole: loc('选择下一道练习。', 'Select the next exercise.'),
+    input: loc('掌握状态、可选难度与行动后的奖励。', 'Mastery state, available difficulty, and post-action rewards.'),
+    learningSignal: loc('即时与延迟奖励形成的回报。', 'Return formed from immediate and delayed rewards.'),
+    output: loc('每个掌握状态下的练习选择。', 'An exercise choice for each mastery state.'),
+  },
+] as const
+
 type ParadigmDecisionQuestionId = 'explicit-target' | 'sequential-reward' | 'structure-without-targets'
 type ParadigmDecisionQuestion = {
   id: ParadigmDecisionQuestionId

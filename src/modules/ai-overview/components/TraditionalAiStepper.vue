@@ -31,6 +31,7 @@ function reset() { currentStep.value = 0 }
       <li
         v-for="(candidate, index) in currentMethod.steps"
         :key="candidate.id"
+        :data-step-id="candidate.id"
         :class="{ current: index === currentStep }"
         :aria-current="index === currentStep ? 'step' : undefined"
       >

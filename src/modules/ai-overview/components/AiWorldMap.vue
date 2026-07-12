@@ -37,7 +37,7 @@ const llmNode = aiWorldNodes.find((node) => node.id === 'llm')!
     </svg>
     <figcaption>{{ aiOverviewVisualCopy.nestedMap[locale] }}</figcaption>
     <ol>
-      <li v-for="node in aiWorldNodes" :key="node.id"><strong>{{ node.label[locale] }}</strong> — {{ node.relationship[locale] }}</li>
+      <li v-for="node in aiWorldNodes" :key="node.id" :data-node-id="node.id"><strong>{{ node.label[locale] }}</strong> — {{ node.relationship[locale] }}</li>
     </ol>
   </figure>
 </template>

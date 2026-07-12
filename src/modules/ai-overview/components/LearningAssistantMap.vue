@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import type { AppLocale } from '../../../types/ml'
-import { aiOverviewScenarioCards, aiOverviewVisualCopy } from '../data/course'
+import { aiOverviewVisualCopy, learningAssistantAlgorithms } from '../data/course'
 
 defineProps<{ locale: AppLocale }>()
-const algorithms = ['linear-regression', 'k-means', 'q-learning'] as const
+const algorithmShape = (id: string) => id === 'linear-regression' ? '●' : id === 'k-means' ? '■' : '▲'
 </script>
 
 <template>
   <section class="learning-assistant-map" :aria-label="aiOverviewVisualCopy.learningAssistantMap[locale]">
-    <article v-for="(card, index) in aiOverviewScenarioCards" :id="algorithms[index]" :key="card.id">
-      <span class="algorithm-shape" aria-hidden="true">{{ index === 0 ? '●' : index === 1 ? '■' : '▲' }}</span>
-      <h3>{{ card.title[locale] }}</h3>
+    <article v-for="algorithm in learningAssistantAlgorithms" :key="algorithm.id" :data-algorithm-id="algorithm.id">
+      <span class="algorithm-shape" aria-hidden="true">{{ algorithmShape(algorithm.id) }}</span>
+      <h3>{{ algorithm.label[locale] }}</h3>
       <dl>
-        <dt>{{ card.problem[locale] }}</dt><dd>{{ card.availableInformation[locale] }}</dd>
-        <dt>{{ card.learningSignal[locale] }}</dt><dd>{{ card.output[locale] }}</dd>
+        <dt>{{ aiOverviewVisualCopy.typicalProblem[locale] }}</dt><dd>{{ algorithm.taskRole[locale] }}</dd>
+        <dt>{{ aiOverviewVisualCopy.availableInformation[locale] }}</dt><dd>{{ algorithm.input[locale] }}</dd>
+        <dt>{{ aiOverviewVisualCopy.learningSignal[locale] }}</dt><dd>{{ algorithm.learningSignal[locale] }}</dd>
+        <dt>{{ aiOverviewVisualCopy.output[locale] }}</dt><dd>{{ algorithm.output[locale] }}</dd>
       </dl>
     </article>
   </section>

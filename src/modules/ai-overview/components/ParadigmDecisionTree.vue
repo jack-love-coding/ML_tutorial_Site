@@ -8,7 +8,7 @@ defineProps<{ locale: AppLocale }>()
 <template>
   <nav class="decision-tree" :aria-label="aiOverviewVisualCopy.decisionTree[locale]">
     <ol>
-      <li v-for="question in paradigmDecisionQuestions" :key="question.id">
+      <li v-for="question in paradigmDecisionQuestions" :key="question.id" :data-question-id="question.id">
         <strong>{{ question.question[locale] }}</strong>
         <p><span aria-hidden="true">●</span> {{ question.yes[locale] }}</p>
         <p><span aria-hidden="true">◇</span> {{ question.no[locale] }}</p>
