@@ -84,9 +84,10 @@ test('AI overview module covers beginner AI map and uses centralized references'
   assert.doesNotMatch(courseSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
 })
 
-test('AI overview includes task-style checkpoints and overview visuals', () => {
+test('AI overview includes task-style checkpoints and delegates chapter visuals', () => {
   const checkpointSource = read('src/data/algorithmCheckpoints.ts')
   const labSource = read('src/components/AiOverviewLessonLab.vue')
+  const chapterLabSource = read('src/modules/ai-overview/labs/AiOverviewChapterLab.vue')
   const styleIndexSource = read('src/styles/index.css')
 
   assert.match(checkpointSource, /'ai-overview': \[/)
@@ -96,14 +97,14 @@ test('AI overview includes task-style checkpoints and overview visuals', () => {
   assert.match(checkpointSource, /ai-overview-kmeans-direction/)
   assert.match(checkpointSource, /ai-overview-q-value-direction/)
 
-  for (const token of [
-    'overview-lab__pipeline',
-    'overview-lab__task-grid',
-    'overview-lab__scenario',
-    'overview-lab__flow-step',
-    'selectedScenario',
+  assert.match(labSource, /AiOverviewChapterLab/)
+  assert.match(labSource, /<AiOverviewChapterLab :section="section"/)
+  for (const chapterId of [
+    'supervised-linear-regression',
+    'unsupervised-kmeans',
+    'reinforcement-q-learning',
   ]) {
-    assert.match(labSource, new RegExp(token))
+    assert.match(chapterLabSource, new RegExp(chapterId))
   }
 
   assert.doesNotMatch(labSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
