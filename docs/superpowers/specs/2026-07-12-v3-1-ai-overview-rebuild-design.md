@@ -1,7 +1,7 @@
 # V3.1 Phase 1 AI Overview Rebuild Design
 
 **Date:** 2026-07-12  
-**Status:** Awaiting written review  
+**Status:** Approved  
 **Scope:** Rebuild the existing `ai-overview` runtime course in place. Preserve its ID, URL, shared LessonPage shell, and legacy accessibility while replacing its teaching body, formative checkpoints, visuals, and lesson lab.
 
 ## 1. Purpose
