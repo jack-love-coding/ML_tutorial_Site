@@ -38,6 +38,20 @@ type EpisodeOptions = {
   random: () => number
 }
 
+export type QLearningSessionStepInput = EpisodeOptions & {
+  environment: QLearningEnvironment
+  currentState: GridCell
+  qTable: QTable
+}
+
+export type QLearningSessionStepResult = {
+  nextState: GridCell
+  qTable: QTable
+  update: QUpdate
+  reward: number
+  reachedGoal: boolean
+}
+
 export type EpisodeResult = {
   qTable: QTable
   updates: QUpdate[]
@@ -231,6 +245,37 @@ export function selectAction(
   const greedyAction = bestAction(qTable, cell)
   if (rate === 0 || randomUnit(random) >= rate) return greedyAction
   return Q_LEARNING_ACTIONS[Math.floor(randomUnit(random) * Q_LEARNING_ACTIONS.length)]
+}
+
+function cloneQTable(qTable: QTable): QTable {
+  return Object.fromEntries(Object.entries(qTable).map(([key, values]) => [key, { ...values }]))
+}
+
+export function stepQLearningSession(input: QLearningSessionStepInput): QLearningSessionStepResult {
+  validateEnvironment(input.environment)
+  validateCell(input.currentState, 'currentState')
+  const qTable = cloneQTable(input.qTable)
+  const currentValues = requireStateValues(qTable, input.currentState)
+  const action = selectAction(qTable, input.currentState, input.explorationRate, input.random)
+  const result = transition(input.environment, input.currentState, action)
+  const nextValues = requireStateValues(qTable, result.nextState)
+  const nextBestValue = Math.max(...Q_LEARNING_ACTIONS.map((nextAction) => nextValues[nextAction]))
+  const value = updateQValue({
+    oldValue: currentValues[action],
+    reward: result.reward,
+    nextBestValue,
+    learningRate: input.learningRate,
+    discountFactor: input.discountFactor,
+  })
+  currentValues[action] = value.newValue
+  const update: QUpdate = {
+    stateKey: stateKey(input.currentState),
+    action,
+    reward: result.reward,
+    nextStateKey: stateKey(result.nextState),
+    ...value,
+  }
+  return { nextState: { ...result.nextState }, qTable, update, reward: result.reward, reachedGoal: result.reachedGoal }
 }
 
 export function runEpisode(

@@ -7,6 +7,7 @@ import {
   runEpisode,
   selectAction,
   stateKey,
+  stepQLearningSession,
   trainEpisodes,
   transition,
   updateQValue,
@@ -132,4 +133,52 @@ test('greedy evaluation does not mutate its input Q table', () => {
   evaluateGreedyPolicy(qLearningEnvironment, trained.qTable, 32)
 
   assert.deepEqual(trained.qTable, before)
+})
+
+test('two session actions continue from the displayed cell without mutating prior tables', () => {
+  const initial = createQTable(qLearningEnvironment)
+  const draws = [0.1, 0.3, 0.1, 0.3]
+  const random = () => draws.shift() ?? 0.99
+  const first = stepQLearningSession({
+    environment: qLearningEnvironment,
+    currentState: qLearningEnvironment.start,
+    qTable: initial,
+    explorationRate: 1,
+    learningRate: 0.5,
+    discountFactor: 0.9,
+    random,
+  })
+  const second = stepQLearningSession({
+    environment: qLearningEnvironment,
+    currentState: first.nextState,
+    qTable: first.qTable,
+    explorationRate: 1,
+    learningRate: 0.5,
+    discountFactor: 0.9,
+    random,
+  })
+
+  assert.equal(first.update.stateKey, '3,0')
+  assert.equal(first.update.nextStateKey, '3,1')
+  assert.equal(second.update.stateKey, first.update.nextStateKey)
+  assert.equal(second.update.nextStateKey, '3,2')
+  assert.equal(initial['3,0'].right, 0)
+  assert.equal(first.qTable['3,0'].right, -0.5)
+  assert.equal(second.qTable['3,0'].right, -0.5)
+})
+
+test('episode training starts at the environment start and preserves existing learned values', () => {
+  const existing = createQTable(qLearningEnvironment)
+  existing['0,0'].left = 7.25
+  existing['3,0'].right = 2
+  const trained = runEpisode(qLearningEnvironment, structuredClone(existing), {
+    explorationRate: 0,
+    learningRate: 0.5,
+    discountFactor: 0.9,
+    random: () => 0.99,
+  })
+
+  assert.equal(trained.updates[0].stateKey, stateKey(qLearningEnvironment.start))
+  assert.equal(trained.qTable['0,0'].left, 7.25)
+  assert.notEqual(trained.qTable['3,0'].right, 0)
 })

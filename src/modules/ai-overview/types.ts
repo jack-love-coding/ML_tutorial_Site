@@ -77,4 +77,4 @@ export type QLearningState = {
   playbackMode: PlaybackMode
   speed: number
 }
-export type StaticAlgorithmFrame = { id: string; title: LocalizedCopy; explanation: LocalizedCopy; values: Record<string, string | number> }
+export type StaticAlgorithmFrame = { id: string; title: LocalizedCopy; explanation: LocalizedCopy; values: Record<string, string | number | boolean> }

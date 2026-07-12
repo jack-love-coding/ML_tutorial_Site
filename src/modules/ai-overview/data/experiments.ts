@@ -10,6 +10,15 @@ export const regressionPresets: Record<RegressionPreset['id'], RegressionPreset>
   'noisy-trend': { id: 'noisy-trend', label: { 'zh-CN': '带噪声', en: 'Noisy trend' }, samples: [{ id: 's1', x: 1, y: 50 }, { id: 's2', x: 2, y: 63 }, { id: 's3', x: 3, y: 61 }, { id: 's4', x: 4, y: 75 }, { id: 's5', x: 5, y: 76 }] },
   outlier: { id: 'outlier', label: { 'zh-CN': '含异常点', en: 'With outlier' }, samples: [{ id: 's1', x: 1, y: 52 }, { id: 's2', x: 2, y: 59 }, { id: 's3', x: 3, y: 65 }, { id: 's4', x: 4, y: 72 }, { id: 's5', x: 5, y: 98 }] },
 }
+export const regressionCandidates: ReadonlyArray<{ w: number; b: number }> = [
+  { w: 4, b: 48 },
+  { w: 5, b: 48 },
+  { w: 6, b: 47 },
+  { w: 6.5, b: 46 },
+  { w: 6.6, b: 45.8 },
+  { w: 7, b: 45 },
+  { w: 5.5, b: 50 },
+]
 export const learnerClusterPoints: Point2D[] = [
   { id: 'l1', x: 92, y: 28 }, { id: 'l2', x: 88, y: 33 }, { id: 'l3', x: 95, y: 37 }, { id: 'l4', x: 76, y: 64 },
   { id: 'l5', x: 72, y: 71 }, { id: 'l6', x: 81, y: 68 }, { id: 'l7', x: 48, y: 31 }, { id: 'l8', x: 43, y: 37 },

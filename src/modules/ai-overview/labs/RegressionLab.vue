@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type { AppLocale } from '../../../types/ml'
 import type { RegressionPresetId } from '../types'
 import { aiOverviewVisualCopy } from '../data/course'
-import { regressionPresets } from '../data/experiments'
+import { regressionCandidates, regressionPresets } from '../data/experiments'
 import { meanSquaredError, predict, rankRegressionCandidates, regressionRows } from '../utils/regression'
 
 const { locale } = useI18n()
@@ -18,14 +18,10 @@ const cursor = ref(1)
 const playing = ref(false)
 let timer: ReturnType<typeof setInterval> | undefined
 
-const candidates = [
-  { w: 4, b: 48 }, { w: 5, b: 48 }, { w: 6, b: 47 }, { w: 6.5, b: 46 },
-  { w: 6.6, b: 45.8 }, { w: 7, b: 45 }, { w: 5.5, b: 50 },
-]
 const samples = computed(() => regressionPresets[presetId.value].samples)
 const rows = computed(() => regressionRows(samples.value, w.value, b.value))
 const currentMse = computed(() => meanSquaredError(samples.value, w.value, b.value))
-const ranked = computed(() => rankRegressionCandidates(samples.value, candidates))
+const ranked = computed(() => rankRegressionCandidates(samples.value, [...regressionCandidates]))
 const searchPath = computed(() => [...ranked.value].reverse())
 const currentValue = computed(() => `w=${w.value.toFixed(1)}, b=${b.value.toFixed(1)}, MSE=${currentMse.value.toFixed(2)}`)
 const x = (value: number) => 28 + value * 52

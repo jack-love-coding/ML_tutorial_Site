@@ -92,6 +92,58 @@ export const aiOverviewVisualCopy = {
   print: loc('打印知识图', 'Print knowledge map'),
 } as const
 
+export const aiOverviewLabCopy = {
+  actions: {
+    up: loc('向上', 'Up'),
+    right: loc('向右', 'Right'),
+    down: loc('向下', 'Down'),
+    left: loc('向左', 'Left'),
+  },
+  qTableState: loc('状态', 'State'),
+  booleans: {
+    yes: loc('是', 'Yes'),
+    no: loc('否', 'No'),
+  },
+  phases: {
+    initialization: loc('初始化中心', 'Initialize centers'),
+    assignment: loc('分配到最近中心', 'Assign to nearest centers'),
+    recomputation: loc('重新计算中心', 'Recompute centers'),
+    converged: loc('已经收敛', 'Converged'),
+  },
+  staticValueLabels: {
+    w: loc('斜率 w', 'Slope w'),
+    b: loc('截距 b', 'Intercept b'),
+    mse: loc('均方误差', 'Mean squared error'),
+    iteration: loc('迭代次数', 'Iteration'),
+    phase: loc('阶段', 'Phase'),
+    distance: loc('组内距离总和', 'Within-group distance total'),
+    episodes: loc('训练回合', 'Training episodes'),
+    steps: loc('评估步数', 'Evaluation steps'),
+    reward: loc('评估奖励', 'Evaluation reward'),
+    reachedGoal: loc('到达目标', 'Reached goal'),
+  },
+  staticFrames: {
+    regression: {
+      initial: { title: loc('初始直线', 'Initial line'), explanation: loc('从第一组候选参数开始，误差由统一的回归工具计算。', 'Start from the first candidate parameters; the shared regression utility computes the error.') },
+      'one-update': { title: loc('一次候选更新', 'One candidate update'), explanation: loc('替换一组候选参数后，重新计算同一批样本的误差。', 'After replacing one candidate pair, recompute error on the same samples.') },
+      intermediate: { title: loc('中间候选', 'Intermediate candidate'), explanation: loc('继续比较候选直线，均方误差提供一致的比较尺度。', 'Continue comparing candidate lines using MSE as one consistent scale.') },
+      converged: { title: loc('最佳候选', 'Best candidate'), explanation: loc('候选列表中均方误差最小的参数排在第一位。', 'The candidate with the lowest MSE ranks first in the list.') },
+    },
+    kmeans: {
+      initial: { title: loc('初始中心', 'Initial centers'), explanation: loc('使用固定随机种子选择可复现的初始中心。', 'Use the fixed seed to choose reproducible initial centers.') },
+      'one-update': { title: loc('一次完整更新', 'One complete update'), explanation: loc('先分配样本，再按每个簇的均值重算中心。', 'Assign samples, then recompute each center from its cluster mean.') },
+      intermediate: { title: loc('中间迭代', 'Intermediate iteration'), explanation: loc('中心和分配来自同一段确定性历史记录。', 'Centers and assignments come from the same deterministic history.') },
+      converged: { title: loc('稳定分组', 'Converged grouping'), explanation: loc('样本分配不再变化时，算法标记为收敛。', 'The algorithm marks convergence when assignments stop changing.') },
+    },
+    qLearning: {
+      initial: { title: loc('初始策略检查', 'Initial policy check'), explanation: loc('从全零 Q 表评估尚未学习的贪心策略。', 'Evaluate the unlearned greedy policy from an all-zero Q table.') },
+      'one-update': { title: loc('一次训练更新', 'One training update'), explanation: loc('完成一回合后，用更新后的 Q 表重新评估策略。', 'After one episode, evaluate the policy from the updated Q table.') },
+      intermediate: { title: loc('中间训练', 'Intermediate training'), explanation: loc('继续保留并更新已经学到的动作价值。', 'Continue preserving and updating learned action values.') },
+      evaluated: { title: loc('贪心策略评估', 'Greedy policy evaluated'), explanation: loc('关闭探索，检查当前策略是否能到达目标。', 'Disable exploration and check whether the current policy reaches the goal.') },
+    },
+  },
+} as const
+
 type LearningAssistantAlgorithmId = 'linear-regression' | 'k-means' | 'q-learning'
 type LearningAssistantAlgorithm = {
   id: LearningAssistantAlgorithmId

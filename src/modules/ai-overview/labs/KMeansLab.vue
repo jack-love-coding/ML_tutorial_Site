@@ -4,20 +4,21 @@ import { useI18n } from 'vue-i18n'
 import type { AppLocale } from '../../../types/ml'
 import { aiOverviewVisualCopy } from '../data/course'
 import { AI_OVERVIEW_SEEDS, learnerClusterPoints } from '../data/experiments'
+import { normalizeK, normalizeSeed } from '../utils/labInputs'
 import { runKMeans, withinGroupDistanceTotal } from '../utils/kmeans'
 
 const { locale } = useI18n()
 const copy = aiOverviewVisualCopy
 const k = ref(3)
-const seed = ref(AI_OVERVIEW_SEEDS.kmeans)
+const seed = ref<number>(AI_OVERVIEW_SEEDS.kmeans)
 const historyIndex = ref(0)
 const playing = ref(false)
 let timer: ReturnType<typeof setInterval> | undefined
 const colors = ['#0f9f8f', '#d45c43', '#6d5bd0', '#d89b13', '#2475b5']
 
-const safeK = computed(() => Number.isFinite(k.value) ? Math.min(5, Math.max(2, Math.round(k.value))) : 3)
-const safeSeed = computed(() => Number.isFinite(seed.value) ? Math.round(seed.value) : AI_OVERVIEW_SEEDS.kmeans)
-const result = computed(() => runKMeans(learnerClusterPoints, safeK.value, safeSeed.value, 20))
+const effectiveK = computed(() => normalizeK(k.value))
+const effectiveSeed = computed(() => normalizeSeed(seed.value, AI_OVERVIEW_SEEDS.kmeans))
+const result = computed(() => runKMeans(learnerClusterPoints, effectiveK.value, effectiveSeed.value, 20))
 const history = computed(() => result.value.history)
 const snapshot = computed(() => history.value[historyIndex.value] ?? history.value[0])
 const distance = computed(() => snapshot.value.assignments.length
@@ -48,6 +49,10 @@ function reset() {
   seed.value = AI_OVERVIEW_SEEDS.kmeans
   historyIndex.value = 0
 }
+function commitInputs() {
+  k.value = effectiveK.value
+  seed.value = effectiveSeed.value
+}
 watch([k, seed], () => { pause(); historyIndex.value = 0 })
 onBeforeUnmount(pause)
 </script>
@@ -55,11 +60,11 @@ onBeforeUnmount(pause)
 <template>
   <section class="algorithm-lab" :aria-label="copy.lab[locale as AppLocale]">
     <div class="algorithm-lab__controls">
-      <label>{{ copy.clusterCount[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ k }}
-        <input v-model.number="k" type="number" min="2" max="5" step="1">
+      <label>{{ copy.clusterCount[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ effectiveK }}
+        <input v-model.number="k" type="number" min="2" max="5" step="1" @change="commitInputs">
       </label>
-      <label>{{ copy.seed[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ seed }}
-        <input v-model.number="seed" type="number" step="1">
+      <label>{{ copy.seed[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ effectiveSeed }}
+        <input v-model.number="seed" type="number" step="1" @change="commitInputs">
       </label>
       <p aria-live="polite"><strong>{{ currentValue }}</strong></p>
       <p>{{ copy.withinGroupDistance[locale as AppLocale] }}: <strong>{{ distance.toFixed(1) }}</strong></p>

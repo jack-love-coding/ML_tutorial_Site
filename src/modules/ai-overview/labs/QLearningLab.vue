@@ -2,10 +2,11 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { AppLocale } from '../../../types/ml'
-import type { GridAction, QTable } from '../types'
-import { aiOverviewVisualCopy } from '../data/course'
+import type { GridAction, GridCell, QTable } from '../types'
+import { aiOverviewLabCopy, aiOverviewVisualCopy } from '../data/course'
 import { AI_OVERVIEW_SEEDS, qLearningEnvironment } from '../data/experiments'
 import { createSeededRandom } from '../utils/random'
+import { normalizeSeed } from '../utils/labInputs'
 import {
   Q_LEARNING_ACTIONS,
   createQTable,
@@ -13,27 +14,29 @@ import {
   runEpisode,
   selectAction,
   stateKey,
-  trainEpisodes,
+  stepQLearningSession,
 } from '../utils/qLearning'
 
 const { locale } = useI18n()
 const copy = aiOverviewVisualCopy
 const learningRate = 0.5
 const discountFactor = 0.9
-const seed = ref(AI_OVERVIEW_SEEDS.qLearning)
+const seed = ref<number>(AI_OVERVIEW_SEEDS.qLearning)
 const explorationRate = ref(0.3)
 const speed = ref(1)
 const episode = ref(0)
 const qTable = ref<QTable>(createQTable(qLearningEnvironment))
-const currentStateKey = ref(stateKey(qLearningEnvironment.start))
+const currentState = ref<GridCell>({ ...qLearningEnvironment.start })
 const cumulativeReward = ref(0)
 const playing = ref(false)
 let timer: ReturnType<typeof setInterval> | undefined
-const safeSeed = computed(() => Number.isFinite(seed.value) ? Math.round(seed.value) : AI_OVERVIEW_SEEDS.qLearning)
+let random = createSeededRandom(AI_OVERVIEW_SEEDS.qLearning)
+const effectiveSeed = computed(() => normalizeSeed(seed.value, AI_OVERVIEW_SEEDS.qLearning))
 const safeExplorationRate = computed(() => Number.isFinite(explorationRate.value) ? Math.min(1, Math.max(0, explorationRate.value)) : 0.3)
 
 const actionSymbols: Record<GridAction, string> = { up: '↑', right: '→', down: '↓', left: '←' }
 const qRows = computed(() => Object.entries(qTable.value))
+const currentStateKey = computed(() => stateKey(currentState.value))
 const currentValues = computed(() => qTable.value[currentStateKey.value] ?? qTable.value[stateKey(qLearningEnvironment.start)])
 const policy = computed(() => Object.fromEntries(qRows.value.map(([key, values]) => {
   const [row, column] = key.split(',').map(Number)
@@ -41,41 +44,36 @@ const policy = computed(() => Object.fromEntries(qRows.value.map(([key, values])
 })))
 const evaluation = computed(() => evaluateGreedyPolicy(qLearningEnvironment, qTable.value, 32))
 
-function cloneTable(table: QTable): QTable {
-  return Object.fromEntries(Object.entries(table).map(([key, values]) => [key, { ...values }]))
-}
 function pause() {
   playing.value = false
   if (timer !== undefined) clearInterval(timer)
   timer = undefined
 }
 function oneAction() {
-  const draft = cloneTable(qTable.value)
-  const result = runEpisode(qLearningEnvironment, draft, {
+  const result = stepQLearningSession({
+    environment: qLearningEnvironment,
+    currentState: currentState.value,
+    qTable: qTable.value,
     explorationRate: safeExplorationRate.value,
     learningRate,
     discountFactor,
-    random: createSeededRandom(safeSeed.value + episode.value),
-  })
-  const update = result.updates[0]
-  if (!update) return
-  qTable.value[update.stateKey][update.action] = update.newValue
-  currentStateKey.value = update.nextStateKey
-  cumulativeReward.value += update.reward
-}
-function oneEpisode() {
-  episode.value += 1
-  const result = trainEpisodes(qLearningEnvironment, {
-    episodes: episode.value,
-    seed: safeSeed.value,
-    explorationRate: safeExplorationRate.value,
-    learningRate,
-    discountFactor,
+    random,
   })
   qTable.value = result.qTable
-  const latest = result.episodes.at(-1)
-  currentStateKey.value = latest ? stateKey(latest.finalState) : stateKey(qLearningEnvironment.start)
-  cumulativeReward.value = latest?.cumulativeReward ?? 0
+  currentState.value = result.nextState
+  cumulativeReward.value += result.reward
+}
+function oneEpisode() {
+  const result = runEpisode(qLearningEnvironment, structuredClone(qTable.value), {
+    explorationRate: safeExplorationRate.value,
+    learningRate,
+    discountFactor,
+    random,
+  })
+  episode.value += 1
+  qTable.value = result.qTable
+  currentState.value = result.finalState
+  cumulativeReward.value += result.cumulativeReward
 }
 function continuousTraining() {
   if (playing.value) return pause()
@@ -86,8 +84,9 @@ function resetTraining() {
   pause()
   episode.value = 0
   qTable.value = createQTable(qLearningEnvironment)
-  currentStateKey.value = stateKey(qLearningEnvironment.start)
+  currentState.value = { ...qLearningEnvironment.start }
   cumulativeReward.value = 0
+  random = createSeededRandom(effectiveSeed.value)
 }
 function reset() {
   seed.value = AI_OVERVIEW_SEEDS.qLearning
@@ -95,6 +94,7 @@ function reset() {
   speed.value = 1
   resetTraining()
 }
+function commitSeed() { seed.value = effectiveSeed.value }
 watch(speed, () => { if (playing.value) { pause(); continuousTraining() } })
 watch([seed, explorationRate], resetTraining)
 onBeforeUnmount(pause)
@@ -103,8 +103,8 @@ onBeforeUnmount(pause)
 <template>
   <section class="q-lab" :aria-label="copy.lab[locale as AppLocale]">
     <div class="q-lab__controls">
-      <label>{{ copy.seed[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ seed }}
-        <input v-model.number="seed" type="number" step="1">
+      <label>{{ copy.seed[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ effectiveSeed }}
+        <input v-model.number="seed" type="number" step="1" @change="commitSeed">
       </label>
       <label>{{ copy.explorationRate[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ explorationRate.toFixed(2) }}
         <input v-model.number="explorationRate" type="range" min="0" max="1" step="0.05">
@@ -130,7 +130,7 @@ onBeforeUnmount(pause)
       </dl>
       <section :aria-label="copy.currentState[locale as AppLocale]" class="q-lab__values">
         <article v-for="action in Q_LEARNING_ACTIONS" :key="action">
-          <span>{{ actionSymbols[action] }} {{ action }}</span><strong>{{ currentValues[action].toFixed(2) }}</strong>
+          <span>{{ actionSymbols[action] }} {{ aiOverviewLabCopy.actions[action][locale as AppLocale] }}</span><strong>{{ currentValues[action].toFixed(2) }}</strong>
         </article>
       </section>
       <h3>{{ copy.policy[locale as AppLocale] }}</h3>
@@ -145,7 +145,7 @@ onBeforeUnmount(pause)
       </div>
       <details>
         <summary>{{ copy.fullQTable[locale as AppLocale] }}</summary>
-        <table><thead><tr><th>state</th><th v-for="action in Q_LEARNING_ACTIONS" :key="action">{{ action }}</th></tr></thead>
+        <table><thead><tr><th>{{ aiOverviewLabCopy.qTableState[locale as AppLocale] }}</th><th v-for="action in Q_LEARNING_ACTIONS" :key="action">{{ aiOverviewLabCopy.actions[action][locale as AppLocale] }}</th></tr></thead>
           <tbody><tr v-for="([key, values]) in qRows" :key="key"><th>{{ key }}</th><td v-for="action in Q_LEARNING_ACTIONS" :key="action">{{ values[action].toFixed(2) }}</td></tr></tbody>
         </table>
       </details>
