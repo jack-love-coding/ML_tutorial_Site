@@ -383,6 +383,112 @@ test('Bike Sharing artifact publication is atomic and cleans transaction files',
   }
 })
 
+test('verified publication stays committed when one backup cleanup fails', async () => {
+  const { publishSnapshotPair } = await import('../scripts/python-data-tools/fetch-bike-sharing.mjs')
+  const directory = await mkdtemp(join(tmpdir(), 'ml-atlas-cleanup-test-'))
+  const csvPath = join(directory, 'snapshot.csv')
+  const manifestPath = join(directory, 'manifest.json')
+  await writeFile(csvPath, 'prior csv')
+  await writeFile(manifestPath, 'prior manifest')
+
+  try {
+    const result = await publishSnapshotPair({
+      csvPath,
+      manifestPath,
+      csvBytes: Buffer.from('verified csv'),
+      manifestBytes: Buffer.from('verified manifest'),
+      transactionId: 'cleanup-failure',
+      remove: async (path: string, options: { force?: boolean }) => {
+        if (path === `${manifestPath}.previous.cleanup-failure`) {
+          throw new Error('simulated second backup cleanup failure')
+        }
+        return rm(path, options)
+      },
+      verify: async () => {
+        assert.equal(await readFile(csvPath, 'utf8'), 'verified csv')
+        assert.equal(await readFile(manifestPath, 'utf8'), 'verified manifest')
+      },
+    })
+
+    assert.equal(await readFile(csvPath, 'utf8'), 'verified csv')
+    assert.equal(await readFile(manifestPath, 'utf8'), 'verified manifest')
+    assert.equal(result.warnings.length, 1)
+    assert.match(result.warnings[0], /second backup cleanup failure/i)
+    assert.deepEqual((await readdir(directory)).sort(), [
+      'manifest.json',
+      'manifest.json.previous.cleanup-failure',
+      'snapshot.csv',
+    ])
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('existing updater lock rejects without touching finals or transaction artifacts', async () => {
+  const { publishSnapshotPair } = await import('../scripts/python-data-tools/fetch-bike-sharing.mjs')
+  const directory = await mkdtemp(join(tmpdir(), 'ml-atlas-lock-test-'))
+  const csvPath = join(directory, 'snapshot.csv')
+  const manifestPath = join(directory, 'manifest.json')
+  const lockPath = `${manifestPath}.lock`
+  const staleNextPath = `${csvPath}.next.stale-owner`
+  const stalePreviousPath = `${manifestPath}.previous.stale-owner`
+  await Promise.all([
+    writeFile(csvPath, 'prior csv'),
+    writeFile(manifestPath, 'prior manifest'),
+    writeFile(lockPath, 'stale-owner'),
+    writeFile(staleNextPath, 'stale next'),
+    writeFile(stalePreviousPath, 'stale previous'),
+  ])
+  const before = await Promise.all((await readdir(directory)).sort().map(async (name) => [
+    name,
+    await readFile(join(directory, name), 'utf8'),
+  ]))
+
+  try {
+    await assert.rejects(
+      publishSnapshotPair({
+        csvPath,
+        manifestPath,
+        csvBytes: Buffer.from('new csv'),
+        manifestBytes: Buffer.from('new manifest'),
+        transactionId: 'new-owner',
+      }),
+      /lock.*already exists|already in progress/i,
+    )
+    const after = await Promise.all((await readdir(directory)).sort().map(async (name) => [
+      name,
+      await readFile(join(directory, name), 'utf8'),
+    ]))
+    assert.deepEqual(after, before)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('Bike Sharing response reader enforces the compressed download limit', async () => {
+  const { readResponseBytes } = await import('../scripts/python-data-tools/fetch-bike-sharing.mjs')
+  let reads = 0
+  const chunks = [Uint8Array.from({ length: 6 }, () => 1), Uint8Array.from({ length: 3 }, () => 2)]
+  const response = {
+    headers: { get: () => null },
+    body: {
+      getReader() {
+        return {
+          async read() {
+            const value = chunks[reads]
+            reads += 1
+            return value ? { done: false, value } : { done: true, value: undefined }
+          },
+          async cancel() {},
+        }
+      },
+    },
+  }
+
+  await assert.rejects(readResponseBytes(response, 8), /exceeded.*8.*byte limit/i)
+  assert.equal(reads, 2)
+})
+
 test('Bike Sharing source record documents attribution, local runtime, and review policy', async () => {
   const source = await readFile(
     new URL('../docs/curriculum-v3/python-data-tools/sources.md', import.meta.url),
