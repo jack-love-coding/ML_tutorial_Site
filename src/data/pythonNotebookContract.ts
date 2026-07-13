@@ -37,6 +37,17 @@ export type PythonDataToolsExerciseKind =
   | 'interpret-correlation'
   | 'interactive-encoding'
 
+export type PythonDataToolsAllowedStatisticsId =
+  | 'descriptive-statistics'
+  | 'covariance'
+  | 'pearson-correlation'
+  | 'interpretation-effects'
+
+export type PythonDataToolsExcludedStatisticsId =
+  | 'confidence-intervals'
+  | 'significance-tests'
+  | 'p-values'
+
 export interface PythonDataToolsChapterContract {
   id: PythonDataToolsChapterId
   title: LocalizedCopy
@@ -55,6 +66,28 @@ export type PythonDataToolsOutputContract = {
   }
 }[PythonDataToolsOutputId]
 
+export interface PythonDataToolsStatisticsTopicContract<Id extends string> {
+  id: Id
+  label: LocalizedCopy
+  description: LocalizedCopy
+}
+
+export interface PythonDataToolsStatisticsBoundary {
+  allowed: readonly PythonDataToolsStatisticsTopicContract<PythonDataToolsAllowedStatisticsId>[]
+  correlationGuardrail: LocalizedCopy
+  excluded: readonly PythonDataToolsStatisticsTopicContract<PythonDataToolsExcludedStatisticsId>[]
+}
+
+export interface PythonDataToolsExercisePolicy {
+  immediateFeedback: true
+  scored: false
+  submitted: false
+  persistedToProgress: false
+  gatesChapter: false
+  rationale: LocalizedCopy
+  feedbackBehavior: LocalizedCopy
+}
+
 export interface PythonDataToolsContract {
   version: 'python-data-tools-v1'
   moduleId: 'python-notebook'
@@ -67,6 +100,8 @@ export interface PythonDataToolsContract {
     chapterId: PythonDataToolsChapterId
     kind: PythonDataToolsExerciseKind
   }[]
+  statisticsBoundary: PythonDataToolsStatisticsBoundary
+  exercisePolicy: PythonDataToolsExercisePolicy
   outputs: readonly PythonDataToolsOutputContract[]
   finalReport: {
     question: LocalizedCopy
@@ -146,6 +181,57 @@ export const pythonDataToolsContract = {
     { chapterId: 'seaborn-statistics', kind: 'interpret-correlation' },
     { chapterId: 'plotly-exploration', kind: 'interactive-encoding' },
   ],
+  statisticsBoundary: {
+    allowed: [
+      {
+        id: 'descriptive-statistics',
+        label: copy('描述性统计', 'Descriptive statistics'),
+        description: copy('用计数、均值、中位数和分布概括已经观察到的数据。', 'Summarize observed data with counts, means, medians, and distributions.'),
+      },
+      {
+        id: 'covariance',
+        label: copy('协方差', 'Covariance'),
+        description: copy('描述两个数值变量共同变化的方向与尺度。', 'Describe the direction and scale of joint variation between two numeric variables.'),
+      },
+      {
+        id: 'pearson-correlation',
+        label: copy('Pearson 相关系数', 'Pearson correlation'),
+        description: copy('用标准化系数描述两个数值变量的线性相关方向与强度。', 'Use a standardized coefficient to describe the direction and strength of a linear association.'),
+      },
+      {
+        id: 'interpretation-effects',
+        label: copy('影响解释的因素', 'Factors affecting interpretation'),
+        description: copy('检查缺失值、样本量和离群值如何影响统计结果的解释。', 'Examine how missing values, sample size, and outliers affect interpretation of statistical results.'),
+      },
+    ],
+    correlationGuardrail: copy('相关不代表因果；相关系数只能描述共同变化，不能证明一个变量导致另一个变量。', 'Correlation does not imply causation; a correlation coefficient describes co-variation but cannot prove that one variable causes another.'),
+    excluded: [
+      {
+        id: 'confidence-intervals',
+        label: copy('置信区间', 'Confidence intervals'),
+        description: copy('本阶段不教授置信区间或相关推断方法。', 'This stage does not teach confidence intervals or related inferential methods.'),
+      },
+      {
+        id: 'significance-tests',
+        label: copy('显著性检验', 'Significance tests'),
+        description: copy('本阶段不教授显著性检验。', 'This stage does not teach significance tests.'),
+      },
+      {
+        id: 'p-values',
+        label: copy('p 值', 'p-values'),
+        description: copy('本阶段不计算或解释 p 值。', 'This stage does not calculate or interpret p-values.'),
+      },
+    ],
+  },
+  exercisePolicy: {
+    immediateFeedback: true,
+    scored: false,
+    submitted: false,
+    persistedToProgress: false,
+    gatesChapter: false,
+    rationale: copy('这些练习用于即时形成性反馈，不计分、不提交、不写入学习进度，也不阻挡章节学习。', 'These exercises provide immediate formative feedback without scoring, submission, progress persistence, or chapter gating.'),
+    feedbackBehavior: copy('反馈解释答案背后的原因并指出相关误区，但不会转化为分数或学习进度。', 'Feedback explains the reason behind the answer and identifies the related misconception, but it never becomes a score or progress record.'),
+  },
   outputs: [
     {
       id: 'dataset-shape-schema',

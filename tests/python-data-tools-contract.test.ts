@@ -51,6 +51,32 @@ const outputIds = [
   'final-analysis-evidence',
 ] as const
 
+const allowedStatisticsIds = [
+  'descriptive-statistics',
+  'covariance',
+  'pearson-correlation',
+  'interpretation-effects',
+] as const
+
+const excludedStatisticsIds = [
+  'confidence-intervals',
+  'significance-tests',
+  'p-values',
+] as const
+
+const assertNonemptyLocalizedCopies = (value: unknown): void => {
+  if (!value || typeof value !== 'object') return
+  if ('zh-CN' in value || 'en' in value) {
+    const localized = value as { 'zh-CN'?: unknown; en?: unknown }
+    assert.equal(typeof localized['zh-CN'], 'string')
+    assert.equal(typeof localized.en, 'string')
+    assert.ok((localized['zh-CN'] as string).trim())
+    assert.ok((localized.en as string).trim())
+    return
+  }
+  for (const nested of Object.values(value)) assertNonemptyLocalizedCopies(nested)
+}
+
 const validCsv = `${BIKE_SHARING_COLUMNS.join(',')}\n1,2011-01-01,1,0,1,0,0,6,0,1,0.24,0.2879,0.81,0,3,13,16\n2,2011-01-01,1,0,1,1,0,6,0,1,0.22,0.2727,0.8,0,8,32,40\n`
 
 const validBytes = new TextEncoder().encode(validCsv)
@@ -151,6 +177,34 @@ test('contract defines stable cell roles, exercise mounts, and authoritative out
   assert.equal(new Set(pythonDataToolsContract.outputs.map(({ cellId }) => cellId)).size, pythonDataToolsOutputIds.length)
   assert.ok(pythonDataToolsContract.outputs.every(({ datasetBinding }) => datasetBinding === 'manifest:file.sha256'))
   assert.ok(pythonDataToolsContract.outputs.every(({ environmentContractVersion }) => environmentContractVersion === 'python-data-tools-v1'))
+})
+
+test('contract fixes descriptive statistics boundaries and unscored exercise behavior', () => {
+  const { statisticsBoundary, exercisePolicy } = pythonDataToolsContract
+
+  assert.deepEqual(statisticsBoundary.allowed.map(({ id }) => id), allowedStatisticsIds)
+  assert.deepEqual(statisticsBoundary.excluded.map(({ id }) => id), excludedStatisticsIds)
+  assertNonemptyLocalizedCopies(statisticsBoundary)
+  assert.match(statisticsBoundary.correlationGuardrail['zh-CN'], /相关.*不.*因果/)
+  assert.match(statisticsBoundary.correlationGuardrail.en, /correlation does not imply causation/i)
+
+  assert.deepEqual(
+    {
+      immediateFeedback: exercisePolicy.immediateFeedback,
+      scored: exercisePolicy.scored,
+      submitted: exercisePolicy.submitted,
+      persistedToProgress: exercisePolicy.persistedToProgress,
+      gatesChapter: exercisePolicy.gatesChapter,
+    },
+    {
+      immediateFeedback: true,
+      scored: false,
+      submitted: false,
+      persistedToProgress: false,
+      gatesChapter: false,
+    },
+  )
+  assertNonemptyLocalizedCopies(exercisePolicy)
 })
 
 test('Python data tools environment locks dependencies and binds the verified dataset', async () => {
