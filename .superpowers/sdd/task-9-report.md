@@ -175,3 +175,21 @@ GREEN and final evidence:
 - `npm run build:pages` — passed.
 
 The existing large-chunk advisory remains unchanged. Final 1080p posters, named keyframes, five intermediate regression-search frames, and all four Q snapshot frames were visually inspected; no clipping, overlap, missing Chinese glyph, or data mismatch was found.
+
+## Final dynamic-label audit — 2026-07-13
+
+A final RED/GREEN audit closed the remaining dynamic-string gap in bilingual label coverage.
+
+- Regression labels now include all seven fixture-derived `当前 MSE = …` renderings and every distinct best-so-far rendering produced across the seven `candidateTimeline` states. The test iterates all seven states, so repeated final-best states are checked rather than silently collapsed.
+- K-means labels now include exact mappings for `中心 1`, `中心 2`, `中心 3`, `● 第 1 组`, `● 第 2 组`, and `● 第 3 组`.
+- Static Python-string coverage remains in place, while a dedicated fixture-derived assertion now covers dynamic f-string output. Any candidate value, formatting, or group-number change must have a matching bilingual label entry.
+
+RED failed first on the expected missing `当前 MSE = 39.60`. GREEN evidence:
+
+- focused dynamic-label test: 1 passed;
+- complete Task 9 asset test: 9 passed;
+- renderer `--check`: passed after metadata-only integrity-hash refresh;
+- tracked full suite: 498 passed;
+- production build: passed with only the existing large-chunk advisory.
+
+No MP4, poster, or keyframe was rerendered because sources, fixture data, and video bytes were unchanged; only label hashes in metadata required refresh.

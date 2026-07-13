@@ -22,5 +22,16 @@
     ,{"zh-CN": "共享数据：清晰趋势 clear-trend", "en": "Shared data: clear-trend"}
     ,{"zh-CN": "平方误差  1      0      0      1      1", "en": "Squared errors  1      0      0      1      1"}
     ,{"zh-CN": "当前候选        MSE", "en": "Current candidate        MSE"}
+    ,{"zh-CN": "当前 MSE = 39.60", "en": "Current MSE = 39.60"}
+    ,{"zh-CN": "当前 MSE = 9.40", "en": "Current MSE = 9.40"}
+    ,{"zh-CN": "当前 MSE = 0.60", "en": "Current MSE = 0.60"}
+    ,{"zh-CN": "当前 MSE = 0.15", "en": "Current MSE = 0.15"}
+    ,{"zh-CN": "当前 MSE = 0.24", "en": "Current MSE = 0.24"}
+    ,{"zh-CN": "当前 MSE = 1.20", "en": "Current MSE = 1.20"}
+    ,{"zh-CN": "当前 MSE = 3.75", "en": "Current MSE = 3.75"}
+    ,{"zh-CN": "当前最佳：w=4, b=48, MSE=39.60", "en": "Current best: w=4, b=48, MSE=39.60"}
+    ,{"zh-CN": "当前最佳：w=5, b=48, MSE=9.40", "en": "Current best: w=5, b=48, MSE=9.40"}
+    ,{"zh-CN": "当前最佳：w=6, b=47, MSE=0.60", "en": "Current best: w=6, b=47, MSE=0.60"}
+    ,{"zh-CN": "当前最佳：w=6.5, b=46, MSE=0.15", "en": "Current best: w=6.5, b=46, MSE=0.15"}
   ]
 }

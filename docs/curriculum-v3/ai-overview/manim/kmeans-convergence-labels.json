@@ -19,6 +19,12 @@
     {"zh-CN": "初始中心会影响搜索路径", "en": "Initial centers affect the search path"},
     {"zh-CN": "群组含义仍需要人来解释", "en": "People still need to interpret group meaning"},
     {"zh-CN": "组内距离总和", "en": "Within-group distance total"},
-    {"zh-CN": "中心移动≈0，分配保持不变，组内距离总和=1293.5", "en": "Center movement ≈ 0, assignments stay unchanged, within-group distance total = 1293.5"}
+    {"zh-CN": "中心移动≈0，分配保持不变，组内距离总和=1293.5", "en": "Center movement ≈ 0, assignments stay unchanged, within-group distance total = 1293.5"},
+    {"zh-CN": "中心 1", "en": "Center 1"},
+    {"zh-CN": "中心 2", "en": "Center 2"},
+    {"zh-CN": "中心 3", "en": "Center 3"},
+    {"zh-CN": "● 第 1 组", "en": "● Group 1"},
+    {"zh-CN": "● 第 2 组", "en": "● Group 2"},
+    {"zh-CN": "● 第 3 组", "en": "● Group 3"}
   ]
 }

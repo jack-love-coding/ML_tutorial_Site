@@ -271,3 +271,31 @@ test('bilingual label JSON covers every embedded Chinese source string in all th
     assert.deepEqual(embedded.filter((copy) => !covered.has(copy)), [], `${scene.id} has uncovered embedded Chinese copy`)
   }
 })
+
+test('bilingual labels cover every fixture-derived regression and K-means dynamic string', () => {
+  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8')) as Metadata
+  const fixture = JSON.parse(readFileSync(absolute(metadata.fixture), 'utf8'))
+  const labelSet = (sceneId: string) => {
+    const scene = metadata.scenes.find(({ id }) => id === sceneId)!
+    const record = JSON.parse(readFileSync(absolute(scene.labels), 'utf8'))
+    return new Set((record.labels as Array<Record<'zh-CN' | 'en', string>>).map((label) => label['zh-CN']))
+  }
+
+  const regressionLabels = labelSet('linear-regression-parameter-search')
+  for (const candidate of fixture.regression.candidateTimeline as Array<{
+    mse: number
+    currentBest: { w: number; b: number; mse: number }
+  }>) {
+    const best = candidate.currentBest
+    const renderedMse = `当前 MSE = ${candidate.mse.toFixed(2)}`
+    const renderedBest = `当前最佳：w=${best.w}, b=${best.b}, MSE=${best.mse.toFixed(2)}`
+    assert.equal(regressionLabels.has(renderedMse), true, `labels must include ${renderedMse}`)
+    assert.equal(regressionLabels.has(renderedBest), true, `labels must include ${renderedBest}`)
+  }
+
+  const kmeansLabels = labelSet('kmeans-convergence')
+  for (const group of [1, 2, 3]) {
+    assert.equal(kmeansLabels.has(`中心 ${group}`), true, `labels must include 中心 ${group}`)
+    assert.equal(kmeansLabels.has(`● 第 ${group} 组`), true, `labels must include ● 第 ${group} 组`)
+  }
+})
