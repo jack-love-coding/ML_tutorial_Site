@@ -102,6 +102,10 @@ const lockedRequirements = [
   'nbformat==5.10.4',
   'jupyterlab==4.6.1',
 ]
+const lockedEnvironmentProvenance = {
+  generatedAt: '2026-07-14',
+  generatedOn: 'darwin-arm64',
+}
 
 test('planning state records shipped V3.1 slices and the ordered Python Data Tools stages', async () => {
   const [state, roadmap] = await Promise.all([
@@ -264,9 +268,9 @@ test('environment writer is deterministic and rejects invalid hashes before over
 
   try {
     await writeFile(manifestPath, `${JSON.stringify(validManifest)}\n`)
-    await writeEnvironment({ manifestPath, outputPath })
+    await writeEnvironment({ manifestPath, outputPath, ...lockedEnvironmentProvenance })
     const firstBytes = await readFile(outputPath)
-    await writeEnvironment({ manifestPath, outputPath })
+    await writeEnvironment({ manifestPath, outputPath, ...lockedEnvironmentProvenance })
     assert.deepEqual(await readFile(outputPath), firstBytes)
 
     await writeFile(manifestPath, `${JSON.stringify({
@@ -274,7 +278,7 @@ test('environment writer is deterministic and rejects invalid hashes before over
       file: { ...validManifest.file, sha256: 'INVALID' },
     })}\n`)
     await assert.rejects(
-      writeEnvironment({ manifestPath, outputPath }),
+      writeEnvironment({ manifestPath, outputPath, ...lockedEnvironmentProvenance }),
       /manifest\.file\.sha256.*64 lowercase hexadecimal/i,
     )
     assert.deepEqual(await readFile(outputPath), firstBytes)
@@ -305,14 +309,92 @@ test('environment writer reproduces the committed artifact byte for byte from th
     await writeEnvironment({
       manifestPath: new URL('manifest.json', snapshotDirectory),
       outputPath,
+      ...lockedEnvironmentProvenance,
     })
     assert.deepEqual(await readFile(outputPath), committedBytes)
 
     await writeEnvironment({
       manifestPath: new URL('manifest.json', snapshotDirectory),
       outputPath,
+      ...lockedEnvironmentProvenance,
     })
     assert.deepEqual(await readFile(outputPath), committedBytes)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('environment writer records injected UTC clock and runtime platform truthfully', async () => {
+  const { writeEnvironment } = await import('../scripts/python-data-tools/write-environment.mjs')
+  const directory = await mkdtemp(join(tmpdir(), 'ml-atlas-environment-provenance-test-'))
+  const manifestPath = join(directory, 'manifest.json')
+  const outputPath = join(directory, 'environment.json')
+  const manifest = {
+    contractVersion: 'python-data-tools-v1',
+    file: {
+      publicPath: '/datasets/python-data-tools/bike-sharing-hour.csv',
+      sha256: 'c'.repeat(64),
+    },
+  }
+
+  try {
+    await writeFile(manifestPath, `${JSON.stringify(manifest)}\n`)
+    await writeEnvironment({
+      manifestPath,
+      outputPath,
+      clock: () => new Date('2027-01-02T23:59:59.999Z'),
+      platform: 'linux',
+      arch: 'x64',
+    })
+    const environment = JSON.parse(await readFile(outputPath, 'utf8'))
+    assert.equal(environment.generatedAt, '2027-01-02')
+    assert.equal(environment.generatedOn, 'linux-x64')
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('invalid environment provenance rejects before overwriting existing output', async () => {
+  const { writeEnvironment } = await import('../scripts/python-data-tools/write-environment.mjs')
+  const directory = await mkdtemp(join(tmpdir(), 'ml-atlas-environment-provenance-validation-test-'))
+  const manifestPath = join(directory, 'manifest.json')
+  const outputPath = join(directory, 'environment.json')
+  const priorBytes = Buffer.from('reviewed V1 environment\n')
+  const manifest = {
+    contractVersion: 'python-data-tools-v1',
+    file: {
+      publicPath: '/datasets/python-data-tools/bike-sharing-hour.csv',
+      sha256: 'd'.repeat(64),
+    },
+  }
+  await Promise.all([
+    writeFile(manifestPath, `${JSON.stringify(manifest)}\n`),
+    writeFile(outputPath, priorBytes),
+  ])
+
+  try {
+    await assert.rejects(
+      writeEnvironment({
+        manifestPath,
+        outputPath,
+        generatedAt: '2027-02-29',
+        generatedOn: 'linux-x64',
+      }),
+      /generatedAt.*YYYY-MM-DD.*real UTC date/i,
+    )
+    assert.deepEqual(await readFile(outputPath), priorBytes)
+
+    await assert.rejects(
+      writeEnvironment({
+        manifestPath,
+        outputPath,
+        generatedAt: '2027-01-02',
+        generatedOn: 'Linux x64',
+      }),
+      /generatedOn.*lowercase platform-arch token/i,
+    )
+    assert.deepEqual(await readFile(outputPath), priorBytes)
+    assert.deepEqual((await readdir(directory)).sort(), ['environment.json', 'manifest.json'])
   } finally {
     await rm(directory, { recursive: true, force: true })
   }
@@ -341,6 +423,7 @@ test('environment publication preserves prior bytes and cleans its temp file whe
       writeEnvironment({
         manifestPath,
         outputPath,
+        ...lockedEnvironmentProvenance,
         fileOperations: {
           async rename() {
             throw new Error('simulated atomic rename failure')

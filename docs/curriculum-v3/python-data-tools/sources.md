@@ -25,6 +25,7 @@ The browser lesson and notebook never fetch remote data at runtime; they read on
 
 ```sh
 node scripts/python-data-tools/fetch-bike-sharing.mjs
+node scripts/python-data-tools/write-environment.mjs
 node scripts/python-data-tools/verify-bike-sharing.mjs
 ```
 
@@ -33,5 +34,9 @@ node scripts/python-data-tools/verify-bike-sharing.mjs
 The fetch tool records the actual UTC retrieval date in the candidate manifest. Every hash, schema, row-count, and invariant drift requires manual review before commit. Every date, hash, schema, or provenance change also requires a contract-version decision before commit.
 
 提交更新前必须人工审查日期、hash、schema、row count、provenance 与 invariant 的任何漂移，并决定是否更新 contract version；变化不能仅因脚本成功而自动接受。当前 V1 manifest 的 `2026-07-14` 是已审核快照的确定性来源记录。未来抓取产生不同日期时，V1 验证器会将其视为 provenance drift，维护者必须在提交前明确审查并决定合同版本。
+
+环境写入命令会记录执行时真实的 UTC 生成日期与 `${process.platform}-${process.arch}` 平台标识。当前 V1 `environment.json` 锁定的是已审核的 `2026-07-14` / `darwin-arm64` provenance；重新生成产生任何漂移时，必须人工审查并决定是否升级 contract version，不能直接提交覆盖。
+
+The environment writer records the actual UTC generation date and `${process.platform}-${process.arch}` platform identifier at execution time. Any drift from the reviewed, locked V1 `environment.json` requires a manual contract-version review before the regenerated artifact is committed.
 
 本快照没有人为注入损坏、缺失值或清洗步骤。清洗教学属于 Data Lab，应在其独立实验数据和逻辑中完成，不得污染这份可核验的官方快照。
