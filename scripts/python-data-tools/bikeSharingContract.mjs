@@ -142,11 +142,46 @@ export function parseBikeSharingCsv(source) {
   return { columns: [...BIKE_SHARING_COLUMNS], records }
 }
 
+function formatDiagnosticValue(value) {
+  if (typeof value === 'string') return JSON.stringify(value)
+  if (typeof value === 'bigint') return `${value}n`
+  if (typeof value === 'symbol') return String(value)
+  if (value === null || typeof value !== 'object') return String(value)
+
+  try {
+    const seen = new WeakSet()
+    const serialized = JSON.stringify(value, (_key, nestedValue) => {
+      if (typeof nestedValue === 'bigint') return `${nestedValue}n`
+      if (typeof nestedValue === 'symbol') return String(nestedValue)
+      if (nestedValue !== null && typeof nestedValue === 'object') {
+        if (seen.has(nestedValue)) return '[Circular]'
+        seen.add(nestedValue)
+      }
+      return nestedValue
+    })
+    return serialized ?? Object.prototype.toString.call(value)
+  } catch {
+    try {
+      return Object.prototype.toString.call(value)
+    } catch {
+      return '<unformattable value>'
+    }
+  }
+}
+
+function isDigitString(value) {
+  return typeof value === 'string' && /^\d+$/.test(value)
+}
+
 function isIntegerInRange(value, minimum, maximum = Number.POSITIVE_INFINITY) {
-  return /^\d+$/.test(value) && Number(value) >= minimum && Number(value) <= maximum
+  if (!isDigitString(value)) return false
+  const integer = BigInt(value)
+  return integer >= BigInt(minimum)
+    && (maximum === Number.POSITIVE_INFINITY || integer <= BigInt(maximum))
 }
 
 function isCalendarDate(value) {
+  if (typeof value !== 'string') return false
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
   if (!match) return false
   const year = Number(match[1])
@@ -182,40 +217,40 @@ export function validateBikeSharingRecords(records) {
     const row = index + 2
     const instant = record?.instant
     if (!isIntegerInRange(instant, 1)) {
-      issues.push(`Row ${row}, instant: expected a positive integer; observed ${JSON.stringify(instant)}`)
-    } else if (seenInstants.has(Number(instant))) {
-      issues.push(`Row ${row}, instant: duplicate value ${JSON.stringify(instant)}`)
+      issues.push(`Row ${row}, instant: expected a positive integer; observed ${formatDiagnosticValue(instant)}`)
+    } else if (seenInstants.has(BigInt(instant))) {
+      issues.push(`Row ${row}, instant: duplicate value ${formatDiagnosticValue(instant)}`)
     } else {
-      seenInstants.add(Number(instant))
+      seenInstants.add(BigInt(instant))
     }
 
     if (!isCalendarDate(record?.dteday)) {
-      issues.push(`Row ${row}, dteday: expected a valid YYYY-MM-DD calendar date; observed ${JSON.stringify(record?.dteday)}`)
+      issues.push(`Row ${row}, dteday: expected a valid YYYY-MM-DD calendar date; observed ${formatDiagnosticValue(record?.dteday)}`)
     }
 
     for (const [column, [minimum, maximum]] of Object.entries(integerRanges)) {
       const value = record?.[column]
       if (!isIntegerInRange(value, minimum, maximum)) {
-        issues.push(`Row ${row}, ${column}: expected an integer from ${minimum} to ${maximum}; observed ${JSON.stringify(value)}`)
+        issues.push(`Row ${row}, ${column}: expected an integer from ${minimum} to ${maximum}; observed ${formatDiagnosticValue(value)}`)
       }
     }
     for (const column of normalizedColumns) {
       const value = record?.[column]
-      const numeric = Number(value)
-      if (value === '' || !Number.isFinite(numeric) || numeric < 0 || numeric > 1) {
-        issues.push(`Row ${row}, ${column}: expected a finite normalized value from 0 to 1; observed ${JSON.stringify(value)}`)
+      const numeric = typeof value === 'string' && value !== '' ? Number(value) : Number.NaN
+      if (!Number.isFinite(numeric) || numeric < 0 || numeric > 1) {
+        issues.push(`Row ${row}, ${column}: expected a finite normalized value from 0 to 1; observed ${formatDiagnosticValue(value)}`)
       }
     }
     for (const column of countColumns) {
       const value = record?.[column]
       if (!isIntegerInRange(value, 0)) {
-        issues.push(`Row ${row}, ${column}: expected a nonnegative integer; observed ${JSON.stringify(value)}`)
+        issues.push(`Row ${row}, ${column}: expected a nonnegative integer; observed ${formatDiagnosticValue(value)}`)
       }
     }
     if (countColumns.every((column) => isIntegerInRange(record?.[column], 0))) {
-      const expected = Number(record.casual) + Number(record.registered)
-      if (Number(record.cnt) !== expected) {
-        issues.push(`Row ${row}, cnt: expected casual + registered = ${expected}; observed ${JSON.stringify(record.cnt)}`)
+      const expected = BigInt(record.casual) + BigInt(record.registered)
+      if (BigInt(record.cnt) !== expected) {
+        issues.push(`Row ${row}, cnt: expected casual + registered = ${expected}; observed ${formatDiagnosticValue(record.cnt)}`)
       }
     }
   })
@@ -240,7 +275,7 @@ export function verifyBikeSharingSnapshot(bytes, manifest) {
   for (const field of ['sha256', 'bytes', 'rows', 'columns']) {
     if (observed[field] !== expected[field]) {
       issues.push(
-        `Manifest file.${field} mismatch: expected ${JSON.stringify(expected[field])}, observed ${JSON.stringify(observed[field])}`,
+        `Manifest file.${field} mismatch: expected ${formatDiagnosticValue(expected[field])}, observed ${formatDiagnosticValue(observed[field])}`,
       )
     }
   }
@@ -248,7 +283,7 @@ export function verifyBikeSharingSnapshot(bytes, manifest) {
     || expected.columnOrder.length !== observed.columnOrder.length
     || expected.columnOrder.some((column, index) => column !== observed.columnOrder[index])) {
     issues.push(
-      `Manifest file.columnOrder mismatch: expected ${JSON.stringify(expected.columnOrder)}, observed ${JSON.stringify(observed.columnOrder)}`,
+      `Manifest file.columnOrder mismatch: expected ${formatDiagnosticValue(expected.columnOrder)}, observed ${formatDiagnosticValue(observed.columnOrder)}`,
     )
   }
 

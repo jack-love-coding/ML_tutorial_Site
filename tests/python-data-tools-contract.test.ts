@@ -150,6 +150,33 @@ test('Bike Sharing validation rejects non-finite and out-of-range normalized val
   assert.match(issues, /row 2.*hum.*0.*1/i)
 })
 
+test('Bike Sharing count arithmetic remains exact beyond Number safe integers', () => {
+  const { records } = parseBikeSharingCsv(validCsv)
+  const invalid = records.map((record) => ({ ...record }))
+  invalid[0].casual = '9007199254740992'
+  invalid[0].registered = '1'
+  invalid[0].cnt = '9007199254740992'
+
+  assert.match(
+    validateBikeSharingRecords(invalid).join('\n'),
+    /row 2.*cnt.*casual.*registered.*9007199254740993/i,
+  )
+})
+
+test('Bike Sharing row validation returns diagnostics for Symbol and BigInt values', () => {
+  const { records } = parseBikeSharingCsv(validCsv)
+  const malformed: Record<string, unknown>[] = records.map((record) => ({ ...record }))
+  malformed[0].temp = Symbol('not-numeric')
+  malformed[0].hr = 24n
+
+  let issues: string[] = []
+  assert.doesNotThrow(() => {
+    issues = validateBikeSharingRecords(malformed)
+  })
+  assert.match(issues.join('\n'), /row 2.*temp.*Symbol\(not-numeric\)/i)
+  assert.match(issues.join('\n'), /row 2.*hr.*24n/i)
+})
+
 test('Bike Sharing parser handles escaped quoted cells and rejects empty datasets', () => {
   const quoted = validCsv.replace('2011-01-01', '"2011-""01""-01"')
   assert.equal(parseBikeSharingCsv(quoted).records[0].dteday, '2011-"01"-01')
