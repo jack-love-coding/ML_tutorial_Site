@@ -747,7 +747,7 @@
 
 ### Python Data Tools Course Rebuild
 
-Preserve the existing `python-notebook` ID and `/learn/python-notebook` route throughout this five-stage rebuild. This boundary excludes data cleaning, model training, Pyodide, and backend work.
+This rebuild preserves the existing `python-notebook` ID and `/learn/python-notebook` route throughout all five stages. Stage 1 excludes data cleaning, model training, Pyodide, and backend work.
 
 1. **Data and execution contract** — Current — verified UCI snapshot, typed chapter/output contract, environment pins, offline validation; no runtime lesson changes.
 2. **Eight-chapter Chinese master** — Planned — complete Chinese teaching flow Notebook/NumPy/Pandas/Matplotlib/Seaborn/Plotly/final report.

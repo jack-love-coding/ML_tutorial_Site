@@ -1,14 +1,14 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-14
-**Status:** Curriculum V3.0 blueprint and 53-module content audit completed; V3.1 AI Overview rebuild and Math-to-Code pilot are completed slices; Python Data Tools Stage 1 is current. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild and Math-to-Code pilot are completed slices; Python Data Tools Stage 1 is current. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Establish the Python Data Tools data/execution contract without changing the current `python-notebook` runtime lesson, route, checkpoints, or progress.
+**Current focus:** Establish the Python Data Tools data and execution contract without changing the current `python-notebook` runtime lesson, route, checkpoints, or progress behavior.
 
 ## Baseline
 
@@ -676,10 +676,10 @@ See `.planning/codebase/`:
 ### Curriculum V3.1 - Completed Slices and Current Python Data Tools Work
 
 - Completed the AI Overview rebuild and Math-to-Code pilot as independently verified V3.1 slices; they do not complete V3.1 as a whole.
-- Python Data Tools Stage 1 is current pending final acceptance; Stages 2-5 remain planned.
+- Python Data Tools Stage 1 is current and pending final acceptance; Stages 2-5 remain planned.
 - Stage 1 is limited to the verified dataset snapshot, typed chapter/output contract, exact environment pins, and offline validation. The current runtime lesson content remains unchanged.
 - Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Next Recommended Command
 
-Complete and review Python Data Tools Stage 1; keep Stages 2-5 and Phase 24B/24C out of the Stage 1 diff.
+Complete and review Python Data Tools Stage 1 against its accepted data and execution contract. Keep Stages 2–5, Phase 24B Homepage Focus, and Phase 24C Spine progressive disclosure out of the Stage 1 diff.
