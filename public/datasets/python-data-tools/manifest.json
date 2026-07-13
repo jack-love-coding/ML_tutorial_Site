@@ -1,0 +1,46 @@
+{
+  "contractVersion": "python-data-tools-v1",
+  "dataset": {
+    "name": "Bike Sharing Dataset",
+    "repository": "UCI Machine Learning Repository",
+    "page": "https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset",
+    "download": "https://archive.ics.uci.edu/static/public/275/bike+sharing+dataset.zip",
+    "doi": "10.24432/C5W894",
+    "license": {
+      "id": "CC-BY-4.0",
+      "name": "Creative Commons Attribution 4.0 International",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    "retrievedAt": "2026-07-14"
+  },
+  "dictionaryVersion": "bike-sharing-hour-v1",
+  "file": {
+    "upstreamName": "hour.csv",
+    "publicPath": "/datasets/python-data-tools/bike-sharing-hour.csv",
+    "encoding": "utf-8",
+    "delimiter": "comma",
+    "sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+    "bytes": 1156736,
+    "rows": 17379,
+    "columns": 17,
+    "columnOrder": [
+      "instant",
+      "dteday",
+      "season",
+      "yr",
+      "mnth",
+      "hr",
+      "holiday",
+      "weekday",
+      "workingday",
+      "weathersit",
+      "temp",
+      "atemp",
+      "hum",
+      "windspeed",
+      "casual",
+      "registered",
+      "cnt"
+    ]
+  }
+}

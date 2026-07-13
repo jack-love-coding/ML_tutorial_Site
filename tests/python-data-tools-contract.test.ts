@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import { registerHooks } from 'node:module'
 import { algorithmCheckpointsBySlug } from '../src/data/algorithmCheckpoints.ts'
 import {
@@ -51,6 +52,7 @@ const outputIds = [
 const validCsv = `${BIKE_SHARING_COLUMNS.join(',')}\n1,2011-01-01,1,0,1,0,0,6,0,1,0.24,0.2879,0.81,0,3,13,16\n2,2011-01-01,1,0,1,1,0,6,0,1,0.22,0.2727,0.8,0,8,32,40\n`
 
 const validBytes = new TextEncoder().encode(validCsv)
+const snapshotDirectory = new URL('../public/datasets/python-data-tools/', import.meta.url)
 
 test('Python data tools contract fixes the eight-chapter bilingual course order', () => {
   assert.equal(pythonDataToolsContract.moduleId, 'python-notebook')
@@ -223,4 +225,103 @@ test('Bike Sharing snapshot verification reports hashes and manifest mismatches'
     () => verifyBikeSharingSnapshot(Uint8Array.from([0xc3, 0x28]), { file: {} }),
     /encoded data was not valid|utf-8/i,
   )
+})
+
+test('committed Bike Sharing snapshot and manifest match the verified official bytes', async () => {
+  const [bytes, manifestSource] = await Promise.all([
+    readFile(new URL('bike-sharing-hour.csv', snapshotDirectory)),
+    readFile(new URL('manifest.json', snapshotDirectory), 'utf8'),
+  ])
+  const manifest = JSON.parse(manifestSource)
+  const result = verifyBikeSharingSnapshot(bytes, manifest)
+
+  assert.deepEqual(result.issues, [])
+  assert.equal(manifest.contractVersion, 'python-data-tools-v1')
+  assert.equal(manifest.dataset.doi, '10.24432/C5W894')
+  assert.equal(manifest.dataset.license.id, 'CC-BY-4.0')
+  assert.equal(manifest.file.upstreamName, 'hour.csv')
+  assert.equal(manifest.file.publicPath, '/datasets/python-data-tools/bike-sharing-hour.csv')
+  assert.equal(manifest.file.encoding, 'utf-8')
+  assert.equal(manifest.file.delimiter, 'comma')
+  assert.equal(manifest.file.rows, result.observed.rows)
+  assert.equal(manifest.file.bytes, bytes.byteLength)
+  assert.equal(manifest.file.columns, BIKE_SHARING_COLUMNS.length)
+  assert.deepEqual(manifest.file.columnOrder, BIKE_SHARING_COLUMNS)
+  assert.ok(manifest.file.rows > 0)
+  assert.match(manifest.file.sha256, /^[a-f0-9]{64}$/)
+  assert.doesNotMatch(manifest.file.publicPath, /^https?:/)
+})
+
+test('Bike Sharing data dictionary preserves the exact schema and semantics', async () => {
+  const dictionary = JSON.parse(
+    await readFile(new URL('data-dictionary.json', snapshotDirectory), 'utf8'),
+  )
+  const acceptedRoles = new Set([
+    'identifier-time',
+    'calendar-category',
+    'weather-category',
+    'normalized-continuous',
+    'count',
+  ])
+
+  assert.equal(dictionary.version, 'bike-sharing-hour-v1')
+  assert.deepEqual(dictionary.fields.map(({ name }: { name: string }) => name), BIKE_SHARING_COLUMNS)
+  assert.equal(dictionary.fields.length, 17)
+  for (const field of dictionary.fields) {
+    assert.ok(field.name)
+    assert.ok(field.label['zh-CN'].trim())
+    assert.ok(field.label.en.trim())
+    assert.ok(field.description['zh-CN'].trim())
+    assert.ok(field.description.en.trim())
+    assert.ok(field.type)
+    assert.ok(acceptedRoles.has(field.role), `unexpected role for ${field.name}: ${field.role}`)
+    assert.ok(field.range || field.categories || field.relationship, `missing constraints for ${field.name}`)
+  }
+
+  const byName = Object.fromEntries(dictionary.fields.map((field: { name: string }) => [field.name, field]))
+  assert.equal(byName.temp.normalization, 'celsius / 41')
+  assert.equal(byName.atemp.normalization, 'apparent celsius / 50')
+  assert.equal(byName.hum.normalization, 'relative humidity / 100')
+  assert.equal(byName.windspeed.normalization, 'wind speed / 67')
+  assert.equal(byName.cnt.relationship, 'cnt = casual + registered')
+  assert.deepEqual(byName.season.categories, { 1: 'spring', 2: 'summer', 3: 'fall', 4: 'winter' })
+  assert.deepEqual(byName.yr.categories, { 0: '2011', 1: '2012' })
+  assert.deepEqual(byName.weekday.categories, {
+    0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday',
+    4: 'Thursday', 5: 'Friday', 6: 'Saturday',
+  })
+  assert.deepEqual(byName.weathersit.categories, {
+    1: 'clear/few/partly cloudy',
+    2: 'mist/cloudy',
+    3: 'light snow/rain with thunderstorm/scattered clouds',
+    4: 'heavy rain/ice pellets/thunderstorm/mist/snow',
+  })
+  assert.deepEqual(byName.holiday.categories, { 0: 'no', 1: 'yes' })
+  assert.deepEqual(byName.workingday.categories, {
+    0: 'weekend or holiday',
+    1: 'neither weekend nor holiday',
+  })
+})
+
+test('Bike Sharing source record documents attribution, local runtime, and review policy', async () => {
+  const source = await readFile(
+    new URL('../docs/curriculum-v3/python-data-tools/sources.md', import.meta.url),
+    'utf8',
+  )
+
+  for (const required of [
+    'UCI Machine Learning Repository',
+    '10.24432/C5W894',
+    'CC BY 4.0',
+    'hour.csv',
+    'node scripts/python-data-tools/fetch-bike-sharing.mjs',
+    'node scripts/python-data-tools/verify-bike-sharing.mjs',
+  ]) {
+    assert.match(source, new RegExp(required.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  }
+  assert.match(source, /浏览器.*不.*远程|不.*运行时.*远程/s)
+  assert.match(source, /browser.*never fetch.*remote.*runtime/i)
+  assert.match(source, /本地.*不可变.*快照|不可变.*本地.*快照/s)
+  assert.match(source, /local immutable snapshot/i)
+  assert.match(source, /hash.*schema.*row.*invariant.*manual review/is)
 })

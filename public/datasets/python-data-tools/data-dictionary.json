@@ -1,0 +1,151 @@
+{
+  "version": "bike-sharing-hour-v1",
+  "fields": [
+    {
+      "name": "instant",
+      "label": { "zh-CN": "记录编号", "en": "Record index" },
+      "description": { "zh-CN": "每条小时观测的唯一递增编号。", "en": "Unique increasing identifier for each hourly observation." },
+      "type": "integer",
+      "role": "identifier-time",
+      "range": { "minimum": 1 }
+    },
+    {
+      "name": "dteday",
+      "label": { "zh-CN": "日期", "en": "Date" },
+      "description": { "zh-CN": "观测所属的公历日期，格式为 YYYY-MM-DD。", "en": "Calendar date of the observation in YYYY-MM-DD format." },
+      "type": "date",
+      "role": "identifier-time",
+      "range": { "minimum": "2011-01-01", "maximum": "2012-12-31" }
+    },
+    {
+      "name": "season",
+      "label": { "zh-CN": "季节", "en": "Season" },
+      "description": { "zh-CN": "观测日期所在的季节编码。", "en": "Encoded season containing the observation date." },
+      "type": "integer-category",
+      "role": "calendar-category",
+      "categories": { "1": "spring", "2": "summer", "3": "fall", "4": "winter" }
+    },
+    {
+      "name": "yr",
+      "label": { "zh-CN": "年份", "en": "Year" },
+      "description": { "zh-CN": "两年采样期的年份编码。", "en": "Year code within the two-year collection period." },
+      "type": "integer-category",
+      "role": "calendar-category",
+      "categories": { "0": "2011", "1": "2012" }
+    },
+    {
+      "name": "mnth",
+      "label": { "zh-CN": "月份", "en": "Month" },
+      "description": { "zh-CN": "公历月份，1 表示一月，12 表示十二月。", "en": "Calendar month, from 1 for January through 12 for December." },
+      "type": "integer-category",
+      "role": "calendar-category",
+      "range": { "minimum": 1, "maximum": 12 }
+    },
+    {
+      "name": "hr",
+      "label": { "zh-CN": "小时", "en": "Hour" },
+      "description": { "zh-CN": "一天中的小时，采用 0 至 23 的 24 小时制。", "en": "Hour of day on a 24-hour clock, from 0 through 23." },
+      "type": "integer-category",
+      "role": "calendar-category",
+      "range": { "minimum": 0, "maximum": 23 }
+    },
+    {
+      "name": "holiday",
+      "label": { "zh-CN": "节假日", "en": "Holiday" },
+      "description": { "zh-CN": "该日期是否被标记为节假日。", "en": "Whether the date is marked as a holiday." },
+      "type": "binary-category",
+      "role": "calendar-category",
+      "categories": { "0": "no", "1": "yes" }
+    },
+    {
+      "name": "weekday",
+      "label": { "zh-CN": "星期", "en": "Weekday" },
+      "description": { "zh-CN": "星期编码，从 0（星期日）到 6（星期六）。", "en": "Day-of-week code from 0 (Sunday) through 6 (Saturday)." },
+      "type": "integer-category",
+      "role": "calendar-category",
+      "categories": { "0": "Sunday", "1": "Monday", "2": "Tuesday", "3": "Wednesday", "4": "Thursday", "5": "Friday", "6": "Saturday" }
+    },
+    {
+      "name": "workingday",
+      "label": { "zh-CN": "工作日", "en": "Working day" },
+      "description": { "zh-CN": "仅当日期既不是周末也不是节假日时为 1。", "en": "Equals 1 only when the date is neither a weekend nor a holiday." },
+      "type": "binary-category",
+      "role": "calendar-category",
+      "categories": { "0": "weekend or holiday", "1": "neither weekend nor holiday" }
+    },
+    {
+      "name": "weathersit",
+      "label": { "zh-CN": "天气状况", "en": "Weather situation" },
+      "description": { "zh-CN": "从晴朗到恶劣降水的分级天气编码。", "en": "Ordinal weather code ranging from clear conditions to severe precipitation." },
+      "type": "integer-category",
+      "role": "weather-category",
+      "categories": {
+        "1": "clear/few/partly cloudy",
+        "2": "mist/cloudy",
+        "3": "light snow/rain with thunderstorm/scattered clouds",
+        "4": "heavy rain/ice pellets/thunderstorm/mist/snow"
+      }
+    },
+    {
+      "name": "temp",
+      "label": { "zh-CN": "归一化气温", "en": "Normalized temperature" },
+      "description": { "zh-CN": "摄氏气温除以 41 后的归一化值。", "en": "Normalized air temperature computed from degrees Celsius." },
+      "type": "number",
+      "role": "normalized-continuous",
+      "range": { "minimum": 0, "maximum": 1 },
+      "normalization": "celsius / 41"
+    },
+    {
+      "name": "atemp",
+      "label": { "zh-CN": "归一化体感温度", "en": "Normalized apparent temperature" },
+      "description": { "zh-CN": "摄氏体感温度除以 50 后的归一化值。", "en": "Normalized apparent temperature computed from apparent degrees Celsius." },
+      "type": "number",
+      "role": "normalized-continuous",
+      "range": { "minimum": 0, "maximum": 1 },
+      "normalization": "apparent celsius / 50"
+    },
+    {
+      "name": "hum",
+      "label": { "zh-CN": "归一化相对湿度", "en": "Normalized relative humidity" },
+      "description": { "zh-CN": "相对湿度百分数除以 100 后的归一化值。", "en": "Normalized relative humidity computed from the percentage value." },
+      "type": "number",
+      "role": "normalized-continuous",
+      "range": { "minimum": 0, "maximum": 1 },
+      "normalization": "relative humidity / 100"
+    },
+    {
+      "name": "windspeed",
+      "label": { "zh-CN": "归一化风速", "en": "Normalized wind speed" },
+      "description": { "zh-CN": "风速除以 67 后的归一化值。", "en": "Normalized wind speed computed from the original wind-speed value." },
+      "type": "number",
+      "role": "normalized-continuous",
+      "range": { "minimum": 0, "maximum": 1 },
+      "normalization": "wind speed / 67"
+    },
+    {
+      "name": "casual",
+      "label": { "zh-CN": "临时用户租车数", "en": "Casual rider count" },
+      "description": { "zh-CN": "该小时未注册用户的租车次数。", "en": "Number of rentals by unregistered users during the hour." },
+      "type": "integer",
+      "role": "count",
+      "range": { "minimum": 0 }
+    },
+    {
+      "name": "registered",
+      "label": { "zh-CN": "注册用户租车数", "en": "Registered rider count" },
+      "description": { "zh-CN": "该小时注册用户的租车次数。", "en": "Number of rentals by registered users during the hour." },
+      "type": "integer",
+      "role": "count",
+      "range": { "minimum": 0 }
+    },
+    {
+      "name": "cnt",
+      "label": { "zh-CN": "总租车数", "en": "Total rental count" },
+      "description": { "zh-CN": "该小时临时用户与注册用户租车次数之和。", "en": "Total hourly rentals, equal to casual plus registered rentals." },
+      "type": "integer",
+      "role": "count",
+      "range": { "minimum": 0 },
+      "relationship": "cnt = casual + registered"
+    }
+  ]
+}
