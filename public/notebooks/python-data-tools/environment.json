@@ -1,0 +1,29 @@
+{
+  "contractVersion": "python-data-tools-v1",
+  "python": "3.12.13",
+  "generatedAt": "2026-07-14",
+  "generatedOn": "darwin-arm64",
+  "dataset": {
+    "publicPath": "/datasets/python-data-tools/bike-sharing-hour.csv",
+    "sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f"
+  },
+  "execution": {
+    "cleanKernel": true,
+    "runOrder": "top-to-bottom",
+    "networkAccess": false,
+    "hiddenState": false,
+    "randomSeedRequired": true,
+    "hiddenSampling": false,
+    "numericJson": "finite-only",
+    "cellRoles": [
+      "question",
+      "setup",
+      "data",
+      "compute",
+      "visualize",
+      "interpret",
+      "limit",
+      "handoff"
+    ]
+  }
+}

@@ -55,6 +55,17 @@ const validCsv = `${BIKE_SHARING_COLUMNS.join(',')}\n1,2011-01-01,1,0,1,0,0,6,0,
 
 const validBytes = new TextEncoder().encode(validCsv)
 const snapshotDirectory = new URL('../public/datasets/python-data-tools/', import.meta.url)
+const notebookEnvironmentDirectory = new URL('../public/notebooks/python-data-tools/', import.meta.url)
+
+const lockedRequirements = [
+  'numpy==2.4.6',
+  'pandas==3.0.3',
+  'matplotlib==3.10.9',
+  'seaborn==0.13.2',
+  'plotly==6.9.0',
+  'nbformat==5.10.4',
+  'jupyterlab==4.6.1',
+]
 
 test('Python data tools contract fixes the eight-chapter bilingual course order', () => {
   assert.equal(pythonDataToolsContract.moduleId, 'python-notebook')
@@ -89,6 +100,84 @@ test('contract defines stable cell roles, exercise mounts, and authoritative out
   assert.equal(new Set(pythonDataToolsContract.outputs.map(({ cellId }) => cellId)).size, pythonDataToolsOutputIds.length)
   assert.ok(pythonDataToolsContract.outputs.every(({ datasetBinding }) => datasetBinding === 'manifest:file.sha256'))
   assert.ok(pythonDataToolsContract.outputs.every(({ environmentContractVersion }) => environmentContractVersion === 'python-data-tools-v1'))
+})
+
+test('Python data tools environment locks dependencies and binds the verified dataset', async () => {
+  const [requirementsSource, environmentSource, manifestSource] = await Promise.all([
+    readFile(new URL('requirements.txt', notebookEnvironmentDirectory), 'utf8'),
+    readFile(new URL('environment.json', notebookEnvironmentDirectory), 'utf8'),
+    readFile(new URL('manifest.json', snapshotDirectory), 'utf8'),
+  ])
+  const environment = JSON.parse(environmentSource)
+  const manifest = JSON.parse(manifestSource)
+
+  assert.equal(requirementsSource, `${lockedRequirements.join('\n')}\n`)
+  assert.deepEqual(environment, {
+    contractVersion: 'python-data-tools-v1',
+    python: '3.12.13',
+    generatedAt: '2026-07-14',
+    generatedOn: 'darwin-arm64',
+    dataset: {
+      publicPath: manifest.file.publicPath,
+      sha256: manifest.file.sha256,
+    },
+    execution: {
+      cleanKernel: true,
+      runOrder: 'top-to-bottom',
+      networkAccess: false,
+      hiddenState: false,
+      randomSeedRequired: true,
+      hiddenSampling: false,
+      numericJson: 'finite-only',
+      cellRoles: pythonDataToolsContract.cellRoles,
+    },
+  })
+})
+
+test('environment writer is deterministic and rejects invalid hashes before overwriting', async () => {
+  const { buildEnvironment, writeEnvironment } = await import('../scripts/python-data-tools/write-environment.mjs')
+  const directory = await mkdtemp(join(tmpdir(), 'ml-atlas-environment-test-'))
+  const manifestPath = join(directory, 'manifest.json')
+  const outputPath = join(directory, 'environment.json')
+  const validManifest = {
+    contractVersion: 'python-data-tools-v1',
+    file: {
+      publicPath: '/datasets/python-data-tools/bike-sharing-hour.csv',
+      sha256: 'a'.repeat(64),
+    },
+  }
+
+  try {
+    await writeFile(manifestPath, `${JSON.stringify(validManifest)}\n`)
+    await writeEnvironment({ manifestPath, outputPath })
+    const firstBytes = await readFile(outputPath)
+    await writeEnvironment({ manifestPath, outputPath })
+    assert.deepEqual(await readFile(outputPath), firstBytes)
+
+    await writeFile(manifestPath, `${JSON.stringify({
+      ...validManifest,
+      file: { ...validManifest.file, sha256: 'INVALID' },
+    })}\n`)
+    await assert.rejects(
+      writeEnvironment({ manifestPath, outputPath }),
+      /manifest\.file\.sha256.*64 lowercase hexadecimal/i,
+    )
+    assert.deepEqual(await readFile(outputPath), firstBytes)
+
+    assert.throws(
+      () => buildEnvironment({ ...validManifest, contractVersion: 'python-data-tools-v2' }),
+      /contractVersion.*python-data-tools-v1/i,
+    )
+    assert.throws(
+      () => buildEnvironment({
+        ...validManifest,
+        file: { ...validManifest.file, publicPath: 'https://example.com/hour.csv' },
+      }),
+      /manifest\.file\.publicPath.*absolute local public path/i,
+    )
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
 })
 
 test('phase 1 preserves the existing runtime lesson and checkpoint boundary', () => {
