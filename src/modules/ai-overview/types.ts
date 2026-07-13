@@ -75,7 +75,17 @@ export type KMeansState = {
 export type GridAction = 'up' | 'right' | 'down' | 'left'
 export type GridCell = { row: number; column: number }
 export type QTable = Record<string, Record<GridAction, number>>
-export type QUpdate = { stateKey: string; action: GridAction; reward: number; nextStateKey: string; oldValue: number; target: number; newValue: number }
+export type QUpdate = {
+  stateKey: string
+  action: GridAction
+  reward: number
+  nextStateKey: string
+  oldValue: number
+  nextBestValue: number
+  target: number
+  correction: number
+  newValue: number
+}
 export type QLearningEnvironment = { width: 4; height: 4; start: GridCell; goal: GridCell; obstacles: GridCell[]; goalReward: 10; stepReward: -1; collisionReward: -3 }
 export type QLearningState = {
   environment: QLearningEnvironment

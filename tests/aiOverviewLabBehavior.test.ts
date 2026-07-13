@@ -33,7 +33,8 @@ test('static Q one-update frame exposes one finite deterministic update, not an 
   for (const value of Object.values(frame).filter((item): item is number => typeof item === 'number')) {
     assert.equal(Number.isFinite(value), true)
   }
-  assert.equal(frame.correction, frame.target - frame.oldQ)
+  assert.equal(frame.target, frame.reward + 0.9 * frame.nextBest)
+  assert.equal(frame.correction, frame.newQ - frame.oldQ)
 })
 
 test('all focused lab copy is recursively complete in both locales', () => {

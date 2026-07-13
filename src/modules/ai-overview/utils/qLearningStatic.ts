@@ -14,14 +14,13 @@ export type StaticQUpdateFrame = {
 }
 
 export function buildStaticQUpdateFrame(): StaticQUpdateFrame {
-  const discountFactor = 0.9
   const result = stepQLearningSession({
     environment: qLearningEnvironment,
     currentState: qLearningEnvironment.start,
     qTable: createQTable(qLearningEnvironment),
     explorationRate: 0.3,
     learningRate: 0.5,
-    discountFactor,
+    discountFactor: 0.9,
     random: createSeededRandom(AI_OVERVIEW_SEEDS.qLearning),
   })
   const { update } = result
@@ -30,9 +29,9 @@ export function buildStaticQUpdateFrame(): StaticQUpdateFrame {
     action: update.action,
     oldQ: update.oldValue,
     reward: update.reward,
-    nextBest: (update.target - update.reward) / discountFactor,
+    nextBest: update.nextBestValue,
     target: update.target,
-    correction: update.target - update.oldValue,
+    correction: update.correction,
     newQ: update.newValue,
   }
   if (Object.values(frame).some((value) => typeof value === 'number' && !Number.isFinite(value))) {

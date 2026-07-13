@@ -129,7 +129,7 @@ test('AI Overview interaction protocols mount only on real algorithm labs and na
   for (const token of [
     'preset', 'w', 'b', 'MSE', 'prediction', 'residual', 'current best',
     'K', 'seed', 'phase', 'within-group distance',
-    'exploration', 'state', 'action', 'reward', 'Q', 'policy',
+    'exploration', 'state', 'action', 'old Q value', 'reward', 'next-state max', 'target', 'correction', 'new Q value', 'policy',
   ]) assert.match(copy, new RegExp(token, 'i'))
   assert.doesNotMatch(copy, /scenario-card|highlighted task card|高亮任务卡|任务场景卡/i)
   assert.doesNotMatch(copy, /backend|upload|submit|submission|acceptance|grade|score|passed/i)

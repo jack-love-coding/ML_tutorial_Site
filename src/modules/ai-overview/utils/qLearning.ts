@@ -27,7 +27,9 @@ type QValueUpdateInput = {
 
 type QValueUpdateResult = {
   oldValue: number
+  nextBestValue: number
   target: number
+  correction: number
   newValue: number
 }
 
@@ -227,11 +229,12 @@ export function updateQValue(input: QValueUpdateInput): QValueUpdateResult {
   const discountedNextValue = discountFactor * nextBestValue
   requireFinite(discountedNextValue, 'discounted next-state value')
   const target = checkedSum(reward, discountedNextValue, 'target')
-  const correction = learningRate * (target - oldValue)
+  const rawCorrection = learningRate * (target - oldValue)
+  const correction = rawCorrection === 0 ? 0 : rawCorrection
   requireFinite(correction, 'Q-value correction')
   const newValue = checkedSum(oldValue, correction, 'newValue')
 
-  return { oldValue, target, newValue }
+  return { oldValue, nextBestValue, target, correction, newValue }
 }
 
 export function selectAction(

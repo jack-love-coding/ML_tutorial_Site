@@ -24,7 +24,13 @@ test('Q update uses reward plus discounted next-state value', () => {
     discountFactor: 0.9,
   })
 
-  assert.deepEqual(update, { oldValue: 0, target: 2.6, newValue: 1.3 })
+  assert.deepEqual(update, {
+    oldValue: 0,
+    nextBestValue: 4,
+    target: 2.6,
+    correction: 1.3,
+    newValue: 1.3,
+  })
 })
 
 test('environment rewards goal, step, and obstacle collision exactly', () => {
@@ -151,8 +157,8 @@ test('rates clamp only after rejecting non-finite numbers', () => {
   const low = updateQValue({ oldValue: 2, reward: 1, nextBestValue: 3, learningRate: -4, discountFactor: -2 })
   const high = updateQValue({ oldValue: 0, reward: 1, nextBestValue: 3, learningRate: 4, discountFactor: 2 })
 
-  assert.deepEqual(low, { oldValue: 2, target: 1, newValue: 2 })
-  assert.deepEqual(high, { oldValue: 0, target: 4, newValue: 4 })
+  assert.deepEqual(low, { oldValue: 2, nextBestValue: 3, target: 1, correction: 0, newValue: 2 })
+  assert.deepEqual(high, { oldValue: 0, nextBestValue: 3, target: 4, correction: 4, newValue: 4 })
   assert.throws(
     () => updateQValue({ oldValue: 0, reward: 0, nextBestValue: 0, learningRate: Number.NaN, discountFactor: 0.9 }),
     /finite/,
@@ -215,6 +221,28 @@ test('two session actions continue from the displayed cell without mutating prio
   assert.equal(initial['3,0'].right, 0)
   assert.equal(first.qTable['3,0'].right, -0.5)
   assert.equal(second.qTable['3,0'].right, -0.5)
+})
+
+test('session updates expose every finite desktop teaching term from the shared engine', () => {
+  const result = stepQLearningSession({
+    environment: qLearningEnvironment,
+    currentState: qLearningEnvironment.start,
+    qTable: createQTable(qLearningEnvironment),
+    explorationRate: 0.3,
+    learningRate: 0.5,
+    discountFactor: 0.9,
+    random: () => 0.99,
+  })
+
+  assert.deepEqual(Object.keys(result.update), [
+    'stateKey', 'action', 'reward', 'nextStateKey',
+    'oldValue', 'nextBestValue', 'target', 'correction', 'newValue',
+  ])
+  for (const term of ['oldValue', 'reward', 'nextBestValue', 'target', 'correction', 'newValue'] as const) {
+    assert.equal(Number.isFinite(result.update[term]), true, `${term} must be finite`)
+  }
+  assert.equal(result.update.target, result.update.reward + 0.9 * result.update.nextBestValue)
+  assert.equal(result.update.correction, result.update.newValue - result.update.oldValue)
 })
 
 test('episode training starts at the environment start and preserves existing learned values', () => {

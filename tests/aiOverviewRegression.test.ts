@@ -1,12 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {
+import * as regression from '../src/modules/ai-overview/utils/regression.ts'
+import { createSeededRandom } from '../src/modules/ai-overview/utils/random.ts'
+
+const {
   meanSquaredError,
   predict,
   rankRegressionCandidates,
   regressionRows,
-} from '../src/modules/ai-overview/utils/regression.ts'
-import { createSeededRandom } from '../src/modules/ai-overview/utils/random.ts'
+} = regression
 
 const samples = [
   { id: 'a', x: 1, y: 3 },
@@ -87,6 +89,54 @@ test('equal-MSE candidate ranking preserves input order', () => {
     rankRegressionCandidates(samples, tiedCandidates).map(({ w, b }) => ({ w, b })),
     tiedCandidates,
   )
+})
+
+test('manual regression candidates enter auditable history and can become current best', () => {
+  assert.equal(typeof regression.initializeRegressionSearch, 'function')
+  assert.equal(typeof regression.recordRegressionCandidate, 'function')
+  const initial = regression.initializeRegressionSearch(samples, [{ w: 0, b: 0 }, { w: 1, b: 0 }])
+  const improved = regression.recordRegressionCandidate(initial, samples, { w: 2, b: 1 }, 'manual')
+  const worsened = regression.recordRegressionCandidate(improved, samples, { w: 0, b: 0 }, 'manual')
+
+  assert.deepEqual(improved.current, improved.best)
+  assert.ok(worsened.best.mse <= worsened.current.mse)
+  assert.deepEqual(worsened.history.map((visit) => visit.source), ['initial', 'manual', 'manual'])
+  assert.deepEqual(worsened.history.map((visit) => visit.sequence), [1, 2, 3])
+})
+
+test('initializing a different regression preset creates an isolated synchronized history', () => {
+  assert.equal(typeof regression.initializeRegressionSearch, 'function')
+  const first = regression.initializeRegressionSearch(samples, [{ w: 0, b: 0 }, { w: 2, b: 1 }])
+  const changedSamples = samples.map((sample) => ({ ...sample, y: sample.y + 10 }))
+  const second = regression.initializeRegressionSearch(changedSamples, [{ w: 0, b: 10 }, { w: 2, b: 11 }])
+
+  assert.equal(second.cursor, 1)
+  assert.equal(second.history.length, 1)
+  assert.deepEqual(second.current, second.best)
+  assert.deepEqual(second.history[0], second.current)
+  assert.notDeepEqual(second.history, first.history)
+})
+
+test('candidate steps append one deterministic visit at a time', () => {
+  assert.equal(typeof regression.initializeRegressionSearch, 'function')
+  assert.equal(typeof regression.stepRegressionSearch, 'function')
+  const candidates = [{ w: 0, b: 0 }, { w: 1, b: 0 }, { w: 2, b: 1 }]
+  const run = () => {
+    let state = regression.initializeRegressionSearch(samples, candidates)
+    while (state.cursor < state.path.length) state = regression.stepRegressionSearch(state, samples)
+    return state
+  }
+  const first = run()
+  const replay = run()
+
+  assert.deepEqual(replay, first)
+  assert.equal(first.history.length, candidates.length)
+  assert.deepEqual(first.history.map((visit) => visit.source), ['initial', 'path', 'path'])
+  assert.deepEqual(
+    first.history.map(({ w, b }) => ({ w, b })),
+    first.path.map(({ w, b }) => ({ w, b })),
+  )
+  assert.ok(first.best.mse <= first.current.mse)
 })
 
 test('seeded random generators reproduce the same sequence and require integer seeds', () => {

@@ -3,32 +3,36 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { AppLocale } from '../../../types/ml'
 import type { RegressionPresetId } from '../types'
-import { aiOverviewVisualCopy, regressionClassificationRows } from '../data/course'
+import { aiOverviewLabCopy, aiOverviewVisualCopy, regressionClassificationRows } from '../data/course'
 import { regressionCandidates, regressionPresets } from '../data/experiments'
-import { meanSquaredError, predict, rankRegressionCandidates, regressionRows } from '../utils/regression'
+import {
+  initializeRegressionSearch,
+  predict,
+  rankRegressionCandidates,
+  recordRegressionCandidate,
+  regressionRows,
+  stepRegressionSearch,
+} from '../utils/regression'
 
 const { locale } = useI18n()
 const copy = aiOverviewVisualCopy
 const presetId = ref<RegressionPresetId>('clear-trend')
-const w = ref(4)
-const b = ref(48)
+const initialSearch = initializeRegressionSearch(regressionPresets['clear-trend'].samples, [...regressionCandidates])
+const searchState = ref(initialSearch)
+const w = ref(initialSearch.current.w)
+const b = ref(initialSearch.current.b)
 const residual = ref(true)
 const speed = ref(1)
-const cursor = ref(1)
 const playing = ref(false)
 let timer: ReturnType<typeof setInterval> | undefined
 
 const samples = computed(() => regressionPresets[presetId.value].samples)
 const rows = computed(() => regressionRows(samples.value, w.value, b.value))
-const currentMse = computed(() => meanSquaredError(samples.value, w.value, b.value))
 const ranked = computed(() => rankRegressionCandidates(samples.value, [...regressionCandidates]))
-const searchPath = computed(() => [...ranked.value].reverse())
-const currentCandidate = computed(() => ({ w: w.value, b: b.value, mse: currentMse.value }))
-const currentBest = computed(() => {
-  const visited = searchPath.value.slice(0, Math.max(1, cursor.value))
-  return [...visited].sort((left, right) => left.mse - right.mse || left.index - right.index)[0]
-})
-const currentValue = computed(() => `w=${w.value.toFixed(1)}, b=${b.value.toFixed(1)}, MSE=${currentMse.value.toFixed(2)}`)
+const currentCandidate = computed(() => searchState.value.current)
+const currentBest = computed(() => searchState.value.best)
+const candidateHistory = computed(() => searchState.value.history)
+const currentValue = computed(() => `w=${w.value.toFixed(1)}, b=${b.value.toFixed(1)}, MSE=${currentCandidate.value.mse.toFixed(2)}`)
 const x = (value: number) => 28 + value * 52
 const y = (value: number) => 230 - (value - 40) * 3
 
@@ -39,12 +43,11 @@ function stop() {
 }
 
 function step() {
-  if (cursor.value >= searchPath.value.length) return stop()
-  const candidate = searchPath.value[cursor.value]
-  w.value = candidate.w
-  b.value = candidate.b
-  cursor.value += 1
-  if (cursor.value >= searchPath.value.length) stop()
+  if (searchState.value.cursor >= searchState.value.path.length) return stop()
+  searchState.value = stepRegressionSearch(searchState.value, samples.value)
+  w.value = searchState.value.current.w
+  b.value = searchState.value.current.b
+  if (searchState.value.cursor >= searchState.value.path.length) stop()
 }
 
 function autoRun() {
@@ -56,11 +59,25 @@ function autoRun() {
 function reset() {
   stop()
   presetId.value = 'clear-trend'
-  w.value = 4
-  b.value = 48
   speed.value = 1
   residual.value = true
-  cursor.value = 1
+  initializeForPreset()
+}
+
+function initializeForPreset() {
+  searchState.value = initializeRegressionSearch(samples.value, [...regressionCandidates])
+  w.value = searchState.value.current.w
+  b.value = searchState.value.current.b
+}
+
+function applyPreset() {
+  stop()
+  initializeForPreset()
+}
+
+function recordManualCandidate() {
+  stop()
+  searchState.value = recordRegressionCandidate(searchState.value, samples.value, { w: w.value, b: b.value }, 'manual')
 }
 
 watch(speed, () => {
@@ -69,7 +86,6 @@ watch(speed, () => {
     autoRun()
   }
 })
-watch(presetId, () => { cursor.value = 1 })
 onBeforeUnmount(stop)
 </script>
 
@@ -77,15 +93,15 @@ onBeforeUnmount(stop)
   <section class="algorithm-lab" :aria-label="copy.lab[locale as AppLocale]">
     <div class="algorithm-lab__controls">
       <label>{{ copy.preset[locale as AppLocale] }}
-        <select v-model="presetId">
+        <select v-model="presetId" @change="applyPreset">
           <option v-for="preset in regressionPresets" :key="preset.id" :value="preset.id">{{ preset.label[locale as AppLocale] }}</option>
         </select>
       </label>
       <label>{{ copy.slope[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ w.toFixed(1) }}
-        <input v-model.number="w" type="range" min="0" max="12" step="0.1">
+        <input v-model.number="w" type="range" min="0" max="12" step="0.1" @input="recordManualCandidate">
       </label>
       <label>{{ copy.intercept[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ b.toFixed(1) }}
-        <input v-model.number="b" type="range" min="35" max="60" step="0.1">
+        <input v-model.number="b" type="range" min="35" max="60" step="0.1" @input="recordManualCandidate">
       </label>
       <label>{{ copy.speed[locale as AppLocale] }} — {{ copy.currentValue[locale as AppLocale] }}: {{ speed }}×
         <input v-model.number="speed" type="range" min="0.5" max="3" step="0.5">
@@ -132,6 +148,13 @@ onBeforeUnmount(stop)
           <table data-table="candidate-search">
             <thead><tr><th>#</th><th>w</th><th>b</th><th>MSE</th></tr></thead>
             <tbody><tr v-for="(candidate, index) in ranked" :key="`${candidate.w}-${candidate.b}`" :aria-current="candidate.w === currentCandidate.w && candidate.b === currentCandidate.b ? 'true' : undefined"><th>{{ index + 1 }}</th><td>{{ candidate.w.toFixed(1) }}</td><td>{{ candidate.b.toFixed(1) }}</td><td>{{ candidate.mse.toFixed(2) }}</td></tr></tbody>
+          </table>
+        </div>
+        <h4>{{ copy.candidateHistory[locale as AppLocale] }}</h4>
+        <div class="regression-lab__table-wrap" tabindex="0" role="region" :aria-label="copy.candidateHistory[locale as AppLocale]">
+          <table data-table="candidate-history">
+            <thead><tr><th>#</th><th>{{ copy.visitSource[locale as AppLocale] }}</th><th>w</th><th>b</th><th>MSE</th></tr></thead>
+            <tbody><tr v-for="visit in candidateHistory" :key="visit.sequence" :aria-current="visit.sequence === currentCandidate.sequence ? 'true' : undefined"><th>{{ visit.sequence }}</th><td>{{ aiOverviewLabCopy.candidateVisitSources[visit.source][locale as AppLocale] }}</td><td>{{ visit.w.toFixed(1) }}</td><td>{{ visit.b.toFixed(1) }}</td><td>{{ visit.mse.toFixed(2) }}</td></tr></tbody>
           </table>
         </div>
       </section>

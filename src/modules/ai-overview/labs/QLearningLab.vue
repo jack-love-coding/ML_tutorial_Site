@@ -143,8 +143,20 @@ onBeforeUnmount(pause)
         <div><dt>{{ copy.currentState[locale as AppLocale] }}</dt><dd>{{ currentStateKey }}</dd></div>
         <div><dt>{{ copy.cumulativeReward[locale as AppLocale] }}</dt><dd>{{ cumulativeReward }}</dd></div>
         <div><dt>{{ aiOverviewLabCopy.episodeStep[locale as AppLocale] }}</dt><dd>{{ episodeStep }}</dd></div>
-        <div><dt>{{ aiOverviewLabCopy.lastUpdate[locale as AppLocale] }}</dt><dd>{{ lastUpdate ? `${lastUpdate.stateKey} · ${aiOverviewLabCopy.actions[lastUpdate.action][locale as AppLocale]} · ${lastUpdate.newValue.toFixed(2)}` : '—' }}</dd></div>
       </dl>
+      <section class="q-lab__update" :aria-label="aiOverviewLabCopy.lastUpdate[locale as AppLocale]">
+        <h3>{{ aiOverviewLabCopy.lastUpdate[locale as AppLocale] }}</h3>
+        <dl data-q-update>
+          <div data-update-term="state"><dt>{{ aiOverviewLabCopy.qUpdateTerms.state[locale as AppLocale] }}</dt><dd>{{ lastUpdate?.stateKey ?? '—' }}</dd></div>
+          <div data-update-term="action"><dt>{{ aiOverviewLabCopy.qUpdateTerms.action[locale as AppLocale] }}</dt><dd>{{ lastUpdate ? aiOverviewLabCopy.actions[lastUpdate.action][locale as AppLocale] : '—' }}</dd></div>
+          <div data-update-term="old-value"><dt>{{ aiOverviewLabCopy.qUpdateTerms.oldValue[locale as AppLocale] }}</dt><dd>{{ lastUpdate ? lastUpdate.oldValue.toFixed(2) : '—' }}</dd></div>
+          <div data-update-term="reward"><dt>{{ aiOverviewLabCopy.qUpdateTerms.reward[locale as AppLocale] }}</dt><dd>{{ lastUpdate ? lastUpdate.reward.toFixed(2) : '—' }}</dd></div>
+          <div data-update-term="next-best-value"><dt>{{ aiOverviewLabCopy.qUpdateTerms.nextBestValue[locale as AppLocale] }}</dt><dd>{{ lastUpdate ? lastUpdate.nextBestValue.toFixed(2) : '—' }}</dd></div>
+          <div data-update-term="target"><dt>{{ aiOverviewLabCopy.qUpdateTerms.target[locale as AppLocale] }}</dt><dd>{{ lastUpdate ? lastUpdate.target.toFixed(2) : '—' }}</dd></div>
+          <div data-update-term="correction"><dt>{{ aiOverviewLabCopy.qUpdateTerms.correction[locale as AppLocale] }}</dt><dd>{{ lastUpdate ? lastUpdate.correction.toFixed(2) : '—' }}</dd></div>
+          <div data-update-term="new-value"><dt>{{ aiOverviewLabCopy.qUpdateTerms.newValue[locale as AppLocale] }}</dt><dd>{{ lastUpdate ? lastUpdate.newValue.toFixed(2) : '—' }}</dd></div>
+        </dl>
+      </section>
       <section :aria-label="copy.currentState[locale as AppLocale]" class="q-lab__values">
         <article v-for="action in Q_LEARNING_ACTIONS" :key="action">
           <span>{{ actionSymbols[action] }} {{ aiOverviewLabCopy.actions[action][locale as AppLocale] }}</span><strong>{{ currentValues[action].toFixed(2) }}</strong>
@@ -175,8 +187,9 @@ onBeforeUnmount(pause)
 .q-lab__controls { display:grid; gap:.6rem; align-content:start; } label { display:grid; gap:.2rem; font-weight:700; }
 .q-lab__actions { display:flex; flex-wrap:wrap; gap:.5rem; }.q-lab__status,.q-lab__values { display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem; }
 .q-lab__status div,.q-lab__values article { padding:.65rem; background:#f4f8f7; border-radius:.6rem; }.q-lab__status dd { margin:0; font-weight:800; }
+.q-lab__update h3 { margin-bottom:.5rem; }.q-lab__update dl { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.5rem; }.q-lab__update dl div { padding:.65rem; background:#f4f8f7; border-radius:.6rem; }.q-lab__update dd { margin:0; font-weight:800; font-variant-numeric:tabular-nums; }
 .q-lab__values { grid-template-columns:repeat(4,1fr); }.q-lab__values article { display:grid; }
 .q-grid { display:grid; grid-template-columns:repeat(4,3rem); gap:.25rem; }.q-grid__cell { display:grid; place-items:center; aspect-ratio:1; background:#e6f5f1; font-size:1.5rem; border-radius:.3rem; }
 table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; } th,td { padding:.3rem; text-align:right; border-bottom:1px solid #dce6e2; }
-@media (max-width:760px) { .q-lab { grid-template-columns:1fr; } }
+@media (max-width:760px) { .q-lab { grid-template-columns:1fr; } .q-lab__update dl { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 </style>

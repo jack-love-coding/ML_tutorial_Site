@@ -71,7 +71,7 @@ export const lessonInteractionProtocols: readonly TeachingInteractionProtocol[] 
     ],
     observableMetrics: [
       item('regression-row-table', loc('预测/残差/平方误差表', 'Prediction/residual/squared-error table'), loc('逐行读取 x、y、ŷ、residual 与 squared error。', 'Read x, y, ŷ, residual, and squared error row by row.')),
-      item('regression-ranking', loc('候选 MSE 与当前最佳', 'Candidate MSE and current best'), loc('比较候选搜索表中的 current candidate、MSE 和 current best。', 'Compare the current candidate, MSE, and current best in the search table.')),
+      item('regression-ranking', loc('当前候选、当前最佳与访问历史', 'Current candidate, current best, and visit history'), loc('比较候选搜索表中的 current candidate、current best 和按顺序记录的 manual/path visits。', 'Compare the current candidate, current best, and ordered manual/path visits in the candidate tables.')),
     ],
     successCriteria: [
       loc('能从共享表格验证 MSE，而不是只看直线外观。', 'You can verify MSE from the shared table instead of judging only the line shape.'),
@@ -80,7 +80,7 @@ export const lessonInteractionProtocols: readonly TeachingInteractionProtocol[] 
     reflectionPrompt: loc('异常点出现后，哪几行平方误差主导 MSE，当前最佳是否改变？', 'After adding an outlier, which squared-error rows dominate MSE, and does the current best change?'),
     evidence: [
       evidence('regression-config', 'configuration', loc('preset 与 w、b', 'Preset and w, b'), loc('实验控件当前显示的参数。', 'Parameters currently shown by the lab controls.')),
-      evidence('regression-metrics', 'metric', loc('当前 MSE 与排名', 'Current MSE and ranking'), loc('同步样本表和候选搜索表。', 'The synchronized sample and candidate-search tables.')),
+      evidence('regression-metrics', 'metric', loc('当前 MSE、最佳与历史', 'Current MSE, best, and history'), loc('同步样本表、候选搜索表和访问历史表。', 'The synchronized sample, candidate-search, and visited-history tables.')),
       evidence('regression-explanation', 'explanation', loc('误差解释', 'Error explanation'), loc('说明哪一行误差使候选变好或变差。', 'Explain which row makes the candidate better or worse.')),
     ],
   },
@@ -115,15 +115,15 @@ export const lessonInteractionProtocols: readonly TeachingInteractionProtocol[] 
       item('q-playback', loc('单行动、单回合、连续训练与重置', 'One action, one episode, continuous training, and reset'), loc('使用速度、暂停和重置控制训练。', 'Control training with speed, pause, and reset.')),
     ],
     observableMetrics: [
-      item('q-update', loc('state/action/reward/Q update', 'State/action/reward/Q update'), loc('读取旧值、target、修正和新值。', 'Read old value, target, correction, and new value.')),
+      item('q-update', loc('完整 Q update 项', 'Complete Q update terms'), loc('读取 state、action、旧 Q value、reward、下一状态最大值、target、correction 与新 Q value。', 'Read state, action, old Q value, reward, next-state max, target, correction, and new Q value.')),
       item('q-policy', loc('episode、累计 reward 与 policy', 'Episode, cumulative reward, and policy'), loc('比较当前四个 action values、全局箭头和完整 Q table。', 'Compare the four current action values, global arrows, and full Q table.')),
     ],
     successCriteria: [loc('能解释正负 reward 如何通过 target 影响 Q value。', 'You can explain how positive or negative reward affects Q value through the target.'), loc('能区分训练探索与关闭探索后的 policy 评估。', 'You can separate training exploration from policy evaluation with exploration disabled.')],
     reflectionPrompt: loc('为什么 reward 不是逐状态预先给定的监督 label？', 'Why is reward not a supervised label pre-attached to every state?'),
     evidence: [
       evidence('q-config', 'configuration', loc('seed 与探索率', 'Seed and exploration rate'), loc('实验控件显示的有效值。', 'Effective values shown by the controls.')),
-      evidence('q-metrics', 'metric', loc('更新项与累计 reward', 'Update terms and cumulative reward'), loc('状态面板、动作值和策略读数。', 'State panel, action values, and policy readout.')),
-      evidence('q-explanation', 'explanation', loc('Q 更新解释', 'Q-update explanation'), loc('说明 target、修正与新值的方向。', 'Explain the direction of target, correction, and new value.')),
+      evidence('q-metrics', 'metric', loc('完整更新项与累计 reward', 'Complete update terms and cumulative reward'), loc('state、action、old Q value、reward、next-state max、target、correction、new Q value 与策略读数。', 'State, action, old Q value, reward, next-state max, target, correction, new Q value, and policy readout.')),
+      evidence('q-explanation', 'explanation', loc('Q 更新解释', 'Q-update explanation'), loc('说明 next-state max 如何进入 target，以及 correction 如何产生新 Q value。', 'Explain how next-state max enters the target and how correction produces the new Q value.')),
     ],
   },
   {
