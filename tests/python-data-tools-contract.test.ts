@@ -1,14 +1,23 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { registerHooks } from 'node:module'
+import { algorithmCheckpointsBySlug } from '../src/data/algorithmCheckpoints.ts'
 import {
   pythonDataToolsContract,
   pythonDataToolsOutputIds,
   type NotebookCellRole,
 } from '../src/data/pythonNotebookContract.ts'
 
-const root = new URL('../', import.meta.url)
-const read = (path: string) => readFileSync(new URL(path, root), 'utf8')
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    if (specifier === './algorithmCheckpoints') {
+      return nextResolve('./algorithmCheckpoints.ts', context)
+    }
+    return nextResolve(specifier, context)
+  },
+})
+
+const { pythonNotebookModule } = await import('../src/data/pythonNotebookModule.ts')
 
 const chapterIds = [
   'notebook-workflow',
@@ -19,6 +28,17 @@ const chapterIds = [
   'seaborn-statistics',
   'plotly-exploration',
   'analysis-report',
+] as const
+
+const outputIds = [
+  'dataset-shape-schema',
+  'hourly-demand-profile',
+  'workingday-comparison',
+  'season-weather-distribution',
+  'rider-composition',
+  'pearson-correlation-matrix',
+  'plotly-hourly-explorer',
+  'final-analysis-evidence',
 ] as const
 
 test('Python data tools contract fixes the eight-chapter bilingual course order', () => {
@@ -48,7 +68,8 @@ test('contract defines stable cell roles, exercise mounts, and authoritative out
       ['plotly-exploration', 'interactive-encoding'],
     ],
   )
-  assert.deepEqual(pythonDataToolsContract.outputs.map(({ id }) => id), pythonDataToolsOutputIds)
+  assert.deepEqual(pythonDataToolsOutputIds, outputIds)
+  assert.deepEqual(pythonDataToolsContract.outputs.map(({ id }) => id), outputIds)
   assert.ok(pythonDataToolsContract.outputs.every(({ generator }) => generator.startsWith('scripts/python-data-tools/')))
   assert.equal(new Set(pythonDataToolsContract.outputs.map(({ cellId }) => cellId)).size, pythonDataToolsOutputIds.length)
   assert.ok(pythonDataToolsContract.outputs.every(({ datasetBinding }) => datasetBinding === 'manifest:file.sha256'))
@@ -56,12 +77,20 @@ test('contract defines stable cell roles, exercise mounts, and authoritative out
 })
 
 test('phase 1 preserves the existing runtime lesson and checkpoint boundary', () => {
-  const moduleSource = read('src/data/pythonNotebookModule.ts')
-  assert.match(moduleSource, /slug: 'python-notebook'/)
-  assert.match(moduleSource, /route: '\/learn\/python-notebook'/)
-  assert.equal([...moduleSource.matchAll(/chapter\(\s*'/g)].length, 5)
-  for (const id of [
-    'notebook-rhythm', 'numpy-arrays', 'pandas-tables',
-    'sklearn-small-model', 'reproducible-handoff',
-  ]) assert.match(moduleSource, new RegExp(`chapter\\(\\s*'${id}'`))
+  assert.equal(pythonNotebookModule.slug, 'python-notebook')
+  assert.equal(pythonNotebookModule.route, '/learn/python-notebook')
+  assert.deepEqual(
+    pythonNotebookModule.chapters.map(({ id }) => id),
+    [
+      'notebook-rhythm',
+      'numpy-arrays',
+      'pandas-tables',
+      'sklearn-small-model',
+      'reproducible-handoff',
+    ],
+  )
+  assert.strictEqual(
+    pythonNotebookModule.checkpoints,
+    algorithmCheckpointsBySlug['python-notebook'],
+  )
 })
