@@ -1,3 +1,8 @@
+.algorithm-view--ai-overview {
+  --ai-overview-accent: var(--module-accent, var(--pixel-green));
+  color: var(--ink);
+}
+
 .algorithm-view--ai-overview .story-column {
   grid-template-columns: 92px minmax(0, 1fr);
 }
@@ -7,168 +12,307 @@
   gap: 18px;
 }
 
-.overview-lab {
+.algorithm-view--ai-overview .ai-overview-chapter-companions,
+.algorithm-view--ai-overview .chapter-visual-stack {
   display: grid;
-  gap: 14px;
-  padding: 18px;
-  border: 1px solid rgba(15, 23, 40, 0.08);
-  border-radius: 8px;
-  background:
-    linear-gradient(135deg, rgba(15, 159, 143, 0.12), transparent 46%),
-    rgba(248, 253, 250, 0.94);
-}
-
-.overview-lab__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.overview-lab__header span,
-.overview-lab__scenario span,
-.overview-lab__scenario-detail span,
-.overview-lab__scenario-detail dt,
-.overview-lab__flow-step span {
-  color: var(--muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.overview-lab__header strong {
-  max-width: 20rem;
-  text-align: right;
-}
-
-.overview-lab__task-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.overview-lab__scenario {
-  display: grid;
-  gap: 8px;
   min-width: 0;
-  padding: 12px;
-  border: 2px solid rgba(15, 23, 40, 0.1);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.78);
+  gap: 1rem;
+}
+
+.algorithm-view--ai-overview .chapter-media-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.algorithm-view--ai-overview .chapter-media-grid--tasks .overview-media-figure:first-child {
+  grid-column: 1 / -1;
+}
+
+.algorithm-view--ai-overview .overview-media-figure,
+.algorithm-view--ai-overview .algorithm-lab--desktop,
+.algorithm-view--ai-overview .algorithm-static-fallback,
+.algorithm-view--ai-overview .paradigm-comparison,
+.algorithm-view--ai-overview .decision-tree,
+.algorithm-view--ai-overview .learning-assistant-map,
+.algorithm-view--ai-overview .llm-route-map,
+.algorithm-view--ai-overview .ai-overview-knowledge-map {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
   color: var(--ink);
-  text-align: left;
-  box-shadow: 3px 3px 0 rgba(15, 23, 40, 0.09);
+}
+
+.algorithm-view--ai-overview .overview-media-figure img,
+.algorithm-view--ai-overview .overview-media-figure video {
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+}
+
+.algorithm-view--ai-overview .overview-media-figure figcaption {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.algorithm-view--ai-overview .overview-media-figure figcaption strong {
+  color: var(--ink);
+}
+
+.algorithm-view--ai-overview .overview-media-figure__deferred {
+  display: grid;
+  min-height: 7rem;
+  margin: 0;
+  place-items: center;
+  border: 2px dashed var(--line);
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-weight: 700;
+  text-align: center;
+}
+
+.algorithm-view--ai-overview .overview-media-figure__english-support,
+.algorithm-view--ai-overview .overview-media-figure__transcript {
+  margin-top: 0.75rem;
+  color: var(--muted);
+}
+
+.algorithm-view--ai-overview .overview-media-figure__table-wrap,
+.algorithm-view--ai-overview .paradigm-comparison,
+.algorithm-view--ai-overview .q-lab details,
+.algorithm-view--ai-overview .ai-overview-knowledge-map [data-knowledge-section='paradigm-comparison'] {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.algorithm-view--ai-overview .overview-media-figure__table-wrap:focus-visible {
+  outline: 3px solid var(--ai-overview-accent);
+  outline-offset: 3px;
+}
+
+.algorithm-view--ai-overview .overview-media-figure table,
+.algorithm-view--ai-overview .paradigm-comparison table,
+.algorithm-view--ai-overview .q-lab table,
+.algorithm-view--ai-overview .ai-overview-knowledge-map table {
+  min-width: 38rem;
+}
+
+.algorithm-view--ai-overview .overview-media-figure th,
+.algorithm-view--ai-overview .overview-media-figure td {
+  border-color: var(--line);
+}
+
+.algorithm-view--ai-overview .overview-media-figure summary {
+  min-height: 44px;
+  padding: 0.65rem 0;
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.algorithm-view--ai-overview .overview-media-figure__transcript-source {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.algorithm-view--ai-overview .algorithm-static-fallback {
+  display: none;
+}
+
+.algorithm-view--ai-overview button,
+.algorithm-view--ai-overview select,
+.algorithm-view--ai-overview input:not([type='checkbox']) {
+  min-height: 44px;
+}
+
+.algorithm-view--ai-overview .algorithm-lab__check {
+  min-height: 44px;
+}
+
+.algorithm-view--ai-overview button,
+.algorithm-view--ai-overview summary,
+.algorithm-view--ai-overview select,
+.algorithm-view--ai-overview input,
+.algorithm-view--ai-overview [tabindex='0'] {
+  scroll-margin-block: 5rem;
+}
+
+.algorithm-view--ai-overview button:focus-visible,
+.algorithm-view--ai-overview summary:focus-visible,
+.algorithm-view--ai-overview select:focus-visible,
+.algorithm-view--ai-overview input:focus-visible,
+.algorithm-view--ai-overview [tabindex='0']:focus-visible {
+  outline: 3px solid var(--ai-overview-accent);
+  outline-offset: 3px;
+}
+
+.algorithm-view--ai-overview .algorithm-lab__actions,
+.algorithm-view--ai-overview .q-lab__actions,
+.algorithm-view--ai-overview .method-tabs,
+.algorithm-view--ai-overview .step-controls {
+  align-items: stretch;
+  gap: 0.625rem;
+}
+
+.algorithm-view--ai-overview .algorithm-lab__actions button,
+.algorithm-view--ai-overview .q-lab__actions button,
+.algorithm-view--ai-overview .method-tabs button,
+.algorithm-view--ai-overview .step-controls button {
+  min-width: 7rem;
+  white-space: normal;
+}
+
+.algorithm-view--ai-overview .overview-lab__scenario {
+  min-height: 44px;
+  border-color: var(--line);
+  background: var(--surface-strong);
+  color: var(--ink);
   transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
 }
 
-.overview-lab__scenario:hover,
-.overview-lab__scenario.is-active {
-  transform: translateY(-1px);
-  border-color: rgba(15, 159, 143, 0.48);
-  background: rgba(255, 255, 255, 0.94);
-}
-
-.overview-lab__scenario strong {
-  font-size: 0.9rem;
-  line-height: 1.34;
-}
-
-.overview-lab__scenario-detail,
-.overview-lab__layer-card,
-.overview-lab__flow-step,
-.overview-lab__rag-step {
-  min-width: 0;
-  border: 2px solid rgba(15, 23, 40, 0.1);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: 3px 3px 0 rgba(15, 23, 40, 0.09);
-}
-
-.overview-lab__scenario-detail {
-  display: grid;
-  gap: 12px;
-  padding: 14px;
-}
-
-.overview-lab__scenario-detail dl {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0;
-}
-
-.overview-lab__scenario-detail div {
-  display: grid;
-  gap: 5px;
-}
-
-.overview-lab__scenario-detail dd {
-  margin: 0;
-  color: var(--ink);
-  font-size: 0.88rem;
-  line-height: 1.45;
-}
-
-.overview-lab__pipeline,
-.overview-lab__layers {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.overview-lab__flow-step,
-.overview-lab__layer-card {
-  display: grid;
-  gap: 8px;
-  padding: 12px;
-}
-
-.overview-lab__flow-step strong,
-.overview-lab__layer-card strong {
-  font-size: 0.95rem;
-}
-
-.overview-lab__flow-step p,
-.overview-lab__layer-card p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.84rem;
-  line-height: 1.5;
-}
-
-.overview-lab__rag {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.overview-lab__rag-step {
-  position: relative;
-  padding: 12px 16px;
-  color: var(--ink);
+.algorithm-view--ai-overview .overview-lab__scenario.is-active {
+  border-width: 3px;
+  border-color: var(--ai-overview-accent);
   font-weight: 700;
 }
 
-.overview-lab__rag-step:not(:last-child)::after {
-  content: '→';
-  margin-left: 12px;
-  color: #0f9f8f;
+@media (max-width: 760px) {
+  .algorithm-view--ai-overview .story-column {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .algorithm-view--ai-overview .chapter-media-grid,
+  .algorithm-view--ai-overview .chapter-media-grid--tasks,
+  .algorithm-view--ai-overview .chapter-media-grid--applications {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .algorithm-view--ai-overview .chapter-media-grid--tasks .overview-media-figure:first-child {
+    grid-column: auto;
+  }
+
+  .algorithm-view--ai-overview .algorithm-lab--desktop {
+    display: none;
+  }
+
+  .algorithm-view--ai-overview .algorithm-static-fallback {
+    display: block;
+  }
+
+  .algorithm-view--ai-overview .overview-media-figure,
+  .algorithm-view--ai-overview .algorithm-static-fallback,
+  .algorithm-view--ai-overview .paradigm-comparison,
+  .algorithm-view--ai-overview .decision-tree,
+  .algorithm-view--ai-overview .learning-assistant-map,
+  .algorithm-view--ai-overview .llm-route-map,
+  .algorithm-view--ai-overview .ai-overview-knowledge-map {
+    padding: 0.75rem;
+  }
+
+  .algorithm-view--ai-overview .algorithm-lab__actions,
+  .algorithm-view--ai-overview .q-lab__actions,
+  .algorithm-view--ai-overview .step-controls {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .algorithm-view--ai-overview .algorithm-lab__actions button,
+  .algorithm-view--ai-overview .q-lab__actions button,
+  .algorithm-view--ai-overview .step-controls button {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
-@media (max-width: 880px) {
-  .overview-lab__task-grid,
-  .overview-lab__pipeline,
-  .overview-lab__layers,
-  .overview-lab__scenario-detail dl {
-    grid-template-columns: 1fr;
+@media (max-width: 420px) {
+  .algorithm-view--ai-overview .algorithm-lab__actions,
+  .algorithm-view--ai-overview .q-lab__actions,
+  .algorithm-view--ai-overview .step-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .algorithm-view--ai-overview *,
+  .algorithm-view--ai-overview *::before,
+  .algorithm-view--ai-overview *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
   }
 
-  .overview-lab__header {
-    display: grid;
+  .algorithm-view--ai-overview .algorithm-lab--desktop {
+    display: none;
   }
 
-  .overview-lab__header strong {
-    max-width: none;
-    text-align: left;
+  .algorithm-view--ai-overview .algorithm-static-fallback {
+    display: block;
+  }
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+
+  .algorithm-view--ai-overview {
+    color: #000;
+    background: #fff;
+    print-color-adjust: exact;
+  }
+
+  .algorithm-view--ai-overview .algorithm-hero,
+  .algorithm-view--ai-overview .story-progress,
+  .algorithm-view--ai-overview .story-card:not([data-section-id='choose-learning-approach']),
+  .algorithm-view--ai-overview .story-card__meta,
+  .algorithm-view--ai-overview .lesson-block-renderer > :not(.ai-overview-chapter-companions),
+  .algorithm-view--ai-overview .chapter-visual-stack > :not(.ai-overview-knowledge-map),
+  .algorithm-view--ai-overview .ai-overview-knowledge-map button {
+    display: none !important;
+  }
+
+  .algorithm-view--ai-overview .algorithm-layout,
+  .algorithm-view--ai-overview .story-column,
+  .algorithm-view--ai-overview .story-flow,
+  .algorithm-view--ai-overview .story-card,
+  .algorithm-view--ai-overview .lesson-block-renderer,
+  .algorithm-view--ai-overview .ai-overview-chapter-companions,
+  .algorithm-view--ai-overview .chapter-visual-stack,
+  .algorithm-view--ai-overview .ai-overview-knowledge-map {
+    display: block !important;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  .algorithm-view--ai-overview .ai-overview-knowledge-map {
+    font-size: 8pt;
+    line-height: 1.2;
+    break-inside: avoid;
+  }
+
+  .algorithm-view--ai-overview .ai-overview-knowledge-map h2,
+  .algorithm-view--ai-overview .ai-overview-knowledge-map h3 {
+    margin: 3mm 0 1.5mm;
+    font-size: 11pt;
+  }
+
+  .algorithm-view--ai-overview .ai-overview-knowledge-map table {
+    min-width: 0;
+    font-size: 7pt;
+  }
+
+  .algorithm-view--ai-overview .ai-overview-knowledge-map th,
+  .algorithm-view--ai-overview .ai-overview-knowledge-map td,
+  .algorithm-view--ai-overview .ai-overview-knowledge-map li {
+    padding: 1.5mm;
+    break-inside: avoid;
   }
 }

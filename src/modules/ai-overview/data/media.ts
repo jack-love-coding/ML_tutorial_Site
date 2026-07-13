@@ -186,3 +186,74 @@ export const aiOverviewMediaAssets: readonly AiOverviewMediaAsset[] = [
     ],
   }),
 ]
+
+export const aiOverviewManimAssets: readonly AiOverviewMediaAsset[] = [
+  {
+    id: 'linear-regression-video',
+    kind: 'manim-video',
+    availability: 'available',
+    publicPath: '/manim/ai-overview/linear-regression-parameter-search.mp4',
+    posterPath: '/manim/ai-overview/linear-regression-parameter-search-poster.png',
+    transcriptPath: 'docs/curriculum-v3/ai-overview/manim/linear-regression-parameter-search-transcript.zh-CN.md',
+    chapterId: 'supervised-linear-regression',
+    title: loc('线性回归参数搜索', 'Linear-regression parameter search'),
+    caption: loc(
+      '同一组数据、候选直线、残差与 MSE 随参数搜索同步变化。视频为中文无配音。',
+      'One dataset keeps the candidate line, residuals, and MSE synchronized during parameter search. The silent video uses Chinese labels.',
+    ),
+    englishSummary: 'The video follows one regression sample through prediction, residual, squared error, and dataset MSE before comparing seven fixed parameter candidates. It identifies the best displayed candidate and explicitly frames enumeration as a teaching simplification before gradient descent.',
+    bilingualLabels: [
+      loc('输入 x：练习时长（小时）', 'Input x: practice duration (hours)'),
+      loc('输出 ŷ：预测得分', 'Output ŷ: predicted score'),
+      loc('平方误差', 'Squared error'),
+      loc('当前候选 / 当前最优', 'Current candidate / current best'),
+    ],
+  },
+  {
+    id: 'kmeans-video',
+    kind: 'manim-video',
+    availability: 'available',
+    publicPath: '/manim/ai-overview/kmeans-convergence.mp4',
+    posterPath: '/manim/ai-overview/kmeans-convergence-poster.png',
+    transcriptPath: 'docs/curriculum-v3/ai-overview/manim/kmeans-convergence-transcript.zh-CN.md',
+    chapterId: 'unsupervised-kmeans',
+    title: loc('K-means 收敛', 'K-means convergence'),
+    caption: loc(
+      '固定 K=3 与 seed=3103 后，分配和中心更新交替进行直到稳定。视频为中文无配音。',
+      'With K=3 and seed 3103 fixed, assignment and center updates alternate until stable. The silent video uses Chinese labels.',
+    ),
+    englishSummary: 'The video initializes three centers from twelve unlabeled learner points, assigns each point to its nearest center, and recomputes coordinate means. It shows the within-group distance total falling from 2441 to 1293.5 and explains why K, initialization, and human interpretation still matter.',
+    bilingualLabels: [
+      loc('正确率', 'Accuracy'),
+      loc('平均答题时间', 'Mean response time'),
+      loc('组内距离总和', 'Within-group distance total'),
+      loc('本次运行已收敛', 'This run has converged'),
+    ],
+  },
+  {
+    id: 'q-learning-video',
+    kind: 'manim-video',
+    availability: 'available',
+    publicPath: '/manim/ai-overview/q-learning-strategy.mp4',
+    posterPath: '/manim/ai-overview/q-learning-strategy-poster.png',
+    transcriptPath: 'docs/curriculum-v3/ai-overview/manim/q-learning-strategy-transcript.zh-CN.md',
+    chapterId: 'reinforcement-q-learning',
+    title: loc('Q-learning 策略形成', 'Q-learning strategy formation'),
+    caption: loc(
+      '网格环境把状态、动作、奖励、Q 更新、探索和最终贪心策略连成一个闭环。视频为中文无配音。',
+      'A grid world connects state, action, reward, Q updates, exploration, and the final greedy policy. The silent video uses Chinese labels.',
+    ),
+    englishSummary: 'The video defines state, action, reward, and long-term Q value in a fixed 4×4 world, works one numeric update, and contrasts exploration with exploitation. Deterministic episode snapshots lead to a six-step greedy evaluation and then map the policy back to exercise selection.',
+    bilingualLabels: [
+      loc('状态 state、动作 action 与 Q value', 'State, action, and Q value'),
+      loc('累计 reward', 'Cumulative reward'),
+      loc('探索 exploration', 'Exploration'),
+      loc('学习后的 greedy policy', 'Learned greedy policy'),
+    ],
+  },
+]
+
+export const aiOverviewRuntimeMediaAssets: readonly AiOverviewMediaAsset[] = [
+  ...aiOverviewMediaAssets,
+  ...aiOverviewManimAssets,
+]

@@ -15,12 +15,25 @@ const poster = computed(() => props.asset.posterPath ? withPublicBase(props.asse
     <video v-else-if="asset.availability === 'available'" controls preload="metadata" :poster="poster" :aria-label="asset.title[locale]">
       <source :src="source" />
     </video>
-    <p v-else role="status">{{ locale === 'zh-CN' ? '插图稍后补充。' : 'Illustration deferred.' }}</p>
+    <p v-else class="overview-media-figure__deferred" role="status">{{ locale === 'zh-CN' ? '插图稍后补充。' : 'Illustration deferred.' }}</p>
     <figcaption><strong>{{ asset.title[locale] }}</strong> — {{ asset.caption[locale] }}</figcaption>
-    <p lang="en">{{ asset.englishSummary }}</p>
-    <ul v-if="asset.bilingualLabels.length">
-      <li v-for="label in asset.bilingualLabels" :key="label.en">{{ label[locale] }}</li>
-    </ul>
+    <div v-if="locale === 'en'" class="overview-media-figure__english-support" lang="en">
+      <p>{{ asset.englishSummary }}</p>
+      <div v-if="asset.bilingualLabels.length" class="overview-media-figure__table-wrap" tabindex="0" aria-label="Chinese labels and English translations">
+        <table>
+          <thead><tr><th scope="col">Chinese label in media</th><th scope="col">English meaning</th></tr></thead>
+          <tbody><tr v-for="label in asset.bilingualLabels" :key="label.en"><td lang="zh-CN">{{ label['zh-CN'] }}</td><td>{{ label.en }}</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <details v-if="asset.kind === 'manim-video'" class="overview-media-figure__transcript">
+      <summary>{{ locale === 'zh-CN' ? '中文字幕稿' : 'Chinese transcript' }}</summary>
+      <p lang="zh-CN">{{ asset.title['zh-CN'] }}：{{ asset.caption['zh-CN'] }}</p>
+      <p class="overview-media-figure__transcript-source">
+        {{ locale === 'zh-CN' ? '完整分段稿来源：' : 'Auditable timed transcript source:' }}
+        <code>{{ asset.transcriptPath }}</code>
+      </p>
+    </details>
   </figure>
 </template>
 
@@ -28,6 +41,9 @@ const poster = computed(() => props.asset.posterPath ? withPublicBase(props.asse
 .overview-media-figure { margin: 0; }
 img, video { display: block; width: 100%; height: auto; border-radius: .6rem; }
 figcaption { margin-top: .55rem; }
-ul { display: flex; flex-wrap: wrap; gap: .4rem; padding: 0; list-style: none; }
-li { border: 1px solid currentColor; border-radius: 999px; padding: .25rem .55rem; }
+.overview-media-figure__table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid currentColor; padding: .55rem; text-align: start; vertical-align: top; }
+details { margin-top: .75rem; }
+code { overflow-wrap: anywhere; }
 </style>

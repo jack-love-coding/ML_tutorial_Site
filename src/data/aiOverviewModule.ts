@@ -1,6 +1,18 @@
 import type { AlgorithmModuleDefinition, LocalizedCopy, ModuleSimulation } from '../types/ml'
+import type { AiOverviewChapterId } from '../modules/ai-overview/types.ts'
 import { aiOverviewChapters } from '../modules/ai-overview/data/course.ts'
 import { algorithmCheckpointsBySlug } from './algorithmCheckpoints.ts'
+
+export const chapterCompanionKinds = {
+  'three-problems': ['imagegen-task-cards'],
+  'ai-world-map': ['ai-world-map', 'traditional-ai-stepper'],
+  'ml-common-language': ['ml-process-tracer'],
+  'supervised-linear-regression': ['linear-regression-video', 'regression-lab', 'house-price-card'],
+  'learning-paradigms': ['paradigm-comparison', 'application-cards'],
+  'unsupervised-kmeans': ['kmeans-video', 'kmeans-lab', 'user-segmentation-card'],
+  'reinforcement-q-learning': ['q-learning-video', 'q-learning-lab'],
+  'choose-learning-approach': ['decision-tree', 'assistant-map', 'llm-route', 'knowledge-map'],
+} as const satisfies Record<AiOverviewChapterId, readonly string[]>
 
 function loc(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }

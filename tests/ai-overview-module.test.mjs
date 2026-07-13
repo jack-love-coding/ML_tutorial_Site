@@ -112,3 +112,24 @@ test('AI overview includes task-style checkpoints and delegates chapter visuals'
 
   assert.match(styleIndexSource, /ai-overview\.css/)
 })
+
+test('AI overview publishes the exact runtime companion sequence for every chapter', async () => {
+  const { chapterCompanionKinds } = await import('../src/data/aiOverviewModule.ts')
+
+  assert.deepEqual(chapterCompanionKinds, {
+    'three-problems': ['imagegen-task-cards'],
+    'ai-world-map': ['ai-world-map', 'traditional-ai-stepper'],
+    'ml-common-language': ['ml-process-tracer'],
+    'supervised-linear-regression': ['linear-regression-video', 'regression-lab', 'house-price-card'],
+    'learning-paradigms': ['paradigm-comparison', 'application-cards'],
+    'unsupervised-kmeans': ['kmeans-video', 'kmeans-lab', 'user-segmentation-card'],
+    'reinforcement-q-learning': ['q-learning-video', 'q-learning-lab'],
+    'choose-learning-approach': ['decision-tree', 'assistant-map', 'llm-route', 'knowledge-map'],
+  })
+
+  const chapterLabSource = read('src/modules/ai-overview/labs/AiOverviewChapterLab.vue')
+  assert.match(chapterLabSource, /chapterCompanionKinds/)
+  assert.match(chapterLabSource, /OverviewMediaFigure/)
+  assert.match(chapterLabSource, /aiOverviewRuntimeMediaAssets/)
+  assert.match(chapterLabSource, /AlgorithmStaticFallback/)
+})
