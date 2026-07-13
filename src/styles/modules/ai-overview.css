@@ -245,6 +245,26 @@
     margin: 8mm;
   }
 
+  html:has(.algorithm-view--ai-overview),
+  body:has(.algorithm-view--ai-overview) {
+    background: #fff;
+  }
+
+  body:has(.algorithm-view--ai-overview)::before {
+    display: none;
+  }
+
+  body:has(.algorithm-view--ai-overview) #app,
+  body:has(.algorithm-view--ai-overview) .app-shell {
+    min-height: 0;
+  }
+
+  body:has(.algorithm-view--ai-overview) .site-main {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
   .algorithm-view--ai-overview {
     color: #000;
     background: #fff;
@@ -287,6 +307,7 @@
     font-size: 8pt;
     line-height: 1.2;
     break-inside: avoid;
+    zoom: 0.9;
   }
 
   .algorithm-view--ai-overview .ai-overview-knowledge-map h2,

@@ -9,6 +9,7 @@ import { createSeededRandom } from '../utils/random'
 import { normalizeSeed } from '../utils/labInputs'
 import {
   Q_LEARNING_ACTIONS,
+  cloneQTable,
   createQTable,
   evaluateGreedyPolicy,
   runEpisode,
@@ -74,7 +75,7 @@ function oneAction() {
   }
 }
 function oneEpisode() {
-  const result = runEpisode(qLearningEnvironment, structuredClone(qTable.value), {
+  const result = runEpisode(qLearningEnvironment, cloneQTable(qTable.value), {
     explorationRate: safeExplorationRate.value,
     learningRate,
     discountFactor,

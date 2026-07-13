@@ -111,8 +111,12 @@ test('AI Overview print isolates the knowledge-map path without changing other r
   assert.match(lessonPage, /lesson-page--\$\{props\.variant\}/)
   assert.match(headerCss, /body:has\(\.algorithm-view--ai-overview\) \.site-header\s*\{[^}]*display:\s*none\s*!important/s)
   assert.doesNotMatch(css, /\.site-header/)
+  assert.match(css, /@page\s*\{[^}]*size:\s*A4 landscape/s)
   assert.match(css, /\.algorithm-view--ai-overview\s*>\s*:not\(\.lesson-page--ai-overview\)\s*\{[^}]*display:\s*none\s*!important/s)
   assert.match(css, /\.story-card:not\(\[data-section-id='choose-learning-approach'\]\)/)
+  assert.match(css, /@media print[\s\S]*\.ai-overview-knowledge-map\s*\{[^}]*zoom:\s*0\.9/s)
+  assert.match(css, /body:has\(\.algorithm-view--ai-overview\)::before\s*\{[^}]*display:\s*none/s)
+  assert.match(css, /body:has\(\.algorithm-view--ai-overview\) #app,[\s\S]*\.app-shell\s*\{[^}]*min-height:\s*0/s)
   assert.doesNotMatch(css, /@media print\s*\{[^}]*\n\s*\.site-header\s*\{/s)
 })
 

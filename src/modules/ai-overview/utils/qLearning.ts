@@ -247,7 +247,7 @@ export function selectAction(
   return Q_LEARNING_ACTIONS[Math.floor(randomUnit(random) * Q_LEARNING_ACTIONS.length)]
 }
 
-function cloneQTable(qTable: QTable): QTable {
+export function cloneQTable(qTable: QTable): QTable {
   return Object.fromEntries(Object.entries(qTable).map(([key, values]) => [key, { ...values }]))
 }
 
