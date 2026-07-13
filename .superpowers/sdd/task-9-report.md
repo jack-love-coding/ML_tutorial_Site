@@ -130,3 +130,48 @@ The untracked Task 8 asset test was intentionally excluded from the explicit tra
 ## Remaining concerns
 
 No Task 9 blocker remains. The Manim CLI emits a benign Python `runpy` warning about `manim.__main__` already being in `sys.modules`; rendering exits successfully and media verification is exact. ImageMagick was unavailable for a contact sheet, so original PNGs were inspected directly instead.
+
+## Review-finding fix — 2026-07-13
+
+The Task 9 review findings were fixed with a new RED/GREEN cycle.
+
+### Regression synchronization
+
+`experiment-fixture.json` now contains a derived `candidateTimeline` for all seven committed candidates. Every record contains predictions, five signed residuals, exact MSE, and best-so-far state. During 55–75 seconds, the Manim scene transforms the candidate line, all five residual segments, current MSE, newly revealed leaderboard row, best-so-far text, and GREEN best-row marker together for every candidate. The exact 85-second 1920×1080/30fps MP4, leaderboard keyframe, and metadata were regenerated; poster and unchanged keyframes remained byte-identical.
+
+### Engine-generated Q-learning snapshots
+
+The hard-coded `SNAPSHOTS` and `LEARNED_PATH` constants were removed. `generate_q_learning_fixture.ts` imports the committed experiment environment, RNG, and Q-learning engine. It seeds one RNG once with `7107`, creates one Q table once, and runs a continuous 50-episode stream with exploration `0.3`, learning rate `0.5`, and discount factor `0.9`. Episodes 1, 5, 20, and 50 record their actual trajectory, cumulative reward, reached-goal status, cloned Q table, and derived deterministic policy:
+
+- episode 1: 26 steps, reward `-25`, reached goal;
+- episode 5: 17 steps, reward `-6`, reached goal;
+- episode 20: 6 steps, reward `+5`, reached goal;
+- episode 50: 12 steps, reward `-1`, reached goal.
+
+All four video snapshots, including episode 1, now show their actual YELLOW trajectory, actual reward/status, Q-value red/neutral/green cell encoding, and BLUE policy arrows from the same table. Evaluation compares the actual episode 1 exploratory path with the six-step final greedy policy. The exact 90-second MP4, poster, training/evaluation keyframes, fixture, and metadata were regenerated.
+
+### Copy and mismatch guards
+
+All three bilingual label JSON records now cover every static Chinese string embedded in the source, including the K-means convergence detail. Generated Q snapshot detail lines are also present in labels and transcript. The prompts, reverse-knowledge trees, English summary, and Chinese transcripts now state the continuous-stream and synchronized-visual contracts.
+
+`tests/aiOverviewManimAssets.test.ts` now checks:
+
+- the derived regression candidate timeline and synchronized source transformations;
+- exact seeded episode summaries, the full episode-1 trajectory, milestone Q values/policies, and byte-for-value equality with fresh engine output;
+- absence of hard-coded Q snapshot/path constants;
+- fixture/transcript/label agreement for all four snapshots;
+- complete embedded Chinese source-label coverage across all three scenes.
+
+### Review fix verification
+
+RED: 4 new tests failed for the expected missing timeline, snapshots, transcript agreement, and label coverage.
+
+GREEN and final evidence:
+
+- `python scripts/manim/render_ai_overview.py --check` — passed;
+- `node --test tests/aiOverviewManimAssets.test.ts` — 8 passed;
+- `node --test $(git ls-files 'tests/*.test.ts' 'tests/*.test.mjs' 'tests/*.test.js')` — 497 passed;
+- `npm run build` — passed;
+- `npm run build:pages` — passed.
+
+The existing large-chunk advisory remains unchanged. Final 1080p posters, named keyframes, five intermediate regression-search frames, and all four Q snapshot frames were visually inspected; no clipping, overlap, missing Chinese glyph, or data mismatch was found.

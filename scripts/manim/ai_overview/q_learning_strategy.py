@@ -1,15 +1,19 @@
 """Deterministic 90-second Q-learning strategy-formation lesson."""
 
-from manim import Arrow, FadeIn, FadeOut, Group, LEFT, MathTex, RIGHT, Scene, Square, Text, UP, VGroup, Write
+import json
+from pathlib import Path
 
-from palette import BACKGROUND, BLUE, CHINESE_FONT, CYAN, GREEN, GRID, INK, MUTED, ORANGE, PINK, RED, YELLOW
+from manim import Arrow, Circle, FadeIn, FadeOut, Group, LEFT, MathTex, RIGHT, Scene, Square, Text, UP, VGroup, Write, interpolate_color
+
+from palette import BACKGROUND, BLUE, CHINESE_FONT, CYAN, GREEN, GRID, INK, MUTED, ORANGE, PAPER, PINK, RED, YELLOW
 
 
 START = (3, 0)
 GOAL = (0, 3)
 OBSTACLES = {(1, 1), (2, 2)}
-LEARNED_PATH = [(3, 0), (2, 0), (1, 0), (0, 0), (0, 1), (0, 2), (0, 3)]
-SNAPSHOTS = [(1, 26, -25, False), (5, 17, -6, True), (20, 6, 5, True), (50, 12, -1, True)]
+FIXTURE = json.loads((Path(__file__).resolve().parents[3] / "public/manim/ai-overview/experiment-fixture.json").read_text(encoding="utf-8"))
+TRAINING_SNAPSHOTS = FIXTURE["qLearning"]["snapshots"]
+ACTION_OFFSETS = {"up": (-1, 0), "right": (0, 1), "down": (1, 0), "left": (0, -1)}
 
 
 class QLearningStrategy(Scene):
@@ -121,30 +125,21 @@ class QLearningStrategy(Scene):
 
     def _training_snapshots(self, grid, cells):
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.6)
-        grid, cells = self._make_grid()
-        grid.shift(3.0 * LEFT)
         title = Text("固定参数训练：episode 1 → 5 → 20 → 50", font=CHINESE_FONT, font_size=34, color=INK).to_edge(UP, buff=0.3)
-        self.play(FadeIn(title), FadeIn(grid), run_time=1.0)
-        cards = VGroup()
-        for episode, steps, reward, reached in SNAPSHOTS:
-            status = "到达目标" if reached else "尚未形成稳定策略"
-            card = VGroup(
-                Text(f"episode {episode}", font=CHINESE_FONT, font_size=24, color=BLUE),
-                Text(f"轨迹步数 {steps}｜累计 reward {reward}", font=CHINESE_FONT, font_size=20, color=INK),
-                Text(status, font=CHINESE_FONT, font_size=19, color=GREEN if reached else ORANGE),
-            ).arrange((0, -1, 0), aligned_edge=(-1, 0, 0), buff=0.12)
-            cards.add(card)
-        cards.arrange((0, -1, 0), aligned_edge=(-1, 0, 0), buff=0.32).to_edge(RIGHT, buff=0.3)
-        for index, card in enumerate(cards):
-            self.play(FadeIn(card), run_time=0.8)
-            if index > 0:
-                path = LEARNED_PATH[: min(len(LEARNED_PATH), index + 4)]
-                arrows = self._path_arrows(cells, path)
-                self.play(FadeIn(arrows), run_time=0.7)
-                self.play(FadeOut(arrows), run_time=0.35)
-        legend = Text("Q value 越高，策略箭头越明确", font=CHINESE_FONT, font_size=23, color=PINK).to_edge((0, -1, 0), buff=0.2)
-        self.play(FadeIn(legend), run_time=0.8)
-        self._training_group = VGroup(title, grid, cards, legend)
+        legend = Text(
+            "格子颜色：红=负 Q、浅色=0、绿=正 Q｜蓝箭头=policy｜黄线=本轮实际轨迹",
+            font=CHINESE_FONT, font_size=20, color=INK,
+        ).to_edge((0, -1, 0), buff=0.18)
+        self.play(FadeIn(title), FadeIn(legend), run_time=1.0)
+        current_snapshot = None
+        for snapshot in TRAINING_SNAPSHOTS:
+            snapshot_group = self._snapshot_group(snapshot)
+            if current_snapshot is not None:
+                self.play(FadeOut(current_snapshot), run_time=0.35)
+            self.play(FadeIn(snapshot_group), run_time=0.85)
+            self.wait(4.0)
+            current_snapshot = snapshot_group
+        self._training_group = VGroup(title, legend, current_snapshot)
 
     def _evaluation(self, grid, cells):
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.6)
@@ -153,12 +148,22 @@ class QLearningStrategy(Scene):
         left_grid.scale(0.72).shift(3.3 * LEFT)
         right_grid, right_cells = self._make_grid()
         right_grid.scale(0.72).shift(3.3 * RIGHT)
-        left_label = Text("初始：反复撞边，8 步 reward=-8", font=CHINESE_FONT, font_size=22, color=RED).next_to(left_grid, (0, -1, 0), buff=0.25)
-        right_label = Text("学习后：6 步到达，reward=+5", font=CHINESE_FONT, font_size=22, color=GREEN).next_to(right_grid, (0, -1, 0), buff=0.25)
+        first_snapshot = TRAINING_SNAPSHOTS[0]
+        final_snapshot = TRAINING_SNAPSHOTS[-1]
+        learned_path = self._policy_trajectory(final_snapshot["policy"])
+        left_label = VGroup(
+            Text("episode 1 实际探索", font=CHINESE_FONT, font_size=21, color=RED),
+            Text("26 步，reward=-25", font=CHINESE_FONT, font_size=20, color=RED),
+        ).arrange((0, -1, 0), buff=0.1).next_to(left_grid, (0, -1, 0), buff=0.22)
+        right_label = VGroup(
+            Text("学习后的 greedy policy", font=CHINESE_FONT, font_size=21, color=GREEN),
+            Text("6 步到达，reward=+5", font=CHINESE_FONT, font_size=20, color=GREEN),
+        ).arrange((0, -1, 0), buff=0.1).next_to(right_grid, (0, -1, 0), buff=0.22)
         self.play(FadeIn(title), FadeIn(left_grid), FadeIn(right_grid), FadeIn(left_label), FadeIn(right_label), run_time=1.3)
-        stable = self._path_arrows(right_cells, LEARNED_PATH)
-        self.play(FadeIn(stable), run_time=1.5)
-        self._eval_group = VGroup(title, left_grid, right_grid, left_label, right_label, stable)
+        explored = self._path_arrows(left_cells, self._cells(first_snapshot["trajectory"]), color=RED, stroke_width=3)
+        stable = self._path_arrows(right_cells, learned_path)
+        self.play(FadeIn(explored), FadeIn(stable), run_time=1.5)
+        self._eval_group = VGroup(title, left_grid, right_grid, left_label, right_label, explored, stable)
 
     def _transfer(self):
         self.play(FadeOut(Group(*self.mobjects)), run_time=0.6)
@@ -175,12 +180,70 @@ class QLearningStrategy(Scene):
             self.play(FadeIn(item), run_time=0.6)
         self.play(FadeIn(note), run_time=0.7)
 
-    def _path_arrows(self, cells, path):
+    def _snapshot_group(self, snapshot):
+        grid, cells = self._make_grid()
+        grid.shift(3.0 * LEFT)
+        q_table = snapshot["qTable"]
+        max_abs = max(abs(value) for values in q_table.values() for value in values.values()) or 1
+        for state, values in q_table.items():
+            row, column = (int(part) for part in state.split(","))
+            if (row, column) == GOAL:
+                continue
+            value = max(values.values())
+            color = interpolate_color(PAPER, GREEN if value >= 0 else RED, min(abs(value) / max_abs, 1))
+            cells[(row, column)].set_fill(color, opacity=0.85)
+
+        policy_arrows = self._policy_arrows(cells, snapshot["policy"])
+        trajectory = self._path_arrows(cells, self._cells(snapshot["trajectory"]), color=YELLOW, stroke_width=4)
+        status = "到达目标" if snapshot["reachedGoal"] else "未到达目标"
+        card = VGroup(
+            Text(f"episode {snapshot['episode']}", font=CHINESE_FONT, font_size=30, color=BLUE),
+            Text(f"轨迹步数：{len(snapshot['trajectory']) - 1}", font=CHINESE_FONT, font_size=22, color=INK),
+            Text(f"累计 reward：{snapshot['cumulativeReward']}", font=CHINESE_FONT, font_size=22, color=INK),
+            Text(f"状态：{status}", font=CHINESE_FONT, font_size=22, color=GREEN if snapshot["reachedGoal"] else ORANGE),
+            Text("格子颜色来自实际 Q table", font=CHINESE_FONT, font_size=20, color=MUTED),
+            Text("蓝箭头来自同一张表的 greedy policy", font=CHINESE_FONT, font_size=20, color=MUTED),
+        ).arrange((0, -1, 0), aligned_edge=(-1, 0, 0), buff=0.2).move_to(3.05 * RIGHT)
+        return VGroup(grid, policy_arrows, trajectory, card)
+
+    def _policy_arrows(self, cells, policy):
+        arrows = VGroup()
+        for state, action in policy.items():
+            row, column = (int(part) for part in state.split(","))
+            if (row, column) == GOAL:
+                continue
+            dr, dc = ACTION_OFFSETS[action]
+            center = cells[(row, column)].get_center()
+            vector = (dc * 0.34, -dr * 0.34, 0)
+            arrows.add(Arrow(center, center + vector, buff=0.02, color=BLUE, stroke_width=3, max_tip_length_to_length_ratio=0.35))
+        return arrows
+
+    def _policy_trajectory(self, policy):
+        current = START
+        path = [current]
+        for _ in range(32):
+            if current == GOAL:
+                break
+            dr, dc = ACTION_OFFSETS[policy[f"{current[0]},{current[1]}"]]
+            candidate = (current[0] + dr, current[1] + dc)
+            if candidate[0] not in range(4) or candidate[1] not in range(4) or candidate in OBSTACLES:
+                candidate = current
+            current = candidate
+            path.append(current)
+        return path
+
+    def _cells(self, trajectory):
+        return [(cell["row"], cell["column"]) for cell in trajectory]
+
+    def _path_arrows(self, cells, path, color=YELLOW, stroke_width=6):
         arrows = VGroup()
         for start, end in zip(path, path[1:]):
             a = cells[start].get_center()
             b = cells[end].get_center()
-            arrows.add(Arrow(a, b, buff=0.18, color=YELLOW, stroke_width=6, max_tip_length_to_length_ratio=0.25))
+            if start == end:
+                arrows.add(Circle(radius=0.17, color=color, stroke_width=stroke_width).move_to(a))
+            else:
+                arrows.add(Arrow(a, b, buff=0.18, color=color, stroke_width=stroke_width, max_tip_length_to_length_ratio=0.25))
         return arrows
 
     def _advance_to(self, timestamp):

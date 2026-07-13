@@ -20,11 +20,18 @@ state 是当前位置；action 是上、右、下、左；Q(s,a) 是“在状态
 
 ## 0:44–1:10
 
-使用 seed=7107、α=0.5、γ=0.9、exploration rate=0.3 分别训练到 episode 1、5、20 和 50。第 1 次训练的最后一集走 26 步、累计 reward −25；第 5 次为 17 步、−6；第 20 次为 6 步、+5；第 50 次为 12 步、−1。四次都到达目标。随机训练的最后一集 reward 不要求单调；随着 Q value 形成，贪心策略箭头逐渐明确。
+使用 seed=7107、α=0.5、γ=0.9、exploration rate=0.3，在同一个连续随机数流和同一张持续更新的 Q table 上训练，并记录 episode 1、5、20 和 50 的实际结果：
+
+- episode 1：轨迹步数 26｜累计 reward -25｜到达目标
+- episode 5：轨迹步数 17｜累计 reward -6｜到达目标
+- episode 20：轨迹步数 6｜累计 reward 5｜到达目标
+- episode 50：轨迹步数 12｜累计 reward -1｜到达目标
+
+每个快照同时显示该轮的实际轨迹、累计 reward、轮末 Q value 颜色和由同一张 Q table 推出的 policy 箭头。随机训练的单轮 reward 不要求单调。
 
 ## 1:10–1:22
 
-评估时关闭探索，exploration rate=0。初始全零 Q 表在确定性平局规则下会反复撞向上边界，展示 8 步累计 reward −8。学习后的贪心路径依次上、上、上、右、右、右，6 步到达目标，累计 reward +5。
+评估时关闭探索，exploration rate=0。左侧复用 episode 1 的真实探索轨迹：26 步、累计 reward -25。右侧从 episode 50 的实际 Q table 提取贪心 policy，路径依次上、上、上、右、右、右，6 步到达目标，累计 reward +5。
 
 ## 1:22–1:30
 

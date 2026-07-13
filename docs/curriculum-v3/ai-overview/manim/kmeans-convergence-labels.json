@@ -17,6 +17,8 @@
     {"zh-CN": "聚类结果不是唯一答案", "en": "A clustering result is not a unique answer"},
     {"zh-CN": "K 的选择会改变分组粒度", "en": "K changes grouping granularity"},
     {"zh-CN": "初始中心会影响搜索路径", "en": "Initial centers affect the search path"},
-    {"zh-CN": "群组含义仍需要人来解释", "en": "People still need to interpret group meaning"}
+    {"zh-CN": "群组含义仍需要人来解释", "en": "People still need to interpret group meaning"},
+    {"zh-CN": "组内距离总和", "en": "Within-group distance total"},
+    {"zh-CN": "中心移动≈0，分配保持不变，组内距离总和=1293.5", "en": "Center movement ≈ 0, assignments stay unchanged, within-group distance total = 1293.5"}
   ]
 }

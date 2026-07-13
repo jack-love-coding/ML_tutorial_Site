@@ -63,7 +63,7 @@
       "definitions": {"w star,b star": "best pair among the displayed candidates"},
       "interpretation": "Synchronize the line and MSE for each candidate, retain the smallest score, then distinguish this finite teaching search from gradient descent.",
       "example": "Among the seven committed candidates, w=6.5,b=46 has MSE 0.15.",
-      "visualSpec": {"elements": ["animated candidate line", "leaderboard", "best-line summary"], "colors": {"candidate": "BLUE", "best": "GREEN", "handoff": "YELLOW"}, "animations": ["Transform candidates", "Update leaderboard", "Highlight best"], "durationSeconds": 30}
+      "visualSpec": {"elements": ["animated candidate line", "five synchronized residual segments", "current MSE", "leaderboard", "best-so-far marker", "best-line summary"], "colors": {"candidate": "BLUE", "residuals": "RED", "best": "GREEN", "handoff": "YELLOW"}, "animations": ["Transform candidate line and residuals together", "Update MSE and leaderboard together", "Move best-so-far marker", "Highlight final best"], "durationSeconds": 30}
     }
   ]
 }

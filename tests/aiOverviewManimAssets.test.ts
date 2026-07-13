@@ -31,6 +31,17 @@ type Metadata = {
   scenes: SceneRecord[]
 }
 
+type GridCell = { row: number; column: number }
+
+type QLearningSnapshot = {
+  episode: number
+  trajectory: GridCell[]
+  cumulativeReward: number
+  reachedGoal: boolean
+  qTable: Record<string, Record<'up' | 'right' | 'down' | 'left', number>>
+  policy: Record<string, 'up' | 'right' | 'down' | 'left'>
+}
+
 const absolute = (publicOrRepoPath: string) => resolve(root, publicOrRepoPath.replace(/^\//, 'public/'))
 
 test('AI Overview Manim metadata declares exactly three complete 1080p teaching packages', () => {
@@ -76,7 +87,8 @@ test('Manim fixture and metadata preserve exact lab data, seeds, rewards, and st
   const metadata = JSON.parse(readFileSync(metadataPath, 'utf8')) as Metadata
   const fixture = JSON.parse(readFileSync(absolute(metadata.fixture), 'utf8'))
 
-  assert.deepEqual(fixture.regression, {
+  const { candidateTimeline: _candidateTimeline, ...regressionFixture } = fixture.regression
+  assert.deepEqual(regressionFixture, {
     presetId: 'clear-trend',
     samples: [
       { id: 's1', x: 1, y: 52 }, { id: 's2', x: 2, y: 59 }, { id: 's3', x: 3, y: 65 },
@@ -90,7 +102,8 @@ test('Manim fixture and metadata preserve exact lab data, seeds, rewards, and st
   assert.equal(fixture.kmeans.seed, 3103)
   assert.equal(fixture.kmeans.k, 3)
   assert.equal(fixture.kmeans.points.length, 12)
-  assert.deepEqual(fixture.qLearning, {
+  const { snapshots: _snapshots, ...qLearningFixture } = fixture.qLearning
+  assert.deepEqual(qLearningFixture, {
     seed: 7107,
     environment: {
       width: 4, height: 4,
@@ -140,4 +153,121 @@ test('renderer check mode detects no source, fixture, metadata, or output drift'
   })
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`)
   assert.match(result.stdout, /AI Overview Manim assets are in sync/)
+})
+
+test('regression fixture and scene synchronize line, residuals, MSE, and current-best state for every candidate', () => {
+  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8')) as Metadata
+  const fixture = JSON.parse(readFileSync(absolute(metadata.fixture), 'utf8'))
+  const candidates = fixture.regression.candidates as Array<{ w: number; b: number }>
+  const timeline = fixture.regression.candidateTimeline as Array<{
+    w: number
+    b: number
+    predictions: number[]
+    residuals: number[]
+    mse: number
+    currentBest: { w: number; b: number; mse: number }
+  }>
+
+  assert.equal(timeline.length, candidates.length)
+  let best = { w: Number.NaN, b: Number.NaN, mse: Number.POSITIVE_INFINITY }
+  for (const [index, candidate] of candidates.entries()) {
+    const predictions = fixture.regression.samples.map(({ x }: { x: number }) => candidate.w * x + candidate.b)
+    const residuals = fixture.regression.samples.map(({ y }: { y: number }, sampleIndex: number) => y - predictions[sampleIndex])
+    const mse = residuals.reduce((sum: number, residual: number) => sum + residual ** 2, 0) / residuals.length
+    if (mse < best.mse) best = { ...candidate, mse }
+    assert.deepEqual(timeline[index], { ...candidate, predictions, residuals, mse, currentBest: best })
+  }
+
+  const source = readFileSync(resolve(root, 'scripts/manim/ai_overview/linear_regression_parameter_search.py'), 'utf8')
+  assert.match(source, /candidate\["residuals"\]/)
+  assert.match(source, /Transform\(current_residuals/)
+  assert.match(source, /Transform\(current_mse/)
+  assert.match(source, /Transform\(current_best/)
+})
+
+test('Q-learning snapshots are exact episode 1/5/20/50 states from one continuous engine stream', () => {
+  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8')) as Metadata
+  const fixture = JSON.parse(readFileSync(absolute(metadata.fixture), 'utf8'))
+  const snapshots = fixture.qLearning.snapshots as QLearningSnapshot[]
+
+  assert.deepEqual(snapshots.map(({ episode, trajectory, cumulativeReward, reachedGoal }) => ({
+    episode,
+    steps: trajectory.length - 1,
+    cumulativeReward,
+    reachedGoal,
+  })), [
+    { episode: 1, steps: 26, cumulativeReward: -25, reachedGoal: true },
+    { episode: 5, steps: 17, cumulativeReward: -6, reachedGoal: true },
+    { episode: 20, steps: 6, cumulativeReward: 5, reachedGoal: true },
+    { episode: 50, steps: 12, cumulativeReward: -1, reachedGoal: true },
+  ])
+  assert.deepEqual(snapshots[0].trajectory, [
+    { row: 3, column: 0 }, { row: 2, column: 0 }, { row: 1, column: 0 }, { row: 2, column: 0 },
+    { row: 2, column: 1 }, { row: 2, column: 1 }, { row: 2, column: 1 }, { row: 3, column: 1 },
+    { row: 2, column: 1 }, { row: 2, column: 0 }, { row: 3, column: 0 }, { row: 3, column: 1 },
+    { row: 3, column: 2 }, { row: 3, column: 2 }, { row: 3, column: 2 }, { row: 3, column: 3 },
+    { row: 2, column: 3 }, { row: 1, column: 3 }, { row: 2, column: 3 }, { row: 2, column: 3 },
+    { row: 3, column: 3 }, { row: 3, column: 3 }, { row: 3, column: 3 }, { row: 2, column: 3 },
+    { row: 2, column: 3 }, { row: 1, column: 3 }, { row: 0, column: 3 },
+  ])
+  assert.equal(snapshots[0].qTable['1,3'].up, 5)
+  assert.equal(snapshots[1].qTable['0,2'].right, 7.5)
+  assert.equal(snapshots[2].qTable['0,2'].right, 9.998779296875)
+  assert.equal(snapshots[3].qTable['0,2'].right, 9.999999999990905)
+  assert.equal(snapshots[0].policy['3,0'], 'down')
+  assert.equal(snapshots[1].policy['3,0'], 'up')
+  assert.equal(snapshots[2].policy['3,0'], 'up')
+  assert.equal(snapshots[3].policy['3,0'], 'up')
+
+  const generated = spawnSync('node', ['--experimental-strip-types', 'scripts/manim/ai_overview/generate_q_learning_fixture.ts'], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+  assert.equal(generated.status, 0, generated.stderr)
+  assert.deepEqual(JSON.parse(generated.stdout), snapshots)
+
+  const source = readFileSync(resolve(root, 'scripts/manim/ai_overview/q_learning_strategy.py'), 'utf8')
+  assert.doesNotMatch(source, /^SNAPSHOTS\s*=/m)
+  assert.doesNotMatch(source, /^LEARNED_PATH\s*=/m)
+  assert.match(source, /snapshot\["trajectory"\]/)
+  assert.match(source, /snapshot\["qTable"\]/)
+  assert.match(source, /snapshot\["policy"\]/)
+})
+
+test('Q-learning transcript and bilingual labels agree with every generated snapshot', () => {
+  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8')) as Metadata
+  const fixture = JSON.parse(readFileSync(absolute(metadata.fixture), 'utf8'))
+  const scene = metadata.scenes.find(({ id }) => id === 'q-learning-strategy')!
+  const transcript = readFileSync(absolute(scene.transcript), 'utf8')
+  const labels = JSON.parse(readFileSync(absolute(scene.labels), 'utf8')).labels as Array<Record<'zh-CN' | 'en', string>>
+  const chineseLabels = new Set(labels.map((label) => label['zh-CN']))
+
+  for (const snapshot of fixture.qLearning.snapshots as QLearningSnapshot[]) {
+    const status = snapshot.reachedGoal ? '到达目标' : '未到达目标'
+    const detail = `episode ${snapshot.episode}：轨迹步数 ${snapshot.trajectory.length - 1}｜累计 reward ${snapshot.cumulativeReward}｜${status}`
+    assert.match(transcript, new RegExp(detail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+    assert.equal(chineseLabels.has(detail), true, `labels must include ${detail}`)
+    assert.equal(chineseLabels.has(`轨迹步数：${snapshot.trajectory.length - 1}`), true)
+    assert.equal(chineseLabels.has(`累计 reward：${snapshot.cumulativeReward}`), true)
+    assert.equal(chineseLabels.has(`状态：${status}`), true)
+  }
+})
+
+test('bilingual label JSON covers every embedded Chinese source string in all three scenes', () => {
+  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8')) as Metadata
+
+  for (const scene of metadata.scenes) {
+    const result = spawnSync('python', ['-c', [
+      'import ast, json, pathlib, sys',
+      'tree = ast.parse(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))',
+      'parents = {child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)}',
+      'values = sorted({node.value for node in ast.walk(tree) if isinstance(node, ast.Constant) and not isinstance(parents.get(node), ast.JoinedStr) and isinstance(node.value, str) and any("\\u4e00" <= char <= "\\u9fff" for char in node.value)})',
+      'print(json.dumps(values, ensure_ascii=False))',
+    ].join('; '), absolute(scene.source)], { cwd: root, encoding: 'utf8' })
+    assert.equal(result.status, 0, result.stderr)
+    const embedded = JSON.parse(result.stdout) as string[]
+    const labelRecord = JSON.parse(readFileSync(absolute(scene.labels), 'utf8'))
+    const covered = new Set((labelRecord.labels as Array<Record<'zh-CN' | 'en', string>>).map((label) => label['zh-CN']))
+    assert.deepEqual(embedded.filter((copy) => !covered.has(copy)), [], `${scene.id} has uncovered embedded Chinese copy`)
+  }
 })

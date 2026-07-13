@@ -1,15 +1,19 @@
 """Deterministic 85-second linear-regression parameter-search lesson."""
 
+import json
+from pathlib import Path
+
 from manim import (
     Axes, BackgroundRectangle, Create, DashedLine, Dot, DOWN, FadeIn, FadeOut, Group, LEFT, Line, MathTex,
-    RIGHT, Scene, SurroundingRectangle, Text, UP, VGroup, Write, config,
+    RIGHT, Scene, SurroundingRectangle, Text, Transform, UP, VGroup, Write, config,
 )
 
 from palette import BACKGROUND, BLUE, CHINESE_FONT, GREEN, GRID, INK, MUTED, ORANGE, PAPER, PINK, RED, YELLOW
 
 
 SAMPLES = [(1, 52), (2, 59), (3, 65), (4, 72), (5, 78)]
-CANDIDATES = [(4, 48, 39.60), (5, 48, 9.40), (6, 47, 0.60), (6.5, 46, 0.15), (6.6, 45.8, 0.24), (7, 45, 1.20), (5.5, 50, 3.75)]
+FIXTURE = json.loads((Path(__file__).resolve().parents[3] / "public/manim/ai-overview/experiment-fixture.json").read_text(encoding="utf-8"))
+CANDIDATES = FIXTURE["regression"]["candidateTimeline"]
 
 
 class LinearRegressionParameterSearch(Scene):
@@ -119,21 +123,60 @@ class LinearRegressionParameterSearch(Scene):
         self.add(axes, dots)
         leaderboard = VGroup(
             Text("当前候选        MSE", font=CHINESE_FONT, font_size=22, color=MUTED),
-            *[Text(f"w={w:g}, b={b:g}      {mse:.2f}", font=CHINESE_FONT, font_size=21, color=INK) for w, b, mse in CANDIDATES],
+            *[
+                Text(f"w={candidate['w']:g}, b={candidate['b']:g}      {candidate['mse']:.2f}", font=CHINESE_FONT, font_size=21, color=INK)
+                for candidate in CANDIDATES
+            ],
         ).arrange((0, -1, 0), aligned_edge=LEFT, buff=0.12).to_edge(RIGHT, buff=0.35)
         self.play(FadeIn(title), FadeIn(leaderboard[0]), run_time=0.8)
         current_line = None
-        for index, (w, b, _mse) in enumerate(CANDIDATES):
-            new_line = Line(axes.c2p(0, b), axes.c2p(6, 6 * w + b), color=BLUE, stroke_width=4)
+        current_residuals = None
+        current_mse = None
+        current_best = None
+        current_marker = None
+        for index, candidate in enumerate(CANDIDATES):
+            w, b = candidate["w"], candidate["b"]
+            new_line = Line(axes.c2p(0, b), axes.c2p(5.7, 5.7 * w + b), color=BLUE, stroke_width=4)
+            new_residuals = VGroup(*[
+                DashedLine(axes.c2p(x, y), axes.c2p(x, y - residual), color=RED, stroke_width=3)
+                for (x, y), residual in zip(SAMPLES, candidate["residuals"])
+            ])
+            new_mse = Text(f"当前 MSE = {candidate['mse']:.2f}", font=CHINESE_FONT, font_size=23, color=ORANGE)
+            new_mse.to_corner(LEFT + DOWN, buff=0.35)
+            best = candidate["currentBest"]
+            new_best = Text(
+                f"当前最佳：w={best['w']:g}, b={best['b']:g}, MSE={best['mse']:.2f}",
+                font=CHINESE_FONT, font_size=22, color=GREEN,
+            ).next_to(new_mse, UP, aligned_edge=LEFT, buff=0.16)
+            best_index = next(
+                candidate_index for candidate_index, row in enumerate(CANDIDATES)
+                if row["w"] == best["w"] and row["b"] == best["b"]
+            )
+            new_marker = SurroundingRectangle(leaderboard[best_index + 1], color=GREEN, buff=0.08)
             if current_line is None:
-                self.play(Create(new_line), FadeIn(leaderboard[index + 1]), run_time=0.8)
+                self.play(
+                    Create(new_line), FadeIn(new_residuals), FadeIn(new_mse), FadeIn(new_best),
+                    FadeIn(leaderboard[index + 1]), FadeIn(new_marker), run_time=1.8,
+                )
+                current_line = new_line
+                current_residuals = new_residuals
+                current_mse = new_mse
+                current_best = new_best
+                current_marker = new_marker
             else:
-                self.play(current_line.animate.become(new_line), FadeIn(leaderboard[index + 1]), run_time=0.8)
-            current_line = new_line if current_line is None else current_line
-        best_box = SurroundingRectangle(leaderboard[4], color=GREEN, buff=0.1)
-        self.play(FadeIn(best_box), run_time=0.7)
-        self.wait(0.8)
-        self._search_group = VGroup(title, axes, dots, leaderboard, current_line, best_box)
+                self.play(
+                    current_line.animate.become(new_line),
+                    Transform(current_residuals, new_residuals),
+                    Transform(current_mse, new_mse),
+                    Transform(current_best, new_best),
+                    Transform(current_marker, new_marker),
+                    FadeIn(leaderboard[index + 1]),
+                    run_time=2.0,
+                )
+        self.wait(0.7)
+        self._search_group = VGroup(
+            title, axes, dots, leaderboard, current_line, current_residuals, current_mse, current_best, current_marker,
+        )
 
     def _conclusion(self, axes):
         self.play(FadeOut(self._search_group), run_time=0.7)

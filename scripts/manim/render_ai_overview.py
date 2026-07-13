@@ -24,6 +24,7 @@ FIXTURE_PATH = PUBLIC_DIR / "experiment-fixture.json"
 EXPERIMENT_SOURCE = ROOT / "src/modules/ai-overview/data/experiments.ts"
 KMEANS_SOURCE = ROOT / "src/modules/ai-overview/utils/kmeans.ts"
 Q_SOURCE = ROOT / "src/modules/ai-overview/utils/qLearning.ts"
+Q_FIXTURE_GENERATOR = SCENE_DIR / "generate_q_learning_fixture.ts"
 
 
 SCENES = [
@@ -92,6 +93,22 @@ def write_if_changed(path: Path, content: bytes) -> None:
 
 
 def checked_fixture() -> dict[str, Any]:
+    q_snapshots = _generate_q_learning_snapshots()
+    candidate_timeline = []
+    current_best = None
+    for candidate in REGRESSION_CANDIDATES:
+        predictions = [candidate["w"] * sample["x"] + candidate["b"] for sample in REGRESSION_SAMPLES]
+        residuals = [sample["y"] - prediction for sample, prediction in zip(REGRESSION_SAMPLES, predictions)]
+        mse = sum(residual * residual for residual in residuals) / len(residuals)
+        if current_best is None or mse < current_best["mse"]:
+            current_best = {**candidate, "mse": mse}
+        candidate_timeline.append({
+            **candidate,
+            "predictions": predictions,
+            "residuals": residuals,
+            "mse": mse,
+            "currentBest": dict(current_best),
+        })
     fixture = {
         "schemaVersion": 1,
         "checkedSources": {
@@ -99,7 +116,12 @@ def checked_fixture() -> dict[str, Any]:
             "kmeans": {"path": "src/modules/ai-overview/utils/kmeans.ts", "sha256": sha256(KMEANS_SOURCE)},
             "qLearning": {"path": "src/modules/ai-overview/utils/qLearning.ts", "sha256": sha256(Q_SOURCE)},
         },
-        "regression": {"presetId": "clear-trend", "samples": REGRESSION_SAMPLES, "candidates": REGRESSION_CANDIDATES},
+        "regression": {
+            "presetId": "clear-trend",
+            "samples": REGRESSION_SAMPLES,
+            "candidates": REGRESSION_CANDIDATES,
+            "candidateTimeline": candidate_timeline,
+        },
         "kmeans": {
             "seed": 3103, "k": 3, "points": KMEANS_POINTS,
             "initialCenters": [[43, 37], [88, 33], [56, 82]],
@@ -115,10 +137,25 @@ def checked_fixture() -> dict[str, Any]:
                 "rewards": {"goal": 10, "step": -1, "collision": -3},
             },
             "training": {"episodes": 50, "explorationRate": 0.3, "learningRate": 0.5, "discountFactor": 0.9},
+            "snapshots": q_snapshots,
         },
     }
     _validate_typescript_contract()
     return fixture
+
+
+def _generate_q_learning_snapshots() -> list[dict[str, Any]]:
+    result = subprocess.run(
+        ["node", "--experimental-strip-types", str(Q_FIXTURE_GENERATOR)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    snapshots = json.loads(result.stdout)
+    if [snapshot["episode"] for snapshot in snapshots] != [1, 5, 20, 50]:
+        raise RuntimeError("Q-learning fixture generator did not return episodes 1, 5, 20, and 50")
+    return snapshots
 
 
 def _validate_typescript_contract() -> None:

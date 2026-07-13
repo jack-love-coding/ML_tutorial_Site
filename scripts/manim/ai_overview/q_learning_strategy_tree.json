@@ -60,9 +60,9 @@
       "concept": "Q-learning strategy formation", "depth": 0, "isFoundation": false, "prerequisites": ["Q-value update", "exploration and exploitation"],
       "equations": ["episodes:1\\rightarrow5\\rightarrow20\\rightarrow50", "\\pi(s)=\\arg\\max_aQ(s,a)"],
       "definitions": {"episode": "one trajectory from start until goal or 64-step bound", "policy": "greedy action choice per state"},
-      "interpretation": "Repeated seeded updates make a stable six-step greedy path visible, then transfer state/action/reward to exercise selection without claiming the policy is automatically safe.",
-      "example": "Seed 7107 yields the greedy path up,up,up,right,right,right after 50 episodes; evaluation reward is +5.",
-      "visualSpec": {"elements": ["episodes 1/5/20/50", "trajectory", "Q-color cue", "policy arrows", "initial-vs-learned evaluation", "learning-assistant mapping"], "colors": {"path": "YELLOW", "policy": "GREEN", "safety": "RED"}, "animations": ["Reveal snapshots", "Draw greedy path", "Map labels to exercise selection"], "durationSeconds": 46}
+      "interpretation": "One seeded RNG and one continuously updated Q table produce exact episode snapshots; each snapshot couples its actual trajectory and reward with that moment's Q colors and greedy policy before transfer to exercise selection.",
+      "example": "The continuous seed-7107 stream records episode 1 as 26/-25/goal, episode 5 as 17/-6/goal, episode 20 as 6/+5/goal, and episode 50 as 12/-1/goal; the final greedy evaluation is six steps and +5.",
+      "visualSpec": {"elements": ["episodes 1/5/20/50", "actual trajectory for every snapshot", "actual cumulative reward and goal status", "Q-table color encoding", "policy arrows from the same table", "episode-1-vs-final-policy evaluation", "learning-assistant mapping"], "colors": {"path": "YELLOW", "policy": "BLUE", "positive Q": "GREEN", "negative Q": "RED", "safety": "RED"}, "animations": ["Reveal complete fixture-backed snapshots", "Compare actual episode 1 with final greedy path", "Map labels to exercise selection"], "durationSeconds": 46}
     }
   ]
 }
