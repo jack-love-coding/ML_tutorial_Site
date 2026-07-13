@@ -5,16 +5,17 @@ import { withPublicBase } from '../../../utils/publicPath'
 import type { AiOverviewMediaAsset } from '../types'
 
 const props = defineProps<{ asset: AiOverviewMediaAsset; locale: AppLocale }>()
-const source = computed(() => withPublicBase(props.asset.publicPath))
+const source = computed(() => props.asset.availability === 'available' ? withPublicBase(props.asset.publicPath) : undefined)
 const poster = computed(() => props.asset.posterPath ? withPublicBase(props.asset.posterPath) : undefined)
 </script>
 
 <template>
   <figure class="overview-media-figure">
-    <img v-if="asset.kind === 'imagegen'" :src="source" :alt="asset.title[locale]" loading="lazy" />
-    <video v-else controls preload="metadata" :poster="poster" :aria-label="asset.title[locale]">
+    <img v-if="asset.availability === 'available' && asset.kind === 'imagegen'" :src="source" :alt="asset.title[locale]" loading="lazy" />
+    <video v-else-if="asset.availability === 'available'" controls preload="metadata" :poster="poster" :aria-label="asset.title[locale]">
       <source :src="source" />
     </video>
+    <p v-else role="status">{{ locale === 'zh-CN' ? '插图稍后补充。' : 'Illustration deferred.' }}</p>
     <figcaption><strong>{{ asset.title[locale] }}</strong> — {{ asset.caption[locale] }}</figcaption>
     <p lang="en">{{ asset.englishSummary }}</p>
     <ul v-if="asset.bilingualLabels.length">

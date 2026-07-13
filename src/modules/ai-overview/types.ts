@@ -10,10 +10,9 @@ export type AiOverviewChapterId =
   | 'unsupervised-kmeans'
   | 'reinforcement-q-learning'
   | 'choose-learning-approach'
-export type AiOverviewMediaAsset = {
+type AiOverviewMediaAssetBase = {
   id: string
   kind: 'imagegen' | 'manim-video'
-  publicPath: string
   posterPath?: string
   transcriptPath?: string
   chapterId: AiOverviewChapterId
@@ -22,6 +21,10 @@ export type AiOverviewMediaAsset = {
   englishSummary: string
   bilingualLabels: readonly LocalizedCopy[]
 }
+export type AiOverviewMediaAsset = AiOverviewMediaAssetBase & (
+  | { availability: 'available'; publicPath: string }
+  | { availability: 'deferred'; publicPath: null }
+)
 export type LearningParadigm = 'supervised' | 'unsupervised' | 'reinforcement'
 export type Point2D = { id: string; x: number; y: number }
 export type RegressionSample = Point2D
