@@ -4,6 +4,7 @@ import { aiOverviewLabCopy } from '../src/modules/ai-overview/data/course.ts'
 import { regressionCandidates, regressionPresets } from '../src/modules/ai-overview/data/experiments.ts'
 import { normalizeK, normalizeSeed } from '../src/modules/ai-overview/utils/labInputs.ts'
 import { rankRegressionCandidates } from '../src/modules/ai-overview/utils/regression.ts'
+import { buildStaticQUpdateFrame } from '../src/modules/ai-overview/utils/qLearningStatic.ts'
 
 test('K and seed inputs normalize to the exact effective integer values shown to learners', () => {
   assert.equal(normalizeK(99), 5)
@@ -20,6 +21,19 @@ test('desktop and static regression paths share one candidate ranking and numeri
 
   assert.deepEqual({ w: desktopBest.w, b: desktopBest.b, mse: desktopBest.mse }, { w: 6.5, b: 46, mse: 0.15 })
   assert.deepEqual(staticBest, desktopBest)
+})
+
+test('static Q one-update frame exposes one finite deterministic update, not an episode aggregate', () => {
+  const frame = buildStaticQUpdateFrame()
+  assert.deepEqual(Object.keys(frame), [
+    'state', 'action', 'oldQ', 'reward', 'nextBest', 'target', 'correction', 'newQ',
+  ])
+  assert.equal(frame.state, '3,0')
+  assert.equal(frame.action, 'up')
+  for (const value of Object.values(frame).filter((item): item is number => typeof item === 'number')) {
+    assert.equal(Number.isFinite(value), true)
+  }
+  assert.equal(frame.correction, frame.target - frame.oldQ)
 })
 
 test('all focused lab copy is recursively complete in both locales', () => {

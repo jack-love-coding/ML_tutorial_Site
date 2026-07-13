@@ -234,6 +234,15 @@ test('Q-learning snapshots are exact episode 1/5/20/50 states from one continuou
   assert.match(source, /snapshot\["policy"\]/)
 })
 
+test('Q-learning labels use the authoritative episode-1 evidence without stale 8-step copy', () => {
+  const docsLabels = readFileSync(resolve(root, 'docs/curriculum-v3/ai-overview/manim/q-learning-strategy-labels.json'), 'utf8')
+  const runtime = readFileSync(resolve(root, 'src/modules/ai-overview/data/manimRuntimeContent.ts'), 'utf8')
+  for (const source of [docsLabels, runtime]) {
+    assert.match(source, /26 (?:步|steps).*reward(?:=| )-25/i)
+    assert.doesNotMatch(source, /8 (?:步|steps).*reward(?:=| )-8/i)
+  }
+})
+
 test('Q-learning renderer preserves obstacle cells and fixture policy excludes non-navigable states', () => {
   const metadata = JSON.parse(readFileSync(metadataPath, 'utf8')) as Metadata
   const fixture = JSON.parse(readFileSync(absolute(metadata.fixture), 'utf8'))

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import AlgorithmCheckpointQuiz from '../../../components/AlgorithmCheckpointQuiz.vue'
 import { chapterCompanionKinds } from '../../../data/aiOverviewModule'
+import { algorithmCheckpointsBySlug } from '../../../data/algorithmCheckpoints'
 import type { AppLocale, StorySection } from '../../../types/ml'
 import AiWorldMap from '../components/AiWorldMap.vue'
 import CourseKnowledgeMap from '../components/CourseKnowledgeMap.vue'
@@ -27,6 +29,19 @@ let motionQuery: MediaQueryList | undefined
 
 const chapterId = computed(() => props.section.id as AiOverviewChapterId)
 const companionKinds = computed(() => chapterCompanionKinds[chapterId.value] ?? [])
+const checkpointIdsByChapter = {
+  'ml-common-language': ['ai-overview-training-loop-order', 'ai-overview-field-roles'],
+  'learning-paradigms': ['ai-overview-paradigm-signal'],
+  'reinforcement-q-learning': ['ai-overview-kmeans-direction', 'ai-overview-q-value-direction'],
+} as const satisfies Partial<Record<AiOverviewChapterId, readonly string[]>>
+const localCheckpoints = computed(() => {
+  const ids = checkpointIdsByChapter[chapterId.value as keyof typeof checkpointIdsByChapter] ?? []
+  return ids.map((id) => {
+    const checkpoint = algorithmCheckpointsBySlug['ai-overview'].find((item) => item.id === id)
+    if (!checkpoint) throw new Error(`Missing AI Overview formative checkpoint: ${id}`)
+    return checkpoint
+  })
+})
 const mediaById = new Map(aiOverviewRuntimeMediaAssets.map((asset) => [asset.id, asset]))
 const taskMedia = mediaAssets('ai-overview-hero', 'score-prediction', 'pattern-discovery', 'exercise-selection')
 const applicationMedia = mediaAssets('spam-detection', 'electricity-demand', 'news-topics', 'color-compression', 'robot-control', 'traffic-signals')
@@ -105,6 +120,16 @@ onBeforeUnmount(() => {
       <LlmRouteMap :locale="locale as AppLocale" />
       <CourseKnowledgeMap :locale="locale as AppLocale" />
     </div>
+
+    <AlgorithmCheckpointQuiz
+      v-if="localCheckpoints.length"
+      module-slug="ai-overview"
+      module-route="/learn/ai-overview"
+      :checkpoints="localCheckpoints"
+      :locale="locale as AppLocale"
+      :completed="false"
+      mode="formative"
+    />
   </section>
 </template>
 

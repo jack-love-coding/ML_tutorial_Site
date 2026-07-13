@@ -92,6 +92,17 @@
   outline-offset: 3px;
 }
 
+.algorithm-view--ai-overview .regression-lab__table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.algorithm-view--ai-overview .regression-lab__table-wrap:focus-visible {
+  outline: 3px solid var(--ai-overview-accent);
+  outline-offset: 3px;
+}
+
 .algorithm-view--ai-overview .overview-media-figure table,
 .algorithm-view--ai-overview .paradigm-comparison table,
 .algorithm-view--ai-overview .q-lab table,

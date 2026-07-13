@@ -51,76 +51,79 @@ function evidence(
 
 export const lessonInteractionProtocols: readonly TeachingInteractionProtocol[] = [
   {
-    id: 'ai-overview:learning-signal-comparison',
+    id: 'ai-overview:regression-candidate-search',
     moduleSlug: 'ai-overview',
     labId: 'ai-overview-task-lab',
-    sectionIds: ['three-problems', 'learning-paradigms', 'choose-learning-approach'],
+    sectionIds: ['supervised-linear-regression'],
     level: 4,
     learningGoal: loc(
-      '把智能学习助手的三个问题拆成可用信息、学习信号、输出与解释边界。',
-      'Decompose the learning assistant’s three problems into available information, learning signal, output, and interpretation boundary.',
+      '把 w、b 的变化连接到预测、残差、平方误差、MSE 与当前最佳候选。',
+      'Connect changes in w and b to predictions, residuals, squared errors, MSE, and the current best candidate.',
     ),
     predictionPrompt: loc(
-      '先预测：从分数预测切到学习模式发现或练习选择后，信号会变成标签误差、结构距离还是行动奖励？',
-      'Predict first: after switching from numerical prediction to pattern discovery or exercise choice, does the signal become label error, structural distance, or action reward?',
+      '先预测：改变 w 或 b 后，哪几行残差会变化，当前候选能否刷新最佳 MSE？',
+      'Predict first: after changing w or b, which residual rows change, and can the current candidate improve the best MSE?',
     ),
     manipulableVariables: [
-      item(
-        'scenario-card',
-        loc('任务场景卡', 'Task scenario card'),
-        loc('在预测下一次练习结果、发现学习模式和选择下一道练习之间切换。', 'Switch among predicting the next result, discovering learning patterns, and choosing the next exercise.'),
-      ),
-      item(
-        'story-lens',
-        loc('比较维度', 'Comparison dimension'),
-        loc('依次查看可用信息、学习信号、学到什么和输出。', 'Inspect available information, learning signal, learned object, and output in turn.'),
-      ),
+      item('regression-preset', loc('数据 preset', 'Data preset'), loc('切换清晰趋势、噪声或异常点数据。', 'Switch among clear trend, noisy, and outlier data.')),
+      item('regression-parameters', loc('w、b 与候选搜索', 'w, b, and candidate search'), loc('手动调整参数，或执行单步/自动候选搜索、速度、暂停与重置。', 'Adjust parameters manually or use candidate step/auto search, speed, pause, and reset.')),
+      item('regression-residuals', loc('残差显示', 'Residual visibility'), loc('显示或隐藏图中的残差线。', 'Show or hide residual lines in the plot.')),
     ],
     observableMetrics: [
-      item(
-        'paradigm',
-        loc('学习范式', 'Learning paradigm'),
-        loc('读出当前场景是监督、无监督还是强化学习。', 'Read whether the current scenario is supervised, unsupervised, or reinforcement learning.'),
-      ),
-      item(
-        'feedback-signal',
-        loc('学习信号', 'Learning signal'),
-        loc('判断信号来自标签误差、结构距离还是行动后的奖励。', 'Decide whether the signal comes from label error, structural distance, or reward after an action.'),
-      ),
+      item('regression-row-table', loc('预测/残差/平方误差表', 'Prediction/residual/squared-error table'), loc('逐行读取 x、y、ŷ、residual 与 squared error。', 'Read x, y, ŷ, residual, and squared error row by row.')),
+      item('regression-ranking', loc('候选 MSE 与当前最佳', 'Candidate MSE and current best'), loc('比较候选搜索表中的 current candidate、MSE 和 current best。', 'Compare the current candidate, MSE, and current best in the search table.')),
     ],
     successCriteria: [
-      loc(
-        '能在不背算法名的情况下说出当前任务的可用信息、信号和输出。',
-        'You can name the available information, signal, and output without relying on algorithm names.',
-      ),
-      loc(
-        '能解释为什么无标签不等于无目标、reward 也不等于监督标签。',
-        'You can explain why no labels does not mean no objective and why reward is not a supervised label.',
-      ),
+      loc('能从共享表格验证 MSE，而不是只看直线外观。', 'You can verify MSE from the shared table instead of judging only the line shape.'),
+      loc('能区分当前候选与迄今最佳候选。', 'You can distinguish the current candidate from the best candidate so far.'),
     ],
-    reflectionPrompt: loc(
-      '如果把当前场景的学习信号换成另一个范式的信号，哪个关键假设会先失效？',
-      'If the current learning signal were replaced by another paradigm’s signal, which key assumption would fail first?',
-    ),
+    reflectionPrompt: loc('异常点出现后，哪几行平方误差主导 MSE，当前最佳是否改变？', 'After adding an outlier, which squared-error rows dominate MSE, and does the current best change?'),
     evidence: [
-      evidence(
-        'selected-scenario',
-        'configuration',
-        loc('选择的场景卡', 'Selected scenario card'),
-        loc('概览实验台中的高亮任务卡。', 'The highlighted task card in the overview lab.'),
-      ),
-      evidence(
-        'signal-readout',
-        'observation',
-        loc('信息/信号/输出读数', 'Information/signal/output readout'),
-        loc('当前场景详情中的可用信息、学习信号与输出。', 'Available information, learning signal, and output in the current scenario detail.'),
-      ),
-      evidence(
-        'learner-explanation',
-        'explanation',
-        loc('范式解释', 'Paradigm explanation'),
-        loc('用自己的话说明该信号为什么支持当前范式，并指出一个易混误区。', 'Explain why the signal supports the current paradigm and name one tempting misconception.'),
-      ),
+      evidence('regression-config', 'configuration', loc('preset 与 w、b', 'Preset and w, b'), loc('实验控件当前显示的参数。', 'Parameters currently shown by the lab controls.')),
+      evidence('regression-metrics', 'metric', loc('当前 MSE 与排名', 'Current MSE and ranking'), loc('同步样本表和候选搜索表。', 'The synchronized sample and candidate-search tables.')),
+      evidence('regression-explanation', 'explanation', loc('误差解释', 'Error explanation'), loc('说明哪一行误差使候选变好或变差。', 'Explain which row makes the candidate better or worse.')),
+    ],
+  },
+  {
+    id: 'ai-overview:kmeans-replay', moduleSlug: 'ai-overview', labId: 'ai-overview-task-lab',
+    sectionIds: ['unsupervised-kmeans'], level: 4,
+    learningGoal: loc('把 K、seed、分配与中心更新连接到可重放的收敛历史。', 'Connect K, seed, assignments, and center updates to replayable convergence history.'),
+    predictionPrompt: loc('先预测：改变 K 或 seed 后，初始中心、分配和组内距离会怎样变化？', 'Predict first: after changing K or seed, how will initial centers, assignments, and within-group distance change?'),
+    manipulableVariables: [
+      item('kmeans-k-seed', loc('K 与 seed', 'K and seed'), loc('设置簇数 K=2..5 和整数随机种子。', 'Set cluster count K=2..5 and an integer random seed.')),
+      item('kmeans-playback', loc('单步、自动、时间线与重置', 'Step, auto, timeline, and reset'), loc('前进、暂停、回看历史或重置同一确定性运行。', 'Advance, pause, revisit history, or reset the same deterministic run.')),
+    ],
+    observableMetrics: [
+      item('kmeans-state', loc('phase、iteration 与中心/分配', 'Phase, iteration, centers, and assignments'), loc('读取初始化、分配、重算或收敛状态。', 'Read initialization, assignment, recomputation, or convergence state.')),
+      item('kmeans-distance', loc('组内距离总和', 'Within-group distance total'), loc('用数值检查当前分组是否更紧凑。', 'Use the value to check whether the grouping is tighter.')),
+    ],
+    successCriteria: [loc('能从成员均值解释中心移动方向。', 'You can explain center movement from the member mean.'), loc('同一 K 与 seed 重置后能重放相同历史。', 'The same K and seed replay the same history after reset.')],
+    reflectionPrompt: loc('改变 K 与只改变 seed，分别改变了问题还是起点？', 'When you change K versus only the seed, are you changing the problem or only the starting point?'),
+    evidence: [
+      evidence('kmeans-config', 'configuration', loc('K 与 seed', 'K and seed'), loc('实验控件显示的有效值。', 'Effective values shown by the controls.')),
+      evidence('kmeans-metrics', 'metric', loc('phase / iteration / distance', 'Phase / iteration / distance'), loc('历史与指标读数。', 'History and metric readouts.')),
+      evidence('kmeans-explanation', 'explanation', loc('中心更新解释', 'Center-update explanation'), loc('用成员均值说明移动方向。', 'Explain the movement direction using the member mean.')),
+    ],
+  },
+  {
+    id: 'ai-overview:q-learning-update', moduleSlug: 'ai-overview', labId: 'ai-overview-task-lab',
+    sectionIds: ['reinforcement-q-learning'], level: 4,
+    learningGoal: loc('把 state、action、reward 与一次 Q value 更新和策略箭头连接起来。', 'Connect state, action, and reward to one Q-value update and the policy arrows.'),
+    predictionPrompt: loc('先预测：执行一次 action 后，reward、target 与当前 state 的 Q value 会向哪个方向变化？', 'Predict first: after one action, which direction will reward, target, and the current state’s Q value move?'),
+    manipulableVariables: [
+      item('q-seed-exploration', loc('seed 与 exploration rate', 'Seed and exploration rate'), loc('设置整数 seed 与训练探索率。', 'Set the integer seed and training exploration rate.')),
+      item('q-playback', loc('单行动、单回合、连续训练与重置', 'One action, one episode, continuous training, and reset'), loc('使用速度、暂停和重置控制训练。', 'Control training with speed, pause, and reset.')),
+    ],
+    observableMetrics: [
+      item('q-update', loc('state/action/reward/Q update', 'State/action/reward/Q update'), loc('读取旧值、target、修正和新值。', 'Read old value, target, correction, and new value.')),
+      item('q-policy', loc('episode、累计 reward 与 policy', 'Episode, cumulative reward, and policy'), loc('比较当前四个 action values、全局箭头和完整 Q table。', 'Compare the four current action values, global arrows, and full Q table.')),
+    ],
+    successCriteria: [loc('能解释正负 reward 如何通过 target 影响 Q value。', 'You can explain how positive or negative reward affects Q value through the target.'), loc('能区分训练探索与关闭探索后的 policy 评估。', 'You can separate training exploration from policy evaluation with exploration disabled.')],
+    reflectionPrompt: loc('为什么 reward 不是逐状态预先给定的监督 label？', 'Why is reward not a supervised label pre-attached to every state?'),
+    evidence: [
+      evidence('q-config', 'configuration', loc('seed 与探索率', 'Seed and exploration rate'), loc('实验控件显示的有效值。', 'Effective values shown by the controls.')),
+      evidence('q-metrics', 'metric', loc('更新项与累计 reward', 'Update terms and cumulative reward'), loc('状态面板、动作值和策略读数。', 'State panel, action values, and policy readout.')),
+      evidence('q-explanation', 'explanation', loc('Q 更新解释', 'Q-update explanation'), loc('说明 target、修正与新值的方向。', 'Explain the direction of target, correction, and new value.')),
     ],
   },
   {

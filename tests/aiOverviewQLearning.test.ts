@@ -86,6 +86,18 @@ test('greedy action selection keeps deterministic ties and exploration uses the 
   assert.equal(selectAction(qTable, { row: 3, column: 0 }, 1, () => draws.shift() ?? 0), 'down')
 })
 
+test('greedy ties exhaust the full up, right, down, left priority order', () => {
+  const qTable = createQTable(qLearningEnvironment)
+  const state = { row: 3, column: 0 }
+  assert.equal(selectAction(qTable, state, 0, () => 0.99), 'up')
+  qTable['3,0'] = { up: -1, right: 3, down: 3, left: 3 }
+  assert.equal(selectAction(qTable, state, 0, () => 0.99), 'right')
+  qTable['3,0'] = { up: -1, right: -1, down: 3, left: 3 }
+  assert.equal(selectAction(qTable, state, 0, () => 0.99), 'down')
+  qTable['3,0'] = { up: -1, right: -1, down: -1, left: 3 }
+  assert.equal(selectAction(qTable, state, 0, () => 0.99), 'left')
+})
+
 test('seeded training is replayable and greedy evaluation disables exploration', () => {
   const first = trainEpisodes(qLearningEnvironment, {
     episodes: 50,
@@ -117,6 +129,22 @@ test('episodes stop at the goal or the 64-step teaching bound', () => {
 
   assert.equal(bounded.steps, 64)
   assert.equal(bounded.reachedGoal, false)
+})
+
+test('a goal-directed greedy episode terminates at the goal before the 64-step bound', () => {
+  const qTable = createQTable(qLearningEnvironment)
+  for (const state of ['3,0', '2,0', '1,0']) qTable[state].up = 1
+  for (const state of ['0,0', '0,1', '0,2']) qTable[state].right = 1
+  const result = runEpisode(qLearningEnvironment, qTable, {
+    explorationRate: 0,
+    learningRate: 0,
+    discountFactor: 0.9,
+    random: () => 0.99,
+  })
+  assert.equal(result.reachedGoal, true)
+  assert.equal(result.steps, 6)
+  assert.ok(result.steps < 64)
+  assert.deepEqual(result.finalState, qLearningEnvironment.goal)
 })
 
 test('rates clamp only after rejecting non-finite numbers', () => {

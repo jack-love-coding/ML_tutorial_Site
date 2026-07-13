@@ -42,6 +42,7 @@ test('algorithm checkpoint component renders feedback and revisit links', () => 
 test('AI Overview uses immediate local formative feedback while other modules stay scored', () => {
   const componentSource = read('src/components/AlgorithmCheckpointQuiz.vue')
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
+  const chapterLabSource = read('src/modules/ai-overview/labs/AiOverviewChapterLab.vue')
 
   assert.match(componentSource, /mode\?: 'scored' \| 'formative'/)
   assert.match(componentSource, /mode: 'scored'/)
@@ -49,7 +50,14 @@ test('AI Overview uses immediate local formative feedback while other modules st
   assert.match(componentSource, /checkpoint\.misconceptionTags/)
   assert.match(componentSource, /v-if="mode === 'scored'"/)
   assert.match(componentSource, /if \(props\.mode !== 'scored'\) return/)
-  assert.match(algorithmViewSource, /:mode="isAiOverviewPage \? 'formative' : 'scored'"/)
+  assert.match(algorithmViewSource, /moduleDefinition\.checkpoints\.length && !isAiOverviewPage/)
+  assert.doesNotMatch(algorithmViewSource, /:mode="isAiOverviewPage \? 'formative' : 'scored'"/)
+  assert.match(chapterLabSource, /<AlgorithmCheckpointQuiz/)
+  assert.match(chapterLabSource, /mode="formative"/)
+  assert.match(chapterLabSource, /'ml-common-language': \[[^\]]*training-loop-order[^\]]*field-roles/s)
+  assert.match(chapterLabSource, /'learning-paradigms': \[[^\]]*paradigm-signal/s)
+  assert.match(chapterLabSource, /'reinforcement-q-learning': \[[^\]]*kmeans-direction[^\]]*q-value-direction/s)
+  assert.doesNotMatch(chapterLabSource, /@submit|onAlgorithmQuizSubmit|saveAlgorithmProgress|markAlgorithmModuleComplete/)
   assert.doesNotMatch(componentSource, /saveAlgorithmProgress|appendAlgorithmQuizAttempt|markAlgorithmModuleComplete/)
 
   const submitFunction = componentSource.slice(

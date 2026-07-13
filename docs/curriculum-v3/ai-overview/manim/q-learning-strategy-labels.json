@@ -24,7 +24,7 @@
     {"zh-CN": "尚未形成稳定策略", "en": "Stable policy not yet formed"},
     {"zh-CN": "Q value 越高，策略箭头越明确", "en": "As Q values rise, policy arrows become clearer"},
     {"zh-CN": "评估时关闭探索：exploration rate = 0", "en": "Disable exploration for evaluation: exploration rate = 0"},
-    {"zh-CN": "初始：反复撞边，8 步 reward=-8", "en": "Initial: repeatedly hits boundary, 8-step reward=-8"},
+    {"zh-CN": "episode 1 实际探索：26 步，reward=-25", "en": "Actual episode 1 exploration: 26 steps, reward=-25"},
     {"zh-CN": "学习后：6 步到达，reward=+5", "en": "Learned: reaches goal in 6 steps, reward=+5"},
     {"zh-CN": "映射回学习助手：选择下一道练习", "en": "Map back to the learning assistant: choose the next exercise"},
     {"zh-CN": "state：当前掌握状态", "en": "state: current mastery"},

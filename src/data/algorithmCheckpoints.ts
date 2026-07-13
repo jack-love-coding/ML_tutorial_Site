@@ -68,19 +68,19 @@ export const algorithmCheckpointsBySlug: Record<ModuleSlug, AlgorithmCheckpointI
     checkpoint(
       'ai-overview-paradigm-signal',
       copy(
-        '同时判断三个新场景的范式与信号：①预测明日电力需求；②把新闻按主题分组；③根据路口等待时间连续调节交通灯。哪组对应关系完整正确？',
-        'Classify three new scenarios and their signals together: (1) predict tomorrow’s electricity demand, (2) group news by topic, and (3) adjust traffic lights sequentially from intersection waiting time. Which complete mapping is correct?',
+        '同时判断三个新场景的范式与信号：①用合格/不合格标签检查零件缺陷；②在没有类别答案时按相似性给音乐片段分组；③根据长期留存奖励安排通知时间。哪组对应关系完整正确？',
+        'Classify three fresh scenarios and their signals together: (1) inspect defects using pass/fail labels, (2) group music clips by similarity without category answers, and (3) schedule notifications from long-term retention reward. Which complete mapping is correct?',
       ),
       [
         choice(
           'three-signals-correct',
-          '电力：监督学习，历史真实需求是 label；新闻：无监督学习，内容相似度是结构信号；交通：强化学习，等待时间变化形成 reward。',
-          'Electricity: supervised, observed historical demand is the label; news: unsupervised, content similarity is the structural signal; traffic: reinforcement, waiting-time reward follows signal-control actions.',
+          '零件检测：监督学习，合格/不合格是 label；音乐分组：无监督学习，片段相似性是结构信号；通知安排：强化学习，行动后的长期留存是 reward。',
+          'Defect inspection: supervised, pass/fail is the label; music grouping: unsupervised, clip similarity is the structural signal; notification scheduling: reinforcement, long-term retention after actions is the reward.',
         ),
         choice(
           'signals-swapped',
-          '电力靠等待时间 reward；新闻靠人工主题 label；交通靠内容相似度聚类。',
-          'Electricity uses waiting-time reward; news uses human topic labels; traffic clusters by content similarity.',
+          '零件检测靠留存 reward；音乐分组靠预先给定的曲风 label；通知安排靠片段相似性聚类。',
+          'Defect inspection uses retention reward; music grouping uses pre-attached genre labels; notification scheduling clusters by clip similarity.',
         ),
         choice(
           'all-supervised',
@@ -90,8 +90,8 @@ export const algorithmCheckpointsBySlug: Record<ModuleSlug, AlgorithmCheckpointI
       ],
       'three-signals-correct',
       copy(
-        '电力需求有历史真实数值作为 label，因此学习输入到需求的监督映射；新闻没有主题答案时，以内容相似度寻找结构；交通控制在连续行动后观察等待时间变化，并把它转成 reward 来学习策略。误区“交换信号”忽略了信号属于哪个数据流程；误区“输出数字或分组就都是 label”混淆了观察答案、结构准则与行动后奖励。',
-        'Electricity demand has observed historical values as labels, so it learns a supervised mapping from inputs to demand. News without topic answers uses content similarity to discover structure. Traffic control observes waiting-time change after sequential actions and turns it into reward for learning a policy. The “swap the signals” misconception ignores which data flow produces each signal; the “every number or group is a label” misconception confuses observed answers, structural criteria, and post-action reward.',
+        '零件样本附有合格/不合格 label，因此学习监督映射；音乐片段没有类别答案，只用相似性寻找结构；通知系统先行动，再从长期留存得到 reward 以学习时机策略。误区“交换信号”忽略了信号属于哪个数据流程；误区“任何输出都是 label”混淆了观察答案、结构准则与行动后奖励。',
+        'Defect examples carry pass/fail labels, so they support a supervised mapping. Music clips have no category answers and use similarity to discover structure. Notification scheduling acts first, then receives long-term retention reward to learn a timing policy. The “swap the signals” misconception ignores which data flow produces each signal; the “every output is a label” misconception confuses observed answers, structural criteria, and post-action reward.',
       ),
       ['learning-signals-swapped', 'every-output-is-a-label'],
       'learning-paradigms',

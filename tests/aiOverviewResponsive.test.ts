@@ -111,6 +111,7 @@ test('course-scoped CSS preserves responsive, motion, focus, overflow, and print
   assert.match(css, /\.q-lab summary\s*\{[^}]*min-height:\s*44px/s)
   assert.match(css, /\.overview-media-figure__table-wrap:focus-visible\s*\{[^}]*outline:\s*3px solid var\(--ai-overview-accent\)/s)
   assert.match(css, /\.overview-media-figure__table-wrap,[^}]+overflow-x:\s*auto/s)
+  assert.match(css, /\.algorithm-view--ai-overview \.regression-lab__table-wrap\s*\{[^}]*overflow-x:\s*auto/s)
   assert.match(css, /@media\s*\(max-width:\s*760px\)/)
   assert.match(css, /\.algorithm-lab--desktop\s*\{[^}]*display:\s*none/s)
   assert.match(css, /\.algorithm-static-fallback\s*\{[^}]*display:\s*block/s)

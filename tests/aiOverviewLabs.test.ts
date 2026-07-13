@@ -43,6 +43,18 @@ test('regression lab uses shared math and exposes complete labeled controls', ()
   for (const token of ['type="range"', 'currentValue', 'reset', 'pause', 'residual']) {
     assert.match(regressionSource, new RegExp(token))
   }
+  assert.match(regressionSource, /class="regression-lab__table-wrap"/)
+  assert.match(regressionSource, /<table[^>]*data-table="regression-rows"/)
+  for (const field of ['row\.x', 'row\.y', 'row\.predicted', 'row\.residual', 'row\.squaredResidual']) {
+    assert.match(regressionSource, new RegExp(field))
+  }
+  assert.match(regressionSource, /<table[^>]*data-table="candidate-search"/)
+  assert.match(regressionSource, /currentCandidate/)
+  assert.match(regressionSource, /currentBest/)
+  assert.match(regressionSource, /candidate\.mse/)
+  assert.match(regressionSource, /<table[^>]*data-table="regression-classification"/)
+  assert.match(regressionSource, /tabindex="0"/)
+  assert.doesNotMatch(regressionSource, /\*\* 2|Math\.pow\([^)]*residual/)
 })
 
 test('K-means lab replays shared deterministic history with accessible controls', () => {
@@ -99,6 +111,7 @@ test('static fallback derives exactly four states per algorithm without range co
   assert.match(staticSource, /trainEpisodes/)
   assert.match(staticSource, /evaluateGreedyPolicy/)
   assert.match(staticSource, /createQTable/)
+  assert.match(staticSource, /buildStaticQUpdateFrame/)
   assert.match(staticSource, /initial/)
   assert.match(staticSource, /one-update/)
   assert.match(staticSource, /intermediate/)
@@ -108,6 +121,11 @@ test('static fallback derives exactly four states per algorithm without range co
   assert.doesNotMatch(staticSource, /reachedGoal:\s*evaluated\.reachedGoal\s*\?\s*['"]yes['"]/)
   assert.match(staticSource, /localizedValue/)
   assert.match(staticSource, /(?:aiOverviewLabCopy|localizedLabCopy)\.phases/)
+  const qStaticSource = readFileSync(join(root, 'src/modules/ai-overview/utils/qLearningStatic.ts'), 'utf8')
+  for (const term of ['state', 'action', 'oldQ', 'reward', 'nextBest', 'target', 'correction', 'newQ']) {
+    assert.match(qStaticSource, new RegExp(term))
+  }
+  assert.match(staticSource, /desktopInteractiveNote/)
 })
 
 test('all visible lab chrome is centralized and bilingual', () => {
@@ -116,6 +134,7 @@ test('all visible lab chrome is centralized and bilingual', () => {
     'reset', 'residuals', 'currentValue', 'history', 'previous', 'next', 'seed',
     'clusterCount', 'phase', 'withinGroupDistance', 'explorationRate', 'oneAction',
     'oneEpisode', 'learningRate', 'discountFactor', 'policy', 'fullQTable', 'staticFallback',
+    'desktopInteractiveNote',
   ] as const
   for (const key of requiredCopy) {
     const copy = aiOverviewVisualCopy[key]

@@ -32,6 +32,17 @@ export const mlProcessSteps: readonly MlProcessStep[] = [
   { id: 'unseen-evaluation', label: loc('未见数据评估', 'Unseen-data evaluation'), description: loc('在未参与参数更新的数据上检查模型。', 'Check the model on data that did not participate in parameter updates.') },
 ] as const
 
+export const mlProcessRecord = {
+  identifier: { label: loc('学习者 ID', 'Learner ID'), value: loc('L-07', 'L-07'), note: loc('只标识这条记录，不输入模型。', 'Identifies this record; it is not a model input.') },
+  candidateFeature: { label: loc('候选特征：历史分数', 'Candidate feature: historical score'), value: loc('62 分', '62 points'), note: loc('有预测价值的候选列，但第一版模型没有选它。', 'A potentially useful column that the first model does not select.') },
+  selectedFeature: { label: loc('选中特征 x：练习时长', 'Selected feature x: practice duration'), value: loc('3 小时', '3 hours'), note: loc('第一版单特征模型实际读取的输入。', 'The input actually read by the first one-feature model.') },
+  target: { label: loc('目标 y：下一次分数', 'Target y: next score'), value: loc('68 分', '68 points'), note: loc('历史训练记录中已经观察到的答案。', 'The answer already observed in this historical training record.') },
+  unseenEvaluation: loc(
+    '未见评估记录不参与参数更新：模型先读取它的 x 并产生 ŷ，之后才用揭示的 y 检查迁移。',
+    'An unseen evaluation record does not update parameters: the model first reads its x and produces ŷ, then the revealed y checks transfer.',
+  ),
+} as const
+
 export const aiOverviewVisualCopy = {
   lab: loc('算法实验台', 'Algorithm lab'),
   preset: loc('数据预设', 'Data preset'),
@@ -90,6 +101,17 @@ export const aiOverviewVisualCopy = {
   llmRoute: loc('通往大语言模型的路线', 'Route to LLMs'),
   knowledgeMap: loc('AI 概览知识图', 'AI overview knowledge map'),
   print: loc('打印知识图', 'Print knowledge map'),
+  regressionRows: loc('样本、预测与误差同步表', 'Synchronized samples, predictions, and errors'),
+  candidateSearch: loc('候选参数搜索', 'Candidate parameter search'),
+  currentCandidate: loc('当前候选', 'Current candidate'),
+  currentBest: loc('当前最佳', 'Current best'),
+  regressionClassification: loc('回归与分类对比', 'Regression versus classification'),
+  valueType: loc('输出类型', 'Output type'),
+  examples: loc('例子', 'Examples'),
+  modelTask: loc('模型任务', 'Model task'),
+  prediction: loc('预测 ŷ', 'Prediction ŷ'),
+  squaredError: loc('平方误差', 'Squared error'),
+  desktopInteractiveNote: loc('桌面版提供可操作的完整实验；此处保留同一确定性计算的四个静态关键状态。', 'The desktop version has the full interactive experiment; these four static states preserve the same deterministic calculation.'),
 } as const
 
 export const aiOverviewLabCopy = {
@@ -123,8 +145,15 @@ export const aiOverviewLabCopy = {
     distance: loc('组内距离总和', 'Within-group distance total'),
     episodes: loc('训练回合', 'Training episodes'),
     steps: loc('评估步数', 'Evaluation steps'),
-    reward: loc('评估奖励', 'Evaluation reward'),
+    reward: loc('奖励 reward', 'Reward'),
     reachedGoal: loc('到达目标', 'Reached goal'),
+    state: loc('状态', 'State'),
+    action: loc('行动', 'Action'),
+    oldQ: loc('旧 Q value', 'Old Q value'),
+    nextBest: loc('下一状态最大值', 'Next-state best value'),
+    target: loc('目标 target', 'Target'),
+    correction: loc('修正量', 'Correction'),
+    newQ: loc('新 Q value', 'New Q value'),
   },
   staticFrames: {
     regression: {
@@ -141,12 +170,27 @@ export const aiOverviewLabCopy = {
     },
     qLearning: {
       initial: { title: loc('初始策略检查', 'Initial policy check'), explanation: loc('从全零 Q 表评估尚未学习的贪心策略。', 'Evaluate the unlearned greedy policy from an all-zero Q table.') },
-      'one-update': { title: loc('一次训练更新', 'One training update'), explanation: loc('完成一回合后，用更新后的 Q 表重新评估策略。', 'After one episode, evaluate the policy from the updated Q table.') },
+      'one-update': { title: loc('一次行动更新', 'One action update'), explanation: loc('从同一个确定性单步计算读取 state、action、reward、target、correction 与新 Q value。', 'Read state, action, reward, target, correction, and new Q value from one deterministic action update.') },
       intermediate: { title: loc('中间训练', 'Intermediate training'), explanation: loc('继续保留并更新已经学到的动作价值。', 'Continue preserving and updating learned action values.') },
       evaluated: { title: loc('贪心策略评估', 'Greedy policy evaluated'), explanation: loc('关闭探索，检查当前策略是否能到达目标。', 'Disable exploration and check whether the current policy reaches the goal.') },
     },
   },
 } as const
+
+export const regressionClassificationRows = [
+  {
+    id: 'regression',
+    modelTask: loc('回归', 'Regression'),
+    outputType: loc('连续数值', 'Continuous value'),
+    examples: loc('下一次分数、房价', 'Next score, house price'),
+  },
+  {
+    id: 'classification',
+    modelTask: loc('分类', 'Classification'),
+    outputType: loc('离散类别', 'Discrete class'),
+    examples: loc('答题正确/错误、垃圾邮件/正常邮件', 'Correct/incorrect answer, spam/normal email'),
+  },
+] as const
 
 type LearningAssistantAlgorithmId = 'linear-regression' | 'k-means' | 'q-learning'
 type LearningAssistantAlgorithm = {

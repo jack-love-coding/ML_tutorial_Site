@@ -787,13 +787,13 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
     </section>
 
     <AlgorithmCheckpointQuiz
-      v-if="moduleDefinition.checkpoints.length"
+      v-if="moduleDefinition.checkpoints.length && !isAiOverviewPage"
       :module-slug="moduleDefinition.slug"
       :module-route="moduleDefinition.route"
       :checkpoints="moduleDefinition.checkpoints"
       :locale="currentLocale"
       :completed="progress.completedModuleSlugs.includes(moduleDefinition.slug)"
-      :mode="isAiOverviewPage ? 'formative' : 'scored'"
+      mode="scored"
       @submit="onAlgorithmQuizSubmit"
     />
 

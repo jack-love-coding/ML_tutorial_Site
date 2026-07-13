@@ -2,11 +2,25 @@
 
 Date: 2026-07-13
 
-Preview: `http://127.0.0.1:4173/learn/ai-overview`
+Preview: initial matrix at `http://127.0.0.1:4173/learn/ai-overview`; final clean-build pass at `http://127.0.0.1:4174/learn/ai-overview` because 4173 was occupied
 
-Runner: bundled Playwright CLI, named Chromium sessions under `task11-ai-overview*`
+Runner: bundled Playwright CLI, named Chromium sessions under `task11-ai-overview*` and `final-ai-overview*`
 
-Browser screenshots, snapshots, request logs, and PDFs were written only to ignored `output/playwright/task-11-ai-overview*` directories and are not part of the commit.
+Browser screenshots, snapshots, request logs, and PDFs were written only to ignored temporary locations and are not part of the commit. Final-review CLI snapshots were removed after verification.
+
+## Final whole-branch review browser pass
+
+The final standard build was loaded in a fresh Chromium session and verified independently from the earlier task matrix:
+
+- Chapter-local formative checkpoint counts were exactly `[2, 1, 2]`; no page-bottom duplicate remained. Selecting a wrong option immediately exposed reasoning, misconception tags, and the revisit link, with zero submit buttons and no new progress/completion or quiz-attempt storage entry.
+- The paradigm checkpoint showed the three new defect-inspection, music-grouping, and notification-scheduling scenarios.
+- The process tracer exposed five auditable roles: identifier `L-07`, candidate feature `62`, selected `x = 3 h`, target `y = 68`, and a distinct unseen evaluation record that explicitly does not update parameters.
+- Regression rendered tables with exactly 5 data rows, 7 candidate rows, and 2 task-comparison rows. Initial current/best was `w=4, b=48, MSE=39.60`; a real single-step interaction synchronized the current candidate, best candidate, row predictions, residuals, squared errors, and plotted line at `w=5, b=48, MSE=9.40`.
+- Only the regression, K-means, and Q-learning algorithm chapters exposed interaction protocols; no scenario-card or highlight protocol remained.
+- At 390 × 844, `clientWidth = scrollWidth = 390`, desktop lab count was 0, and the Q-learning fallback had exactly 4 frames, 0 range controls, and the explicit desktop-interactive note.
+- The Q single-action frame displayed state `3,0`, action `up`, old Q `0`, `奖励 reward = -1`, next-state maximum `0`, target `-1`, correction `-1`, and new Q `-0.5`.
+- With reduced motion at 1280 × 900, desktop lab count remained 0, fallback counts were `[4, 4, 4]`, and all videos were hidden while their static teaching information remained visible.
+- The fresh session reported 0 console errors and 0 warnings. Network inspection showed no failed request: only successful static responses and expected 206 MP4 range responses.
 
 ## Desktop bilingual matrix
 
@@ -107,7 +121,7 @@ The four static states preserved these exact teaching values:
 | --- | --- | --- | --- | --- |
 | Regression | `w=4, b=48, MSE=39.6` | `w=5, b=48, MSE=9.4` | `w=6, b=47, MSE=0.6` | `w=6.5, b=46, MSE=0.15` |
 | K-means | iteration 0, initialize, 0 | iteration 1, recompute, 1293.5 | iteration 2, assign, 1293.5 | iteration 2, converged, 1293.5 |
-| Q-learning | 0 episodes, 32 steps, reward -32, no policy | 1, 32, -32, no policy | 12, 6, +5, policy | 40, 6, +5, policy |
+| Q-learning | episode 0 evaluation: 32 steps, reward -32, no policy | one actual update: `3,0`, `up`, old Q `0`, reward `-1`, next max `0`, target/correction `-1`, new Q `-0.5` | episode 12 evaluation: 6 steps, reward +5, policy | episode 40 evaluation: 6 steps, reward +5, policy |
 
 State names, numeric labels, symbols, and text accompany color, so the lesson does not rely on color alone.
 

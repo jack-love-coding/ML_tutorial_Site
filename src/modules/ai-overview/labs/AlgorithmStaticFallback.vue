@@ -5,6 +5,7 @@ import { aiOverviewLabCopy } from '../data/course'
 import { AI_OVERVIEW_SEEDS, learnerClusterPoints, qLearningEnvironment, regressionCandidates, regressionPresets } from '../data/experiments'
 import { runKMeans } from '../utils/kmeans'
 import { createQTable, evaluateGreedyPolicy, trainEpisodes } from '../utils/qLearning'
+import { buildStaticQUpdateFrame } from '../utils/qLearningStatic'
 import { meanSquaredError, rankRegressionCandidates } from '../utils/regression'
 
 const regressionSamples = regressionPresets['clear-trend'].samples
@@ -28,19 +29,32 @@ export const kmeansFrames: StaticAlgorithmFrame[] = kmeansStates.map((state, ind
   values: { iteration: state.iteration, phase: state.phase, distance: Number(state.withinGroupDistanceTotal.toFixed(1)) },
 }))
 
-const qTrainingCounts = [0, 1, 12, 40]
 const qLearningFrameIds = ['initial', 'one-update', 'intermediate', 'evaluated'] as const
-export const qLearningFrames: StaticAlgorithmFrame[] = qTrainingCounts.map((episodes, index) => {
-  const qTable = episodes === 0
-    ? createQTable(qLearningEnvironment)
-    : trainEpisodes(qLearningEnvironment, { episodes, seed: AI_OVERVIEW_SEEDS.qLearning, explorationRate: 0.3, learningRate: 0.5, discountFactor: 0.9 }).qTable
+function policyFrame(episodes: 0 | 12 | 40, id: 'initial' | 'intermediate' | 'evaluated'): StaticAlgorithmFrame {
+  const qTable = episodes === 0 ? createQTable(qLearningEnvironment) : trainEpisodes(qLearningEnvironment, {
+    episodes,
+    seed: AI_OVERVIEW_SEEDS.qLearning,
+    explorationRate: 0.3,
+    learningRate: 0.5,
+    discountFactor: 0.9,
+  }).qTable
   const evaluated = evaluateGreedyPolicy(qLearningEnvironment, qTable, 32)
   return {
-    id: qLearningFrameIds[index],
-    ...aiOverviewLabCopy.staticFrames.qLearning[qLearningFrameIds[index]],
+    id,
+    ...aiOverviewLabCopy.staticFrames.qLearning[id],
     values: { episodes, steps: evaluated.steps, reward: evaluated.cumulativeReward, reachedGoal: evaluated.reachedGoal },
   }
-})
+}
+export const qLearningFrames: StaticAlgorithmFrame[] = [
+  policyFrame(0, 'initial'),
+  {
+    id: qLearningFrameIds[1],
+    ...aiOverviewLabCopy.staticFrames.qLearning['one-update'],
+    values: buildStaticQUpdateFrame(),
+  },
+  policyFrame(12, 'intermediate'),
+  policyFrame(40, 'evaluated'),
+]
 
 export const staticAlgorithmFrames = { regression: regressionFrames, kmeans: kmeansFrames, qLearning: qLearningFrames }
 </script>
@@ -59,6 +73,7 @@ function valueLabel(key: string) { return localizedLabCopy.staticValueLabels[key
 function localizedValue(key: string, value: string | number | boolean) {
   if (key === 'phase') return localizedLabCopy.phases[value as KMeansPhase][locale.value as AppLocale]
   if (key === 'reachedGoal') return localizedLabCopy.booleans[value ? 'yes' : 'no'][locale.value as AppLocale]
+  if (key === 'action') return localizedLabCopy.actions[value as keyof typeof localizedLabCopy.actions][locale.value as AppLocale]
   return value
 }
 </script>
@@ -66,6 +81,7 @@ function localizedValue(key: string, value: string | number | boolean) {
 <template>
   <section class="static-fallback" :aria-label="aiOverviewVisualCopy.staticFallback[locale as AppLocale]">
     <h3>{{ aiOverviewVisualCopy.staticFallback[locale as AppLocale] }}</h3>
+    <p class="static-fallback__desktop-note">{{ aiOverviewVisualCopy.desktopInteractiveNote[locale as AppLocale] }}</p>
     <ol>
       <li v-for="frame in frames.slice(0, 4)" :key="frame.id" :data-frame-id="frame.id">
         <strong>{{ frame.title[locale as AppLocale] }}</strong>

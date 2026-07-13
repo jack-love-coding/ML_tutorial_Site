@@ -6,6 +6,7 @@ import {
   aiOverviewVisualCopy,
   aiWorldNodes,
   learningAssistantAlgorithms,
+  mlProcessRecord,
   mlProcessSteps,
   paradigmDecisionQuestions,
 } from '../src/modules/ai-overview/data/course.ts'
@@ -129,6 +130,21 @@ test('ML process steps preserve the approved teaching order', () => {
     'parameter-update',
     'unseen-evaluation',
   ])
+})
+
+test('ML process tracer shows the fixed record and distinguishes every semantic role', () => {
+  const source = componentSource('MlProcessTracer.vue')
+  assert.equal(mlProcessRecord.identifier.value.en, 'L-07')
+  assert.match(mlProcessRecord.selectedFeature.value.en, /3 hours/)
+  assert.match(mlProcessRecord.candidateFeature.value.en, /62/)
+  assert.match(mlProcessRecord.target.value.en, /68/)
+  assert.match(source, /:data-role="role"/)
+  for (const role of ['identifier', 'candidate-feature', 'selected-feature', 'target', 'unseen-evaluation']) {
+    assert.match(source, new RegExp(`['"]${role}['"]`))
+  }
+  assert.match(source, /x/)
+  assert.match(source, /y/)
+  assert.doesNotMatch(source, /supervised\.problem|supervised\.availableInformation|supervised\.learningSignal|supervised\.output/)
 })
 
 test('visual copy is complete in both locales', () => {

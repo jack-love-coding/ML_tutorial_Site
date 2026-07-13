@@ -1,20 +1,29 @@
 <script setup lang="ts">
 import type { AppLocale } from '../../../types/ml'
-import { aiOverviewScenarioCards, aiOverviewVisualCopy, mlProcessSteps } from '../data/course'
+import { aiOverviewVisualCopy, mlProcessRecord, mlProcessSteps } from '../data/course'
 
 defineProps<{ locale: AppLocale }>()
-const supervised = aiOverviewScenarioCards.find((card) => card.id === 'supervised')!
+const recordFields = [
+  ['identifier', mlProcessRecord.identifier],
+  ['candidate-feature', mlProcessRecord.candidateFeature],
+  ['selected-feature', mlProcessRecord.selectedFeature],
+  ['target', mlProcessRecord.target],
+] as const
 </script>
 
 <template>
   <figure class="ml-process-tracer">
     <figcaption>{{ aiOverviewVisualCopy.processTrace[locale] }}</figcaption>
     <dl class="record-roles">
-      <div id="learner-id"><dt>{{ aiOverviewVisualCopy.learnerId[locale] }}</dt><dd>{{ supervised.problem[locale] }}</dd></div>
-      <div id="feature"><dt>{{ aiOverviewVisualCopy.feature[locale] }}</dt><dd>{{ supervised.availableInformation[locale] }}</dd></div>
-      <div id="target"><dt>{{ aiOverviewVisualCopy.target[locale] }}</dt><dd>{{ supervised.learningSignal[locale] }}</dd></div>
-      <div id="unseen-data"><dt>{{ aiOverviewVisualCopy.unseenData[locale] }}</dt><dd>{{ supervised.output[locale] }}</dd></div>
+      <div v-for="([role, field]) in recordFields" :key="role" :data-role="role">
+        <dt>{{ field.label[locale] }}</dt>
+        <dd><strong>{{ field.value[locale] }}</strong><small>{{ field.note[locale] }}</small></dd>
+      </div>
     </dl>
+    <p class="evaluation-boundary" data-role="unseen-evaluation">
+      <strong>{{ aiOverviewVisualCopy.unseenData[locale] }}</strong>
+      {{ mlProcessRecord.unseenEvaluation[locale] }}
+    </p>
     <ol :aria-label="aiOverviewVisualCopy.processTrace[locale]">
       <li v-for="(stage, index) in mlProcessSteps" :key="stage.id">
         <span class="stage-marker" aria-hidden="true">{{ index + 1 }}</span>
@@ -36,5 +45,8 @@ li { border: 1px solid currentColor; border-radius: .6rem; padding: .8rem; }
 .record-roles div { border-inline-start: 3px solid currentColor; padding-inline-start: .6rem; }
 .record-roles dt { font-weight: 700; }
 .record-roles dd { margin: .25rem 0 0; }
+.record-roles dd { display: grid; gap: .25rem; }
+.record-roles small { color: var(--muted); }
+.evaluation-boundary { border: 1px dashed currentColor; border-radius: .6rem; padding: .75rem; }
 @media (max-width: 700px) { ol, .record-roles { grid-template-columns: 1fr; } }
 </style>

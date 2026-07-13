@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { AppLocale } from '../../../types/ml'
 import type { RegressionPresetId } from '../types'
-import { aiOverviewVisualCopy } from '../data/course'
+import { aiOverviewVisualCopy, regressionClassificationRows } from '../data/course'
 import { regressionCandidates, regressionPresets } from '../data/experiments'
 import { meanSquaredError, predict, rankRegressionCandidates, regressionRows } from '../utils/regression'
 
@@ -23,6 +23,11 @@ const rows = computed(() => regressionRows(samples.value, w.value, b.value))
 const currentMse = computed(() => meanSquaredError(samples.value, w.value, b.value))
 const ranked = computed(() => rankRegressionCandidates(samples.value, [...regressionCandidates]))
 const searchPath = computed(() => [...ranked.value].reverse())
+const currentCandidate = computed(() => ({ w: w.value, b: b.value, mse: currentMse.value }))
+const currentBest = computed(() => {
+  const visited = searchPath.value.slice(0, Math.max(1, cursor.value))
+  return [...visited].sort((left, right) => left.mse - right.mse || left.index - right.index)[0]
+})
 const currentValue = computed(() => `w=${w.value.toFixed(1)}, b=${b.value.toFixed(1)}, MSE=${currentMse.value.toFixed(2)}`)
 const x = (value: number) => 28 + value * 52
 const y = (value: number) => 230 - (value - 40) * 3
@@ -93,28 +98,75 @@ onBeforeUnmount(stop)
       </div>
     </div>
 
-    <figure>
-      <svg viewBox="0 0 360 250" role="img" :aria-label="currentValue">
-        <line class="axis" x1="28" y1="230" x2="340" y2="230" />
-        <line class="axis" x1="28" y1="20" x2="28" y2="230" />
-        <line class="fit-line" :x1="x(0)" :y1="y(predict({ id: 'line-start', x: 0, y: 0 }, w, b))" :x2="x(6)" :y2="y(predict({ id: 'line-end', x: 6, y: 0 }, w, b))" />
-        <g v-for="row in rows" :key="row.id">
-          <line v-if="residual" class="residual" :x1="x(row.x)" :x2="x(row.x)" :y1="y(row.y)" :y2="y(row.predicted)" />
-          <circle class="sample" :cx="x(row.x)" :cy="y(row.y)" r="5"><title>{{ `${row.id}: y=${row.y}, ŷ=${row.predicted.toFixed(1)}` }}</title></circle>
-        </g>
-      </svg>
-      <figcaption>{{ currentValue }}</figcaption>
-    </figure>
+    <div class="regression-lab__teaching-surface">
+      <figure>
+        <svg viewBox="0 0 360 250" role="img" :aria-label="currentValue">
+          <line class="axis" x1="28" y1="230" x2="340" y2="230" />
+          <line class="axis" x1="28" y1="20" x2="28" y2="230" />
+          <line class="fit-line" :x1="x(0)" :y1="y(predict({ id: 'line-start', x: 0, y: 0 }, w, b))" :x2="x(6)" :y2="y(predict({ id: 'line-end', x: 6, y: 0 }, w, b))" />
+          <g v-for="row in rows" :key="row.id">
+            <line v-if="residual" class="residual" :x1="x(row.x)" :x2="x(row.x)" :y1="y(row.y)" :y2="y(row.predicted)" />
+            <circle class="sample" :cx="x(row.x)" :cy="y(row.y)" r="5"><title>{{ `${row.id}: y=${row.y}, ŷ=${row.predicted.toFixed(1)}` }}</title></circle>
+          </g>
+        </svg>
+        <figcaption>{{ currentValue }}</figcaption>
+      </figure>
+
+      <section>
+        <h3>{{ copy.regressionRows[locale as AppLocale] }}</h3>
+        <div class="regression-lab__table-wrap" tabindex="0" role="region" :aria-label="copy.regressionRows[locale as AppLocale]">
+          <table data-table="regression-rows">
+            <thead><tr><th>ID</th><th>x</th><th>y</th><th>{{ copy.prediction[locale as AppLocale] }}</th><th>residual</th><th>{{ copy.squaredError[locale as AppLocale] }}</th></tr></thead>
+            <tbody><tr v-for="row in rows" :key="row.id"><th>{{ row.id }}</th><td>{{ row.x }}</td><td>{{ row.y }}</td><td>{{ row.predicted.toFixed(2) }}</td><td>{{ row.residual.toFixed(2) }}</td><td>{{ row.squaredResidual.toFixed(2) }}</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h3>{{ copy.candidateSearch[locale as AppLocale] }}</h3>
+        <dl class="regression-lab__candidate-state">
+          <div><dt>{{ copy.currentCandidate[locale as AppLocale] }}</dt><dd>w={{ currentCandidate.w.toFixed(1) }}, b={{ currentCandidate.b.toFixed(1) }}, MSE={{ currentCandidate.mse.toFixed(2) }}</dd></div>
+          <div><dt>{{ copy.currentBest[locale as AppLocale] }}</dt><dd>w={{ currentBest.w.toFixed(1) }}, b={{ currentBest.b.toFixed(1) }}, MSE={{ currentBest.mse.toFixed(2) }}</dd></div>
+        </dl>
+        <div class="regression-lab__table-wrap" tabindex="0" role="region" :aria-label="copy.candidateSearch[locale as AppLocale]">
+          <table data-table="candidate-search">
+            <thead><tr><th>#</th><th>w</th><th>b</th><th>MSE</th></tr></thead>
+            <tbody><tr v-for="(candidate, index) in ranked" :key="`${candidate.w}-${candidate.b}`" :aria-current="candidate.w === currentCandidate.w && candidate.b === currentCandidate.b ? 'true' : undefined"><th>{{ index + 1 }}</th><td>{{ candidate.w.toFixed(1) }}</td><td>{{ candidate.b.toFixed(1) }}</td><td>{{ candidate.mse.toFixed(2) }}</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h3>{{ copy.regressionClassification[locale as AppLocale] }}</h3>
+        <div class="regression-lab__table-wrap" tabindex="0" role="region" :aria-label="copy.regressionClassification[locale as AppLocale]">
+          <table data-table="regression-classification">
+            <thead><tr><th>{{ copy.modelTask[locale as AppLocale] }}</th><th>{{ copy.valueType[locale as AppLocale] }}</th><th>{{ copy.examples[locale as AppLocale] }}</th></tr></thead>
+            <tbody><tr v-for="comparison in regressionClassificationRows" :key="comparison.id"><th>{{ comparison.modelTask[locale as AppLocale] }}</th><td>{{ comparison.outputType[locale as AppLocale] }}</td><td>{{ comparison.examples[locale as AppLocale] }}</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </section>
 </template>
 
 <style scoped>
-.algorithm-lab { display:grid; grid-template-columns:minmax(15rem, .8fr) minmax(18rem, 1.2fr); gap:1rem; }
+.algorithm-lab { display:grid; grid-template-columns:minmax(15rem, .65fr) minmax(18rem, 1.35fr); gap:1rem; }
 .algorithm-lab__controls { display:grid; gap:.65rem; align-content:start; }
+.regression-lab__teaching-surface { display:grid; gap:1rem; min-width:0; }
+.regression-lab__teaching-surface section { min-width:0; }
+.regression-lab__teaching-surface h3 { margin:.25rem 0 .5rem; }
+.regression-lab__candidate-state { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; margin:0 0 .5rem; }
+.regression-lab__candidate-state div { padding:.6rem; border-radius:.5rem; background:#f4f8f7; }
+.regression-lab__candidate-state dd { margin:0; font-weight:800; }
+.regression-lab__table-wrap { overflow-x:auto; max-width:100%; }
+table { width:100%; min-width:36rem; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+th,td { padding:.45rem; border-bottom:1px solid #dce6e2; text-align:right; }
+th:first-child,td:first-child { text-align:left; }
+tr[aria-current='true'] { outline:2px solid #0f9f8f; outline-offset:-2px; }
 label { display:grid; gap:.25rem; font-weight:700; }
 .algorithm-lab__check { display:flex; align-items:center; }
 .algorithm-lab__actions { display:flex; flex-wrap:wrap; gap:.5rem; }
 figure { margin:0; } svg { width:100%; min-height:16rem; background:#f7fbfa; border-radius:.75rem; }
 .axis { stroke:#688078; } .fit-line { stroke:#d45c43; stroke-width:3; } .residual { stroke:#8b5cf6; stroke-dasharray:4; } .sample { fill:#0f9f8f; stroke:white; stroke-width:2; }
-@media (max-width:760px) { .algorithm-lab { grid-template-columns:1fr; } }
+@media (max-width:760px) { .algorithm-lab { grid-template-columns:1fr; } .regression-lab__candidate-state { grid-template-columns:1fr; } }
 </style>

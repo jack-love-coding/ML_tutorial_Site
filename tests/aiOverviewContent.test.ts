@@ -110,17 +110,27 @@ test('AI Overview checkpoints are formative and revisit real chapters', () => {
     ...combined.choices.flatMap((choice) => [choice.label['zh-CN'], choice.label.en]),
     combined.explanation['zh-CN'], combined.explanation.en,
   ].join(' ')
-  for (const token of ['电力', '新闻', '交通', 'electricity', 'news', 'traffic', 'label', 'similarity', 'waiting-time reward']) {
+  for (const token of ['零件', '音乐', '通知', 'defect', 'music', 'notification', 'label', 'similarity', 'retention reward']) {
     assert.match(combinedCopy, new RegExp(token, 'i'))
+  }
+  for (const stale of ['电力', '新闻', '交通', 'electricity', 'news', 'traffic']) {
+    assert.doesNotMatch(combinedCopy, new RegExp(stale, 'i'))
   }
 })
 
-test('AI Overview interaction protocol remains local formative observation', () => {
-  const protocol = lessonInteractionProtocols.find((item) => item.moduleSlug === 'ai-overview')
-  assert.ok(protocol)
-  assert.deepEqual([...new Set(protocol.evidence.map((item) => item.kind))].sort(), [
-    'configuration', 'explanation', 'observation',
+test('AI Overview interaction protocols mount only on real algorithm labs and name real controls', () => {
+  const protocols = lessonInteractionProtocols.filter((item) => item.moduleSlug === 'ai-overview')
+  assert.deepEqual(protocols.map((item) => item.sectionIds), [
+    ['supervised-linear-regression'],
+    ['unsupervised-kmeans'],
+    ['reinforcement-q-learning'],
   ])
-  const copy = JSON.stringify(protocol)
+  const copy = JSON.stringify(protocols)
+  for (const token of [
+    'preset', 'w', 'b', 'MSE', 'prediction', 'residual', 'current best',
+    'K', 'seed', 'phase', 'within-group distance',
+    'exploration', 'state', 'action', 'reward', 'Q', 'policy',
+  ]) assert.match(copy, new RegExp(token, 'i'))
+  assert.doesNotMatch(copy, /scenario-card|highlighted task card|高亮任务卡|任务场景卡/i)
   assert.doesNotMatch(copy, /backend|upload|submit|submission|acceptance|grade|score|passed/i)
 })

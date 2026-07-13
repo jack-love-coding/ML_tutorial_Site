@@ -108,3 +108,59 @@
   - Exit 0 after the follow-up commit and a fresh generator run.
 - `git diff --check`
   - Exit 0; no whitespace errors.
+
+## AI Overview final whole-branch review closure — 2026-07-13
+
+**Result:** DONE_WITH_CONCERNS
+**Scope:** final findings in the approved Curriculum V3.1 AI Overview branch. No new completion, progress, scoring, submit, teacher-acceptance, or navigation-gate path was introduced.
+
+### Finding-to-fix map
+
+1. Moved the five existing formative checkpoint items to their owning chapters as groups of 2/1/2 and suppressed only the AI Overview page-bottom duplicate.
+2. Replaced the paradigm checkpoint with three unseen, bilingual signal-recognition scenarios.
+3. Rebuilt the ML process record around `L-07`, candidate score 62, selected `x = 3 h`, target `y = 68`, and a separate unseen evaluation record.
+4. Added synchronized regression data/candidate/comparison tables and current-versus-best readouts backed by the existing deterministic math.
+5. Replaced the Q fallback's aggregate second frame with a deterministic real one-action update from the shared Q-learning utility.
+6. Replaced stale scenario-card/highlight protocol declarations with the three actual mounted algorithm labs and their real controls/readouts.
+7. Added full greedy tie-priority and deterministic goal-termination coverage.
+8. Synchronized the authoritative Manim episode-1 label (`26 steps`, reward `-25`) across checked JSON, runtime content, and integrity metadata.
+
+### Assessment-boundary adjudication
+
+The chapter-local checkpoint surface is formative explanation only. Answer selection reveals reasoning, misconception tags, and a revisit link immediately. It emits no score, submit event, attempt record, completion/progress mutation, navigation restriction, teacher-acceptance state, or backend request. Existing localStorage completion data and route access are preserved.
+
+### TDD evidence
+
+- Initial focused RED: 70 tests, 60 passed, 10 failed for the newly asserted review semantics.
+- Focused GREEN: 73/73 passed.
+- Expanded AI Overview set: 97/97 passed.
+- Full-suite integration RED: 515/517 passed; two generic protocol-registration assertions caught incompatible distinct lab IDs.
+- Protocol compatibility GREEN: 12/12 passed after retaining the registered `ai-overview-task-lab` compatibility ID.
+- Final complete suite: 517/517 passed.
+
+### Browser evidence
+
+- Desktop: local checkpoint counts `[2,1,2]`, no global duplicate, all three desktop labs mounted, process-record roles correct, and regression table row counts `5/7/2`.
+- Real regression step: current/best advanced from `w=4, b=48, MSE=39.60` to `w=5, b=48, MSE=9.40`, with row and plot values synchronized.
+- Mobile 390 × 844: no page overflow, no desktop lab controls, Q fallback exactly four frames, no range input, and the single-action terms were visible and finite.
+- Reduced motion: no desktop labs, fallback counts `[4,4,4]`, videos hidden, teaching information retained.
+- Final clean session: 0 console errors, 0 warnings, no failed requests; MP4 traffic used expected 206 range responses.
+
+### Verification command record
+
+- `node --test tests/aiOverviewContent.test.ts tests/algorithm-checkpoints-layout.test.mjs tests/aiOverviewVisualContracts.test.ts tests/aiOverviewLabs.test.ts tests/aiOverviewLabBehavior.test.ts tests/aiOverviewQLearning.test.ts tests/aiOverviewResponsive.test.ts tests/aiOverviewManimAssets.test.ts` — 73/73 passed after the recorded RED run.
+- `node --test tests/aiOverview*.test.ts tests/ai-overview-module.test.mjs tests/algorithm-checkpoints-layout.test.mjs` — 97/97 passed.
+- `node --test tests/curriculumMilestoneAudit.test.ts tests/teachingInteractionProtocol.test.ts tests/aiOverviewContent.test.ts` — 12/12 passed.
+- `npm test` — 517 passed; 0 failed, skipped, cancelled, or todo.
+- `npm run build:pages` — passed; Vite 8.0.16 transformed 2,464 modules.
+- `npm run security:audit` — passed; 0 vulnerabilities.
+- `npm run build` — passed as the final build; Vite 8.0.16 transformed 2,464 modules.
+- `python scripts/manim/render_ai_overview.py --check` — passed.
+
+### Asset and concern disposition
+
+- The Manim MP4, poster, and keyframe assets were not rerendered. The existing outputs passed the official check; only the authoritative checked label payload and matching integrity hash changed.
+- `traffic-signals` remains the single approved deferred image record.
+- Vite retains the pre-existing advisory for chunks larger than 1400 kB.
+- `.superpowers/sdd/task-5-report.md` was preserved as pre-existing work and excluded from staging.
+- `docs/gpt_advice.md` was not read, modified, staged, or committed.

@@ -16,14 +16,38 @@ The required commands were run from a clean standard build sequence. `build:page
 
 | Command | Result | Exact evidence |
 | --- | --- | --- |
-| `npm test` | PASS | 512 tests passed; 0 failed, skipped, cancelled, or todo |
-| `npm run build` | PASS | Vite 8.0.16; 2,463 modules transformed |
-| `npm run build:pages` | PASS | Vite 8.0.16; 2,463 modules transformed |
+| `npm test` | PASS | 517 tests passed; 0 failed, skipped, cancelled, or todo |
+| `npm run build` | PASS | Vite 8.0.16; 2,464 modules transformed |
+| `npm run build:pages` | PASS | Vite 8.0.16; 2,464 modules transformed |
 | `npm run security:audit` | PASS | `found 0 vulnerabilities` |
-| `npm run build` (last) | PASS | Standard-base production output rebuilt after the Pages build; 2,463 modules transformed |
+| `npm run build` (last) | PASS | Standard-base production output rebuilt after the Pages build; 2,464 modules transformed |
 | `python scripts/manim/render_ai_overview.py --check` | PASS | AI Overview Manim assets and integrity metadata are in sync |
 
 Both production builds emitted the same existing warning: `Some chunks are larger than 1400 kB after minification.` No new build error or security finding was produced.
+
+### Final whole-branch review closure
+
+The final review package identified eight connected teaching-contract gaps. They are closed as follows:
+
+1. The five existing AI Overview checkpoint items now render beside their owning chapters in groups of 2/1/2. The former page-bottom duplicate is absent only on AI Overview; other algorithm modules retain their scored module checkpoint.
+2. The learning-paradigm checkpoint now uses three unseen scenarios: labeled defect inspection, unlabeled music grouping, and reward-driven notification scheduling.
+3. The ML process tracer uses one fixed record consistently: learner identifier `L-07`, candidate historical score `62`, selected feature `x = 3 h`, target `y = 68`, and a separate unseen evaluation record that does not update parameters.
+4. Regression exposes synchronized five-row prediction/residual/squared-error detail, seven ranked candidate lines, current-candidate/current-best readouts, and a two-row regression/classification comparison. All calculations reuse the lab's shared deterministic utilities.
+5. The mobile/reduced-motion Q-learning fallback's second frame is a real single action update from seed 7107: state `3,0`, action `up`, old Q `0`, reward `-1`, next maximum `0`, target `-1`, correction `-1`, and new Q `-0.5`. It has exactly four frames and no range controls.
+6. The interaction protocol names only the three mounted labs and their real controls/readouts. Stale scenario-card and highlight interactions were removed.
+7. The Q-learning tests now cover the complete greedy tie order `up → right → down → left` and deterministic goal termination in 6 steps, below the 64-step cap.
+8. The Q-learning Manim checked labels now state the authoritative first actual exploration result: 26 steps and reward -25. Runtime labels, checked JSON, and integrity metadata match. The MP4, poster, and keyframes were checked but not rerendered; only the checked label payload and its integrity hash changed.
+
+Assessment adjudication: these chapter-local checkpoints are immediate formative explanation only. They create no score, submit action, quiz attempt, completion/progress write, navigation gate, teacher-acceptance workflow, or backend request. Existing stored completions and route access remain untouched.
+
+TDD evidence for this closure:
+
+- RED: the initial eight-file focused run produced 70 tests, 60 passes, and the expected 10 semantic failures covering placement, scenarios, tracer roles, regression surfaces, static Q terms, protocols, Manim labels, and responsive styling.
+- GREEN: the same focused run passed 73/73 after implementation.
+- Expanded AI Overview regression set passed 97/97.
+- The first full suite exposed two generic protocol-registration compatibility failures; after retaining the registered `ai-overview-task-lab` compatibility ID, the focused protocol set passed 12/12.
+- Final complete suite passed 517/517.
+- Fresh-browser verification of the final standard build passed at desktop and 390 × 844, with 0 console errors, 0 warnings, no failed request, and only successful static responses plus expected 206 video range responses.
 
 ## Failures found and RED/GREEN closure
 
@@ -54,7 +78,7 @@ The second written review caught an important reproducibility regression at the 
 - GREEN: the fixture generator now retains all 16 Q-table rows but omits the goal and both obstacles from the 13 navigable policy states. The renderer independently skips `OBSTACLES` as well as `GOAL` when recoloring cells and drawing arrows.
 - The actual obstacle coordinates are `1,1` and `2,2`; the prior `2,1` QA reference was a transcription error and is corrected in tests and browser evidence.
 - The fixture and integrity metadata were regenerated through the official renderer module's deterministic fixture/metadata functions. `python scripts/manim/render_ai_overview.py --check` then passed. The MP4, poster, and keyframe assets were verified but were not rerendered during this repair.
-- The focused Q-learning/labs/responsive/assets/Manim set passed 42/42, and the complete suite passed 512/512.
+- The focused Q-learning/labs/responsive/assets/Manim set passed 42/42 at that review stage; the final complete suite now passes 517/517.
 
 ### Q-learning reactive-proxy clone
 
@@ -102,7 +126,7 @@ RED/GREEN evidence:
 | 12. Mobile/reduced-motion fallbacks | PASS | Each of the 3 complex labs becomes 4 labeled static states; controls are absent at 390 px and under reduced motion; videos are replaced by typed poster/keyframe sequences of 3/3/4 frames with localized captions and readable transcripts. |
 | 13. Reproducibility/storage | PASS | Assets use local public paths; Imagegen and Manim manifests are auditable; Manim integrity check passes; no temporary or absolute runtime asset path is used. |
 | 14. Existing-system integration | PASS | `/learn/ai-overview` remains canonical and lazy-loaded through the existing LessonPage/AlgorithmView path. The algorithm, Math Lab, and Data Lab v1 localStorage keys remain present. No old URL or progress store was removed. |
-| 15. Testing/verification | PASS | 512 automated tests plus desktop, mobile, reduced-motion, print, keyboard, console, network, and asset checks pass. |
+| 15. Testing/verification | PASS | 517 automated tests plus desktop, mobile, reduced-motion, print, keyboard, console, network, and asset checks pass. |
 | 16. Delivery sequence | PASS | Task reports/manifests from the preceding content, visual, lab, asset, and responsive stages were checked before this final audit. |
 | 17. Non-goals | PASS | No backend grading, learner-report generation, AI-history expansion, Transformer mechanics, or wholesale curriculum migration was introduced. |
 | 18. Written review gate | PASS | This QA record and `browser-evidence.md` provide the final auditable review evidence. |
