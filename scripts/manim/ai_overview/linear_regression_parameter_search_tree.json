@@ -1,0 +1,69 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "analysis": {
+    "coreConcept": "linear regression parameter search",
+    "domain": "mathematics / supervised machine learning",
+    "level": "beginner",
+    "goal": "Connect a candidate line's slope and intercept to prediction, residual, squared error, MSE, and visible parameter comparison."
+  },
+  "root": "linear regression parameter search",
+  "topologicalOrder": ["coordinate graph", "linear function", "difference and square", "arithmetic mean", "prediction residual", "mean squared error", "linear regression parameter search"],
+  "nodes": [
+    {
+      "concept": "coordinate graph", "depth": 3, "isFoundation": true, "prerequisites": [],
+      "equations": ["(x,y)", "x\\mapsto y"],
+      "definitions": {"x": "practice duration in hours", "y": "observed next score"},
+      "interpretation": "A point binds one learner input to one observed result.",
+      "example": "The point (1,52) means one hour of practice and an observed score of 52.",
+      "visualSpec": {"elements": ["Axes", "Dot", "axis labels"], "colors": {"point": "PINK", "axes": "MUTED"}, "animations": ["Create axes", "FadeIn five points"], "durationSeconds": 10}
+    },
+    {
+      "concept": "linear function", "depth": 2, "isFoundation": true, "prerequisites": ["coordinate graph"],
+      "equations": ["\\hat y=wx+b", "\\Delta\\hat y=w\\Delta x"],
+      "definitions": {"w": "slope; score change per added hour", "b": "intercept; vertical position", "hat y": "predicted score"},
+      "interpretation": "w tilts the line and b moves it vertically.",
+      "example": "With w=6 and b=47, x=1 gives 53.",
+      "visualSpec": {"elements": ["candidate line", "formula", "w label", "b label"], "colors": {"line": "BLUE", "w": "BLUE", "b": "ORANGE"}, "animations": ["Create line", "Write formula", "Indicate roles"], "durationSeconds": 12}
+    },
+    {
+      "concept": "difference and square", "depth": 3, "isFoundation": true, "prerequisites": [],
+      "equations": ["e=y-\\hat y", "e^2=(y-\\hat y)^2"],
+      "definitions": {"e": "signed residual", "e squared": "non-negative squared error"},
+      "interpretation": "The residual keeps direction; squaring removes sign and emphasizes larger misses.",
+      "example": "52-53=-1 and (-1)^2=1.",
+      "visualSpec": {"elements": ["vertical residual", "four-step calculation"], "colors": {"residual": "RED", "square": "ORANGE"}, "animations": ["Create residual", "Write calculation line by line"], "durationSeconds": 14}
+    },
+    {
+      "concept": "arithmetic mean", "depth": 3, "isFoundation": true, "prerequisites": [],
+      "equations": ["\\bar z=\\frac{1}{n}\\sum_{i=1}^{n}z_i"],
+      "definitions": {"n": "number of samples", "z_i": "one value to average"},
+      "interpretation": "A mean summarizes several comparable values on one scale.",
+      "example": "(1+0+0+1+1)/5=0.6.",
+      "visualSpec": {"elements": ["error table", "mean equation"], "colors": {"table": "INK", "mean": "YELLOW"}, "animations": ["FadeIn table", "Write mean"], "durationSeconds": 11}
+    },
+    {
+      "concept": "prediction residual", "depth": 1, "isFoundation": false, "prerequisites": ["linear function", "difference and square"],
+      "equations": ["\\hat y_i=wx_i+b", "e_i=y_i-\\hat y_i"],
+      "definitions": {"i": "sample index", "hat y_i": "candidate-line prediction", "e_i": "vertical miss"},
+      "interpretation": "Every observed point can be compared with the line at the same x.",
+      "example": "At x=4, w=6 and b=47 predict 71; y=72 leaves residual 1.",
+      "visualSpec": {"elements": ["data point", "line point", "dashed residual"], "colors": {"observation": "PINK", "prediction": "BLUE", "residual": "RED"}, "animations": ["Focus sample", "Create residual"], "durationSeconds": 14}
+    },
+    {
+      "concept": "mean squared error", "depth": 1, "isFoundation": false, "prerequisites": ["prediction residual", "arithmetic mean"],
+      "equations": ["\\mathrm{MSE}=\\frac{1}{n}\\sum_{i=1}^{n}(y_i-\\hat y_i)^2"],
+      "definitions": {"MSE": "mean squared error over the shared samples"},
+      "interpretation": "One scalar lets candidates be ranked consistently.",
+      "example": "For w=6,b=47 the squared errors [1,0,0,1,1] give MSE 0.6.",
+      "visualSpec": {"elements": ["squared-error table", "MSE badge"], "colors": {"errors": "ORANGE", "badge": "YELLOW"}, "animations": ["Collect errors", "Circumscribe MSE"], "durationSeconds": 11}
+    },
+    {
+      "concept": "linear regression parameter search", "depth": 0, "isFoundation": false, "prerequisites": ["linear function", "mean squared error"],
+      "equations": ["(w^*,b^*)=\\arg\\min_{w,b}\\mathrm{MSE}(w,b)"],
+      "definitions": {"w star,b star": "best pair among the displayed candidates"},
+      "interpretation": "Synchronize the line and MSE for each candidate, retain the smallest score, then distinguish this finite teaching search from gradient descent.",
+      "example": "Among the seven committed candidates, w=6.5,b=46 has MSE 0.15.",
+      "visualSpec": {"elements": ["animated candidate line", "leaderboard", "best-line summary"], "colors": {"candidate": "BLUE", "best": "GREEN", "handoff": "YELLOW"}, "animations": ["Transform candidates", "Update leaderboard", "Highlight best"], "durationSeconds": 30}
+    }
+  ]
+}

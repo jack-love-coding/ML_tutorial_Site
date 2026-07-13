@@ -1,0 +1,68 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "analysis": {
+    "coreConcept": "Q-learning strategy formation",
+    "domain": "mathematics / reinforcement learning",
+    "level": "beginner",
+    "goal": "Connect states, actions, post-action rewards, one numerical Q update, exploration, repeated episodes, and greedy evaluation."
+  },
+  "root": "Q-learning strategy formation",
+  "topologicalOrder": ["grid coordinates", "weighted correction", "future discounted value", "state action reward", "Q-value update", "exploration and exploitation", "Q-learning strategy formation"],
+  "nodes": [
+    {
+      "concept": "grid coordinates", "depth": 3, "isFoundation": true, "prerequisites": [],
+      "equations": ["s=(row,column)"], "definitions": {"s": "current grid cell"},
+      "interpretation": "A 4×4 grid gives a finite set of visible states.",
+      "example": "Start=(3,0), goal=(0,3), obstacles=(1,1),(2,2).",
+      "visualSpec": {"elements": ["4×4 grid", "start", "goal", "obstacles", "reward legend"], "colors": {"start": "CYAN", "goal": "GREEN", "obstacle": "RED"}, "animations": ["FadeIn grid", "FadeIn legend"], "durationSeconds": 8}
+    },
+    {
+      "concept": "weighted correction", "depth": 3, "isFoundation": true, "prerequisites": [],
+      "equations": ["new=old+\\alpha(target-old)"],
+      "definitions": {"alpha": "learning rate between 0 and 1"},
+      "interpretation": "Move partway from an old estimate toward a target.",
+      "example": "With old=2,target=13.6,alpha=0.5, new=7.8.",
+      "visualSpec": {"elements": ["Chinese relation", "numeric substitution"], "colors": {"old": "INK", "target": "BLUE", "new": "GREEN"}, "animations": ["Write relation", "Write substitution"], "durationSeconds": 8}
+    },
+    {
+      "concept": "future discounted value", "depth": 2, "isFoundation": true, "prerequisites": ["weighted correction"],
+      "equations": ["target=r+\\gamma\\max_{a'}Q(s',a')"],
+      "definitions": {"r": "reward returned after the action", "gamma": "discount factor", "s prime": "next state"},
+      "interpretation": "The target combines immediate feedback with the best estimated continuation.",
+      "example": "10+0.9×4=13.6.",
+      "visualSpec": {"elements": ["target equation", "reward and future terms"], "colors": {"reward": "ORANGE", "future": "BLUE"}, "animations": ["Transform relation to formula"], "durationSeconds": 8}
+    },
+    {
+      "concept": "state action reward", "depth": 2, "isFoundation": false, "prerequisites": ["grid coordinates"],
+      "equations": ["(s,a,r,s')"],
+      "definitions": {"a": "up, right, down, or left", "r": "+10 goal, -1 step, -3 collision"},
+      "interpretation": "Reward arrives after an action; it is not a target label attached in advance.",
+      "example": "Moving into the goal returns +10; colliding leaves the state unchanged and returns -3.",
+      "visualSpec": {"elements": ["four action arrows", "Q-value definition"], "colors": {"actions": "BLUE", "reward": "ORANGE"}, "animations": ["FadeIn arrows", "Focus current state"], "durationSeconds": 10}
+    },
+    {
+      "concept": "Q-value update", "depth": 1, "isFoundation": false, "prerequisites": ["state action reward", "future discounted value"],
+      "equations": ["Q(s,a)\\leftarrow Q(s,a)+\\alpha[r+\\gamma\\max_{a'}Q(s',a')-Q(s,a)]"],
+      "definitions": {"Q(s,a)": "estimated long-term value of action a in state s", "alpha": "0.5", "gamma": "0.9"},
+      "interpretation": "Positive target-above-old evidence raises the selected Q value; sufficiently negative evidence lowers it.",
+      "example": "old 2, reward 10, next best 4 gives target 13.6, correction 11.6, and new 7.8.",
+      "visualSpec": {"elements": ["full formula", "four numeric lines", "misconception warning"], "colors": {"formula": "INK", "new value": "GREEN", "warning": "RED"}, "animations": ["Write formula", "Substitute values", "FadeIn warning"], "durationSeconds": 16}
+    },
+    {
+      "concept": "exploration and exploitation", "depth": 1, "isFoundation": false, "prerequisites": ["Q-value update"],
+      "equations": ["a=\\begin{cases}random,&u<\\epsilon\\\\arg\\max_aQ(s,a),&u\\ge\\epsilon\\end{cases}"],
+      "definitions": {"epsilon": "exploration rate; fixed at 0.3 in training and 0 in evaluation"},
+      "interpretation": "Exploration samples alternatives; exploitation follows the best current estimate.",
+      "example": "Training uses epsilon=0.3; evaluation consumes no randomness.",
+      "visualSpec": {"elements": ["explore panel", "best-action panel", "fixed-rate label"], "colors": {"explore": "ORANGE", "best": "GREEN"}, "animations": ["FadeIn side-by-side panels"], "durationSeconds": 10}
+    },
+    {
+      "concept": "Q-learning strategy formation", "depth": 0, "isFoundation": false, "prerequisites": ["Q-value update", "exploration and exploitation"],
+      "equations": ["episodes:1\\rightarrow5\\rightarrow20\\rightarrow50", "\\pi(s)=\\arg\\max_aQ(s,a)"],
+      "definitions": {"episode": "one trajectory from start until goal or 64-step bound", "policy": "greedy action choice per state"},
+      "interpretation": "Repeated seeded updates make a stable six-step greedy path visible, then transfer state/action/reward to exercise selection without claiming the policy is automatically safe.",
+      "example": "Seed 7107 yields the greedy path up,up,up,right,right,right after 50 episodes; evaluation reward is +5.",
+      "visualSpec": {"elements": ["episodes 1/5/20/50", "trajectory", "Q-color cue", "policy arrows", "initial-vs-learned evaluation", "learning-assistant mapping"], "colors": {"path": "YELLOW", "policy": "GREEN", "safety": "RED"}, "animations": ["Reveal snapshots", "Draw greedy path", "Map labels to exercise selection"], "durationSeconds": 46}
+    }
+  ]
+}

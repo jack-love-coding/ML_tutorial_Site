@@ -1,0 +1,22 @@
+{
+  "localeInVideo": "zh-CN",
+  "labels": [
+    {"zh-CN": "监督学习 · 线性回归", "en": "Supervised learning · linear regression"},
+    {"zh-CN": "练习时长能预测下一次得分吗？", "en": "Can practice duration predict the next score?"},
+    {"zh-CN": "输入 x：练习时长（小时）", "en": "Input x: practice duration (hours)"},
+    {"zh-CN": "输出 ŷ：预测得分", "en": "Output ŷ: predicted score"},
+    {"zh-CN": "共享数据：清晰趋势", "en": "Shared data: clear trend"},
+    {"zh-CN": "练习时长 x（小时）", "en": "Practice duration x (hours)"},
+    {"zh-CN": "下一次得分 y", "en": "Observed next score y"},
+    {"zh-CN": "w：斜率，控制每多练 1 小时提高多少分", "en": "w: slope; predicted score gain per added hour"},
+    {"zh-CN": "b：截距，控制整条直线的上下位置", "en": "b: intercept; vertical position of the line"},
+    {"zh-CN": "取第 1 个样本：x=1，y=52", "en": "Take sample 1: x=1, y=52"},
+    {"zh-CN": "把 5 个平方误差汇总", "en": "Combine the five squared errors"},
+    {"zh-CN": "平方误差", "en": "Squared error"},
+    {"zh-CN": "可见参数搜索：同步比较直线、残差与 MSE", "en": "Visible parameter search: compare line, residuals, and MSE together"},
+    {"zh-CN": "当前候选", "en": "Current candidate"},
+    {"zh-CN": "当前最优：w=6.5，b=46，MSE=0.15", "en": "Current best: w=6.5, b=46, MSE=0.15"},
+    {"zh-CN": "这里逐个尝试候选参数，是教学简化。", "en": "Trying candidates one by one is a teaching simplification."},
+    {"zh-CN": "后续：用梯度下降更系统地寻找更小的误差。", "en": "Next: use gradient descent to search more systematically for lower error."}
+  ]
+}

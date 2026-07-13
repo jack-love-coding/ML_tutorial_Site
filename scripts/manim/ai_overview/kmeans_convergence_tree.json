@@ -1,0 +1,67 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "analysis": {
+    "coreConcept": "K-means convergence",
+    "domain": "mathematics / unsupervised machine learning",
+    "level": "beginner",
+    "goal": "See how nearest-center assignment and coordinate means alternate until assignments and centers stop changing."
+  },
+  "root": "K-means convergence",
+  "topologicalOrder": ["coordinate point", "squared distance", "nearest choice", "arithmetic mean", "cluster assignment", "center recomputation", "K-means convergence"],
+  "nodes": [
+    {
+      "concept": "coordinate point", "depth": 3, "isFoundation": true, "prerequisites": [],
+      "equations": ["p=(x,y)"], "definitions": {"x": "accuracy", "y": "mean response time"},
+      "interpretation": "Each learner becomes one point with two measured features.", "example": "l7=(48,31).",
+      "visualSpec": {"elements": ["axes", "12 unlabeled dots"], "colors": {"points": "BLUE"}, "animations": ["Create axes", "FadeIn points"], "durationSeconds": 8}
+    },
+    {
+      "concept": "squared distance", "depth": 3, "isFoundation": true, "prerequisites": ["coordinate point"],
+      "equations": ["d^2(p,c)=(x-c_x)^2+(y-c_y)^2"],
+      "definitions": {"c": "candidate center", "d squared": "squared Euclidean distance"},
+      "interpretation": "Smaller squared distance means closer; the square root is unnecessary for ranking.",
+      "example": "Compare l7=(48,31) to all three initialized centers.",
+      "visualSpec": {"elements": ["one focus point", "three connector lines", "distance equation"], "colors": {"connectors": "cluster colors"}, "animations": ["Create connectors", "Highlight minimum"], "durationSeconds": 12}
+    },
+    {
+      "concept": "nearest choice", "depth": 2, "isFoundation": true, "prerequisites": ["squared distance"],
+      "equations": ["a_i=\\arg\\min_k d^2(p_i,c_k)"],
+      "definitions": {"a_i": "cluster index assigned to point i"},
+      "interpretation": "A deterministic tie keeps the first center, matching the lab utility.",
+      "example": "l7 is assigned to center 1 at (43,37).",
+      "visualSpec": {"elements": ["colored focus point", "cluster legend"], "colors": {"cluster 1": "CYAN", "cluster 2": "PINK", "cluster 3": "ORANGE"}, "animations": ["Recolor point"], "durationSeconds": 10}
+    },
+    {
+      "concept": "arithmetic mean", "depth": 3, "isFoundation": true, "prerequisites": [],
+      "equations": ["\\bar x=\\frac{1}{m}\\sum x_i", "\\bar y=\\frac{1}{m}\\sum y_i"],
+      "definitions": {"m": "points assigned to the cluster"},
+      "interpretation": "Average x and y separately to find the balance point.",
+      "example": "For l7,l8,l9: cx=47.33 and cy=36.67.",
+      "visualSpec": {"elements": ["two mean equations", "moving center"], "colors": {"equations": "CYAN"}, "animations": ["Write means", "Move center"], "durationSeconds": 14}
+    },
+    {
+      "concept": "cluster assignment", "depth": 1, "isFoundation": false, "prerequisites": ["nearest choice"],
+      "equations": ["a_i=\\arg\\min_k\\lVert p_i-c_k\\rVert^2"],
+      "definitions": {"K": "number of centers; fixed at 3 in this demonstration"},
+      "interpretation": "Repeat the same nearest-center rule for all 12 points.",
+      "example": "Assignments are [1,1,1,2,2,2,0,0,0,2,2,2] in zero-based metadata.",
+      "visualSpec": {"elements": ["12 recolored points", "three labels"], "colors": {"clusters": "CYAN/PINK/ORANGE"}, "animations": ["Recolor sequentially"], "durationSeconds": 10}
+    },
+    {
+      "concept": "center recomputation", "depth": 1, "isFoundation": false, "prerequisites": ["cluster assignment", "arithmetic mean"],
+      "equations": ["c_k=\\frac{1}{|C_k|}\\sum_{p_i\\in C_k}p_i"],
+      "definitions": {"C_k": "points currently assigned to cluster k"},
+      "interpretation": "Move each center to the coordinate-wise mean of its assigned points.",
+      "example": "Centers become (47.33,36.67), (91.67,32.67), and (68.5,77.67).",
+      "visualSpec": {"elements": ["three moving centers", "distance-total label"], "colors": {"metric": "GREEN"}, "animations": ["Move centers", "Update 2441 to 1293.5"], "durationSeconds": 14}
+    },
+    {
+      "concept": "K-means convergence", "depth": 0, "isFoundation": false, "prerequisites": ["cluster assignment", "center recomputation"],
+      "equations": ["J=\\sum_i\\lVert p_i-c_{a_i}\\rVert^2", "J:2441\\rightarrow1293.5\\rightarrow1293.5"],
+      "definitions": {"J": "within-group squared-distance total"},
+      "interpretation": "Alternate assignment and recomputation. This fixture converges on iteration 2, but K and initialization still shape the result.",
+      "example": "With K=3 and seed 3103, assignments repeat at iteration 2 and center movement is zero.",
+      "visualSpec": {"elements": ["iteration replay", "falling metric curve", "converged badge", "interpretation cautions"], "colors": {"curve": "GREEN", "caution": "ORANGE"}, "animations": ["Create curve", "Mark convergence", "Fade in cautions"], "durationSeconds": 36}
+    }
+  ]
+}

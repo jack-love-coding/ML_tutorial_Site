@@ -1,0 +1,22 @@
+{
+  "localeInVideo": "zh-CN",
+  "labels": [
+    {"zh-CN": "没有分组答案，这些学习者有相似模式吗？", "en": "Without grouping answers, do these learners show similar patterns?"},
+    {"zh-CN": "正确率", "en": "Accuracy"},
+    {"zh-CN": "平均答题时间", "en": "Mean response time"},
+    {"zh-CN": "设 K=3；固定 seed=3103，从已有点选 3 个中心", "en": "Set K=3; with seed 3103, select three existing points as centers"},
+    {"zh-CN": "中心 1 / 中心 2 / 中心 3", "en": "Center 1 / Center 2 / Center 3"},
+    {"zh-CN": "分配：把一个点交给最近的中心", "en": "Assignment: give one point to its nearest center"},
+    {"zh-CN": "到中心 1 最近 → 分到第 1 组", "en": "Nearest to center 1 → assign to group 1"},
+    {"zh-CN": "对 12 个点重复“比较距离 → 分组”", "en": "Repeat distance comparison and assignment for 12 points"},
+    {"zh-CN": "更新中心：分别计算横坐标与纵坐标的平均", "en": "Update centers: average horizontal and vertical coordinates separately"},
+    {"zh-CN": "组内距离总和：2441 → 1293.5", "en": "Within-group distance total: 2441 → 1293.5"},
+    {"zh-CN": "继续交替：重新分配，再更新中心", "en": "Continue alternating: reassign, then update centers"},
+    {"zh-CN": "迭代 2：分组不再改变，中心不再移动", "en": "Iteration 2: assignments and centers no longer change"},
+    {"zh-CN": "本次运行已收敛", "en": "This run has converged"},
+    {"zh-CN": "聚类结果不是唯一答案", "en": "A clustering result is not a unique answer"},
+    {"zh-CN": "K 的选择会改变分组粒度", "en": "K changes grouping granularity"},
+    {"zh-CN": "初始中心会影响搜索路径", "en": "Initial centers affect the search path"},
+    {"zh-CN": "群组含义仍需要人来解释", "en": "People still need to interpret group meaning"}
+  ]
+}
