@@ -104,7 +104,8 @@
   border-color: var(--line);
 }
 
-.algorithm-view--ai-overview .overview-media-figure summary {
+.algorithm-view--ai-overview .overview-media-figure summary,
+.algorithm-view--ai-overview .q-lab summary {
   min-height: 44px;
   padding: 0.65rem 0;
   color: var(--ink);
@@ -162,20 +163,6 @@
 .algorithm-view--ai-overview .step-controls button {
   min-width: 7rem;
   white-space: normal;
-}
-
-.algorithm-view--ai-overview .overview-lab__scenario {
-  min-height: 44px;
-  border-color: var(--line);
-  background: var(--surface-strong);
-  color: var(--ink);
-  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
-}
-
-.algorithm-view--ai-overview .overview-lab__scenario.is-active {
-  border-width: 3px;
-  border-color: var(--ai-overview-accent);
-  font-weight: 700;
 }
 
 @media (max-width: 760px) {
@@ -262,6 +249,10 @@
     color: #000;
     background: #fff;
     print-color-adjust: exact;
+  }
+
+  .algorithm-view--ai-overview > :not(.lesson-page--ai-overview) {
+    display: none !important;
   }
 
   .algorithm-view--ai-overview .algorithm-hero,

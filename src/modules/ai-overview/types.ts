@@ -13,15 +13,16 @@ export type AiOverviewChapterId =
 type AiOverviewMediaAssetBase = {
   id: string
   kind: 'imagegen' | 'manim-video'
-  posterPath?: string
-  transcriptPath?: string
   chapterId: AiOverviewChapterId
   title: LocalizedCopy
   caption: LocalizedCopy
   englishSummary: string
   bilingualLabels: readonly LocalizedCopy[]
 }
-export type AiOverviewMediaAsset = AiOverviewMediaAssetBase & (
+type AiOverviewMediaKind =
+  | { kind: 'imagegen'; posterPath?: never; transcriptPath?: never; transcriptZhCN?: never }
+  | { kind: 'manim-video'; posterPath: string; transcriptPath: string; transcriptZhCN: string }
+export type AiOverviewMediaAsset = Omit<AiOverviewMediaAssetBase, 'kind'> & AiOverviewMediaKind & (
   | { availability: 'available'; publicPath: string }
   | { availability: 'deferred'; publicPath: null }
 )

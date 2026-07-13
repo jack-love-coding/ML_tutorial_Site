@@ -28,7 +28,7 @@ const poster = computed(() => props.asset.posterPath ? withPublicBase(props.asse
     </div>
     <details v-if="asset.kind === 'manim-video'" class="overview-media-figure__transcript">
       <summary>{{ locale === 'zh-CN' ? '中文字幕稿' : 'Chinese transcript' }}</summary>
-      <p lang="zh-CN">{{ asset.title['zh-CN'] }}：{{ asset.caption['zh-CN'] }}</p>
+      <div class="overview-media-figure__transcript-body" lang="zh-CN">{{ asset.transcriptZhCN }}</div>
       <p class="overview-media-figure__transcript-source">
         {{ locale === 'zh-CN' ? '完整分段稿来源：' : 'Auditable timed transcript source:' }}
         <code>{{ asset.transcriptPath }}</code>
@@ -45,5 +45,6 @@ figcaption { margin-top: .55rem; }
 table { width: 100%; border-collapse: collapse; }
 th, td { border: 1px solid currentColor; padding: .55rem; text-align: start; vertical-align: top; }
 details { margin-top: .75rem; }
+.overview-media-figure__transcript-body { white-space: pre-wrap; }
 code { overflow-wrap: anywhere; }
 </style>
