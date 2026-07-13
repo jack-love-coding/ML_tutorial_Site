@@ -1,14 +1,14 @@
 # GSD State: ML Atlas Curriculum V2
 
-**Updated:** 2026-07-11
-**Status:** Curriculum V3.0 blueprint and 53-module content audit completed; V3.1 Minimum Mathematical Foundation is next and not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+**Updated:** 2026-07-14
+**Status:** Curriculum V3.0 blueprint and 53-module content audit completed; V3.1 AI Overview rebuild and Math-to-Code pilot are completed slices; Python Data Tools Stage 1 is current. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Required-core content quality and explicit neural-network learning depth before backend, database, or durable progress scope; V3.1 Minimum Mathematical Foundation planning has not started
+**Current focus:** Establish the Python Data Tools data/execution contract without changing the current `python-notebook` runtime lesson, route, checkpoints, or progress.
 
 ## Baseline
 
@@ -82,7 +82,10 @@ See `.planning/codebase/`:
 - Phase 24A navigation and Topic Library implementation completed the typed domain contract, invalid-domain redirect, simplified five-destination global IA, shared desktop/mobile renderer, keyboard/focus repairs, and scoped navigation-style consolidation.
 - Phase 24A preserves course bodies, checkpoints, curriculum roles, Spine order, Progress V1/V2 storage, and canonical and legacy course routes; Phase 24B Homepage Focus remains planned and has not started.
 - Curriculum V3.0 completed a typed blueprint of exactly 56 instructional modules, 6 projects, 10 learning arcs, and 7 exit capabilities, plus a classification audit of all 53 current modules.
-- V3.1 Minimum Mathematical Foundation is next and not started; Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+- The completed AI Overview rebuild and Math-to-Code pilot are slices of V3.1; V3.1 as a whole remains in progress.
+- Rebuild the existing `python-notebook` ID and `/learn/python-notebook` route in five separately verified stages.
+- Python Data Tools Stage 1 is current: add the verified snapshot, typed contract, exact environment pins, and offline verifier without changing runtime lesson content.
+- Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 - Curriculum V3.0 changed no runtime lesson, route, or Progress V1/V2 data or storage behavior.
 
 ## Completed Work
@@ -668,8 +671,15 @@ See `.planning/codebase/`:
 - Defined exactly 10 learning arcs and 7 exit capabilities.
 - Generated deterministic documentation under `docs/curriculum-v3/` and recorded completion in `docs/refactor/summaries/curriculum-v3-0.md`.
 - Preserved the runtime boundary: no runtime lesson, route, or Progress data changed.
-- Set V3.1 Minimum Mathematical Foundation as next and not started; Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+- At V3.0 closeout, the V3.1 phase was recorded as the next unstarted phase; subsequent independently verified slices supersede that current-state description.
+
+### Curriculum V3.1 - Completed Slices and Current Python Data Tools Work
+
+- Completed the AI Overview rebuild and Math-to-Code pilot as independently verified V3.1 slices; they do not complete V3.1 as a whole.
+- Python Data Tools Stage 1 is current pending final acceptance; Stages 2-5 remain planned.
+- Stage 1 is limited to the verified dataset snapshot, typed chapter/output contract, exact environment pins, and offline validation. The current runtime lesson content remains unchanged.
+- Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Next Recommended Command
 
-Plan V3.1 Minimum Mathematical Foundation from separately reviewed acceptance criteria. V3.1 has not started. Keep Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused, and preserve all runtime lessons, routes, checkpoints, and Progress V1/V2 data and storage until an explicitly scoped implementation phase changes them.
+Complete and review Python Data Tools Stage 1; keep Stages 2-5 and Phase 24B/24C out of the Stage 1 diff.

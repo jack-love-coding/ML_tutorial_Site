@@ -738,12 +738,22 @@
 
 ## V3.1 Minimum Mathematical Foundation
 
-**Status:** Next; not started.
+**Status:** In progress; AI Overview rebuild and Math-to-Code pilot completed; Python Data Tools Stage 1 current.
 
 **Decision boundary:**
 - Start only from separately reviewed acceptance criteria for the V3.1 waves declared in the generated implementation backlog.
 - Preserve current lessons, routes, checkpoints, and Progress V1/V2 storage until an explicitly scoped implementation phase changes them.
-- Keep Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused while V3.1 remains the next curriculum phase.
+- Keep Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused while V3.1 work proceeds.
+
+### Python Data Tools Course Rebuild
+
+Preserve the existing `python-notebook` ID and `/learn/python-notebook` route throughout this five-stage rebuild. This boundary excludes data cleaning, model training, Pyodide, and backend work.
+
+1. **Data and execution contract** — Current — verified UCI snapshot, typed chapter/output contract, environment pins, offline validation; no runtime lesson changes.
+2. **Eight-chapter Chinese master** — Planned — complete Chinese teaching flow Notebook/NumPy/Pandas/Matplotlib/Seaborn/Plotly/final report.
+3. **Notebook and real chart assets** — Planned — clean-kernel ipynb, exact outputs, real Matplotlib/Seaborn assets, deterministic Plotly JSON.
+4. **English parity and runtime refactor** — Planned — English parity and migrate existing `python-notebook` route to new contract.
+5. **Consistency, browser, and build validation** — Planned — data/code/output parity, bilingual, responsive browser, production/Pages.
 
 ---
 *Roadmap created: 2026-06-25*

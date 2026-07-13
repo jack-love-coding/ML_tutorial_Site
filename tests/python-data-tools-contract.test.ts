@@ -67,6 +67,46 @@ const lockedRequirements = [
   'jupyterlab==4.6.1',
 ]
 
+test('planning state records shipped V3.1 slices and the ordered Python Data Tools stages', async () => {
+  const [state, roadmap] = await Promise.all([
+    readFile(new URL('../.planning/STATE.md', import.meta.url), 'utf8'),
+    readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
+  ])
+  const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
+
+  assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
+  assert.match(state, /AI Overview rebuild[^\n]*completed/i)
+  assert.match(state, /Math-to-Code pilot[^\n]*completed/i)
+  assert.match(state, /Python Data Tools Stage 1[^\n]*current/i)
+  assert.doesNotMatch(state, /Python Data Tools Stage 1 (?:is )?complete/i)
+  assert.match(state, /V3\.1 as a whole remains in progress/i)
+  assert.doesNotMatch(state, /V3\.1 (?:as a whole )?is (?:fully )?complete/i)
+  assert.match(state, /without changing the current `python-notebook` runtime lesson, route, checkpoints, or progress/i)
+  assert.match(state, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
+
+  const stageLabels = [
+    'Data and execution contract',
+    'Eight-chapter Chinese master',
+    'Notebook and real chart assets',
+    'English parity and runtime refactor',
+    'Consistency, browser, and build validation',
+  ]
+  const stageLines = roadmap
+    .split('\n')
+    .filter((line) => /^\d+\. \*\*.+\*\* — (?:Current|Planned) —/.test(line))
+
+  assert.deepEqual(
+    stageLines.map((line) => line.match(/^\d+\. \*\*(.+)\*\*/)?.[1]),
+    stageLabels,
+  )
+  assert.match(stageLines[0], /^1\. \*\*Data and execution contract\*\* — Current —/)
+  for (const [index, line] of stageLines.slice(1).entries()) {
+    assert.match(line, new RegExp(`^${index + 2}\\. \\*\\*${stageLabels[index + 1]}\\*\\* — Planned —`))
+  }
+  assert.match(roadmap, /Preserve current lessons, routes, checkpoints, and Progress V1\/V2 storage/i)
+  assert.match(roadmap, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
+})
+
 test('Python data tools contract fixes the eight-chapter bilingual course order', () => {
   assert.equal(pythonDataToolsContract.moduleId, 'python-notebook')
   assert.equal(pythonDataToolsContract.route, '/learn/python-notebook')
