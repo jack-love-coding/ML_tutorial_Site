@@ -52,7 +52,7 @@ After the RED/GREEN repair recorded in `QA.md`:
 
 - Single action then **Train one episode** completed episode 1, cumulative reward `-9`, reset current state to row 3/column 0, and displayed the last numeric update (`1,3`, up, `5.00`).
 - Continuous training was paused at episode 28; the learned policy evaluated to a 6-step route and the Q values were populated.
-- The full Q table opened with 16 state rows and 4 action-value cells per row. Obstacle states `1,1` and `2,1` remain explicit all-zero rows.
+- The full Q table opened with 16 state rows and 4 action-value cells per row. The environment-defined obstacle states `1,1` and `2,2` remain explicit all-zero rows. The earlier `2,1` text was a coordinate transcription error, not a runtime environment change.
 - Reset restored the initial state.
 - The post-repair sequence produced 0 console errors and 0 warnings.
 

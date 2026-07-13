@@ -156,7 +156,7 @@
   ],
   "integrity": {
     "scripts/manim/ai_overview/palette.py": "5a5ff89ca7b3c558a41e2dd265ee6d66eed61e04b389159df5c1ed6762714284",
-    "/manim/ai-overview/experiment-fixture.json": "2fd31444ba50b559218a2bb0818f640500cb2e237e53769cbd54da67ea18b551",
+    "/manim/ai-overview/experiment-fixture.json": "9930bdd315a38639f69eba3af8ddb6b212a0e518e9fab94fc533f49b31594f6b",
     "scripts/manim/ai_overview/linear_regression_parameter_search.py": "65ff8b33fd130c1b8edc292458ca7e4e1e6524b62dbe946b6fb78d195719895e",
     "scripts/manim/ai_overview/linear_regression_parameter_search_tree.json": "986d8eab5aae8fb445c792ddc3352ff7c6bd51e2b1a3e62a69afe46d15dd9727",
     "scripts/manim/ai_overview/linear_regression_parameter_search_prompt.md": "a73d991cd0e77cfc5982579f884aa82de93f409836c9e5c216bb1d2b58b14aa6",
@@ -179,7 +179,7 @@
     "/manim/ai-overview/kmeans-convergence-keyframe-initial-centers.png": "c2d3006f3a4b4ad8aa03effcf1efd1900e3be58633f48573c7f42adf2143cde1",
     "/manim/ai-overview/kmeans-convergence-keyframe-mean-update.png": "bf7c8b548e8a7a567ba97ef2a6db9f80a3d65ada9961fd68e189276be4964f99",
     "/manim/ai-overview/kmeans-convergence-keyframe-converged.png": "7d36802c80ec564993de13137b0222adefe918f12583d9ee9e9c20e0d644f2bf",
-    "scripts/manim/ai_overview/q_learning_strategy.py": "d9799c5991fa1c2876e3663babf0ffdf14283c480cd9490074c556897b7bd088",
+    "scripts/manim/ai_overview/q_learning_strategy.py": "b98376371561edf22a43048ea3e8af009bb24a5adeafff87c7fa8ff0aba7831b",
     "scripts/manim/ai_overview/q_learning_strategy_tree.json": "71485ef850de2b851edee622c0299669351ac1196a61397775cb52806d0a8df7",
     "scripts/manim/ai_overview/q_learning_strategy_prompt.md": "25be85028309b8e2309393f41c77dd1407dd0ddadff3c0d7765fa929ff44d36b",
     "docs/curriculum-v3/ai-overview/manim/q-learning-strategy-transcript.zh-CN.md": "afcf3323bb3b7138e3bd3271fef807b0706e5d00b18336dbb81bdb7debd067fb",

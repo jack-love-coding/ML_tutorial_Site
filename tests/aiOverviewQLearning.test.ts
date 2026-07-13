@@ -53,7 +53,7 @@ test('Q table uses deterministic state keys and action order', () => {
   assert.deepEqual(Object.keys(qTable['0,0']), ['up', 'right', 'down', 'left'])
   assert.equal(Object.keys(qTable).length, 16)
   assert.deepEqual(qTable['1,1'], { up: 0, right: 0, down: 0, left: 0 })
-  assert.deepEqual(qTable['2,1'], { up: 0, right: 0, down: 0, left: 0 })
+  assert.deepEqual(qTable['2,2'], { up: 0, right: 0, down: 0, left: 0 })
 })
 
 test('proxy-safe Q-table cloning deep-clones rows and episode mutation leaves the reactive source unchanged', () => {

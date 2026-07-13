@@ -16,7 +16,7 @@ The required commands were run from a clean standard build sequence. `build:page
 
 | Command | Result | Exact evidence |
 | --- | --- | --- |
-| `npm test` | PASS | 511 tests passed; 0 failed, skipped, cancelled, or todo |
+| `npm test` | PASS | 512 tests passed; 0 failed, skipped, cancelled, or todo |
 | `npm run build` | PASS | Vite 8.0.16; 2,463 modules transformed |
 | `npm run build:pages` | PASS | Vite 8.0.16; 2,463 modules transformed |
 | `npm run security:audit` | PASS | `found 0 vulnerabilities` |
@@ -43,8 +43,18 @@ RED/GREEN evidence:
 - Expanded AI Overview regression set passed 41/41: Q-learning, labs, responsive behavior, assets, and Manim assets.
 - `python scripts/manim/render_ai_overview.py --check` passed after mechanically regenerating the integrity-bound Q-learning fixture and metadata hashes.
 - Chromium reduced-motion inspection showed all 3 videos at `display: none`, fallback grids at `display: grid`, exact frame counts `[3, 3, 4]`, loaded local poster/keyframe images, localized captions, and readable transcripts.
-- Chromium opened the full Q table by pressing Enter on its summary and observed 16 state rows, each with 4 action values; obstacle states `1,1` and `2,1` each contained four `0.00` values.
+- Chromium opened the full Q table by pressing Enter on its summary and observed 16 state rows, each with 4 action values; obstacle states `1,1` and `2,2` each contained four `0.00` values.
 - Chromium PDF with `preferCSSPageSize` produced one 841.92 × 594.96 pt A4 landscape page for AI Overview. `/learn/gradient-descent` had `page: auto`, no named-page element, and retained the browser default Letter page size.
+
+### Second review closure: obstacle-safe Manim snapshots
+
+The second written review caught an important reproducibility regression at the fixture-to-renderer boundary. Expanding the audit Q table to all 16 states also put the obstacle rows into each generated policy. The existing Manim renderer had assumed those rows were absent, so a future render would recolor the red obstacle cells and draw policy arrows over them.
+
+- RED: the new focused Manim contract failed because policy state `1,1` was present as `up`.
+- GREEN: the fixture generator now retains all 16 Q-table rows but omits the goal and both obstacles from the 13 navigable policy states. The renderer independently skips `OBSTACLES` as well as `GOAL` when recoloring cells and drawing arrows.
+- The actual obstacle coordinates are `1,1` and `2,2`; the prior `2,1` QA reference was a transcription error and is corrected in tests and browser evidence.
+- The fixture and integrity metadata were regenerated through the official renderer module's deterministic fixture/metadata functions. `python scripts/manim/render_ai_overview.py --check` then passed. The MP4, poster, and keyframe assets were verified but were not rerendered during this repair.
+- The focused Q-learning/labs/responsive/assets/Manim set passed 42/42, and the complete suite passed 512/512.
 
 ### Q-learning reactive-proxy clone
 
@@ -92,7 +102,7 @@ RED/GREEN evidence:
 | 12. Mobile/reduced-motion fallbacks | PASS | Each of the 3 complex labs becomes 4 labeled static states; controls are absent at 390 px and under reduced motion; videos are replaced by typed poster/keyframe sequences of 3/3/4 frames with localized captions and readable transcripts. |
 | 13. Reproducibility/storage | PASS | Assets use local public paths; Imagegen and Manim manifests are auditable; Manim integrity check passes; no temporary or absolute runtime asset path is used. |
 | 14. Existing-system integration | PASS | `/learn/ai-overview` remains canonical and lazy-loaded through the existing LessonPage/AlgorithmView path. The algorithm, Math Lab, and Data Lab v1 localStorage keys remain present. No old URL or progress store was removed. |
-| 15. Testing/verification | PASS | 511 automated tests plus desktop, mobile, reduced-motion, print, keyboard, console, network, and asset checks pass. |
+| 15. Testing/verification | PASS | 512 automated tests plus desktop, mobile, reduced-motion, print, keyboard, console, network, and asset checks pass. |
 | 16. Delivery sequence | PASS | Task reports/manifests from the preceding content, visual, lab, asset, and responsive stages were checked before this final audit. |
 | 17. Non-goals | PASS | No backend grading, learner-report generation, AI-history expansion, Transformer mechanics, or wholesale curriculum migration was introduced. |
 | 18. Written review gate | PASS | This QA record and `browser-evidence.md` provide the final auditable review evidence. |

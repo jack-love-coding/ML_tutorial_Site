@@ -187,7 +187,7 @@ class QLearningStrategy(Scene):
         max_abs = max(abs(value) for values in q_table.values() for value in values.values()) or 1
         for state, values in q_table.items():
             row, column = (int(part) for part in state.split(","))
-            if (row, column) == GOAL:
+            if (row, column) == GOAL or (row, column) in OBSTACLES:
                 continue
             value = max(values.values())
             color = interpolate_color(PAPER, GREEN if value >= 0 else RED, min(abs(value) / max_abs, 1))
@@ -210,7 +210,7 @@ class QLearningStrategy(Scene):
         arrows = VGroup()
         for state, action in policy.items():
             row, column = (int(part) for part in state.split(","))
-            if (row, column) == GOAL:
+            if (row, column) == GOAL or (row, column) in OBSTACLES:
                 continue
             dr, dc = ACTION_OFFSETS[action]
             center = cells[(row, column)].get_center()

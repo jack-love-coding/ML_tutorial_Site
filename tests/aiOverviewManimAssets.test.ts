@@ -234,6 +234,26 @@ test('Q-learning snapshots are exact episode 1/5/20/50 states from one continuou
   assert.match(source, /snapshot\["policy"\]/)
 })
 
+test('Q-learning renderer preserves obstacle cells and fixture policy excludes non-navigable states', () => {
+  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8')) as Metadata
+  const fixture = JSON.parse(readFileSync(absolute(metadata.fixture), 'utf8'))
+  const snapshots = fixture.qLearning.snapshots as QLearningSnapshot[]
+  const obstacleStates = ['1,1', '2,2']
+
+  for (const snapshot of snapshots) {
+    assert.equal(Object.keys(snapshot.qTable).length, 16)
+    for (const state of obstacleStates) {
+      assert.deepEqual(snapshot.qTable[state], { up: 0, right: 0, down: 0, left: 0 })
+      assert.equal(snapshot.policy[state], undefined, `${state} must not receive a policy arrow`)
+    }
+    assert.equal(snapshot.policy['0,3'], undefined, 'goal state must not receive a policy arrow')
+  }
+
+  const source = readFileSync(resolve(root, 'scripts/manim/ai_overview/q_learning_strategy.py'), 'utf8')
+  assert.match(source, /if \(row, column\) == GOAL or \(row, column\) in OBSTACLES:\s*continue/g)
+  assert.equal(source.match(/if \(row, column\) == GOAL or \(row, column\) in OBSTACLES:\s*continue/g)?.length, 2)
+})
+
 test('Q-learning transcript and bilingual labels agree with every generated snapshot', () => {
   const metadata = JSON.parse(readFileSync(metadataPath, 'utf8')) as Metadata
   const fixture = JSON.parse(readFileSync(absolute(metadata.fixture), 'utf8'))

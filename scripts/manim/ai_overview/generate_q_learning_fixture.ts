@@ -10,6 +10,10 @@ const SNAPSHOT_EPISODES = new Set([1, 5, 20, 50])
 const random = createSeededRandom(7107)
 const qTable = createQTable(qLearningEnvironment)
 const snapshots = []
+const nonNavigableStates = new Set([
+  qLearningEnvironment.goal,
+  ...qLearningEnvironment.obstacles,
+].map(({ row, column }) => `${row},${column}`))
 
 for (let episode = 1; episode <= 50; episode += 1) {
   const result = runEpisode(qLearningEnvironment, qTable, {
@@ -27,10 +31,12 @@ for (let episode = 1; episode <= 50; episode += 1) {
       return { row, column }
     }),
   ]
-  const policy = Object.fromEntries(Object.entries(qTable).map(([state, values]) => [
-    state,
-    Q_LEARNING_ACTIONS.reduce((best, action) => values[action] > values[best] ? action : best, Q_LEARNING_ACTIONS[0]),
-  ]))
+  const policy = Object.fromEntries(Object.entries(qTable)
+    .filter(([state]) => !nonNavigableStates.has(state))
+    .map(([state, values]) => [
+      state,
+      Q_LEARNING_ACTIONS.reduce((best, action) => values[action] > values[best] ? action : best, Q_LEARNING_ACTIONS[0]),
+    ]))
 
   snapshots.push({
     episode,
