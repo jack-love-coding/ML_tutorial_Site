@@ -180,6 +180,67 @@ test('environment writer is deterministic and rejects invalid hashes before over
   }
 })
 
+test('environment writer reproduces the committed artifact byte for byte from the real manifest', async () => {
+  const { writeEnvironment } = await import('../scripts/python-data-tools/write-environment.mjs')
+  const directory = await mkdtemp(join(tmpdir(), 'ml-atlas-environment-drift-test-'))
+  const outputPath = join(directory, 'environment.json')
+  const committedBytes = await readFile(new URL('environment.json', notebookEnvironmentDirectory))
+
+  try {
+    await writeEnvironment({
+      manifestPath: new URL('manifest.json', snapshotDirectory),
+      outputPath,
+    })
+    assert.deepEqual(await readFile(outputPath), committedBytes)
+
+    await writeEnvironment({
+      manifestPath: new URL('manifest.json', snapshotDirectory),
+      outputPath,
+    })
+    assert.deepEqual(await readFile(outputPath), committedBytes)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
+test('environment publication preserves prior bytes and cleans its temp file when rename fails', async () => {
+  const { writeEnvironment } = await import('../scripts/python-data-tools/write-environment.mjs')
+  const directory = await mkdtemp(join(tmpdir(), 'ml-atlas-environment-atomic-test-'))
+  const manifestPath = join(directory, 'manifest.json')
+  const outputPath = join(directory, 'environment.json')
+  const priorBytes = Buffer.from('prior environment bytes\n')
+  const manifest = {
+    contractVersion: 'python-data-tools-v1',
+    file: {
+      publicPath: '/datasets/python-data-tools/bike-sharing-hour.csv',
+      sha256: 'b'.repeat(64),
+    },
+  }
+  await Promise.all([
+    writeFile(manifestPath, `${JSON.stringify(manifest)}\n`),
+    writeFile(outputPath, priorBytes),
+  ])
+
+  try {
+    await assert.rejects(
+      writeEnvironment({
+        manifestPath,
+        outputPath,
+        fileOperations: {
+          async rename() {
+            throw new Error('simulated atomic rename failure')
+          },
+        },
+      }),
+      /simulated atomic rename failure/i,
+    )
+    assert.deepEqual(await readFile(outputPath), priorBytes)
+    assert.deepEqual((await readdir(directory)).sort(), ['environment.json', 'manifest.json'])
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
+})
+
 test('phase 1 preserves the existing runtime lesson and checkpoint boundary', () => {
   assert.equal(pythonNotebookModule.slug, 'python-notebook')
   assert.equal(pythonNotebookModule.route, '/learn/python-notebook')

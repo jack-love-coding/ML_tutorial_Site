@@ -1,5 +1,6 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { randomUUID } from 'node:crypto'
+import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const CONTRACT_VERSION = 'python-data-tools-v1'
@@ -16,6 +17,7 @@ const defaultOutputPath = resolve(
   repoRoot,
   'public/notebooks/python-data-tools/environment.json',
 )
+const defaultFileOperations = { mkdir, rename, rm, writeFile }
 
 function requireManifestFile(manifest) {
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
@@ -75,6 +77,7 @@ export function buildEnvironment(manifest) {
 export async function writeEnvironment({
   manifestPath = defaultManifestPath,
   outputPath = defaultOutputPath,
+  fileOperations = {},
 } = {}) {
   const manifestSource = await readFile(manifestPath, 'utf8')
   let manifest
@@ -86,8 +89,28 @@ export async function writeEnvironment({
 
   const environment = buildEnvironment(manifest)
   const output = `${JSON.stringify(environment, null, 2)}\n`
-  await mkdir(dirname(outputPath), { recursive: true })
-  await writeFile(outputPath, output, 'utf8')
+  const operations = { ...defaultFileOperations, ...fileOperations }
+  const outputDirectory = dirname(outputPath)
+  const temporaryPath = join(
+    outputDirectory,
+    `.${basename(outputPath)}.${randomUUID()}.tmp`,
+  )
+
+  await operations.mkdir(outputDirectory, { recursive: true })
+  let publicationError
+  try {
+    await operations.writeFile(temporaryPath, output, { encoding: 'utf8', flag: 'wx' })
+    await operations.rename(temporaryPath, outputPath)
+  } catch (error) {
+    publicationError = error
+    throw error
+  } finally {
+    try {
+      await operations.rm(temporaryPath, { force: true })
+    } catch (cleanupError) {
+      if (!publicationError) throw cleanupError
+    }
+  }
   return output
 }
 
