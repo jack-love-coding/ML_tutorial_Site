@@ -533,6 +533,93 @@ test('complete artifact validation reports dictionary, environment, and pin drif
   assert.match(issues, /requirements.*1.*numpy==2\.4\.6/i)
 })
 
+test('complete artifact validation locks immutable V1 provenance and generation metadata', async () => {
+  const [manifestSource, dictionarySource, environmentSource, requirements] = await Promise.all([
+    readFile(artifactUrls.manifest, 'utf8'),
+    readFile(artifactUrls.dictionary, 'utf8'),
+    readFile(artifactUrls.environment, 'utf8'),
+    readFile(artifactUrls.requirements, 'utf8'),
+  ])
+  const cases = [
+    ['dataset.name', (manifest: any) => { manifest.dataset.name = 'Other Dataset' }],
+    ['dataset.repository', (manifest: any) => { manifest.dataset.repository = 'Other Repository' }],
+    ['dataset.page', (manifest: any) => { manifest.dataset.page = 'https://example.com/page' }],
+    ['dataset.download', (manifest: any) => { manifest.dataset.download = 'https://example.com/data.zip' }],
+    ['dataset.doi', (manifest: any) => { manifest.dataset.doi = '10.0000/DRIFT' }],
+    ['dataset.license.id', (manifest: any) => { manifest.dataset.license.id = 'OTHER' }],
+    ['dataset.license.name', (manifest: any) => { manifest.dataset.license.name = 'Other license' }],
+    ['dataset.license.url', (manifest: any) => { manifest.dataset.license.url = 'https://example.com/license' }],
+    ['dataset.retrievedAt', (manifest: any) => { manifest.dataset.retrievedAt = '2026-07-15' }],
+    ['file.upstreamName', (manifest: any) => { manifest.file.upstreamName = 'day.csv' }],
+    ['file.encoding', (manifest: any) => { manifest.file.encoding = 'UTF-16' }],
+    ['file.delimiter', (manifest: any) => { manifest.file.delimiter = 'tab' }],
+  ] as const
+
+  for (const [path, mutate] of cases) {
+    const manifest = JSON.parse(manifestSource)
+    mutate(manifest)
+    const issues = validatePythonDataToolsArtifacts({
+      manifest,
+      dictionary: JSON.parse(dictionarySource),
+      environment: JSON.parse(environmentSource),
+      requirements,
+    }).join('\n')
+    assert.match(issues, new RegExp(path.replaceAll('.', '\\.'), 'i'), path)
+  }
+
+  const manifest = JSON.parse(manifestSource)
+  const dictionary = JSON.parse(dictionarySource)
+  manifest.dictionaryVersion = 'bike-sharing-hour-v2'
+  dictionary.version = 'bike-sharing-hour-v2'
+  const versionIssues = validatePythonDataToolsArtifacts({
+    manifest,
+    dictionary,
+    environment: JSON.parse(environmentSource),
+    requirements,
+  }).join('\n')
+  assert.match(versionIssues, /manifest\.dictionaryVersion.*bike-sharing-hour-v1/i)
+  assert.match(versionIssues, /dictionary\.version.*bike-sharing-hour-v1/i)
+
+  for (const [path, value] of [
+    ['environment.generatedAt', '2026-07-15'],
+    ['environment.generatedOn', 'linux-x64'],
+  ] as const) {
+    const environment = JSON.parse(environmentSource)
+    environment[path.split('.')[1]] = value
+    const issues = validatePythonDataToolsArtifacts({
+      manifest: JSON.parse(manifestSource),
+      dictionary: JSON.parse(dictionarySource),
+      environment,
+      requirements,
+    }).join('\n')
+    assert.match(issues, new RegExp(path.replaceAll('.', '\\.'), 'i'), path)
+  }
+})
+
+test('complete artifact validation requires exact LF requirements bytes', async () => {
+  const [manifest, dictionary, environment, requirements] = await Promise.all([
+    readFile(artifactUrls.manifest, 'utf8').then(JSON.parse),
+    readFile(artifactUrls.dictionary, 'utf8').then(JSON.parse),
+    readFile(artifactUrls.environment, 'utf8').then(JSON.parse),
+    readFile(artifactUrls.requirements, 'utf8'),
+  ])
+  assert.match(requirements, /\n$/)
+
+  for (const variant of [
+    requirements.slice(0, -1),
+    `${requirements}\n`,
+    requirements.replaceAll('\n', '\r\n'),
+  ]) {
+    const issues = validatePythonDataToolsArtifacts({
+      manifest,
+      dictionary,
+      environment,
+      requirements: variant,
+    }).join('\n')
+    assert.match(issues, /requirements.*(?:bytes|exact).*LF/i)
+  }
+})
+
 test('complete artifact validation diagnoses malformed types instead of succeeding', () => {
   let issues: string[] = []
   assert.doesNotThrow(() => {

@@ -21,6 +21,20 @@ export const BIKE_SHARING_COLUMNS = Object.freeze([
 ])
 
 const PYTHON_DATA_TOOLS_CONTRACT_VERSION = 'python-data-tools-v1'
+const BIKE_SHARING_DICTIONARY_VERSION = 'bike-sharing-hour-v1'
+const BIKE_SHARING_PROVENANCE = Object.freeze({
+  name: 'Bike Sharing Dataset',
+  repository: 'UCI Machine Learning Repository',
+  page: 'https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset',
+  download: 'https://archive.ics.uci.edu/static/public/275/bike+sharing+dataset.zip',
+  doi: '10.24432/C5W894',
+  retrievedAt: '2026-07-14',
+})
+const BIKE_SHARING_LICENSE = Object.freeze({
+  id: 'CC-BY-4.0',
+  name: 'Creative Commons Attribution 4.0 International',
+  url: 'https://creativecommons.org/licenses/by/4.0/',
+})
 const PYTHON_DATA_TOOLS_REQUIREMENTS = Object.freeze([
   'numpy==2.4.6',
   'pandas==3.0.3',
@@ -334,6 +348,8 @@ export function validatePythonDataToolsArtifacts({
 } = {}) {
   const issues = []
   const manifestRecord = isRecord(manifest) ? manifest : {}
+  const manifestDataset = isRecord(manifestRecord.dataset) ? manifestRecord.dataset : {}
+  const manifestLicense = isRecord(manifestDataset.license) ? manifestDataset.license : {}
   const manifestFile = isRecord(manifestRecord.file) ? manifestRecord.file : {}
   const dictionaryRecord = isRecord(dictionary) ? dictionary : {}
   const environmentRecord = isRecord(environment) ? environment : {}
@@ -344,10 +360,31 @@ export function validatePythonDataToolsArtifacts({
   if (manifestRecord.contractVersion !== PYTHON_DATA_TOOLS_CONTRACT_VERSION) {
     issues.push(`Manifest contractVersion: expected ${PYTHON_DATA_TOOLS_CONTRACT_VERSION}; observed ${formatDiagnosticValue(manifestRecord.contractVersion)}`)
   }
-  if (typeof manifestRecord.dictionaryVersion !== 'string' || manifestRecord.dictionaryVersion.trim() === '') {
-    issues.push(`Manifest dictionaryVersion must be a nonempty string; observed ${formatDiagnosticValue(manifestRecord.dictionaryVersion)}`)
+  if (manifestRecord.dictionaryVersion !== BIKE_SHARING_DICTIONARY_VERSION) {
+    issues.push(`Manifest.dictionaryVersion: expected ${BIKE_SHARING_DICTIONARY_VERSION}; observed ${formatDiagnosticValue(manifestRecord.dictionaryVersion)}`)
+  }
+  if (!isRecord(manifestRecord.dataset)) issues.push('Manifest dataset must be a JSON object')
+  for (const [property, expected] of Object.entries(BIKE_SHARING_PROVENANCE)) {
+    if (manifestDataset[property] !== expected) {
+      issues.push(`Manifest dataset.${property}: expected ${formatDiagnosticValue(expected)}; observed ${formatDiagnosticValue(manifestDataset[property])}`)
+    }
+  }
+  if (!isRecord(manifestDataset.license)) issues.push('Manifest dataset.license must be a JSON object')
+  for (const [property, expected] of Object.entries(BIKE_SHARING_LICENSE)) {
+    if (manifestLicense[property] !== expected) {
+      issues.push(`Manifest dataset.license.${property}: expected ${formatDiagnosticValue(expected)}; observed ${formatDiagnosticValue(manifestLicense[property])}`)
+    }
   }
   if (!isRecord(manifestRecord.file)) issues.push('Manifest file must be a JSON object')
+  for (const [property, expected] of Object.entries({
+    upstreamName: 'hour.csv',
+    encoding: 'utf-8',
+    delimiter: 'comma',
+  })) {
+    if (manifestFile[property] !== expected) {
+      issues.push(`Manifest file.${property}: expected ${formatDiagnosticValue(expected)}; observed ${formatDiagnosticValue(manifestFile[property])}`)
+    }
+  }
   if (manifestFile.publicPath !== '/datasets/python-data-tools/bike-sharing-hour.csv') {
     issues.push(`Manifest file.publicPath: expected "/datasets/python-data-tools/bike-sharing-hour.csv"; observed ${formatDiagnosticValue(manifestFile.publicPath)}`)
   }
@@ -356,8 +393,11 @@ export function validatePythonDataToolsArtifacts({
   }
 
   if (!isRecord(dictionary)) issues.push('Data dictionary must be a JSON object')
+  if (dictionaryRecord.version !== BIKE_SHARING_DICTIONARY_VERSION) {
+    issues.push(`Data dictionary.version: expected ${BIKE_SHARING_DICTIONARY_VERSION}; observed ${formatDiagnosticValue(dictionaryRecord.version)}`)
+  }
   if (dictionaryRecord.version !== manifestRecord.dictionaryVersion) {
-    issues.push(`Data dictionary version must equal manifest.dictionaryVersion ${formatDiagnosticValue(manifestRecord.dictionaryVersion)}; observed ${formatDiagnosticValue(dictionaryRecord.version)}`)
+    issues.push(`Data dictionary.version must equal manifest.dictionaryVersion ${formatDiagnosticValue(manifestRecord.dictionaryVersion)}; observed ${formatDiagnosticValue(dictionaryRecord.version)}`)
   }
   const fields = Array.isArray(dictionaryRecord.fields) ? dictionaryRecord.fields : []
   if (!Array.isArray(dictionaryRecord.fields)) {
@@ -435,6 +475,14 @@ export function validatePythonDataToolsArtifacts({
   if (environmentRecord.python !== '3.12.13') {
     issues.push(`Environment python: expected 3.12.13; observed ${formatDiagnosticValue(environmentRecord.python)}`)
   }
+  for (const [property, expected] of Object.entries({
+    generatedAt: '2026-07-14',
+    generatedOn: 'darwin-arm64',
+  })) {
+    if (environmentRecord[property] !== expected) {
+      issues.push(`Environment.${property}: expected ${formatDiagnosticValue(expected)}; observed ${formatDiagnosticValue(environmentRecord[property])}`)
+    }
+  }
   if (!isRecord(environmentRecord.dataset)) issues.push('Environment dataset must be a JSON object')
   for (const property of ['publicPath', 'sha256']) {
     if (environmentDataset[property] !== manifestFile[property]) {
@@ -459,6 +507,10 @@ export function validatePythonDataToolsArtifacts({
   if (typeof requirements !== 'string') {
     issues.push(`Requirements must be text; observed ${formatDiagnosticValue(requirements)}`)
   } else {
+    const expectedRequirements = `${PYTHON_DATA_TOOLS_REQUIREMENTS.join('\n')}\n`
+    if (requirements !== expectedRequirements) {
+      issues.push('Requirements bytes must exactly contain the seven ordered pins with LF separators and exactly one trailing LF')
+    }
     const pins = requirements.replace(/(?:\r\n|\n|\r)+$/, '').split(/\r?\n/)
     const width = Math.max(pins.length, PYTHON_DATA_TOOLS_REQUIREMENTS.length)
     for (let index = 0; index < width; index += 1) {
