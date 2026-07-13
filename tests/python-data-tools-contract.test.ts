@@ -913,6 +913,54 @@ test('Bike Sharing response reader enforces the compressed download limit', asyn
   assert.equal(reads, 2)
 })
 
+test('Bike Sharing manifest builder records the injected retrieval date truthfully', async () => {
+  const { buildBikeSharingManifest } = await import('../scripts/python-data-tools/fetch-bike-sharing.mjs')
+  const { columns, records } = parseBikeSharingCsv(validCsv)
+  const canonical = buildBikeSharingManifest({
+    bytes: validBytes,
+    columns,
+    records,
+    retrievedAt: '2026-07-14',
+  })
+  const future = buildBikeSharingManifest({
+    bytes: validBytes,
+    columns,
+    records,
+    retrievedAt: '2027-01-02',
+  })
+
+  assert.equal(canonical.dataset.retrievedAt, '2026-07-14')
+  assert.equal(future.dataset.retrievedAt, '2027-01-02')
+  assert.notEqual(future.dataset.retrievedAt, canonical.dataset.retrievedAt)
+})
+
+test('Bike Sharing fetch rejects invalid injected dates before download or publication', async () => {
+  const { buildBikeSharingManifest, fetchBikeSharingSnapshot } = await import('../scripts/python-data-tools/fetch-bike-sharing.mjs')
+  const { columns, records } = parseBikeSharingCsv(validCsv)
+  assert.throws(
+    () => buildBikeSharingManifest({
+      bytes: validBytes,
+      columns,
+      records,
+      retrievedAt: '2027-02-30',
+    }),
+    /retrieval date.*yyyy-mm-dd|valid.*date/i,
+  )
+
+  let downloadCalled = false
+  await assert.rejects(
+    fetchBikeSharingSnapshot({
+      clock: () => new Date(Number.NaN),
+      fetchImpl: async () => {
+        downloadCalled = true
+        throw new Error('download must not run')
+      },
+    }),
+    /clock.*valid date|valid date.*clock/i,
+  )
+  assert.equal(downloadCalled, false)
+})
+
 test('Bike Sharing source record documents attribution, local runtime, and review policy', async () => {
   const source = await readFile(
     new URL('../docs/curriculum-v3/python-data-tools/sources.md', import.meta.url),
@@ -934,4 +982,6 @@ test('Bike Sharing source record documents attribution, local runtime, and revie
   assert.match(source, /本地.*不可变.*快照|不可变.*本地.*快照/s)
   assert.match(source, /local immutable snapshot/i)
   assert.match(source, /hash.*schema.*row.*invariant.*manual review/is)
+  assert.match(source, /actual UTC retrieval date/i)
+  assert.match(source, /date.*hash.*schema.*provenance.*contract.version.*before commit/is)
 })

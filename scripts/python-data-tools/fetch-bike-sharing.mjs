@@ -109,6 +109,58 @@ export async function readResponseBytes(response, maximumBytes = MAX_ARCHIVE_BYT
   return Buffer.concat(chunks, totalBytes)
 }
 
+function validateRetrievalDate(retrievedAt) {
+  if (typeof retrievedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(retrievedAt)) {
+    throw new Error(`Bike Sharing retrieval date must be a valid YYYY-MM-DD UTC date; received ${JSON.stringify(retrievedAt)}`)
+  }
+  const parsed = new Date(`${retrievedAt}T00:00:00.000Z`)
+  if (!Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== retrievedAt) {
+    throw new Error(`Bike Sharing retrieval date must be a valid YYYY-MM-DD UTC date; received ${JSON.stringify(retrievedAt)}`)
+  }
+  return retrievedAt
+}
+
+function retrievalDateFromClock(clock) {
+  if (typeof clock !== 'function') throw new TypeError('Bike Sharing retrieval clock must be a function')
+  const now = clock()
+  if (!(now instanceof Date) || !Number.isFinite(now.getTime())) {
+    throw new Error('Bike Sharing retrieval clock must return a valid Date')
+  }
+  return now.toISOString().slice(0, 10)
+}
+
+export function buildBikeSharingManifest({ bytes, columns, records, retrievedAt }) {
+  const truthfulRetrievalDate = validateRetrievalDate(retrievedAt)
+  return {
+    contractVersion: 'python-data-tools-v1',
+    dataset: {
+      name: 'Bike Sharing Dataset',
+      repository: 'UCI Machine Learning Repository',
+      page: 'https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset',
+      download: DOWNLOAD_URL,
+      doi: '10.24432/C5W894',
+      license: {
+        id: 'CC-BY-4.0',
+        name: 'Creative Commons Attribution 4.0 International',
+        url: 'https://creativecommons.org/licenses/by/4.0/',
+      },
+      retrievedAt: truthfulRetrievalDate,
+    },
+    dictionaryVersion: 'bike-sharing-hour-v1',
+    file: {
+      upstreamName: 'hour.csv',
+      publicPath: '/datasets/python-data-tools/bike-sharing-hour.csv',
+      encoding: 'utf-8',
+      delimiter: 'comma',
+      sha256: sha256(bytes),
+      bytes: bytes.byteLength,
+      rows: records.length,
+      columns: columns.length,
+      columnOrder: [...columns],
+    },
+  }
+}
+
 export async function publishSnapshotPair({
   csvPath: targetCsvPath,
   manifestPath: targetManifestPath,
@@ -241,11 +293,15 @@ export async function publishSnapshotPair({
   }
 }
 
-export async function fetchBikeSharingSnapshot() {
+export async function fetchBikeSharingSnapshot({
+  clock = () => new Date(),
+  fetchImpl = fetch,
+} = {}) {
+  const retrievedAt = retrievalDateFromClock(clock)
   let temporaryDirectory
   console.log(`Fetching official Bike Sharing archive: ${DOWNLOAD_URL}`)
   try {
-    const response = await fetch(DOWNLOAD_URL)
+    const response = await fetchImpl(DOWNLOAD_URL)
     if (!response.ok) {
       throw new Error(`Official Bike Sharing download failed with HTTP ${response.status} ${response.statusText}`)
     }
@@ -267,34 +323,7 @@ export async function fetchBikeSharingSnapshot() {
       throw new Error(`Official hour.csv failed Bike Sharing record validation:\n${validationIssues.join('\n')}`)
     }
 
-    const manifest = {
-      contractVersion: 'python-data-tools-v1',
-      dataset: {
-        name: 'Bike Sharing Dataset',
-        repository: 'UCI Machine Learning Repository',
-        page: 'https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset',
-        download: DOWNLOAD_URL,
-        doi: '10.24432/C5W894',
-        license: {
-          id: 'CC-BY-4.0',
-          name: 'Creative Commons Attribution 4.0 International',
-          url: 'https://creativecommons.org/licenses/by/4.0/',
-        },
-        retrievedAt: '2026-07-14',
-      },
-      dictionaryVersion: 'bike-sharing-hour-v1',
-      file: {
-        upstreamName: 'hour.csv',
-        publicPath: '/datasets/python-data-tools/bike-sharing-hour.csv',
-        encoding: 'utf-8',
-        delimiter: 'comma',
-        sha256: sha256(bytes),
-        bytes: bytes.byteLength,
-        rows: records.length,
-        columns: columns.length,
-        columnOrder: columns,
-      },
-    }
+    const manifest = buildBikeSharingManifest({ bytes, columns, records, retrievedAt })
 
     const publication = await publishSnapshotPair({
       csvPath,

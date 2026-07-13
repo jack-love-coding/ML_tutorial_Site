@@ -28,8 +28,10 @@ node scripts/python-data-tools/fetch-bike-sharing.mjs
 node scripts/python-data-tools/verify-bike-sharing.mjs
 ```
 
-抓取工具只访问上述 UCI 固定下载地址，在 OS 临时目录中解压，并在写入仓库前验证 UTF-8、固定 17 列 schema、数据行和计数不变量。
+抓取工具只访问上述 UCI 固定下载地址，在 OS 临时目录中解压，并在写入仓库前验证 UTF-8、固定 17 列 schema、数据行和计数不变量。每次维护者抓取都会在候选 manifest 中记录运行时真实的 UTC 检索日期，而不是复用旧快照的日期。
 
-提交更新前必须人工审查 hash、schema、row count 与 invariant 的任何漂移；变化不能仅因脚本成功而自动接受。Every hash, schema, row-count, and invariant drift requires manual review before commit.
+The fetch tool records the actual UTC retrieval date in the candidate manifest. Every hash, schema, row-count, and invariant drift requires manual review before commit. Every date, hash, schema, or provenance change also requires a contract-version decision before commit.
+
+提交更新前必须人工审查日期、hash、schema、row count、provenance 与 invariant 的任何漂移，并决定是否更新 contract version；变化不能仅因脚本成功而自动接受。当前 V1 manifest 的 `2026-07-14` 是已审核快照的确定性来源记录。未来抓取产生不同日期时，V1 验证器会将其视为 provenance drift，维护者必须在提交前明确审查并决定合同版本。
 
 本快照没有人为注入损坏、缺失值或清洗步骤。清洗教学属于 Data Lab，应在其独立实验数据和逻辑中完成，不得污染这份可核验的官方快照。
