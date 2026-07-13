@@ -4,6 +4,7 @@ import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { registerHooks } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { algorithmCheckpointsBySlug } from '../src/data/algorithmCheckpoints.ts'
 import {
   pythonDataToolsContract,
@@ -15,8 +16,10 @@ import {
   parseBikeSharingCsv,
   sha256,
   validateBikeSharingRecords,
+  validatePythonDataToolsArtifacts,
   verifyBikeSharingSnapshot,
 } from '../scripts/python-data-tools/bikeSharingContract.mjs'
+import { verifyPythonDataToolsArtifacts } from '../scripts/python-data-tools/verify-bike-sharing.mjs'
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
@@ -82,6 +85,13 @@ const validCsv = `${BIKE_SHARING_COLUMNS.join(',')}\n1,2011-01-01,1,0,1,0,0,6,0,
 const validBytes = new TextEncoder().encode(validCsv)
 const snapshotDirectory = new URL('../public/datasets/python-data-tools/', import.meta.url)
 const notebookEnvironmentDirectory = new URL('../public/notebooks/python-data-tools/', import.meta.url)
+const artifactUrls = {
+  dataset: new URL('bike-sharing-hour.csv', snapshotDirectory),
+  manifest: new URL('manifest.json', snapshotDirectory),
+  dictionary: new URL('data-dictionary.json', snapshotDirectory),
+  environment: new URL('environment.json', notebookEnvironmentDirectory),
+  requirements: new URL('requirements.txt', notebookEnvironmentDirectory),
+}
 
 const lockedRequirements = [
   'numpy==2.4.6',
@@ -483,6 +493,78 @@ test('Bike Sharing snapshot verification reports hashes and manifest mismatches'
     /encoded data was not valid|utf-8/i,
   )
 })
+
+test('complete Python data tools artifacts satisfy the pure offline contract', async () => {
+  const [manifest, dictionary, environment, requirements] = await Promise.all([
+    readFile(artifactUrls.manifest, 'utf8').then(JSON.parse),
+    readFile(artifactUrls.dictionary, 'utf8').then(JSON.parse),
+    readFile(artifactUrls.environment, 'utf8').then(JSON.parse),
+    readFile(artifactUrls.requirements, 'utf8'),
+  ])
+
+  assert.deepEqual(validatePythonDataToolsArtifacts({
+    manifest,
+    dictionary,
+    environment,
+    requirements,
+  }), [])
+})
+
+test('complete artifact validation reports dictionary, environment, and pin drift', async () => {
+  const [manifest, dictionary, environment, requirements] = await Promise.all([
+    readFile(artifactUrls.manifest, 'utf8').then(JSON.parse),
+    readFile(artifactUrls.dictionary, 'utf8').then(JSON.parse),
+    readFile(artifactUrls.environment, 'utf8').then(JSON.parse),
+    readFile(artifactUrls.requirements, 'utf8'),
+  ])
+  dictionary.fields = [dictionary.fields[1], dictionary.fields[0], ...dictionary.fields.slice(2)]
+  environment.dataset.sha256 = '0'.repeat(64)
+  environment.dataset.publicPath = '/wrong.csv'
+
+  const issues = validatePythonDataToolsArtifacts({
+    manifest,
+    dictionary,
+    environment,
+    requirements: requirements.replace('numpy==2.4.6', 'numpy==2.4.5'),
+  }).join('\n')
+  assert.match(issues, /dictionary.*field.*1.*instant/i)
+  assert.match(issues, /environment.*sha256.*manifest/i)
+  assert.match(issues, /environment.*publicPath.*manifest/i)
+  assert.match(issues, /requirements.*1.*numpy==2\.4\.6/i)
+})
+
+test('complete artifact validation diagnoses malformed types instead of succeeding', () => {
+  let issues: string[] = []
+  assert.doesNotThrow(() => {
+    issues = validatePythonDataToolsArtifacts({
+      manifest: null,
+      dictionary: { fields: 'not-an-array' },
+      environment: { execution: null },
+      requirements: 42,
+    })
+  })
+  assert.ok(issues.length >= 4)
+  assert.match(issues.join('\n'), /manifest|dictionary|environment|requirements/i)
+})
+
+for (const missingArtifact of ['dictionary', 'environment'] as const) {
+  test(`async artifact verifier rejects a missing ${missingArtifact}`, async () => {
+    const temporaryDirectory = await mkdtemp(join(tmpdir(), 'ml-atlas-artifacts-'))
+    try {
+      await assert.rejects(
+        verifyPythonDataToolsArtifacts({
+          artifactUrls: {
+            ...artifactUrls,
+            [missingArtifact]: pathToFileURL(join(temporaryDirectory, `${missingArtifact}.json`)),
+          },
+        }),
+        new RegExp(`${missingArtifact}.*ENOENT|ENOENT.*${missingArtifact}`, 'i'),
+      )
+    } finally {
+      await rm(temporaryDirectory, { recursive: true, force: true })
+    }
+  })
+}
 
 test('committed Bike Sharing snapshot and manifest match the verified official bytes', async () => {
   const [bytes, manifestSource] = await Promise.all([

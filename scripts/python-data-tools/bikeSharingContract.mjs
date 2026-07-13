@@ -20,6 +20,55 @@ export const BIKE_SHARING_COLUMNS = Object.freeze([
   'cnt',
 ])
 
+const PYTHON_DATA_TOOLS_CONTRACT_VERSION = 'python-data-tools-v1'
+const PYTHON_DATA_TOOLS_REQUIREMENTS = Object.freeze([
+  'numpy==2.4.6',
+  'pandas==3.0.3',
+  'matplotlib==3.10.9',
+  'seaborn==0.13.2',
+  'plotly==6.9.0',
+  'nbformat==5.10.4',
+  'jupyterlab==4.6.1',
+])
+const PYTHON_DATA_TOOLS_CELL_ROLES = Object.freeze([
+  'question',
+  'setup',
+  'data',
+  'compute',
+  'visualize',
+  'interpret',
+  'limit',
+  'handoff',
+])
+const FIELD_CONTRACTS = Object.freeze({
+  instant: { type: 'integer', role: 'identifier-time', range: { minimum: 1 } },
+  dteday: { type: 'date', role: 'identifier-time', range: { minimum: '2011-01-01', maximum: '2012-12-31' } },
+  season: { type: 'integer-category', role: 'calendar-category', categories: ['1', '2', '3', '4'] },
+  yr: { type: 'integer-category', role: 'identifier-time', categories: ['0', '1'] },
+  mnth: { type: 'integer-category', role: 'identifier-time', range: { minimum: 1, maximum: 12 } },
+  hr: { type: 'integer-category', role: 'identifier-time', range: { minimum: 0, maximum: 23 } },
+  holiday: { type: 'binary-category', role: 'calendar-category', categories: ['0', '1'] },
+  weekday: { type: 'integer-category', role: 'identifier-time', categories: ['0', '1', '2', '3', '4', '5', '6'] },
+  workingday: { type: 'binary-category', role: 'calendar-category', categories: ['0', '1'] },
+  weathersit: { type: 'integer-category', role: 'weather-category', categories: ['1', '2', '3', '4'] },
+  temp: { type: 'number', role: 'normalized-continuous', normalization: 'celsius / 41' },
+  atemp: { type: 'number', role: 'normalized-continuous', normalization: 'apparent celsius / 50' },
+  hum: { type: 'number', role: 'normalized-continuous', normalization: 'relative humidity / 100' },
+  windspeed: { type: 'number', role: 'normalized-continuous', normalization: 'wind speed / 67' },
+  casual: { type: 'integer', role: 'count' },
+  registered: { type: 'integer', role: 'count' },
+  cnt: { type: 'integer', role: 'count' },
+})
+const EXPECTED_EXECUTION = Object.freeze({
+  cleanKernel: true,
+  runOrder: 'top-to-bottom',
+  networkAccess: false,
+  hiddenState: false,
+  randomSeedRequired: true,
+  hiddenSampling: false,
+  numericJson: 'finite-only',
+})
+
 export function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex')
 }
@@ -254,6 +303,170 @@ export function validateBikeSharingRecords(records) {
       }
     }
   })
+
+  return issues
+}
+
+function isRecord(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function hasNonemptyLocalizedCopy(value) {
+  return isRecord(value)
+    && typeof value['zh-CN'] === 'string'
+    && value['zh-CN'].trim().length > 0
+    && typeof value.en === 'string'
+    && value.en.trim().length > 0
+}
+
+function arraysEqual(left, right) {
+  return Array.isArray(left)
+    && Array.isArray(right)
+    && left.length === right.length
+    && left.every((value, index) => value === right[index])
+}
+
+export function validatePythonDataToolsArtifacts({
+  manifest,
+  dictionary,
+  environment,
+  requirements,
+} = {}) {
+  const issues = []
+  const manifestRecord = isRecord(manifest) ? manifest : {}
+  const manifestFile = isRecord(manifestRecord.file) ? manifestRecord.file : {}
+  const dictionaryRecord = isRecord(dictionary) ? dictionary : {}
+  const environmentRecord = isRecord(environment) ? environment : {}
+  const environmentDataset = isRecord(environmentRecord.dataset) ? environmentRecord.dataset : {}
+  const execution = isRecord(environmentRecord.execution) ? environmentRecord.execution : {}
+
+  if (!isRecord(manifest)) issues.push('Manifest must be a JSON object')
+  if (manifestRecord.contractVersion !== PYTHON_DATA_TOOLS_CONTRACT_VERSION) {
+    issues.push(`Manifest contractVersion: expected ${PYTHON_DATA_TOOLS_CONTRACT_VERSION}; observed ${formatDiagnosticValue(manifestRecord.contractVersion)}`)
+  }
+  if (typeof manifestRecord.dictionaryVersion !== 'string' || manifestRecord.dictionaryVersion.trim() === '') {
+    issues.push(`Manifest dictionaryVersion must be a nonempty string; observed ${formatDiagnosticValue(manifestRecord.dictionaryVersion)}`)
+  }
+  if (!isRecord(manifestRecord.file)) issues.push('Manifest file must be a JSON object')
+  if (manifestFile.publicPath !== '/datasets/python-data-tools/bike-sharing-hour.csv') {
+    issues.push(`Manifest file.publicPath: expected "/datasets/python-data-tools/bike-sharing-hour.csv"; observed ${formatDiagnosticValue(manifestFile.publicPath)}`)
+  }
+  if (typeof manifestFile.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(manifestFile.sha256)) {
+    issues.push(`Manifest file.sha256 must be 64 lowercase hexadecimal characters; observed ${formatDiagnosticValue(manifestFile.sha256)}`)
+  }
+
+  if (!isRecord(dictionary)) issues.push('Data dictionary must be a JSON object')
+  if (dictionaryRecord.version !== manifestRecord.dictionaryVersion) {
+    issues.push(`Data dictionary version must equal manifest.dictionaryVersion ${formatDiagnosticValue(manifestRecord.dictionaryVersion)}; observed ${formatDiagnosticValue(dictionaryRecord.version)}`)
+  }
+  const fields = Array.isArray(dictionaryRecord.fields) ? dictionaryRecord.fields : []
+  if (!Array.isArray(dictionaryRecord.fields)) {
+    issues.push(`Data dictionary fields must be an array; observed ${formatDiagnosticValue(dictionaryRecord.fields)}`)
+  }
+  if (fields.length !== BIKE_SHARING_COLUMNS.length) {
+    issues.push(`Data dictionary fields: expected ${BIKE_SHARING_COLUMNS.length} entries; observed ${fields.length}`)
+  }
+  BIKE_SHARING_COLUMNS.forEach((name, index) => {
+    const field = isRecord(fields[index]) ? fields[index] : {}
+    const position = index + 1
+    if (!isRecord(fields[index])) {
+      issues.push(`Data dictionary field ${position} must be an object for ${name}; observed ${formatDiagnosticValue(fields[index])}`)
+      return
+    }
+    if (field.name !== name) {
+      issues.push(`Data dictionary field ${position}: expected name ${name}; observed ${formatDiagnosticValue(field.name)}`)
+    }
+    if (!hasNonemptyLocalizedCopy(field.label)) {
+      issues.push(`Data dictionary field ${position} (${name}) label must contain nonempty zh-CN and en strings`)
+    }
+    if (!hasNonemptyLocalizedCopy(field.description)) {
+      issues.push(`Data dictionary field ${position} (${name}) description must contain nonempty zh-CN and en strings`)
+    }
+
+    const expected = FIELD_CONTRACTS[name]
+    for (const property of ['type', 'role']) {
+      if (field[property] !== expected[property]) {
+        issues.push(`Data dictionary field ${position} (${name}) ${property}: expected ${expected[property]}; observed ${formatDiagnosticValue(field[property])}`)
+      }
+    }
+    if (expected.normalization) {
+      if (field.normalization !== expected.normalization) {
+        issues.push(`Data dictionary field ${position} (${name}) normalization: expected ${expected.normalization}; observed ${formatDiagnosticValue(field.normalization)}`)
+      }
+      if (!isRecord(field.range) || field.range.minimum !== 0 || field.range.maximum !== 1) {
+        issues.push(`Data dictionary field ${position} (${name}) normalized range must be exactly 0 to 1`)
+      }
+    }
+    if (expected.range) {
+      const range = isRecord(field.range) ? field.range : {}
+      const expectedKeys = Object.keys(expected.range)
+      const rangeKeys = Object.keys(range)
+      if (!arraysEqual([...rangeKeys].sort(), [...expectedKeys].sort())
+        || expectedKeys.some((key) => range[key] !== expected.range[key])) {
+        issues.push(`Data dictionary field ${position} (${name}) range: expected ${formatDiagnosticValue(expected.range)}; observed ${formatDiagnosticValue(field.range)}`)
+      }
+    }
+    if (expected.categories) {
+      const categories = isRecord(field.categories) ? field.categories : {}
+      const categoryKeys = Object.keys(categories)
+      if (!arraysEqual(categoryKeys, expected.categories)) {
+        issues.push(`Data dictionary field ${position} (${name}) category keys: expected ${formatDiagnosticValue(expected.categories)}; observed ${formatDiagnosticValue(categoryKeys)}`)
+      }
+      for (const category of expected.categories) {
+        if (!hasNonemptyLocalizedCopy(categories[category])) {
+          issues.push(`Data dictionary field ${position} (${name}) category ${category} must contain nonempty zh-CN and en strings`)
+        }
+      }
+    }
+    if (expected.role === 'count'
+      && (!isRecord(field.range) || field.range.minimum !== 0 || Object.hasOwn(field.range, 'maximum'))) {
+      issues.push(`Data dictionary field ${position} (${name}) count range must have minimum 0 and no maximum`)
+    }
+    if (name === 'cnt' && field.relationship !== 'cnt = casual + registered') {
+      issues.push(`Data dictionary field ${position} (cnt) relationship must be "cnt = casual + registered"; observed ${formatDiagnosticValue(field.relationship)}`)
+    }
+  })
+
+  if (!isRecord(environment)) issues.push('Environment must be a JSON object')
+  if (environmentRecord.contractVersion !== PYTHON_DATA_TOOLS_CONTRACT_VERSION
+    || environmentRecord.contractVersion !== manifestRecord.contractVersion) {
+    issues.push(`Environment contractVersion must equal manifest.contractVersion and ${PYTHON_DATA_TOOLS_CONTRACT_VERSION}; observed ${formatDiagnosticValue(environmentRecord.contractVersion)}`)
+  }
+  if (environmentRecord.python !== '3.12.13') {
+    issues.push(`Environment python: expected 3.12.13; observed ${formatDiagnosticValue(environmentRecord.python)}`)
+  }
+  if (!isRecord(environmentRecord.dataset)) issues.push('Environment dataset must be a JSON object')
+  for (const property of ['publicPath', 'sha256']) {
+    if (environmentDataset[property] !== manifestFile[property]) {
+      issues.push(`Environment dataset.${property} must equal manifest.file.${property} ${formatDiagnosticValue(manifestFile[property])}; observed ${formatDiagnosticValue(environmentDataset[property])}`)
+    }
+  }
+  if (!isRecord(environmentRecord.execution)) issues.push('Environment execution must be a JSON object')
+  const expectedExecutionKeys = [...Object.keys(EXPECTED_EXECUTION), 'cellRoles']
+  const executionKeys = Object.keys(execution)
+  if (!arraysEqual([...executionKeys].sort(), [...expectedExecutionKeys].sort())) {
+    issues.push(`Environment execution keys: expected ${formatDiagnosticValue(expectedExecutionKeys)}; observed ${formatDiagnosticValue(executionKeys)}`)
+  }
+  for (const [property, expected] of Object.entries(EXPECTED_EXECUTION)) {
+    if (execution[property] !== expected) {
+      issues.push(`Environment execution.${property}: expected ${formatDiagnosticValue(expected)}; observed ${formatDiagnosticValue(execution[property])}`)
+    }
+  }
+  if (!arraysEqual(execution.cellRoles, PYTHON_DATA_TOOLS_CELL_ROLES)) {
+    issues.push(`Environment execution.cellRoles: expected ${formatDiagnosticValue(PYTHON_DATA_TOOLS_CELL_ROLES)}; observed ${formatDiagnosticValue(execution.cellRoles)}`)
+  }
+
+  if (typeof requirements !== 'string') {
+    issues.push(`Requirements must be text; observed ${formatDiagnosticValue(requirements)}`)
+  } else {
+    const pins = requirements.replace(/(?:\r\n|\n|\r)+$/, '').split(/\r?\n/)
+    const width = Math.max(pins.length, PYTHON_DATA_TOOLS_REQUIREMENTS.length)
+    for (let index = 0; index < width; index += 1) {
+      if (pins[index] !== PYTHON_DATA_TOOLS_REQUIREMENTS[index]) {
+        issues.push(`Requirements pin ${index + 1}: expected ${formatDiagnosticValue(PYTHON_DATA_TOOLS_REQUIREMENTS[index] ?? '<no pin>')}; observed ${formatDiagnosticValue(pins[index] ?? '<missing>')}`)
+      }
+    }
+  }
 
   return issues
 }
