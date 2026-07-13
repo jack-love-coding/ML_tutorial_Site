@@ -1,7 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFile } from 'node:fs/promises'
+import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { registerHooks } from 'node:module'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { algorithmCheckpointsBySlug } from '../src/data/algorithmCheckpoints.ts'
 import {
   pythonDataToolsContract,
@@ -279,28 +281,106 @@ test('Bike Sharing data dictionary preserves the exact schema and semantics', as
   }
 
   const byName = Object.fromEntries(dictionary.fields.map((field: { name: string }) => [field.name, field]))
+  const expectedRoles = {
+    instant: 'identifier-time', dteday: 'identifier-time', season: 'calendar-category',
+    yr: 'identifier-time', mnth: 'identifier-time', hr: 'identifier-time',
+    holiday: 'calendar-category', weekday: 'identifier-time', workingday: 'calendar-category',
+    weathersit: 'weather-category', temp: 'normalized-continuous',
+    atemp: 'normalized-continuous', hum: 'normalized-continuous',
+    windspeed: 'normalized-continuous', casual: 'count', registered: 'count', cnt: 'count',
+  }
+  assert.deepEqual(
+    Object.fromEntries(dictionary.fields.map((field: { name: string, role: string }) => [field.name, field.role])),
+    expectedRoles,
+  )
+  for (const field of dictionary.fields.filter((candidate: { categories?: unknown }) => candidate.categories)) {
+    for (const [value, category] of Object.entries(field.categories)) {
+      assert.equal(typeof category, 'object', `${field.name} category ${value} must be localized`)
+      assert.ok(category['zh-CN'].trim(), `${field.name} category ${value} needs a zh-CN value`)
+      assert.ok(category.en.trim(), `${field.name} category ${value} needs an en value`)
+    }
+  }
   assert.equal(byName.temp.normalization, 'celsius / 41')
   assert.equal(byName.atemp.normalization, 'apparent celsius / 50')
   assert.equal(byName.hum.normalization, 'relative humidity / 100')
   assert.equal(byName.windspeed.normalization, 'wind speed / 67')
   assert.equal(byName.cnt.relationship, 'cnt = casual + registered')
-  assert.deepEqual(byName.season.categories, { 1: 'spring', 2: 'summer', 3: 'fall', 4: 'winter' })
-  assert.deepEqual(byName.yr.categories, { 0: '2011', 1: '2012' })
-  assert.deepEqual(byName.weekday.categories, {
-    0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday',
-    4: 'Thursday', 5: 'Friday', 6: 'Saturday',
-  })
-  assert.deepEqual(byName.weathersit.categories, {
-    1: 'clear/few/partly cloudy',
-    2: 'mist/cloudy',
-    3: 'light snow/rain with thunderstorm/scattered clouds',
-    4: 'heavy rain/ice pellets/thunderstorm/mist/snow',
-  })
-  assert.deepEqual(byName.holiday.categories, { 0: 'no', 1: 'yes' })
-  assert.deepEqual(byName.workingday.categories, {
-    0: 'weekend or holiday',
-    1: 'neither weekend nor holiday',
-  })
+  assert.deepEqual(Object.keys(byName.season.categories), ['1', '2', '3', '4'])
+  assert.deepEqual(Object.keys(byName.yr.categories), ['0', '1'])
+  assert.deepEqual(Object.keys(byName.weekday.categories), ['0', '1', '2', '3', '4', '5', '6'])
+  assert.deepEqual(Object.keys(byName.weathersit.categories), ['1', '2', '3', '4'])
+  assert.deepEqual(Object.keys(byName.holiday.categories), ['0', '1'])
+  assert.deepEqual(Object.keys(byName.workingday.categories), ['0', '1'])
+})
+
+test('Bike Sharing archive selector requires one unique hour.csv basename', async () => {
+  const { selectHourCsvEntry } = await import('../scripts/python-data-tools/fetch-bike-sharing.mjs')
+
+  assert.equal(selectHourCsvEntry(['README.txt', 'nested/hour.csv']), 'nested/hour.csv')
+  assert.throws(() => selectHourCsvEntry(['day.csv']), /exactly one.*found 0/i)
+  assert.throws(
+    () => selectHourCsvEntry(['hour.csv', 'nested/hour.csv']),
+    /exactly one.*found 2.*hour\.csv.*nested\/hour\.csv/i,
+  )
+})
+
+test('Bike Sharing artifact publication is atomic and cleans transaction files', async () => {
+  const { publishSnapshotPair } = await import('../scripts/python-data-tools/fetch-bike-sharing.mjs')
+  const directory = await mkdtemp(join(tmpdir(), 'ml-atlas-publish-test-'))
+  const csvPath = join(directory, 'snapshot.csv')
+  const manifestPath = join(directory, 'manifest.json')
+  await writeFile(csvPath, 'prior csv')
+  await writeFile(manifestPath, 'prior manifest')
+
+  try {
+    await assert.rejects(
+      publishSnapshotPair({
+        csvPath,
+        manifestPath,
+        csvBytes: Buffer.from('new csv'),
+        manifestBytes: Buffer.from('new manifest'),
+        checkpoint(stage: string) {
+          if (stage === 'csv-published') throw new Error('simulated manifest publication failure')
+        },
+      }),
+      /simulated manifest publication failure/,
+    )
+    assert.equal(await readFile(csvPath, 'utf8'), 'prior csv')
+    assert.equal(await readFile(manifestPath, 'utf8'), 'prior manifest')
+    assert.deepEqual((await readdir(directory)).sort(), ['manifest.json', 'snapshot.csv'])
+
+    await assert.rejects(
+      publishSnapshotPair({
+        csvPath,
+        manifestPath,
+        csvBytes: Buffer.from('unverified csv'),
+        manifestBytes: Buffer.from('unverified manifest'),
+        verify: async () => {
+          throw new Error('simulated post-write verification failure')
+        },
+      }),
+      /simulated post-write verification failure/,
+    )
+    assert.equal(await readFile(csvPath, 'utf8'), 'prior csv')
+    assert.equal(await readFile(manifestPath, 'utf8'), 'prior manifest')
+    assert.deepEqual((await readdir(directory)).sort(), ['manifest.json', 'snapshot.csv'])
+
+    await publishSnapshotPair({
+      csvPath,
+      manifestPath,
+      csvBytes: Buffer.from('new csv'),
+      manifestBytes: Buffer.from('new manifest'),
+      verify: async () => {
+        assert.equal(await readFile(csvPath, 'utf8'), 'new csv')
+        assert.equal(await readFile(manifestPath, 'utf8'), 'new manifest')
+      },
+    })
+    assert.equal(await readFile(csvPath, 'utf8'), 'new csv')
+    assert.equal(await readFile(manifestPath, 'utf8'), 'new manifest')
+    assert.deepEqual((await readdir(directory)).sort(), ['manifest.json', 'snapshot.csv'])
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
 })
 
 test('Bike Sharing source record documents attribution, local runtime, and review policy', async () => {

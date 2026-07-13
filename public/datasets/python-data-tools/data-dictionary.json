@@ -23,22 +23,30 @@
       "description": { "zh-CN": "观测日期所在的季节编码。", "en": "Encoded season containing the observation date." },
       "type": "integer-category",
       "role": "calendar-category",
-      "categories": { "1": "spring", "2": "summer", "3": "fall", "4": "winter" }
+      "categories": {
+        "1": { "zh-CN": "春季", "en": "spring" },
+        "2": { "zh-CN": "夏季", "en": "summer" },
+        "3": { "zh-CN": "秋季", "en": "fall" },
+        "4": { "zh-CN": "冬季", "en": "winter" }
+      }
     },
     {
       "name": "yr",
       "label": { "zh-CN": "年份", "en": "Year" },
       "description": { "zh-CN": "两年采样期的年份编码。", "en": "Year code within the two-year collection period." },
       "type": "integer-category",
-      "role": "calendar-category",
-      "categories": { "0": "2011", "1": "2012" }
+      "role": "identifier-time",
+      "categories": {
+        "0": { "zh-CN": "2011 年", "en": "2011" },
+        "1": { "zh-CN": "2012 年", "en": "2012" }
+      }
     },
     {
       "name": "mnth",
       "label": { "zh-CN": "月份", "en": "Month" },
       "description": { "zh-CN": "公历月份，1 表示一月，12 表示十二月。", "en": "Calendar month, from 1 for January through 12 for December." },
       "type": "integer-category",
-      "role": "calendar-category",
+      "role": "identifier-time",
       "range": { "minimum": 1, "maximum": 12 }
     },
     {
@@ -46,7 +54,7 @@
       "label": { "zh-CN": "小时", "en": "Hour" },
       "description": { "zh-CN": "一天中的小时，采用 0 至 23 的 24 小时制。", "en": "Hour of day on a 24-hour clock, from 0 through 23." },
       "type": "integer-category",
-      "role": "calendar-category",
+      "role": "identifier-time",
       "range": { "minimum": 0, "maximum": 23 }
     },
     {
@@ -55,15 +63,26 @@
       "description": { "zh-CN": "该日期是否被标记为节假日。", "en": "Whether the date is marked as a holiday." },
       "type": "binary-category",
       "role": "calendar-category",
-      "categories": { "0": "no", "1": "yes" }
+      "categories": {
+        "0": { "zh-CN": "否", "en": "no" },
+        "1": { "zh-CN": "是", "en": "yes" }
+      }
     },
     {
       "name": "weekday",
       "label": { "zh-CN": "星期", "en": "Weekday" },
       "description": { "zh-CN": "星期编码，从 0（星期日）到 6（星期六）。", "en": "Day-of-week code from 0 (Sunday) through 6 (Saturday)." },
       "type": "integer-category",
-      "role": "calendar-category",
-      "categories": { "0": "Sunday", "1": "Monday", "2": "Tuesday", "3": "Wednesday", "4": "Thursday", "5": "Friday", "6": "Saturday" }
+      "role": "identifier-time",
+      "categories": {
+        "0": { "zh-CN": "星期日", "en": "Sunday" },
+        "1": { "zh-CN": "星期一", "en": "Monday" },
+        "2": { "zh-CN": "星期二", "en": "Tuesday" },
+        "3": { "zh-CN": "星期三", "en": "Wednesday" },
+        "4": { "zh-CN": "星期四", "en": "Thursday" },
+        "5": { "zh-CN": "星期五", "en": "Friday" },
+        "6": { "zh-CN": "星期六", "en": "Saturday" }
+      }
     },
     {
       "name": "workingday",
@@ -71,7 +90,10 @@
       "description": { "zh-CN": "仅当日期既不是周末也不是节假日时为 1。", "en": "Equals 1 only when the date is neither a weekend nor a holiday." },
       "type": "binary-category",
       "role": "calendar-category",
-      "categories": { "0": "weekend or holiday", "1": "neither weekend nor holiday" }
+      "categories": {
+        "0": { "zh-CN": "周末或节假日", "en": "weekend or holiday" },
+        "1": { "zh-CN": "非周末且非节假日", "en": "neither weekend nor holiday" }
+      }
     },
     {
       "name": "weathersit",
@@ -80,10 +102,10 @@
       "type": "integer-category",
       "role": "weather-category",
       "categories": {
-        "1": "clear/few/partly cloudy",
-        "2": "mist/cloudy",
-        "3": "light snow/rain with thunderstorm/scattered clouds",
-        "4": "heavy rain/ice pellets/thunderstorm/mist/snow"
+        "1": { "zh-CN": "晴、少云或局部多云", "en": "clear/few/partly cloudy" },
+        "2": { "zh-CN": "薄雾或多云", "en": "mist/cloudy" },
+        "3": { "zh-CN": "小雪或小雨，伴雷暴或零散云层", "en": "light snow/rain with thunderstorm/scattered clouds" },
+        "4": { "zh-CN": "大雨、冰粒、雷暴、浓雾或大雪", "en": "heavy rain/ice pellets/thunderstorm/mist/snow" }
       }
     },
     {
