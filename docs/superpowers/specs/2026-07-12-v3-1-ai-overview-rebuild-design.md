@@ -1,7 +1,7 @@
 # V3.1 Phase 1 AI Overview Rebuild Design
 
-**Date:** 2026-07-12  
-**Status:** Approved  
+**Date:** 2026-07-12<br>
+**Status:** Approved<br>
 **Scope:** Rebuild the existing `ai-overview` runtime course in place. Preserve its ID, URL, shared LessonPage shell, and legacy accessibility while replacing its teaching body, formative checkpoints, visuals, and lesson lab.
 
 ## 1. Purpose
@@ -312,7 +312,7 @@ The course uses one 16:9 hero and eleven 4:3 Chinese information illustrations. 
 
 ### 8.1 Hero
 
-**Title:** `AI 学习全景`  
+**Title:** `AI 学习全景`<br>
 **Composition:** a real learner and intelligent learning assistant inspect a learning map; a trend line, clusters, and path arrows hint at the three paradigms. No robot character. The only required embedded text is the title.
 
 ### 8.2 Shared information-card layout

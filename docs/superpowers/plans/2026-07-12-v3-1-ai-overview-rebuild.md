@@ -116,7 +116,7 @@ test('AI Overview exposes the approved deterministic course contract', () => {
 
 - [ ] **Step 2: Run the test and verify RED**
 
-Run: `node --test tests/aiOverviewContracts.test.ts`  
+Run: `node --test tests/aiOverviewContracts.test.ts`<br>
 Expected: FAIL because `src/modules/ai-overview/data/experiments.ts` does not exist.
 
 - [ ] **Step 3: Implement exact contracts and fixtures**
@@ -177,7 +177,7 @@ export const qLearningEnvironment: QLearningEnvironment = {
 
 - [ ] **Step 4: Run contract test and full type build**
 
-Run: `node --test tests/aiOverviewContracts.test.ts && npm run build`  
+Run: `node --test tests/aiOverviewContracts.test.ts && npm run build`<br>
 Expected: PASS and build exit 0.
 
 - [ ] **Step 5: Commit contracts**
@@ -221,7 +221,7 @@ test('candidate ranking is stable and rejects non-finite parameters', () => {
 
 - [ ] **Step 2: Run and verify RED**
 
-Run: `node --test tests/aiOverviewRegression.test.ts`  
+Run: `node --test tests/aiOverviewRegression.test.ts`<br>
 Expected: FAIL because `regression.ts` does not exist.
 
 - [ ] **Step 3: Implement minimal regression utilities**
@@ -256,7 +256,7 @@ Add a test asserting two generators with seed `3103` return identical first five
 
 - [ ] **Step 5: Run targeted and full tests**
 
-Run: `node --test tests/aiOverviewRegression.test.ts && npm test`  
+Run: `node --test tests/aiOverviewRegression.test.ts && npm test`<br>
 Expected: all tests pass.
 
 - [ ] **Step 6: Commit regression math**
@@ -295,7 +295,7 @@ test('K-means supports K=2..5 and rejects invalid values', () => {
 
 - [ ] **Step 2: Run and verify RED**
 
-Run: `node --test tests/aiOverviewKMeans.test.ts`  
+Run: `node --test tests/aiOverviewKMeans.test.ts`<br>
 Expected: FAIL because `kmeans.ts` does not exist.
 
 - [ ] **Step 3: Implement assignment, update, metric, and convergence**
@@ -314,7 +314,7 @@ export function withinGroupDistanceTotal(points: Point2D[], assignments: number[
 
 - [ ] **Step 4: Run targeted and full tests**
 
-Run: `node --test tests/aiOverviewKMeans.test.ts && npm test`  
+Run: `node --test tests/aiOverviewKMeans.test.ts && npm test`<br>
 Expected: all tests pass.
 
 - [ ] **Step 5: Commit K-means math**
@@ -355,7 +355,7 @@ test('seeded training is replayable and greedy evaluation disables exploration',
 
 - [ ] **Step 2: Run and verify RED**
 
-Run: `node --test tests/aiOverviewQLearning.test.ts`  
+Run: `node --test tests/aiOverviewQLearning.test.ts`<br>
 Expected: FAIL because `qLearning.ts` does not exist.
 
 - [ ] **Step 3: Implement exact state, transition, update, and seeded action rules**
@@ -371,7 +371,7 @@ Clamp exploration rate, learning rate, and discount factor to `[0, 1]`; reject N
 
 - [ ] **Step 4: Run targeted and full tests**
 
-Run: `node --test tests/aiOverviewQLearning.test.ts && npm test`  
+Run: `node --test tests/aiOverviewQLearning.test.ts && npm test`<br>
 Expected: all tests pass.
 
 - [ ] **Step 5: Commit Q-learning math**
@@ -419,7 +419,7 @@ Use five `AlgorithmCheckpointItem` records to express the four groups because th
 
 - [ ] **Step 2: Run and verify RED against the current five chapters**
 
-Run: `node --test tests/aiOverviewContent.test.ts tests/ai-overview-module.test.mjs`  
+Run: `node --test tests/aiOverviewContent.test.ts tests/ai-overview-module.test.mjs`<br>
 Expected: FAIL because the module still has the five legacy chapter IDs and two checkpoints.
 
 - [ ] **Step 3: Author the Chinese master for all eight chapters**
@@ -448,7 +448,7 @@ Every distractor explanation names its misconception, and `interactionProtocol.t
 
 - [ ] **Step 6: Run content and existing pilot tests**
 
-Run: `node --test tests/aiOverviewContent.test.ts tests/ai-overview-module.test.mjs tests/lessonPagePilot.test.ts`  
+Run: `node --test tests/aiOverviewContent.test.ts tests/ai-overview-module.test.mjs tests/lessonPagePilot.test.ts`<br>
 Expected: all tests pass.
 
 - [ ] **Step 7: Commit course content**
@@ -489,7 +489,7 @@ const contracts = {
 
 - [ ] **Step 2: Run and verify RED**
 
-Run: `node --test tests/aiOverviewVisualContracts.test.ts`  
+Run: `node --test tests/aiOverviewVisualContracts.test.ts`<br>
 Expected: FAIL because the visual files do not exist.
 
 - [ ] **Step 3: Implement the visuals with native semantic structure**
@@ -502,7 +502,7 @@ Use SVG only for exact nodes/edges that need geometry. Use HTML lists/tables for
 
 - [ ] **Step 5: Run tests and build**
 
-Run: `node --test tests/aiOverviewVisualContracts.test.ts && npm run build`  
+Run: `node --test tests/aiOverviewVisualContracts.test.ts && npm run build`<br>
 Expected: PASS and build exit 0.
 
 - [ ] **Step 6: Commit code-native visuals**
@@ -542,7 +542,7 @@ assert.doesNotMatch(staticSource, /type="range"/)
 
 - [ ] **Step 2: Run and verify RED**
 
-Run: `node --test tests/aiOverviewLabs.test.ts`  
+Run: `node --test tests/aiOverviewLabs.test.ts`<br>
 Expected: FAIL because the lab files do not exist.
 
 - [ ] **Step 3: Implement chapter routing and regression lab**
@@ -563,7 +563,7 @@ Create four frames per algorithm: initial, one complete update, intermediate, co
 
 - [ ] **Step 7: Run lab tests, all tests, and build**
 
-Run: `node --test tests/aiOverviewLabs.test.ts && npm test && npm run build`  
+Run: `node --test tests/aiOverviewLabs.test.ts && npm test && npm run build`<br>
 Expected: all tests pass and build exits 0.
 
 - [ ] **Step 8: Commit labs**
@@ -603,7 +603,7 @@ test('AI Overview image manifest covers twelve project-local assets', () => {
 
 - [ ] **Step 2: Run and verify RED**
 
-Run: `node --test tests/aiOverviewAssets.test.ts`  
+Run: `node --test tests/aiOverviewAssets.test.ts`<br>
 Expected: FAIL because the manifest and assets do not exist.
 
 - [ ] **Step 3: Write exact prompt records before generation**
@@ -632,7 +632,7 @@ The 12 IDs are:
 
 - [ ] **Step 7: Run asset tests and build**
 
-Run: `node --test tests/aiOverviewAssets.test.ts && npm run build && npm run build:pages`  
+Run: `node --test tests/aiOverviewAssets.test.ts && npm run build && npm run build:pages`<br>
 Expected: PASS, both builds exit 0, and every public path resolves under both bases.
 
 - [ ] **Step 8: Commit generated images and records**
@@ -684,7 +684,7 @@ Chinese transcript follows every timed scene. English summary explains the whole
 
 - [ ] **Step 6: Run asset tests and rendering check**
 
-Run: `node --test tests/aiOverviewAssets.test.ts && python scripts/manim/render_ai_overview.py --check`  
+Run: `node --test tests/aiOverviewAssets.test.ts && python scripts/manim/render_ai_overview.py --check`<br>
 Expected: PASS; check mode reports no source/metadata/output drift.
 
 - [ ] **Step 7: Commit Manim packages**
@@ -715,7 +715,7 @@ Assert all eight chapter IDs map to at least one primary visual, video media inc
 
 - [ ] **Step 2: Run and verify RED**
 
-Run: `node --test tests/aiOverviewResponsive.test.ts tests/ai-overview-module.test.mjs`  
+Run: `node --test tests/aiOverviewResponsive.test.ts tests/ai-overview-module.test.mjs`<br>
 Expected: FAIL until media mapping and responsive styles are complete.
 
 - [ ] **Step 3: Wire exact chapter media/lab mapping**
@@ -739,7 +739,7 @@ Use existing token variables for ink, muted text, surface, borders, and accent. 
 
 - [ ] **Step 5: Run targeted tests, all tests, and both builds**
 
-Run: `node --test tests/aiOverviewResponsive.test.ts tests/ai-overview-module.test.mjs && npm test && npm run build && npm run build:pages`  
+Run: `node --test tests/aiOverviewResponsive.test.ts tests/ai-overview-module.test.mjs && npm test && npm run build && npm run build:pages`<br>
 Expected: all tests pass; both builds exit 0 with no new warnings beyond the existing large-chunk warning.
 
 - [ ] **Step 6: Commit runtime integration**
