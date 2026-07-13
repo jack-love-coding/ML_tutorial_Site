@@ -12,7 +12,7 @@ Scope: synchronize the desktop regression candidate evidence and Q-learning upda
 2. Manual `w` or `b` input appends a `manual` visit computed by the shared MSE utility. The current candidate therefore always participates in best-so-far selection, so `best.mse <= current.mse` remains true.
 3. Changing a preset stops playback and initializes a new path, cursor, current/best candidate, and one-entry `initial` history for that preset's samples. Reset applies the same initialization to `clear-trend`; no history crosses dataset boundaries.
 4. Step and auto playback both call the same pure deterministic step transition and append one `path` visit at a time. The UI exposes a bilingual visited-history table in addition to the ranked candidate table.
-5. The shared Q-learning engine's typed update now carries `nextBestValue` and the applied `correction` alongside the existing state, action, reward, old value, target, and new value. The static fallback and desktop lab consume those engine fields directly.
+5. The shared Q-learning engine's typed update now carries `nextBestValue` and the raw `correction = target - old Q` alongside the existing state, action, reward, old value, target, and new value. The static fallback and desktop lab consume those engine fields directly; the learning rate is applied only when calculating the new Q value.
 6. The desktop Q-learning lab exposes all eight bilingual terms: state, action, old Q value, reward, next-state max, target, correction, and new Q value. The AI Overview interaction protocol names the exact same observable terms.
 
 ## TDD record
@@ -37,7 +37,7 @@ The final standard build was verified at 1280 × 900 through the bundled Playwri
 - Manual slope interaction produced ordered history visits for `w=6.0` and `w=6.1`. The displayed current candidate was `w=6.1, b=48.0, MSE=1.59`; current best remained `w=6.0, b=48.0, MSE=1.20`.
 - Switching to `noisy-trend` removed the prior manual history and produced exactly one `preset initial` row: `w=4.0, b=48.0, MSE=47.80`.
 - One regression step appended one `deterministic path` row: `w=5.0, b=48.0, MSE=19.20`.
-- One Q-learning action displayed state `3,0`, action `up`, old Q `0.00`, reward `-1.00`, next-state max `0.00`, target `-1.00`, correction `-0.50`, and new Q `-0.50`.
+- One Q-learning action displayed state `3,0`, action `up`, old Q `0.00`, reward `-1.00`, next-state max `0.00`, target `-1.00`, correction `-1.00`, and new Q `-0.50`.
 - The console contained 0 errors and 0 warnings. The request log contained no failed request; video traffic used expected 206 range responses.
 
 ## Verification record

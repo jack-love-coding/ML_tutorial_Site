@@ -34,7 +34,10 @@ test('static Q one-update frame exposes one finite deterministic update, not an 
     assert.equal(Number.isFinite(value), true)
   }
   assert.equal(frame.target, frame.reward + 0.9 * frame.nextBest)
-  assert.equal(frame.correction, frame.newQ - frame.oldQ)
+  assert.equal(frame.correction, frame.target - frame.oldQ)
+  assert.equal(frame.newQ, frame.oldQ + 0.5 * frame.correction)
+  assert.equal(frame.correction, -1)
+  assert.equal(frame.newQ, -0.5)
 })
 
 test('all focused lab copy is recursively complete in both locales', () => {

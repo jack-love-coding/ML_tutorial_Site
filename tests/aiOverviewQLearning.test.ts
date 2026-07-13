@@ -28,7 +28,7 @@ test('Q update uses reward plus discounted next-state value', () => {
     oldValue: 0,
     nextBestValue: 4,
     target: 2.6,
-    correction: 1.3,
+    correction: 2.6,
     newValue: 1.3,
   })
 })
@@ -153,11 +153,11 @@ test('a goal-directed greedy episode terminates at the goal before the 64-step b
   assert.deepEqual(result.finalState, qLearningEnvironment.goal)
 })
 
-test('rates clamp only after rejecting non-finite numbers', () => {
-  const low = updateQValue({ oldValue: 2, reward: 1, nextBestValue: 3, learningRate: -4, discountFactor: -2 })
+test('rates clamp only after rejecting non-finite numbers and zero alpha preserves raw correction', () => {
+  const low = updateQValue({ oldValue: 2, reward: 1, nextBestValue: 3, learningRate: 0, discountFactor: -2 })
   const high = updateQValue({ oldValue: 0, reward: 1, nextBestValue: 3, learningRate: 4, discountFactor: 2 })
 
-  assert.deepEqual(low, { oldValue: 2, nextBestValue: 3, target: 1, correction: 0, newValue: 2 })
+  assert.deepEqual(low, { oldValue: 2, nextBestValue: 3, target: 1, correction: -1, newValue: 2 })
   assert.deepEqual(high, { oldValue: 0, nextBestValue: 3, target: 4, correction: 4, newValue: 4 })
   assert.throws(
     () => updateQValue({ oldValue: 0, reward: 0, nextBestValue: 0, learningRate: Number.NaN, discountFactor: 0.9 }),
@@ -242,7 +242,8 @@ test('session updates expose every finite desktop teaching term from the shared 
     assert.equal(Number.isFinite(result.update[term]), true, `${term} must be finite`)
   }
   assert.equal(result.update.target, result.update.reward + 0.9 * result.update.nextBestValue)
-  assert.equal(result.update.correction, result.update.newValue - result.update.oldValue)
+  assert.equal(result.update.correction, result.update.target - result.update.oldValue)
+  assert.equal(result.update.newValue, result.update.oldValue + 0.5 * result.update.correction)
 })
 
 test('episode training starts at the environment start and preserves existing learned values', () => {

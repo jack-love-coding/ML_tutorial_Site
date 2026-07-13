@@ -229,10 +229,12 @@ export function updateQValue(input: QValueUpdateInput): QValueUpdateResult {
   const discountedNextValue = discountFactor * nextBestValue
   requireFinite(discountedNextValue, 'discounted next-state value')
   const target = checkedSum(reward, discountedNextValue, 'target')
-  const rawCorrection = learningRate * (target - oldValue)
+  const rawCorrection = target - oldValue
   const correction = rawCorrection === 0 ? 0 : rawCorrection
   requireFinite(correction, 'Q-value correction')
-  const newValue = checkedSum(oldValue, correction, 'newValue')
+  const appliedDelta = learningRate * correction
+  requireFinite(appliedDelta, 'applied Q-value delta')
+  const newValue = checkedSum(oldValue, appliedDelta, 'newValue')
 
   return { oldValue, nextBestValue, target, correction, newValue }
 }
