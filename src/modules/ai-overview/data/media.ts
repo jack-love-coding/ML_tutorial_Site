@@ -1,7 +1,14 @@
-import type { AiOverviewMediaAsset } from '../types'
+import type { AiOverviewManimKeyframe, AiOverviewMediaAsset } from '../types'
 import { aiOverviewManimRuntimeContent } from './manimRuntimeContent.ts'
 
 const loc = (zhCN: string, en: string) => ({ 'zh-CN': zhCN, en })
+const keyframe = (
+  id: string,
+  timestampSeconds: number,
+  publicPath: string,
+  zhCN: string,
+  en: string,
+): AiOverviewManimKeyframe => ({ id, timestampSeconds, publicPath, caption: loc(zhCN, en) })
 
 type CardSpec = {
   id: string
@@ -196,6 +203,11 @@ export const aiOverviewManimAssets: readonly AiOverviewMediaAsset[] = [
     availability: 'available',
     publicPath: '/manim/ai-overview/linear-regression-parameter-search.mp4',
     posterPath: '/manim/ai-overview/linear-regression-parameter-search-poster.png',
+    keyframes: [
+      keyframe('shared-data', 15, '/manim/ai-overview/linear-regression-parameter-search-keyframe-shared-data.png', '固定同一组训练样本，再比较不同候选直线。', 'Hold the training samples fixed before comparing candidate lines.'),
+      keyframe('sample-error', 36, '/manim/ai-overview/linear-regression-parameter-search-keyframe-sample-error.png', '从一个样本的预测、残差和平方误差连接到 MSE。', 'Connect one sample prediction, residual, and squared error to MSE.'),
+      keyframe('leaderboard', 70, '/manim/ai-overview/linear-regression-parameter-search-keyframe-leaderboard.png', '候选参数排行榜标出当前结果与最低 MSE。', 'The candidate leaderboard identifies the current result and lowest MSE.'),
+    ],
     transcriptPath: 'docs/curriculum-v3/ai-overview/manim/linear-regression-parameter-search-transcript.zh-CN.md',
     chapterId: 'supervised-linear-regression',
     title: loc('线性回归参数搜索', 'Linear-regression parameter search'),
@@ -212,6 +224,11 @@ export const aiOverviewManimAssets: readonly AiOverviewMediaAsset[] = [
     availability: 'available',
     publicPath: '/manim/ai-overview/kmeans-convergence.mp4',
     posterPath: '/manim/ai-overview/kmeans-convergence-poster.png',
+    keyframes: [
+      keyframe('initial-centers', 13, '/manim/ai-overview/kmeans-convergence-keyframe-initial-centers.png', '用 K=3 和 seed=3103 选择三个初始中心。', 'Choose three initial centers with K=3 and seed 3103.'),
+      keyframe('mean-update', 47, '/manim/ai-overview/kmeans-convergence-keyframe-mean-update.png', '按最近中心分配后，用每组坐标均值更新中心。', 'After nearest-center assignment, update each center to its group mean.'),
+      keyframe('converged', 77, '/manim/ai-overview/kmeans-convergence-keyframe-converged.png', '分配不再变化，组内距离稳定在 1293.5。', 'Assignments stop changing and within-group distance stabilizes at 1293.5.'),
+    ],
     transcriptPath: 'docs/curriculum-v3/ai-overview/manim/kmeans-convergence-transcript.zh-CN.md',
     chapterId: 'unsupervised-kmeans',
     title: loc('K-means 收敛', 'K-means convergence'),
@@ -228,6 +245,12 @@ export const aiOverviewManimAssets: readonly AiOverviewMediaAsset[] = [
     availability: 'available',
     publicPath: '/manim/ai-overview/q-learning-strategy.mp4',
     posterPath: '/manim/ai-overview/q-learning-strategy-poster.png',
+    keyframes: [
+      keyframe('environment', 6, '/manim/ai-overview/q-learning-strategy-keyframe-environment.png', '4×4 环境标出起点、目标、障碍与四种动作。', 'The 4×4 environment marks the start, goal, obstacles, and four actions.'),
+      keyframe('numeric-update', 30, '/manim/ai-overview/q-learning-strategy-keyframe-numeric-update.png', '一次数值更新把即时奖励和下一状态价值写入 Q value。', 'One numeric update combines immediate reward and next-state value in a Q value.'),
+      keyframe('training', 65, '/manim/ai-overview/q-learning-strategy-keyframe-training.png', '固定 seed 的训练快照展示探索如何逐步形成策略。', 'Fixed-seed training snapshots show exploration gradually forming a policy.'),
+      keyframe('evaluation', 78, '/manim/ai-overview/q-learning-strategy-keyframe-evaluation.png', '关闭探索后，贪心策略用六步到达目标。', 'With exploration disabled, the greedy policy reaches the goal in six steps.'),
+    ],
     transcriptPath: 'docs/curriculum-v3/ai-overview/manim/q-learning-strategy-transcript.zh-CN.md',
     chapterId: 'reinforcement-q-learning',
     title: loc('Q-learning 策略形成', 'Q-learning strategy formation'),

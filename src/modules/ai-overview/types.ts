@@ -19,9 +19,21 @@ type AiOverviewMediaAssetBase = {
   englishSummary: string
   bilingualLabels: readonly LocalizedCopy[]
 }
+export type AiOverviewManimKeyframe = {
+  id: string
+  publicPath: string
+  timestampSeconds: number
+  caption: LocalizedCopy
+}
 type AiOverviewMediaKind =
-  | { kind: 'imagegen'; posterPath?: never; transcriptPath?: never; transcriptZhCN?: never }
-  | { kind: 'manim-video'; posterPath: string; transcriptPath: string; transcriptZhCN: string }
+  | { kind: 'imagegen'; posterPath?: never; transcriptPath?: never; transcriptZhCN?: never; keyframes?: never }
+  | {
+      kind: 'manim-video'
+      posterPath: string
+      transcriptPath: string
+      transcriptZhCN: string
+      keyframes: readonly AiOverviewManimKeyframe[]
+    }
 export type AiOverviewMediaAsset = Omit<AiOverviewMediaAssetBase, 'kind'> & AiOverviewMediaKind & (
   | { availability: 'available'; publicPath: string }
   | { availability: 'deferred'; publicPath: null }

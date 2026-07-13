@@ -3,19 +3,33 @@ import { computed } from 'vue'
 import type { AppLocale } from '../../../types/ml'
 import { withPublicBase } from '../../../utils/publicPath'
 import type { AiOverviewMediaAsset } from '../types'
+import type { AiOverviewManimKeyframe } from '../types'
 
 const props = defineProps<{ asset: AiOverviewMediaAsset; locale: AppLocale }>()
 const source = computed(() => props.asset.availability === 'available' ? withPublicBase(props.asset.publicPath) : undefined)
 const poster = computed(() => props.asset.posterPath ? withPublicBase(props.asset.posterPath) : undefined)
+function keyframeSource(frame: AiOverviewManimKeyframe) { return withPublicBase(frame.publicPath) }
 </script>
 
 <template>
   <figure class="overview-media-figure">
     <img v-if="asset.availability === 'available' && asset.kind === 'imagegen'" :src="source" :alt="asset.title[locale]" loading="lazy" />
-    <video v-else-if="asset.availability === 'available'" controls preload="metadata" :poster="poster" :aria-label="asset.title[locale]">
+    <video v-else-if="asset.availability === 'available'" class="overview-media-figure__video" controls preload="metadata" :poster="poster" :aria-label="asset.title[locale]">
       <source :src="source" />
     </video>
     <p v-else class="overview-media-figure__deferred" role="status">{{ locale === 'zh-CN' ? '插图稍后补充。' : 'Illustration deferred.' }}</p>
+    <div v-if="asset.kind === 'manim-video'" class="overview-media-figure__motion-fallback" role="group" :aria-label="locale === 'zh-CN' ? `${asset.title[locale]}静态关键帧` : `${asset.title[locale]} static keyframes`">
+      <div class="overview-media-figure__poster">
+        <img :src="poster" :alt="locale === 'zh-CN' ? `${asset.title[locale]}静态总览` : `${asset.title[locale]} static overview`" loading="lazy" />
+        <p>{{ locale === 'zh-CN' ? '静态视频总览' : 'Static video overview' }}</p>
+      </div>
+      <ol class="overview-media-figure__keyframes">
+        <li v-for="frame in asset.keyframes" :key="frame.id">
+          <img :src="keyframeSource(frame)" :alt="frame.caption[locale]" loading="lazy" />
+          <p><strong>{{ frame.caption[locale] }}</strong><span>{{ frame.timestampSeconds }}s</span></p>
+        </li>
+      </ol>
+    </div>
     <figcaption><strong>{{ asset.title[locale] }}</strong> — {{ asset.caption[locale] }}</figcaption>
     <div v-if="locale === 'en'" class="overview-media-figure__english-support" lang="en">
       <p>{{ asset.englishSummary }}</p>
@@ -40,6 +54,12 @@ const poster = computed(() => props.asset.posterPath ? withPublicBase(props.asse
 <style scoped>
 .overview-media-figure { margin: 0; }
 img, video { display: block; width: 100%; height: auto; border-radius: .6rem; }
+.overview-media-figure__motion-fallback { display: none; gap: .75rem; }
+.overview-media-figure__poster, .overview-media-figure__keyframes li { display: grid; gap: .4rem; }
+.overview-media-figure__poster p, .overview-media-figure__keyframes p { margin: 0; }
+.overview-media-figure__keyframes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 0; padding: 0; list-style: none; }
+.overview-media-figure__keyframes p { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
+.overview-media-figure__keyframes span { white-space: nowrap; font-variant-numeric: tabular-nums; }
 figcaption { margin-top: .55rem; }
 .overview-media-figure__table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
@@ -47,4 +67,11 @@ th, td { border: 1px solid currentColor; padding: .55rem; text-align: start; ver
 details { margin-top: .75rem; }
 .overview-media-figure__transcript-body { white-space: pre-wrap; }
 code { overflow-wrap: anywhere; }
+@media (prefers-reduced-motion: reduce) {
+  .overview-media-figure__video { display: none; }
+  .overview-media-figure__motion-fallback { display: grid; }
+}
+@media (max-width: 620px) {
+  .overview-media-figure__keyframes { grid-template-columns: 1fr; }
+}
 </style>

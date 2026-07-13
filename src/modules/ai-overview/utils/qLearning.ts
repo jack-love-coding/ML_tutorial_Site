@@ -180,7 +180,6 @@ export function createQTable(environment: QLearningEnvironment): QTable {
   for (let row = 0; row < environment.height; row += 1) {
     for (let column = 0; column < environment.width; column += 1) {
       const cell = { row, column }
-      if (environment.obstacles.some((obstacle) => sameCell(obstacle, cell))) continue
       qTable[stateKey(cell)] = { up: 0, right: 0, down: 0, left: 0 }
     }
   }

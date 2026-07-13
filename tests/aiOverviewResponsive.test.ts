@@ -24,6 +24,7 @@ test('all eight chapters own at least one declared primary companion', async () 
 
 test('runtime media registers three complete Manim videos without inventing a deferred URL', async () => {
   const { aiOverviewRuntimeMediaAssets } = await import('../src/modules/ai-overview/data/media.ts')
+  const metadata = JSON.parse(read('public/manim/ai-overview/metadata.json'))
   assert.ok(Array.isArray(aiOverviewRuntimeMediaAssets), 'runtime media registry must be exported')
   const videos = aiOverviewRuntimeMediaAssets.filter((asset) => asset.kind === 'manim-video')
   assert.deepEqual(videos.map((asset) => asset.id), [
@@ -31,15 +32,26 @@ test('runtime media registers three complete Manim videos without inventing a de
     'kmeans-video',
     'q-learning-video',
   ])
-  for (const video of videos) {
+  const sourceIds = ['linear-regression-parameter-search', 'kmeans-convergence', 'q-learning-strategy']
+  for (const [index, video] of videos.entries()) {
     assert.equal(video.availability, 'available')
     if (video.availability !== 'available') continue
+    const scene = metadata.scenes.find((candidate: { id: string }) => candidate.id === sourceIds[index])
+    assert.ok(scene, `${sourceIds[index]} metadata must exist`)
     assert.match(video.publicPath, /^\/manim\/ai-overview\/.+\.mp4$/)
     assert.match(video.posterPath ?? '', /^\/manim\/ai-overview\/.+-poster\.png$/)
     assert.match(video.transcriptPath ?? '', /^docs\/curriculum-v3\/ai-overview\/manim\/.+-transcript\.zh-CN\.md$/)
+    assert.deepEqual(
+      video.keyframes.map((frame) => ({ id: frame.id, timestampSeconds: frame.timestampSeconds, path: frame.publicPath })),
+      scene.keyframes,
+    )
     assert.ok(existsSync(resolve(root, `public${video.publicPath}`)))
     assert.ok(existsSync(resolve(root, `public${video.posterPath}`)))
     assert.ok(existsSync(resolve(root, video.transcriptPath!)))
+    for (const frame of video.keyframes) {
+      assert.ok(existsSync(resolve(root, `public${frame.publicPath}`)), `${frame.publicPath} must exist`)
+      assert.ok(frame.caption['zh-CN'] && frame.caption.en)
+    }
   }
 
   const deferred = aiOverviewRuntimeMediaAssets.find((asset) => asset.id === 'traffic-signals')
@@ -74,6 +86,7 @@ test('media figure localizes captions and keeps English support and Chinese tran
   const source = read('src/modules/ai-overview/components/OverviewMediaFigure.vue')
   assert.match(source, /asset\.availability === 'available'\s*\?\s*withPublicBase\(props\.asset\.publicPath\)/)
   assert.match(source, /props\.asset\.posterPath\s*\?\s*withPublicBase\(props\.asset\.posterPath\)/)
+  assert.match(source, /withPublicBase\(frame\.publicPath\)/)
   assert.match(source, /asset\.caption\[locale\]/)
   assert.match(source, /v-if="locale === 'en'"/)
   assert.match(source, /<table/)
@@ -82,6 +95,12 @@ test('media figure localizes captions and keeps English support and Chinese tran
   assert.match(source, /<details[^>]+v-if="asset\.kind === 'manim-video'"/)
   assert.match(source, /asset\.transcriptPath/)
   assert.match(source, /asset\.transcriptZhCN/)
+  assert.match(source, /v-for="frame in asset\.keyframes"/)
+  assert.match(source, /frame\.caption\[locale\]/)
+  assert.match(source, /class="overview-media-figure__motion-fallback"/)
+  assert.match(source, /class="overview-media-figure__keyframes"/)
+  assert.match(source, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*\.overview-media-figure__video\s*\{[^}]*display:\s*none/s)
+  assert.match(source, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*\.overview-media-figure__motion-fallback\s*\{[^}]*display:\s*grid/s)
   assert.doesNotMatch(source, /withPublicBase\(props\.asset\.transcriptPath\)/)
 })
 
@@ -111,7 +130,9 @@ test('AI Overview print isolates the knowledge-map path without changing other r
   assert.match(lessonPage, /lesson-page--\$\{props\.variant\}/)
   assert.match(headerCss, /body:has\(\.algorithm-view--ai-overview\) \.site-header\s*\{[^}]*display:\s*none\s*!important/s)
   assert.doesNotMatch(css, /\.site-header/)
-  assert.match(css, /@page\s*\{[^}]*size:\s*A4 landscape/s)
+  assert.match(css, /@page\s+ai-overview\s*\{[^}]*size:\s*A4 landscape/s)
+  assert.doesNotMatch(css, /@page\s*\{/)
+  assert.match(css, /@media print[\s\S]*\.algorithm-view--ai-overview\s*\{[^}]*page:\s*ai-overview/s)
   assert.match(css, /\.algorithm-view--ai-overview\s*>\s*:not\(\.lesson-page--ai-overview\)\s*\{[^}]*display:\s*none\s*!important/s)
   assert.match(css, /\.story-card:not\(\[data-section-id='choose-learning-approach'\]\)/)
   assert.match(css, /@media print[\s\S]*\.ai-overview-knowledge-map\s*\{[^}]*zoom:\s*0\.9/s)

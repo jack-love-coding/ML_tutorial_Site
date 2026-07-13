@@ -52,7 +52,7 @@ After the RED/GREEN repair recorded in `QA.md`:
 
 - Single action then **Train one episode** completed episode 1, cumulative reward `-9`, reset current state to row 3/column 0, and displayed the last numeric update (`1,3`, up, `5.00`).
 - Continuous training was paused at episode 28; the learned policy evaluated to a 6-step route and the Q values were populated.
-- The full Q table opened with its header and 14 navigable-state rows.
+- The full Q table opened with 16 state rows and 4 action-value cells per row. Obstacle states `1,1` and `2,1` remain explicit all-zero rows.
 - Reset restored the initial state.
 - The post-repair sequence produced 0 console errors and 0 warnings.
 
@@ -66,6 +66,19 @@ Selecting an incorrect first-checkpoint option immediately showed:
 - misconception tags including `test-data-as-training-feedback` and `prediction-as-answer-copy`.
 
 Selecting the correct option retained explanatory feedback. No score, submission, or backend request was created. Keyboard Tab focus landed on an anchor with a computed solid 3 px outline.
+
+The follow-up keyboard pass focused controls through locators and then sent real Playwright CLI `press` events:
+
+| Surface | Key operation | Observed result |
+| --- | --- | --- |
+| Traditional AI | `Enter` selected Planning; `Space` activated Next | pressed mode became Planning and the visible step advanced to `2/4`, Available actions |
+| Regression | `ArrowRight` on the slope range | `w` changed from `4.0` to `4.1`; MSE changed from `39.60` to `35.59` |
+| Regression | `Enter` on Auto run, then `Enter` on Pause | the button exposed Pause while running, the fit advanced, and the stopped state returned to Auto run; keyboard Reset restored `w=4.0, b=48.0, MSE=39.60` |
+| K-means | `Space` on Step, `Enter` on Reset | history changed `1/6 → 2/6`, assignment distance became `2441.0`, then reset restored iteration 0, initialize, `1/6` |
+| Q-learning | `Enter` on One action | state changed `3,0 → 2,0`, reward `0 → -1`, step `0 → 1`, and the numeric update became `3,0 · up · -0.50` |
+| Q-learning | `Space` on One episode | episode became 1, state reset to `3,0`, and the last update became `1,3 · up · 5.00` |
+| Q-learning | `Enter` on Auto/Pause and Reset | episode advanced, the second activation stopped it (unchanged across a further 2.2 s), and Reset restored episode/reward/step to zero and speed to 1 |
+| Details/checkpoint | `Enter`/`Space` | all 3 transcript details opened; full Q-table details opened to 16 rows; the correct checkpoint radio became checked and exposed its explanation, misconceptions, and revisit link |
 
 ## Video, transcript, and generated-media evidence
 
@@ -104,8 +117,10 @@ With a 1280 × 900 viewport and `prefers-reduced-motion: reduce`:
 
 - `matchMedia('(prefers-reduced-motion: reduce)')` was true.
 - Visible desktop labs: 0; fallback frame counts remained `[4, 4, 4]`.
-- All 3 videos were paused, had `autoplay=false`, and remained at `currentTime=0` with their correct posters.
-- All 3 transcript bodies remained readable.
+- All 3 videos were hidden (`display: none`) and the 3 reduced-motion fallbacks were visible grids.
+- The fallbacks rendered the typed metadata sequence exactly: regression 3, K-means 3, and Q-learning 4 keyframes. The corresponding 3 posters and all 10 keyframe images loaded from local public-base-aware paths.
+- Every keyframe exposed its localized caption and timestamp; the poster and frame alternative text was localized.
+- All 3 transcript bodies remained readable and could be opened with Enter/Space.
 - Computed animation was `none`; scroll behavior was `auto`.
 
 Thus key information is available through static state frames, poster/keyframe media, labels, and transcripts rather than motion.
@@ -119,7 +134,9 @@ Under print media:
 - the map contained `common-loop`, `paradigm-comparison`, `representative-algorithms`, `decision-tree`, and `llm-route` sections;
 - print root/body backgrounds became white and the fixed decorative body pseudo-element was hidden.
 
-The first A4 landscape render exposed an extra blank/decorative second page, which was fixed with the RED/GREEN print contract recorded in `QA.md`. The post-fix render completed as exactly **1 page** at 842.88 × 595.92 pt, unencrypted, with no embedded JavaScript. Visual inspection confirmed all five map sections and all seven route labels are readable and unclipped. This verifies the approved one-page map independently of the interactive page chrome.
+The first A4 landscape render exposed an extra blank/decorative second page, which was fixed with the RED/GREEN print contract recorded in `QA.md`. The follow-up repair also replaced the global unqualified page rule with `@page ai-overview` and assigned it only on `.algorithm-view--ai-overview`.
+
+The post-fix Chromium render with `preferCSSPageSize: true` completed as exactly **1 page** at 841.92 × 594.96 pt (A4 landscape). Visual inspection confirmed all five map sections and all seven route labels are readable and unclipped. On `/learn/gradient-descent`, the algorithm view computed to `page: auto`, no descendant selected a named page, and the same render path retained default Letter size. This verifies both the approved one-page map and route isolation.
 
 ## Browser disposition
 

@@ -16,7 +16,7 @@ The required commands were run from a clean standard build sequence. `build:page
 
 | Command | Result | Exact evidence |
 | --- | --- | --- |
-| `npm test` | PASS | 510 tests passed; 0 failed, skipped, cancelled, or todo |
+| `npm test` | PASS | 511 tests passed; 0 failed, skipped, cancelled, or todo |
 | `npm run build` | PASS | Vite 8.0.16; 2,463 modules transformed |
 | `npm run build:pages` | PASS | Vite 8.0.16; 2,463 modules transformed |
 | `npm run security:audit` | PASS | `found 0 vulnerabilities` |
@@ -26,6 +26,25 @@ The required commands were run from a clean standard build sequence. `build:page
 Both production builds emitted the same existing warning: `Some chunks are larger than 1400 kB after minification.` No new build error or security finding was produced.
 
 ## Failures found and RED/GREEN closure
+
+### Review closure: keyframes, full Q table, scoped print, and real keyboard operation
+
+The written review found four verification gaps after the first QA pass. They are closed in one follow-up change:
+
+1. Manim metadata keyframes are now part of the typed runtime media contract. Reduced motion hides each video and renders its localized poster plus the exact metadata sequence: regression 3 frames, K-means 3 frames, and Q-learning 4 frames. Every runtime path is passed through `withPublicBase`.
+2. `createQTable` now retains all 16 grid states, including the two obstacle states as explicit four-action zero rows. A direct `Vue reactive(...)` clone regression test proves that `cloneQTable` accepts the proxy, creates independent row objects, and leaves the source unchanged after training the clone.
+3. Print uses the named page `ai-overview`; the route-scoped `.algorithm-view--ai-overview` alone selects it. No unqualified `@page { ... }` rule remains.
+4. Browser evidence now operates the controls with real keyboard events, rather than checking focus styling alone.
+
+RED/GREEN evidence:
+
+- RED: `node --test tests/aiOverviewResponsive.test.ts tests/aiOverviewQLearning.test.ts` reported 17 passes and the expected 4 failures: the missing 16-state table, typed keyframe sequence, reduced-motion keyframe DOM/CSS, and named print page.
+- GREEN: the same command passed 21/21.
+- Expanded AI Overview regression set passed 41/41: Q-learning, labs, responsive behavior, assets, and Manim assets.
+- `python scripts/manim/render_ai_overview.py --check` passed after mechanically regenerating the integrity-bound Q-learning fixture and metadata hashes.
+- Chromium reduced-motion inspection showed all 3 videos at `display: none`, fallback grids at `display: grid`, exact frame counts `[3, 3, 4]`, loaded local poster/keyframe images, localized captions, and readable transcripts.
+- Chromium opened the full Q table by pressing Enter on its summary and observed 16 state rows, each with 4 action values; obstacle states `1,1` and `2,1` each contained four `0.00` values.
+- Chromium PDF with `preferCSSPageSize` produced one 841.92 × 594.96 pt A4 landscape page for AI Overview. `/learn/gradient-descent` had `page: auto`, no named-page element, and retained the browser default Letter page size.
 
 ### Q-learning reactive-proxy clone
 
@@ -70,10 +89,10 @@ RED/GREEN evidence:
 | 9. Manim inventory | PASS | Exactly 3 packages at 85/88/90 seconds, with 3 MP4s, 3 posters, 10 keyframes, Chinese transcripts, English summaries, localized labels, fixture contracts, and integrity hashes. |
 | 10. Code-native visuals | PASS | All 8 are present: AI world map, traditional-AI stepper, ML process tracer, paradigm comparison, decision tree, assistant composition map, seven-stage LLM route, and a verified one-page printable knowledge map. |
 | 11. Experiment contracts | PASS | Regression, K-means, and Q-learning state/math are deterministic and utility-owned; reset/replay and invalid-input normalization are covered by tests and browser checks. |
-| 12. Mobile/reduced-motion fallbacks | PASS | Each of the 3 complex labs becomes 4 labeled static states; controls are absent at 390 px and under reduced motion; posters/keyframes/transcripts retain the lesson. |
+| 12. Mobile/reduced-motion fallbacks | PASS | Each of the 3 complex labs becomes 4 labeled static states; controls are absent at 390 px and under reduced motion; videos are replaced by typed poster/keyframe sequences of 3/3/4 frames with localized captions and readable transcripts. |
 | 13. Reproducibility/storage | PASS | Assets use local public paths; Imagegen and Manim manifests are auditable; Manim integrity check passes; no temporary or absolute runtime asset path is used. |
 | 14. Existing-system integration | PASS | `/learn/ai-overview` remains canonical and lazy-loaded through the existing LessonPage/AlgorithmView path. The algorithm, Math Lab, and Data Lab v1 localStorage keys remain present. No old URL or progress store was removed. |
-| 15. Testing/verification | PASS | 510 automated tests plus desktop, mobile, reduced-motion, print, keyboard, console, network, and asset checks pass. |
+| 15. Testing/verification | PASS | 511 automated tests plus desktop, mobile, reduced-motion, print, keyboard, console, network, and asset checks pass. |
 | 16. Delivery sequence | PASS | Task reports/manifests from the preceding content, visual, lab, asset, and responsive stages were checked before this final audit. |
 | 17. Non-goals | PASS | No backend grading, learner-report generation, AI-history expansion, Transformer mechanics, or wholesale curriculum migration was introduced. |
 | 18. Written review gate | PASS | This QA record and `browser-evidence.md` provide the final auditable review evidence. |

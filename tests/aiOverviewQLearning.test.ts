@@ -1,7 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { reactive } from 'vue'
 import { qLearningEnvironment } from '../src/modules/ai-overview/data/experiments.ts'
 import {
+  cloneQTable,
   createQTable,
   evaluateGreedyPolicy,
   runEpisode,
@@ -49,8 +51,28 @@ test('Q table uses deterministic state keys and action order', () => {
 
   assert.equal(stateKey({ row: 2, column: 3 }), '2,3')
   assert.deepEqual(Object.keys(qTable['0,0']), ['up', 'right', 'down', 'left'])
-  assert.equal(Object.keys(qTable).length, 14)
-  assert.equal(qTable['1,1'], undefined)
+  assert.equal(Object.keys(qTable).length, 16)
+  assert.deepEqual(qTable['1,1'], { up: 0, right: 0, down: 0, left: 0 })
+  assert.deepEqual(qTable['2,1'], { up: 0, right: 0, down: 0, left: 0 })
+})
+
+test('proxy-safe Q-table cloning deep-clones rows and episode mutation leaves the reactive source unchanged', () => {
+  const source = reactive(createQTable(qLearningEnvironment))
+  source['3,0'].right = 2
+  const before = Object.fromEntries(Object.entries(source).map(([key, values]) => [key, { ...values }]))
+
+  const cloned = cloneQTable(source)
+  assert.deepEqual(cloned, before)
+  assert.notStrictEqual(cloned['3,0'], source['3,0'])
+
+  runEpisode(qLearningEnvironment, cloned, {
+    explorationRate: 0,
+    learningRate: 0.5,
+    discountFactor: 0.9,
+    random: () => 0.99,
+  })
+
+  assert.deepEqual(source, before)
 })
 
 test('greedy action selection keeps deterministic ties and exploration uses the supplied random source', () => {

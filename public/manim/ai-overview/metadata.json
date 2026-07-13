@@ -156,7 +156,7 @@
   ],
   "integrity": {
     "scripts/manim/ai_overview/palette.py": "5a5ff89ca7b3c558a41e2dd265ee6d66eed61e04b389159df5c1ed6762714284",
-    "/manim/ai-overview/experiment-fixture.json": "633f8f73cd1216723d7ba0bf650fd95bdb666c2504620375d522d204070b097f",
+    "/manim/ai-overview/experiment-fixture.json": "2fd31444ba50b559218a2bb0818f640500cb2e237e53769cbd54da67ea18b551",
     "scripts/manim/ai_overview/linear_regression_parameter_search.py": "65ff8b33fd130c1b8edc292458ca7e4e1e6524b62dbe946b6fb78d195719895e",
     "scripts/manim/ai_overview/linear_regression_parameter_search_tree.json": "986d8eab5aae8fb445c792ddc3352ff7c6bd51e2b1a3e62a69afe46d15dd9727",
     "scripts/manim/ai_overview/linear_regression_parameter_search_prompt.md": "a73d991cd0e77cfc5982579f884aa82de93f409836c9e5c216bb1d2b58b14aa6",
