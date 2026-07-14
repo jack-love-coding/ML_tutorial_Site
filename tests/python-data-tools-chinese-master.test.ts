@@ -1,0 +1,231 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
+import {
+  pythonDataToolsContract,
+  type NotebookCellRole,
+  type PythonDataToolsChapterId,
+  type PythonDataToolsExerciseKind,
+  type PythonDataToolsOutputId,
+} from '../src/data/pythonNotebookContract.ts'
+
+const masterDirectory = new URL(
+  '../docs/curriculum-v3/python-data-tools/chinese-master/',
+  import.meta.url,
+)
+
+const chapterFiles = [
+  '01-notebook-workflow.md',
+  '02-numpy-foundations.md',
+  '03-pandas-structures.md',
+  '04-pandas-analysis.md',
+  '05-matplotlib-visualization.md',
+  '06-seaborn-statistics.md',
+  '07-plotly-exploration.md',
+  '08-analysis-report.md',
+] as const
+
+const requiredSections = [
+  '核心问题',
+  '本章目标',
+  '前置连接',
+  '概念与直觉',
+  '逐步代码',
+  '输出与阅读',
+  '证据解释',
+  '限制或误区',
+  '下一步',
+] as const
+
+const cellMarkerPattern = /<!-- cell: (ch\d{2}-[a-z0-9-]+) role: ([a-z]+)(?: output: ([a-z0-9-]+))? -->\n```python\n/g
+const exerciseMarkerPattern = /<!-- exercise: ([a-z0-9-]+) -->/g
+const pythonBlockPattern = /```python\n[\s\S]*?```/g
+
+const readMaster = async () => {
+  const [index, ...chapters] = await Promise.all([
+    readFile(new URL('README.md', masterDirectory), 'utf8'),
+    ...chapterFiles.map((filename) => readFile(new URL(filename, masterDirectory), 'utf8')),
+  ])
+  return { index, chapters }
+}
+
+test('Chinese master index and chapter files follow the typed eight-chapter order', async () => {
+  const { index, chapters } = await readMaster()
+  const contractIds = pythonDataToolsContract.chapters.map(({ id }) => id)
+
+  assert.equal(chapters.length, pythonDataToolsContract.chapters.length)
+  assert.deepEqual(
+    chapterFiles.map((filename) => filename.replace(/^\d{2}-|\.md$/g, '')),
+    contractIds,
+  )
+
+  let previousIndex = -1
+  for (const [chapterIndex, chapter] of pythonDataToolsContract.chapters.entries()) {
+    const source = chapters[chapterIndex]
+    const indexPosition = index.indexOf(`\`${chapter.id}\``)
+
+    assert.ok(indexPosition > previousIndex, `README chapter order is wrong at ${chapter.id}`)
+    previousIndex = indexPosition
+    assert.ok(source.includes(`章节 ID：\`${chapter.id}\``))
+    assert.ok(source.includes(chapter.question['zh-CN']), `${chapter.id} must use its contract question`)
+    for (const section of requiredSections) {
+      assert.ok(source.includes(`## ${section}`), `${chapter.id} is missing section: ${section}`)
+    }
+  }
+
+  assert.match(index, /只做描述性分析，不训练预测模型，不作因果识别，不教授数据清洗/)
+  assert.match(index, /\/data-lab/)
+})
+
+test('every Python block has a unique stable cell id, legal role, and sufficient chapter depth', async () => {
+  const { chapters } = await readMaster()
+  const allowedRoles = new Set<NotebookCellRole>(pythonDataToolsContract.cellRoles)
+  const seenCellIds = new Set<string>()
+
+  for (const [index, source] of chapters.entries()) {
+    const chapterId = pythonDataToolsContract.chapters[index].id
+    const pythonBlocks = source.match(pythonBlockPattern) ?? []
+    const markers = [...source.matchAll(cellMarkerPattern)]
+    const minimum = chapterId === 'analysis-report' ? 2 : 5
+
+    assert.equal(
+      markers.length,
+      pythonBlocks.length,
+      `${chapterId} must put one valid cell marker immediately before every Python block`,
+    )
+    assert.ok(pythonBlocks.length >= minimum, `${chapterId} needs at least ${minimum} Python cells`)
+
+    for (const [, cellId, role] of markers) {
+      assert.ok(!seenCellIds.has(cellId), `duplicate cell id: ${cellId}`)
+      seenCellIds.add(cellId)
+      assert.ok(allowedRoles.has(role as NotebookCellRole), `unknown role ${role} in ${cellId}`)
+      assert.ok(cellId.startsWith(`ch${String(index + 1).padStart(2, '0')}-`))
+    }
+  }
+
+  assert.ok(seenCellIds.size >= 40, 'the Chinese master should contain a substantive executable chain')
+})
+
+test('authoritative outputs are bound exactly once to their contract chapters', async () => {
+  const { chapters } = await readMaster()
+  const actualBindings = new Map<PythonDataToolsOutputId, PythonDataToolsChapterId>()
+
+  for (const [index, source] of chapters.entries()) {
+    const chapterId = pythonDataToolsContract.chapters[index].id
+    for (const marker of source.matchAll(cellMarkerPattern)) {
+      const outputId = marker[3] as PythonDataToolsOutputId | undefined
+      if (!outputId) continue
+      assert.ok(!actualBindings.has(outputId), `output ${outputId} is bound more than once`)
+      actualBindings.set(outputId, chapterId)
+    }
+  }
+
+  assert.equal(actualBindings.size, pythonDataToolsContract.outputs.length)
+  for (const output of pythonDataToolsContract.outputs) {
+    assert.equal(actualBindings.get(output.id), output.chapterId, `${output.id} is in the wrong chapter`)
+  }
+})
+
+test('the five formative exercises match contract mounts and include explanatory feedback', async () => {
+  const { chapters } = await readMaster()
+  const actual = new Map<PythonDataToolsChapterId, PythonDataToolsExerciseKind>()
+
+  for (const [index, source] of chapters.entries()) {
+    const chapterId = pythonDataToolsContract.chapters[index].id
+    const exerciseMarkers = [...source.matchAll(exerciseMarkerPattern)]
+    assert.ok(exerciseMarkers.length <= 1, `${chapterId} has more than one exercise`)
+    if (exerciseMarkers.length === 0) continue
+
+    const kind = exerciseMarkers[0][1] as PythonDataToolsExerciseKind
+    actual.set(chapterId, kind)
+    for (const heading of ['### 题目', '### 提示', '### 即时反馈', '### 常见误区', '### 复看锚点']) {
+      assert.ok(source.includes(heading), `${chapterId} exercise is missing ${heading}`)
+    }
+    assert.match(source, /不计分、不提交、不写入学习进度，也不阻挡下一章/)
+    assert.match(source, /选择 A：/)
+    assert.match(source, /选择 B：/)
+  }
+
+  assert.deepEqual(
+    [...actual.entries()],
+    pythonDataToolsContract.exerciseMounts.map(({ chapterId, kind }) => [chapterId, kind]),
+  )
+})
+
+test('visualization chapters teach misleading-chart repair and accessible fallbacks', async () => {
+  const { chapters } = await readMaster()
+  const chapterById = new Map(
+    pythonDataToolsContract.chapters.map(({ id }, index) => [id, chapters[index]]),
+  )
+
+  for (const id of [
+    'matplotlib-visualization',
+    'seaborn-statistics',
+    'plotly-exploration',
+  ] as const) {
+    const source = chapterById.get(id) ?? ''
+    assert.match(source, /误导/)
+    assert.match(source, /修正/)
+    assert.match(source, /中文 alt 草案/)
+    assert.match(source, /颜色.*不.*唯一|不只依赖颜色|非颜色|线型/)
+  }
+
+  assert.match(chapterById.get('plotly-exploration') ?? '', /静态 fallback/)
+  assert.match(chapterById.get('plotly-exploration') ?? '', /筛选状态/)
+})
+
+test('Seaborn chapter stays inside the descriptive statistics contract', async () => {
+  const { chapters } = await readMaster()
+  const source = chapters[5]
+
+  for (const required of [
+    '描述性统计',
+    '协方差',
+    'Pearson',
+    '缺失',
+    '样本量',
+    '离群值',
+    '相关不代表因果',
+  ]) {
+    assert.ok(source.includes(required), `Seaborn chapter is missing ${required}`)
+  }
+
+  assert.match(source, /不计算或解释置信区间、显著性检验和 p 值/)
+  const code = (source.match(pythonBlockPattern) ?? []).join('\n')
+  assert.doesNotMatch(code, /p[_-]?value|ttest|confidence[_-]?interval|scipy\.stats/i)
+})
+
+test('course code uses the local snapshot and excludes modeling, network, and browser Python', async () => {
+  const { index, chapters } = await readMaster()
+  const allCode = chapters.flatMap((source) => source.match(pythonBlockPattern) ?? []).join('\n')
+
+  assert.match(chapters[0], /\.\.\/\.\.\/datasets\/python-data-tools\/bike-sharing-hour\.csv/)
+  assert.match(index, /`rides`/)
+  assert.match(index, /`hourly_demand`/)
+  assert.match(index, /`workingday_hourly`/)
+  assert.match(index, /`rider_mix`/)
+  assert.match(index, /`correlation_columns`/)
+  assert.doesNotMatch(
+    allCode,
+    /sklearn|train_test_split|\.fit\(|pyodide|requests\.|urlopen|https?:\/\//i,
+  )
+})
+
+test('final report traces all evidence dimensions and hands cleaning to Data Lab', async () => {
+  const { chapters } = await readMaster()
+  const source = chapters[7]
+
+  for (const output of pythonDataToolsContract.outputs) {
+    assert.ok(source.includes(output.id), `final report must trace ${output.id}`)
+  }
+  for (const dimension of ['时间', '工作日', '季节', '天气', '用户构成']) {
+    assert.ok(source.includes(dimension), `final report is missing dimension ${dimension}`)
+  }
+  for (const part of ['观察', '证据', '解释', '限制']) {
+    assert.ok(source.includes(part), `final report is missing claim part ${part}`)
+  }
+  assert.match(source, /不做预测|不包含预测|不训练预测模型/)
+  assert.match(source, /相关不代表因果/)
+  assert.match(source, /\/data-lab/)
+  assert.match(source, /缺失、重复、异常类型.*离群值/)
+})
