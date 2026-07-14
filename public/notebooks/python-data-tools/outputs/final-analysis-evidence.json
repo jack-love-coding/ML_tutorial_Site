@@ -1,0 +1,157 @@
+{
+  "claim_template": [
+    "观察",
+    "证据",
+    "解释",
+    "限制"
+  ],
+  "contract_version": "python-data-tools-v1",
+  "dataset_sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+  "environment": {
+    "packages": {
+      "ipykernel": "7.3.0",
+      "jupyterlab": "4.6.1",
+      "matplotlib": "3.10.9",
+      "nbclient": "0.11.0",
+      "nbformat": "5.10.4",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "plotly": "6.9.0",
+      "seaborn": "0.13.2"
+    },
+    "python": "3.12.13"
+  },
+  "evidence": {
+    "relationships": {
+      "limitation": "Pearson 只描述线性关联；相关不代表因果",
+      "method": "pearson",
+      "withCnt": {
+        "hum": -0.32291074,
+        "temp": 0.40477228,
+        "windspeed": 0.09323378
+      }
+    },
+    "riderComposition": {
+      "casualRentals": 620017,
+      "casualShare": 0.188302,
+      "limitation": "累计次数不是独立用户人数",
+      "registeredRentals": 2672662,
+      "registeredShare": 0.811698,
+      "unit": "累计租车次数及两类总和份额"
+    },
+    "season": {
+      "groups": [
+        {
+          "meanRentals": 111.114569,
+          "medianRentals": 76.0,
+          "observations": 4242,
+          "season": 1,
+          "seasonLabel": "春季"
+        },
+        {
+          "meanRentals": 208.344069,
+          "medianRentals": 165.0,
+          "observations": 4409,
+          "season": 2,
+          "seasonLabel": "夏季"
+        },
+        {
+          "meanRentals": 236.016237,
+          "medianRentals": 199.0,
+          "observations": 4496,
+          "season": 3,
+          "seasonLabel": "秋季"
+        },
+        {
+          "meanRentals": 198.868856,
+          "medianRentals": 155.5,
+          "observations": 4232,
+          "season": 4,
+          "seasonLabel": "冬季"
+        }
+      ],
+      "limitation": "季节与年份、天气和日期类型共同变化"
+    },
+    "time": {
+      "aggregation": "按 hr 的 cnt 均值",
+      "limitation": "混合了年份、季节、天气和日期类型",
+      "meanRentals": 461.452055,
+      "observations": 730,
+      "peakHour": 17,
+      "tieRule": "并列时选择较早小时",
+      "unit": "每小时租车次数"
+    },
+    "weather": {
+      "groups": [
+        {
+          "meanRentals": 204.869272,
+          "medianRentals": 159.0,
+          "observations": 11413,
+          "weatherLabel": "晴或少云",
+          "weathersit": 1
+        },
+        {
+          "meanRentals": 175.165493,
+          "medianRentals": 133.0,
+          "observations": 4544,
+          "weatherLabel": "薄雾或多云",
+          "weathersit": 2
+        },
+        {
+          "meanRentals": 111.579281,
+          "medianRentals": 63.0,
+          "observations": 1419,
+          "weatherLabel": "小雨雪或雷暴",
+          "weathersit": 3
+        },
+        {
+          "meanRentals": 74.333333,
+          "medianRentals": 36.0,
+          "observations": 3,
+          "weatherLabel": "强降水或恶劣天气",
+          "weathersit": 4
+        }
+      ],
+      "limitation": "少数组和共同变化变量限制解释，相关不代表因果"
+    },
+    "workingDay": {
+      "aggregation": "按 workingday 与 hr 的 cnt 均值/中位数",
+      "groups": [
+        {
+          "meanRentals": 372.731602,
+          "medianRentals": 367.0,
+          "observations": 231,
+          "peakHour": 13,
+          "workingday": 0,
+          "workingdayLabel": "周末或节假日"
+        },
+        {
+          "meanRentals": 525.290581,
+          "medianRentals": 539.0,
+          "observations": 499,
+          "peakHour": 17,
+          "workingday": 1,
+          "workingdayLabel": "工作日"
+        }
+      ],
+      "limitation": "分组关联不能证明工作日状态造成需求差异"
+    }
+  },
+  "excludes": [
+    "预测",
+    "因果识别",
+    "显著性判断",
+    "数据清洗"
+  ],
+  "handoff_route": "/data-lab",
+  "question": "时间、工作日、季节、天气和用户构成怎样共同解释需求变化？",
+  "source_outputs": [
+    "dataset-shape-schema",
+    "hourly-demand-profile",
+    "workingday-comparison",
+    "season-weather-distribution",
+    "rider-composition",
+    "pearson-correlation-matrix",
+    "plotly-hourly-explorer"
+  ]
+}

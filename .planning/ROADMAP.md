@@ -738,7 +738,7 @@
 
 ## V3.1 Minimum Mathematical Foundation
 
-**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–2 completed; Python Data Tools Stage 3 not started.
+**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 completed; Python Data Tools Stage 4 not started.
 
 **Decision boundary:**
 - Start only from separately reviewed acceptance criteria for the V3.1 waves declared in the generated implementation backlog.
@@ -751,7 +751,7 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 
 1. **Data and execution contract** — Completed — verified UCI snapshot, typed chapter/output contract, environment pins, offline validation; no runtime lesson changes.
 2. **Eight-chapter Chinese master** — Completed — complete Chinese teaching flow Notebook/NumPy/Pandas/Matplotlib/Seaborn/Plotly/final report; no runtime lesson changes.
-3. **Notebook and real chart assets** — Planned — clean-kernel ipynb, exact outputs, real Matplotlib/Seaborn assets, deterministic Plotly JSON.
+3. **Notebook and real chart assets** — Completed — clean-kernel ipynb, exact outputs, real Matplotlib/Seaborn assets, deterministic Plotly JSON.
 4. **English parity and runtime refactor** — Planned — English parity and migrate existing `python-notebook` route to new contract.
 5. **Consistency, browser, and build validation** — Planned — data/code/output parity, bilingual, responsive browser, production/Pages.
 

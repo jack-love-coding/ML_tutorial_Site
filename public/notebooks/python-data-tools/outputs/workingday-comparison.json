@@ -1,0 +1,439 @@
+{
+  "aggregation": "workingday × hr; hourly cnt size, mean, median, and sum",
+  "contractVersion": "python-data-tools-v1",
+  "datasetSha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+  "records": [
+    {
+      "hr": 0,
+      "meanRentals": 90.8,
+      "medianRentals": 93.5,
+      "observations": 230,
+      "totalRentals": 20884,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 1,
+      "meanRentals": 69.508696,
+      "medianRentals": 71.0,
+      "observations": 230,
+      "totalRentals": 15987,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 2,
+      "meanRentals": 53.171053,
+      "medianRentals": 54.0,
+      "observations": 228,
+      "totalRentals": 12123,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 3,
+      "meanRentals": 25.77533,
+      "medianRentals": 25.0,
+      "observations": 227,
+      "totalRentals": 5851,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 4,
+      "meanRentals": 8.264317,
+      "medianRentals": 7.0,
+      "observations": 227,
+      "totalRentals": 1876,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 5,
+      "meanRentals": 8.689189,
+      "medianRentals": 7.0,
+      "observations": 222,
+      "totalRentals": 1929,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 6,
+      "meanRentals": 18.742358,
+      "medianRentals": 16.0,
+      "observations": 229,
+      "totalRentals": 4292,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 7,
+      "meanRentals": 43.406926,
+      "medianRentals": 39.0,
+      "observations": 231,
+      "totalRentals": 10027,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 8,
+      "meanRentals": 105.65368,
+      "medianRentals": 94.0,
+      "observations": 231,
+      "totalRentals": 24406,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 9,
+      "meanRentals": 171.623377,
+      "medianRentals": 170.0,
+      "observations": 231,
+      "totalRentals": 39645,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 10,
+      "meanRentals": 255.909091,
+      "medianRentals": 260.0,
+      "observations": 231,
+      "totalRentals": 59115,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 11,
+      "meanRentals": 315.316017,
+      "medianRentals": 317.0,
+      "observations": 231,
+      "totalRentals": 72838,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 12,
+      "meanRentals": 366.25974,
+      "medianRentals": 367.0,
+      "observations": 231,
+      "totalRentals": 84606,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 13,
+      "meanRentals": 372.731602,
+      "medianRentals": 367.0,
+      "observations": 231,
+      "totalRentals": 86101,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 14,
+      "meanRentals": 364.645022,
+      "medianRentals": 361.0,
+      "observations": 231,
+      "totalRentals": 84233,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 15,
+      "meanRentals": 358.813853,
+      "medianRentals": 361.0,
+      "observations": 231,
+      "totalRentals": 82886,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 16,
+      "meanRentals": 352.727273,
+      "medianRentals": 356.0,
+      "observations": 231,
+      "totalRentals": 81480,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 17,
+      "meanRentals": 323.549784,
+      "medianRentals": 322.0,
+      "observations": 231,
+      "totalRentals": 74740,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 18,
+      "meanRentals": 281.056522,
+      "medianRentals": 276.5,
+      "observations": 230,
+      "totalRentals": 64643,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 19,
+      "meanRentals": 231.673913,
+      "medianRentals": 232.0,
+      "observations": 230,
+      "totalRentals": 53285,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 20,
+      "meanRentals": 174.73913,
+      "medianRentals": 176.0,
+      "observations": 230,
+      "totalRentals": 40190,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 21,
+      "meanRentals": 142.06087,
+      "medianRentals": 136.5,
+      "observations": 230,
+      "totalRentals": 32674,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 22,
+      "meanRentals": 116.06087,
+      "medianRentals": 106.5,
+      "observations": 230,
+      "totalRentals": 26694,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 23,
+      "meanRentals": 85.930435,
+      "medianRentals": 72.5,
+      "observations": 230,
+      "totalRentals": 19764,
+      "workingday": 0,
+      "workingdayLabel": "周末或节假日"
+    },
+    {
+      "hr": 0,
+      "meanRentals": 36.78629,
+      "medianRentals": 33.0,
+      "observations": 496,
+      "totalRentals": 18246,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 1,
+      "meanRentals": 16.552632,
+      "medianRentals": 14.0,
+      "observations": 494,
+      "totalRentals": 8177,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 2,
+      "meanRentals": 8.683778,
+      "medianRentals": 7.0,
+      "observations": 487,
+      "totalRentals": 4229,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 3,
+      "meanRentals": 4.942553,
+      "medianRentals": 4.0,
+      "observations": 470,
+      "totalRentals": 2323,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 4,
+      "meanRentals": 5.429787,
+      "medianRentals": 5.0,
+      "observations": 470,
+      "totalRentals": 2552,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 5,
+      "meanRentals": 24.913131,
+      "medianRentals": 25.0,
+      "observations": 495,
+      "totalRentals": 12332,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 6,
+      "meanRentals": 102.5,
+      "medianRentals": 104.0,
+      "observations": 496,
+      "totalRentals": 50840,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 7,
+      "meanRentals": 290.612903,
+      "medianRentals": 295.0,
+      "observations": 496,
+      "totalRentals": 144144,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 8,
+      "meanRentals": 477.006048,
+      "medianRentals": 463.0,
+      "observations": 496,
+      "totalRentals": 236595,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 9,
+      "meanRentals": 241.518145,
+      "medianRentals": 228.0,
+      "observations": 496,
+      "totalRentals": 119793,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 10,
+      "meanRentals": 135.366935,
+      "medianRentals": 133.0,
+      "observations": 496,
+      "totalRentals": 67142,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 11,
+      "meanRentals": 158.229839,
+      "medianRentals": 157.0,
+      "observations": 496,
+      "totalRentals": 78482,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 12,
+      "meanRentals": 200.820926,
+      "medianRentals": 201.0,
+      "observations": 497,
+      "totalRentals": 99808,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 13,
+      "meanRentals": 198.429719,
+      "medianRentals": 198.0,
+      "observations": 498,
+      "totalRentals": 98818,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 14,
+      "meanRentals": 183.572289,
+      "medianRentals": 179.0,
+      "observations": 498,
+      "totalRentals": 91419,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 15,
+      "meanRentals": 201.331325,
+      "medianRentals": 194.0,
+      "observations": 498,
+      "totalRentals": 100263,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 16,
+      "meanRentals": 293.122244,
+      "medianRentals": 292.0,
+      "observations": 499,
+      "totalRentals": 146268,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 17,
+      "meanRentals": 525.290581,
+      "medianRentals": 539.0,
+      "observations": 499,
+      "totalRentals": 262120,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 18,
+      "meanRentals": 492.226908,
+      "medianRentals": 504.5,
+      "observations": 498,
+      "totalRentals": 245129,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 19,
+      "meanRentals": 348.401606,
+      "medianRentals": 349.5,
+      "observations": 498,
+      "totalRentals": 173504,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 20,
+      "meanRentals": 249.718876,
+      "medianRentals": 248.0,
+      "observations": 498,
+      "totalRentals": 124360,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 21,
+      "meanRentals": 186.287149,
+      "medianRentals": 190.0,
+      "observations": 498,
+      "totalRentals": 92771,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 22,
+      "meanRentals": 138.389558,
+      "medianRentals": 137.0,
+      "observations": 498,
+      "totalRentals": 68918,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    },
+    {
+      "hr": 23,
+      "meanRentals": 88.708835,
+      "medianRentals": 81.0,
+      "observations": 498,
+      "totalRentals": 44177,
+      "workingday": 1,
+      "workingdayLabel": "工作日"
+    }
+  ]
+}

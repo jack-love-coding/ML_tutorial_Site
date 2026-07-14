@@ -88,6 +88,10 @@ export function buildEnvironment(manifest, provenance) {
   return {
     contractVersion: CONTRACT_VERSION,
     python: '3.12.13',
+    executionPackages: {
+      nbclient: '0.11.0',
+      ipykernel: '7.3.0',
+    },
     generatedAt,
     generatedOn,
     dataset: {

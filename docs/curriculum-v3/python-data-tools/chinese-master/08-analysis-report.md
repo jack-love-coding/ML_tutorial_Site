@@ -84,11 +84,111 @@ evidence_register
 
 <!-- cell: ch08-final-evidence role: handoff output: final-analysis-evidence -->
 ```python
+def round6(value):
+    return round(float(value), 6)
+
+
+hourly_peak_value = hourly_demand["mean_rentals"].max()
+hourly_peak = (
+    hourly_demand.loc[np.isclose(hourly_demand["mean_rentals"], hourly_peak_value)]
+    .sort_values("hr")
+    .iloc[0]
+)
+
+workingday_peaks = []
+for workingday, group in workingday_hourly.groupby("workingday", sort=True):
+    peak_value = group["mean_rentals"].max()
+    peak = group.loc[np.isclose(group["mean_rentals"], peak_value)].sort_values("hr").iloc[0]
+    workingday_peaks.append({
+        "workingday": int(workingday),
+        "workingdayLabel": peak["workingday_label"],
+        "peakHour": int(peak["hr"]),
+        "meanRentals": round6(peak["mean_rentals"]),
+        "medianRentals": round6(peak["median_rentals"]),
+        "observations": int(peak["observations"]),
+    })
+
+season_evidence = (
+    analysis_rides
+    .groupby(["season", "season_label"], as_index=False)
+    .agg(observations=("cnt", "size"), mean_rentals=("cnt", "mean"), median_rentals=("cnt", "median"))
+    .sort_values("season")
+)
+weather_evidence = (
+    analysis_rides
+    .groupby(["weathersit", "weather_label"], as_index=False)
+    .agg(observations=("cnt", "size"), mean_rentals=("cnt", "mean"), median_rentals=("cnt", "median"))
+    .sort_values("weathersit")
+)
+
+casual_total = int(analysis_rides["casual"].sum())
+registered_total = int(analysis_rides["registered"].sum())
+two_group_total = casual_total + registered_total
+
 final_analysis_evidence = {
     "contract_version": "python-data-tools-v1",
+    "dataset_sha256": DATA_SHA256,
+    "environment": {"python": "3.12.13", "packages": observed_versions},
     "question": "时间、工作日、季节、天气和用户构成怎样共同解释需求变化？",
     "source_outputs": evidence_register["output_id"].tolist(),
-    "required_dimensions": ["时间", "工作日", "季节", "天气", "用户构成"],
+    "evidence": {
+        "time": {
+            "peakHour": int(hourly_peak["hr"]),
+            "meanRentals": round6(hourly_peak["mean_rentals"]),
+            "observations": int(hourly_peak["observations"]),
+            "unit": "每小时租车次数",
+            "aggregation": "按 hr 的 cnt 均值",
+            "tieRule": "并列时选择较早小时",
+            "limitation": "混合了年份、季节、天气和日期类型",
+        },
+        "workingDay": {
+            "groups": workingday_peaks,
+            "aggregation": "按 workingday 与 hr 的 cnt 均值/中位数",
+            "limitation": "分组关联不能证明工作日状态造成需求差异",
+        },
+        "season": {
+            "groups": [
+                {
+                    "season": int(row.season),
+                    "seasonLabel": row.season_label,
+                    "observations": int(row.observations),
+                    "meanRentals": round6(row.mean_rentals),
+                    "medianRentals": round6(row.median_rentals),
+                }
+                for row in season_evidence.itertuples(index=False)
+            ],
+            "limitation": "季节与年份、天气和日期类型共同变化",
+        },
+        "weather": {
+            "groups": [
+                {
+                    "weathersit": int(row.weathersit),
+                    "weatherLabel": row.weather_label,
+                    "observations": int(row.observations),
+                    "meanRentals": round6(row.mean_rentals),
+                    "medianRentals": round6(row.median_rentals),
+                }
+                for row in weather_evidence.itertuples(index=False)
+            ],
+            "limitation": "少数组和共同变化变量限制解释，相关不代表因果",
+        },
+        "riderComposition": {
+            "casualRentals": casual_total,
+            "registeredRentals": registered_total,
+            "casualShare": round6(casual_total / two_group_total),
+            "registeredShare": round6(registered_total / two_group_total),
+            "unit": "累计租车次数及两类总和份额",
+            "limitation": "累计次数不是独立用户人数",
+        },
+        "relationships": {
+            "method": "pearson",
+            "withCnt": {
+                name: round(float(correlation_matrix.loc[name, "cnt"]), 8)
+                for name in ["temp", "hum", "windspeed"]
+            },
+            "limitation": "Pearson 只描述线性关联；相关不代表因果",
+        },
+    },
     "claim_template": ["观察", "证据", "解释", "限制"],
     "excludes": ["预测", "因果识别", "显著性判断", "数据清洗"],
     "handoff_route": "/data-lab",

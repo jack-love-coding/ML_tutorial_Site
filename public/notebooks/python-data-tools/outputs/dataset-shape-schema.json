@@ -1,0 +1,74 @@
+{
+  "all_counts_reconcile": true,
+  "column_order": [
+    "instant",
+    "dteday",
+    "season",
+    "yr",
+    "mnth",
+    "hr",
+    "holiday",
+    "weekday",
+    "workingday",
+    "weathersit",
+    "temp",
+    "atemp",
+    "hum",
+    "windspeed",
+    "casual",
+    "registered",
+    "cnt"
+  ],
+  "columns": 17,
+  "contractVersion": "python-data-tools-v1",
+  "datasetSha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+  "dtypes": {
+    "atemp": "float64",
+    "casual": "int64",
+    "cnt": "int64",
+    "dteday": "datetime64[us]",
+    "holiday": "int64",
+    "hr": "int64",
+    "hum": "float64",
+    "instant": "int64",
+    "mnth": "int64",
+    "registered": "int64",
+    "season": "int64",
+    "temp": "float64",
+    "weathersit": "int64",
+    "weekday": "int64",
+    "windspeed": "float64",
+    "workingday": "int64",
+    "yr": "int64"
+  },
+  "field_roles": {
+    "calendar_category": [
+      "season",
+      "holiday",
+      "workingday"
+    ],
+    "count": [
+      "casual",
+      "registered",
+      "cnt"
+    ],
+    "identifier_time": [
+      "instant",
+      "dteday",
+      "yr",
+      "mnth",
+      "hr",
+      "weekday"
+    ],
+    "normalized_continuous": [
+      "temp",
+      "atemp",
+      "hum",
+      "windspeed"
+    ],
+    "weather_category": [
+      "weathersit"
+    ]
+  },
+  "rows": 17379
+}

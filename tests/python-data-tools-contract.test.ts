@@ -101,6 +101,8 @@ const lockedRequirements = [
   'plotly==6.9.0',
   'nbformat==5.10.4',
   'jupyterlab==4.6.1',
+  'nbclient==0.11.0',
+  'ipykernel==7.3.0',
 ]
 const lockedEnvironmentProvenance = {
   generatedAt: '2026-07-14',
@@ -113,9 +115,9 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
   ])
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
-  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–2 are completed slices; Python Data Tools Stage 3 is not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
-  const expectedFocus = '**Current focus:** Review the completed eight-chapter Python Data Tools Chinese master and scope Stage 3 Notebook/output generation without changing the current `python-notebook` runtime lesson, route, checkpoints, or progress behavior.'
-  const expectedNextCommand = 'Review Python Data Tools Stage 2, then specify Stage 3 Notebook and authoritative-output generation before implementation. Keep English/runtime migration, Phase 24B Homepage Focus, and Phase 24C Spine progressive disclosure out of Stage 3.'
+  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 are completed slices; Python Data Tools Stage 4 is not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
+  const expectedFocus = '**Current focus:** Review the completed Python Data Tools Chinese Notebook and authoritative outputs, then specify Stage 4 English parity and runtime refactor without changing routes, checkpoints, or progress behavior before its acceptance criteria are approved.'
+  const expectedNextCommand = 'Review Python Data Tools Stage 3, then specify Stage 4 English parity and runtime refactor before implementation. Keep Stage 5 browser/consistency closeout, Phase 24B Homepage Focus, and Phase 24C Spine progressive disclosure out of Stage 4.'
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
   assert.match(state, /^\*\*Updated:\*\* 2026-07-14$/m)
@@ -126,13 +128,14 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
   assert.match(state, /Math-to-Code pilot[^\n]*completed/i)
   assert.match(state, /Python Data Tools Stage 1 is complete/i)
   assert.match(state, /Python Data Tools Stage 2 is complete/i)
-  assert.match(state, /Python Data Tools Stage 3 is not started/i)
+  assert.match(state, /Python Data Tools Stage 3 completed/i)
+  assert.match(state, /Python Data Tools Stage 4 is not started/i)
   assert.match(state, /V3\.1 as a whole remains in progress/i)
   assert.doesNotMatch(state, /V3\.1 (?:as a whole )?is (?:fully )?complete/i)
-  assert.match(state, /without changing the current `python-notebook` runtime lesson, route, checkpoints, or progress behavior/i)
+  assert.match(state, /without changing runtime lesson content/i)
   assert.match(state, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
   assert.ok(state.includes(expectedNextCommand))
-  assert.match(state, /Keep English\/runtime migration, Phase 24B Homepage Focus, and Phase 24C Spine progressive disclosure out of Stage 3\./)
+  assert.match(state, /Keep Stage 5 browser\/consistency closeout, Phase 24B Homepage Focus, and Phase 24C Spine progressive disclosure out of Stage 4\./)
 
   const stageLabels = [
     'Data and execution contract',
@@ -151,8 +154,9 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
   )
   assert.match(stageLines[0], /^1\. \*\*Data and execution contract\*\* — Completed —/)
   assert.match(stageLines[1], /^2\. \*\*Eight-chapter Chinese master\*\* — Completed —/)
-  for (const [index, line] of stageLines.slice(2).entries()) {
-    assert.match(line, new RegExp(`^${index + 3}\\. \\*\\*${stageLabels[index + 2]}\\*\\* — Planned —`))
+  assert.match(stageLines[2], /^3\. \*\*Notebook and real chart assets\*\* — Completed —/)
+  for (const [index, line] of stageLines.slice(3).entries()) {
+    assert.match(line, new RegExp(`^${index + 4}\\. \\*\\*${stageLabels[index + 3]}\\*\\* — Planned —`))
   }
   assert.match(roadmap, /Preserve current lessons, routes, checkpoints, and Progress V1\/V2 storage/i)
   assert.match(roadmap, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
@@ -236,6 +240,10 @@ test('Python data tools environment locks dependencies and binds the verified da
   assert.deepEqual(environment, {
     contractVersion: 'python-data-tools-v1',
     python: '3.12.13',
+    executionPackages: {
+      nbclient: '0.11.0',
+      ipykernel: '7.3.0',
+    },
     generatedAt: '2026-07-14',
     generatedOn: 'darwin-arm64',
     dataset: {

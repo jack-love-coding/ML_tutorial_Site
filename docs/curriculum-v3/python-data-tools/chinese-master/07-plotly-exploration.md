@@ -34,6 +34,12 @@ plotly_data = workingday_hourly.loc[
 ].copy()
 
 plotly_data = plotly_data.sort_values(["workingday", "hr"])
+default_filter_state = {
+    "hours": [0, 23],
+    "workingday_values": [0, 1],
+    "metric": "mean_rentals",
+    "hidden_groups": [],
+}
 plotly_data.head()
 ```
 
@@ -115,12 +121,6 @@ rider_fig
 
 <!-- cell: ch07-default-filter role: compute -->
 ```python
-default_filter_state = {
-    "hours": [0, 23],
-    "workingday_values": [0, 1],
-    "metric": "mean_rentals",
-    "hidden_groups": [],
-}
 default_filter_state
 ```
 

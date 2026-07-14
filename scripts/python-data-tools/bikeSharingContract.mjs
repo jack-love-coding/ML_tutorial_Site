@@ -43,6 +43,8 @@ const PYTHON_DATA_TOOLS_REQUIREMENTS = Object.freeze([
   'plotly==6.9.0',
   'nbformat==5.10.4',
   'jupyterlab==4.6.1',
+  'nbclient==0.11.0',
+  'ipykernel==7.3.0',
 ])
 const PYTHON_DATA_TOOLS_CELL_ROLES = Object.freeze([
   'question',
@@ -475,6 +477,16 @@ export function validatePythonDataToolsArtifacts({
   if (environmentRecord.python !== '3.12.13') {
     issues.push(`Environment python: expected 3.12.13; observed ${formatDiagnosticValue(environmentRecord.python)}`)
   }
+  const expectedExecutionPackages = {
+    nbclient: '0.11.0',
+    ipykernel: '7.3.0',
+  }
+  if (!isRecord(environmentRecord.executionPackages)) {
+    issues.push('Environment executionPackages must be a JSON object')
+  } else if (!arraysEqual(Object.keys(environmentRecord.executionPackages), Object.keys(expectedExecutionPackages))
+    || Object.entries(expectedExecutionPackages).some(([name, version]) => environmentRecord.executionPackages[name] !== version)) {
+    issues.push(`Environment executionPackages: expected ${formatDiagnosticValue(expectedExecutionPackages)}; observed ${formatDiagnosticValue(environmentRecord.executionPackages)}`)
+  }
   for (const [property, expected] of Object.entries({
     generatedAt: '2026-07-14',
     generatedOn: 'darwin-arm64',
@@ -509,7 +521,7 @@ export function validatePythonDataToolsArtifacts({
   } else {
     const expectedRequirements = `${PYTHON_DATA_TOOLS_REQUIREMENTS.join('\n')}\n`
     if (requirements !== expectedRequirements) {
-      issues.push('Requirements bytes must exactly contain the seven ordered pins with LF separators and exactly one trailing LF')
+      issues.push('Requirements bytes must exactly contain the nine ordered pins with LF separators and exactly one trailing LF')
     }
     const pins = requirements.replace(/(?:\r\n|\n|\r)+$/, '').split(/\r?\n/)
     const width = Math.max(pins.length, PYTHON_DATA_TOOLS_REQUIREMENTS.length)

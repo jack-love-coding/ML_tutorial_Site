@@ -1,0 +1,19 @@
+{
+  "family": "Noto Sans SC",
+  "variant": "Variable weight, rendered at 400",
+  "upstreamProject": "Google Fonts",
+  "upstreamRepository": "https://github.com/google/fonts",
+  "upstreamCommit": "ec0464b978de222073645d6d3366f3fdf03376d8",
+  "downloadUrl": "https://raw.githubusercontent.com/google/fonts/ec0464b978de222073645d6d3366f3fdf03376d8/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
+  "retrievedAt": "2026-07-14",
+  "license": {
+    "id": "OFL-1.1",
+    "path": "/fonts/python-data-tools/OFL.txt"
+  },
+  "file": {
+    "publicPath": "/fonts/python-data-tools/NotoSansSC-Variable.ttf",
+    "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+    "bytes": 17772300
+  },
+  "usage": "Deterministic Simplified Chinese labels in Python Data Tools PNG assets."
+}

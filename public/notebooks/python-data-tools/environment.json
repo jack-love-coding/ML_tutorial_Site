@@ -1,6 +1,10 @@
 {
   "contractVersion": "python-data-tools-v1",
   "python": "3.12.13",
+  "executionPackages": {
+    "nbclient": "0.11.0",
+    "ipykernel": "7.3.0"
+  },
   "generatedAt": "2026-07-14",
   "generatedOn": "darwin-arm64",
   "dataset": {

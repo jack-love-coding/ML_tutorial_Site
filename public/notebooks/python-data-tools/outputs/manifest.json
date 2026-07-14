@@ -1,0 +1,113 @@
+{
+  "contractVersion": "python-data-tools-v1",
+  "dataset": {
+    "publicPath": "/datasets/python-data-tools/bike-sharing-hour.csv",
+    "sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f"
+  },
+  "environment": {
+    "path": "/notebooks/python-data-tools/environment.json",
+    "sha256": "4542e7faa2effd3070dc3ab479640f4b4a7c8ea2e8f0479a4223b8a20001713d"
+  },
+  "font": {
+    "path": "/fonts/python-data-tools/NotoSansSC-Variable.ttf",
+    "sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da"
+  },
+  "generatedAt": "2026-07-14",
+  "generator": {
+    "path": "scripts/python-data-tools/generate-authoritative-outputs.py",
+    "sha256": "4e50f1b3a569096dbd631fe1308b8bf7058c82d67097f5fc4b88b562baaea63a"
+  },
+  "notebook": {
+    "publicPath": "/notebooks/python-data-tools/python-data-tools-bike-sharing.zh-CN.ipynb",
+    "sha256": "a0a2434528bd88801af65fbc8eb33cf029520b2e52a3e049232c2cca3c956800"
+  },
+  "outputs": [
+    {
+      "bytes": 1335,
+      "cellId": "output-dataset-shape-schema",
+      "id": "dataset-shape-schema",
+      "kind": "json",
+      "publicPath": "/notebooks/python-data-tools/outputs/dataset-shape-schema.json",
+      "sha256": "2b060527ca5a378419549e8e3474ef261a1c94aa6ce8dfac09edeb07d50949a8",
+      "sourceCellId": "ch03-schema-output"
+    },
+    {
+      "alt": "折线图比较 0–23 时的平均每小时租车次数，点和连线展示日内需求结构。",
+      "bytes": 62202,
+      "cellId": "output-hourly-demand-profile",
+      "dpi": 160,
+      "fontPublicPath": "/fonts/python-data-tools/NotoSansSC-Variable.ttf",
+      "height": 768,
+      "id": "hourly-demand-profile",
+      "kind": "png",
+      "publicPath": "/notebooks/python-data-tools/outputs/hourly-demand-profile.png",
+      "sha256": "1f16a836a022e7615fe737d0f2283cf7d6c10bc305012f7525cfa93be43846bd",
+      "sourceCellId": "ch05-hourly-line",
+      "width": 1440
+    },
+    {
+      "bytes": 10352,
+      "cellId": "output-workingday-comparison",
+      "id": "workingday-comparison",
+      "kind": "json",
+      "publicPath": "/notebooks/python-data-tools/outputs/workingday-comparison.json",
+      "sha256": "7c9edd9b0cbb12ee8a0b509af30ba0f708a1b3da1b71f07c63554c80d4f07249",
+      "sourceCellId": "ch04-workingday-groups"
+    },
+    {
+      "alt": "双面板箱线图分别比较四季和天气状况下的每小时租车需求分布。",
+      "bytes": 80049,
+      "cellId": "output-season-weather-distribution",
+      "dpi": 160,
+      "fontPublicPath": "/fonts/python-data-tools/NotoSansSC-Variable.ttf",
+      "height": 800,
+      "id": "season-weather-distribution",
+      "kind": "png",
+      "publicPath": "/notebooks/python-data-tools/outputs/season-weather-distribution.png",
+      "sha256": "f8bdbc1c3784cbd3f85bb938b70501e97fe3263d0d08acbaecd75ce104f9639d",
+      "sourceCellId": "ch06-season-boxplot",
+      "width": 2240
+    },
+    {
+      "alt": "从零开始的双柱图比较临时用户与注册用户累计租车次数，柱顶标注精确数值。",
+      "bytes": 32387,
+      "cellId": "output-rider-composition",
+      "dpi": 160,
+      "fontPublicPath": "/fonts/python-data-tools/NotoSansSC-Variable.ttf",
+      "height": 768,
+      "id": "rider-composition",
+      "kind": "png",
+      "publicPath": "/notebooks/python-data-tools/outputs/rider-composition.png",
+      "sha256": "b7e03b5ead69c2ba89b00a67fc0695626e0838f166c5237fefcd593bc6252576",
+      "sourceCellId": "ch05-rider-bars",
+      "width": 1120
+    },
+    {
+      "bytes": 1636,
+      "cellId": "output-pearson-correlation-matrix",
+      "id": "pearson-correlation-matrix",
+      "kind": "json",
+      "publicPath": "/notebooks/python-data-tools/outputs/pearson-correlation-matrix.json",
+      "sha256": "7f44c8cb74f91fe80858f80b2dd1fe86d0f7fb5cac2e38afb9969202722ac3e7",
+      "sourceCellId": "ch06-correlation-matrix"
+    },
+    {
+      "bytes": 24027,
+      "cellId": "output-plotly-hourly-explorer",
+      "id": "plotly-hourly-explorer",
+      "kind": "plotly-json",
+      "publicPath": "/notebooks/python-data-tools/outputs/plotly-hourly-explorer.plotly.json",
+      "sha256": "995e9267241cda7b9b3abc84bb89c103e40cc271253548eebc399d51fdb616fd",
+      "sourceCellId": "ch07-hourly-explorer"
+    },
+    {
+      "bytes": 4276,
+      "cellId": "output-final-analysis-evidence",
+      "id": "final-analysis-evidence",
+      "kind": "json",
+      "publicPath": "/notebooks/python-data-tools/outputs/final-analysis-evidence.json",
+      "sha256": "e2defab164721cbacc943509eaf9bd89ee049835f1ed258351dd5f9c88e88ad9",
+      "sourceCellId": "ch08-final-evidence"
+    }
+  ]
+}
