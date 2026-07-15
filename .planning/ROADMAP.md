@@ -738,7 +738,7 @@
 
 ## V3.1 Minimum Mathematical Foundation
 
-**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 completed; Python Data Tools Stage 4 specification and implementation context approved, with planning not started.
+**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 completed; Python Data Tools Stage 4 implementation plan independently verified as 12 plans across 9 waves, with execution awaiting explicit approval.
 
 **Decision boundary:**
 - Start only from separately reviewed acceptance criteria for the V3.1 waves declared in the generated implementation backlog.
@@ -752,7 +752,7 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 1. **Data and execution contract** — Completed — verified UCI snapshot, typed chapter/output contract, environment pins, offline validation; no runtime lesson changes.
 2. **Eight-chapter Chinese master** — Completed — complete Chinese teaching flow Notebook/NumPy/Pandas/Matplotlib/Seaborn/Plotly/final report; no runtime lesson changes.
 3. **Notebook and real chart assets** — Completed — clean-kernel ipynb, exact outputs, real Matplotlib/Seaborn assets, deterministic Plotly JSON.
-4. **English parity and runtime refactor** — Current — specification and implementation context approved; create and approve the implementation plan before migrating the existing `python-notebook` route.
+4. **English parity and runtime refactor** — Current — specification, context, and 12-plan implementation plan independently verified; execution awaits explicit approval and begins with content authority, the pure route resolver, and the blocking Plotly legitimacy checkpoint before installation.
 5. **Consistency, browser, and build validation** — Planned — data/code/output parity, bilingual, responsive browser, production/Pages.
 
 ---
