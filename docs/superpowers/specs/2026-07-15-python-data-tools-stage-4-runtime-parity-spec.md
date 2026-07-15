@@ -1,8 +1,8 @@
 # Python 数据分析工具课程：阶段四英文对齐与运行时迁移规格
 
 - 日期：2026-07-15
-- 状态：已确认，待讨论实现方案
-- 范围：阶段四——英文语义对齐、八章网页迁移、权威输出接线与形成性练习
+- 状态：已确认，待制定实施计划
+- 范围：阶段四——英文语义对齐、八章网页迁移、权威输出接线与静态教学提示
 - 前置契约：`python-data-tools-v1`
 - 前置交付：八章中文母版、已执行中文 Notebook、8 个权威输出及 manifest
 - 现有模块：`python-notebook`
@@ -12,7 +12,7 @@
 
 ## 1. 目标
 
-把 `/learn/python-notebook` 从当前 5 章旧课程迁移为与 `python-data-tools-v1` 一致的 8 章双语共享单车数据分析课程，使中文、英文、代码、权威输出、Notebook 下载、5 个形成性练习和模块 checkpoint 在同一页面闭环中可用，同时保留旧深链与既有 Progress 数据。
+把 `/learn/python-notebook` 从当前 5 章旧课程迁移为与 `python-data-tools-v1` 一致的 8 章双语共享单车数据分析课程，使中文、英文、代码、权威输出、Notebook 下载、5 个静态教学提示和模块 checkpoint 在同一页面闭环中可用，同时保留旧深链与既有 Progress 数据。
 
 ## 2. 当前基线
 
@@ -20,19 +20,19 @@
 
 阶段一至三已经提供：
 
-- 8 个稳定章节 ID、5 个练习挂载点、8 个权威输出 ID 和描述性统计边界；
+- 8 个稳定章节 ID、5 个教学停顿挂载点、8 个权威输出 ID 和描述性统计边界；
 - 8 章中文母版与 48 个稳定来源 code cell；
 - 经过干净 kernel 执行的中文 Notebook；
 - 3 个真实 PNG、4 个 JSON 和 1 个确定性 Plotly Figure JSON；
 - 绑定数据、环境、字体、Notebook、输出、cell 与生成器 hash 的 manifest。
 
-阶段四只迁移网页内容和本地交互。阶段五仍负责完整浏览器矩阵、移动端视觉收口和网页—Notebook—数据的端到端一致性审计。
+阶段四只迁移网页内容、权威输出展示和受控 Plotly 交互。阶段五仍负责完整浏览器矩阵、移动端视觉收口和网页—Notebook—数据的端到端一致性审计。
 
 ## 3. 锁定需求
 
 ### R1. 八章英文语义对齐
 
-阶段四必须为 8 章中文课程提供完整英文语义对齐。英文必须覆盖核心问题、概念解释、所有代码块、代码前后解释、数值证据、误区、限制、5 个练习反馈和 Data Lab 衔接；不能只翻译标题或压缩成摘要。
+阶段四必须为 8 章中文课程提供完整英文语义对齐。英文必须覆盖核心问题、概念解释、所有代码块、代码前后解释、数值结果、误区、限制、5 个教学提示及其参考思路和 Data Lab 衔接；不能只翻译标题或压缩成摘要。
 
 - 当前：typed contract 只有英文标题与核心问题，完整正文只有中文母版；旧 5 章运行时英文与新课程不等价。
 - 目标：8 章每个可见教学块都有非空 `LocalizedCopy`，中英文使用相同章节、代码、变量、输出 ID 和学习顺序。
@@ -62,15 +62,15 @@
 - 目标：每个输出只在契约所属章节出现；网页显示的精确数值可追溯到 manifest 绑定的文件；Plotly 使用已提交 Figure JSON；Notebook 下载指向已执行中文文件。
 - 验收：结构测试确认 8 个输出 ID 唯一消费、所属章节正确、所有路径经 base-path helper 解析，且页面源码没有手抄 Stage 3 精确统计值或另一组输出路径。
 
-当 manifest 或单个资源加载失败时，课程正文仍可阅读：相关面板显示双语错误说明和已有文字/表格 fallback，不显示无限加载、空白面板或损坏图片图标。重复或并行的只读资源加载不得改变练习、checkpoint 或 Progress 状态。
+当 manifest 或单个资源加载失败时，课程正文仍可阅读：相关面板显示双语错误说明和已有文字/表格 fallback，不显示无限加载、空白面板或损坏图片图标。重复或并行的只读资源加载不得改变教学提示、checkpoint 或 Progress 状态。
 
-### R5. 五个本地形成性练习
+### R5. 五个静态教学提示
 
-在 `numpy-foundations`、`pandas-analysis`、`matplotlib-visualization`、`seaborn-statistics` 和 `plotly-exploration` 各挂载一个与 contract kind 对应的双语练习。
+在 `numpy-foundations`、`pandas-analysis`、`matplotlib-visualization`、`seaborn-statistics` 和 `plotly-exploration` 各展示一个与 contract kind 对应的双语教学提示。
 
-- 当前：contract 和中文母版定义了 5 个练习，但 Vue 运行时尚未实现。
-- 目标：学习者提交本地选择或配置后立即看到原因、相关误区和应复看的章节/视觉；可以重置和重新作答。
-- 验收：测试确认 5 个练习 ID、kind、章节挂载和反馈完整，且 `scored=false`、`submitted=false`、`persistedToProgress=false`、`gatesChapter=false`；重复作答不会生成分数、网络请求或 localStorage 记录。
+- 当前：contract 和中文母版定义了 5 个学习停顿，但旧规格曾把它们描述为交互练习；用户已明确课程以教学为主，不需要五套专门练习控件。
+- 目标：每个停顿显示“想一想”的具体问题，并紧接着直接展示“参考思路”、相关误区和应复看的章节或视觉；不提供输入、提交、判分、重置或完成状态。
+- 验收：测试确认 5 个提示 ID、kind、章节挂载、问题、参考思路、误区和 revisit 完整，且保留 `scored=false`、`submitted=false`、`persistedToProgress=false`、`gatesChapter=false`；页面不为这些提示绑定输入控件、提交事件、网络请求或 localStorage 写入。
 
 ### R6. checkpoint 与 Progress 兼容
 
@@ -87,7 +87,7 @@
 运行时课程必须保持“使用已准备快照做描述性分析”的边界：教授 Notebook、NumPy、pandas、Matplotlib、Seaborn 和 Plotly，但不实现数据清洗、模型训练、推断统计、因果识别或浏览器 Python 执行。
 
 - 当前：旧运行时包含 sklearn 小模型；新 contract 已明确排除建模、显著性检验、p 值和置信区间，并把清洗交给 Data Lab。
-- 目标：网页正文、练习、checkpoint 和可视化都不越过 `statisticsBoundary`；最终报告保留 `/data-lab` 衔接并明确“相关不代表因果”。
+- 目标：网页正文、教学提示、checkpoint 和可视化都不越过 `statisticsBoundary`；最终报告保留 `/data-lab` 衔接并明确“相关不代表因果”。
 - 验收：内容测试拒绝 sklearn/模型训练、清洗实现、p 值/显著性结论、因果结论、Pyodide 或后端执行入口，同时确认 Data Lab 链接与限制说明存在。
 
 ### R8. 双语无障碍与静态 fallback
@@ -106,7 +106,7 @@
 - `/learn/python-notebook` 从 5 章迁移为 8 章。
 - 5 个旧章节深链的显式兼容映射和测试。
 - manifest 驱动的 PNG、JSON、Plotly 和中文 Notebook 下载。
-- 5 个本地形成性练习及即时解释反馈。
+- 5 个静态“想一想”教学提示及直接可见的参考思路。
 - 两个现有模块级 checkpoint 的内容校准与历史 Progress 兼容。
 - 双语资源错误状态、静态 fallback、键盘标签和 reduced-motion 信息保留。
 - 与本阶段变化相称的 typed contract、内容、路由、组件和结构测试。
@@ -118,7 +118,7 @@
 - sklearn、预测模型、训练或模型评估——不属于本课程的新目标。
 - 置信区间、显著性检验、p 值或因果识别——超出描述性统计契约。
 - Pyodide、Jupyter server、后端 kernel、代码上传或任意用户代码执行——当前站点仍为静态前端。
-- 新的评分、提交、章节门槛或形成性练习进度——验收交由具体教师和后续后端系统。
+- 新的评分、练习提交、章节门槛或教学提示进度——验收交由具体教师和后续后端系统。
 - Progress V3、账号、数据库或多设备同步——本阶段只保持现有兼容。
 - Phase 24B Homepage Focus、Phase 24C Spine progressive disclosure 或其他课程页面重构。
 - Stage 5 的完整浏览器矩阵、移动端视觉收口和端到端一致性审计。
@@ -127,7 +127,7 @@
 ## 5. 约束
 
 - 继续使用 Vue 3、TypeScript、现有 Router、Pinia、i18n、Markdown 安全渲染和样式 tokens，不引入 UI 框架。
-- 运行时章节与练习必须使用 typed schema，不拼接无类型对象。
+- 运行时章节与教学提示必须使用 typed schema，不拼接无类型对象。
 - 双语正文必须同时存在 `'zh-CN'` 与 `en`，公式、变量、代码和输出 ID 跨语言一致。
 - public 资源路径必须以 `/` 开头并通过 `withPublicBase` 或相邻既有模式兼容 GitHub Pages。
 - 页面不得在浏览器重新计算一套权威统计值；精确证据读取已提交输出。
@@ -144,8 +144,8 @@
 - [ ] manifest 的 8 个唯一输出均在约定章节消费，public path 兼容 GitHub Pages。
 - [ ] manifest 或单个资源缺失时显示双语错误和文字/表格 fallback，不出现空白或损坏资源占位。
 - [ ] Plotly Figure JSON 提供本地交互视图及等价静态说明；中文 Notebook 可从页面下载。
-- [ ] 5 个形成性练习唯一挂载、可重置、即时解释原因与误区。
-- [ ] 5 个练习不计分、不提交、不写 Progress、不阻挡章节且不发网络请求。
+- [ ] 5 个静态教学提示唯一挂载，均展示“想一想”、直接可见的“参考思路”、相关误区与 revisit。
+- [ ] 5 个教学提示不提供输入、提交、判分、重置或完成状态，不写 Progress、不阻挡章节且不发网络请求。
 - [ ] 两个模块级 checkpoint 的答案可由新正文推导，revisit 指向有效新章节。
 - [ ] 含旧 checkpoint attempt 的 Progress fixture 在迁移和新提交后仍保留旧记录。
 - [ ] 三个 v1 localStorage 数据源与 V2 key 未删除、重命名或批量重写。
@@ -154,7 +154,7 @@
 - [ ] 所有视觉和控件具有非空双语 label/alt/fallback，状态不只依赖颜色，键盘可操作。
 - [ ] reduced-motion 或交互不可用时，关键教学证据仍在静态内容中可读。
 - [ ] 页面源码不维护第二套中文正文、精确统计数值或输出 public path。
-- [ ] 阶段四新增结构/内容/路由/练习/兼容测试与完整 `npm test` 通过。
+- [ ] 阶段四新增结构/内容/路由/教学提示/兼容测试与完整 `npm test` 通过。
 - [ ] `npm run build` 与 `npm run build:pages` 通过；完整浏览器矩阵仍留给 Stage 5。
 - [ ] 阶段四形成独立提交，不包含 `docs/gpt_advice.md`、Data Lab generated 图片或其他无关文件。
 
@@ -175,9 +175,9 @@
 | Empty | R4 | 已覆盖 | manifest/资源缺失进入双语 fallback，不产生空白教学区。 |
 | Ordering | R4 | 已覆盖 | 输出按契约章节归属展示，不依赖对象枚举偶然顺序。 |
 | Concurrency | R4 | 已覆盖 | 重复或并行只读资源加载不复制 UI、不改变学习状态。 |
-| Adjacency | R5 | 已覆盖 | 每个 contract mount 只对应一个练习，重复挂载失败。 |
-| Empty | R5 | 已覆盖 | 必须恰好交付 5 个完整练习，缺少 prompt/feedback 失败。 |
-| Ordering | R5 | 已覆盖 | 练习跟随 contract mount 顺序和章节归属。 |
+| Adjacency | R5 | 已覆盖 | 每个 contract mount 只对应一个教学提示，重复挂载失败。 |
+| Empty | R5 | 已覆盖 | 必须恰好交付 5 个完整提示，缺少问题、参考思路、误区或 revisit 即失败。 |
+| Ordering | R5 | 已覆盖 | 教学提示跟随 contract mount 顺序和章节归属。 |
 | Idempotency | R6 | 已覆盖 | 重复加载与提交不删除或覆盖历史 attempt。 |
 | Concurrency | R6 | 已驳回 | 阶段四不新增 Progress writer，多标签页合并语义沿用现有实现；只验证没有新增写入路径。 |
 | Empty | R8 | 已覆盖 | 每个视觉、控件和 fallback 的双语可访问名称都必须非空。 |
@@ -189,8 +189,8 @@
 
 | 禁止项 | 关联需求 | 状态 | 验证方式 |
 | --- | --- | --- | --- |
-| 不得在运行时模块、组件或练习中手抄第二份中文正文、Stage 3 精确数值或输出路径。 | R1、R4 | 已解决 / test | 静态来源与唯一消费测试；具体检查文件在实现计划中落定。 |
-| 不得把 5 个形成性练习变成计分、提交、Progress 写入或章节门槛。 | R5 | 已解决 / test | 练习策略、组件事件、网络与存储副作用测试。 |
+| 不得在运行时模块、组件或教学提示中手抄第二份中文正文、Stage 3 精确数值或输出路径。 | R1、R4 | 已解决 / test | 静态来源与唯一消费测试；具体检查文件在实现计划中落定。 |
+| 不得把 5 个教学提示变成输入、计分、提交、Progress 写入、完成状态或章节门槛。 | R5 | 已解决 / test | 提示结构、组件事件、网络与存储副作用测试。 |
 | 不得把描述性相关写成因果结论，也不得引入模型训练、清洗实现或推断统计。 | R7 | 已解决 / judgment | 内容边界静态测试加语义审阅；因果措辞由人工/模型复核。 |
 | 不得删除、重命名或批量重写现有 Progress/localStorage key 或历史 attempts。 | R6 | 已解决 / test | 带历史 fixture 的兼容测试及存储 key 静态断言。 |
 | 不得引入 Pyodide、后端 kernel、文件上传或任意用户代码执行。 | R7 | 已解决 / test | 依赖、源码、网络入口和上传控件的负向断言。 |
@@ -211,17 +211,17 @@
 
 | 轮次 | 视角 | 问题 | 已锁定决策 |
 | --- | --- | --- | --- |
-| 1 | Researcher | 英文对齐、8 章迁移、旧深链、练习与 checkpoint 的目标边界是什么？ | 完整英文语义对齐；8 章替换；5 个旧深链兼容；5 个不计分练习；checkpoint 机制与历史 Progress 保留。 |
+| 1 | Researcher | 英文对齐、8 章迁移、旧深链、教学停顿与 checkpoint 的目标边界是什么？ | 完整英文语义对齐；8 章替换；5 个旧深链兼容；5 个静态教学提示；checkpoint 机制与历史 Progress 保留。 |
 | 2 | Boundary Keeper | 哪些相邻工作必须排除？ | 不生成英文 Notebook；不做清洗、建模、Pyodide、后端、Progress 扩展、Phase 24B/24C 或 Stage 5 浏览器收口。 |
 | Edge probe | Failure Analyst | 缺语言、重复章节、资源缺失、重复访问和历史 attempt 会怎样？ | 18 个适用边界全部明确覆盖或有理由驳回。 |
 | Prohibition probe | Failure Analyst | 本阶段可能悄悄变成哪些用户不希望的功能？ | 5 条禁止项全部锁定；不得出现第二来源、评分门槛、越界分析、存储破坏或浏览器代码执行。 |
 
 ## 11. 下一步
 
-下一步只讨论实现方案：英文内容的权威存放位置、8 章 runtime typed projection、专用页面/组件边界、manifest loader、Plotly renderer、5 个练习组件和旧深链映射。讨论完成并形成实施计划前，不修改运行时。
+实现方案讨论已经完成。下一步根据实现上下文制定实施计划，覆盖英文内容母版与 typed projection、专用分页页面、manifest loader、受控 Plotly renderer、5 个静态教学提示、旧深链映射和 checkpoint 兼容；实施计划确认前不修改运行时。
 
 ---
 
 *Stage: Python Data Tools Stage 4 — English Parity and Runtime Refactor*
 *Spec created: 2026-07-15*
-*Next step: implementation discussion, then plan and execute after explicit acceptance*
+*Next step: create the implementation plan, then execute after explicit acceptance*

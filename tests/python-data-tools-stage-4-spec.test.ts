@@ -6,8 +6,20 @@ const specUrl = new URL(
   '../docs/superpowers/specs/2026-07-15-python-data-tools-stage-4-runtime-parity-spec.md',
   import.meta.url,
 )
+const contextUrl = new URL(
+  '../docs/superpowers/specs/2026-07-15-python-data-tools-stage-4-implementation-context.md',
+  import.meta.url,
+)
+const discussionLogUrl = new URL(
+  '../docs/superpowers/specs/2026-07-15-python-data-tools-stage-4-discussion-log.md',
+  import.meta.url,
+)
 
-const spec = await readFile(specUrl, 'utf8')
+const [spec, context, discussionLog] = await Promise.all([
+  readFile(specUrl, 'utf8'),
+  readFile(contextUrl, 'utf8'),
+  readFile(discussionLogUrl, 'utf8'),
+])
 
 test('Stage 4 spec passes its ambiguity gate and locks eight falsifiable requirements', () => {
   assert.match(spec, /歧义分数：`0\.07`/)
@@ -27,6 +39,11 @@ test('Stage 4 spec locks the exact runtime migration and English parity boundary
   assert.match(spec, /`notebook-workflow` 到 `analysis-report`/)
   assert.match(spec, /模块 ID 与根路由未改变/)
   assert.match(spec, /英文 `\.ipynb`——阶段四只补网页英文语义对齐/)
+  assert.match(context, /专用的八章分页课程页/)
+  assert.match(context, /桌面端保留常驻目录，移动端使用可展开目录/)
+  assert.match(context, /切换语言时保留当前章节和位置/)
+  assert.match(context, /新增八个一一对应的英文 Markdown 母版/)
+  assert.match(context, /生成器提供 `--check` 模式检测漂移/)
 })
 
 test('Stage 4 spec preserves deep links, checkpoints, and all Progress stores', () => {
@@ -35,6 +52,17 @@ test('Stage 4 spec preserves deep links, checkpoints, and all Progress stores', 
   assert.match(spec, /仍有两个可提交的双语模块级 checkpoint/)
   assert.match(spec, /保留全部旧 attempt 记录/)
   assert.match(spec, /三个现有 v1 localStorage 数据源和 V2 key 均未删除、重命名或批量重写/)
+  for (const mapping of [
+    '`notebook-rhythm → notebook-workflow`',
+    '`numpy-arrays → numpy-foundations`',
+    '`pandas-tables → pandas-structures`',
+    '`sklearn-small-model → pandas-analysis`',
+    '`reproducible-handoff → analysis-report`',
+  ]) {
+    assert.ok(context.includes(mapping))
+  }
+  assert.match(context, /两个新 checkpoint 使用新 ID/)
+  assert.match(context, /前端区块命名为“课程回顾”/)
 })
 
 test('Stage 4 spec consumes all Stage 3 evidence through the manifest', () => {
@@ -43,10 +71,14 @@ test('Stage 4 spec consumes all Stage 3 evidence through the manifest', () => {
   assert.match(spec, /所有路径经 base-path helper 解析/)
   assert.match(spec, /页面源码没有手抄 Stage 3 精确统计值或另一组输出路径/)
   assert.match(spec, /manifest 或单个资源加载失败时.*双语错误说明和已有文字\/表格 fallback/s)
+  assert.match(context, /学习者界面使用“运行结果”“图表解读”“分析发现”“需要注意”/)
+  assert.match(context, /JSON 默认渲染为教学表格、关键值和解释/)
+  assert.match(context, /只保留小时范围、工作日\/非工作日分组开关、悬停精确值、缩放、重置和当前筛选摘要/)
+  assert.match(context, /不得出现整页错误或无限自动重试/)
 })
 
-test('Stage 4 spec fixes five exercises as local unscored feedback', () => {
-  assert.match(spec, /在 `numpy-foundations`、`pandas-analysis`、`matplotlib-visualization`、`seaborn-statistics` 和 `plotly-exploration` 各挂载一个/)
+test('Stage 4 spec keeps five learning pauses as static teaching prompts', () => {
+  assert.match(spec, /在 `numpy-foundations`、`pandas-analysis`、`matplotlib-visualization`、`seaborn-statistics` 和 `plotly-exploration` 各展示一个/)
   for (const policy of [
     'scored=false',
     'submitted=false',
@@ -55,7 +87,9 @@ test('Stage 4 spec fixes five exercises as local unscored feedback', () => {
   ]) {
     assert.ok(spec.includes(`\`${policy}\``))
   }
-  assert.match(spec, /重复作答不会生成分数、网络请求或 localStorage 记录/)
+  assert.match(spec, /不提供输入、提交、判分、重置或完成状态/)
+  assert.match(spec, /直接展示“参考思路”、相关误区和应复看的章节或视觉/)
+  assert.match(context, /教学提示没有输入、提交、正确\/错误、判分、重置、完成状态、门槛、存储或网络请求/)
 })
 
 test('Stage 4 spec resolves edge and prohibition coverage without scope creep', () => {
@@ -66,4 +100,10 @@ test('Stage 4 spec resolves edge and prohibition coverage without scope creep', 
   assert.match(spec, /不得引入 Pyodide、后端 kernel、文件上传或任意用户代码执行/)
   assert.match(spec, /Stage 5 的完整浏览器矩阵、移动端视觉收口和端到端一致性审计/)
   assert.match(spec, /Phase 24B Homepage Focus、Phase 24C Spine progressive disclosure/)
+  assert.match(context, /<canonical_refs>/)
+  assert.match(context, /`src\/components\/LinearRegressionPagedLesson\.vue`/)
+  assert.match(context, /更多交互练习、实战任务和练习进度体系/)
+  assert.match(context, /Progress V3、多设备同步或现有 Progress 信息架构重构/)
+  assert.match(discussionLog, /仅作决策审计/)
+  assert.match(discussionLog, /五套可输入、提交或重置的形成性练习 \| \|/)
 })
