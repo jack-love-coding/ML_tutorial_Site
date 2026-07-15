@@ -115,9 +115,9 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
   ])
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
-  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 are completed slices; Python Data Tools Stage 4 is not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
-  const expectedFocus = '**Current focus:** Review the completed Python Data Tools Chinese Notebook and authoritative outputs, then specify Stage 4 English parity and runtime refactor without changing routes, checkpoints, or progress behavior before its acceptance criteria are approved.'
-  const expectedNextCommand = 'Review Python Data Tools Stage 3, then specify Stage 4 English parity and runtime refactor before implementation. Keep Stage 5 browser/consistency closeout, Phase 24B Homepage Focus, and Phase 24C Spine progressive disclosure out of Stage 4.'
+  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 are completed slices; Python Data Tools Stage 4 specification is approved and implementation is not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
+  const expectedFocus = '**Current focus:** Discuss Stage 4 implementation decisions for English parity, the eight-chapter runtime migration, manifest-driven evidence, five formative exercises, legacy deep-link redirects, and checkpoint/Progress compatibility before planning or runtime changes.'
+  const expectedNextCommand = 'Discuss Python Data Tools Stage 4 implementation decisions, then create an implementation plan before changing runtime code. Keep Stage 5 browser/consistency closeout, Phase 24B Homepage Focus, and Phase 24C Spine progressive disclosure out of Stage 4.'
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
   assert.match(state, /^\*\*Updated:\*\* 2026-07-14$/m)
@@ -129,7 +129,7 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
   assert.match(state, /Python Data Tools Stage 1 is complete/i)
   assert.match(state, /Python Data Tools Stage 2 is complete/i)
   assert.match(state, /Python Data Tools Stage 3 completed/i)
-  assert.match(state, /Python Data Tools Stage 4 is not started/i)
+  assert.match(state, /Python Data Tools Stage 4 specification is approved and implementation is not started/i)
   assert.match(state, /V3\.1 as a whole remains in progress/i)
   assert.doesNotMatch(state, /V3\.1 (?:as a whole )?is (?:fully )?complete/i)
   assert.match(state, /without changing runtime lesson content/i)
@@ -155,9 +155,8 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
   assert.match(stageLines[0], /^1\. \*\*Data and execution contract\*\* — Completed —/)
   assert.match(stageLines[1], /^2\. \*\*Eight-chapter Chinese master\*\* — Completed —/)
   assert.match(stageLines[2], /^3\. \*\*Notebook and real chart assets\*\* — Completed —/)
-  for (const [index, line] of stageLines.slice(3).entries()) {
-    assert.match(line, new RegExp(`^${index + 4}\\. \\*\\*${stageLabels[index + 3]}\\*\\* — Planned —`))
-  }
+  assert.match(stageLines[3], /^4\. \*\*English parity and runtime refactor\*\* — Current —/)
+  assert.match(stageLines[4], /^5\. \*\*Consistency, browser, and build validation\*\* — Planned —/)
   assert.match(roadmap, /Preserve current lessons, routes, checkpoints, and Progress V1\/V2 storage/i)
   assert.match(roadmap, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
   assert.match(roadmap, /preserves? the existing `python-notebook` ID and `\/learn\/python-notebook` route/i)

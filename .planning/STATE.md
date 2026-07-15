@@ -1,18 +1,18 @@
 # GSD State: ML Atlas Curriculum V2
 
 **Updated:** 2026-07-14
-**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 are completed slices; Python Data Tools Stage 4 is not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 are completed slices; Python Data Tools Stage 4 specification is approved and implementation is not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Review the completed Python Data Tools Chinese Notebook and authoritative outputs, then specify Stage 4 English parity and runtime refactor without changing routes, checkpoints, or progress behavior before its acceptance criteria are approved.
+**Current focus:** Discuss Stage 4 implementation decisions for English parity, the eight-chapter runtime migration, manifest-driven evidence, five formative exercises, legacy deep-link redirects, and checkpoint/Progress compatibility before planning or runtime changes.
 
 ## Baseline
 
-- `npm test`: pass, 571 tests at the completed Stage 3 baseline.
+- `npm test`: pass, 577 tests at the approved Stage 4 specification baseline.
 - `npm run build`: pass with existing Vite large-chunk warning.
 - `npm run build:pages`: pass with existing Vite large-chunk warning.
 - Baseline details: `docs/refactor/baseline.md`.
@@ -87,6 +87,7 @@ See `.planning/codebase/`:
 - Python Data Tools Stage 1 completed the verified snapshot, typed contract, exact environment pins, and offline verifier without changing runtime lesson content.
 - Python Data Tools Stage 2 completed the eight-chapter Chinese master, stable cell/output/exercise markers, and static structure tests without changing runtime lesson content.
 - Python Data Tools Stage 3 completed the clean-kernel Chinese Notebook, eight authoritative outputs, bundled Chinese chart font, deterministic generation, offline verification, and atomic rollback coverage without changing runtime lesson content.
+- Python Data Tools Stage 4 specification approved eight falsifiable requirements, 18 resolved edge cases, and five must-NOT constraints; implementation has not started.
 - Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 - Curriculum V3.0 changed no runtime lesson, route, or Progress V1/V2 data or storage behavior.
 
@@ -683,8 +684,10 @@ See `.planning/codebase/`:
 - Python Data Tools Stage 2 is complete: it delivered the eight-chapter Chinese master, stable cell/output/exercise markers, planning calibration, and static tests without runtime changes.
 - Python Data Tools Stage 3 completed the planned asset slice; Stages 4–5 remain planned. It delivered an executed 48-code-cell Chinese Notebook, eight authoritative outputs, a pinned local Chinese chart font, deterministic regeneration, and atomic rollback coverage without runtime changes.
 - Stage 3 verification passed the static Notebook/output contract, clean regeneration and byte-equality checks, failure-injection rollback, the complete 571-test suite, and production and GitHub Pages builds.
+- Python Data Tools Stage 4 specification is approved and implementation is not started. It locks complete eight-chapter English semantic parity, runtime migration, five legacy redirects, manifest-driven evidence, five unscored exercises, checkpoint/Progress compatibility, accessibility fallbacks, and explicit non-goals.
+- Stage 4 specification verification passed 48 focused planning/contract tests and the complete 577-test suite; no runtime source changed, so production and Pages builds were not rerun for this docs-and-test-only specification commit.
 - Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Next Recommended Command
 
-Review Python Data Tools Stage 3, then specify Stage 4 English parity and runtime refactor before implementation. Keep Stage 5 browser/consistency closeout, Phase 24B Homepage Focus, and Phase 24C Spine progressive disclosure out of Stage 4.
+Discuss Python Data Tools Stage 4 implementation decisions, then create an implementation plan before changing runtime code. Keep Stage 5 browser/consistency closeout, Phase 24B Homepage Focus, and Phase 24C Spine progressive disclosure out of Stage 4.
