@@ -170,7 +170,10 @@ function toggleGroup(id: PlotlyGroupOption['id'], event: Event) {
 }
 
 function localizedFigure() {
-  const figure = structuredClone(props.result.figure)
+  // Loader output is immutable JSON, but Vue wraps nested props in reactive
+  // proxies. structuredClone rejects those proxies in browsers, so derive the
+  // localized data and layout without mutating or cloning the prop container.
+  const figure = props.result.figure
   const [groupLabel, hourLabel, meanLabel, medianLabel, observationsLabel] = hoverLabels.value
   const data = groupOptions.value.map((group) => {
     const trace = figure.data[group.traceIndex] ?? {}
