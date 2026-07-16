@@ -74,3 +74,18 @@ test('AI Overview uses immediate local formative feedback while other modules st
   assert.match(formativeHeader, /mode === 'formative'/)
   assert.doesNotMatch(formativeHeader, /答对|correct|score|submit/i)
 })
+
+test('Python course review changes presentation while retaining the existing writer boundary', () => {
+  const componentSource = read('src/components/AlgorithmCheckpointQuiz.vue')
+  const algorithmViewSource = read('src/views/AlgorithmView.vue')
+
+  assert.match(componentSource, /mode === 'course-review'/)
+  assert.match(componentSource, /课程回顾|Course Review/)
+  assert.match(componentSource, /提交回顾|Submit review/)
+  assert.match(componentSource, /`\/learn\/\$\{props\.moduleSlug\}\/\$\{checkpoint\.revisitChapterId\}`/)
+  assert.doesNotMatch(componentSource, /saveAlgorithmProgress|appendAlgorithmQuizAttempt|markAlgorithmModuleComplete/)
+
+  assert.match(algorithmViewSource, /:mode="isPythonNotebookPage \? 'course-review' : 'scored'"/)
+  assert.match(algorithmViewSource, /@submit="onAlgorithmQuizSubmit"/)
+  assert.equal((algorithmViewSource.match(/function onAlgorithmQuizSubmit/g) ?? []).length, 1)
+})

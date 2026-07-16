@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { messages } from '../src/i18n/messages.ts'
 
 const root = new URL('../', import.meta.url)
 
@@ -74,6 +75,31 @@ test('Python notebook module shallowly registers the generated eight-chapter dat
   assert.doesNotMatch(moduleSource, /sklearn|train_test_split|LinearRegression|mean_absolute_error/)
   assert.doesNotMatch(moduleSource, /https?:\/\//)
   assert.doesNotMatch(moduleSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
+})
+
+test('Python notebook locale metadata publishes the exact eight current section labels', () => {
+  const expectedKeys = [
+    'notebookWorkflow',
+    'numpyFoundations',
+    'pandasStructures',
+    'pandasAnalysis',
+    'matplotlibVisualization',
+    'seabornStatistics',
+    'plotlyExploration',
+    'analysisReport',
+  ]
+
+  for (const locale of ['zh-CN', 'en']) {
+    const metadata = messages[locale].modules.pythonNotebook
+    assert.deepEqual(Object.keys(metadata.sections), expectedKeys)
+    assert.equal(metadata.title.trim().length > 0, true)
+    assert.equal(metadata.kicker, 'Python Data Tools')
+    assert.equal(metadata.intro.trim().length > 0, true)
+    assert.equal(metadata.summary.trim().length > 0, true)
+    for (const section of Object.values(metadata.sections)) {
+      assert.equal(section.title.trim().length > 0, true)
+    }
+  }
 })
 
 test('Housing project module covers CSV to review workflow with centralized references', () => {

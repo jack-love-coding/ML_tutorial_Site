@@ -23,6 +23,10 @@ import { resolveCanonicalLearnRoute } from '../src/curriculum/routes.ts'
 import { curriculumSpineRequiredModuleIds } from '../src/curriculum/spine.ts'
 import { curriculumTracks } from '../src/curriculum/tracks.ts'
 import { getNavigationAriaCurrent } from '../src/components/navigation/types.ts'
+import {
+  legacyPythonDataToolsChapterMap,
+  resolvePythonDataToolsChapter,
+} from '../src/utils/pythonDataToolsRoutes.ts'
 
 const root = new URL('../', import.meta.url)
 
@@ -164,14 +168,33 @@ test('router wires canonical routes while preserving legacy deep links', () => {
   const linearChapterIndex = routerSource.indexOf("path: '/learn/linear-regression/:chapterId'")
   const logisticChapterIndex = routerSource.indexOf("path: '/learn/logistic-regression/:chapterId'")
   const cnnChapterIndex = routerSource.indexOf("path: '/learn/cnn-visualization/:chapterId'")
+  const pythonRootIndex = routerSource.indexOf("path: '/learn/python-notebook'")
+  const pythonChapterIndex = routerSource.indexOf("path: '/learn/python-notebook/:chapterId'")
   const genericLessonIndex = routerSource.indexOf("path: '/learn/:moduleId/:lessonId'")
 
   assert.ok(linearChapterIndex > -1 && linearChapterIndex < genericLessonIndex)
   assert.ok(logisticChapterIndex > -1 && logisticChapterIndex < genericLessonIndex)
   assert.ok(cnnChapterIndex > -1 && cnnChapterIndex < genericLessonIndex)
+  assert.ok(pythonRootIndex > -1 && pythonRootIndex < pythonChapterIndex)
+  assert.ok(pythonChapterIndex < genericLessonIndex)
 
   assert.match(routerSource, /path: '\/math-lab\/modules\/:moduleId'/)
   assert.match(routerSource, /path: '\/data-lab\/modules\/:moduleId'/)
+})
+
+test('Python legacy curriculum links resolve exactly once to current canonical chapters', () => {
+  assert.deepEqual(Object.entries(legacyPythonDataToolsChapterMap), [
+    ['notebook-rhythm', 'notebook-workflow'],
+    ['numpy-arrays', 'numpy-foundations'],
+    ['pandas-tables', 'pandas-structures'],
+    ['sklearn-small-model', 'pandas-analysis'],
+    ['reproducible-handoff', 'analysis-report'],
+  ])
+
+  for (const [legacyId, currentId] of Object.entries(legacyPythonDataToolsChapterMap)) {
+    assert.deepEqual(resolvePythonDataToolsChapter(legacyId), { kind: 'legacy', id: currentId })
+    assert.deepEqual(resolvePythonDataToolsChapter(currentId), { kind: 'current', id: currentId })
+  }
 })
 
 test('app shell delegates header and controlled navigation rendering', () => {

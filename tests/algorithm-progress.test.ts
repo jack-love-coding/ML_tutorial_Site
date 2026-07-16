@@ -19,6 +19,12 @@ import {
   setLastVisitedAlgorithmModule,
   shouldCompleteAlgorithmModule,
 } from '../src/utils/algorithmProgress.ts'
+import { dataLabProgressStorageKey } from '../src/modules/data-lab/utils/progress.ts'
+import { mathLabProgressStorageKey } from '../src/modules/math-lab/utils/progress.ts'
+import {
+  learningProgressV2MigrationKey,
+  learningProgressV2StorageKey,
+} from '../src/curriculum/progress.ts'
 
 const root = new URL('../', import.meta.url)
 
@@ -68,6 +74,19 @@ test('progress modules share one storage parsing helper', () => {
     assert.doesNotMatch(source, /JSON\.parse/, `${path} should not duplicate JSON parsing`)
     assert.doesNotMatch(source, /JSON\.stringify/, `${path} should not duplicate JSON serialization`)
   }
+})
+
+test('all existing Progress storage keys remain exact during the Python runtime migration', () => {
+  assert.deepEqual(
+    [algorithmProgressStorageKey, mathLabProgressStorageKey, dataLabProgressStorageKey],
+    [
+      'ml-atlas:algorithm-progress:v1',
+      'ml-atlas:math-lab-progress:v1',
+      'ml-atlas:data-lab-progress:v1',
+    ],
+  )
+  assert.equal(learningProgressV2StorageKey, 'ml-atlas:learning-progress:v2')
+  assert.equal(learningProgressV2MigrationKey, 'ml-atlas:learning-progress:v2:migration')
 })
 
 test('algorithm checkpoint scoring records misconception feedback', () => {
@@ -282,4 +301,22 @@ test('algorithm modules expose bilingual module-level checkpoints with revisit c
     const source = read(`src/data/${moduleFileBySlug[slug]}.ts`)
     assert.match(source, /checkpoints:/, `${slug} module should attach checkpoints`)
   }
+})
+
+test('Python Data Tools exposes only the two current course-review checkpoint identities', () => {
+  const checkpoints = algorithmCheckpointsBySlug['python-notebook']
+
+  assert.deepEqual(
+    checkpoints.map(({ id, revisitChapterId }) => ({ id, revisitChapterId })),
+    [
+      {
+        id: 'python-data-tools-grouped-analysis-interpretation',
+        revisitChapterId: 'pandas-analysis',
+      },
+      {
+        id: 'python-data-tools-correlation-not-causation',
+        revisitChapterId: 'seaborn-statistics',
+      },
+    ],
+  )
 })
