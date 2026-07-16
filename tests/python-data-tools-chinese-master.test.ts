@@ -31,8 +31,6 @@ const requiredSections = [
   '前置连接',
   '概念与直觉',
   '逐步代码',
-  '输出与阅读',
-  '证据解释',
   '限制或误区',
   '下一步',
 ] as const
@@ -40,6 +38,47 @@ const requiredSections = [
 const cellMarkerPattern = /<!-- cell: (ch\d{2}-[a-z0-9-]+) role: ([a-z]+)(?: output: ([a-z0-9-]+))? -->\n```python\n/g
 const exerciseMarkerPattern = /<!-- exercise: ([a-z0-9-]+) -->/g
 const pythonBlockPattern = /```python\n[\s\S]*?```/g
+const resultPresentationMarkerPattern = /<!-- result-presentation: ([a-z0-9-]+) -->/g
+const firstHalfChapterIds = new Set<PythonDataToolsChapterId>([
+  'notebook-workflow',
+  'numpy-foundations',
+  'pandas-structures',
+  'pandas-analysis',
+])
+
+const stripAuthoringSyntax = (source: string): string => source
+  .replace(/```[\s\S]*?```/g, '')
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/`[^`\n]+`/g, '')
+
+const parseResultPresentation = (source: string, outputId: string) => {
+  const marker = `<!-- result-presentation: ${outputId} -->`
+  const start = source.indexOf(marker)
+  assert.ok(start >= 0, `missing result presentation for ${outputId}`)
+  const remainder = source.slice(start + marker.length)
+  const end = remainder.search(/\n## (?!#)/)
+  const block = end >= 0 ? remainder.slice(0, end) : remainder
+  const fields = [
+    ['title', '运行结果标题'],
+    ['alt', '无障碍说明'],
+    ['axisLegendTranslations', '坐标轴与图例翻译'],
+    ['interpretation', '分析发现'],
+    ['limitation', '需要注意'],
+    ['fallbackSummary', '静态摘要'],
+  ] as const
+
+  const parsed = new Map<string, string>()
+  for (const [field, heading] of fields) {
+    const fieldStart = block.indexOf(`### ${heading}`)
+    assert.ok(fieldStart >= 0, `${outputId} result presentation is missing ${heading}`)
+    const valueStart = fieldStart + `### ${heading}`.length
+    const followingHeading = block.indexOf('\n### ', valueStart)
+    const value = block.slice(valueStart, followingHeading >= 0 ? followingHeading : undefined).trim()
+    assert.ok(value, `${outputId} result presentation has empty ${field}`)
+    parsed.set(field, value)
+  }
+  return { markerIndex: start, fields: parsed }
+}
 
 const readMaster = async () => {
   const [index, ...chapters] = await Promise.all([
@@ -69,6 +108,12 @@ test('Chinese master index and chapter files follow the typed eight-chapter orde
     assert.ok(source.includes(`章节 ID：\`${chapter.id}\``))
     assert.ok(source.includes(chapter.question['zh-CN']), `${chapter.id} must use its contract question`)
     for (const section of requiredSections) {
+      assert.ok(source.includes(`## ${section}`), `${chapter.id} is missing section: ${section}`)
+    }
+    const stageFourSections = chapterIndex < 4
+      ? ['运行结果与阅读', '分析发现']
+      : ['输出与阅读', '证据解释']
+    for (const section of stageFourSections) {
       assert.ok(source.includes(`## ${section}`), `${chapter.id} is missing section: ${section}`)
     }
   }
@@ -123,6 +168,85 @@ test('authoritative outputs are bound exactly once to their contract chapters', 
   assert.equal(actualBindings.size, pythonDataToolsContract.outputs.length)
   for (const output of pythonDataToolsContract.outputs) {
     assert.equal(actualBindings.get(output.id), output.chapterId, `${output.id} is in the wrong chapter`)
+  }
+})
+
+test('chapters one through four use learner-facing result language and complete result presentations', async () => {
+  const { chapters } = await readMaster()
+  const expectedOutputs = pythonDataToolsContract.outputs.filter(({ chapterId }) => (
+    firstHalfChapterIds.has(chapterId)
+  ))
+  const actualMarkers = chapters
+    .slice(0, 4)
+    .flatMap((source) => [...source.matchAll(resultPresentationMarkerPattern)].map((match) => match[1]))
+
+  assert.deepEqual(actualMarkers, expectedOutputs.map(({ id }) => id))
+
+  for (const [index, source] of chapters.slice(0, 4).entries()) {
+    const chapterId = pythonDataToolsContract.chapters[index].id
+    const visibleProse = stripAuthoringSyntax(source)
+    assert.doesNotMatch(
+      visibleProse,
+      /证据|\bevidence\b|\bmanifest\b|\boutput\b/i,
+      `${chapterId} exposes implementation vocabulary to learners`,
+    )
+    assert.match(source, /## 运行结果与阅读/)
+    assert.match(source, /## 分析发现/)
+
+    for (const output of expectedOutputs.filter(({ chapterId: owner }) => owner === chapterId)) {
+      const presentation = parseResultPresentation(source, output.id)
+      const bindingIndex = source.indexOf(`output: ${output.id}`)
+      assert.ok(bindingIndex >= 0, `${output.id} is missing its source binding`)
+      assert.ok(presentation.markerIndex > bindingIndex, `${output.id} presentation must follow its bound cell`)
+      assert.equal(
+        presentation.fields.get('axisLegendTranslations'),
+        '[]',
+        `${output.id} JSON presentation must declare an explicit empty translation list`,
+      )
+    }
+  }
+})
+
+test('chapters one through four preserve Stage 3 Python bytes and source/output bindings', async () => {
+  const { chapters } = await readMaster()
+  const notebook = JSON.parse(await readFile(
+    new URL('../public/notebooks/python-data-tools/python-data-tools-bike-sharing.zh-CN.ipynb', import.meta.url),
+    'utf8',
+  )) as {
+    cells: Array<{
+      cell_type: string
+      source: string | string[]
+      metadata?: { mlAtlas?: { sourceCellId?: string; outputId?: string } }
+    }>
+  }
+  const notebookCells = new Map(
+    notebook.cells
+      .filter(({ cell_type, metadata }) => cell_type === 'code' && metadata?.mlAtlas?.sourceCellId)
+      .map((cell) => [cell.metadata?.mlAtlas?.sourceCellId as string, cell]),
+  )
+
+  for (const source of chapters.slice(0, 4)) {
+    const codeByCellId = new Map(
+      [...source.matchAll(cellMarkerPattern)].map((marker) => {
+        const codeStart = marker.index + marker[0].length
+        const codeEnd = source.indexOf('\n```', codeStart)
+        return [marker[1], source.slice(codeStart, codeEnd)]
+      }),
+    )
+
+    for (const [cellId, code] of codeByCellId) {
+      const notebookCell = notebookCells.get(cellId)
+      assert.ok(notebookCell, `Stage 3 Notebook is missing ${cellId}`)
+      const notebookSource = Array.isArray(notebookCell.source)
+        ? notebookCell.source.join('')
+        : notebookCell.source
+      const hasPublicationSuffix = Boolean(notebookCell.metadata?.mlAtlas?.outputId)
+      if (cellId === 'ch01-imports' || hasPublicationSuffix) {
+        assert.ok(notebookSource.startsWith(`${code}\n\n`), `${cellId} Python prefix drifted`)
+      } else {
+        assert.equal(notebookSource, code, `${cellId} Python bytes drifted`)
+      }
+    }
   }
 })
 
