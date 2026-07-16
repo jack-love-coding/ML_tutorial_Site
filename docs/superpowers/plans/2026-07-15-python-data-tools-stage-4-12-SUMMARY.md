@@ -114,6 +114,7 @@ status: complete
 3. **Task 3: Run the bounded Stage 4 browser smoke** - no source commit; read-only observations recorded here
 4. **Stage closeout: Update state, roadmap, and deterministic state test** - `f2e913f` (docs)
 5. **Closeout diagnostic repair: Align the milestone audit with completed state** - `3b476a4` (test)
+6. **Root browser regression repair: Render Plotly data derived from reactive props** - `5406c44` (fix)
 
 ## Browser Smoke
 
@@ -122,6 +123,7 @@ status: complete
 - The page-owned Next link navigated to `/learn/python-notebook/numpy-foundations`; the fresh snapshot's Previous link returned to `/learn/python-notebook/notebook-workflow`.
 - The legacy `/learn/python-notebook/notebook-rhythm` deep link resolved once to `/learn/python-notebook/notebook-workflow` with the same current course page.
 - The final browser console contained 0 errors and 0 warnings.
+- A root-level follow-up opened chapter 7 in both locales and found that the Plotly component had silently selected its readable fallback. The component no longer passes Vue's nested reactive prop proxy to `structuredClone`; after rebuilding, the real chart, legend, filters, and modebar rendered, the fallback message disappeared, and the console remained at 0 errors and 0 warnings.
 - The first attempted smoke used the Pages-mode `dist` at the root URL and correctly produced two base-path 404s. The session was closed, `npm run build` rebuilt the standard preview artifact as Task 3 requires, and the complete rerun passed cleanly.
 - The browser and preview server were stopped. Only the six files created by this run under the existing `.playwright-cli/` directory were removed; historical user artifacts were not touched.
 
@@ -167,10 +169,18 @@ status: complete
 - **Verification:** Focused 42/42, Python Data Tools 117/117, full repository 644/644.
 - **Committed in:** `3b476a4`
 
+**2. [Rule 1 - Bug] Removed reactive-proxy cloning from the Plotly renderer**
+- **Found during:** Root-level browser verification after Plan 12 completion
+- **Issue:** `structuredClone(props.result.figure)` received Vue's reactive proxy and raised `DataCloneError`. The component correctly isolated the error, so the static fallback remained readable and the browser console stayed clean, but the interactive chart never appeared.
+- **Fix:** Derived localized traces and layout from the immutable loader result without mutating or cloning the reactive prop container, and added a regression source contract.
+- **Files modified:** `src/components/PythonDataToolsPlotlyFigure.vue`, `tests/python-data-tools-runtime-outputs.test.ts`
+- **Verification:** Focused tests passed; the rebuilt preview rendered the real chart, legend, filters, and modebar with no fallback message or console diagnostics.
+- **Committed in:** `5406c44`
+
 ---
 
-**Total deviations:** 1 auto-fixed (Rule 1).
-**Impact on plan:** The fix was required to make deterministic project-state validation reflect the approved closeout; no runtime or Stage 5 scope was added.
+**Total deviations:** 2 auto-fixed (Rule 1).
+**Impact on plan:** The fixes align deterministic project state with the approved closeout and restore the planned Plotly interaction without adding Stage 5 scope.
 
 ## Issues Encountered
 
@@ -197,7 +207,7 @@ None - all content and browser assets are committed local resources.
 
 ## Self-Check: PASSED
 
-- All four Plan 12 commits exist, and the read-only browser task is fully recorded.
+- All Plan 12 commits exist, and both the bounded smoke and root-level Plotly regression check are recorded.
 - The summary, state, roadmap, and referenced tests exist.
 - Focused/full/build/security/browser/diff claims were verified after the closeout assertions were updated.
 - No unrelated tracked file changed, and `docs/gpt_advice.md` remains the only unrelated untracked path.
