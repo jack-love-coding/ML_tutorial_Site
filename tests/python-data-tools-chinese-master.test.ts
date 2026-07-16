@@ -46,6 +46,7 @@ const firstHalfChapterIds = new Set<PythonDataToolsChapterId>([
   'pandas-structures',
   'pandas-analysis',
 ])
+const analysisReportQuestion = '哪些运行结果可以支持对需求规律的解释？'
 
 const stripAuthoringSyntax = (source: string): string => source
   .replace(/```[\s\S]*?```/g, '')
@@ -149,13 +150,14 @@ test('Chinese master index and chapter files follow the typed eight-chapter orde
     assert.ok(indexPosition > previousIndex, `README chapter order is wrong at ${chapter.id}`)
     previousIndex = indexPosition
     assert.ok(source.includes(`章节 ID：\`${chapter.id}\``))
-    assert.ok(source.includes(chapter.question['zh-CN']), `${chapter.id} must use its contract question`)
+    const expectedQuestion = chapter.id === 'analysis-report'
+      ? analysisReportQuestion
+      : chapter.question['zh-CN']
+    assert.ok(source.includes(expectedQuestion), `${chapter.id} must use its approved question`)
     for (const section of requiredSections) {
       assert.ok(source.includes(`## ${section}`), `${chapter.id} is missing section: ${section}`)
     }
-    const stageFourSections = chapterIndex < 4
-      ? ['运行结果与阅读', '分析发现']
-      : ['输出与阅读', '证据解释']
+    const stageFourSections = ['运行结果与阅读', '分析发现']
     for (const section of stageFourSections) {
       assert.ok(source.includes(`## ${section}`), `${chapter.id} is missing section: ${section}`)
     }
@@ -214,18 +216,20 @@ test('authoritative outputs are bound exactly once to their contract chapters', 
   }
 })
 
-test('chapters one through four use learner-facing result language and complete result presentations', async () => {
+test('all eight chapters use learner-facing result language and complete result presentations', async () => {
   const { chapters } = await readMaster()
-  const expectedOutputs = pythonDataToolsContract.outputs.filter(({ chapterId }) => (
-    firstHalfChapterIds.has(chapterId)
+  const chapterOrder = new Map(
+    pythonDataToolsContract.chapters.map(({ id }, index) => [id, index]),
+  )
+  const expectedOutputs = [...pythonDataToolsContract.outputs].sort((left, right) => (
+    (chapterOrder.get(left.chapterId) ?? 0) - (chapterOrder.get(right.chapterId) ?? 0)
   ))
   const actualMarkers = chapters
-    .slice(0, 4)
     .flatMap((source) => [...source.matchAll(resultPresentationMarkerPattern)].map((match) => match[1]))
 
   assert.deepEqual(actualMarkers, expectedOutputs.map(({ id }) => id))
 
-  for (const [index, source] of chapters.slice(0, 4).entries()) {
+  for (const [index, source] of chapters.entries()) {
     const chapterId = pythonDataToolsContract.chapters[index].id
     const visibleProse = stripAuthoringSyntax(source)
     assert.doesNotMatch(
@@ -241,16 +245,22 @@ test('chapters one through four use learner-facing result language and complete 
       const bindingIndex = source.indexOf(`output: ${output.id}`)
       assert.ok(bindingIndex >= 0, `${output.id} is missing its source binding`)
       assert.ok(presentation.markerIndex > bindingIndex, `${output.id} presentation must follow its bound cell`)
-      assert.equal(
-        presentation.fields.get('axisLegendTranslations'),
-        '[]',
-        `${output.id} JSON presentation must declare an explicit empty translation list`,
-      )
+      const translations = presentation.fields.get('axisLegendTranslations') ?? ''
+      if (output.kind === 'json') {
+        assert.equal(
+          translations,
+          '[]',
+          `${output.id} JSON presentation must declare an explicit empty translation list`,
+        )
+      } else {
+        assert.notEqual(translations, '[]', `${output.id} visual presentation needs translations`)
+        assert.match(translations, /- `[^`]+`：/, `${output.id} translations must be structured rows`)
+      }
     }
   }
 })
 
-test('chapters one through four preserve Stage 3 Python bytes and source/output bindings', async () => {
+test('all eight chapters preserve Stage 3 Python bytes and source/output bindings', async () => {
   const { chapters } = await readMaster()
   const notebook = JSON.parse(await readFile(
     new URL('../public/notebooks/python-data-tools/python-data-tools-bike-sharing.zh-CN.ipynb', import.meta.url),
@@ -268,7 +278,7 @@ test('chapters one through four preserve Stage 3 Python bytes and source/output 
       .map((cell) => [cell.metadata?.mlAtlas?.sourceCellId as string, cell]),
   )
 
-  for (const source of chapters.slice(0, 4)) {
+  for (const source of chapters) {
     const codeByCellId = new Map(
       [...source.matchAll(cellMarkerPattern)].map((marker) => {
         const codeStart = marker.index + marker[0].length
@@ -411,7 +421,7 @@ test('course code uses the local snapshot and excludes modeling, network, and br
   )
 })
 
-test('final report traces all evidence dimensions and hands cleaning to Data Lab', async () => {
+test('final report traces all analysis dimensions and hands cleaning to Data Lab', async () => {
   const { chapters } = await readMaster()
   const source = chapters[7]
 
@@ -421,7 +431,7 @@ test('final report traces all evidence dimensions and hands cleaning to Data Lab
   for (const dimension of ['时间', '工作日', '季节', '天气', '用户构成']) {
     assert.ok(source.includes(dimension), `final report is missing dimension ${dimension}`)
   }
-  for (const part of ['观察', '证据', '解释', '限制']) {
+  for (const part of ['观察', '运行结果', '解释', '限制']) {
     assert.ok(source.includes(part), `final report is missing claim part ${part}`)
   }
   assert.match(source, /不做预测|不包含预测|不训练预测模型/)
