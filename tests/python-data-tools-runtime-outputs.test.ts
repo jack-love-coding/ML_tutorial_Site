@@ -1,0 +1,237 @@
+import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
+import test from 'node:test'
+
+import {
+  loadPythonDataToolsManifest,
+  loadPythonDataToolsOutput,
+  pythonDataToolsOutputRegistry,
+} from '../src/utils/pythonDataToolsOutputs.ts'
+
+const manifestPath = new URL('../public/notebooks/python-data-tools/outputs/manifest.json', import.meta.url)
+const outputRoot = new URL('../public/notebooks/python-data-tools/outputs/', import.meta.url)
+
+const readManifestFixture = async () => JSON.parse(await readFile(manifestPath, 'utf8'))
+
+function responseFor(body: BodyInit, init?: ResponseInit) {
+  return new Response(body, init)
+}
+
+function createPublicFileFetch(requests: string[] = []): typeof fetch {
+  return (async (input: string | URL | Request) => {
+    const url = String(input)
+    requests.push(url)
+    const logicalPath = new URL(url, 'https://ml-atlas.test').pathname
+      .replace(/^\/ML_tutorial_Site/, '')
+
+    if (logicalPath === '/notebooks/python-data-tools/outputs/manifest.json') {
+      return responseFor(await readFile(manifestPath), {
+        headers: { 'content-type': 'application/json' },
+      })
+    }
+
+    const filename = logicalPath.split('/').at(-1)
+    if (!filename) return responseFor('not found', { status: 404 })
+
+    try {
+      return responseFor(await readFile(new URL(filename, outputRoot)), {
+        headers: {
+          'content-type': filename.endsWith('.png') ? 'image/png' : 'application/json',
+        },
+      })
+    } catch {
+      return responseFor('not found', { status: 404 })
+    }
+  }) as typeof fetch
+}
+
+test('output registry owns eight unique ordered placements and only authoritative PNG fallbacks', () => {
+  assert.deepEqual(
+    pythonDataToolsOutputRegistry.map(({ id }) => id),
+    [
+      'dataset-shape-schema',
+      'hourly-demand-profile',
+      'workingday-comparison',
+      'season-weather-distribution',
+      'rider-composition',
+      'pearson-correlation-matrix',
+      'plotly-hourly-explorer',
+      'final-analysis-evidence',
+    ],
+  )
+  assert.deepEqual(
+    pythonDataToolsOutputRegistry.map(({ primaryOrder }) => primaryOrder),
+    [0, 1, 2, 3, 4, 5, 6, 7],
+  )
+  assert.equal(new Set(pythonDataToolsOutputRegistry.map(({ id }) => id)).size, 8)
+
+  const pngFallbacks = pythonDataToolsOutputRegistry
+    .filter(({ kind }) => kind === 'png')
+    .flatMap(({ fallbackSourceIds }) => fallbackSourceIds)
+  assert.ok(pngFallbacks.length > 0)
+  assert.ok(pngFallbacks.every((id) => (
+    id === 'workingday-comparison' || id === 'final-analysis-evidence'
+  )))
+})
+
+test('manifest loader is strict, base-safe, and returns local bilingual errors', async (t) => {
+  const requests: string[] = []
+  const rootState = await loadPythonDataToolsManifest({
+    fetch: createPublicFileFetch(requests),
+    baseUrl: '/',
+  })
+  assert.equal(rootState.status, 'ready')
+  if (rootState.status !== 'ready') return
+  assert.equal(requests[0], '/notebooks/python-data-tools/outputs/manifest.json')
+  assert.deepEqual(rootState.data.outputs.map(({ id }) => id), pythonDataToolsOutputRegistry.map(({ id }) => id))
+
+  requests.length = 0
+  const pagesState = await loadPythonDataToolsManifest({
+    fetch: createPublicFileFetch(requests),
+    baseUrl: '/ML_tutorial_Site/',
+  })
+  assert.equal(pagesState.status, 'ready')
+  assert.equal(requests[0], '/ML_tutorial_Site/notebooks/python-data-tools/outputs/manifest.json')
+
+  const valid = await readManifestFixture()
+  const invalidCases = [
+    { ...valid, contractVersion: 'future-version' },
+    { ...valid, outputs: [...valid.outputs, valid.outputs[0]] },
+    { ...valid, outputs: [...valid.outputs].reverse() },
+    { ...valid, outputs: valid.outputs.map((entry: Record<string, unknown>, index: number) => (
+      index === 0 ? { ...entry, id: 'unknown-output' } : entry
+    )) },
+    { ...valid, notebook: { publicPath: '', sha256: valid.notebook.sha256 } },
+  ]
+
+  for (const [index, fixture] of invalidCases.entries()) {
+    await t.test(`invalid manifest ${index + 1}`, async () => {
+      const state = await loadPythonDataToolsManifest({
+        fetch: (async () => responseFor(JSON.stringify(fixture))) as typeof fetch,
+      })
+      assert.equal(state.status, 'error')
+      if (state.status !== 'error') return
+      assert.ok(state.message['zh-CN'].trim())
+      assert.ok(state.message.en.trim())
+    })
+  }
+
+  for (const fetcher of [
+    (async () => responseFor('missing', { status: 404 })) as typeof fetch,
+    (async () => responseFor('{not-json')) as typeof fetch,
+  ]) {
+    const state = await loadPythonDataToolsManifest({ fetch: fetcher })
+    assert.equal(state.status, 'error')
+  }
+})
+
+test('all authoritative outputs load independently into typed teaching view models', async () => {
+  const fetcher = createPublicFileFetch()
+  const manifestState = await loadPythonDataToolsManifest({ fetch: fetcher })
+  assert.equal(manifestState.status, 'ready')
+  if (manifestState.status !== 'ready') return
+
+  for (const registryEntry of pythonDataToolsOutputRegistry) {
+    const state = await loadPythonDataToolsOutput(manifestState.data, registryEntry.id, { fetch: fetcher })
+    assert.equal(state.status, 'ready', registryEntry.id)
+    if (state.status !== 'ready') continue
+    assert.equal(state.data.id, registryEntry.id)
+    assert.equal(state.data.kind, registryEntry.kind)
+    if (state.data.kind === 'json') {
+      assert.ok(state.data.tables.length + state.data.keyValues.length > 0)
+      assert.ok(state.data.raw)
+    }
+    if (state.data.kind === 'png') {
+      assert.match(state.data.imageUrl, /^\/notebooks\/python-data-tools\/outputs\/.+\.png$/)
+      assert.ok(state.data.sourceAlt.trim())
+      assert.deepEqual(state.data.fallbackSourceIds, registryEntry.fallbackSourceIds)
+    }
+    if (state.data.kind === 'plotly-json') {
+      assert.ok(state.data.figure.data.length > 0)
+      assert.equal(typeof state.data.figure.layout, 'object')
+    }
+  }
+})
+
+test('per-output failures stay local and reject schema drift, missing resources, and unknown IDs', async () => {
+  const manifestState = await loadPythonDataToolsManifest({ fetch: createPublicFileFetch() })
+  assert.equal(manifestState.status, 'ready')
+  if (manifestState.status !== 'ready') return
+
+  const unknownState = await loadPythonDataToolsOutput(
+    manifestState.data,
+    'not-an-output',
+    { fetch: createPublicFileFetch() },
+  )
+  assert.equal(unknownState.status, 'error')
+
+  const missingState = await loadPythonDataToolsOutput(
+    manifestState.data,
+    'dataset-shape-schema',
+    { fetch: (async () => responseFor('missing', { status: 404 })) as typeof fetch },
+  )
+  assert.equal(missingState.status, 'error')
+
+  const invalidJsonState = await loadPythonDataToolsOutput(
+    manifestState.data,
+    'workingday-comparison',
+    { fetch: (async () => responseFor('{bad-json')) as typeof fetch },
+  )
+  assert.equal(invalidJsonState.status, 'error')
+
+  const wrongSchemaState = await loadPythonDataToolsOutput(
+    manifestState.data,
+    'pearson-correlation-matrix',
+    { fetch: (async () => responseFor(JSON.stringify({ contractVersion: 'python-data-tools-v1' }))) as typeof fetch },
+  )
+  assert.equal(wrongSchemaState.status, 'error')
+
+  const unaffectedState = await loadPythonDataToolsOutput(
+    manifestState.data,
+    'final-analysis-evidence',
+    { fetch: createPublicFileFetch() },
+  )
+  assert.equal(unaffectedState.status, 'ready')
+})
+
+test('output URLs use the supplied Pages base without mutating the manifest', async () => {
+  const requests: string[] = []
+  const fetcher = createPublicFileFetch(requests)
+  const manifestState = await loadPythonDataToolsManifest({ fetch: fetcher })
+  assert.equal(manifestState.status, 'ready')
+  if (manifestState.status !== 'ready') return
+  const before = structuredClone(manifestState.data)
+
+  const state = await loadPythonDataToolsOutput(manifestState.data, 'dataset-shape-schema', {
+    fetch: fetcher,
+    baseUrl: '/ML_tutorial_Site/',
+  })
+  assert.equal(state.status, 'ready')
+  assert.equal(requests.at(-1), '/ML_tutorial_Site/notebooks/python-data-tools/outputs/dataset-shape-schema.json')
+  assert.deepEqual(manifestState.data, before)
+})
+
+test('repeat and concurrent reads are deterministic, abortable, and have no lifecycle or storage ownership', async () => {
+  const fetcher = createPublicFileFetch()
+  const manifestState = await loadPythonDataToolsManifest({ fetch: fetcher })
+  assert.equal(manifestState.status, 'ready')
+  if (manifestState.status !== 'ready') return
+
+  const [first, second] = await Promise.all([
+    loadPythonDataToolsOutput(manifestState.data, 'workingday-comparison', { fetch: fetcher }),
+    loadPythonDataToolsOutput(manifestState.data, 'workingday-comparison', { fetch: fetcher }),
+  ])
+  assert.deepEqual(first, second)
+
+  const controller = new AbortController()
+  controller.abort()
+  const aborted = await loadPythonDataToolsOutput(manifestState.data, 'workingday-comparison', {
+    fetch: fetcher,
+    signal: controller.signal,
+  })
+  assert.equal(aborted.status, 'error')
+  if (aborted.status === 'error') assert.equal(aborted.code, 'aborted')
+
+  const source = await readFile(new URL('../src/utils/pythonDataToolsOutputs.ts', import.meta.url), 'utf8')
+  assert.doesNotMatch(source, /localStorage|sessionStorage|Progress|onMounted|onBeforeUnmount|setTimeout|setInterval/)
+})
