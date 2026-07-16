@@ -9,6 +9,7 @@ import type {
   PythonDataToolsTeachingTable,
 } from '../utils/pythonDataToolsOutputs.ts'
 import MarkdownMathContent from './MarkdownMathContent.vue'
+import PythonDataToolsPlotlyFigure from './PythonDataToolsPlotlyFigure.vue'
 
 const props = withDefaults(defineProps<{
   presentation: PythonDataToolsResultPresentationBlock
@@ -20,6 +21,7 @@ const props = withDefaults(defineProps<{
 })
 
 const imageFailed = ref(false)
+const plotlyFailed = ref(false)
 const jsonResult = computed(() => (
   props.state.status === 'ready' && props.state.data.kind === 'json'
     ? props.state.data
@@ -40,6 +42,10 @@ const rawJson = computed(() => jsonResult.value ? JSON.stringify(jsonResult.valu
 
 watch(() => pngResult.value?.imageUrl, () => {
   imageFailed.value = false
+})
+
+watch(() => plotlyResult.value?.id, () => {
+  plotlyFailed.value = false
 })
 
 function localizedLabel(source: string) {
@@ -147,9 +153,13 @@ function tableLabel(table: PythonDataToolsTeachingTable) {
       </figure>
 
       <div v-else-if="plotlyResult" class="python-data-tools-result__interactive">
-        <slot name="plotly" :result="plotlyResult">
-          <MarkdownMathContent :source="presentation.fallbackSummary[locale]" />
-        </slot>
+        <PythonDataToolsPlotlyFigure
+          :key="plotlyResult.id"
+          :result="plotlyResult"
+          :presentation="presentation"
+          :locale="locale"
+          @render-error="plotlyFailed = $event"
+        />
       </div>
     </template>
 
@@ -173,7 +183,7 @@ function tableLabel(table: PythonDataToolsTeachingTable) {
       </div>
     </section>
 
-    <section v-if="fallbackTables.length && (state.status === 'error' || imageFailed)" class="python-data-tools-result__equivalent-data">
+    <section v-if="fallbackTables.length && (state.status === 'error' || imageFailed || plotlyFailed)" class="python-data-tools-result__equivalent-data">
       <h4>{{ locale === 'zh-CN' ? '等价数据表' : 'Equivalent data table' }}</h4>
       <div
         v-for="table in fallbackTables"

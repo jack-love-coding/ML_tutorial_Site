@@ -327,3 +327,19 @@ test('Plotly result renderer owns constrained filters, lazy lifecycle, localizat
   assert.doesNotMatch(source, /^import Plotly/m)
   assert.doesNotMatch(source, /localStorage|sessionStorage|setTimeout|setInterval|bdata|atob/)
 })
+
+test('result block wires one local Plotly renderer and keeps authoritative static equivalence on failure', async () => {
+  const source = await readFile(new URL('../src/components/PythonDataToolsResultBlock.vue', import.meta.url), 'utf8')
+
+  assert.match(source, /import PythonDataToolsPlotlyFigure from '\.\/PythonDataToolsPlotlyFigure\.vue'/)
+  assert.match(source, /const plotlyFailed = ref\(false\)/)
+  assert.match(source, /<PythonDataToolsPlotlyFigure/)
+  assert.match(source, /:result="plotlyResult"/)
+  assert.match(source, /:presentation="presentation"/)
+  assert.match(source, /:locale="locale"/)
+  assert.match(source, /@render-error="plotlyFailed = \$event"/)
+  assert.match(source, /state\.status === 'error' \|\| imageFailed \|\| plotlyFailed/)
+  assert.match(source, /fallbackResults/)
+  assert.match(source, /等价数据表|Equivalent data table/)
+  assert.doesNotMatch(source, /<slot name="plotly"|setTimeout|setInterval|localStorage|sessionStorage/)
+})
