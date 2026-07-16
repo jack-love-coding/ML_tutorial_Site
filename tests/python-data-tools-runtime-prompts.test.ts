@@ -62,3 +62,20 @@ test('handwritten runtime sources do not become a second learner-copy or asset-p
   assert.match(typeSource, /PythonDataToolsTeachingPromptBlock/)
   assert.match(typeSource, /PythonDataToolsResultPresentationBlock/)
 })
+
+test('teaching prompt component renders localized reasoning immediately without interaction state', () => {
+  const componentSource = readFileSync(new URL('../src/components/PythonDataToolsTeachingPrompt.vue', import.meta.url), 'utf8')
+
+  assert.match(componentSource, /PythonDataToolsTeachingPromptBlock/)
+  assert.match(componentSource, /MarkdownMathContent/)
+  assert.match(componentSource, /想一想/)
+  assert.match(componentSource, /Think about it/)
+  assert.match(componentSource, /参考思路/)
+  assert.match(componentSource, /Reasoning guide/)
+  assert.match(componentSource, /常见误区/)
+  assert.match(componentSource, /Common misconception/)
+  assert.match(componentSource, /router-link/)
+  assert.match(componentSource, /prompt\.revisit\[locale\]/)
+  assert.doesNotMatch(componentSource, /<form|<input|<textarea|<select|<button/i)
+  assert.doesNotMatch(componentSource, /defineEmits|\bemit\s*\(|\bref\s*\(|localStorage|sessionStorage|fetch\s*\(|score|submit|reset|gate/i)
+})
