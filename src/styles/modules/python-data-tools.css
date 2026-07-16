@@ -1,0 +1,464 @@
+.python-data-tools-page,
+.python-data-tools-page * {
+  box-sizing: border-box;
+}
+
+.python-data-tools-page {
+  --python-tools-accent: #0f766e;
+  --python-tools-soft: #ecfdf5;
+  min-width: 0;
+}
+
+.python-data-tools-page__mobile-toggle {
+  display: none;
+}
+
+.python-data-tools-page__grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 270px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.python-data-tools-page__sidebar {
+  position: sticky;
+  top: 92px;
+  z-index: 5;
+  display: grid;
+  gap: 14px;
+  max-height: calc(100vh - 116px);
+  padding: 16px;
+  overflow-y: auto;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 5px 5px 0 var(--pixel-line, rgba(15, 23, 40, 0.1));
+}
+
+.python-data-tools-page__toc-heading,
+.python-data-tools-page__location,
+.python-data-tools-page__code > header,
+.python-data-tools-result__eyebrow,
+.python-data-tools-prompt__eyebrow {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.python-data-tools-page__toc-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.python-data-tools-page__nav {
+  display: grid;
+  gap: 8px;
+}
+
+.python-data-tools-page__nav-item {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgba(248, 250, 252, 0.9);
+  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.python-data-tools-page__nav-item:hover,
+.python-data-tools-page__nav-item.is-active {
+  transform: translateX(2px);
+  border-color: color-mix(in srgb, var(--python-tools-accent) 45%, white);
+  color: var(--ink);
+  background: #fff;
+}
+
+.python-data-tools-page__nav-index {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 7px;
+  color: var(--ink);
+  background: rgba(15, 23, 40, 0.07);
+  font-family: var(--font-display);
+}
+
+.python-data-tools-page__nav-item.is-active .python-data-tools-page__nav-index {
+  color: #fff;
+  background: var(--python-tools-accent);
+}
+
+.python-data-tools-page__nav-item > span:last-child,
+.python-data-tools-page__pager-link strong,
+.python-data-tools-page__download span,
+.python-data-tools-page__environment,
+.python-data-tools-page__code code,
+.python-data-tools-result,
+.python-data-tools-prompt {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.python-data-tools-page__main,
+.python-data-tools-page__article,
+.python-data-tools-page__blocks {
+  min-width: 0;
+}
+
+.python-data-tools-page__article,
+.python-data-tools-page__blocks {
+  display: grid;
+  gap: 20px;
+}
+
+.python-data-tools-page__header,
+.python-data-tools-page__reload,
+.python-data-tools-page__code,
+.python-data-tools-result,
+.python-data-tools-prompt,
+.python-data-tools-page__final-download {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border: 1px solid rgba(15, 23, 40, 0.09);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 4px 4px 0 var(--pixel-line, rgba(15, 23, 40, 0.09));
+}
+
+.python-data-tools-page__header {
+  border-left: 6px solid var(--python-tools-accent);
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--python-tools-accent) 12%, white), transparent 44%),
+    #fff;
+}
+
+.python-data-tools-page__header h2,
+.python-data-tools-page__question p,
+.python-data-tools-page__reload p,
+.python-data-tools-result h3,
+.python-data-tools-result h4,
+.python-data-tools-prompt h3,
+.python-data-tools-prompt h4 {
+  margin: 0;
+}
+
+.python-data-tools-page__header h2 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1;
+}
+
+.python-data-tools-page__question {
+  display: grid;
+  gap: 8px;
+  max-width: 76ch;
+  padding: 14px 16px;
+  border-left: 4px solid var(--python-tools-accent);
+  background: var(--python-tools-soft);
+}
+
+.python-data-tools-page__download {
+  display: grid;
+  gap: 5px;
+  max-width: 56rem;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--python-tools-accent) 36%, white);
+  border-radius: 8px;
+  color: var(--ink);
+  background: #fff;
+}
+
+.python-data-tools-page__download.is-unavailable {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.python-data-tools-page__download span,
+.python-data-tools-page__reload p,
+.python-data-tools-page__question p {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.python-data-tools-page__environment {
+  width: fit-content;
+  color: var(--python-tools-accent);
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.python-data-tools-page__reload {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border-left: 5px solid #b45309;
+}
+
+.python-data-tools-page__reload button,
+.python-data-tools-plotly__controls button {
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid var(--python-tools-accent);
+  border-radius: 7px;
+  color: #fff;
+  background: var(--python-tools-accent);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.python-data-tools-page__prose {
+  padding: 2px clamp(2px, 1vw, 12px);
+}
+
+.python-data-tools-page__code {
+  padding: 0;
+  overflow: hidden;
+  background: #111827;
+  color: #e5eef8;
+}
+
+.python-data-tools-page__code > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+.python-data-tools-page__code pre {
+  max-width: 100%;
+  margin: 0;
+  padding: 18px;
+  overflow: auto;
+  line-height: 1.65;
+  tab-size: 4;
+}
+
+.python-data-tools-result {
+  border-left: 5px solid var(--python-tools-accent);
+}
+
+.python-data-tools-result.is-loading,
+.python-data-tools-result.is-idle {
+  border-left-color: #64748b;
+}
+
+.python-data-tools-result.is-error {
+  border-left-color: #b45309;
+}
+
+.python-data-tools-result__header,
+.python-data-tools-result__reading,
+.python-data-tools-result__translations,
+.python-data-tools-result__equivalent-data,
+.python-data-tools-result__structured,
+.python-data-tools-result__key-values,
+.python-data-tools-prompt__reasoning,
+.python-data-tools-prompt__misconception {
+  display: grid;
+  gap: 10px;
+}
+
+.python-data-tools-result__key-values {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin: 0;
+}
+
+.python-data-tools-result__key-values > div {
+  padding: 12px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 7px;
+  background: #f8fafc;
+}
+
+.python-data-tools-result__key-values dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.python-data-tools-result__key-values dd {
+  margin: 4px 0 0;
+  font-weight: 800;
+}
+
+.python-data-tools-result__table-wrap {
+  max-width: 100%;
+  overflow: auto;
+  border: 1px solid rgba(15, 23, 40, 0.09);
+  border-radius: 8px;
+}
+
+.python-data-tools-result table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.python-data-tools-result th,
+.python-data-tools-result td {
+  padding: 9px 11px;
+  border-bottom: 1px solid rgba(15, 23, 40, 0.08);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.python-data-tools-result th {
+  background: #f1f5f9;
+}
+
+.python-data-tools-result__figure,
+.python-data-tools-result__figure img {
+  display: block;
+  max-width: 100%;
+  margin: 0;
+}
+
+.python-data-tools-result__figure img {
+  width: 100%;
+  height: auto;
+}
+
+.python-data-tools-result__fallback,
+.python-data-tools-result__status,
+.python-data-tools-result__reading,
+.python-data-tools-result__equivalent-data {
+  padding: 14px;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.python-data-tools-prompt {
+  border-left: 5px solid #7c3aed;
+  background: linear-gradient(135deg, #faf5ff, #fff 48%);
+}
+
+.python-data-tools-prompt__revisit {
+  width: fit-content;
+  color: #6d28d9;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.python-data-tools-page__pager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.python-data-tools-page__pager-link {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 9px;
+  color: var(--ink);
+  background: #fff;
+}
+
+.python-data-tools-page__pager-link > span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.python-data-tools-page__pager-link--next {
+  text-align: right;
+}
+
+.python-data-tools-page__pager-link.is-disabled {
+  color: var(--muted);
+  border-style: dashed;
+}
+
+.python-data-tools-page a:focus-visible,
+.python-data-tools-page button:focus-visible,
+.python-data-tools-page [tabindex='0']:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--python-tools-accent) 72%, white);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1080px) {
+  .python-data-tools-page__mobile-toggle {
+    display: grid;
+    gap: 3px;
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 14px 16px;
+    border: 1px solid rgba(15, 23, 40, 0.1);
+    border-radius: 9px;
+    color: var(--ink);
+    background: #fff;
+    text-align: left;
+  }
+
+  .python-data-tools-page__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .python-data-tools-page__sidebar {
+    position: static;
+    display: none;
+    max-height: none;
+  }
+
+  .python-data-tools-page__sidebar.is-open {
+    display: grid;
+  }
+
+  .python-data-tools-page__nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .python-data-tools-page__header,
+  .python-data-tools-page__reload,
+  .python-data-tools-page__code,
+  .python-data-tools-result,
+  .python-data-tools-prompt,
+  .python-data-tools-page__final-download,
+  .python-data-tools-page__pager-link {
+    padding: 15px;
+  }
+
+  .python-data-tools-page__code {
+    padding: 0;
+  }
+
+  .python-data-tools-page__nav,
+  .python-data-tools-page__pager,
+  .python-data-tools-page__reload {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .python-data-tools-page__pager-link--next {
+    text-align: left;
+  }
+
+  .python-data-tools-result__key-values {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .python-data-tools-page *,
+  .python-data-tools-page *::before,
+  .python-data-tools-page *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -24,6 +24,7 @@
 @import './themes/pixel-redesign.css';
 @import './overrides/final-responsive.css';
 @import './modules/logistic-regression.css';
+@import './modules/python-data-tools.css';
 @import './overrides/cockpit-details.css';
 @import './overrides/final-shell.css';
 @import './layout/site-header.css';
