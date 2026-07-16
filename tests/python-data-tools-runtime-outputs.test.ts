@@ -343,3 +343,74 @@ test('result block wires one local Plotly renderer and keeps authoritative stati
   assert.match(source, /等价数据表|Equivalent data table/)
   assert.doesNotMatch(source, /<slot name="plotly"|setTimeout|setInterval|localStorage|sessionStorage/)
 })
+
+test('page output session owns one automatic load, abort cleanup, typed distribution, and one manual allowance', async () => {
+  const source = await readFile(new URL('../src/composables/usePythonDataToolsOutputSession.ts', import.meta.url), 'utf8')
+
+  assert.match(source, /loadPythonDataToolsManifest/)
+  assert.match(source, /loadPythonDataToolsOutput/)
+  assert.match(source, /new AbortController\(\)/)
+  assert.match(source, /requestToken/)
+  assert.match(source, /activeController\?\.abort\(\)/)
+  assert.match(source, /onMounted/)
+  assert.match(source, /onBeforeUnmount/)
+  assert.match(source, /manualReloadAvailable/)
+  assert.match(source, /manualReloadConsumed/)
+  assert.match(source, /readonly\(/)
+  assert.doesNotMatch(source, /setTimeout|setInterval|watchEffect|localStorage|sessionStorage/)
+
+  const { createPythonDataToolsOutputSession } = await import('../src/composables/usePythonDataToolsOutputSession.ts')
+  const requests: string[] = []
+  const session = createPythonDataToolsOutputSession({ fetch: createPublicFileFetch(requests) })
+
+  await session.start()
+  assert.equal(requests.filter((url) => url.endsWith('/manifest.json')).length, 1)
+  assert.equal(session.manualReloadAvailable.value, false)
+  assert.deepEqual(
+    pythonDataToolsOutputRegistry.map(({ id }) => session.stateFor(id).status),
+    pythonDataToolsOutputRegistry.map(() => 'ready'),
+  )
+  await session.start()
+  assert.equal(requests.filter((url) => url.endsWith('/manifest.json')).length, 1)
+  session.dispose()
+})
+
+test('session offers exactly one manual reload only after initial manifest failure', async () => {
+  let requestCount = 0
+  const fetcher = (async () => {
+    requestCount += 1
+    return responseFor('missing', { status: 503 })
+  }) as typeof fetch
+  const { createPythonDataToolsOutputSession } = await import('../src/composables/usePythonDataToolsOutputSession.ts')
+  const session = createPythonDataToolsOutputSession({ fetch: fetcher })
+
+  await session.start()
+  assert.equal(requestCount, 1)
+  assert.equal(session.manualReloadAvailable.value, true)
+  await session.reloadRuntimeResults()
+  assert.equal(requestCount, 2)
+  assert.equal(session.manualReloadAvailable.value, false)
+  await session.reloadRuntimeResults()
+  assert.equal(requestCount, 2)
+  session.dispose()
+})
+
+test('disposing an in-flight session aborts and prevents stale state replacement', async () => {
+  let observedSignal: AbortSignal | undefined
+  const fetcher = ((_input: string | URL | Request, init?: RequestInit) => new Promise<Response>((resolve) => {
+    observedSignal = init?.signal ?? undefined
+    observedSignal?.addEventListener('abort', () => resolve(responseFor('missing', { status: 499 })), { once: true })
+  })) as typeof fetch
+  const { createPythonDataToolsOutputSession } = await import('../src/composables/usePythonDataToolsOutputSession.ts')
+  const session = createPythonDataToolsOutputSession({ fetch: fetcher })
+
+  const pending = session.start()
+  session.dispose()
+  await pending
+  assert.equal(observedSignal?.aborted, true)
+  assert.equal(session.manualReloadAvailable.value, false)
+  assert.deepEqual(
+    pythonDataToolsOutputRegistry.map(({ id }) => session.stateFor(id).status),
+    pythonDataToolsOutputRegistry.map(() => 'loading'),
+  )
+})
