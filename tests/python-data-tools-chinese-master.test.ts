@@ -40,12 +40,6 @@ const exerciseMarkerPattern = /<!-- exercise: ([a-z0-9-]+) -->/g
 const teachingPromptMarkerPattern = /<!-- teaching-prompt: id=([a-z0-9-]+) kind=([a-z0-9-]+) chapter=([a-z0-9-]+) scored=(true|false) submitted=(true|false) persistedToProgress=(true|false) gatesChapter=(true|false) -->/g
 const pythonBlockPattern = /```python\n[\s\S]*?```/g
 const resultPresentationMarkerPattern = /<!-- result-presentation: ([a-z0-9-]+) -->/g
-const firstHalfChapterIds = new Set<PythonDataToolsChapterId>([
-  'notebook-workflow',
-  'numpy-foundations',
-  'pandas-structures',
-  'pandas-analysis',
-])
 const analysisReportQuestion = '哪些运行结果可以支持对需求规律的解释？'
 
 const stripAuthoringSyntax = (source: string): string => source
@@ -303,10 +297,10 @@ test('all eight chapters preserve Stage 3 Python bytes and source/output binding
   }
 })
 
-test('the five contract mounts remain stable while first-half pauses are stateless teaching prompts', async () => {
+test('the five contract mounts are ordered, complete, and stateless teaching prompts', async () => {
   const { index, chapters } = await readMaster()
   const actual = new Map<PythonDataToolsChapterId, PythonDataToolsExerciseKind>()
-  const firstHalfPrompts = new Map<PythonDataToolsChapterId, PythonDataToolsExerciseKind>()
+  const actualPrompts = new Map<PythonDataToolsChapterId, PythonDataToolsExerciseKind>()
 
   for (const [chapterIndex, source] of chapters.entries()) {
     const chapterId = pythonDataToolsContract.chapters[chapterIndex].id
@@ -316,30 +310,21 @@ test('the five contract mounts remain stable while first-half pauses are statele
 
     const kind = exerciseMarkers[0][1] as PythonDataToolsExerciseKind
     actual.set(chapterId, kind)
-    if (chapterIndex < 4) {
-      const prompt = parseTeachingPrompt(source, kind)
-      firstHalfPrompts.set(chapterId, kind)
-      assert.equal(prompt.kind, kind)
-      assert.equal(prompt.chapterId, chapterId)
-      assert.deepEqual(prompt.policy, {
-        scored: pythonDataToolsContract.exercisePolicy.scored,
-        submitted: pythonDataToolsContract.exercisePolicy.submitted,
-        persistedToProgress: pythonDataToolsContract.exercisePolicy.persistedToProgress,
-        gatesChapter: pythonDataToolsContract.exercisePolicy.gatesChapter,
-      })
-      assert.doesNotMatch(
-        stripAuthoringSyntax(prompt.block),
-        /选择\s*[A-D]|输入|提交|判分|计分|重置|完成状态|学习进度|localStorage|fetch|XMLHttpRequest|sklearn|\.fit\(|\.predict\(|dropna|fillna|drop_duplicates|置信区间|显著性|p\s*值|导致|造成/i,
-        `${kind} must remain static and inside the descriptive-analysis boundary`,
-      )
-    } else {
-      for (const heading of ['### 题目', '### 提示', '### 即时反馈', '### 常见误区', '### 复看锚点']) {
-        assert.ok(source.includes(heading), `${chapterId} exercise is missing ${heading}`)
-      }
-      assert.match(source, /不计分、不提交、不写入学习进度，也不阻挡下一章/)
-      assert.match(source, /选择 A：/)
-      assert.match(source, /选择 B：/)
-    }
+    const prompt = parseTeachingPrompt(source, kind)
+    actualPrompts.set(chapterId, kind)
+    assert.equal(prompt.kind, kind)
+    assert.equal(prompt.chapterId, chapterId)
+    assert.deepEqual(prompt.policy, {
+      scored: pythonDataToolsContract.exercisePolicy.scored,
+      submitted: pythonDataToolsContract.exercisePolicy.submitted,
+      persistedToProgress: pythonDataToolsContract.exercisePolicy.persistedToProgress,
+      gatesChapter: pythonDataToolsContract.exercisePolicy.gatesChapter,
+    })
+    assert.doesNotMatch(
+      stripAuthoringSyntax(prompt.block),
+      /选择\s*[A-D]|输入|提交|判分|计分|重置|完成状态|学习进度|localStorage|fetch|XMLHttpRequest|sklearn|\.fit\(|\.predict\(|dropna|fillna|drop_duplicates|置信区间|显著性|p\s*值|导致|造成/i,
+      `${kind} must remain static and inside the descriptive-analysis boundary`,
+    )
   }
 
   assert.deepEqual(
@@ -347,18 +332,29 @@ test('the five contract mounts remain stable while first-half pauses are statele
     pythonDataToolsContract.exerciseMounts.map(({ chapterId, kind }) => [chapterId, kind]),
   )
   assert.deepEqual(
-    [...firstHalfPrompts.entries()],
-    pythonDataToolsContract.exerciseMounts
-      .filter(({ chapterId }) => firstHalfChapterIds.has(chapterId))
-      .map(({ chapterId, kind }) => [chapterId, kind]),
+    [...actualPrompts.entries()],
+    pythonDataToolsContract.exerciseMounts.map(({ chapterId, kind }) => [chapterId, kind]),
   )
-  assert.equal([...chapters.slice(0, 4).join('\n').matchAll(teachingPromptMarkerPattern)].length, 2)
+  assert.equal([...chapters.join('\n').matchAll(teachingPromptMarkerPattern)].length, 5)
   assert.match(index, /## 静态教学提示/)
   assert.match(index, /## 正式运行结果与呈现标记/)
   assert.match(index, /id=shape-index kind=shape-index chapter=numpy-foundations/)
   assert.match(index, /scored=false submitted=false persistedToProgress=false gatesChapter=false/)
   for (const heading of ['运行结果标题', '无障碍说明', '坐标轴与图例翻译', '分析发现', '需要注意', '静态摘要']) {
     assert.ok(index.includes(`### ${heading}`), `README result grammar is missing ${heading}`)
+  }
+})
+
+test('all Chinese masters are valid UTF-8 without placeholders or mojibake', async () => {
+  for (const filename of chapterFiles) {
+    const bytes = await readFile(new URL(filename, masterDirectory))
+    const source = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+    assert.ok(source.trim(), `${filename} must not be empty`)
+    assert.doesNotMatch(
+      source,
+      /TODO|TBD|PLACEHOLDER|\uFFFD|Ã.|Â.|â(?:€|€¦|€“|€”)/i,
+      `${filename} contains unfinished text or mojibake`,
+    )
   }
 })
 
@@ -405,7 +401,7 @@ test('Seaborn chapter stays inside the descriptive statistics contract', async (
   assert.doesNotMatch(code, /p[_-]?value|ttest|confidence[_-]?interval|scipy\.stats/i)
 })
 
-test('course code uses the local snapshot and excludes modeling, network, and browser Python', async () => {
+test('course uses the local snapshot and stays inside the R7 descriptive-analysis boundary', async () => {
   const { index, chapters } = await readMaster()
   const allCode = chapters.flatMap((source) => source.match(pythonBlockPattern) ?? []).join('\n')
 
@@ -417,8 +413,11 @@ test('course code uses the local snapshot and excludes modeling, network, and br
   assert.match(index, /`correlation_columns`/)
   assert.doesNotMatch(
     allCode,
-    /sklearn|train_test_split|\.fit\(|pyodide|requests\.|urlopen|https?:\/\//i,
+    /sklearn|train_test_split|\.fit\(|\.predict\(|dropna|fillna|drop_duplicates|p[_-]?value|ttest|confidence[_-]?interval|scipy\.stats|pyodide|requests\.|urlopen|https?:\/\//i,
   )
+  assert.match(index, /只做描述性分析，不训练预测模型，不作因果识别，不教授数据清洗/)
+  assert.match(index, /清洗任务交接到 `\/data-lab`/)
+  assert.match(chapters[7], /相关不代表因果/)
 })
 
 test('final report traces all analysis dimensions and hands cleaning to Data Lab', async () => {

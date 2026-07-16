@@ -27,7 +27,7 @@
 - 环境清单：`public/notebooks/python-data-tools/environment.json`
 - 契约版本：`python-data-tools-v1`
 
-未来 Notebook 位于 `public/notebooks/python-data-tools/`，所以代码统一使用：
+已执行的中文 Notebook 位于 `public/notebooks/python-data-tools/`，所以代码统一使用：
 
 ```python
 DATA_PATH = Path("../../datasets/python-data-tools/bike-sharing-hour.csv")
@@ -63,7 +63,7 @@ DATA_PATH = Path("../../datasets/python-data-tools/bike-sharing-hour.csv")
 - `cell` 在全课程唯一，格式为 `chNN-kebab-case`。
 - `role` 只能为 `question`、`setup`、`data`、`compute`、`visualize`、`interpret`、`limit`、`handoff`。
 - `output` 只能使用 `python-data-tools-v1` 声明的权威输出 ID。
-- 文档中的排列顺序就是未来 Notebook 的运行顺序。
+- 文档中的排列顺序就是 Notebook 的运行顺序。
 
 ## 正式运行结果与呈现标记
 
@@ -125,6 +125,14 @@ DATA_PATH = Path("../../datasets/python-data-tools/bike-sharing-hour.csv")
 - `想一想`、`参考思路`、`常见误区` 与 `复看` 都必须有当前语言的完整内容，不能是占位符或只给结论。
 - `scored`、`submitted`、`persistedToProgress` 与 `gatesChapter` 四个策略必须全部为 `false`。
 - 提示是紧邻正文的静态讲解，不包含答案输入、选项选择、提交、判分、重置、完成状态、存储或网络行为。
+
+## 八章完整性门槛
+
+- 八个章节文件必须按本索引顺序存在并保持 UTF-8；乱码、空字段和未完成标记都会使检查失败。
+- 五个静态教学提示必须依次挂载到 `shape-index`、`filter-groupby`、`chart-choice`、`interpret-correlation`、`interactive-encoding`，不能重复或改序。
+- 八个正式运行结果必须各有一个完整呈现标记；JSON 使用显式空翻译列表，PNG 与 Plotly 必须提供坐标轴、图例或 hover 的页面翻译。
+- Python 代码、公式、来源单元格、结果 ID 和资源绑定与 Stage 3 保持一致；本阶段只补充网页教学所需的双语呈现结构。
+- 内容始终停留在描述性分析：不实现清洗、模型训练、推断统计、因果识别或浏览器 Python；清洗继续衔接 `/data-lab`。
 
 ## 写作与分析规则
 
