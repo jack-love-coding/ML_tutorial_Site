@@ -148,8 +148,8 @@ test('prompt and result-presentation markers require complete localized field sh
       root,
       'english-master',
       '02-numpy-foundations.md',
-      '### Reference reasoning\n\nFirst check `demand.shape`',
-      '### Reference reasoning\n\n### Common misconceptions\n\nFirst check `demand.shape`',
+      '### Reference reasoning\n\n`demand` is a one-dimensional array',
+      '### Reference reasoning\n\n### Common misconceptions\n\n`demand` is a one-dimensional array',
     )
     assert.throws(
       () => checkPairedMasters({ root }),
@@ -162,8 +162,8 @@ test('prompt and result-presentation markers require complete localized field sh
       root,
       'english-master',
       '03-pandas-structures.md',
-      '### Static summary\n\nThe structured result',
-      '### Static summary\n\n## Analysis findings\n\nThe structured result',
+      '### Static summary\n\nIf the structured table',
+      '### Static summary\n\n## Analysis findings\n\nIf the structured table',
     )
     assert.throws(
       () => checkPairedMasters({ root }),
@@ -192,8 +192,8 @@ test('invalid UTF-8, mojibake, placeholders, and learner-visible internal termin
         root,
         'english-master',
         '01-notebook-workflow.md',
-        'A reliable Notebook',
-        `${text}\n\nA reliable Notebook`,
+        'Reliable analysis follows',
+        `${text}\n\nReliable analysis follows`,
       )
       assert.throws(() => checkPairedMasters({ root }), diagnostic)
     })
