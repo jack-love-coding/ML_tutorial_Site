@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { pythonDataToolsContract } from '../src/data/pythonNotebookContract.ts'
 
 const resolverUrl = new URL('../src/utils/pythonDataToolsRoutes.ts', import.meta.url)
+const routerUrl = new URL('../src/router/index.ts', import.meta.url)
 
 async function loadResolver() {
   assert.ok(
@@ -145,5 +146,28 @@ test('Python Data Tools resolver source stays independent from routing and Progr
     source,
     /path:\s*['"]\/learn|beforeEnter|component:\s*\(\)\s*=>\s*import/,
     'resolver must not register or mount a live route',
+  )
+})
+
+test('dedicated Python routes canonicalize before the generic lesson route can mount', () => {
+  const source = readFileSync(routerUrl, 'utf8')
+  const rootRouteIndex = source.indexOf("path: '/learn/python-notebook'")
+  const chapterRouteIndex = source.indexOf("path: '/learn/python-notebook/:chapterId'")
+  const genericRouteIndex = source.indexOf("path: '/learn/:moduleId/:lessonId'")
+
+  assert.ok(rootRouteIndex >= 0, 'Python root route must be explicit')
+  assert.ok(chapterRouteIndex > rootRouteIndex, 'Python chapter route must follow its root route')
+  assert.ok(genericRouteIndex > chapterRouteIndex, 'both Python routes must precede the generic route')
+  assert.match(source, /resolvePythonDataToolsChapter/)
+  assert.match(source, /beforeEnter:\s*redirectPythonDataToolsChapter/)
+  assert.match(source, /replace:\s*true/)
+  assert.match(source, /component:\s*\(\)\s*=>\s*import\('\.\.\/views\/AlgorithmView\.vue'\)/)
+
+  const guardIndex = source.indexOf('function redirectPythonDataToolsChapter')
+  const viewImportIndex = source.indexOf("component: () => import('../views/AlgorithmView.vue')", rootRouteIndex)
+  assert.ok(guardIndex >= 0 && guardIndex < viewImportIndex, 'canonicalization guard must be defined before the page route')
+  assert.doesNotMatch(
+    source.slice(guardIndex, rootRouteIndex),
+    /saveAlgorithmProgress|appendAlgorithmQuizAttempt|localStorage|sessionStorage/,
   )
 })
