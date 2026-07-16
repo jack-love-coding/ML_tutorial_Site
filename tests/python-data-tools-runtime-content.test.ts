@@ -32,6 +32,21 @@ function withFixture(run: (root: string) => Promise<void>) {
   return run(root).finally(() => rmSync(temporaryDirectory, { recursive: true, force: true }))
 }
 
+function stripNonLearnerSyntax(source: string) {
+  return source
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/<!--[^]*?-->/g, '')
+    .replace(/`[^`\n]+`/g, '')
+}
+
+function assertLearnerTerminology(source: string, locale: 'zh-CN' | 'en', label: string) {
+  const visible = stripNonLearnerSyntax(source)
+  const forbidden = locale === 'zh-CN'
+    ? /证据|清单文件|输出文件/u
+    : /\b(?:evidence|manifest|output)\b/iu
+  assert.doesNotMatch(visible, forbidden, `${label} exposes internal implementation vocabulary`)
+}
+
 test('paired compiler projects eight localized chapters in contract order', async () => {
   const compiler = await loadCompiler()
   const chapters = compiler.compileRuntimeContent()
@@ -93,5 +108,46 @@ test('compiler fixtures reject missing locale content and stale generated target
     assert.equal(readFileSync(target, 'utf8'), '// stale\n')
   } finally {
     rmSync(temporaryDirectory, { recursive: true, force: true })
+  }
+})
+
+test('all sixteen masters and generated learner copy pass the parser-aware terminology gate', async () => {
+  const generated = await loadGenerated()
+  const localeDirectories = { 'zh-CN': 'chinese-master', en: 'english-master' } as const
+
+  for (const [index, chapter] of pythonDataToolsContract.chapters.entries()) {
+    const filename = `${String(index + 1).padStart(2, '0')}-${chapter.id}.md`
+    for (const locale of ['zh-CN', 'en'] as const) {
+      const master = readFileSync(new URL(`${localeDirectories[locale]}/${filename}`, authorityRoot), 'utf8')
+      assertLearnerTerminology(master, locale, `${locale}/${filename}`)
+    }
+  }
+
+  for (const chapter of generated) {
+    for (const locale of ['zh-CN', 'en'] as const) {
+      const learnerCopy = [chapter.title[locale], chapter.question[locale]]
+      for (const block of chapter.blocks) {
+        if (block.kind === 'markdown') learnerCopy.push(block.markdown[locale])
+        if (block.kind === 'result-presentation') {
+          learnerCopy.push(
+            block.title[locale],
+            block.alt[locale],
+            block.interpretation[locale],
+            block.limitation[locale],
+            block.fallbackSummary[locale],
+            ...block.axisLegendTranslations.map(({ label }) => label[locale]),
+          )
+        }
+        if (block.kind === 'teaching-prompt') {
+          learnerCopy.push(
+            block.question[locale],
+            block.referenceReasoning[locale],
+            block.misconception[locale],
+            block.revisit[locale],
+          )
+        }
+      }
+      assertLearnerTerminology(learnerCopy.join('\n'), locale, `generated/${chapter.id}/${locale}`)
+    }
   }
 })
