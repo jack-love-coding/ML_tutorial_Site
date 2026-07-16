@@ -115,12 +115,12 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
   ])
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
-  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 are completed slices; Python Data Tools Stage 4 specification, implementation context, and 12-plan implementation plan are approved and independently verified, and execution has not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
-  const expectedFocus = '**Current focus:** Review and explicitly approve execution of the verified Stage 4 plan before changing runtime code; Plan 06 retains the blocking Plotly package approval checkpoint.'
-  const expectedNextCommand = 'Explicitly approve Python Data Tools Stage 4 execution, then run the verified 12-plan sequence without expanding into Stage 5 browser/consistency closeout, Phase 24B Homepage Focus, or Phase 24C Spine progressive disclosure.'
+  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–4 are completed slices; Python Data Tools Stage 5 consistency and browser validation remains planned. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
+  const expectedFocus = '**Current focus:** Discuss and plan Python Data Tools Stage 5 consistency, responsive-browser, and end-to-end validation without expanding into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.'
+  const expectedNextCommand = 'Discuss and plan Python Data Tools Stage 5 consistency, responsive-browser, and end-to-end validation while keeping Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused.'
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
-  assert.match(state, /^\*\*Updated:\*\* 2026-07-15$/m)
+  assert.match(state, /^\*\*Updated:\*\* 2026-07-17$/m)
   assert.ok(state.includes(expectedStatus))
   assert.ok(state.includes(expectedFocus))
   assert.match(state, /Curriculum V3\.0 blueprint and audit are complete/i)
@@ -129,13 +129,14 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
   assert.match(state, /Python Data Tools Stage 1 is complete/i)
   assert.match(state, /Python Data Tools Stage 2 is complete/i)
   assert.match(state, /Python Data Tools Stage 3 completed/i)
-  assert.match(state, /Python Data Tools Stage 4 implementation plan is independently verified as 12 plans across 9 waves; execution has not started/i)
+  assert.match(state, /Python Data Tools Stage 4 completed all 12 plans across 9 waves/i)
+  assert.match(state, /117 Python Data Tools tests, 644 repository tests/i)
   assert.match(state, /V3\.1 as a whole remains in progress/i)
   assert.doesNotMatch(state, /V3\.1 (?:as a whole )?is (?:fully )?complete/i)
   assert.match(state, /without changing runtime lesson content/i)
   assert.match(state, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
   assert.ok(state.includes(expectedNextCommand))
-  assert.match(state, /without expanding into Stage 5 browser\/consistency closeout, Phase 24B Homepage Focus, or Phase 24C Spine progressive disclosure\./)
+  assert.match(state, /while keeping Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused\./)
 
   const stageLabels = [
     'Data and execution contract',
@@ -155,7 +156,7 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
   assert.match(stageLines[0], /^1\. \*\*Data and execution contract\*\* — Completed —/)
   assert.match(stageLines[1], /^2\. \*\*Eight-chapter Chinese master\*\* — Completed —/)
   assert.match(stageLines[2], /^3\. \*\*Notebook and real chart assets\*\* — Completed —/)
-  assert.match(stageLines[3], /^4\. \*\*English parity and runtime refactor\*\* — Current —/)
+  assert.match(stageLines[3], /^4\. \*\*English parity and runtime refactor\*\* — Completed —/)
   assert.match(stageLines[4], /^5\. \*\*Consistency, browser, and build validation\*\* — Planned —/)
   assert.match(roadmap, /Preserve current lessons, routes, checkpoints, and Progress V1\/V2 storage/i)
   assert.match(roadmap, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)

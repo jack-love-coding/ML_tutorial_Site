@@ -3,26 +3,27 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: paused
-last_updated: "2026-07-15T15:10:53.409Z"
+last_updated: "2026-07-16T16:17:00.000Z"
 ---
 
 # GSD State: ML Atlas Curriculum V2
 
-**Updated:** 2026-07-15
-**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–3 are completed slices; Python Data Tools Stage 4 specification, implementation context, and 12-plan implementation plan are approved and independently verified, and execution has not started. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+**Updated:** 2026-07-17
+**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–4 are completed slices; Python Data Tools Stage 5 consistency and browser validation remains planned. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Review and explicitly approve execution of the verified Stage 4 plan before changing runtime code; Plan 06 retains the blocking Plotly package approval checkpoint.
+**Current focus:** Discuss and plan Python Data Tools Stage 5 consistency, responsive-browser, and end-to-end validation without expanding into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.
 
 ## Baseline
 
-- `npm test`: pass, 583 tests at the independently verified Stage 4 planning baseline.
+- `npm test`: pass, 644 tests at the completed Stage 4 closeout.
 - `npm run build`: pass with existing Vite large-chunk warning.
 - `npm run build:pages`: pass with existing Vite large-chunk warning.
+- `npm run security:audit`: pass, 0 vulnerabilities.
 - Baseline details: `docs/refactor/baseline.md`.
 
 ## Codebase Map
@@ -96,7 +97,7 @@ See `.planning/codebase/`:
 - Python Data Tools Stage 2 completed the eight-chapter Chinese master, stable cell/output/exercise markers, and static structure tests without changing runtime lesson content.
 - Python Data Tools Stage 3 completed the clean-kernel Chinese Notebook, eight authoritative outputs, bundled Chinese chart font, deterministic generation, offline verification, and atomic rollback coverage without changing runtime lesson content.
 - Python Data Tools Stage 4 specification and implementation context approved eight falsifiable requirements, 18 resolved edge cases, five must-NOT constraints, a paged teaching structure, bilingual master authority, static teaching prompts, explicit legacy redirects, and checkpoint compatibility.
-- Python Data Tools Stage 4 implementation plan is independently verified as 12 plans across 9 waves; execution has not started, and Plan 06 preserves the explicit Plotly package approval gate before installation.
+- Python Data Tools Stage 4 completed all 12 plans across 9 waves: eight paired bilingual chapters, manifest-driven JSON/PNG/Plotly results, five static teaching prompts, exact legacy redirects, course-review compatibility, and preserved Progress V1/V2 storage all passed focused/full/build/browser gates.
 - Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 - Curriculum V3.0 changed no runtime lesson, route, or Progress V1/V2 data or storage behavior.
 
@@ -691,13 +692,13 @@ See `.planning/codebase/`:
 - Completed the AI Overview rebuild and Math-to-Code pilot as independently verified V3.1 slices; they do not complete V3.1 as a whole.
 - Python Data Tools Stage 1 is complete: the verified dataset snapshot, typed chapter/output contract, exact environment pins, offline validation, tests, production build, and GitHub Pages build passed without changing current runtime lesson content.
 - Python Data Tools Stage 2 is complete: it delivered the eight-chapter Chinese master, stable cell/output/exercise markers, planning calibration, and static tests without runtime changes.
-- Python Data Tools Stage 3 completed the planned asset slice; Stages 4–5 remain planned. It delivered an executed 48-code-cell Chinese Notebook, eight authoritative outputs, a pinned local Chinese chart font, deterministic regeneration, and atomic rollback coverage without runtime changes.
+- Python Data Tools Stage 3 delivered an executed 48-code-cell Chinese Notebook, eight authoritative outputs, a pinned local Chinese chart font, deterministic regeneration, and atomic rollback coverage without runtime changes.
 - Stage 3 verification passed the static Notebook/output contract, clean regeneration and byte-equality checks, failure-injection rollback, the complete 571-test suite, and production and GitHub Pages builds.
-- Python Data Tools Stage 4 specification, implementation context, and 12-plan implementation plan are approved and independently verified. They lock complete eight-chapter English semantic parity, a dedicated paged runtime, five legacy redirects, manifest-driven outputs, five static teaching prompts, checkpoint/Progress compatibility, accessibility fallbacks, and explicit non-goals.
-- Stage 4 planning verification covers all R1–R8 and D-01–D-19 decisions, the exact 9-wave dependency graph, eight Wave 0 test files, per-wave validation ownership, final test/build gates, and a bounded browser smoke; the complete 583-test suite passes, and no runtime source changed, so production and Pages builds were not rerun.
-- Stage 4 implementation discussion selected learner-facing result language, paired bilingual Markdown masters, controlled Plotly interactions, local resource fallbacks, teaching prompts instead of five interactive exercises, two new course-review checkpoint IDs, and exact silent legacy redirect mappings.
+- Python Data Tools Stage 4 is complete. It delivered complete eight-chapter English semantic parity, a dedicated current-chapter-only paged runtime, five exact legacy redirects, manifest-driven JSON/PNG/Plotly results, two base-safe Notebook download placements, five static teaching prompts, two new course-review checkpoint IDs, and local bilingual fallbacks.
+- Stage 4 preserved the three V1 Progress stores, V2/migration keys, historical attempt prefix, existing append writer, module identity, root route, and required-core curriculum role. It added no browser Python, backend kernel, upload, cleaning implementation, model training, inference statistics, causal claims, or prompt scoring/gating.
+- Stage 4 closeout passed the eight-pair preflight, generated-content compiler check, 117 Python Data Tools tests, 644 repository tests, standard and Pages builds, security audit, diff/scope audit, and a bounded root/canonical/legacy/next/previous browser smoke with zero final console errors.
 - Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Next Recommended Command
 
-Explicitly approve Python Data Tools Stage 4 execution, then run the verified 12-plan sequence without expanding into Stage 5 browser/consistency closeout, Phase 24B Homepage Focus, or Phase 24C Spine progressive disclosure.
+Discuss and plan Python Data Tools Stage 5 consistency, responsive-browser, and end-to-end validation while keeping Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused.
