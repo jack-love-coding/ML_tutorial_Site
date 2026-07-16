@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 
+import { pythonDataToolsRuntimeChapters } from '../src/data/generated/pythonDataToolsRuntime.generated.ts'
 import {
   loadPythonDataToolsManifest,
   loadPythonDataToolsOutput,
@@ -234,4 +235,62 @@ test('repeat and concurrent reads are deterministic, abortable, and have no life
 
   const source = await readFile(new URL('../src/utils/pythonDataToolsOutputs.ts', import.meta.url), 'utf8')
   assert.doesNotMatch(source, /localStorage|sessionStorage|Progress|onMounted|onBeforeUnmount|setTimeout|setInterval/)
+})
+
+test('generated result presentations provide complete bilingual teaching copy for every result', () => {
+  const presentations = pythonDataToolsRuntimeChapters.flatMap(({ blocks }) => (
+    blocks.filter((block) => block.kind === 'result-presentation')
+  ))
+  assert.equal(presentations.length, 8)
+  assert.deepEqual(
+    presentations.map(({ outputId }) => outputId),
+    [
+      'dataset-shape-schema',
+      'workingday-comparison',
+      'hourly-demand-profile',
+      'rider-composition',
+      'season-weather-distribution',
+      'pearson-correlation-matrix',
+      'plotly-hourly-explorer',
+      'final-analysis-evidence',
+    ],
+  )
+  for (const presentation of presentations) {
+    for (const field of [
+      presentation.title,
+      presentation.alt,
+      presentation.interpretation,
+      presentation.limitation,
+      presentation.fallbackSummary,
+    ]) {
+      assert.ok(field['zh-CN'].trim(), `${presentation.outputId} missing zh-CN copy`)
+      assert.ok(field.en.trim(), `${presentation.outputId} missing English copy`)
+    }
+    for (const translation of presentation.axisLegendTranslations) {
+      assert.ok(translation.source.trim())
+      assert.ok(translation.label['zh-CN'].trim())
+      assert.ok(translation.label.en.trim())
+    }
+  }
+})
+
+test('result block consumes generated copy and keeps JSON, PNG, and local failures pedagogical', async () => {
+  const source = await readFile(new URL('../src/components/PythonDataToolsResultBlock.vue', import.meta.url), 'utf8')
+  assert.match(source, /presentation: PythonDataToolsResultPresentationBlock/)
+  assert.match(source, /presentation\.title\[locale\]/)
+  assert.match(source, /presentation\.alt\[locale\]/)
+  assert.match(source, /presentation\.axisLegendTranslations/)
+  assert.match(source, /presentation\.interpretation\[locale\]/)
+  assert.match(source, /presentation\.limitation\[locale\]/)
+  assert.match(source, /presentation\.fallbackSummary\[locale\]/)
+  assert.match(source, /<MarkdownMathContent/)
+  assert.match(source, /<details[^>]*class="python-data-tools-result__raw"/)
+  assert.match(source, /<table>/)
+  assert.match(source, /scope="col"/)
+  assert.match(source, /fallbackResults/)
+  assert.match(source, /@error="imageFailed = true"/)
+  assert.match(source, /role="status"/)
+  assert.doesNotMatch(source, /v-html|localStorage|sessionStorage|saveAlgorithmProgress/)
+  assert.doesNotMatch(source, /dataset-shape-schema|hourly-demand-profile|workingday-comparison|season-weather-distribution|rider-composition|pearson-correlation-matrix|final-analysis-evidence/)
+  assert.doesNotMatch(source, />[^<{]*(证据|manifest)[^<{]*</i)
 })
