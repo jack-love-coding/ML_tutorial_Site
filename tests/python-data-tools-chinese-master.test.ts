@@ -37,6 +37,7 @@ const requiredSections = [
 
 const cellMarkerPattern = /<!-- cell: (ch\d{2}-[a-z0-9-]+) role: ([a-z]+)(?: output: ([a-z0-9-]+))? -->\n```python\n/g
 const exerciseMarkerPattern = /<!-- exercise: ([a-z0-9-]+) -->/g
+const teachingPromptMarkerPattern = /<!-- teaching-prompt: id=([a-z0-9-]+) kind=([a-z0-9-]+) chapter=([a-z0-9-]+) scored=(true|false) submitted=(true|false) persistedToProgress=(true|false) gatesChapter=(true|false) -->/g
 const pythonBlockPattern = /```python\n[\s\S]*?```/g
 const resultPresentationMarkerPattern = /<!-- result-presentation: ([a-z0-9-]+) -->/g
 const firstHalfChapterIds = new Set<PythonDataToolsChapterId>([
@@ -78,6 +79,48 @@ const parseResultPresentation = (source: string, outputId: string) => {
     parsed.set(field, value)
   }
   return { markerIndex: start, fields: parsed }
+}
+
+const parseTeachingPrompt = (source: string, promptId: string) => {
+  const markerPattern = new RegExp(
+    `<!-- teaching-prompt: id=${promptId} kind=([a-z0-9-]+) chapter=([a-z0-9-]+) `
+      + 'scored=(true|false) submitted=(true|false) persistedToProgress=(true|false) '
+      + 'gatesChapter=(true|false) -->',
+  )
+  const marker = source.match(markerPattern)
+  assert.ok(marker, `missing teaching prompt marker for ${promptId}`)
+  const start = source.indexOf(marker[0]) + marker[0].length
+  const remainder = source.slice(start)
+  const promptHeading = remainder.indexOf('\n## 想一想')
+  assert.ok(promptHeading >= 0, `${promptId} teaching prompt is missing 想一想`)
+  const nextSection = remainder.indexOf('\n## ', promptHeading + '\n## 想一想'.length)
+  const block = remainder.slice(promptHeading, nextSection >= 0 ? nextSection : undefined)
+  const headings = ['想一想', '参考思路', '常见误区', '复看'] as const
+  const values = new Map<string, string>()
+
+  for (const [index, heading] of headings.entries()) {
+    const prefix = index === 0 ? `## ${heading}` : `### ${heading}`
+    const fieldStart = block.indexOf(prefix)
+    assert.ok(fieldStart >= 0, `${promptId} teaching prompt is missing ${heading}`)
+    const valueStart = fieldStart + prefix.length
+    const followingHeading = block.indexOf('\n### ', valueStart)
+    const value = block.slice(valueStart, followingHeading >= 0 ? followingHeading : undefined).trim()
+    assert.ok(value, `${promptId} teaching prompt has empty ${heading}`)
+    values.set(heading, value)
+  }
+
+  return {
+    kind: marker[1],
+    chapterId: marker[2],
+    policy: {
+      scored: marker[3] === 'true',
+      submitted: marker[4] === 'true',
+      persistedToProgress: marker[5] === 'true',
+      gatesChapter: marker[6] === 'true',
+    },
+    block,
+    values,
+  }
 }
 
 const readMaster = async () => {
@@ -250,30 +293,63 @@ test('chapters one through four preserve Stage 3 Python bytes and source/output 
   }
 })
 
-test('the five formative exercises match contract mounts and include explanatory feedback', async () => {
-  const { chapters } = await readMaster()
+test('the five contract mounts remain stable while first-half pauses are stateless teaching prompts', async () => {
+  const { index, chapters } = await readMaster()
   const actual = new Map<PythonDataToolsChapterId, PythonDataToolsExerciseKind>()
+  const firstHalfPrompts = new Map<PythonDataToolsChapterId, PythonDataToolsExerciseKind>()
 
-  for (const [index, source] of chapters.entries()) {
-    const chapterId = pythonDataToolsContract.chapters[index].id
+  for (const [chapterIndex, source] of chapters.entries()) {
+    const chapterId = pythonDataToolsContract.chapters[chapterIndex].id
     const exerciseMarkers = [...source.matchAll(exerciseMarkerPattern)]
     assert.ok(exerciseMarkers.length <= 1, `${chapterId} has more than one exercise`)
     if (exerciseMarkers.length === 0) continue
 
     const kind = exerciseMarkers[0][1] as PythonDataToolsExerciseKind
     actual.set(chapterId, kind)
-    for (const heading of ['### 题目', '### 提示', '### 即时反馈', '### 常见误区', '### 复看锚点']) {
-      assert.ok(source.includes(heading), `${chapterId} exercise is missing ${heading}`)
+    if (chapterIndex < 4) {
+      const prompt = parseTeachingPrompt(source, kind)
+      firstHalfPrompts.set(chapterId, kind)
+      assert.equal(prompt.kind, kind)
+      assert.equal(prompt.chapterId, chapterId)
+      assert.deepEqual(prompt.policy, {
+        scored: pythonDataToolsContract.exercisePolicy.scored,
+        submitted: pythonDataToolsContract.exercisePolicy.submitted,
+        persistedToProgress: pythonDataToolsContract.exercisePolicy.persistedToProgress,
+        gatesChapter: pythonDataToolsContract.exercisePolicy.gatesChapter,
+      })
+      assert.doesNotMatch(
+        stripAuthoringSyntax(prompt.block),
+        /选择\s*[A-D]|输入|提交|判分|计分|重置|完成状态|学习进度|localStorage|fetch|XMLHttpRequest|sklearn|\.fit\(|\.predict\(|dropna|fillna|drop_duplicates|置信区间|显著性|p\s*值|导致|造成/i,
+        `${kind} must remain static and inside the descriptive-analysis boundary`,
+      )
+    } else {
+      for (const heading of ['### 题目', '### 提示', '### 即时反馈', '### 常见误区', '### 复看锚点']) {
+        assert.ok(source.includes(heading), `${chapterId} exercise is missing ${heading}`)
+      }
+      assert.match(source, /不计分、不提交、不写入学习进度，也不阻挡下一章/)
+      assert.match(source, /选择 A：/)
+      assert.match(source, /选择 B：/)
     }
-    assert.match(source, /不计分、不提交、不写入学习进度，也不阻挡下一章/)
-    assert.match(source, /选择 A：/)
-    assert.match(source, /选择 B：/)
   }
 
   assert.deepEqual(
     [...actual.entries()],
     pythonDataToolsContract.exerciseMounts.map(({ chapterId, kind }) => [chapterId, kind]),
   )
+  assert.deepEqual(
+    [...firstHalfPrompts.entries()],
+    pythonDataToolsContract.exerciseMounts
+      .filter(({ chapterId }) => firstHalfChapterIds.has(chapterId))
+      .map(({ chapterId, kind }) => [chapterId, kind]),
+  )
+  assert.equal([...chapters.slice(0, 4).join('\n').matchAll(teachingPromptMarkerPattern)].length, 2)
+  assert.match(index, /## 静态教学提示/)
+  assert.match(index, /## 正式运行结果与呈现标记/)
+  assert.match(index, /id=shape-index kind=shape-index chapter=numpy-foundations/)
+  assert.match(index, /scored=false submitted=false persistedToProgress=false gatesChapter=false/)
+  for (const heading of ['运行结果标题', '无障碍说明', '坐标轴与图例翻译', '分析发现', '需要注意', '静态摘要']) {
+    assert.ok(index.includes(`### ${heading}`), `README result grammar is missing ${heading}`)
+  }
 })
 
 test('visualization chapters teach misleading-chart repair and accessible fallbacks', async () => {
