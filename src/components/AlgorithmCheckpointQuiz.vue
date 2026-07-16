@@ -10,7 +10,7 @@ const props = withDefaults(defineProps<{
   checkpoints: AlgorithmCheckpointItem[]
   locale: AppLocale
   completed: boolean
-  mode?: 'scored' | 'formative'
+  mode?: 'scored' | 'formative' | 'course-review'
 }>(), {
   mode: 'scored',
 })
@@ -40,7 +40,11 @@ const summary = computed(() => {
 })
 
 function revisitRoute(checkpoint: AlgorithmCheckpointItem) {
-  if (props.moduleSlug === 'linear-regression' || props.moduleSlug === 'logistic-regression') {
+  if (
+    props.moduleSlug === 'linear-regression'
+    || props.moduleSlug === 'logistic-regression'
+    || props.moduleSlug === 'python-notebook'
+  ) {
     return `/learn/${props.moduleSlug}/${checkpoint.revisitChapterId}`
   }
 
@@ -51,7 +55,7 @@ function revisitRoute(checkpoint: AlgorithmCheckpointItem) {
 }
 
 function submit() {
-  if (props.mode !== 'scored') return
+  if (props.mode === 'formative') return
   submitted.value = true
   emit(
     'submit',
@@ -68,14 +72,18 @@ function submit() {
       <div>
         <span>
           {{
-            mode === 'formative'
+            mode === 'course-review'
+              ? locale === 'zh-CN' ? '课程回顾' : 'Course Review'
+              : mode === 'formative'
               ? locale === 'zh-CN' ? '形成性 checkpoint' : 'Formative checkpoint'
               : locale === 'zh-CN' ? '模块 checkpoint' : 'Module checkpoint'
           }}
         </span>
         <h2>
           {{
-            mode === 'formative'
+            mode === 'course-review'
+              ? locale === 'zh-CN' ? '回看分组分析与相关性的解释边界' : 'Review grouped analysis and the limits of correlation'
+              : mode === 'formative'
               ? locale === 'zh-CN' ? '选择后立即查看解释与易混误区' : 'Choose an answer to reveal the explanation and misconceptions'
               : locale === 'zh-CN' ? '完成前确认你真的看懂了' : 'Confirm the module clicked before moving on'
           }}
@@ -117,7 +125,9 @@ function submit() {
           <div>
             <strong>
               {{
-                mode === 'formative'
+                mode === 'course-review'
+                  ? locale === 'zh-CN' ? '参考解释' : 'Explanation'
+                  : mode === 'formative'
                   ? locale === 'zh-CN' ? '解释与误区' : 'Explanation and misconceptions'
                   : evaluations[checkpoint.id]?.correct
                   ? locale === 'zh-CN'
@@ -140,8 +150,12 @@ function submit() {
       </article>
     </div>
 
-    <button v-if="mode === 'scored'" type="button" class="action-button action-button--primary" @click="submit">
-      {{ locale === 'zh-CN' ? '提交检测' : 'Submit checkpoint' }}
+    <button v-if="mode !== 'formative'" type="button" class="action-button action-button--primary" @click="submit">
+      {{
+        mode === 'course-review'
+          ? locale === 'zh-CN' ? '提交回顾' : 'Submit review'
+          : locale === 'zh-CN' ? '提交检测' : 'Submit checkpoint'
+      }}
     </button>
   </section>
 </template>

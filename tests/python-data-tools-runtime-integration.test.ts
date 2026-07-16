@@ -78,7 +78,7 @@ test('AlgorithmView selects the generated current chapter and omits its generic 
   assert.match(source, /activePythonDataToolsChapter/)
   assert.match(source, /v-if="!isPythonNotebookPage"[\s\S]*class="algorithm-hero"/)
   assert.ok(heroIndex >= 0 && pythonPageIndex > heroIndex)
-  assert.match(source, /v-if="isPythonNotebookPage && activePythonDataToolsChapter"/)
+  assert.match(source, /v-(?:else-)?if="isPythonNotebookPage && activePythonDataToolsChapter"/)
   assert.match(source, /:chapter="activePythonDataToolsChapter"/)
   assert.match(source, /:locale="currentLocale"/)
   assert.match(source, /isLinearRegressionPage/)

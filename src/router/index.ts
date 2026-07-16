@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { isCurriculumLibraryDomain } from '../curriculum/library.ts'
 import { resolveCanonicalLearnRedirect, resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
+import { resolvePythonDataToolsChapter } from '../utils/pythonDataToolsRoutes.ts'
 
 export const routeNavigating = ref(false)
 export const pendingRoutePath = ref('/')
@@ -28,6 +29,18 @@ function redirectCanonicalLearnRoute(to: RouteLocationNormalized) {
 function redirectInvalidLibraryDomain(to: RouteLocationNormalized) {
   const domain = routeParamValue(to.params.domain)
   return isCurriculumLibraryDomain(domain) ? true : { path: '/library/math' }
+}
+
+function redirectPythonDataToolsChapter(to: RouteLocationNormalized) {
+  const resolution = resolvePythonDataToolsChapter(routeParamValue(to.params.chapterId))
+  if (resolution.kind === 'current') return true
+
+  return {
+    path: `/learn/python-notebook/${resolution.id}`,
+    query: to.query,
+    hash: to.hash,
+    replace: true,
+  }
 }
 
 export const router = createRouter({
@@ -107,6 +120,18 @@ export const router = createRouter({
     {
       path: '/learn/logistic-regression/:chapterId',
       name: 'logistic-regression-chapter',
+      component: () => import('../views/AlgorithmView.vue'),
+    },
+    {
+      path: '/learn/python-notebook',
+      name: 'python-data-tools-root',
+      beforeEnter: redirectPythonDataToolsChapter,
+      component: () => import('../views/AlgorithmView.vue'),
+    },
+    {
+      path: '/learn/python-notebook/:chapterId',
+      name: 'python-data-tools-chapter',
+      beforeEnter: redirectPythonDataToolsChapter,
       component: () => import('../views/AlgorithmView.vue'),
     },
     {

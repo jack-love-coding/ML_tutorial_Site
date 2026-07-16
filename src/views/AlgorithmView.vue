@@ -20,6 +20,8 @@ import LossFunctionsResults from '../components/LossFunctionsResults.vue'
 import AlgorithmCheckpointQuiz from '../components/AlgorithmCheckpointQuiz.vue'
 import LinearRegressionPagedLesson from '../components/LinearRegressionPagedLesson.vue'
 import LogisticRegressionPagedLesson from '../components/LogisticRegressionPagedLesson.vue'
+import PythonDataToolsPagedLesson from '../components/PythonDataToolsPagedLesson.vue'
+import { pythonDataToolsRuntimeChapters } from '../data/generated/pythonDataToolsRuntime.generated.ts'
 import ClassificationLessonLab from '../components/ClassificationLessonLab.vue'
 import AiOverviewLessonLab from '../components/AiOverviewLessonLab.vue'
 import AppliedWorkflowLessonLab from '../components/AppliedWorkflowLessonLab.vue'
@@ -61,6 +63,7 @@ const slug = computed(() => {
   if (route.path.startsWith('/learn/cnn-visualization')) return 'cnn-visualization' as ModuleSlug
   if (route.path.startsWith('/learn/logistic-regression')) return 'logistic-regression' as ModuleSlug
   if (route.path.startsWith('/learn/linear-regression')) return 'linear-regression' as ModuleSlug
+  if (route.path.startsWith('/learn/python-notebook')) return 'python-notebook' as ModuleSlug
   return 'linear-regression' as ModuleSlug
 })
 const requestedChapterId = computed(() => {
@@ -88,7 +91,6 @@ const isOptimizerComparisonPage = computed(() => slug.value === 'optimizer-compa
 const isLlmRagPage = computed(() => slug.value === 'llm-rag')
 const isWorkflowLessonPage = computed(
   () =>
-    isPythonNotebookPage.value ||
     isHousingProjectPage.value ||
     isClassificationProjectPage.value ||
     isModelSelectionPage.value ||
@@ -156,6 +158,11 @@ const activeSection = computed(
     moduleDefinition.value?.chapters.find((chapter) => chapter.id === activeChapter.value) ??
     moduleDefinition.value?.chapters[0],
 )
+
+const activePythonDataToolsChapter = computed(() => {
+  if (!isPythonNotebookPage.value) return undefined
+  return pythonDataToolsRuntimeChapters.find((chapter) => chapter.id === activeChapter.value)
+})
 
 const teachingInsights = computed(() =>
   getTeachingInsights(slug.value, snapshot.value, experiment.value?.config),
@@ -454,6 +461,7 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
     }"
   >
     <section
+      v-if="!isPythonNotebookPage"
       class="algorithm-hero"
       :style="{ '--module-accent': moduleDefinition.accent, '--module-theme': moduleDefinition.theme }"
     >
@@ -545,6 +553,12 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
         />
       </template>
     </LessonPage>
+
+    <PythonDataToolsPagedLesson
+      v-else-if="isPythonNotebookPage && activePythonDataToolsChapter"
+      :chapter="activePythonDataToolsChapter"
+      :locale="currentLocale"
+    />
 
     <section
       v-else-if="isWorkflowLessonPage"
@@ -787,13 +801,13 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
     </section>
 
     <AlgorithmCheckpointQuiz
-      v-if="moduleDefinition.checkpoints.length && !isAiOverviewPage"
+      v-if="moduleDefinition.checkpoints.length && !isAiOverviewPage && (!isPythonNotebookPage || activeSection?.id === 'analysis-report')"
       :module-slug="moduleDefinition.slug"
       :module-route="moduleDefinition.route"
       :checkpoints="moduleDefinition.checkpoints"
       :locale="currentLocale"
       :completed="progress.completedModuleSlugs.includes(moduleDefinition.slug)"
-      mode="scored"
+      :mode="isPythonNotebookPage ? 'course-review' : 'scored'"
       @submit="onAlgorithmQuizSubmit"
     />
 
@@ -828,7 +842,7 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
     </section>
 
     <section
-      v-else-if="!isLinearRegressionPage && !isWorkflowLessonPage"
+      v-else-if="!isLinearRegressionPage && !isWorkflowLessonPage && !isPythonNotebookPage"
       class="results-grid"
       :class="{ 'results-grid--gradient': isGradientPage }"
     >

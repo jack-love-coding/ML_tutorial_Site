@@ -448,18 +448,12 @@ test('environment publication preserves prior bytes and cleans its temp file whe
   }
 })
 
-test('phase 1 preserves the existing runtime lesson and checkpoint boundary', () => {
+test('stage 4 preserves the module identity while registering generated contract chapters', () => {
   assert.equal(pythonNotebookModule.slug, 'python-notebook')
   assert.equal(pythonNotebookModule.route, '/learn/python-notebook')
   assert.deepEqual(
     pythonNotebookModule.chapters.map(({ id }) => id),
-    [
-      'notebook-rhythm',
-      'numpy-arrays',
-      'pandas-tables',
-      'sklearn-small-model',
-      'reproducible-handoff',
-    ],
+    pythonDataToolsContract.chapters.map(({ id }) => id),
   )
   assert.strictEqual(
     pythonNotebookModule.checkpoints,

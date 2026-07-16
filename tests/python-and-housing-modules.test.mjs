@@ -43,12 +43,13 @@ test('Python notebook and housing project modules follow their curriculum roles'
   assert.match(algorithmViewSource, /slug\.value === 'python-notebook'/)
   assert.match(algorithmViewSource, /slug\.value === 'housing-price-project'/)
   assert.match(algorithmViewSource, /algorithm-view--workflow/)
-  assert.match(algorithmViewSource, /v-else-if="!isLinearRegressionPage && !isWorkflowLessonPage"/)
+  assert.match(algorithmViewSource, /<PythonDataToolsPagedLesson/)
+  assert.match(algorithmViewSource, /v-else-if="!isLinearRegressionPage && !isWorkflowLessonPage && !isPythonNotebookPage"/)
   assert.match(messagesSource, /pythonNotebook: \{/)
   assert.match(messagesSource, /housingPriceProject: \{/)
 })
 
-test('Python notebook module teaches arrays, tables, and a small sklearn model with centralized references', () => {
+test('Python notebook module shallowly registers the generated eight-chapter data-tools course', () => {
   const modulePath = new URL('src/data/pythonNotebookModule.ts', root)
   assert.ok(existsSync(modulePath), 'src/data/pythonNotebookModule.ts should exist')
 
@@ -56,39 +57,21 @@ test('Python notebook module teaches arrays, tables, and a small sklearn model w
 
   assert.match(moduleSource, /slug: 'python-notebook'/)
   assert.match(moduleSource, /route: '\/learn\/python-notebook'/)
-  assert.equal([...moduleSource.matchAll(/chapter\(\s*'/g)].length, 5)
-
-  for (const id of ['notebook-rhythm', 'numpy-arrays', 'pandas-tables', 'sklearn-small-model', 'reproducible-handoff']) {
-    assert.match(moduleSource, new RegExp(`chapter\\(\\s*'${id}'`))
-  }
-
-  for (const requiredConcept of [
-    'NumPy 数组',
-    'pandas 表格',
-    'sklearn 训练一个小模型',
-    'notebook cell',
-    'np.array',
-    'shape',
-    'DataFrame',
-    'read_csv',
-    'train_test_split',
-    'LinearRegression',
-    'mean_absolute_error',
-    '老师会先问',
-    '想一想',
+  assert.match(moduleSource, /pythonDataToolsRuntimeChapters\.map/)
+  for (const id of [
+    'notebook-workflow',
+    'numpy-foundations',
+    'pandas-structures',
+    'pandas-analysis',
+    'matplotlib-visualization',
+    'seaborn-statistics',
+    'plotly-exploration',
+    'analysis-report',
   ]) {
-    assert.match(moduleSource, new RegExp(escaped(requiredConcept)))
+    assert.match(moduleSource, new RegExp(escaped(id)))
   }
 
-  for (const refId of [
-    'REF-NUMPY-BEGINNER',
-    'REF-PANDAS-GETTING-STARTED',
-    'REF-PYTHON-DS-HANDBOOK',
-    'REF-SKLEARN-GETTING-STARTED',
-  ]) {
-    assert.match(moduleSource, new RegExp(refId))
-  }
-
+  assert.doesNotMatch(moduleSource, /sklearn|train_test_split|LinearRegression|mean_absolute_error/)
   assert.doesNotMatch(moduleSource, /https?:\/\//)
   assert.doesNotMatch(moduleSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
 })
@@ -148,8 +131,8 @@ test('New workflow chapters expose checkpoints, lab scaffolds, and reference ent
 
   for (const token of [
     "'python-notebook': [",
-    'python-notebook-array-shape',
-    'python-notebook-sklearn-split',
+    'python-data-tools-grouped-analysis-interpretation',
+    'python-data-tools-correlation-not-causation',
     "'housing-price-project': [",
     'housing-project-leakage',
     'housing-project-evaluation',

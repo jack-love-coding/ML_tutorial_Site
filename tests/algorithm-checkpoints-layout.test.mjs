@@ -44,12 +44,12 @@ test('AI Overview uses immediate local formative feedback while other modules st
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
   const chapterLabSource = read('src/modules/ai-overview/labs/AiOverviewChapterLab.vue')
 
-  assert.match(componentSource, /mode\?: 'scored' \| 'formative'/)
+  assert.match(componentSource, /mode\?: 'scored' \| 'formative' \| 'course-review'/)
   assert.match(componentSource, /mode: 'scored'/)
   assert.match(componentSource, /mode === 'formative'.*answers\[checkpoint\.id\]/s)
   assert.match(componentSource, /checkpoint\.misconceptionTags/)
   assert.match(componentSource, /v-if="mode === 'scored'"/)
-  assert.match(componentSource, /if \(props\.mode !== 'scored'\) return/)
+  assert.match(componentSource, /if \(props\.mode === 'formative'\) return/)
   assert.match(algorithmViewSource, /moduleDefinition\.checkpoints\.length && !isAiOverviewPage/)
   assert.doesNotMatch(algorithmViewSource, /:mode="isAiOverviewPage \? 'formative' : 'scored'"/)
   assert.match(chapterLabSource, /<AlgorithmCheckpointQuiz/)
@@ -64,11 +64,13 @@ test('AI Overview uses immediate local formative feedback while other modules st
     componentSource.indexOf('function submit()'),
     componentSource.indexOf('</script>'),
   )
-  assert.ok(submitFunction.indexOf("if (props.mode !== 'scored') return") < submitFunction.indexOf('emit('))
+  assert.ok(submitFunction.indexOf("if (props.mode === 'formative') return") < submitFunction.indexOf('emit('))
 
+  const checkpointHeaderStart = componentSource.indexOf('<header class="algorithm-checkpoint__header">')
   const formativeHeader = componentSource.slice(
-    componentSource.indexOf("mode === 'formative'"),
-    componentSource.indexOf('<strong v-if="mode === \'scored\'"'),
+    checkpointHeaderStart,
+    componentSource.indexOf('<strong v-if="mode === \'scored\'"', checkpointHeaderStart),
   )
+  assert.match(formativeHeader, /mode === 'formative'/)
   assert.doesNotMatch(formativeHeader, /答对|correct|score|submit/i)
 })

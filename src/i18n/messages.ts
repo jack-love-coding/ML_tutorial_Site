@@ -232,25 +232,34 @@ export const messages = {
         },
       },
       pythonNotebook: {
-        title: 'Python 与 notebook 复现实验',
-        kicker: 'Notebook Companion',
-        intro: '把站内实验搬进 Python：用 NumPy 表达数组和 shape，用 pandas 读表和做 EDA，再用 sklearn 训练第一个小模型。',
-        summary: '这一章不追求复杂模型，先让学生能从 notebook cell 复现数组、表格、划分、fit、predict 和 metric。',
+        title: 'Python 数据分析工具：从 Notebook 到可复现报告',
+        kicker: 'Python Data Tools',
+        intro: '使用共享单车数据快照，依次学习 Notebook、NumPy、pandas、Matplotlib、Seaborn 和 Plotly，完成一轮可复现的描述性分析。',
+        summary: '八章课程把数组、表格、分组统计、静态图表、交互探索与分析报告连成一条完整的数据分析路径。',
         sections: {
-          notebookRhythm: {
-            title: 'notebook 不是草稿纸：每个 cell 都要回答一个问题',
+          notebookWorkflow: {
+            title: 'Notebook 工作流：让每个 cell 回答一个问题',
           },
-          numpyArrays: {
-            title: 'NumPy 数组：先看 shape，再谈公式',
+          numpyFoundations: {
+            title: 'NumPy 基础：用 shape、索引和向量化理解数组',
           },
-          pandasTables: {
-            title: 'pandas 表格：从 CSV 到建模材料',
+          pandasStructures: {
+            title: 'pandas 数据结构：从列、类型到表格语义',
           },
-          sklearnSmallModel: {
-            title: 'sklearn 小模型：split、fit、predict、metric',
+          pandasAnalysis: {
+            title: 'pandas 分析：筛选、分组与比较',
           },
-          reproducibleHandoff: {
-            title: '复现实验交付：能从头运行，也能说清下一步',
+          matplotlibVisualization: {
+            title: 'Matplotlib：把问题变成清晰图表',
+          },
+          seabornStatistics: {
+            title: 'Seaborn：读取分布、关系与相关性',
+          },
+          plotlyExploration: {
+            title: 'Plotly：用受控交互探索小时模式',
+          },
+          analysisReport: {
+            title: '分析报告：整理发现、限制与复现说明',
           },
         },
       },
@@ -917,27 +926,34 @@ export const messages = {
         },
       },
       pythonNotebook: {
-        title: 'Python and Notebook Reproduction',
-        kicker: 'Notebook Companion',
-        intro:
-          'Move site experiments into Python: use NumPy for arrays and shape, pandas for tables and EDA, then train a first small sklearn model.',
-        summary:
-          'This chapter avoids complex models at first. Students reproduce arrays, tables, split, fit, predict, and metric through notebook cells.',
+        title: 'Python Data Tools: From Notebook to Reproducible Report',
+        kicker: 'Python Data Tools',
+        intro: 'Use a shared-bike dataset snapshot to learn Notebook workflow, NumPy, pandas, Matplotlib, Seaborn, and Plotly through one reproducible descriptive analysis.',
+        summary: 'Eight chapters connect arrays, tables, grouped summaries, static charts, interactive exploration, and an analysis report into one complete data-analysis path.',
         sections: {
-          notebookRhythm: {
-            title: 'A notebook is not scratch paper: each cell answers a question',
+          notebookWorkflow: {
+            title: 'Notebook workflow: make each cell answer a question',
           },
-          numpyArrays: {
-            title: 'NumPy arrays: check shape before formulas',
+          numpyFoundations: {
+            title: 'NumPy foundations: understand arrays through shape, indexing, and vectorization',
           },
-          pandasTables: {
-            title: 'pandas tables: from CSV to modeling material',
+          pandasStructures: {
+            title: 'pandas structures: columns, dtypes, and table meaning',
           },
-          sklearnSmallModel: {
-            title: 'A small sklearn model: split, fit, predict, metric',
+          pandasAnalysis: {
+            title: 'pandas analysis: filter, group, and compare',
           },
-          reproducibleHandoff: {
-            title: 'Reproducible handoff: rerunnable and ready for the next step',
+          matplotlibVisualization: {
+            title: 'Matplotlib: turn questions into clear charts',
+          },
+          seabornStatistics: {
+            title: 'Seaborn: read distributions, relationships, and correlation',
+          },
+          plotlyExploration: {
+            title: 'Plotly: explore hourly patterns with controlled interaction',
+          },
+          analysisReport: {
+            title: 'Analysis report: organize findings, limits, and reproducibility',
           },
         },
       },
