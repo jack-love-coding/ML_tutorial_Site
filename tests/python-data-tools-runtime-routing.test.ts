@@ -6,6 +6,7 @@ import { pythonDataToolsContract } from '../src/data/pythonNotebookContract.ts'
 
 const resolverUrl = new URL('../src/utils/pythonDataToolsRoutes.ts', import.meta.url)
 const routerUrl = new URL('../src/router/index.ts', import.meta.url)
+const pageUrl = new URL('../src/components/PythonDataToolsPagedLesson.vue', import.meta.url)
 
 async function loadResolver() {
   assert.ok(
@@ -73,6 +74,22 @@ test('Python Data Tools keeps every current contract chapter ID unchanged', asyn
     currentIds.map(() => 'current'),
     'every current contract ID must be diagnosed as current',
   )
+
+  const expectedLinks = currentIds.map((id) => `/learn/python-notebook/${id}`)
+  assert.deepEqual(expectedLinks, [
+    '/learn/python-notebook/notebook-workflow',
+    '/learn/python-notebook/numpy-foundations',
+    '/learn/python-notebook/pandas-structures',
+    '/learn/python-notebook/pandas-analysis',
+    '/learn/python-notebook/matplotlib-visualization',
+    '/learn/python-notebook/seaborn-statistics',
+    '/learn/python-notebook/plotly-exploration',
+    '/learn/python-notebook/analysis-report',
+  ])
+
+  const pageSource = readFileSync(pageUrl, 'utf8')
+  assert.match(pageSource, /return `\$\{pythonDataToolsContract\.route\}\/\$\{chapterEntry\.id\}`/)
+  assert.doesNotMatch(pageSource, /legacyPythonDataToolsChapterMap|resolvePythonDataToolsChapter/)
 })
 
 test('Python Data Tools falls back from empty and unknown IDs to the first contract chapter', async () => {
@@ -170,4 +187,8 @@ test('dedicated Python routes canonicalize before the generic lesson route can m
     source.slice(guardIndex, rootRouteIndex),
     /saveAlgorithmProgress|appendAlgorithmQuizAttempt|localStorage|sessionStorage/,
   )
+
+  const rootRouteSource = source.slice(rootRouteIndex, chapterRouteIndex)
+  assert.match(rootRouteSource, /beforeEnter:\s*redirectPythonDataToolsChapter/)
+  assert.match(source.slice(chapterRouteIndex, genericRouteIndex), /beforeEnter:\s*redirectPythonDataToolsChapter/)
 })

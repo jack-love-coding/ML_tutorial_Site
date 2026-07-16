@@ -7,6 +7,8 @@ import { pythonDataToolsRuntimeChapters } from '../src/data/generated/pythonData
 import { pythonNotebookModule } from '../src/data/pythonNotebookModule.ts'
 import { algorithmCheckpointsBySlug } from '../src/data/algorithmCheckpoints.ts'
 import { messages } from '../src/i18n/messages.ts'
+import { curriculumRoleForModule } from '../src/curriculum/roles.ts'
+import { curriculumV3FoundationModules } from '../src/curriculum/v3/modules/foundations.ts'
 
 const root = new URL('../', import.meta.url)
 const read = (path: string) => readFileSync(new URL(path, root), 'utf8')
@@ -59,12 +61,31 @@ test('live module keeps its identity and registers the eight generated chapters 
   assert.doesNotMatch(moduleSource, /bike-sharing-hour|authoritative-outputs|dataset-shape-schema\s*:/)
 })
 
+test('live switch preserves the catalog identity and required-core curriculum role', () => {
+  const role = curriculumRoleForModule('python-notebook')
+  const v3Module = curriculumV3FoundationModules.find(({ id }) => id === 'python-notebook')
+
+  assert.equal(pythonDataToolsContract.moduleId, 'python-notebook')
+  assert.equal(pythonDataToolsContract.route, '/learn/python-notebook')
+  assert.deepEqual(role && { moduleId: role.moduleId, role: role.role }, {
+    moduleId: 'python-notebook',
+    role: 'required-core',
+  })
+  assert.deepEqual(v3Module && { id: v3Module.id, role: v3Module.role }, {
+    id: 'python-notebook',
+    role: 'required-core',
+  })
+})
+
 test('live Python catalog copy is exact, bilingual, and free of the retired modeling lesson', () => {
   assert.deepEqual(messages['zh-CN'].modules.pythonNotebook, expectedCopy['zh-CN'])
   assert.deepEqual(messages.en.modules.pythonNotebook, expectedCopy.en)
   for (const locale of ['zh-CN', 'en'] as const) {
     const visibleCopy = JSON.stringify(messages[locale].modules.pythonNotebook)
-    assert.doesNotMatch(visibleCopy, /sklearn|train_test_split|\bfit\b|\bpredict\b|\bmetric\b|模型训练|model training/i)
+    assert.doesNotMatch(
+      visibleCopy,
+      /sklearn|\bsplit\b|\bfit\b|\bpredict\b|\bmetric\b|\bmodel\b|\btraining\b|模型|训练/i,
+    )
   }
 })
 
@@ -84,6 +105,15 @@ test('AlgorithmView selects the generated current chapter and omits its generic 
   assert.match(source, /isLinearRegressionPage/)
   assert.match(source, /algorithm-hero__status/)
   assert.match(source, /algorithm-hero__stats/)
+
+  const heroSubtree = source.slice(
+    source.indexOf('<section\n      v-if="!isPythonNotebookPage"'),
+    source.indexOf('</section>', source.indexOf('class="algorithm-hero__stats"')) + '</section>'.length,
+  )
+  assert.match(heroSubtree, /algorithm-hero__status/)
+  assert.match(heroSubtree, /algorithm-hero__stats/)
+  assert.doesNotMatch(heroSubtree, /PythonDataToolsPagedLesson/)
+  assert.match(source.slice(pythonPageIndex), /v-else-if="isLinearRegressionPage/)
 })
 
 test('only the final report exposes the two-question course review through the existing submit handler', () => {
@@ -96,6 +126,13 @@ test('only the final report exposes the two-question course review through the e
     'pandas-analysis',
     'seaborn-statistics',
   ])
+  assert.deepEqual(
+    checkpoints.map(({ revisitChapterId }) => `${pythonDataToolsContract.route}/${revisitChapterId}`),
+    [
+      '/learn/python-notebook/pandas-analysis',
+      '/learn/python-notebook/seaborn-statistics',
+    ],
+  )
 
   const viewSource = read('src/views/AlgorithmView.vue')
   const quizSource = read('src/components/AlgorithmCheckpointQuiz.vue')

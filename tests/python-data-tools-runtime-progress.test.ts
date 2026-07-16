@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 import { algorithmCheckpointsBySlug } from '../src/data/algorithmCheckpoints.ts'
@@ -86,4 +87,16 @@ test('legacy Python attempts remain an unchanged prefix through redirects, new s
     'python-data-tools-grouped-analysis-interpretation',
     'python-data-tools-correlation-not-causation',
   ])
+})
+
+test('the V1 progress loader keeps stored attempts without a current-checkpoint allowlist', () => {
+  const source = readFileSync(new URL('../src/utils/algorithmProgress.ts', import.meta.url), 'utf8')
+  const loaderSource = source.slice(
+    source.indexOf('export function loadAlgorithmProgress'),
+    source.indexOf('export function saveAlgorithmProgress'),
+  )
+
+  assert.equal(algorithmProgressStorageKey, 'ml-atlas:algorithm-progress:v1')
+  assert.match(loaderSource, /quizAttempts:\s*parsed\.quizAttempts \?\? \[\]/)
+  assert.doesNotMatch(loaderSource, /\.filter\(|algorithmCheckpointsBySlug|python-data-tools-/)
 })
