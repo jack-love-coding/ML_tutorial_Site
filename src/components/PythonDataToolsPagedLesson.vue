@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { usePythonDataToolsOutputSession } from '../composables/usePythonDataToolsOutputSession.ts'
 import { pythonDataToolsRuntimeChapters } from '../data/generated/pythonDataToolsRuntime.generated.ts'
-import type { PythonDataToolsOutputId } from '../data/pythonNotebookContract.ts'
+import { pythonDataToolsContract, type PythonDataToolsOutputId } from '../data/pythonNotebookContract.ts'
 import type { AppLocale } from '../types/ml.ts'
 import type { PythonDataToolsRuntimeChapter } from '../types/pythonDataToolsRuntime.ts'
 import {
@@ -11,6 +11,7 @@ import {
 } from '../utils/pythonDataToolsOutputs.ts'
 import { withPublicBase } from '../utils/publicPath.ts'
 import MarkdownMathContent from './MarkdownMathContent.vue'
+import PythonDataToolsNotebookOutput from './PythonDataToolsNotebookOutput.vue'
 import PythonDataToolsResultBlock from './PythonDataToolsResultBlock.vue'
 import PythonDataToolsTeachingPrompt from './PythonDataToolsTeachingPrompt.vue'
 
@@ -40,9 +41,14 @@ const copy = computed(() => props.locale === 'zh-CN'
       copyCode: '复制代码',
       copied: '已复制',
       copyFailed: '复制失败',
+      downloads: '课程文件下载',
       download: '下载完整中文 Notebook',
       downloadDisclosure: 'Notebook 已执行并包含运行结果；请下载后在本地 Python 环境中打开。',
+      dataset: '下载课程数据 CSV',
+      datasetDisclosure: '本地固定快照，与 Notebook 和页面运行结果使用同一份数据。',
+      dictionary: '查看数据字典',
       environment: '查看本地环境依赖',
+      requirements: '下载 requirements.txt',
       reload: '重新加载运行结果',
       reloadHint: '课程正文仍可继续阅读；你可以再尝试读取一次运行结果。',
     }
@@ -58,9 +64,14 @@ const copy = computed(() => props.locale === 'zh-CN'
       copyCode: 'Copy code',
       copied: 'Copied',
       copyFailed: 'Copy failed',
+      downloads: 'Course file downloads',
       download: 'Download the complete Chinese Notebook',
       downloadDisclosure: 'The Notebook is executed and contains its runtime results; download it to open in a local Python environment.',
+      dataset: 'Download the course CSV',
+      datasetDisclosure: 'A fixed local snapshot shared by the Notebook and every result shown on this page.',
+      dictionary: 'View the data dictionary',
       environment: 'View local environment dependencies',
+      requirements: 'Download requirements.txt',
       reload: 'Reload runtime results',
       reloadHint: 'The lesson remains readable. You can try reading the runtime results one more time.',
     })
@@ -79,6 +90,11 @@ const environmentUrl = computed(() => {
   const manifest = outputSession.manifest.value
   return manifest ? withPublicBase(manifest.environment.path) : undefined
 })
+const datasetDownloadUrl = computed(() => withPublicBase(
+  outputSession.manifest.value?.dataset.publicPath ?? pythonDataToolsContract.datasetPath,
+))
+const dataDictionaryUrl = withPublicBase('/datasets/python-data-tools/data-dictionary.json')
+const requirementsUrl = withPublicBase('/notebooks/python-data-tools/requirements.txt')
 
 function chapterRoute(chapterEntry: PythonDataToolsRuntimeChapter) {
   return `${props.routeBase}/${chapterEntry.id}`
@@ -181,22 +197,37 @@ watch(() => props.chapter.id, () => {
               <p>{{ chapter.question[locale] }}</p>
             </div>
 
-            <a
-              v-if="notebookDownloadUrl"
-              class="python-data-tools-page__download"
-              :href="notebookDownloadUrl"
-              download
-            >
-              <strong>{{ copy.download }}</strong>
-              <span>{{ copy.downloadDisclosure }}</span>
-            </a>
-            <span v-else class="python-data-tools-page__download is-unavailable" aria-disabled="true">
-              <strong>{{ copy.download }}</strong>
-              <span>{{ copy.downloadDisclosure }}</span>
-            </span>
-            <a v-if="environmentUrl" class="python-data-tools-page__environment" :href="environmentUrl">
-              {{ copy.environment }}
-            </a>
+            <section class="python-data-tools-page__resources" :aria-label="copy.downloads">
+              <h3>{{ copy.downloads }}</h3>
+              <div class="python-data-tools-page__resource-grid">
+                <a
+                  v-if="notebookDownloadUrl"
+                  class="python-data-tools-page__download"
+                  :href="notebookDownloadUrl"
+                  download
+                >
+                  <strong>{{ copy.download }}</strong>
+                  <span>{{ copy.downloadDisclosure }}</span>
+                </a>
+                <span v-else class="python-data-tools-page__download is-unavailable" aria-disabled="true">
+                  <strong>{{ copy.download }}</strong>
+                  <span>{{ copy.downloadDisclosure }}</span>
+                </span>
+                <a
+                  class="python-data-tools-page__dataset-download"
+                  :href="datasetDownloadUrl"
+                  download
+                >
+                  <strong>{{ copy.dataset }}</strong>
+                  <span>{{ copy.datasetDisclosure }}</span>
+                </a>
+              </div>
+              <div class="python-data-tools-page__resource-meta">
+                <a :href="dataDictionaryUrl">{{ copy.dictionary }}</a>
+                <a v-if="environmentUrl" :href="environmentUrl">{{ copy.environment }}</a>
+                <a :href="requirementsUrl" download>{{ copy.requirements }}</a>
+              </div>
+            </section>
           </header>
 
           <section
@@ -218,27 +249,34 @@ watch(() => props.chapter.id, () => {
                 :source="block.markdown[locale]"
               />
 
-              <section v-else-if="block.kind === 'code'" class="python-data-tools-page__code">
-                <header>
-                  <div class="python-data-tools-page__code-meta">
-                    <span>{{ copy.code }}</span>
-                    <code>{{ block.id }}</code>
-                  </div>
-                  <button
-                    type="button"
-                    class="python-data-tools-page__copy-button"
-                    :class="{
-                      'is-copied': codeCopyFeedback?.blockId === block.id && codeCopyFeedback.status === 'copied',
-                      'is-failed': codeCopyFeedback?.blockId === block.id && codeCopyFeedback.status === 'failed',
-                    }"
-                    :aria-label="`${copyButtonLabel(block.id)}：${block.id}`"
-                    @click="copyCode(block.id, block.code)"
-                  >
-                    <span aria-live="polite">{{ copyButtonLabel(block.id) }}</span>
-                  </button>
-                </header>
-                <pre tabindex="0"><code>{{ block.code }}</code></pre>
-              </section>
+              <template v-else-if="block.kind === 'code'">
+                <section class="python-data-tools-page__code">
+                  <header>
+                    <div class="python-data-tools-page__code-meta">
+                      <span>{{ copy.code }}</span>
+                      <code>{{ block.id }}</code>
+                    </div>
+                    <button
+                      type="button"
+                      class="python-data-tools-page__copy-button"
+                      :class="{
+                        'is-copied': codeCopyFeedback?.blockId === block.id && codeCopyFeedback.status === 'copied',
+                        'is-failed': codeCopyFeedback?.blockId === block.id && codeCopyFeedback.status === 'failed',
+                      }"
+                      :aria-label="`${copyButtonLabel(block.id)}：${block.id}`"
+                      @click="copyCode(block.id, block.code)"
+                    >
+                      <span aria-live="polite">{{ copyButtonLabel(block.id) }}</span>
+                    </button>
+                  </header>
+                  <pre tabindex="0"><code>{{ block.code }}</code></pre>
+                </section>
+                <PythonDataToolsNotebookOutput
+                  v-if="!block.outputId"
+                  :preview="outputSession.cellOutputFor(block.id)"
+                  :locale="locale"
+                />
+              </template>
 
               <PythonDataToolsResultBlock
                 v-else-if="block.kind === 'result-presentation'"

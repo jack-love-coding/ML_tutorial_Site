@@ -123,6 +123,45 @@ test('output manifest binds notebook, environment, font, and all eight artifact 
   }
 })
 
+test('cell output previews are extracted from the same executed Notebook into local safe assets', async () => {
+  const [manifest, previews, notebookBytes, previewBytes] = await Promise.all([
+    readJson(outputManifestUrl),
+    readJson(new URL('cell-output-previews.json', outputDirectory)),
+    readFile(notebookUrl),
+    readFile(new URL('cell-output-previews.json', outputDirectory)),
+  ])
+
+  assert.equal(manifest.cellOutputs.publicPath, '/notebooks/python-data-tools/outputs/cell-output-previews.json')
+  assert.equal(manifest.cellOutputs.sha256, sha256(previewBytes))
+  assert.equal(manifest.cellOutputs.bytes, previewBytes.byteLength)
+  assert.equal(manifest.cellOutputs.cellCount, 48)
+  assert.equal(manifest.cellOutputs.assetCount, 8)
+  assert.equal(previews.notebookSha256, sha256(notebookBytes))
+  assert.equal(previews.cells.length, 48)
+  assert.equal(new Set(previews.cells.map(({ sourceCellId }: { sourceCellId: string }) => sourceCellId)).size, 48)
+
+  const items = previews.cells.flatMap(({ items }: { items: Array<Record<string, unknown>> }) => items)
+  assert.deepEqual(
+    Object.fromEntries(['success', 'text', 'image', 'plotly'].map((kind) => [kind, items.filter((item: any) => item.kind === kind).length])),
+    { success: 9, text: 32, image: 7, plotly: 1 },
+  )
+  assert.doesNotMatch(JSON.stringify(previews), /text\/html|<script|<iframe|onerror=/i)
+
+  for (const item of items.filter((candidate: any) => candidate.kind === 'image' || candidate.kind === 'plotly') as any[]) {
+    assert.ok(item.description['zh-CN'].trim())
+    assert.ok(item.description.en.trim())
+    const bytes = await readFile(new URL(`public${item.publicPath}`, root))
+    assert.equal(item.sha256, sha256(bytes))
+    assert.equal(item.bytes, bytes.byteLength)
+    if (item.kind === 'image') assert.deepEqual(pngDimensions(bytes), [item.width, item.height])
+    if (item.kind === 'plotly') {
+      const figure = JSON.parse(bytes.toString('utf8'))
+      assert.ok(Array.isArray(figure.data))
+      assert.equal(typeof figure.layout, 'object')
+    }
+  }
+})
+
 test('JSON and Plotly outputs satisfy deterministic schema and statistics boundaries', async () => {
   const [schema, workingday, correlation, plotly, finalEvidence] = await Promise.all([
     readJson(new URL('dataset-shape-schema.json', outputDirectory)),
@@ -185,6 +224,8 @@ test('generation scripts expose clean execution, check mode, cleanup, and atomic
   assert.match(generator, /NotebookClient/)
   assert.match(generator, /allow_errors=False/)
   assert.match(generator, /record_timing=False/)
+  assert.match(generator, /extract_cell_output_previews/)
+  assert.match(generator, /validate_cell_output_previews/)
   assert.match(generator, /--check/)
   assert.match(generator, /tempfile\.mkdtemp/)
   assert.match(generator, /rename\(transaction_dir, OUTPUT_DIR\)/)

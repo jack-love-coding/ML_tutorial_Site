@@ -1,0 +1,543 @@
+{
+  "cells": [
+    {
+      "executionCount": 1,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'numpy': '2.4.6',\n 'pandas': '3.0.3',\n 'matplotlib': '3.10.9',\n 'seaborn': '0.13.2',\n 'plotly': '6.9.0'}"
+        }
+      ],
+      "sourceCellId": "ch01-imports"
+    },
+    {
+      "executionCount": 2,
+      "items": [
+        {
+          "kind": "text",
+          "text": "PosixPath('../../datasets/python-data-tools/bike-sharing-hour.csv')"
+        }
+      ],
+      "sourceCellId": "ch01-data-path"
+    },
+    {
+      "executionCount": 3,
+      "items": [
+        {
+          "kind": "success"
+        }
+      ],
+      "sourceCellId": "ch01-path-check"
+    },
+    {
+      "executionCount": 4,
+      "items": [
+        {
+          "kind": "text",
+          "text": "((17379, 17),\n ['instant',\n  'dteday',\n  'season',\n  'yr',\n  'mnth',\n  'hr',\n  'holiday',\n  'weekday',\n  'workingday',\n  'weathersit',\n  'temp',\n  'atemp',\n  'hum',\n  'windspeed',\n  'casual',\n  'registered',\n  'cnt'])"
+        }
+      ],
+      "sourceCellId": "ch01-load-rides"
+    },
+    {
+      "executionCount": 5,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'rows': 17379, 'columns': 17, 'first_record_id': 1, 'last_record_id': 17379}"
+        }
+      ],
+      "sourceCellId": "ch01-repro-check"
+    },
+    {
+      "executionCount": 6,
+      "items": [
+        {
+          "kind": "text",
+          "text": "'变量必须在首次使用前由上游单元格创建'"
+        }
+      ],
+      "sourceCellId": "ch01-hidden-state-demo"
+    },
+    {
+      "executionCount": 7,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'dtype': 'int64', 'shape': (17379,), 'ndim': 1, 'size': 17379}"
+        }
+      ],
+      "sourceCellId": "ch02-demand-array"
+    },
+    {
+      "executionCount": 8,
+      "items": [
+        {
+          "kind": "text",
+          "text": "(np.int64(16), array([16, 40, 32, 13,  1,  1]), np.int64(49))"
+        }
+      ],
+      "sourceCellId": "ch02-index-slice"
+    },
+    {
+      "executionCount": 9,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'mask_shape': (17379,), 'selected_shape': (1287,), 'selected_count': 1287}"
+        }
+      ],
+      "sourceCellId": "ch02-boolean-mask"
+    },
+    {
+      "executionCount": 10,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'minimum': 1,\n 'maximum': 977,\n 'mean': 189.46308763450142,\n 'median': 142.0,\n 'p25': 40.0,\n 'p75': 281.0,\n 'population_std': 181.3823804311691}"
+        }
+      ],
+      "sourceCellId": "ch02-vectorized-summary"
+    },
+    {
+      "executionCount": 11,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'shape': (2, 3), 'sum_axis_0': [50, 70, 90], 'sum_axis_1': [60, 150]}"
+        }
+      ],
+      "sourceCellId": "ch02-axis-demo"
+    },
+    {
+      "executionCount": 12,
+      "items": [
+        {
+          "kind": "text",
+          "text": "True"
+        }
+      ],
+      "sourceCellId": "ch02-vectorization-check"
+    },
+    {
+      "executionCount": 13,
+      "items": [
+        {
+          "kind": "text",
+          "text": "   instant     dteday  season  yr  mnth  hr  holiday  weekday  workingday  \\\n0        1 2011-01-01       1   0     1   0        0        6           0   \n1        2 2011-01-01       1   0     1   1        0        6           0   \n2        3 2011-01-01       1   0     1   2        0        6           0   \n\n   weathersit  temp   atemp   hum  windspeed  casual  registered  cnt  \n0           1  0.24  0.2879  0.81        0.0       3          13   16  \n1           1  0.22  0.2727  0.80        0.0       8          32   40  \n2           1  0.22  0.2727  0.80        0.0       5          27   32  "
+        }
+      ],
+      "sourceCellId": "ch03-parse-date"
+    },
+    {
+      "executionCount": 14,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'shape': (17379, 17),\n 'index_type': 'RangeIndex',\n 'columns': ['instant',\n  'dteday',\n  'season',\n  'yr',\n  'mnth',\n  'hr',\n  'holiday',\n  'weekday',\n  'workingday',\n  'weathersit',\n  'temp',\n  'atemp',\n  'hum',\n  'windspeed',\n  'casual',\n  'registered',\n  'cnt']}"
+        }
+      ],
+      "sourceCellId": "ch03-shape-columns"
+    },
+    {
+      "executionCount": 15,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'series_type': 'Series',\n 'series_shape': (17379,),\n 'frame_type': 'DataFrame',\n 'frame_shape': (17379, 1)}"
+        }
+      ],
+      "sourceCellId": "ch03-series-dataframe"
+    },
+    {
+      "executionCount": 16,
+      "items": [
+        {
+          "kind": "text",
+          "text": "<class 'pandas.DataFrame'>\nRangeIndex: 17379 entries, 0 to 17378\nData columns (total 17 columns):\n #   Column      Non-Null Count  Dtype         \n---  ------      --------------  -----         \n 0   instant     17379 non-null  int64         \n 1   dteday      17379 non-null  datetime64[us]\n 2   season      17379 non-null  int64         \n 3   yr          17379 non-null  int64         \n 4   mnth        17379 non-null  int64         \n 5   hr          17379 non-null  int64         \n 6   holiday     17379 non-null  int64         \n 7   weekday     17379 non-null  int64         \n 8   workingday  17379 non-null  int64         \n 9   weathersit  17379 non-null  int64         \n 10  temp        17379 non-null  float64       \n 11  atemp       17379 non-null  float64       \n 12  hum         17379 non-null  float64       \n 13  windspeed   17379 non-null  float64       \n 14  casual      17379 non-null  int64         \n 15  registered  17379 non-null  int64         \n 16  cnt         17379 non-null  int64         \ndtypes: datetime64[us](1), float64(4), int64(12)\nmemory usage: 2.3 MB"
+        },
+        {
+          "kind": "text",
+          "text": "{'instant': 'int64',\n 'dteday': 'datetime64[us]',\n 'season': 'int64',\n 'yr': 'int64',\n 'mnth': 'int64',\n 'hr': 'int64',\n 'holiday': 'int64',\n 'weekday': 'int64',\n 'workingday': 'int64',\n 'weathersit': 'int64',\n 'temp': 'float64',\n 'atemp': 'float64',\n 'hum': 'float64',\n 'windspeed': 'float64',\n 'casual': 'int64',\n 'registered': 'int64',\n 'cnt': 'int64'}"
+        }
+      ],
+      "sourceCellId": "ch03-dtypes-info"
+    },
+    {
+      "executionCount": 17,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'identifier_time': ['instant', 'dteday', 'yr', 'mnth', 'hr', 'weekday'],\n 'calendar_category': ['season', 'holiday', 'workingday'],\n 'weather_category': ['weathersit'],\n 'normalized_continuous': ['temp', 'atemp', 'hum', 'windspeed'],\n 'count': ['casual', 'registered', 'cnt']}"
+        }
+      ],
+      "sourceCellId": "ch03-field-roles"
+    },
+    {
+      "executionCount": 18,
+      "items": [
+        {
+          "kind": "text",
+          "text": "             casual    registered           cnt\ncount  17379.000000  17379.000000  17379.000000\nmean      35.676218    153.786869    189.463088\nstd       49.305030    151.357286    181.387599\nmin        0.000000      0.000000      1.000000\n25%        4.000000     34.000000     40.000000\n50%       17.000000    115.000000    142.000000\n75%       48.000000    220.000000    281.000000\nmax      367.000000    886.000000    977.000000"
+        }
+      ],
+      "sourceCellId": "ch03-describe-counts"
+    },
+    {
+      "executionCount": 19,
+      "items": [
+        {
+          "kind": "success"
+        }
+      ],
+      "sourceCellId": "ch03-schema-output"
+    },
+    {
+      "executionCount": 20,
+      "items": [
+        {
+          "kind": "success"
+        }
+      ],
+      "sourceCellId": "ch04-readable-labels"
+    },
+    {
+      "executionCount": 21,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'rows': 12375, 'hour_min': 6, 'hour_max': 22}"
+        }
+      ],
+      "sourceCellId": "ch04-filter-daytime"
+    },
+    {
+      "executionCount": 22,
+      "items": [
+        {
+          "kind": "success"
+        }
+      ],
+      "sourceCellId": "ch04-workingday-groups"
+    },
+    {
+      "executionCount": 23,
+      "items": [
+        {
+          "kind": "text",
+          "text": "   hr  observations  mean_rentals  median_rentals\n0   0           726     53.898072            40.0\n1   1           724     33.375691            20.0\n2   2           715     22.869930            11.0\n3   3           697     11.727403             6.0\n4   4           697      6.352941             6.0"
+        }
+      ],
+      "sourceCellId": "ch04-hourly-demand"
+    },
+    {
+      "executionCount": 24,
+      "items": [
+        {
+          "kind": "text",
+          "text": "workingday_label     周末或节假日        工作日\nhr                                    \n0                 90.800000  36.786290\n1                 69.508696  16.552632\n2                 53.171053   8.683778\n3                 25.775330   4.942553\n4                  8.264317   5.429787"
+        }
+      ],
+      "sourceCellId": "ch04-workingday-pivot"
+    },
+    {
+      "executionCount": 25,
+      "items": [
+        {
+          "kind": "text",
+          "text": "    season season_label  weathersit weather_label  observations  mean_rentals  \\\n0        1           春季           1          晴或少云          2665    122.055535   \n1        1           春季           2         薄雾或多云          1205    103.074689   \n2        1           春季           3        小雨雪或雷暴           369     58.650407   \n3        1           春季           4      强降水或恶劣天气             3     74.333333   \n4        2           夏季           1          晴或少云          2859    232.410983   \n5        2           夏季           2         薄雾或多云          1144    181.261364   \n6        2           夏季           3        小雨雪或雷暴           406    115.179803   \n7        3           秋季           1          晴或少云          3280    244.494207   \n8        3           秋季           2         薄雾或多云           947    224.848997   \n9        3           秋季           3        小雨雪或雷暴           269    171.955390   \n10       4           冬季           1          晴或少云          2609    209.463779   \n11       4           冬季           2         薄雾或多云          1248    201.483974   \n12       4           冬季           3        小雨雪或雷暴           375    116.453333   \n\n    median_rentals  \n0             86.0  \n1             73.0  \n2             35.0  \n3             36.0  \n4            192.0  \n5            143.0  \n6             67.5  \n7            210.0  \n8            188.0  \n9            121.0  \n10           168.0  \n11           167.0  \n12            76.0  "
+        }
+      ],
+      "sourceCellId": "ch04-season-weather"
+    },
+    {
+      "executionCount": 26,
+      "items": [
+        {
+          "kind": "text",
+          "text": "   rider_type  rentals\n0      casual   620017\n1  registered  2672662\n2         cnt  3292679"
+        }
+      ],
+      "sourceCellId": "ch04-rider-mix"
+    },
+    {
+      "executionCount": 27,
+      "items": [
+        {
+          "kind": "success"
+        }
+      ],
+      "sourceCellId": "ch05-style-setup"
+    },
+    {
+      "executionCount": 28,
+      "items": [
+        {
+          "bytes": 36210,
+          "description": {
+            "en": "A line chart shows mean bike-sharing demand across hours 0–23.",
+            "zh-CN": "折线图展示 0–23 时的平均共享单车需求。"
+          },
+          "height": 470,
+          "kind": "image",
+          "publicPath": "/notebooks/python-data-tools/outputs/cell-previews/ch05-hourly-line-1.png",
+          "sha256": "fc6438e1c18e9c35201e61921e2f82a82c5e8e3dd566215864d3d3ccf0995413",
+          "width": 889
+        }
+      ],
+      "sourceCellId": "ch05-hourly-line"
+    },
+    {
+      "executionCount": 29,
+      "items": [
+        {
+          "bytes": 49652,
+          "description": {
+            "en": "Two lines compare hourly mean demand on working days and weekends or holidays.",
+            "zh-CN": "两条折线比较工作日与周末或节假日的逐小时平均需求。"
+          },
+          "height": 470,
+          "kind": "image",
+          "publicPath": "/notebooks/python-data-tools/outputs/cell-previews/ch05-workingday-lines-1.png",
+          "sha256": "fcfc14cc9adaa42c833d51ffd1b93a4ff29348990f8e0757219d15c078731430",
+          "width": 889
+        }
+      ],
+      "sourceCellId": "ch05-workingday-lines"
+    },
+    {
+      "executionCount": 30,
+      "items": [
+        {
+          "bytes": 17111,
+          "description": {
+            "en": "A bar chart compares cumulative rentals by casual and registered riders.",
+            "zh-CN": "柱状图比较临时用户与注册用户的累计租车次数。"
+          },
+          "height": 470,
+          "kind": "image",
+          "publicPath": "/notebooks/python-data-tools/outputs/cell-previews/ch05-rider-bars-1.png",
+          "sha256": "0047e07db268290acd8dff21f2e0cd8cccf985fb6cba8e1744a19aa32a5804b6",
+          "width": 690
+        }
+      ],
+      "sourceCellId": "ch05-rider-bars"
+    },
+    {
+      "executionCount": 31,
+      "items": [
+        {
+          "kind": "text",
+          "text": "      question      chart     reason\n0    需求随小时怎样变化       line      小时有顺序\n1   两类用户累计量谁更高        bar     少量离散类别\n2  气温与需求是否共同变化    scatter     两个数值变量\n3   小时需求分布是否偏斜  histogram  一个数值变量的分布"
+        }
+      ],
+      "sourceCellId": "ch05-chart-task-map"
+    },
+    {
+      "executionCount": 32,
+      "items": [
+        {
+          "bytes": 20342,
+          "description": {
+            "en": "Side-by-side bars contrast a truncated y-axis with a zero-based y-axis.",
+            "zh-CN": "并排柱状图对比截断纵轴与从零开始纵轴造成的视觉差异。"
+          },
+          "height": 429,
+          "kind": "image",
+          "publicPath": "/notebooks/python-data-tools/outputs/cell-previews/ch05-misleading-axis-1.png",
+          "sha256": "db34ba392a35bfa0d6b07fe288a45b99a8474d6e334924bd8f4b90917670d01f",
+          "width": 1089
+        }
+      ],
+      "sourceCellId": "ch05-misleading-axis"
+    },
+    {
+      "executionCount": 33,
+      "items": [
+        {
+          "kind": "success"
+        }
+      ],
+      "sourceCellId": "ch06-distribution-data"
+    },
+    {
+      "executionCount": 34,
+      "items": [
+        {
+          "bytes": 41446,
+          "description": {
+            "en": "Two box-plot panels compare demand distributions across seasons and weather conditions.",
+            "zh-CN": "双面板箱线图比较不同季节和天气状况下的需求分布。"
+          },
+          "height": 490,
+          "kind": "image",
+          "publicPath": "/notebooks/python-data-tools/outputs/cell-previews/ch06-season-boxplot-1.png",
+          "sha256": "b083336254ec6cc9e680fd529461b1eb0f1a8303a0b0bdc3a51d7a75278ffc19",
+          "width": 1390
+        }
+      ],
+      "sourceCellId": "ch06-season-boxplot"
+    },
+    {
+      "executionCount": 35,
+      "items": [
+        {
+          "kind": "text",
+          "text": "   weathersit weather_label  observations  mean_rentals  median_rentals   q25  \\\n0           1          晴或少云         11413    204.869272           159.0  46.0   \n1           2         薄雾或多云          4544    175.165493           133.0  40.0   \n2           3        小雨雪或雷暴          1419    111.579281            63.0  21.0   \n3           4      强降水或恶劣天气             3     74.333333            36.0  29.5   \n\n     q75  \n0  304.0  \n1  257.0  \n2  152.5  \n3  100.0  "
+        }
+      ],
+      "sourceCellId": "ch06-descriptive-summary"
+    },
+    {
+      "executionCount": 36,
+      "items": [
+        {
+          "bytes": 313019,
+          "description": {
+            "en": "A scatter plot relates normalized temperature to hourly rentals with a fitted trend line.",
+            "zh-CN": "散点图展示标准化气温与每小时租车需求的关系，并叠加趋势线。"
+          },
+          "height": 490,
+          "kind": "image",
+          "publicPath": "/notebooks/python-data-tools/outputs/cell-previews/ch06-temperature-scatter-1.png",
+          "sha256": "78dc88af294ecd96474ff82410014c6c11b42606b5c4bd7b6a17845b213a9ffa",
+          "width": 790
+        }
+      ],
+      "sourceCellId": "ch06-temperature-scatter"
+    },
+    {
+      "executionCount": 37,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'covariance': 14.137599681697697, 'pearson_r': 0.4047722757786579}"
+        }
+      ],
+      "sourceCellId": "ch06-covariance-correlation"
+    },
+    {
+      "executionCount": 38,
+      "items": [
+        {
+          "kind": "success"
+        }
+      ],
+      "sourceCellId": "ch06-correlation-matrix"
+    },
+    {
+      "executionCount": 39,
+      "items": [
+        {
+          "bytes": 45052,
+          "description": {
+            "en": "A heatmap shows the Pearson correlation matrix for seven numeric fields.",
+            "zh-CN": "热力图展示七个数值字段之间的 Pearson 相关系数矩阵。"
+          },
+          "height": 590,
+          "kind": "image",
+          "publicPath": "/notebooks/python-data-tools/outputs/cell-previews/ch06-correlation-heatmap-1.png",
+          "sha256": "98ab479794e6809981d29b0e761b36b48d10b60294d6dce71b3467e06839879a",
+          "width": 667
+        }
+      ],
+      "sourceCellId": "ch06-correlation-heatmap"
+    },
+    {
+      "executionCount": 40,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'pairwise_non_missing': {'temp': 17379,\n  'atemp': 17379,\n  'hum': 17379,\n  'windspeed': 17379,\n  'casual': 17379,\n  'registered': 17379,\n  'cnt': 17379},\n 'group_sizes': {'晴或少云': 11413, '薄雾或多云': 4544, '小雨雪或雷暴': 1419, '强降水或恶劣天气': 3},\n 'largest_cnt_rows': [{'dteday': Timestamp('2012-09-12 00:00:00'),\n   'hr': 18,\n   'workingday_label': '工作日',\n   'temp': 0.66,\n   'cnt': 977},\n  {'dteday': Timestamp('2012-09-20 00:00:00'),\n   'hr': 17,\n   'workingday_label': '工作日',\n   'temp': 0.64,\n   'cnt': 976},\n  {'dteday': Timestamp('2012-09-11 00:00:00'),\n   'hr': 17,\n   'workingday_label': '工作日',\n   'temp': 0.7,\n   'cnt': 970},\n  {'dteday': Timestamp('2012-09-10 00:00:00'),\n   'hr': 18,\n   'workingday_label': '工作日',\n   'temp': 0.62,\n   'cnt': 968},\n  {'dteday': Timestamp('2012-09-25 00:00:00'),\n   'hr': 17,\n   'workingday_label': '工作日',\n   'temp': 0.66,\n   'cnt': 967}]}"
+        }
+      ],
+      "sourceCellId": "ch06-interpretation-effects"
+    },
+    {
+      "executionCount": 41,
+      "items": [
+        {
+          "kind": "text",
+          "text": "   workingday workingday_label  hr  observations  mean_rentals  median_rentals\n0           0           周末或节假日   0           230     90.800000            93.5\n1           0           周末或节假日   1           230     69.508696            71.0\n2           0           周末或节假日   2           228     53.171053            54.0\n3           0           周末或节假日   3           227     25.775330            25.0\n4           0           周末或节假日   4           227      8.264317             7.0"
+        }
+      ],
+      "sourceCellId": "ch07-interactive-data"
+    },
+    {
+      "executionCount": 42,
+      "items": [
+        {
+          "kind": "success"
+        }
+      ],
+      "sourceCellId": "ch07-hourly-explorer"
+    },
+    {
+      "executionCount": 43,
+      "items": [
+        {
+          "bytes": 22585,
+          "description": {
+            "en": "A Plotly faceted line chart compares hourly mean demand by rider and day type.",
+            "zh-CN": "Plotly 分面折线图按用户类型和日期类型比较逐小时平均需求。"
+          },
+          "kind": "plotly",
+          "publicPath": "/notebooks/python-data-tools/outputs/cell-previews/ch07-rider-facets-1.plotly.json",
+          "sha256": "453b9a1569b0f1aa1abbcf167324695b55285538fd77b14f3c660d4e4e2facce"
+        }
+      ],
+      "sourceCellId": "ch07-rider-facets"
+    },
+    {
+      "executionCount": 44,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'hours': [0, 23],\n 'workingday_values': [0, 1],\n 'metric': 'mean_rentals',\n 'hidden_groups': []}"
+        }
+      ],
+      "sourceCellId": "ch07-default-filter"
+    },
+    {
+      "executionCount": 45,
+      "items": [
+        {
+          "kind": "text",
+          "text": "              field purpose\n0                hr  定位同一小时\n1      mean_rentals  读取主要指标\n2    median_rentals  对照中心口径\n3      observations  检查样本基础\n4  workingday_label   确认当前组"
+        }
+      ],
+      "sourceCellId": "ch07-hover-contract"
+    },
+    {
+      "executionCount": 46,
+      "items": [
+        {
+          "kind": "text",
+          "text": "{'source_output': 'plotly-hourly-explorer',\n 'x': 'hr',\n 'y': 'mean_rentals',\n 'groups': {0: '周末或节假日', 1: '工作日'},\n 'text_summary': '逐小时比较工作日与周末/节假日的平均需求；精确模式由权威输出生成。'}"
+        }
+      ],
+      "sourceCellId": "ch07-static-fallback"
+    },
+    {
+      "executionCount": 47,
+      "items": [
+        {
+          "kind": "text",
+          "text": "  dimension                    output_id                        metric  \\\n0      数据结构         dataset-shape-schema                  schema 与字段角色   \n1        时间        hourly-demand-profile                  mean_rentals   \n2       工作日        workingday-comparison  observations / mean / median   \n3     季节与天气  season-weather-distribution                       分布与组样本数   \n4      用户构成            rider-composition           casual / registered   \n5      变量关系   pearson-correlation-matrix               Pearson r 与有效样本   \n6      交互核对       plotly-hourly-explorer  mean / median / observations   \n\n             aggregation  \n0                   完整快照  \n1          按 hr 的平均每小时需求  \n2      按 workingday 与 hr  \n3  按 season / weathersit  \n4             完整快照累计租车次数  \n5                 显式数值字段  \n6               固定默认筛选状态  "
+        }
+      ],
+      "sourceCellId": "ch08-evidence-register"
+    },
+    {
+      "executionCount": 48,
+      "items": [
+        {
+          "kind": "success"
+        }
+      ],
+      "sourceCellId": "ch08-final-evidence"
+    }
+  ],
+  "contractVersion": "python-data-tools-v1",
+  "notebookSha256": "bee6c5b2ef85314421136d164123982b8d8dc3c089afff40705e73a7842e9fbd"
+}

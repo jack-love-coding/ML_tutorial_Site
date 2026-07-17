@@ -1,4 +1,11 @@
 {
+  "cellOutputs": {
+    "assetCount": 8,
+    "bytes": 22949,
+    "cellCount": 48,
+    "publicPath": "/notebooks/python-data-tools/outputs/cell-output-previews.json",
+    "sha256": "b49ffbc82e77ef25bff1d4a849a6c554642a66e2d99f1cb653b901049e1feb65"
+  },
   "contractVersion": "python-data-tools-v1",
   "dataset": {
     "publicPath": "/datasets/python-data-tools/bike-sharing-hour.csv",
@@ -15,11 +22,11 @@
   "generatedAt": "2026-07-14",
   "generator": {
     "path": "scripts/python-data-tools/generate-authoritative-outputs.py",
-    "sha256": "4e50f1b3a569096dbd631fe1308b8bf7058c82d67097f5fc4b88b562baaea63a"
+    "sha256": "7b36730a4fe49efa7d0ef915ebd9c8ec9c07509c94fff0cc6d73078c93124a54"
   },
   "notebook": {
     "publicPath": "/notebooks/python-data-tools/python-data-tools-bike-sharing.zh-CN.ipynb",
-    "sha256": "a0a2434528bd88801af65fbc8eb33cf029520b2e52a3e049232c2cca3c956800"
+    "sha256": "bee6c5b2ef85314421136d164123982b8d8dc3c089afff40705e73a7842e9fbd"
   },
   "outputs": [
     {

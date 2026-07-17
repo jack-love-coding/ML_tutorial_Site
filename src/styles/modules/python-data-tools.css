@@ -176,6 +176,51 @@
   background: #fff;
 }
 
+.python-data-tools-page__resources {
+  display: grid;
+  gap: 12px;
+}
+
+.python-data-tools-page__resources h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.python-data-tools-page__resource-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.python-data-tools-page__dataset-download {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, #2563eb 34%, white);
+  border-radius: 8px;
+  color: var(--ink);
+  background: #eff6ff;
+}
+
+.python-data-tools-page__dataset-download span {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.python-data-tools-page__resource-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.python-data-tools-page__resource-meta a {
+  color: var(--python-tools-accent);
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .python-data-tools-page__download.is-unavailable {
   border-style: dashed;
   color: var(--muted);
@@ -278,6 +323,98 @@
   overflow: auto;
   line-height: 1.65;
   tab-size: 4;
+}
+
+.python-data-tools-cell-output {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin-top: -20px;
+  padding: 16px 18px 18px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  background: #f8fafc;
+  box-shadow: 4px 4px 0 var(--pixel-line, rgba(15, 23, 40, 0.09));
+}
+
+.python-data-tools-cell-output > header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.python-data-tools-cell-output > header strong {
+  color: var(--python-tools-accent);
+}
+
+.python-data-tools-cell-output__success {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 4px solid var(--python-tools-accent);
+  border-radius: 6px;
+  color: #334155;
+  background: #ecfdf5;
+  line-height: 1.6;
+}
+
+.python-data-tools-cell-output pre {
+  max-width: 100%;
+  max-height: 34rem;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 8px;
+  color: #dbeafe;
+  background: #172033;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.python-data-tools-cell-output figure {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.python-data-tools-cell-output figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.python-data-tools-cell-output figcaption,
+.python-data-tools-cell-output__plotly p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.python-data-tools-cell-output__plotly {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.python-data-tools-cell-output__plotly-graph {
+  width: 100%;
+  min-height: 520px;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.python-data-tools-cell-output__plotly-graph.is-hidden {
+  display: none;
 }
 
 .python-data-tools-result {
@@ -479,8 +616,13 @@
 
   .python-data-tools-page__nav,
   .python-data-tools-page__pager,
-  .python-data-tools-page__reload {
+  .python-data-tools-page__reload,
+  .python-data-tools-page__resource-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .python-data-tools-cell-output__plotly-graph {
+    min-height: 440px;
   }
 
   .python-data-tools-page__pager-link--next {

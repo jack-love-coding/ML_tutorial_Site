@@ -23,6 +23,10 @@ def main() -> None:
     if not generator.NOTEBOOK_PATH.is_file():
         raise FileNotFoundError(generator.NOTEBOOK_PATH)
     observed = generator.validate_outputs(generator.OUTPUT_DIR, data_manifest["file"]["sha256"])
+    cell_outputs_observed = generator.validate_cell_output_previews(
+        generator.OUTPUT_DIR,
+        generator.NOTEBOOK_PATH,
+    )
     manifest_path = generator.OUTPUT_DIR / "manifest.json"
     if not manifest_path.is_file():
         raise FileNotFoundError(manifest_path)
@@ -33,6 +37,7 @@ def main() -> None:
         generator.NOTEBOOK_PATH,
         generator.OUTPUT_DIR,
         observed,
+        cell_outputs_observed,
     )
     import json
     actual = json.loads(manifest_path.read_text(encoding="utf-8"))

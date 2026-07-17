@@ -120,6 +120,8 @@ def write_json(filename, payload):
         encoding="utf-8",
     )
     return destination
+
+{name: observed_versions[name] for name in ("numpy", "pandas", "matplotlib", "seaborn", "plotly")}
 '''.strip("\n")
 
 

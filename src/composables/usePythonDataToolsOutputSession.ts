@@ -4,8 +4,10 @@ import {
   type PythonDataToolsOutputId,
 } from '../data/pythonNotebookContract.ts'
 import {
+  loadPythonDataToolsCellOutputs,
   loadPythonDataToolsManifest,
   loadPythonDataToolsOutput,
+  type PythonDataToolsCellOutputPreview,
   type PythonDataToolsLoadState,
   type PythonDataToolsManifest,
   type PythonDataToolsOutputViewModel,
@@ -30,6 +32,7 @@ export function createPythonDataToolsOutputSession(
   options: PythonDataToolsOutputSessionOptions = {},
 ) {
   const manifest = shallowRef<PythonDataToolsManifest>()
+  const cellOutputs = shallowRef<readonly PythonDataToolsCellOutputPreview[]>([])
   const outputStates = ref<OutputStateMap>(outputStateMap({ status: 'idle' }))
   const manualReloadAvailable = ref(false)
   const primaryOutputIds = [...new Set(options.outputIds ?? pythonDataToolsOutputIds)]
@@ -91,6 +94,7 @@ export function createPythonDataToolsOutputSession(
     activeController = controller
     const token = ++requestToken
     manifest.value = undefined
+    cellOutputs.value = []
     outputStates.value = {
       ...outputStateMap({ status: 'idle' }),
       ...Object.fromEntries(primaryOutputIds.map((outputId) => [outputId, { status: 'loading' } as const])),
@@ -121,7 +125,24 @@ export function createPythonDataToolsOutputSession(
 
     manifest.value = manifestState.data
     outputStates.value = outputStateMap({ status: 'idle' })
-    await loadOutputs(primaryOutputIds)
+    const [cellOutputState] = await Promise.all([
+      loadPythonDataToolsCellOutputs(manifestState.data, {
+        fetch: options.fetch,
+        baseUrl: options.baseUrl,
+        signal: controller.signal,
+      }),
+      loadOutputs(primaryOutputIds),
+    ])
+    if (!isCurrentRequest(token, controller)) return
+    if (cellOutputState.status === 'ready') {
+      cellOutputs.value = cellOutputState.data
+    } else if (
+      cellOutputState.status === 'error'
+      && cellOutputState.code !== 'aborted'
+      && kind === 'automatic'
+    ) {
+      manualReloadAvailable.value = true
+    }
   }
 
   function start() {
@@ -136,6 +157,10 @@ export function createPythonDataToolsOutputSession(
     return outputStates.value[outputId] ?? { status: 'idle' }
   }
 
+  function cellOutputFor(sourceCellId: string) {
+    return cellOutputs.value.find((preview) => preview.sourceCellId === sourceCellId)
+  }
+
   function dispose() {
     if (disposed) return
     disposed = true
@@ -147,12 +172,14 @@ export function createPythonDataToolsOutputSession(
 
   return {
     manifest: readonly(manifest),
+    cellOutputs: readonly(cellOutputs),
     outputStates: readonly(outputStates),
     manualReloadAvailable: readonly(manualReloadAvailable),
     start,
     reloadRuntimeResults,
     loadOutputs,
     stateFor,
+    cellOutputFor,
     dispose,
   }
 }

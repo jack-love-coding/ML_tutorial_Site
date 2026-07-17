@@ -43,6 +43,39 @@ test('every generated teaching code block exposes localized clipboard feedback',
   assert.match(styles, /\.python-data-tools-page__copy-button\.is-failed/)
 })
 
+test('page exposes local dataset downloads and executed output previews beside course code', async () => {
+  const page = await read('../src/components/PythonDataToolsPagedLesson.vue')
+  const output = await read('../src/components/PythonDataToolsNotebookOutput.vue')
+  const plotly = await read('../src/components/PythonDataToolsNotebookPlotlyPreview.vue')
+  const styles = await read('../src/styles/modules/python-data-tools.css')
+
+  assert.match(page, /pythonDataToolsContract\.datasetPath/)
+  assert.match(page, /下载课程数据 CSV/)
+  assert.match(page, /Download the course CSV/)
+  assert.match(page, /data-dictionary\.json/)
+  assert.match(page, /requirements\.txt/)
+  assert.match(page, /<PythonDataToolsNotebookOutput/)
+  assert.match(page, /outputSession\.cellOutputFor\(block\.id\)/)
+  assert.match(page, /v-if="!block\.outputId"/)
+
+  assert.match(output, /代码运行输出/)
+  assert.match(output, /Code output/)
+  assert.match(output, /运行成功；这个单元格只完成设置或写入文件，没有直接显示输出。/)
+  assert.match(output, /Ran successfully; this cell only performs setup or writes a file/)
+  assert.match(output, /item\.kind === 'success'/)
+  assert.match(output, /item\.kind === 'text'/)
+  assert.match(output, /item\.kind === 'image'/)
+  assert.match(output, /<PythonDataToolsNotebookPlotlyPreview/)
+  assert.doesNotMatch(output, /v-html|innerHTML/)
+
+  assert.match(plotly, /await import\('plotly\.js-basic-dist-min'\)/)
+  assert.match(plotly, /Plotly\.react/)
+  assert.match(plotly, /Plotly\.purge/)
+  assert.match(plotly, /ResizeObserver/)
+  assert.doesNotMatch(plotly, /v-html|innerHTML|text\/html/)
+  assert.match(styles, /\.python-data-tools-cell-output/)
+})
+
 test('generated blocks remain inline and forward presentation plus typed session state', async () => {
   const source = await read('../src/components/PythonDataToolsPagedLesson.vue')
 

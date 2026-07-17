@@ -4,6 +4,7 @@ import test from 'node:test'
 
 import { pythonDataToolsRuntimeChapters } from '../src/data/generated/pythonDataToolsRuntime.generated.ts'
 import {
+  loadPythonDataToolsCellOutputs,
   loadPythonDataToolsManifest,
   loadPythonDataToolsOutput,
   pythonDataToolsOutputRegistry,
@@ -103,6 +104,7 @@ test('manifest loader is strict, base-safe, and returns local bilingual errors',
       index === 0 ? { ...entry, id: 'unknown-output' } : entry
     )) },
     { ...valid, notebook: { publicPath: '', sha256: valid.notebook.sha256 } },
+    { ...valid, cellOutputs: { ...valid.cellOutputs, publicPath: 'https://example.com/outputs.json' } },
   ]
 
   for (const [index, fixture] of invalidCases.entries()) {
@@ -149,6 +151,57 @@ test('all authoritative outputs load independently into typed teaching view mode
       assert.ok(state.data.figure.data.length > 0)
       assert.equal(typeof state.data.figure.layout, 'object')
     }
+  }
+})
+
+test('executed cell outputs load as safe local text, image, and Plotly previews', async () => {
+  const requests: string[] = []
+  const fetcher = createPublicFileFetch(requests)
+  const manifestState = await loadPythonDataToolsManifest({ fetch: fetcher })
+  assert.equal(manifestState.status, 'ready')
+  if (manifestState.status !== 'ready') return
+
+  const state = await loadPythonDataToolsCellOutputs(manifestState.data, { fetch: fetcher })
+  assert.equal(state.status, 'ready')
+  if (state.status !== 'ready') return
+  assert.equal(state.data.length, 48)
+  assert.equal(new Set(state.data.map(({ sourceCellId }) => sourceCellId)).size, 48)
+  assert.deepEqual(
+    Object.fromEntries(['success', 'text', 'image', 'plotly'].map((kind) => [
+      kind,
+      state.data.flatMap(({ items }) => items).filter((item) => item.kind === kind).length,
+    ])),
+    { success: 9, text: 32, image: 7, plotly: 1 },
+  )
+  assert.equal(requests.at(-1), '/notebooks/python-data-tools/outputs/cell-output-previews.json')
+  assert.ok(state.data.flatMap(({ items }) => items).every((item) => (
+    item.kind !== 'text' || !/<script|<iframe|onerror=/i.test(item.text)
+  )))
+
+  requests.length = 0
+  const pagesState = await loadPythonDataToolsCellOutputs(manifestState.data, {
+    fetch: fetcher,
+    baseUrl: '/ML_tutorial_Site/',
+  })
+  assert.equal(pagesState.status, 'ready')
+  assert.equal(requests[0], '/ML_tutorial_Site/notebooks/python-data-tools/outputs/cell-output-previews.json')
+
+  const committed = JSON.parse(await readFile(new URL('../public/notebooks/python-data-tools/outputs/cell-output-previews.json', import.meta.url), 'utf8'))
+  for (const invalid of [
+    { ...committed, notebookSha256: '0'.repeat(64) },
+    { ...committed, cells: [...committed.cells, committed.cells[0]] },
+    {
+      ...committed,
+      cells: committed.cells.map((cell: Record<string, unknown>, index: number) => (
+        index === 0 ? { ...cell, items: [{ kind: 'success', text: '<script>bad()</script>' }] } : cell
+      )),
+    },
+  ]) {
+    const invalidState = await loadPythonDataToolsCellOutputs(manifestState.data, {
+      fetch: (async () => responseFor(JSON.stringify(invalid))) as typeof fetch,
+    })
+    assert.equal(invalidState.status, 'error')
+    if (invalidState.status === 'error') assert.equal(invalidState.code, 'invalid-schema')
   }
 })
 
@@ -373,8 +426,11 @@ test('page output session owns one automatic load, abort cleanup, typed distribu
   assert.equal(requests.filter((url) => url.endsWith('/manifest.json')).length, 1)
   assert.deepEqual(requests.map((url) => url.split('/').at(-1)), [
     'manifest.json',
+    'cell-output-previews.json',
     'dataset-shape-schema.json',
   ])
+  assert.equal(session.cellOutputs.value.length, 48)
+  assert.equal(session.cellOutputFor('ch02-vectorized-summary')?.items[0]?.kind, 'text')
   assert.equal(session.manualReloadAvailable.value, false)
   assert.equal(session.stateFor('dataset-shape-schema').status, 'ready')
   assert.equal(session.stateFor('hourly-demand-profile').status, 'ready')

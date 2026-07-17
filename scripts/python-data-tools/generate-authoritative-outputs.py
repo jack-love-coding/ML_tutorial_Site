@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import importlib.metadata
 import importlib.util
@@ -26,6 +27,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 NOTEBOOK_DIR = REPO_ROOT / "public/notebooks/python-data-tools"
 NOTEBOOK_PATH = NOTEBOOK_DIR / "python-data-tools-bike-sharing.zh-CN.ipynb"
 OUTPUT_DIR = NOTEBOOK_DIR / "outputs"
+CELL_OUTPUTS_FILENAME = "cell-output-previews.json"
+CELL_OUTPUTS_PUBLIC_PATH = f"/notebooks/python-data-tools/outputs/{CELL_OUTPUTS_FILENAME}"
+CELL_PREVIEW_DIRECTORY = "cell-previews"
 ENVIRONMENT_PATH = NOTEBOOK_DIR / "environment.json"
 FONT_PATH = REPO_ROOT / "public/fonts/python-data-tools/NotoSansSC-Variable.ttf"
 FONT_METADATA_PATH = REPO_ROOT / "public/fonts/python-data-tools/metadata.json"
@@ -72,6 +76,41 @@ OUTPUT_SPECS = {
     },
     "final-analysis-evidence": {
         "filename": "final-analysis-evidence.json", "kind": "json", "sourceCellId": "ch08-final-evidence",
+    },
+}
+
+VISUAL_CELL_DESCRIPTIONS = {
+    "ch05-hourly-line": {
+        "zh-CN": "折线图展示 0–23 时的平均共享单车需求。",
+        "en": "A line chart shows mean bike-sharing demand across hours 0–23.",
+    },
+    "ch05-workingday-lines": {
+        "zh-CN": "两条折线比较工作日与周末或节假日的逐小时平均需求。",
+        "en": "Two lines compare hourly mean demand on working days and weekends or holidays.",
+    },
+    "ch05-rider-bars": {
+        "zh-CN": "柱状图比较临时用户与注册用户的累计租车次数。",
+        "en": "A bar chart compares cumulative rentals by casual and registered riders.",
+    },
+    "ch05-misleading-axis": {
+        "zh-CN": "并排柱状图对比截断纵轴与从零开始纵轴造成的视觉差异。",
+        "en": "Side-by-side bars contrast a truncated y-axis with a zero-based y-axis.",
+    },
+    "ch06-season-boxplot": {
+        "zh-CN": "双面板箱线图比较不同季节和天气状况下的需求分布。",
+        "en": "Two box-plot panels compare demand distributions across seasons and weather conditions.",
+    },
+    "ch06-temperature-scatter": {
+        "zh-CN": "散点图展示标准化气温与每小时租车需求的关系，并叠加趋势线。",
+        "en": "A scatter plot relates normalized temperature to hourly rentals with a fitted trend line.",
+    },
+    "ch06-correlation-heatmap": {
+        "zh-CN": "热力图展示七个数值字段之间的 Pearson 相关系数矩阵。",
+        "en": "A heatmap shows the Pearson correlation matrix for seven numeric fields.",
+    },
+    "ch07-rider-facets": {
+        "zh-CN": "Plotly 分面折线图按用户类型和日期类型比较逐小时平均需求。",
+        "en": "A Plotly faceted line chart compares hourly mean demand by rider and day type.",
     },
 }
 
@@ -142,6 +181,175 @@ def png_dimensions(path: Path) -> tuple[int, int]:
     return struct.unpack(">II", data[16:24])
 
 
+def _joined_text(value) -> str:
+    if isinstance(value, list):
+        return "".join(str(part) for part in value).rstrip("\n")
+    return str(value).rstrip("\n")
+
+
+def _visual_description(source_cell_id: str) -> dict[str, str]:
+    description = VISUAL_CELL_DESCRIPTIONS.get(source_cell_id)
+    if description is None:
+        raise ValueError(f"Missing bilingual visual description for {source_cell_id}")
+    return description
+
+
+def extract_cell_output_previews(notebook, directory: Path, notebook_sha: str) -> dict:
+    """Publish safe, local previews from the executed notebook without retaining HTML."""
+    asset_directory = directory / CELL_PREVIEW_DIRECTORY
+    asset_directory.mkdir(parents=True, exist_ok=True)
+    cells = []
+
+    for cell in notebook.cells:
+        if cell.cell_type != "code":
+            continue
+        metadata = cell.get("metadata", {}).get("mlAtlas", {})
+        source_cell_id = metadata.get("sourceCellId", cell.id)
+        if not isinstance(source_cell_id, str) or not source_cell_id.startswith("ch"):
+            raise ValueError(f"Invalid source cell id for output preview: {source_cell_id!r}")
+
+        items = []
+        for output_index, output in enumerate(cell.outputs, start=1):
+            if output.output_type == "error":
+                raise ValueError(f"Notebook output preview contains an error: {source_cell_id}")
+
+            data = output.get("data", {})
+            if "image/png" in data:
+                filename = f"{source_cell_id}-{output_index}.png"
+                path = asset_directory / filename
+                try:
+                    image_bytes = base64.b64decode(_joined_text(data["image/png"]), validate=True)
+                except ValueError as error:
+                    raise ValueError(f"Invalid PNG output for {source_cell_id}") from error
+                path.write_bytes(image_bytes)
+                width, height = png_dimensions(path)
+                items.append({
+                    "kind": "image",
+                    "publicPath": f"/notebooks/python-data-tools/outputs/{CELL_PREVIEW_DIRECTORY}/{filename}",
+                    "sha256": sha256_file(path),
+                    "bytes": path.stat().st_size,
+                    "width": width,
+                    "height": height,
+                    "description": _visual_description(source_cell_id),
+                })
+                continue
+
+            if "application/json" in data:
+                figure = data["application/json"]
+                if not isinstance(figure, dict) or not isinstance(figure.get("data"), list) or not isinstance(figure.get("layout"), dict):
+                    raise ValueError(f"Unsupported application/json output for {source_cell_id}")
+                filename = f"{source_cell_id}-{output_index}.plotly.json"
+                path = asset_directory / filename
+                path.write_bytes(_json_bytes(figure))
+                items.append({
+                    "kind": "plotly",
+                    "publicPath": f"/notebooks/python-data-tools/outputs/{CELL_PREVIEW_DIRECTORY}/{filename}",
+                    "sha256": sha256_file(path),
+                    "bytes": path.stat().st_size,
+                    "description": _visual_description(source_cell_id),
+                })
+                continue
+
+            text = None
+            if output.output_type == "stream":
+                text = _joined_text(output.get("text", ""))
+            elif "text/plain" in data:
+                text = _joined_text(data["text/plain"])
+            if text:
+                items.append({"kind": "text", "text": text})
+
+        if not items:
+            items.append({"kind": "success"})
+        execution_count = cell.get("execution_count")
+        if not isinstance(execution_count, int) or execution_count <= 0:
+            raise ValueError(f"Missing execution count for {source_cell_id}")
+        cells.append({
+            "sourceCellId": source_cell_id,
+            "executionCount": execution_count,
+            "items": items,
+        })
+
+    payload = {
+        "contractVersion": "python-data-tools-v1",
+        "notebookSha256": notebook_sha,
+        "cells": cells,
+    }
+    (directory / CELL_OUTPUTS_FILENAME).write_bytes(_json_bytes(payload))
+    return payload
+
+
+def validate_cell_output_previews(directory: Path, notebook_path: Path) -> dict:
+    preview_path = directory / CELL_OUTPUTS_FILENAME
+    if not preview_path.is_file():
+        raise FileNotFoundError(preview_path)
+    payload = json.loads(preview_path.read_text(encoding="utf-8"))
+    notebook = nbformat.read(notebook_path, as_version=4)
+    expected_cell_ids = [
+        cell.get("metadata", {}).get("mlAtlas", {}).get("sourceCellId", cell.id)
+        for cell in notebook.cells
+        if cell.cell_type == "code"
+    ]
+    cells = payload.get("cells")
+    if payload.get("contractVersion") != "python-data-tools-v1" or payload.get("notebookSha256") != sha256_file(notebook_path):
+        raise ValueError("Cell output previews are not bound to the executed notebook")
+    if not isinstance(cells, list) or [cell.get("sourceCellId") for cell in cells] != expected_cell_ids:
+        raise ValueError("Cell output preview order differs from the executed notebook")
+
+    referenced_assets = set()
+    asset_count = 0
+    for cell in cells:
+        if not isinstance(cell.get("executionCount"), int) or cell["executionCount"] <= 0:
+            raise ValueError(f"Invalid execution count in cell output preview: {cell.get('sourceCellId')}")
+        items = cell.get("items")
+        if not isinstance(items, list) or not items:
+            raise ValueError(f"Empty cell output preview: {cell.get('sourceCellId')}")
+        for item in items:
+            kind = item.get("kind")
+            if kind == "success":
+                if set(item) != {"kind"}:
+                    raise ValueError("Successful no-output preview must not contain extra fields")
+                continue
+            if kind == "text":
+                if not isinstance(item.get("text"), str) or not item["text"]:
+                    raise ValueError("Cell text output must be non-empty")
+                continue
+            if kind not in {"image", "plotly"}:
+                raise ValueError(f"Unsupported cell output preview kind: {kind}")
+            public_path = item.get("publicPath")
+            expected_prefix = f"/notebooks/python-data-tools/outputs/{CELL_PREVIEW_DIRECTORY}/"
+            if not isinstance(public_path, str) or not public_path.startswith(expected_prefix):
+                raise ValueError(f"Invalid cell output asset path: {public_path}")
+            asset_path = directory / CELL_PREVIEW_DIRECTORY / Path(public_path).name
+            if not asset_path.is_file() or sha256_file(asset_path) != item.get("sha256") or asset_path.stat().st_size != item.get("bytes"):
+                raise ValueError(f"Cell output asset integrity mismatch: {asset_path}")
+            description = item.get("description")
+            if not isinstance(description, dict) or not all(isinstance(description.get(locale), str) and description[locale] for locale in ("zh-CN", "en")):
+                raise ValueError(f"Missing bilingual cell output description: {asset_path}")
+            if kind == "image":
+                if list(png_dimensions(asset_path)) != [item.get("width"), item.get("height")]:
+                    raise ValueError(f"Cell output image dimensions differ: {asset_path}")
+            else:
+                figure = json.loads(asset_path.read_text(encoding="utf-8"))
+                if not isinstance(figure.get("data"), list) or not isinstance(figure.get("layout"), dict):
+                    raise ValueError(f"Invalid Plotly cell output: {asset_path}")
+            referenced_assets.add(asset_path.relative_to(directory).as_posix())
+            asset_count += 1
+
+    observed_assets = {
+        path.relative_to(directory).as_posix()
+        for path in (directory / CELL_PREVIEW_DIRECTORY).glob("*")
+        if path.is_file()
+    }
+    if observed_assets != referenced_assets:
+        raise ValueError("Cell output preview directory contains missing or unreferenced assets")
+    return {
+        "sha256": sha256_file(preview_path),
+        "bytes": preview_path.stat().st_size,
+        "cellCount": len(cells),
+        "assetCount": asset_count,
+    }
+
+
 def validate_outputs(directory: Path, dataset_sha: str) -> dict[str, dict]:
     observed = {}
     for output_id, output_spec in OUTPUT_SPECS.items():
@@ -176,7 +384,15 @@ def validate_outputs(directory: Path, dataset_sha: str) -> dict[str, dict]:
     return observed
 
 
-def _manifest(environment: dict, data_manifest: dict, font_metadata: dict, notebook_path: Path, directory: Path, observed: dict) -> dict:
+def _manifest(
+    environment: dict,
+    data_manifest: dict,
+    font_metadata: dict,
+    notebook_path: Path,
+    directory: Path,
+    observed: dict,
+    cell_outputs_observed: dict,
+) -> dict:
     output_records = []
     for output_id, output_spec in OUTPUT_SPECS.items():
         details = observed[output_id]
@@ -210,6 +426,10 @@ def _manifest(environment: dict, data_manifest: dict, font_metadata: dict, noteb
         "notebook": {
             "publicPath": "/notebooks/python-data-tools/python-data-tools-bike-sharing.zh-CN.ipynb",
             "sha256": sha256_file(notebook_path),
+        },
+        "cellOutputs": {
+            "publicPath": CELL_OUTPUTS_PUBLIC_PATH,
+            **cell_outputs_observed,
         },
         "generator": {
             "path": "scripts/python-data-tools/generate-authoritative-outputs.py",
@@ -247,8 +467,18 @@ def generate_transaction() -> tuple[Path, Path]:
             os.environ["PATH"] = previous_path
         _strip_transient_metadata(notebook)
         _write_notebook(notebook_temp, notebook)
+        extract_cell_output_previews(notebook, transaction_dir, sha256_file(notebook_temp))
         observed = validate_outputs(transaction_dir, data_manifest["file"]["sha256"])
-        manifest = _manifest(environment, data_manifest, font_metadata, notebook_temp, transaction_dir, observed)
+        cell_outputs_observed = validate_cell_output_previews(transaction_dir, notebook_temp)
+        manifest = _manifest(
+            environment,
+            data_manifest,
+            font_metadata,
+            notebook_temp,
+            transaction_dir,
+            observed,
+            cell_outputs_observed,
+        )
         (transaction_dir / "manifest.json").write_bytes(_json_bytes(manifest))
         return transaction_dir, notebook_temp
     except Exception:
@@ -261,9 +491,20 @@ def compare_committed(transaction_dir: Path, notebook_temp: Path) -> None:
     differences = []
     if not NOTEBOOK_PATH.is_file() or NOTEBOOK_PATH.read_bytes() != notebook_temp.read_bytes():
         differences.append(str(NOTEBOOK_PATH.relative_to(REPO_ROOT)))
-    for generated in sorted(transaction_dir.iterdir()):
-        committed = OUTPUT_DIR / generated.name
-        if not committed.is_file() or committed.read_bytes() != generated.read_bytes():
+    generated_files = {
+        path.relative_to(transaction_dir)
+        for path in transaction_dir.rglob("*")
+        if path.is_file()
+    }
+    committed_files = {
+        path.relative_to(OUTPUT_DIR)
+        for path in OUTPUT_DIR.rglob("*")
+        if path.is_file()
+    } if OUTPUT_DIR.is_dir() else set()
+    for relative_path in sorted(generated_files | committed_files):
+        generated = transaction_dir / relative_path
+        committed = OUTPUT_DIR / relative_path
+        if not generated.is_file() or not committed.is_file() or committed.read_bytes() != generated.read_bytes():
             differences.append(str(committed.relative_to(REPO_ROOT)))
     if differences:
         raise RuntimeError(f"Committed authoritative artifacts differ: {', '.join(differences)}")

@@ -36,6 +36,12 @@ interface ManifestPathReference {
   sha256: string
 }
 
+interface ManifestCellOutputsReference extends ManifestFileReference {
+  assetCount: number
+  bytes: number
+  cellCount: number
+}
+
 interface PythonDataToolsManifestOutputBase {
   bytes: number
   cellId: string
@@ -65,11 +71,50 @@ export type PythonDataToolsManifestOutput =
 
 export interface PythonDataToolsManifest {
   contractVersion: typeof contractVersion
+  cellOutputs: ManifestCellOutputsReference
   dataset: ManifestFileReference
   environment: ManifestPathReference
   font: ManifestPathReference
   notebook: ManifestFileReference
   outputs: readonly PythonDataToolsManifestOutput[]
+}
+
+export interface PythonDataToolsCellTextOutput {
+  kind: 'text'
+  text: string
+}
+
+export interface PythonDataToolsCellSuccessOutput {
+  kind: 'success'
+}
+
+interface PythonDataToolsCellAssetOutputBase {
+  publicPath: string
+  sha256: string
+  bytes: number
+  description: LocalizedCopy
+}
+
+export interface PythonDataToolsCellImageOutput extends PythonDataToolsCellAssetOutputBase {
+  kind: 'image'
+  width: number
+  height: number
+}
+
+export interface PythonDataToolsCellPlotlyOutput extends PythonDataToolsCellAssetOutputBase {
+  kind: 'plotly'
+}
+
+export type PythonDataToolsCellOutputItem =
+  | PythonDataToolsCellSuccessOutput
+  | PythonDataToolsCellTextOutput
+  | PythonDataToolsCellImageOutput
+  | PythonDataToolsCellPlotlyOutput
+
+export interface PythonDataToolsCellOutputPreview {
+  sourceCellId: `ch${number}-${string}`
+  executionCount: number
+  items: readonly PythonDataToolsCellOutputItem[]
 }
 
 export interface PythonDataToolsTeachingTable {
@@ -197,6 +242,24 @@ function parsePathReference(value: unknown): ManifestPathReference | undefined {
   return { path: value.path, sha256: value.sha256 }
 }
 
+function parseCellOutputsReference(value: unknown): ManifestCellOutputsReference | undefined {
+  const reference = parseFileReference(value)
+  if (
+    !reference
+    || !isRecord(value)
+    || reference.publicPath !== '/notebooks/python-data-tools/outputs/cell-output-previews.json'
+    || !isPositiveInteger(value.assetCount)
+    || !isPositiveInteger(value.bytes)
+    || !isPositiveInteger(value.cellCount)
+  ) return undefined
+  return {
+    ...reference,
+    assetCount: value.assetCount,
+    bytes: value.bytes,
+    cellCount: value.cellCount,
+  }
+}
+
 function parseManifestOutput(
   value: unknown,
   expected: PythonDataToolsOutputRegistryEntry,
@@ -248,10 +311,11 @@ function parseManifest(value: unknown): PythonDataToolsManifest | undefined {
   }
 
   const dataset = parseFileReference(value.dataset)
+  const cellOutputs = parseCellOutputsReference(value.cellOutputs)
   const environment = parsePathReference(value.environment)
   const font = parsePathReference(value.font)
   const notebook = parseFileReference(value.notebook)
-  if (!dataset || !environment || !font || !notebook) return undefined
+  if (!cellOutputs || !dataset || !environment || !font || !notebook) return undefined
   if (value.outputs.length !== pythonDataToolsOutputRegistry.length) return undefined
 
   const outputs = value.outputs.map((entry, index) => (
@@ -262,12 +326,89 @@ function parseManifest(value: unknown): PythonDataToolsManifest | undefined {
 
   return {
     contractVersion,
+    cellOutputs,
     dataset,
     environment,
     font,
     notebook,
     outputs: outputs as PythonDataToolsManifestOutput[],
   }
+}
+
+function parseDescription(value: unknown): LocalizedCopy | undefined {
+  if (!isRecord(value) || !isNonEmptyString(value['zh-CN']) || !isNonEmptyString(value.en)) return undefined
+  return { 'zh-CN': value['zh-CN'], en: value.en }
+}
+
+function parseCellOutputItem(value: unknown): PythonDataToolsCellOutputItem | undefined {
+  if (!isRecord(value)) return undefined
+  if (value.kind === 'success') {
+    return Object.keys(value).length === 1 ? { kind: 'success' } : undefined
+  }
+  if (value.kind === 'text') {
+    return isNonEmptyString(value.text) ? { kind: 'text', text: value.text } : undefined
+  }
+  if (value.kind !== 'image' && value.kind !== 'plotly') return undefined
+  const description = parseDescription(value.description)
+  const expectedPath = value.kind === 'image'
+    ? /^\/notebooks\/python-data-tools\/outputs\/cell-previews\/ch\d{2}-[a-z0-9-]+-\d+\.png$/
+    : /^\/notebooks\/python-data-tools\/outputs\/cell-previews\/ch\d{2}-[a-z0-9-]+-\d+\.plotly\.json$/
+  if (
+    !description
+    || !isRootPublicPath(value.publicPath)
+    || !expectedPath.test(value.publicPath)
+    || !isSha256(value.sha256)
+    || !isPositiveInteger(value.bytes)
+  ) return undefined
+  const base = {
+    publicPath: value.publicPath,
+    sha256: value.sha256,
+    bytes: value.bytes,
+    description,
+  }
+  if (value.kind === 'plotly') return { kind: 'plotly', ...base }
+  if (!isPositiveInteger(value.width) || !isPositiveInteger(value.height)) return undefined
+  return { kind: 'image', ...base, width: value.width, height: value.height }
+}
+
+function parseCellOutputPreviews(
+  value: unknown,
+  manifest: PythonDataToolsManifest,
+): readonly PythonDataToolsCellOutputPreview[] | undefined {
+  if (
+    !isRecord(value)
+    || value.contractVersion !== contractVersion
+    || value.notebookSha256 !== manifest.notebook.sha256
+    || !Array.isArray(value.cells)
+    || value.cells.length !== manifest.cellOutputs.cellCount
+  ) return undefined
+
+  const previews: PythonDataToolsCellOutputPreview[] = []
+  const seen = new Set<string>()
+  for (const candidate of value.cells) {
+    if (
+      !isRecord(candidate)
+      || !isNonEmptyString(candidate.sourceCellId)
+      || !/^ch\d{2}-[a-z0-9-]+$/.test(candidate.sourceCellId)
+      || seen.has(candidate.sourceCellId)
+      || !isPositiveInteger(candidate.executionCount)
+      || !Array.isArray(candidate.items)
+      || candidate.items.length === 0
+    ) return undefined
+    const items = candidate.items.map(parseCellOutputItem)
+    if (items.some((item) => !item)) return undefined
+    seen.add(candidate.sourceCellId)
+    previews.push({
+      sourceCellId: candidate.sourceCellId as `ch${number}-${string}`,
+      executionCount: candidate.executionCount,
+      items: items as PythonDataToolsCellOutputItem[],
+    })
+  }
+  const assetCount = previews.flatMap(({ items }) => items)
+    .filter((item) => item.kind === 'image' || item.kind === 'plotly')
+    .length
+  if (assetCount !== manifest.cellOutputs.assetCount) return undefined
+  return previews
 }
 
 function resolveFetch(options: LoaderOptions) {
@@ -297,6 +438,31 @@ export async function loadPythonDataToolsManifest(
     }
     const manifest = parseManifest(value)
     return manifest ? { status: 'ready', data: manifest } : errorState('invalid-schema')
+  } catch (error) {
+    return errorState(isAbort(error, options.signal) ? 'aborted' : 'http-error')
+  }
+}
+
+export async function loadPythonDataToolsCellOutputs(
+  manifest: PythonDataToolsManifest,
+  options: LoaderOptions = {},
+): Promise<PythonDataToolsLoadState<readonly PythonDataToolsCellOutputPreview[]>> {
+  if (options.signal?.aborted) return errorState('aborted')
+  try {
+    const response = await resolveFetch(options)(
+      withPublicBase(manifest.cellOutputs.publicPath, options.baseUrl),
+      { signal: options.signal },
+    )
+    if (!response.ok) return errorState('http-error')
+
+    let value: unknown
+    try {
+      value = await response.json()
+    } catch {
+      return errorState('invalid-json')
+    }
+    const previews = parseCellOutputPreviews(value, manifest)
+    return previews ? { status: 'ready', data: previews } : errorState('invalid-schema')
   } catch (error) {
     return errorState(isAbort(error, options.signal) ? 'aborted' : 'http-error')
   }
