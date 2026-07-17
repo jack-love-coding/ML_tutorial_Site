@@ -738,7 +738,7 @@
 
 ## V3.1 Minimum Mathematical Foundation
 
-**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–4 completed; Python Data Tools Stage 5 consistency and browser validation remains planned.
+**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–4 completed; Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution.
 
 **Decision boundary:**
 - Start only from separately reviewed acceptance criteria for the V3.1 waves declared in the generated implementation backlog.
@@ -753,7 +753,7 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 2. **Eight-chapter Chinese master** — Completed — complete Chinese teaching flow Notebook/NumPy/Pandas/Matplotlib/Seaborn/Plotly/final report; no runtime lesson changes.
 3. **Notebook and real chart assets** — Completed — clean-kernel ipynb, exact outputs, real Matplotlib/Seaborn assets, deterministic Plotly JSON.
 4. **English parity and runtime refactor** — Completed — eight paired chapters, dedicated paged runtime, manifest-driven JSON/PNG/Plotly results, static teaching prompts, legacy redirects, course review, Progress compatibility, both builds, and bounded browser smoke verified.
-5. **Consistency, browser, and build validation** — Planned — data/code/output parity, bilingual, responsive browser, production/Pages.
+5. **Consistency, browser, and build validation** — Designed / ready for execution — four ordered plans cover learner-visible terminology, data/code/output/hash parity, a 36-cell bilingual responsive browser matrix, six failure-injection cases, Progress/request boundaries, and standard/Pages release validation. See `docs/superpowers/specs/2026-07-17-python-data-tools-stage-5-consistency-validation-spec.md`, `docs/superpowers/plans/2026-07-17-python-data-tools-stage-5-validation.md`, and Plans `2026-07-17-python-data-tools-stage-5-01-PLAN.md` through `04-PLAN.md`.
 
 ---
 *Roadmap created: 2026-06-25*

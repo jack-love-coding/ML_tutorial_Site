@@ -197,6 +197,12 @@ test('milestone audit documents every completed phase and the current refactor s
     'docs/refactor/baseline.md',
     'docs/refactor/curriculum-v2-brief.md',
     'docs/refactor/designs/phase-9-curriculum-spine-v1.md',
+    'docs/superpowers/specs/2026-07-17-python-data-tools-stage-5-consistency-validation-spec.md',
+    'docs/superpowers/plans/2026-07-17-python-data-tools-stage-5-validation.md',
+    'docs/superpowers/plans/2026-07-17-python-data-tools-stage-5-01-PLAN.md',
+    'docs/superpowers/plans/2026-07-17-python-data-tools-stage-5-02-PLAN.md',
+    'docs/superpowers/plans/2026-07-17-python-data-tools-stage-5-03-PLAN.md',
+    'docs/superpowers/plans/2026-07-17-python-data-tools-stage-5-04-PLAN.md',
   ]) {
     assert.ok(existsSync(new URL(path, root)), `${path} should exist`)
   }
@@ -306,5 +312,6 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.match(stateSource, /CategoricalVocabularyTaskLab/)
   assert.match(stateSource, /DataQualityDecisionRecordLab/)
   assert.match(stateSource, /project readiness is useful but should wait/)
-  assert.match(stateSource, /Current focus:\*\* Discuss and plan Python Data Tools Stage 5 consistency, responsive-browser, and end-to-end validation/)
+  assert.match(stateSource, /Current focus:\*\* Execute Python Data Tools Stage 5 Plans 01–04 in order/)
+  assert.match(stateSource, /Stage 5 design is complete in four ordered plans/)
 })

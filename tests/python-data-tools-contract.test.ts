@@ -115,9 +115,9 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
   ])
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
-  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–4 are completed slices; Python Data Tools Stage 5 consistency and browser validation remains planned. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
-  const expectedFocus = '**Current focus:** Discuss and plan Python Data Tools Stage 5 consistency, responsive-browser, and end-to-end validation without expanding into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.'
-  const expectedNextCommand = 'Discuss and plan Python Data Tools Stage 5 consistency, responsive-browser, and end-to-end validation while keeping Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused.'
+  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–4 are completed slices; Python Data Tools Stage 5 consistency and browser validation has a complete four-plan design and is ready for execution. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
+  const expectedFocus = '**Current focus:** Execute Python Data Tools Stage 5 Plans 01–04 in order: visible terminology and asset regeneration, deterministic authority/request/Progress gates, real-browser matrix, then standard/Pages release closeout. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.'
+  const expectedNextCommand = 'Execute Python Data Tools Stage 5 Plan 01, then Plans 02–04 in dependency order, while keeping Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused.'
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
   assert.match(state, /^\*\*Updated:\*\* 2026-07-17$/m)
@@ -147,7 +147,7 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
   ]
   const stageLines = roadmap
     .split('\n')
-    .filter((line) => /^\d+\. \*\*.+\*\* — (?:Completed|Current|Planned) —/.test(line))
+    .filter((line) => /^\d+\. \*\*.+\*\* — (?:Completed|Current|Planned|Designed \/ ready for execution) —/.test(line))
 
   assert.deepEqual(
     stageLines.map((line) => line.match(/^\d+\. \*\*(.+)\*\*/)?.[1]),
@@ -157,7 +157,9 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
   assert.match(stageLines[1], /^2\. \*\*Eight-chapter Chinese master\*\* — Completed —/)
   assert.match(stageLines[2], /^3\. \*\*Notebook and real chart assets\*\* — Completed —/)
   assert.match(stageLines[3], /^4\. \*\*English parity and runtime refactor\*\* — Completed —/)
-  assert.match(stageLines[4], /^5\. \*\*Consistency, browser, and build validation\*\* — Planned —/)
+  assert.match(stageLines[4], /^5\. \*\*Consistency, browser, and build validation\*\* — Designed \/ ready for execution —/)
+  assert.match(roadmap, /Stage 5 consistency and browser validation is designed and ready for execution/i)
+  assert.match(roadmap, /four ordered plans cover learner-visible terminology/i)
   assert.match(roadmap, /Preserve current lessons, routes, checkpoints, and Progress V1\/V2 storage/i)
   assert.match(roadmap, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
   assert.match(roadmap, /preserves? the existing `python-notebook` ID and `\/learn\/python-notebook` route/i)
