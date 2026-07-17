@@ -6,39 +6,24 @@ import type {
   MathLabProgress,
   MathLabModuleId,
 } from '../types/mathLab'
+import {
+  aiMathPathModuleIds,
+  calculusRouteModuleIds,
+  linearAlgebraRouteModuleIds,
+  mathToCodePilotModuleIds,
+  numericalDeepeningModuleIds,
+} from './mathCourseOrder.ts'
+
+export {
+  aiMathPathModuleIds,
+  calculusRouteModuleIds,
+  linearAlgebraRouteModuleIds,
+  mathToCodePilotModuleIds,
+} from './mathCourseOrder.ts'
 
 function copy(zh: string, en: string): LocalizedCopy {
   return { 'zh-CN': zh, en }
 }
-
-export const linearAlgebraRouteModuleIds: readonly MathLabModuleId[] = [
-  'linear-algebra-feature-space',
-  'linear-algebra-distance-similarity',
-  'linear-algebra-matrix-transformations',
-  'linear-algebra-rank-null-space',
-  'eigenvalues-eigenvectors',
-  'svd',
-  'pca',
-]
-
-export const calculusRouteModuleIds: readonly MathLabModuleId[] = [
-  'calculus-functions-rate-change',
-  'calculus-derivatives-local-change',
-  'calculus-partial-derivatives-gradients',
-  'calculus-gradient-descent',
-  'calculus-sgd-batch-noise',
-  'calculus-optimizer-comparison',
-  'calculus-training-code-diagnostics',
-]
-
-export const mathToCodePilotModuleIds: readonly MathLabModuleId[] = [
-  'calculus-functions-rate-change',
-  'linear-algebra-feature-space',
-  'linear-algebra-matrix-transformations',
-  'calculus-derivatives-local-change',
-  'numpy-mathematics-implementation',
-  'math-to-code-guided-studio',
-]
 
 const aiMathMainPathRoute: LearningRoute = {
   id: 'ai-math-main-path',
@@ -48,23 +33,7 @@ const aiMathMainPathRoute: LearningRoute = {
     'Move from beginner math intuition into shape, autodiff, probabilistic loss, optimization, PCA, and deep architecture math.',
   ),
   audience: copy('想为机器学习建数学地基的初学者。', 'Beginners building the math foundation for machine learning.'),
-  chapterModuleIds: [
-    'beginner-linear-algebra',
-    'linear-algebra-feature-space',
-    'linear-algebra-distance-similarity',
-    'linear-algebra-matrix-transformations',
-    'linear-algebra-rank-null-space',
-    'tensor-shapes-vectorization',
-    ...calculusRouteModuleIds,
-    'taylor-series',
-    'matrix-calculus-autodiff',
-    'beginner-probability-distributions',
-    'probability-likelihood-entropy',
-    'optimization',
-    'training-diagnostics',
-    'pca',
-    'deep-architecture-math',
-  ],
+  chapterModuleIds: aiMathPathModuleIds,
   nextStepRule: 'first-incomplete',
 }
 
@@ -100,15 +69,7 @@ const numericalDeepeningRoute: LearningRoute = {
     'Study linear systems, sparse structure, conditioning, finite differences, and nonlinear solving through engineering stability.',
   ),
   audience: copy('想理解数值稳定性和科学计算边界的学习者。', 'Learners who want numerical stability and scientific-computing boundaries.'),
-  chapterModuleIds: [
-    'lu-decomposition',
-    'sparse-matrices',
-    'condition-numbers',
-    'markov-chains',
-    'finite-difference-methods',
-    'nonlinear-equations',
-    'least-squares-fitting',
-  ],
+  chapterModuleIds: numericalDeepeningModuleIds,
   nextStepRule: 'first-incomplete',
 }
 

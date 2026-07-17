@@ -151,6 +151,32 @@ test('progress v2 migration is idempotent when v1 input does not change', () => 
   assert.equal(storage.getItem(learningProgressV2StorageKey), firstStored)
 })
 
+test('direct math lab module bootstrap migrates v1-only progress before lab state access', () => {
+  const modulePageSource = read('src/modules/math-lab/pages/MathLabModulePage.vue')
+  const storage = new MemoryStorage({
+    [mathLabProgressStorageKey]: json({
+      completedModuleIds: ['beginner-linear-algebra'],
+      lastVisitedModuleId: 'beginner-linear-algebra',
+      weakConceptTags: ['vector-geometry'],
+      quizAttempts: [],
+      mastery: [],
+      updatedAt: '2026-06-24T09:00:00.000Z',
+    }),
+  })
+
+  assert.match(modulePageSource, /const learningProgress = ref\(migrateLearningProgressV2\(\)\)/)
+  assert.doesNotMatch(modulePageSource, /loadLearningProgressV2/)
+
+  const bootstrapped = migrateLearningProgressV2(storage, '2026-06-25T00:00:00.000Z')
+  const persisted = loadLearningProgressV2(storage, '2026-06-25T00:00:00.000Z')
+
+  assert.equal(bootstrapped.modules['beginner-linear-algebra']?.completed, true)
+  assert.equal(bootstrapped.lastVisited?.moduleId, 'beginner-linear-algebra')
+  assert.deepEqual(bootstrapped.weakConceptTags, ['vector-geometry'])
+  assert.deepEqual(persisted, bootstrapped)
+  assert.ok(storage.getItem(learningProgressV2MigrationKey))
+})
+
 test('progress v2 migration tolerates corrupted v1 json and preserves raw data', () => {
   const storage = new MemoryStorage({
     [algorithmProgressStorageKey]: '{bad json',
@@ -455,12 +481,13 @@ test('progress route reads progress v2 and renders a continue-learning target', 
   assert.match(progressViewSource, /migrateLearningProgressV2/)
   assert.match(progressViewSource, /selectContinueLearning/)
   assert.match(progressViewSource, /continueTarget/)
-  assert.match(progressViewSource, /completedCount/)
+  assert.match(progressViewSource, /visitedCount/)
+  assert.match(progressViewSource, /savedRecordCount/)
   assert.match(progressViewSource, /recentLabEvidence/)
   assert.match(progressViewSource, /labEvidence/)
   assert.match(progressViewSource, /recentEvidence/)
   assert.match(progressViewSource, /evidenceTaskStatuses/)
   assert.match(progressViewSource, /needsExplanation/)
-  assert.match(progressViewSource, /checkpointMissing/)
+  assert.doesNotMatch(progressViewSource, /checkpointComplete|checkpointMissing|completedCount|attemptCount/)
   assert.doesNotMatch(progressViewSource, /Progress is moving onto the new curriculum route/)
 })

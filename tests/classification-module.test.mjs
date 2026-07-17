@@ -22,14 +22,16 @@ test('classification is registered between logistic regression and MLP', () => {
   const messagesSource = read('src/i18n/messages.ts')
 
   assert.match(typesSource, /\| 'classification'/)
-  assert.match(catalogSource, /import \{ classificationModule \} from '\.\/classificationModule'/)
+  assert.match(catalogSource, /import\('\.\/classificationModule'\)\)\.classificationModule/)
 
-  const logisticIndex = catalogSource.indexOf('logisticRegressionModule,')
-  const classificationIndex = catalogSource.indexOf('classificationModule,')
-  const legacyIndex = catalogSource.indexOf('...legacyModuleOrder.filter')
-  const mlpIndex = catalogSource.lastIndexOf('mlpModule')
+  const orderSource = catalogSource.slice(
+    catalogSource.indexOf('export const moduleOrder'),
+    catalogSource.indexOf('export const moduleRegistry'),
+  )
+  const logisticIndex = orderSource.indexOf('logisticRegressionModule,')
+  const classificationIndex = orderSource.indexOf('classificationModule,')
+  const mlpIndex = orderSource.indexOf('mlpModule,')
   assert.ok(logisticIndex < classificationIndex, 'classification should follow logistic regression')
-  assert.ok(classificationIndex < legacyIndex, 'classification should stay before the legacy filtered modules')
   assert.ok(classificationIndex < mlpIndex, 'classification should stay before MLP')
 
   assert.match(messagesSource, /classification: \{/)

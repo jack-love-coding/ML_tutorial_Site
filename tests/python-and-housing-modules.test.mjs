@@ -27,8 +27,9 @@ test('Python notebook and housing project modules follow their curriculum roles'
 
   assert.match(typesSource, /\| 'python-notebook'/)
   assert.match(typesSource, /\| 'housing-price-project'/)
-  assert.match(catalogSource, /import \{ pythonNotebookModule \} from '\.\/pythonNotebookModule'/)
-  assert.match(catalogSource, /import \{ housingPriceProjectModule \} from '\.\/housingPriceProjectModule'/)
+  assert.match(catalogSource, /import\('\.\/pythonNotebookModule'\)/)
+  assert.match(catalogSource, /import\('\.\/housingPriceProjectModule'\)/)
+  assert.doesNotMatch(catalogSource, /import \{ pythonNotebookModule \}/)
 
   const aiIndex = moduleOrderSource.indexOf('aiOverviewModule,')
   const pythonIndex = moduleOrderSource.indexOf('pythonNotebookModule,')

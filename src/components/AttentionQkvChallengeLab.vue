@@ -84,7 +84,7 @@ const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
         eyebrow: 'Attention Q/K/V 挑战',
-        title: '先预测一行 attention，再看 softmax 证据',
+        title: '先预测一行 attention，再看 softmax 结果',
         reset: '重置预测',
         scenario: 'Q/K/V 场景',
         query: '当前 query',
@@ -98,9 +98,9 @@ const copy = computed(() =>
         maskEffect: 'mask 是否改变 top key',
         maskYes: '会改变',
         maskNo: '不会改变',
-        evidence: 'Q/K -> mask -> softmax 证据',
+        evidence: 'Q/K → mask → softmax 计算结果',
         beforeEvidence: '先选 top key 和 mask 影响，再查看 score、权重和 weighted value。',
-        checkEvidence: '查看证据',
+        checkEvidence: '查看计算结果',
         rawScore: 'raw score',
         maskedScore: 'masked score',
         weight: 'softmax weight',

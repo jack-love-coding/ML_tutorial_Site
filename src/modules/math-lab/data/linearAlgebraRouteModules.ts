@@ -2,6 +2,7 @@ import type {
   LabConfig,
   LocalizedCopy,
   MathConcept,
+  MathLabComponentName,
   MathLabModule,
   MathLabSection,
   Misconception,
@@ -86,7 +87,7 @@ function manimAsset(id: string, filename: string, title: LocalizedCopy, transcri
   }
 }
 
-function lab(id: string, title: LocalizedCopy, componentName: string, successCriteria: LocalizedCopy[]): LabConfig {
+function lab(id: string, title: LocalizedCopy, componentName: MathLabComponentName, successCriteria: LocalizedCopy[]): LabConfig {
   return {
     id,
     title,

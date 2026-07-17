@@ -35,22 +35,14 @@ const activeEvidence = computed<ExperimentEvidence | undefined>(() => {
   }
 })
 const hasDraft = computed(() => prediction.value.trim().length > 0 || explanation.value.trim().length > 0)
-const isComplete = computed(() =>
-  Boolean(activeEvidence.value) &&
-  prediction.value.trim().length >= 8 &&
-  explanation.value.trim().length >= 16,
-)
 const canSave = computed(() => Boolean(activeEvidence.value) && hasDraft.value)
 const statusText = computed(() => {
   if (!activeEvidence.value) {
     return props.locale === 'zh-CN' ? '先运行一次实验，再保存任务记录。' : 'Run the lab once before saving the task note.'
   }
-
-  if (isComplete.value) {
-    return props.locale === 'zh-CN' ? '预测、观察和解释已形成闭环。' : 'Prediction, observation, and explanation are connected.'
-  }
-
-  return props.locale === 'zh-CN' ? '可先保存草稿；补完解释后会标记完成。' : 'You can save a draft; add the explanation to mark it complete.'
+  return props.locale === 'zh-CN'
+    ? '可以随时保存预测或观察；是否达标由后续教学环节判断。'
+    : 'Save a prediction or observation at any time; later teaching workflows can assess it.'
 })
 
 watch(
@@ -90,7 +82,7 @@ function saveTask() {
     task: {
       prediction: prediction.value.trim(),
       explanation: explanation.value.trim(),
-      completed: isComplete.value,
+      completed: false,
     },
   })
 
@@ -139,7 +131,7 @@ function saveTask() {
     </label>
 
     <div class="lab-task-card__criteria">
-      <span>{{ locale === 'zh-CN' ? '完成标准' : 'Success criteria' }}</span>
+      <span>{{ locale === 'zh-CN' ? '观察建议' : 'Observation prompts' }}</span>
       <ul>
         <li v-for="criterion in lab.successCriteria" :key="criterion.en">
           {{ localized(criterion) }}

@@ -182,6 +182,7 @@ const algorithmManifests: AlgorithmModuleManifest[] = [
       { id: 'transformer-block' },
       { id: 'architecture-to-tools' },
     ],
+    related: ['sequence-embedding-bridge', 'llm-rag'],
   },
   {
     slug: 'optimizer-comparison',
@@ -207,6 +208,8 @@ const algorithmManifests: AlgorithmModuleManifest[] = [
     domain: 'deep-learning',
     level: 'advanced',
     lessons: [
+      { id: 'causal-language-modeling', titleKey: 'modules.llmRag.sections.causalLanguageModeling.title' },
+      { id: 'decoding-generation', titleKey: 'modules.llmRag.sections.decodingGeneration.title' },
       { id: 'tokenization-context' },
       { id: 'embeddings-similarity' },
       { id: 'chunking-retrieval' },
@@ -214,6 +217,8 @@ const algorithmManifests: AlgorithmModuleManifest[] = [
       { id: 'rag-evaluation' },
       { id: 'rag-is-not-training' },
     ],
+    prerequisites: ['attention-transformer'],
+    related: ['attention-transformer', 'linear-algebra-distance-similarity'],
   },
   {
     slug: 'loss-functions',

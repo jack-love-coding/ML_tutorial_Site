@@ -103,7 +103,7 @@ const copyText = computed(() =>
         title: '数据质量决策记录',
         englishTitle: 'Data Quality Decision Record',
         subtitle: '把一个 EDA 发现整理成检查、发现、处理建议、风险等级和项目影响。',
-        evidence: '证据',
+        evidence: '检查结果',
         decision: '决策',
         issue: '问题类型',
         treatment: '处理建议',

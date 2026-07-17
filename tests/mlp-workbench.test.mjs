@@ -32,8 +32,8 @@ test('MLP remains an independent guided module in the required-core order', () =
   assert.ok(registryStart > orderStart, 'moduleRegistry should follow moduleOrder')
   const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
-  assert.match(catalogSource, /import \{ mlpModule \} from '\.\/mlpModule'/)
-  assert.match(catalogSource, /moduleDefinition\.slug !== 'mlp'/)
+  assert.match(catalogSource, /import\('\.\/mlpModule'\)/)
+  assert.doesNotMatch(catalogSource, /import \{ mlpModule \}/)
   assert.ok(
     moduleOrderSource.indexOf('treeForestModule,') < moduleOrderSource.indexOf('mlpModule,'),
     'MLP should follow tree-forest in the public course order',

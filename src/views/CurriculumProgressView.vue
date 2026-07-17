@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { curriculumModuleById } from '../curriculum/catalog.ts'
+import { curriculumMetadataById } from '../curriculum/catalogMetadata.ts'
 import {
   createDefaultLearningProgressV2,
   migrateLearningProgressV2,
@@ -29,17 +29,12 @@ onMounted(() => {
 
 const continueTarget = computed(() => selectContinueLearning(progress.value))
 const continueModule = computed(() =>
-  continueTarget.value ? curriculumModuleById.get(continueTarget.value.moduleId) : undefined,
+  continueTarget.value ? curriculumMetadataById.get(continueTarget.value.moduleId) : undefined,
 )
-const completedCount = computed(
-  () => Object.values(progress.value.modules).filter((moduleState) => moduleState.completed).length,
+const visitedCount = computed(
+  () => Object.values(progress.value.modules).filter((moduleState) => moduleState.lastVisitedAt).length,
 )
-const attemptCount = computed(() =>
-  Object.values(progress.value.modules).reduce(
-    (total, moduleState) => total + moduleState.attempts.length,
-    0,
-  ),
-)
+const savedRecordCount = computed(() => progress.value.labEvidence.length)
 const recentLabEvidence = computed(() =>
   [...progress.value.labEvidence]
     .sort((left, right) => right.capturedAt.localeCompare(left.capturedAt))
@@ -51,40 +46,36 @@ const pageCopy = computed(() =>
     ? {
         eyebrow: '学习进度',
         title: '继续沿着统一路线学习',
-        body: '这里会合并 Algorithm、Math Lab 和 Data Lab 的本地进度，并给出下一步建议。',
+        body: '这里汇总最近浏览位置和实验记录，帮助你接着阅读；课程验收由老师或后续系统完成。',
         continue: '继续学习',
-        noTarget: '核心路线已完成',
-        completed: '已完成模块',
-        attempts: 'Checkpoint 记录',
+        noTarget: '暂无下一步推荐',
+        visited: '浏览过的模块',
+        records: '实验记录',
         total: '课程模块',
         routes: '路线入口',
-        recentEvidence: '最近实验证据',
-        noEvidence: '完成一次互动实验后，这里会显示最近记录的观察指标。',
+        recentEvidence: '最近实验记录',
+        noEvidence: '完成一次互动实验后，这里会显示最近保存的观察指标。',
         capturedAt: '记录时间',
-        observationRecorded: '已记录观察',
-        explanationComplete: '解释已完成',
-        needsExplanation: '待补充解释',
-        checkpointComplete: 'checkpoint 已完成',
-        checkpointMissing: 'checkpoint 待完成',
+        observationRecorded: '实验结果已记录',
+        explanationComplete: '已保存预测或解释',
+        needsExplanation: '可选：补充预测或解释',
       }
     : {
         eyebrow: 'Progress',
         title: 'Continue through the unified learning route',
-        body: 'This page merges local Algorithm, Math Lab, and Data Lab progress and recommends the next step.',
+        body: 'This page combines recent locations and lab notes so you can continue reading; teachers or later systems handle assessment.',
         continue: 'Continue Learning',
-        noTarget: 'Core route complete',
-        completed: 'Completed Modules',
-        attempts: 'Checkpoint Records',
+        noTarget: 'No next recommendation yet',
+        visited: 'Modules visited',
+        records: 'Lab records',
         total: 'Course Modules',
         routes: 'Route Entrypoints',
-        recentEvidence: 'Recent Experiment Evidence',
+        recentEvidence: 'Recent Lab Records',
         noEvidence: 'Complete an interactive lab and the latest observed metrics will appear here.',
         capturedAt: 'Captured',
-        observationRecorded: 'Observation recorded',
-        explanationComplete: 'Explanation complete',
-        needsExplanation: 'Needs explanation',
-        checkpointComplete: 'Checkpoint complete',
-        checkpointMissing: 'Checkpoint pending',
+        observationRecorded: 'Experiment results recorded',
+        explanationComplete: 'Prediction or explanation saved',
+        needsExplanation: 'Optional: add a prediction or explanation',
       },
 )
 
@@ -107,7 +98,7 @@ const nextLinks = [
 ]
 
 function evidenceModuleTitle(moduleId: string) {
-  return localizedText(curriculumModuleById.get(moduleId)?.title ?? copy(moduleId, moduleId))
+  return localizedText(curriculumMetadataById.get(moduleId)?.title ?? copy(moduleId, moduleId))
 }
 
 function evidenceValueText(value: string | number | LocalizedCopy) {
@@ -116,11 +107,11 @@ function evidenceValueText(value: string | number | LocalizedCopy) {
 }
 
 function evidenceTaskStatuses(evidence: LearningProgressLabEvidence) {
-  const moduleState = progress.value.modules[evidence.moduleId]
   return [
     pageCopy.value.observationRecorded,
-    evidence.task?.completed ? pageCopy.value.explanationComplete : pageCopy.value.needsExplanation,
-    moduleState?.completed ? pageCopy.value.checkpointComplete : pageCopy.value.checkpointMissing,
+    evidence.task?.prediction || evidence.task?.explanation
+      ? pageCopy.value.explanationComplete
+      : pageCopy.value.needsExplanation,
   ]
 }
 
@@ -145,16 +136,16 @@ function formattedEvidenceTime(capturedAt: string) {
       </div>
       <div class="curriculum-hero__metrics">
         <article>
-          <span>{{ pageCopy.completed }}</span>
-          <strong>{{ completedCount }}</strong>
+          <span>{{ pageCopy.visited }}</span>
+          <strong>{{ visitedCount }}</strong>
         </article>
         <article>
-          <span>{{ pageCopy.attempts }}</span>
-          <strong>{{ attemptCount }}</strong>
+          <span>{{ pageCopy.records }}</span>
+          <strong>{{ savedRecordCount }}</strong>
         </article>
         <article>
           <span>{{ pageCopy.total }}</span>
-          <strong>{{ curriculumModuleById.size }}</strong>
+          <strong>{{ curriculumMetadataById.size }}</strong>
         </article>
       </div>
     </section>

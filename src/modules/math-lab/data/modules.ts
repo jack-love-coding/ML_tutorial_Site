@@ -6,7 +6,7 @@ import { calculusRouteModules } from './calculusRouteModules.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
 import { buildLeastSquaresModule } from './leastSquaresModule.ts'
-import { calculusRouteModuleIds } from './learningRoutes.ts'
+import { aiMathPathModuleIds } from './mathCourseOrder.ts'
 import { linearAlgebraRouteModules } from './linearAlgebraRouteModules.ts'
 import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { buildMarkovChainsModule } from './markovChainsModule.ts'
@@ -22,37 +22,90 @@ import { buildTaylorSeriesModule } from './taylorSeriesModule.ts'
 import { buildVectorMatrixNormsModule } from './vectorMatrixNormsModule.ts'
 import type { MathLabModule, MathLabModuleId } from '../types/mathLab'
 
+export type MathLabModuleProviderName =
+  | 'beginnerFoundationModules'
+  | 'linearAlgebraRouteModules'
+  | 'calculusRouteModules'
+  | 'mathToCodeModules'
+  | 'importedFoundationModules'
+  | 'aiBridgeModules'
+
+export interface MathLabModuleProvider {
+  name: MathLabModuleProviderName
+  modules: readonly MathLabModule[]
+}
+
+export interface MathLabModuleOverride {
+  from: MathLabModuleProviderName
+  to: MathLabModuleProviderName
+}
+
+export const mathLabModuleOverridePolicy = {
+  'linear-algebra-feature-space': {
+    from: 'linearAlgebraRouteModules',
+    to: 'mathToCodeModules',
+  },
+  'linear-algebra-matrix-transformations': {
+    from: 'linearAlgebraRouteModules',
+    to: 'mathToCodeModules',
+  },
+  'calculus-functions-rate-change': {
+    from: 'calculusRouteModules',
+    to: 'mathToCodeModules',
+  },
+  'calculus-derivatives-local-change': {
+    from: 'calculusRouteModules',
+    to: 'mathToCodeModules',
+  },
+} as const satisfies Readonly<Record<MathLabModuleId, MathLabModuleOverride>>
+
+export function assembleMathLabModules(
+  providers: readonly MathLabModuleProvider[],
+  overridePolicy: Readonly<Record<MathLabModuleId, MathLabModuleOverride>>,
+) {
+  const modulesById: Record<MathLabModuleId, MathLabModule | undefined> = {}
+  const providerById: Record<MathLabModuleId, MathLabModuleProviderName | undefined> = {}
+  const appliedOverrides = new Set<MathLabModuleId>()
+
+  for (const provider of providers) {
+    for (const moduleDefinition of provider.modules) {
+      const previousProvider = providerById[moduleDefinition.id]
+
+      if (previousProvider) {
+        const expectedOverride = overridePolicy[moduleDefinition.id]
+        if (
+          !expectedOverride ||
+          expectedOverride.from !== previousProvider ||
+          expectedOverride.to !== provider.name
+        ) {
+          throw new Error(
+            `Unexpected duplicate math lab module: ${moduleDefinition.id} (${previousProvider} -> ${provider.name})`,
+          )
+        }
+        appliedOverrides.add(moduleDefinition.id)
+      }
+
+      modulesById[moduleDefinition.id] = moduleDefinition
+      providerById[moduleDefinition.id] = provider.name
+    }
+  }
+
+  for (const [moduleId, expectedOverride] of Object.entries(overridePolicy)) {
+    if (!appliedOverrides.has(moduleId)) {
+      throw new Error(
+        `Expected math lab module override was not applied: ${moduleId} (${expectedOverride.from} -> ${expectedOverride.to})`,
+      )
+    }
+  }
+
+  return { modulesById, providerById }
+}
+
 const supplementalModules = Object.fromEntries(
   mathFoundationsModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
 ) as Record<MathLabModuleId, MathLabModule | undefined>
 
-export const aiMathPathModuleIds: readonly MathLabModuleId[] = [
-  'beginner-linear-algebra',
-  'linear-algebra-feature-space',
-  'linear-algebra-distance-similarity',
-  'linear-algebra-matrix-transformations',
-  'linear-algebra-rank-null-space',
-  'eigenvalues-eigenvectors',
-  'svd',
-  'pca',
-  'tensor-shapes-vectorization',
-  ...calculusRouteModuleIds,
-  'taylor-series',
-  'matrix-calculus-autodiff',
-  'beginner-probability-distributions',
-  'monte-carlo',
-  'probability-likelihood-entropy',
-  'lu-decomposition',
-  'sparse-matrices',
-  'condition-numbers',
-  'markov-chains',
-  'finite-difference-methods',
-  'nonlinear-equations',
-  'optimization',
-  'training-diagnostics',
-  'least-squares-fitting',
-  'deep-architecture-math',
-]
+export { aiMathPathModuleIds } from './mathCourseOrder.ts'
 
 const importedFoundationModules: MathLabModule[] = importedMathNotes.map((moduleDefinition) => {
   if (moduleDefinition.id === 'taylor-series') {
@@ -120,16 +173,21 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
   }
 })
 
-const allModulesById = Object.fromEntries(
-  [
-    ...beginnerFoundationModules,
-    ...linearAlgebraRouteModules,
-    ...calculusRouteModules,
-    ...mathToCodeModules,
-    ...importedFoundationModules,
-    ...aiBridgeModules,
-  ].map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]),
-) as Record<MathLabModuleId, MathLabModule | undefined>
+export const mathLabModuleProviders: readonly MathLabModuleProvider[] = [
+  { name: 'beginnerFoundationModules', modules: beginnerFoundationModules },
+  { name: 'linearAlgebraRouteModules', modules: linearAlgebraRouteModules },
+  { name: 'calculusRouteModules', modules: calculusRouteModules },
+  { name: 'mathToCodeModules', modules: mathToCodeModules },
+  { name: 'importedFoundationModules', modules: importedFoundationModules },
+  { name: 'aiBridgeModules', modules: aiBridgeModules },
+]
+
+const assembledMathLabModules = assembleMathLabModules(
+  mathLabModuleProviders,
+  mathLabModuleOverridePolicy,
+)
+const allModulesById = assembledMathLabModules.modulesById
+export const mathLabModuleProviderById = assembledMathLabModules.providerById
 
 const aiMathPathModules: MathLabModule[] = aiMathPathModuleIds.map((moduleId, index) => {
   const moduleDefinition = allModulesById[moduleId]

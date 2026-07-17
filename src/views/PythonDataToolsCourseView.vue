@@ -34,8 +34,7 @@ const activeChapter = computed(() => {
       :module-route="pythonDataToolsContract.route"
       :checkpoints="algorithmCheckpointsBySlug['python-notebook']"
       :locale="currentLocale"
-      :completed="false"
-      mode="course-review"
+      variant="course-review"
     />
   </div>
 </template>

@@ -4,6 +4,7 @@ import type {
   LocalizedCopy,
   MathConcept,
   MathLabDifficulty,
+  MathLabComponentName,
   MathLabModule,
   MathLabSection,
   Misconception,
@@ -55,7 +56,7 @@ function concept(
   }
 }
 
-function lab(id: string, title: LocalizedCopy, componentName: string, successCriteria: LocalizedCopy[]): LabConfig {
+function lab(id: string, title: LocalizedCopy, componentName: MathLabComponentName, successCriteria: LocalizedCopy[]): LabConfig {
   return {
     id,
     title,

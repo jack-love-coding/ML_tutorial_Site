@@ -1392,7 +1392,7 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
   assert.match(read('src/styles/modules/cnn-explainer.css'), /is-window-source/)
   assert.match(read('src/styles/modules/cnn-explainer.css'), /is-output-cell/)
   assert.match(read('src/styles/modules/cnn-explainer.css'), /prefers-reduced-motion: reduce/)
-  assert.match(algorithmViewSource, /import CnnExplainerLab/)
+  assert.match(algorithmViewSource, /const CnnExplainerLab = defineAsyncComponent/)
   assert.match(algorithmViewSource, /route\.path\.startsWith\('\/learn\/cnn-visualization'\)/)
   assert.match(algorithmViewSource, /const routeChapterLock = ref\(''\)/)
   assert.match(algorithmViewSource, /function syncRouteChapterIntoView\(chapterId: string\)/)

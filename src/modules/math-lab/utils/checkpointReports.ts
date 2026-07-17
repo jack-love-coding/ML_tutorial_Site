@@ -204,7 +204,7 @@ export function buildCheckpointReportMarkdown(
 ) {
   const missingAnswer = locale === 'zh-CN' ? '尚未作答' : 'Not answered yet'
   const generatedLabel = locale === 'zh-CN' ? '生成时间' : 'Generated at'
-  const evidenceLabel = locale === 'zh-CN' ? '证据' : 'Evidence'
+  const evidenceLabel = locale === 'zh-CN' ? '实验结果' : 'Evidence'
   const summaryLabel = locale === 'zh-CN' ? '摘要' : 'Summary'
   const promptLabel = locale === 'zh-CN' ? '观察提示' : 'Observation prompt'
   const metricLabel = locale === 'zh-CN' ? '指标' : 'Metrics'
@@ -226,7 +226,7 @@ export function buildCheckpointReportMarkdown(
       }
       lines.push('', `**${promptLabel}:** ${localized(evidence.prompt, locale)}`)
     } else {
-      lines.push('', `### ${evidenceLabel}`, '', locale === 'zh-CN' ? '暂无静态证据。' : 'No static evidence recorded.')
+      lines.push('', `### ${evidenceLabel}`, '', locale === 'zh-CN' ? '暂无静态实验结果。' : 'No static evidence recorded.')
     }
 
     const fieldLabels = new Map(prompt?.fields.map((field) => [field.key, field.label]))

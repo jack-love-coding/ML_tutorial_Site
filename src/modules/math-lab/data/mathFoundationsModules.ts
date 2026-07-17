@@ -3,6 +3,7 @@ import type {
   LabConfig,
   LocalizedCopy,
   MathLabDifficulty,
+  MathLabComponentName,
   MathLabModule,
   MathLabModuleId,
   VisualAsset,
@@ -45,7 +46,7 @@ type ModuleSeed = {
     explanation: LocalizedCopy
     tag: string
   }
-  labComponents?: string[]
+  labComponents?: MathLabComponentName[]
   visuals?: VisualAsset[]
 }
 
@@ -59,7 +60,7 @@ function variable(symbol: string, zh: string, en: string) {
   return { symbol, description: copy(zh, en) }
 }
 
-function labConfig(moduleId: MathLabModuleId, componentName: string): LabConfig {
+function labConfig(moduleId: MathLabModuleId, componentName: MathLabComponentName): LabConfig {
   return {
     id: `${moduleId}-${componentName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`,
     title: copy('互动实验', 'Interactive lab'),

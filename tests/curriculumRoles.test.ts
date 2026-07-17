@@ -32,7 +32,7 @@ test('curriculum roles separate core, support, project, advanced, reference, and
   assert.equal(curriculumRoleForModule('ai-overview')?.role, 'required-core')
   assert.equal(curriculumRoleForModule('linear-algebra-distance-similarity')?.role, 'just-in-time-support')
   assert.equal(curriculumRoleForModule('housing-price-project')?.role, 'project-validation')
-  assert.equal(curriculumRoleForModule('llm-rag')?.role, 'advanced-extension')
+  assert.equal(curriculumRoleForModule('llm-rag')?.role, 'required-core')
   assert.equal(curriculumRoleForModule('taylor-series')?.role, 'reference-library')
   assert.equal(curriculumRoleForModule('calculus-optimizer-comparison')?.role, 'duplicate-or-overlap')
 
@@ -63,6 +63,7 @@ test('curriculum roles separate core, support, project, advanced, reference, and
       'cnn-visualization',
       'sequence-embedding-bridge',
       'attention-transformer',
+      'llm-rag',
     ],
   )
 })

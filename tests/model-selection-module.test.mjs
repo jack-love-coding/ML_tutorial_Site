@@ -24,7 +24,7 @@ test('model selection module is registered after classification validation', () 
   const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
   assert.match(typesSource, /\| 'model-selection'/)
-  assert.match(catalogSource, /import \{ modelSelectionModule \} from '\.\/modelSelectionModule'/)
+  assert.match(catalogSource, /import\('\.\/modelSelectionModule'\)/)
 
   const classificationProjectIndex = moduleOrderSource.indexOf('classificationProjectModule,')
   const modelSelectionIndex = moduleOrderSource.indexOf('modelSelectionModule,')

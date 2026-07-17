@@ -15,7 +15,7 @@ test('AI overview is the first registered learning module', () => {
   const messagesSource = read('src/i18n/messages.ts')
 
   assert.match(typesSource, /\| 'ai-overview'/)
-  assert.match(catalogSource, /import \{ aiOverviewModule \} from '\.\/aiOverviewModule'/)
+  assert.match(catalogSource, /import\('\.\/aiOverviewModule'\)\)\.aiOverviewModule/)
 
   const aiIndex = catalogSource.indexOf('aiOverviewModule,')
   const lossIndex = catalogSource.indexOf('lossFunctionsModule,')

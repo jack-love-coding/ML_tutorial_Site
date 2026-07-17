@@ -12,12 +12,9 @@ import type {
   DataLabLocale,
   DataLabModuleId,
   DataLabSection,
-  DataQuizAttempt,
 } from '../types/dataLab'
 import {
-  appendDataQuizAttempt,
   loadDataLabProgress,
-  markDataLabModuleComplete,
   saveDataLabProgress,
   setLastVisitedDataLabModule,
 } from '../utils/progress'
@@ -93,22 +90,6 @@ function labsForSection(section: DataLabSection): DataLabConfig[] {
 
 function labComponentFor(componentName: DataLabConfig['componentName']) {
   return labComponentRegistry[componentName]
-}
-
-function onQuizSubmit(attempts: DataQuizAttempt[]) {
-  const correct = attempts.filter((attempt) => attempt.correct).length
-  const enoughToComplete = attempts.length > 0 && correct / attempts.length >= 0.66
-  let nextProgress = loadDataLabProgress()
-
-  for (const attempt of attempts) {
-    nextProgress = appendDataQuizAttempt(nextProgress, attempt)
-  }
-
-  if (enoughToComplete) {
-    nextProgress = markDataLabModuleComplete(nextProgress, moduleId.value)
-  }
-
-  progress.value = saveDataLabProgress(nextProgress)
 }
 
 </script>
@@ -242,7 +223,6 @@ function onQuizSubmit(attempts: DataQuizAttempt[]) {
           :module-id="moduleDefinition.id"
           :quizzes="moduleDefinition.quizzes"
           :locale="currentLocale"
-          @submit="onQuizSubmit"
         />
 
         <section class="data-lab-panel data-source-section">

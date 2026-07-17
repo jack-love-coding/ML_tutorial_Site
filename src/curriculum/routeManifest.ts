@@ -101,7 +101,7 @@ const algorithmEntries: CurriculumRouteManifestEntry[] = [
     domain: 'deep-learning',
     route: '/learn/llm-rag',
     title: copy('LLM 与 RAG', 'LLM and RAG'),
-    firstLessonId: 'tokenization-context',
+    firstLessonId: 'causal-language-modeling',
   },
   {
     id: 'loss-functions',
@@ -450,6 +450,7 @@ export const coreLearningPathModuleIds = [
   'cnn-visualization',
   'sequence-embedding-bridge',
   'attention-transformer',
+  'llm-rag',
 ]
 
 export const projectPracticeModuleIds = ['housing-price-project', 'classification-project']

@@ -1,4 +1,4 @@
-import { curriculumCatalog } from './catalog.ts'
+import { curriculumCatalogMetadata } from './catalogMetadata.ts'
 import { curriculumSpineRequiredModuleIds, curriculumSpineStages } from './spine.ts'
 import type { LocalizedCopy } from '../types/ml.ts'
 
@@ -62,7 +62,6 @@ const roleCopy: Record<CurriculumRole, { label: LocalizedCopy; description: Loca
 const duplicateOrOverlapIds = new Set(['calculus-optimizer-comparison'])
 
 const advancedExtensionIds = new Set([
-  'llm-rag',
   'svd',
   'pca',
   'lu-decomposition',
@@ -120,10 +119,10 @@ function roleEntry(moduleId: string): CurriculumRoleEntry {
   }
 }
 
-const catalogModuleIds = new Set(curriculumCatalog.map((moduleDefinition) => moduleDefinition.id))
+const catalogModuleIds = new Set(curriculumCatalogMetadata.map((moduleDefinition) => moduleDefinition.id))
 const orderedRoleModuleIds = [
   ...requiredModuleIds,
-  ...curriculumCatalog
+  ...curriculumCatalogMetadata
     .map((moduleDefinition) => moduleDefinition.id)
     .filter((moduleId) => !requiredModuleIdSet.has(moduleId)),
 ].filter((moduleId) => catalogModuleIds.has(moduleId))
@@ -150,7 +149,7 @@ export function validateCurriculumRoleCoverage() {
     seen.add(entry.moduleId)
   }
 
-  for (const moduleDefinition of curriculumCatalog) {
+  for (const moduleDefinition of curriculumCatalogMetadata) {
     if (!seen.has(moduleDefinition.id)) {
       issues.push(`${moduleDefinition.id} is missing a primary curriculum role`)
     }

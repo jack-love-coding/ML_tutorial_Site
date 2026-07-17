@@ -60,7 +60,7 @@ test('lesson lab registry declares the Phase 5 pilot modules and placements', ()
 test('AlgorithmView routes AI Overview, Gradient Descent, and MLP through LessonPage pilots', () => {
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
 
-  assert.match(algorithmViewSource, /import LessonPage from '\.\.\/lessons\/LessonPage\.vue'/)
+  assert.match(algorithmViewSource, /const LessonPage = defineAsyncComponent\(\(\) => import\('\.\.\/lessons\/LessonPage\.vue'\)\)/)
   assert.match(algorithmViewSource, /isLessonPagePilotSlug/)
   assert.match(algorithmViewSource, /lessonLabRegistry/)
   assert.match(algorithmViewSource, /const isLessonPagePilot = computed/)

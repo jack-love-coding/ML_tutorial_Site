@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { curriculumModuleById } from '../curriculum/catalog.ts'
+import { curriculumMetadataById } from '../curriculum/catalogMetadata.ts'
 import { resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
 import { curriculumSpineStages } from '../curriculum/spine.ts'
-import type { CurriculumModule } from '../curriculum/types.ts'
+import type { CurriculumModuleMetadata } from '../curriculum/types.ts'
 import type { AppLocale, LocalizedCopy } from '../types/ml'
 
 const { locale } = useI18n()
@@ -20,13 +20,13 @@ function localizedSupportNote(stage: { supportNote?: LocalizedCopy }) {
 }
 
 function moduleDefinition(moduleId: string) {
-  return curriculumModuleById.get(moduleId)
+  return curriculumMetadataById.get(moduleId)
 }
 
 function moduleList(moduleIds: string[]) {
   return moduleIds
     .map(moduleDefinition)
-    .filter((module): module is CurriculumModule => Boolean(module))
+    .filter((module): module is CurriculumModuleMetadata => Boolean(module))
 }
 
 function moduleRoute(moduleId: string) {
@@ -47,7 +47,7 @@ function stageNumber(index: number) {
 }
 
 function stageLabel(index: number) {
-  return currentLocale.value === 'zh-CN' ? `第 ${index} 阶段` : `Stage ${index}`
+  return currentLocale.value === 'zh-CN' ? `第 ${index + 1} 阶段` : `Stage ${index + 1}`
 }
 
 const labels = computed(() =>
@@ -55,17 +55,17 @@ const labels = computed(() =>
     ? {
         eyebrow: '默认学习主线',
         title: '按阶段走完 Data First 主线',
-        body: '这页把 Curriculum Spine V1 展开成 11 个阶段：每个阶段说明核心问题、为什么下一步学它、必修模块、支持镜头、项目验证和完成标准。旧的平铺模块列表仍保留，方便快速跳转。',
+        body: '这页把默认学习主线展开成 12 个阶段：每个阶段说明核心问题、为什么下一步学它、必修模块、辅助内容、项目实践和学习目标。旧的平铺模块列表仍保留，方便快速跳转。',
         stages: '阶段',
         requiredModules: '必修模块',
-        supportLenses: '支持镜头',
-        projectValidation: '项目验证',
+        supportLenses: '辅助内容',
+        projectValidation: '项目实践',
         knownGaps: '已知缺口',
-        outcomes: '完成标准',
+        outcomes: '学习目标',
         stageNav: '主线阶段导航',
         stageList: 'Curriculum Spine V1 阶段列表',
         openModule: '进入模块',
-        start: '从阶段 0 开始',
+        start: '从第一阶段开始',
         flatList: '查看平铺模块列表',
         supportNote: '这些模块用于补足当前阶段需要的数学、数据或模型直觉。',
         projectNote: '项目是推荐验证，不是继续学习的硬阻塞。',
@@ -73,17 +73,17 @@ const labels = computed(() =>
     : {
         eyebrow: 'Default Spine',
         title: 'Move Through the Data-First Spine by Stage',
-        body: 'This page expands Curriculum Spine V1 into 11 stages: each stage shows the guiding question, why it comes next, required modules, support lenses, project validation, and completion standards. The existing flat module list stays available for quick jumping.',
+        body: 'This page expands the default learning spine into 12 stages. Each stage shows its guiding question, why it comes next, required modules, supporting topics, project practice, and learning goals.',
         stages: 'Stages',
         requiredModules: 'Required Modules',
-        supportLenses: 'Support Lenses',
-        projectValidation: 'Project Validation',
+        supportLenses: 'Supporting Topics',
+        projectValidation: 'Project Practice',
         knownGaps: 'Known Gaps',
-        outcomes: 'Completion Standard',
+        outcomes: 'Learning Goals',
         stageNav: 'Spine stage navigation',
         stageList: 'Curriculum Spine V1 stage list',
         openModule: 'Open Module',
-        start: 'Start Stage 0',
+        start: 'Start Stage 1',
         flatList: 'View Flat Module List',
         supportNote: 'Use these modules to fill the math, data, or model intuition needed for this stage.',
         projectNote: 'Projects are recommended validation, not hard blockers for continuing.',

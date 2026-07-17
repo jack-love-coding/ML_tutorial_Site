@@ -9,6 +9,43 @@ export type MathLabDifficulty = 'foundation' | 'intermediate' | 'advanced'
 export type EnhancementTier = 'core' | 'interactive' | 'video'
 export type MathLabCompletionMode = 'quiz-or-checkpoint' | 'self-attested'
 
+export const mathLabComponentNames = [
+  'ArchitectureMathLab',
+  'AutodiffGraphLab',
+  'BackpropBlockLab',
+  'BatchGradientNoiseLab',
+  'ConditionalBayesLab',
+  'ConditionNumbersLab',
+  'DistributionBuilderLab',
+  'EigenDirectionLab',
+  'FeatureVectorStoryLab',
+  'FiniteDifferenceLab',
+  'LocalChangeStoryLab',
+  'LuDecompositionLab',
+  'MarkovChainLab',
+  'MathGradientLab',
+  'MathToCodeMatrixLab',
+  'MathToCodeStudioLab',
+  'MatrixColumnSpaceLab',
+  'MatrixTransformLab',
+  'MonteCarloLab',
+  'NonlinearEquationsLab',
+  'NumericalMiniLab',
+  'OptimizerRaceLab',
+  'PartialDerivativeContourLab',
+  'PcaProjectionLab',
+  'PredictionMappingLab',
+  'ProbabilityEntropyLab',
+  'SparseMatrixLab',
+  'TaylorSeriesLab',
+  'TensorShapeLab',
+  'TrainingDiagnosticsLab',
+  'VectorDotProductLab',
+  'VectorSimilarityLab',
+] as const
+
+export type MathLabComponentName = (typeof mathLabComponentNames)[number]
+
 export interface LocalizedCopy {
   'zh-CN': string
   en: string
@@ -68,7 +105,7 @@ export interface LabConfig {
   id: string
   title: LocalizedCopy
   type: 'interactive-visual' | 'code' | 'hybrid'
-  componentName: string
+  componentName: MathLabComponentName
   successCriteria: LocalizedCopy[]
   task?: LabTaskConfig
 }

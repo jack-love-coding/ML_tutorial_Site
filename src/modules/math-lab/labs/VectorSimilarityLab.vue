@@ -75,7 +75,7 @@ const objectVectors: ObjectVector[] = [
 
 const answerDimensions: AnswerDimension[] = [
   { id: 'concept', label: { 'zh-CN': '概念命中', en: 'concept match' } },
-  { id: 'evidence', label: { 'zh-CN': '证据/例子', en: 'evidence' } },
+  { id: 'evidence', label: { 'zh-CN': '依据/例子', en: 'evidence' } },
   { id: 'clarity', label: { 'zh-CN': '表达清晰', en: 'clarity' } },
 ]
 

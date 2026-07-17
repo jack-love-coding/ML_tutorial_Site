@@ -12,7 +12,6 @@ import type {
 import {
   buildCheckpointReportMarkdown,
   createDefaultCheckpointReport,
-  isCheckpointReportComplete,
   loadCheckpointReport,
   saveCheckpointReport,
   valueText,
@@ -30,7 +29,6 @@ const liveEvidence = ref<ExperimentEvidence | undefined>()
 const report = reactive<SavedCheckpointReport>(createDefaultCheckpointReport(props.prompt.routeId, props.prompt.moduleId))
 
 const activeEvidence = computed(() => liveEvidence.value ?? report.evidence ?? props.prompt.staticEvidence)
-const completed = computed(() => isCheckpointReportComplete(report))
 
 function resetReportForPrompt() {
   const saved = loadCheckpointReport(props.prompt.moduleId)
@@ -86,7 +84,7 @@ function saveDraft() {
   const savedReport = saveCheckpointReport({
     ...report,
     evidence: activeEvidence.value,
-    completed: completed.value,
+    completed: false,
   })
   Object.assign(report, savedReport)
   saveMessage.value = props.locale === 'zh-CN' ? '草稿已保存。' : 'Draft saved.'
@@ -105,7 +103,7 @@ function downloadMarkdown() {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `${props.prompt.moduleId}-checkpoint-report.md`
+  link.download = `${props.prompt.moduleId}-learning-notes.md`
   link.hidden = true
   document.body.appendChild(link)
   link.click()
@@ -119,13 +117,13 @@ function downloadMarkdown() {
 <template>
   <section class="math-checkpoint-report">
     <header>
-      <span>{{ locale === 'zh-CN' ? 'Checkpoint 报告' : 'Checkpoint report' }}</span>
+      <span>{{ locale === 'zh-CN' ? '学习记录 · 可选' : 'Learning notes · Optional' }}</span>
       <h2>{{ prompt.title[locale] }}</h2>
       <p>{{ prompt.task[locale] }}</p>
     </header>
 
     <article class="math-checkpoint-report__evidence">
-      <span>{{ locale === 'zh-CN' ? '实验证据' : 'Experiment evidence' }}</span>
+      <span>{{ locale === 'zh-CN' ? '实验结果' : 'Experiment results' }}</span>
       <p>{{ activeEvidence.summary[locale] }}</p>
       <ul v-if="activeEvidence.metrics.length">
         <li v-for="metric in activeEvidence.metrics" :key="metric.label.en">
@@ -157,15 +155,9 @@ function downloadMarkdown() {
     </div>
 
     <p class="math-checkpoint-report__helper">
-      {{
-        completed
-          ? locale === 'zh-CN'
-            ? '四个部分都达到最低长度，可以导出报告。'
-            : 'All four sections meet the minimum length and are ready to export.'
-          : locale === 'zh-CN'
-            ? '先补全四个回答，保存后仪表盘会显示草稿或完成状态。'
-            : 'Complete the four answers; saved drafts update the dashboard status.'
-      }}
+      {{ locale === 'zh-CN'
+        ? '这些记录用于整理思路，可以随时保存或导出，不在前端判定是否达标。'
+        : 'These notes organize your thinking and can be saved or exported at any time; the frontend does not grade them.' }}
     </p>
 
     <div class="math-checkpoint-report__actions">

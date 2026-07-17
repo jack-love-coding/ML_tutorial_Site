@@ -20,10 +20,6 @@ const shouldTranslate = false
 const maxTranslationChars = 470
 let translationUnavailable = false
 
-if (externalTranslationRequested) {
-  console.warn('External translation is disabled. Chinese content must come from hand-written project overrides.')
-}
-
 const noteSpecs = [
   {
     id: 'taylor-series',
@@ -372,7 +368,45 @@ function removeNonTeachingComments(markdown) {
   return markdown.replace(/<!--[\s\S]*?-->/g, '')
 }
 
-function normalizeImageReference(reference) {
+function assertSafeAssetFilename(filename) {
+  let decodedFilename
+  try {
+    decodedFilename = decodeURIComponent(filename)
+  } catch {
+    throw new Error(`Unsafe CS357 asset filename: invalid URL encoding in ${JSON.stringify(filename)}`)
+  }
+
+  const isSinglePathSegment = (
+    filename.length > 0
+    && decodedFilename.length > 0
+    && filename === path.posix.basename(filename)
+    && filename === path.win32.basename(filename)
+    && decodedFilename === path.posix.basename(decodedFilename)
+    && decodedFilename === path.win32.basename(decodedFilename)
+  )
+  const containsUnsafeCharacters = /[\0-\x1f\x7f]/.test(decodedFilename)
+
+  if (!isSinglePathSegment || containsUnsafeCharacters || decodedFilename === '.' || decodedFilename === '..') {
+    throw new Error(`Unsafe CS357 asset filename: ${JSON.stringify(filename)}`)
+  }
+
+  return filename
+}
+
+export function resolveAssetTarget(filename, outputDir = assetOutputDir) {
+  const safeFilename = assertSafeAssetFilename(filename)
+  const resolvedOutputDir = path.resolve(outputDir)
+  const targetPath = path.resolve(resolvedOutputDir, safeFilename)
+  const relativeTarget = path.relative(resolvedOutputDir, targetPath)
+
+  if (path.isAbsolute(relativeTarget) || relativeTarget.startsWith(`..${path.sep}`) || relativeTarget === '..') {
+    throw new Error(`CS357 asset target escapes output directory: ${JSON.stringify(filename)}`)
+  }
+
+  return targetPath
+}
+
+export function normalizeImageReference(reference) {
   const cleaned = reference
     .replace(/\{\{\s*site\.baseurl\s*\}\}\//g, '')
     .replace(/^\.\.\//, '')
@@ -383,9 +417,11 @@ function normalizeImageReference(reference) {
     return undefined
   }
 
+  const filename = assertSafeAssetFilename(match[1])
+
   return {
-    filename: match[1],
-    localPath: `/math-lab/cs357-assets/figs/${match[1]}`,
+    filename,
+    localPath: `/math-lab/cs357-assets/figs/${filename}`,
   }
 }
 
@@ -564,7 +600,7 @@ async function downloadAssets(assetNames) {
   await mkdir(assetOutputDir, { recursive: true })
 
   for (const filename of [...assetNames].sort()) {
-    const targetPath = path.join(assetOutputDir, filename)
+    const targetPath = resolveAssetTarget(filename, assetOutputDir)
     try {
       const existing = await stat(targetPath)
       if (existing.size > 0) continue
@@ -709,7 +745,15 @@ async function main() {
   console.log(`Downloaded ${allAssets.size} assets to ${path.relative(root, assetOutputDir)}`)
 }
 
-main().catch((error) => {
-  console.error(error)
-  process.exitCode = 1
-})
+const isMainModule = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+
+if (isMainModule) {
+  if (externalTranslationRequested) {
+    console.warn('External translation is disabled. Chinese content must come from hand-written project overrides.')
+  }
+
+  main().catch((error) => {
+    console.error(error)
+    process.exitCode = 1
+  })
+}

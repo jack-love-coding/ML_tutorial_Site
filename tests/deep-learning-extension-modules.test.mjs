@@ -63,7 +63,6 @@ const moduleExpectations = [
     file: 'sequenceEmbeddingBridgeModule',
     messageKey: 'sequenceEmbeddingBridge',
     route: '/learn/sequence-embedding-bridge',
-    chapterCount: 5,
     chapters: [
       'why-sequences',
       'token-ids',
@@ -93,7 +92,7 @@ const moduleExpectations = [
     ],
     labTokens: [
       "props.moduleSlug === 'sequence-embedding-bridge'",
-      'import SequenceBridgeShapeLab',
+      'const SequenceBridgeShapeLab = defineAsyncComponent',
       '<SequenceBridgeShapeLab',
       'workflow-lab__pipeline--sequence-bridge',
     ],
@@ -136,13 +135,13 @@ const moduleExpectations = [
     ],
     labTokens: [
       "props.moduleSlug === 'attention-transformer'",
-      'import AttentionQkvChallengeLab',
+      'const AttentionQkvChallengeLab = defineAsyncComponent',
       '<AttentionQkvChallengeLab',
       "section.id === 'softmax-weighted-sum'",
-      'import TransformerBlockAssemblyChallengeLab',
+      'const TransformerBlockAssemblyChallengeLab = defineAsyncComponent',
       '<TransformerBlockAssemblyChallengeLab',
       "section.id === 'transformer-block'",
-      'import ArchitectureToolsHandoffChallengeLab',
+      'const ArchitectureToolsHandoffChallengeLab = defineAsyncComponent',
       '<ArchitectureToolsHandoffChallengeLab',
       "section.id === 'architecture-to-tools'",
       'attentionStages',
@@ -202,6 +201,8 @@ const moduleExpectations = [
     messageKey: 'llmRag',
     route: '/learn/llm-rag',
     chapters: [
+      'causal-language-modeling',
+      'decoding-generation',
       'tokenization-context',
       'embeddings-similarity',
       'chunking-retrieval',
@@ -210,6 +211,10 @@ const moduleExpectations = [
       'rag-is-not-training',
     ],
     concepts: [
+      'next-token',
+      'causal mask',
+      'temperature',
+      'top-k',
       'tokenization',
       'context window',
       'embedding',
@@ -239,6 +244,7 @@ const moduleExpectations = [
       'selectedRagStage',
       'workflow-lab__pipeline--rag',
       'workflow-lab__focus--rag',
+      'LlmGenerationLab',
     ],
   },
 ]
@@ -262,7 +268,6 @@ test('deep learning extension modules follow the required-core spine order', () 
     'sequenceEmbeddingBridgeModule,',
     'attentionTransformerModule,',
     'llmRagModule,',
-    '...legacyModuleOrder.filter',
   ]
 
   for (let index = 1; index < orderedCatalogTokens.length; index += 1) {
@@ -274,7 +279,7 @@ test('deep learning extension modules follow the required-core spine order', () 
 
   for (const expectation of moduleExpectations) {
     assert.match(typesSource, new RegExp(`\\| '${expectation.slug}'`))
-    assert.match(catalogSource, new RegExp(`import \\{ ${expectation.file} \\} from '\\./${expectation.file}'`))
+    assert.match(catalogSource, new RegExp(`import\\('\\./${expectation.file}'\\)`))
     assert.match(algorithmViewSource, new RegExp(`slug\\.value === '${expectation.slug}'`))
     assert.match(messagesSource, new RegExp(`${expectation.messageKey}: \\{`))
   }
@@ -288,7 +293,7 @@ test('deep learning extension modules cover required learning loops and referenc
     const moduleSource = read(`src/data/${expectation.file}.ts`)
     assert.match(moduleSource, new RegExp(`slug: '${expectation.slug}'`))
     assert.match(moduleSource, new RegExp(`route: '${expectation.route}'`))
-    assert.equal([...moduleSource.matchAll(/chapter\(\s*'/g)].length, expectation.chapterCount ?? 6)
+    assert.equal([...moduleSource.matchAll(/chapter\(\s*'/g)].length, expectation.chapters.length)
 
     for (const chapterId of expectation.chapters) {
       assert.match(moduleSource, new RegExp(`chapter\\(\\s*'${chapterId}'`))

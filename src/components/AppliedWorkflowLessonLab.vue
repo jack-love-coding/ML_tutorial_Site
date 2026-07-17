@@ -1,12 +1,22 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import ArchitectureToolsHandoffChallengeLab from './ArchitectureToolsHandoffChallengeLab.vue'
-import AttentionQkvChallengeLab from './AttentionQkvChallengeLab.vue'
-import OptimizerCurveDiagnosisChallengeLab from './OptimizerCurveDiagnosisChallengeLab.vue'
-import SequenceBridgeShapeLab from './SequenceBridgeShapeLab.vue'
-import TransformerBlockAssemblyChallengeLab from './TransformerBlockAssemblyChallengeLab.vue'
 import type { AppLocale, ModuleSlug, StorySection } from '../types/ml'
+
+const ArchitectureToolsHandoffChallengeLab = defineAsyncComponent(
+  () => import('./ArchitectureToolsHandoffChallengeLab.vue'),
+)
+const AttentionQkvChallengeLab = defineAsyncComponent(
+  () => import('./AttentionQkvChallengeLab.vue'),
+)
+const LlmGenerationLab = defineAsyncComponent(() => import('./LlmGenerationLab.vue'))
+const OptimizerCurveDiagnosisChallengeLab = defineAsyncComponent(
+  () => import('./OptimizerCurveDiagnosisChallengeLab.vue'),
+)
+const SequenceBridgeShapeLab = defineAsyncComponent(() => import('./SequenceBridgeShapeLab.vue'))
+const TransformerBlockAssemblyChallengeLab = defineAsyncComponent(
+  () => import('./TransformerBlockAssemblyChallengeLab.vue'),
+)
 
 const props = defineProps<{
   moduleSlug: ModuleSlug
@@ -22,7 +32,26 @@ const selectedTreeForestStage = ref('tree')
 const selectedCnnStage = ref('volume')
 const selectedAttentionStage = ref('token')
 const selectedOptimizerStage = ref('loop')
-const selectedRagStage = ref('token')
+const selectedRagStage = ref('causal')
+
+const ragStageBySection: Readonly<Record<string, string>> = {
+  'causal-language-modeling': 'causal',
+  'decoding-generation': 'decode',
+  'tokenization-context': 'token',
+  'embeddings-similarity': 'embed',
+  'chunking-retrieval': 'chunk',
+  'prompt-assembly': 'prompt',
+  'rag-evaluation': 'eval',
+  'rag-is-not-training': 'review',
+}
+
+watch(
+  () => props.section.id,
+  (sectionId) => {
+    if (props.moduleSlug === 'llm-rag') selectedRagStage.value = ragStageBySection[sectionId] ?? 'causal'
+  },
+  { immediate: true },
+)
 
 function loc<T>(zhCN: T, en: T) {
   return { 'zh-CN': zhCN, en }
@@ -231,6 +260,8 @@ const ragStages = computed(() =>
   localized(
     loc(
       [
+        { id: 'causal', label: 'causal', title: '因果语言模型', body: '每个位置只读取过去 token，用右移一位的目标学习预测下一个 token。' },
+        { id: 'decode', label: 'decode', title: '自回归解码', body: '每一步从 logits 得到候选分布，选出 token 后追加到上下文再继续。' },
         { id: 'token', label: 'token', title: 'token 与上下文预算', body: '系统指令、问题、资料和答案都共享 context window。' },
         { id: 'embed', label: 'embed', title: 'embedding 检索', body: 'query 和 chunk 都变成向量，再用相似度找 top_k 候选。' },
         { id: 'chunk', label: 'chunk', title: 'chunk size / overlap', body: '切块大小和重叠决定事实是否完整、片段是否可检索。' },
@@ -239,6 +270,8 @@ const ragStages = computed(() =>
         { id: 'review', label: 'review', title: 'RAG 不等于训练', body: 'RAG 在回答时提供上下文，不是把新知识写进参数。' },
       ],
       [
+        { id: 'causal', label: 'causal', title: 'Causal language modeling', body: 'Each position reads only earlier tokens and learns to predict the one-step-shifted target.' },
+        { id: 'decode', label: 'decode', title: 'Autoregressive decoding', body: 'Each step turns logits into candidates, appends one chosen token, and repeats with the longer context.' },
         { id: 'token', label: 'token', title: 'Tokens and context budget', body: 'System instruction, question, material, and answer share the context window.' },
         { id: 'embed', label: 'embed', title: 'Embedding retrieval', body: 'Query and chunks become vectors, then similarity search retrieves top_k candidates.' },
         { id: 'chunk', label: 'chunk', title: 'Chunk size / overlap', body: 'Chunk size and overlap decide whether facts stay complete and retrievable.' },
@@ -339,7 +372,7 @@ const sectionHint = computed(() => {
       'split-criteria': loc('split 标准是在比较切完是否更纯。', 'Split criteria compare whether children become purer.'),
       'depth-overfitting': loc('树深度就是容量旋钮。', 'Tree depth is the capacity knob.'),
       'random-forest': loc('森林靠差异化树投票降方差。', 'Forests reduce variance by voting across different trees.'),
-      'feature-importance': loc('重要性是依赖线索，不是因果证据。', 'Importance is reliance evidence, not causal proof.'),
+      'feature-importance': loc('重要性反映模型依赖，不代表因果关系。', 'Importance is reliance evidence, not causal proof.'),
     }
     return localized(hints[props.section.id] ?? loc('把局部规则、复杂度和泛化放在一起看。', 'Read local rules, complexity, and generalization together.'))
   }
@@ -393,6 +426,8 @@ const sectionHint = computed(() => {
 
   if (activeWorkflow.value === 'rag') {
     const hints: Record<string, { 'zh-CN': string; en: string }> = {
+      'causal-language-modeling': loc('先把输入右移成目标，再看因果 mask 限制可见范围。', 'Shift inputs into targets, then inspect how the causal mask limits visibility.'),
+      'decoding-generation': loc('比较 temperature 和 top-k 怎样重分配下一 token 的候选概率。', 'Compare how temperature and top-k reshape next-token candidate probabilities.'),
       'tokenization-context': loc('先算 token 和 context window 预算。', 'Budget tokens and context window first.'),
       'embeddings-similarity': loc('embedding 检索只是候选召回。', 'Embedding retrieval only recalls candidates.'),
       'chunking-retrieval': loc('chunk size 和 overlap 会决定召回质量。', 'Chunk size and overlap shape retrieval quality.'),
@@ -400,7 +435,7 @@ const sectionHint = computed(() => {
       'rag-evaluation': loc('失败要拆成 retrieval/prompt/generation/evaluation。', 'Split failures into retrieval/prompt/generation/evaluation.'),
       'rag-is-not-training': loc('RAG 是回答时给上下文，不是写进参数。', 'RAG supplies context at answer time; it does not write knowledge into parameters.'),
     }
-    return localized(hints[props.section.id] ?? loc('把检索、上下文和回答证据分开检查。', 'Check retrieval, context, and answer evidence separately.'))
+    return localized(hints[props.section.id] ?? loc('把检索结果、上下文和回答依据分开检查。', 'Check retrieval, context, and answer support separately.'))
   }
 
   const hints: Record<string, { 'zh-CN': string; en: string }> = {
@@ -647,6 +682,11 @@ const sectionHint = computed(() => {
         <strong>{{ activeRagStage?.title }}</strong>
         <p>{{ activeRagStage?.body }}</p>
       </article>
+
+      <LlmGenerationLab
+        v-if="section.id === 'causal-language-modeling' || section.id === 'decoding-generation'"
+        :mode="section.id"
+      />
     </section>
   </section>
 </template>

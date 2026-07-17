@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { moduleRegistry } from '../data/moduleCatalog'
-import type { AppLocale, ExperimentConfig, ModuleSlug, StorySection } from '../types/ml'
-import { useExperimentStore } from '../stores/experiments'
+import { loadAlgorithmModule } from '../data/moduleCatalog'
+import type {
+  AlgorithmModuleDefinition,
+  AppLocale,
+  ExperimentConfig,
+  ModuleSlug,
+  StorySection,
+} from '../types/ml'
+import { registerExperimentModule, useExperimentStore } from '../stores/experiments'
 import { getTeachingInsights } from '../utils/insights'
 import StoryScroller from '../components/StoryScroller.vue'
 import GradientDescentViz from '../components/GradientDescentViz.vue'
@@ -14,31 +20,50 @@ import TeachingDashboard from '../components/TeachingDashboard.vue'
 import LineChart from '../components/LineChart.vue'
 import PlaybackDock from '../components/PlaybackDock.vue'
 import MarkdownMathContent from '../components/MarkdownMathContent.vue'
-import GradientChapterLab from '../components/GradientChapterLab.vue'
-import LossFunctionsLessonLab from '../components/LossFunctionsLessonLab.vue'
-import LossFunctionsResults from '../components/LossFunctionsResults.vue'
-import AlgorithmCheckpointQuiz from '../components/AlgorithmCheckpointQuiz.vue'
-import LinearRegressionPagedLesson from '../components/LinearRegressionPagedLesson.vue'
-import LogisticRegressionPagedLesson from '../components/LogisticRegressionPagedLesson.vue'
-import ClassificationLessonLab from '../components/ClassificationLessonLab.vue'
-import AiOverviewLessonLab from '../components/AiOverviewLessonLab.vue'
-import AppliedWorkflowLessonLab from '../components/AppliedWorkflowLessonLab.vue'
-import CnnExplainerLab from '../components/CnnExplainerLab.vue'
-import CnnShapeParameterChallengeLab from '../components/CnnShapeParameterChallengeLab.vue'
-import MlpPlaygroundCockpit from '../components/MlpPlaygroundCockpit.vue'
-import MlpBackpropBridgeLab from '../components/MlpBackpropBridgeLab.vue'
-import LessonPage from '../lessons/LessonPage.vue'
 import { isLessonPagePilotSlug, lessonLabRegistry } from '../lessons/labRegistry'
 import { withPublicBase } from '../utils/publicPath'
-import type { AlgorithmQuizAttempt } from '../types/ml'
 import {
-  appendAlgorithmQuizAttempt,
   loadAlgorithmProgress,
-  markAlgorithmModuleComplete,
   saveAlgorithmProgress,
   setLastVisitedAlgorithmModule,
-  shouldCompleteAlgorithmModule,
 } from '../utils/algorithmProgress'
+
+const GradientChapterLab = defineAsyncComponent(() => import('../components/GradientChapterLab.vue'))
+const LossFunctionsLessonLab = defineAsyncComponent(
+  () => import('../components/LossFunctionsLessonLab.vue'),
+)
+const LossFunctionsResults = defineAsyncComponent(
+  () => import('../components/LossFunctionsResults.vue'),
+)
+const AlgorithmCheckpointQuiz = defineAsyncComponent(
+  () => import('../components/AlgorithmCheckpointQuiz.vue'),
+)
+const LinearRegressionPagedLesson = defineAsyncComponent(
+  () => import('../components/LinearRegressionPagedLesson.vue'),
+)
+const LogisticRegressionPagedLesson = defineAsyncComponent(
+  () => import('../components/LogisticRegressionPagedLesson.vue'),
+)
+const ClassificationLessonLab = defineAsyncComponent(
+  () => import('../components/ClassificationLessonLab.vue'),
+)
+const AiOverviewLessonLab = defineAsyncComponent(
+  () => import('../components/AiOverviewLessonLab.vue'),
+)
+const AppliedWorkflowLessonLab = defineAsyncComponent(
+  () => import('../components/AppliedWorkflowLessonLab.vue'),
+)
+const CnnExplainerLab = defineAsyncComponent(() => import('../components/CnnExplainerLab.vue'))
+const CnnShapeParameterChallengeLab = defineAsyncComponent(
+  () => import('../components/CnnShapeParameterChallengeLab.vue'),
+)
+const MlpPlaygroundCockpit = defineAsyncComponent(
+  () => import('../components/MlpPlaygroundCockpit.vue'),
+)
+const MlpBackpropBridgeLab = defineAsyncComponent(
+  () => import('../components/MlpBackpropBridgeLab.vue'),
+)
+const LessonPage = defineAsyncComponent(() => import('../lessons/LessonPage.vue'))
 
 const route = useRoute()
 const router = useRouter()
@@ -49,6 +74,7 @@ const { experiments } = storeToRefs(experimentStore)
 const activeChapter = ref('')
 const mlpPlaygroundRef = ref<HTMLElement | null>(null)
 const progress = ref(loadAlgorithmProgress())
+const moduleDefinition = shallowRef<AlgorithmModuleDefinition>()
 const routeChapterLock = ref('')
 let routeChapterScrollFrame = 0
 let routeChapterUnlockTimer: number | undefined
@@ -70,7 +96,6 @@ const requestedChapterId = computed(() => {
   if (typeof routeChapterId === 'string') return routeChapterId
   return typeof routeLessonId === 'string' ? routeLessonId : ''
 })
-const moduleDefinition = computed(() => moduleRegistry[slug.value])
 const currentLocale = computed(() => locale.value as AppLocale)
 const lastVisitedModuleSlug = computed(() => progress.value.lastVisitedModuleSlug)
 const isGradientPage = computed(() => slug.value === 'gradient-descent')
@@ -106,19 +131,22 @@ const activeLessonLab = computed(() =>
   isLessonPagePilotSlug(slug.value) ? lessonLabRegistry[slug.value] : undefined,
 )
 
-if (!moduleDefinition.value) {
-  router.replace('/')
-}
-
+let moduleLoadRequest = 0
 watch(
   () => [slug.value, requestedChapterId.value] as const,
-  ([nextSlug, nextChapterId]) => {
-    const nextModuleDefinition = moduleRegistry[nextSlug]
+  async ([nextSlug, nextChapterId]) => {
+    const requestId = ++moduleLoadRequest
+    moduleDefinition.value = undefined
+    const nextModuleDefinition = await loadAlgorithmModule(nextSlug)
+    if (requestId !== moduleLoadRequest) return
+
     if (!nextModuleDefinition) {
       router.replace('/')
       return
     }
 
+    moduleDefinition.value = nextModuleDefinition
+    registerExperimentModule(nextModuleDefinition)
     experimentStore.ensureExperiment(nextSlug)
     progress.value = saveAlgorithmProgress(
       setLastVisitedAlgorithmModule(loadAlgorithmProgress(), nextSlug),
@@ -177,13 +205,7 @@ const heroStatItems = computed(() => [
 ])
 
 const moduleStatusLabel = computed(() =>
-  progress.value.completedModuleSlugs.includes(slug.value)
-    ? locale.value === 'zh-CN'
-      ? '算法已完成'
-      : 'Completed'
-    : locale.value === 'zh-CN'
-      ? '学习中'
-      : 'In progress',
+  locale.value === 'zh-CN' ? '教学模块' : 'Learning module',
 )
 
 const gradientSectionInsights = computed(() => {
@@ -421,19 +443,6 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
   experimentStore.patchConfig(slug.value, point)
 }
 
-function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
-  let nextProgress = loadAlgorithmProgress()
-
-  for (const attempt of attempts) {
-    nextProgress = appendAlgorithmQuizAttempt(nextProgress, attempt)
-  }
-
-  if (shouldCompleteAlgorithmModule(attempts)) {
-    nextProgress = markAlgorithmModuleComplete(nextProgress, slug.value)
-  }
-
-  progress.value = saveAlgorithmProgress(nextProgress)
-}
 </script>
 
 <template>
@@ -465,7 +474,6 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
         <p>{{ t(moduleDefinition.summaryKey) }}</p>
         <div
           class="algorithm-hero__status"
-          :class="{ 'is-complete': progress.completedModuleSlugs.includes(moduleDefinition.slug) }"
         >
           <span>{{ moduleStatusLabel }}</span>
           <small v-if="lastVisitedModuleSlug === moduleDefinition.slug">
@@ -790,9 +798,6 @@ function onAlgorithmQuizSubmit(attempts: AlgorithmQuizAttempt[]) {
       :module-route="moduleDefinition.route"
       :checkpoints="moduleDefinition.checkpoints"
       :locale="currentLocale"
-      :completed="progress.completedModuleSlugs.includes(moduleDefinition.slug)"
-      mode="scored"
-      @submit="onAlgorithmQuizSubmit"
     />
 
     <section v-if="isLossFunctionsPage" class="results-grid results-grid--loss">

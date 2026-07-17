@@ -21,8 +21,8 @@ test('curriculum spine defines a data-first route to deep-learning intro', () =>
   assert.ok(requiredIds.indexOf('dataset-quality') < requiredIds.indexOf('linear-algebra-feature-space'))
   assert.ok(requiredIds.indexOf('cnn-visualization') < requiredIds.indexOf('sequence-embedding-bridge'))
   assert.ok(requiredIds.indexOf('sequence-embedding-bridge') < requiredIds.indexOf('attention-transformer'))
-  assert.equal(requiredIds.at(-1), 'attention-transformer')
-  assert.ok(!requiredIds.includes('llm-rag'), 'LLM/RAG should remain outside Spine V1')
+  assert.ok(requiredIds.indexOf('attention-transformer') < requiredIds.indexOf('llm-rag'))
+  assert.equal(requiredIds.at(-1), 'llm-rag')
 })
 
 test('curriculum spine keeps optimizer comparison required and projects as validation capstones', () => {
@@ -31,6 +31,7 @@ test('curriculum spine keeps optimizer comparison required and projects as valid
   assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('cnn-visualization'))
   assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('sequence-embedding-bridge'))
   assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('attention-transformer'))
+  assert.ok(requiredIds.indexOf('attention-transformer') < requiredIds.indexOf('llm-rag'))
   assert.ok(!requiredIds.includes('housing-price-project'))
   assert.ok(!requiredIds.includes('classification-project'))
 

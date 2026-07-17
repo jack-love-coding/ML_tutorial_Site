@@ -24,7 +24,7 @@ test('tree forest module is registered after generalization foundations', () => 
   const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
   assert.match(typesSource, /\| 'tree-forest'/)
-  assert.match(catalogSource, /import \{ treeForestModule \} from '\.\/treeForestModule'/)
+  assert.match(catalogSource, /import\('\.\/treeForestModule'\)/)
 
   const modelSelectionIndex = moduleOrderSource.indexOf('modelSelectionModule,')
   const treeForestIndex = moduleOrderSource.indexOf('treeForestModule,')

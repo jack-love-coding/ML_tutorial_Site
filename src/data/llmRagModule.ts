@@ -55,6 +55,164 @@ export const llmRagModule: AlgorithmModuleDefinition = {
   checkpoints: algorithmCheckpointsBySlug['llm-rag'],
   chapters: [
     chapter(
+      'causal-language-modeling',
+      'modules.llmRag.sections.causalLanguageModeling.title',
+      loc(
+        `Transformer block 会产生每个位置的 hidden state，但语言模型还需要一个明确的训练目标：根据已经出现的 token 预测下一个 token。
+
+### 输入与目标只错开一位
+假设 token 序列是 \`[机器, 学习, 改变, 世界]\`。训练时可以同时构造三组关系：
+
+- 看见“机器”，目标是“学习”；
+- 看见“机器，学习”，目标是“改变”；
+- 看见“机器，学习，改变”，目标是“世界”。
+
+实现时通常不需要把样本真的复制三遍，只要把同一个序列向右错开：
+
+~~~python
+input_ids = tokens[:, :-1]
+targets = tokens[:, 1:]
+logits = model(input_ids)       # [B, T-1, V]
+loss = cross_entropy(
+    logits.reshape(-1, vocab_size),
+    targets.reshape(-1),
+)
+~~~
+
+这里的 \`V\` 是词表大小。每个位置输出一整行 logits，交叉熵只关心正确 next token 对应的概率是否提高。
+
+### causal mask 防止偷看答案
+位置 \`t\` 只能关注 \`0...t\`，不能读取未来 token。因果 mask 会把未来位置的 attention score 屏蔽掉；否则模型训练时能直接看见目标，loss 虽然会很低，但推理时无法复现这种条件。
+
+### 从 Attention 接到语言模型
+Attention 回答“当前位置怎样汇总过去上下文”，语言模型目标回答“汇总后的 hidden state 要预测什么”。这两步合起来，才从 Transformer 结构走到可训练的 next-token model。
+
+### Ref ID
+REF-HF-LLM-COURSE、REF-MS-GENAI-BEGINNERS`,
+        `A Transformer block produces a hidden state at each position, but a language model still needs an explicit training objective: predict the next token from the tokens already seen.
+
+### Inputs and targets differ by one position
+Suppose the token sequence is \`[machine, learning, changes, the, world]\`. Training creates several relations at once:
+
+- after “machine”, predict “learning”;
+- after “machine, learning”, predict “changes”;
+- after “machine, learning, changes”, predict “the”.
+
+The implementation does not need to copy the sample several times. Shift the same sequence by one position:
+
+~~~python
+input_ids = tokens[:, :-1]
+targets = tokens[:, 1:]
+logits = model(input_ids)       # [B, T-1, V]
+loss = cross_entropy(
+    logits.reshape(-1, vocab_size),
+    targets.reshape(-1),
+)
+~~~
+
+Here \`V\` is vocabulary size. Every position produces a row of logits, and cross entropy asks whether the probability of the correct next token increases.
+
+### A causal mask prevents answer leakage
+Position \`t\` may attend only to \`0...t\`, never to future tokens. The causal mask blocks future attention scores. Without it, training could read the target directly: loss would look excellent, but inference could not reproduce that condition.
+
+### From attention to a language model
+Attention answers “how should this position combine past context?” The language-model objective answers “what should the resulting hidden state predict?” Together they turn Transformer blocks into a trainable next-token model.
+
+### Ref ID
+REF-HF-LLM-COURSE, REF-MS-GENAI-BEGINNERS`,
+      ),
+      loc(
+        '因果语言模型把同一序列右移成输入与目标，并用 causal mask 保证每个位置只能读取过去。',
+        'A causal language model shifts one sequence into inputs and targets, while a causal mask limits every position to the past.',
+      ),
+      loc(
+        '在右侧逐行读取输入、目标和 mask，说明为什么未来 token 必须不可见。',
+        'Read the inputs, targets, and mask row by row, then explain why future tokens must stay hidden.',
+      ),
+    ),
+    chapter(
+      'decoding-generation',
+      'modules.llmRag.sections.decodingGeneration.title',
+      loc(
+        `训练会并行计算许多位置的 next-token loss；生成时却必须自回归地一次增加一个 token。
+
+### 一次生成循环
+1. 把当前 token 序列送入模型。
+2. 只读取最后一个位置的 logits。
+3. 把 logits 变成概率分布并选出 next token。
+4. 把 token 追加到序列，直到遇到停止 token 或长度上限。
+
+~~~python
+while len(generated) < max_new_tokens:
+    logits = model(generated)[:, -1, :]
+    next_token = choose(logits, temperature=0.8, top_k=40)
+    generated.append(next_token)
+    if next_token == eos_token_id:
+        break
+~~~
+
+### logits 不是概率
+softmax 把 logits 归一化为概率。temperature \(T\) 会先缩放 logits：
+
+$$p_i=\operatorname{softmax}(z_i/T)$$
+
+- \(T<1\)：分布更尖，生成更稳定但容易重复。
+- \(T>1\)：分布更平，变化更多但低概率错误也更容易出现。
+- greedy decoding：每步都选最高概率 token，结果确定但不一定是整体最佳句子。
+
+### top-k 与 top-p 限制候选集合
+top-k 只保留概率最高的 \(k\) 个 token；top-p 则保留累计概率达到阈值的最小候选集合。两者都在采样前排除长尾候选，但不能修复模型没有学到的事实。
+
+### 训练、解码与 RAG 是三件事
+训练更新参数；解码根据当前参数逐 token 生成；RAG 在解码前把外部资料放进上下文。后面学习 context window 和 retrieval 时，要始终保留这条边界。
+
+### Ref ID
+REF-HF-LLM-COURSE、REF-MS-GENAI-BEGINNERS`,
+        `Training computes next-token losses for many positions in parallel; generation must autoregressively add one token at a time.
+
+### One generation loop
+1. Send the current token sequence through the model.
+2. Read only the logits at the last position.
+3. Turn logits into a distribution and choose the next token.
+4. Append that token and continue until an end token or length limit.
+
+~~~python
+while len(generated) < max_new_tokens:
+    logits = model(generated)[:, -1, :]
+    next_token = choose(logits, temperature=0.8, top_k=40)
+    generated.append(next_token)
+    if next_token == eos_token_id:
+        break
+~~~
+
+### Logits are not probabilities
+Softmax normalizes logits into probabilities. Temperature \(T\) scales logits first:
+
+$$p_i=\operatorname{softmax}(z_i/T)$$
+
+- \(T<1\): the distribution becomes sharper, making output steadier but sometimes repetitive.
+- \(T>1\): the distribution becomes flatter, adding variety while admitting more low-probability errors.
+- Greedy decoding: always selects the highest-probability token, so it is deterministic but not guaranteed to form the best whole sequence.
+
+### Top-k and top-p limit the candidate set
+Top-k keeps the \(k\) highest-probability tokens. Top-p keeps the smallest set whose cumulative probability reaches a threshold. Both remove tail candidates before sampling, but neither repairs facts the model never learned.
+
+### Training, decoding, and RAG are different operations
+Training updates parameters; decoding generates tokens from the current parameters; RAG places external material into context before decoding. Keep these boundaries in view when studying context windows and retrieval.
+
+### Ref ID
+REF-HF-LLM-COURSE, REF-MS-GENAI-BEGINNERS`,
+      ),
+      loc(
+        '自回归生成每次只选择一个 next token；temperature、top-k 和 top-p 改变候选分布，不改变模型参数。',
+        'Autoregressive generation chooses one next token at a time; temperature, top-k, and top-p reshape candidates without changing parameters.',
+      ),
+      loc(
+        '在右侧调节 temperature 和 top-k，观察候选概率如何变化，并区分训练参数与解码参数。',
+        'Adjust temperature and top-k, observe the candidate probabilities, and separate training parameters from decoding controls.',
+      ),
+    ),
+    chapter(
       'tokenization-context',
       'modules.llmRag.sections.tokenizationContext.title',
       loc(

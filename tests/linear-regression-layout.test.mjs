@@ -18,15 +18,13 @@ test('linear regression module is inserted into the guided course flow', () => {
   const lossIndex = moduleCatalogSource.indexOf('lossFunctionsModule')
   const gradientIndex = moduleCatalogSource.indexOf('gradientDescentModule')
   const linearIndex = moduleCatalogSource.indexOf('linearRegressionModule')
-  const legacyIndex = moduleCatalogSource.indexOf('...legacyModuleOrder.filter')
 
   assert.notEqual(lossIndex, -1)
   assert.notEqual(gradientIndex, -1)
   assert.notEqual(linearIndex, -1)
-  assert.notEqual(legacyIndex, -1)
   assert.ok(lossIndex < gradientIndex, 'loss functions should stay first')
   assert.ok(gradientIndex < linearIndex, 'linear regression should follow gradient descent')
-  assert.ok(linearIndex < legacyIndex, 'linear regression should come before the legacy modules')
+  assert.match(moduleCatalogSource, /import\('\.\/linearRegressionModule'\)/)
 })
 
 test('algorithm view has a dedicated linear regression lesson branch', () => {

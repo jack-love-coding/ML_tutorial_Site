@@ -1,9 +1,27 @@
 import { defineStore } from 'pinia'
-import { moduleRegistry } from '../data/moduleCatalog'
-import type { ExperimentConfigValue, ExperimentState, ModuleSlug } from '../types/ml'
+import type {
+  AlgorithmModuleDefinition,
+  ExperimentConfigValue,
+  ExperimentState,
+  ModuleSlug,
+} from '../types/ml'
+
+const registeredModules = new Map<ModuleSlug, AlgorithmModuleDefinition>()
+
+export function registerExperimentModule(moduleDefinition: AlgorithmModuleDefinition) {
+  registeredModules.set(moduleDefinition.slug, moduleDefinition)
+}
+
+function requireModuleDefinition(slug: ModuleSlug) {
+  const moduleDefinition = registeredModules.get(slug)
+  if (!moduleDefinition) {
+    throw new Error(`Algorithm module ${slug} must be loaded before its experiment is created`)
+  }
+  return moduleDefinition
+}
 
 function createExperimentState(slug: ModuleSlug): ExperimentState {
-  const moduleDefinition = moduleRegistry[slug]
+  const moduleDefinition = requireModuleDefinition(slug)
   const config = moduleDefinition.createDefaultConfig()
   return {
     config,
@@ -29,7 +47,7 @@ export const useExperimentStore = defineStore('experiments', {
     },
     recompute(slug: ModuleSlug) {
       const experiment = this.ensureExperiment(slug)
-      const moduleDefinition = moduleRegistry[slug]
+      const moduleDefinition = requireModuleDefinition(slug)
       experiment.snapshots = moduleDefinition.simulate({ ...experiment.config }).snapshots
       experiment.currentStep = 0
       experiment.isPlaying = false

@@ -471,9 +471,15 @@ export const messages = {
       llmRag: {
         title: 'LLM 与 RAG 基础',
         kicker: 'LLM App Lab',
-        intro: '从 tokenization、context window、embedding、chunking、retrieval、prompt assembly 到 grounded answer 和评估，拆开现代 LLM 应用。',
-        summary: '说明 RAG 不是让模型“学会”新知识，而是在回答时组织外部资料、检索片段、上下文和可审计引用。',
+        intro: '从因果语言模型、逐 token 解码开始，再进入 tokenization、context window、embedding、retrieval、prompt assembly 和 RAG 评估。',
+        summary: '串起 Transformer 输出、next-token 生成与 RAG，并说明 RAG 是回答时组织外部资料，不是让模型重新训练。',
         sections: {
+          causalLanguageModeling: {
+            title: '因果语言模型：右移目标、causal mask 与 next-token loss',
+          },
+          decodingGeneration: {
+            title: '自回归生成：temperature、top-k 与停止条件',
+          },
           tokenizationContext: {
             title: 'tokenization 与 context window：先算上下文预算',
           },
@@ -1182,10 +1188,16 @@ export const messages = {
         title: 'LLM and RAG Basics',
         kicker: 'LLM App Lab',
         intro:
-          'Unpack modern LLM apps through tokenization, context window, embeddings, chunking, retrieval, prompt assembly, grounded answers, and evaluation.',
+          'Start with causal language modeling and token-by-token decoding, then move through tokenization, context windows, embeddings, retrieval, prompt assembly, and RAG evaluation.',
         summary:
-          'Show that RAG does not make a model learn new knowledge; it organizes external material, retrieved passages, context, and auditable citations at answer time.',
+          'Connect Transformer outputs to next-token generation and RAG, while showing that RAG organizes external material at answer time rather than retraining the model.',
         sections: {
+          causalLanguageModeling: {
+            title: 'Causal language modeling: shifted targets, causal masks, and next-token loss',
+          },
+          decodingGeneration: {
+            title: 'Autoregressive generation: temperature, top-k, and stopping',
+          },
           tokenizationContext: {
             title: 'Tokenization and context window: budget context first',
           },

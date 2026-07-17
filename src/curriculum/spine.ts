@@ -1,4 +1,4 @@
-import { curriculumModuleById } from './catalog.ts'
+import { curriculumMetadataById } from './catalogMetadata.ts'
 import type { CurriculumSpineStage } from './types.ts'
 import type { LocalizedCopy } from '../types/ml.ts'
 
@@ -273,6 +273,38 @@ export const curriculumSpineStages: CurriculumSpineStage[] = [
       ),
     ],
   },
+  {
+    id: 'language-models-rag',
+    title: copy('语言模型生成与 RAG', 'Language Model Generation and RAG'),
+    learnerQuestion: copy(
+      'Transformer 怎样逐 token 生成文本，又怎样在回答时使用外部资料？',
+      'How does a Transformer generate text token by token and use external material at answer time?',
+    ),
+    bridge: copy(
+      'Attention 已经会混合上下文；接下来用 next-token loss 训练语言模型，用解码策略生成序列，再把检索资料放进上下文形成 RAG。',
+      'Attention already mixes context. Next, train with next-token loss, generate with decoding controls, and place retrieved material into context to form RAG.',
+    ),
+    requiredModuleIds: ['llm-rag'],
+    supportModuleIds: [
+      'probability-likelihood-entropy',
+      'linear-algebra-distance-similarity',
+      'splits-generalization',
+    ],
+    supportNote: copy(
+      '概率解释 next-token 分布，向量相似度解释检索，数据划分与泛化视角帮助区分训练评估和 RAG 系统评估。',
+      'Probability explains next-token distributions, vector similarity explains retrieval, and generalization separates training evaluation from RAG-system evaluation.',
+    ),
+    outcomes: [
+      copy(
+        '能从 Transformer logits 追踪到 temperature/top-k 解码，再说明 context、retrieval、prompt 和 generation 各自负责什么。',
+        'Trace Transformer logits through temperature/top-k decoding, then explain the roles of context, retrieval, prompt, and generation.',
+      ),
+      copy(
+        '能区分训练、解码与 RAG，并按 retrieval、prompt、generation 三类定位常见失败。',
+        'Distinguish training, decoding, and RAG, then locate common failures across retrieval, prompt, and generation.',
+      ),
+    ],
+  },
 ]
 
 export function curriculumSpineRequiredModuleIds() {
@@ -291,7 +323,7 @@ export function curriculumSpineValidationIssues() {
     ]
 
     for (const moduleId of referencedModuleIds) {
-      if (!curriculumModuleById.has(moduleId)) {
+      if (!curriculumMetadataById.has(moduleId)) {
         issues.push(`${stage.id} references unknown module ${moduleId}`)
       }
     }

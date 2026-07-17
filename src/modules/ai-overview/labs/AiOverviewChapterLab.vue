@@ -127,8 +127,6 @@ onBeforeUnmount(() => {
       module-route="/learn/ai-overview"
       :checkpoints="localCheckpoints"
       :locale="locale as AppLocale"
-      :completed="false"
-      mode="formative"
     />
   </section>
 </template>

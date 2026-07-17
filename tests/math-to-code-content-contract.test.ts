@@ -447,7 +447,7 @@ test('interactive labs expose bounded controls, reset actions, static fallbacks,
   }
 })
 
-test('self-paced completion and route query navigation remain route-scoped', () => {
+test('route query navigation remains route-scoped without front-end completion controls', () => {
   const studio = mathToCodeModules.at(-1)!
   assert.equal(studio.id, 'math-to-code-guided-studio')
   assert.equal(studio.completionMode, 'self-attested')
@@ -470,7 +470,8 @@ test('self-paced completion and route query navigation remain route-scoped', () 
   const completion = readFileSync(new URL('../src/modules/math-lab/components/SelfPacedCompletionButton.vue', import.meta.url), 'utf8')
   assert.match(page, /routeNavigationForModule\(route\.query\.route, moduleId\.value\)/)
   assert.match(page, /query:\s*\{\s*route:\s*routeNavigation\.value\.routeId\s*\}/)
-  assert.match(page, /moduleDefinition\.completionMode === 'self-attested'/)
+  assert.doesNotMatch(page, /moduleDefinition\.completionMode === 'self-attested'/)
+  assert.doesNotMatch(page, /SelfPacedCompletionButton/)
   assert.match(completion, /self-paced local navigation state, not a graded or formal acceptance/i)
 })
 

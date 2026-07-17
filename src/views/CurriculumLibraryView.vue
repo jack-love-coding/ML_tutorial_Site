@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { curriculumCatalog } from '../curriculum/catalog.ts'
+import { curriculumCatalogMetadata } from '../curriculum/catalogMetadata.ts'
 import {
   curriculumLibraryDomains,
   resolveCurriculumLibraryDomain,
@@ -10,7 +10,7 @@ import {
 import { curriculumRoleForModule } from '../curriculum/roles.ts'
 import { resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
 import type { AppLocale, LocalizedCopy } from '../types/ml'
-import type { CurriculumModule } from '../curriculum/types.ts'
+import type { CurriculumModuleMetadata } from '../curriculum/types.ts'
 
 const route = useRoute()
 const { locale } = useI18n()
@@ -21,14 +21,16 @@ const selectedDomain = computed(() => {
   return curriculumLibraryDomains.find((domain) => domain.id === routeDomain)!
 })
 const selectedModules = computed(() =>
-  curriculumCatalog.filter((moduleDefinition) => moduleDefinition.domain === selectedDomain.value.id),
+  curriculumCatalogMetadata.filter(
+    (moduleDefinition) => moduleDefinition.domain === selectedDomain.value.id,
+  ),
 )
 
 function localizedText(copy: LocalizedCopy) {
   return copy[currentLocale.value]
 }
 
-function moduleRoute(moduleDefinition: CurriculumModule) {
+function moduleRoute(moduleDefinition: CurriculumModuleMetadata) {
   return resolveCanonicalLearnRoute(moduleDefinition.id) ?? moduleDefinition.route
 }
 

@@ -1,60 +1,22 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
-import type { MathLabLocale, MathLabModuleId, QuizAttempt, QuizItem } from '../types/mathLab'
-import { buildQuizAttempt, evaluateQuizAnswer } from '../utils/quiz'
+import type { MathLabLocale, MathLabModuleId, QuizItem } from '../types/mathLab'
 
-const props = defineProps<{
+defineProps<{
   moduleId: MathLabModuleId
   quizzes: QuizItem[]
   locale: MathLabLocale
 }>()
 
-const emit = defineEmits<{
-  submit: [attempts: QuizAttempt[]]
-}>()
-
 const answers = reactive<Record<string, string | number>>({})
-const submitted = ref(false)
-
-const evaluations = computed(() =>
-  Object.fromEntries(
-    props.quizzes.map((quiz) => [quiz.id, evaluateQuizAnswer(quiz, answers[quiz.id] ?? '')]),
-  ),
-)
-
-const summary = computed(() => {
-  const correct = props.quizzes.filter((quiz) => evaluations.value[quiz.id]?.correct).length
-  return {
-    correct,
-    total: props.quizzes.length,
-  }
-})
-
-function submit() {
-  submitted.value = true
-  emit(
-    'submit',
-    props.quizzes.map((quiz) => buildQuizAttempt(props.moduleId, quiz, answers[quiz.id] ?? '')),
-  )
-}
 </script>
 
 <template>
   <section class="math-checkpoint">
     <header>
-      <span>{{ locale === 'zh-CN' ? '即时检测' : 'Checkpoint' }}</span>
-      <strong>
-        {{
-          submitted
-            ? locale === 'zh-CN'
-              ? `答对 ${summary.correct}/${summary.total}`
-              : `${summary.correct}/${summary.total} correct`
-            : locale === 'zh-CN'
-              ? '提交后查看误区反馈'
-              : 'Submit to get misconception feedback'
-        }}
-      </strong>
+      <span>{{ locale === 'zh-CN' ? '理解回顾 · 不计分' : 'Concept review · Not graded' }}</span>
+      <strong>{{ locale === 'zh-CN' ? '作答后立即对照讲解' : 'Compare with the explanation after answering' }}</strong>
     </header>
 
     <div class="math-checkpoint__list">
@@ -73,26 +35,12 @@ function submit() {
             v-model="answers[quiz.id]"
             type="number"
             step="0.001"
-            :placeholder="locale === 'zh-CN' ? '输入数值' : 'Enter value'"
+            :placeholder="locale === 'zh-CN' ? '输入你的结果' : 'Enter your result'"
           />
         </label>
 
-        <div
-          v-if="submitted"
-          class="math-checkpoint__feedback"
-          :class="{ 'is-correct': evaluations[quiz.id]?.correct }"
-        >
-          <strong>
-            {{
-              evaluations[quiz.id]?.correct
-                ? locale === 'zh-CN'
-                  ? '正确'
-                  : 'Correct'
-                : locale === 'zh-CN'
-                  ? '需要回看'
-                  : 'Review needed'
-            }}
-          </strong>
+        <div v-if="answers[quiz.id] !== undefined && answers[quiz.id] !== ''" class="math-checkpoint__feedback">
+          <strong>{{ locale === 'zh-CN' ? '参考思路' : 'Reference explanation' }}</strong>
           <MarkdownMathContent :source="quiz.explanation[locale]" />
           <a v-if="quiz.revisitVisualId" :href="`#${quiz.revisitVisualId}`" class="math-checkpoint__revisit-link">
             {{ locale === 'zh-CN' ? '回看相关章节或实验' : 'Review the related section or lab' }}
@@ -100,9 +48,5 @@ function submit() {
         </div>
       </article>
     </div>
-
-    <button type="button" class="action-button action-button--primary" @click="submit">
-      {{ locale === 'zh-CN' ? '提交检测' : 'Submit checkpoint' }}
-    </button>
   </section>
 </template>

@@ -106,11 +106,11 @@ const progressLabels = computed(() =>
     ? {
         continueEyebrow: '继续学习',
         startTitle: '从 AI 入门总览开始',
-        lastVisitedBody: '回到你上次停下的位置，继续把概念、实验和 checkpoint 串起来。',
-        firstIncompleteBody: '下一步推荐从核心路线中第一个未完成模块继续。',
+        lastVisitedBody: '回到你上次停下的位置，继续把概念、实验和讲解串起来。',
+        firstIncompleteBody: '下一步推荐沿核心路线继续阅读。',
         noProgressBody: '还没有学习记录时，先用 AI 总览建立地图，再进入数学、数据和模型实验。',
-        completed: '已完成模块',
-        attempts: 'checkpoint 尝试',
+        visited: '浏览过的模块',
+        records: '实验记录',
         routes: '主线阶段',
         continueAction: '继续学习',
         startAction: '开始学习',
@@ -118,11 +118,11 @@ const progressLabels = computed(() =>
     : {
         continueEyebrow: 'Continue learning',
         startTitle: 'Start with AI Overview',
-        lastVisitedBody: 'Return to the place you last touched and keep connecting concepts, labs, and checkpoints.',
-        firstIncompleteBody: 'Continue with the first unfinished module in the core path.',
+        lastVisitedBody: 'Return to the place you last touched and keep connecting concepts, labs, and explanations.',
+        firstIncompleteBody: 'Continue reading along the core path.',
         noProgressBody: 'With no saved progress yet, begin with AI Overview before moving into math, data, and model labs.',
-        completed: 'Completed modules',
-        attempts: 'Checkpoint attempts',
+        visited: 'Modules visited',
+        records: 'Lab records',
         routes: 'Spine stages',
         continueAction: 'Continue learning',
         startAction: 'Start learning',
@@ -145,23 +145,18 @@ const continueBody = computed(() => {
 const continueActionLabel = computed(() =>
   continueTarget.value ? progressLabels.value.continueAction : progressLabels.value.startAction,
 )
-const completedModuleCount = computed(() =>
-  Object.values(learningProgress.value.modules).filter((moduleProgress) => moduleProgress.completed).length,
+const visitedModuleCount = computed(() =>
+  Object.values(learningProgress.value.modules).filter((moduleProgress) => moduleProgress.lastVisitedAt).length,
 )
-const checkpointAttemptCount = computed(() =>
-  Object.values(learningProgress.value.modules).reduce(
-    (total, moduleProgress) => total + moduleProgress.attempts.length,
-    0,
-  ),
-)
+const savedLabRecordCount = computed(() => learningProgress.value.labEvidence.length)
 const progressMetrics = computed(() => [
   {
-    label: progressLabels.value.completed,
-    value: String(completedModuleCount.value),
+    label: progressLabels.value.visited,
+    value: String(visitedModuleCount.value),
   },
   {
-    label: progressLabels.value.attempts,
-    value: String(checkpointAttemptCount.value),
+    label: progressLabels.value.records,
+    value: String(savedLabRecordCount.value),
   },
   {
     label: progressLabels.value.routes,
@@ -190,7 +185,7 @@ const homeDecisionCardSource: HomeDecisionCardSource[] = [
     id: 'topic-library',
     route: '/library/math',
     menuId: 'topic-library',
-    title: loc('支持镜头', 'Support Lenses'),
+    title: loc('辅助内容', 'Supporting Topics'),
     body: loc(
       '按 Math Lab、Data Lab、ML Models 和 Deep Learning Lens 查找概念、实验与复盘材料；它们服务主线，不再抢起点。',
       'Browse Math Lab, Data Lab, ML Models, and Deep Learning Lens as support material for the spine instead of parallel starting points.',
@@ -216,8 +211,8 @@ const homeDecisionCardSource: HomeDecisionCardSource[] = [
     menuId: 'progress',
     title: loc('学习进度', 'Learning progress'),
     body: loc(
-      '查看已完成模块、checkpoint 尝试和下一步建议，避免在多个实验室之间迷路。',
-      'Review completed modules, checkpoint attempts, and the next recommendation across every lab.',
+      '查看最近浏览位置、实验记录和下一步建议，避免在多个实验室之间迷路。',
+      'Review recent locations, lab notes, and the next recommendation across every lab.',
     ),
     meta: loc('复盘与下一步', 'Review and next step'),
     action: loc('查看进度', 'Open progress'),
@@ -243,8 +238,8 @@ const beginnerRoadmapIntro = {
     'This spine puts Math Lab and Data Lab back into the right places: learners first understand tables, features, and feedback signals, then move through linear models, training dynamics, generalization, nonlinear models, CNNs, and Attention.',
   ),
   note: loc(
-    '首页只预览前四个阶段，完整阶段地图、支持镜头和项目验证放在主线页里继续展开。',
-    'The homepage previews the first four stages only; the full stage map, support lenses, and project validation continue on the spine page.',
+    '首页只预览前四个阶段，完整阶段地图、辅助内容和项目实践放在主线页里继续展开。',
+    'The homepage previews the first four stages only; the full stage map, supporting topics, and project practice continue on the spine page.',
   ),
   action: loc('查看完整阶段地图', 'View full stage map'),
 }
@@ -254,12 +249,12 @@ const roadmapLabels = computed(() =>
     ? {
         concepts: '关键概念',
         focus: '必修模块',
-        practice: '支持镜头',
+        practice: '辅助内容',
         outcome: '完成标准',
         required: '必修',
         support: '支持',
         project: '项目验证',
-        noSupport: '直接完成本阶段必修模块和 checkpoint。',
+        noSupport: '直接阅读本阶段模块，并用实验对照讲解。',
         checksTitle: '进入下一轮前的自检',
         checksBody: '每学完一个阶段，先确认自己能把公式、图像、代码和模型行为对应起来，再继续推进。',
       }
@@ -271,7 +266,7 @@ const roadmapLabels = computed(() =>
         required: 'Required',
         support: 'Support',
         project: 'Project validation',
-        noSupport: 'Complete this stage’s required modules and checkpoints directly.',
+        noSupport: 'Read this stage’s modules and compare the labs with their explanations.',
         checksTitle: 'Readiness checks before the next pass',
         checksBody: 'After each stage, verify that formulas, visuals, code, and model behavior point to the same idea before moving on.',
       },
@@ -386,8 +381,8 @@ const readinessChecks = computed(() =>
 
 const footerText = computed(() =>
   locale.value === 'zh-CN'
-    ? '从默认学习主线开始，再把数学、数据和模型实验作为支持镜头逐步接入。'
-    : 'Start with the Default Spine, then add math, data, and model labs as support lenses.',
+    ? '从默认学习主线开始，再按需要接入数学、数据和模型实验等辅助内容。'
+    : 'Start with the Default Spine, then add supporting math, data, and model labs when needed.',
 )
 </script>
 
@@ -447,8 +442,8 @@ const footerText = computed(() =>
         <p>
           {{
             locale === 'zh-CN'
-              ? '默认主线、支持镜头、项目和进度页分别承担不同任务：首页只保留决策入口，完整目录交给专门页面。'
-              : 'The default spine, support lenses, projects, and progress pages each have a separate job. The homepage keeps the decision entry points and leaves full catalogs to dedicated pages.'
+              ? '默认主线、辅助内容、项目和进度页分别承担不同任务：首页只保留决策入口，完整目录交给专门页面。'
+              : 'The default spine, supporting topics, projects, and progress pages each have a separate job. The homepage keeps the decision entry points and leaves full catalogs to dedicated pages.'
           }}
         </p>
       </header>

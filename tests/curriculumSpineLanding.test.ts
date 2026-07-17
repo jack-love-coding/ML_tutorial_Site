@@ -61,7 +61,7 @@ test('spine landing source renders stages, support lenses, project validation, a
 })
 
 test('spine landing stage references resolve to current catalog modules', () => {
-  assert.equal(curriculumSpineStages.length, 11)
+  assert.equal(curriculumSpineStages.length, 12)
 
   for (const stage of curriculumSpineStages) {
     const allModuleIds = [

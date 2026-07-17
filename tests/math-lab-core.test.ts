@@ -10,6 +10,10 @@ import {
   routeProgressSummary,
 } from '../src/modules/math-lab/data/learningRoutes.ts'
 import {
+  aiMathPathModuleIds,
+  mathLearningPhases,
+} from '../src/modules/math-lab/data/mathCourseOrder.ts'
+import {
   checkpointReportForModule,
   linearAlgebraCheckpointReportPrompts,
   observationPrompts,
@@ -433,7 +437,6 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'linear-algebra-rank-null-space',
       'eigenvalues-eigenvectors',
       'svd',
-      'pca',
       'tensor-shapes-vectorization',
       'calculus-functions-rate-change',
       'calculus-derivatives-local-change',
@@ -447,15 +450,16 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'beginner-probability-distributions',
       'monte-carlo',
       'probability-likelihood-entropy',
+      'markov-chains',
+      'least-squares-fitting',
+      'pca',
       'lu-decomposition',
       'sparse-matrices',
       'condition-numbers',
-      'markov-chains',
       'finite-difference-methods',
       'nonlinear-equations',
       'optimization',
       'training-diagnostics',
-      'least-squares-fitting',
       'deep-architecture-math',
       'numpy-mathematics-implementation',
       'math-to-code-guided-studio',
@@ -599,7 +603,7 @@ test('math lab continue route redirects retired calculus progress to the new rou
   )
 })
 
-test('linear algebra route split exposes seven ordered case-driven chapters', () => {
+test('linear algebra route split exposes seven case-driven chapters', () => {
   const routeIds = [
     'linear-algebra-feature-space',
     'linear-algebra-distance-similarity',
@@ -611,18 +615,7 @@ test('linear algebra route split exposes seven ordered case-driven chapters', ()
   ]
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
 
-  assert.deepEqual(
-    routeIds.map((id) => byId[id]?.nextModuleIds[0]),
-    [
-      'linear-algebra-distance-similarity',
-      'linear-algebra-matrix-transformations',
-      'linear-algebra-rank-null-space',
-      'eigenvalues-eigenvectors',
-      'svd',
-      'pca',
-      'tensor-shapes-vectorization',
-    ],
-  )
+  assert.deepEqual(routeIds, linearAlgebraRouteModuleIds)
 
   for (const id of routeIds) {
     const moduleDefinition = byId[id]
@@ -674,6 +667,35 @@ test('linear algebra route split exposes seven ordered case-driven chapters', ()
     const source = readFileSync(new URL(sourcePath, root), 'utf8')
     assert.match(source, /sourceReferences:\s*\[/, `${sourcePath} should own source references`)
   }
+})
+
+test('five math learning phases are the single source for the main path order', () => {
+  assert.equal(mathLearningPhases.length, 5)
+  assert.deepEqual(
+    mathLearningPhases.map((phase) => phase.id),
+    [
+      'representation-geometry',
+      'change-training',
+      'uncertainty-probability',
+      'data-geometry-numerics',
+      'deep-architecture',
+    ],
+  )
+
+  const flattenedIds = mathLearningPhases.flatMap((phase) => phase.moduleIds)
+  assert.deepEqual(flattenedIds, aiMathPathModuleIds)
+  assert.equal(new Set(flattenedIds).size, flattenedIds.length)
+  assert.deepEqual(
+    mathLabModules.slice(0, aiMathPathModuleIds.length).map((moduleDefinition) => moduleDefinition.id),
+    aiMathPathModuleIds,
+  )
+
+  const mainRoute = learningRoutes.find((candidate) => candidate.id === 'ai-math-main-path')
+  assert.ok(mainRoute)
+  assert.deepEqual(mainRoute.chapterModuleIds, aiMathPathModuleIds)
+  assert.equal(aiMathPathModuleIds.at(-1), 'deep-architecture-math')
+  assert.ok(aiMathPathModuleIds.indexOf('tensor-shapes-vectorization') < aiMathPathModuleIds.indexOf('calculus-functions-rate-change'))
+  assert.ok(aiMathPathModuleIds.indexOf('least-squares-fitting') < aiMathPathModuleIds.indexOf('pca'))
 })
 
 test('calculus route exposes seven ordered beginner chapters from change to training code', () => {

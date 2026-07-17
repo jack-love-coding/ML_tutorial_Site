@@ -8,86 +8,47 @@ function read(path) {
   return readFileSync(new URL(path, root), 'utf8')
 }
 
-test('algorithm view wires module checkpoints and progress helpers', () => {
+test('algorithm modules keep checkpoints as ungraded teaching review', () => {
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
-  const styleSource = read('src/styles/views/algorithm-shell.css')
+  const componentSource = read('src/components/AlgorithmCheckpointQuiz.vue')
 
   assert.match(algorithmViewSource, /AlgorithmCheckpointQuiz/)
+  assert.match(algorithmViewSource, /moduleDefinition\.checkpoints/)
   assert.match(algorithmViewSource, /loadAlgorithmProgress/)
   assert.match(algorithmViewSource, /setLastVisitedAlgorithmModule/)
-  assert.match(algorithmViewSource, /appendAlgorithmQuizAttempt/)
-  assert.match(algorithmViewSource, /markAlgorithmModuleComplete/)
-  assert.match(algorithmViewSource, /shouldCompleteAlgorithmModule/)
-  assert.match(algorithmViewSource, /completedModuleSlugs\.includes\(moduleDefinition\.slug\)/)
-  assert.match(algorithmViewSource, /moduleDefinition\.checkpoints/)
-  assert.match(algorithmViewSource, /lastVisitedModuleSlug/)
-  assert.match(algorithmViewSource, /算法已完成|Completed/)
+  assert.doesNotMatch(
+    algorithmViewSource,
+    /appendAlgorithmQuizAttempt|markAlgorithmModuleComplete|shouldCompleteAlgorithmModule|onAlgorithmQuizSubmit|mode="scored"/,
+  )
 
-  assert.match(styleSource, /\.algorithm-checkpoint/)
-  assert.match(styleSource, /\.algorithm-hero__status/)
-})
-
-test('algorithm checkpoint component renders feedback and revisit links', () => {
-  const componentSource = read('src/components/AlgorithmCheckpointQuiz.vue')
-
-  assert.match(componentSource, /defineProps/)
-  assert.match(componentSource, /evaluateAlgorithmCheckpointAnswer/)
-  assert.match(componentSource, /buildAlgorithmQuizAttempt/)
-  assert.match(componentSource, /MarkdownMathContent/)
+  assert.match(componentSource, /理解回顾 · 不计分|Concept review · Not graded/)
+  assert.match(componentSource, /answers\[checkpoint\.id\]/)
+  assert.match(componentSource, /参考思路|Reference explanation/)
   assert.match(componentSource, /router-link/)
-  assert.match(componentSource, /revisitChapterId/)
-  assert.match(componentSource, /提交检测|Submit checkpoint/)
+  assert.match(componentSource, /checkpoint\.misconceptionTags/)
+  assert.doesNotMatch(
+    componentSource,
+    /evaluateAlgorithmCheckpointAnswer|buildAlgorithmQuizAttempt|defineEmits|function submit|答对|提交检测|is-correct/,
+  )
 })
 
-test('AI Overview uses immediate local formative feedback while other modules stay scored', () => {
-  const componentSource = read('src/components/AlgorithmCheckpointQuiz.vue')
-  const algorithmViewSource = read('src/views/AlgorithmView.vue')
+test('AI Overview and Python review use the same immediate explanation behavior', () => {
   const chapterLabSource = read('src/modules/ai-overview/labs/AiOverviewChapterLab.vue')
+  const courseViewSource = read('src/views/PythonDataToolsCourseView.vue')
 
-  assert.match(componentSource, /mode\?: 'scored' \| 'formative' \| 'course-review'/)
-  assert.match(componentSource, /mode: 'scored'/)
-  assert.match(componentSource, /mode === 'formative'.*answers\[checkpoint\.id\]/s)
-  assert.match(componentSource, /checkpoint\.misconceptionTags/)
-  assert.match(componentSource, /v-if="mode === 'scored'"/)
-  assert.match(componentSource, /if \(props\.mode !== 'scored'\) return/)
-  assert.match(algorithmViewSource, /moduleDefinition\.checkpoints\.length && !isAiOverviewPage/)
-  assert.doesNotMatch(algorithmViewSource, /:mode="isAiOverviewPage \? 'formative' : 'scored'"/)
   assert.match(chapterLabSource, /<AlgorithmCheckpointQuiz/)
-  assert.match(chapterLabSource, /mode="formative"/)
+  assert.doesNotMatch(chapterLabSource, /mode=|:completed=|@submit/)
   assert.match(chapterLabSource, /'ml-common-language': \[[^\]]*training-loop-order[^\]]*field-roles/s)
   assert.match(chapterLabSource, /'learning-paradigms': \[[^\]]*paradigm-signal/s)
   assert.match(chapterLabSource, /'reinforcement-q-learning': \[[^\]]*kmeans-direction[^\]]*q-value-direction/s)
-  assert.doesNotMatch(chapterLabSource, /@submit|onAlgorithmQuizSubmit|saveAlgorithmProgress|markAlgorithmModuleComplete/)
-  assert.doesNotMatch(componentSource, /saveAlgorithmProgress|appendAlgorithmQuizAttempt|markAlgorithmModuleComplete/)
 
-  const submitFunction = componentSource.slice(
-    componentSource.indexOf('function submit()'),
-    componentSource.indexOf('</script>'),
-  )
-  assert.ok(submitFunction.indexOf("if (props.mode !== 'scored') return") < submitFunction.indexOf('emit('))
-
-  const checkpointHeaderStart = componentSource.indexOf('<header class="algorithm-checkpoint__header">')
-  const formativeHeader = componentSource.slice(
-    checkpointHeaderStart,
-    componentSource.indexOf('<strong v-if="mode === \'scored\'"', checkpointHeaderStart),
-  )
-  assert.match(formativeHeader, /mode === 'formative'/)
-  assert.doesNotMatch(formativeHeader, /答对|correct|score|submit/i)
+  assert.match(courseViewSource, /variant="course-review"/)
+  assert.match(courseViewSource, /activeChapter\.id === 'analysis-report'/)
+  assert.doesNotMatch(courseViewSource, /@submit|saveAlgorithmProgress|markAlgorithmModuleComplete/)
 })
 
-test('Python course review gives immediate teaching feedback without writing Progress', () => {
-  const componentSource = read('src/components/AlgorithmCheckpointQuiz.vue')
-  const courseViewSource = read('src/views/PythonDataToolsCourseView.vue')
-
-  assert.match(componentSource, /mode === 'course-review'/)
-  assert.match(componentSource, /课程回顾 · 无需提交|Course Review · No submission/)
-  assert.match(componentSource, /mode !== 'scored' && answers\[checkpoint\.id\]/)
-  assert.match(componentSource, /v-if="mode === 'scored'"/)
-  assert.doesNotMatch(componentSource, /提交回顾|Submit review/)
-  assert.match(componentSource, /`\/learn\/\$\{props\.moduleSlug\}\/\$\{checkpoint\.revisitChapterId\}`/)
-  assert.doesNotMatch(componentSource, /saveAlgorithmProgress|appendAlgorithmQuizAttempt|markAlgorithmModuleComplete/)
-
-  assert.match(courseViewSource, /mode="course-review"/)
-  assert.match(courseViewSource, /activeChapter\.id === 'analysis-report'/)
-  assert.doesNotMatch(courseViewSource, /@submit|Progress|saveAlgorithmProgress|markAlgorithmModuleComplete/)
+test('checkpoint styling remains available without completion-state UI', () => {
+  const styleSource = read('src/styles/views/algorithm-shell.css')
+  assert.match(styleSource, /\.algorithm-checkpoint/)
+  assert.match(styleSource, /\.algorithm-hero__status/)
 })

@@ -2,11 +2,11 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { curriculumModuleById } from '../curriculum/catalog.ts'
+import { curriculumMetadataById } from '../curriculum/catalogMetadata.ts'
 import { resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
 import { curriculumTracks } from '../curriculum/tracks.ts'
 import type { AppLocale, LocalizedCopy } from '../types/ml'
-import type { CurriculumDomain, CurriculumModule } from '../curriculum/types.ts'
+import type { CurriculumDomain, CurriculumModuleMetadata } from '../curriculum/types.ts'
 
 const route = useRoute()
 const { locale } = useI18n()
@@ -22,8 +22,8 @@ const track = computed(
 )
 const trackModules = computed(() =>
   track.value.moduleIds
-    .map((moduleId) => curriculumModuleById.get(moduleId))
-    .filter((moduleDefinition): moduleDefinition is CurriculumModule => Boolean(moduleDefinition)),
+    .map((moduleId) => curriculumMetadataById.get(moduleId))
+    .filter((moduleDefinition): moduleDefinition is CurriculumModuleMetadata => Boolean(moduleDefinition)),
 )
 const totalMinutes = computed(() =>
   trackModules.value.reduce((total, moduleDefinition) => total + moduleDefinition.estimatedMinutes, 0),
@@ -33,7 +33,7 @@ function localizedText(copy: LocalizedCopy) {
   return copy[currentLocale.value]
 }
 
-function moduleRoute(moduleDefinition: CurriculumModule) {
+function moduleRoute(moduleDefinition: CurriculumModuleMetadata) {
   return resolveCanonicalLearnRoute(moduleDefinition.id) ?? moduleDefinition.route
 }
 

@@ -42,6 +42,8 @@ export interface CurriculumModule {
   legacyRoute?: string
 }
 
+export type CurriculumModuleMetadata = Omit<CurriculumModule, 'lessons'>
+
 export interface CurriculumTrack {
   id: string
   title: LocalizedCopy

@@ -24,7 +24,7 @@ test('classification project module is registered after its required foundations
   const moduleOrderSource = catalogSource.slice(orderStart, registryStart)
 
   assert.match(typesSource, /\| 'classification-project'/)
-  assert.match(catalogSource, /import \{ classificationProjectModule \} from '\.\/classificationProjectModule'/)
+  assert.match(catalogSource, /import\('\.\/classificationProjectModule'\)/)
 
   const housingIndex = moduleOrderSource.indexOf('housingPriceProjectModule,')
   const classificationIndex = moduleOrderSource.indexOf('classificationModule,')

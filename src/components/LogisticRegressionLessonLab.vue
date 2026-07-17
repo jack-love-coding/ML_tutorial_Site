@@ -128,7 +128,7 @@ const zhCopy: LabCopy = {
       detail:
         '逻辑回归先计算线性打分 z，再用 z = 0 这条线作为分类阈值。权重控制方向，偏置控制平移。',
       formula: 'z = w^T x + b；决策边界满足 w^T x + b = 0',
-      mistake: '不要把逻辑回归理解成直接输出 0 或 1；它先输出线性证据。',
+      mistake: '不要把逻辑回归理解成直接输出 0 或 1；它先输出线性分数。',
     },
     sigmoid: {
       title: 'sigmoid 把无界线性打分压缩成 0 到 1 的概率。',

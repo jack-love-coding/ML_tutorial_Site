@@ -121,7 +121,7 @@ test('only the final report exposes the two-question teaching review without a s
   const viewSource = read('src/views/PythonDataToolsCourseView.vue')
   const quizSource = read('src/components/AlgorithmCheckpointQuiz.vue')
   assert.match(viewSource, /activeChapter\.id === 'analysis-report'/)
-  assert.match(viewSource, /mode="course-review"/)
+  assert.match(viewSource, /variant="course-review"/)
   assert.doesNotMatch(viewSource, /@submit|onAlgorithmQuizSubmit|saveAlgorithmProgress/)
   assert.match(quizSource, /'course-review'/)
   assert.match(quizSource, /课程回顾/)

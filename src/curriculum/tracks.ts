@@ -1,9 +1,9 @@
-import { curriculumCatalog } from './catalog.ts'
+import { curriculumCatalogMetadata } from './catalogMetadata.ts'
 import type { CurriculumTrack } from './types.ts'
 
 const copy = (zhCN: string, en: string) => ({ 'zh-CN': zhCN, en })
 
-const mathModuleIds = curriculumCatalog
+const mathModuleIds = curriculumCatalogMetadata
   .filter((moduleDefinition) => moduleDefinition.domain === 'math')
   .map((moduleDefinition) => moduleDefinition.id)
 
@@ -13,8 +13,8 @@ export const curriculumTracks: CurriculumTrack[] = [
     kind: 'core',
     title: copy('默认学习主线', 'Default Spine'),
     description: copy(
-      '从 AI 地图和数据表开始，穿过特征、损失、训练、泛化、非线性模型、CNN 和序列桥接，最后到 Attention/Transformer 入门。',
-      'The data-first main route from the AI map and tables through features, loss, training, generalization, nonlinear models, CNNs, a sequence bridge, and Attention/Transformer basics.',
+      '从 AI 地图和数据表开始，穿过特征、损失、训练、泛化、非线性模型、CNN 和序列桥接，最后走到 Transformer、语言模型生成与 RAG。',
+      'The data-first main route from the AI map and tables through features, loss, training, generalization, nonlinear models, CNNs, and sequences, ending with Transformers, language-model generation, and RAG.',
     ),
     moduleIds: [
       'ai-overview',
@@ -41,6 +41,7 @@ export const curriculumTracks: CurriculumTrack[] = [
       'cnn-visualization',
       'sequence-embedding-bridge',
       'attention-transformer',
+      'llm-rag',
     ],
   },
   {

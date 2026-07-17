@@ -39,7 +39,7 @@ const copy = computed(() =>
         normal: '普通邮件',
         signal: '带信号',
         reset: '重置',
-        note: '信号很强也不等于后验一定很高；如果垃圾邮件本来很少，误报会占掉很多证据。',
+        note: '信号很强也不等于后验一定很高；如果垃圾邮件本来很少，误报会占掉许多带信号的样本。',
       }
     : {
         eyebrow: 'Interactive lab',

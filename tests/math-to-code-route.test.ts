@@ -245,18 +245,11 @@ test('studio and lab stay local-only with no grading, upload, evidence, or progr
   assert.ok(mathToCodeModules.filter((item) => item.id !== module.id).every((item) => item.completionMode === undefined))
 })
 
-test('module page owns self-paced completion and route-aware query-preserving links', () => {
+test('module page keeps route-aware links without frontend completion gates', () => {
   const page = readFileSync(new URL('../src/modules/math-lab/pages/MathLabModulePage.vue', import.meta.url), 'utf8')
-  assert.match(page, /SelfPacedCompletionButton/)
-  assert.match(page, /onSelfPacedReview[\s\S]*markRouteModuleComplete/)
-  assert.match(page, /onQuizSubmit[\s\S]*markRouteModuleComplete/)
+  assert.doesNotMatch(page, /SelfPacedCompletionButton|onSelfPacedReview|onQuizSubmit|markRouteModuleComplete/)
   assert.match(page, /routeNavigation\.value\?\.displayOrder/)
   assert.match(page, /effectivePrerequisiteIds/)
-  assert.match(page, /:review-version="activeLearningRoute\?\.completionVersion"/)
-  const completion = readFileSync(new URL('../src/modules/math-lab/components/SelfPacedCompletionButton.vue', import.meta.url), 'utf8')
-  assert.match(completion, /reviewVersion/)
-  assert.match(completion, /reviewed version|复核版本/i)
-  assert.match(completion, /not.*formal acceptance|不是正式验收/i)
   assert.match(page, /routeNavigationForModule/)
   assert.match(page, /route\.query\.route/)
   assert.match(page, /query:\s*\{\s*route:/)

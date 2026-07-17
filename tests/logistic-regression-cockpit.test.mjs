@@ -74,19 +74,16 @@ test('logistic regression chapter changes preserve an active experiment', () => 
   assert.match(onChapterChangeBody, /applyPreset/)
 })
 
-test('logistic regression module is migrated into the catalog before legacy modules', () => {
+test('logistic regression module is loaded through the asynchronous catalog', () => {
   const moduleCatalogSource = readFileSync(
     new URL('../src/data/moduleCatalog.ts', import.meta.url),
     'utf8',
   )
 
-  const logisticIndex = moduleCatalogSource.indexOf('logisticRegressionModule')
-  const legacyIndex = moduleCatalogSource.indexOf('...legacyModuleOrder.filter')
-
-  assert.notEqual(logisticIndex, -1, 'new logistic regression module should be imported')
-  assert.notEqual(legacyIndex, -1, 'legacy module list should remain filtered')
-  assert.ok(logisticIndex < legacyIndex, 'new module should be inserted before legacy modules')
-  assert.match(moduleCatalogSource, /moduleDefinition\.slug !== 'logistic-regression'/)
+  assert.match(moduleCatalogSource, /defineModuleLoader\('logistic-regression'/)
+  assert.match(moduleCatalogSource, /import\('\.\/logisticRegressionModule'\)/)
+  assert.match(moduleCatalogSource, /loadAlgorithmModule/)
+  assert.doesNotMatch(moduleCatalogSource, /import \{ logisticRegressionModule \}/)
 })
 
 test('logistic regression chapter routes are wired before the generic algorithm route', () => {

@@ -1,43 +1,19 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import MarkdownMathContent from './MarkdownMathContent.vue'
-import type { AlgorithmCheckpointItem, AlgorithmQuizAttempt, AppLocale, ModuleSlug } from '../types/ml'
-import { buildAlgorithmQuizAttempt, evaluateAlgorithmCheckpointAnswer } from '../utils/algorithmQuiz'
+import type { AlgorithmCheckpointItem, AppLocale, ModuleSlug } from '../types/ml'
 
 const props = withDefaults(defineProps<{
   moduleSlug: ModuleSlug
   moduleRoute: string
   checkpoints: AlgorithmCheckpointItem[]
   locale: AppLocale
-  completed: boolean
-  mode?: 'scored' | 'formative' | 'course-review'
+  variant?: 'lesson' | 'course-review'
 }>(), {
-  mode: 'scored',
+  variant: 'lesson',
 })
-
-const emit = defineEmits<{
-  submit: [attempts: AlgorithmQuizAttempt[]]
-}>()
 
 const answers = reactive<Record<string, string>>({})
-const submitted = ref(false)
-
-const evaluations = computed(() =>
-  Object.fromEntries(
-    props.checkpoints.map((checkpoint) => [
-      checkpoint.id,
-      evaluateAlgorithmCheckpointAnswer(checkpoint, answers[checkpoint.id] ?? ''),
-    ]),
-  ),
-)
-
-const summary = computed(() => {
-  const correct = props.checkpoints.filter((checkpoint) => evaluations.value[checkpoint.id]?.correct).length
-  return {
-    correct,
-    total: props.checkpoints.length,
-  }
-})
 
 function revisitRoute(checkpoint: AlgorithmCheckpointItem) {
   if (
@@ -53,17 +29,6 @@ function revisitRoute(checkpoint: AlgorithmCheckpointItem) {
     hash: `#${checkpoint.revisitChapterId}`,
   }
 }
-
-function submit() {
-  if (props.mode !== 'scored') return
-  submitted.value = true
-  emit(
-    'submit',
-    props.checkpoints.map((checkpoint) =>
-      buildAlgorithmQuizAttempt(props.moduleSlug, checkpoint, answers[checkpoint.id] ?? ''),
-    ),
-  )
-}
 </script>
 
 <template>
@@ -72,38 +37,20 @@ function submit() {
       <div>
         <span>
           {{
-            mode === 'course-review'
-              ? locale === 'zh-CN' ? '课程回顾 · 无需提交' : 'Course Review · No submission'
-              : mode === 'formative'
-              ? locale === 'zh-CN' ? '形成性 checkpoint' : 'Formative checkpoint'
-              : locale === 'zh-CN' ? '模块 checkpoint' : 'Module checkpoint'
+            variant === 'course-review'
+              ? locale === 'zh-CN' ? '课程回顾 · 不计分' : 'Course Review · Not graded'
+              : locale === 'zh-CN' ? '理解回顾 · 不计分' : 'Concept review · Not graded'
           }}
         </span>
         <h2>
           {{
-            mode === 'course-review'
-              ? locale === 'zh-CN' ? '选择后查看分组分析与相关性的参考解释' : 'Choose an answer to review grouped analysis and the limits of correlation'
-              : mode === 'formative'
-              ? locale === 'zh-CN' ? '选择后立即查看解释与易混误区' : 'Choose an answer to reveal the explanation and misconceptions'
-              : locale === 'zh-CN' ? '完成前确认你真的看懂了' : 'Confirm the module clicked before moving on'
+            variant === 'course-review'
+              ? locale === 'zh-CN' ? '选择后查看参考讲解' : 'Choose an answer to view the explanation'
+              : locale === 'zh-CN' ? '用讲解检查自己的理解，不作为课程验收' : 'Use the explanation to review your thinking; this is not course assessment'
           }}
         </h2>
       </div>
-      <strong v-if="mode === 'scored'" :class="{ 'is-complete': completed }">
-        {{
-          completed
-            ? locale === 'zh-CN'
-              ? '算法已完成'
-              : 'Completed'
-            : submitted
-              ? locale === 'zh-CN'
-                ? `答对 ${summary.correct}/${summary.total}`
-                : `${summary.correct}/${summary.total} correct`
-              : locale === 'zh-CN'
-                ? '提交后查看误区反馈'
-                : 'Submit to get misconception feedback'
-        }}
-      </strong>
+      <strong>{{ locale === 'zh-CN' ? '选择后立即显示讲解' : 'Explanation appears after selection' }}</strong>
     </header>
 
     <div class="algorithm-checkpoint__list">
@@ -117,41 +64,19 @@ function submit() {
           </label>
         </div>
 
-        <div
-          v-if="submitted || (mode !== 'scored' && answers[checkpoint.id])"
-          class="algorithm-checkpoint__feedback"
-          :class="{ 'is-correct': mode === 'scored' && evaluations[checkpoint.id]?.correct }"
-        >
+        <div v-if="answers[checkpoint.id]" class="algorithm-checkpoint__feedback">
           <div>
-            <strong>
-              {{
-                mode === 'course-review'
-                  ? locale === 'zh-CN' ? '参考解释' : 'Explanation'
-                  : mode === 'formative'
-                  ? locale === 'zh-CN' ? '解释与误区' : 'Explanation and misconceptions'
-                  : evaluations[checkpoint.id]?.correct
-                  ? locale === 'zh-CN'
-                    ? '正确'
-                    : 'Correct'
-                  : locale === 'zh-CN'
-                    ? '需要复看'
-                    : 'Review needed'
-              }}
-            </strong>
+            <strong>{{ locale === 'zh-CN' ? '参考思路' : 'Reference explanation' }}</strong>
             <router-link :to="revisitRoute(checkpoint)">
               {{ locale === 'zh-CN' ? '回看相关章节' : 'Revisit section' }}
             </router-link>
           </div>
           <MarkdownMathContent :source="checkpoint.explanation[locale]" />
-          <ul v-if="mode === 'formative'" class="algorithm-checkpoint__misconception-tags" aria-label="Misconception tags">
+          <ul class="algorithm-checkpoint__misconception-tags" aria-label="Misconception tags">
             <li v-for="tag in checkpoint.misconceptionTags" :key="tag">{{ tag }}</li>
           </ul>
         </div>
       </article>
     </div>
-
-    <button v-if="mode === 'scored'" type="button" class="action-button action-button--primary" @click="submit">
-      {{ locale === 'zh-CN' ? '提交检测' : 'Submit checkpoint' }}
-    </button>
   </section>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
@@ -10,33 +10,29 @@ import LabTaskCard from '../components/LabTaskCard.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
 import ObservationPrompt from '../components/ObservationPrompt.vue'
-import SelfPacedCompletionButton from '../components/SelfPacedCompletionButton.vue'
 import { conceptIllustrationFor, type ConceptIllustration } from '../data/conceptIllustrations'
 import { checkpointReportForModule, observationPromptForModule } from '../data/checkpointReports'
-import { completedModuleIdsForRoute, learningRouteById, routeNavigationForModule } from '../data/learningRoutes'
+import { routeNavigationForModule } from '../data/learningRoutes'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
 import type {
   ExperimentEvidence,
   LabConfig,
+  MathLabComponentName,
   MathLabLocale,
   MathLabModuleId,
   MathLabSection,
-  QuizAttempt,
   VisualAsset,
 } from '../types/mathLab'
 import { withPublicBase } from '../../../utils/publicPath.ts'
 import {
-  loadLearningProgressV2,
+  migrateLearningProgressV2,
   recordLearningProgressLabEvidence,
   type LearningProgressLabEvidence,
   type LearningProgressLabTaskInput,
 } from '../../../curriculum/progress.ts'
 import { resolveMathLabModuleId } from '../utils/continueRoute'
 import {
-  appendQuizAttempt,
   loadMathLabProgress,
-  markModuleComplete,
-  markRouteModuleComplete,
   saveMathLabProgress,
   setLastVisitedModule,
 } from '../utils/progress'
@@ -45,9 +41,8 @@ const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
 const progress = ref(loadMathLabProgress())
-const learningProgress = ref(loadLearningProgressV2())
+const learningProgress = ref(migrateLearningProgressV2())
 const latestEvidence = ref<Record<string, ExperimentEvidence>>({})
-const fallbackLabComponent = defineAsyncComponent(() => import('../labs/NumericalMiniLab.vue'))
 const labComponentRegistry = {
   ArchitectureMathLab: defineAsyncComponent(() => import('../labs/ArchitectureMathLab.vue')),
   AutodiffGraphLab: defineAsyncComponent(() => import('../labs/AutodiffGraphLab.vue')),
@@ -68,6 +63,7 @@ const labComponentRegistry = {
   MathToCodeStudioLab: defineAsyncComponent(() => import('../labs/MathToCodeStudioLab.vue')),
   MonteCarloLab: defineAsyncComponent(() => import('../labs/MonteCarloLab.vue')),
   NonlinearEquationsLab: defineAsyncComponent(() => import('../labs/NonlinearEquationsLab.vue')),
+  NumericalMiniLab: defineAsyncComponent(() => import('../labs/NumericalMiniLab.vue')),
   OptimizerRaceLab: defineAsyncComponent(() => import('../labs/OptimizerRaceLab.vue')),
   PartialDerivativeContourLab: defineAsyncComponent(() => import('../labs/PartialDerivativeContourLab.vue')),
   PcaProjectionLab: defineAsyncComponent(() => import('../labs/PcaProjectionLab.vue')),
@@ -80,9 +76,7 @@ const labComponentRegistry = {
   VectorDotProductLab: defineAsyncComponent(() => import('../labs/VectorDotProductLab.vue')),
   VectorSimilarityLab: defineAsyncComponent(() => import('../labs/VectorSimilarityLab.vue')),
   BatchGradientNoiseLab: defineAsyncComponent(() => import('../labs/BatchGradientNoiseLab.vue')),
-}
-
-type RegisteredLabComponentName = keyof typeof labComponentRegistry
+} satisfies Record<MathLabComponentName, Component>
 
 const currentLocale = computed(() => locale.value as MathLabLocale)
 const moduleId = computed(() => route.params.moduleId as MathLabModuleId)
@@ -91,9 +85,6 @@ const moduleIndex = computed(() =>
   mathLabModules.findIndex((candidate) => candidate.id === moduleDefinition.value?.id),
 )
 const routeNavigation = computed(() => routeNavigationForModule(route.query.route, moduleId.value))
-const activeLearningRoute = computed(() => routeNavigation.value
-  ? learningRouteById[routeNavigation.value.routeId]
-  : undefined)
 const displayOrder = computed(() => routeNavigation.value?.displayOrder ?? moduleDefinition.value?.order)
 const effectivePrerequisiteIds = computed(() => routeNavigation.value
   ? routeNavigation.value.effectivePrerequisiteIds ?? moduleDefinition.value?.prerequisites ?? []
@@ -102,10 +93,6 @@ const effectivePrerequisites = computed(() => effectivePrerequisiteIds.value
   .map((id) => mathLabModuleRegistry[id])
   .filter((candidate) => Boolean(candidate)))
 const routeEntryAssumptions = computed(() => routeNavigation.value?.entryAssumptions ?? [])
-const currentRouteCompletedModuleIds = computed(() => activeLearningRoute.value
-  ? completedModuleIdsForRoute(activeLearningRoute.value, progress.value)
-  : progress.value.completedModuleIds)
-const isCurrentModuleCompleted = computed(() => currentRouteCompletedModuleIds.value.includes(moduleId.value))
 const previousModule = computed(() => {
   if (routeNavigation.value) return routeNavigation.value.previousModuleId
     ? mathLabModuleRegistry[routeNavigation.value.previousModuleId]
@@ -178,39 +165,10 @@ watch(
       return
     }
     progress.value = saveMathLabProgress(setLastVisitedModule(loadMathLabProgress(), resolvedModuleId))
-    learningProgress.value = loadLearningProgressV2()
+    learningProgress.value = migrateLearningProgressV2()
   },
   { immediate: true },
 )
-
-function onQuizSubmit(attempts: QuizAttempt[]) {
-  const correct = attempts.filter((attempt) => attempt.correct).length
-  const enoughToComplete = attempts.length > 0 && correct / attempts.length >= 0.66
-  let nextProgress = loadMathLabProgress()
-
-  for (const attempt of attempts) {
-    nextProgress = appendQuizAttempt(nextProgress, attempt)
-  }
-
-  if (enoughToComplete) {
-    nextProgress = markModuleComplete(nextProgress, moduleId.value)
-    const learningRoute = activeLearningRoute.value
-    if (learningRoute?.completionVersion) {
-      nextProgress = markRouteModuleComplete(nextProgress, learningRoute.id, learningRoute.completionVersion, moduleId.value)
-    }
-  }
-
-  progress.value = saveMathLabProgress(nextProgress)
-}
-
-function onSelfPacedReview() {
-  let nextProgress = markModuleComplete(loadMathLabProgress(), moduleId.value)
-  const learningRoute = activeLearningRoute.value
-  if (learningRoute?.completionVersion) {
-    nextProgress = markRouteModuleComplete(nextProgress, learningRoute.id, learningRoute.completionVersion, moduleId.value)
-  }
-  progress.value = saveMathLabProgress(nextProgress)
-}
 
 function onExperimentEvidence(evidence: ExperimentEvidence | undefined) {
   const nextEvidence = {
@@ -228,7 +186,7 @@ function onExperimentEvidence(evidence: ExperimentEvidence | undefined) {
 
   nextEvidence[evidence.moduleId] = evidence
   latestEvidence.value = nextEvidence
-  learningProgress.value = recordLearningProgressLabEvidence(loadLearningProgressV2(), evidence)
+  learningProgress.value = recordLearningProgressLabEvidence(migrateLearningProgressV2(), evidence)
 }
 
 function latestEvidenceForLab(lab: LabConfig) {
@@ -258,7 +216,7 @@ function onLabTaskSave(payload: {
   }
   latestEvidence.value = nextEvidence
   learningProgress.value = recordLearningProgressLabEvidence(
-    loadLearningProgressV2(),
+    migrateLearningProgressV2(),
     {
       ...payload.evidence,
       task: payload.task,
@@ -290,24 +248,16 @@ function labsForSection(section: MathLabSection): LabConfig[] {
   return moduleDefinition.value?.labs.filter((lab) => sectionLabIds.has(lab.id)) ?? []
 }
 
-function isRegisteredLabComponent(componentName?: string): componentName is RegisteredLabComponentName {
-  return Boolean(componentName && componentName in labComponentRegistry)
-}
-
-function labComponentFor(componentName?: string) {
-  if (isRegisteredLabComponent(componentName)) {
-    return labComponentRegistry[componentName]
-  }
-
-  return fallbackLabComponent
+function labComponentFor(componentName: MathLabComponentName) {
+  return labComponentRegistry[componentName]
 }
 
 function labPropsFor(lab: LabConfig) {
-  if (isRegisteredLabComponent(lab.componentName)) {
-    return { locale: currentLocale.value }
+  if (lab.componentName === 'NumericalMiniLab') {
+    return { moduleId: moduleDefinition.value?.id ?? moduleId.value, locale: currentLocale.value }
   }
 
-  return { moduleId: moduleDefinition.value?.id ?? moduleId.value, locale: currentLocale.value }
+  return { locale: currentLocale.value }
 }
 
 function imageSrc(asset: VisualAsset) {
@@ -564,15 +514,6 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           :module-id="moduleDefinition.id"
           :quizzes="moduleDefinition.quizzes"
           :locale="currentLocale"
-          @submit="onQuizSubmit"
-        />
-
-        <SelfPacedCompletionButton
-          v-if="moduleDefinition.completionMode === 'self-attested'"
-          :locale="currentLocale"
-          :completed="isCurrentModuleCompleted"
-          :review-version="activeLearningRoute?.completionVersion"
-          @review="onSelfPacedReview"
         />
       </main>
 
@@ -591,17 +532,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           </nav>
 
           <div class="math-article-meta">
-            <strong>
-              {{
-                isCurrentModuleCompleted
-                  ? currentLocale === 'zh-CN'
-                    ? '已完成'
-                    : 'Completed'
-                  : currentLocale === 'zh-CN'
-                    ? '学习中'
-                    : 'In progress'
-              }}
-            </strong>
+            <strong>{{ currentLocale === 'zh-CN' ? '教学模块' : 'Learning module' }}</strong>
             <span>{{ currentLocale === 'zh-CN' ? '预计' : 'Estimated' }} {{ moduleDefinition.estimatedMinutes }} min</span>
           </div>
 
