@@ -8,6 +8,7 @@ import {
   coreExperimentNavigationGroups,
   dataLabNavigationGroups,
   mathLabNavigationGroups,
+  resolveActiveSiteNavigationMenuId,
 } from '../src/data/navigationMenus.ts'
 import { curriculumCatalog } from '../src/curriculum/catalog.ts'
 import {
@@ -37,11 +38,14 @@ function read(path: string) {
 test('curriculum navigation exposes direct primary destinations and one category menu', () => {
   assert.deepEqual(
     curriculumNavigationMenus.map((menu) => menu.id),
-    ['learning-path', 'topic-library', 'projects', 'progress'],
+    ['learning-path', 'python-data-tools', 'topic-library', 'projects', 'progress'],
   )
 
   const byId = new Map(curriculumNavigationMenus.map((item) => [item.id, item]))
   assert.equal(byId.get('learning-path')?.route, '/spine')
+  assert.equal(byId.get('python-data-tools')?.route, '/python')
+  assert.equal(byId.get('python-data-tools')?.label['zh-CN'], 'Python 数据工具')
+  assert.equal(byId.get('python-data-tools')?.label.en, 'Python Data Tools')
   assert.equal(byId.get('projects')?.route, '/tracks/project-practice')
   assert.equal(byId.get('progress')?.route, '/progress')
   assert.equal(byId.get('topic-library')?.label['zh-CN'], '专题学习')
@@ -61,17 +65,13 @@ test('curriculum navigation exposes direct primary destinations and one category
 })
 
 test('each curriculum route has one navigation owner without changing canonical or legacy coverage', () => {
-  const activeOwners = (path: string) => curriculumNavigationMenus
-    .filter((item) => item.activePrefixes.some(
-      (prefix) => path === prefix || path.startsWith(`${prefix}/`),
-    ))
-    .map((item) => item.id)
-
-  assert.deepEqual(activeOwners('/library/project'), ['projects'])
-  assert.deepEqual(activeOwners('/library/math'), ['topic-library'])
-  assert.deepEqual(activeOwners('/learn/gradient-descent'), ['learning-path'])
-  assert.deepEqual(activeOwners('/tracks/core-learning-path'), ['learning-path'])
-  assert.deepEqual(activeOwners('/math-lab/modules/beginner-linear-algebra'), ['topic-library'])
+  assert.equal(resolveActiveSiteNavigationMenuId('/library/project'), 'projects')
+  assert.equal(resolveActiveSiteNavigationMenuId('/library/math'), 'topic-library')
+  assert.equal(resolveActiveSiteNavigationMenuId('/learn/gradient-descent'), 'learning-path')
+  assert.equal(resolveActiveSiteNavigationMenuId('/learn/python-notebook/numpy-foundations'), 'python-data-tools')
+  assert.equal(resolveActiveSiteNavigationMenuId('/python/pandas-analysis'), 'python-data-tools')
+  assert.equal(resolveActiveSiteNavigationMenuId('/tracks/core-learning-path'), 'learning-path')
+  assert.equal(resolveActiveSiteNavigationMenuId('/math-lab/modules/beginner-linear-algebra'), 'topic-library')
 })
 
 test('topic library domains are bilingual and reject invalid route params', () => {
@@ -164,17 +164,23 @@ test('router wires canonical routes while preserving legacy deep links', () => {
   assert.match(routerSource, /path: '\/tracks\/:trackId'/)
   assert.match(routerSource, /path: '\/library\/:domain'/)
   assert.match(routerSource, /path: '\/progress'/)
+  assert.match(routerSource, /path: '\/python'/)
+  assert.match(routerSource, /path: '\/python\/:chapterId'/)
 
   const linearChapterIndex = routerSource.indexOf("path: '/learn/linear-regression/:chapterId'")
   const logisticChapterIndex = routerSource.indexOf("path: '/learn/logistic-regression/:chapterId'")
   const cnnChapterIndex = routerSource.indexOf("path: '/learn/cnn-visualization/:chapterId'")
   const pythonRootIndex = routerSource.indexOf("path: '/learn/python-notebook'")
   const pythonChapterIndex = routerSource.indexOf("path: '/learn/python-notebook/:chapterId'")
+  const shortPythonRootIndex = routerSource.indexOf("path: '/python'")
+  const shortPythonChapterIndex = routerSource.indexOf("path: '/python/:chapterId'")
   const genericLessonIndex = routerSource.indexOf("path: '/learn/:moduleId/:lessonId'")
 
   assert.ok(linearChapterIndex > -1 && linearChapterIndex < genericLessonIndex)
   assert.ok(logisticChapterIndex > -1 && logisticChapterIndex < genericLessonIndex)
   assert.ok(cnnChapterIndex > -1 && cnnChapterIndex < genericLessonIndex)
+  assert.ok(shortPythonRootIndex > -1 && shortPythonRootIndex < shortPythonChapterIndex)
+  assert.ok(shortPythonChapterIndex < pythonRootIndex)
   assert.ok(pythonRootIndex > -1 && pythonRootIndex < pythonChapterIndex)
   assert.ok(pythonChapterIndex < genericLessonIndex)
 
@@ -209,6 +215,7 @@ test('app shell delegates header and controlled navigation rendering', () => {
   assert.doesNotMatch(appShellSource, /coreExperimentNavigationGroups/)
   assert.doesNotMatch(appShellSource, /moduleOrder/)
   assert.match(headerSource, /curriculumNavigationMenus/)
+  assert.match(headerSource, /resolveActiveSiteNavigationMenuId/)
   assert.match(headerSource, /<SiteNavigation/)
   assert.match(headerSource, /openItemId/)
   assert.match(headerSource, /route\.fullPath/)

@@ -13,6 +13,9 @@ const route = useRoute()
 const { locale } = useI18n()
 
 const currentLocale = computed(() => locale.value as AppLocale)
+const courseRouteBase = computed(() => route.path === '/python' || route.path.startsWith('/python/')
+  ? '/python'
+  : pythonDataToolsContract.route)
 const activeChapter = computed(() => {
   const chapterId = typeof route.params.chapterId === 'string' ? route.params.chapterId : ''
   return pythonDataToolsRuntimeChapters.find(({ id }) => id === chapterId)
@@ -26,6 +29,7 @@ const activeChapter = computed(() => {
       :key="activeChapter.id"
       :chapter="activeChapter"
       :locale="currentLocale"
+      :route-base="courseRouteBase"
     />
 
     <AlgorithmCheckpointQuiz
@@ -35,6 +39,7 @@ const activeChapter = computed(() => {
       :checkpoints="algorithmCheckpointsBySlug['python-notebook']"
       :locale="currentLocale"
       variant="course-review"
+      :chapter-route-base="courseRouteBase"
     />
   </div>
 </template>

@@ -2,7 +2,11 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { curriculumNavigationMenus, type SiteNavigationMenuId } from '../../data/navigationMenus.ts'
+import {
+  curriculumNavigationMenus,
+  resolveActiveSiteNavigationMenuId,
+  type SiteNavigationMenuId,
+} from '../../data/navigationMenus.ts'
 import type { AppLocale, LocalizedCopy } from '../../types/ml.ts'
 import LanguageToggle from '../LanguageToggle.vue'
 import SiteNavigation from './SiteNavigation.vue'
@@ -14,6 +18,7 @@ const isMenuOpen = ref(false)
 const openItemId = ref<SiteNavigationMenuId | null>(null)
 const mobileMenuTrigger = ref<HTMLButtonElement | null>(null)
 const currentLocale = computed(() => locale.value as AppLocale)
+const activeItemId = computed(() => resolveActiveSiteNavigationMenuId(route.path))
 
 function localizedText(copy: LocalizedCopy) {
   return copy[currentLocale.value]
@@ -41,7 +46,7 @@ const renderedItems = computed<RenderedNavigationItem[]>(() =>
     id: item.id,
     label: localizedText(item.label),
     route: item.route,
-    active: item.activePrefixes.some((prefix) => isRouteActive(prefix)),
+    active: item.id === activeItemId.value,
     exact: item.route ? isRouteExact(item.route) : false,
     groups: item.groups.map((group) => ({
       id: group.id,

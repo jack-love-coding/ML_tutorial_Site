@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { usePythonDataToolsOutputSession } from '../composables/usePythonDataToolsOutputSession.ts'
 import { pythonDataToolsRuntimeChapters } from '../data/generated/pythonDataToolsRuntime.generated.ts'
-import { pythonDataToolsContract, type PythonDataToolsOutputId } from '../data/pythonNotebookContract.ts'
+import type { PythonDataToolsOutputId } from '../data/pythonNotebookContract.ts'
 import type { AppLocale } from '../types/ml.ts'
 import type { PythonDataToolsRuntimeChapter } from '../types/pythonDataToolsRuntime.ts'
 import {
@@ -17,9 +17,11 @@ import PythonDataToolsTeachingPrompt from './PythonDataToolsTeachingPrompt.vue'
 const props = defineProps<{
   chapter: PythonDataToolsRuntimeChapter
   locale: AppLocale
+  routeBase: string
 }>()
 
 const mobileMenuOpen = ref(false)
+const codeCopyFeedback = ref<{ blockId: string; status: 'copied' | 'failed' } | null>(null)
 const chapterOutputIds = props.chapter.blocks.flatMap((block) => (
   block.kind === 'result-presentation' ? [block.outputId] : []
 ))
@@ -35,6 +37,9 @@ const copy = computed(() => props.locale === 'zh-CN'
       unavailable: '暂无',
       question: '本章问题',
       code: '课程代码',
+      copyCode: '复制代码',
+      copied: '已复制',
+      copyFailed: '复制失败',
       download: '下载完整中文 Notebook',
       downloadDisclosure: 'Notebook 已执行并包含运行结果；请下载后在本地 Python 环境中打开。',
       environment: '查看本地环境依赖',
@@ -50,6 +55,9 @@ const copy = computed(() => props.locale === 'zh-CN'
       unavailable: 'Unavailable',
       question: 'Chapter question',
       code: 'Course code',
+      copyCode: 'Copy code',
+      copied: 'Copied',
+      copyFailed: 'Copy failed',
       download: 'Download the complete Chinese Notebook',
       downloadDisclosure: 'The Notebook is executed and contains its runtime results; download it to open in a local Python environment.',
       environment: 'View local environment dependencies',
@@ -73,7 +81,7 @@ const environmentUrl = computed(() => {
 })
 
 function chapterRoute(chapterEntry: PythonDataToolsRuntimeChapter) {
-  return `${pythonDataToolsContract.route}/${chapterEntry.id}`
+  return `${props.routeBase}/${chapterEntry.id}`
 }
 
 function formatIndex(index: number) {
@@ -82,6 +90,20 @@ function formatIndex(index: number) {
 
 function closeMobileMenu() {
   mobileMenuOpen.value = false
+}
+
+function copyButtonLabel(blockId: string) {
+  if (codeCopyFeedback.value?.blockId !== blockId) return copy.value.copyCode
+  return codeCopyFeedback.value.status === 'copied' ? copy.value.copied : copy.value.copyFailed
+}
+
+async function copyCode(blockId: string, code: string) {
+  try {
+    await navigator.clipboard.writeText(code)
+    codeCopyFeedback.value = { blockId, status: 'copied' }
+  } catch {
+    codeCopyFeedback.value = { blockId, status: 'failed' }
+  }
 }
 
 function fallbackResultsFor(outputId: PythonDataToolsOutputId): readonly PythonDataToolsJsonOutputViewModel[] {
@@ -98,7 +120,10 @@ function loadFallbackResults(outputId: PythonDataToolsOutputId) {
   if (entry?.fallbackSourceIds.length) void outputSession.loadOutputs(entry.fallbackSourceIds)
 }
 
-watch(() => props.chapter.id, closeMobileMenu)
+watch(() => props.chapter.id, () => {
+  closeMobileMenu()
+  codeCopyFeedback.value = null
+})
 </script>
 
 <template>
@@ -195,8 +220,22 @@ watch(() => props.chapter.id, closeMobileMenu)
 
               <section v-else-if="block.kind === 'code'" class="python-data-tools-page__code">
                 <header>
-                  <span>{{ copy.code }}</span>
-                  <code>{{ block.id }}</code>
+                  <div class="python-data-tools-page__code-meta">
+                    <span>{{ copy.code }}</span>
+                    <code>{{ block.id }}</code>
+                  </div>
+                  <button
+                    type="button"
+                    class="python-data-tools-page__copy-button"
+                    :class="{
+                      'is-copied': codeCopyFeedback?.blockId === block.id && codeCopyFeedback.status === 'copied',
+                      'is-failed': codeCopyFeedback?.blockId === block.id && codeCopyFeedback.status === 'failed',
+                    }"
+                    :aria-label="`${copyButtonLabel(block.id)}：${block.id}`"
+                    @click="copyCode(block.id, block.code)"
+                  >
+                    <span aria-live="polite">{{ copyButtonLabel(block.id) }}</span>
+                  </button>
                 </header>
                 <pre tabindex="0"><code>{{ block.code }}</code></pre>
               </section>
@@ -214,6 +253,7 @@ watch(() => props.chapter.id, closeMobileMenu)
                 v-else-if="block.kind === 'teaching-prompt'"
                 :prompt="block"
                 :locale="locale"
+                :route-base="routeBase"
               />
             </template>
           </div>

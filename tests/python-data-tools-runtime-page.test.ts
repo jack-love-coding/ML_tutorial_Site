@@ -9,6 +9,7 @@ test('dedicated page renders one supplied chapter with an eight-entry bilingual 
 
   assert.match(source, /chapter: PythonDataToolsRuntimeChapter/)
   assert.match(source, /locale: AppLocale/)
+  assert.match(source, /routeBase: string/)
   assert.match(source, /pythonDataToolsRuntimeChapters/)
   assert.match(source, /v-for="\(chapterEntry, index\) in pythonDataToolsRuntimeChapters"/)
   assert.match(source, /data-testid="python-data-tools-current-chapter"/)
@@ -20,6 +21,26 @@ test('dedicated page renders one supplied chapter with an eight-entry bilingual 
   assert.match(source, /previousChapter/)
   assert.match(source, /nextChapter/)
   assert.doesNotMatch(source, /progressPercent|mastery|pass(ed)?|gatesChapter/i)
+})
+
+test('every generated teaching code block exposes localized clipboard feedback', async () => {
+  const source = await read('../src/components/PythonDataToolsPagedLesson.vue')
+  const styles = await read('../src/styles/modules/python-data-tools.css')
+
+  assert.match(source, /block\.kind === 'code'/)
+  assert.match(source, /class="python-data-tools-page__copy-button"/)
+  assert.match(source, /@click="copyCode\(block\.id, block\.code\)"/)
+  assert.match(source, /navigator\.clipboard\.writeText\(code\)/)
+  assert.match(source, /复制代码/)
+  assert.match(source, /已复制/)
+  assert.match(source, /复制失败/)
+  assert.match(source, /Copy code/)
+  assert.match(source, /Copied/)
+  assert.match(source, /Copy failed/)
+  assert.match(source, /aria-live="polite"/)
+  assert.match(styles, /\.python-data-tools-page__copy-button/)
+  assert.match(styles, /\.python-data-tools-page__copy-button\.is-copied/)
+  assert.match(styles, /\.python-data-tools-page__copy-button\.is-failed/)
 })
 
 test('generated blocks remain inline and forward presentation plus typed session state', async () => {
@@ -35,6 +56,7 @@ test('generated blocks remain inline and forward presentation plus typed session
   assert.match(source, /usePythonDataToolsOutputSession\(\{ outputIds: chapterOutputIds \}\)/)
   assert.match(source, /<PythonDataToolsTeachingPrompt/)
   assert.match(source, /:prompt="block"/)
+  assert.match(source, /:route-base="routeBase"/)
   assert.doesNotMatch(source, /dataset-shape-schema\s*:/)
   assert.doesNotMatch(source, /<[^>]+>[^<{]*(证据|manifest)[^<{]*<\//i)
 })

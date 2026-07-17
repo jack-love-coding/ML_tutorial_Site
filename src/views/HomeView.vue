@@ -167,6 +167,9 @@ const progressMetrics = computed(() => [
 const navigationMenuLabels = computed(
   () => new Map(curriculumNavigationMenus.map((menuDefinition) => [menuDefinition.id, localizedText(menuDefinition.label)])),
 )
+const pythonDataToolsActionLabel = computed(() =>
+  locale.value === 'zh-CN' ? '进入 Python 数据工具' : 'Open Python Data Tools',
+)
 
 const homeDecisionCardSource: HomeDecisionCardSource[] = [
   {
@@ -400,6 +403,9 @@ const footerText = computed(() =>
           <a class="action-button" href="#beginner-roadmap" @click="scrollToRoadmap">
             {{ t('home.ctaSecondary') }}
           </a>
+          <router-link class="action-button" to="/python">
+            {{ pythonDataToolsActionLabel }}
+          </router-link>
         </div>
       </div>
 

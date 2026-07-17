@@ -50,6 +50,9 @@ test('home page first screen is a curriculum decision surface rather than a full
   assert.match(homeSource, /\/library\/math/)
   assert.match(homeSource, /\/tracks\/project-practice/)
   assert.match(homeSource, /\/progress/)
+  assert.match(homeSource, /to="\/python"/)
+  assert.match(homeSource, /进入 Python 数据工具/)
+  assert.match(homeSource, /Open Python Data Tools/)
   assert.match(homeSource, /\/learn\/ai-overview/)
 
   assert.doesNotMatch(homeSource, /moduleOrder/)

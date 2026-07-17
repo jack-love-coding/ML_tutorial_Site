@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { pythonDataToolsContract } from '../data/pythonNotebookContract.ts'
 import type { AppLocale } from '../types/ml.ts'
 import type { PythonDataToolsTeachingPromptBlock } from '../types/pythonDataToolsRuntime.ts'
 import MarkdownMathContent from './MarkdownMathContent.vue'
@@ -7,6 +6,7 @@ import MarkdownMathContent from './MarkdownMathContent.vue'
 defineProps<{
   prompt: PythonDataToolsTeachingPromptBlock
   locale: AppLocale
+  routeBase: string
 }>()
 </script>
 
@@ -37,7 +37,7 @@ defineProps<{
 
     <router-link
       class="python-data-tools-prompt__revisit"
-      :to="`${pythonDataToolsContract.route}/${prompt.chapterId}`"
+      :to="`${routeBase}/${prompt.chapterId}`"
     >
       {{ prompt.revisit[locale] }}
     </router-link>

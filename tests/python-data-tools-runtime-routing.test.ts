@@ -88,7 +88,7 @@ test('Python Data Tools keeps every current contract chapter ID unchanged', asyn
   ])
 
   const pageSource = readFileSync(pageUrl, 'utf8')
-  assert.match(pageSource, /return `\$\{pythonDataToolsContract\.route\}\/\$\{chapterEntry\.id\}`/)
+  assert.match(pageSource, /return `\$\{props\.routeBase\}\/\$\{chapterEntry\.id\}`/)
   assert.doesNotMatch(pageSource, /legacyPythonDataToolsChapterMap|resolvePythonDataToolsChapter/)
 })
 
@@ -168,15 +168,21 @@ test('Python Data Tools resolver source stays independent from routing and Progr
 
 test('dedicated Python routes canonicalize before the generic lesson route can mount', () => {
   const source = readFileSync(routerUrl, 'utf8')
+  const shortRootRouteIndex = source.indexOf("path: '/python'")
+  const shortChapterRouteIndex = source.indexOf("path: '/python/:chapterId'")
   const rootRouteIndex = source.indexOf("path: '/learn/python-notebook'")
   const chapterRouteIndex = source.indexOf("path: '/learn/python-notebook/:chapterId'")
   const genericRouteIndex = source.indexOf("path: '/learn/:moduleId/:lessonId'")
 
+  assert.ok(shortRootRouteIndex >= 0, 'short Python root route must be explicit')
+  assert.ok(shortChapterRouteIndex > shortRootRouteIndex, 'short Python chapter route must follow its root route')
+  assert.ok(rootRouteIndex > shortChapterRouteIndex, 'canonical Python routes must remain available after short routes')
   assert.ok(rootRouteIndex >= 0, 'Python root route must be explicit')
   assert.ok(chapterRouteIndex > rootRouteIndex, 'Python chapter route must follow its root route')
   assert.ok(genericRouteIndex > chapterRouteIndex, 'both Python routes must precede the generic route')
   assert.match(source, /resolvePythonDataToolsChapter/)
   assert.match(source, /beforeEnter:\s*redirectPythonDataToolsChapter/)
+  assert.match(source, /beforeEnter:\s*redirectShortPythonDataToolsChapter/)
   assert.match(source, /replace:\s*true/)
   assert.match(source, /component:\s*\(\)\s*=>\s*import\('\.\.\/views\/PythonDataToolsCourseView\.vue'\)/)
 
@@ -191,4 +197,18 @@ test('dedicated Python routes canonicalize before the generic lesson route can m
   const rootRouteSource = source.slice(rootRouteIndex, chapterRouteIndex)
   assert.match(rootRouteSource, /beforeEnter:\s*redirectPythonDataToolsChapter/)
   assert.match(source.slice(chapterRouteIndex, genericRouteIndex), /beforeEnter:\s*redirectPythonDataToolsChapter/)
+})
+
+test('short Python routes remain visible in navigation, homepage, and Pages fallbacks', () => {
+  const navigationSource = readFileSync(new URL('../src/data/navigationMenus.ts', import.meta.url), 'utf8')
+  const homeSource = readFileSync(new URL('../src/views/HomeView.vue', import.meta.url), 'utf8')
+  const fallbackSource = readFileSync(new URL('../scripts/create-pages-fallbacks.mjs', import.meta.url), 'utf8')
+  const courseViewSource = readFileSync(new URL('../src/views/PythonDataToolsCourseView.vue', import.meta.url), 'utf8')
+
+  assert.match(navigationSource, /id: 'python-data-tools'[\s\S]*?route: '\/python'/)
+  assert.match(homeSource, /to="\/python"/)
+  assert.match(fallbackSource, /'\/python'/)
+  assert.match(courseViewSource, /route\.path\.startsWith\('\/python\/'\)/)
+  assert.match(courseViewSource, /:route-base="courseRouteBase"/)
+  assert.match(courseViewSource, /:chapter-route-base="courseRouteBase"/)
 })

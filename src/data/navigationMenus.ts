@@ -2,7 +2,12 @@ import type { DataLabModuleId } from '../modules/data-lab/types/dataLab'
 import { curriculumLibraryDomains } from '../curriculum/library.ts'
 import type { LocalizedCopy, ModuleSlug } from '../types/ml'
 
-export type SiteNavigationMenuId = 'learning-path' | 'topic-library' | 'projects' | 'progress'
+export type SiteNavigationMenuId =
+  | 'learning-path'
+  | 'python-data-tools'
+  | 'topic-library'
+  | 'projects'
+  | 'progress'
 
 export interface NavigationLink<TId extends string = string> {
   id: TId
@@ -224,6 +229,13 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
     groups: [],
   },
   {
+    id: 'python-data-tools',
+    label: copy('Python 数据工具', 'Python Data Tools'),
+    route: '/python',
+    activePrefixes: ['/python', '/learn/python-notebook'],
+    groups: [],
+  },
+  {
     id: 'topic-library',
     label: copy('专题学习', 'Topic Library'),
     activePrefixes: [
@@ -259,3 +271,23 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
     groups: [],
   },
 ]
+
+function pathMatchesPrefix(path: string, prefix: string) {
+  return path === prefix || path.startsWith(`${prefix}/`)
+}
+
+export function resolveActiveSiteNavigationMenuId(path: string): SiteNavigationMenuId | undefined {
+  let activeId: SiteNavigationMenuId | undefined
+  let activePrefixLength = -1
+
+  for (const menu of curriculumNavigationMenus) {
+    for (const prefix of menu.activePrefixes) {
+      if (pathMatchesPrefix(path, prefix) && prefix.length > activePrefixLength) {
+        activeId = menu.id
+        activePrefixLength = prefix.length
+      }
+    }
+  }
+
+  return activeId
+}

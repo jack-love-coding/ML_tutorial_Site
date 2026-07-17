@@ -9,6 +9,7 @@ const props = withDefaults(defineProps<{
   checkpoints: AlgorithmCheckpointItem[]
   locale: AppLocale
   variant?: 'lesson' | 'course-review'
+  chapterRouteBase?: string
 }>(), {
   variant: 'lesson',
 })
@@ -21,7 +22,7 @@ function revisitRoute(checkpoint: AlgorithmCheckpointItem) {
     || props.moduleSlug === 'logistic-regression'
     || props.moduleSlug === 'python-notebook'
   ) {
-    return `/learn/${props.moduleSlug}/${checkpoint.revisitChapterId}`
+    return `${props.chapterRouteBase ?? `/learn/${props.moduleSlug}`}/${checkpoint.revisitChapterId}`
   }
 
   return {

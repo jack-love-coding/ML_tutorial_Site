@@ -31,16 +31,24 @@ function redirectInvalidLibraryDomain(to: RouteLocationNormalized) {
   return isCurriculumLibraryDomain(domain) ? true : { path: '/library/math' }
 }
 
-function redirectPythonDataToolsChapter(to: RouteLocationNormalized) {
+function resolvePythonDataToolsRoute(to: RouteLocationNormalized, routeBase: string) {
   const resolution = resolvePythonDataToolsChapter(routeParamValue(to.params.chapterId))
   if (resolution.kind === 'current') return true
 
   return {
-    path: `/learn/python-notebook/${resolution.id}`,
+    path: `${routeBase}/${resolution.id}`,
     query: to.query,
     hash: to.hash,
     replace: true,
   }
+}
+
+function redirectPythonDataToolsChapter(to: RouteLocationNormalized) {
+  return resolvePythonDataToolsRoute(to, '/learn/python-notebook')
+}
+
+function redirectShortPythonDataToolsChapter(to: RouteLocationNormalized) {
+  return resolvePythonDataToolsRoute(to, '/python')
 }
 
 export const router = createRouter({
@@ -103,6 +111,18 @@ export const router = createRouter({
       path: '/progress',
       name: 'curriculum-progress',
       component: () => import('../views/CurriculumProgressView.vue'),
+    },
+    {
+      path: '/python',
+      name: 'python-data-tools-short-root',
+      beforeEnter: redirectShortPythonDataToolsChapter,
+      component: () => import('../views/PythonDataToolsCourseView.vue'),
+    },
+    {
+      path: '/python/:chapterId',
+      name: 'python-data-tools-short-chapter',
+      beforeEnter: redirectShortPythonDataToolsChapter,
+      component: () => import('../views/PythonDataToolsCourseView.vue'),
     },
     {
       path: '/learn/linear-regression',
