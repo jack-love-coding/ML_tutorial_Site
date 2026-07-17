@@ -55,7 +55,7 @@ function revisitRoute(checkpoint: AlgorithmCheckpointItem) {
 }
 
 function submit() {
-  if (props.mode === 'formative') return
+  if (props.mode !== 'scored') return
   submitted.value = true
   emit(
     'submit',
@@ -73,7 +73,7 @@ function submit() {
         <span>
           {{
             mode === 'course-review'
-              ? locale === 'zh-CN' ? '课程回顾' : 'Course Review'
+              ? locale === 'zh-CN' ? '课程回顾 · 无需提交' : 'Course Review · No submission'
               : mode === 'formative'
               ? locale === 'zh-CN' ? '形成性 checkpoint' : 'Formative checkpoint'
               : locale === 'zh-CN' ? '模块 checkpoint' : 'Module checkpoint'
@@ -82,7 +82,7 @@ function submit() {
         <h2>
           {{
             mode === 'course-review'
-              ? locale === 'zh-CN' ? '回看分组分析与相关性的解释边界' : 'Review grouped analysis and the limits of correlation'
+              ? locale === 'zh-CN' ? '选择后查看分组分析与相关性的参考解释' : 'Choose an answer to review grouped analysis and the limits of correlation'
               : mode === 'formative'
               ? locale === 'zh-CN' ? '选择后立即查看解释与易混误区' : 'Choose an answer to reveal the explanation and misconceptions'
               : locale === 'zh-CN' ? '完成前确认你真的看懂了' : 'Confirm the module clicked before moving on'
@@ -118,7 +118,7 @@ function submit() {
         </div>
 
         <div
-          v-if="submitted || (mode === 'formative' && answers[checkpoint.id])"
+          v-if="submitted || (mode !== 'scored' && answers[checkpoint.id])"
           class="algorithm-checkpoint__feedback"
           :class="{ 'is-correct': mode === 'scored' && evaluations[checkpoint.id]?.correct }"
         >
@@ -150,12 +150,8 @@ function submit() {
       </article>
     </div>
 
-    <button v-if="mode !== 'formative'" type="button" class="action-button action-button--primary" @click="submit">
-      {{
-        mode === 'course-review'
-          ? locale === 'zh-CN' ? '提交回顾' : 'Submit review'
-          : locale === 'zh-CN' ? '提交检测' : 'Submit checkpoint'
-      }}
+    <button v-if="mode === 'scored'" type="button" class="action-button action-button--primary" @click="submit">
+      {{ locale === 'zh-CN' ? '提交检测' : 'Submit checkpoint' }}
     </button>
   </section>
 </template>

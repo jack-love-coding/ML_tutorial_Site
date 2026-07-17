@@ -30,10 +30,10 @@ test('generated projection contains exactly five complete stateless prompts in c
       assert.ok(prompt.misconception[locale])
       assert.ok(prompt.revisit[locale])
     }
-    assert.deepEqual(
-      [prompt.scored, prompt.submitted, prompt.persistedToProgress, prompt.gatesChapter],
-      [false, false, false, false],
-    )
+    assert.deepEqual(Object.keys(prompt).sort(), [
+      'chapterId', 'id', 'kind', 'misconception', 'promptKind', 'question',
+      'referenceReasoning', 'revisit',
+    ])
   }
 })
 

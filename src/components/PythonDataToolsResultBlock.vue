@@ -19,6 +19,9 @@ const props = withDefaults(defineProps<{
 }>(), {
   fallbackResults: () => [],
 })
+const emit = defineEmits<{
+  'fallback-needed': []
+}>()
 
 const imageFailed = ref(false)
 const plotlyFailed = ref(false)
@@ -47,6 +50,13 @@ watch(() => pngResult.value?.imageUrl, () => {
 watch(() => plotlyResult.value?.id, () => {
   plotlyFailed.value = false
 })
+
+watch(
+  [() => props.state.status, imageFailed, plotlyFailed],
+  ([status, failedImage, failedPlotly]) => {
+    if (status === 'error' || failedImage || failedPlotly) emit('fallback-needed')
+  },
+)
 
 function localizedLabel(source: string) {
   return props.presentation.axisLegendTranslations.find((entry) => entry.source === source)?.label[props.locale]

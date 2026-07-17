@@ -92,11 +92,16 @@ An interactive line chart uses hours 0–23 on the horizontal axis and mean rent
 
 ### Chinese labels and English meanings
 
-- `title`: chart text “工作日状态下的逐小时平均需求” → “Mean hourly demand by working-day status”
-- `x-axis`: chart text “小时（0–23）” → “Hour (0–23)”
-- `y-axis`: chart text “平均每小时租车次数” → “Mean rentals per hour”
-- `legend`: chart text “日期类型” with two Chinese group labels → “Date type,” “Working day,” and “Weekend or holiday”
-- `hover`: source fields `hr`, `mean_rentals`, `median_rentals`, and `observations` → “Hour,” “Mean rentals per hour,” “Median,” and “Hourly record count”
+- `title`: Mean hourly demand by working-day status
+- `x-axis`: Hour (0–23)
+- `y-axis`: Mean rentals per hour
+- `legend-title`: Date type
+- `group-0`: Weekend or holiday
+- `group-1`: Working day
+- `hover-hour`: Hour
+- `hover-mean`: Mean rentals per hour
+- `hover-median`: Median
+- `hover-observations`: Hourly record count
 - `line-style`: solid and dashed lines repeat the two date categories so grouping does not depend on color alone
 
 ### What the chart shows

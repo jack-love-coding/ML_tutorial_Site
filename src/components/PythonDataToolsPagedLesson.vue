@@ -20,7 +20,10 @@ const props = defineProps<{
 }>()
 
 const mobileMenuOpen = ref(false)
-const outputSession = usePythonDataToolsOutputSession()
+const chapterOutputIds = props.chapter.blocks.flatMap((block) => (
+  block.kind === 'result-presentation' ? [block.outputId] : []
+))
+const outputSession = usePythonDataToolsOutputSession({ outputIds: chapterOutputIds })
 
 const copy = computed(() => props.locale === 'zh-CN'
   ? {
@@ -88,6 +91,11 @@ function fallbackResultsFor(outputId: PythonDataToolsOutputId): readonly PythonD
     const state = outputSession.stateFor(fallbackId)
     return state.status === 'ready' && state.data.kind === 'json' ? [state.data] : []
   })
+}
+
+function loadFallbackResults(outputId: PythonDataToolsOutputId) {
+  const entry = pythonDataToolsOutputRegistry.find(({ id }) => id === outputId)
+  if (entry?.fallbackSourceIds.length) void outputSession.loadOutputs(entry.fallbackSourceIds)
 }
 
 watch(() => props.chapter.id, closeMobileMenu)
@@ -199,6 +207,7 @@ watch(() => props.chapter.id, closeMobileMenu)
                 :state="outputSession.stateFor(block.outputId)"
                 :fallback-results="fallbackResultsFor(block.outputId)"
                 :locale="locale"
+                @fallback-needed="loadFallbackResults(block.outputId)"
               />
 
               <PythonDataToolsTeachingPrompt

@@ -126,13 +126,13 @@ export const router = createRouter({
       path: '/learn/python-notebook',
       name: 'python-data-tools-root',
       beforeEnter: redirectPythonDataToolsChapter,
-      component: () => import('../views/AlgorithmView.vue'),
+      component: () => import('../views/PythonDataToolsCourseView.vue'),
     },
     {
       path: '/learn/python-notebook/:chapterId',
       name: 'python-data-tools-chapter',
       beforeEnter: redirectPythonDataToolsChapter,
-      component: () => import('../views/AlgorithmView.vue'),
+      component: () => import('../views/PythonDataToolsCourseView.vue'),
     },
     {
       path: '/learn/cnn-visualization/:chapterId',

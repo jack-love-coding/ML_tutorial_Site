@@ -47,10 +47,6 @@ export interface PythonDataToolsTeachingPromptBlock {
   referenceReasoning: LocalizedCopy
   misconception: LocalizedCopy
   revisit: LocalizedCopy
-  scored: false
-  submitted: false
-  persistedToProgress: false
-  gatesChapter: false
 }
 
 export type PythonDataToolsRuntimeBlock =

@@ -80,6 +80,18 @@ function findSectionEnd(source, contentStart) {
   return offset < 0 ? source.length : contentStart + offset
 }
 
+function findResultPresentationEnd(source, contentStart, locale) {
+  const block = source.slice(contentStart)
+  const fallbackHeading = heading(block, resultHeadings[locale].fallbackSummary, 3)
+  if (!fallbackHeading) {
+    throw new Error(`[${locale}] validated fallback summary heading is unavailable during projection`)
+  }
+
+  const fallbackContentStart = contentStart + fallbackHeading.end
+  const nextHeadingOffset = source.slice(fallbackContentStart).search(/\n#{1,3} (?!#)/)
+  return nextHeadingOffset < 0 ? source.length : fallbackContentStart + nextHeadingOffset
+}
+
 function parseEvents(source, locale) {
   const events = []
   const cellPattern = /<!-- cell: (ch\d{2}-[a-z0-9-]+) role: ([a-z]+)(?: output: ([a-z0-9-]+))? -->\n```python\n([\s\S]*?)```/g
@@ -88,7 +100,7 @@ function parseEvents(source, locale) {
   }
 
   for (const match of source.matchAll(/<!-- result-presentation: ([a-z0-9-]+) -->/g)) {
-    const end = findSectionEnd(source, match.index + match[0].length)
+    const end = findResultPresentationEnd(source, match.index + match[0].length, locale)
     events.push({
       kind: 'result-presentation', id: match[1],
       fields: fieldsFromBlock(source.slice(match.index + match[0].length, end), resultHeadings[locale], 3),
@@ -166,7 +178,6 @@ function localizedMarkdownBlocks(chapterId, chineseSource, englishSource, chines
         referenceReasoning: { 'zh-CN': chineseEvent.fields.referenceReasoning, en: englishEvent.fields.referenceReasoning },
         misconception: { 'zh-CN': chineseEvent.fields.misconception, en: englishEvent.fields.misconception },
         revisit: { 'zh-CN': chineseEvent.fields.revisit, en: englishEvent.fields.revisit },
-        scored: false, submitted: false, persistedToProgress: false, gatesChapter: false,
       })
     }
     zhCursor = chineseEvent.end

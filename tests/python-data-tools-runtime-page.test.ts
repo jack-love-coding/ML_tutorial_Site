@@ -31,6 +31,8 @@ test('generated blocks remain inline and forward presentation plus typed session
   assert.match(source, /:presentation="block"/)
   assert.match(source, /:state="outputSession\.stateFor\(block\.outputId\)"/)
   assert.match(source, /:fallback-results="fallbackResultsFor\(block\.outputId\)"/)
+  assert.match(source, /@fallback-needed="loadFallbackResults\(block\.outputId\)"/)
+  assert.match(source, /usePythonDataToolsOutputSession\(\{ outputIds: chapterOutputIds \}\)/)
   assert.match(source, /<PythonDataToolsTeachingPrompt/)
   assert.match(source, /:prompt="block"/)
   assert.doesNotMatch(source, /dataset-shape-schema\s*:/)

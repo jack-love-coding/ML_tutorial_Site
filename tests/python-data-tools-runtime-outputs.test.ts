@@ -144,8 +144,6 @@ test('all authoritative outputs load independently into typed teaching view mode
     }
     if (state.data.kind === 'png') {
       assert.match(state.data.imageUrl, /^\/notebooks\/python-data-tools\/outputs\/.+\.png$/)
-      assert.ok(state.data.sourceAlt.trim())
-      assert.deepEqual(state.data.fallbackSourceIds, registryEntry.fallbackSourceIds)
     }
     if (state.data.kind === 'plotly-json') {
       assert.ok(state.data.figure.data.length > 0)
@@ -310,6 +308,9 @@ test('Plotly result renderer owns constrained filters, lazy lifecycle, localizat
   assert.match(source, /onBeforeUnmount/)
   assert.match(source, /ResizeObserver/)
   assert.match(source, /renderRequestId/)
+  assert.match(source, /presentationLabel\(\s*'legend-title'/)
+  assert.match(source, /presentationLabel\(`group-\$\{group\.id\}`/)
+  assert.doesNotMatch(source, /quotedTargets|matchAll\(|split\('→'\)/)
 
   assert.match(source, /type="range"/)
   assert.match(source, /min="0"/)
@@ -341,6 +342,7 @@ test('result block wires one local Plotly renderer and keeps authoritative stati
   assert.match(source, /@render-error="plotlyFailed = \$event"/)
   assert.match(source, /state\.status === 'error' \|\| imageFailed \|\| plotlyFailed/)
   assert.match(source, /fallbackResults/)
+  assert.match(source, /'fallback-needed'/)
   assert.match(source, /等价数据表|Equivalent data table/)
   assert.doesNotMatch(source, /<slot name="plotly"|setTimeout|setInterval|localStorage|sessionStorage/)
 })
@@ -362,15 +364,25 @@ test('page output session owns one automatic load, abort cleanup, typed distribu
 
   const { createPythonDataToolsOutputSession } = await import('../src/composables/usePythonDataToolsOutputSession.ts')
   const requests: string[] = []
-  const session = createPythonDataToolsOutputSession({ fetch: createPublicFileFetch(requests) })
+  const session = createPythonDataToolsOutputSession({
+    fetch: createPublicFileFetch(requests),
+    outputIds: ['dataset-shape-schema', 'hourly-demand-profile'],
+  })
 
   await session.start()
   assert.equal(requests.filter((url) => url.endsWith('/manifest.json')).length, 1)
+  assert.deepEqual(requests.map((url) => url.split('/').at(-1)), [
+    'manifest.json',
+    'dataset-shape-schema.json',
+  ])
   assert.equal(session.manualReloadAvailable.value, false)
-  assert.deepEqual(
-    pythonDataToolsOutputRegistry.map(({ id }) => session.stateFor(id).status),
-    pythonDataToolsOutputRegistry.map(() => 'ready'),
-  )
+  assert.equal(session.stateFor('dataset-shape-schema').status, 'ready')
+  assert.equal(session.stateFor('hourly-demand-profile').status, 'ready')
+  assert.equal(session.stateFor('workingday-comparison').status, 'idle')
+
+  await session.loadOutputs(['workingday-comparison'])
+  assert.equal(session.stateFor('workingday-comparison').status, 'ready')
+  assert.equal(requests.at(-1)?.split('/').at(-1), 'workingday-comparison.json')
   await session.start()
   assert.equal(requests.filter((url) => url.endsWith('/manifest.json')).length, 1)
   session.dispose()

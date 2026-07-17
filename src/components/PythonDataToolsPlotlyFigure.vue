@@ -70,37 +70,35 @@ const groupOptions = computed<PlotlyGroupOption[]>(() => {
   })
 })
 
-function quotedTargets(source: string) {
-  const entry = props.presentation.axisLegendTranslations.find((candidate) => candidate.source === source)
-  const copy = entry?.label[props.locale] ?? ''
-  const target = copy.split('→').at(-1) ?? copy
-  return [...target.matchAll(/[“"]([^”"]+)[”"]/g)].map((match) => match[1]!).filter(Boolean)
+function presentationLabel(source: string, fallback: string) {
+  return props.presentation.axisLegendTranslations.find((candidate) => candidate.source === source)
+    ?.label[props.locale] ?? fallback
 }
 
 function translatedAxisLabel(source: 'x-axis' | 'y-axis', fallback: string) {
-  return quotedTargets(source)[0] ?? fallback
+  return presentationLabel(source, fallback)
 }
 
 function translatedGroupLabel(group: PlotlyGroupOption) {
-  if (props.locale === 'zh-CN') return group.sourceName
-  const labels = quotedTargets('legend')
-  return (group.id === '1' ? labels[1] : labels[2]) ?? group.sourceName
+  return presentationLabel(`group-${group.id}`, group.sourceName)
 }
 
-const legendTitle = computed(() => {
-  if (props.locale === 'zh-CN') {
-    const layout = props.result.figure.layout as { legend?: { title?: { text?: unknown } } }
-    return typeof layout.legend?.title?.text === 'string' ? layout.legend.title.text : '日期类型'
-  }
-  return quotedTargets('legend')[0] ?? 'Date type'
-})
+const legendTitle = computed(() => presentationLabel(
+  'legend-title',
+  props.locale === 'zh-CN' ? '日期类型' : 'Date type',
+))
 
 const hoverLabels = computed(() => {
-  const labels = quotedTargets('hover')
-  if (props.locale === 'zh-CN') {
-    return ['日期类型', '小时', '平均每小时租车次数', '中位数', '小时记录数'] as const
-  }
-  return [legendTitle.value, labels[0] ?? 'Hour', labels[1] ?? 'Mean rentals per hour', labels[2] ?? 'Median', labels[3] ?? 'Hourly record count'] as const
+  const defaults = props.locale === 'zh-CN'
+    ? ['小时', '平均每小时租车次数', '中位数', '小时记录数']
+    : ['Hour', 'Mean rentals per hour', 'Median', 'Hourly record count']
+  return [
+    legendTitle.value,
+    presentationLabel('hover-hour', defaults[0]!),
+    presentationLabel('hover-mean', defaults[1]!),
+    presentationLabel('hover-median', defaults[2]!),
+    presentationLabel('hover-observations', defaults[3]!),
+  ] as const
 })
 
 const uiCopy = computed(() => props.locale === 'zh-CN'
@@ -133,7 +131,8 @@ const uiCopy = computed(() => props.locale === 'zh-CN'
 
 const selectedGroups = computed(() => groupOptions.value.filter(({ id }) => visibleGroupIds.value.includes(id)))
 const currentFilterSummary = computed(() => {
-  const groups = selectedGroups.value.map(translatedGroupLabel).join('、') || uiCopy.value.noGroups
+  const separator = props.locale === 'zh-CN' ? '、' : ', '
+  const groups = selectedGroups.value.map(translatedGroupLabel).join(separator) || uiCopy.value.noGroups
   return `${uiCopy.value.current}: ${uiCopy.value.hours} ${startHour.value}–${endHour.value}; ${uiCopy.value.groups}: ${groups}; ${uiCopy.value.metric}.`
 })
 

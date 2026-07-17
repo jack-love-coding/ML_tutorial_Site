@@ -73,6 +73,20 @@ test('compiled code, formulas, marker order, and output ownership remain paired'
   )
 })
 
+test('result fallback summaries stop before later teaching headings and code cells', async () => {
+  const compiler = await loadCompiler()
+  const chapters = compiler.compileRuntimeContent() as readonly PythonDataToolsRuntimeChapter[]
+  const presentations = chapters.flatMap(({ blocks }) => blocks.filter(
+    (block) => block.kind === 'result-presentation',
+  ))
+
+  for (const presentation of presentations) {
+    for (const locale of ['zh-CN', 'en'] as const) {
+      assert.doesNotMatch(presentation.fallbackSummary[locale], /\n#{1,3}\s|```|<!-- cell:/)
+    }
+  }
+})
+
 test('the committed generated projection is typed and matches a fresh compilation', async () => {
   const compiler = await loadCompiler()
   const generated = await loadGenerated()

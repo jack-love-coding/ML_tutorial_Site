@@ -89,34 +89,18 @@ test('live Python catalog copy is exact, bilingual, and free of the retired mode
   }
 })
 
-test('AlgorithmView selects the generated current chapter and omits its generic hero for Python only', () => {
-  const source = read('src/views/AlgorithmView.vue')
-  const heroIndex = source.indexOf('class="algorithm-hero"')
-  const pythonPageIndex = source.indexOf('<PythonDataToolsPagedLesson')
+test('dedicated course view selects the generated current chapter without a simulation shell', () => {
+  const source = read('src/views/PythonDataToolsCourseView.vue')
 
   assert.match(source, /import PythonDataToolsPagedLesson/)
   assert.match(source, /pythonDataToolsRuntimeChapters/)
-  assert.match(source, /activePythonDataToolsChapter/)
-  assert.match(source, /v-if="!isPythonNotebookPage"[\s\S]*class="algorithm-hero"/)
-  assert.ok(heroIndex >= 0 && pythonPageIndex > heroIndex)
-  assert.match(source, /v-(?:else-)?if="isPythonNotebookPage && activePythonDataToolsChapter"/)
-  assert.match(source, /:chapter="activePythonDataToolsChapter"/)
+  assert.match(source, /activeChapter/)
+  assert.match(source, /:chapter="activeChapter"/)
   assert.match(source, /:locale="currentLocale"/)
-  assert.match(source, /isLinearRegressionPage/)
-  assert.match(source, /algorithm-hero__status/)
-  assert.match(source, /algorithm-hero__stats/)
-
-  const heroSubtree = source.slice(
-    source.indexOf('<section\n      v-if="!isPythonNotebookPage"'),
-    source.indexOf('</section>', source.indexOf('class="algorithm-hero__stats"')) + '</section>'.length,
-  )
-  assert.match(heroSubtree, /algorithm-hero__status/)
-  assert.match(heroSubtree, /algorithm-hero__stats/)
-  assert.doesNotMatch(heroSubtree, /PythonDataToolsPagedLesson/)
-  assert.match(source.slice(pythonPageIndex), /v-else-if="isLinearRegressionPage/)
+  assert.doesNotMatch(source, /useExperimentStore|TrainingSnapshot|loss|accuracy|simulate|PlaybackDock/)
 })
 
-test('only the final report exposes the two-question course review through the existing submit handler', () => {
+test('only the final report exposes the two-question teaching review without a submit handler', () => {
   const checkpoints = algorithmCheckpointsBySlug['python-notebook']
   assert.deepEqual(checkpoints.map(({ id }) => id), [
     'python-data-tools-grouped-analysis-interpretation',
@@ -134,11 +118,11 @@ test('only the final report exposes the two-question course review through the e
     ],
   )
 
-  const viewSource = read('src/views/AlgorithmView.vue')
+  const viewSource = read('src/views/PythonDataToolsCourseView.vue')
   const quizSource = read('src/components/AlgorithmCheckpointQuiz.vue')
-  assert.match(viewSource, /activeSection\?\.id === 'analysis-report'/)
-  assert.match(viewSource, /mode="course-review"|isPythonNotebookPage \? 'course-review'/)
-  assert.match(viewSource, /@submit="onAlgorithmQuizSubmit"/)
+  assert.match(viewSource, /activeChapter\.id === 'analysis-report'/)
+  assert.match(viewSource, /mode="course-review"/)
+  assert.doesNotMatch(viewSource, /@submit|onAlgorithmQuizSubmit|saveAlgorithmProgress/)
   assert.match(quizSource, /'course-review'/)
   assert.match(quizSource, /课程回顾/)
   assert.match(quizSource, /Course Review/)

@@ -49,7 +49,7 @@ test('AI Overview uses immediate local formative feedback while other modules st
   assert.match(componentSource, /mode === 'formative'.*answers\[checkpoint\.id\]/s)
   assert.match(componentSource, /checkpoint\.misconceptionTags/)
   assert.match(componentSource, /v-if="mode === 'scored'"/)
-  assert.match(componentSource, /if \(props\.mode === 'formative'\) return/)
+  assert.match(componentSource, /if \(props\.mode !== 'scored'\) return/)
   assert.match(algorithmViewSource, /moduleDefinition\.checkpoints\.length && !isAiOverviewPage/)
   assert.doesNotMatch(algorithmViewSource, /:mode="isAiOverviewPage \? 'formative' : 'scored'"/)
   assert.match(chapterLabSource, /<AlgorithmCheckpointQuiz/)
@@ -64,7 +64,7 @@ test('AI Overview uses immediate local formative feedback while other modules st
     componentSource.indexOf('function submit()'),
     componentSource.indexOf('</script>'),
   )
-  assert.ok(submitFunction.indexOf("if (props.mode === 'formative') return") < submitFunction.indexOf('emit('))
+  assert.ok(submitFunction.indexOf("if (props.mode !== 'scored') return") < submitFunction.indexOf('emit('))
 
   const checkpointHeaderStart = componentSource.indexOf('<header class="algorithm-checkpoint__header">')
   const formativeHeader = componentSource.slice(
@@ -75,17 +75,19 @@ test('AI Overview uses immediate local formative feedback while other modules st
   assert.doesNotMatch(formativeHeader, /答对|correct|score|submit/i)
 })
 
-test('Python course review changes presentation while retaining the existing writer boundary', () => {
+test('Python course review gives immediate teaching feedback without writing Progress', () => {
   const componentSource = read('src/components/AlgorithmCheckpointQuiz.vue')
-  const algorithmViewSource = read('src/views/AlgorithmView.vue')
+  const courseViewSource = read('src/views/PythonDataToolsCourseView.vue')
 
   assert.match(componentSource, /mode === 'course-review'/)
-  assert.match(componentSource, /课程回顾|Course Review/)
-  assert.match(componentSource, /提交回顾|Submit review/)
+  assert.match(componentSource, /课程回顾 · 无需提交|Course Review · No submission/)
+  assert.match(componentSource, /mode !== 'scored' && answers\[checkpoint\.id\]/)
+  assert.match(componentSource, /v-if="mode === 'scored'"/)
+  assert.doesNotMatch(componentSource, /提交回顾|Submit review/)
   assert.match(componentSource, /`\/learn\/\$\{props\.moduleSlug\}\/\$\{checkpoint\.revisitChapterId\}`/)
   assert.doesNotMatch(componentSource, /saveAlgorithmProgress|appendAlgorithmQuizAttempt|markAlgorithmModuleComplete/)
 
-  assert.match(algorithmViewSource, /:mode="isPythonNotebookPage \? 'course-review' : 'scored'"/)
-  assert.match(algorithmViewSource, /@submit="onAlgorithmQuizSubmit"/)
-  assert.equal((algorithmViewSource.match(/function onAlgorithmQuizSubmit/g) ?? []).length, 1)
+  assert.match(courseViewSource, /mode="course-review"/)
+  assert.match(courseViewSource, /activeChapter\.id === 'analysis-report'/)
+  assert.doesNotMatch(courseViewSource, /@submit|Progress|saveAlgorithmProgress|markAlgorithmModuleComplete/)
 })

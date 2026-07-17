@@ -17,6 +17,7 @@ type OutputStateMap = Record<PythonDataToolsOutputId, OutputState>
 interface PythonDataToolsOutputSessionOptions {
   fetch?: typeof fetch
   baseUrl?: string
+  outputIds?: readonly PythonDataToolsOutputId[]
 }
 
 function outputStateMap(state: OutputState): OutputStateMap {
@@ -31,6 +32,7 @@ export function createPythonDataToolsOutputSession(
   const manifest = shallowRef<PythonDataToolsManifest>()
   const outputStates = ref<OutputStateMap>(outputStateMap({ status: 'idle' }))
   const manualReloadAvailable = ref(false)
+  const primaryOutputIds = [...new Set(options.outputIds ?? pythonDataToolsOutputIds)]
 
   let automaticLoadStarted = false
   let manualReloadConsumed = false
@@ -40,6 +42,37 @@ export function createPythonDataToolsOutputSession(
 
   function isCurrentRequest(token: number, controller: AbortController) {
     return !disposed && token === requestToken && !controller.signal.aborted
+  }
+
+  async function loadOutputs(outputIds: readonly PythonDataToolsOutputId[]) {
+    const currentManifest = manifest.value
+    const controller = activeController
+    if (!currentManifest || !controller || controller.signal.aborted || disposed) return
+
+    const ids = [...new Set(outputIds)].filter((outputId) => (
+      outputStates.value[outputId]?.status === 'idle'
+    ))
+    if (!ids.length) return
+
+    const token = requestToken
+    outputStates.value = {
+      ...outputStates.value,
+      ...Object.fromEntries(ids.map((outputId) => [outputId, { status: 'loading' } as const])),
+    }
+    const entries = await Promise.all(ids.map(async (outputId) => [
+      outputId,
+      await loadPythonDataToolsOutput(currentManifest, outputId, {
+        fetch: options.fetch,
+        baseUrl: options.baseUrl,
+        signal: controller.signal,
+      }),
+    ] as const))
+    if (!isCurrentRequest(token, controller)) return
+
+    outputStates.value = {
+      ...outputStates.value,
+      ...Object.fromEntries(entries),
+    }
   }
 
   async function runLoad(kind: 'automatic' | 'manual') {
@@ -58,7 +91,10 @@ export function createPythonDataToolsOutputSession(
     activeController = controller
     const token = ++requestToken
     manifest.value = undefined
-    outputStates.value = outputStateMap({ status: 'loading' })
+    outputStates.value = {
+      ...outputStateMap({ status: 'idle' }),
+      ...Object.fromEntries(primaryOutputIds.map((outputId) => [outputId, { status: 'loading' } as const])),
+    }
 
     const manifestState = await loadPythonDataToolsManifest({
       fetch: options.fetch,
@@ -68,7 +104,10 @@ export function createPythonDataToolsOutputSession(
     if (!isCurrentRequest(token, controller)) return
 
     if (manifestState.status !== 'ready') {
-      outputStates.value = outputStateMap(manifestState)
+      outputStates.value = {
+        ...outputStateMap({ status: 'idle' }),
+        ...Object.fromEntries(primaryOutputIds.map((outputId) => [outputId, manifestState])),
+      }
       if (
         kind === 'automatic'
         && manifestState.status === 'error'
@@ -81,18 +120,8 @@ export function createPythonDataToolsOutputSession(
     }
 
     manifest.value = manifestState.data
-    const entries = await Promise.all(pythonDataToolsOutputIds.map(async (outputId) => [
-      outputId,
-      await loadPythonDataToolsOutput(manifestState.data, outputId, {
-        fetch: options.fetch,
-        baseUrl: options.baseUrl,
-        signal: controller.signal,
-      }),
-    ] as const))
-    if (!isCurrentRequest(token, controller)) return
-
-    outputStates.value = Object.fromEntries(entries) as OutputStateMap
-    activeController = undefined
+    outputStates.value = outputStateMap({ status: 'idle' })
+    await loadOutputs(primaryOutputIds)
   }
 
   function start() {
@@ -104,7 +133,7 @@ export function createPythonDataToolsOutputSession(
   }
 
   function stateFor(outputId: PythonDataToolsOutputId): OutputState {
-    return outputStates.value[outputId]
+    return outputStates.value[outputId] ?? { status: 'idle' }
   }
 
   function dispose() {
@@ -122,6 +151,7 @@ export function createPythonDataToolsOutputSession(
     manualReloadAvailable: readonly(manualReloadAvailable),
     start,
     reloadRuntimeResults,
+    loadOutputs,
     stateFor,
     dispose,
   }

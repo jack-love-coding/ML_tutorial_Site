@@ -178,10 +178,10 @@ test('dedicated Python routes canonicalize before the generic lesson route can m
   assert.match(source, /resolvePythonDataToolsChapter/)
   assert.match(source, /beforeEnter:\s*redirectPythonDataToolsChapter/)
   assert.match(source, /replace:\s*true/)
-  assert.match(source, /component:\s*\(\)\s*=>\s*import\('\.\.\/views\/AlgorithmView\.vue'\)/)
+  assert.match(source, /component:\s*\(\)\s*=>\s*import\('\.\.\/views\/PythonDataToolsCourseView\.vue'\)/)
 
   const guardIndex = source.indexOf('function redirectPythonDataToolsChapter')
-  const viewImportIndex = source.indexOf("component: () => import('../views/AlgorithmView.vue')", rootRouteIndex)
+  const viewImportIndex = source.indexOf("component: () => import('../views/PythonDataToolsCourseView.vue')", rootRouteIndex)
   assert.ok(guardIndex >= 0 && guardIndex < viewImportIndex, 'canonicalization guard must be defined before the page route')
   assert.doesNotMatch(
     source.slice(guardIndex, rootRouteIndex),

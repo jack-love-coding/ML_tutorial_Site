@@ -230,11 +230,7 @@ export const pythonDataToolsRuntimeChapters = [
         "revisit": {
           "zh-CN": "复看本章“位置索引与切片”和“布尔掩码保留满足条件的记录”，对照 `shape`、维数与筛选后元素数量的区别。",
           "en": "Review “Positional indexing and slicing” and “Keep matching records with a Boolean mask.” Compare the roles of `shape`, dimensionality, and the number of elements left after selection."
-        },
-        "scored": false,
-        "submitted": false,
-        "persistedToProgress": false,
-        "gatesChapter": false
+        }
       },
       {
         "kind": "markdown",
@@ -574,11 +570,7 @@ export const pythonDataToolsRuntimeChapters = [
         "revisit": {
           "zh-CN": "复看本章“先筛选，再说明筛选后的观察单位”和“用命名聚合同时保留样本数与口径”，重新确认筛选、分组与聚合各自回答什么问题。",
           "en": "Review “Filter first, then state the unit of observation” and “Preserve sample count and aggregation convention with named aggregation.” Recheck which question each of filtering, grouping, and aggregation answers."
-        },
-        "scored": false,
-        "submitted": false,
-        "persistedToProgress": false,
-        "gatesChapter": false
+        }
       },
       {
         "kind": "markdown",
@@ -690,8 +682,16 @@ export const pythonDataToolsRuntimeChapters = [
           "en": "This line summarizes records from different years, seasons, weather conditions, and date types. The segments between adjacent points express hourly order only; they do not add measurements between integer hours, and they cannot show that a particular hour causes demand to change."
         },
         "fallbackSummary": {
-          "zh-CN": "如果图片暂时不可用，仍应保留同一读法：横轴是 0–23 时，纵轴是每个小时的平均租车次数，点与连线用于比较日内需求结构；精确峰值和样本基础从正式运行结果读取。\n\n### 3. 比较工作日状态下的同一小时\n\n<!-- cell: ch05-workingday-lines role: visualize -->\n```python\nfig, ax = plt.subplots(figsize=(9, 4.8))\nline_styles = {0: \"--\", 1: \"-\"}\n\nfor workingday, group in workingday_hourly.groupby(\"workingday\", sort=True):\n    ax.plot(\n        group[\"hr\"],\n        group[\"mean_rentals\"],\n        linestyle=line_styles[workingday],\n        marker=\"o\",\n        label=group[\"workingday_label\"].iloc[0],\n    )\n\nax.set(\n    title=\"工作日状态下的逐小时平均需求\",\n    xlabel=\"小时（0–23）\",\n    ylabel=\"平均每小时租车次数\",\n    xticks=range(0, 24, 2),\n)\nax.legend(title=\"日期类型\")\nfig.tight_layout()\n```\n\n线型与文字图例共同区分两组，即使灰度打印或存在色觉差异也能阅读。\n\n### 4. 正确表达用户构成\n\n<!-- cell: ch05-rider-bars role: visualize output: rider-composition -->\n```python\ncomposition = rider_mix.loc[\n    rider_mix[\"rider_type\"].isin([\"casual\", \"registered\"])\n].copy()\n\nfig, ax = plt.subplots(figsize=(7, 4.8))\nbars = ax.bar(\n    [\"临时用户\", \"注册用户\"],\n    composition[\"rentals\"],\n    color=[COLORS[\"casual\"], COLORS[\"registered\"]],\n)\nax.set(\n    title=\"两类用户的累计租车构成\",\n    xlabel=\"用户类型\",\n    ylabel=\"累计租车次数\",\n)\nax.set_ylim(bottom=0)\nax.yaxis.set_major_formatter(matplotlib.ticker.StrMethodFormatter(\"{x:,.0f}\"))\nax.bar_label(bars, fmt=\"{:,.0f}\")\nfig.tight_layout()\n```\n\n`cnt` 是两类用户之和，所以不能把 `casual`、`registered`、`cnt` 当成三个并列用户类别，更不能三者一起堆叠。\n\n<!-- result-presentation: rider-composition -->\n### 运行结果标题\n\n临时用户与注册用户的累计租车构成\n\n### 无障碍说明\n\n从零开始的双柱图比较临时用户与注册用户的累计租车次数。横轴是两类用户，纵轴是累计租车次数，每根柱顶都有精确整数标签；总量 `cnt` 只用于核对两类计数之和，没有画成第三类用户。\n\n### 坐标轴与图例翻译\n\n- `title`：原图“两类用户的累计租车构成” → 页面“两类用户的累计租车构成”\n- `x-axis`：原图“用户类型” → 页面“用户类型”\n- `y-axis`：原图“累计租车次数” → 页面“累计租车次数”\n- `categories`：原图“临时用户”“注册用户” → 页面“临时用户”“注册用户”\n\n### 分析发现\n\n柱长和柱顶标签共同呈现两类用户在完整快照中的累计租车次数。零基线让柱长比例可以诚实比较；读者还应核对两类计数之和是否与 `cnt` 保持一致。\n\n### 需要注意\n\n累计租车次数不是独立用户人数，也会受到观察期长度影响。两根柱只能描述这份快照中的用户构成，不能直接推出个人行为，更不能把 `cnt` 当成第三种用户后重复计算。\n\n### 静态摘要\n\n如果图片暂时不可用，仍应说明：结果只比较临时用户和注册用户两类累计租车次数，柱形从零开始，精确整数由柱顶标签和正式运行结果提供，`cnt` 仅用于加和核对。\n\n### 5. 认识不同问题对应的图形\n\n<!-- cell: ch05-chart-task-map role: interpret -->\n```python\nchart_task_map = pd.DataFrame([\n    {\"question\": \"需求随小时怎样变化\", \"chart\": \"line\", \"reason\": \"小时有顺序\"},\n    {\"question\": \"两类用户累计量谁更高\", \"chart\": \"bar\", \"reason\": \"少量离散类别\"},\n    {\"question\": \"气温与需求是否共同变化\", \"chart\": \"scatter\", \"reason\": \"两个数值变量\"},\n    {\"question\": \"小时需求分布是否偏斜\", \"chart\": \"histogram\", \"reason\": \"一个数值变量的分布\"},\n])\nchart_task_map\n```\n\n同一数据可以画很多图，但不是每种图都同样适合当前问题。\n\n### 6. 用同一数据演示误导与修正\n\n<!-- cell: ch05-misleading-axis role: limit -->\n```python\nfig, (bad_ax, good_ax) = plt.subplots(1, 2, figsize=(11, 4.4))\n\nvalues = composition[\"rentals\"].to_numpy()\nlabels = [\"临时用户\", \"注册用户\"]\n\nbad_ax.bar(labels, values, color=[COLORS[\"casual\"], COLORS[\"registered\"]])\nbad_ax.set_ylim(values.min() * 0.95, values.max() * 1.02)\nbad_ax.set_title(\"误导：柱状图截断零基线\")\n\ngood_ax.bar(labels, values, color=[COLORS[\"casual\"], COLORS[\"registered\"]])\ngood_ax.set_ylim(bottom=0)\ngood_ax.set_title(\"修正：柱长从零开始\")\n\nfor current_ax in (bad_ax, good_ax):\n    current_ax.set_ylabel(\"累计租车次数\")\n\nfig.tight_layout()\n```\n\n两图使用同一聚合值。截断柱状图基线会夸大长度比例；修正图从零开始，并保留单位。折线图不总要求零基线，但必须明确范围且不能利用窄区间制造巨大波动。双轴图也应避免，因为两套可任意缩放的轴很容易制造虚假同步。",
-          "en": "If the image is temporarily unavailable, use the same reading frame: the horizontal axis covers hours 0–23, the vertical axis shows mean rentals for each hour, and points plus connecting lines reveal the within-day demand pattern. Read the precise peak and its sample basis from the loaded analysis result.\n\n### 3. Compare the same hour by working-day status\n\n<!-- cell: ch05-workingday-lines role: visualize -->\n```python\nfig, ax = plt.subplots(figsize=(9, 4.8))\nline_styles = {0: \"--\", 1: \"-\"}\n\nfor workingday, group in workingday_hourly.groupby(\"workingday\", sort=True):\n    ax.plot(\n        group[\"hr\"],\n        group[\"mean_rentals\"],\n        linestyle=line_styles[workingday],\n        marker=\"o\",\n        label=group[\"workingday_label\"].iloc[0],\n    )\n\nax.set(\n    title=\"工作日状态下的逐小时平均需求\",\n    xlabel=\"小时（0–23）\",\n    ylabel=\"平均每小时租车次数\",\n    xticks=range(0, 24, 2),\n)\nax.legend(title=\"日期类型\")\nfig.tight_layout()\n```\n\nLine style and text in the legend distinguish the two groups together, so the comparison remains readable in grayscale and for readers with color-vision differences.\n\n### 4. Represent rider composition correctly\n\n<!-- cell: ch05-rider-bars role: visualize output: rider-composition -->\n```python\ncomposition = rider_mix.loc[\n    rider_mix[\"rider_type\"].isin([\"casual\", \"registered\"])\n].copy()\n\nfig, ax = plt.subplots(figsize=(7, 4.8))\nbars = ax.bar(\n    [\"临时用户\", \"注册用户\"],\n    composition[\"rentals\"],\n    color=[COLORS[\"casual\"], COLORS[\"registered\"]],\n)\nax.set(\n    title=\"两类用户的累计租车构成\",\n    xlabel=\"用户类型\",\n    ylabel=\"累计租车次数\",\n)\nax.set_ylim(bottom=0)\nax.yaxis.set_major_formatter(matplotlib.ticker.StrMethodFormatter(\"{x:,.0f}\"))\nax.bar_label(bars, fmt=\"{:,.0f}\")\nfig.tight_layout()\n```\n\nBecause `cnt` is the sum of the two rider categories, `casual`, `registered`, and `cnt` must not be treated as three peer categories or stacked together.\n\n<!-- result-presentation: rider-composition -->\n### Result title\n\nCumulative rentals by casual and registered riders\n\n### Accessibility description\n\nA two-bar chart with a zero baseline compares cumulative rentals by casual and registered riders. The horizontal axis contains the two rider categories, the vertical axis shows cumulative rentals, and each bar has an exact integer label above it. Total `cnt` is used only to verify the sum of the two counts and is not drawn as a third rider category.\n\n### Chinese labels and English meanings\n\n- `title`: chart text “两类用户的累计租车构成” → “Cumulative rentals by two rider categories”\n- `x-axis`: chart text “用户类型” → “Rider type”\n- `y-axis`: chart text “累计租车次数” → “Cumulative rentals”\n- `categories`: chart text “临时用户” and “注册用户” → “Casual riders” and “Registered riders”\n\n### What the chart shows\n\nBar lengths and labels together show cumulative rentals for the two rider categories across the complete snapshot. Starting at zero makes their lengths honestly comparable. The reader should also verify that the two counts add up to `cnt`.\n\n### What to keep in mind\n\nCumulative rentals are not counts of unique people, and they depend on the length of the observation period. The two bars describe composition within this snapshot only; they do not establish individual behavior, and treating `cnt` as a third category would double-count the total.\n\n### Fallback summary\n\nIf the image is temporarily unavailable, preserve this comparison: the result contains only cumulative rentals for casual and registered riders, the bars start at zero, exact integers are supplied by bar labels and the loaded analysis result, and `cnt` is used only as a sum check.\n\n### 5. Match chart types to questions\n\n<!-- cell: ch05-chart-task-map role: interpret -->\n```python\nchart_task_map = pd.DataFrame([\n    {\"question\": \"需求随小时怎样变化\", \"chart\": \"line\", \"reason\": \"小时有顺序\"},\n    {\"question\": \"两类用户累计量谁更高\", \"chart\": \"bar\", \"reason\": \"少量离散类别\"},\n    {\"question\": \"气温与需求是否共同变化\", \"chart\": \"scatter\", \"reason\": \"两个数值变量\"},\n    {\"question\": \"小时需求分布是否偏斜\", \"chart\": \"histogram\", \"reason\": \"一个数值变量的分布\"},\n])\nchart_task_map\n```\n\nThe same data can produce many charts, but not every chart is equally well suited to the current question.\n\n### 6. Demonstrate a misleading choice and its correction with the same data\n\n<!-- cell: ch05-misleading-axis role: limit -->\n```python\nfig, (bad_ax, good_ax) = plt.subplots(1, 2, figsize=(11, 4.4))\n\nvalues = composition[\"rentals\"].to_numpy()\nlabels = [\"临时用户\", \"注册用户\"]\n\nbad_ax.bar(labels, values, color=[COLORS[\"casual\"], COLORS[\"registered\"]])\nbad_ax.set_ylim(values.min() * 0.95, values.max() * 1.02)\nbad_ax.set_title(\"误导：柱状图截断零基线\")\n\ngood_ax.bar(labels, values, color=[COLORS[\"casual\"], COLORS[\"registered\"]])\ngood_ax.set_ylim(bottom=0)\ngood_ax.set_title(\"修正：柱长从零开始\")\n\nfor current_ax in (bad_ax, good_ax):\n    current_ax.set_ylabel(\"累计租车次数\")\n\nfig.tight_layout()\n```\n\nBoth panels use the same aggregated values. Truncating a bar chart's zero baseline exaggerates length ratios; the corrected chart starts at zero and keeps the unit visible. A line chart does not always require a zero baseline, but its range must be explicit and must not use a narrow interval to manufacture dramatic swings. Dual-axis charts should also be avoided because two independently scaled axes can manufacture a false sense of synchrony."
+          "zh-CN": "如果图片暂时不可用，仍应保留同一读法：横轴是 0–23 时，纵轴是每个小时的平均租车次数，点与连线用于比较日内需求结构；精确峰值和样本基础从正式运行结果读取。",
+          "en": "If the image is temporarily unavailable, use the same reading frame: the horizontal axis covers hours 0–23, the vertical axis shows mean rentals for each hour, and points plus connecting lines reveal the within-day demand pattern. Read the precise peak and its sample basis from the loaded analysis result."
+        }
+      },
+      {
+        "kind": "markdown",
+        "id": "matplotlib-visualization-markdown-4",
+        "markdown": {
+          "zh-CN": "### 3. 比较工作日状态下的同一小时",
+          "en": "### 3. Compare the same hour by working-day status"
         }
       },
       {
@@ -702,7 +702,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "matplotlib-visualization-markdown-4",
+        "id": "matplotlib-visualization-markdown-5",
         "markdown": {
           "zh-CN": "线型与文字图例共同区分两组，即使灰度打印或存在色觉差异也能阅读。\n\n### 4. 正确表达用户构成",
           "en": "Line style and text in the legend distinguish the two groups together, so the comparison remains readable in grayscale and for readers with color-vision differences.\n\n### 4. Represent rider composition correctly"
@@ -717,7 +717,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "matplotlib-visualization-markdown-5",
+        "id": "matplotlib-visualization-markdown-6",
         "markdown": {
           "zh-CN": "`cnt` 是两类用户之和，所以不能把 `casual`、`registered`、`cnt` 当成三个并列用户类别，更不能三者一起堆叠。",
           "en": "Because `cnt` is the sum of the two rider categories, `casual`, `registered`, and `cnt` must not be treated as three peer categories or stacked together."
@@ -775,8 +775,16 @@ export const pythonDataToolsRuntimeChapters = [
           "en": "Cumulative rentals are not counts of unique people, and they depend on the length of the observation period. The two bars describe composition within this snapshot only; they do not establish individual behavior, and treating `cnt` as a third category would double-count the total."
         },
         "fallbackSummary": {
-          "zh-CN": "如果图片暂时不可用，仍应说明：结果只比较临时用户和注册用户两类累计租车次数，柱形从零开始，精确整数由柱顶标签和正式运行结果提供，`cnt` 仅用于加和核对。\n\n### 5. 认识不同问题对应的图形\n\n<!-- cell: ch05-chart-task-map role: interpret -->\n```python\nchart_task_map = pd.DataFrame([\n    {\"question\": \"需求随小时怎样变化\", \"chart\": \"line\", \"reason\": \"小时有顺序\"},\n    {\"question\": \"两类用户累计量谁更高\", \"chart\": \"bar\", \"reason\": \"少量离散类别\"},\n    {\"question\": \"气温与需求是否共同变化\", \"chart\": \"scatter\", \"reason\": \"两个数值变量\"},\n    {\"question\": \"小时需求分布是否偏斜\", \"chart\": \"histogram\", \"reason\": \"一个数值变量的分布\"},\n])\nchart_task_map\n```\n\n同一数据可以画很多图，但不是每种图都同样适合当前问题。\n\n### 6. 用同一数据演示误导与修正\n\n<!-- cell: ch05-misleading-axis role: limit -->\n```python\nfig, (bad_ax, good_ax) = plt.subplots(1, 2, figsize=(11, 4.4))\n\nvalues = composition[\"rentals\"].to_numpy()\nlabels = [\"临时用户\", \"注册用户\"]\n\nbad_ax.bar(labels, values, color=[COLORS[\"casual\"], COLORS[\"registered\"]])\nbad_ax.set_ylim(values.min() * 0.95, values.max() * 1.02)\nbad_ax.set_title(\"误导：柱状图截断零基线\")\n\ngood_ax.bar(labels, values, color=[COLORS[\"casual\"], COLORS[\"registered\"]])\ngood_ax.set_ylim(bottom=0)\ngood_ax.set_title(\"修正：柱长从零开始\")\n\nfor current_ax in (bad_ax, good_ax):\n    current_ax.set_ylabel(\"累计租车次数\")\n\nfig.tight_layout()\n```\n\n两图使用同一聚合值。截断柱状图基线会夸大长度比例；修正图从零开始，并保留单位。折线图不总要求零基线，但必须明确范围且不能利用窄区间制造巨大波动。双轴图也应避免，因为两套可任意缩放的轴很容易制造虚假同步。",
-          "en": "If the image is temporarily unavailable, preserve this comparison: the result contains only cumulative rentals for casual and registered riders, the bars start at zero, exact integers are supplied by bar labels and the loaded analysis result, and `cnt` is used only as a sum check.\n\n### 5. Match chart types to questions\n\n<!-- cell: ch05-chart-task-map role: interpret -->\n```python\nchart_task_map = pd.DataFrame([\n    {\"question\": \"需求随小时怎样变化\", \"chart\": \"line\", \"reason\": \"小时有顺序\"},\n    {\"question\": \"两类用户累计量谁更高\", \"chart\": \"bar\", \"reason\": \"少量离散类别\"},\n    {\"question\": \"气温与需求是否共同变化\", \"chart\": \"scatter\", \"reason\": \"两个数值变量\"},\n    {\"question\": \"小时需求分布是否偏斜\", \"chart\": \"histogram\", \"reason\": \"一个数值变量的分布\"},\n])\nchart_task_map\n```\n\nThe same data can produce many charts, but not every chart is equally well suited to the current question.\n\n### 6. Demonstrate a misleading choice and its correction with the same data\n\n<!-- cell: ch05-misleading-axis role: limit -->\n```python\nfig, (bad_ax, good_ax) = plt.subplots(1, 2, figsize=(11, 4.4))\n\nvalues = composition[\"rentals\"].to_numpy()\nlabels = [\"临时用户\", \"注册用户\"]\n\nbad_ax.bar(labels, values, color=[COLORS[\"casual\"], COLORS[\"registered\"]])\nbad_ax.set_ylim(values.min() * 0.95, values.max() * 1.02)\nbad_ax.set_title(\"误导：柱状图截断零基线\")\n\ngood_ax.bar(labels, values, color=[COLORS[\"casual\"], COLORS[\"registered\"]])\ngood_ax.set_ylim(bottom=0)\ngood_ax.set_title(\"修正：柱长从零开始\")\n\nfor current_ax in (bad_ax, good_ax):\n    current_ax.set_ylabel(\"累计租车次数\")\n\nfig.tight_layout()\n```\n\nBoth panels use the same aggregated values. Truncating a bar chart's zero baseline exaggerates length ratios; the corrected chart starts at zero and keeps the unit visible. A line chart does not always require a zero baseline, but its range must be explicit and must not use a narrow interval to manufacture dramatic swings. Dual-axis charts should also be avoided because two independently scaled axes can manufacture a false sense of synchrony."
+          "zh-CN": "如果图片暂时不可用，仍应说明：结果只比较临时用户和注册用户两类累计租车次数，柱形从零开始，精确整数由柱顶标签和正式运行结果提供，`cnt` 仅用于加和核对。",
+          "en": "If the image is temporarily unavailable, preserve this comparison: the result contains only cumulative rentals for casual and registered riders, the bars start at zero, exact integers are supplied by bar labels and the loaded analysis result, and `cnt` is used only as a sum check."
+        }
+      },
+      {
+        "kind": "markdown",
+        "id": "matplotlib-visualization-markdown-7",
+        "markdown": {
+          "zh-CN": "### 5. 认识不同问题对应的图形",
+          "en": "### 5. Match chart types to questions"
         }
       },
       {
@@ -787,7 +795,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "matplotlib-visualization-markdown-6",
+        "id": "matplotlib-visualization-markdown-8",
         "markdown": {
           "zh-CN": "同一数据可以画很多图，但不是每种图都同样适合当前问题。\n\n### 6. 用同一数据演示误导与修正",
           "en": "The same data can produce many charts, but not every chart is equally well suited to the current question.\n\n### 6. Demonstrate a misleading choice and its correction with the same data"
@@ -801,7 +809,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "matplotlib-visualization-markdown-7",
+        "id": "matplotlib-visualization-markdown-9",
         "markdown": {
           "zh-CN": "两图使用同一聚合值。截断柱状图基线会夸大长度比例；修正图从零开始，并保留单位。折线图不总要求零基线，但必须明确范围且不能利用窄区间制造巨大波动。双轴图也应避免，因为两套可任意缩放的轴很容易制造虚假同步。\n\n## 运行结果与阅读\n\n两张图都沿用第四章已经确定的聚合口径。阅读逐小时图时先确认时间顺序与单位，再看日内形状；阅读用户构成图时先确认零基线和两类用户标签，再比较柱长与柱顶数值。图片不可用时，上方静态摘要仍保留同一问题、单位和解释边界。\n\n## 分析发现\n\n- 观察：折线的位置和形状显示不同小时的平均需求模式；柱长显示两类用户累计量。\n- 运行结果：图表直接使用第四章生成的聚合表，轴标签写明小时、平均值或累计量。\n- 解释：有序小时适合折线，离散用户类别适合零基线柱状图。\n- 限制：图表描述关联与构成，不能解释变化原因，也不能代替样本数和聚合表。\n\n## 限制或误区\n\n图表最常见的问题不是代码报错，而是“能画出来但问题表达错了”：时间顺序打乱、总量冒充平均值、柱状图截断零点、用面积或三维透视夸大差异、只靠颜色区分，以及把两条共变曲线当成因果。\n\n### 中文 alt 草案\n\n- 逐小时图：折线图，横轴为 0–23 时，纵轴为平均每小时租车次数；点和连线展示日内需求结构，精确峰值由生成输出确定。\n- 用户构成图：从零开始的双柱图，比较临时用户与注册用户累计租车次数；柱顶有数值标签，总量 `cnt` 未作为第三类用户。",
           "en": "Both panels use the same aggregated values. Truncating a bar chart's zero baseline exaggerates length ratios; the corrected chart starts at zero and keeps the unit visible. A line chart does not always require a zero baseline, but its range must be explicit and must not use a narrow interval to manufacture dramatic swings. Dual-axis charts should also be avoided because two independently scaled axes can manufacture a false sense of synchrony.\n\n## Reading the results\n\nBoth charts reuse the aggregation rules established in Chapter 4. For the hourly chart, confirm the time order and unit before reading the within-day shape. For the rider composition chart, confirm the zero baseline and the two category labels before comparing bar lengths and their value labels. If an image is unavailable, the fallback summaries above preserve the same question, units, and interpretation boundaries.\n\n## Analysis findings\n\n- Observation: The line positions and shape reveal the pattern of mean demand across hours; bar length compares cumulative rentals for the two rider categories.\n- Analysis result: The charts use the aggregate tables created in Chapter 4 directly, and their axes distinguish hour, mean, and cumulative quantity.\n- Interpretation: Ordered hours suit a line chart, while discrete rider categories suit a zero-baseline bar chart.\n- Limitation: The charts describe association and composition. They do not explain why demand changes and cannot replace sample counts or the underlying aggregate tables.\n\n## Limitations and common misconceptions\n\nThe most common chart problems are not syntax errors but charts that run while answering the question incorrectly: time is out of order, totals are presented as means, a bar chart truncates zero, area or 3D perspective exaggerates differences, categories rely only on color, or two co-varying lines are described as causal.\n\n### English reading support for the Chinese charts\n\n- Hourly profile: A line chart with hour 0–23 on the horizontal axis and mean rentals per hour on the vertical axis. Points and lines reveal the within-day structure; the generated result supplies the precise peak.\n- Rider composition: A zero-baseline two-bar chart comparing cumulative casual and registered rentals. Each bar has a value label, and total `cnt` is not drawn as a third rider category."
@@ -827,15 +835,11 @@ export const pythonDataToolsRuntimeChapters = [
         "revisit": {
           "zh-CN": "复看本章“认识不同问题对应的图形”和“用同一数据演示误导与修正”，对照折线图保留顺序的原因与柱状图零基线的要求。",
           "en": "Revisit “Match chart types to questions” and “Demonstrate a misleading choice and its correction with the same data.” Compare why a line chart preserves sequence with why a bar chart requires a zero baseline."
-        },
-        "scored": false,
-        "submitted": false,
-        "persistedToProgress": false,
-        "gatesChapter": false
+        }
       },
       {
         "kind": "markdown",
-        "id": "matplotlib-visualization-markdown-8",
+        "id": "matplotlib-visualization-markdown-10",
         "markdown": {
           "zh-CN": "## 下一步\n\n下一章使用 Seaborn 比较分布和变量关系，并在描述统计、协方差和 Pearson 相关的范围内解释共同变化。",
           "en": "## Next step\n\nThe next chapter uses Seaborn to compare distributions and relationships while keeping interpretation within descriptive statistics, covariance, and Pearson correlation."
@@ -964,8 +968,16 @@ export const pythonDataToolsRuntimeChapters = [
           "en": "The box plots describe observed conditional distributions. They are not prediction intervals and do not provide a significance judgment. Season, weather, year, and date type may change together, so differences between groups cannot be written as proof that one condition caused demand to change."
         },
         "fallbackSummary": {
-          "zh-CN": "如果图片暂时不可用，仍应保留以下比较框架：按固定顺序比较四季与天气类别的中位数、四分位范围、须、离群点和组样本数；精确差异由正式运行结果与配套表格提供。\n\n### 3. 计算描述性统计而不只看图形\n\n<!-- cell: ch06-descriptive-summary role: compute -->\n```python\ndistribution_summary = (\n    distribution_data\n    .groupby([\"weathersit\", \"weather_label\"], as_index=False)\n    .agg(\n        observations=(\"cnt\", \"size\"),\n        mean_rentals=(\"cnt\", \"mean\"),\n        median_rentals=(\"cnt\", \"median\"),\n        q25=(\"cnt\", lambda values: values.quantile(0.25)),\n        q75=(\"cnt\", lambda values: values.quantile(0.75)),\n    )\n    .sort_values(\"weathersit\")\n)\ndistribution_summary\n```\n\n均值与中位数差异可提示偏斜或极端值影响；四分位数描述中间一半记录。样本很少的天气组即使均值突出，也需要保守解释。\n\n### 4. 用散点观察共同变化\n\n<!-- cell: ch06-temperature-scatter role: visualize -->\n```python\nfig, ax = plt.subplots(figsize=(8, 5))\nsns.scatterplot(\n    data=analysis_rides,\n    x=\"temp\",\n    y=\"cnt\",\n    hue=\"workingday_label\",\n    style=\"workingday_label\",\n    alpha=0.35,\n    ax=ax,\n)\nax.set(\n    title=\"归一化气温与每小时需求\",\n    xlabel=\"归一化气温（摄氏气温 / 41）\",\n    ylabel=\"每小时租车次数\",\n)\nfig.tight_layout()\n```\n\n透明度缓解点重叠；形状与图例让分组不只依赖颜色。点云能提示关系形状与离群位置，但不能单独给出因果解释。\n\n### 5. 区分协方差与 Pearson 相关\n\n<!-- cell: ch06-covariance-correlation role: compute -->\n```python\nrelationship_pair = analysis_rides[[\"temp\", \"cnt\"]]\n\ncovariance = float(relationship_pair.cov().loc[\"temp\", \"cnt\"])\npearson_r = float(relationship_pair.corr(method=\"pearson\").loc[\"temp\", \"cnt\"])\n\n{\"covariance\": covariance, \"pearson_r\": pearson_r}\n```\n\n协方差为正表示两列倾向同向变化，但它的大小随单位变化。Pearson 的公式是\n\n\\[\nr = \\frac{\\operatorname{cov}(X,Y)}{s_X s_Y}\n\\]\n\n其中 \\(X\\) 与 \\(Y\\) 是两个数值变量，\\(\\operatorname{cov}\\) 是协方差，\\(s_X\\) 与 \\(s_Y\\) 是各自标准差。\\(r\\) 接近 1 或 -1 只表示强线性关联，不能证明一个变量导致另一个变量。\n\n### 6. 显式选择相关字段\n\n<!-- cell: ch06-correlation-matrix role: compute output: pearson-correlation-matrix -->\n```python\ncorrelation_columns = [\n    \"temp\", \"atemp\", \"hum\", \"windspeed\", \"casual\", \"registered\", \"cnt\"\n]\ncorrelation_matrix = analysis_rides[correlation_columns].corr(method=\"pearson\")\ncorrelation_matrix\n```\n\n`season`、`weathersit` 和 `workingday` 没有机械放入矩阵：它们的整数值主要表达类别，而不是等距连续测量。\n\n<!-- result-presentation: pearson-correlation-matrix -->\n### 运行结果标题\n\n七个数值字段的 Pearson 相关矩阵\n\n### 无障碍说明\n\n一张对称表格，行列都按 `temp`、`atemp`、`hum`、`windspeed`、`casual`、`registered`、`cnt` 排列。每个交叉单元格给出两个字段的 Pearson 相关系数，主对角线为 1，并同时提供各字段的有效样本数与“相关不代表因果”说明。\n\n### 坐标轴与图例翻译\n\n[]\n\n### 分析发现\n\n矩阵用于同时检查多个显式数值字段的线性共同变化方向与强度。阅读时先锁定一对行列字段，再结合系数符号、绝对值、散点形状和有效样本数判断；对称位置是同一对变量的重复表示，不是两份独立发现。\n\n### 需要注意\n\nPearson 只描述线性关联，对离群值、非线性关系、缺失模式和样本选择敏感。类别编码没有加入矩阵；系数既不是回归斜率，也不能证明一个变量导致另一个变量。本课程不计算或解释置信区间、显著性检验和 p 值。\n\n### 静态摘要\n\n如果结构化表格暂时不可用，仍应说明：矩阵只覆盖七个明确选定的数值字段，系数范围为 -1 到 1，对角线为 1；任何系数都必须结合散点、有效样本和“相关不代表因果”的限制阅读。\n\n### 7. 用以零为中心的色阶画热力图\n\n<!-- cell: ch06-correlation-heatmap role: visualize -->\n```python\nfig, ax = plt.subplots(figsize=(8, 6))\nsns.heatmap(\n    correlation_matrix,\n    vmin=-1,\n    vmax=1,\n    center=0,\n    cmap=\"vlag\",\n    annot=True,\n    fmt=\".2f\",\n    square=True,\n    ax=ax,\n)\nax.set_title(\"显式数值字段的 Pearson 相关矩阵\")\nfig.tight_layout()\n```\n\n固定 -1 到 1 且以 0 为中心，正负相关才具有可比颜色。数值标注提供非颜色信息。\n\n### 8. 检查缺失、样本量与离群值影响\n\n<!-- cell: ch06-interpretation-effects role: limit -->\n```python\ninterpretation_checks = {\n    \"pairwise_non_missing\": analysis_rides[correlation_columns].notna().sum().to_dict(),\n    \"group_sizes\": distribution_summary.set_index(\"weather_label\")[\"observations\"].to_dict(),\n    \"largest_cnt_rows\": analysis_rides.nlargest(5, \"cnt\")[\n        [\"dteday\", \"hr\", \"workingday_label\", \"temp\", \"cnt\"]\n    ].to_dict(orient=\"records\"),\n}\ninterpretation_checks\n```\n\n当前快照经过契约验证，但分析仍要显式查看可用样本和极端记录。若未来输入含缺失，不同变量对可能基于不同样本；少数组或离群点也可能显著改变均值和 Pearson 相关。",
-          "en": "If the image is temporarily unavailable, preserve the comparison frame: in a fixed order, compare medians, interquartile ranges, whiskers, outliers, and group sizes for the seasons and weather categories. Read precise differences from the loaded analysis result and its accompanying table.\n\n### 3. Calculate descriptive statistics instead of reading only the chart\n\n<!-- cell: ch06-descriptive-summary role: compute -->\n```python\ndistribution_summary = (\n    distribution_data\n    .groupby([\"weathersit\", \"weather_label\"], as_index=False)\n    .agg(\n        observations=(\"cnt\", \"size\"),\n        mean_rentals=(\"cnt\", \"mean\"),\n        median_rentals=(\"cnt\", \"median\"),\n        q25=(\"cnt\", lambda values: values.quantile(0.25)),\n        q75=(\"cnt\", lambda values: values.quantile(0.75)),\n    )\n    .sort_values(\"weathersit\")\n)\ndistribution_summary\n```\n\nA difference between mean and median can signal skew or the influence of extreme values, while the quartiles describe the middle half of the records. A weather group with very few observations requires cautious interpretation even if its mean stands out.\n\n### 4. Use a scatterplot to inspect joint variation\n\n<!-- cell: ch06-temperature-scatter role: visualize -->\n```python\nfig, ax = plt.subplots(figsize=(8, 5))\nsns.scatterplot(\n    data=analysis_rides,\n    x=\"temp\",\n    y=\"cnt\",\n    hue=\"workingday_label\",\n    style=\"workingday_label\",\n    alpha=0.35,\n    ax=ax,\n)\nax.set(\n    title=\"归一化气温与每小时需求\",\n    xlabel=\"归一化气温（摄氏气温 / 41）\",\n    ylabel=\"每小时租车次数\",\n)\nfig.tight_layout()\n```\n\nTransparency reduces point overlap, while shapes and legend text keep grouping from relying on color alone. The point cloud can reveal relationship shape and outlier positions, but it cannot provide a causal explanation by itself.\n\n### 5. Distinguish covariance from Pearson correlation\n\n<!-- cell: ch06-covariance-correlation role: compute -->\n```python\nrelationship_pair = analysis_rides[[\"temp\", \"cnt\"]]\n\ncovariance = float(relationship_pair.cov().loc[\"temp\", \"cnt\"])\npearson_r = float(relationship_pair.corr(method=\"pearson\").loc[\"temp\", \"cnt\"])\n\n{\"covariance\": covariance, \"pearson_r\": pearson_r}\n```\n\nA positive covariance means that the two columns tend to vary in the same direction, but its magnitude changes with the units. Pearson's formula is\n\n\\[\nr = \\frac{\\operatorname{cov}(X,Y)}{s_X s_Y}\n\\]\n\nwhere \\(X\\) and \\(Y\\) are two numeric variables, \\(\\operatorname{cov}\\) is covariance, and \\(s_X\\) and \\(s_Y\\) are their standard deviations. A value of \\(r\\) near 1 or -1 indicates only a strong linear association; it does not prove that one variable causes the other.\n\n### 6. Select correlation fields explicitly\n\n<!-- cell: ch06-correlation-matrix role: compute output: pearson-correlation-matrix -->\n```python\ncorrelation_columns = [\n    \"temp\", \"atemp\", \"hum\", \"windspeed\", \"casual\", \"registered\", \"cnt\"\n]\ncorrelation_matrix = analysis_rides[correlation_columns].corr(method=\"pearson\")\ncorrelation_matrix\n```\n\n`season`, `weathersit`, and `workingday` are not inserted mechanically. Their integer values primarily represent categories rather than evenly spaced continuous measurements.\n\n<!-- result-presentation: pearson-correlation-matrix -->\n### Result title\n\nPearson correlation matrix for seven numeric fields\n\n### Accessibility description\n\nA symmetric table whose rows and columns follow `temp`, `atemp`, `hum`, `windspeed`, `casual`, `registered`, and `cnt`. Each intersecting cell gives the Pearson correlation coefficient for a pair of fields, the main diagonal is 1, and the presentation also provides valid sample counts and a reminder that correlation does not imply causation.\n\n### Chinese labels and English meanings\n\n[]\n\n### What the table shows\n\nThe matrix checks the direction and strength of linear co-variation among several explicitly selected numeric fields at once. Read one row-column pair at a time, then interpret its sign and magnitude together with the scatterplot shape and valid sample count. Symmetric positions repeat the same variable pair; they are not two independent findings.\n\n### What to keep in mind\n\nPearson correlation describes linear association only and is sensitive to outliers, nonlinear relationships, missingness patterns, and sample selection. Category codes are excluded. The coefficient is neither a regression slope nor proof that one variable causes another. This course does not calculate or interpret confidence intervals, significance tests, or p-values.\n\n### Fallback summary\n\nIf the structured table is temporarily unavailable, preserve these facts: the matrix covers only seven explicitly selected numeric fields, coefficients range from -1 to 1, and the diagonal is 1. Every coefficient must be read with the scatterplot, valid sample size, and the limitation that correlation does not imply causation.\n\n### 7. Draw a heatmap with a color scale centered at zero\n\n<!-- cell: ch06-correlation-heatmap role: visualize -->\n```python\nfig, ax = plt.subplots(figsize=(8, 6))\nsns.heatmap(\n    correlation_matrix,\n    vmin=-1,\n    vmax=1,\n    center=0,\n    cmap=\"vlag\",\n    annot=True,\n    fmt=\".2f\",\n    square=True,\n    ax=ax,\n)\nax.set_title(\"显式数值字段的 Pearson 相关矩阵\")\nfig.tight_layout()\n```\n\nFixing the range from -1 to 1 and centering it at zero makes the colors for positive and negative correlations comparable. Numeric annotations provide information beyond color.\n\n### 8. Check missingness, sample size, and outlier influence\n\n<!-- cell: ch06-interpretation-effects role: limit -->\n```python\ninterpretation_checks = {\n    \"pairwise_non_missing\": analysis_rides[correlation_columns].notna().sum().to_dict(),\n    \"group_sizes\": distribution_summary.set_index(\"weather_label\")[\"observations\"].to_dict(),\n    \"largest_cnt_rows\": analysis_rides.nlargest(5, \"cnt\")[\n        [\"dteday\", \"hr\", \"workingday_label\", \"temp\", \"cnt\"]\n    ].to_dict(orient=\"records\"),\n}\ninterpretation_checks\n```\n\nThe current snapshot has passed contract validation, but an analysis must still inspect available sample counts and extreme records. If future input contains missing values, different variable pairs may use different samples. Small groups or outliers may also change means and Pearson correlations substantially."
+          "zh-CN": "如果图片暂时不可用，仍应保留以下比较框架：按固定顺序比较四季与天气类别的中位数、四分位范围、须、离群点和组样本数；精确差异由正式运行结果与配套表格提供。",
+          "en": "If the image is temporarily unavailable, preserve the comparison frame: in a fixed order, compare medians, interquartile ranges, whiskers, outliers, and group sizes for the seasons and weather categories. Read precise differences from the loaded analysis result and its accompanying table."
+        }
+      },
+      {
+        "kind": "markdown",
+        "id": "seaborn-statistics-markdown-4",
+        "markdown": {
+          "zh-CN": "### 3. 计算描述性统计而不只看图形",
+          "en": "### 3. Calculate descriptive statistics instead of reading only the chart"
         }
       },
       {
@@ -976,7 +988,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "seaborn-statistics-markdown-4",
+        "id": "seaborn-statistics-markdown-5",
         "markdown": {
           "zh-CN": "均值与中位数差异可提示偏斜或极端值影响；四分位数描述中间一半记录。样本很少的天气组即使均值突出，也需要保守解释。\n\n### 4. 用散点观察共同变化",
           "en": "A difference between mean and median can signal skew or the influence of extreme values, while the quartiles describe the middle half of the records. A weather group with very few observations requires cautious interpretation even if its mean stands out.\n\n### 4. Use a scatterplot to inspect joint variation"
@@ -990,7 +1002,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "seaborn-statistics-markdown-5",
+        "id": "seaborn-statistics-markdown-6",
         "markdown": {
           "zh-CN": "透明度缓解点重叠；形状与图例让分组不只依赖颜色。点云能提示关系形状与离群位置，但不能单独给出因果解释。\n\n### 5. 区分协方差与 Pearson 相关",
           "en": "Transparency reduces point overlap, while shapes and legend text keep grouping from relying on color alone. The point cloud can reveal relationship shape and outlier positions, but it cannot provide a causal explanation by itself.\n\n### 5. Distinguish covariance from Pearson correlation"
@@ -1004,7 +1016,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "seaborn-statistics-markdown-6",
+        "id": "seaborn-statistics-markdown-7",
         "markdown": {
           "zh-CN": "协方差为正表示两列倾向同向变化，但它的大小随单位变化。Pearson 的公式是\n\n\\[\nr = \\frac{\\operatorname{cov}(X,Y)}{s_X s_Y}\n\\]\n\n其中 \\(X\\) 与 \\(Y\\) 是两个数值变量，\\(\\operatorname{cov}\\) 是协方差，\\(s_X\\) 与 \\(s_Y\\) 是各自标准差。\\(r\\) 接近 1 或 -1 只表示强线性关联，不能证明一个变量导致另一个变量。\n\n### 6. 显式选择相关字段",
           "en": "A positive covariance means that the two columns tend to vary in the same direction, but its magnitude changes with the units. Pearson's formula is\n\n\\[\nr = \\frac{\\operatorname{cov}(X,Y)}{s_X s_Y}\n\\]\n\nwhere \\(X\\) and \\(Y\\) are two numeric variables, \\(\\operatorname{cov}\\) is covariance, and \\(s_X\\) and \\(s_Y\\) are their standard deviations. A value of \\(r\\) near 1 or -1 indicates only a strong linear association; it does not prove that one variable causes the other.\n\n### 6. Select correlation fields explicitly"
@@ -1019,7 +1031,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "seaborn-statistics-markdown-7",
+        "id": "seaborn-statistics-markdown-8",
         "markdown": {
           "zh-CN": "`season`、`weathersit` 和 `workingday` 没有机械放入矩阵：它们的整数值主要表达类别，而不是等距连续测量。",
           "en": "`season`, `weathersit`, and `workingday` are not inserted mechanically. Their integer values primarily represent categories rather than evenly spaced continuous measurements."
@@ -1048,8 +1060,16 @@ export const pythonDataToolsRuntimeChapters = [
           "en": "Pearson correlation describes linear association only and is sensitive to outliers, nonlinear relationships, missingness patterns, and sample selection. Category codes are excluded. The coefficient is neither a regression slope nor proof that one variable causes another. This course does not calculate or interpret confidence intervals, significance tests, or p-values."
         },
         "fallbackSummary": {
-          "zh-CN": "如果结构化表格暂时不可用，仍应说明：矩阵只覆盖七个明确选定的数值字段，系数范围为 -1 到 1，对角线为 1；任何系数都必须结合散点、有效样本和“相关不代表因果”的限制阅读。\n\n### 7. 用以零为中心的色阶画热力图\n\n<!-- cell: ch06-correlation-heatmap role: visualize -->\n```python\nfig, ax = plt.subplots(figsize=(8, 6))\nsns.heatmap(\n    correlation_matrix,\n    vmin=-1,\n    vmax=1,\n    center=0,\n    cmap=\"vlag\",\n    annot=True,\n    fmt=\".2f\",\n    square=True,\n    ax=ax,\n)\nax.set_title(\"显式数值字段的 Pearson 相关矩阵\")\nfig.tight_layout()\n```\n\n固定 -1 到 1 且以 0 为中心，正负相关才具有可比颜色。数值标注提供非颜色信息。\n\n### 8. 检查缺失、样本量与离群值影响\n\n<!-- cell: ch06-interpretation-effects role: limit -->\n```python\ninterpretation_checks = {\n    \"pairwise_non_missing\": analysis_rides[correlation_columns].notna().sum().to_dict(),\n    \"group_sizes\": distribution_summary.set_index(\"weather_label\")[\"observations\"].to_dict(),\n    \"largest_cnt_rows\": analysis_rides.nlargest(5, \"cnt\")[\n        [\"dteday\", \"hr\", \"workingday_label\", \"temp\", \"cnt\"]\n    ].to_dict(orient=\"records\"),\n}\ninterpretation_checks\n```\n\n当前快照经过契约验证，但分析仍要显式查看可用样本和极端记录。若未来输入含缺失，不同变量对可能基于不同样本；少数组或离群点也可能显著改变均值和 Pearson 相关。",
-          "en": "If the structured table is temporarily unavailable, preserve these facts: the matrix covers only seven explicitly selected numeric fields, coefficients range from -1 to 1, and the diagonal is 1. Every coefficient must be read with the scatterplot, valid sample size, and the limitation that correlation does not imply causation.\n\n### 7. Draw a heatmap with a color scale centered at zero\n\n<!-- cell: ch06-correlation-heatmap role: visualize -->\n```python\nfig, ax = plt.subplots(figsize=(8, 6))\nsns.heatmap(\n    correlation_matrix,\n    vmin=-1,\n    vmax=1,\n    center=0,\n    cmap=\"vlag\",\n    annot=True,\n    fmt=\".2f\",\n    square=True,\n    ax=ax,\n)\nax.set_title(\"显式数值字段的 Pearson 相关矩阵\")\nfig.tight_layout()\n```\n\nFixing the range from -1 to 1 and centering it at zero makes the colors for positive and negative correlations comparable. Numeric annotations provide information beyond color.\n\n### 8. Check missingness, sample size, and outlier influence\n\n<!-- cell: ch06-interpretation-effects role: limit -->\n```python\ninterpretation_checks = {\n    \"pairwise_non_missing\": analysis_rides[correlation_columns].notna().sum().to_dict(),\n    \"group_sizes\": distribution_summary.set_index(\"weather_label\")[\"observations\"].to_dict(),\n    \"largest_cnt_rows\": analysis_rides.nlargest(5, \"cnt\")[\n        [\"dteday\", \"hr\", \"workingday_label\", \"temp\", \"cnt\"]\n    ].to_dict(orient=\"records\"),\n}\ninterpretation_checks\n```\n\nThe current snapshot has passed contract validation, but an analysis must still inspect available sample counts and extreme records. If future input contains missing values, different variable pairs may use different samples. Small groups or outliers may also change means and Pearson correlations substantially."
+          "zh-CN": "如果结构化表格暂时不可用，仍应说明：矩阵只覆盖七个明确选定的数值字段，系数范围为 -1 到 1，对角线为 1；任何系数都必须结合散点、有效样本和“相关不代表因果”的限制阅读。",
+          "en": "If the structured table is temporarily unavailable, preserve these facts: the matrix covers only seven explicitly selected numeric fields, coefficients range from -1 to 1, and the diagonal is 1. Every coefficient must be read with the scatterplot, valid sample size, and the limitation that correlation does not imply causation."
+        }
+      },
+      {
+        "kind": "markdown",
+        "id": "seaborn-statistics-markdown-9",
+        "markdown": {
+          "zh-CN": "### 7. 用以零为中心的色阶画热力图",
+          "en": "### 7. Draw a heatmap with a color scale centered at zero"
         }
       },
       {
@@ -1060,7 +1080,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "seaborn-statistics-markdown-8",
+        "id": "seaborn-statistics-markdown-10",
         "markdown": {
           "zh-CN": "固定 -1 到 1 且以 0 为中心，正负相关才具有可比颜色。数值标注提供非颜色信息。\n\n### 8. 检查缺失、样本量与离群值影响",
           "en": "Fixing the range from -1 to 1 and centering it at zero makes the colors for positive and negative correlations comparable. Numeric annotations provide information beyond color.\n\n### 8. Check missingness, sample size, and outlier influence"
@@ -1074,7 +1094,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "seaborn-statistics-markdown-9",
+        "id": "seaborn-statistics-markdown-11",
         "markdown": {
           "zh-CN": "当前快照经过契约验证，但分析仍要显式查看可用样本和极端记录。若未来输入含缺失，不同变量对可能基于不同样本；少数组或离群点也可能显著改变均值和 Pearson 相关。\n\n## 运行结果与阅读\n\n分布图回答“各条件组的中心、范围和离群点怎样不同”，相关矩阵回答“选定数值字段怎样线性共同变化”。两者都必须连同样本基础阅读；图片或表格暂时不可用时，上方静态摘要仍保留比较对象、统计口径和限制。\n\n## 分析发现\n\n- 观察：条件分布可能在中心、范围和离群点上不同；数值变量可能共同变化。\n- 运行结果：分布图、描述统计、协方差、Pearson 矩阵和样本检查从同一快照计算。\n- 解释：相关系数用于描述线性关联方向与强度，条件分布用于描述组间模式。\n- 限制：年份、季节、时间与天气可能共同变化；这里没有实验设计，相关不代表因果。\n\n## 限制或误区\n\n### 误导诊断与修正\n\n误导版本会把热力图色阶设为当前最小值到最大值、只用单向深浅色、加入 `season` 等类别编码，并把最深颜色写成“影响最大”。修正版本固定 `[-1, 1]`、以 0 为中心、标注数值、显式选择连续/计数字段，并在标题和正文中使用“相关”而不是“影响”。\n\n本章不计算或解释置信区间、显著性检验和 p 值，也不使用带默认置信区间的估计图。相关矩阵对称、对角线恒为 1；重复颜色不代表多份独立发现。\n\n### 中文 alt 草案\n\n- 季节分布图：四组箱线图比较每小时租车次数的中位数、四分位范围、须与离群点；各季节样本数另表提供，精确差异由生成输出确定。\n- 相关热力图：七个显式数值字段的对称 Pearson 矩阵，色阶从 -1 到 1 并以 0 为中心，单元格有系数标签；颜色表示线性相关而非因果影响。",
           "en": "The current snapshot has passed contract validation, but an analysis must still inspect available sample counts and extreme records. If future input contains missing values, different variable pairs may use different samples. Small groups or outliers may also change means and Pearson correlations substantially.\n\n## Reading the results\n\nThe distribution chart answers, “How do center, spread, and outliers differ across condition groups?” The correlation matrix answers, “How do the selected numeric fields vary together linearly?” Both require their sample basis. If the image or table is unavailable, the fallback summaries above still preserve the comparison, statistical definition, and limitations.\n\n## Analysis findings\n\n- Observation: Conditional distributions may differ in center, spread, and outliers; numeric variables may vary together.\n- Analysis result: Distribution charts, descriptive statistics, covariance, the Pearson matrix, and sample checks are calculated from the same snapshot.\n- Interpretation: Correlation coefficients describe the direction and strength of linear association, while conditional distributions describe group patterns.\n- Limitation: Year, season, time, and weather may change together. There is no experimental design here, and correlation does not imply causation.\n\n## Limitations and common misconceptions\n\n### Diagnosing and correcting a misleading version\n\nA misleading heatmap might scale colors only from the current minimum to maximum, use a one-direction lightness scale, include category codes such as `season`, and call the darkest cell the variable with the “largest impact.” The corrected version fixes the range at `[-1, 1]`, centers it at zero, annotates values, explicitly selects continuous and count fields, and uses “correlation” rather than “impact” in its title and explanation.\n\nThis chapter does not calculate or interpret confidence intervals, significance tests, or p-values, and it does not use estimation plots with default confidence intervals. A correlation matrix is symmetric and its diagonal is always 1; repeated colors do not represent multiple independent findings.\n\n### English reading support for the Chinese charts\n\n- Season distribution: Four box plots compare medians, interquartile ranges, whiskers, and outliers for hourly rentals. A separate table provides each season's sample size, and the generated result supplies precise differences.\n- Correlation heatmap: A symmetric Pearson matrix for seven explicitly selected numeric fields, with a color scale from -1 to 1 centered at zero and coefficients written in the cells. Color represents linear association, not causal influence."
@@ -1100,15 +1120,11 @@ export const pythonDataToolsRuntimeChapters = [
         "revisit": {
           "zh-CN": "复看本章“区分协方差与 Pearson 相关”和“检查缺失、样本量与离群值影响”，重新区分共同变化描述与因果解释。",
           "en": "Revisit “Distinguish covariance from Pearson correlation” and “Check missingness, sample size, and outlier influence” to separate a description of co-variation from a causal explanation."
-        },
-        "scored": false,
-        "submitted": false,
-        "persistedToProgress": false,
-        "gatesChapter": false
+        }
       },
       {
         "kind": "markdown",
-        "id": "seaborn-statistics-markdown-10",
+        "id": "seaborn-statistics-markdown-12",
         "markdown": {
           "zh-CN": "## 下一步\n\n下一章把这些聚合表和字段语义放进 Plotly，用 hover、颜色、分面与显式筛选支持探索，同时保留固定默认视图供报告引用。",
           "en": "## Next step\n\nThe next chapter places the same aggregate tables and field meanings in Plotly. Hover, redundant group encodings, and explicit filters support exploration, while a fixed default view remains available for reporting."
@@ -1181,36 +1197,71 @@ export const pythonDataToolsRuntimeChapters = [
           {
             "source": "title",
             "label": {
-              "zh-CN": "原图“工作日状态下的逐小时平均需求” → 页面“工作日状态下的逐小时平均需求”",
-              "en": "chart text “工作日状态下的逐小时平均需求” → “Mean hourly demand by working-day status”"
+              "zh-CN": "工作日状态下的逐小时平均需求",
+              "en": "Mean hourly demand by working-day status"
             }
           },
           {
             "source": "x-axis",
             "label": {
-              "zh-CN": "原图“小时（0–23）” → 页面“小时（0–23）”",
-              "en": "chart text “小时（0–23）” → “Hour (0–23)”"
+              "zh-CN": "小时（0–23）",
+              "en": "Hour (0–23)"
             }
           },
           {
             "source": "y-axis",
             "label": {
-              "zh-CN": "原图“平均每小时租车次数” → 页面“平均每小时租车次数”",
-              "en": "chart text “平均每小时租车次数” → “Mean rentals per hour”"
+              "zh-CN": "平均每小时租车次数",
+              "en": "Mean rentals per hour"
             }
           },
           {
-            "source": "legend",
+            "source": "legend-title",
             "label": {
-              "zh-CN": "原图“日期类型”及两组中文标签 → 页面“日期类型”及相同中文组名",
-              "en": "chart text “日期类型” with two Chinese group labels → “Date type,” “Working day,” and “Weekend or holiday”"
+              "zh-CN": "日期类型",
+              "en": "Date type"
             }
           },
           {
-            "source": "hover",
+            "source": "group-0",
             "label": {
-              "zh-CN": "原图字段 `hr`、`mean_rentals`、`median_rentals`、`observations` → 页面“小时”“平均每小时租车次数”“中位数”“小时记录数”",
-              "en": "source fields `hr`, `mean_rentals`, `median_rentals`, and `observations` → “Hour,” “Mean rentals per hour,” “Median,” and “Hourly record count”"
+              "zh-CN": "周末或节假日",
+              "en": "Weekend or holiday"
+            }
+          },
+          {
+            "source": "group-1",
+            "label": {
+              "zh-CN": "工作日",
+              "en": "Working day"
+            }
+          },
+          {
+            "source": "hover-hour",
+            "label": {
+              "zh-CN": "小时",
+              "en": "Hour"
+            }
+          },
+          {
+            "source": "hover-mean",
+            "label": {
+              "zh-CN": "平均每小时租车次数",
+              "en": "Mean rentals per hour"
+            }
+          },
+          {
+            "source": "hover-median",
+            "label": {
+              "zh-CN": "中位数",
+              "en": "Median"
+            }
+          },
+          {
+            "source": "hover-observations",
+            "label": {
+              "zh-CN": "小时记录数",
+              "en": "Hourly record count"
             }
           },
           {
@@ -1230,8 +1281,16 @@ export const pythonDataToolsRuntimeChapters = [
           "en": "Interaction reduces the effort of reading precise values, but it adds no causal information. Zooming, hiding legend items, and filtering change the visible range. A report cannot treat an undocumented temporary view as a reproducible conclusion, nor infer that date type caused a demand difference merely because two lines vary differently."
         },
         "fallbackSummary": {
-          "zh-CN": "如果交互脚本或图形资源暂时不可用，页面仍应显示默认筛选：小时范围 0–23、工作日与周末/节假日两组、指标为平均每小时租车次数、没有隐藏组；等价表格按小时列出两组的均值、中位数和样本数，并保留相同解释边界。\n\n### 3. 用 facet 比较用户类型\n\n<!-- cell: ch07-rider-facets role: visualize -->\n```python\nrider_hourly = (\n    analysis_rides\n    .groupby([\"workingday\", \"workingday_label\", \"hr\"], as_index=False)\n    .agg(casual=(\"casual\", \"mean\"), registered=(\"registered\", \"mean\"))\n    .melt(\n        id_vars=[\"workingday\", \"workingday_label\", \"hr\"],\n        value_vars=[\"casual\", \"registered\"],\n        var_name=\"rider_type\",\n        value_name=\"mean_rentals\",\n    )\n)\n\nrider_fig = px.line(\n    rider_hourly,\n    x=\"hr\",\n    y=\"mean_rentals\",\n    color=\"workingday_label\",\n    line_dash=\"workingday_label\",\n    facet_row=\"rider_type\",\n    labels={\n        \"hr\": \"小时（0–23）\",\n        \"mean_rentals\": \"平均每小时租车次数\",\n        \"workingday_label\": \"日期类型\",\n        \"rider_type\": \"用户类型\",\n    },\n)\nrider_fig.update_yaxes(matches=\"y\")\nrider_fig\n```\n\n分面把两类用户分开，两个面板共享 y 轴范围，避免自动缩放把小幅变化画得和大幅变化一样高。\n\n### 4. 把默认筛选状态写成数据\n\n<!-- cell: ch07-default-filter role: compute -->\n```python\ndefault_filter_state\n```\n\n阶段三将 Figure JSON 与这份状态一起保存。默认视图展示全 24 小时和两类日期；如果网页允许筛选，当前条件必须在界面和引用结果时可见。\n\n### 5. 设计够用的 hover，而不是数据倾倒\n\n<!-- cell: ch07-hover-contract role: interpret -->\n```python\nhover_contract = pd.DataFrame([\n    {\"field\": \"hr\", \"purpose\": \"定位同一小时\"},\n    {\"field\": \"mean_rentals\", \"purpose\": \"读取主要指标\"},\n    {\"field\": \"median_rentals\", \"purpose\": \"对照中心口径\"},\n    {\"field\": \"observations\", \"purpose\": \"检查样本基础\"},\n    {\"field\": \"workingday_label\", \"purpose\": \"确认当前组\"},\n])\nhover_contract\n```\n\n没有解释任务的字段不进入 hover。数据字典仍是理解其他字段的入口。\n\n### 6. 记录静态 fallback\n\n<!-- cell: ch07-static-fallback role: handoff -->\n```python\nplotly_static_fallback = {\n    \"source_output\": \"plotly-hourly-explorer\",\n    \"x\": \"hr\",\n    \"y\": \"mean_rentals\",\n    \"groups\": workingday_labels,\n    \"text_summary\": \"逐小时比较工作日与周末/节假日的平均需求；精确模式由权威输出生成。\",\n}\nplotly_static_fallback\n```\n\n如果交互脚本未加载、用户使用键盘或偏好 reduced motion，关键问题、编码、筛选状态和文字摘要仍可读取。",
-          "en": "If the chart script or interactive resource is temporarily unavailable, retain the default conditions: hours 0–23, both working-day and weekend/holiday groups, mean rentals per hour as the metric, and no hidden groups. An equivalent table lists mean, median, and sample size for both groups by hour and keeps the same interpretation boundaries.\n\n### 3. Compare rider types with facets\n\n<!-- cell: ch07-rider-facets role: visualize -->\n```python\nrider_hourly = (\n    analysis_rides\n    .groupby([\"workingday\", \"workingday_label\", \"hr\"], as_index=False)\n    .agg(casual=(\"casual\", \"mean\"), registered=(\"registered\", \"mean\"))\n    .melt(\n        id_vars=[\"workingday\", \"workingday_label\", \"hr\"],\n        value_vars=[\"casual\", \"registered\"],\n        var_name=\"rider_type\",\n        value_name=\"mean_rentals\",\n    )\n)\n\nrider_fig = px.line(\n    rider_hourly,\n    x=\"hr\",\n    y=\"mean_rentals\",\n    color=\"workingday_label\",\n    line_dash=\"workingday_label\",\n    facet_row=\"rider_type\",\n    labels={\n        \"hr\": \"小时（0–23）\",\n        \"mean_rentals\": \"平均每小时租车次数\",\n        \"workingday_label\": \"日期类型\",\n        \"rider_type\": \"用户类型\",\n    },\n)\nrider_fig.update_yaxes(matches=\"y\")\nrider_fig\n```\n\nFacets separate the two rider categories, while a shared vertical range prevents automatic scaling from making a small variation look as tall as a large one.\n\n### 4. Express the default filter state as data\n\n<!-- cell: ch07-default-filter role: compute -->\n```python\ndefault_filter_state\n```\n\nStage 3 saves the Figure JSON together with this state. The default view contains all 24 hours and both date types. If the webpage allows filtering, the current conditions must remain visible in the interface and whenever the view is cited.\n\n### 5. Design useful hover details rather than dumping fields\n\n<!-- cell: ch07-hover-contract role: interpret -->\n```python\nhover_contract = pd.DataFrame([\n    {\"field\": \"hr\", \"purpose\": \"定位同一小时\"},\n    {\"field\": \"mean_rentals\", \"purpose\": \"读取主要指标\"},\n    {\"field\": \"median_rentals\", \"purpose\": \"对照中心口径\"},\n    {\"field\": \"observations\", \"purpose\": \"检查样本基础\"},\n    {\"field\": \"workingday_label\", \"purpose\": \"确认当前组\"},\n])\nhover_contract\n```\n\nFields without an interpretation task do not belong in hover. The data dictionary remains the place to understand the other fields.\n\n### 6. Record a static fallback\n\n<!-- cell: ch07-static-fallback role: handoff -->\n```python\nplotly_static_fallback = {\n    \"source_output\": \"plotly-hourly-explorer\",\n    \"x\": \"hr\",\n    \"y\": \"mean_rentals\",\n    \"groups\": workingday_labels,\n    \"text_summary\": \"逐小时比较工作日与周末/节假日的平均需求；精确模式由权威输出生成。\",\n}\nplotly_static_fallback\n```\n\nIf the interactive script does not load, or if a learner uses a keyboard or prefers reduced motion, the core question, encodings, filter state, and text summary remain available."
+          "zh-CN": "如果交互脚本或图形资源暂时不可用，页面仍应显示默认筛选：小时范围 0–23、工作日与周末/节假日两组、指标为平均每小时租车次数、没有隐藏组；等价表格按小时列出两组的均值、中位数和样本数，并保留相同解释边界。",
+          "en": "If the chart script or interactive resource is temporarily unavailable, retain the default conditions: hours 0–23, both working-day and weekend/holiday groups, mean rentals per hour as the metric, and no hidden groups. An equivalent table lists mean, median, and sample size for both groups by hour and keeps the same interpretation boundaries."
+        }
+      },
+      {
+        "kind": "markdown",
+        "id": "plotly-exploration-markdown-4",
+        "markdown": {
+          "zh-CN": "### 3. 用 facet 比较用户类型",
+          "en": "### 3. Compare rider types with facets"
         }
       },
       {
@@ -1242,7 +1301,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "plotly-exploration-markdown-4",
+        "id": "plotly-exploration-markdown-5",
         "markdown": {
           "zh-CN": "分面把两类用户分开，两个面板共享 y 轴范围，避免自动缩放把小幅变化画得和大幅变化一样高。\n\n### 4. 把默认筛选状态写成数据",
           "en": "Facets separate the two rider categories, while a shared vertical range prevents automatic scaling from making a small variation look as tall as a large one.\n\n### 4. Express the default filter state as data"
@@ -1256,7 +1315,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "plotly-exploration-markdown-5",
+        "id": "plotly-exploration-markdown-6",
         "markdown": {
           "zh-CN": "阶段三将 Figure JSON 与这份状态一起保存。默认视图展示全 24 小时和两类日期；如果网页允许筛选，当前条件必须在界面和引用结果时可见。\n\n### 5. 设计够用的 hover，而不是数据倾倒",
           "en": "Stage 3 saves the Figure JSON together with this state. The default view contains all 24 hours and both date types. If the webpage allows filtering, the current conditions must remain visible in the interface and whenever the view is cited.\n\n### 5. Design useful hover details rather than dumping fields"
@@ -1270,7 +1329,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "plotly-exploration-markdown-6",
+        "id": "plotly-exploration-markdown-7",
         "markdown": {
           "zh-CN": "没有解释任务的字段不进入 hover。数据字典仍是理解其他字段的入口。\n\n### 6. 记录静态 fallback",
           "en": "Fields without an interpretation task do not belong in hover. The data dictionary remains the place to understand the other fields.\n\n### 6. Record a static fallback"
@@ -1284,7 +1343,7 @@ export const pythonDataToolsRuntimeChapters = [
       },
       {
         "kind": "markdown",
-        "id": "plotly-exploration-markdown-7",
+        "id": "plotly-exploration-markdown-8",
         "markdown": {
           "zh-CN": "如果交互脚本未加载、用户使用键盘或偏好 reduced motion，关键问题、编码、筛选状态和文字摘要仍可读取。\n\n## 运行结果与阅读\n\n读取交互图时先确认小时范围、可见组别和当前指标，再对齐同一小时的两组位置，最后用 hover 查看均值、中位数和样本数。用户操作后的临时视图不能覆盖默认状态；交互不可用时，筛选摘要与等价表格继续回答同一个比较问题。\n\n## 分析发现\n\n- 观察：交互折线允许在同一小时读取不同日期类型的聚合值。\n- 运行结果：位置、线型、颜色和 hover 都来自 `plotly_data` 的明确字段。\n- 解释：交互降低读取精确值的成本，也帮助发现值得写进报告的时间段。\n- 限制：缩放、隐藏图例或筛选会改变看到的范围；它们不能自动成为可复现结论。\n\n## 限制或误区\n\n### 误导诊断与修正\n\n误导版本默认只展示工作日却不显示筛选标签，两个 facet 各自缩放 y 轴，同时用颜色、点大小和动画编码无关字段。读者会把过滤后的局部模式当全量结论，也无法直接比较面板。\n\n修正版本默认显示全部组、把筛选写进 `default_filter_state`、共享 y 轴，只用颜色加线型区分日期类型，并把精确值与样本数放进 hover。每次引用当前视图都附筛选状态。\n\n### 中文 alt 草案\n\n交互折线图，横轴为 0–23 时，纵轴为平均每小时租车次数；两条带不同线型的线比较工作日与周末/节假日。默认显示全时段和全部组，hover 提供均值、中位数与样本数；静态文字保留同一比较任务。",
           "en": "If the interactive script does not load, or if a learner uses a keyboard or prefers reduced motion, the core question, encodings, filter state, and text summary remain available.\n\n## Reading the results\n\nFirst confirm the hour range, visible groups, and current metric. Then align both groups at the same hour and use hover to inspect mean, median, and sample size. A temporary view produced by user actions never replaces the default state. When interaction is unavailable, the current-view summary and equivalent table answer the same comparison question.\n\n## Analysis findings\n\n- Observation: The interactive lines make it possible to read aggregated values for different date types at the same hour.\n- Analysis result: Position, line style, color, and hover details all come from explicit fields in `plotly_data`.\n- Interpretation: Interaction lowers the cost of reading precise values and helps identify time periods worth describing in a report.\n- Limitation: Zooming, hiding a legend item, or filtering changes the visible range; those actions do not automatically create a reproducible conclusion.\n\n## Limitations and common misconceptions\n\n### Diagnosing and correcting a misleading version\n\nA misleading version might show only working days by default without a filter label, scale each facet's vertical axis independently, and encode unrelated fields with color, point size, and animation. A reader could mistake a filtered local pattern for the full result and could not compare panels directly.\n\nThe corrected version displays all groups by default, records the conditions in `default_filter_state`, shares the vertical scale, uses only color plus line style for date type, and places precise values and sample sizes in hover. Every citation of the current view includes its filter state.\n\n### English reading support for the Chinese chart\n\nAn interactive line chart places hours 0–23 on the horizontal axis and mean rentals per hour on the vertical axis. Two lines with different styles compare working days with weekends or holidays. The default shows every hour and both groups; hover supplies mean, median, and sample size. Static text preserves the same comparison task."
@@ -1310,15 +1369,11 @@ export const pythonDataToolsRuntimeChapters = [
         "revisit": {
           "zh-CN": "复看本章“建立逐小时交互折线”“把默认筛选状态写成数据”和“记录静态 fallback”，确认当前视图与默认视图的区别。",
           "en": "Revisit “Build an interactive hourly line chart,” “Express the default filter state as data,” and “Record a static fallback” to distinguish the current view from the default view."
-        },
-        "scored": false,
-        "submitted": false,
-        "persistedToProgress": false,
-        "gatesChapter": false
+        }
       },
       {
         "kind": "markdown",
-        "id": "plotly-exploration-markdown-8",
+        "id": "plotly-exploration-markdown-9",
         "markdown": {
           "zh-CN": "## 下一步\n\n下一章停止新增探索口径，把 schema、分组表、静态图、分布/相关结果和固定交互视图组织成“观察—运行结果—解释—限制”的最终报告。",
           "en": "## Next step\n\nThe final chapter stops adding exploratory definitions. It organizes the schema, grouped tables, static charts, distribution and correlation results, and fixed interactive view into a report structured as observation, analysis result, interpretation, and limitation."

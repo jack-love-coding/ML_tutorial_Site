@@ -2,11 +2,8 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
-import { algorithmCheckpointsBySlug } from '../src/data/algorithmCheckpoints.ts'
-import { buildAlgorithmQuizAttempt } from '../src/utils/algorithmQuiz.ts'
 import {
   algorithmProgressStorageKey,
-  appendAlgorithmQuizAttempt,
   loadAlgorithmProgress,
   saveAlgorithmProgress,
 } from '../src/utils/algorithmProgress.ts'
@@ -24,7 +21,7 @@ class MemoryStorage {
   removeItem(key: string) { delete this.data[key] }
 }
 
-test('legacy Python attempts remain an unchanged prefix through redirects, new submissions, and reload', () => {
+test('legacy Python attempts remain unchanged through redirects and reload', () => {
   const oldAttempts = [
     {
       quizId: 'python-notebook-array-shape',
@@ -62,31 +59,16 @@ test('legacy Python attempts remain an unchanged prefix through redirects, new s
     id: 'pandas-analysis',
   })
 
-  let progress = loadAlgorithmProgress(storage)
+  const progress = loadAlgorithmProgress(storage)
   const oldPrefix = structuredClone(progress.quizAttempts)
-  for (const checkpoint of algorithmCheckpointsBySlug['python-notebook']) {
-    progress = appendAlgorithmQuizAttempt(
-      progress,
-      buildAlgorithmQuizAttempt(
-        'python-notebook',
-        checkpoint,
-        checkpoint.answer,
-        `2026-07-02T00:0${progress.quizAttempts.length}:00.000Z`,
-      ),
-    )
-  }
   saveAlgorithmProgress(progress, storage)
 
   const reloaded = loadAlgorithmProgress(storage)
-  assert.deepEqual(reloaded.quizAttempts.slice(0, oldPrefix.length), oldPrefix)
+  assert.deepEqual(reloaded.quizAttempts, oldPrefix)
   assert.deepEqual(
     reloaded.quizAttempts.slice(0, oldPrefix.length).map((attempt) => JSON.stringify(attempt)),
     oldPrefixBytes,
   )
-  assert.deepEqual(reloaded.quizAttempts.slice(oldPrefix.length).map(({ quizId }) => quizId), [
-    'python-data-tools-grouped-analysis-interpretation',
-    'python-data-tools-correlation-not-causation',
-  ])
 })
 
 test('the V1 progress loader keeps stored attempts without a current-checkpoint allowlist', () => {

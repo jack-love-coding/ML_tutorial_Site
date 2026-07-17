@@ -92,11 +92,16 @@ interactive_fig
 
 ### 坐标轴与图例翻译
 
-- `title`：原图“工作日状态下的逐小时平均需求” → 页面“工作日状态下的逐小时平均需求”
-- `x-axis`：原图“小时（0–23）” → 页面“小时（0–23）”
-- `y-axis`：原图“平均每小时租车次数” → 页面“平均每小时租车次数”
-- `legend`：原图“日期类型”及两组中文标签 → 页面“日期类型”及相同中文组名
-- `hover`：原图字段 `hr`、`mean_rentals`、`median_rentals`、`observations` → 页面“小时”“平均每小时租车次数”“中位数”“小时记录数”
+- `title`：工作日状态下的逐小时平均需求
+- `x-axis`：小时（0–23）
+- `y-axis`：平均每小时租车次数
+- `legend-title`：日期类型
+- `group-0`：周末或节假日
+- `group-1`：工作日
+- `hover-hour`：小时
+- `hover-mean`：平均每小时租车次数
+- `hover-median`：中位数
+- `hover-observations`：小时记录数
 - `line-style`：实线与虚线重复表示两类日期，让分组不只依赖颜色
 
 ### 分析发现

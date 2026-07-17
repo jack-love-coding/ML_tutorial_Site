@@ -95,8 +95,6 @@ export interface PythonDataToolsPngOutputViewModel {
   id: PythonDataToolsOutputId
   kind: 'png'
   imageUrl: string
-  sourceAlt: string
-  fallbackSourceIds: readonly PythonDataToolsOutputId[]
 }
 
 export interface PythonDataToolsPlotlyOutputViewModel {
@@ -518,24 +516,20 @@ export async function loadPythonDataToolsOutput(
   }
 
   const publicUrl = withPublicBase(manifestEntry.publicPath, options.baseUrl)
+  if (manifestEntry.kind === 'png') {
+    return {
+      status: 'ready',
+      data: {
+        id: manifestEntry.id,
+        kind: 'png',
+        imageUrl: publicUrl,
+      },
+    }
+  }
+
   try {
     const response = await resolveFetch(options)(publicUrl, { signal: options.signal })
     if (!response.ok) return errorState('http-error')
-
-    if (manifestEntry.kind === 'png') {
-      const bytes = await response.arrayBuffer()
-      if (bytes.byteLength === 0) return errorState('invalid-schema')
-      return {
-        status: 'ready',
-        data: {
-          id: manifestEntry.id,
-          kind: 'png',
-          imageUrl: publicUrl,
-          sourceAlt: manifestEntry.alt,
-          fallbackSourceIds: registryEntry.fallbackSourceIds,
-        },
-      }
-    }
 
     let value: unknown
     try {
