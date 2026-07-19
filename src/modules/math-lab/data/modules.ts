@@ -6,14 +6,10 @@ import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
 import { buildLeastSquaresModule } from './leastSquaresModule.ts'
 import { aiMathPathModuleIds } from './mathCourseOrder.ts'
-import { linearAlgebraRouteModules } from './linearAlgebraRouteModules.ts'
 import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { buildMarkovChainsModule } from './markovChainsModule.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
-import {
-  minimumFoundationBeginnerModules,
-  minimumFoundationMathToCodeModules,
-} from './minimumFoundationModules.ts'
+import { minimumFoundationBeginnerModules } from './minimumFoundationModules.ts'
 import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
 import { buildOptimizationModule } from './optimizationModule.ts'
@@ -22,6 +18,10 @@ import { buildSparseMatricesModule } from './sparseMatricesModule.ts'
 import { buildSvdModule } from './svdModule.ts'
 import { buildTaylorSeriesModule } from './taylorSeriesModule.ts'
 import { buildVectorMatrixNormsModule } from './vectorMatrixNormsModule.ts'
+import {
+  vectorMatrixLanguageMathToCodeModules,
+  vectorMatrixLanguageRouteModules,
+} from './vectorMatrixLanguageModules.ts'
 import type { MathLabModule, MathLabModuleId } from '../types/mathLab'
 
 export type MathLabModuleProviderName =
@@ -177,9 +177,9 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
 
 export const mathLabModuleProviders: readonly MathLabModuleProvider[] = [
   { name: 'beginnerFoundationModules', modules: minimumFoundationBeginnerModules },
-  { name: 'linearAlgebraRouteModules', modules: linearAlgebraRouteModules },
+  { name: 'linearAlgebraRouteModules', modules: vectorMatrixLanguageRouteModules },
   { name: 'calculusRouteModules', modules: calculusRouteModules },
-  { name: 'mathToCodeModules', modules: minimumFoundationMathToCodeModules },
+  { name: 'mathToCodeModules', modules: vectorMatrixLanguageMathToCodeModules },
   { name: 'importedFoundationModules', modules: importedFoundationModules },
   { name: 'aiBridgeModules', modules: aiBridgeModules },
 ]

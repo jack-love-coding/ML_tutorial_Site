@@ -515,11 +515,11 @@ export const curriculumCatalogMetadata = [
       "en": "Vectors and Sample Representation: Reading Multiple Features in One Prediction"
     },
     "summary": {
-      "zh-CN": "把有序特征、带单位线性泛函、独立几何投影与可检查代码接成一条链。",
-      "en": "Connect ordered features, a unit-bearing linear functional, independent geometric projection, and checked code."
+      "zh-CN": "用统一学习画像连接特征轴、单位、shape、差向量与高维表示。",
+      "en": "Use shared learning profiles to connect feature axes, units, shapes, difference vectors, and high-dimensional representations."
     },
     "route": "/math-lab/modules/linear-algebra-feature-space",
-    "estimatedMinutes": 80,
+    "estimatedMinutes": 70,
     "prerequisiteIds": [
       "beginner-linear-algebra"
     ],
@@ -547,11 +547,11 @@ export const curriculumCatalogMetadata = [
       "en": "Distance, Norms, and Similarity"
     },
     "summary": {
-      "zh-CN": "用语义搜索案例区分“位置多近”和“方向多像”。",
-      "en": "Use semantic search to separate position closeness from directional similarity."
+      "zh-CN": "用同一组画像比较 norm、欧氏距离、点积与 cosine，并说明指标选择怎样改变排序。",
+      "en": "Compare norms, Euclidean distance, dot products, and cosine on one profile set, then explain how metric choice changes ranking."
     },
     "route": "/math-lab/modules/linear-algebra-distance-similarity",
-    "estimatedMinutes": 38,
+    "estimatedMinutes": 60,
     "prerequisiteIds": [
       "linear-algebra-feature-space"
     ],
@@ -578,11 +578,11 @@ export const curriculumCatalogMetadata = [
       "en": "Matrices and Batch Computation: From One Sample to Many Predictions"
     },
     "summary": {
-      "zh-CN": "用逐 shape 账本连接 Xw+b、批量 MSE、广播失败与独立网格变换。",
-      "en": "Connect Xw+b, batch MSE, broadcasting failures, and an independent grid transform through a shape ledger."
+      "zh-CN": "从三行画像的批量打分走到行列双重读法、广播边界与空间变换。",
+      "en": "Move from batch scoring of three profile rows to row/column readings, broadcasting boundaries, and spatial transforms."
     },
     "route": "/math-lab/modules/linear-algebra-matrix-transformations",
-    "estimatedMinutes": 80,
+    "estimatedMinutes": 75,
     "prerequisiteIds": [
       "beginner-linear-algebra"
     ],
@@ -610,11 +610,11 @@ export const curriculumCatalogMetadata = [
       "en": "Column Space, Rank, and Null Space"
     },
     "summary": {
-      "zh-CN": "用推荐系统盲区、重复特征和信息压缩理解矩阵能表达什么、看不见什么。",
-      "en": "Use recommendation blind spots, duplicate features, and compression to understand what a matrix can express and cannot see."
+      "zh-CN": "用一个三维到二维映射手算 column space、rank、null direction 和模型盲区。",
+      "en": "Use one three-to-two-dimensional map to calculate column space, rank, a null direction, and a model blind spot."
     },
     "route": "/math-lab/modules/linear-algebra-rank-null-space",
-    "estimatedMinutes": 42,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [
       "linear-algebra-matrix-transformations"
     ],

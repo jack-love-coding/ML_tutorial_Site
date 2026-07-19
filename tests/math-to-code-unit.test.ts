@@ -90,16 +90,31 @@ test('three legacy IDs remain runtime replacements and Task 7 registers NumPy', 
   for (const { id } of cases.slice(0, 3)) {
     const promoted = mathToCodeModules.find((module) => module.id === id)!
     const runtime = mathLabModuleRegistry[id]!
-    if (id === 'calculus-derivatives-local-change') {
-      assert.equal(runtime.sections.some((section) => section.id === 'derivatives-practice'), false)
-      assert.ok(runtime.sections.some((section) => section.id === 'minimum-derivative-local-approximation'))
-      for (const sourceSection of promoted.sections.filter((section) => section.id !== 'derivatives-practice')) {
+    const omittedRuntimeSections: Readonly<Record<string, readonly string[]>> = {
+      'linear-algebra-feature-space': ['vectors-practice', 'vectors-handoff'],
+      'linear-algebra-matrix-transformations': ['matrices-practice', 'matrices-handoff'],
+      'calculus-derivatives-local-change': ['derivatives-practice'],
+    }
+    const omitted = omittedRuntimeSections[id] ?? []
+    if (omitted.length > 0) {
+      for (const sectionId of omitted) {
+        assert.equal(runtime.sections.some((section) => section.id === sectionId), false)
+      }
+      for (const sourceSection of promoted.sections.filter((section) => !omitted.includes(section.id))) {
         const runtimeSection = runtime.sections.find((section) => section.id === sourceSection.id)
         assert.ok(runtimeSection)
         assert.equal(runtimeSection.content, sourceSection.content)
       }
+      assert.ok(runtime.concepts.some((concept) => concept.codeOutput), `${id} needs pasted reference output`)
     } else {
       assert.equal(runtime.sections, promoted.sections)
+    }
+    if (id === 'linear-algebra-feature-space') {
+      assert.ok(runtime.sections.some((section) => section.id === 'v3-vector-shared-profiles'))
+    } else if (id === 'linear-algebra-matrix-transformations') {
+      assert.ok(runtime.sections.some((section) => section.id === 'v3-matrix-shared-batch'))
+    } else if (id === 'calculus-derivatives-local-change') {
+      assert.ok(runtime.sections.some((section) => section.id === 'minimum-derivative-local-approximation'))
     }
     assert.equal(mathLabModuleRegistry[id]?.title.en, promoted.title.en)
   }

@@ -536,8 +536,12 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'training-diagnostics',
       'deep-architecture-math',
     ])
-    if (['linear-algebra-feature-space', 'linear-algebra-matrix-transformations'].includes(moduleDefinition.id)) {
-      assert.match(englishBody, /Three-Layer Practice/)
+    if (moduleDefinition.id === 'linear-algebra-feature-space') {
+      assert.doesNotMatch(englishBody, /Three-Layer Practice/)
+      assert.match(englishBody, /Shared Case: Three Learning Profiles|Hand the Same Profiles to Similarity/)
+    } else if (moduleDefinition.id === 'linear-algebra-matrix-transformations') {
+      assert.doesNotMatch(englishBody, /Three-Layer Practice/)
+      assert.match(englishBody, /Three Profile Rows Produce Three Scores|Matrices Transform Batches/)
     } else if (moduleDefinition.id === 'calculus-functions-rate-change') {
       assert.doesNotMatch(englishBody, /Three-Layer Practice/)
       assert.match(englishBody, /controlled experiment|Summary and Handoff/i)
@@ -1280,7 +1284,7 @@ test('key math foundation topics are connected to interactive or video enhanceme
 
   assert.ok(byId['taylor-series']!.labs.some((lab) => lab.componentName === 'TaylorSeriesLab'))
   assert.ok(byId['monte-carlo']!.labs.some((lab) => lab.componentName === 'MonteCarloLab'))
-  assert.deepEqual(byId['linear-algebra-feature-space']!.labs, [])
+  assert.ok(byId['linear-algebra-feature-space']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
   assert.ok(byId['linear-algebra-distance-similarity']!.labs.some((lab) => lab.componentName === 'VectorSimilarityLab'))
   assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MathToCodeMatrixLab'))
   assert.ok(byId['linear-algebra-rank-null-space']!.labs.some((lab) => lab.componentName === 'MatrixColumnSpaceLab'))
@@ -1494,7 +1498,7 @@ test('linear algebra vector and matrix route modules present case-driven bilingu
   }
 
   const byId = Object.fromEntries(mathLabModules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition]))
-  assert.deepEqual(byId['linear-algebra-feature-space']!.labs, [])
+  assert.ok(byId['linear-algebra-feature-space']!.labs.some((lab) => lab.componentName === 'FeatureVectorStoryLab'))
   assert.ok(byId['linear-algebra-distance-similarity']!.labs.some((lab) => lab.componentName === 'VectorSimilarityLab'))
   assert.ok(byId['linear-algebra-matrix-transformations']!.labs.some((lab) => lab.componentName === 'MathToCodeMatrixLab'))
   assert.ok(byId['linear-algebra-rank-null-space']!.labs.some((lab) => lab.componentName === 'MatrixColumnSpaceLab'))
