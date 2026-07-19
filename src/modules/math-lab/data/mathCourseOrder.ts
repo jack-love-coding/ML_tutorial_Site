@@ -13,6 +13,7 @@ export const linearAlgebraRouteModuleIds: readonly MathLabModuleId[] = [
   'linear-algebra-distance-similarity',
   'linear-algebra-matrix-transformations',
   'linear-algebra-rank-null-space',
+  'least-squares-fitting',
   'eigenvalues-eigenvectors',
   'svd',
   'pca',

@@ -552,7 +552,14 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       assert.match(englishBody, /Shape Ledger|Batch Prediction|Summary/i)
     } else if (moduleDefinition.id === 'beginner-probability-distributions') {
       assert.match(englishBody, /Empirical Frequency|Summary and the Route Ahead/i)
-    } else if (!['pca', 'numpy-mathematics-implementation', 'math-to-code-guided-studio'].includes(moduleDefinition.id) && !aiBridgeIds.has(moduleDefinition.id)) {
+    } else if (![
+      'least-squares-fitting',
+      'eigenvalues-eigenvectors',
+      'svd',
+      'pca',
+      'numpy-mathematics-implementation',
+      'math-to-code-guided-studio',
+    ].includes(moduleDefinition.id) && !aiBridgeIds.has(moduleDefinition.id)) {
       assert.match(englishBody, /Review Questions/)
     }
     assert.doesNotMatch(englishBody, /CS\s*357|Course Staff|changelog|site\.baseurl/)
@@ -617,12 +624,13 @@ test('math lab continue route redirects retired calculus progress to the new rou
   )
 })
 
-test('linear algebra route split exposes seven case-driven chapters', () => {
+test('linear algebra route split exposes eight case-driven chapters', () => {
   const routeIds = [
     'linear-algebra-feature-space',
     'linear-algebra-distance-similarity',
     'linear-algebra-matrix-transformations',
     'linear-algebra-rank-null-space',
+    'least-squares-fitting',
     'eigenvalues-eigenvectors',
     'svd',
     'pca',
@@ -660,10 +668,23 @@ test('linear algebra route split exposes seven case-driven chapters', () => {
     /推荐系统|盲区|重复特征/,
   )
 
+  assert.deepEqual(byId['least-squares-fitting']!.prerequisites, [
+    'linear-algebra-feature-space',
+    'linear-algebra-matrix-transformations',
+  ])
   assert.deepEqual(byId['eigenvalues-eigenvectors']!.prerequisites, ['linear-algebra-rank-null-space'])
-  assert.deepEqual(byId.svd!.prerequisites, ['eigenvalues-eigenvectors', 'linear-algebra-rank-null-space'])
+  assert.deepEqual(byId.svd!.prerequisites, [
+    'least-squares-fitting',
+    'eigenvalues-eigenvectors',
+    'linear-algebra-rank-null-space',
+  ])
   assert.equal(byId.svd!.prerequisites.includes('condition-numbers'), false)
-  assert.deepEqual(byId.pca!.prerequisites, ['svd', 'eigenvalues-eigenvectors', 'linear-algebra-rank-null-space'])
+  assert.deepEqual(byId.pca!.prerequisites, [
+    'svd',
+    'least-squares-fitting',
+    'eigenvalues-eigenvectors',
+    'linear-algebra-rank-null-space',
+  ])
   assert.equal(byId.pca!.prerequisites.includes('vectors-matrices-norms'), false)
   assert.ok(byId['eigenvalues-eigenvectors']!.sourceReferences?.length)
   assert.ok(byId.svd!.sourceReferences?.length)
@@ -842,6 +863,7 @@ test('learning routes expose a linear algebra route with next-step progress', ()
     'linear-algebra-distance-similarity',
     'linear-algebra-matrix-transformations',
     'linear-algebra-rank-null-space',
+    'least-squares-fitting',
     'eigenvalues-eigenvectors',
     'svd',
     'pca',
@@ -858,7 +880,7 @@ test('learning routes expose a linear algebra route with next-step progress', ()
     'linear-algebra-distance-similarity',
   ])
   assert.equal(summary.completedCount, 2)
-  assert.equal(summary.totalCount, 7)
+  assert.equal(summary.totalCount, 8)
   assert.equal(summary.nextModuleId, 'linear-algebra-matrix-transformations')
   assert.equal(summary.completedModuleId, 'linear-algebra-distance-similarity')
 
@@ -887,13 +909,14 @@ test('linear algebra checkpoint report prompts cover every route chapter', () =>
   for (const moduleId of [
     'linear-algebra-distance-similarity',
     'linear-algebra-rank-null-space',
+    'least-squares-fitting',
     'svd',
     'pca',
   ]) {
     assert.ok(observationPromptForModule(moduleId), `${moduleId} should have an observation prompt`)
   }
 
-  assert.equal(observationPrompts.length, 4)
+  assert.equal(observationPrompts.length, 5)
   for (const prompt of observationPrompts) {
     assert.ok(prompt.title['zh-CN'])
     assert.ok(prompt.title.en)
@@ -1107,7 +1130,7 @@ test('later linear algebra route chapters use concrete case studies instead of s
   assert.match(svdText, /用户[-—]物品/)
   assert.match(svdText, /低秩/)
   assert.match(svdText, /噪声/)
-  assert.match(pcaText, /embedding 可视化/)
+  assert.match(pcaText, /embedding 可视化/i)
   assert.match(pcaText, /离群点/)
   assert.match(pcaText, /批次/)
   assert.match(pcaText, /中心化/)
@@ -1728,7 +1751,10 @@ test('eigenvalues module presents repaired bilingual content with inline power i
   assert.ok(sectionIds.includes('eigenvalues-eigenvectors-power-iteration'))
   assert.ok(sectionIds.includes('eigenvalues-eigenvectors-inverse-shifted-and-costs'))
   assert.ok(sectionIds.includes('eigenvalues-eigenvectors-orthogonal-bases'))
-  assert.ok(sectionIds.includes('eigenvalues-eigenvectors-review-questions'))
+  assert.ok(sectionIds.includes('v3-eigen-shared-covariance'))
+  assert.ok(sectionIds.includes('v3-eigen-numpy-output'))
+  assert.ok(sectionIds.includes('v3-eigen-summary'))
+  assert.equal(sectionIds.includes('eigenvalues-eigenvectors-review-questions'), false)
 
   const zhBody = eigenModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
   const enBody = eigenModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')

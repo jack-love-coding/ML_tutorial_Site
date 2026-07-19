@@ -645,7 +645,7 @@ export const curriculumCatalogMetadata = [
       "en": "Find the special directions that are only scaled under a linear transformation."
     },
     "route": "/math-lab/modules/eigenvalues-eigenvectors",
-    "estimatedMinutes": 26,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [
       "linear-algebra-rank-null-space"
     ],
@@ -678,8 +678,9 @@ export const curriculumCatalogMetadata = [
       "en": "Decompose any matrix into input directions, nonnegative scales, and output directions."
     },
     "route": "/math-lab/modules/svd",
-    "estimatedMinutes": 28,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [
+      "least-squares-fitting",
       "eigenvalues-eigenvectors",
       "linear-algebra-rank-null-space"
     ],
@@ -1146,11 +1147,10 @@ export const curriculumCatalogMetadata = [
       "en": "Turn noisy data fitting into a minimum-residual projection problem, then compare normal equations with the SVD solution."
     },
     "route": "/math-lab/modules/least-squares-fitting",
-    "estimatedMinutes": 36,
+    "estimatedMinutes": 70,
     "prerequisiteIds": [
-      "optimization",
-      "linear-algebra-distance-similarity",
-      "condition-numbers"
+      "linear-algebra-feature-space",
+      "linear-algebra-matrix-transformations"
     ],
     "outcomeIds": [
       "least-squares-fitting:objective-1",
@@ -1182,9 +1182,10 @@ export const curriculumCatalogMetadata = [
       "en": "Rotate centered data into maximum-variance directions and keep the main structure with fewer coordinates."
     },
     "route": "/math-lab/modules/pca",
-    "estimatedMinutes": 34,
+    "estimatedMinutes": 60,
     "prerequisiteIds": [
       "svd",
+      "least-squares-fitting",
       "eigenvalues-eigenvectors",
       "linear-algebra-rank-null-space"
     ],

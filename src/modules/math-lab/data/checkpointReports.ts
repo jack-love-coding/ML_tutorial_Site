@@ -170,6 +170,39 @@ export const linearAlgebraCheckpointReportPrompts: CheckpointReportPrompt[] = [
     exportTitle: copy('Rank 与 Null Space 报告', 'Rank and Null Space Report'),
   },
   {
+    id: 'least-squares-residual-report',
+    routeId: 'linear-algebra-route',
+    moduleId: 'least-squares-fitting',
+    title: copy('残差为什么没有消失？', 'Why does the residual remain?'),
+    task: copy(
+      '比较观测、预测和残差，说明最好拟合为什么不一定穿过每个样本。',
+      'Compare observations, predictions, and residuals, then explain why the best fit need not pass through every example.',
+    ),
+    staticEvidence: evidence(
+      'least-squares-fitting',
+      'least-squares-residual-lab',
+      copy(
+        '最小二乘把预测投影到设计矩阵的列空间；最优残差可以非零，但必须与所有模型列方向正交。',
+        'Least squares projects predictions into the design matrix column space; the optimal residual may be nonzero but must be orthogonal to every model-column direction.',
+      ),
+      [
+        { label: copy('残差平方和', 'Sum of squared errors'), value: 0.5 },
+        { label: copy('正交检查', 'Orthogonality check'), value: 'X.T @ residual = [0, 0]' },
+      ],
+      copy(
+        '核对权重、预测和残差，再解释非零残差为什么仍满足最优条件。',
+        'Check the weights, predictions, and residuals, then explain why a nonzero residual still satisfies the optimality condition.',
+      ),
+    ),
+    fields: fields(
+      copy('你使用了怎样的设计矩阵、标签或拟合参数？', 'What design matrix, targets, or fitted parameters did you use?'),
+      copy('预测和残差分别是什么，残差平方和怎样变化？', 'What were the predictions and residuals, and how did the sum of squared errors change?'),
+      copy('为什么 X.T @ residual 接近零说明当前预测已经是列空间内的最近点？', 'Why does X.T @ residual near zero show that the prediction is the closest point in the column space?'),
+      copy('下一步你会用 QR 或 SVD 检查哪种数值稳定性问题？', 'Which numerical-stability issue would you inspect next with QR or SVD?'),
+    ),
+    exportTitle: copy('最小二乘残差报告', 'Least-Squares Residual Report'),
+  },
+  {
     id: 'eigen-stable-direction-report',
     routeId: 'linear-algebra-route',
     moduleId: 'eigenvalues-eigenvectors',
@@ -292,6 +325,13 @@ export const observationPrompts: ObservationPromptConfig[] = [
     title: copy('把平面压成线', 'Flatten a plane to a line'),
     body: copy('让两列接近共线，观察 rank、列空间和 null direction。', 'Make two columns nearly collinear and observe rank, column space, and null direction.'),
     targetLabId: 'matrix-column-space-lab',
+  },
+  {
+    id: 'least-squares-observe-residual',
+    moduleId: 'least-squares-fitting',
+    title: copy('先看残差，再看最优条件', 'Inspect the residual before the optimum'),
+    body: copy('调整拟合参数，比较残差平方和与 X.T @ residual。', 'Adjust fitted parameters and compare squared residual error with X.T @ residual.'),
+    targetLabId: 'least-squares-residual-lab',
   },
   {
     id: 'svd-observe-k',

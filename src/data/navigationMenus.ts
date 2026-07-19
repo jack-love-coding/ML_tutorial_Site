@@ -127,6 +127,7 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
       mathModule('linear-algebra-distance-similarity', '距离、范数与相似度', 'Distance, Norms, and Similarity'),
       mathModule('linear-algebra-matrix-transformations', '矩阵与批量计算', 'Matrices and Batch Computation'),
       mathModule('linear-algebra-rank-null-space', '列空间、rank 与 null space', 'Column Space, Rank, and Null Space'),
+      mathModule('least-squares-fitting', '最小二乘拟合', 'Least Squares Fitting'),
       mathModule('eigenvalues-eigenvectors', '特征值与特征向量', 'Eigenvalues and Eigenvectors'),
       mathModule('svd', '奇异值分解（SVD）', 'Singular Value Decomposition (SVD)'),
       mathModule('pca', '主成分分析（PCA）', 'Principal Component Analysis (PCA)'),
@@ -188,7 +189,6 @@ export const mathLabNavigationGroups: NavigationGroup[] = [
     id: 'data-geometry-architectures',
     label: copy('数据几何与深度结构', 'Data Geometry and Deep Architectures'),
     items: [
-      mathModule('least-squares-fitting', '最小二乘拟合', 'Least Squares Fitting'),
       mathModule('deep-architecture-math', '深度结构中的数学', 'Mathematics Inside Deep Architectures'),
     ],
   },

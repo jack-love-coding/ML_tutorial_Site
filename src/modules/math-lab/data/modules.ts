@@ -15,6 +15,7 @@ import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
 import { buildOptimizationModule } from './optimizationModule.ts'
 import { buildPcaModule } from './pcaModule.ts'
 import { buildSparseMatricesModule } from './sparseMatricesModule.ts'
+import { enhanceSpectralRepresentationModule } from './spectralRepresentationModules.ts'
 import { buildSvdModule } from './svdModule.ts'
 import { buildTaylorSeriesModule } from './taylorSeriesModule.ts'
 import { buildVectorMatrixNormsModule } from './vectorMatrixNormsModule.ts'
@@ -173,7 +174,7 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
     visuals: supplement?.visuals ?? [],
     labs: supplement?.labs ?? [],
   }
-})
+}).map(enhanceSpectralRepresentationModule)
 
 export const mathLabModuleProviders: readonly MathLabModuleProvider[] = [
   { name: 'beginnerFoundationModules', modules: minimumFoundationBeginnerModules },

@@ -66,8 +66,8 @@ const linearAlgebraRoute: LearningRoute = {
   id: 'linear-algebra-route',
   title: copy('线性代数路线', 'Linear Algebra Route'),
   description: copy(
-    '从特征向量、距离和矩阵变换走到 rank、eigen、SVD 和 PCA。',
-    'Move from feature vectors, distance, and matrix transformations to rank, eigenvectors, SVD, and PCA.',
+    '从特征向量、距离和矩阵变换走到 rank、最小二乘、eigen、SVD 和 PCA。',
+    'Move from feature vectors, distance, and matrix transformations to rank, least squares, eigenvectors, SVD, and PCA.',
   ),
   audience: copy('想把线性代数和 AI 表示学习连起来的学习者。', 'Learners connecting linear algebra with AI representation learning.'),
   chapterModuleIds: linearAlgebraRouteModuleIds,

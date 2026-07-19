@@ -20,13 +20,15 @@ test('pca module preserves source coverage with bilingual repair and inline proj
 
   assert.deepEqual(moduleDefinition.sections.map((section) => section.id), [
     'pca-learning-objectives',
+    'v3-pca-shared-data',
     'pca-what-problem-it-solves',
     'pca-centering-and-covariance',
     'pca-diagonalization-and-projection',
     'pca-svd-route-and-explained-variance',
+    'v3-pca-numpy-output',
     'pca-algorithm-and-terminology',
     'pca-ml-connections-and-failure-modes',
-    'pca-review-questions',
+    'v3-pca-summary',
   ])
 
   const zhBody = moduleDefinition.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
@@ -40,7 +42,7 @@ test('pca module preserves source coverage with bilingual repair and inline proj
   assert.match(zhBody, /SVD/)
   assert.match(zhBody, /解释方差/)
   assert.match(zhBody, /特征缩放/)
-  assert.match(zhBody, /embedding 可视化/)
+  assert.match(zhBody, /embedding 可视化/i)
   assert.match(zhBody, /离群点/)
   assert.match(zhBody, /批次/)
   assert.match(moduleDefinition.misconceptions.map((item) => item.statement['zh-CN']).join('\n'), /PCA 会自动找到最能分类的方向/)

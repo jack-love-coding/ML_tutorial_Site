@@ -609,7 +609,7 @@ test('learning route summary renders progress, next module, and action link', as
   )
 
   assert.match(html, /Linear Algebra Route/)
-  assert.match(html, /1 \/ 7/)
+  assert.match(html, /1 \/ 8/)
   assert.match(html, new RegExp(expectedNextTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
   assert.match(html, new RegExp(`href="${expectedNextRoute.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`))
 })

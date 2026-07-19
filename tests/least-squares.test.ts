@@ -20,14 +20,16 @@ test('least squares module preserves source coverage with bilingual repair and i
   const sectionIds = moduleDefinition.sections.map((section) => section.id)
   assert.deepEqual(sectionIds, [
     'least-squares-fitting-learning-objectives',
+    'v3-least-squares-shared-data',
     'least-squares-fitting-data-to-system',
     'least-squares-fitting-residual-objective',
     'least-squares-fitting-normal-equations-projection',
+    'v3-least-squares-numpy-output',
     'least-squares-fitting-vs-interpolation',
     'least-squares-fitting-computational-methods',
     'least-squares-fitting-svd-solution',
     'least-squares-fitting-linear-vs-nonlinear',
-    'least-squares-fitting-review-questions',
+    'v3-least-squares-summary',
   ])
 
   const zhBody = moduleDefinition.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')

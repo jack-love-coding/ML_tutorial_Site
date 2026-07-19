@@ -68,6 +68,7 @@ test('math lab navigation menu covers all lab module routes with localized label
       'linear-algebra-distance-similarity',
       'linear-algebra-matrix-transformations',
       'linear-algebra-rank-null-space',
+      'least-squares-fitting',
       'eigenvalues-eigenvectors',
       'svd',
       'pca',
@@ -130,6 +131,7 @@ test('math lab navigation menu covers all lab module routes with localized label
     '/math-lab/modules/linear-algebra-distance-similarity',
     '/math-lab/modules/linear-algebra-matrix-transformations',
     '/math-lab/modules/linear-algebra-rank-null-space',
+    '/math-lab/modules/least-squares-fitting',
     '/math-lab/modules/eigenvalues-eigenvectors',
     '/math-lab/modules/svd',
     '/math-lab/modules/pca',
@@ -155,7 +157,6 @@ test('math lab navigation menu covers all lab module routes with localized label
     '/math-lab/modules/monte-carlo',
     '/math-lab/modules/probability-likelihood-entropy',
     '/math-lab/modules/markov-chains',
-    '/math-lab/modules/least-squares-fitting',
     '/math-lab/modules/deep-architecture-math',
   ])
   assert.equal(new Set(routes).size, routes.length, 'math lab navigation routes should not contain duplicates')

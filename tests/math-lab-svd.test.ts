@@ -21,6 +21,7 @@ test('svd module preserves lecture coverage with bilingual repair and inline low
   const sectionIds = svdModule.sections.map((section) => section.id)
   assert.deepEqual(sectionIds, [
     'svd-learning-objectives',
+    'v3-svd-shared-data',
     'svd-from-eigenvectors-to-two-bases',
     'svd-where-the-pieces-come-from',
     'svd-full-reduced-and-cost',
@@ -28,7 +29,8 @@ test('svd module preserves lecture coverage with bilingual repair and inline low
     'svd-rank-range-nullspace-pseudoinverse',
     'svd-norm-condition-and-solving',
     'svd-low-rank-approximation-and-ml',
-    'svd-review-questions',
+    'v3-svd-numpy-output',
+    'v3-svd-summary',
   ])
 
   const zhBody = svdModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
