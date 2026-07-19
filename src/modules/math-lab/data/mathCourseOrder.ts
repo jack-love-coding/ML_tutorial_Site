@@ -29,6 +29,13 @@ export const calculusRouteModuleIds: readonly MathLabModuleId[] = [
   'calculus-training-code-diagnostics',
 ]
 
+export const probabilityRouteModuleIds: readonly MathLabModuleId[] = [
+  'beginner-probability-distributions',
+  'monte-carlo',
+  'probability-likelihood-entropy',
+  'markov-chains',
+]
+
 export const numericalDeepeningModuleIds: readonly MathLabModuleId[] = [
   'lu-decomposition',
   'sparse-matrices',
@@ -82,12 +89,7 @@ export const mathLearningPhases: readonly MathLearningPhase[] = [
   {
     id: 'uncertainty-probability',
     title: copy('阶段三：概率与不确定性', 'Phase 3: Probability and Uncertainty'),
-    moduleIds: [
-      'beginner-probability-distributions',
-      'monte-carlo',
-      'probability-likelihood-entropy',
-      'markov-chains',
-    ],
+    moduleIds: probabilityRouteModuleIds,
   },
   {
     id: 'data-geometry-numerics',

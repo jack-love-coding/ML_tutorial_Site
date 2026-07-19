@@ -729,7 +729,7 @@ const probabilitySections = [
 
 所以本章的主线不是背公式，而是学会一种问法：**概率回答的是：在明确的样本空间里，长期会怎样分配结果**。如果你只看到一次结果，就像只看见一颗小球落进一个盒子；如果你重复观察很多次，盒子的高度才会慢慢显出规律。模型输出的概率条也是这样：它不是“真理标签”，而是模型当前把不确定性分到哪些结果上的声明。
 
-请把概率当成 AI 的“不确定性语言”。样本空间告诉我们可能有哪些结果，随机变量把结果变成数字，分布描述长期形状，条件概率告诉我们知道一条证据后样本空间怎样缩小，贝叶斯更新把旧信念改成新信念，校准检查模型说出的概率是否贴近真实频率。`,
+请把概率当成 AI 的“不确定性语言”。样本空间告诉我们可能有哪些结果，随机变量把结果变成数字，分布描述长期形状，条件概率告诉我们知道一条信息后样本空间怎样缩小，贝叶斯更新把旧信念改成新信念，校准检查模型说出的概率是否贴近真实频率。`,
       md`Many beginners hear probability and think "did I guess correctly?" AI usually faces a broader problem: making decisions in an uncertain world. Does this image look more like a cat or a dog? Does this email look normal or spam? How much probability should a language model assign to each possible next token?
 
 The main line of this chapter is not memorizing formulas. It is learning a way to ask: **probability answers how outcomes distribute in the long run once the sample space is clear**. One result is like seeing one bead fall into one bin. Repeated observations make the bin heights reveal a pattern. A model's probability bars work similarly: they are not truth itself; they are the model's current distribution of uncertainty over possible outcomes.
@@ -785,9 +785,9 @@ A uniform distribution means outcomes are roughly equally likely. A binomial dis
   ),
   section(
     'beginner-probability-conditional',
-    copy('第三步：条件概率是在证据下重看样本空间', 'Step 3: Conditional Probability Rereads the Space Under Evidence'),
+    copy('第三步：条件概率是在已知信息下重看样本空间', 'Step 3: Conditional Probability Rereads the Space Under Evidence'),
     copy(
-      md`条件概率是在证据下重看样本空间。它回答的是：“如果我已经知道一条信息，原来的概率还一样吗？” 公式写作
+      md`条件概率是在已知信息下重看样本空间。它回答的是：“如果我已经知道一条信息，原来的概率还一样吗？” 公式写作
 
 $$
 P(A\mid B)=\frac{P(A\cap B)}{P(B)}.
@@ -815,13 +815,13 @@ Many AI mistakes come from omitting the condition. A model that is 90% accurate 
     'beginner-probability-bayes',
     copy('第四步：贝叶斯更新把旧信念改成新信念', 'Step 4: Bayes Update Turns Old Belief into New Belief'),
     copy(
-      md`贝叶斯公式看起来像一行符号，其实是一个很朴素的课堂动作：先说原来的基准比例，再看证据在不同情况中多常出现，最后得到证据之后的新比例。
+      md`贝叶斯公式看起来像一行符号，其实是一个很朴素的课堂动作：先说原来的基准比例，再看信号在不同情况中多常出现，最后得到已知信号之后的新比例。
 
 $$
 P(A\mid B)=\frac{P(B\mid A)P(A)}{P(B)}.
 $$
 
-\(P(A)\) 是先验，表示看到证据前的基准比例；\(P(B\mid A)\) 是 likelihood，表示如果 \(A\) 真的成立，证据 \(B\) 有多常出现；\(P(B)\) 是 evidence，表示总体上看到这个证据的概率；\(P(A\mid B)\) 是后验，表示看到证据后我们应该更新到的新概率。
+\(P(A)\) 是先验，表示看到信号前的基准比例；\(P(B\mid A)\) 是 likelihood，表示如果 \(A\) 真的成立，信号 \(B\) 有多常出现；\(P(B)\) 是归一化项，表示总体上看到这个信号的概率；\(P(A\mid B)\) 是后验，表示看到信号后我们应该更新到的新概率。
 
 注意 base-rate effect：如果垃圾邮件本来很少，即使“可疑链接”对垃圾邮件很敏感，普通邮件中的少量误报也可能很多。贝叶斯更新提醒我们，不要只盯着信号有多强，还要把它放回整体分布里。`,
       md`Bayes' rule looks like a line of symbols, but it is a simple classroom move: start with the base rate, check how often the evidence appears under each case, then compute the new proportion after seeing the evidence.
@@ -950,7 +950,7 @@ Read it as a teacher's sentence: the true answer does not merely ask you to "cho
 
 最后用一句话串起来：样本空间给出可能结果，随机变量把结果变成数字，分布描述长期频率形状，期望和方差读中心与波动，softmax 把模型分数变成概率条，交叉熵用真实类别检查概率放得对不对。只要这条链条清楚，后续的似然、熵、KL divergence 和生成采样都会容易很多。
 
-还要区分“真实世界的随机性”和“模型自己的不确定性”。天气本身有随机波动，测量会有噪声，数据集抽样也会带来波动；模型输出的概率则是它根据已学参数给出的信念。二者可能接近，也可能偏离。校准、验证集和误差分析的作用，就是检查模型信念是否贴近真实频率。不要把一次预测的最大概率当成真理，要把它当成需要证据校验的数值声明。
+还要区分“真实世界的随机性”和“模型自己的不确定性”。天气本身有随机波动，测量会有噪声，数据集抽样也会带来波动；模型输出的概率则是它根据已学参数给出的信念。二者可能接近，也可能偏离。校准、验证集和误差分析的作用，就是检查模型信念是否贴近真实频率。不要把一次预测的最大概率当成真理，要把它当成需要用实际频率检查的数值声明。
 
 学习时可以固定一个小例子反复使用：三类图片分类。样本空间是三类标签，随机变量可以记录预测是否正确，分布可以表示类别比例，softmax 给出模型的概率条，交叉熵惩罚真实类别概率过低。把所有新术语都放回这个例子里，就不容易迷路。
 
@@ -1270,7 +1270,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
     learningObjectives: [
       copy('解释样本空间、事件和随机变量。', 'Explain sample space, event, and random variable.'),
       copy('把分布读成重复试验后留下的频率形状。', 'Read a distribution as the frequency shape left by repeated trials.'),
-      copy('用条件概率和贝叶斯更新解释证据如何改变概率。', 'Use conditional probability and Bayes update to explain how evidence changes probability.'),
+      copy('用条件概率和贝叶斯更新解释已知信息如何改变概率。', 'Use conditional probability and Bayes update to explain how evidence changes probability.'),
       copy('区分均匀分布、二项分布和 normal distribution 的基本形状。', 'Distinguish the basic shapes of uniform, binomial, and normal distributions.'),
       copy('把期望、方差、softmax、校准和交叉熵连接到模型训练。', 'Connect expectation, variance, softmax, calibration, and cross entropy to model training.'),
     ],
@@ -1278,8 +1278,8 @@ export const beginnerFoundationModules: MathLabModule[] = [
       concept('beginner-sample-space', copy('样本空间', 'Sample Space'), '\\Omega=\\{\\omega_1,\\omega_2,\\ldots\\}', [variable('\\Omega', '所有可能结果的集合。', 'The set of all possible outcomes.')], copy('先列出可能结果，概率讨论才有对象。', 'List possible outcomes first so probability has objects to discuss.'), copy('像给随机实验画出所有出口。', 'Like drawing all exits of a random experiment.'), copy('三分类器的样本空间可以是 \\{猫,狗,鸟\\}。', 'A three-class classifier can have sample space \\{cat,dog,bird\\}.'), copy('分类模型的输出概率分布定义在类别样本空间上。', 'Classifier probability outputs are defined over a class sample space.')),
       concept('beginner-random-variable', copy('随机变量', 'Random Variable'), 'X:\\Omega\\to\\mathbb{R}', [variable('X', '把结果映射成数字的规则。', 'A rule mapping outcomes to numbers.')], copy('随机变量把文字结果变成可计算数字。', 'A random variable turns named outcomes into computable numbers.'), copy('像给每种结果贴一个数值标签。', 'Like attaching a numeric tag to each outcome.'), copy('硬币正面记 1、反面记 0。', 'Coin heads can map to 1 and tails to 0.'), copy('模型评估中的正确/错误、类别编号和 reward 都可以看成随机变量。', 'Correctness, class index, and reward in model evaluation can be random variables.')),
       concept('beginner-distribution', copy('概率分布', 'Probability Distribution'), '\\sum_i p_i=1,\\quad p_i\\ge0', [variable('p_i', '第 i 个结果的概率。', 'Probability of outcome i.')], copy('分布给每个可能结果分配非负概率，并且总和为 1。', 'A distribution assigns nonnegative probabilities to possible outcomes, summing to 1.'), copy('直方图越高，长期出现得越频繁。', 'A taller histogram bar means the outcome appears more often in the long run.'), copy('\\([0.7,0.2,0.1]\\) 是三类上的概率分布。', '\\([0.7,0.2,0.1]\\) is a distribution over three classes.'), copy('softmax 输出、采样温度和交叉熵都操作概率分布。', 'Softmax outputs, sampling temperature, and cross entropy operate on distributions.')),
-      concept('beginner-conditional-probability', copy('条件概率', 'Conditional Probability'), 'P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}', [variable('A', '关心的事件。', 'event of interest'), variable('B', '已经知道的条件或证据。', 'known condition or evidence')], copy('条件概率是在证据已经发生的样本空间里重新计算比例。', 'Conditional probability recomputes proportion inside the space where evidence is known.'), copy('像先筛出“带信号”的样本，再数其中有多少属于目标事件。', 'Like filtering examples with a signal, then counting how many belong to the target event.'), copy('1000 封邮件中，带可疑链接的那部分才是计算后验时的新分母。', 'Among 1000 emails, the suspicious-link subset becomes the new denominator for posterior reading.'), copy('验证集切片、分布漂移和公平性分析都依赖“在什么条件下”的概率。', 'Validation slices, distribution shift, and fairness analysis all depend on probability under conditions.')),
-      concept('beginner-bayes-update', copy('贝叶斯更新', 'Bayes Update'), 'P(A\\mid B)=\\frac{P(B\\mid A)P(A)}{P(B)}', [variable('P(A)', '看到证据前的先验。', 'prior before evidence'), variable('P(B\\mid A)', '事件成立时看到证据的 likelihood。', 'likelihood of evidence if the event is true'), variable('P(A\\mid B)', '看到证据后的后验。', 'posterior after evidence')], copy('贝叶斯更新把基准比例和证据强度合在一起。', 'Bayes update combines base rate and signal strength.'), copy('像先看班级里近视人数比例，再看“坐最后一排看不清”的证据怎样改变判断。', 'Like starting from the class base rate, then updating after evidence such as difficulty seeing from the back row.'), copy('先验 8%、命中率 82%、误报率 12% 时，后验不是 82%，而要重新按证据人数计算。', 'With 8% prior, 82% hit rate, and 12% false alarm rate, the posterior is not 82%; it must be recomputed from evidence counts.'), copy('垃圾邮件过滤、医学检测和异常检测都要避免忽略 base rate。', 'Spam filtering, medical tests, and anomaly detection must avoid ignoring base rate.')),
+      concept('beginner-conditional-probability', copy('条件概率', 'Conditional Probability'), 'P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}', [variable('A', '关心的事件。', 'event of interest'), variable('B', '已经知道的条件或信息。', 'known condition or evidence')], copy('条件概率是在已知条件成立的样本空间里重新计算比例。', 'Conditional probability recomputes proportion inside the space where evidence is known.'), copy('像先筛出“带信号”的样本，再数其中有多少属于目标事件。', 'Like filtering examples with a signal, then counting how many belong to the target event.'), copy('1000 封邮件中，带可疑链接的那部分才是计算后验时的新分母。', 'Among 1000 emails, the suspicious-link subset becomes the new denominator for posterior reading.'), copy('验证集切片、分布漂移和公平性分析都依赖“在什么条件下”的概率。', 'Validation slices, distribution shift, and fairness analysis all depend on probability under conditions.')),
+      concept('beginner-bayes-update', copy('贝叶斯更新', 'Bayes Update'), 'P(A\\mid B)=\\frac{P(B\\mid A)P(A)}{P(B)}', [variable('P(A)', '看到信号前的先验。', 'prior before evidence'), variable('P(B\\mid A)', '事件成立时看到信号的 likelihood。', 'likelihood of evidence if the event is true'), variable('P(A\\mid B)', '看到信号后的后验。', 'posterior after evidence')], copy('贝叶斯更新把基准比例和信号强度合在一起。', 'Bayes update combines base rate and signal strength.'), copy('像先看班级里近视人数比例，再看“坐最后一排看不清”的信号怎样改变判断。', 'Like starting from the class base rate, then updating after evidence such as difficulty seeing from the back row.'), copy('先验 8%、命中率 82%、误报率 12% 时，后验不是 82%，而要重新按信号人数计算。', 'With 8% prior, 82% hit rate, and 12% false alarm rate, the posterior is not 82%; it must be recomputed from evidence counts.'), copy('垃圾邮件过滤、医学检测和异常检测都要避免忽略 base rate。', 'Spam filtering, medical tests, and anomaly detection must avoid ignoring base rate.')),
       concept('beginner-expectation-variance', copy('期望与方差', 'Expectation and Variance'), '\\mathbb{E}[X]=\\sum_i x_i p_i,\\quad \\operatorname{Var}(X)=\\mathbb{E}[(X-\\mathbb{E}[X])^2]', [variable('\\mathbb{E}[X]', '长期平均中心。', 'long-run average center'), variable('\\operatorname{Var}(X)', '围绕中心的波动大小。', 'spread around the center')], copy('期望读中心，方差读稳定性。', 'Expectation reads center; variance reads stability.'), copy('像看跷跷板的平衡点和球散开的程度。', 'Like reading a balance point and how widely balls scatter around it.'), copy('两个分布可以均值相同，但一个集中、一个分散。', 'Two distributions can share a mean while one is concentrated and the other is spread out.'), copy('采样稳定性、噪声判断和生成模型温度都需要中心与波动。', 'Sampling stability, noise checks, and generation temperature all need center and spread.')),
       concept('beginner-calibration', copy('校准', 'Calibration'), 'P(Y=1\\mid \\hat p\\approx c)\\approx c', [variable('\\hat p', '模型给出的预测概率。', 'model predicted probability'), variable('c', '某个置信度分箱。', 'a confidence bin')], copy('校准检查模型说出的概率能不能当作真实频率来信任。', 'Calibration checks whether model probabilities can be trusted as real frequencies.'), copy('像把所有“我有 70% 把握”的样本放在一起，看实际对了多少。', 'Like grouping all examples where the model says 70% and checking how many are actually correct.'), copy('若 90% 置信样本只有 60% 正确，模型过度自信。', 'If 90% confidence examples are only 60% correct, the model is overconfident.'), copy('风险控制、医疗分类和推荐排序不能只看 top-1 对错，还要看概率是否可信。', 'Risk control, medical classification, and recommendation ranking need trustworthy probabilities, not only top-1 correctness.')),
     ],
@@ -1307,13 +1307,13 @@ export const beginnerFoundationModules: MathLabModule[] = [
       imageAsset(
         'beginner-conditional-probability-longform',
         'beginner-conditional-probability-longform.png',
-        copy('条件概率：证据筛选样本空间', 'Conditional Probability: Evidence Filters the Sample Space'),
+        copy('条件概率：已知信息筛选样本空间', 'Conditional Probability: Evidence Filters the Sample Space'),
         copy('先从总体样本空间中筛出满足条件的样本，再在新的分母里计算目标事件比例。', 'Filter the overall sample space by evidence first, then compute the target event proportion inside the new denominator.'),
       ),
       imageAsset(
         'beginner-bayes-update-longform',
         'beginner-bayes-update-longform.png',
-        copy('贝叶斯更新：先验、证据和后验', 'Bayes Update: Prior, Evidence, and Posterior'),
+        copy('贝叶斯更新：先验、信号和后验', 'Bayes Update: Prior, Evidence, and Posterior'),
         copy('把垃圾邮件基准比例、信号命中率和误报率组合起来，展示后验概率为什么不同于单独的信号强度。', 'Combine spam base rate, signal hit rate, and false alarm rate to show why posterior probability differs from signal strength alone.'),
       ),
       imageAsset(
@@ -1335,7 +1335,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('logits 经过 softmax 变成概率条，真实类别概率越低，交叉熵惩罚越大，从而驱动分类模型学习。', 'Logits become probability bars through softmax; the lower the true-class probability, the larger cross entropy becomes, driving classifier training.'),
       ),
       manimAsset('beginner-probability-frequency-video', 'beginner-probability-frequency', copy('一次结果到长期频率', 'One Outcome to Long-Run Frequency'), copy('动画展示单次结果如何波动，重复试验如何逐渐形成稳定的分布形状。', 'Animation showing how one outcome is noisy while repeated trials form a stable distribution shape.')),
-      manimAsset('beginner-conditional-bayes-video', 'beginner-conditional-bayes', copy('条件筛选与贝叶斯更新', 'Conditional Filtering and Bayes Update'), copy('动画展示证据如何筛选样本空间，以及先验、likelihood、evidence 如何组合成后验。', 'Animation showing how evidence filters the sample space and how prior, likelihood, and evidence combine into a posterior.')),
+      manimAsset('beginner-conditional-bayes-video', 'beginner-conditional-bayes', copy('条件筛选与贝叶斯更新', 'Conditional Filtering and Bayes Update'), copy('动画展示已知信息如何筛选样本空间，以及先验、likelihood、归一化项如何组合成后验。', 'Animation showing how evidence filters the sample space and how prior, likelihood, and evidence combine into a posterior.')),
       manimAsset('beginner-calibration-cross-entropy-video', 'beginner-calibration-cross-entropy', copy('校准与交叉熵', 'Calibration and Cross Entropy'), copy('动画连接概率条、校准分箱和真实类别概率过低时的负对数惩罚。', 'Animation connecting probability bars, calibration bins, and negative-log penalty when target probability is low.')),
     ],
     labs: [
@@ -1344,7 +1344,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('能比较均匀、二项和 normal distribution 的均值与方差。', 'Compare the mean and variance of uniform, binomial, and normal distributions.'),
       ]),
       lab('beginner-conditional-bayes-lab', copy('条件概率与贝叶斯实验', 'Conditional Probability and Bayes Lab'), 'ConditionalBayesLab', [
-        copy('能说明证据如何改变分母和后验概率。', 'Explain how evidence changes the denominator and posterior probability.'),
+        copy('能说明已知信息如何改变分母和后验概率。', 'Explain how evidence changes the denominator and posterior probability.'),
         copy('能指出忽略 base rate 为什么会夸大概率。', 'Explain why ignoring base rate exaggerates probability.'),
       ]),
     ],
@@ -1352,7 +1352,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
       quiz('beginner-probability-space', copy('样本空间回答什么问题？', 'What question does a sample space answer?'), 'possible', copy('可能有哪些结果。', 'Which outcomes are possible.'), copy('模型有多少层。', 'How many layers the model has.'), copy('概率必须先知道结果集合，才能给结果分配概率。', 'Probability must know the outcome set before assigning probabilities.'), 'sample-space', 'beginner-probability-story'),
       quiz('beginner-probability-distribution', copy('为什么不能用一次结果判断整个分布？', 'Why can one result not determine the whole distribution?'), 'sample', copy('一次结果只是一个样本，可能很偶然。', 'One outcome is just one sample and may be accidental.'), copy('因为概率分布不允许重复试验。', 'Because distributions forbid repeated trials.'), copy('分布描述长期频率形状，需要多次观察。', 'A distribution describes long-run frequency shape and needs repeated observation.'), 'one-trial'),
       quiz('beginner-probability-conditional', copy('条件概率 \\(P(A\\mid B)\\) 中，真正改变的是什么？', 'In conditional probability \\(P(A\\mid B)\\), what really changes?'), 'denominator', copy('分母变成满足条件 \\(B\\) 的样本空间。', 'The denominator becomes the sample space satisfying condition \\(B\\).'), copy('事件 \\(A\\) 的名字自动变成事件 \\(B\\)。', 'The name of event \\(A\\) automatically becomes event \\(B\\).'), copy('条件概率不是换个符号，而是在“已知 \\(B\\)”的样本里重新计算 \\(A\\) 的比例。回看条件概率图和贝叶斯实验。', 'Conditional probability is not just a new symbol; it recomputes the proportion of \\(A\\) inside examples where \\(B\\) is known. Revisit the conditional diagram and Bayes lab.'), 'conditional-denominator', 'beginner-conditional-probability-longform'),
-      quiz('beginner-probability-bayes', copy('贝叶斯更新为什么不能只看 likelihood？', 'Why can Bayes update not look only at likelihood?'), 'base-rate', copy('还要乘上先验并除以总体 evidence。', 'It must also use the prior and divide by total evidence.'), copy('因为 likelihood 永远等于 0。', 'Because likelihood is always 0.'), copy('证据强不等于后验高。若目标事件本来很少，误报会明显影响后验。请回看贝叶斯更新图。', 'A strong signal does not guarantee a high posterior. If the target event is rare, false alarms strongly affect the posterior. Revisit the Bayes update image.'), 'bayes-base-rate', 'beginner-bayes-update-longform'),
+      quiz('beginner-probability-bayes', copy('贝叶斯更新为什么不能只看 likelihood？', 'Why can Bayes update not look only at likelihood?'), 'base-rate', copy('还要乘上先验并除以总体信号概率。', 'It must also use the prior and divide by total evidence.'), copy('因为 likelihood 永远等于 0。', 'Because likelihood is always 0.'), copy('信号强不等于后验高。若目标事件本来很少，误报会明显影响后验。请回看贝叶斯更新图。', 'A strong signal does not guarantee a high posterior. If the target event is rare, false alarms strongly affect the posterior. Revisit the Bayes update image.'), 'bayes-base-rate', 'beginner-bayes-update-longform'),
       quiz('beginner-probability-expectation', copy('两个分布均值相同，使用体验一定一样吗？', 'If two distributions share the same mean, must they feel the same?'), 'variance', copy('不一定，还要看方差和波动。', 'No; variance and spread also matter.'), copy('一定一样，因为均值决定所有结果。', 'Yes, because the mean determines every outcome.'), copy('期望只读长期中心，方差读围绕中心的波动。生成采样和模型稳定性都需要两者一起看。', 'Expectation reads long-run center; variance reads spread around that center. Sampling and model stability need both.'), 'expectation-only', 'beginner-expectation-variance-longform'),
       quiz('beginner-probability-softmax', copy('分类器输出 \\([0.7,0.2,0.1]\\) 更接近什么？', 'A classifier output \\([0.7,0.2,0.1]\\) is closest to what?'), 'distribution', copy('类别样本空间上的概率分布。', 'A probability distribution over the class sample space.'), copy('二维坐标。', 'A two-dimensional coordinate.'), copy('非负且总和为 1 的概率条表示模型的不确定性分配。', 'Nonnegative probability bars summing to 1 represent how the model distributes uncertainty.'), 'probability-bars'),
       quiz('beginner-probability-calibration', copy('校准主要在检查哪件事？', 'What does calibration mainly check?'), 'frequency', copy('预测概率是否接近真实正确频率。', 'Whether predicted probabilities match observed correctness frequencies.'), copy('模型是否永远选择最大概率。', 'Whether the model always chooses the largest probability.'), copy('准确率只看 top-1 对错，校准还看概率数值能不能被信任。回看校准图。', 'Accuracy checks top-1 correctness; calibration checks whether probability values can be trusted. Revisit the calibration image.'), 'calibration', 'beginner-calibration-confidence-longform'),
@@ -1361,7 +1361,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
       misconception('sample-space', copy('不用列出可能结果也能严谨谈概率。', 'We can discuss probability rigorously without listing possible outcomes.'), copy('样本空间定义了概率要分配到哪些结果上。', 'The sample space defines which outcomes receive probability.'), copy('三分类和二分类的概率条长度不同，因为样本空间不同。', 'A three-class and two-class probability bar have different lengths because their sample spaces differ.')),
       misconception('one-trial', copy('看到一次结果，就知道整个分布。', 'Seeing one outcome reveals the whole distribution.'), copy('一次结果只是样本；分布要看重复试验后的形状。', 'One outcome is only a sample; a distribution is read from repeated-trial shape.'), copy('一次抽到高分不代表所有样本都高分。', 'Drawing one high value does not mean all samples are high.')),
       misconception('conditional-denominator', copy('条件概率只是把两个事件名字写在一起。', 'Conditional probability only writes two event names together.'), copy('条件会改变分母：只在满足条件的样本里重新计算比例。', 'The condition changes the denominator: recompute the proportion only inside examples satisfying the condition.'), copy('“随机邮件是垃圾邮件”和“带可疑链接的邮件是垃圾邮件”不是同一个概率。', '"A random email is spam" and "an email with a suspicious link is spam" are not the same probability.')),
-      misconception('bayes-base-rate', copy('信号很准，所以后验概率就等于命中率。', 'A strong signal means the posterior equals the hit rate.'), copy('后验还要考虑先验和误报率。忽略 base rate 会夸大罕见事件。', 'Posterior also depends on prior and false alarm rate. Ignoring base rate exaggerates rare events.'), copy('疾病很罕见时，即使检测敏感，也要看假阳性会带来多少证据。', 'When a disease is rare, even a sensitive test must be read together with false positives.')),
+      misconception('bayes-base-rate', copy('信号很准，所以后验概率就等于命中率。', 'A strong signal means the posterior equals the hit rate.'), copy('后验还要考虑先验和误报率。忽略 base rate 会夸大罕见事件。', 'Posterior also depends on prior and false alarm rate. Ignoring base rate exaggerates rare events.'), copy('疾病很罕见时，即使检测敏感，也要看假阳性会带来多少带信号样本。', 'When a disease is rare, even a sensitive test must be read together with false positives.')),
       misconception('expectation-only', copy('均值一样，两个分布就完全一样。', 'If means match, two distributions are identical.'), copy('均值只读中心；方差、偏斜和尾部仍可能不同。', 'Mean reads only center; variance, skew, and tails may still differ.'), copy('两条生成策略平均分相同，但一个稳定、一个忽高忽低，体验会不同。', 'Two generation strategies can share an average score while one is stable and the other swings wildly.')),
       misconception('probability-bars', copy('最高概率高，模型就一定可靠。', 'A high top probability means the model is certainly reliable.'), copy('概率条还需要校准检查。', 'Probability bars still need calibration checks.'), copy('模型说 90% 的样本若实际只有 60% 正确，就是过度自信。', 'If examples predicted at 90% are only 60% correct, the model is overconfident.')),
       misconception('calibration', copy('准确率高就说明所有概率都可信。', 'High accuracy means every probability is trustworthy.'), copy('准确率和校准是不同问题。概率要和实际频率对齐，才能作为风险数值使用。', 'Accuracy and calibration are different. Probabilities must match observed frequencies before being used as risk values.'), copy('一个模型可以 top-1 经常正确，但把 70% 说成 95%。', 'A model can often get top-1 right while reporting 95% for cases that behave like 70%.')),

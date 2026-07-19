@@ -1052,7 +1052,7 @@ export const curriculumCatalogMetadata = [
       "en": "Use reproducible random sampling to turn areas, integrals, and model expectations into computable averages."
     },
     "route": "/math-lab/modules/monte-carlo",
-    "estimatedMinutes": 45,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [
       "taylor-series"
     ],
@@ -1084,7 +1084,7 @@ export const curriculumCatalogMetadata = [
       "en": "Read model outputs as distributions and understand cross entropy, KL, and calibration."
     },
     "route": "/math-lab/modules/probability-likelihood-entropy",
-    "estimatedMinutes": 32,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [],
     "outcomeIds": [
       "probability-likelihood-entropy:objective-1",
@@ -1113,7 +1113,7 @@ export const curriculumCatalogMetadata = [
       "en": "Unify random walks, weather prediction, and PageRank as transition-matrix and stationary-distribution problems."
     },
     "route": "/math-lab/modules/markov-chains",
-    "estimatedMinutes": 42,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [
       "monte-carlo",
       "eigenvalues-eigenvectors"

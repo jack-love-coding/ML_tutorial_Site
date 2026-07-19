@@ -13,6 +13,7 @@ import {
   mathToCodePilotModuleIds,
   minimumFoundationModuleIds,
   numericalDeepeningModuleIds,
+  probabilityRouteModuleIds,
 } from './mathCourseOrder.ts'
 
 export {
@@ -21,6 +22,7 @@ export {
   linearAlgebraRouteModuleIds,
   mathToCodePilotModuleIds,
   minimumFoundationModuleIds,
+  probabilityRouteModuleIds,
 } from './mathCourseOrder.ts'
 
 function copy(zh: string, en: string): LocalizedCopy {
@@ -86,6 +88,21 @@ const calculusRoute: LearningRoute = {
   nextStepRule: 'first-incomplete',
 }
 
+const probabilityRoute: LearningRoute = {
+  id: 'probability-route',
+  title: copy('概率与不确定性路线', 'Probability and Uncertainty Route'),
+  description: copy(
+    '从离散分布和条件概率走到 Monte Carlo、模型概率损失与马尔可夫状态演化。',
+    'Move from discrete distributions and conditional probability to Monte Carlo, probabilistic model losses, and Markov state evolution.',
+  ),
+  audience: copy(
+    '想把概率公式连接到采样、分类器、语言模型和随机过程的学习者。',
+    'Learners connecting probability formulas to sampling, classifiers, language models, and stochastic processes.',
+  ),
+  chapterModuleIds: probabilityRouteModuleIds,
+  nextStepRule: 'first-incomplete',
+}
+
 const numericalDeepeningRoute: LearningRoute = {
   id: 'numerical-deepening-path',
   title: copy('数值计算加深', 'Numerical Deepening Path'),
@@ -124,6 +141,7 @@ export const learningRoutes: readonly LearningRoute[] = [
   minimumFoundationRoute,
   linearAlgebraRoute,
   calculusRoute,
+  probabilityRoute,
   numericalDeepeningRoute,
   mathToCodePilotRoute,
 ]
@@ -133,6 +151,7 @@ export const learningRouteById: Record<LearningRouteId, LearningRoute> = {
   'minimum-foundation': minimumFoundationRoute,
   'linear-algebra-route': linearAlgebraRoute,
   'calculus-route': calculusRoute,
+  'probability-route': probabilityRoute,
   'numerical-deepening-path': numericalDeepeningRoute,
   'math-to-code-pilot': mathToCodePilotRoute,
 }

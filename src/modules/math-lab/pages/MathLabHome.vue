@@ -16,6 +16,8 @@ const progress = ref<MathLabProgress>(loadMathLabProgress())
 const currentLocale = computed(() => locale.value as MathLabLocale)
 const minimumFoundationRoute = computed(() => learningRouteById['minimum-foundation'])
 const linearAlgebraRoute = computed(() => learningRouteById['linear-algebra-route'])
+const calculusRoute = computed(() => learningRouteById['calculus-route'])
+const probabilityRoute = computed(() => learningRouteById['probability-route'])
 const mathToCodePilotRoute = computed(() => learningRouteById['math-to-code-pilot'])
 const aiMathPathModules = computed(() => {
   const ids = new Set(aiMathPathModuleIds)
@@ -201,6 +203,22 @@ const beginnerCards = computed(() =>
       :modules="mathLabModules"
       :progress="progress"
       :locale="currentLocale"
+    />
+
+    <LearningRouteDashboard
+      :route="calculusRoute"
+      :modules="mathLabModules"
+      :progress="progress"
+      :locale="currentLocale"
+      :show-reports="false"
+    />
+
+    <LearningRouteDashboard
+      :route="probabilityRoute"
+      :modules="mathLabModules"
+      :progress="progress"
+      :locale="currentLocale"
+      :show-reports="false"
     />
 
     <LearningRouteDashboard
