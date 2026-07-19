@@ -806,7 +806,7 @@ export const curriculumCatalogMetadata = [
       "en": "Read one parameter direction at a time, then collect every direction into a gradient."
     },
     "route": "/math-lab/modules/calculus-partial-derivatives-gradients",
-    "estimatedMinutes": 36,
+    "estimatedMinutes": 60,
     "prerequisiteIds": [
       "calculus-derivatives-local-change"
     ],
@@ -837,7 +837,7 @@ export const curriculumCatalogMetadata = [
       "en": "Walk along the negative gradient and use learning rate to control step length."
     },
     "route": "/math-lab/modules/calculus-gradient-descent",
-    "estimatedMinutes": 38,
+    "estimatedMinutes": 60,
     "prerequisiteIds": [
       "calculus-partial-derivatives-gradients"
     ],
@@ -868,7 +868,7 @@ export const curriculumCatalogMetadata = [
       "en": "Use sample averages to understand mini-batch gradient noise."
     },
     "route": "/math-lab/modules/calculus-sgd-batch-noise",
-    "estimatedMinutes": 36,
+    "estimatedMinutes": 60,
     "prerequisiteIds": [
       "calculus-gradient-descent"
     ],
@@ -899,7 +899,7 @@ export const curriculumCatalogMetadata = [
       "en": "Compare the problem addressed by plain SGD, Momentum, RMSProp, and Adam."
     },
     "route": "/math-lab/modules/calculus-optimizer-comparison",
-    "estimatedMinutes": 40,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [
       "calculus-sgd-batch-noise"
     ],
@@ -930,7 +930,7 @@ export const curriculumCatalogMetadata = [
       "en": "Connect gradient formulas to training-loop code, then diagnose training state with curves."
     },
     "route": "/math-lab/modules/calculus-training-code-diagnostics",
-    "estimatedMinutes": 42,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [
       "calculus-optimizer-comparison"
     ],

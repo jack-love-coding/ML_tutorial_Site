@@ -1,7 +1,7 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
 import { aiBridgeModules } from './aiBridgeModules.ts'
 import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
-import { calculusRouteModules } from './calculusRouteModules.ts'
+import { calculusOptimizationRouteModules } from './calculusOptimizationRouteModules.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
 import { buildLeastSquaresModule } from './leastSquaresModule.ts'
@@ -179,7 +179,7 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
 export const mathLabModuleProviders: readonly MathLabModuleProvider[] = [
   { name: 'beginnerFoundationModules', modules: minimumFoundationBeginnerModules },
   { name: 'linearAlgebraRouteModules', modules: vectorMatrixLanguageRouteModules },
-  { name: 'calculusRouteModules', modules: calculusRouteModules },
+  { name: 'calculusRouteModules', modules: calculusOptimizationRouteModules },
   { name: 'mathToCodeModules', modules: vectorMatrixLanguageMathToCodeModules },
   { name: 'importedFoundationModules', modules: importedFoundationModules },
   { name: 'aiBridgeModules', modules: aiBridgeModules },
