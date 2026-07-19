@@ -13,6 +13,7 @@ import {
 import { curriculumSpineStages } from '../curriculum/spine.ts'
 import { curriculumNavigationMenus, type SiteNavigationMenuId } from '../data/navigationMenus'
 import { dataLabProgressStorageKey } from '../modules/data-lab/utils/progress'
+import { linearAlgebraRouteModuleIds } from '../modules/math-lab/data/mathCourseOrder.ts'
 import { mathLabProgressStorageKey } from '../modules/math-lab/utils/progress'
 import type { LocalizedCopy } from '../types/ml'
 import { algorithmProgressStorageKey } from '../utils/algorithmProgress'
@@ -344,6 +345,39 @@ const roadmapIntro = computed(() => ({
   action: localizedText(beginnerRoadmapIntro.action),
 }))
 
+const linearAlgebraRouteCopy = computed(() =>
+  locale.value === 'zh-CN'
+    ? {
+        eyebrow: '数学专题路线',
+        title: '线性代数：从样本表示走到 PCA',
+        body:
+          '这条 8 章路线沿同一组数据连接向量、距离、矩阵、rank、最小二乘、特征方向、SVD 和 PCA。每章都保留详细讲解、可视化实验以及可复制的 NumPy 代码。',
+        start: '从第 1 章开始',
+        overview: '查看路线总览',
+        chapterLabel: '章',
+      }
+    : {
+        eyebrow: 'Math focus route',
+        title: 'Linear Algebra: From Sample Representations to PCA',
+        body:
+          'This eight-chapter route follows one data story through vectors, distance, matrices, rank, least squares, eigendirections, SVD, and PCA. Every chapter keeps detailed explanations, visual labs, and copyable NumPy code.',
+        start: 'Start chapter 1',
+        overview: 'View route overview',
+        chapterLabel: 'chapters',
+      },
+)
+
+const homeLinearAlgebraRoute = computed(() =>
+  linearAlgebraRouteModuleIds.map((moduleId, index) => ({
+    id: moduleId,
+    index: index + 1,
+    title: moduleTitle(moduleId),
+    route: `${moduleRoute(moduleId)}?route=linear-algebra-route`,
+  })),
+)
+
+const linearAlgebraStartRoute = computed(() => homeLinearAlgebraRoute.value[0]?.route ?? '/math-lab')
+
 const readinessCheckSource: ReadinessCheck[] = [
   {
     title: loc('符号一致', 'Symbol consistency'),
@@ -527,6 +561,37 @@ const footerText = computed(() =>
           </div>
         </article>
       </div>
+
+      <section class="home-focus-route" aria-labelledby="home-linear-algebra-route-title">
+        <header class="home-focus-route__header">
+          <div>
+            <span class="eyebrow">{{ linearAlgebraRouteCopy.eyebrow }}</span>
+            <h3 id="home-linear-algebra-route-title">{{ linearAlgebraRouteCopy.title }}</h3>
+            <p>{{ linearAlgebraRouteCopy.body }}</p>
+          </div>
+          <strong class="home-focus-route__count">
+            {{ homeLinearAlgebraRoute.length }} {{ linearAlgebraRouteCopy.chapterLabel }}
+          </strong>
+        </header>
+
+        <ol class="home-focus-route__chapters">
+          <li v-for="chapter in homeLinearAlgebraRoute" :key="chapter.id">
+            <router-link :to="chapter.route">
+              <span>{{ String(chapter.index).padStart(2, '0') }}</span>
+              <strong>{{ chapter.title }}</strong>
+            </router-link>
+          </li>
+        </ol>
+
+        <div class="home-focus-route__actions">
+          <router-link class="action-button action-button--primary" :to="linearAlgebraStartRoute">
+            {{ linearAlgebraRouteCopy.start }}
+          </router-link>
+          <router-link class="action-button" to="/math-lab#linear-algebra-route">
+            {{ linearAlgebraRouteCopy.overview }}
+          </router-link>
+        </div>
+      </section>
 
       <aside class="roadmap-checklist" aria-labelledby="roadmap-checklist-title">
         <div>

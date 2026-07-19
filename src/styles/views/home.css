@@ -421,6 +421,114 @@
   box-shadow: 0 14px 30px rgba(17, 28, 57, 0.16);
 }
 
+.home-focus-route {
+  display: grid;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid rgba(77, 99, 255, 0.16);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(17, 28, 57, 0.97), rgba(49, 66, 191, 0.9)),
+    radial-gradient(circle at 90% 10%, rgba(255, 199, 115, 0.24), transparent 30%);
+  color: white;
+  box-shadow: 0 22px 48px rgba(17, 28, 57, 0.18);
+}
+
+.home-focus-route__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 24px;
+}
+
+.home-focus-route__header > div {
+  display: grid;
+  gap: 12px;
+  max-width: 48rem;
+}
+
+.home-focus-route__header .eyebrow,
+.home-focus-route__header p {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.home-focus-route__header h3 {
+  color: white;
+  font-size: clamp(1.7rem, 3vw, 2.7rem);
+}
+
+.home-focus-route__count {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.86rem;
+}
+
+.home-focus-route__chapters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.home-focus-route__chapters li {
+  min-width: 0;
+}
+
+.home-focus-route__chapters a {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  height: 100%;
+  min-height: 74px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.home-focus-route__chapters a:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.home-focus-route__chapters span {
+  color: rgba(255, 255, 255, 0.56);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+}
+
+.home-focus-route__chapters strong {
+  color: white;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.home-focus-route__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.home-focus-route__actions .action-button--primary {
+  background: white;
+  color: #111c39;
+}
+
+.home-focus-route__actions .action-button:not(.action-button--primary) {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
 .roadmap-checklist {
   display: grid;
   grid-template-columns: minmax(220px, 0.6fr) minmax(0, 1.4fr);
@@ -496,7 +604,8 @@
   }
 
   .roadmap-stage__details,
-  .roadmap-checklist__list {
+  .roadmap-checklist__list,
+  .home-focus-route__chapters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -543,14 +652,24 @@
   }
 
   .roadmap-stage__body,
-  .roadmap-checklist {
+  .roadmap-checklist,
+  .home-focus-route {
     padding: 16px;
     border-radius: 18px;
   }
 
   .roadmap-stage__details,
-  .roadmap-checklist__list {
+  .roadmap-checklist__list,
+  .home-focus-route__chapters {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-focus-route__header {
+    display: grid;
+  }
+
+  .home-focus-route__count {
+    justify-self: start;
   }
 
   .home-footer {

@@ -106,7 +106,7 @@ function exportRouteMarkdown() {
 </script>
 
 <template>
-  <section class="learning-route-dashboard" :aria-label="route.title[locale]">
+  <section :id="route.id" class="learning-route-dashboard" :aria-label="route.title[locale]">
     <header>
       <span class="eyebrow">{{ locale === 'zh-CN' ? '路线地图' : 'Route map' }}</span>
       <h2>{{ route.title[locale] }}</h2>

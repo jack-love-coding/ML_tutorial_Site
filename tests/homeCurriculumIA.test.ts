@@ -34,11 +34,17 @@ test('home page uses Curriculum Progress V2 for global continue-learning state',
 
 test('home page first screen is a curriculum decision surface rather than a full module gallery', () => {
   const homeSource = read('src/views/HomeView.vue')
+  const routerSource = read('src/router/index.ts')
 
   assert.match(homeSource, /curriculumNavigationMenus/)
   assert.match(homeSource, /curriculumRouteManifestById/)
   assert.match(homeSource, /curriculumSpineStages/)
   assert.match(homeSource, /spinePreviewRoadmap/)
+  assert.match(homeSource, /linearAlgebraRouteModuleIds/)
+  assert.match(homeSource, /homeLinearAlgebraRoute/)
+  assert.match(homeSource, /home-focus-route/)
+  assert.match(homeSource, /\?route=linear-algebra-route/)
+  assert.match(homeSource, /\/math-lab#linear-algebra-route/)
   assert.match(homeSource, /homeDecisionCards/)
   assert.match(homeSource, /home-progress-panel/)
   assert.match(homeSource, /home-decision-section/)
@@ -54,6 +60,8 @@ test('home page first screen is a curriculum decision surface rather than a full
   assert.match(homeSource, /进入 Python 数据工具/)
   assert.match(homeSource, /Open Python Data Tools/)
   assert.match(homeSource, /\/learn\/ai-overview/)
+  assert.match(routerSource, /if \(savedPosition\) return savedPosition/)
+  assert.match(routerSource, /if \(to\.hash\) return \{ el: to\.hash, top: 96, behavior: 'smooth' \}/)
 
   assert.doesNotMatch(homeSource, /moduleOrder/)
   assert.doesNotMatch(homeSource, /module-gallery/)
@@ -81,6 +89,8 @@ test('home page keeps a compressed spine preview but removes duplicated catalog 
   assert.match(homeStyles, /\.home-decision-section/)
   assert.match(homeStyles, /\.home-decision-card/)
   assert.match(homeStyles, /\.home-spine-roadmap/)
+  assert.match(homeStyles, /\.home-focus-route/)
+  assert.match(homeStyles, /\.home-focus-route__chapters/)
   assert.match(homeStyles, /\.beginner-roadmap__aside/)
   assert.doesNotMatch(homeSource, /curriculumSpineStages\.map/)
   assert.doesNotMatch(homeSource, /const beginnerRoadmapSource/)

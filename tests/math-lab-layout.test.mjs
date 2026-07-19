@@ -400,6 +400,7 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(routeSummarySource, /nextModuleId/)
   assert.match(routeDashboardSource, /reportStatus/)
   assert.match(routeDashboardSource, /checkpointReportForModule/)
+  assert.match(routeDashboardSource, /:id="route\.id"/)
   assert.match(routeDashboardSource, /type ReportStatus = 'complete' \| 'draft' \| 'not-started' \| 'unavailable'/)
   assert.match(routeDashboardSource, /const checkpointReportStates = ref/)
   assert.match(routeDashboardSource, /function refreshCheckpointReports\(\)/)
