@@ -21,14 +21,25 @@ function allLocalizedCopies(value: unknown): Array<{ 'zh-CN': string, en: string
   return Object.values(value).flatMap(allLocalizedCopies)
 }
 
-test('gold lesson replaces the existing runtime ID with a complete bilingual 12-section module', () => {
+test('gold manuscript stays complete while runtime promotes teaching sections without the exercise bank', () => {
   const module = mathToCodeModules.find((candidate) => candidate.id === 'calculus-functions-rate-change')
   assert.ok(module)
   const runtimeModule = mathLabModuleRegistry[module.id]
   assert.equal(module.sourceNoteFile, 'math-lab-calculus-route-sources.md')
   assert.equal(runtimeModule.sourceNoteFile, module.sourceNoteFile)
   assert.equal(runtimeModule.title.en, module.title.en)
-  assert.equal(runtimeModule.sections, module.sections)
+  const runtimeSectionOrder = sectionOrder.filter((id) => id !== 'layered-practice')
+  assert.deepEqual(runtimeModule.sections.map((section) => section.id), runtimeSectionOrder)
+  assert.deepEqual(runtimeModule.toc.map((section) => section.id), runtimeSectionOrder)
+  assert.equal(runtimeModule.sections.length, 11)
+  for (const sourceSection of module.sections.filter((section) => section.id !== 'layered-practice')) {
+    const runtimeSection = runtimeModule.sections.find((section) => section.id === sourceSection.id)
+    assert.ok(runtimeSection)
+    assert.equal(runtimeSection.content, sourceSection.content)
+  }
+  assert.equal(runtimeModule.sections.some((section) => section.id === 'layered-practice'), false)
+  assert.ok(runtimeModule.visuals.some((visual) => visual.id === 'minimum-function-machine'))
+  assert.ok(runtimeModule.visuals.some((visual) => visual.id === 'minimum-average-rate'))
   assert.deepEqual(runtimeModule.nextModuleIds, ['calculus-derivatives-local-change'])
   assert.deepEqual(module.sections.map((section) => section.id), sectionOrder)
   assert.deepEqual(module.toc.map((item) => item.id), sectionOrder)

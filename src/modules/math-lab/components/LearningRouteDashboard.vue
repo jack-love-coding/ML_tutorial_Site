@@ -12,13 +12,16 @@ import {
 
 type ReportStatus = 'complete' | 'draft' | 'not-started' | 'unavailable'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   route: LearningRoute
   modules: MathLabModule[]
   completedModuleIds?: MathLabModuleId[]
   progress?: MathLabProgress
   locale: MathLabLocale
-}>()
+  showReports?: boolean
+}>(), {
+  showReports: true,
+})
 
 const moduleById = computed(() => new Map(props.modules.map((moduleDefinition) => [moduleDefinition.id, moduleDefinition])))
 const routeCompletedModuleIds = computed(() => props.progress
@@ -109,7 +112,7 @@ function exportRouteMarkdown() {
       <h2>{{ route.title[locale] }}</h2>
       <p>{{ route.description[locale] }}</p>
       <strong>{{ summary.completedCount }} / {{ summary.totalCount }} {{ locale === 'zh-CN' ? '已完成' : 'completed' }}</strong>
-      <button class="action-button" type="button" @click="exportRouteMarkdown">
+      <button v-if="showReports !== false" class="action-button" type="button" @click="exportRouteMarkdown">
         {{ locale === 'zh-CN' ? '导出整条路线报告' : 'Export route report' }}
       </button>
     </header>
@@ -123,7 +126,8 @@ function exportRouteMarkdown() {
         <router-link :to="`/math-lab/modules/${moduleDefinition.id}?route=${route.id}`">
           <span>{{ routeIndex + 1 }}</span>
           <strong>{{ moduleDefinition.title[locale] }}</strong>
-          <small>{{ reportStatus(moduleDefinition.id) }}</small>
+          <small v-if="showReports !== false">{{ reportStatus(moduleDefinition.id) }}</small>
+          <small v-else>{{ moduleDefinition.estimatedMinutes }} min</small>
         </router-link>
       </li>
     </ol>

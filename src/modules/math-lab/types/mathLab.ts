@@ -2,7 +2,13 @@ export type MathLabLocale = 'zh-CN' | 'en'
 
 export type MathLabModuleId = string
 
-export type LearningRouteId = 'ai-math-main-path' | 'linear-algebra-route' | 'calculus-route' | 'numerical-deepening-path' | 'math-to-code-pilot'
+export type LearningRouteId =
+  | 'ai-math-main-path'
+  | 'minimum-foundation'
+  | 'linear-algebra-route'
+  | 'calculus-route'
+  | 'numerical-deepening-path'
+  | 'math-to-code-pilot'
 
 export type MathLabDifficulty = 'foundation' | 'intermediate' | 'advanced'
 
@@ -85,6 +91,7 @@ export interface MathConcept {
   geometricIntuition: LocalizedCopy
   numericalExample: LocalizedCopy
   codeExample?: string
+  codeOutput?: LocalizedCopy
   modelConnection: LocalizedCopy
 }
 

@@ -485,11 +485,11 @@ export const curriculumCatalogMetadata = [
       "en": "Linear Algebra for AI Beginners"
     },
     "summary": {
-      "zh-CN": "从特征卡、箭头、距离和空间变形开始，把 AI 中的向量与矩阵讲成可看见的对象。",
-      "en": "Start from feature cards, arrows, distance, and space transforms so vectors and matrices become visible AI objects."
+      "zh-CN": "从一个样本向量走到批量矩阵、shape 账本和可复现的 NumPy 预测。",
+      "en": "Move from one example vector to a batch matrix, a shape ledger, and a reproducible NumPy prediction."
     },
     "route": "/math-lab/modules/beginner-linear-algebra",
-    "estimatedMinutes": 34,
+    "estimatedMinutes": 60,
     "prerequisiteIds": [],
     "outcomeIds": [
       "beginner-linear-algebra:objective-1",
@@ -741,7 +741,7 @@ export const curriculumCatalogMetadata = [
       "en": "Use one hand-checkable level-duration prediction to connect formulas, code, residuals, and a controlled experiment."
     },
     "route": "/math-lab/modules/calculus-functions-rate-change",
-    "estimatedMinutes": 75,
+    "estimatedMinutes": 60,
     "prerequisiteIds": [
       "tensor-shapes-vectorization"
     ],
@@ -773,7 +773,7 @@ export const curriculumCatalogMetadata = [
       "en": "Check local loss sensitivity with analytic results and central difference while separating estimation from updating."
     },
     "route": "/math-lab/modules/calculus-derivatives-local-change",
-    "estimatedMinutes": 80,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [
       "calculus-functions-rate-change"
     ],
@@ -1015,11 +1015,11 @@ export const curriculumCatalogMetadata = [
       "en": "Probability Distributions for AI Beginners"
     },
     "summary": {
-      "zh-CN": "从样本空间、随机变量、重复试验和概率条理解 AI 的不确定性语言。",
-      "en": "Start from sample spaces, random variables, repeated trials, and probability bars to understand AI uncertainty."
+      "zh-CN": "从样本空间、随机变量和离散分布走到可复现采样与模型概率。",
+      "en": "Move from sample spaces, random variables, and discrete distributions to reproducible sampling and model probabilities."
     },
     "route": "/math-lab/modules/beginner-probability-distributions",
-    "estimatedMinutes": 36,
+    "estimatedMinutes": 65,
     "prerequisiteIds": [
       "calculus-training-code-diagnostics"
     ],
@@ -1027,8 +1027,7 @@ export const curriculumCatalogMetadata = [
       "beginner-probability-distributions:objective-1",
       "beginner-probability-distributions:objective-2",
       "beginner-probability-distributions:objective-3",
-      "beginner-probability-distributions:objective-4",
-      "beginner-probability-distributions:objective-5"
+      "beginner-probability-distributions:objective-4"
     ],
     "relatedModuleIds": [
       "monte-carlo"

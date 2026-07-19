@@ -11,6 +11,7 @@ import {
   calculusRouteModuleIds,
   linearAlgebraRouteModuleIds,
   mathToCodePilotModuleIds,
+  minimumFoundationModuleIds,
   numericalDeepeningModuleIds,
 } from './mathCourseOrder.ts'
 
@@ -19,6 +20,7 @@ export {
   calculusRouteModuleIds,
   linearAlgebraRouteModuleIds,
   mathToCodePilotModuleIds,
+  minimumFoundationModuleIds,
 } from './mathCourseOrder.ts'
 
 function copy(zh: string, en: string): LocalizedCopy {
@@ -34,6 +36,29 @@ const aiMathMainPathRoute: LearningRoute = {
   ),
   audience: copy('想为机器学习建数学地基的初学者。', 'Beginners building the math foundation for machine learning.'),
   chapterModuleIds: aiMathPathModuleIds,
+  nextStepRule: 'first-incomplete',
+}
+
+const minimumFoundationRoute: LearningRoute = {
+  id: 'minimum-foundation',
+  title: copy('最低数学基础：四章主线', 'Minimum Mathematics Foundation: Four-Chapter Route'),
+  description: copy(
+    '沿同一组数值，从函数映射走到向量与矩阵、局部导数，再进入离散概率分布。',
+    'Follow one set of values from function mappings through vectors and matrices, local derivatives, and discrete probability distributions.',
+  ),
+  audience: copy(
+    '已经能阅读基础 Python，希望为机器学习建立第一层数学语言的学习者。',
+    'Learners who can read basic Python and want the first mathematical language needed for machine learning.',
+  ),
+  chapterModuleIds: minimumFoundationModuleIds,
+  entryAssumptions: [
+    { id: 'basic-python', label: copy('能阅读基础 Python 与 NumPy 代码', 'Can read basic Python and NumPy code') },
+  ],
+  prerequisiteOverrides: Object.fromEntries(minimumFoundationModuleIds.map((moduleId, index) => [
+    moduleId,
+    index === 0 ? [] : [minimumFoundationModuleIds[index - 1]],
+  ])),
+  completionVersion: 'minimum-foundation-v1',
   nextStepRule: 'first-incomplete',
 }
 
@@ -96,6 +121,7 @@ const mathToCodePilotRoute: LearningRoute = {
 
 export const learningRoutes: readonly LearningRoute[] = [
   aiMathMainPathRoute,
+  minimumFoundationRoute,
   linearAlgebraRoute,
   calculusRoute,
   numericalDeepeningRoute,
@@ -104,6 +130,7 @@ export const learningRoutes: readonly LearningRoute[] = [
 
 export const learningRouteById: Record<LearningRouteId, LearningRoute> = {
   'ai-math-main-path': aiMathMainPathRoute,
+  'minimum-foundation': minimumFoundationRoute,
   'linear-algebra-route': linearAlgebraRoute,
   'calculus-route': calculusRoute,
   'numerical-deepening-path': numericalDeepeningRoute,

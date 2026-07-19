@@ -237,8 +237,20 @@ test('the pilot consumes exactly six registered modules with globally unique tea
   for (const module of mathToCodeModules) {
     const registered = mathLabModuleRegistry[module.id]
     assert.ok(registered, `${module.id} is not registered`)
-    assert.equal(registered.sections, module.sections, `${module.id} does not expose the promoted section record`)
-    assert.equal(registered.concepts, module.concepts, `${module.id} does not expose the promoted concept record`)
+    if (module.id === 'calculus-functions-rate-change' || module.id === 'calculus-derivatives-local-change') {
+      const omittedPracticeId = module.id === 'calculus-functions-rate-change' ? 'layered-practice' : 'derivatives-practice'
+      assert.equal(registered.sections.some(({ id }) => id === omittedPracticeId), false)
+      for (const sourceSection of module.sections.filter(({ id }) => id !== omittedPracticeId)) {
+        const runtimeSection = registered.sections.find(({ id }) => id === sourceSection.id)
+        assert.ok(runtimeSection, `${module.id} must preserve ${sourceSection.id}`)
+        assert.equal(runtimeSection.content, sourceSection.content)
+      }
+      assert.deepEqual(registered.concepts.map(({ id }) => id), module.concepts.map(({ id }) => id))
+      assert.ok(registered.concepts.some((concept) => concept.codeOutput), `${module.id} needs reference output`)
+    } else {
+      assert.equal(registered.sections, module.sections, `${module.id} does not expose the promoted section record`)
+      assert.equal(registered.concepts, module.concepts, `${module.id} does not expose the promoted concept record`)
+    }
     assert.equal(registered.labs, module.labs, `${module.id} does not expose the promoted lab record`)
     assert.equal(registered.quizzes, module.quizzes, `${module.id} does not expose the promoted quiz record`)
     assert.equal(registered.misconceptions, module.misconceptions, `${module.id} does not expose the promoted misconception record`)

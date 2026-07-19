@@ -14,6 +14,7 @@ import { withPublicBase } from '../../../utils/publicPath.ts'
 const { locale } = useI18n()
 const progress = ref<MathLabProgress>(loadMathLabProgress())
 const currentLocale = computed(() => locale.value as MathLabLocale)
+const minimumFoundationRoute = computed(() => learningRouteById['minimum-foundation'])
 const linearAlgebraRoute = computed(() => learningRouteById['linear-algebra-route'])
 const mathToCodePilotRoute = computed(() => learningRouteById['math-to-code-pilot'])
 const aiMathPathModules = computed(() => {
@@ -55,15 +56,15 @@ const beginnerBridgeCopy = computed(() =>
   currentLocale.value === 'zh-CN'
     ? {
         eyebrow: '零基础导学',
-        title: '先用三张图建立 AI 数学直觉',
+        title: '用四章建立第一层 AI 数学语言',
         body:
-          '如果你还没有学过大学数学，先按这个顺序走：把数据看成箭头，理解“微小改变会怎样影响结果”，再把不确定性读成概率分布。',
+          '沿同一个可手算例子，依次理解函数映射、向量与矩阵、局部导数和概率分布。每章都给出 Python/NumPy 代码与运行结果。',
       }
     : {
         eyebrow: 'Beginner bridge',
-        title: 'Build AI math intuition with three visual stories first',
+        title: 'Build the first layer of AI mathematics in four chapters',
         body:
-          'If you are new to higher math, start here: read data as arrows, understand how tiny changes affect outputs, then read uncertainty as probability distributions.',
+          'Follow one hand-checkable example through function mappings, vectors and matrices, local derivatives, and probability distributions, with Python/NumPy code and outputs in every chapter.',
       },
 )
 
@@ -71,20 +72,28 @@ const beginnerCards = computed(() =>
   currentLocale.value === 'zh-CN'
     ? [
         {
-          id: 'linear-algebra',
-          title: '线性代数：数据变成箭头',
-          body: '从图片、词语、用户特征出发，看懂向量、矩阵变换、距离和相似度。',
-          imagePath: '/math-lab/generated/beginner-linear-algebra-story.png',
-          alt: '线性代数入门插图：数据卡片变成向量、向量组合、矩阵变换和长度测量。',
-          route: '/math-lab/modules/beginner-linear-algebra',
+          id: 'functions',
+          title: '函数与映射：输入怎样变成预测',
+          body: '区分输入、参数、预测和目标，并用平均变化率描述输出怎样改变。',
+          imagePath: '/math-lab/generated/beginner-function-machine-longform.png',
+          alt: '函数映射教学插图：输入经过确定规则得到输出，并把参数与目标分开。',
+          route: '/math-lab/modules/calculus-functions-rate-change?route=minimum-foundation',
         },
         {
-          id: 'calculus',
-          title: '微积分：局部变化给出方向',
-          body: '用小车、切线和下坡路径理解导数、梯度和训练时的参数更新。',
+          id: 'linear-algebra',
+          title: '向量与矩阵：样本怎样组成批次',
+          body: '把一行特征写成向量，把多行样本写成矩阵，并读懂每条轴和 shape。',
+          imagePath: '/math-lab/generated/beginner-linear-algebra-story.png',
+          alt: '线性代数入门插图：数据卡片变成向量、向量组合、矩阵变换和长度测量。',
+          route: '/math-lab/modules/beginner-linear-algebra?route=minimum-foundation',
+        },
+        {
+          id: 'derivatives',
+          title: '导数：当前点附近怎样变化',
+          body: '从割线走到局部斜率，用中央差分核对损失对参数的敏感度。',
           imagePath: '/math-lab/generated/beginner-calculus-story.png',
           alt: '微积分入门插图：小车轨迹、切线斜率、局部变化和梯度下降路径。',
-          route: '/math-lab/modules/calculus-functions-rate-change',
+          route: '/math-lab/modules/calculus-derivatives-local-change?route=minimum-foundation',
         },
         {
           id: 'probability',
@@ -92,25 +101,33 @@ const beginnerCards = computed(() =>
           body: '从重复试验和直方图理解分布，再连接到分类器输出的概率条。',
           imagePath: '/math-lab/generated/beginner-probability-story.png',
           alt: '概率分布入门插图：随机样本进入分桶、形成分布曲线，并连接分类概率输出。',
-          route: '/math-lab/modules/beginner-probability-distributions',
+          route: '/math-lab/modules/beginner-probability-distributions?route=minimum-foundation',
         },
       ]
     : [
         {
-          id: 'linear-algebra',
-          title: 'Linear algebra: data becomes arrows',
-          body: 'Start from images, words, and user features, then read vectors, matrix transforms, distance, and similarity.',
-          imagePath: '/math-lab/generated/beginner-linear-algebra-story.png',
-          alt: 'Beginner linear algebra illustration showing data cards becoming vectors, vector combinations, matrix transforms, and length measurement.',
-          route: '/math-lab/modules/beginner-linear-algebra',
+          id: 'functions',
+          title: 'Functions and mappings: inputs become predictions',
+          body: 'Separate inputs, parameters, predictions, and targets, then describe output change with an average rate.',
+          imagePath: '/math-lab/generated/beginner-function-machine-longform.png',
+          alt: 'Function mapping illustration showing an input following a deterministic rule to an output, with parameters separate from the target.',
+          route: '/math-lab/modules/calculus-functions-rate-change?route=minimum-foundation',
         },
         {
-          id: 'calculus',
-          title: 'Calculus: local change gives direction',
-          body: 'Use a moving car, tangent lines, and a downhill path to understand derivatives, gradients, and training updates.',
+          id: 'linear-algebra',
+          title: 'Vectors and matrices: examples become batches',
+          body: 'Write one feature row as a vector, stack examples into a matrix, and read every axis and shape.',
+          imagePath: '/math-lab/generated/beginner-linear-algebra-story.png',
+          alt: 'Beginner linear algebra illustration showing data cards becoming vectors, vector combinations, matrix transforms, and length measurement.',
+          route: '/math-lab/modules/beginner-linear-algebra?route=minimum-foundation',
+        },
+        {
+          id: 'derivatives',
+          title: 'Derivatives: change near the current point',
+          body: 'Move from secants to a local slope and use central differences to check loss sensitivity.',
           imagePath: '/math-lab/generated/beginner-calculus-story.png',
           alt: 'Beginner calculus illustration showing a car path, tangent slope, local change, and a gradient descent path.',
-          route: '/math-lab/modules/calculus-functions-rate-change',
+          route: '/math-lab/modules/calculus-derivatives-local-change?route=minimum-foundation',
         },
         {
           id: 'probability',
@@ -118,7 +135,7 @@ const beginnerCards = computed(() =>
           body: 'Move from repeated trials and histograms to distributions, then connect them to classifier probability bars.',
           imagePath: '/math-lab/generated/beginner-probability-story.png',
           alt: 'Beginner probability illustration showing random samples entering bins, forming a distribution curve, and connecting to class probability outputs.',
-          route: '/math-lab/modules/beginner-probability-distributions',
+          route: '/math-lab/modules/beginner-probability-distributions?route=minimum-foundation',
         },
       ],
 )
@@ -170,6 +187,14 @@ const beginnerCards = computed(() =>
         </router-link>
       </div>
     </section>
+
+    <LearningRouteDashboard
+      :route="minimumFoundationRoute"
+      :modules="mathLabModules"
+      :progress="progress"
+      :locale="currentLocale"
+      :show-reports="false"
+    />
 
     <LearningRouteDashboard
       :route="linearAlgebraRoute"

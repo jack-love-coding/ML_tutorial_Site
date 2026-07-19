@@ -1,6 +1,5 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
 import { aiBridgeModules } from './aiBridgeModules.ts'
-import { beginnerFoundationModules } from './beginnerFoundationModules.ts'
 import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
 import { calculusRouteModules } from './calculusRouteModules.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
@@ -11,7 +10,10 @@ import { linearAlgebraRouteModules } from './linearAlgebraRouteModules.ts'
 import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { buildMarkovChainsModule } from './markovChainsModule.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
-import { mathToCodeModules } from './mathToCode/modules.ts'
+import {
+  minimumFoundationBeginnerModules,
+  minimumFoundationMathToCodeModules,
+} from './minimumFoundationModules.ts'
 import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
 import { buildOptimizationModule } from './optimizationModule.ts'
@@ -174,10 +176,10 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
 })
 
 export const mathLabModuleProviders: readonly MathLabModuleProvider[] = [
-  { name: 'beginnerFoundationModules', modules: beginnerFoundationModules },
+  { name: 'beginnerFoundationModules', modules: minimumFoundationBeginnerModules },
   { name: 'linearAlgebraRouteModules', modules: linearAlgebraRouteModules },
   { name: 'calculusRouteModules', modules: calculusRouteModules },
-  { name: 'mathToCodeModules', modules: mathToCodeModules },
+  { name: 'mathToCodeModules', modules: minimumFoundationMathToCodeModules },
   { name: 'importedFoundationModules', modules: importedFoundationModules },
   { name: 'aiBridgeModules', modules: aiBridgeModules },
 ]

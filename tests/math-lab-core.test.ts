@@ -536,8 +536,18 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'training-diagnostics',
       'deep-architecture-math',
     ])
-    if (['calculus-functions-rate-change', 'calculus-derivatives-local-change', 'linear-algebra-feature-space', 'linear-algebra-matrix-transformations'].includes(moduleDefinition.id)) {
+    if (['linear-algebra-feature-space', 'linear-algebra-matrix-transformations'].includes(moduleDefinition.id)) {
       assert.match(englishBody, /Three-Layer Practice/)
+    } else if (moduleDefinition.id === 'calculus-functions-rate-change') {
+      assert.doesNotMatch(englishBody, /Three-Layer Practice/)
+      assert.match(englishBody, /controlled experiment|Summary and Handoff/i)
+    } else if (moduleDefinition.id === 'calculus-derivatives-local-change') {
+      assert.doesNotMatch(englishBody, /Three-Layer Practice/)
+      assert.match(englishBody, /Use a Derivative to Estimate a Small Change|Summary and Handoff/i)
+    } else if (moduleDefinition.id === 'beginner-linear-algebra') {
+      assert.match(englishBody, /Shape Ledger|Batch Prediction|Summary/i)
+    } else if (moduleDefinition.id === 'beginner-probability-distributions') {
+      assert.match(englishBody, /Empirical Frequency|Summary and the Route Ahead/i)
     } else if (!['pca', 'numpy-mathematics-implementation', 'math-to-code-guided-studio'].includes(moduleDefinition.id) && !aiBridgeIds.has(moduleDefinition.id)) {
       assert.match(englishBody, /Review Questions/)
     }
@@ -792,8 +802,12 @@ test('calculus route exposes seven ordered beginner chapters from change to trai
     }
 
     const englishBody = moduleDefinition.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
-    if (id === 'calculus-functions-rate-change' || id === 'calculus-derivatives-local-change') {
-      assert.match(englishBody, /Three-Layer Practice/)
+    if (id === 'calculus-functions-rate-change') {
+      assert.doesNotMatch(englishBody, /Three-Layer Practice/)
+      assert.match(englishBody, /controlled experiment|Summary and Handoff/i)
+    } else if (id === 'calculus-derivatives-local-change') {
+      assert.doesNotMatch(englishBody, /Three-Layer Practice/)
+      assert.match(englishBody, /Use a Derivative to Estimate a Small Change|Summary and Handoff/i)
     } else {
       assert.match(englishBody, /Review Questions/)
     }

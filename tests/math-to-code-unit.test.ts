@@ -89,7 +89,18 @@ test('runtime Chinese sections are exact full-text projections of all four appro
 test('three legacy IDs remain runtime replacements and Task 7 registers NumPy', () => {
   for (const { id } of cases.slice(0, 3)) {
     const promoted = mathToCodeModules.find((module) => module.id === id)!
-    assert.equal(mathLabModuleRegistry[id]?.sections, promoted.sections)
+    const runtime = mathLabModuleRegistry[id]!
+    if (id === 'calculus-derivatives-local-change') {
+      assert.equal(runtime.sections.some((section) => section.id === 'derivatives-practice'), false)
+      assert.ok(runtime.sections.some((section) => section.id === 'minimum-derivative-local-approximation'))
+      for (const sourceSection of promoted.sections.filter((section) => section.id !== 'derivatives-practice')) {
+        const runtimeSection = runtime.sections.find((section) => section.id === sourceSection.id)
+        assert.ok(runtimeSection)
+        assert.equal(runtimeSection.content, sourceSection.content)
+      }
+    } else {
+      assert.equal(runtime.sections, promoted.sections)
+    }
     assert.equal(mathLabModuleRegistry[id]?.title.en, promoted.title.en)
   }
   assert.equal(

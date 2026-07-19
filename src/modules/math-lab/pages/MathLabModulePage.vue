@@ -344,7 +344,16 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
               <MarkdownMathContent :source="concept.modelConnection[currentLocale]" />
             </article>
           </div>
-          <CodeLab v-if="concept.codeExample" :title="concept.name[currentLocale]" :code="concept.codeExample" />
+          <CodeLab
+            v-if="concept.codeExample"
+            :title="concept.name[currentLocale]"
+            :code="concept.codeExample"
+            :output="concept.codeOutput?.[currentLocale]"
+            :label="currentLocale === 'zh-CN' ? '代码示例' : 'Code example'"
+            :copy-label="currentLocale === 'zh-CN' ? '复制代码' : 'Copy code'"
+            :copied-label="currentLocale === 'zh-CN' ? '已复制' : 'Copied'"
+            :output-label="currentLocale === 'zh-CN' ? '运行输出' : 'Output'"
+          />
           <figure
             v-if="conceptIllustration(concept.id)?.status === 'generated'"
             class="math-concept-illustration"

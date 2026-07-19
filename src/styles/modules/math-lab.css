@@ -172,7 +172,7 @@
 
 .math-beginner-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -869,6 +869,47 @@
 .math-code-lab header strong,
 .math-code-lab pre {
   color: white;
+}
+
+.math-code-lab header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.math-code-lab header > span,
+.math-code-lab header > strong {
+  grid-column: 1;
+}
+
+.math-code-lab__copy {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+}
+
+.math-code-lab__copy:hover,
+.math-code-lab__copy:focus-visible {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.math-code-lab__output {
+  display: grid;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.math-code-lab__output > span {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .math-code-lab pre {

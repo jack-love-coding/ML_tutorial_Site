@@ -47,6 +47,13 @@ export const mathToCodePilotModuleIds: readonly MathLabModuleId[] = [
   'math-to-code-guided-studio',
 ]
 
+export const minimumFoundationModuleIds: readonly MathLabModuleId[] = [
+  'calculus-functions-rate-change',
+  'beginner-linear-algebra',
+  'calculus-derivatives-local-change',
+  'beginner-probability-distributions',
+]
+
 export const mathLearningPhases: readonly MathLearningPhase[] = [
   {
     id: 'representation-geometry',

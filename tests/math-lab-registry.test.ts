@@ -71,9 +71,11 @@ test('math lab module assembly applies only the four declared provider overrides
     mathLabModuleProviders,
     mathLabModuleOverridePolicy,
   )
+  const runtimeMathToCodeProvider = mathLabModuleProviders.find(({ name }) => name === 'mathToCodeModules')
+  assert.ok(runtimeMathToCodeProvider)
 
   for (const moduleId of Object.keys(expectedOverrides)) {
-    const replacement = mathToCodeModules.find((moduleDefinition) => moduleDefinition.id === moduleId)
+    const replacement = runtimeMathToCodeProvider.modules.find((moduleDefinition) => moduleDefinition.id === moduleId)
     assert.ok(replacement, `${moduleId} should be supplied by mathToCodeModules`)
     assert.equal(modulesById[moduleId], replacement)
     assert.equal(providerById[moduleId], 'mathToCodeModules')
