@@ -1,0 +1,59 @@
+{
+  "contractVersion": "numerical-methods-sms-v1",
+  "dataset": {
+    "name": "SMS Spam Collection",
+    "creators": [
+      "Tiago Almeida",
+      "José María Gómez Hidalgo"
+    ],
+    "repository": "UCI Machine Learning Repository",
+    "datasetId": 228,
+    "doi": "10.24432/C5CC84",
+    "page": "https://archive.ics.uci.edu/dataset/228/sms+spam+collection",
+    "download": "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip",
+    "license": "CC BY 4.0",
+    "retrievedAt": "2026-07-20",
+    "sourceArchiveSha256": "1587ea43e58e82b14ff1f5425c88e17f8496bfcdb67a583dbff9eefaf9963ce3",
+    "sourceTextSha256": "7d039a24a6083ed9ef0f806ebad56bbb976e3aeb8de05669173bfdc4996c239d"
+  },
+  "transformation": {
+    "sourceFile": "SMSSpamCollection",
+    "operations": [
+      "strict-utf8-decode",
+      "split-leading-label-at-first-tab",
+      "add-one-based-stable-row-id",
+      "write-rfc4180-compatible-csv"
+    ],
+    "textNormalization": false,
+    "deduplication": false,
+    "randomSampling": false,
+    "duplicateMessageCount": 403
+  },
+  "representationContract": {
+    "documentId": "sms_id",
+    "label": "label",
+    "text": "message",
+    "tokenPattern": "[a-z0-9']+",
+    "minimumDocumentFrequency": 5,
+    "idf": "log((1 + n_documents) / (1 + document_frequency)) + 1",
+    "rowNormalization": "l2"
+  },
+  "file": {
+    "publicPath": "/datasets/numerical-methods/sms-spam.csv",
+    "encoding": "utf-8",
+    "delimiter": "comma",
+    "sha256": "d43a9b9fe1530f4cc58a1e01ad23ee466283c9abce4a83be17b199899bd584f8",
+    "bytes": 507860,
+    "rows": 5574,
+    "columns": 3,
+    "columnOrder": [
+      "sms_id",
+      "label",
+      "message"
+    ],
+    "labelCounts": {
+      "ham": 4827,
+      "spam": 747
+    }
+  }
+}

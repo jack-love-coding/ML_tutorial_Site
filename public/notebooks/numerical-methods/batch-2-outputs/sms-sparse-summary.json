@@ -1,0 +1,60 @@
+{
+  "contractVersion": "numerical-methods-batch-2-v1",
+  "outputId": "sms-sparse-summary",
+  "datasetSha256": "d43a9b9fe1530f4cc58a1e01ad23ee466283c9abce4a83be17b199899bd584f8",
+  "rows": 5574,
+  "columns": 1881,
+  "nnz": 69798,
+  "density": 0.006657132768967793,
+  "averageNonzerosPerRow": 12.522066738428418,
+  "denseBytesFloat64": 83877552,
+  "csrBytes": 859876,
+  "denseToCsrRatio": 97.54610199610177,
+  "manualRow": {
+    "rowIndex": 17,
+    "start": 283,
+    "end": 299,
+    "entries": 16,
+    "manualDot": -0.49780595596063804,
+    "libraryDot": -0.49780595596063804,
+    "absoluteDifference": 0.0
+  },
+  "topDocumentFrequency": [
+    {
+      "token": "to",
+      "documents": 1687
+    },
+    {
+      "token": "i",
+      "documents": 1686
+    },
+    {
+      "token": "you",
+      "documents": 1539
+    },
+    {
+      "token": "a",
+      "documents": 1180
+    },
+    {
+      "token": "the",
+      "documents": 1035
+    },
+    {
+      "token": "u",
+      "documents": 831
+    },
+    {
+      "token": "in",
+      "documents": 810
+    },
+    {
+      "token": "and",
+      "documents": 795
+    }
+  ],
+  "labelCounts": {
+    "ham": 4827,
+    "spam": 747
+  }
+}

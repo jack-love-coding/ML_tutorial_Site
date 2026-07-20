@@ -1,10 +1,19 @@
-# ML Atlas Curriculum V2
+# ML Atlas Curriculum V3 Content Delivery
 
 ## What This Is
 
 ML Atlas is a Vue 3, TypeScript, and Vite machine-learning teaching site for beginners and weak-foundation students. It uses bilingual explanations, visual labs, reproducible simulations, quizzes, and local static assets to connect math, data processing, model training behavior, and deep-learning intuition.
 
-This refactor organizes the existing site into a unified curriculum model without a big-bang rewrite of Math Lab, Data Lab, or Algorithm modules.
+The Curriculum V2 adapter and navigation work remains the compatibility foundation. Current delivery follows the typed Curriculum V3 blueprint and incrementally rebuilds detailed teaching content without a big-bang rewrite of Math Lab, Data Lab, or Algorithm modules.
+
+## Current Delivery Focus
+
+- Curriculum V3.0 blueprint and content audit are complete.
+- Python Data Tools Stages 1–4 and the detailed minimum-mathematics, linear-algebra, calculus, and probability routes are implemented.
+- Numerical Methods Batch 1 (`least-squares-fitting`, `lu-decomposition`, `condition-numbers`) is complete.
+- Numerical Methods Batch 2 (`sparse-matrices`, `pca`) is complete.
+- Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) is next for discussion and design; implementation has not started.
+- Homepage Focus and Spine progressive-disclosure redesign remain paused while content depth is built.
 
 ## Core Value
 
@@ -62,4 +71,4 @@ Students should always know where they are in the learning path, why the current
 | Pilot AI Overview, Gradient Descent, and MLP | Covers orientation, optimization, and neural-network flagship lessons | — Pending |
 
 ---
-*Last updated: 2026-06-25 after initial Curriculum V2 planning*
+*Last updated: 2026-07-20 for Curriculum V3 numerical-methods content delivery*

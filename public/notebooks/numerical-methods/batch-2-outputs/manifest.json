@@ -1,0 +1,51 @@
+{
+  "contractVersion": "numerical-methods-batch-2-v1",
+  "datasets": [
+    {
+      "id": "sms-spam",
+      "publicPath": "/datasets/numerical-methods/sms-spam.csv",
+      "sha256": "d43a9b9fe1530f4cc58a1e01ad23ee466283c9abce4a83be17b199899bd584f8"
+    },
+    {
+      "id": "ames-housing-numeric",
+      "publicPath": "/datasets/numerical-methods/ames-housing-numeric.csv",
+      "sha256": "763867f46c9a8616d7e7ea7599f4ab1cf408609c8aea06e496e65f9330df20fc"
+    }
+  ],
+  "generator": {
+    "path": "scripts/numerical-methods/generate-batch-2-notebooks.py",
+    "sha256": "c8e52390440873ba8519cbdfa5414055bea1587b675c84e88fc727b3dc8b0803"
+  },
+  "requirements": {
+    "publicPath": "/notebooks/numerical-methods/requirements.txt",
+    "sha256": "044c51329c22148baf031fb0aaf18a8378b99b92cbe84f1ada4407bade29deeb"
+  },
+  "notebooks": [
+    {
+      "moduleId": "sparse-matrices",
+      "publicPath": "/notebooks/numerical-methods/sparse-matrices-sms.zh-CN.ipynb",
+      "sha256": "ec607b2f8dc5c478498d054792da5de2f13254f69db827c242d733701152c91e",
+      "bytes": 13516
+    },
+    {
+      "moduleId": "pca",
+      "publicPath": "/notebooks/numerical-methods/pca-ames.zh-CN.ipynb",
+      "sha256": "dc5d6c9f853d69ddb8b62d2e05f4c150fd38b6ed7907b1973c87d2a962276cff",
+      "bytes": 14369
+    }
+  ],
+  "outputs": [
+    {
+      "outputId": "sms-sparse-summary",
+      "publicPath": "/notebooks/numerical-methods/batch-2-outputs/sms-sparse-summary.json",
+      "sha256": "04e10734535c324033714da494b0035ab55a0bf45d6fab59368f6c34f2ecb2be",
+      "bytes": 1161
+    },
+    {
+      "outputId": "ames-pca-summary",
+      "publicPath": "/notebooks/numerical-methods/batch-2-outputs/ames-pca-summary.json",
+      "sha256": "04b3dea0d3112d8fa680887b49666d182b755d36a8cd4f7bad09c2fd8ecf833d",
+      "bytes": 2138
+    }
+  ]
+}

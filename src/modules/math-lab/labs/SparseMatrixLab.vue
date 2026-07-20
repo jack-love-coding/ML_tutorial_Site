@@ -16,6 +16,7 @@ const props = withDefaults(defineProps<{
 
 const matrixSize = ref(2000)
 const nonzerosPerRow = ref(5)
+const matrixPreset = ref<'sms' | 'synthetic'>('sms')
 const storageFormat = ref<'coo' | 'csr'>('csr')
 const highlightRow = ref(4)
 
@@ -27,8 +28,11 @@ const labels = computed(() => {
     eyebrow: zh ? '互动实验' : 'Interactive lab',
     title: zh ? '稀疏存储与 CSR 乘法实验' : 'Sparse Storage and CSR Matvec Lab',
     subtitle: zh
-      ? '调节矩阵规模和每行非零数，观察 dense、COO、CSR 的存储差距，以及 CSR 如何只扫描当前行的非零项。'
-      : 'Adjust matrix size and nonzeros per row to compare dense, COO, and CSR storage, and see how CSR scans only the nonzeros in one row.',
+      ? '先查看 UCI 短信 TF-IDF 的固定真实 shape 与字节数，再切换到合成方阵，观察密度怎样改变 dense、COO、CSR 的差距。下方 12×12 方格只是访问路径示意。'
+      : 'Start from the locked shape and byte counts of the UCI SMS TF-IDF matrix, then switch to a synthetic square matrix to see how density changes the dense, COO, and CSR gap. The 12-by-12 grid is only an access-path schematic.',
+    preset: zh ? '矩阵案例' : 'Matrix case',
+    smsPreset: zh ? 'UCI 短信 TF-IDF（固定结果）' : 'UCI SMS TF-IDF (locked output)',
+    syntheticPreset: zh ? '合成方阵（可调规模）' : 'Synthetic square matrix (adjustable)',
     matrixSize: zh ? '方阵维度 n' : 'Square size n',
     nonzerosPerRow: zh ? '每行非零数' : 'Nonzeros per row',
     storageFormat: zh ? '观察格式' : 'Viewed format',
@@ -39,12 +43,16 @@ const labels = computed(() => {
     compression: zh ? '压缩倍数' : 'compression',
     matvecWork: zh ? 'matvec 工作量' : 'matvec work',
     nnz: zh ? '非零元素' : 'nonzeros',
+    matrixShape: zh ? '矩阵 shape' : 'matrix shape',
     rowWindow: zh ? 'CSR 行窗口' : 'CSR row window',
     rowData: zh ? '该行 data' : 'row data',
     rowColumns: zh ? '该行 col' : 'row col',
     coo: zh ? 'COO: row, col, data 三个数组' : 'COO: row, col, data arrays',
     csr: zh ? 'CSR: rowptr, col, data 三个数组' : 'CSR: rowptr, col, data arrays',
     visualLabel: zh ? '12 x 12 预览矩阵，彩色方格表示非零项' : '12 by 12 preview matrix; colored cells are nonzeros',
+    smsNote: zh
+      ? '这是 Notebook 的固定真实结果：5,574×1,881、69,798 个非零项。CSR 约 0.820 MiB，已包含 data、indices 与 indptr；12×12 方格仅说明 row window，不按真实 token 分布绘制。'
+      : 'This is the locked Notebook result: 5,574 by 1,881 with 69,798 nonzeros. CSR occupies about 0.820 MiB including data, indices, and indptr. The 12-by-12 grid explains a row window; it does not reproduce the real token distribution.',
     lowDensityNote: zh
       ? '当前矩阵很稀疏。CSR 的矩阵向量乘法只访问 rowptr 给出的非零区间，dense 扫描的大量零项被跳过。'
       : 'The current matrix is very sparse. CSR matrix-vector multiplication visits only the nonzero interval given by rowptr, skipping the many zeros that dense storage would scan.',
@@ -57,14 +65,36 @@ const labels = computed(() => {
   }
 })
 
-const estimate = computed(() =>
-  estimateSparseStorage({
+const estimate = computed(() => {
+  if (matrixPreset.value === 'sms') {
+    const rows = 5574
+    const columns = 1881
+    const nnz = 69798
+    const denseElements = rows * columns
+    return {
+      rows,
+      columns,
+      nnz,
+      density: nnz / denseElements,
+      denseBytes: 83877552,
+      cooBytes: nnz * (8 + 2 * 4),
+      csrBytes: 859876,
+      denseMatVecOps: 2 * denseElements,
+      sparseMatVecOps: 2 * nnz,
+    }
+  }
+
+  const synthetic = estimateSparseStorage({
     size: matrixSize.value,
     nonzerosPerRow: nonzerosPerRow.value,
-  }),
-)
+  })
+  return { ...synthetic, rows: synthetic.size, columns: synthetic.size }
+})
 
-const previewMatrix = computed(() => generateBandedSparseMatrix(previewSize, nonzerosPerRow.value))
+const previewMatrix = computed(() => generateBandedSparseMatrix(
+  previewSize,
+  matrixPreset.value === 'sms' ? 3 : nonzerosPerRow.value,
+))
 const previewCoo = computed(() => denseToCoo(previewMatrix.value))
 const previewCsr = computed(() => denseToCsr(previewMatrix.value))
 
@@ -91,6 +121,7 @@ const selectedRowColumns = computed(() => {
 })
 
 const statusNote = computed(() => {
+  if (matrixPreset.value === 'sms') return labels.value.smsNote
   if (estimate.value.density > 0.22) return labels.value.highDensityNote
   if (estimate.value.density > 0.06) return labels.value.mediumDensityNote
   return labels.value.lowDensityNote
@@ -179,16 +210,11 @@ function formatArray(values: number[]) {
 
       <div class="math-mini-controls sparse-matrix-lab__control-grid">
         <label>
-          {{ labels.matrixSize }}: {{ formatCount(matrixSize) }}
-          <input v-model.number="matrixSize" type="range" min="200" max="12000" step="200" />
-        </label>
-        <label>
-          {{ labels.nonzerosPerRow }}: {{ nonzerosPerRow }}
-          <input v-model.number="nonzerosPerRow" type="range" min="1" max="9" step="1" />
-        </label>
-        <label>
-          {{ labels.highlightedRow }}: {{ highlightRow }}
-          <input v-model.number="highlightRow" type="range" min="0" max="11" step="1" />
+          {{ labels.preset }}
+          <select v-model="matrixPreset">
+            <option value="sms">{{ labels.smsPreset }}</option>
+            <option value="synthetic">{{ labels.syntheticPreset }}</option>
+          </select>
         </label>
         <label>
           {{ labels.storageFormat }}
@@ -197,9 +223,25 @@ function formatArray(values: number[]) {
             <option value="coo">COO</option>
           </select>
         </label>
+        <label>
+          {{ labels.highlightedRow }}: {{ highlightRow }}
+          <input v-model.number="highlightRow" type="range" min="0" max="11" step="1" />
+        </label>
+        <label v-if="matrixPreset === 'synthetic'">
+          {{ labels.matrixSize }}: {{ formatCount(matrixSize) }}
+          <input v-model.number="matrixSize" type="range" min="200" max="12000" step="200" />
+        </label>
+        <label v-if="matrixPreset === 'synthetic'">
+          {{ labels.nonzerosPerRow }}: {{ nonzerosPerRow }}
+          <input v-model.number="nonzerosPerRow" type="range" min="1" max="9" step="1" />
+        </label>
       </div>
 
       <div class="math-readout-grid">
+        <article>
+          <span>{{ labels.matrixShape }}</span>
+          <strong>[{{ formatCount(estimate.rows) }}, {{ formatCount(estimate.columns) }}]</strong>
+        </article>
         <article>
           <span>{{ labels.nnz }}</span>
           <strong>{{ formatCount(estimate.nnz) }}</strong>

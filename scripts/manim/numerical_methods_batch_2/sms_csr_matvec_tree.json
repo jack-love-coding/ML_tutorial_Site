@@ -1,0 +1,72 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "root": "S0",
+  "maxDepth": 3,
+  "topologicalOrder": ["F_MATRIX", "F_INDEX", "F_DOT", "S1", "S2", "S3", "S4", "S0"],
+  "nodes": [
+    {
+      "id": "F_MATRIX",
+      "concept": "矩阵 shape、行列与零元素",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["matrix rows and columns", "shape", "zero entries"]
+    },
+    {
+      "id": "F_INDEX",
+      "concept": "数组索引、左闭右开切片与一位/零位编号",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["array indexing", "half-open slice", "one-based display"]
+    },
+    {
+      "id": "F_DOT",
+      "concept": "点积是对应元素乘积之和",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["dot product", "weighted sum"]
+    },
+    {
+      "id": "S1",
+      "concept": "固定词表把每条短信映射成 1×1881 的 TF–IDF 行向量",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_MATRIX"],
+      "foundationRefs": ["tokenization", "document frequency", "L2 row normalization"]
+    },
+    {
+      "id": "S2",
+      "concept": "稀疏度由 nnz/(n×d) 定义，0.66571% 表示绝大部分元素为零",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_MATRIX"],
+      "foundationRefs": ["nonzero count", "density", "dense storage"]
+    },
+    {
+      "id": "S3",
+      "concept": "CSR 的 data、indices、indptr 共同恢复行边界与非零列",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["S1", "S2", "F_INDEX"],
+      "foundationRefs": ["compressed sparse row", "row pointer", "column index"]
+    },
+    {
+      "id": "S4",
+      "concept": "CSR matvec 仅遍历一行的非零切片，但与稠密点积得到相同结果",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["S3", "F_DOT"],
+      "foundationRefs": ["sparse matrix-vector product", "manual-library agreement"]
+    },
+    {
+      "id": "S0",
+      "concept": "UCI SMS 稀疏矩阵：表示、存储和矩阵向量乘法的完整计算链",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["S3", "S4"],
+      "foundationRefs": ["5574 by 1881 matrix", "69798 nonzeros", "memory ratio"]
+    }
+  ]
+}

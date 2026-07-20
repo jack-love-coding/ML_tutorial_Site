@@ -2,11 +2,12 @@
 import { computed } from 'vue'
 import { withPublicBase } from '../../../utils/publicPath.ts'
 import type { AmesNumericalNotebookCompanion } from '../data/amesNumericalNotebook.ts'
+import type { NumericalBatch2NotebookCompanion } from '../data/numericalBatch2Notebook.ts'
 import type { MathLabLocale } from '../types/mathLab.ts'
 import CodeLab from './CodeLab.vue'
 
 const props = defineProps<{
-  companion: AmesNumericalNotebookCompanion
+  companion: AmesNumericalNotebookCompanion | NumericalBatch2NotebookCompanion
   locale: MathLabLocale
 }>()
 

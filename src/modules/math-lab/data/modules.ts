@@ -13,6 +13,7 @@ import { mathFoundationsModules } from './mathFoundationsModules.ts'
 import { minimumFoundationBeginnerModules } from './minimumFoundationModules.ts'
 import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
+import { enhanceNumericalBatch2Module } from './numericalBatch2Modules.ts'
 import { buildOptimizationModule } from './optimizationModule.ts'
 import { buildPcaModule } from './pcaModule.ts'
 import { enhanceProbabilityUncertaintyModule } from './probabilityUncertaintyRouteModules.ts'
@@ -202,7 +203,9 @@ const aiMathPathModules: MathLabModule[] = aiMathPathModuleIds.map((moduleId, in
   }
 
   const moduleDefinition = enhanceAmesNumericalMethodsModule(
-    enhanceProbabilityUncertaintyModule(sourceModuleDefinition),
+    enhanceNumericalBatch2Module(
+      enhanceProbabilityUncertaintyModule(sourceModuleDefinition),
+    ),
   )
 
   return {

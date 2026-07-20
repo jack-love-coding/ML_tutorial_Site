@@ -738,7 +738,7 @@
 
 ## V3.1 Minimum Mathematical Foundation
 
-**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–4 completed; Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution.
+**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, Python Data Tools Stages 1–4, detailed minimum-mathematics, linear-algebra, calculus, probability, and Numerical Methods Batches 1–2 are completed slices. Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution. Numerical Methods Batch 3 is next for discussion and design.
 
 **Decision boundary:**
 - Start only from separately reviewed acceptance criteria for the V3.1 waves declared in the generated implementation backlog.
@@ -754,6 +754,13 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 3. **Notebook and real chart assets** — Completed — clean-kernel ipynb, exact outputs, real Matplotlib/Seaborn assets, deterministic Plotly JSON.
 4. **English parity and runtime refactor** — Completed — eight paired chapters, dedicated paged runtime, manifest-driven JSON/PNG/Plotly results, static teaching prompts, legacy redirects, course review, Progress compatibility, both builds, and bounded browser smoke verified.
 5. **Consistency, browser, and build validation** — Designed / ready for execution — four ordered plans cover learner-visible terminology, data/code/output/hash parity, a 36-cell bilingual responsive browser matrix, six failure-injection cases, Progress/request boundaries, and standard/Pages release validation. See `docs/superpowers/specs/2026-07-17-python-data-tools-stage-5-consistency-validation-spec.md`, `docs/superpowers/plans/2026-07-17-python-data-tools-stage-5-validation.md`, and Plans `2026-07-17-python-data-tools-stage-5-01-PLAN.md` through `04-PLAN.md`.
+
+### Numerical Methods Content Deepening
+
+1. **Batch 1: Ames least squares, LUP, and conditioning** — Completed — three detailed bilingual lessons, one shared illustration, three Manim videos, one standalone executed Notebook, fixed outputs, interactive lab corrections, browser verification, and an independent commit.
+2. **Batch 2: sparse matrices and PCA** — Completed — UCI SMS TF-IDF/CSR plus Ames standardized PCA, two standalone executed Notebooks, two fixed outputs, one shared illustration, two Manim videos, existing labs upgraded to align with the real cases, exact route-order reconciliation, and full release/browser validation.
+3. **Batch 3: finite differences and nonlinear equations** — Next for discussion and design — one continuous gradient-check/root-finding case; implementation waits for an approved teaching contract and reproducible output boundary.
+4. **Batch 4: numerical optimization and training diagnostics** — Planned after Batch 3 — numerical stopping, instability, floating-point behavior, and training-curve interpretation without repeating the calculus route.
 
 ---
 *Roadmap created: 2026-06-25*

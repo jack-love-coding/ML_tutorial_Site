@@ -1162,46 +1162,9 @@ export const curriculumCatalogMetadata = [
       "least-squares-fitting:objective-7"
     ],
     "relatedModuleIds": [
-      "pca"
-    ],
-    "legacyRoute": "/math-lab/modules/least-squares-fitting"
-  },
-  {
-    "id": "pca",
-    "source": {
-      "namespace": "math-lab",
-      "id": "pca"
-    },
-    "domain": "math",
-    "level": "advanced",
-    "title": {
-      "zh-CN": "主成分分析（PCA）",
-      "en": "Principal Component Analysis (PCA)"
-    },
-    "summary": {
-      "zh-CN": "把中心化数据转到最大方差方向，用更少坐标保留主要结构。",
-      "en": "Rotate centered data into maximum-variance directions and keep the main structure with fewer coordinates."
-    },
-    "route": "/math-lab/modules/pca",
-    "estimatedMinutes": 60,
-    "prerequisiteIds": [
-      "svd",
-      "least-squares-fitting",
-      "eigenvalues-eigenvectors",
-      "linear-algebra-rank-null-space"
-    ],
-    "outcomeIds": [
-      "pca:objective-1",
-      "pca:objective-2",
-      "pca:objective-3",
-      "pca:objective-4",
-      "pca:objective-5",
-      "pca:objective-6"
-    ],
-    "relatedModuleIds": [
       "lu-decomposition"
     ],
-    "legacyRoute": "/math-lab/modules/pca"
+    "legacyRoute": "/math-lab/modules/least-squares-fitting"
   },
   {
     "id": "lu-decomposition",
@@ -1233,42 +1196,9 @@ export const curriculumCatalogMetadata = [
       "lu-decomposition:objective-6"
     ],
     "relatedModuleIds": [
-      "sparse-matrices"
-    ],
-    "legacyRoute": "/math-lab/modules/lu-decomposition"
-  },
-  {
-    "id": "sparse-matrices",
-    "source": {
-      "namespace": "math-lab",
-      "id": "sparse-matrices"
-    },
-    "domain": "math",
-    "level": "intermediate",
-    "title": {
-      "zh-CN": "稀疏矩阵",
-      "en": "Sparse Matrices"
-    },
-    "summary": {
-      "zh-CN": "用 nnz、COO 和 CSR 理解如何只存非零项，并让大规模线性代数真正可计算。",
-      "en": "Use nnz, COO, and CSR to store only nonzeros and make large-scale linear algebra computable."
-    },
-    "route": "/math-lab/modules/sparse-matrices",
-    "estimatedMinutes": 38,
-    "prerequisiteIds": [
-      "lu-decomposition"
-    ],
-    "outcomeIds": [
-      "sparse-matrices:objective-1",
-      "sparse-matrices:objective-2",
-      "sparse-matrices:objective-3",
-      "sparse-matrices:objective-4",
-      "sparse-matrices:objective-5"
-    ],
-    "relatedModuleIds": [
       "condition-numbers"
     ],
-    "legacyRoute": "/math-lab/modules/sparse-matrices"
+    "legacyRoute": "/math-lab/modules/lu-decomposition"
   },
   {
     "id": "condition-numbers",
@@ -1301,9 +1231,83 @@ export const curriculumCatalogMetadata = [
       "condition-numbers:objective-6"
     ],
     "relatedModuleIds": [
-      "finite-difference-methods"
+      "sparse-matrices"
     ],
     "legacyRoute": "/math-lab/modules/condition-numbers"
+  },
+  {
+    "id": "sparse-matrices",
+    "source": {
+      "namespace": "math-lab",
+      "id": "sparse-matrices"
+    },
+    "domain": "math",
+    "level": "intermediate",
+    "title": {
+      "zh-CN": "稀疏矩阵",
+      "en": "Sparse Matrices"
+    },
+    "summary": {
+      "zh-CN": "用 nnz、COO 和 CSR 理解如何只存非零项，并让大规模线性代数真正可计算。",
+      "en": "Use nnz, COO, and CSR to store only nonzeros and make large-scale linear algebra computable."
+    },
+    "route": "/math-lab/modules/sparse-matrices",
+    "estimatedMinutes": 70,
+    "prerequisiteIds": [
+      "lu-decomposition"
+    ],
+    "outcomeIds": [
+      "sparse-matrices:objective-1",
+      "sparse-matrices:objective-2",
+      "sparse-matrices:objective-3",
+      "sparse-matrices:objective-4",
+      "sparse-matrices:objective-5",
+      "sparse-matrices:objective-6",
+      "sparse-matrices:objective-7"
+    ],
+    "relatedModuleIds": [
+      "pca"
+    ],
+    "legacyRoute": "/math-lab/modules/sparse-matrices"
+  },
+  {
+    "id": "pca",
+    "source": {
+      "namespace": "math-lab",
+      "id": "pca"
+    },
+    "domain": "math",
+    "level": "advanced",
+    "title": {
+      "zh-CN": "主成分分析（PCA）",
+      "en": "Principal Component Analysis (PCA)"
+    },
+    "summary": {
+      "zh-CN": "把中心化数据转到最大方差方向，用更少坐标保留主要结构。",
+      "en": "Rotate centered data into maximum-variance directions and keep the main structure with fewer coordinates."
+    },
+    "route": "/math-lab/modules/pca",
+    "estimatedMinutes": 75,
+    "prerequisiteIds": [
+      "svd",
+      "least-squares-fitting",
+      "eigenvalues-eigenvectors",
+      "linear-algebra-rank-null-space"
+    ],
+    "outcomeIds": [
+      "pca:objective-1",
+      "pca:objective-2",
+      "pca:objective-3",
+      "pca:objective-4",
+      "pca:objective-5",
+      "pca:objective-6",
+      "pca:objective-7",
+      "pca:objective-8"
+    ],
+    "relatedModuleIds": [
+      "finite-difference-methods"
+    ],
+    "legacyRoute": "/math-lab/modules/pca"
   },
   {
     "id": "finite-difference-methods",
