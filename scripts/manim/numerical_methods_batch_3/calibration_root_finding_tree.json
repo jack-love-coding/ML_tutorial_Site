@@ -1,0 +1,72 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "root": "RF0",
+  "maxDepth": 3,
+  "topologicalOrder": ["F_SIGN", "F_LOCAL", "F_STOP", "RF1", "RF2", "RF3", "RF4", "RF0"],
+  "nodes": [
+    {
+      "id": "F_SIGN",
+      "concept": "连续函数、异号端点与中间值性质",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["continuity", "sign-changing bracket", "root existence"]
+    },
+    {
+      "id": "F_LOCAL",
+      "concept": "切线与割线分别提供局部和两点斜率",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["derivative", "tangent intercept", "secant slope"]
+    },
+    {
+      "id": "F_STOP",
+      "concept": "残差、位置变化、区间宽度与函数调用计数",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["residual tolerance", "step tolerance", "evaluation cost"]
+    },
+    {
+      "id": "RF1",
+      "concept": "偏置残差 F(b) 单调且在 [-4,4] 两端异号，因此根存在且唯一",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_SIGN"],
+      "foundationRefs": ["sigmoid monotonicity", "unique scalar root", "target 0.62"]
+    },
+    {
+      "id": "RF2",
+      "concept": "二分法保留异号区间，以稳定的线性速度缩小不确定性",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["RF1", "F_STOP"],
+      "foundationRefs": ["interval halving", "37 updates", "39 function evaluations"]
+    },
+    {
+      "id": "RF3",
+      "concept": "Newton 与割线用斜率信息获得更快局部迭代，但不自动保留区间",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["RF1", "F_LOCAL", "F_STOP"],
+      "foundationRefs": ["Newton update", "secant update", "derivative cost"]
+    },
+    {
+      "id": "RF4",
+      "concept": "无效区间、小导数和离域步长要求拒绝、阻尼或回退策略",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["RF2", "RF3"],
+      "foundationRefs": ["invalid bracket", "sigmoid saturation", "safeguarded solver"]
+    },
+    {
+      "id": "RF0",
+      "concept": "在同一偏置残差上比较二分、Newton 与割线的可靠性、速度和信息成本",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["RF2", "RF3", "RF4"],
+      "foundationRefs": ["b*=0.7302907403", "mean probability 0.62", "root finding to optimization"]
+    }
+  ]
+}

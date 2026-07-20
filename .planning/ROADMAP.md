@@ -738,7 +738,7 @@
 
 ## V3.1 Minimum Mathematical Foundation
 
-**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, Python Data Tools Stages 1–4, detailed minimum-mathematics, linear-algebra, calculus, probability, and Numerical Methods Batches 1–2 are completed slices. Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution. Numerical Methods Batch 3 is next for discussion and design.
+**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, Python Data Tools Stages 1–4, detailed minimum-mathematics, linear-algebra, calculus, probability, and Numerical Methods Batches 1–3 are completed slices. Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution. Numerical Methods Batch 4 is next for discussion and design.
 
 **Decision boundary:**
 - Start only from separately reviewed acceptance criteria for the V3.1 waves declared in the generated implementation backlog.
@@ -759,8 +759,8 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 
 1. **Batch 1: Ames least squares, LUP, and conditioning** — Completed — three detailed bilingual lessons, one shared illustration, three Manim videos, one standalone executed Notebook, fixed outputs, interactive lab corrections, browser verification, and an independent commit.
 2. **Batch 2: sparse matrices and PCA** — Completed — UCI SMS TF-IDF/CSR plus Ames standardized PCA, two standalone executed Notebooks, two fixed outputs, one shared illustration, two Manim videos, existing labs upgraded to align with the real cases, exact route-order reconciliation, and full release/browser validation.
-3. **Batch 3: finite differences and nonlinear equations** — Next for discussion and design — one continuous gradient-check/root-finding case; implementation waits for an approved teaching contract and reproducible output boundary.
-4. **Batch 4: numerical optimization and training diagnostics** — Planned after Batch 3 — numerical stopping, instability, floating-point behavior, and training-curve interpretation without repeating the calculus route.
+3. **Batch 3: finite differences and nonlinear equations** — Completed — one deterministic logit-bias calibration case, a shared executed Notebook, two locked outputs, two upgraded existing labs, one shared illustration, two Manim videos, and full release/browser validation.
+4. **Batch 4: numerical optimization and training diagnostics** — Next for discussion and design — numerical stopping, instability, floating-point behavior, and training-curve interpretation without repeating the calculus route.
 
 ---
 *Roadmap created: 2026-06-25*

@@ -1326,7 +1326,7 @@ export const curriculumCatalogMetadata = [
       "en": "Approximate derivatives from nearby function values, and connect step size, error, and gradient checking."
     },
     "route": "/math-lab/modules/finite-difference-methods",
-    "estimatedMinutes": 38,
+    "estimatedMinutes": 75,
     "prerequisiteIds": [
       "taylor-series",
       "linear-algebra-distance-similarity"
@@ -1336,7 +1336,9 @@ export const curriculumCatalogMetadata = [
       "finite-difference-methods:objective-2",
       "finite-difference-methods:objective-3",
       "finite-difference-methods:objective-4",
-      "finite-difference-methods:objective-5"
+      "finite-difference-methods:objective-5",
+      "finite-difference-methods:objective-6",
+      "finite-difference-methods:objective-7"
     ],
     "relatedModuleIds": [
       "nonlinear-equations"
@@ -1360,7 +1362,7 @@ export const curriculumCatalogMetadata = [
       "en": "Drive nonlinear residuals to zero with bisection, Newton, secant, and Jacobian linearization."
     },
     "route": "/math-lab/modules/nonlinear-equations",
-    "estimatedMinutes": 44,
+    "estimatedMinutes": 80,
     "prerequisiteIds": [
       "taylor-series",
       "finite-difference-methods",
@@ -1371,7 +1373,9 @@ export const curriculumCatalogMetadata = [
       "nonlinear-equations:objective-2",
       "nonlinear-equations:objective-3",
       "nonlinear-equations:objective-4",
-      "nonlinear-equations:objective-5"
+      "nonlinear-equations:objective-5",
+      "nonlinear-equations:objective-6",
+      "nonlinear-equations:objective-7"
     ],
     "relatedModuleIds": [
       "optimization"

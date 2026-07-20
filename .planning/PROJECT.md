@@ -12,7 +12,8 @@ The Curriculum V2 adapter and navigation work remains the compatibility foundati
 - Python Data Tools Stages 1–4 and the detailed minimum-mathematics, linear-algebra, calculus, and probability routes are implemented.
 - Numerical Methods Batch 1 (`least-squares-fitting`, `lu-decomposition`, `condition-numbers`) is complete.
 - Numerical Methods Batch 2 (`sparse-matrices`, `pca`) is complete.
-- Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) is next for discussion and design; implementation has not started.
+- Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) is complete, using one logit-bias calibration case to connect finite-difference checks with nonlinear root finding.
+- Numerical Methods Batch 4 (`numerical-optimization`, `training-diagnostics`) is next for discussion and contract work before implementation.
 - Homepage Focus and Spine progressive-disclosure redesign remain paused while content depth is built.
 
 ## Core Value

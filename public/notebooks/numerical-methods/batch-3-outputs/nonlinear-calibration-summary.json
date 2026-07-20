@@ -1,0 +1,338 @@
+{
+  "contractVersion": "numerical-methods-batch-3-v1",
+  "outputId": "nonlinear-calibration-summary",
+  "fixtureSha256": "f78fab203ad67476d26937fb7ae84e57b6aefaa86e4045f01b3b1c85b3b78bbc",
+  "logitCount": 12,
+  "targetPositiveRate": 0.62,
+  "root": 0.730290740297536,
+  "meanProbabilityAtRoot": 0.619999999995351,
+  "derivativeAtRoot": 0.15594569798407712,
+  "residualTolerance": 1e-12,
+  "positionTolerance": 1e-10,
+  "bracket": [
+    -4.0,
+    4.0
+  ],
+  "solvers": [
+    {
+      "method": "bisection",
+      "root": 0.7302907403209247,
+      "residual": 1.0016432128168162e-12,
+      "iterationCount": 37,
+      "functionEvaluations": 39,
+      "derivativeEvaluations": 0,
+      "trace": [
+        {
+          "iteration": 1,
+          "x": 0.0,
+          "residual": -0.11848083813032573,
+          "bracketWidth": 8.0
+        },
+        {
+          "iteration": 2,
+          "x": 2.0,
+          "residual": 0.17307857655568537,
+          "bracketWidth": 4.0
+        },
+        {
+          "iteration": 3,
+          "x": 1.0,
+          "residual": 0.04112726429230462,
+          "bracketWidth": 2.0
+        },
+        {
+          "iteration": 4,
+          "x": 0.5,
+          "residual": -0.036490945280402975,
+          "bracketWidth": 1.0
+        },
+        {
+          "iteration": 5,
+          "x": 0.75,
+          "residual": 0.003068947350583051,
+          "bracketWidth": 0.5
+        },
+        {
+          "iteration": 6,
+          "x": 0.625,
+          "residual": -0.016546217576920097,
+          "bracketWidth": 0.25
+        },
+        {
+          "iteration": 7,
+          "x": 0.6875,
+          "residual": -0.0066943956226962475,
+          "bracketWidth": 0.125
+        },
+        {
+          "iteration": 8,
+          "x": 0.71875,
+          "residual": -0.0018012991069313866,
+          "bracketWidth": 0.0625
+        },
+        {
+          "iteration": 9,
+          "x": 0.734375,
+          "residual": 0.0006367250410376224,
+          "bracketWidth": 0.03125
+        },
+        {
+          "iteration": 10,
+          "x": 0.7265625,
+          "residual": -0.0005815673416437184,
+          "bracketWidth": 0.015625
+        },
+        {
+          "iteration": 11,
+          "x": 0.73046875,
+          "residual": 2.7759467609467237e-05,
+          "bracketWidth": 0.0078125
+        },
+        {
+          "iteration": 12,
+          "x": 0.728515625,
+          "residual": -0.0002768588692516616,
+          "bracketWidth": 0.00390625
+        },
+        {
+          "iteration": 13,
+          "x": 0.7294921875,
+          "residual": -0.00012453842302984075,
+          "bracketWidth": 0.001953125
+        },
+        {
+          "iteration": 14,
+          "x": 0.72998046875,
+          "residual": -4.838665690709565e-05,
+          "bracketWidth": 0.0009765625
+        },
+        {
+          "iteration": 15,
+          "x": 0.730224609375,
+          "residual": -1.0312889278663029e-05,
+          "bracketWidth": 0.00048828125
+        },
+        {
+          "iteration": 16,
+          "x": 0.7303466796875,
+          "residual": 8.723465529048013e-06,
+          "bracketWidth": 0.000244140625
+        },
+        {
+          "iteration": 17,
+          "x": 0.73028564453125,
+          "residual": -7.946677864634211e-07,
+          "bracketWidth": 0.0001220703125
+        },
+        {
+          "iteration": 18,
+          "x": 0.730316162109375,
+          "residual": 3.964409893697507e-06,
+          "bracketWidth": 6.103515625e-05
+        },
+        {
+          "iteration": 19,
+          "x": 0.7303009033203125,
+          "residual": 1.5848738090795678e-06,
+          "bracketWidth": 3.0517578125e-05
+        },
+        {
+          "iteration": 20,
+          "x": 0.7302932739257812,
+          "residual": 3.9510370020146013e-07,
+          "bracketWidth": 1.52587890625e-05
+        },
+        {
+          "iteration": 21,
+          "x": 0.7302894592285156,
+          "residual": -1.9978187104641165e-07,
+          "bracketWidth": 7.62939453125e-06
+        },
+        {
+          "iteration": 22,
+          "x": 0.7302913665771484,
+          "residual": 9.76609576541776e-08,
+          "bracketWidth": 3.814697265625e-06
+        },
+        {
+          "iteration": 23,
+          "x": 0.730290412902832,
+          "residual": -5.106044587144254e-08,
+          "bracketWidth": 1.9073486328125e-06
+        },
+        {
+          "iteration": 24,
+          "x": 0.7302908897399902,
+          "residual": 2.3300258611413938e-08,
+          "bracketWidth": 9.5367431640625e-07
+        },
+        {
+          "iteration": 25,
+          "x": 0.7302906513214111,
+          "residual": -1.3880092963880486e-08,
+          "bracketWidth": 4.76837158203125e-07
+        },
+        {
+          "iteration": 26,
+          "x": 0.7302907705307007,
+          "residual": 4.7100829903001795e-09,
+          "bracketWidth": 2.384185791015625e-07
+        },
+        {
+          "iteration": 27,
+          "x": 0.7302907109260559,
+          "residual": -4.585004931279002e-09,
+          "bracketWidth": 1.1920928955078125e-07
+        },
+        {
+          "iteration": 28,
+          "x": 0.7302907407283783,
+          "residual": 6.253897399943753e-11,
+          "bracketWidth": 5.960464477539063e-08
+        },
+        {
+          "iteration": 29,
+          "x": 0.7302907258272171,
+          "residual": -2.2612329786397822e-09,
+          "bracketWidth": 2.9802322387695312e-08
+        },
+        {
+          "iteration": 30,
+          "x": 0.7302907332777977,
+          "residual": -1.0993470578313236e-09,
+          "bracketWidth": 1.4901161193847656e-08
+        },
+        {
+          "iteration": 31,
+          "x": 0.730290737003088,
+          "residual": -5.184039864047918e-10,
+          "bracketWidth": 7.450580596923828e-09
+        },
+        {
+          "iteration": 32,
+          "x": 0.7302907388657331,
+          "residual": -2.2793256171382836e-10,
+          "bracketWidth": 3.725290298461914e-09
+        },
+        {
+          "iteration": 33,
+          "x": 0.7302907397970557,
+          "residual": -8.269673834604419e-11,
+          "bracketWidth": 1.862645149230957e-09
+        },
+        {
+          "iteration": 34,
+          "x": 0.730290740262717,
+          "residual": -1.0078826662152096e-11,
+          "bracketWidth": 9.313225746154785e-10
+        },
+        {
+          "iteration": 35,
+          "x": 0.7302907404955477,
+          "residual": 2.623012917979395e-11,
+          "bracketWidth": 4.656612873077393e-10
+        },
+        {
+          "iteration": 36,
+          "x": 0.7302907403791323,
+          "residual": 8.075540236518464e-12,
+          "bracketWidth": 2.3283064365386963e-10
+        },
+        {
+          "iteration": 37,
+          "x": 0.7302907403209247,
+          "residual": -1.0016432128168162e-12,
+          "bracketWidth": 1.1641532182693481e-10
+        }
+      ]
+    },
+    {
+      "method": "newton",
+      "root": 0.730290740297536,
+      "residual": 4.6489478933153805e-12,
+      "iterationCount": 3,
+      "functionEvaluations": 4,
+      "derivativeEvaluations": 4,
+      "trace": [
+        {
+          "iteration": 0,
+          "x": 0.0,
+          "residual": -0.11848083813032573,
+          "step": 0.7140231519062155
+        },
+        {
+          "iteration": 1,
+          "x": 0.7140231519062155,
+          "residual": -0.002539975605041267,
+          "step": 0.016247768725843013
+        },
+        {
+          "iteration": 2,
+          "x": 0.7302709206320585,
+          "residual": -3.0908008645802454e-06,
+          "step": 1.981966547754937e-05
+        },
+        {
+          "iteration": 3,
+          "x": 0.730290740297536,
+          "residual": -4.6489478933153805e-12,
+          "step": 2.981132505360977e-11
+        }
+      ]
+    },
+    {
+      "method": "secant",
+      "root": 0.7302907403273478,
+      "residual": 0.0,
+      "iterationCount": 5,
+      "functionEvaluations": 7,
+      "derivativeEvaluations": 0,
+      "trace": [
+        {
+          "iteration": 0,
+          "x": -1.0,
+          "residual": -0.28019085518539794
+        },
+        {
+          "iteration": 1,
+          "x": 1.0,
+          "residual": 0.04112726429230462,
+          "step": -0.25599094354937924
+        },
+        {
+          "iteration": 2,
+          "x": 0.7440090564506208,
+          "residual": 0.0021370751592044712,
+          "step": -0.014031013919249337
+        },
+        {
+          "iteration": 3,
+          "x": 0.7299780425313714,
+          "residual": -4.876503314976688e-05,
+          "step": 0.0003130251064512169
+        },
+        {
+          "iteration": 4,
+          "x": 0.7302910676378227,
+          "residual": 5.1042659210409624e-08,
+          "step": -3.273027085465874e-07
+        },
+        {
+          "iteration": 5,
+          "x": 0.7302907403351142,
+          "residual": 1.2111422975635833e-12,
+          "step": -7.766436285903936e-12
+        },
+        {
+          "iteration": 6,
+          "x": 0.7302907403273478,
+          "residual": 0.0
+        }
+      ]
+    }
+  ],
+  "failureChecks": {
+    "invalidBracket": "Bisection requires a sign-changing bracket",
+    "saturatedNewton": "Newton iteration left the safeguarded teaching domain"
+  }
+}

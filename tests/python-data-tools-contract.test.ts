@@ -109,15 +109,15 @@ const lockedEnvironmentProvenance = {
   generatedOn: 'darwin-arm64',
 }
 
-test('planning state records shipped Python Data Tools stages and the completed numerical-methods batch', async () => {
+test('planning state records shipped Python Data Tools stages and completed numerical-methods batches', async () => {
   const [state, roadmap] = await Promise.all([
     readFile(new URL('../.planning/STATE.md', import.meta.url), 'utf8'),
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
   ])
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
-  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. Python Data Tools Stages 1–4, the detailed minimum-mathematics, linear-algebra, calculus, probability routes, and Numerical Methods Batches 1–2 are complete. Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) is next for discussion and planning. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
-  const expectedFocus = '**Current focus:** Discuss and contract Numerical Methods Batch 3: connect finite-difference gradient checks to nonlinear root finding through one continuous case, while preserving the completed route and avoiding implementation before the teaching boundary and reproducible outputs are approved. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.'
-  const expectedNextCommand = 'Discuss Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) and approve its continuous teaching case, exact reproducible outputs, lab boundary, Notebook split, and visual plan before implementation.'
+  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. Python Data Tools Stages 1–4, the detailed minimum-mathematics, linear-algebra, calculus, probability routes, and Numerical Methods Batches 1–3 are complete. Numerical Methods Batch 4 (`numerical-optimization`, `training-diagnostics`) is next for discussion and planning. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
+  const expectedFocus = '**Current focus:** Discuss and contract Numerical Methods Batch 4: connect numerical optimization, stopping criteria, floating-point instability, and training-curve diagnosis without repeating the completed calculus or optimizer-comparison teaching. Do not implement before the teaching boundary and reproducible outputs are approved. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.'
+  const expectedNextCommand = 'Discuss Numerical Methods Batch 4 (`numerical-optimization`, `training-diagnostics`) and approve its continuous teaching case, exact reproducible outputs, lab boundary, Notebook split, and visual plan before implementation.'
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
   assert.match(state, /^\*\*Updated:\*\* 2026-07-20$/m)

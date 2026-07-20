@@ -1,0 +1,38 @@
+{
+  "contractVersion": "numerical-methods-batch-3-v1",
+  "fixture": {
+    "publicPath": "/datasets/numerical-methods/logit-calibration-fixture.json",
+    "sha256": "f78fab203ad67476d26937fb7ae84e57b6aefaa86e4045f01b3b1c85b3b78bbc"
+  },
+  "generator": {
+    "path": "scripts/numerical-methods/generate-batch-3-notebook.py",
+    "sha256": "7e0eb72d8c467ed420af728662d7352e644c9fca0311da5da973f923cbb61357"
+  },
+  "requirements": {
+    "publicPath": "/notebooks/numerical-methods/requirements.txt",
+    "sha256": "044c51329c22148baf031fb0aaf18a8378b99b92cbe84f1ada4407bade29deeb"
+  },
+  "notebook": {
+    "moduleIds": [
+      "finite-difference-methods",
+      "nonlinear-equations"
+    ],
+    "publicPath": "/notebooks/numerical-methods/logit-bias-calibration.zh-CN.ipynb",
+    "sha256": "0dd405cb294a1bf983bb6898eaa4a8c832ade8a98cf2dcec31dfd94f6f80bc1c",
+    "bytes": 21930
+  },
+  "outputs": [
+    {
+      "outputId": "finite-difference-calibration-summary",
+      "publicPath": "/notebooks/numerical-methods/batch-3-outputs/finite-difference-calibration-summary.json",
+      "sha256": "2da5af07af508d4ead5c66bcc0c0d448b44faf12cd811fe2fd691ce8b6c0db4b",
+      "bytes": 3750
+    },
+    {
+      "outputId": "nonlinear-calibration-summary",
+      "publicPath": "/notebooks/numerical-methods/batch-3-outputs/nonlinear-calibration-summary.json",
+      "sha256": "2051eb705f9ec31814d5a26c6a6299ff24d37d1275c72c6151baa65985a7830f",
+      "bytes": 9132
+    }
+  ]
+}

@@ -15,9 +15,9 @@ const props = withDefaults(defineProps<{
 })
 
 const method = ref<FiniteDifferenceMethod>('central')
-const functionKind = ref<FiniteDifferenceFunctionKind>('exp-shift')
-const xValue = ref(0.4)
-const hPower = ref(-4)
+const functionKind = ref<FiniteDifferenceFunctionKind>('calibration')
+const xValue = ref(0.35)
+const hPower = ref(-5)
 
 const width = 420
 const height = 300
@@ -28,9 +28,13 @@ const labels = computed(() => {
   return {
     eyebrow: zh ? '互动实验' : 'Interactive lab',
     title: zh ? '有限差分步长实验' : 'Finite Difference Step-Size Lab',
-    subtitle: zh
-      ? '调节模板、位置和步长，观察割线斜率、真实误差和梯度检查误差如何变化。'
-      : 'Adjust the stencil, position, and step size to watch the secant slope, true error, and gradient-check error move.',
+    subtitle: functionKind.value === 'calibration'
+      ? (zh
+          ? '在固定偏置残差上调节模板、b 和 h，观察割线斜率与真实误差如何变化。'
+          : 'Adjust the stencil, b, and h on the fixed bias residual to watch the secant slope and true error move.')
+      : (zh
+          ? '调节模板、位置和步长，观察割线斜率、真实误差和梯度检查误差如何变化。'
+          : 'Adjust the stencil, position, and step size to watch the secant slope, true error, and gradient-check error move.'),
     aria: zh ? '有限差分割线和切线可视化' : 'Finite difference secant and tangent visualization',
     method: zh ? '差分模板' : 'Difference stencil',
     function: zh ? '函数' : 'Function',
@@ -41,6 +45,7 @@ const labels = computed(() => {
     central: zh ? '中心差分' : 'Central',
     expShift: zh ? 'f(x)=exp(x)-2' : 'f(x)=exp(x)-2',
     quadratic: zh ? 'f(x)=2x²+15x+1' : 'f(x)=2x²+15x+1',
+    calibration: zh ? '偏置残差 F(b)' : 'Bias residual F(b)',
     curve: zh ? '函数曲线' : 'function curve',
     secant: zh ? '差分割线' : 'difference secant',
     tangent: zh ? '真实切线' : 'true tangent',
@@ -64,6 +69,12 @@ const labels = computed(() => {
 })
 
 const h = computed(() => 10 ** hPower.value)
+const positionLabel = computed(() => functionKind.value === 'calibration'
+  ? (props.locale === 'zh-CN' ? '偏置 b' : 'Bias b')
+  : labels.value.x)
+const positionRange = computed(() => functionKind.value === 'calibration'
+  ? { min: -4, max: 4 }
+  : { min: -0.8, max: 1.2 })
 
 const evaluation = computed(() =>
   evaluateFiniteDifference({
@@ -121,9 +132,7 @@ const tangentLine = computed(() => {
 })
 
 const statusNote = computed(() => {
-  if (hPower.value <= -9 || evaluation.value.roundingEstimate > evaluation.value.absoluteError * 0.45) {
-    return labels.value.roundoffNote
-  }
+  if (hPower.value <= -9) return labels.value.roundoffNote
   if (hPower.value >= -2) return labels.value.truncationNote
   return labels.value.balancedNote
 })
@@ -183,13 +192,14 @@ function formatNumber(value: number, digits = 4) {
         <label>
           {{ labels.function }}
           <select v-model="functionKind">
+            <option value="calibration">{{ labels.calibration }}</option>
             <option value="exp-shift">{{ labels.expShift }}</option>
             <option value="quadratic">{{ labels.quadratic }}</option>
           </select>
         </label>
         <label>
-          {{ labels.x }}: {{ xValue.toFixed(2) }}
-          <input v-model.number="xValue" type="range" min="-0.8" max="1.2" step="0.05" />
+          {{ positionLabel }}: {{ xValue.toFixed(2) }}
+          <input v-model.number="xValue" type="range" :min="positionRange.min" :max="positionRange.max" step="0.05" />
         </label>
         <label>
           {{ labels.h }}: 1e{{ hPower }}
@@ -222,7 +232,7 @@ function formatNumber(value: number, digits = 4) {
           <span>{{ labels.order }}</span>
           <strong>O(h{{ evaluation.truncationOrder === 2 ? '²' : '' }})</strong>
         </article>
-        <article>
+        <article v-if="functionKind !== 'calibration'">
           <span>{{ labels.gradError }}</span>
           <strong>{{ formatNumber(gradient.errorNorm, 5) }}</strong>
         </article>

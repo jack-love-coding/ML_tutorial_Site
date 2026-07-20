@@ -9,18 +9,18 @@ last_updated: "2026-07-20T00:00:00.000Z"
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-07-20
-**Status:** Curriculum V3.0 blueprint and audit are complete. Python Data Tools Stages 1–4, the detailed minimum-mathematics, linear-algebra, calculus, probability routes, and Numerical Methods Batches 1–2 are complete. Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) is next for discussion and planning. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+**Status:** Curriculum V3.0 blueprint and audit are complete. Python Data Tools Stages 1–4, the detailed minimum-mathematics, linear-algebra, calculus, probability routes, and Numerical Methods Batches 1–3 are complete. Numerical Methods Batch 4 (`numerical-optimization`, `training-diagnostics`) is next for discussion and planning. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Discuss and contract Numerical Methods Batch 3: connect finite-difference gradient checks to nonlinear root finding through one continuous case, while preserving the completed route and avoiding implementation before the teaching boundary and reproducible outputs are approved. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.
+**Current focus:** Discuss and contract Numerical Methods Batch 4: connect numerical optimization, stopping criteria, floating-point instability, and training-curve diagnosis without repeating the completed calculus or optimizer-comparison teaching. Do not implement before the teaching boundary and reproducible outputs are approved. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.
 
 ## Baseline
 
-- `npm test`: pass, 708 tests after Numerical Methods Batch 2.
+- `npm test`: pass, 718 tests after Numerical Methods Batch 3.
 - `npm run build`: pass with existing Vite large-chunk warning.
 - `npm run build:pages`: pass with existing Vite large-chunk warning.
 - `npm run security:audit`: pass, 0 vulnerabilities.
@@ -101,6 +101,7 @@ See `.planning/codebase/`:
 - Python Data Tools Stage 4 quality consolidation completed in `69dca50`: current-chapter output loading, on-demand PNG fallbacks, structured Plotly labels, a dedicated course route view, and Course Review presentation without visible Progress state all passed 645 tests, both builds, security audit, and focused browser checks.
 - Python Data Tools Stage 5 design is complete in four ordered plans. Execution must first remove learner-visible evidence/证据 code terminology while preserving internal output IDs, then verify the full authority/hash chain, run the 36-cell bilingual responsive matrix plus six failure injections, and close with standard/Pages release gates.
 - Numerical Methods Batch 2 completed the UCI SMS TF-IDF/CSR and standardized Ames PCA teaching route with two standalone executed Notebooks, locked outputs, one shared illustration, two Manim videos, real-case lab alignment, exact route-order reconciliation, and full release/browser validation.
+- Numerical Methods Batch 3 completed the finite-difference and nonlinear-equation route through one deterministic logit-bias calibration case, a shared executed Notebook, locked step-size and solver traces, two upgraded existing labs, one shared illustration, two Manim videos, and full release/browser validation.
 - Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 - Curriculum V3.0 changed no runtime lesson, route, or Progress V1/V2 data or storage behavior.
 
@@ -714,6 +715,16 @@ See `.planning/codebase/`:
 - Verified both standalone Notebook reruns, both Manim asset checks, 708 tests, standard and Pages builds, a 0-vulnerability audit, and Chinese/English desktop plus 390px browser checks with zero console errors and no horizontal overflow.
 - Completion record: `docs/refactor/summaries/numerical-methods-batch-2.md`.
 
+### Numerical Methods Batch 3 - Finite Differences and Nonlinear Equations
+
+- Completed detailed bilingual `finite-difference-methods` and `nonlinear-equations` lessons while preserving their existing URLs, checkpoints, and Progress behavior.
+- Added one deterministic 12-logit calibration fixture and a shared executed Notebook that connects finite-difference derivative checks directly to solving the same residual equation.
+- Locked the complete `h=10^-1` through `10^-12` error sweep and the bisection, Newton, and secant traces, including explicit invalid-bracket and saturated-derivative failure cases.
+- Upgraded the two existing labs with the real calibration preset while retaining their earlier comparison functions and teaching modes.
+- Added one shared generated illustration and two 1080p Manim videos with local posters, transcripts, English summaries, labels, prompts, and hash metadata.
+- Verified the shared Notebook rerun, Manim asset checks, 718 tests, standard and Pages builds, a 0-vulnerability audit, and Chinese/English desktop plus 390px browser checks with zero console errors and no horizontal overflow.
+- Completion record: `docs/refactor/summaries/numerical-methods-batch-3.md`.
+
 ## Next Recommended Command
 
-Discuss Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) and approve its continuous teaching case, exact reproducible outputs, lab boundary, Notebook split, and visual plan before implementation.
+Discuss Numerical Methods Batch 4 (`numerical-optimization`, `training-diagnostics`) and approve its continuous teaching case, exact reproducible outputs, lab boundary, Notebook split, and visual plan before implementation.

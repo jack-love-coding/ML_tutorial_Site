@@ -14,6 +14,7 @@ import ObservationPrompt from '../components/ObservationPrompt.vue'
 import { conceptIllustrationFor, type ConceptIllustration } from '../data/conceptIllustrations'
 import { amesNumericalNotebookForModule } from '../data/amesNumericalNotebook.ts'
 import { numericalBatch2NotebookForModule } from '../data/numericalBatch2Notebook.ts'
+import { numericalBatch3NotebookForModule } from '../data/numericalBatch3Notebook.ts'
 import { checkpointReportForModule, observationPromptForModule } from '../data/checkpointReports'
 import { routeNavigationForModule } from '../data/learningRoutes'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
@@ -85,7 +86,9 @@ const currentLocale = computed(() => locale.value as MathLabLocale)
 const moduleId = computed(() => route.params.moduleId as MathLabModuleId)
 const moduleDefinition = computed(() => mathLabModuleRegistry[moduleId.value])
 const notebookCompanion = computed(() =>
-  amesNumericalNotebookForModule(moduleId.value) ?? numericalBatch2NotebookForModule(moduleId.value),
+  amesNumericalNotebookForModule(moduleId.value)
+    ?? numericalBatch2NotebookForModule(moduleId.value)
+    ?? numericalBatch3NotebookForModule(moduleId.value),
 )
 const moduleIndex = computed(() =>
   mathLabModules.findIndex((candidate) => candidate.id === moduleDefinition.value?.id),
