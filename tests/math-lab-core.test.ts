@@ -101,8 +101,13 @@ import {
   lcgSequence,
   monteCarloPiStandardError,
 } from '../src/modules/math-lab/utils/monteCarlo.ts'
-import { estimateLuReuseCost, evaluateLu2x2 } from '../src/modules/math-lab/utils/luDecomposition.ts'
-import { conditionNumber2x2, evaluateConditioning, makeColumnMatrix } from '../src/modules/math-lab/utils/conditionNumbers.ts'
+import { estimateLuReuseCost, evaluateLu2x2, evaluateLup2x2 } from '../src/modules/math-lab/utils/luDecomposition.ts'
+import {
+  conditionNumber2x2,
+  evaluateConditioning,
+  formatConditionAngleDegrees,
+  makeColumnMatrix,
+} from '../src/modules/math-lab/utils/conditionNumbers.ts'
 import { evaluatePowerIteration } from '../src/modules/math-lab/utils/eigenPower.ts'
 import {
   buildPageRankTransition,
@@ -1277,7 +1282,7 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
   const probabilityBody = byId['beginner-probability-distributions']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(probabilityBody, /概率回答的是：在明确的样本空间里，长期会怎样分配结果/)
   assert.match(probabilityBody, /分布回答的是：很多次观察后，结果会留下什么形状/)
-  assert.match(probabilityBody, /条件概率是在证据下重看样本空间/)
+  assert.match(probabilityBody, /条件概率是在已知信息下重看样本空间/)
   assert.match(probabilityBody, /贝叶斯更新把旧信念改成新信念/)
   assert.match(probabilityBody, /校准要检查/)
 })
@@ -1478,12 +1483,12 @@ test('monte carlo module presents repaired bilingual content and inline sampling
   assert.match(zhBody, /\/math-lab\/generated\/monte-carlo-sampling-illustration\.png/)
   assert.match(zhBody, /典型误差规模|误差为什么通常按/)
   assert.match(zhBody, /def f\(x: float, y: float\)/)
-  assert.match(zhBody, /什么是伪随机数生成器/)
+  assert.match(zhBody, /估计器账本：目标、样本路径与误差不是同一件事/)
   assert.match(zhBody, /小批量梯度下降/)
   assert.match(enBody, /True Random and Pseudorandom/)
   assert.match(enBody, /linear congruential generator/)
   assert.match(enBody, /Will my buttered bread land face-down/)
-  assert.match(enBody, /What is a pseudorandom number generator/)
+  assert.match(enBody, /Estimator Ledger: Target, Sample Path, and Error Are Different Objects/)
   assert.match(enBody, /Mini-batch gradient descent/)
   assert.doesNotMatch(`${zhBody}\n${enBody}`, /GPT-5\.5|GPT 精讲|原讲义|Cleaned Source|Source Note/)
   assert.doesNotMatch(zhBody, /One of the most common applications|Consider using Monte Carlo|Below is the Python code|What is a pseudo-random/)
@@ -1821,7 +1826,7 @@ test('markov chains module preserves lecture coverage with bilingual repair and 
   assert.ok(sectionIds.includes('markov-chains-weather-example'))
   assert.ok(sectionIds.includes('markov-chains-stationary-distribution'))
   assert.ok(sectionIds.includes('markov-chains-pagerank'))
-  assert.ok(sectionIds.includes('markov-chains-review-questions'))
+  assert.ok(sectionIds.includes('probability-route-markov-summary'))
 
   const zhBody = markovModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
   const enBody = markovModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')
@@ -2212,6 +2217,19 @@ test('lu utilities expose factorization, solve residuals, pivot warnings, and re
   }, 0.08)
   assert.equal(pivotCandidate.needsPivot, true)
 
+  const pivoted = evaluateLup2x2({
+    a11: 0.25,
+    a12: 2,
+    a21: 3,
+    a22: 5,
+    b1: 6,
+    b2: 7,
+  })
+  assert.equal(pivoted.pivoted, true)
+  assert.deepEqual(pivoted.permutation, [[0, 1], [1, 0]])
+  assert.ok(Math.abs(pivoted.determinant - (-4.75)) < 1e-12)
+  assert.ok(pivoted.residualNorm < 1e-12)
+
   const nearSingular = evaluateLu2x2({
     a11: 4,
     a12: 2,
@@ -2229,6 +2247,10 @@ test('lu utilities expose factorization, solve residuals, pivot warnings, and re
 })
 
 test('condition number utilities expose sensitivity trends and residual-error bounds', () => {
+  assert.equal(formatConditionAngleDegrees(35), '35')
+  assert.equal(formatConditionAngleDegrees(0.5), '0.50')
+  assert.equal(formatConditionAngleDegrees(0.005), '0.005')
+
   const wellConditioned = makeColumnMatrix(80, 1)
   const illConditioned = makeColumnMatrix(5, 1)
 
@@ -2253,6 +2275,7 @@ test('condition number utilities expose sensitivity trends and residual-error bo
   assert.ok(sensitive.relativeOutputError > stable.relativeOutputError)
   assert.ok(sensitive.errorBound >= sensitive.relativeOutputError)
   assert.ok(Math.abs(sensitive.relativeResidual - sensitive.relativeInputError) < 1e-12)
+  assert.ok(sensitive.relativeSolveResidual < 1e-12)
   assert.ok(sensitive.expectedDigits < stable.expectedDigits)
 })
 

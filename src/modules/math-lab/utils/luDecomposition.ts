@@ -29,6 +29,13 @@ export interface Lu2x2Evaluation extends Lu2x2Factorization {
   residualNorm: number
 }
 
+export interface Lup2x2Evaluation extends Lu2x2Evaluation {
+  permutation: LuMatrix2x2
+  permutedMatrix: LuMatrix2x2
+  permutedRhs: LuVector2
+  pivoted: boolean
+}
+
 export interface LuReuseCostEstimate {
   factorizationCost: number
   triangularSolveCost: number
@@ -111,6 +118,47 @@ export function evaluateLu2x2(input: Lu2x2Input, epsilon = DEFAULT_EPSILON): Lu2
     x,
     residual,
     residualNorm: Math.hypot(residual[0], residual[1]),
+  }
+}
+
+export function evaluateLup2x2(input: Lu2x2Input, epsilon = DEFAULT_EPSILON): Lup2x2Evaluation {
+  const matrix: LuMatrix2x2 = [
+    [input.a11, input.a12],
+    [input.a21, input.a22],
+  ]
+  const rhs: LuVector2 = [input.b1, input.b2]
+  const pivoted = Math.abs(input.a21) > Math.abs(input.a11)
+  const permutation: LuMatrix2x2 = pivoted
+    ? [[0, 1], [1, 0]]
+    : [[1, 0], [0, 1]]
+  const permutedMatrix: LuMatrix2x2 = pivoted
+    ? [[input.a21, input.a22], [input.a11, input.a12]]
+    : matrix
+  const permutedRhs: LuVector2 = pivoted
+    ? [input.b2, input.b1]
+    : rhs
+  const factorization = factorLu2x2(permutedMatrix, epsilon)
+  const y = forwardSubstituteUnitLower2x2(factorization.l, permutedRhs)
+  const x = backSubstituteUpper2x2(factorization.u, y, epsilon)
+  const residual: LuVector2 = Number.isFinite(x[0]) && Number.isFinite(x[1])
+    ? subtractVector2(multiplyMatrixVector2x2(matrix, x), rhs)
+    : [Number.NaN, Number.NaN]
+  const determinant = input.a11 * input.a22 - input.a12 * input.a21
+
+  return {
+    ...factorization,
+    matrix,
+    determinant,
+    rhs,
+    y,
+    x,
+    residual,
+    residualNorm: Math.hypot(residual[0], residual[1]),
+    permutation,
+    permutedMatrix,
+    permutedRhs,
+    pivoted,
+    needsPivot: pivoted,
   }
 }
 

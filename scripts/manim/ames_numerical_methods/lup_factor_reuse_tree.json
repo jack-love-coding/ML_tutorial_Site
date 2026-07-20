@@ -1,0 +1,72 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "root": "B0",
+  "maxDepth": 3,
+  "topologicalOrder": ["F_VECTOR_GEOMETRY", "F_MATRIX_NOTATION", "F_LINEAR_SYSTEMS", "B1", "B2", "B3", "B4", "B0"],
+  "nodes": [
+    {
+      "id": "F_VECTOR_GEOMETRY",
+      "concept": "线性组合、点积、2-范数与正交",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["dot product", "vector norm"]
+    },
+    {
+      "id": "F_MATRIX_NOTATION",
+      "concept": "矩阵行列、shape、转置与矩阵向量乘",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["matrix shape", "transpose", "matrix product"]
+    },
+    {
+      "id": "F_LINEAR_SYSTEMS",
+      "concept": "代入、消元与等价换行",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["substitution", "Gaussian elimination", "row equivalence"]
+    },
+    {
+      "id": "B1",
+      "concept": "G=XᵀX∈R^(6×6)、c=Xᵀy，并得到 Gβ=c",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_VECTOR_GEOMETRY", "F_MATRIX_NOTATION"],
+      "foundationRefs": ["Gram matrix", "normal equations"]
+    },
+    {
+      "id": "B2",
+      "concept": "消元倍数存入 L，消元结果留在 U",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_LINEAR_SYSTEMS", "F_MATRIX_NOTATION"],
+      "foundationRefs": ["elimination multiplier", "triangular matrix"]
+    },
+    {
+      "id": "B3",
+      "concept": "部分主元检查最大绝对主元，并以 P 记录置换：PG=LU",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["B2", "F_MATRIX_NOTATION"],
+      "foundationRefs": ["partial pivoting", "permutation matrix"]
+    },
+    {
+      "id": "B4",
+      "concept": "先前代再回代；P、L、U 不变时只替换右端项",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["F_LINEAR_SYSTEMS", "F_MATRIX_NOTATION"],
+      "foundationRefs": ["forward substitution", "back substitution", "multiple right-hand sides"]
+    },
+    {
+      "id": "B0",
+      "concept": "复用 LUP：PG=LU，对每个 c 解 Lz=Pc，再解 Uβ=z",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["B1", "B3", "B4"],
+      "foundationRefs": ["reusable factorization", "linear solve"]
+    }
+  ]
+}

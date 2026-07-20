@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import type { MathLabLocale } from '../types/mathLab'
 import {
   evaluateConditioning,
+  formatConditionAngleDegrees,
   type ConditionVector2,
 } from '../utils/conditionNumbers'
 
@@ -12,7 +13,7 @@ const props = withDefaults(defineProps<{
   locale: 'zh-CN',
 })
 
-const columnAngle = ref(14)
+const columnAngle = ref(35)
 const secondColumnScale = ref(1)
 const perturbationPower = ref(-5)
 const perturbationDirection = ref(90)
@@ -26,8 +27,8 @@ const labels = computed(() => {
     eyebrow: zh ? '互动实验' : 'Interactive lab',
     title: zh ? '条件数误差放大实验' : 'Condition Number Error Amplification Lab',
     subtitle: zh
-      ? '调节两列向量的夹角、尺度和输入扰动，观察同样的右端误差如何变成更大的解误差。'
-      : 'Adjust the column angle, scale, and input perturbation to see how the same right-hand-side error can become a larger solution error.',
+      ? '用二维代理观察 Ames 设计矩阵的稳定、警告与近重复特征场景；完整条件数仍由 6 列设计矩阵计算。'
+      : 'Use a 2D proxy for the stable, warning, and near-duplicate Ames design scenarios; the full condition numbers still come from the six-column design.',
     columnAngle: zh ? '两列夹角' : 'Column angle',
     secondColumnScale: zh ? '第二列尺度' : 'Second column scale',
     perturbationPower: zh ? '相对输入扰动' : 'Relative input perturbation',
@@ -43,10 +44,14 @@ const labels = computed(() => {
     inputError: zh ? '相对输入误差' : 'relative input error',
     outputError: zh ? '相对解误差' : 'relative solution error',
     bound: zh ? '误差上界 κ·输入误差' : 'bound κ · input error',
-    residual: zh ? '相对残差' : 'relative residual',
+    residual: zh ? '当前方程求解残差' : 'current-system solve residual',
     digits: zh ? '预计保留位数' : 'expected kept digits',
     sigmaMax: zh ? '最大奇异值' : 'largest singular value',
     sigmaMin: zh ? '最小奇异值' : 'smallest singular value',
+    stablePreset: zh ? '标准化代理' : 'Standardized proxy',
+    warningPreset: zh ? '警告场景' : 'Warning case',
+    severePreset: zh ? '近重复列' : 'Near duplicate',
+    reset: zh ? '重置' : 'Reset',
     stableNote: zh
       ? '两列方向分开，逆变换没有明显拉长扰动；小残差通常也对应较可信的解。'
       : 'The two columns are well separated, so the inverse does not stretch perturbations much; a small residual is usually more trustworthy.',
@@ -135,6 +140,27 @@ function formatPercent(value: number) {
   if (Math.abs(value) < 0.001) return `${value.toExponential(2)}`
   return `${(value * 100).toFixed(3)}%`
 }
+
+function loadStablePreset() {
+  columnAngle.value = 35
+  secondColumnScale.value = 1
+  perturbationPower.value = -5
+  perturbationDirection.value = 90
+}
+
+function loadWarningPreset() {
+  columnAngle.value = 1
+  secondColumnScale.value = 1
+  perturbationPower.value = -5
+  perturbationDirection.value = 90
+}
+
+function loadSeverePreset() {
+  columnAngle.value = 0.005
+  secondColumnScale.value = 1
+  perturbationPower.value = -5
+  perturbationDirection.value = 90
+}
 </script>
 
 <template>
@@ -211,10 +237,22 @@ function formatPercent(value: number) {
         <p>{{ labels.subtitle }}</p>
       </header>
 
+      <div class="math-lab-case-anchor">
+        <strong>{{ locale === 'zh-CN' ? '完整 Ames 条件数' : 'Full Ames condition numbers' }}</strong>
+        <span>raw X: 13044.220 · scaled X: 3.223 · near-duplicate X: 26644.503</span>
+      </div>
+
+      <div class="math-lab-preset-actions" :aria-label="locale === 'zh-CN' ? '条件数预设' : 'Conditioning presets'">
+        <button type="button" @click="loadStablePreset">{{ labels.stablePreset }}</button>
+        <button type="button" @click="loadWarningPreset">{{ labels.warningPreset }}</button>
+        <button type="button" @click="loadSeverePreset">{{ labels.severePreset }}</button>
+        <button type="button" @click="loadStablePreset">{{ labels.reset }}</button>
+      </div>
+
       <div class="math-mini-controls condition-number-lab__control-grid">
         <label>
-          {{ labels.columnAngle }}: {{ columnAngle.toFixed(0) }}°
-          <input v-model.number="columnAngle" type="range" min="4" max="88" step="1" />
+          {{ labels.columnAngle }}: {{ formatConditionAngleDegrees(columnAngle) }}°
+          <input v-model.number="columnAngle" type="range" min="0.005" max="88" step="0.005" />
         </label>
         <label>
           {{ labels.secondColumnScale }}: {{ secondColumnScale.toFixed(2) }}
@@ -257,7 +295,7 @@ function formatPercent(value: number) {
         </article>
         <article>
           <span>{{ labels.residual }}</span>
-          <strong>{{ formatPercent(evaluation.relativeResidual) }}</strong>
+          <strong>{{ formatPercent(evaluation.relativeSolveResidual) }}</strong>
         </article>
         <article>
           <span>{{ labels.digits }}</span>

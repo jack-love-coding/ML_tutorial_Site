@@ -1,0 +1,5 @@
+# Ames condition number and sensitivity — English summary
+
+This silent Simplified-Chinese video separates computational residual from problem sensitivity. The raw Ames design has 2-norm condition number `13044.220254`, while standardization lowers it to `3.222571`. For full-column-rank X it shows the exact spectral relation `κ₂(XᵀX)=κ₂(X)²`, numerically `3.222571²≈10.384962` after display rounding.
+
+A diagnostic-only near-duplicate living-area column raises the condition number to `26644.503135`. A relative target perturbation of `10^-5` produces relative coefficient change `0.00329613`, an observed ratio of `329.613418`; the video prominently states that this ratio is not the condition number. Finally, the same matrix `A=[[1,1],[1,1.0001]]` is paired with two neighboring right-hand sides, mapping `[1,1]` to `[0,2]`, and the video explicitly identifies them as two separate systems, each with a unique near-zero-residual solution. It closes with scaling, feature reparameterization, more informative data, and regularization as possible responses.

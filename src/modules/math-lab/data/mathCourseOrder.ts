@@ -29,14 +29,23 @@ export const calculusRouteModuleIds: readonly MathLabModuleId[] = [
   'calculus-training-code-diagnostics',
 ]
 
-export const numericalDeepeningModuleIds: readonly MathLabModuleId[] = [
-  'lu-decomposition',
-  'sparse-matrices',
-  'condition-numbers',
+export const probabilityRouteModuleIds: readonly MathLabModuleId[] = [
+  'beginner-probability-distributions',
+  'monte-carlo',
+  'probability-likelihood-entropy',
   'markov-chains',
+]
+
+export const numericalDeepeningModuleIds: readonly MathLabModuleId[] = [
+  'least-squares-fitting',
+  'lu-decomposition',
+  'condition-numbers',
+  'sparse-matrices',
+  'pca',
   'finite-difference-methods',
   'nonlinear-equations',
-  'least-squares-fitting',
+  'optimization',
+  'training-diagnostics',
 ]
 
 export const mathToCodePilotModuleIds: readonly MathLabModuleId[] = [
@@ -82,12 +91,7 @@ export const mathLearningPhases: readonly MathLearningPhase[] = [
   {
     id: 'uncertainty-probability',
     title: copy('阶段三：概率与不确定性', 'Phase 3: Probability and Uncertainty'),
-    moduleIds: [
-      'beginner-probability-distributions',
-      'monte-carlo',
-      'probability-likelihood-entropy',
-      'markov-chains',
-    ],
+    moduleIds: probabilityRouteModuleIds,
   },
   {
     id: 'data-geometry-numerics',

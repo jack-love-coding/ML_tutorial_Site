@@ -62,8 +62,8 @@ const copy = computed(() => {
       zh ? '反复乘矩阵并归一化，逐步靠近主特征向量。' : 'Repeatedly multiply by a matrix and normalize to approach the dominant eigenvector.',
     ],
     leastSquares: [
-      zh ? '最小二乘残差' : 'Least-squares residual',
-      zh ? '移动斜率，观察残差平方和如何变化。' : 'Move the slope and watch the sum of squared residuals change.',
+      zh ? 'Ames 回归的二维残差切片' : 'A 2D residual slice of the Ames regression',
+      zh ? '完整案例有 2,927 行和 5 个特征；这里压缩成五个点，单独观察斜率、截距、异常点与平方残差的关系。' : 'The full case has 2,927 rows and five features; this five-point slice isolates how slope, intercept, an unusual point, and squared residuals interact.',
     ],
     svd: [
       zh ? '低秩近似与奇异值谱' : 'Low-rank approximation and spectrum',
@@ -303,6 +303,12 @@ function heatColor(value: number, opacity: number) {
   const alpha = 0.18 + opacity * 0.72
   return value >= 0 ? `rgba(56, 104, 255, ${alpha})` : `rgba(226, 109, 61, ${alpha})`
 }
+
+function resetLeastSquares() {
+  slope.value = 0.72
+  intercept.value = 1.12
+  outlierLift.value = 0
+}
 </script>
 
 <template>
@@ -364,7 +370,13 @@ function heatColor(value: number, opacity: number) {
         />
       </svg>
 
-      <svg v-else-if="labKind === 'leastSquares'" class="numerical-lab-svg" viewBox="0 0 280 240" role="img">
+      <svg
+        v-else-if="labKind === 'leastSquares'"
+        class="numerical-lab-svg"
+        viewBox="0 0 280 240"
+        role="img"
+        :aria-label="locale === 'zh-CN' ? '五个房屋样本点、当前拟合线、最优拟合线和每个点的残差线' : 'Five housing sample points, the current fit, the optimal fit, and residual lines for each point'"
+      >
         <line
           :x1="leastSquares.optimalLine.x1"
           :y1="leastSquares.optimalLine.y1"
@@ -532,6 +544,10 @@ function heatColor(value: number, opacity: number) {
       </div>
 
       <div v-else-if="labKind === 'leastSquares'" class="math-mini-controls">
+        <div class="math-lab-case-anchor">
+          <strong>{{ locale === 'zh-CN' ? '完整 Ames 输出锚点' : 'Full Ames output anchor' }}</strong>
+          <span>2,927 × 5 · RMSE 35.834 kUSD · R² 0.79880768</span>
+        </div>
         <label>
           {{ locale === 'zh-CN' ? '斜率' : 'Slope' }}: {{ slope.toFixed(2) }}
           <input v-model.number="slope" type="range" min="0.2" max="1.2" step="0.02" />
@@ -569,6 +585,11 @@ function heatColor(value: number, opacity: number) {
             <span>{{ locale === 'zh-CN' ? 'cond(AᵀA)' : 'cond(AᵀA)' }}</span>
             <strong>{{ leastSquares.conditionEstimate.toFixed(2) }}</strong>
           </article>
+        </div>
+        <div class="math-lab-preset-actions">
+          <button type="button" @click="resetLeastSquares">
+            {{ locale === 'zh-CN' ? '重置切片' : 'Reset slice' }}
+          </button>
         </div>
       </div>
 

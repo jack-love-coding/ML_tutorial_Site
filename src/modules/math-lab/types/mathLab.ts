@@ -7,6 +7,7 @@ export type LearningRouteId =
   | 'minimum-foundation'
   | 'linear-algebra-route'
   | 'calculus-route'
+  | 'probability-route'
   | 'numerical-deepening-path'
   | 'math-to-code-pilot'
 

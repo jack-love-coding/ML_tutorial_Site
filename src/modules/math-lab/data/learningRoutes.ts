@@ -13,6 +13,7 @@ import {
   mathToCodePilotModuleIds,
   minimumFoundationModuleIds,
   numericalDeepeningModuleIds,
+  probabilityRouteModuleIds,
 } from './mathCourseOrder.ts'
 
 export {
@@ -21,6 +22,7 @@ export {
   linearAlgebraRouteModuleIds,
   mathToCodePilotModuleIds,
   minimumFoundationModuleIds,
+  probabilityRouteModuleIds,
 } from './mathCourseOrder.ts'
 
 function copy(zh: string, en: string): LocalizedCopy {
@@ -86,15 +88,37 @@ const calculusRoute: LearningRoute = {
   nextStepRule: 'first-incomplete',
 }
 
+const probabilityRoute: LearningRoute = {
+  id: 'probability-route',
+  title: copy('概率与不确定性路线', 'Probability and Uncertainty Route'),
+  description: copy(
+    '从离散分布和条件概率走到 Monte Carlo、模型概率损失与马尔可夫状态演化。',
+    'Move from discrete distributions and conditional probability to Monte Carlo, probabilistic model losses, and Markov state evolution.',
+  ),
+  audience: copy(
+    '想把概率公式连接到采样、分类器、语言模型和随机过程的学习者。',
+    'Learners connecting probability formulas to sampling, classifiers, language models, and stochastic processes.',
+  ),
+  chapterModuleIds: probabilityRouteModuleIds,
+  nextStepRule: 'first-incomplete',
+}
+
 const numericalDeepeningRoute: LearningRoute = {
   id: 'numerical-deepening-path',
-  title: copy('数值计算加深', 'Numerical Deepening Path'),
+  title: copy('数值方法：从模型到稳定计算', 'Numerical Methods: From Models to Stable Computation'),
   description: copy(
-    '把线性系统、稀疏结构、条件数、有限差分和非线性求解放进工程稳定性视角。',
-    'Study linear systems, sparse structure, conditioning, finite differences, and nonlinear solving through engineering stability.',
+    '沿三个完整案例，从 Ames 最小二乘与线性系统，走到稀疏文本表示，再进入非线性训练与数值诊断。',
+    'Follow three complete cases from Ames least squares and linear systems through sparse text representations to nonlinear training and numerical diagnostics.',
   ),
-  audience: copy('想理解数值稳定性和科学计算边界的学习者。', 'Learners who want numerical stability and scientific-computing boundaries.'),
+  audience: copy(
+    '已经理解基础线性代数与导数，希望知道机器学习代码为何稳定或失效的学习者。',
+    'Learners with basic linear algebra and derivatives who want to understand why machine-learning computations remain stable or fail.',
+  ),
   chapterModuleIds: numericalDeepeningModuleIds,
+  prerequisiteOverrides: Object.fromEntries(numericalDeepeningModuleIds.map((moduleId, index) => [
+    moduleId,
+    index === 0 ? [] : [numericalDeepeningModuleIds[index - 1]],
+  ])),
   nextStepRule: 'first-incomplete',
 }
 
@@ -124,6 +148,7 @@ export const learningRoutes: readonly LearningRoute[] = [
   minimumFoundationRoute,
   linearAlgebraRoute,
   calculusRoute,
+  probabilityRoute,
   numericalDeepeningRoute,
   mathToCodePilotRoute,
 ]
@@ -133,6 +158,7 @@ export const learningRouteById: Record<LearningRouteId, LearningRoute> = {
   'minimum-foundation': minimumFoundationRoute,
   'linear-algebra-route': linearAlgebraRoute,
   'calculus-route': calculusRoute,
+  'probability-route': probabilityRoute,
   'numerical-deepening-path': numericalDeepeningRoute,
   'math-to-code-pilot': mathToCodePilotRoute,
 }

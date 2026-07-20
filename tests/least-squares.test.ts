@@ -20,6 +20,8 @@ test('least squares module preserves source coverage with bilingual repair and i
   const sectionIds = moduleDefinition.sections.map((section) => section.id)
   assert.deepEqual(sectionIds, [
     'least-squares-fitting-learning-objectives',
+    'ames-least-squares-problem-frame',
+    'ames-least-squares-output-reading',
     'v3-least-squares-shared-data',
     'least-squares-fitting-data-to-system',
     'least-squares-fitting-residual-objective',

@@ -1,5 +1,6 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
 import { aiBridgeModules } from './aiBridgeModules.ts'
+import { enhanceAmesNumericalMethodsModule } from './amesNumericalMethodsModules.ts'
 import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
 import { calculusOptimizationRouteModules } from './calculusOptimizationRouteModules.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
@@ -14,6 +15,7 @@ import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
 import { buildOptimizationModule } from './optimizationModule.ts'
 import { buildPcaModule } from './pcaModule.ts'
+import { enhanceProbabilityUncertaintyModule } from './probabilityUncertaintyRouteModules.ts'
 import { buildSparseMatricesModule } from './sparseMatricesModule.ts'
 import { enhanceSpectralRepresentationModule } from './spectralRepresentationModules.ts'
 import { buildSvdModule } from './svdModule.ts'
@@ -193,11 +195,15 @@ const allModulesById = assembledMathLabModules.modulesById
 export const mathLabModuleProviderById = assembledMathLabModules.providerById
 
 const aiMathPathModules: MathLabModule[] = aiMathPathModuleIds.map((moduleId, index) => {
-  const moduleDefinition = allModulesById[moduleId]
+  const sourceModuleDefinition = allModulesById[moduleId]
 
-  if (!moduleDefinition) {
+  if (!sourceModuleDefinition) {
     throw new Error(`Missing math lab module: ${moduleId}`)
   }
+
+  const moduleDefinition = enhanceAmesNumericalMethodsModule(
+    enhanceProbabilityUncertaintyModule(sourceModuleDefinition),
+  )
 
   return {
     ...moduleDefinition,

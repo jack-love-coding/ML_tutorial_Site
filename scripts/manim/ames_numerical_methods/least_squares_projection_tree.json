@@ -1,0 +1,64 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "root": "A0",
+  "maxDepth": 2,
+  "topologicalOrder": ["F_VECTOR_GEOMETRY", "F_MATRIX_NOTATION", "F_CENTER_AND_SPREAD", "A1", "A2", "A3", "A0"],
+  "nodes": [
+    {
+      "id": "F_VECTOR_GEOMETRY",
+      "concept": "线性组合、点积、2-范数与正交",
+      "depth": 2,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["vector linear combinations", "dot product", "Euclidean norm", "orthogonality"]
+    },
+    {
+      "id": "F_MATRIX_NOTATION",
+      "concept": "矩阵行列、shape、转置与矩阵向量乘",
+      "depth": 2,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["rows and columns", "matrix shape", "transpose", "matrix-vector product"]
+    },
+    {
+      "id": "F_CENTER_AND_SPREAD",
+      "concept": "均值、标准差与标准化",
+      "depth": 2,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["arithmetic mean", "population standard deviation", "z-score"]
+    },
+    {
+      "id": "A1",
+      "concept": "标准化语义与 shape：X∈R^(2927×6)、β∈R^6、y/r∈R^2927",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["F_MATRIX_NOTATION", "F_CENTER_AND_SPREAD"],
+      "foundationRefs": ["feature matrix", "intercept column", "standardized coefficient"]
+    },
+    {
+      "id": "A2",
+      "concept": "列空间投影：Xβ 是列线性组合，并选择离 y 最近的向量",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["F_VECTOR_GEOMETRY", "F_MATRIX_NOTATION"],
+      "foundationRefs": ["column space", "orthogonal projection", "least distance"]
+    },
+    {
+      "id": "A3",
+      "concept": "Xᵀr 每项为 x_jᵀr，因此 Xᵀr=0 表示残差与每列正交",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["F_VECTOR_GEOMETRY", "F_MATRIX_NOTATION"],
+      "foundationRefs": ["componentwise dot product", "orthogonality condition"]
+    },
+    {
+      "id": "A0",
+      "concept": "Ames 最小二乘：min ||y-Xβ||²、Xβ 是 y 的投影、r=y-Xβ 且 Xᵀr≈0",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["A1", "A2", "A3"],
+      "foundationRefs": ["least-squares objective", "normal equations"]
+    }
+  ]
+}
