@@ -2,21 +2,28 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-07-20T00:00:00.000Z"
+status: paused
+stopped_at: Phase 25 context gathered
+last_updated: "2026-07-20T15:03:37.640Z"
+progress:
+  total_phases: 31
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-07-20
-**Status:** Curriculum V3.0 blueprint and audit are complete. Python Data Tools Stages 1–4, the detailed minimum-mathematics, linear-algebra, calculus, probability routes, and Numerical Methods Batches 1–3 are complete. Numerical Methods Batch 4 (`numerical-optimization`, `training-diagnostics`) is next for discussion and planning. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+**Status:** Curriculum V3.0 blueprint and audit are complete. Python Data Tools Stages 1–4, the detailed minimum-mathematics, linear-algebra, calculus, probability routes, and Numerical Methods Batches 1–3 are complete. Numerical Methods Batch 4 is registered as Phase 25 and its context is ready for research and planning. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Discuss and contract Numerical Methods Batch 4: connect numerical optimization, stopping criteria, floating-point instability, and training-curve diagnosis without repeating the completed calculus or optimizer-comparison teaching. Do not implement before the teaching boundary and reproducible outputs are approved. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.
+**Current focus:** Research and plan Phase 25 from the approved UCI Banknote logistic-regression context: stable BCE, feature scaling, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure exits, and training-curve diagnosis. Do not implement before the plan and exact reproducible outputs are approved. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.
 
 ## Baseline
 
@@ -727,4 +734,16 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Discuss Numerical Methods Batch 4 (`numerical-optimization`, `training-diagnostics`) and approve its continuous teaching case, exact reproducible outputs, lab boundary, Notebook split, and visual plan before implementation.
+Plan Phase 25 from the approved UCI Banknote logistic-regression context, lock exact clean-kernel outputs and implementation waves, then run plan review before implementation.
+
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 25 added: Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics
+
+## Session
+
+**Last session:** 2026-07-20T15:02:47.834Z
+**Stopped at:** Phase 25 context gathered
+**Resume file:** .planning/phases/25-numerical-methods-batch-4-logistic-regression-optimization-a/25-CONTEXT.md

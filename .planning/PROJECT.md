@@ -13,7 +13,7 @@ The Curriculum V2 adapter and navigation work remains the compatibility foundati
 - Numerical Methods Batch 1 (`least-squares-fitting`, `lu-decomposition`, `condition-numbers`) is complete.
 - Numerical Methods Batch 2 (`sparse-matrices`, `pca`) is complete.
 - Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) is complete, using one logit-bias calibration case to connect finite-difference checks with nonlinear root finding.
-- Numerical Methods Batch 4 (`numerical-optimization`, `training-diagnostics`) is next for discussion and contract work before implementation.
+- Numerical Methods Batch 4 is registered as Phase 25; its approved context uses the existing `optimization` and `training-diagnostics` routes and is ready for research and planning.
 - Homepage Focus and Spine progressive-disclosure redesign remain paused while content depth is built.
 
 ## Core Value
