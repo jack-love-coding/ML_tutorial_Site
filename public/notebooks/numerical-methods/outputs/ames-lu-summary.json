@@ -1,0 +1,29 @@
+{
+  "contractVersion": "numerical-methods-ames-v1",
+  "datasetSha256": "763867f46c9a8616d7e7ea7599f4ab1cf408609c8aea06e496e65f9330df20fc",
+  "factorizationResidualInfinity": 4.547e-13,
+  "luVsLstsqMaxAbs": 1.918e-13,
+  "manualPivotRows": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "manualVsScipyMaxAbs": 7.105e-15,
+  "outputId": "ames-lu-summary",
+  "reusedLogPriceIntercept": 12.0212213,
+  "solutionKusd": [
+    180.840006,
+    28.882212,
+    26.776014,
+    14.874714,
+    10.106863,
+    -10.010762
+  ],
+  "solveResidualInfinity": 1.455e-11,
+  "systemShape": [
+    6,
+    6
+  ]
+}

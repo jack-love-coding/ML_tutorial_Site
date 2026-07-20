@@ -1,0 +1,93 @@
+{
+  "contractVersion": "numerical-methods-ames-v1",
+  "dataset": {
+    "name": "Ames Housing",
+    "originalAuthor": "Dean De Cock",
+    "articleDoi": "10.1080/10691898.2011.11889627",
+    "distribution": {
+      "name": "AmesHousing",
+      "version": "0.0.4",
+      "repository": "CRAN",
+      "page": "https://cran.r-project.org/package=AmesHousing",
+      "download": "https://cran.r-project.org/src/contrib/AmesHousing_0.0.4.tar.gz",
+      "license": "GPL-2",
+      "licenseScope": "CRAN package distribution",
+      "retrievedAt": "2026-07-20",
+      "sourceArchiveSha256": "13e2d24a129904f9edc92692f24330fea256a765eab7baf893b9695ca7031920",
+      "rawDataSha256": "ca0a3c2e6d35f9bef9ebcb1c5926154853f9ff68843d83eb53ab57255367247c"
+    }
+  },
+  "transformation": {
+    "sourceObject": "ames_raw",
+    "sourceRows": 2930,
+    "operations": [
+      "select-reviewed-numeric-columns",
+      "strict-integer-conversion",
+      "drop-only-reviewed-incomplete-rows",
+      "drop-reviewed-temporal-anomaly-row",
+      "rename-columns-to-snake-case",
+      "sort-by-ames-order"
+    ],
+    "excludedRows": [
+      {
+        "amesOrder": 1342,
+        "missingFields": [
+          "basement_sqft"
+        ]
+      },
+      {
+        "amesOrder": 2237,
+        "missingFields": [
+          "garage_area_sqft",
+          "garage_cars"
+        ]
+      },
+      {
+        "amesOrder": 2181,
+        "invalidValues": {
+          "year_built": 2008,
+          "year_sold": 2007
+        }
+      }
+    ],
+    "imputation": false,
+    "randomSampling": false,
+    "outlierRemoval": false
+  },
+  "modelContract": {
+    "rowId": "ames_order",
+    "target": "sale_price_usd",
+    "defaultFeatures": [
+      "overall_quality",
+      "living_area_sqft",
+      "basement_sqft",
+      "garage_area_sqft",
+      "house_age_at_sale"
+    ],
+    "derivedFeatures": {
+      "house_age_at_sale": "year_sold - year_built"
+    }
+  },
+  "file": {
+    "publicPath": "/datasets/numerical-methods/ames-housing-numeric.csv",
+    "encoding": "utf-8",
+    "delimiter": "comma",
+    "sha256": "763867f46c9a8616d7e7ea7599f4ab1cf408609c8aea06e496e65f9330df20fc",
+    "bytes": 135603,
+    "rows": 2927,
+    "columns": 11,
+    "columnOrder": [
+      "ames_order",
+      "overall_quality",
+      "year_built",
+      "year_sold",
+      "first_floor_sqft",
+      "second_floor_sqft",
+      "living_area_sqft",
+      "basement_sqft",
+      "garage_cars",
+      "garage_area_sqft",
+      "sale_price_usd"
+    ]
+  }
+}

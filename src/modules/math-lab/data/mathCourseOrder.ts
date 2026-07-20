@@ -37,13 +37,15 @@ export const probabilityRouteModuleIds: readonly MathLabModuleId[] = [
 ]
 
 export const numericalDeepeningModuleIds: readonly MathLabModuleId[] = [
+  'least-squares-fitting',
   'lu-decomposition',
-  'sparse-matrices',
   'condition-numbers',
-  'markov-chains',
+  'sparse-matrices',
+  'pca',
   'finite-difference-methods',
   'nonlinear-equations',
-  'least-squares-fitting',
+  'optimization',
+  'training-diagnostics',
 ]
 
 export const mathToCodePilotModuleIds: readonly MathLabModuleId[] = [

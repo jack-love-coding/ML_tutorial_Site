@@ -24,6 +24,8 @@ export interface ConditioningEvaluation {
   relativeOutputError: number
   residualNorm: number
   relativeResidual: number
+  solveResidualNorm: number
+  relativeSolveResidual: number
   errorBound: number
   digitsLost: number
   expectedDigits: number
@@ -34,6 +36,14 @@ const MIN_SINGULAR_VALUE = 1e-14
 
 function toRadians(degrees: number) {
   return (degrees * Math.PI) / 180
+}
+
+export function formatConditionAngleDegrees(value: number) {
+  const magnitude = Math.abs(value)
+  if (magnitude < 0.1) return value.toFixed(3)
+  if (magnitude < 1) return value.toFixed(2)
+  if (Number.isInteger(value)) return value.toFixed(0)
+  return value.toFixed(1)
 }
 
 export function norm2(vector: ConditionVector2) {
@@ -119,10 +129,13 @@ export function evaluateConditioning(input: ConditioningInput): ConditioningEval
   const perturbedX = solve2x2(matrix, perturbedB)
   const deltaX = subtract2(perturbedX, exactX)
   const residual = subtract2(multiplyMatrixVector2x2(matrix, perturbedX), exactB)
+  const solveResidual = subtract2(multiplyMatrixVector2x2(matrix, perturbedX), perturbedB)
   const conditionNumber = conditionNumber2x2(matrix)
   const relativeOutputError = norm2(deltaX) / norm2(exactX)
   const residualNorm = norm2(residual)
   const relativeResidual = residualNorm / norm2(exactB)
+  const solveResidualNorm = norm2(solveResidual)
+  const relativeSolveResidual = solveResidualNorm / norm2(perturbedB)
   const errorBound = conditionNumber * relativeInputError
   const digitsLost = Number.isFinite(conditionNumber) ? Math.max(0, Math.log10(conditionNumber)) : Number.POSITIVE_INFINITY
 
@@ -141,6 +154,8 @@ export function evaluateConditioning(input: ConditioningInput): ConditioningEval
     relativeOutputError,
     residualNorm,
     relativeResidual,
+    solveResidualNorm,
+    relativeSolveResidual,
     errorBound,
     digitsLost,
     expectedDigits: Number.isFinite(digitsLost) ? Math.max(0, input.inputDigits - digitsLost) : 0,

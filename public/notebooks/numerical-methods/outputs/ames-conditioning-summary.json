@@ -1,0 +1,24 @@
+{
+  "contractVersion": "numerical-methods-ames-v1",
+  "datasetSha256": "763867f46c9a8616d7e7ea7599f4ab1cf408609c8aea06e496e65f9330df20fc",
+  "designConditionSquared": 10.384962,
+  "nearDuplicateDesignCondition": 26644.503135,
+  "observedAmplification": 329.613418,
+  "outputId": "ames-conditioning-summary",
+  "rawDesignCondition": 13044.220254,
+  "rawManualVsLibraryAbs": 0.0,
+  "relativeCoefficientChange": 0.00329613,
+  "relativeTargetPerturbation": 1e-05,
+  "standardizedDesignCondition": 3.222571,
+  "standardizedGramCondition": 10.384962,
+  "standardizedManualVsLibraryAbs": 0.0,
+  "twoByTwoBaseSolution": [
+    1.0,
+    1.0
+  ],
+  "twoByTwoCondition": 40002.000075,
+  "twoByTwoPerturbedSolution": [
+    0.0,
+    2.0
+  ]
+}

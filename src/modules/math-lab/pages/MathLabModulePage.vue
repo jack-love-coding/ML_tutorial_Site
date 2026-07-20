@@ -8,9 +8,11 @@ import CheckpointReportCard from '../components/CheckpointReportCard.vue'
 import CodeLab from '../components/CodeLab.vue'
 import LabTaskCard from '../components/LabTaskCard.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
+import MathLabNotebookCompanion from '../components/MathLabNotebookCompanion.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
 import ObservationPrompt from '../components/ObservationPrompt.vue'
 import { conceptIllustrationFor, type ConceptIllustration } from '../data/conceptIllustrations'
+import { amesNumericalNotebookForModule } from '../data/amesNumericalNotebook.ts'
 import { checkpointReportForModule, observationPromptForModule } from '../data/checkpointReports'
 import { routeNavigationForModule } from '../data/learningRoutes'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
@@ -81,6 +83,7 @@ const labComponentRegistry = {
 const currentLocale = computed(() => locale.value as MathLabLocale)
 const moduleId = computed(() => route.params.moduleId as MathLabModuleId)
 const moduleDefinition = computed(() => mathLabModuleRegistry[moduleId.value])
+const notebookCompanion = computed(() => amesNumericalNotebookForModule(moduleId.value))
 const moduleIndex = computed(() =>
   mathLabModules.findIndex((candidate) => candidate.id === moduleDefinition.value?.id),
 )
@@ -325,6 +328,12 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
             </article>
           </div>
         </section>
+
+        <MathLabNotebookCompanion
+          v-if="notebookCompanion"
+          :companion="notebookCompanion"
+          :locale="currentLocale"
+        />
 
         <section
           v-for="concept in moduleDefinition.concepts"

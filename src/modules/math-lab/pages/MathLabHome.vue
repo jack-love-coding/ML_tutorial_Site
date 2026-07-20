@@ -18,6 +18,7 @@ const minimumFoundationRoute = computed(() => learningRouteById['minimum-foundat
 const linearAlgebraRoute = computed(() => learningRouteById['linear-algebra-route'])
 const calculusRoute = computed(() => learningRouteById['calculus-route'])
 const probabilityRoute = computed(() => learningRouteById['probability-route'])
+const numericalDeepeningRoute = computed(() => learningRouteById['numerical-deepening-path'])
 const mathToCodePilotRoute = computed(() => learningRouteById['math-to-code-pilot'])
 const aiMathPathModules = computed(() => {
   const ids = new Set(aiMathPathModuleIds)
@@ -215,6 +216,14 @@ const beginnerCards = computed(() =>
 
     <LearningRouteDashboard
       :route="probabilityRoute"
+      :modules="mathLabModules"
+      :progress="progress"
+      :locale="currentLocale"
+      :show-reports="false"
+    />
+
+    <LearningRouteDashboard
+      :route="numericalDeepeningRoute"
       :modules="mathLabModules"
       :progress="progress"
       :locale="currentLocale"

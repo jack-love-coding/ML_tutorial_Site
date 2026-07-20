@@ -1,0 +1,72 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "root": "C0",
+  "maxDepth": 3,
+  "topologicalOrder": ["F_VECTOR_GEOMETRY", "F_MATRIX_NOTATION", "F_CENTER_AND_SPREAD", "C1", "C2", "C3", "C4", "C0"],
+  "nodes": [
+    {
+      "id": "F_VECTOR_GEOMETRY",
+      "concept": "线性组合、点积、2-范数与正交",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["direction", "Euclidean norm", "linear map"]
+    },
+    {
+      "id": "F_MATRIX_NOTATION",
+      "concept": "矩阵行列、shape、转置与矩阵向量乘",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["matrix shape", "transpose", "matrix product"]
+    },
+    {
+      "id": "F_CENTER_AND_SPREAD",
+      "concept": "均值、标准差与标准化",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["mean", "population standard deviation", "unit scaling"]
+    },
+    {
+      "id": "C1",
+      "concept": "逐列减均值、除标准差；缩放不能消除共线性",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_MATRIX_NOTATION", "F_CENTER_AND_SPREAD"],
+      "foundationRefs": ["z-score standardization", "collinearity"]
+    },
+    {
+      "id": "C2",
+      "concept": "奇异值描述方向拉伸，κ₂=σmax/σmin",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_VECTOR_GEOMETRY", "F_MATRIX_NOTATION"],
+      "foundationRefs": ["singular values", "spectral condition number"]
+    },
+    {
+      "id": "C3",
+      "concept": "XᵀX 的特征值为 σᵢ²；满列秩时 κ₂(XᵀX)=κ₂(X)²",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["C2"],
+      "foundationRefs": ["Gram eigenvalues", "squared singular values"]
+    },
+    {
+      "id": "C4",
+      "concept": "x_j≈x_k 时 X(e_j-e_k)≈0，σmin 很小；系数可大变而预测小变",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["C2"],
+      "foundationRefs": ["near-null direction", "near-duplicate feature", "coefficient sensitivity"]
+    },
+    {
+      "id": "C0",
+      "concept": "标准化减少单位失衡，XᵀX 平方 κ，近重复特征仍可造成敏感性",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["C1", "C3", "C4"],
+      "foundationRefs": ["conditioning diagnostic", "sensitivity analysis"]
+    }
+  ]
+}

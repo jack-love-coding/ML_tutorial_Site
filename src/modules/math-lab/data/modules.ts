@@ -1,5 +1,6 @@
 import { importedMathNotes } from './importedMathNotes.generated.ts'
 import { aiBridgeModules } from './aiBridgeModules.ts'
+import { enhanceAmesNumericalMethodsModule } from './amesNumericalMethodsModules.ts'
 import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
 import { calculusOptimizationRouteModules } from './calculusOptimizationRouteModules.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
@@ -200,7 +201,9 @@ const aiMathPathModules: MathLabModule[] = aiMathPathModuleIds.map((moduleId, in
     throw new Error(`Missing math lab module: ${moduleId}`)
   }
 
-  const moduleDefinition = enhanceProbabilityUncertaintyModule(sourceModuleDefinition)
+  const moduleDefinition = enhanceAmesNumericalMethodsModule(
+    enhanceProbabilityUncertaintyModule(sourceModuleDefinition),
+  )
 
   return {
     ...moduleDefinition,

@@ -101,8 +101,13 @@ import {
   lcgSequence,
   monteCarloPiStandardError,
 } from '../src/modules/math-lab/utils/monteCarlo.ts'
-import { estimateLuReuseCost, evaluateLu2x2 } from '../src/modules/math-lab/utils/luDecomposition.ts'
-import { conditionNumber2x2, evaluateConditioning, makeColumnMatrix } from '../src/modules/math-lab/utils/conditionNumbers.ts'
+import { estimateLuReuseCost, evaluateLu2x2, evaluateLup2x2 } from '../src/modules/math-lab/utils/luDecomposition.ts'
+import {
+  conditionNumber2x2,
+  evaluateConditioning,
+  formatConditionAngleDegrees,
+  makeColumnMatrix,
+} from '../src/modules/math-lab/utils/conditionNumbers.ts'
 import { evaluatePowerIteration } from '../src/modules/math-lab/utils/eigenPower.ts'
 import {
   buildPageRankTransition,
@@ -2212,6 +2217,19 @@ test('lu utilities expose factorization, solve residuals, pivot warnings, and re
   }, 0.08)
   assert.equal(pivotCandidate.needsPivot, true)
 
+  const pivoted = evaluateLup2x2({
+    a11: 0.25,
+    a12: 2,
+    a21: 3,
+    a22: 5,
+    b1: 6,
+    b2: 7,
+  })
+  assert.equal(pivoted.pivoted, true)
+  assert.deepEqual(pivoted.permutation, [[0, 1], [1, 0]])
+  assert.ok(Math.abs(pivoted.determinant - (-4.75)) < 1e-12)
+  assert.ok(pivoted.residualNorm < 1e-12)
+
   const nearSingular = evaluateLu2x2({
     a11: 4,
     a12: 2,
@@ -2229,6 +2247,10 @@ test('lu utilities expose factorization, solve residuals, pivot warnings, and re
 })
 
 test('condition number utilities expose sensitivity trends and residual-error bounds', () => {
+  assert.equal(formatConditionAngleDegrees(35), '35')
+  assert.equal(formatConditionAngleDegrees(0.5), '0.50')
+  assert.equal(formatConditionAngleDegrees(0.005), '0.005')
+
   const wellConditioned = makeColumnMatrix(80, 1)
   const illConditioned = makeColumnMatrix(5, 1)
 
@@ -2253,6 +2275,7 @@ test('condition number utilities expose sensitivity trends and residual-error bo
   assert.ok(sensitive.relativeOutputError > stable.relativeOutputError)
   assert.ok(sensitive.errorBound >= sensitive.relativeOutputError)
   assert.ok(Math.abs(sensitive.relativeResidual - sensitive.relativeInputError) < 1e-12)
+  assert.ok(sensitive.relativeSolveResidual < 1e-12)
   assert.ok(sensitive.expectedDigits < stable.expectedDigits)
 })
 

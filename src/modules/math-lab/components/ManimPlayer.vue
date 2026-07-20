@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
 import { withPublicBase } from '../../../utils/publicPath.ts'
 import type { MathLabLocale, VisualAsset } from '../types/mathLab'
@@ -20,22 +20,36 @@ const fallbackTranscript = computed(() =>
 )
 const videoSrc = computed(() => withPublicBase(props.asset?.assetPath))
 const posterSrc = computed(() => withPublicBase(props.asset?.posterPath))
+const videoFailed = ref(false)
+const posterAlt = computed(() => props.asset?.alt?.[props.locale] ?? props.asset?.title[props.locale] ?? fallbackTitle.value)
+
+watch(videoSrc, () => {
+  videoFailed.value = false
+})
 </script>
 
 <template>
   <section class="math-manim-player" :style="{ '--math-accent': accent ?? '#3868ff' }">
     <div class="math-manim-player__media">
       <video
-        v-if="asset?.assetPath"
+        v-if="asset?.assetPath && !videoFailed"
         controls
         preload="metadata"
         playsinline
         :poster="posterSrc"
         :aria-label="asset.title[locale]"
         :data-asset-path="videoSrc"
+        @error="videoFailed = true"
+        @loadeddata="videoFailed = false"
       >
         <source :src="videoSrc" type="video/mp4" />
       </video>
+      <img
+        v-else-if="posterSrc"
+        class="math-manim-player__poster"
+        :src="posterSrc"
+        :alt="posterAlt"
+      />
       <div v-else class="math-manim-player__fallback">
         <span>Manim</span>
         <strong>Visual fallback</strong>

@@ -1158,7 +1158,8 @@ export const curriculumCatalogMetadata = [
       "least-squares-fitting:objective-3",
       "least-squares-fitting:objective-4",
       "least-squares-fitting:objective-5",
-      "least-squares-fitting:objective-6"
+      "least-squares-fitting:objective-6",
+      "least-squares-fitting:objective-7"
     ],
     "relatedModuleIds": [
       "pca"
@@ -1219,7 +1220,7 @@ export const curriculumCatalogMetadata = [
       "en": "Split a general linear system into reusable forward and back substitution, and see why pivots control stability."
     },
     "route": "/math-lab/modules/lu-decomposition",
-    "estimatedMinutes": 40,
+    "estimatedMinutes": 70,
     "prerequisiteIds": [
       "linear-algebra-distance-similarity"
     ],
@@ -1228,7 +1229,8 @@ export const curriculumCatalogMetadata = [
       "lu-decomposition:objective-2",
       "lu-decomposition:objective-3",
       "lu-decomposition:objective-4",
-      "lu-decomposition:objective-5"
+      "lu-decomposition:objective-5",
+      "lu-decomposition:objective-6"
     ],
     "relatedModuleIds": [
       "sparse-matrices"
@@ -1285,7 +1287,7 @@ export const curriculumCatalogMetadata = [
       "en": "Measure how much tiny input errors can be amplified in the solution, and why a small residual is not always a good answer."
     },
     "route": "/math-lab/modules/condition-numbers",
-    "estimatedMinutes": 46,
+    "estimatedMinutes": 70,
     "prerequisiteIds": [
       "linear-algebra-distance-similarity",
       "lu-decomposition"
@@ -1295,7 +1297,8 @@ export const curriculumCatalogMetadata = [
       "condition-numbers:objective-2",
       "condition-numbers:objective-3",
       "condition-numbers:objective-4",
-      "condition-numbers:objective-5"
+      "condition-numbers:objective-5",
+      "condition-numbers:objective-6"
     ],
     "relatedModuleIds": [
       "finite-difference-methods"

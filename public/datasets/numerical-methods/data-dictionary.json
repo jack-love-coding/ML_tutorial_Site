@@ -1,0 +1,71 @@
+{
+  "contractVersion": "numerical-methods-ames-v1",
+  "fields": [
+    {
+      "name": "ames_order",
+      "unit": "row id",
+      "zh-CN": "上游 Ames 数据的稳定记录序号，仅用于排序。",
+      "en": "Stable row order from the upstream Ames data; used only for ordering."
+    },
+    {
+      "name": "overall_quality",
+      "unit": "1-10 score",
+      "zh-CN": "整体材料与装修质量评分。",
+      "en": "Overall material and finish quality score."
+    },
+    {
+      "name": "year_built",
+      "unit": "year",
+      "zh-CN": "原始建造年份。",
+      "en": "Original construction year."
+    },
+    {
+      "name": "year_sold",
+      "unit": "year",
+      "zh-CN": "房屋售出年份。",
+      "en": "Year of sale."
+    },
+    {
+      "name": "first_floor_sqft",
+      "unit": "square feet",
+      "zh-CN": "一层面积。",
+      "en": "First-floor area."
+    },
+    {
+      "name": "second_floor_sqft",
+      "unit": "square feet",
+      "zh-CN": "二层面积。",
+      "en": "Second-floor area."
+    },
+    {
+      "name": "living_area_sqft",
+      "unit": "square feet",
+      "zh-CN": "地面以上居住面积。",
+      "en": "Above-ground living area."
+    },
+    {
+      "name": "basement_sqft",
+      "unit": "square feet",
+      "zh-CN": "地下室总面积。",
+      "en": "Total basement area."
+    },
+    {
+      "name": "garage_cars",
+      "unit": "cars",
+      "zh-CN": "车库容量。",
+      "en": "Garage capacity measured in cars."
+    },
+    {
+      "name": "garage_area_sqft",
+      "unit": "square feet",
+      "zh-CN": "车库面积。",
+      "en": "Garage area."
+    },
+    {
+      "name": "sale_price_usd",
+      "unit": "US dollars",
+      "zh-CN": "房屋成交价格，作为回归目标。",
+      "en": "Sale price used as the regression target."
+    }
+  ]
+}

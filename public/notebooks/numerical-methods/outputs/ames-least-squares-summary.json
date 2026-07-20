@@ -1,0 +1,42 @@
+{
+  "coefficients": {
+    "basement_sqft_per_standard_deviation_kusd": 14.874714,
+    "garage_area_sqft_per_standard_deviation_kusd": 10.106863,
+    "house_age_at_sale_per_standard_deviation_kusd": -10.010762,
+    "intercept_kusd": 180.840006,
+    "living_area_sqft_per_standard_deviation_kusd": 26.776014,
+    "overall_quality_per_standard_deviation_kusd": 28.882212
+  },
+  "contractVersion": "numerical-methods-ames-v1",
+  "datasetSha256": "763867f46c9a8616d7e7ea7599f4ab1cf408609c8aea06e496e65f9330df20fc",
+  "featureMeans": {
+    "basement_sqft": 1050.298941,
+    "garage_area_sqft": 472.652887,
+    "house_age_at_sale": 36.421934,
+    "living_area_sqft": 1498.556201,
+    "overall_quality": 6.094636
+  },
+  "featureOrder": [
+    "overall_quality",
+    "living_area_sqft",
+    "basement_sqft",
+    "garage_area_sqft",
+    "house_age_at_sale"
+  ],
+  "featurePopulationScales": {
+    "basement_sqft": 434.290212,
+    "garage_area_sqft": 214.684795,
+    "house_age_at_sale": 30.277353,
+    "living_area_sqft": 501.133725,
+    "overall_quality": 1.408984
+  },
+  "maeKusd": 23.872932,
+  "manualVsLibraryMaxAbs": 2.888e-12,
+  "maxNormalEquationResidual": 3.726e-10,
+  "outputId": "ames-least-squares-summary",
+  "rSquared": 0.79880768,
+  "rank": 6,
+  "residualSumSquares": 3758527.392122,
+  "rmseKusd": 35.834182,
+  "rows": 2927
+}

@@ -372,6 +372,21 @@ test('math lab components and labs exist with expected contracts', () => {
   const playerSource = read('src/modules/math-lab/components/ManimPlayer.vue')
   assert.match(playerSource, /<video/)
   assert.match(playerSource, /data-asset-path/)
+  assert.match(playerSource, /@error="videoFailed = true"/)
+  assert.match(playerSource, /math-manim-player__poster/)
+
+  const luLabSource = read('src/modules/math-lab/labs/LuDecompositionLab.vue')
+  assert.match(luLabSource, /role="table"/)
+  assert.match(luLabSource, /role="row"/)
+  assert.match(luLabSource, /role="cell"/)
+  assert.match(luLabSource, /solveFlowAriaLabel/)
+
+  const conditionLabSource = read('src/modules/math-lab/labs/ConditionNumbersLab.vue')
+  assert.match(conditionLabSource, /formatConditionAngleDegrees\(columnAngle\)/)
+
+  const moduleStyles = read('src/styles/modules/math-lab.css')
+  assert.match(moduleStyles, /\.math-manim-player__media\s*{[^}]*aspect-ratio:\s*16\s*\/\s*9[^}]*min-height:\s*0/s)
+  assert.match(moduleStyles, /\.math-manim-player video,\s*\.math-manim-player__poster\s*{[^}]*object-fit:\s*contain/s)
 
   const homeViewSource = read('src/views/HomeView.vue')
   const mathLabHomeSource = read('src/modules/math-lab/pages/MathLabHome.vue')
