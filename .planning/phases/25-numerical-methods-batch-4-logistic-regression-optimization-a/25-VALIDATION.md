@@ -20,16 +20,16 @@ created: 2026-07-21
 | Quick media-source command | `node --test --test-name-pattern='scene source|six-role|labels|renderer contract' tests/numerical-methods-batch-4-manim.test.ts` |
 | Full suite | `npm test` |
 | Fast feedback target | Filtered Node tests, Python compilation, and JSON parsing should finish under 10 seconds. |
-| Long-gate expectation | Isolated environment installation, clean Notebook generation/check, three-video rendering, full builds, and security audit may exceed 30 seconds and run only at their declared publication/release boundary. |
+| Long-gate expectation | One approved network bootstrap of the local wheel cache, cache-only isolated environment creation, clean Notebook generation/check, three-video rendering, full builds, and security audit may exceed 30 seconds and run only at their declared boundary. |
 
 ## Sampling Rate
 
 - After ordinary source/code tasks: run the narrow filtered Node test, `py_compile`, or `json.tool` check named by the task; target under 10 seconds.
-- After Plan 02 Task 1: run the isolated eight-pin environment install/version check once; classify it as a long prerequisite, not task-level fast feedback.
-- After Plan 03 publication: run Notebook generation/`--check` once; classify it as a long integration gate.
+- After Plan 02 Task 1: run `--bootstrap-environment-cache` once after Plan 01 approval, then cache-only `--verify-environment`; the ignored cache is `.cache/numerical-methods/batch-4-wheelhouse`.
+- After Plan 03 publication: run normal generation and `--check` with that wheel cache; both create fresh temp venvs/kernels, use `--no-index`, verify all eight pins/imports, standalone-rerun, and clean up.
 - After Plans 06–08: run only source compilation and JSON parsing. Plan 10 runs the consolidated fast source-contract test after all three packages exist.
 - After Plan 11: run the three-video render once, then renderer `--check` and media tests; classify it as a long publication gate.
-- Plan 12 owns the long full suite, builds, Pages build, security audit, and final drift checks.
+- Plan 12 owns offline cache-only environment/Notebook drift checks plus the long full suite, builds, Pages build, security audit, and final drift checks; it must not bootstrap or download.
 - Plan 13 owns the manual browser matrix. No watch-mode command is allowed.
 
 ## Per-Task Verification Map
@@ -37,11 +37,11 @@ created: 2026-07-21
 | Task ID | Plan/Wave | Requirement | Threat | Latency | Automated command / gate | Status |
 |---|---|---|---|---|---|---|
 | 25-01-01 | 01/W1 | P25-SC2 | T-25-SC | manual blocker | Human approves exact `scikit-learn==1.9.0` identity before any edit/install | ⬜ pending |
-| 25-02-01 | 02/W2 | P25-SC1–SC3 | T-25-02, T-25-SC | long prerequisite | Contract checks plus fresh `mktemp` venv install and eight-version assertion | ⬜ pending |
+| 25-02-01 | 02/W2 | P25-SC1–SC3 | T-25-02, T-25-SC | long prerequisite | Approved cache bootstrap, then cache-only `--verify-environment` with `pip --no-index`, eight-version/import checks, temp kernel selection, and cleanup | ⬜ pending |
 | 25-02-02 | 02/W2 | P25-SC1 | T-25-01 | long source refresh | `python3 scripts/numerical-methods/generate-batch-4-notebook.py --refresh-source` | ⬜ pending |
 | 25-02-03 | 02/W2 | P25-SC1–SC5 | T-25-01–04 | fast | filtered dataset/contract/scaffold Node tests | ⬜ pending |
-| 25-03-01 | 03/W3 | P25-SC1–SC3 | T-25-02 | long integration | generate clean Notebook; assert Pandas `read_csv`, schema record, five runs, failures, and baseline | ⬜ pending |
-| 25-03-02 | 03/W3 | P25-SC1–SC3 | T-25-02 | long drift | `python3 scripts/numerical-methods/generate-batch-4-notebook.py --check` | ⬜ pending |
+| 25-03-01 | 03/W3 | P25-SC1–SC3 | T-25-02 | long integration | normal generation with `--wheel-cache .cache/numerical-methods/batch-4-wheelhouse`; isolated kernel, standalone rerun, Pandas/schema/five runs/baseline, cleanup | ⬜ pending |
+| 25-03-02 | 03/W3 | P25-SC1–SC3 | T-25-02 | long drift | cache-only/write-free `--check --wheel-cache .cache/numerical-methods/batch-4-wheelhouse`, standalone rerun, cleanup | ⬜ pending |
 | 25-03-03 | 03/W3 | P25-SC1–SC3 | T-25-02 | fast | filtered notebook/output/Pandas/gradient/terminal Node tests | ⬜ pending |
 | 25-04-01 | 04/W4 | P25-SC3–SC4 | T-25-01,03 | fast | filtered parser/loader/preprocessing tests | ⬜ pending |
 | 25-04-02 | 04/W4 | P25-SC3–SC4 | T-25-02,03 | fast | filtered stable-BCE/Armijo/terminal/parity/non-finite-probe tests | ⬜ pending |
@@ -55,7 +55,7 @@ created: 2026-07-21
 | 25-10-01 | 10/W5 | P25-SC5 | T-25-04 | fast | compile shared helpers and all scene sources | ⬜ pending |
 | 25-10-02 | 10/W5 | P25-SC5 | T-25-04,07 | fast | compile renderer plus consolidated source/renderer-contract test | ⬜ pending |
 | 25-11-01 | 11/W6 | P25-SC5 | T-25-07,08 | long publication | render three videos, run `--check`, then full media test | ⬜ pending |
-| 25-12-01 | 12/W7 | P25-SC1–SC5 | T-25-01–09 | mixed release | focused tests plus Notebook/media drift checks | ⬜ pending |
+| 25-12-01 | 12/W7 | P25-SC1–SC5 | T-25-01–09 | mixed release | focused tests plus cache-only environment verification, isolated Notebook/media drift, and cleanup checks; no bootstrap/download | ⬜ pending |
 | 25-12-02 | 12/W7 | P25-SC1–SC5 | T-25-09,10 | long release | `npm test && npm run build && npm run build:pages && npm run security:audit` | ⬜ pending |
 | 25-13-01 | 13/W8 | P25-SC4–SC5 | T-25-05,11 | manual browser | Eight-state matrix plus exact raw/fixed/`Number.MAX_VALUE`/10 non-finite probe | ⬜ pending |
 
@@ -63,9 +63,18 @@ created: 2026-07-21
 
 - [ ] `tests/numerical-methods-batch-4.test.ts` — dataset, Pandas-loading proof, objective, gradient, stopping, parity, lesson, route, download, and hash contract.
 - [ ] `tests/numerical-methods-batch-4-manim.test.ts` — three six-role packages, labels, exact Notebook anchors, renderer/media probes, and integrity.
-- [ ] `scripts/numerical-methods/generate-batch-4-notebook.py` — clean-kernel generation, transactional publication, standalone rerun, and `--check`.
+- [ ] `scripts/numerical-methods/generate-batch-4-notebook.py` — explicit cache bootstrap, cache-only per-invocation temp venv/kernel, eight-version/import checks, generation, standalone rerun, `finally` cleanup, and write-free `--check`.
 - [ ] `scripts/manim/render_numerical_methods_batch_4.py` — Notebook-bound rendering, transactional publication, poster/metadata generation, and `--check`.
 - [ ] Human verification of exact `scikit-learn==1.9.0` identity before requirements modification or installation.
+
+## Isolated Environment and Offline Contract
+
+1. Plan 01 is the sole blocking human gate; no requirements edit, package download, cache bootstrap, or install occurs before exact approval.
+2. Plan 02 then runs the only network-enabled command: `python3 scripts/numerical-methods/generate-batch-4-notebook.py --bootstrap-environment-cache --wheel-cache .cache/numerical-methods/batch-4-wheelhouse`. The ignored cache records requirements, Python/platform, and wheel hashes.
+3. `--verify-environment`, normal generation, and `--check` never bootstrap. Missing/stale cache fails with the exact command above. Installs use `pip --no-index --find-links=.cache/numerical-methods/batch-4-wheelhouse` and `PIP_NO_INDEX=1`.
+4. Each invocation creates a new temp venv, verifies exact versions/imports for all eight pins, registers that venv's ipykernel under a temp prefix, scopes all Jupyter directories there, and selects that kernel; ambient third-party packages never execute cells.
+5. Normal generation and `--check` execute both generated and copied standalone/download-form Notebooks through the isolated kernel. `--check` regenerates and byte-compares only in temp directories and writes nothing.
+6. One outer `finally` removes temp venv, kernelspec, Jupyter/IPython state, worker output, and standalone-rerun directory on every exit. The wheel cache remains ignored for later offline gates.
 
 ## Manual-Only Verifications
 
