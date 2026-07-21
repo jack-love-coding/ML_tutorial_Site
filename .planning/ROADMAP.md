@@ -767,7 +767,7 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 **Goal:** Rebuild the existing `optimization` and `training-diagnostics` lessons around one reproducible UCI Banknote logistic-regression case that connects stable objective evaluation, feature scale, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure exits, and actionable curve diagnosis.
 **Requirements:** Preserve the two existing routes, checkpoints, Progress stores, and one-primary-lab-per-chapter structure; publish a verified local dataset snapshot, one shared executed Notebook, locked JSON/CSV traces, one shared illustration, and three Notebook-bound Manim videos; keep browser computation in deterministic TypeScript and retain the existing synthetic diagnostic modes as clearly labeled support examples.
 **Depends on:** Phase 24A and completed Numerical Methods Batches 1–3
-**Plans:** 0 plans
+**Plans:** 9 plans
 
 **Success Criteria:**
 
@@ -779,7 +779,15 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 
 Plans:
 
-- [ ] Run `/gsd-plan-phase 25` after reviewing `25-CONTEXT.md`.
+- [ ] 25-01-PLAN.md — Verify the exact scikit-learn 1.9.0 package identity.
+- [ ] 25-02-PLAN.md — Lock the contract, local dataset, approved pin, and Wave 0 tests.
+- [ ] 25-03-PLAN.md — Generate the shared executed Notebook and locked JSON/CSV outputs.
+- [ ] 25-04-PLAN.md — Implement deterministic TypeScript dataset and logistic engines.
+- [ ] 25-05-PLAN.md — Rebuild both lessons and upgrade their existing primary labs.
+- [ ] 25-06-PLAN.md — Author three Notebook-bound six-role Manim scene packages.
+- [ ] 25-07-PLAN.md — Create the shared illustration and render/hash all media.
+- [ ] 25-08-PLAN.md — Run automated release gates and record completion.
+- [ ] 25-09-PLAN.md — Verify the bilingual desktop/mobile browser matrix.
 
 ---
 *Roadmap created: 2026-06-25*
