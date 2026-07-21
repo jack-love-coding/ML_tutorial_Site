@@ -18,7 +18,7 @@ Grouped rows expand wildcards explicitly in the notes below. “Exact” means t
 |---|---|---|---|---|
 | `docs/curriculum-v3/numerical-methods/batch-4-contract.md` | config/documentation | batch | `docs/curriculum-v3/numerical-methods/batch-3-contract.md` | exact |
 | `docs/curriculum-v3/numerical-methods/batch-4-imagegen-prompts.md` | documentation/config | batch | `docs/curriculum-v3/numerical-methods/batch-3-imagegen-prompts.md` | exact |
-| `docs/curriculum-v3/numerical-methods/manim/{banknote-feature-scaling,banknote-armijo,banknote-training-diagnostics}-{transcript.zh-CN.md,summary.en.md,labels.json}` (9 files) | media documentation/config | batch | Batch 3 `logit-calibration-*-{transcript,summary,labels}` packages | exact |
+| `docs/curriculum-v3/numerical-methods/manim/{banknote-feature-scaling,banknote-fixed-vs-armijo,banknote-training-diagnostics}-{transcript.zh-CN.md,summary.en.md,labels.json}` (9 files) | media documentation/config | batch | Existing `logit-calibration-finite-difference-*` and `logit-calibration-root-finding-*` document packages | role-match |
 | `public/datasets/numerical-methods/banknote-authentication.csv` | static dataset | file-I/O | `public/datasets/numerical-methods/sms-spam.csv` plus the Batch 3 fixture contract | role-match |
 | `public/datasets/numerical-methods/banknote-authentication-manifest.json` | config/manifest | file-I/O | `public/datasets/numerical-methods/logit-calibration-manifest.json` | exact |
 | `public/datasets/numerical-methods/banknote-authentication-data-dictionary.json` | config/data dictionary | file-I/O | `public/datasets/numerical-methods/sms-spam-data-dictionary.json` | exact |
@@ -31,8 +31,10 @@ Grouped rows expand wildcards explicitly in the notes below. “Exact” means t
 | `scripts/numerical-methods/generate-batch-4-notebook.py` | build utility | batch/file-I/O | `scripts/numerical-methods/generate-batch-3-notebook.py` | exact |
 | `scripts/manim/render_numerical_methods_batch_4.py` | build utility | batch/file-I/O | `scripts/manim/render_numerical_methods_batch_3.py` | exact |
 | `scripts/manim/numerical_methods_batch_4/{common.py,palette.py}` | media utility/config | transform | Batch 3 `common.py` and `palette.py` | exact |
-| `scripts/manim/numerical_methods_batch_4/{banknote_feature_scaling,banknote_fixed_vs_armijo,banknote_training_diagnostics}.py` (3 files) | media scene | batch/transform | Batch 3 calibration scene classes | role-match |
-| `scripts/manim/numerical_methods_batch_4/{banknote_feature_scaling,banknote_fixed_vs_armijo,banknote_training_diagnostics}_{prompt.md,tree.json}` (6 files) | media source/config | batch | Batch 3 scene prompt/tree pairs | exact |
+| `scripts/manim/numerical_methods_batch_4/{banknote_feature_scaling,banknote_fixed_vs_armijo}.py` (2 files) | media scene | batch/transform | Existing `scripts/manim/numerical_methods_batch_3/calibration_finite_difference.py` and `calibration_root_finding.py` | role-match |
+| `scripts/manim/numerical_methods_batch_4/banknote_training_diagnostics.py` | media scene | batch/transform | No exact Batch 3 trace scene; use `25-RESEARCH.md`, `scripts/manim/scenes/ai_bridge_math.py` curve staging, and `scripts/manim/ai_overview/linear_regression_parameter_search.py` marker staging | partial |
+| `scripts/manim/numerical_methods_batch_4/{banknote_feature_scaling,banknote_fixed_vs_armijo}_{prompt.md,tree.json}` (4 files) | media source/config | batch | Existing Batch 3 `calibration_finite_difference_{prompt.md,tree.json}` and `calibration_root_finding_{prompt.md,tree.json}` pairs | exact |
+| `scripts/manim/numerical_methods_batch_4/banknote_training_diagnostics_{prompt.md,tree.json}` (2 files) | media source/config | batch | `25-RESEARCH.md` exact diagnostic contract plus the closest real curve/marker sources above | partial |
 | `src/modules/math-lab/data/numericalBatch4Modules.ts` | content enhancer/provider | transform | `src/modules/math-lab/data/numericalBatch3Modules.ts` | exact |
 | `src/modules/math-lab/data/numericalBatch4Notebook.ts` | typed data/provider | request-response | `src/modules/math-lab/data/numericalBatch3Notebook.ts` | exact |
 | `src/modules/math-lab/utils/banknoteDataset.ts` | utility/data loader | file-I/O/request-response | `scripts/python-data-tools/bikeSharingContract.mjs` + `src/utils/pythonDataToolsOutputs.ts` | partial |
@@ -528,7 +530,7 @@ Every dataset, Notebook, JSON, CSV, image, poster, and video record stores a lea
 ## Conflicts and Seams to Resolve Before Implementation
 
 1. **Package legitimacy checkpoint:** Research verified `scikit-learn==1.9.0` in a clean kernel and against official docs/PyPI metadata, but the mandatory package seam returned `SUS` because download/repository signals were missing. The plan must insert `checkpoint:human-verify` before editing/installing the pin.
-2. **Armijo scene naming:** Research proposes docs matching `banknote-armijo-*` but public media named `banknote-fixed-vs-armijo.*`. Pick one canonical scene ID/stem in `batch-4-contract.md` before creating prompt/tree/transcript/labels/metadata; otherwise integrity paths will drift. Recommended: use learner-facing scene ID `banknote-fixed-vs-armijo` everywhere, while the lesson topic remains Armijo.
+2. **Armijo scene naming (resolved for planning):** Use canonical scene ID/stem `banknote-fixed-vs-armijo` for source, prompt, tree, transcript, summary, labels, poster, video, and metadata while the lesson topic remains Armijo.
 3. **No runtime network:** The Notebook generator may have an explicit maintenance refresh path, but normal generation/check and browser labs consume committed local files only.
 4. **No raw-vs-standardized quality claim:** The same coefficient-space L2 changes geometry across units; use those runs to teach conditioning/trajectory, not to declare final model quality.
 5. **No transient winner:** Final-model eligibility requires mathematical convergence before comparing best-validation checkpoints; this prevents the unstable too-large run from winning on a transient low validation BCE.
@@ -545,6 +547,7 @@ Every dataset, Notebook, JSON, CSV, image, poster, and video record stores a lea
 | `src/modules/math-lab/utils/banknoteDataset.ts` | No Math Lab runtime utility currently fetches and strictly parses a local numeric CSV with split/count/hash-adjacent validation. | Combine the strict CSV boundary from `bikeSharingContract.mjs`, the base-safe abortable loader state from `pythonDataToolsOutputs.ts`, and Phase 25’s exact seven-column/count contract. |
 | `MathGradientLab.vue` explicit Run state | Existing Math Lab optimization labs recompute reactively; no exact draft-controls-versus-committed-run component exists. | Implement separate draft config and committed result, following the research performance boundary. Preserve existing shell/control/accessibility conventions. |
 | Batch 4 trace JSON/CSV | Batch 3 outputs are summary JSON only. | Follow the exact interfaces/header order in `25-RESEARCH.md`; generator and TypeScript tests jointly enforce accepted-row parity and terminal metadata. |
+| `banknote_training_diagnostics.py` trace/best/terminal scene | No exact Batch 3 solver-trace scene exists. | Treat `25-RESEARCH.md` as the numerical/state authority; use `scripts/manim/scenes/ai_bridge_math.py` only for curve staging and `scripts/manim/ai_overview/linear_regression_parameter_search.py` only for best-marker staging, never for values. |
 
 ## Planner-Ready Dependency Order
 

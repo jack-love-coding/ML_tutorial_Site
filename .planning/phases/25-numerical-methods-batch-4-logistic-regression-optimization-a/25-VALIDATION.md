@@ -9,94 +9,78 @@ created: 2026-07-21
 
 # Phase 25 — Validation Strategy
 
-> Per-phase validation contract for feedback sampling during execution.
-
----
+> Per-phase validation contract with honest separation between fast feedback and long publication/release gates.
 
 ## Test Infrastructure
 
 | Property | Value |
 |----------|-------|
-| **Framework** | Node built-in test runner under Node 24.x |
-| **Config file** | none — `package.json` runs `node --test tests/*.test.*` |
-| **Quick run command** | `node --test tests/numerical-methods-batch-4.test.ts` |
-| **Media run command** | `node --test tests/numerical-methods-batch-4-manim.test.ts` |
-| **Full suite command** | `npm test` |
-| **Estimated runtime** | focused tests under 10 seconds; current full suite about 5 seconds |
-
----
+| Framework | Node built-in test runner under Node 24.x |
+| Quick numerical/content command | `node --test tests/numerical-methods-batch-4.test.ts` |
+| Quick media-source command | `node --test --test-name-pattern='scene source|six-role|labels|renderer contract' tests/numerical-methods-batch-4-manim.test.ts` |
+| Full suite | `npm test` |
+| Fast feedback target | Filtered Node tests, Python compilation, and JSON parsing should finish under 10 seconds. |
+| Long-gate expectation | Isolated environment installation, clean Notebook generation/check, three-video rendering, full builds, and security audit may exceed 30 seconds and run only at their declared publication/release boundary. |
 
 ## Sampling Rate
 
-- **After every task commit:** Run the focused Batch 4 test that covers the changed surface.
-- **After every plan wave:** Run `node --test tests/numerical-methods-batch-4.test.ts tests/numerical-methods-batch-4-manim.test.ts` and `git diff --check`.
-- **After Notebook/output tasks:** Run `python3 scripts/numerical-methods/generate-batch-4-notebook.py --check`.
-- **After media tasks:** Run `python3 scripts/manim/render_numerical_methods_batch_4.py --check`.
-- **Before `$gsd-verify-work`:** `npm test`, `npm run build`, `npm run build:pages`, `npm run security:audit`, both generator checks, and the browser matrix must be green.
-- **Max automated feedback latency:** 10 seconds for task-level focused tests.
-
----
+- After ordinary source/code tasks: run the narrow filtered Node test, `py_compile`, or `json.tool` check named by the task; target under 10 seconds.
+- After Plan 02 Task 1: run the isolated eight-pin environment install/version check once; classify it as a long prerequisite, not task-level fast feedback.
+- After Plan 03 publication: run Notebook generation/`--check` once; classify it as a long integration gate.
+- After Plans 06–08: run only source compilation and JSON parsing. Plan 10 runs the consolidated fast source-contract test after all three packages exist.
+- After Plan 11: run the three-video render once, then renderer `--check` and media tests; classify it as a long publication gate.
+- Plan 12 owns the long full suite, builds, Pages build, security audit, and final drift checks.
+- Plan 13 owns the manual browser matrix. No watch-mode command is allowed.
 
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
-|---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 25-01-01 | 01 | 1 | P25-SC2 | T-25-SC | Exact `scikit-learn==1.9.0` identity is approved before requirements/install work. | manual package gate | Human checkpoint | ✅ checkpoint | ⬜ pending |
-| 25-02-01 | 02 | 2 | P25-SC1–SC3 | T-25-02 / T-25-SC | Contract locks exact numerical, package, schema, output, and preservation boundaries. | source/drift | `node --test --test-name-pattern='dataset|contract' tests/numerical-methods-batch-4.test.ts` | ❌ W0 | ⬜ pending |
-| 25-02-02 | 02 | 2 | P25-SC1 | T-25-01 | Dataset bytes, schema, counts, split labels, attribution, and statistics are hash-checked. | integration/drift | `node --test --test-name-pattern='dataset' tests/numerical-methods-batch-4.test.ts` | ❌ W0 | ⬜ pending |
-| 25-02-03 | 02 | 2 | P25-SC1–SC5 | T-25-01–T-25-04 | Focused contract tests exist before Notebook, browser, lesson, and media implementation. | test scaffold | `node --test --test-name-pattern='scaffold' tests/numerical-methods-batch-4.test.ts tests/numerical-methods-batch-4-manim.test.ts` | ❌ W0 | ⬜ pending |
-| 25-03-01 | 03 | 3 | P25-SC1–SC3 | T-25-02 | Notebook manual path, checks, five runs, failures, selection, and baseline execute cleanly. | integration | `python3 scripts/numerical-methods/generate-batch-4-notebook.py --check` | ❌ W0 | ⬜ pending |
-| 25-03-02 | 03 | 3 | P25-SC1–SC3 | T-25-02 | JSON/CSV/summary publication rejects non-finite values, drift, and partial transactions. | integration/schema | `node --test --test-name-pattern='notebook|output|gradient|Armijo|terminal|baseline' tests/numerical-methods-batch-4.test.ts` | ❌ W0 | ⬜ pending |
-| 25-04-01 | 04 | 4 | P25-SC3–SC4 | T-25-01 / T-25-03 | TypeScript parser/loader rejects malformed inputs and recomputes train-only statistics. | unit/integration | `node --test --test-name-pattern='dataset parser|dataset loader|preprocessing' tests/numerical-methods-batch-4.test.ts` | ❌ W0 | ⬜ pending |
-| 25-04-02 | 04 | 4 | P25-SC3–SC4 | T-25-02 / T-25-03 | TypeScript trainer matches Notebook anchors, terminal priority, and last-finite behavior. | unit/parity | `node --test --test-name-pattern='stable BCE|gradient|Armijo|stop priority|five run parity' tests/numerical-methods-batch-4.test.ts` | ❌ W0 | ⬜ pending |
-| 25-05-01 | 05 | 5 | P25-SC4–SC5 | T-25-04 | Existing content identities, routes, checkpoints, Progress keys, and synthetic modes are preserved. | source/component | `node --test --test-name-pattern='module content|companion|route order|checkpoint|progress|synthetic' tests/numerical-methods-batch-4.test.ts` | ❌ W0 | ⬜ pending |
-| 25-05-02 | 05 | 5 | P25-SC4–SC5 | T-25-03 / T-25-04 | Both labs use explicit bounded computation and preserve last-finite/synthetic provenance behavior. | component/source | `node --test --test-name-pattern='MathGradientLab|TrainingDiagnosticsLab|explicit Run|last finite' tests/numerical-methods-batch-4.test.ts` | ❌ W0 | ⬜ pending |
-| 25-06-01 | 06 | 6 | P25-SC5 | T-25-04 | Three six-role source packages consume locked output IDs and bilingual fallbacks. | source/media | `node --test --test-name-pattern='scene source|six-role|labels|Notebook anchors' tests/numerical-methods-batch-4-manim.test.ts` | ❌ W0 | ⬜ pending |
-| 25-07-01 | 07 | 7 | P25-SC5 | T-25-04 | Shared illustration uses locked outputs and bilingual page fallback. | asset/source | `node --test --test-name-pattern='shared illustration' tests/numerical-methods-batch-4.test.ts` | ❌ W0 | ⬜ pending |
-| 25-07-02 | 07 | 7 | P25-SC5 | T-25-07 | Renderer publishes three valid video/poster pairs and complete metadata without removing prior media. | asset/media | `python3 scripts/manim/render_numerical_methods_batch_4.py --check && node --test tests/numerical-methods-batch-4-manim.test.ts` | ❌ W0 | ⬜ pending |
-| 25-08-01 | 08 | 8 | P25-SC1–SC5 | T-25-01–T-25-10 | Focused/full/generator/media/build/Pages/security gates pass and scope is clean. | release | `npm test && npm run build && npm run build:pages && npm run security:audit` | ✅ infrastructure | ⬜ pending |
-| 25-09-01 | 09 | 9 | P25-SC4–SC5 | T-25-05 / T-25-11 | Eight-state browser, interaction, fallback, route, checkpoint, and Progress matrix passes. | manual browser | Human checkpoint | ✅ checkpoint | ⬜ pending |
-
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
-
----
+| Task ID | Plan/Wave | Requirement | Threat | Latency | Automated command / gate | Status |
+|---|---|---|---|---|---|---|
+| 25-01-01 | 01/W1 | P25-SC2 | T-25-SC | manual blocker | Human approves exact `scikit-learn==1.9.0` identity before any edit/install | ⬜ pending |
+| 25-02-01 | 02/W2 | P25-SC1–SC3 | T-25-02, T-25-SC | long prerequisite | Contract checks plus fresh `mktemp` venv install and eight-version assertion | ⬜ pending |
+| 25-02-02 | 02/W2 | P25-SC1 | T-25-01 | long source refresh | `python3 scripts/numerical-methods/generate-batch-4-notebook.py --refresh-source` | ⬜ pending |
+| 25-02-03 | 02/W2 | P25-SC1–SC5 | T-25-01–04 | fast | filtered dataset/contract/scaffold Node tests | ⬜ pending |
+| 25-03-01 | 03/W3 | P25-SC1–SC3 | T-25-02 | long integration | generate clean Notebook; assert Pandas `read_csv`, schema record, five runs, failures, and baseline | ⬜ pending |
+| 25-03-02 | 03/W3 | P25-SC1–SC3 | T-25-02 | long drift | `python3 scripts/numerical-methods/generate-batch-4-notebook.py --check` | ⬜ pending |
+| 25-03-03 | 03/W3 | P25-SC1–SC3 | T-25-02 | fast | filtered notebook/output/Pandas/gradient/terminal Node tests | ⬜ pending |
+| 25-04-01 | 04/W4 | P25-SC3–SC4 | T-25-01,03 | fast | filtered parser/loader/preprocessing tests | ⬜ pending |
+| 25-04-02 | 04/W4 | P25-SC3–SC4 | T-25-02,03 | fast | filtered stable-BCE/Armijo/terminal/parity/non-finite-probe tests | ⬜ pending |
+| 25-05-01 | 05/W5 | P25-SC4–SC5 | T-25-04 | fast | filtered module/companion/preservation tests | ⬜ pending |
+| 25-05-02 | 05/W5 | P25-SC4–SC5 | T-25-03–05 | fast | filtered download/lazy-lab/public-base tests | ⬜ pending |
+| 25-05-03 | 05/W5 | P25-SC4–SC5 | T-25-03,04 | fast | filtered lab/explicit-Run/last-finite/synthetic tests | ⬜ pending |
+| 25-06-01 | 06/W4 | P25-SC5 | T-25-04,06 | fast | feature scene `py_compile` plus tree/labels `json.tool` | ⬜ pending |
+| 25-07-01 | 07/W4 | P25-SC5 | T-25-04,06 | fast | Armijo scene `py_compile` plus tree/labels `json.tool` | ⬜ pending |
+| 25-08-01 | 08/W4 | P25-SC5 | T-25-04,06 | fast | diagnostics scene `py_compile` plus tree/labels `json.tool` | ⬜ pending |
+| 25-09-01 | 09/W6 | P25-SC5 | T-25-04,08 | fast | filtered shared-illustration/content test | ⬜ pending |
+| 25-10-01 | 10/W5 | P25-SC5 | T-25-04 | fast | compile shared helpers and all scene sources | ⬜ pending |
+| 25-10-02 | 10/W5 | P25-SC5 | T-25-04,07 | fast | compile renderer plus consolidated source/renderer-contract test | ⬜ pending |
+| 25-11-01 | 11/W6 | P25-SC5 | T-25-07,08 | long publication | render three videos, run `--check`, then full media test | ⬜ pending |
+| 25-12-01 | 12/W7 | P25-SC1–SC5 | T-25-01–09 | mixed release | focused tests plus Notebook/media drift checks | ⬜ pending |
+| 25-12-02 | 12/W7 | P25-SC1–SC5 | T-25-09,10 | long release | `npm test && npm run build && npm run build:pages && npm run security:audit` | ⬜ pending |
+| 25-13-01 | 13/W8 | P25-SC4–SC5 | T-25-05,11 | manual browser | Eight-state matrix plus exact raw/fixed/`Number.MAX_VALUE`/10 non-finite probe | ⬜ pending |
 
 ## Wave 0 Requirements
 
-- [ ] `tests/numerical-methods-batch-4.test.ts` — dataset, stable objective, gradient, stopping, parity, lesson, route, download, and hash contract.
-- [ ] `tests/numerical-methods-batch-4-manim.test.ts` — three six-role packages, labels, exact Notebook anchors, media probes, and integrity.
+- [ ] `tests/numerical-methods-batch-4.test.ts` — dataset, Pandas-loading proof, objective, gradient, stopping, parity, lesson, route, download, and hash contract.
+- [ ] `tests/numerical-methods-batch-4-manim.test.ts` — three six-role packages, labels, exact Notebook anchors, renderer/media probes, and integrity.
 - [ ] `scripts/numerical-methods/generate-batch-4-notebook.py` — clean-kernel generation, transactional publication, standalone rerun, and `--check`.
-- [ ] `scripts/manim/render_numerical_methods_batch_4.py` — Notebook-bound rendering, transactional publication, poster/transcript/metadata generation, and `--check`.
-- [ ] Human verification checkpoint for the research-flagged `scikit-learn==1.9.0` pin before requirements installation or modification.
-
----
+- [ ] `scripts/manim/render_numerical_methods_batch_4.py` — Notebook-bound rendering, transactional publication, poster/metadata generation, and `--check`.
+- [ ] Human verification of exact `scikit-learn==1.9.0` identity before requirements modification or installation.
 
 ## Manual-Only Verifications
 
-| Behavior | Requirement | Why Manual | Test Instructions |
-|----------|-------------|------------|-------------------|
-| Confirm the new Python package pin is the official scikit-learn distribution | P25-SC2 | The package-legitimacy seam could not resolve download/repository metadata automatically. | Before editing `requirements.txt`, confirm the project name, version, PyPI publisher page, official documentation, and `https://github.com/scikit-learn/scikit-learn`; record approval in the execution checkpoint. |
-| Bilingual responsive browser matrix | P25-SC5 | Layout, keyboard flow, video fallback, and teaching readability need browser observation. | Open both routes in Chinese and English at desktop and 390×844; verify no overflow/console errors, all local downloads resolve under default and Pages base paths, checkpoints still submit, and reduced-motion/video-failure fallbacks preserve the teaching content. |
-
----
-
-## Threat References
-
-- **T-25-01 — malformed or replaced static data:** enforce hash, byte, schema, count, split, and finite-value checks before use.
-- **T-25-02 — non-finite numerical output:** use logit-domain BCE, bounded iterations/backtracking, `allow_nan=False`, and last-finite terminal semantics.
-- **T-25-03 — unsafe learner input or excessive recomputation:** clamp finite controls, require explicit Run, and never silently substitute invalid parameters.
-- **T-25-04 — unsafe or drifting learner content/media:** use typed bilingual copy, sanitized Markdown, base-safe local paths, and metadata/hash checks.
-
----
+| Behavior | Requirement | Exact procedure |
+|---|---|---|
+| Package identity | P25-SC2 | Before Plan 02, verify exact version on PyPI, official scikit-learn docs, and official GitHub source; record `approved scikit-learn==1.9.0`. |
+| Bilingual responsive matrix | P25-SC5 | Both routes × both locales × desktop/390×844; no overflow/errors; assets/checkpoints/Progress/fallbacks pass. |
+| Deterministic D-24 browser failure | P25-SC4 | Advanced controls: raw, fixed, learning rate `1.7976931348623157e308`, gradient tolerance `1e-5`, maximum iterations `10`; Run must show `non-finite`, attempted iteration 1, last-finite iteration 0, and lower-learning-rate suggestion without adding a sixth preset. |
 
 ## Validation Sign-Off
 
-- [ ] All finalized plan tasks have an automated verification command or a declared Wave 0 dependency.
-- [ ] Sampling continuity: no three consecutive implementation tasks lack an automated check.
-- [ ] Wave 0 covers every missing test/generator reference.
-- [ ] No watch-mode flags are used.
-- [ ] Focused feedback latency remains under 10 seconds.
-- [ ] Notebook and TypeScript anchors use absolute `1e-9` scalar and `1e-8` parameter tolerances rather than byte equality.
-- [ ] `nyquist_compliant: true` and `wave_0_complete: true` are set only after the test/generator files exist and pass.
+- [ ] Every implementation task has an automated command or explicit long-gate owner.
+- [ ] Fast task feedback is distinguished from long environment/Notebook/media/release gates.
+- [ ] No three consecutive implementation tasks lack an automated check.
+- [ ] Notebook/TypeScript anchors use absolute `1e-9` scalar and `1e-8` parameter tolerances.
+- [ ] `nyquist_compliant: true` and `wave_0_complete: true` are set only after required files exist and pass.
 
-**Approval:** pending plan-checker verification
+**Approval:** pending plan-checker verification and the unresolved Plan 01 human package gate.
