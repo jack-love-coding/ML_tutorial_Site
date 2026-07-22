@@ -59,7 +59,63 @@ The unstable transient minimum cannot win final selection. The selected `standar
 - `python3 scripts/manim/render_numerical_methods_batch_4.py --check`: pass; all three scenes, documents, Notebook anchors, media probes, and hashes are in sync.
 - `git diff --check`: pass, no whitespace errors.
 
-The full repository test/build/security gates are owned by Plan 25-12 Task 2 and are not claimed by this first release-gate commit.
+### Full repository release gates
+
+- `npm test`: final pass, `755/755` tests, `0` failures.
+- `npm run build`: pass under Vite `8.0.16`; the existing chunks-larger-than-`1400 kB` advisory remains.
+- `npm run build:pages`: pass under Vite `8.0.16` with the same existing advisory.
+- `npm run security:audit`: final pass, `0 vulnerabilities`.
+- Final `git diff --check`: pass, no whitespace errors.
+
+The first post-security-patch full test run reported file-worker failures for `tests/math-to-code-functions.test.ts` and `tests/math-to-code-route.test.ts` (`753/755`). The exact two-file reproduction immediately passed `23/23`, and the next complete `npm test` passed `755/755` without a code change. This transient runner result is recorded rather than hidden; no deterministic product regression reproduced.
+
+### Security remediation observed during release
+
+The first planned audit exited `1` with one high-severity advisory, `GHSA-v245-v573-v5vm`, because the lock and installed tree contained `linkify-it@5.0.1`. The affected range is `<=5.0.1`; the patched `5.0.2` remains compatible with `markdown-it@14.2.0`'s existing `^5.0.1` constraint. Commit `4733e43` made the minimal transitive lockfile update, after which the lock and installed tree both reported `linkify-it@5.0.2`, the focused/full regressions and both builds passed, and the exact audit returned `0 vulnerabilities`.
+
+## Decision and Requirement Ownership Audit
+
+Every decision has a passing automated owner in the final Phase 25 state. The browser-only observations remain explicitly assigned to Plan 25-13.
+
+| Decision | Passing automated owner |
+| --- | --- |
+| D-01 | `module content and companions form two complete bilingual Banknote teaching loops` |
+| D-02 | `Batch 4 dataset provenance, schema, hashes, split counts, and train statistics are locked` |
+| D-03 | Dataset provenance test plus `train-only preprocessing is recomputed from parsed rows` |
+| D-04 | Preservation scaffold and `one primary lab, route order, checkpoints, progress, and synthetic provenance stay exact` |
+| D-05 | Executed Notebook/finite-trace publication test plus five-run TypeScript parity |
+| D-06 | Extreme BCE/gradient fixture test plus exact five-run inventory assertions |
+| D-07 | Notebook Armijo/terminal-priority test plus typed six-terminal TypeScript test |
+| D-08 | Output-manifest, JSON/CSV parity, explicit optimization-lab milestone, and local-download tests |
+| D-09 | Isolated-environment boundary test plus cache-only Notebook `--check` |
+| D-10 | Bilingual module-content test locks optimization ownership and the linked optimizer-comparison handoff |
+| D-11 | Bilingual module-content and real-trace diagnostics-lab tests lock the four-step diagnosis |
+| D-12 | Shared companion identity, executed Notebook, and chapter-specific output-ID tests |
+| D-13 | Preservation and one-primary-lab tests lock both existing lab IDs and synthetic modes |
+| D-14 | Schema-first Pandas/clean-kernel test plus Notebook stable-function and manual numerical cells |
+| D-15 | Clean Notebook test asserts the exact five-function definition order; module content asserts the same names |
+| D-16 | Endpoint-only baseline test locks scikit-learn `1.9.0` and rejects per-iteration claims |
+| D-17 | Notebook and TypeScript centered-gradient, Armijo, terminal, non-finite, and anchor tests |
+| D-18 | Notebook and TypeScript gradient tests prove that L2 excludes the intercept |
+| D-19 | JSON/CSV accepted-row parity and five-run TypeScript trace-parity tests |
+| D-20 | Endpoint report test locks selected run, threshold `0.5`, probability ROC-AUC, and compact metrics |
+| D-21 | Module-content and output-ownership tests separate five-run comparison from cross-run interpretation |
+| D-22 | Explicit draft/run-state optimization-lab test plus bounded invalid-control validation test |
+| D-23 | Real preset trace comparison/curve-toggle diagnostics-lab source contract |
+| D-24 | Exact `Number.MAX_VALUE`, last-finite, failed-line-search, validation, and one-variable-suggestion tests; Plan 25-13 still owns browser interaction observation |
+| D-25 | Full five-run TypeScript/Notebook parity and both no-browser-Python lab contracts |
+| D-26 | Shared illustration PNG/provenance and reference-identical bilingual fallback tests |
+| D-27 | Three-scene source, metadata, H.264/ffprobe, route-binding, and renderer `--check` tests |
+| D-28 | Notebook-anchor/hash binding test plus offline write-free renderer `--check` |
+| D-29 | Bilingual label/static fallback, shared illustration fallback, metadata, media hash, and route-binding tests |
+
+| Requirement | Passing automated owner | Browser status |
+| --- | --- | --- |
+| P25-SC1 | Dataset/split tests, clean executed Notebook, exact five-run traces, cache-only environment and Notebook checks | No additional browser claim required |
+| P25-SC2 | Stable BCE, centered gradient, exact eight-pin imports, manual/scikit endpoint tests | No additional browser claim required |
+| P25-SC3 | Armijo, typed terminal priority, full finite traces, CSV/JSON parity, final-selection tests | No additional browser claim required |
+| P25-SC4 | Dataset/logistic TypeScript tests, all-five-run parity, explicit-run/last-finite lab contracts | Exact desktop/mobile and `Number.MAX_VALUE` interaction remains pending Plan 25-13 |
+| P25-SC5 | Bilingual content, local downloads, shared illustration, three Manim packages, `755/755`, both builds, and `0 vulnerabilities` | Chinese/English desktop and 390×844 matrix remains pending Plan 25-13 |
 
 ## Preserved Boundaries
 
