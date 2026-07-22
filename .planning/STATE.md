@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 25
-current_plan: 8
+current_plan: 9
 status: executing
-stopped_at: Completed 25-05-PLAN.md
-last_updated: "2026-07-22T11:46:56.206Z"
+stopped_at: Completed 25-10-PLAN.md
+last_updated: "2026-07-22T12:06:39.457Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 31
   completed_phases: 0
   total_plans: 13
-  completed_plans: 8
+  completed_plans: 9
   percent: 0
 ---
 
@@ -24,7 +24,7 @@ progress:
 ## Current Position
 
 **Current Phase:** 25
-**Current Plan:** 8
+**Current Plan:** 9
 **Total Plans in Phase:** 13
 **Status:** Ready to execute
 **Last Activity:** 2026-07-22
@@ -745,7 +745,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Continue `$gsd-execute-phase 25` from Plan 25-05; Plans 25-06 through 25-08 are already complete as independent Wave 4 media-source packages.
+Continue `$gsd-execute-phase 25` from Plan 25-09; Plan 25-10 is complete and Plan 25-11 can publish the three video/poster pairs after the shared illustration lands.
 
 ## Accumulated Context
 
@@ -755,8 +755,8 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plans 25-06 through 25-08 are 
 
 ## Session
 
-**Last session:** 2026-07-22T11:46:56.200Z
-**Stopped at:** Completed 25-05-PLAN.md
+**Last session:** 2026-07-22T12:06:39.453Z
+**Stopped at:** Completed 25-10-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -770,6 +770,7 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plans 25-06 through 25-08 are 
 | Phase 25 P07 | 15 min | 1 tasks | 6 files |
 | Phase 25 P08 | 13 min | 1 tasks | 6 files |
 | Phase 25 P05 | 19 min | 3 tasks | 9 files |
+| Phase 25 P10 | 15 min | 2 tasks | 7 files |
 
 ## Decisions
 
@@ -791,3 +792,6 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plans 25-06 through 25-08 are 
 - [Phase 25]: Keep Batch 4 as an outer enhancer for only optimization and training-diagnostics, preserving existing IDs, quizzes, checkpoints, routes, and progress state. — A narrow adapter delivers the real Banknote case without violating the progressive-migration guardrails.
 - [Phase 25]: Preset selection edits draft state; only explicit Run commits a deterministic engine result. — Separating learner intent from computation prevents reactive retraining and makes invalid or last-finite outcomes auditable.
 - [Phase 25]: Compute the five real diagnostic traces once after local loading and isolate synthetic scenarios in a labeled support section. — Selectors remain responsive without duplicating math, and real versus synthetic provenance stays honest.
+- [Phase 25]: Validate one exact three-scene Batch 4 renderer manifest before any render — Scene IDs/classes, six roles, depth-three trees, bilingual labels, output IDs, anchors, dependencies, and hashes are one fail-closed contract.
+- [Phase 25]: Hash-preserve every pre-existing non-Batch-4 media file across publication — The temporary copy, published directory, and rollback state must keep Batches 1-3 byte-identical.
+- [Phase 25]: Keep the Batch 4 renderer --check path offline and write-free — Check mode only validates local sources, dependencies, ffprobe output, metadata bytes, and hashes.

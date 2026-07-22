@@ -830,7 +830,7 @@
 
 ## V3.1 Minimum Mathematical Foundation
 
-**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, Python Data Tools Stages 1–4, detailed minimum-mathematics, linear-algebra, calculus, probability, and Numerical Methods Batches 1–3 are completed slices. Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution. Numerical Methods Batch 4 Phase 25 is executing: 7 of 13 plans are complete across 8 waves.
+**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, Python Data Tools Stages 1–4, detailed minimum-mathematics, linear-algebra, calculus, probability, and Numerical Methods Batches 1–3 are completed slices. Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution. Numerical Methods Batch 4 Phase 25 is executing: 9 of 13 plans are complete across 8 waves.
 
 **Decision boundary:**
 
@@ -860,7 +860,7 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 **Goal:** Rebuild the existing `optimization` and `training-diagnostics` lessons around one reproducible UCI Banknote logistic-regression case that connects stable objective evaluation, feature scale, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure exits, and actionable curve diagnosis.
 **Requirements:** Preserve the two existing routes, checkpoints, Progress stores, and one-primary-lab-per-chapter structure; publish a verified local dataset snapshot, one shared executed Notebook, locked JSON/CSV traces, one shared illustration, and three Notebook-bound Manim videos; keep browser computation in deterministic TypeScript and retain the existing synthetic diagnostic modes as clearly labeled support examples.
 **Depends on:** Phase 24A and completed Numerical Methods Batches 1–3
-**Plans:** 8/13 plans executed
+**Plans:** 9/13 plans executed
 
 **Success Criteria:**
 
@@ -894,7 +894,7 @@ Plans:
 **Wave 5** *(blocked on Wave 4 completion)*
 
 - [x] 25-05-PLAN.md — Rebuild both lessons and upgrade their existing primary labs.
-- [ ] 25-10-PLAN.md — Implement the shared transactional renderer and source-contract tests.
+- [x] 25-10-PLAN.md — Implement the shared transactional renderer and source-contract tests.
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
