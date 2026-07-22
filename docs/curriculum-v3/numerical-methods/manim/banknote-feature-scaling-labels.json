@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "banknote-feature-scaling",
+  "sceneClass": "BanknoteFeatureScalingScene",
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "localeInVideo": "zh-CN",
+  "durationSeconds": 72,
+  "valueBindings": {
+    "rowCount": "dataset.normalizedDataset.rowCount",
+    "splitCounts": "dataset.split.counts",
+    "trainScales": "dataset.preprocessing.trainScales",
+    "rawStep": "optimization.runs.raw-fixed.config.step",
+    "standardizedStep": "optimization.runs.standardized-stable.config.step",
+    "rawBestValidation": "optimization.runs.raw-fixed.bestValidation",
+    "standardizedBestValidation": "optimization.runs.standardized-stable.bestValidation",
+    "rawTerminal": "optimization.runs.raw-fixed.terminal",
+    "standardizedTerminal": "optimization.runs.standardized-stable.terminal",
+    "l2": "optimization.constants.l2"
+  },
+  "fallbacks": {
+    "reducedMotion": "Use the fully composed 65–72 second final frame/poster plus transcript and summaries.",
+    "videoFailure": [
+      "banknote-feature-scaling-transcript.zh-CN.md",
+      "banknote-feature-scaling-summary.en.md",
+      "banknote-feature-scaling-labels.json"
+    ],
+    "nonColor": "Raw is labeled with a square; standardized is labeled with a circle; terminal type and reason are written out."
+  },
+  "labels": [
+    {
+      "id": "fs.opening.kicker",
+      "zh-CN": "数值方法 · 特征尺度",
+      "en": "Numerical methods · feature scale"
+    },
+    {
+      "id": "fs.opening.question",
+      "zh-CN": "同一步长，为何走出两种训练轨迹？",
+      "en": "Why does one step size produce two training paths?"
+    },
+    {
+      "id": "fs.opening.dataset",
+      "zh-CN": "本地 Banknote 数据 · {rowCount} 行 · 四个连续特征",
+      "en": "Local Banknote data · {rowCount} rows · four continuous features"
+    },
+    {
+      "id": "fs.opening.raw-step",
+      "zh-CN": "原始特征：α = {rawStep}",
+      "en": "Raw features: α = {rawStep}"
+    },
+    {
+      "id": "fs.opening.standardized-step",
+      "zh-CN": "标准化特征：α = {standardizedStep}",
+      "en": "Standardized features: α = {standardizedStep}"
+    },
+    {
+      "id": "fs.opening.control",
+      "zh-CN": "只改变坐标尺度，不替换训练规则",
+      "en": "Change the coordinate scale, not the training rule"
+    },
+    {
+      "id": "fs.scale.heading",
+      "zh-CN": "原始列的训练集尺度不同",
+      "en": "Raw columns have different training-set scales"
+    },
+    {
+      "id": "fs.scale.variance",
+      "zh-CN": "方差 variance · 训练尺度 {trainScales.variance}",
+      "en": "Variance · training scale {trainScales.variance}"
+    },
+    {
+      "id": "fs.scale.skewness",
+      "zh-CN": "偏度 skewness · 训练尺度 {trainScales.skewness}",
+      "en": "Skewness · training scale {trainScales.skewness}"
+    },
+    {
+      "id": "fs.scale.curtosis",
+      "zh-CN": "峰度 curtosis · 训练尺度 {trainScales.curtosis}",
+      "en": "Curtosis (source spelling) · training scale {trainScales.curtosis}"
+    },
+    {
+      "id": "fs.scale.entropy",
+      "zh-CN": "熵 entropy · 训练尺度 {trainScales.entropy}",
+      "en": "Entropy · training scale {trainScales.entropy}"
+    },
+    {
+      "id": "fs.scale.gradient",
+      "zh-CN": "统一 α 会被大尺度方向主导",
+      "en": "A shared α is dominated by large-scale directions"
+    },
+    {
+      "id": "fs.preprocessing.heading",
+      "zh-CN": "只用训练集拟合均值与尺度，再原样复用",
+      "en": "Fit mean and scale on training only, then reuse them"
+    },
+    {
+      "id": "fs.preprocessing.train",
+      "zh-CN": "训练集 · 拟合 · {splitCounts.train} 行",
+      "en": "Training · fit · {splitCounts.train} rows"
+    },
+    {
+      "id": "fs.preprocessing.transform",
+      "zh-CN": "固定变换：x′ = (x − 训练均值) / 训练尺度",
+      "en": "Fixed transform: x′ = (x − training mean) / training scale"
+    },
+    {
+      "id": "fs.preprocessing.held-out",
+      "zh-CN": "验证 / 测试 · 复用 · {splitCounts.validation} / {splitCounts.test} 行",
+      "en": "Validation / test · reuse · {splitCounts.validation} / {splitCounts.test} rows"
+    },
+    {
+      "id": "fs.preprocessing.no-refit",
+      "zh-CN": "不从留出数据重新拟合",
+      "en": "Do not refit on held-out data"
+    },
+    {
+      "id": "fs.trajectory.heading",
+      "zh-CN": "同一个固定步长：原始轨迹震荡，标准化轨迹稳定下降",
+      "en": "Same fixed step: raw oscillates, standardized descends stably"
+    },
+    {
+      "id": "fs.trajectory.raw",
+      "zh-CN": "■ 原始：震荡后停止",
+      "en": "■ Raw: stops after oscillation"
+    },
+    {
+      "id": "fs.trajectory.standardized",
+      "zh-CN": "● 标准化：稳定下降",
+      "en": "● Standardized: stable descent"
+    },
+    {
+      "id": "fs.trajectory.axis",
+      "zh-CN": "纵轴：log₁₀ 训练 BCE；横轴：Notebook 迭代",
+      "en": "Vertical: log₁₀ training BCE; horizontal: Notebook iteration"
+    },
+    {
+      "id": "fs.terminal.heading",
+      "zh-CN": "模型选择停止 ≠ 数学收敛",
+      "en": "Model-selection stop ≠ mathematical convergence"
+    },
+    {
+      "id": "fs.terminal.raw",
+      "zh-CN": "原始：验证耐心停止 · 迭代 {rawTerminal.iteration}",
+      "en": "Raw: validation-patience stop · iteration {rawTerminal.iteration}"
+    },
+    {
+      "id": "fs.terminal.raw-meaning",
+      "zh-CN": "耐心用尽；没有证明梯度收敛",
+      "en": "Patience was exhausted; gradient convergence was not established"
+    },
+    {
+      "id": "fs.terminal.standardized",
+      "zh-CN": "标准化：梯度范数收敛 · 迭代 {standardizedTerminal.iteration}",
+      "en": "Standardized: gradient-norm convergence · iteration {standardizedTerminal.iteration}"
+    },
+    {
+      "id": "fs.terminal.standardized-meaning",
+      "zh-CN": "梯度范数达到锁定容差",
+      "en": "Gradient norm reached the locked tolerance"
+    },
+    {
+      "id": "fs.caveat.heading",
+      "zh-CN": "这组配对说明步长可用性，不是最终质量排行榜",
+      "en": "This pair shows step usability, not a final-quality ranking"
+    },
+    {
+      "id": "fs.caveat.penalty",
+      "zh-CN": "同一系数空间 L2：λ = {l2}",
+      "en": "Same coefficient-space L2: λ = {l2}"
+    },
+    {
+      "id": "fs.caveat.geometry",
+      "zh-CN": "改变特征单位，也改变惩罚项的几何",
+      "en": "Changing feature units also changes penalty geometry"
+    },
+    {
+      "id": "fs.conclusion.title",
+      "zh-CN": "先对齐尺度，再判断一个固定步长是否可用",
+      "en": "Align scales before judging whether a fixed step is usable"
+    },
+    {
+      "id": "fs.conclusion.scope",
+      "zh-CN": "相同 α 保持实验可比；停止原因决定我们能说什么",
+      "en": "The same α keeps the comparison controlled; terminal reasons bound the claim"
+    },
+    {
+      "id": "fs.conclusion.warning",
+      "zh-CN": "不要据此排列最终质量",
+      "en": "Do not use this pair to rank final model quality"
+    }
+  ]
+}

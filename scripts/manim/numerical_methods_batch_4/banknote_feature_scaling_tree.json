@@ -1,0 +1,179 @@
+{
+  "sceneId": "banknote-feature-scaling",
+  "sceneClass": "BanknoteFeatureScalingScene",
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "pipeline": [
+    "ConceptAnalyzer",
+    "PrerequisiteExplorer",
+    "MathematicalEnricher",
+    "VisualDesigner",
+    "NarrativeComposer",
+    "CodeGenerator"
+  ],
+  "root": "FS0",
+  "maxDepth": 3,
+  "durationSeconds": 72,
+  "storyboardCuts": [0, 8, 18, 29, 45, 57, 65, 72],
+  "posterSecond": 68,
+  "orderedBeats": [
+    {
+      "id": "question",
+      "startSecond": 0,
+      "endSecond": 8,
+      "purpose": "Ask why one locked fixed step produces different raw and standardized paths."
+    },
+    {
+      "id": "raw-scale",
+      "startSecond": 8,
+      "endSecond": 18,
+      "purpose": "Show all four train population scales with numeric and length cues."
+    },
+    {
+      "id": "train-only-standardization",
+      "startSecond": 18,
+      "endSecond": 29,
+      "purpose": "Fit mean and scale on train only, then reuse them for validation and test."
+    },
+    {
+      "id": "same-step-trajectories",
+      "startSecond": 29,
+      "endSecond": 45,
+      "purpose": "Plot locked raw and standardized traces under the identical fixed step."
+    },
+    {
+      "id": "terminal-meanings",
+      "startSecond": 45,
+      "endSecond": 57,
+      "purpose": "Separate validation-patience model selection from gradient-norm convergence."
+    },
+    {
+      "id": "penalty-geometry-caveat",
+      "startSecond": 57,
+      "endSecond": 65,
+      "purpose": "Prevent a final-quality ranking after a change of feature units."
+    },
+    {
+      "id": "poster-ready-conclusion",
+      "startSecond": 65,
+      "endSecond": 72,
+      "purpose": "Restate the usable-step conclusion with text and shape cues independent of motion or color."
+    }
+  ],
+  "sourceDependencies": [
+    {
+      "path": "public/datasets/numerical-methods/banknote-authentication-manifest.json",
+      "role": "Dataset schema, row/split counts, and train-only population means/scales",
+      "requiredContractVersion": "numerical-methods-batch-4-v1",
+      "requiredFields": [
+        "normalizedDataset.sha256",
+        "normalizedDataset.rowCount",
+        "split.counts",
+        "preprocessing.fitSplit",
+        "preprocessing.ddof",
+        "preprocessing.features",
+        "preprocessing.trainMeans",
+        "preprocessing.trainScales"
+      ]
+    }
+  ],
+  "outputDependencies": [
+    {
+      "path": "public/notebooks/numerical-methods/batch-4-outputs/optimization-summary.json",
+      "outputId": "banknote-logistic-optimization-summary",
+      "role": "Exact constants, paired run anchors, best-validation points, and terminal meanings",
+      "runIds": ["raw-fixed", "standardized-stable"],
+      "requiredConstants": ["contractVersion", "constantsSha256", "l2", "fixed step 4.0"]
+    },
+    {
+      "path": "public/notebooks/numerical-methods/batch-4-outputs/banknote-training-traces.json",
+      "role": "Every accepted finite trajectory coordinate plotted in the scene",
+      "runIds": ["raw-fixed", "standardized-stable"],
+      "integrityLinks": ["contractVersion", "datasetSha256", "constantsSha256"]
+    }
+  ],
+  "fallbackReferences": {
+    "reducedMotion": "The poster-ready 65–72 second beat contains the complete comparison with text and square/circle markers.",
+    "videoFailure": [
+      "docs/curriculum-v3/numerical-methods/manim/banknote-feature-scaling-transcript.zh-CN.md",
+      "docs/curriculum-v3/numerical-methods/manim/banknote-feature-scaling-summary.en.md",
+      "docs/curriculum-v3/numerical-methods/manim/banknote-feature-scaling-labels.json"
+    ],
+    "nonColor": "Raw uses a square and standardized uses a circle; terminal kind and reason are written in text."
+  },
+  "topologicalOrder": [
+    "F_UNITS",
+    "F_GRADIENT",
+    "F_TERMINALS",
+    "FS1",
+    "FS2",
+    "FS3",
+    "FS4",
+    "FS0"
+  ],
+  "nodes": [
+    {
+      "id": "F_UNITS",
+      "concept": "特征单位、训练集均值与总体尺度",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["feature units", "population scale", "ddof=0", "train split"]
+    },
+    {
+      "id": "F_GRADIENT",
+      "concept": "梯度坐标与固定步长更新",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["coordinate gradient", "fixed step", "conditioning"]
+    },
+    {
+      "id": "F_TERMINALS",
+      "concept": "模型选择停止与数学收敛是不同语义",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["validation patience", "gradient norm", "typed terminal"]
+    },
+    {
+      "id": "FS1",
+      "concept": "只在训练集拟合标准化统计量并复用于留出数据",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_UNITS"],
+      "foundationRefs": ["D-03", "no validation/test fitting", "persisted split"]
+    },
+    {
+      "id": "FS2",
+      "concept": "原始与标准化运行保持同一个固定步长 4.0",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_GRADIENT", "FS1"],
+      "foundationRefs": ["raw-fixed", "standardized-stable", "controlled comparison"]
+    },
+    {
+      "id": "FS3",
+      "concept": "锁定轨迹显示原始坐标震荡而标准化坐标稳定下降",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["FS2"],
+      "foundationRefs": ["accepted finite trace rows", "train BCE", "usable step"]
+    },
+    {
+      "id": "FS4",
+      "concept": "停止原因限定结论，L2 几何阻止最终质量排名",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["FS3", "F_TERMINALS"],
+      "foundationRefs": ["model selection", "mathematical convergence", "penalty geometry caveat"]
+    },
+    {
+      "id": "FS0",
+      "concept": "训练集标准化让锁定固定步长在本运行中可用，而不构成最终质量优劣声明",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["FS3", "FS4"],
+      "foundationRefs": ["feature scaling", "fixed step 4.0", "bounded claim"]
+    }
+  ]
+}
