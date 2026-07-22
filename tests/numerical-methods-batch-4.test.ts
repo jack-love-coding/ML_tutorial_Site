@@ -922,7 +922,7 @@ test('[Plan 25-05] one primary lab, route order, checkpoints, progress, and synt
   ]
   assert.deepEqual(scenarios.map((scenario) => evaluateTrainingScenario(scenario, 16).scenario), scenarios)
   assert.match(JSON.stringify(diagnostics), /synthetic support example/i)
-  assert.doesNotMatch(JSON.stringify(diagnostics), /banknote-training-diagnostics\.mp4/)
+  assert.match(JSON.stringify(diagnostics), /banknote-training-diagnostics\.mp4/)
 })
 
 test('[Plan 25-05] supporting downloads are localized, base-safe, and rendered without changing legacy companions', () => {
