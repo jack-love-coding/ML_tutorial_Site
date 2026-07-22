@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 25
-current_plan: 9
+current_plan: 11
 status: executing
-stopped_at: Completed 25-10-PLAN.md
-last_updated: "2026-07-22T12:06:39.457Z"
+stopped_at: Completed 25-09-PLAN.md
+last_updated: "2026-07-22T12:31:46.129Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 31
   completed_phases: 0
   total_plans: 13
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -24,7 +24,7 @@ progress:
 ## Current Position
 
 **Current Phase:** 25
-**Current Plan:** 9
+**Current Plan:** 11
 **Total Plans in Phase:** 13
 **Status:** Ready to execute
 **Last Activity:** 2026-07-22
@@ -755,8 +755,8 @@ Continue `$gsd-execute-phase 25` from Plan 25-09; Plan 25-10 is complete and Pla
 
 ## Session
 
-**Last session:** 2026-07-22T12:06:39.453Z
-**Stopped at:** Completed 25-10-PLAN.md
+**Last session:** 2026-07-22T12:31:20.430Z
+**Stopped at:** Completed 25-09-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -771,6 +771,7 @@ Continue `$gsd-execute-phase 25` from Plan 25-09; Plan 25-10 is complete and Pla
 | Phase 25 P08 | 13 min | 1 tasks | 6 files |
 | Phase 25 P05 | 19 min | 3 tasks | 9 files |
 | Phase 25 P10 | 15 min | 2 tasks | 7 files |
+| Phase 25 P09 | 14 min | 1 tasks | 4 files |
 
 ## Decisions
 
@@ -795,3 +796,5 @@ Continue `$gsd-execute-phase 25` from Plan 25-09; Plan 25-10 is complete and Pla
 - [Phase 25]: Validate one exact three-scene Batch 4 renderer manifest before any render — Scene IDs/classes, six roles, depth-three trees, bilingual labels, output IDs, anchors, dependencies, and hashes are one fail-closed contract.
 - [Phase 25]: Hash-preserve every pre-existing non-Batch-4 media file across publication — The temporary copy, published directory, and rollback state must keep Batches 1-3 byte-identical.
 - [Phase 25]: Keep the Batch 4 renderer --check path offline and write-free — Check mode only validates local sources, dependencies, ffprobe output, metadata bytes, and hashes.
+- [Phase 25]: Share one VisualAsset object and one local public path across both target modules. — Reference-identical bindings prevent the generated pixels, bilingual transcript, non-color marker semantics, and locked numerical anchors from drifting independently.
+- [Phase 25]: Normalize the selected built-in ImageGen output once to exact 1664x936 publication dimensions. — The first generated composition met the scientific visual contract; a dimensions-only resize preserved it while satisfying exact 16:9 publication and retaining source and final integrity provenance.
