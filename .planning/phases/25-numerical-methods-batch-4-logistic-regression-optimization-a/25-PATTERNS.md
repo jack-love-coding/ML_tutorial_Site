@@ -551,7 +551,7 @@ Every dataset, Notebook, JSON, CSV, image, poster, and video record stores a lea
 
 ## Planner-Ready Dependency Order
 
-1. Human-verify the Python pin, then lock contract, canonical scene IDs, local dataset, manifest, and dictionary.
+1. Machine-verify the durable 2026-07-22 approval record for the Python pin without prompting, then lock contract, canonical scene IDs, local dataset, manifest, and dictionary.
 2. Generate/execute/validate the shared Notebook and complete Batch 4 output transaction.
 3. Implement strict dataset loading and the pure TypeScript engine; pass focused numeric/parity tests.
 4. Add typed companions and outer enhancer; upgrade existing labs/component/page/styles without changing identities.

@@ -138,14 +138,14 @@ The local snapshot should persist the generated split label beside each stable o
 | New `banknoteLogistic.ts` utility | Extend `aiBridgeMath.ts` | A separate real-data engine prevents synthetic curve generators from being mistaken for Banknote results. [VERIFIED: current `aiBridgeMath.ts` scope + D-04] |
 | Upgrade two existing labs | Create replacement labs | Replacement components would violate the locked identity, route, and one-primary-lab constraints. [VERIFIED: D-13] |
 
-**Installation:** append the exact new pin to the existing file, then install the whole environment. [VERIFIED: existing requirements convention]
+**Environment setup:** after Plan 01 machine-verifies the durable approval record, add the exact pin once with a reviewable patch. Bootstrap the audited ignored wheel cache explicitly, then verify a fresh cache-only isolated environment. Do not install into ambient Python. [VERIFIED: approval record + isolated-environment contract]
 
 ```bash
-printf 'scikit-learn==1.9.0\n' >> public/notebooks/numerical-methods/requirements.txt
-python3 -m pip install -r public/notebooks/numerical-methods/requirements.txt
+python3 scripts/numerical-methods/generate-batch-4-notebook.py --bootstrap-environment-cache --wheel-cache .cache/numerical-methods/batch-4-wheelhouse
+python3 scripts/numerical-methods/generate-batch-4-notebook.py --verify-environment --wheel-cache .cache/numerical-methods/batch-4-wheelhouse
 ```
 
-The implementation should use a patch rather than the illustrative append command if the pin is already present, so reruns never duplicate a requirement. [VERIFIED: repository editing rules]
+The implementation must fail closed if the approval record or cache is missing/stale; every install after bootstrap uses the audited wheels with `--no-index` and `PIP_NO_INDEX=1`, and temporary environments are removed in `finally`. [VERIFIED: repository editing rules + isolated-environment contract]
 
 ## Package Legitimacy Audit
 
@@ -720,7 +720,7 @@ OWASP ASVS 5.0.0 is the current stable ASVS and is intended as a testable web-ap
 
 ## Planning Sequence and Dependencies
 
-1. **Contract/data Wave:** human-verify the new Python pin; write `batch-4-contract.md`; derive and hash the local CSV/manifest/data dictionary with exact split assignments. This wave gates every downstream numeric artifact. [VERIFIED: dependency analysis]
+1. **Contract/data Wave:** machine-verify the existing 2026-07-22 approval record for the exact Python pin; write `batch-4-contract.md`; derive and hash the local CSV/manifest/data dictionary with exact split assignments. This wave gates every downstream numeric artifact and must not prompt again. [VERIFIED: dependency analysis + human approval record]
 2. **Notebook/output Wave:** add the pin, generator, executed Notebook, full JSON/CSV traces, summaries, manifest, gradient/extreme/failure checks, and `--check`; lock the exact anchors above. [VERIFIED: Batch 3 dependency pattern]
 3. **TypeScript parity Wave:** implement dataset loader and pure engine plus focused tests before touching Vue; prove the six stop reasons and Notebook anchors. [VERIFIED: AGENTS.md separation rule]
 4. **Lesson/lab Wave:** add the outer enhancer and companions, extend optional downloads, upgrade the two existing labs, preserve synthetic modes/routes/checkpoints/progress, and add module/source tests. [VERIFIED: current architecture + D-13]
