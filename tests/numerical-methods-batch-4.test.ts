@@ -32,6 +32,10 @@ const diagnosticsSummaryPath = resolve(outputDirectory, 'training-diagnostics-su
 const traceJsonPath = resolve(outputDirectory, 'banknote-training-traces.json')
 const traceCsvPath = resolve(outputDirectory, 'banknote-training-traces.csv')
 const outputManifestPath = resolve(outputDirectory, 'manifest.json')
+const illustrationPublicPath = '/math-lab/numerical-methods/banknote-optimization-diagnostics.png'
+const illustrationPath = absolutePublicPath(illustrationPublicPath)
+const imagePromptPath = resolve(root, 'docs/curriculum-v3/numerical-methods/batch-4-imagegen-prompts.md')
+const illustrationSha256 = 'e3dba524c2c796dc6eca6c43362064df799b1e826926a52cc86a36fa0e466b40'
 const traceCsvHeader = [
   'contract_version', 'run_id', 'iteration', 'feature_space', 'method', 'train_bce',
   'validation_bce', 'objective', 'gradient_norm', 'parameter_step_norm', 'accepted_step_size',
@@ -62,6 +66,13 @@ function readJson<T extends JsonObject = JsonObject>(path: string): T {
 
 function sha256(path: string): string {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
+}
+
+function readPngDimensions(path: string): { width: number; height: number } {
+  const bytes = readFileSync(path)
+  assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10], `${path} PNG signature`)
+  assert.equal(bytes.subarray(12, 16).toString('ascii'), 'IHDR', `${path} starts with IHDR`)
+  return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) }
 }
 
 function assertBilingual(value: { 'zh-CN': string; en: string }, label: string): void {
@@ -911,7 +922,6 @@ test('[Plan 25-05] one primary lab, route order, checkpoints, progress, and synt
   ]
   assert.deepEqual(scenarios.map((scenario) => evaluateTrainingScenario(scenario, 16).scenario), scenarios)
   assert.match(JSON.stringify(diagnostics), /synthetic support example/i)
-  assert.doesNotMatch(JSON.stringify(diagnostics), /banknote-optimization-diagnostics\.png/)
   assert.doesNotMatch(JSON.stringify(diagnostics), /banknote-training-diagnostics\.mp4/)
 })
 
@@ -1026,12 +1036,70 @@ test('[Plan 25-05] diagnostics lab compares real preset traces and keeps five sy
   assert.doesNotMatch(source, /pyodide|Python/i)
 })
 
-test('[Plan 25-09] future P25-SC5: shared three-panel illustration exists and is locally bound', () => {
-  const publicPath = '/math-lab/numerical-methods/banknote-optimization-diagnostics.png'
-  assert.equal(existsSync(absolutePublicPath(publicPath)), true, `${publicPath} is owned by Plan 25-09`)
+test('[Plan 25-09] shared illustration PNG and image prompt provenance are exact', () => {
+  assert.equal(existsSync(illustrationPath), true, illustrationPublicPath)
+  assert.ok(statSync(illustrationPath).size > 50_000, 'shared illustration is non-empty raster artwork')
+  assert.deepEqual(readPngDimensions(illustrationPath), { width: 1664, height: 936 })
+  assert.equal(1664 * 9, 936 * 16, 'shared illustration has an exact 16:9 aspect ratio')
+  assert.equal(sha256(illustrationPath), illustrationSha256)
+
+  const promptRecord = readFileSync(imagePromptPath, 'utf8')
+  assert.match(promptRecord, /OpenAI Codex built-in `image_gen`/)
+  assert.match(promptRecord, /exec-99ca7df7-8eef-4ddc-a2a6-dbb69dbeab28\.png/)
+  assert.match(promptRecord, new RegExp(illustrationSha256))
+  assert.match(promptRecord, /Published dimensions: 1664×936 RGB PNG \(exact 16:9/)
+  for (const anchor of [
+    '仅拟合训练集 n=960',
+    'μ=[0.469,1.978,1.320,−1.142]',
+    'σ=[2.805,5.814,4.235,2.073]',
+    'Armijo 32→16',
+    '回溯 1 次',
+    '最佳 iter 13 · val 0.058853',
+    '终点 iter 73 · 验证耐心',
+    '最佳=终点 iter 48',
+    'val 0.068247 · ||g|| 7.017e−6',
+    '固定 32：train 0.054023 · val 0.082850 · ||g|| 0.034620',
+    'Armijo：train 0.044635 · val 0.068247 · ||g|| 7.017e−6',
+  ]) assert.equal(promptRecord.includes(anchor), true, `prompt records ${anchor}`)
+  for (const avoid of ['people', 'robots', 'banknotes or currency imagery', 'logos', 'watermark']) {
+    assert.match(promptRecord, new RegExp(avoid, 'i'))
+  }
+})
+
+test('[Plan 25-09] shared illustration visual asset has complete bilingual non-image fallback', () => {
+  const boundVisuals = []
   for (const moduleId of ['optimization', 'training-diagnostics'] as const) {
     const moduleDefinition = mathLabModuleRegistry[moduleId]
-    assert.equal(moduleDefinition.visuals.filter(({ assetPath }) => assetPath === publicPath).length, 1)
-    assert.ok(moduleDefinition.importedAssetPaths.includes(publicPath))
+    const matches = moduleDefinition.visuals.filter(({ assetPath }) => assetPath === illustrationPublicPath)
+    assert.equal(matches.length, 1)
+    assert.equal(moduleDefinition.importedAssetPaths.filter((path) => path === illustrationPublicPath).length, 1)
+    const visual = matches[0]!
+    boundVisuals.push(visual)
+    assert.equal(visual.type, 'image')
+    assert.equal(moduleDefinition.sections.filter(({ visualIds }) => visualIds?.includes(visual.id)).length, 1)
+    for (const [field, value] of Object.entries({
+      title: visual.title,
+      transcript: visual.transcript,
+      learningPurpose: visual.learningPurpose,
+      alt: visual.alt!,
+      caption: visual.caption!,
+    })) assertBilingual(value, `${moduleId} illustration ${field}`)
+
+    const fallbackZh = [visual.alt!['zh-CN'], visual.transcript['zh-CN'], visual.caption!['zh-CN']].join('\n')
+    const fallbackEn = [visual.alt!.en, visual.transcript.en, visual.caption!.en].join('\n')
+    for (const anchor of [
+      '960', '32', '16', '13', '73', '48', '0.058853', '0.068247', '7.017e-6',
+      '0.054023', '0.082850', '0.034620', '0.044635',
+    ]) {
+      assert.match(fallbackZh, new RegExp(anchor))
+      assert.match(fallbackEn, new RegExp(anchor))
+    }
+    for (const semantic of ['虚线', '实线', '菱形', '方形', '圆形', '模型选择', '数学收敛']) {
+      assert.match(fallbackZh, new RegExp(semantic))
+    }
+    for (const semantic of ['dashed', 'solid', 'diamond', 'square', 'circle', 'model-selection', 'mathematical-convergence']) {
+      assert.match(fallbackEn, new RegExp(semantic, 'i'))
+    }
   }
+  assert.strictEqual(boundVisuals[0], boundVisuals[1], 'both modules share one visual asset record')
 })

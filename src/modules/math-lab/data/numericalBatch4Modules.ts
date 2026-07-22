@@ -4,6 +4,7 @@ import type {
   MathLabModule,
   MathLabSection,
   MathLabTocItem,
+  VisualAsset,
 } from '../types/mathLab.ts'
 
 const md = String.raw
@@ -38,6 +39,29 @@ function keepFirstLabPlacement(sections: readonly MathLabSection[]): MathLabSect
     })
     return labIds.length ? { ...item, labIds } : { ...item, labIds: undefined }
   })
+}
+
+const banknoteOptimizationDiagnosticsVisual: VisualAsset = {
+  id: 'banknote-optimization-diagnostics-illustration',
+  type: 'image',
+  title: copy('尺度、步长与诊断：同一批 Banknote 运行', 'Scale, step size, and diagnosis across the same Banknote runs'),
+  assetPath: '/math-lab/numerical-methods/banknote-optimization-diagnostics.png',
+  transcript: copy(
+    '三栏图的全部数字来自锁定输出。左栏对比原始四特征与仅用 960 行训练集拟合的标准化：均值为 [0.469, 1.978, 1.320, -1.142]，population scale 为 [2.805, 5.814, 4.235, 2.073]。两条路径都用固定步长 4；raw-fixed 用虚线和方形终点表示第 112 次因 validation-patience 停止，standardized-stable 用实线和圆形终点表示第 484 次因 gradient-norm 数学收敛。中栏在标准化数据上比较固定 32 与 Armijo：固定路径的菱形最佳点是第 13 次、validation BCE 0.058853，方形终点是第 73 次 validation-patience；Armijo 拒绝第一次 32 试探，回溯 1 次后接受 16，并在第 48 次以 validation BCE 0.068247、梯度范数 7.017e-6 到达与最佳点重合的圆形数学收敛终点。右栏分别画出训练 BCE、验证 BCE 与梯度范数；固定 32 的终点读数为 train 0.054023、validation 0.082850、梯度范数 0.034620，Armijo 的终点读数为 train 0.044635、validation 0.068247、梯度范数 7.017e-6。菱形表示最佳 validation，方形表示模型选择终点，圆形表示数学收敛终点，因此不依赖颜色也能读图。',
+    'All numbers in the three panels come from the locked outputs. The left panel compares four raw features with standardization fitted only on the 960 training rows: means [0.469, 1.978, 1.320, -1.142] and population scales [2.805, 5.814, 4.235, 2.073]. Both paths use fixed step 4. The dashed raw-fixed path ends with a square at iteration 112 for validation-patience, while the solid standardized-stable path ends with a circle at iteration 484 for mathematical gradient-norm convergence. The middle panel compares fixed 32 with Armijo on standardized data. The fixed path has a diamond best point at iteration 13 with validation BCE 0.058853 and a square validation-patience terminal at iteration 73. Armijo rejects the first trial at 32, accepts 16 after one backtrack, and reaches a combined best/terminal circle at iteration 48 with validation BCE 0.068247 and gradient norm 7.017e-6. The right panel separates training BCE, validation BCE, and gradient norm. Fixed 32 ends at train 0.054023, validation 0.082850, and gradient norm 0.034620; Armijo ends at train 0.044635, validation 0.068247, and gradient norm 7.017e-6. Diamonds mean best validation, squares mean model-selection terminals, and circles mean mathematical-convergence terminals, so the diagram remains readable without color.',
+  ),
+  learningPurpose: copy(
+    '把 train-only 标准化、固定步长与 Armijo 的接受规则，以及最佳 validation 与终止原因放进同一条可核对的数值链。',
+    'Connect train-only standardization, fixed and Armijo step acceptance, best validation, and terminal reasons in one auditable numerical chain.',
+  ),
+  alt: copy(
+    '三栏深色教学图：左栏以虚线方形和实线圆形比较原始特征与训练集标准化，中央比较固定 32 与 Armijo 32→16，右栏用训练 BCE、验证 BCE、梯度范数及菱形、方形、圆形标记区分最佳点、模型选择终点和数学收敛终点。',
+    'Three-panel dark teaching diagram: the left compares raw and train-only standardized features with dashed-square and solid-circle routes; the middle compares fixed 32 with Armijo 32→16; the right separates train BCE, validation BCE, and gradient norm, using diamonds, squares, and circles for best-validation, model-selection, and mathematical-convergence markers.',
+  ),
+  caption: copy(
+    '同一批锁定运行同时说明尺度为何改变固定步长的可用性、Armijo 为何拒绝 32 后接受 16，以及最佳 validation checkpoint 为什么不等于数学收敛。',
+    'The same locked runs show why scale changes fixed-step usability, why Armijo rejects 32 and accepts 16, and why a best-validation checkpoint is not the same as mathematical convergence.',
+  ),
 }
 
 const stableBceConcept: MathConcept = {
@@ -122,6 +146,7 @@ We train a small logistic regression with an intercept. Every run begins at five
 
 Then compare early trajectories and update conditioning only: raw-fixed and standardized-stable both use fixed step 4.0. Unequal raw feature scales unbalance parameter updates; validation is best at iteration 52 and then deteriorates. Train-only standardization makes the same step usable and reaches gradient-norm at iteration 484. Because changing feature units also changes the geometry of coefficient-space L2, their final BCE values alone must not rank model quality.`,
     ),
+    { visualIds: [banknoteOptimizationDiagnosticsVisual.id] },
   ),
   section(
     'v3-banknote-optimization-five-runs',
@@ -206,6 +231,7 @@ const diagnosticsSections = [
 - **standardized-too-large**: a transient low point at iteration 13 is followed by validation deterioration → fixed 32.0 overshoots → change only to Armijo → expect 32 to be rejected, 16 accepted, and convergence eligibility retained.
 - **standardized-armijo**: the first trial is rejected and gradient tolerance is reached at iteration 48 → sufficient decrease adapts the usable step → keep the method and inspect the final test endpoint → expect close agreement with the library baseline.`,
     ),
+    { visualIds: [banknoteOptimizationDiagnosticsVisual.id] },
   ),
   section(
     'v3-banknote-diagnostics-primary-lab',
@@ -267,6 +293,11 @@ function enhanceOptimization(moduleDefinition: MathLabModule): MathLabModule {
     concepts: [stableBceConcept, ...moduleDefinition.concepts],
     sections: insertedSections,
     toc: insertAfterOpening(moduleDefinition.toc, optimizationSections.map(tocFor)),
+    visuals: [banknoteOptimizationDiagnosticsVisual, ...moduleDefinition.visuals],
+    importedAssetPaths: [
+      ...(moduleDefinition.importedAssetPaths ?? []),
+      banknoteOptimizationDiagnosticsVisual.assetPath!,
+    ],
   }
 }
 
@@ -287,6 +318,11 @@ function enhanceTrainingDiagnostics(moduleDefinition: MathLabModule): MathLabMod
     concepts: [diagnosisChainConcept, ...moduleDefinition.concepts],
     sections: insertedSections,
     toc: insertAfterOpening(moduleDefinition.toc, diagnosticsSections.map(tocFor)),
+    visuals: [banknoteOptimizationDiagnosticsVisual, ...moduleDefinition.visuals],
+    importedAssetPaths: [
+      ...(moduleDefinition.importedAssetPaths ?? []),
+      banknoteOptimizationDiagnosticsVisual.assetPath!,
+    ],
   }
 }
 
