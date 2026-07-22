@@ -1,0 +1,335 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "banknote-training-diagnostics",
+  "sceneClass": "BanknoteTrainingDiagnosticsScene",
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "localeInVideo": "zh-CN",
+  "durationSeconds": 72,
+  "lockedAnchors": {
+    "tooSmallStep": 0.02,
+    "stableStep": 4.0,
+    "tooSmallBestIteration": 500,
+    "tooSmallBestValidationBce": 0.288343568660986,
+    "tooSmallTerminal": {
+      "kind": "safety",
+      "reason": "max-iterations",
+      "iteration": 500
+    },
+    "stableBestIteration": 484,
+    "stableBestValidationBce": 0.06825592665802883,
+    "stableTerminal": {
+      "kind": "mathematical-convergence",
+      "reason": "gradient-norm",
+      "iteration": 484
+    },
+    "tooLargeStep": 32.0,
+    "tooLargeBestIteration": 13,
+    "tooLargeBestValidationBce": 0.05885315617651155,
+    "tooLargeTerminalValidationBce": 0.08285039867735675,
+    "tooLargeTerminal": {
+      "kind": "model-selection",
+      "reason": "validation-patience",
+      "iteration": 73
+    },
+    "armijoFirstAcceptedStep": 16.0,
+    "armijoFirstBacktrackCount": 1,
+    "armijoBestIteration": 48,
+    "armijoBestValidationBce": 0.06824699289297452,
+    "armijoTerminal": {
+      "kind": "mathematical-convergence",
+      "reason": "gradient-norm",
+      "iteration": 48
+    },
+    "selectedRunId": "standardized-armijo",
+    "manualTestBce": 0.055110123229490826,
+    "manualAccuracy": 0.9805825242718447,
+    "manualRocAuc": 0.9994279176201373,
+    "manualConfusionMatrix": [[110, 4], [0, 92]],
+    "baselineVersion": "1.9.0",
+    "baselineTestBce": 0.05509807557568522,
+    "predictionAgreement": 1.0,
+    "source": "banknote-training-diagnostics-summary plus banknote-training-traces.json"
+  },
+  "valueBindings": {
+    "runOrder": "diagnostics.runOrder",
+    "diagnosticChains": "diagnostics.diagnostics[runId].{visible,plausibleCause,changeOneVariable,expectedNextRun}",
+    "diagnosticTerminals": "diagnostics.diagnostics[runId].terminal",
+    "traceValues": "traces.runs[runId].trace[*].{iteration,validationBce}",
+    "bestValidation": "traces.runs[runId].bestValidation",
+    "terminal": "traces.runs[runId].terminal",
+    "tooSmallStep": "traces.runs.standardized-too-small.config.step",
+    "stableStep": "traces.runs.standardized-stable.config.step",
+    "tooLargeStep": "traces.runs.standardized-too-large.config.step",
+    "armijoInitialStep": "traces.runs.standardized-armijo.config.armijo.initialStep",
+    "armijoFirstAccepted": "traces.runs.standardized-armijo.firstBacktrack",
+    "selectedRunId": "diagnostics.selectedRunId",
+    "finalReport": "diagnostics.finalReport",
+    "baseline": "diagnostics.baseline",
+    "endpointComparison": "diagnostics.comparison"
+  },
+  "semanticBoundaries": {
+    "diagnosis": "Instructional four-step reading, not a scored response.",
+    "oneVariable": "Each comparison keeps the named controls fixed and changes exactly one variable.",
+    "bestValidation": "Selects a saved checkpoint; does not prove mathematical convergence.",
+    "terminal": "Written kind/reason distinguishes model selection, safety, and mathematical convergence.",
+    "finalSelection": "Mathematical convergence eligibility is required before best-validation comparison.",
+    "baseline": "Endpoint-only check; no per-iteration solver comparison.",
+    "provenance": "Plotted curves are real Banknote runs; existing synthetic support examples remain separate and are not relabeled."
+  },
+  "fallbacks": {
+    "reducedMotion": "Use the fully composed 65–72 second final frame/poster together with the transcript and summaries.",
+    "videoFailure": [
+      "banknote-training-diagnostics-transcript.zh-CN.md",
+      "banknote-training-diagnostics-summary.en.md",
+      "banknote-training-diagnostics-labels.json"
+    ],
+    "nonColor": "Problem traces are dashed with square terminals, next traces are solid with circle terminals, diamonds mark best validation, and terminal kind/reason is written."
+  },
+  "labels": [
+    {
+      "id": "td.opening.kicker",
+      "zh-CN": "数值方法 · 训练诊断",
+      "en": "Numerical methods · training diagnostics"
+    },
+    {
+      "id": "td.opening.question",
+      "zh-CN": "先读轨迹，再只改一个变量",
+      "en": "Read the trace first, then change one variable"
+    },
+    {
+      "id": "td.opening.provenance",
+      "zh-CN": "Banknote 真实运行 · 非评分诊断 · 合成支持示例保持独立",
+      "en": "Real Banknote runs · unscored diagnosis · synthetic support remains separate"
+    },
+    {
+      "id": "td.method.visible",
+      "zh-CN": "1 可见轨迹：先描述，不先下结论",
+      "en": "1 Visible trace: describe before concluding"
+    },
+    {
+      "id": "td.method.cause",
+      "zh-CN": "2 可能原因：用机制解释形状",
+      "en": "2 Plausible cause: explain the shape with a mechanism"
+    },
+    {
+      "id": "td.method.change",
+      "zh-CN": "3 一个改变：其他设置保持不变",
+      "en": "3 One change: hold the other settings fixed"
+    },
+    {
+      "id": "td.method.expected",
+      "zh-CN": "4 下一条轨迹：写出可检查的预期",
+      "en": "4 Next trace: state a checkable expectation"
+    },
+    {
+      "id": "td.method.unscored",
+      "zh-CN": "这是教学推理链，不是测验、打分或模型排行榜",
+      "en": "This is an instructional reasoning chain, not a quiz, score, or leaderboard"
+    },
+    {
+      "id": "td.raw.visible",
+      "zh-CN": "可见：验证损失先改善再恶化，同时步长仍大",
+      "en": "Visible: validation improves then degrades while steps remain large"
+    },
+    {
+      "id": "td.raw.cause",
+      "zh-CN": "原因：原始特征尺度使固定步长条件变差",
+      "en": "Cause: raw feature scales make the fixed step poorly conditioned"
+    },
+    {
+      "id": "td.raw.change",
+      "zh-CN": "只改：保持步长 4.0，把特征标准化",
+      "en": "Change only: standardize features while keeping step 4.0"
+    },
+    {
+      "id": "td.raw.expected",
+      "zh-CN": "预期：下降更平滑并达到数学收敛",
+      "en": "Expected: smoother descent and mathematical convergence"
+    },
+    {
+      "id": "td.small.visible",
+      "zh-CN": "可见：损失安全下降，但 500 次时梯度仍大",
+      "en": "Visible: loss falls safely but the gradient remains large at 500 updates"
+    },
+    {
+      "id": "td.small.cause",
+      "zh-CN": "原因：固定步长 0.02 太小",
+      "en": "Cause: fixed step 0.02 is too small"
+    },
+    {
+      "id": "td.small.change",
+      "zh-CN": "只改：固定步长 0.02 → 4.0",
+      "en": "Change only: fixed step 0.02 → 4.0"
+    },
+    {
+      "id": "td.small.expected",
+      "zh-CN": "预期：500 次更新内达到梯度容差",
+      "en": "Expected: reach the gradient tolerance within 500 updates"
+    },
+    {
+      "id": "td.small.best",
+      "zh-CN": "◇ 最佳验证：迭代 {tooSmallBestIteration}，BCE {tooSmallBestValidationBce}",
+      "en": "◇ Best validation: iteration {tooSmallBestIteration}, BCE {tooSmallBestValidationBce}"
+    },
+    {
+      "id": "td.small.terminal",
+      "zh-CN": "■ 迭代 {tooSmallTerminal.iteration} · 安全上限 · 最大迭代",
+      "en": "■ Iteration {tooSmallTerminal.iteration} · safety · max-iterations"
+    },
+    {
+      "id": "td.stable.visible",
+      "zh-CN": "可见：训练和验证损失稳定，梯度变小",
+      "en": "Visible: training and validation losses settle with a small gradient"
+    },
+    {
+      "id": "td.stable.cause",
+      "zh-CN": "原因：标准化让固定步长可用",
+      "en": "Cause: standardization makes the fixed step usable"
+    },
+    {
+      "id": "td.stable.change",
+      "zh-CN": "只改：固定步长改为从 32 开始的 Armijo",
+      "en": "Change only: replace the fixed step with Armijo from 32"
+    },
+    {
+      "id": "td.stable.expected",
+      "zh-CN": "预期：拒绝不安全试探，用更少已接受更新收敛",
+      "en": "Expected: reject unsafe trials and converge in fewer accepted updates"
+    },
+    {
+      "id": "td.stable.best",
+      "zh-CN": "◇ 最佳验证：迭代 {stableBestIteration}，BCE {stableBestValidationBce}",
+      "en": "◇ Best validation: iteration {stableBestIteration}, BCE {stableBestValidationBce}"
+    },
+    {
+      "id": "td.stable.terminal",
+      "zh-CN": "● 迭代 {stableTerminal.iteration} · 数学收敛 · 梯度范数",
+      "en": "● Iteration {stableTerminal.iteration} · mathematical convergence · gradient-norm"
+    },
+    {
+      "id": "td.large.visible",
+      "zh-CN": "可见：低的短暂验证点之后出现恶化",
+      "en": "Visible: a low transient validation point is followed by deterioration"
+    },
+    {
+      "id": "td.large.cause",
+      "zh-CN": "原因：固定步长 32 越过可接受区域",
+      "en": "Cause: fixed step 32 overshoots"
+    },
+    {
+      "id": "td.large.change",
+      "zh-CN": "只改：固定采用 → Armijo 回溯",
+      "en": "Change only: fixed acceptance → Armijo backtracking"
+    },
+    {
+      "id": "td.large.expected",
+      "zh-CN": "预期：先接受 16，并保留收敛资格",
+      "en": "Expected: accept 16 first and retain convergence eligibility"
+    },
+    {
+      "id": "td.large.best",
+      "zh-CN": "◇ 最佳验证：迭代 {tooLargeBestIteration}，BCE {tooLargeBestValidationBce}",
+      "en": "◇ Best validation: iteration {tooLargeBestIteration}, BCE {tooLargeBestValidationBce}"
+    },
+    {
+      "id": "td.large.terminal",
+      "zh-CN": "■ 迭代 {tooLargeTerminal.iteration} · 模型选择 · 验证耐心停止",
+      "en": "■ Iteration {tooLargeTerminal.iteration} · model selection · validation-patience"
+    },
+    {
+      "id": "td.armijo.visible",
+      "zh-CN": "可见：第一次试探被拒绝，随后达到梯度容差",
+      "en": "Visible: the first trial is rejected and the gradient tolerance is reached"
+    },
+    {
+      "id": "td.armijo.cause",
+      "zh-CN": "原因：充分下降检查自适应出可用步长",
+      "en": "Cause: sufficient decrease adapts the usable step"
+    },
+    {
+      "id": "td.armijo.change",
+      "zh-CN": "只改：保持方法，检查选中测试终点",
+      "en": "Change only: keep the method and inspect the selected test endpoint"
+    },
+    {
+      "id": "td.armijo.expected",
+      "zh-CN": "预期：终点与库基线高度一致",
+      "en": "Expected: the endpoint agrees closely with the library baseline"
+    },
+    {
+      "id": "td.armijo.first",
+      "zh-CN": "首个已接受步长 {armijoFirstAcceptedStep} · 回溯 {armijoFirstBacktrackCount} 次",
+      "en": "First accepted step {armijoFirstAcceptedStep} · {armijoFirstBacktrackCount} backtrack"
+    },
+    {
+      "id": "td.armijo.best",
+      "zh-CN": "◇ 最佳验证：迭代 {armijoBestIteration}，BCE {armijoBestValidationBce}",
+      "en": "◇ Best validation: iteration {armijoBestIteration}, BCE {armijoBestValidationBce}"
+    },
+    {
+      "id": "td.armijo.terminal",
+      "zh-CN": "● 迭代 {armijoTerminal.iteration} · 数学收敛 · 梯度范数",
+      "en": "● Iteration {armijoTerminal.iteration} · mathematical convergence · gradient-norm"
+    },
+    {
+      "id": "td.marker.best",
+      "zh-CN": "◇ 最佳验证检查点：选择保存参数，不证明收敛",
+      "en": "◇ Best-validation checkpoint: selects saved parameters, does not prove convergence"
+    },
+    {
+      "id": "td.marker.problem-terminal",
+      "zh-CN": "■ 方形终点：原运行，写明安全或模型选择原因",
+      "en": "■ Square terminal: original run with written safety or model-selection reason"
+    },
+    {
+      "id": "td.marker.next-terminal",
+      "zh-CN": "● 圆形终点：下一运行，写明数学收敛原因",
+      "en": "● Circle terminal: next run with written mathematical-convergence reason"
+    },
+    {
+      "id": "td.report.selected",
+      "zh-CN": "选中运行 standardized-armijo · 检查点 {armijoBestIteration}",
+      "en": "Selected run standardized-armijo · checkpoint {armijoBestIteration}"
+    },
+    {
+      "id": "td.report.manual",
+      "zh-CN": "测试 BCE {manualTestBce} · 准确率 {manualAccuracy} · ROC-AUC {manualRocAuc}",
+      "en": "Test BCE {manualTestBce} · accuracy {manualAccuracy} · ROC-AUC {manualRocAuc}"
+    },
+    {
+      "id": "td.report.confusion",
+      "zh-CN": "混淆矩阵 [[110,4],[0,92]]",
+      "en": "Confusion matrix [[110,4],[0,92]]"
+    },
+    {
+      "id": "td.report.baseline",
+      "zh-CN": "scikit-learn {baselineVersion} · 测试 BCE {baselineTestBce} · 仅终点核对",
+      "en": "scikit-learn {baselineVersion} · test BCE {baselineTestBce} · endpoint-only check"
+    },
+    {
+      "id": "td.report.boundary",
+      "zh-CN": "预测一致率 {predictionAgreement}；不比较逐步求解器轨迹",
+      "en": "Prediction agreement {predictionAgreement}; no per-iteration solver comparison"
+    },
+    {
+      "id": "td.conclusion.chain",
+      "zh-CN": "轨迹 → 原因 → 一个改变 → 下一条轨迹",
+      "en": "Trace → cause → one change → next trace"
+    },
+    {
+      "id": "td.conclusion.slow",
+      "zh-CN": "■ 固定 0.02：500 最大迭代 → ● 固定 4.0：484 梯度范数收敛",
+      "en": "■ Fixed 0.02: max-iterations at 500 → ● fixed 4.0: gradient-norm at 484"
+    },
+    {
+      "id": "td.conclusion.overshoot",
+      "zh-CN": "■ 固定 32：73 验证耐心停止 → ● Armijo：先接受 16，48 梯度范数收敛",
+      "en": "■ Fixed 32: validation-patience at 73 → ● Armijo: accept 16 first, gradient-norm at 48"
+    },
+    {
+      "id": "td.conclusion.provenance",
+      "zh-CN": "真实 Banknote 运行负责本页结论；合成支持示例保持独立",
+      "en": "Real Banknote runs support this conclusion; synthetic support examples remain separate"
+    }
+  ]
+}

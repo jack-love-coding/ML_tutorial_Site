@@ -1,0 +1,189 @@
+{
+  "pipeline": [
+    "ConceptAnalyzer",
+    "PrerequisiteExplorer",
+    "MathematicalEnricher",
+    "VisualDesigner",
+    "NarrativeComposer",
+    "CodeGenerator"
+  ],
+  "sceneId": "banknote-training-diagnostics",
+  "sceneClass": "BanknoteTrainingDiagnosticsScene",
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "root": "TD0",
+  "maxDepth": 3,
+  "durationSeconds": 72,
+  "storyboardCuts": [0, 8, 18, 32, 46, 58, 65, 72],
+  "posterSecond": 68,
+  "outputDependencies": [
+    {
+      "path": "public/notebooks/numerical-methods/batch-4-outputs/training-diagnostics-summary.json",
+      "outputId": "banknote-training-diagnostics-summary",
+      "role": "Exact five-run four-step diagnoses, selected-run report, endpoint-only baseline, and comparison boundary",
+      "runIds": [
+        "raw-fixed",
+        "standardized-too-small",
+        "standardized-stable",
+        "standardized-too-large",
+        "standardized-armijo"
+      ],
+      "requiredFields": [
+        "diagnostics.visible",
+        "diagnostics.plausibleCause",
+        "diagnostics.changeOneVariable",
+        "diagnostics.expectedNextRun",
+        "diagnostics.terminal",
+        "selectedRunId",
+        "finalReport",
+        "baseline",
+        "comparison"
+      ]
+    },
+    {
+      "path": "public/notebooks/numerical-methods/batch-4-outputs/banknote-training-traces.json",
+      "role": "Complete accepted finite validation traces, best-validation records, first Armijo acceptance, and typed terminals",
+      "runIds": [
+        "standardized-too-small",
+        "standardized-stable",
+        "standardized-too-large",
+        "standardized-armijo"
+      ],
+      "integrityLinks": ["contractVersion", "datasetSha256", "constantsSha256"]
+    }
+  ],
+  "comparisonContracts": [
+    {
+      "problemRunId": "standardized-too-small",
+      "nextRunId": "standardized-stable",
+      "heldConstant": ["featureSpace=standardized", "method=fixed"],
+      "oneVariable": "step 0.02 to 4.0",
+      "expectedNextTrace": "gradient-norm convergence within 500 accepted updates"
+    },
+    {
+      "problemRunId": "standardized-too-large",
+      "nextRunId": "standardized-armijo",
+      "heldConstant": ["featureSpace=standardized", "initialStep=32.0"],
+      "oneVariable": "fixed acceptance to Armijo backtracking",
+      "expectedNextTrace": "first accept 16.0 after one backtrack and retain convergence eligibility"
+    }
+  ],
+  "semanticBoundaries": {
+    "diagnosis": "visible trace to plausible cause to exactly one variable change to expected next trace; instructional and unscored",
+    "bestValidation": "selects a saved parameter checkpoint and does not prove mathematical convergence",
+    "terminal": "kind and reason state why the run ended; model selection, safety, and mathematical convergence remain separate",
+    "finalSelection": "only mathematically converged runs are eligible before best-validation comparison",
+    "baseline": "scikit-learn is an endpoint-only check; no per-iteration solver comparison",
+    "provenance": "scene plots real Banknote runs only; synthetic overfit, vanishing-gradient, and exploding-gradient examples remain separate support content"
+  },
+  "fallbackReferences": {
+    "reducedMotion": "The fully composed 65–72 second final frame contains both one-variable mappings, four terminal meanings, best-marker legend, and the real/synthetic boundary.",
+    "videoFailure": [
+      "docs/curriculum-v3/numerical-methods/manim/banknote-training-diagnostics-transcript.zh-CN.md",
+      "docs/curriculum-v3/numerical-methods/manim/banknote-training-diagnostics-summary.en.md",
+      "docs/curriculum-v3/numerical-methods/manim/banknote-training-diagnostics-labels.json"
+    ],
+    "nonColor": "Problem traces are dashed with square terminals; controlled-next traces are solid with circle terminals; diamonds mark best validation; written kind/reason labels carry all meanings."
+  },
+  "topologicalOrder": [
+    "F_TRACE",
+    "F_CHECKPOINT",
+    "F_TERMINAL",
+    "TD1",
+    "TD2",
+    "TD3",
+    "TD4",
+    "TD0"
+  ],
+  "nodes": [
+    {
+      "id": "F_TRACE",
+      "concept": "轨迹只包含迭代 0 与已接受、数值有限的运行状态",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": [
+        "accepted finite states",
+        "iteration",
+        "validationBce",
+        "no schematic replacement"
+      ]
+    },
+    {
+      "id": "F_CHECKPOINT",
+      "concept": "最佳验证标记选择保存的参数检查点，不证明数学收敛",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["bestValidation", "isBestValidation", "checkpoint selection"]
+    },
+    {
+      "id": "F_TERMINAL",
+      "concept": "终点 kind 与 reason 分开表示模型选择、安全上限和数学收敛",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": [
+        "validation-patience",
+        "max-iterations",
+        "gradient-norm",
+        "typed terminal"
+      ]
+    },
+    {
+      "id": "TD1",
+      "concept": "四步诊断先描述可见轨迹，再提出可能原因",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_TRACE", "F_TERMINAL"],
+      "foundationRefs": ["visible", "plausibleCause", "instruction not scoring"]
+    },
+    {
+      "id": "TD2",
+      "concept": "受控下一次实验只改变一个变量，并写出可检查的下一条轨迹预期",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["TD1"],
+      "foundationRefs": ["changeOneVariable", "expectedNextRun", "held constants"]
+    },
+    {
+      "id": "TD3",
+      "concept": "固定 0.02 到 4.0 的比较保持标准化与固定方法不变",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["TD2", "F_CHECKPOINT"],
+      "foundationRefs": [
+        "standardized-too-small",
+        "standardized-stable",
+        "500 max-iterations",
+        "484 gradient-norm"
+      ]
+    },
+    {
+      "id": "TD4",
+      "concept": "固定 32 到 Armijo 的比较保持标准化与初始步长不变",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["TD2", "F_CHECKPOINT"],
+      "foundationRefs": [
+        "standardized-too-large",
+        "standardized-armijo",
+        "first accepted step 16",
+        "best versus terminal",
+        "endpoint-only report"
+      ]
+    },
+    {
+      "id": "TD0",
+      "concept": "先用锁定轨迹完成四步诊断，只改一个变量，再检查预测的下一条轨迹",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["TD3", "TD4", "F_TERMINAL"],
+      "foundationRefs": [
+        "banknote-training-diagnostics",
+        "unscored diagnosis",
+        "real Banknote provenance",
+        "synthetic support remains separate"
+      ]
+    }
+  ]
+}
