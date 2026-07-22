@@ -6,6 +6,10 @@ import { resolve } from 'node:path'
 import { curriculumRouteManifestById } from '../src/curriculum/routeManifest.ts'
 import { mathLabModuleRegistry, mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import { numericalDeepeningModuleIds } from '../src/modules/math-lab/data/mathCourseOrder.ts'
+import {
+  numericalBatch4ChapterIds,
+  numericalBatch4NotebookForModule,
+} from '../src/modules/math-lab/data/numericalBatch4Notebook.ts'
 import { evaluateTrainingScenario, type TrainingScenario } from '../src/modules/math-lab/utils/aiBridgeMath.ts'
 import { mathLabProgressStorageKey } from '../src/modules/math-lab/utils/progress.ts'
 import { withPublicBase } from '../src/utils/publicPath.ts'
@@ -821,16 +825,94 @@ test('[Plan 25-04] final selection excludes lower transient validation winners',
   )
 })
 
-test('[Plan 25-05] future P25-SC4/SC5: bilingual lessons and existing labs consume real runs without losing support modes', () => {
+test('[Plan 25-05] module content and companions form two complete bilingual Banknote teaching loops', () => {
   const enhancerPath = resolve(root, 'src/modules/math-lab/data/numericalBatch4Modules.ts')
   const companionPath = resolve(root, 'src/modules/math-lab/data/numericalBatch4Notebook.ts')
-  assert.equal(existsSync(enhancerPath), true, `${enhancerPath} is owned by Plan 25-05`)
-  assert.equal(existsSync(companionPath), true, `${companionPath} is owned by Plan 25-05`)
+  assert.equal(existsSync(enhancerPath), true)
+  assert.equal(existsSync(companionPath), true)
+  assert.deepEqual(numericalBatch4ChapterIds, ['optimization', 'training-diagnostics'])
+
   const optimization = mathLabModuleRegistry.optimization
   const diagnostics = mathLabModuleRegistry['training-diagnostics']
-  assert.ok(optimization.sections.some(({ id }) => id.startsWith('v3-banknote-optimization')))
-  assert.ok(diagnostics.sections.some(({ id }) => id.startsWith('v3-banknote-diagnostics')))
+  const chapterSections = [
+    ...optimization.sections.filter(({ id }) => id.startsWith('v3-banknote-optimization')),
+    ...diagnostics.sections.filter(({ id }) => id.startsWith('v3-banknote-diagnostics')),
+  ]
+  assert.ok(chapterSections.length >= 11)
+  chapterSections.forEach((item) => {
+    assertBilingual(item.title, `${item.id} title`)
+    assertBilingual(item.content, `${item.id} content`)
+  })
+
+  const optimizationContent = optimization.sections.map(({ content }) => content.en).join('\n')
+  const diagnosticsContent = diagnostics.sections.map(({ content }) => content.en).join('\n')
+  for (const term of [
+    'stable_bce', 'loss_and_grad', 'armijo_step', 'should_stop', 'train_logistic',
+    'raw-fixed', 'standardized-too-small', 'standardized-stable',
+    'standardized-too-large', 'standardized-armijo', 'optimizer-comparison',
+  ]) assert.match(optimizationContent, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  for (const term of [
+    'visible', 'plausible cause', 'one variable', 'expected next run',
+    'test BCE 0.0551101232', 'prediction agreement 1.0',
+  ]) assert.match(diagnosticsContent, new RegExp(term, 'i'))
+  assert.match(diagnosticsContent, /deterministic synthetic support examples/i)
+  assert.match(diagnosticsContent, /not Banknote results/i)
+
+  const optimizationCompanion = numericalBatch4NotebookForModule('optimization')!
+  const diagnosticsCompanion = numericalBatch4NotebookForModule('training-diagnostics')!
+  assert.ok(optimizationCompanion)
+  assert.ok(diagnosticsCompanion)
+  assert.strictEqual(optimizationCompanion.notebook, diagnosticsCompanion.notebook)
+  assert.strictEqual(optimizationCompanion.dataset, diagnosticsCompanion.dataset)
+  assert.strictEqual(optimizationCompanion.requirements, diagnosticsCompanion.requirements)
+  assert.equal(optimizationCompanion.outputId, 'banknote-logistic-optimization-summary')
+  assert.equal(diagnosticsCompanion.outputId, 'banknote-training-diagnostics-summary')
+  for (const companion of [optimizationCompanion, diagnosticsCompanion]) {
+    assertBilingual(companion.title, `${companion.id} title`)
+    assertBilingual(companion.description, `${companion.id} description`)
+    assertBilingual(companion.codeTitle, `${companion.id} code title`)
+    assertBilingual(companion.codeOutput, `${companion.id} code output`)
+    assert.equal(companion.supportingDownloads.length, 4)
+    for (const asset of [
+      companion.notebook, companion.dataset, companion.requirements, ...companion.supportingDownloads,
+    ]) {
+      assert.match(asset.publicPath, /^\//)
+      assert.equal(existsSync(absolutePublicPath(asset.publicPath)), true, asset.publicPath)
+      assertBilingual(asset.label, `${asset.filename} label`)
+      assertBilingual(asset.description, `${asset.filename} description`)
+    }
+  }
+  assert.equal(numericalBatch4NotebookForModule('pca'), undefined)
+})
+
+test('[Plan 25-05] one primary lab, route order, checkpoints, progress, and synthetic provenance stay exact', () => {
+  const optimization = mathLabModuleRegistry.optimization
+  const diagnostics = mathLabModuleRegistry['training-diagnostics']
+  assert.equal(optimization.sections.filter(({ labIds }) => labIds?.includes('optimization-gradient-lab')).length, 1)
+  assert.equal(diagnostics.sections.filter(({ labIds }) => labIds?.includes('training-diagnostics-lab')).length, 1)
+  assert.deepEqual(optimization.labs.map(({ id }) => id), ['optimization-gradient-lab'])
+  assert.deepEqual(diagnostics.labs.map(({ id }) => id), ['training-diagnostics-lab'])
+  assert.deepEqual(optimization.quizzes.map(({ id }) => id), [
+    'optimization-local-test-1d',
+    'optimization-golden-bracket-length',
+    'optimization-steepest-direction',
+    'optimization-newton-nd-system',
+  ])
+  assert.deepEqual(diagnostics.quizzes.map(({ id }) => id), [
+    'diagnostics-overfit', 'diagnostics-exploding', 'diagnostics-gap',
+  ])
+  assert.deepEqual(numericalDeepeningModuleIds.slice(-2), ['optimization', 'training-diagnostics'])
+  assert.equal(curriculumRouteManifestById.get('optimization')?.route, '/math-lab/modules/optimization')
+  assert.equal(curriculumRouteManifestById.get('training-diagnostics')?.route, '/math-lab/modules/training-diagnostics')
+  assert.equal(mathLabProgressStorageKey, 'ml-atlas:math-lab-progress:v1')
+
+  const scenarios: TrainingScenario[] = [
+    'healthy', 'high-learning-rate', 'overfitting', 'vanishing-gradient', 'exploding-gradient',
+  ]
+  assert.deepEqual(scenarios.map((scenario) => evaluateTrainingScenario(scenario, 16).scenario), scenarios)
   assert.match(JSON.stringify(diagnostics), /synthetic support example/i)
+  assert.doesNotMatch(JSON.stringify(diagnostics), /banknote-optimization-diagnostics\.png/)
+  assert.doesNotMatch(JSON.stringify(diagnostics), /banknote-training-diagnostics\.mp4/)
 })
 
 test('[Plan 25-09] future P25-SC5: shared three-panel illustration exists and is locally bound', () => {
