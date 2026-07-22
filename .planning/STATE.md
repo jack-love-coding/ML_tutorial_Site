@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 25
-current_plan: 11
+current_plan: 12
 status: executing
-stopped_at: Completed 25-09-PLAN.md
-last_updated: "2026-07-22T12:31:46.129Z"
+stopped_at: Completed 25-11-PLAN.md
+last_updated: "2026-07-22T12:46:27.143Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 31
   completed_phases: 0
   total_plans: 13
-  completed_plans: 10
-  percent: 0
+  completed_plans: 11
+  percent: 85
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
@@ -24,7 +24,7 @@ progress:
 ## Current Position
 
 **Current Phase:** 25
-**Current Plan:** 11
+**Current Plan:** 12
 **Total Plans in Phase:** 13
 **Status:** Ready to execute
 **Last Activity:** 2026-07-22
@@ -755,8 +755,8 @@ Continue `$gsd-execute-phase 25` from Plan 25-09; Plan 25-10 is complete and Pla
 
 ## Session
 
-**Last session:** 2026-07-22T12:31:20.430Z
-**Stopped at:** Completed 25-09-PLAN.md
+**Last session:** 2026-07-22T12:46:27.138Z
+**Stopped at:** Completed 25-11-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -772,6 +772,7 @@ Continue `$gsd-execute-phase 25` from Plan 25-09; Plan 25-10 is complete and Pla
 | Phase 25 P05 | 19 min | 3 tasks | 9 files |
 | Phase 25 P10 | 15 min | 2 tasks | 7 files |
 | Phase 25 P09 | 14 min | 1 tasks | 4 files |
+| Phase 25 P11 | 8 min | 1 tasks | 9 files |
 
 ## Decisions
 
@@ -798,3 +799,6 @@ Continue `$gsd-execute-phase 25` from Plan 25-09; Plan 25-10 is complete and Pla
 - [Phase 25]: Keep the Batch 4 renderer --check path offline and write-free — Check mode only validates local sources, dependencies, ffprobe output, metadata bytes, and hashes.
 - [Phase 25]: Share one VisualAsset object and one local public path across both target modules. — Reference-identical bindings prevent the generated pixels, bilingual transcript, non-color marker semantics, and locked numerical anchors from drifting independently.
 - [Phase 25]: Normalize the selected built-in ImageGen output once to exact 1664x936 publication dimensions. — The first generated composition met the scientific visual contract; a dimensions-only resize preserved it while satisfying exact 16:9 publication and retaining source and final integrity provenance.
+- [Phase 25]: Treat only the verified temporary-package swap as the successful publication — The failed pre-publication Manim attempt left public media and Notebook outputs byte-identical.
+- [Phase 25]: Bind all three Batch 4 videos through typed bilingual VisualAsset records — Local posters and transcripts must carry the lesson when motion is reduced or video fails.
+- [Phase 25]: Use Manim 0.20.1 stretch_to_fit_width for non-proportional label sizing — The set_width stretch keyword is unsupported in the installed renderer API.
