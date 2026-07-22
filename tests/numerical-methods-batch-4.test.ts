@@ -489,6 +489,149 @@ test('[Plan 25-03] baseline is endpoint-only and the compact report belongs only
   assert.doesNotMatch(serialized, /pr-auc|threshold tuner|calibration report/)
 })
 
+test('[Plan 25-04] dataset parser accepts LF, CRLF, and BOM while enforcing the exact snapshot schema', async () => {
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const source = readFileSync(datasetPath, 'utf8')
+
+  for (const candidate of [source, source.replace(/\n/g, '\r\n'), `\uFEFF${source}`]) {
+    const rows = dataset.parseBanknoteDataset(candidate)
+    assert.equal(rows.length, 1372)
+    assert.deepEqual(rows[0], {
+      banknoteId: 1,
+      variance: 3.6216,
+      skewness: 8.6661,
+      curtosis: -2.8073,
+      entropy: -0.44699,
+      target: 0,
+      split: 'train',
+    })
+    assert.deepEqual(
+      Object.fromEntries(['train', 'validation', 'test'].map((split) => [
+        split,
+        rows.filter((row) => row.split === split).length,
+      ])),
+      { train: 960, validation: 206, test: 206 },
+    )
+    assert.deepEqual(
+      Object.fromEntries([0, 1].map((target) => [
+        target,
+        rows.filter((row) => row.target === target).length,
+      ])),
+      { 0: 762, 1: 610 },
+    )
+  }
+})
+
+test('[Plan 25-04] dataset parser reports line and column for malformed, non-finite, or inconsistent rows', async () => {
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const source = readFileSync(datasetPath, 'utf8')
+  const assertDatasetError = (
+    candidate: string,
+    expected: { code: 'parse-error' | 'schema-error'; line: number; column: number },
+  ) => {
+    assert.throws(
+      () => dataset.parseBanknoteDataset(candidate),
+      (error: unknown) => {
+        assert.ok(error instanceof dataset.BanknoteDatasetError)
+        assert.equal(error.code, expected.code)
+        assert.equal(error.line, expected.line)
+        assert.equal(error.column, expected.column)
+        assert.match(error.message, new RegExp(`line ${expected.line}.*column ${expected.column}`, 'i'))
+        return true
+      },
+    )
+  }
+
+  assertDatasetError(source.replace('variance,skewness', 'variance_bad,skewness'), {
+    code: 'parse-error', line: 1, column: 2,
+  })
+  assertDatasetError(source.replace('1,3.6216,8.6661,-2.8073,-0.44699,0,train', '1,3.6216,8.6661'), {
+    code: 'parse-error', line: 2, column: 4,
+  })
+  assertDatasetError(source.replace('1,3.6216,', '1,NaN,'), {
+    code: 'schema-error', line: 2, column: 2,
+  })
+  assertDatasetError(source.replace('1,3.6216,', '2,3.6216,'), {
+    code: 'schema-error', line: 2, column: 1,
+  })
+  assertDatasetError(source.replace(',-0.44699,0,train', ',-0.44699,2,train'), {
+    code: 'schema-error', line: 2, column: 6,
+  })
+  assertDatasetError(source.replace(',-0.44699,0,train', ',-0.44699,0,holdout'), {
+    code: 'schema-error', line: 2, column: 7,
+  })
+  assertDatasetError(source.split(/\r?\n/).slice(0, -2).join('\n'), {
+    code: 'schema-error', line: 1372, column: 1,
+  })
+})
+
+test('[Plan 25-04] train-only preprocessing is recomputed from parsed rows', async () => {
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const rows = dataset.parseBanknoteDataset(readFileSync(datasetPath, 'utf8'))
+  const preprocessing = dataset.computeBanknotePreprocessing(rows)
+  const manifest = readJson(datasetManifestPath)
+
+  assert.equal(preprocessing.fitSplit, 'train')
+  assert.equal(preprocessing.ddof, 0)
+  assert.deepEqual(preprocessing.features, ['variance', 'skewness', 'curtosis', 'entropy'])
+  for (const feature of preprocessing.features) {
+    assert.ok(Math.abs(preprocessing.means[feature] - manifest.preprocessing.trainMeans[feature]) < 1e-12)
+    assert.ok(Math.abs(preprocessing.scales[feature] - manifest.preprocessing.trainScales[feature]) < 1e-12)
+    assert.ok(preprocessing.scales[feature] > 0)
+  }
+
+  const perturbed = rows.map((row) => row.split === 'test' ? { ...row, variance: row.variance + 1000 } : row)
+  assert.deepEqual(dataset.computeBanknotePreprocessing(perturbed), preprocessing)
+})
+
+test('[Plan 25-04] dataset loader is injectable, abortable, base-safe, and preserves typed failure categories', async () => {
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const source = readFileSync(datasetPath, 'utf8')
+  const observedUrls: string[] = []
+  const successfulFetch = (async (input: string | URL | Request) => {
+    observedUrls.push(String(input))
+    return new Response(source, { status: 200 })
+  }) as typeof fetch
+
+  const rootResult = await dataset.loadBanknoteDataset({ fetch: successfulFetch, baseUrl: '/' })
+  const pagesResult = await dataset.loadBanknoteDataset({ fetch: successfulFetch, baseUrl: '/ML_tutorial_Site/' })
+  assert.equal(rootResult.status, 'ready')
+  assert.equal(pagesResult.status, 'ready')
+  assert.equal(rootResult.status === 'ready' ? rootResult.data.rows.length : 0, 1372)
+  assert.deepEqual(observedUrls, [
+    '/datasets/numerical-methods/banknote-authentication.csv',
+    '/ML_tutorial_Site/datasets/numerical-methods/banknote-authentication.csv',
+  ])
+
+  const controller = new AbortController()
+  controller.abort()
+  const aborted = await dataset.loadBanknoteDataset({ fetch: successfulFetch, signal: controller.signal })
+  assert.deepEqual({ status: aborted.status, code: aborted.status === 'error' ? aborted.code : undefined }, {
+    status: 'error', code: 'aborted',
+  })
+
+  const httpError = await dataset.loadBanknoteDataset({
+    fetch: (async () => new Response('unavailable', { status: 503 })) as typeof fetch,
+  })
+  assert.deepEqual({ status: httpError.status, code: httpError.status === 'error' ? httpError.code : undefined }, {
+    status: 'error', code: 'http-error',
+  })
+
+  const parseError = await dataset.loadBanknoteDataset({
+    fetch: (async () => new Response(source.replace('variance,skewness', 'bad,skewness'))) as typeof fetch,
+  })
+  assert.deepEqual({ status: parseError.status, code: parseError.status === 'error' ? parseError.code : undefined }, {
+    status: 'error', code: 'parse-error',
+  })
+
+  const schemaError = await dataset.loadBanknoteDataset({
+    fetch: (async () => new Response(source.replace('1,3.6216,', '1,Infinity,'))) as typeof fetch,
+  })
+  assert.deepEqual({ status: schemaError.status, code: schemaError.status === 'error' ? schemaError.code : undefined }, {
+    status: 'error', code: 'schema-error',
+  })
+})
+
 test('[Plan 25-04] future P25-SC3/SC4 engine RED owner: stable BCE, stop priority, five run parity, and final selection', async () => {
   const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
   assert.equal(engine.stableBinaryCrossEntropy(1000, 0), 1000)
