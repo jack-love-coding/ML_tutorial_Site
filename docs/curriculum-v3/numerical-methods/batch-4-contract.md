@@ -125,13 +125,35 @@ Prediction agreement is `1.0`; max/mean probability difference is `0.0001508618`
 
 ## Decision clauses D-01 through D-29
 
-- **D-01–D-04:** One small logistic model and verified local Banknote snapshot form the real case; deterministic split/preprocessing is persisted; synthetic diagnostic modes stay separately labeled.
-- **D-05–D-09:** The five-run matrix, separate extreme-logit check, typed stop priority, summary milestones/full downloads, and every constant above are immutable.
-- **D-10–D-13:** `optimization` owns numerical mechanics, `training-diagnostics` owns cross-run interpretation, both share one Chinese executed Notebook, and the existing `MathGradientLab`/`TrainingDiagnosticsLab` remain the sole primary labs.
-- **D-14–D-17:** Manual NumPy is teaching authority; Pandas loads data; SciPy independently checks stable functions; code order is `stable_bce`, `loss_and_grad`, `armijo_step`, `should_stop`, `train_logistic`; scikit-learn is endpoint-only; the visible finite-difference check precedes training.
-- **D-18–D-21:** Fixed intercept-excluded L2, complete trace fields, one final compact test report, and chapter ownership boundaries are locked as above.
-- **D-22–D-25:** Browser labs are preset-first with bounded advanced controls, explicit Run/Reset, real-run comparison, last-finite failures, deterministic TypeScript, no silent parameter replacement, and no browser Python.
-- **D-26–D-29:** One shared three-panel illustration and exactly three short Notebook-bound Manim packages use only locked values, short Chinese in-media labels, bilingual page copy, Chinese transcripts, English summaries, label tables, local posters, reduced-motion fallback, metadata, and hashes.
+- **D-01:** One small logistic-regression model is the continuous teaching case across both chapters.
+- **D-02:** The authoritative dataset is the verified local UCI Banknote snapshot, with source, DOI, CC BY 4.0 attribution, byte hashes, schema, and dictionary preserved.
+- **D-03:** The persisted stratified train/validation/test split and train-only population statistics above are authoritative; validation and test reuse those values.
+- **D-04:** Real Banknote runs cover scale, convergence, stable BCE, Armijo, stopping, and safety exits; existing overfitting/vanishing/exploding scenarios remain explicitly synthetic support examples.
+- **D-05:** The five-run matrix above is complete and immutable.
+- **D-06:** The extreme-logit comparison is a separate stable-BCE check, never a sixth training run.
+- **D-07:** Mathematical convergence, validation checkpoint selection, and safety termination remain distinct and follow the typed priority above.
+- **D-08:** Summaries expose start, first applicable backtrack, best validation checkpoint, terminal checkpoint, final test report, and exact stop reason; full traces remain local downloads.
+- **D-09:** The seeds, L2 strength, learning rates, tolerances, Armijo constants, patience, and numerical anchors in this contract are locked from clean-kernel execution.
+- **D-10:** `optimization` owns stable BCE, scale effects, fixed-step descent, Armijo, stopping, and safety exits; optimizer comparisons remain linked and Newton/IRLS stays off the primary route.
+- **D-11:** `training-diagnostics` teaches observation, plausible cause, one changed variable, and an expected next-run result from the same traces.
+- **D-12:** Both chapters reference chapter-specific cells and outputs from one shared executed Chinese Notebook.
+- **D-13:** The existing `MathGradientLab` and `TrainingDiagnosticsLab` remain the sole primary labs, with prior synthetic modes preserved.
+- **D-14:** Manual NumPy is the teaching authority; Pandas loads data and SciPy supplies independent stable-function comparisons.
+- **D-15:** Manual code and page snippets follow `stable_bce`, `loss_and_grad`, `armijo_step`, `should_stop`, then `train_logistic`.
+- **D-16:** Pinned scikit-learn `LogisticRegression` is an endpoint-only engineering baseline; no per-iteration alignment is claimed.
+- **D-17:** A visible finite-difference check precedes training, and tests cover gradients, Armijo, stopping, finite boundaries, and Notebook/browser anchors.
+- **D-18:** One fixed L2 term applies to weights but excludes the intercept, consistently across manual and scikit-learn objectives.
+- **D-19:** Every run records all trace fields specified above, including validation state and typed terminal reason.
+- **D-20:** Only the selected model receives the compact test report; threshold remains `0.5` and ROC-AUC consumes probabilities.
+- **D-21:** `optimization` owns the five-run numerical comparison; `training-diagnostics` owns cross-run interpretation and the test-report connection.
+- **D-22:** Browser controls are preset-first with bounded advanced controls; primary UI keeps L2, Armijo `c`, contraction `rho`, and validation patience fixed.
+- **D-23:** `TrainingDiagnosticsLab` selects primary and comparison runs and may toggle curves; it does not become a quiz or dashboard builder.
+- **D-24:** Invalid arithmetic stops at the last finite state with an explicit reason and one single-variable suggestion; learner parameters are never silently replaced.
+- **D-25:** Browser labs use deterministic TypeScript over the real local snapshot with the same formulas and constants; browser Python is forbidden and tests enforce anchor parity.
+- **D-26:** One shared illustration contains the locked scale, fixed-versus-Armijo, and training-diagnostics panels.
+- **D-27:** Exactly three short Notebook-bound Manim packages cover feature scaling, fixed versus Armijo, and training-trace diagnosis.
+- **D-28:** Every plotted Manim value and label comes from locked Notebook outputs; pacing may simplify but numbers may not be replaced.
+- **D-29:** Illustration/video labels are short Chinese, with bilingual page copy, Chinese transcripts, English summaries, label tables, local posters, reduced-motion fallback, metadata, and hashes.
 
 ## Preservation and acceptance
 
