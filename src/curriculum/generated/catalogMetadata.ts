@@ -1399,7 +1399,7 @@ export const curriculumCatalogMetadata = [
       "en": "Move from minima, derivative tests, and line search to gradient descent and Newton methods."
     },
     "route": "/math-lab/modules/optimization",
-    "estimatedMinutes": 38,
+    "estimatedMinutes": 90,
     "prerequisiteIds": [
       "taylor-series",
       "linear-algebra-distance-similarity",
@@ -1411,7 +1411,9 @@ export const curriculumCatalogMetadata = [
       "optimization:objective-3",
       "optimization:objective-4",
       "optimization:objective-5",
-      "optimization:objective-6"
+      "optimization:objective-6",
+      "optimization:objective-7",
+      "optimization:objective-8"
     ],
     "relatedModuleIds": [
       "training-diagnostics"
@@ -1435,12 +1437,14 @@ export const curriculumCatalogMetadata = [
       "en": "Read loss curves, gradient norms, and generalization gaps as actionable training signals."
     },
     "route": "/math-lab/modules/training-diagnostics",
-    "estimatedMinutes": 32,
+    "estimatedMinutes": 75,
     "prerequisiteIds": [],
     "outcomeIds": [
       "training-diagnostics:objective-1",
       "training-diagnostics:objective-2",
-      "training-diagnostics:objective-3"
+      "training-diagnostics:objective-3",
+      "training-diagnostics:objective-4",
+      "training-diagnostics:objective-5"
     ],
     "relatedModuleIds": [
       "deep-architecture-math"
