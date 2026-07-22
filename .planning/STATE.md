@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 25
-current_plan: 6
+current_plan: 7
 status: executing
-stopped_at: Completed 25-07-PLAN.md
-last_updated: "2026-07-22T11:00:05.276Z"
+stopped_at: Completed 25-08-PLAN.md
+last_updated: "2026-07-22T11:18:51.879Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 31
   completed_phases: 0
   total_plans: 13
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -24,7 +24,7 @@ progress:
 ## Current Position
 
 **Current Phase:** 25
-**Current Plan:** 6
+**Current Plan:** 7
 **Total Plans in Phase:** 13
 **Status:** Ready to execute
 **Last Activity:** 2026-07-22
@@ -745,7 +745,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Continue `$gsd-execute-phase 25` from Plan 25-05; Plan 25-06 is already complete as an independent Wave 4 media-source package.
+Continue `$gsd-execute-phase 25` from Plan 25-05; Plans 25-06 through 25-08 are already complete as independent Wave 4 media-source packages.
 
 ## Accumulated Context
 
@@ -755,8 +755,8 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plan 25-06 is already complete
 
 ## Session
 
-**Last session:** 2026-07-22T11:00:05.270Z
-**Stopped at:** Completed 25-07-PLAN.md
+**Last session:** 2026-07-22T11:18:51.875Z
+**Stopped at:** Completed 25-08-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -768,6 +768,7 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plan 25-06 is already complete
 | Phase 25 P04 | 11 min | 2 tasks | 3 files |
 | Phase 25 P06 | 43 min | 1 tasks | 6 files |
 | Phase 25 P07 | 15 min | 1 tasks | 6 files |
+| Phase 25 P08 | 13 min | 1 tasks | 6 files |
 
 ## Decisions
 
@@ -783,3 +784,6 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plan 25-06 is already complete
 - [Phase 25]: Reconstruct the rejected alpha=32 candidate from the fixed-step run and verify it shares the accepted alpha=16 direction. — The locked trace stores accepted states only, so a rejected trial must remain an audited annotation rather than a fabricated trace row.
 - [Phase 25]: Use the penalized training objective and gradient only for Armijo acceptance. — Validation is evaluated after acceptance and must not leak into sufficient-decrease decisions.
 - [Phase 25]: Encode fixed-step and Armijo traces with dashed-square versus solid-circle semantics. — The comparison must remain readable without color or motion.
+- [Phase 25]: Validate all five locked diagnostic chains at render time — The animation focuses on two controlled comparisons while the source fails closed on every Plan 25-03 diagnosis.
+- [Phase 25]: Format learner-visible scene numbers from loaded JSON — Expected constants remain drift assertions only, preserving D-28 auditability.
+- [Phase 25]: Separate best-validation and terminal meanings with text and shape — Diamond best markers, square or circle terminals, and dashed or solid paths preserve non-color fallback.
