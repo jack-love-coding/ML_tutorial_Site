@@ -529,7 +529,7 @@ Every dataset, Notebook, JSON, CSV, image, poster, and video record stores a lea
 
 ## Conflicts and Seams to Resolve Before Implementation
 
-1. **Package legitimacy checkpoint:** Research verified `scikit-learn==1.9.0` in a clean kernel and against official docs/PyPI metadata, but the mandatory package seam returned `SUS` because download/repository signals were missing. The plan must insert `checkpoint:human-verify` before editing/installing the pin.
+1. **Package legitimacy checkpoint (resolved 2026-07-22):** Research verified `scikit-learn==1.9.0` in a clean kernel and against official docs/PyPI metadata; the user then explicitly approved the exact official pin after the seam returned `SUS` for missing signals. Plan 01 machine-checks the durable approval record and must not prompt again; Plan 02 fails closed before editing/installing if that record is absent.
 2. **Armijo scene naming (resolved for planning):** Use canonical scene ID/stem `banknote-fixed-vs-armijo` for source, prompt, tree, transcript, summary, labels, poster, video, and metadata while the lesson topic remains Armijo.
 3. **No runtime network:** The Notebook generator may have an explicit maintenance refresh path, but normal generation/check and browser labs consume committed local files only.
 4. **No raw-vs-standardized quality claim:** The same coefficient-space L2 changes geometry across units; use those runs to teach conditioning/trajectory, not to declare final model quality.
