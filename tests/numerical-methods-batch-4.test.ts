@@ -632,28 +632,193 @@ test('[Plan 25-04] dataset loader is injectable, abortable, base-safe, and prese
   })
 })
 
-test('[Plan 25-04] future P25-SC3/SC4 engine RED owner: stable BCE, stop priority, five run parity, and final selection', async () => {
+test('[Plan 25-04] stable BCE and analytic gradient stay finite and exclude the intercept from L2', async () => {
   const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const rows = dataset.parseBanknoteDataset(readFileSync(datasetPath, 'utf8'))
+  const prepared = engine.prepareBanknoteTrainingData(rows, 'standardized')
+
   assert.equal(engine.stableBinaryCrossEntropy(1000, 0), 1000)
   assert.equal(engine.stableBinaryCrossEntropy(-1000, 1), 1000)
-  const result = await engine.runBanknotePreset('standardized-armijo')
-  assert.equal(result.firstBacktrack.backtrackCount, 1)
-  assertScalarClose(result.firstBacktrack.acceptedStepSize, 16, 'Armijo first accepted alpha')
-  assert.equal(result.terminal.reason, 'gradient-norm')
-  assert.equal(result.terminal.iteration, 48)
-  const output = readJson(resolve(root, 'public/notebooks/numerical-methods/batch-4-outputs/optimization-summary.json'))
-  assertParametersClose(result.bestValidation.parameters, output.runs['standardized-armijo'].bestValidation.parameters, 'Armijo parameters')
+  assert.equal(engine.stableBinaryCrossEntropy(1000, 1), 0)
+  assert.equal(engine.stableBinaryCrossEntropy(-1000, 0), 0)
+  assert.equal(engine.stableSigmoid(1000), 1)
+  assert.equal(engine.stableSigmoid(-1000), 0)
+
+  const parameters = [0.2, -0.1, 0.05, 0.15, -0.3] as const
+  const analytic = engine.lossAndGrad(prepared.trainX, prepared.trainY, parameters, 1e-3)
+  const h = 1e-6
+  const centeredDifference = parameters.map((_, index) => {
+    const plus = [...parameters]
+    const minus = [...parameters]
+    plus[index] += h
+    minus[index] -= h
+    return (
+      engine.lossAndGrad(prepared.trainX, prepared.trainY, plus, 1e-3).objective
+      - engine.lossAndGrad(prepared.trainX, prepared.trainY, minus, 1e-3).objective
+    ) / (2 * h)
+  })
+  const maximumError = Math.max(...analytic.gradient.map((value, index) => Math.abs(value - centeredDifference[index]!)))
+  assert.ok(maximumError <= 2e-9, `centered gradient error ${maximumError}`)
+
+  const unregularized = engine.lossAndGrad(prepared.trainX, prepared.trainY, parameters, 0)
+  assert.equal(analytic.gradient[4], unregularized.gradient[4], 'intercept gradient excludes L2')
+  assert.ok(analytic.gradient.slice(0, 4).some((value, index) => value !== unregularized.gradient[index]))
 })
 
-test('[Plan 25-04] future P25-SC3 safety RED owner: stop priority and last finite fixtures', async () => {
+test('[Plan 25-04] Armijo rejects 32, accepts 16, and every accepted row meets sufficient decrease', async () => {
+  const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const rows = dataset.parseBanknoteDataset(readFileSync(datasetPath, 'utf8'))
+  const prepared = engine.prepareBanknoteTrainingData(rows, 'standardized')
+  const parameters = [0, 0, 0, 0, 0] as const
+  const current = engine.lossAndGrad(prepared.trainX, prepared.trainY, parameters, 1e-3)
+  const firstStep = engine.armijoStep({
+    features: prepared.trainX,
+    targets: prepared.trainY,
+    parameters,
+    current,
+    l2: 1e-3,
+    config: engine.BANKNOTE_TRAINING_CONSTANTS.armijo,
+  })
+  assert.equal(firstStep.accepted, true)
+  assert.equal(firstStep.accepted ? firstStep.backtrackCount : -1, 1)
+  assert.equal(firstStep.accepted ? firstStep.stepSize : -1, 16)
+
+  const result = engine.runBanknotePreset('standardized-armijo', rows)
+  assert.equal(result.firstBacktrack?.backtrackCount, 1)
+  assertScalarClose(result.firstBacktrack?.acceptedStepSize ?? Number.NaN, 16, 'Armijo first accepted alpha')
+  for (let index = 1; index < result.trace.length; index += 1) {
+    const previous = result.trace[index - 1]!
+    const point = result.trace[index]!
+    const rightHandSide = previous.objective
+      - engine.BANKNOTE_TRAINING_CONSTANTS.armijo.c * point.acceptedStepSize * previous.gradientNorm ** 2
+    assert.ok(point.objective <= rightHandSide + 1e-12, `Armijo iteration ${point.iteration}`)
+  }
+})
+
+test('[Plan 25-04] stop priority produces six typed terminal reasons in the locked order', async () => {
   const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
   const fixtures = engine.evaluateBatch4TerminalFixtures()
   assert.deepEqual(fixtures.map(({ terminal }: any) => terminal.reason), [
     'gradient-norm', 'loss-and-step', 'validation-patience', 'max-iterations', 'non-finite', 'line-search-failed',
   ])
+  assert.deepEqual(fixtures.map(({ terminal }: any) => terminal.kind), [
+    'mathematical-convergence', 'mathematical-convergence', 'model-selection', 'safety', 'safety', 'safety',
+  ])
+  assert.equal(fixtures[0].terminal.iteration, 3)
+  assert.equal(fixtures[1].terminal.iteration, 3)
+  assert.equal(fixtures[2].terminal.iteration, 60)
+  assert.equal(fixtures[3].terminal.iteration, 5)
   const nonFinite = fixtures.find(({ terminal }: any) => terminal.reason === 'non-finite')
   assert.equal(nonFinite.terminal.attemptedIteration, 1)
   assert.equal(nonFinite.trace.at(-1).iteration, 0)
+})
+
+test('[Plan 25-04] last finite state survives exact Number.MAX_VALUE and failed-line-search probes', async () => {
+  const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const rows = dataset.parseBanknoteDataset(readFileSync(datasetPath, 'utf8'))
+
+  const nonFinite = engine.trainLogistic(rows, {
+    ...engine.BANKNOTE_TRAINING_PRESETS['raw-fixed'].config,
+    featureSpace: 'raw',
+    method: 'fixed',
+    step: Number.MAX_VALUE,
+    maxIterations: 10,
+  })
+  assert.equal(nonFinite.status, 'complete')
+  assert.equal(nonFinite.status === 'complete' ? nonFinite.terminal.reason : '', 'non-finite')
+  assert.equal(nonFinite.status === 'complete' ? nonFinite.terminal.iteration : -1, 0)
+  assert.equal(nonFinite.status === 'complete' ? nonFinite.terminal.attemptedIteration : -1, 1)
+  assert.equal(nonFinite.status === 'complete' ? nonFinite.trace.length : -1, 1)
+  assertFiniteNumbers(nonFinite.status === 'complete' ? nonFinite.trace : [])
+  assert.equal(engine.terminalSuggestions['non-finite'].variable, 'learningRate')
+
+  const failedSearch = engine.trainLogistic(rows, {
+    ...engine.BANKNOTE_TRAINING_PRESETS['standardized-armijo'].config,
+    armijo: {
+      ...engine.BANKNOTE_TRAINING_CONSTANTS.armijo,
+      maxBacktracks: 0,
+    },
+  })
+  assert.equal(failedSearch.status, 'complete')
+  assert.equal(failedSearch.status === 'complete' ? failedSearch.terminal.reason : '', 'line-search-failed')
+  assert.equal(failedSearch.status === 'complete' ? failedSearch.terminal.attemptedIteration : -1, 1)
+  assert.equal(failedSearch.status === 'complete' ? failedSearch.trace.at(-1)?.iteration : -1, 0)
+})
+
+test('[Plan 25-04] invalid training controls return explicit validation without silent replacement', async () => {
+  const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const rows = dataset.parseBanknoteDataset(readFileSync(datasetPath, 'utf8'))
+  const invalid = engine.trainLogistic(rows, {
+    ...engine.BANKNOTE_TRAINING_PRESETS['standardized-stable'].config,
+    step: Number.NaN,
+    maxIterations: 501,
+  })
+  assert.equal(invalid.status, 'invalid-config')
+  assert.deepEqual(
+    invalid.status === 'invalid-config' ? invalid.issues.map(({ field }) => field) : [],
+    ['step', 'maxIterations'],
+  )
+  assert.match(invalid.status === 'invalid-config' ? invalid.message : '', /step|maxIterations/)
+})
+
+test('[Plan 25-04] five run parity matches every accepted Notebook trace within locked tolerances', async () => {
+  const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const rows = dataset.parseBanknoteDataset(readFileSync(datasetPath, 'utf8'))
+  const notebook = readJson(traceJsonPath)
+
+  assert.deepEqual(Object.keys(engine.BANKNOTE_TRAINING_PRESETS), [
+    'raw-fixed', 'standardized-too-small', 'standardized-stable', 'standardized-too-large', 'standardized-armijo',
+  ])
+  for (const expected of notebook.runs) {
+    const actual = engine.runBanknotePreset(expected.runId, rows)
+    assert.equal(actual.status, 'complete')
+    assert.equal(actual.runId, expected.runId)
+    assert.equal(actual.trace.length, expected.trace.length, `${expected.runId} trace length`)
+    assert.deepEqual(actual.terminal, expected.terminal, `${expected.runId} terminal`)
+    assert.equal(actual.bestValidation.iteration, expected.bestValidation.iteration)
+    assertScalarClose(actual.bestValidation.bce, expected.bestValidation.bce, `${expected.runId} best BCE`)
+    assertParametersClose(actual.bestValidation.parameters, expected.bestValidation.parameters, `${expected.runId} best parameters`)
+
+    actual.trace.forEach((point, index) => {
+      const anchor = expected.trace[index]!
+      assert.equal(point.iteration, anchor.iteration)
+      assert.equal(point.backtrackCount, anchor.backtrackCount)
+      assert.equal(point.isBestValidation, anchor.isBestValidation)
+      for (const field of [
+        'trainBce', 'validationBce', 'objective', 'gradientNorm', 'parameterStepNorm', 'acceptedStepSize',
+      ] as const) {
+        assertScalarClose(point[field], anchor[field], `${expected.runId} iteration ${point.iteration} ${field}`)
+      }
+      if (anchor.relativeObjectiveChange === null) {
+        assert.equal(point.relativeObjectiveChange, null)
+      } else {
+        assertScalarClose(point.relativeObjectiveChange ?? Number.NaN, anchor.relativeObjectiveChange, `${expected.runId} relative objective`)
+      }
+      assertParametersClose(point.parameters, anchor.parameters, `${expected.runId} iteration ${point.iteration} parameters`)
+    })
+  }
+})
+
+test('[Plan 25-04] final selection excludes lower transient validation winners', async () => {
+  const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
+  const dataset = await import('../src/modules/math-lab/utils/banknoteDataset.ts')
+  const rows = dataset.parseBanknoteDataset(readFileSync(datasetPath, 'utf8'))
+  const runs = Object.keys(engine.BANKNOTE_TRAINING_PRESETS).map((runId) => (
+    engine.runBanknotePreset(runId as keyof typeof engine.BANKNOTE_TRAINING_PRESETS, rows)
+  ))
+  const selected = engine.selectFinalTrainingRun(runs)
+  assert.equal(selected?.runId, 'standardized-armijo')
+  assert.equal(selected?.terminal.kind, 'mathematical-convergence')
+  assert.ok(
+    runs.find(({ runId }) => runId === 'standardized-too-large')!.bestValidation.bce
+      < selected!.bestValidation.bce,
+    'the rejected unstable run really has the lower transient validation BCE',
+  )
 })
 
 test('[Plan 25-05] future P25-SC4/SC5: bilingual lessons and existing labs consume real runs without losing support modes', () => {
