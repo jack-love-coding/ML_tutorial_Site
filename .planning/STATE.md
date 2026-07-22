@@ -2,21 +2,32 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
+current_phase: 25
+current_plan: 4
 status: executing
-stopped_at: Completed 25-01-PLAN.md
-last_updated: "2026-07-22T08:52:58.062Z"
+stopped_at: Completed 25-03-PLAN.md
+last_updated: "2026-07-22T09:26:45.212Z"
+last_activity: 2026-07-22
 progress:
   total_phases: 31
   completed_phases: 0
   total_plans: 13
-  completed_plans: 2
-  percent: 0
+  completed_plans: 3
+  percent: 23
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-07-22
-**Status:** Executing Phase 25
+**Status:** Ready to execute
+
+## Current Position
+
+**Current Phase:** 25
+**Current Plan:** 4
+**Total Plans in Phase:** 13
+**Status:** Ready to execute
+**Last Activity:** 2026-07-22
 
 ## Project Reference
 
@@ -744,8 +755,8 @@ Run `$gsd-execute-phase 25` to execute the verified 13-plan, 8-wave UCI Banknote
 
 ## Session
 
-**Last session:** 2026-07-22T08:52:58.056Z
-**Stopped at:** Completed 25-01-PLAN.md
+**Last session:** 2026-07-22T09:25:37.929Z
+**Stopped at:** Completed 25-03-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -753,3 +764,10 @@ Run `$gsd-execute-phase 25` to execute the verified 13-plan, 8-wave UCI Banknote
 | Phase | Plan | Duration | Notes |
 |-------|------|----------|-------|
 | 25 | 01 | 1 min | 1 task, 0 files |
+| Phase 25 P03 | 23 min | 3 tasks | 8 files |
+
+## Decisions
+
+- [Phase 25]: Validate normalized CSV round-trip statistics at 1e-12 — CSV decimal parsing introduces only a few floating-point ulps while retaining a tolerance one thousand times stricter than the scalar output contract.
+- [Phase 25]: Record isolated-kernel and standalone-rerun proofs without temp identities — Deterministic published artifacts must prove their clean execution environment without persisting machine-specific temporary paths or kernelspec names.
+- [Phase 25]: Keep Plan 25-04 RED owners aligned with its future stable-BCE and state-machine filters — Plan 25-03 broad verification stays green while the next plan retains its intentionally failing ownership tests.
