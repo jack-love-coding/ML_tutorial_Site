@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: paused
-stopped_at: Phase 25 context gathered
-last_updated: "2026-07-20T15:03:37.640Z"
+stopped_at: Phase 25 planning complete; ready to execute 13 plans
+last_updated: "2026-07-22T08:10:06.632Z"
 progress:
   total_phases: 31
   completed_phases: 0
@@ -15,15 +15,15 @@ progress:
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
-**Updated:** 2026-07-20
-**Status:** Curriculum V3.0 blueprint and audit are complete. Python Data Tools Stages 1–4, the detailed minimum-mathematics, linear-algebra, calculus, probability routes, and Numerical Methods Batches 1–3 are complete. Numerical Methods Batch 4 is registered as Phase 25 and its context is ready for research and planning. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+**Updated:** 2026-07-22
+**Status:** Curriculum V3.0 blueprint and audit are complete. Python Data Tools Stages 1–4, the detailed minimum-mathematics, linear-algebra, calculus, probability routes, and Numerical Methods Batches 1–3 are complete. Numerical Methods Batch 4 Phase 25 planning is verified and its 13 plans are ready to execute in 8 waves. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-25)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Research and plan Phase 25 from the approved UCI Banknote logistic-regression context: stable BCE, feature scaling, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure exits, and training-curve diagnosis. Do not implement before the plan and exact reproducible outputs are approved. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.
+**Current focus:** Execute Phase 25 from the verified UCI Banknote logistic-regression plan: stable BCE, feature scaling, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure exits, and training-curve diagnosis. Preserve the 13-plan/8-wave dependency order and do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.
 
 ## Baseline
 
@@ -734,7 +734,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Plan Phase 25 from the approved UCI Banknote logistic-regression context, lock exact clean-kernel outputs and implementation waves, then run plan review before implementation.
+Run `$gsd-execute-phase 25` to execute the verified 13-plan, 8-wave UCI Banknote logistic-regression implementation.
 
 ## Accumulated Context
 
@@ -744,6 +744,6 @@ Plan Phase 25 from the approved UCI Banknote logistic-regression context, lock e
 
 ## Session
 
-**Last session:** 2026-07-20T15:02:47.834Z
-**Stopped at:** Phase 25 context gathered
-**Resume file:** .planning/phases/25-numerical-methods-batch-4-logistic-regression-optimization-a/25-CONTEXT.md
+**Last session:** 2026-07-22T08:10:06.632Z
+**Stopped at:** Phase 25 planning verified; 13 plans ready to execute in 8 waves
+**Resume file:** .planning/phases/25-numerical-methods-batch-4-logistic-regression-optimization-a/25-01-PLAN.md

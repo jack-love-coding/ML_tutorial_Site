@@ -738,7 +738,7 @@
 
 ## V3.1 Minimum Mathematical Foundation
 
-**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, Python Data Tools Stages 1–4, detailed minimum-mathematics, linear-algebra, calculus, probability, and Numerical Methods Batches 1–3 are completed slices. Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution. Numerical Methods Batch 4 is registered as Phase 25 with approved context and is ready for research and planning.
+**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, Python Data Tools Stages 1–4, detailed minimum-mathematics, linear-algebra, calculus, probability, and Numerical Methods Batches 1–3 are completed slices. Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution. Numerical Methods Batch 4 Phase 25 planning is verified and its 13 plans are ready to execute in 8 waves.
 
 **Decision boundary:**
 - Start only from separately reviewed acceptance criteria for the V3.1 waves declared in the generated implementation backlog.
@@ -760,7 +760,7 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 1. **Batch 1: Ames least squares, LUP, and conditioning** — Completed — three detailed bilingual lessons, one shared illustration, three Manim videos, one standalone executed Notebook, fixed outputs, interactive lab corrections, browser verification, and an independent commit.
 2. **Batch 2: sparse matrices and PCA** — Completed — UCI SMS TF-IDF/CSR plus Ames standardized PCA, two standalone executed Notebooks, two fixed outputs, one shared illustration, two Manim videos, existing labs upgraded to align with the real cases, exact route-order reconciliation, and full release/browser validation.
 3. **Batch 3: finite differences and nonlinear equations** — Completed — one deterministic logit-bias calibration case, a shared executed Notebook, two locked outputs, two upgraded existing labs, one shared illustration, two Manim videos, and full release/browser validation.
-4. **Batch 4: numerical optimization and training diagnostics** — Context complete / ready for planning — one UCI Banknote logistic-regression case connects stable BCE, feature scaling, fixed-step gradient descent, Armijo backtracking, numerical stopping, and training-curve diagnosis without repeating the calculus route.
+4. **Batch 4: numerical optimization and training diagnostics** — Planning complete / ready for execution — one UCI Banknote logistic-regression case connects stable BCE, feature scaling, fixed-step gradient descent, Armijo backtracking, numerical stopping, and training-curve diagnosis without repeating the calculus route.
 
 ### Phase 25: Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics
 
@@ -779,18 +779,41 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 
 Plans:
 
-- [ ] 25-01-PLAN.md — Verify the exact scikit-learn 1.9.0 package identity.
+**Wave 1**
+
+- [ ] 25-01-PLAN.md — Verify the recorded approval for the exact scikit-learn 1.9.0 package identity.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 25-02-PLAN.md — Lock the contract, local dataset, approved pin, and Wave 0 tests.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 25-03-PLAN.md — Generate the shared executed Notebook and locked JSON/CSV outputs.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 25-04-PLAN.md — Implement deterministic TypeScript dataset and logistic engines.
-- [ ] 25-05-PLAN.md — Rebuild both lessons and upgrade their existing primary labs.
 - [ ] 25-06-PLAN.md — Author the feature-scaling and usable-learning-rate Manim package.
 - [ ] 25-07-PLAN.md — Author the fixed-step versus Armijo Manim package.
 - [ ] 25-08-PLAN.md — Author the real-trace training-diagnostics Manim package.
-- [ ] 25-09-PLAN.md — Create and verify the shared three-panel illustration.
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 25-05-PLAN.md — Rebuild both lessons and upgrade their existing primary labs.
 - [ ] 25-10-PLAN.md — Implement the shared transactional renderer and source-contract tests.
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 25-09-PLAN.md — Create and verify the shared three-panel illustration.
 - [ ] 25-11-PLAN.md — Render, publish, and integrity-check all three video/poster pairs.
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 25-12-PLAN.md — Run automated release gates and record completion.
+
+**Wave 8** *(blocked on Wave 7 completion)*
+
 - [ ] 25-13-PLAN.md — Verify the bilingual desktop/mobile browser matrix and exact failure probe.
 
 ---
