@@ -767,7 +767,7 @@ This rebuild preserves the existing `python-notebook` ID and `/learn/python-note
 **Goal:** Rebuild the existing `optimization` and `training-diagnostics` lessons around one reproducible UCI Banknote logistic-regression case that connects stable objective evaluation, feature scale, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure exits, and actionable curve diagnosis.
 **Requirements:** Preserve the two existing routes, checkpoints, Progress stores, and one-primary-lab-per-chapter structure; publish a verified local dataset snapshot, one shared executed Notebook, locked JSON/CSV traces, one shared illustration, and three Notebook-bound Manim videos; keep browser computation in deterministic TypeScript and retain the existing synthetic diagnostic modes as clearly labeled support examples.
 **Depends on:** Phase 24A and completed Numerical Methods Batches 1–3
-**Plans:** 13 plans
+**Plans:** 1/13 plans executed
 
 **Success Criteria:**
 
@@ -781,7 +781,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 25-01-PLAN.md — Verify the recorded approval for the exact scikit-learn 1.9.0 package identity.
+- [x] 25-01-PLAN.md — Verify the recorded approval for the exact scikit-learn 1.9.0 package identity.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
