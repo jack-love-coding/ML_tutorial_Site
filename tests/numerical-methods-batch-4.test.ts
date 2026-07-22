@@ -19,6 +19,21 @@ const datasetPath = absolutePublicPath(datasetPublicPath)
 const datasetManifestPath = resolve(root, 'public/datasets/numerical-methods/banknote-authentication-manifest.json')
 const dataDictionaryPath = resolve(root, 'public/datasets/numerical-methods/banknote-authentication-data-dictionary.json')
 const contractPath = resolve(root, 'docs/curriculum-v3/numerical-methods/batch-4-contract.md')
+const generatorPath = resolve(root, 'scripts/numerical-methods/generate-batch-4-notebook.py')
+const requirementsPath = resolve(root, 'public/notebooks/numerical-methods/requirements.txt')
+const notebookPath = resolve(root, 'public/notebooks/numerical-methods/banknote-logistic-optimization.zh-CN.ipynb')
+const outputDirectory = resolve(root, 'public/notebooks/numerical-methods/batch-4-outputs')
+const optimizationSummaryPath = resolve(outputDirectory, 'optimization-summary.json')
+const diagnosticsSummaryPath = resolve(outputDirectory, 'training-diagnostics-summary.json')
+const traceJsonPath = resolve(outputDirectory, 'banknote-training-traces.json')
+const traceCsvPath = resolve(outputDirectory, 'banknote-training-traces.csv')
+const outputManifestPath = resolve(outputDirectory, 'manifest.json')
+const traceCsvHeader = [
+  'contract_version', 'run_id', 'iteration', 'feature_space', 'method', 'train_bce',
+  'validation_bce', 'objective', 'gradient_norm', 'parameter_step_norm', 'accepted_step_size',
+  'backtrack_count', 'relative_objective_change', 'is_best_validation', 'w_variance',
+  'w_skewness', 'w_curtosis', 'w_entropy', 'intercept',
+]
 
 type JsonObject = Record<string, any>
 
@@ -96,6 +111,16 @@ function parseDataset(): DatasetRow[] {
     assert.ok(row.classValue === 0 || row.classValue === 1)
     assert.ok(['train', 'validation', 'test'].includes(row.split))
     return row
+  })
+}
+
+function parseTraceCsv(): JsonObject[] {
+  const lines = readFileSync(traceCsvPath, 'utf8').trimEnd().split(/\r?\n/)
+  assert.deepEqual(lines[0]?.split(','), traceCsvHeader)
+  return lines.slice(1).map((line, index) => {
+    const fields = line.split(',')
+    assert.equal(fields.length, traceCsvHeader.length, `trace CSV row ${index + 2} width`)
+    return Object.fromEntries(traceCsvHeader.map((field, fieldIndex) => [field, fields[fieldIndex]]))
   })
 }
 
@@ -226,17 +251,16 @@ test('Batch 4 preservation scaffold locks routes, labs, checkpoints, progress, a
 })
 
 test('[Plan 25-03] future P25-SC1/SC2/SC3: executed Notebook and complete finite traces are published', () => {
-  const outputDirectory = resolve(root, 'public/notebooks/numerical-methods/batch-4-outputs')
   const paths = [
-    resolve(root, 'public/notebooks/numerical-methods/banknote-logistic-optimization.zh-CN.ipynb'),
-    resolve(outputDirectory, 'optimization-summary.json'),
-    resolve(outputDirectory, 'training-diagnostics-summary.json'),
-    resolve(outputDirectory, 'banknote-training-traces.json'),
-    resolve(outputDirectory, 'banknote-training-traces.csv'),
-    resolve(outputDirectory, 'manifest.json'),
+    notebookPath,
+    optimizationSummaryPath,
+    diagnosticsSummaryPath,
+    traceJsonPath,
+    traceCsvPath,
+    outputManifestPath,
   ]
   paths.forEach((path) => assert.equal(existsSync(path), true, `${path} is owned by Plan 25-03`))
-  const traces = readJson(resolve(outputDirectory, 'banknote-training-traces.json'))
+  const traces = readJson(traceJsonPath)
   assert.equal(traces.contractVersion, contractVersion)
   assert.deepEqual(traces.runs.map(({ runId }: { runId: string }) => runId), [
     'raw-fixed', 'standardized-too-small', 'standardized-stable', 'standardized-too-large', 'standardized-armijo',
@@ -245,15 +269,227 @@ test('[Plan 25-03] future P25-SC1/SC2/SC3: executed Notebook and complete finite
 })
 
 test('[Plan 25-03] future P25-SC1/SC2: extreme BCE and gradient fixtures match locked anchors', () => {
-  const optimization = readJson(resolve(root, 'public/notebooks/numerical-methods/batch-4-outputs/optimization-summary.json'))
+  const optimization = readJson(optimizationSummaryPath)
   assert.equal(optimization.extremeLogitCheck.naiveFinite, false)
   assertScalarClose(optimization.extremeLogitCheck.stableWrongPositive, 1000, 'stable +1000 BCE')
   assertScalarClose(optimization.extremeLogitCheck.stableWrongNegative, 1000, 'stable -1000 BCE')
+  assertScalarClose(optimization.extremeLogitCheck.stableCorrectPositive, 0, 'stable correct +1000 BCE')
+  assertScalarClose(optimization.extremeLogitCheck.stableCorrectNegative, 0, 'stable correct -1000 BCE')
+  assert.equal(optimization.extremeLogitCheck.scipyExpitAgreement, true)
   assert.ok(optimization.gradientCheck.maxAbsoluteError <= 2e-9)
   assertScalarClose(optimization.gradientCheck.maxAbsoluteError, 9.095135755643469e-11, 'gradient check')
+  assert.equal(optimization.gradientCheck.interceptExcludedFromL2, true)
+  assert.equal(optimization.gradientCheck.analytic.length, 5)
+  assert.equal(optimization.gradientCheck.centeredDifference.length, 5)
 })
 
-test('[Plan 25-04] future P25-SC3/SC4: TypeScript objective, Armijo, stopping, and parity are executable', async () => {
+test('[Plan 25-03] notebook uses Pandas for local schema-first loading and an isolated clean kernel', () => {
+  const notebook = readJson(notebookPath)
+  const manifest = readJson(outputManifestPath)
+  const cells = notebook.cells as JsonObject[]
+  const codeCells = cells.filter(({ cell_type }) => cell_type === 'code')
+  const loaderCell = codeCells.find(({ id }) => id === 'banknote-load-local-csv')
+  assert.ok(loaderCell, 'schema-first Pandas loader cell exists')
+  const loaderSource = Array.isArray(loaderCell.source) ? loaderCell.source.join('') : loaderCell.source
+  assert.match(loaderSource, /pandas\.read_csv\(dataset_path\)/)
+  assert.match(loaderSource, /EXPECTED_SCHEMA = \["banknote_id", "variance", "skewness", "curtosis", "entropy", "class", "split"\]/)
+  assert.ok(loaderSource.indexOf('list(frame.columns) == EXPECTED_SCHEMA') < loaderSource.indexOf('to_numpy(dtype=np.float64)'))
+  assert.deepEqual(codeCells.map(({ execution_count }) => execution_count), Array.from({ length: codeCells.length }, (_, index) => index + 1))
+  codeCells.forEach((cell) => {
+    assert.deepEqual(cell.metadata?.execution ?? {}, {}, `${cell.id} has no timing metadata`)
+    assert.equal(cell.outputs?.some(({ output_type }: JsonObject) => output_type === 'error'), false, `${cell.id} has no cell error`)
+  })
+  const combinedCode = codeCells.map(({ source }) => Array.isArray(source) ? source.join('') : source).join('\n')
+  const symbols = ['stable_bce', 'loss_and_grad', 'armijo_step', 'should_stop', 'train_logistic']
+  let previousPosition = -1
+  for (const symbol of symbols) {
+    const position = combinedCode.indexOf(`def ${symbol}`)
+    assert.ok(position > previousPosition, `${symbol} follows the D-15 implementation order`)
+    previousPosition = position
+  }
+  assert.deepEqual(manifest.loader, {
+    library: 'pandas',
+    call: 'pandas.read_csv',
+    datasetPublicPath,
+    datasetSha256: sha256(datasetPath),
+    schema: ['banknote_id', 'variance', 'skewness', 'curtosis', 'entropy', 'class', 'split'],
+    schemaValidatedBeforeNumpy: true,
+    rowCount: 1372,
+    splitCounts: { train: 960, validation: 206, test: 206 },
+  })
+  assert.equal(manifest.environment.exactPinImportCount, 8)
+  assert.equal(manifest.environment.ambientThirdPartyPackagesUsed, false)
+  assert.deepEqual(manifest.environment.packages, {
+    ipykernel: '7.3.0',
+    jupyterlab: '4.6.1',
+    nbclient: '0.11.0',
+    nbformat: '5.10.4',
+    numpy: '2.4.6',
+    pandas: '3.0.3',
+    'scikit-learn': '1.9.0',
+    scipy: '1.17.1',
+  })
+  assert.equal(manifest.environment.kernel.generatedNotebook, 'pass')
+  assert.equal(manifest.environment.kernel.standaloneNotebook, 'pass')
+  assert.deepEqual(manifest.standaloneRerun, {
+    status: 'pass',
+    source: 'copied download-form Notebook with local CSV beside it',
+    sameIsolatedKernelContract: true,
+    outputParity: true,
+  })
+  assert.doesNotMatch(JSON.stringify(manifest), /\/var\/folders|ml-atlas-batch4-[0-9a-f]{20,}/)
+})
+
+test('[Plan 25-03] output manifest locks all source bytes, hashes, constants, and output IDs', () => {
+  const manifest = readJson(outputManifestPath)
+  assert.equal(manifest.contractVersion, contractVersion)
+  assert.equal(manifest.dataset.sha256, sha256(datasetPath))
+  assert.equal(manifest.dataset.bytes, statSync(datasetPath).size)
+  assert.equal(manifest.dataset.manifest.sha256, sha256(datasetManifestPath))
+  assert.equal(manifest.dataset.manifest.bytes, statSync(datasetManifestPath).size)
+  assert.equal(manifest.dataset.dataDictionary.sha256, sha256(dataDictionaryPath))
+  assert.equal(manifest.generator.path, 'scripts/numerical-methods/generate-batch-4-notebook.py')
+  assert.equal(manifest.generator.sha256, sha256(generatorPath))
+  assert.equal(manifest.requirements.sha256, sha256(requirementsPath))
+  assert.equal(manifest.wheelCacheAudit.requirementsSha256, sha256(requirementsPath))
+  assert.match(manifest.wheelCacheAudit.manifestSha256, /^[0-9a-f]{64}$/)
+  assert.ok(manifest.wheelCacheAudit.wheelCount > 8)
+  assert.match(manifest.wheelCacheAudit.installation, /pip --no-index/)
+  assert.equal(manifest.notebook.sha256, sha256(notebookPath))
+  assert.equal(manifest.notebook.bytes, statSync(notebookPath).size)
+  assert.deepEqual(manifest.notebook.moduleIds, ['optimization', 'training-diagnostics'])
+  assert.equal(manifest.notebook.cleanKernel, true)
+  assert.equal(manifest.notebook.cellErrors, 0)
+  assert.equal(manifest.notebook.timingStripped, true)
+  assert.deepEqual(manifest.outputs.map(({ outputId }: JsonObject) => outputId), [
+    'banknote-logistic-optimization-summary',
+    'banknote-training-diagnostics-summary',
+    'banknote-training-traces-json',
+    'banknote-training-traces-csv',
+  ])
+  manifest.outputs.forEach(({ publicPath, sha256: expectedHash, bytes }: JsonObject) => {
+    const path = absolutePublicPath(publicPath)
+    assert.equal(sha256(path), expectedHash)
+    assert.equal(statSync(path).size, bytes)
+  })
+  assert.equal(manifest.mediaOutputsIncluded, false)
+  assert.deepEqual(manifest.constants.parameterOrder, ['variance', 'skewness', 'curtosis', 'entropy', 'intercept'])
+  assert.equal(manifest.constants.l2, 1e-3)
+  assert.equal(manifest.constants.baselineC, 25 / 24)
+  assert.match(manifest.constantsSha256, /^[0-9a-f]{64}$/)
+})
+
+test('[Plan 25-03] Armijo, terminal priority, last-finite safety, and final eligibility match locked anchors', () => {
+  const optimization = readJson(optimizationSummaryPath)
+  const diagnostics = readJson(diagnosticsSummaryPath)
+  const traces = readJson(traceJsonPath)
+  const anchors: Record<string, { reason: string; terminal: number; best: number; validationBce: number }> = {
+    'raw-fixed': { reason: 'validation-patience', terminal: 112, best: 52, validationBce: 0.0319089202 },
+    'standardized-too-small': { reason: 'max-iterations', terminal: 500, best: 500, validationBce: 0.2883435687 },
+    'standardized-stable': { reason: 'gradient-norm', terminal: 484, best: 484, validationBce: 0.0682559267 },
+    'standardized-too-large': { reason: 'validation-patience', terminal: 73, best: 13, validationBce: 0.0588531562 },
+    'standardized-armijo': { reason: 'gradient-norm', terminal: 48, best: 48, validationBce: 0.0682469929 },
+  }
+  for (const run of traces.runs) {
+    const expected = anchors[run.runId]!
+    assert.equal(run.terminal.reason, expected.reason, `${run.runId} terminal reason`)
+    assert.equal(run.terminal.iteration, expected.terminal, `${run.runId} terminal iteration`)
+    assert.equal(run.trace.at(-1).iteration, expected.terminal, `${run.runId} last finite iteration`)
+    assert.equal(run.bestValidation.iteration, expected.best, `${run.runId} best iteration`)
+    assertScalarClose(run.bestValidation.bce, expected.validationBce, `${run.runId} validation BCE`)
+    assert.equal(run.eligibleForFinalSelection, run.terminal.kind === 'mathematical-convergence')
+  }
+  const armijo = traces.runs.find(({ runId }: JsonObject) => runId === 'standardized-armijo')
+  assert.deepEqual(
+    [armijo.firstBacktrack.iteration, armijo.firstBacktrack.acceptedStepSize, armijo.firstBacktrack.backtrackCount],
+    [1, 16, 1],
+  )
+  armijo.trace.slice(1).forEach((point: JsonObject, index: number) => {
+    const previous = armijo.trace[index]
+    const rightHandSide = previous.objective - 1e-4 * point.acceptedStepSize * previous.gradientNorm ** 2
+    assert.ok(point.objective <= rightHandSide + 1e-12, `Armijo sufficient decrease at iteration ${point.iteration}`)
+  })
+  assert.equal(optimization.armijoCheck.initialTrialStep, 32)
+  assert.equal(optimization.armijoCheck.initialTrialAccepted, false)
+  assert.equal(optimization.armijoCheck.firstAcceptedStep, 16)
+  assert.deepEqual(optimization.terminalFixtures.map(({ terminal }: JsonObject) => terminal.reason), [
+    'gradient-norm', 'loss-and-step', 'validation-patience', 'max-iterations', 'non-finite', 'line-search-failed',
+  ])
+  optimization.terminalFixtures.slice(-2).forEach(({ terminal, lastFinite }: JsonObject) => {
+    assert.equal(terminal.iteration, 0)
+    assert.equal(terminal.attemptedIteration, 1)
+    assert.equal(lastFinite.iteration, 0)
+  })
+  assert.equal(optimization.finalSelection.selectedRunId, 'standardized-armijo')
+  assert.equal(optimization.finalSelection.transientUnstableMinimumCannotWin, true)
+  assert.equal(diagnostics.selectedRunId, 'standardized-armijo')
+})
+
+test('[Plan 25-03] JSON and CSV traces have exact accepted-row parity and finite normalized values', () => {
+  const traces = readJson(traceJsonPath)
+  const csvRows = parseTraceCsv()
+  const expectedRows = traces.runs.flatMap((run: JsonObject) => run.trace.map((point: JsonObject) => ({ run, point })))
+  assert.equal(csvRows.length, expectedRows.length)
+  csvRows.forEach((row, index) => {
+    const { run, point } = expectedRows[index]!
+    assert.equal(row.contract_version, contractVersion)
+    assert.equal(row.run_id, run.runId)
+    assert.equal(Number(row.iteration), point.iteration)
+    assert.equal(row.feature_space, run.featureSpace)
+    assert.equal(row.method, run.method)
+    const numericPairs = [
+      ['train_bce', 'trainBce'], ['validation_bce', 'validationBce'], ['objective', 'objective'],
+      ['gradient_norm', 'gradientNorm'], ['parameter_step_norm', 'parameterStepNorm'],
+      ['accepted_step_size', 'acceptedStepSize'],
+    ] as const
+    numericPairs.forEach(([csvKey, jsonKey]) => assert.equal(Number(row[csvKey]), point[jsonKey]))
+    assert.equal(Number(row.backtrack_count), point.backtrackCount)
+    assert.equal(row.relative_objective_change === '', point.relativeObjectiveChange === null)
+    if (point.relativeObjectiveChange !== null) assert.equal(Number(row.relative_objective_change), point.relativeObjectiveChange)
+    assert.equal(row.is_best_validation, point.isBestValidation ? 'true' : 'false')
+    assert.deepEqual(
+      [row.w_variance, row.w_skewness, row.w_curtosis, row.w_entropy, row.intercept].map(Number),
+      point.parameters,
+    )
+  })
+  assertFiniteNumbers(traces)
+})
+
+test('[Plan 25-03] baseline is endpoint-only and the compact report belongs only to standardized Armijo', () => {
+  const optimization = readJson(optimizationSummaryPath)
+  const diagnostics = readJson(diagnosticsSummaryPath)
+  const traces = readJson(traceJsonPath)
+  assert.equal('finalReport' in optimization, false)
+  assert.equal(traces.runs.some(({ finalReport }: JsonObject) => finalReport !== undefined), false)
+  assert.equal(diagnostics.finalReport.runId, 'standardized-armijo')
+  assert.equal(diagnostics.finalReport.threshold, 0.5)
+  assert.equal(diagnostics.finalReport.rocAucInput, 'probabilities')
+  assertScalarClose(diagnostics.finalReport.manual.testBce, 0.0551101232, 'manual test BCE')
+  assertScalarClose(diagnostics.finalReport.manual.accuracy, 0.9805825243, 'manual accuracy')
+  assertScalarClose(diagnostics.finalReport.manual.rocAuc, 0.9994279176, 'manual ROC-AUC')
+  assert.deepEqual(diagnostics.finalReport.manual.confusionMatrix, [[110, 4], [0, 92]])
+  assert.equal(diagnostics.baseline.version, '1.9.0')
+  assert.deepEqual(diagnostics.baseline.config, {
+    C: 25 / 24,
+    l1_ratio: 0,
+    solver: 'lbfgs',
+    fit_intercept: true,
+    tol: 1e-12,
+    max_iter: 5000,
+  })
+  assert.equal(diagnostics.baseline.reportedIterations, 17)
+  assertScalarClose(diagnostics.baseline.metrics.testBce, 0.0550980756, 'baseline test BCE')
+  assert.equal(diagnostics.comparison.predictionAgreement, 1)
+  assertScalarClose(diagnostics.comparison.maxProbabilityDifference, 0.0001508618, 'maximum probability difference')
+  assertScalarClose(diagnostics.comparison.meanProbabilityDifference, 0.0000125171, 'mean probability difference')
+  assertScalarClose(diagnostics.comparison.coefficientDirectionCosine, 0.9999999991, 'coefficient cosine')
+  assert.equal(diagnostics.comparison.endpointOnly, true)
+  assert.equal(diagnostics.comparison.perIterationComparison, false)
+  const serialized = JSON.stringify({ optimization, diagnostics, traces }).toLowerCase()
+  assert.doesNotMatch(serialized, /pr-auc|threshold tuner|calibration report/)
+})
+
+test('[Plan 25-04] future P25-SC3/SC4 engine RED owner: stable BCE, stop priority, five run parity, and final selection', async () => {
   const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
   assert.equal(engine.stableBinaryCrossEntropy(1000, 0), 1000)
   assert.equal(engine.stableBinaryCrossEntropy(-1000, 1), 1000)
@@ -266,7 +502,7 @@ test('[Plan 25-04] future P25-SC3/SC4: TypeScript objective, Armijo, stopping, a
   assertParametersClose(result.bestValidation.parameters, output.runs['standardized-armijo'].bestValidation.parameters, 'Armijo parameters')
 })
 
-test('[Plan 25-04] future P25-SC3: all terminal fixtures preserve typed priority and last-finite state', async () => {
+test('[Plan 25-04] future P25-SC3 safety RED owner: stop priority and last finite fixtures', async () => {
   const engine = await import('../src/modules/math-lab/utils/banknoteLogistic.ts')
   const fixtures = engine.evaluateBatch4TerminalFixtures()
   assert.deepEqual(fixtures.map(({ terminal }: any) => terminal.reason), [
