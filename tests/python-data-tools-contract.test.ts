@@ -115,15 +115,15 @@ test('planning state records shipped Python Data Tools stages and completed nume
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
   ])
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
-  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. Python Data Tools Stages 1–4, the detailed minimum-mathematics, linear-algebra, calculus, probability routes, and Numerical Methods Batches 1–3 are complete. Numerical Methods Batch 4 Phase 25 planning is verified and its 13 plans are ready to execute in 8 waves. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
-  const expectedFocus = '**Current focus:** Execute Phase 25 from the verified UCI Banknote logistic-regression plan: stable BCE, feature scaling, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure exits, and training-curve diagnosis. Preserve the 13-plan/8-wave dependency order and do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.'
+  const expectedStatus = '**Status:** Executing Phase 25'
+  const expectedFocus = '**Current focus:** Phase 25 — Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics'
   const expectedNextCommand = 'Run `$gsd-execute-phase 25` to execute the verified 13-plan, 8-wave UCI Banknote logistic-regression implementation.'
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
   assert.match(state, /^\*\*Updated:\*\* 2026-07-22$/m)
   assert.ok(state.includes(expectedStatus))
   assert.ok(state.includes(expectedFocus))
-  assert.match(state, /Curriculum V3\.0 blueprint and audit are complete/i)
+  assert.match(state, /^status: executing$/m)
   assert.match(state, /AI Overview rebuild[^\n]*completed/i)
   assert.match(state, /Math-to-Code pilot[^\n]*completed/i)
   assert.match(state, /Python Data Tools Stage 1 is complete/i)
@@ -136,7 +136,7 @@ test('planning state records shipped Python Data Tools stages and completed nume
   assert.match(state, /without changing runtime lesson content/i)
   assert.match(state, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
   assert.ok(state.includes(expectedNextCommand))
-  assert.match(state, /do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure\./i)
+  assert.match(roadmap, /Numerical Methods Batch 4 Phase 25 planning is verified and its 13 plans are ready to execute in 8 waves/i)
 
   const stageLabels = [
     'Data and execution contract',
