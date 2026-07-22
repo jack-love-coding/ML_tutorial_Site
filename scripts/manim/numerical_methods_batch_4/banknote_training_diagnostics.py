@@ -14,22 +14,31 @@ from manim import (
     RIGHT,
     UP,
     Axes,
-    Circle,
     Create,
     DashedVMobject,
-    Dot,
     FadeIn,
     FadeOut,
     Group,
     Line,
     Scene,
-    Square,
     VGroup,
     VMobject,
     Write,
 )
 
-from common import card, cn_text, equation, fit_width, title_block, top_heading
+from common import (
+    card,
+    circle_marker,
+    cn_text,
+    diamond_marker,
+    disclaimer,
+    equation,
+    fit_width,
+    square_marker,
+    status_label,
+    title_block,
+    top_heading,
+)
 from palette import BACKGROUND, DATA_BLUE, GRID, MUTED, NAVY, ORANGE, PALE_BLUE, PAPER, RED, TEAL
 
 
@@ -469,16 +478,16 @@ class BanknoteTrainingDiagnosticsScene(Scene):
         next_best_row = self.locked.best_rows[next_id]
         problem_terminal_row = self.locked.terminal_rows[problem_id]
         next_terminal_row = self.locked.terminal_rows[next_id]
-        problem_best = Square(side_length=0.18, color=DATA_BLUE, fill_color=PAPER, fill_opacity=1).rotate(math.pi / 4).move_to(
+        problem_best = diamond_marker(side_length=0.18, color=DATA_BLUE, fill_color=PAPER).move_to(
             axes.c2p(float(problem_best_row["iteration"]), float(problem_best_row["validationBce"]))
         )
-        next_best = Square(side_length=0.18, color=DATA_BLUE, fill_color=PAPER, fill_opacity=1).rotate(math.pi / 4).move_to(
+        next_best = diamond_marker(side_length=0.18, color=DATA_BLUE, fill_color=PAPER).move_to(
             axes.c2p(float(next_best_row["iteration"]), float(next_best_row["validationBce"]))
         )
-        problem_terminal = Square(side_length=0.22, color=ORANGE, fill_color=PALE_BLUE, fill_opacity=1).move_to(
+        problem_terminal = square_marker(side_length=0.22, color=ORANGE, fill_color=PALE_BLUE).move_to(
             axes.c2p(float(problem_terminal_row["iteration"]), float(problem_terminal_row["validationBce"]))
         )
-        next_terminal = Circle(radius=0.11, color=TEAL, fill_color=TEAL, fill_opacity=1).move_to(
+        next_terminal = circle_marker(radius=0.11, color=TEAL).move_to(
             axes.c2p(float(next_terminal_row["iteration"]), float(next_terminal_row["validationBce"]))
         )
         return (
@@ -610,7 +619,7 @@ class BanknoteTrainingDiagnosticsScene(Scene):
         self._clear()
         title = top_heading("◇ 最佳验证点与终点回答不同问题，不能互相替代")
         best = card(
-            Square(side_length=0.28, color=DATA_BLUE, fill_color=PAPER, fill_opacity=1).rotate(math.pi / 4),
+            diamond_marker(side_length=0.28, color=DATA_BLUE, fill_color=PAPER),
             cn_text("最佳验证检查点", font_size=28, color=DATA_BLUE, weight="SEMIBOLD"),
             cn_text("选择保存哪组参数", font_size=23),
             cn_text("不是数学收敛证明", font_size=22, color=RED),
@@ -618,16 +627,16 @@ class BanknoteTrainingDiagnosticsScene(Scene):
             height=3.2,
         ).shift(LEFT * 3.6 + DOWN * 0.1)
         terminals = card(
-            Square(side_length=0.27, color=ORANGE, fill_color=PALE_BLUE, fill_opacity=1),
+            square_marker(side_length=0.27, color=ORANGE, fill_color=PALE_BLUE),
             cn_text("模型选择 / 安全终点", font_size=25, color=ORANGE, weight="SEMIBOLD"),
             cn_text("验证耐心停止 · 最大迭代", font_size=21),
-            Dot(radius=0.12, color=TEAL),
+            circle_marker(radius=0.12, color=TEAL),
             cn_text("数学收敛终点", font_size=25, color=TEAL, weight="SEMIBOLD"),
             cn_text("梯度范数达到锁定容差", font_size=21),
             width=5.5,
             height=3.8,
         ).shift(RIGHT * 3.4 + DOWN * 0.1)
-        note = cn_text("终点 kind / reason 来自 Notebook；形状与文字使含义不依赖颜色", font_size=24, color=NAVY).to_edge(DOWN, buff=0.45)
+        note = disclaimer("终点 kind / reason 来自 Notebook；形状与文字使含义不依赖颜色", font_size=24).to_edge(DOWN, buff=0.45)
         self.play(FadeIn(title), FadeIn(best), run_time=0.9)
         self.play(FadeIn(terminals), FadeIn(note), run_time=1.0)
 
@@ -681,7 +690,7 @@ class BanknoteTrainingDiagnosticsScene(Scene):
         )
         fit_width(heading, 11.7)
         slow = card(
-            Square(side_length=0.26, color=ORANGE, fill_color=PALE_BLUE, fill_opacity=1),
+            square_marker(side_length=0.26, color=ORANGE, fill_color=PALE_BLUE),
             cn_text(
                 f"慢：固定 {_fmt(small_step, 2)}",
                 font_size=26,
@@ -690,13 +699,13 @@ class BanknoteTrainingDiagnosticsScene(Scene):
             ),
             cn_text(f"迭代 {small_terminal['iteration']} · 最大迭代", font_size=21),
             cn_text(f"只改步长 → 固定 {_fmt(stable_step, 1)}", font_size=22, color=RED),
-            Dot(radius=0.11, color=TEAL),
+            circle_marker(radius=0.11, color=TEAL),
             cn_text(f"迭代 {stable_terminal['iteration']} · 梯度范数收敛", font_size=21, color=TEAL),
             width=5.45,
             height=3.25,
         ).shift(LEFT * 3.35 + DOWN * 1.15)
         overshoot = card(
-            Square(side_length=0.26, color=ORANGE, fill_color=PALE_BLUE, fill_opacity=1),
+            square_marker(side_length=0.26, color=ORANGE, fill_color=PALE_BLUE),
             cn_text(
                 f"越过：固定 {_fmt(large_step, 0)}",
                 font_size=26,
@@ -705,7 +714,7 @@ class BanknoteTrainingDiagnosticsScene(Scene):
             ),
             cn_text(f"迭代 {large_terminal['iteration']} · 验证耐心停止", font_size=21),
             cn_text("只改采用规则 → Armijo", font_size=22, color=RED),
-            Dot(radius=0.11, color=TEAL),
+            circle_marker(radius=0.11, color=TEAL),
             cn_text(
                 f"先接受 {_fmt(first['acceptedStepSize'], 0)}；"
                 f"迭代 {armijo_terminal['iteration']} · 梯度范数收敛",
@@ -715,7 +724,12 @@ class BanknoteTrainingDiagnosticsScene(Scene):
             width=5.65,
             height=3.25,
         ).shift(RIGHT * 3.35 + DOWN * 1.15)
-        marker_note = cn_text("◇ 最佳验证点选择检查点；■/● 终点写明 kind 与 reason", font_size=22, color=NAVY).to_edge(DOWN, buff=0.18)
+        marker_note = status_label(
+            "diamond",
+            "最佳验证点选择检查点；■/● 终点写明 kind 与 reason",
+            font_size=22,
+            color=NAVY,
+        ).to_edge(DOWN, buff=0.18)
         self.play(FadeIn(heading[0]), Write(heading[1]), FadeIn(heading[2]), run_time=0.9)
         self.play(FadeIn(slow), FadeIn(overshoot), run_time=0.9)
         self.play(FadeIn(marker_note), run_time=0.6)

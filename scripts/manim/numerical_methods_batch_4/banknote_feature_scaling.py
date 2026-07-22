@@ -16,19 +16,28 @@ from manim import (
     Arrow,
     Axes,
     Create,
-    Dot,
     FadeIn,
     FadeOut,
     Group,
     Rectangle,
     Scene,
-    Square,
     VGroup,
     VMobject,
     Write,
 )
 
-from common import card, cn_text, equation, fit_width, title_block, top_heading
+from common import (
+    card,
+    circle_marker,
+    cn_text,
+    disclaimer,
+    equation,
+    fit_width,
+    square_marker,
+    status_label,
+    title_block,
+    top_heading,
+)
 from palette import BACKGROUND, DATA_BLUE, GRID, MUTED, NAVY, ORANGE, PALE_BLUE, PAPER, RED, TEAL
 
 
@@ -431,18 +440,16 @@ class BanknoteFeatureScalingScene(Scene):
         standardized_line = trajectory(self.locked.standardized_trace, TEAL)
         raw_end = self.locked.raw_trace[-1]
         standardized_end = self.locked.standardized_trace[-1]
-        raw_marker = Square(side_length=0.20, color=ORANGE, fill_color=PAPER, fill_opacity=1).move_to(
+        raw_marker = square_marker(side_length=0.20, color=ORANGE, fill_color=PAPER).move_to(
             axes.c2p(float(raw_end["iteration"]), math.log10(float(raw_end["trainBce"])))
         )
-        standardized_marker = Dot(
-            axes.c2p(float(standardized_end["iteration"]), math.log10(float(standardized_end["trainBce"]))),
-            radius=0.11,
-            color=TEAL,
+        standardized_marker = circle_marker(radius=0.11, color=TEAL).move_to(
+            axes.c2p(float(standardized_end["iteration"]), math.log10(float(standardized_end["trainBce"])))
         )
         labels = card(
             equation(f"α = {_format_decimal(self.locked.raw_run['config']['step'], 1)}", font_size=29, color=NAVY),
-            cn_text("■ 原始：震荡后停止", font_size=25, color=ORANGE, weight="SEMIBOLD"),
-            cn_text("● 标准化：稳定下降", font_size=25, color=TEAL, weight="SEMIBOLD"),
+            status_label("square", "原始：震荡后停止", font_size=25, color=ORANGE, weight="SEMIBOLD"),
+            status_label("circle", "标准化：稳定下降", font_size=25, color=TEAL, weight="SEMIBOLD"),
             cn_text("纵轴：log₁₀ 训练 BCE", font_size=21, color=MUTED),
             cn_text("线条、形状与文字共同编码", font_size=20, color=MUTED),
             width=4.2,
@@ -461,7 +468,7 @@ class BanknoteFeatureScalingScene(Scene):
         raw_best = _mapping(self.locked.raw_run.get("bestValidation"), "raw bestValidation")
         standardized_best = _mapping(self.locked.standardized_run.get("bestValidation"), "standardized bestValidation")
         raw = card(
-            Square(side_length=0.36, color=ORANGE, fill_color=PALE_BLUE, fill_opacity=1),
+            square_marker(side_length=0.36, color=ORANGE, fill_color=PALE_BLUE),
             cn_text("原始特征 · 固定步长", font_size=27, color=ORANGE, weight="SEMIBOLD"),
             cn_text(_terminal_label(self.locked.raw_run), font_size=24, color=NAVY),
             equation(f"最佳验证：迭代 {raw_best['iteration']} · BCE {float(raw_best['bce']):.10f}", font_size=22),
@@ -471,7 +478,7 @@ class BanknoteFeatureScalingScene(Scene):
             height=4.15,
         ).shift(LEFT * 3.35 + DOWN * 0.25)
         standardized = card(
-            Dot(radius=0.18, color=TEAL),
+            circle_marker(radius=0.18, color=TEAL),
             cn_text("标准化特征 · 固定步长", font_size=27, color=TEAL, weight="SEMIBOLD"),
             cn_text(_terminal_label(self.locked.standardized_run), font_size=24, color=NAVY),
             equation(
@@ -507,7 +514,7 @@ class BanknoteFeatureScalingScene(Scene):
             width=7.0,
             height=3.5,
         ).shift(RIGHT * 2.9 + DOWN * 0.1)
-        boundary = cn_text("最终测试报告留给预先声明且数学收敛的候选运行", font_size=24, color=NAVY).to_edge(DOWN, buff=0.55)
+        boundary = disclaimer("最终测试报告留给预先声明且数学收敛的候选运行", font_size=24).to_edge(DOWN, buff=0.55)
         self.play(FadeIn(title), FadeIn(comparison), run_time=0.9)
         self.play(FadeIn(caveat), FadeIn(boundary), run_time=1.0)
 
@@ -523,7 +530,7 @@ class BanknoteFeatureScalingScene(Scene):
         fit_width(heading, 12.0)
         heading.to_edge(UP, buff=0.45)
         raw = card(
-            Square(side_length=0.34, color=ORANGE, fill_color=PAPER, fill_opacity=1),
+            square_marker(side_length=0.34, color=ORANGE, fill_color=PAPER),
             cn_text("原始坐标", font_size=28, color=ORANGE, weight="SEMIBOLD"),
             equation(f"α={_format_decimal(self.locked.raw_run['config']['step'], 1)} · 震荡", font_size=29),
             cn_text(f"验证耐心停止 · 迭代 {raw_terminal['iteration']}", font_size=23, color=RED),
@@ -531,7 +538,7 @@ class BanknoteFeatureScalingScene(Scene):
             height=2.75,
         ).shift(LEFT * 3.45 + DOWN * 0.7)
         standardized = card(
-            Dot(radius=0.17, color=TEAL),
+            circle_marker(radius=0.17, color=TEAL),
             cn_text("训练集标准化坐标", font_size=28, color=TEAL, weight="SEMIBOLD"),
             equation(f"α={_format_decimal(self.locked.standardized_run['config']['step'], 1)} · 稳定", font_size=29),
             cn_text(f"梯度范数收敛 · 迭代 {standardized_terminal['iteration']}", font_size=23, color=TEAL),
@@ -539,7 +546,7 @@ class BanknoteFeatureScalingScene(Scene):
             height=2.75,
         ).shift(RIGHT * 3.45 + DOWN * 0.7)
         arrow = Arrow(raw.get_right(), standardized.get_left(), buff=0.25, color=DATA_BLUE)
-        caveat = cn_text("注意：特征换单位会改变同一系数 L2 的几何；不要据此排列最终质量", font_size=22, color=MUTED).to_edge(
+        caveat = disclaimer("注意：特征换单位会改变同一系数 L2 的几何；不要据此排列最终质量", font_size=22, color=MUTED).to_edge(
             DOWN, buff=0.45
         )
         self.play(FadeIn(heading[0]), Write(heading[1]), FadeIn(heading[2]), run_time=1.0)

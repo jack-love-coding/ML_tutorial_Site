@@ -17,19 +17,28 @@ from manim import (
     Axes,
     Create,
     DashedVMobject,
-    Dot,
     FadeIn,
     FadeOut,
     Group,
-    Line,
     Scene,
-    Square,
     VGroup,
     VMobject,
     Write,
 )
 
-from common import card, cn_text, equation, fit_width, title_block, top_heading
+from common import (
+    card,
+    circle_marker,
+    cn_text,
+    cross_marker,
+    disclaimer,
+    equation,
+    fit_width,
+    square_marker,
+    status_label,
+    title_block,
+    top_heading,
+)
 from palette import BACKGROUND, DATA_BLUE, GRID, MUTED, NAVY, ORANGE, PALE_BLUE, PAPER, RED, TEAL
 
 
@@ -360,9 +369,9 @@ class BanknoteFixedVsArmijoScene(Scene):
         )
         fit_width(heading, 11.8)
         comparison = card(
-            cn_text("■ 固定步长", font_size=27, color=ORANGE, weight="SEMIBOLD"),
+            status_label("square", "固定步长", font_size=27, color=ORANGE, weight="SEMIBOLD"),
             equation(f"直接采用 α = {_fmt(self.locked.initial_step, 0)}", font_size=32, color=ORANGE),
-            cn_text("● Armijo 回溯", font_size=27, color=TEAL, weight="SEMIBOLD"),
+            status_label("circle", "Armijo 回溯", font_size=27, color=TEAL, weight="SEMIBOLD"),
             equation(f"先试 α = {_fmt(self.locked.initial_step, 0)}，再检查充分下降", font_size=30, color=TEAL),
             width=8.8,
             height=3.3,
@@ -405,7 +414,7 @@ class BanknoteFixedVsArmijoScene(Scene):
             height=2.8,
         ).shift(LEFT * 4.2 + DOWN * 0.1)
         candidate = card(
-            Square(side_length=0.34, color=ORANGE, fill_color=PALE_BLUE, fill_opacity=1),
+            square_marker(side_length=0.34, color=ORANGE, fill_color=PALE_BLUE),
             cn_text(
                 f"固定 {_fmt(self.locked.fixed_first['acceptedStepSize'], 0)} · 直接采用",
                 font_size=27,
@@ -439,7 +448,7 @@ class BanknoteFixedVsArmijoScene(Scene):
             height=2.8,
         ).shift(LEFT * 4.4 + DOWN * 0.15)
         trial = card(
-            cn_text("× 拒绝 · 不写入轨迹", font_size=28, color=RED, weight="SEMIBOLD"),
+            status_label("reject", "拒绝 · 不写入轨迹", font_size=28, color=RED, weight="SEMIBOLD"),
             equation(f"候选 J = {_fmt(self.locked.fixed_first['objective'])}", font_size=29, color=RED),
             equation(f"允许上界 = {_fmt(limit)}", font_size=27, color=TEAL),
             equation(f"{_fmt(self.locked.fixed_first['objective'])} > {_fmt(limit)}", font_size=28, color=RED),
@@ -447,11 +456,8 @@ class BanknoteFixedVsArmijoScene(Scene):
             height=3.4,
         ).shift(RIGHT * 3.5 + DOWN * 0.15)
         arrow = Arrow(left.get_right(), trial.get_left(), buff=0.25, color=ORANGE)
-        reject_x = VGroup(
-            Line(LEFT * 0.18 + UP * 0.18, RIGHT * 0.18 + DOWN * 0.18, color=RED, stroke_width=6),
-            Line(LEFT * 0.18 + DOWN * 0.18, RIGHT * 0.18 + UP * 0.18, color=RED, stroke_width=6),
-        ).next_to(arrow, UP, buff=0.15)
-        boundary = cn_text("比较的是 J = 训练 BCE + L2；不读取验证 BCE", font_size=24, color=NAVY).to_edge(DOWN, buff=0.5)
+        reject_x = cross_marker(size=0.36, color=RED).next_to(arrow, UP, buff=0.15)
+        boundary = disclaimer("比较的是 J = 训练 BCE + L2；不读取验证 BCE", font_size=24).to_edge(DOWN, buff=0.5)
         self.play(FadeIn(title), FadeIn(left), run_time=0.8)
         self.play(Create(arrow), FadeIn(reject_x), FadeIn(trial), run_time=1.1)
         self.play(FadeIn(boundary), run_time=0.7)
@@ -476,8 +482,8 @@ class BanknoteFixedVsArmijoScene(Scene):
             height=2.8,
         ).shift(LEFT * 4.1 + DOWN * 0.1)
         accepted = card(
-            Dot(radius=0.17, color=TEAL),
-            cn_text("✓ 接受 · 写入迭代 1", font_size=28, color=TEAL, weight="SEMIBOLD"),
+            circle_marker(radius=0.17, color=TEAL),
+            status_label("accept", "接受 · 写入迭代 1", font_size=28, color=TEAL, weight="SEMIBOLD"),
             equation(f"候选 J = {_fmt(self.locked.armijo_first['objective'])}", font_size=29, color=TEAL),
             equation(f"允许上界 = {_fmt(limit)}", font_size=27),
             equation(f"{_fmt(self.locked.armijo_first['objective'])} ≤ {_fmt(limit)}", font_size=28, color=TEAL),
@@ -485,7 +491,7 @@ class BanknoteFixedVsArmijoScene(Scene):
             height=3.6,
         ).shift(RIGHT * 3.5 + DOWN * 0.1)
         arrow = Arrow(backtrack.get_right(), accepted.get_left(), buff=0.25, color=TEAL)
-        note = cn_text("验证 BCE 仍不参与线搜索；接受之后才更新验证检查点", font_size=24, color=NAVY).to_edge(
+        note = disclaimer("验证 BCE 仍不参与线搜索；接受之后才更新验证检查点", font_size=24).to_edge(
             DOWN, buff=0.45
         )
         self.play(FadeIn(title), FadeIn(backtrack), run_time=0.8)
@@ -525,22 +531,21 @@ class BanknoteFixedVsArmijoScene(Scene):
         armijo_line = trajectory(self.locked.armijo_trace, TEAL)
         fixed_end = self.locked.fixed_trace[-1]
         armijo_end = self.locked.armijo_trace[-1]
-        fixed_marker = Square(side_length=0.22, color=ORANGE, fill_color=PAPER, fill_opacity=1).move_to(
+        fixed_marker = square_marker(side_length=0.22, color=ORANGE, fill_color=PAPER).move_to(
             axes.c2p(float(fixed_end["iteration"]), math.log10(float(fixed_end["objective"])))
         )
-        armijo_marker = Dot(
-            axes.c2p(float(armijo_end["iteration"]), math.log10(float(armijo_end["objective"]))),
-            radius=0.11,
-            color=TEAL,
+        armijo_marker = circle_marker(radius=0.11, color=TEAL).move_to(
+            axes.c2p(float(armijo_end["iteration"]), math.log10(float(armijo_end["objective"])))
         )
         labels = card(
-            cn_text(
-                f"■ 固定 {_fmt(self.locked.initial_step, 0)} · 虚线",
+            status_label(
+                "square",
+                f"固定 {_fmt(self.locked.initial_step, 0)} · 虚线",
                 font_size=25,
                 color=ORANGE,
                 weight="SEMIBOLD",
             ),
-            cn_text("● Armijo · 实线", font_size=25, color=TEAL, weight="SEMIBOLD"),
+            status_label("circle", "Armijo · 实线", font_size=25, color=TEAL, weight="SEMIBOLD"),
             cn_text("纵轴：log₁₀ 惩罚训练目标", font_size=21, color=MUTED),
             cn_text("拒绝试探不进入轨迹", font_size=22, color=RED),
             width=4.2,
@@ -565,7 +570,7 @@ class BanknoteFixedVsArmijoScene(Scene):
         )
         fit_width(heading, 11.7)
         fixed = card(
-            Square(side_length=0.34, color=ORANGE, fill_color=PALE_BLUE, fill_opacity=1),
+            square_marker(side_length=0.34, color=ORANGE, fill_color=PALE_BLUE),
             cn_text(
                 f"固定 {_fmt(self.locked.initial_step, 0)}",
                 font_size=28,
@@ -573,12 +578,12 @@ class BanknoteFixedVsArmijoScene(Scene):
                 weight="SEMIBOLD",
             ),
             cn_text("首步目标上升仍采用", font_size=23, color=RED),
-            equation(f"■ 迭代 {fixed_terminal['iteration']} · 验证耐心停止", font_size=23),
+            status_label("square", f"迭代 {fixed_terminal['iteration']} · 验证耐心停止", font_size=23),
             width=5.3,
             height=3.1,
         ).shift(LEFT * 3.35 + DOWN * 1.2)
         armijo = card(
-            Dot(radius=0.17, color=TEAL),
+            circle_marker(radius=0.17, color=TEAL),
             cn_text(
                 f"Armijo：{_fmt(self.locked.initial_step, 0)} × → "
                 f"{_fmt(self.locked.accepted_step, 0)} ✓",
@@ -587,16 +592,14 @@ class BanknoteFixedVsArmijoScene(Scene):
                 weight="SEMIBOLD",
             ),
             cn_text(f"一次回溯 · 只保留已接受状态", font_size=23),
-            equation(f"● 迭代 {armijo_terminal['iteration']} · 梯度范数收敛", font_size=23),
+            status_label("circle", f"迭代 {armijo_terminal['iteration']} · 梯度范数收敛", font_size=23),
             equation(f"最佳验证 BCE {_fmt(armijo_best['bce'])}", font_size=22, color=MUTED),
             width=5.7,
             height=3.25,
         ).shift(RIGHT * 3.35 + DOWN * 1.2)
-        boundary = cn_text(
+        boundary = disclaimer(
             "接受规则只读 J = 训练 BCE + L2；验证 BCE 不参与线搜索",
             font_size=23,
-            color=NAVY,
-            weight="SEMIBOLD",
         ).to_edge(DOWN, buff=0.25)
         self.play(FadeIn(heading[0]), Write(heading[1]), FadeIn(heading[2]), run_time=0.9)
         self.play(FadeIn(fixed), FadeIn(armijo), run_time=0.9)
