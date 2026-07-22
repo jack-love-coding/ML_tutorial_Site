@@ -1,0 +1,150 @@
+{
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "outputId": "banknote-training-diagnostics-summary",
+  "datasetSha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+  "constantsSha256": "f759186d0be526e84c80f6930d91981af0d303e8138edcbae4f65e4f3d30f041",
+  "runOrder": [
+    "raw-fixed",
+    "standardized-too-small",
+    "standardized-stable",
+    "standardized-too-large",
+    "standardized-armijo"
+  ],
+  "diagnostics": [
+    {
+      "runId": "raw-fixed",
+      "visible": "validation improves and then degrades while steps remain large",
+      "plausibleCause": "raw feature scales make the fixed step poorly conditioned",
+      "changeOneVariable": "standardize features while keeping the step at 4.0",
+      "expectedNextRun": "smoother descent and mathematical convergence",
+      "terminal": {
+        "kind": "model-selection",
+        "reason": "validation-patience",
+        "iteration": 112,
+        "messageKey": "batch4.terminal.validation-patience"
+      }
+    },
+    {
+      "runId": "standardized-too-small",
+      "visible": "loss falls safely but the gradient remains large at the iteration cap",
+      "plausibleCause": "the fixed step is too small",
+      "changeOneVariable": "increase the fixed step from 0.02 to 4.0",
+      "expectedNextRun": "reach the gradient tolerance within 500 updates",
+      "terminal": {
+        "kind": "safety",
+        "reason": "max-iterations",
+        "iteration": 500,
+        "messageKey": "batch4.terminal.max-iterations"
+      }
+    },
+    {
+      "runId": "standardized-stable",
+      "visible": "training and validation losses settle with a small gradient",
+      "plausibleCause": "standardization makes the fixed step usable",
+      "changeOneVariable": "replace the fixed step with Armijo from 32.0",
+      "expectedNextRun": "reject unsafe trials and converge in fewer accepted updates",
+      "terminal": {
+        "kind": "mathematical-convergence",
+        "reason": "gradient-norm",
+        "iteration": 484,
+        "messageKey": "batch4.terminal.gradient-norm"
+      }
+    },
+    {
+      "runId": "standardized-too-large",
+      "visible": "a low transient validation point is followed by deterioration",
+      "plausibleCause": "the fixed step overshoots",
+      "changeOneVariable": "use Armijo backtracking instead of accepting 32.0",
+      "expectedNextRun": "accept 16.0 first and retain convergence eligibility",
+      "terminal": {
+        "kind": "model-selection",
+        "reason": "validation-patience",
+        "iteration": 73,
+        "messageKey": "batch4.terminal.validation-patience"
+      }
+    },
+    {
+      "runId": "standardized-armijo",
+      "visible": "the first trial is rejected and the gradient tolerance is reached",
+      "plausibleCause": "sufficient decrease adapts the usable step",
+      "changeOneVariable": "keep the method and inspect the selected test endpoint",
+      "expectedNextRun": "the endpoint agrees closely with the library baseline",
+      "terminal": {
+        "kind": "mathematical-convergence",
+        "reason": "gradient-norm",
+        "iteration": 48,
+        "messageKey": "batch4.terminal.gradient-norm"
+      }
+    }
+  ],
+  "selectedRunId": "standardized-armijo",
+  "finalReport": {
+    "runId": "standardized-armijo",
+    "checkpointIteration": 48,
+    "threshold": 0.5,
+    "rocAucInput": "probabilities",
+    "manual": {
+      "testBce": 0.055110123229490826,
+      "accuracy": 0.9805825242718447,
+      "rocAuc": 0.9994279176201373,
+      "confusionMatrix": [
+        [
+          110,
+          4
+        ],
+        [
+          0,
+          92
+        ]
+      ]
+    }
+  },
+  "baseline": {
+    "library": "scikit-learn",
+    "version": "1.9.0",
+    "class": "LogisticRegression",
+    "config": {
+      "C": 1.0416666666666667,
+      "l1_ratio": 0.0,
+      "solver": "lbfgs",
+      "fit_intercept": true,
+      "tol": 1e-12,
+      "max_iter": 5000
+    },
+    "trainingRows": 960,
+    "reportedIterations": 17,
+    "parameters": [
+      -4.599259018100213,
+      -4.55997154082889,
+      -4.181869397425162,
+      0.2982065939561354,
+      -1.3462765746677328
+    ],
+    "metrics": {
+      "testBce": 0.05509807557568522,
+      "accuracy": 0.9805825242718447,
+      "rocAuc": 0.9994279176201373,
+      "confusionMatrix": [
+        [
+          110,
+          4
+        ],
+        [
+          0,
+          92
+        ]
+      ]
+    },
+    "endpointOnly": true,
+    "perIterationComparison": false
+  },
+  "comparison": {
+    "predictionAgreement": 1.0,
+    "maxProbabilityDifference": 0.00015086178291673358,
+    "meanProbabilityDifference": 1.2517068894184337e-05,
+    "coefficientDirectionCosine": 0.9999999991335304,
+    "endpointOnly": true,
+    "perIterationComparison": false
+  },
+  "ownership": "training-diagnostics owns cross-run reading and the compact final report"
+}
