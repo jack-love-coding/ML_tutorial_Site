@@ -17,6 +17,7 @@ output/playwright/css-split/
 .worktrees/
 .python-data-tools-venv/
 __pycache__/
+.cache/numerical-methods/batch-4-wheelhouse/
 
 # Editor directories and files
 .vscode/*
