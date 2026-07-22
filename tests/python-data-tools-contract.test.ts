@@ -117,7 +117,7 @@ test('planning state records shipped Python Data Tools stages and completed nume
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
   const expectedStatus = '**Status:** Executing Phase 25'
   const expectedFocus = '**Current focus:** Phase 25 — Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics'
-  const expectedNextCommand = 'Run `$gsd-execute-phase 25` to execute the verified 13-plan, 8-wave UCI Banknote logistic-regression implementation.'
+  const phaseExecutionCommand = '`$gsd-execute-phase 25`'
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
   assert.match(state, /^\*\*Updated:\*\* 2026-07-22$/m)
@@ -135,8 +135,8 @@ test('planning state records shipped Python Data Tools stages and completed nume
   assert.doesNotMatch(state, /V3\.1 (?:as a whole )?is (?:fully )?complete/i)
   assert.match(state, /without changing runtime lesson content/i)
   assert.match(state, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
-  assert.ok(state.includes(expectedNextCommand))
-  assert.match(roadmap, /Numerical Methods Batch 4 Phase 25 planning is verified and its 13 plans are ready to execute in 8 waves/i)
+  assert.ok(state.includes(phaseExecutionCommand))
+  assert.match(roadmap, /Numerical Methods Batch 4 Phase 25[^\n]*13 plans[^\n]*8 waves/i)
 
   const stageLabels = [
     'Data and execution contract',

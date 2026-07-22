@@ -830,7 +830,7 @@
 
 ## V3.1 Minimum Mathematical Foundation
 
-**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, Python Data Tools Stages 1–4, detailed minimum-mathematics, linear-algebra, calculus, probability, and Numerical Methods Batches 1–3 are completed slices. Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution. Numerical Methods Batch 4 Phase 25 planning is verified and its 13 plans are ready to execute in 8 waves.
+**Status:** In progress; AI Overview rebuild, Math-to-Code pilot, Python Data Tools Stages 1–4, detailed minimum-mathematics, linear-algebra, calculus, probability, and Numerical Methods Batches 1–3 are completed slices. Python Data Tools Stage 5 consistency and browser validation is designed and ready for execution. Numerical Methods Batch 4 Phase 25 is executing: 3 of 13 plans are complete across 8 waves.
 
 **Decision boundary:**
 
