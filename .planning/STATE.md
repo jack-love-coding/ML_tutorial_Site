@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 25
-current_plan: 5
+current_plan: 6
 status: executing
-stopped_at: Completed 25-06-PLAN.md
-last_updated: "2026-07-22T10:38:38.943Z"
+stopped_at: Completed 25-07-PLAN.md
+last_updated: "2026-07-22T11:00:05.276Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 31
   completed_phases: 0
   total_plans: 13
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -24,7 +24,7 @@ progress:
 ## Current Position
 
 **Current Phase:** 25
-**Current Plan:** 5
+**Current Plan:** 6
 **Total Plans in Phase:** 13
 **Status:** Ready to execute
 **Last Activity:** 2026-07-22
@@ -755,8 +755,8 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plan 25-06 is already complete
 
 ## Session
 
-**Last session:** 2026-07-22T10:38:38.938Z
-**Stopped at:** Completed 25-06-PLAN.md
+**Last session:** 2026-07-22T11:00:05.270Z
+**Stopped at:** Completed 25-07-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -767,6 +767,7 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plan 25-06 is already complete
 | Phase 25 P03 | 23 min | 3 tasks | 8 files |
 | Phase 25 P04 | 11 min | 2 tasks | 3 files |
 | Phase 25 P06 | 43 min | 1 tasks | 6 files |
+| Phase 25 P07 | 15 min | 1 tasks | 6 files |
 
 ## Decisions
 
@@ -779,3 +780,6 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plan 25-06 is already complete
 - [Phase 25]: Plot full accepted-state traces while binding printed scene anchors to the manifest and optimization summary — This satisfies D-28 without schematic replacement values and keeps learner-visible numbers auditable.
 - [Phase 25]: Use square/raw and circle/standardized terminal markers with written terminal semantics — The source remains understandable without color or motion and distinguishes model selection from mathematical convergence.
 - [Phase 25]: Limit the scaling comparison to conditioning and fixed-step usability — Changing feature units changes coefficient-space L2 geometry, so the paired validation BCE values cannot rank final model quality.
+- [Phase 25]: Reconstruct the rejected alpha=32 candidate from the fixed-step run and verify it shares the accepted alpha=16 direction. — The locked trace stores accepted states only, so a rejected trial must remain an audited annotation rather than a fabricated trace row.
+- [Phase 25]: Use the penalized training objective and gradient only for Armijo acceptance. — Validation is evaluated after acceptance and must not leak into sufficient-decrease decisions.
+- [Phase 25]: Encode fixed-step and Armijo traces with dashed-square versus solid-circle semantics. — The comparison must remain readable without color or motion.
