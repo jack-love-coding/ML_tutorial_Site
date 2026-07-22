@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "batchId": "numerical-methods-batch-4",
+  "render": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "videoCodec": "h264",
+    "localeInVideo": "zh-CN",
+    "command": "python scripts/manim/render_numerical_methods_batch_4.py",
+    "checkCommand": "python scripts/manim/render_numerical_methods_batch_4.py --check",
+    "publication": "validated temporary copy followed by atomic numerical-method directory replacement"
+  },
+  "notebookOutputs": [
+    "/notebooks/numerical-methods/batch-4-outputs/optimization-summary.json",
+    "/notebooks/numerical-methods/batch-4-outputs/training-diagnostics-summary.json",
+    "/notebooks/numerical-methods/batch-4-outputs/banknote-training-traces.json",
+    "/notebooks/numerical-methods/batch-4-outputs/banknote-training-traces.csv"
+  ],
+  "scenes": [
+    {
+      "id": "banknote-feature-scaling",
+      "className": "BanknoteFeatureScalingScene",
+      "durationSeconds": 72,
+      "storyboardCuts": [
+        0,
+        8,
+        18,
+        29,
+        45,
+        57,
+        65,
+        72
+      ],
+      "posterSecond": 68,
+      "outputIds": [
+        "banknote-logistic-optimization-summary",
+        "banknote-training-traces-json"
+      ],
+      "moduleIds": [
+        "optimization"
+      ],
+      "source": "scripts/manim/numerical_methods_batch_4/banknote_feature_scaling.py",
+      "tree": "scripts/manim/numerical_methods_batch_4/banknote_feature_scaling_tree.json",
+      "prompt": "scripts/manim/numerical_methods_batch_4/banknote_feature_scaling_prompt.md",
+      "transcript": "docs/curriculum-v3/numerical-methods/manim/banknote-feature-scaling-transcript.zh-CN.md",
+      "englishSummary": "docs/curriculum-v3/numerical-methods/manim/banknote-feature-scaling-summary.en.md",
+      "labels": "docs/curriculum-v3/numerical-methods/manim/banknote-feature-scaling-labels.json",
+      "mp4": "/manim/numerical-methods/banknote-feature-scaling.mp4",
+      "poster": "/manim/numerical-methods/banknote-feature-scaling-poster.png"
+    },
+    {
+      "id": "banknote-fixed-vs-armijo",
+      "className": "BanknoteFixedVsArmijoScene",
+      "durationSeconds": 72,
+      "storyboardCuts": [
+        0,
+        8,
+        18,
+        30,
+        43,
+        55,
+        65,
+        72
+      ],
+      "posterSecond": 68,
+      "outputIds": [
+        "banknote-logistic-optimization-summary",
+        "banknote-training-traces-json"
+      ],
+      "moduleIds": [
+        "optimization"
+      ],
+      "source": "scripts/manim/numerical_methods_batch_4/banknote_fixed_vs_armijo.py",
+      "tree": "scripts/manim/numerical_methods_batch_4/banknote_fixed_vs_armijo_tree.json",
+      "prompt": "scripts/manim/numerical_methods_batch_4/banknote_fixed_vs_armijo_prompt.md",
+      "transcript": "docs/curriculum-v3/numerical-methods/manim/banknote-fixed-vs-armijo-transcript.zh-CN.md",
+      "englishSummary": "docs/curriculum-v3/numerical-methods/manim/banknote-fixed-vs-armijo-summary.en.md",
+      "labels": "docs/curriculum-v3/numerical-methods/manim/banknote-fixed-vs-armijo-labels.json",
+      "mp4": "/manim/numerical-methods/banknote-fixed-vs-armijo.mp4",
+      "poster": "/manim/numerical-methods/banknote-fixed-vs-armijo-poster.png"
+    },
+    {
+      "id": "banknote-training-diagnostics",
+      "className": "BanknoteTrainingDiagnosticsScene",
+      "durationSeconds": 72,
+      "storyboardCuts": [
+        0,
+        8,
+        18,
+        32,
+        46,
+        58,
+        65,
+        72
+      ],
+      "posterSecond": 68,
+      "outputIds": [
+        "banknote-training-diagnostics-summary",
+        "banknote-training-traces-json"
+      ],
+      "moduleIds": [
+        "training-diagnostics"
+      ],
+      "source": "scripts/manim/numerical_methods_batch_4/banknote_training_diagnostics.py",
+      "tree": "scripts/manim/numerical_methods_batch_4/banknote_training_diagnostics_tree.json",
+      "prompt": "scripts/manim/numerical_methods_batch_4/banknote_training_diagnostics_prompt.md",
+      "transcript": "docs/curriculum-v3/numerical-methods/manim/banknote-training-diagnostics-transcript.zh-CN.md",
+      "englishSummary": "docs/curriculum-v3/numerical-methods/manim/banknote-training-diagnostics-summary.en.md",
+      "labels": "docs/curriculum-v3/numerical-methods/manim/banknote-training-diagnostics-labels.json",
+      "mp4": "/manim/numerical-methods/banknote-training-diagnostics.mp4",
+      "poster": "/manim/numerical-methods/banknote-training-diagnostics-poster.png"
+    }
+  ],
+  "integrity": {
+    "scripts/manim/render_numerical_methods_batch_4.py": "b26369af26d72aff12b5dfa05a6b83667747425227f5c9ddf63be4aa36d09697",
+    "scripts/manim/numerical_methods_batch_4/common.py": "51f9f269208ad70ec7db1f8a92e2488e55b56e7b888a3aeefe0a88600ec77034",
+    "scripts/manim/numerical_methods_batch_4/palette.py": "1e0d04a8b02c67652bb3900d766b424f5b5ab03431af64c162ec26e9ea896451",
+    "public/notebooks/numerical-methods/batch-4-outputs/manifest.json": "08c1ae517fba5e32aa3aebd51789e168e7e9602e5e3668ce54055f7681c02de6",
+    "/datasets/numerical-methods/banknote-authentication.csv": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+    "/datasets/numerical-methods/banknote-authentication-manifest.json": "37603db152ff5d7fd3ce09ce5a776402e468c62f5b449fbe22a706b7c659dbee",
+    "/datasets/numerical-methods/banknote-authentication-data-dictionary.json": "04c7460e92e83dae685e3016654b83d072ebbc7559d4b714497bfedf83504dac",
+    "scripts/numerical-methods/generate-batch-4-notebook.py": "69525e71f57ba43264f951436eb9ee1733fc4a3c41adc3d9d57621927f3d1663",
+    "/notebooks/numerical-methods/requirements.txt": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530",
+    "/notebooks/numerical-methods/banknote-logistic-optimization.zh-CN.ipynb": "6e7e83e63d700f255335328a23a510fa347e34a5521aa13e0ee078256ed69b86",
+    "/notebooks/numerical-methods/batch-4-outputs/optimization-summary.json": "69168316433ac27cca6071cb351f1c871dffc77426654b10c167c275949f390d",
+    "/notebooks/numerical-methods/batch-4-outputs/training-diagnostics-summary.json": "08edf88e84a16775188bc1e9e33487011e21dacf855df3ba2d00743e1a2744c1",
+    "/notebooks/numerical-methods/batch-4-outputs/banknote-training-traces.json": "e74c8495b8d72df4e19af37138ca32fb8b34c2d41568838f5c0355d3684180c0",
+    "/notebooks/numerical-methods/batch-4-outputs/banknote-training-traces.csv": "d6ab4fd1a857dedd9e2d9f6a8f44966f740cbfcb17851e9e5006d5390e2f7e39",
+    "scripts/manim/numerical_methods_batch_4/banknote_feature_scaling.py": "25d3d3ba987623d3694ad44d0a5211f334effb8e3d7f2760957b6190803164db",
+    "scripts/manim/numerical_methods_batch_4/banknote_feature_scaling_tree.json": "1e577468b2fa0bd74bf1c1636dc1a3958e87cee1707ac590490891b0eed6a77c",
+    "scripts/manim/numerical_methods_batch_4/banknote_feature_scaling_prompt.md": "47d066027e8d47898d6fc1f1e2634c2e6df02f0d333919dfb1f046e1e9219bee",
+    "docs/curriculum-v3/numerical-methods/manim/banknote-feature-scaling-transcript.zh-CN.md": "c75d3df65ed724ea87a3a8a5173049e18a56ffbdd650007d85e45c9df1c6ac99",
+    "docs/curriculum-v3/numerical-methods/manim/banknote-feature-scaling-summary.en.md": "fb6194762afa7d36926653e80f3964d147344c6711c0fc45c397f93dac7437e9",
+    "docs/curriculum-v3/numerical-methods/manim/banknote-feature-scaling-labels.json": "dd954c0f9f6f5d50c4df87e278a87c96d1129fdbc4dad9a83998319b5bbdc05c",
+    "/manim/numerical-methods/banknote-feature-scaling.mp4": "0a260e68e9fdcd80311d821e017358a2a0440dbdf936d2528d2bfcfca4be51f3",
+    "/manim/numerical-methods/banknote-feature-scaling-poster.png": "c5a83532a1986f8defa7db9a6d0039735b0e9b8c6dcb29ed94697181ff98adb2",
+    "scripts/manim/numerical_methods_batch_4/banknote_fixed_vs_armijo.py": "09688113d801c22d7a2498031d5f53f247cf03275f1b734f17aed1d513599bf1",
+    "scripts/manim/numerical_methods_batch_4/banknote_fixed_vs_armijo_tree.json": "b138b17e8ec093d660f39ec807869ec6b5313474051d1c82f844f50ef47d7183",
+    "scripts/manim/numerical_methods_batch_4/banknote_fixed_vs_armijo_prompt.md": "ce75a3c050d7c3f34f8bc9b7c33fbf08f0e1f46f7de3bf725687d2cdcef2da50",
+    "docs/curriculum-v3/numerical-methods/manim/banknote-fixed-vs-armijo-transcript.zh-CN.md": "fc5643ca54c912339d09d50972f7ee999696330540eb3e426a16c372213fb887",
+    "docs/curriculum-v3/numerical-methods/manim/banknote-fixed-vs-armijo-summary.en.md": "c96081799d16228436ab18a6a57c28bf8929b8aa477bb9eba5b9425ee8518b28",
+    "docs/curriculum-v3/numerical-methods/manim/banknote-fixed-vs-armijo-labels.json": "fa5bf6b6768a4c2ac429b10e1fbe8b1531e97083f68d4d7b6b3f4d9c4d91f5ef",
+    "/manim/numerical-methods/banknote-fixed-vs-armijo.mp4": "7bd5d0ecb9fd8b5d319304a47edc72f4a7f4949bcf3c11bf1ed87111298aa07c",
+    "/manim/numerical-methods/banknote-fixed-vs-armijo-poster.png": "96ba155791870cd8ddf37f74fc3a1e86846575b2c0b151391bf87a46b75a2879",
+    "scripts/manim/numerical_methods_batch_4/banknote_training_diagnostics.py": "8800aab9dd78b8fb7ba2b62cf6c366fcdc54516cf25ceb7be5f9ffd4314689c7",
+    "scripts/manim/numerical_methods_batch_4/banknote_training_diagnostics_tree.json": "d1055bc9057521b372e5d3792ba9a89e3d0de00473e6c8fd0c881350d4f8f21e",
+    "scripts/manim/numerical_methods_batch_4/banknote_training_diagnostics_prompt.md": "0461a47977eedb6d66a462e42703d1079195acddd5f1582c73e9381d25d58bd2",
+    "docs/curriculum-v3/numerical-methods/manim/banknote-training-diagnostics-transcript.zh-CN.md": "7e7cf7bf0a512222e419b4d041e71a34e87ed27147ea84ad34dd4105e4729855",
+    "docs/curriculum-v3/numerical-methods/manim/banknote-training-diagnostics-summary.en.md": "d3fc58272661ded03a8fb58a9ea24e9a84302857d0aeebd25b0c8e36a940617d",
+    "docs/curriculum-v3/numerical-methods/manim/banknote-training-diagnostics-labels.json": "4f72e2242e5d715706a9fa9894d37c9d525b852125f849b79fa5847f5d15123d",
+    "/manim/numerical-methods/banknote-training-diagnostics.mp4": "70bc0c71b6677ba764f384f370df61565b107bf781f66197addfaa6a9a769292",
+    "/manim/numerical-methods/banknote-training-diagnostics-poster.png": "2a7ae7fc919bf5b948fe38301ec0c20c18f8a003c8251fd498e332681a00b417"
+  }
+}

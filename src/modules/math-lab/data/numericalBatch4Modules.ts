@@ -64,6 +64,78 @@ const banknoteOptimizationDiagnosticsVisual: VisualAsset = {
   ),
 }
 
+const banknoteFeatureScalingAnimation: VisualAsset = {
+  id: 'banknote-feature-scaling-video',
+  type: 'manim-video',
+  title: copy('特征尺度如何改变固定步长的可用性', 'How feature scale changes fixed-step usability'),
+  assetPath: '/manim/numerical-methods/banknote-feature-scaling.mp4',
+  posterPath: '/manim/numerical-methods/banknote-feature-scaling-poster.png',
+  transcript: copy(
+    '动画使用锁定的 1,372 行 Banknote 数据和 960/206/206 划分。它先比较四个原始特征的不同尺度，再展示只用训练集拟合的均值 [0.469, 1.978, 1.320, -1.142] 与 population scale [2.805, 5.814, 4.235, 2.073]。raw-fixed 与 standardized-stable 都使用固定步长 4.0：raw 路径在第 52 次达到最佳 validation 后，于第 112 次因 validation-patience 停止；标准化路径在第 484 次以 gradient-norm 数学收敛。虚线与方形表示 raw 的模型选择终点，实线与圆形表示标准化后的数学收敛，因此关闭动画或不看颜色仍能读出差异。',
+    'The animation uses the locked 1,372-row Banknote data and 960/206/206 split. It first compares the unequal raw feature scales, then shows train-only means [0.469, 1.978, 1.320, -1.142] and population scales [2.805, 5.814, 4.235, 2.073]. raw-fixed and standardized-stable both use fixed step 4.0: the raw route reaches its best validation point at iteration 52 and stops for validation-patience at 112, while the standardized route reaches mathematical gradient-norm convergence at 484. Dashed lines and a square mark the raw model-selection terminal; a solid line and circle mark standardized mathematical convergence, so the distinction remains readable without motion or color.',
+  ),
+  learningPurpose: copy(
+    '用同一步长的两条锁定轨迹说明 train-only 标准化改变的是更新条件，而不是替换教学数据。',
+    'Use two locked traces with the same step to show that train-only standardization changes update conditioning without replacing the teaching data.',
+  ),
+  alt: copy(
+    '原始尺度的虚线路径以方形 validation-patience 终点结束，训练集标准化后的实线路径以圆形 gradient-norm 终点结束。',
+    'A dashed raw-scale route ends at a square validation-patience terminal, while a solid train-standardized route ends at a circular gradient-norm terminal.',
+  ),
+  caption: copy(
+    '同样的固定步长 4.0，在原始尺度上失衡，在训练集标准化后可达到数学收敛。',
+    'The same fixed step 4.0 is poorly conditioned on raw features but reaches mathematical convergence after train-only standardization.',
+  ),
+}
+
+const banknoteFixedVsArmijoAnimation: VisualAsset = {
+  id: 'banknote-fixed-vs-armijo-video',
+  type: 'manim-video',
+  title: copy('固定 32 与 Armijo 32→16', 'Fixed 32 versus Armijo 32→16'),
+  assetPath: '/manim/numerical-methods/banknote-fixed-vs-armijo.mp4',
+  posterPath: '/manim/numerical-methods/banknote-fixed-vs-armijo-poster.png',
+  transcript: copy(
+    '动画在同一标准化起点比较固定步长与 Armijo。固定 32 的第一次更新会被直接接受，但之后过冲；最佳 validation 是第 13 次的 0.0588531562，最终在第 73 次因 validation-patience 停止。Armijo 先检查 penalized training objective，拒绝第一次 alpha=32 试探，回溯一次后接受 alpha=16；所有接受行都满足 sufficient decrease，并在第 48 次以 gradient-norm 数学收敛。固定路径使用虚线和方形终点，Armijo 使用实线和圆形终点，拒绝试探用叉号和文字标注。',
+    'The animation compares a fixed step with Armijo from the same standardized start. Fixed 32 accepts its first update directly but later overshoots; its best validation value is 0.0588531562 at iteration 13, and it stops for validation-patience at 73. Armijo checks the penalized training objective, rejects the first alpha=32 trial, accepts alpha=16 after one backtrack, and every accepted row satisfies sufficient decrease before mathematical gradient-norm convergence at iteration 48. The fixed route uses a dashed line and square terminal, Armijo uses a solid line and circular terminal, and the rejected trial is marked with a cross and written label.',
+  ),
+  learningPurpose: copy(
+    '把 sufficient decrease、回溯次数、最佳 validation 与终止原因放到同一条可核对的更新路径。',
+    'Place sufficient decrease, backtrack count, best validation, and terminal reason on one auditable update path.',
+  ),
+  alt: copy(
+    '固定 32 的虚线路径越过最佳点并以方形停止；Armijo 用叉号拒绝 32、接受 16，并以圆形收敛。',
+    'The dashed fixed-32 route overshoots its best point and stops at a square; Armijo rejects 32 with a cross, accepts 16, and converges at a circle.',
+  ),
+  caption: copy(
+    'Armijo 不偷看 validation：它只用训练目标拒绝 32、接受 16，并保留数学收敛资格。',
+    'Armijo does not inspect validation: it uses only the training objective to reject 32, accept 16, and retain mathematical-convergence eligibility.',
+  ),
+}
+
+const banknoteTrainingDiagnosticsAnimation: VisualAsset = {
+  id: 'banknote-training-diagnostics-video',
+  type: 'manim-video',
+  title: copy('从训练轨迹到下一次单变量实验', 'From training traces to the next one-variable experiment'),
+  assetPath: '/manim/numerical-methods/banknote-training-diagnostics.mp4',
+  posterPath: '/manim/numerical-methods/banknote-training-diagnostics-poster.png',
+  transcript: copy(
+    '动画读取五条锁定的真实 Banknote trace，并重点比较 standardized-too-small 与 standardized-stable、standardized-too-large 与 standardized-armijo。它分别标出 train BCE、validation BCE、gradient norm、菱形最佳 validation、方形模型选择终点和圆形数学收敛终点。too-small 在第 500 次仍以 gradient norm 0.110062 达到 max-iterations；只把 step 从 0.02 改为 4.0，stable 在第 484 次达到 gradient-norm。固定 32 在第 13 次出现短暂最佳点后于第 73 次 validation-patience；只把方法改为 Armijo 后，先拒绝 32、接受 16，并在第 48 次收敛。最终合格的 Armijo 模型报告 test BCE 0.0551101232、accuracy 0.9805825243、ROC-AUC 0.9994279176 和 confusion matrix [[110,4],[0,92]]。',
+    'The animation reads all five locked real Banknote traces and focuses on standardized-too-small versus standardized-stable, then standardized-too-large versus standardized-armijo. It separately labels train BCE, validation BCE, gradient norm, diamond best-validation points, square model-selection terminals, and circular mathematical-convergence terminals. too-small reaches max-iterations at 500 with gradient norm 0.110062; changing only the step from 0.02 to 4.0 lets stable reach gradient-norm at iteration 484. Fixed 32 has a transient best point at 13 and stops for validation-patience at 73; changing only the method to Armijo rejects 32, accepts 16, and converges at 48. The eligible final Armijo model reports test BCE 0.0551101232, accuracy 0.9805825243, ROC-AUC 0.9994279176, and confusion matrix [[110,4],[0,92]].',
+  ),
+  learningPurpose: copy(
+    '把可见现象、可能原因、一个变量变化与预期下一次运行连接到真实终止记录。',
+    'Connect visible symptoms, plausible causes, one-variable changes, and expected next runs to real terminal records.',
+  ),
+  alt: copy(
+    '两组真实训练曲线用菱形、方形和圆形区分最佳 validation、模型选择停止与数学收敛，并列出下一次只改一个变量。',
+    'Two real trace comparisons use diamonds, squares, and circles for best validation, model-selection stops, and mathematical convergence, with one variable named for the next run.',
+  ),
+  caption: copy(
+    '诊断不是给曲线贴标签，而是保留终止原因并提出下一次可检验的单变量改变。',
+    'Diagnosis does not end with labeling a curve; it keeps the terminal reason and proposes one testable variable change for the next run.',
+  ),
+}
+
 const stableBceConcept: MathConcept = {
   id: 'banknote-stable-bce-objective',
   name: copy('logit 域稳定 BCE 与固定 L2', 'Stable logit-domain BCE with fixed L2'),
@@ -146,7 +218,7 @@ We train a small logistic regression with an intercept. Every run begins at five
 
 Then compare early trajectories and update conditioning only: raw-fixed and standardized-stable both use fixed step 4.0. Unequal raw feature scales unbalance parameter updates; validation is best at iteration 52 and then deteriorates. Train-only standardization makes the same step usable and reaches gradient-norm at iteration 484. Because changing feature units also changes the geometry of coefficient-space L2, their final BCE values alone must not rank model quality.`,
     ),
-    { visualIds: [banknoteOptimizationDiagnosticsVisual.id] },
+    { visualIds: [banknoteOptimizationDiagnosticsVisual.id, banknoteFeatureScalingAnimation.id] },
   ),
   section(
     'v3-banknote-optimization-five-runs',
@@ -183,6 +255,7 @@ The best-validation checkpoint selects parameters; it does not prove mathematica
 
 The first Armijo update tries $\alpha=32$, which fails sufficient decrease; one contraction accepts $\alpha=16$. After each finite update is accepted, the trainer records the trace and updates best validation, then checks gradient-norm, loss-and-step, validation-patience, and finally max-iterations. Rejected or non-finite candidates never enter the trace.`,
     ),
+    { visualIds: [banknoteFixedVsArmijoAnimation.id] },
   ),
   section(
     'v3-banknote-optimization-primary-lab',
@@ -231,7 +304,7 @@ const diagnosticsSections = [
 - **standardized-too-large**: a transient low point at iteration 13 is followed by validation deterioration → fixed 32.0 overshoots → change only to Armijo → expect 32 to be rejected, 16 accepted, and convergence eligibility retained.
 - **standardized-armijo**: the first trial is rejected and gradient tolerance is reached at iteration 48 → sufficient decrease adapts the usable step → keep the method and inspect the final test endpoint → expect close agreement with the library baseline.`,
     ),
-    { visualIds: [banknoteOptimizationDiagnosticsVisual.id] },
+    { visualIds: [banknoteOptimizationDiagnosticsVisual.id, banknoteTrainingDiagnosticsAnimation.id] },
   ),
   section(
     'v3-banknote-diagnostics-primary-lab',
@@ -293,10 +366,19 @@ function enhanceOptimization(moduleDefinition: MathLabModule): MathLabModule {
     concepts: [stableBceConcept, ...moduleDefinition.concepts],
     sections: insertedSections,
     toc: insertAfterOpening(moduleDefinition.toc, optimizationSections.map(tocFor)),
-    visuals: [banknoteOptimizationDiagnosticsVisual, ...moduleDefinition.visuals],
+    visuals: [
+      banknoteOptimizationDiagnosticsVisual,
+      banknoteFeatureScalingAnimation,
+      banknoteFixedVsArmijoAnimation,
+      ...moduleDefinition.visuals,
+    ],
     importedAssetPaths: [
       ...(moduleDefinition.importedAssetPaths ?? []),
       banknoteOptimizationDiagnosticsVisual.assetPath!,
+      banknoteFeatureScalingAnimation.assetPath!,
+      banknoteFeatureScalingAnimation.posterPath!,
+      banknoteFixedVsArmijoAnimation.assetPath!,
+      banknoteFixedVsArmijoAnimation.posterPath!,
     ],
   }
 }
@@ -318,10 +400,16 @@ function enhanceTrainingDiagnostics(moduleDefinition: MathLabModule): MathLabMod
     concepts: [diagnosisChainConcept, ...moduleDefinition.concepts],
     sections: insertedSections,
     toc: insertAfterOpening(moduleDefinition.toc, diagnosticsSections.map(tocFor)),
-    visuals: [banknoteOptimizationDiagnosticsVisual, ...moduleDefinition.visuals],
+    visuals: [
+      banknoteOptimizationDiagnosticsVisual,
+      banknoteTrainingDiagnosticsAnimation,
+      ...moduleDefinition.visuals,
+    ],
     importedAssetPaths: [
       ...(moduleDefinition.importedAssetPaths ?? []),
       banknoteOptimizationDiagnosticsVisual.assetPath!,
+      banknoteTrainingDiagnosticsAnimation.assetPath!,
+      banknoteTrainingDiagnosticsAnimation.posterPath!,
     ],
   }
 }

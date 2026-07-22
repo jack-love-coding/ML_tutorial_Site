@@ -351,7 +351,7 @@ class BanknoteFeatureScalingScene(Scene):
             )
             value = equation(f"训练尺度 {scale:.4f}", font_size=22, color=ORANGE)
             row = VGroup(label, bar, value).arrange(RIGHT, buff=0.25)
-            row[0].set_width(2.25, stretch=True)
+            row[0].stretch_to_fit_width(2.25)
             rows.add(row)
         rows.arrange(DOWN, aligned_edge=LEFT, buff=0.38).shift(LEFT * 1.4 + DOWN * 0.25)
         max_feature = max(FEATURES, key=self.locked.train_scales.__getitem__)
