@@ -366,7 +366,7 @@ test('executed Notebook and output manifest bind exact hashes to a clean sequent
   })
   assert.deepEqual(manifest.requirements, {
     publicPath: '/notebooks/numerical-methods/requirements.txt',
-    sha256: '044c51329c22148baf031fb0aaf18a8378b99b92cbe84f1ada4407bade29deeb',
+    sha256: '6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530',
   })
   assert.deepEqual(manifest.generator, {
     path: 'scripts/numerical-methods/generate-ames-notebook.py',
@@ -388,7 +388,9 @@ test('executed Notebook and output manifest bind exact hashes to a clean sequent
   })
   assert.equal(environment.python, '3.12.13')
   const requirementLines = requirementsBytes.toString('utf8').trim().split(/\r?\n/)
-  assert.deepEqual(requirementLines, Object.entries(environment.packages).map(([name, version]) => `${name}==${version}`))
+  const amesEnvironmentPins = Object.entries(environment.packages).map(([name, version]) => `${name}==${version}`)
+  assert.deepEqual(requirementLines.slice(0, amesEnvironmentPins.length), amesEnvironmentPins)
+  assert.equal(requirementLines.at(-1), 'scikit-learn==1.9.0')
 
   assert.equal(notebook.nbformat, 4)
   assert.equal(notebook.nbformat_minor, 5)

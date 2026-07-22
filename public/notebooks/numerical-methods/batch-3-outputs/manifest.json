@@ -10,7 +10,7 @@
   },
   "requirements": {
     "publicPath": "/notebooks/numerical-methods/requirements.txt",
-    "sha256": "044c51329c22148baf031fb0aaf18a8378b99b92cbe84f1ada4407bade29deeb"
+    "sha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530"
   },
   "notebook": {
     "moduleIds": [

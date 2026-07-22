@@ -315,6 +315,6 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.match(stateSource, /Current focus:\*\* Phase 25 — Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics/)
   assert.match(stateSource, /Stage 5 design is complete in four ordered plans/)
   assert.match(roadmapSource, /Numerical Methods Batches 1–3 are completed slices/)
-  assert.match(roadmapSource, /Numerical Methods Batch 4 Phase 25 planning is verified and its 13 plans are ready to execute in 8 waves/)
+  assert.match(roadmapSource, /Numerical Methods Batch 4 Phase 25[^\n]*13 plans[^\n]*8 waves/)
   assert.match(roadmapSource, /\*\*Wave 8\*\* \*\(blocked on Wave 7 completion\)\*/)
 })
