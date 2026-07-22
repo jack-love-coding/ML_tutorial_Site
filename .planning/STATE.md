@@ -5,14 +5,14 @@ milestone_name: milestone
 current_phase: 25
 current_plan: 5
 status: executing
-stopped_at: Completed 25-04-PLAN.md
-last_updated: "2026-07-22T09:49:48.886Z"
+stopped_at: Completed 25-06-PLAN.md
+last_updated: "2026-07-22T10:38:38.943Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 31
   completed_phases: 0
   total_plans: 13
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -745,7 +745,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Continue `$gsd-execute-phase 25` from Plan 25-04 to implement the deterministic TypeScript engine and the remaining lesson, media, and release waves.
+Continue `$gsd-execute-phase 25` from Plan 25-05; Plan 25-06 is already complete as an independent Wave 4 media-source package.
 
 ## Accumulated Context
 
@@ -755,8 +755,8 @@ Continue `$gsd-execute-phase 25` from Plan 25-04 to implement the deterministic 
 
 ## Session
 
-**Last session:** 2026-07-22T09:48:34.035Z
-**Stopped at:** Completed 25-04-PLAN.md
+**Last session:** 2026-07-22T10:38:38.938Z
+**Stopped at:** Completed 25-06-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -766,6 +766,7 @@ Continue `$gsd-execute-phase 25` from Plan 25-04 to implement the deterministic 
 | 25 | 01 | 1 min | 1 task, 0 files |
 | Phase 25 P03 | 23 min | 3 tasks | 8 files |
 | Phase 25 P04 | 11 min | 2 tasks | 3 files |
+| Phase 25 P06 | 43 min | 1 tasks | 6 files |
 
 ## Decisions
 
@@ -775,3 +776,6 @@ Continue `$gsd-execute-phase 25` from Plan 25-04 to implement the deterministic 
 - [Phase 25]: Keep the Banknote loader and logistic engine separated — The loader owns fetch/public-base/CSV trust boundaries while the engine accepts typed rows and remains DOM-free.
 - [Phase 25]: Return explicit invalid-config results while allowing Number.MAX_VALUE — Advanced controls are never silently clamped, and the exact D-24 safety probe remains learner-reachable.
 - [Phase 25]: Verify all accepted states across all five TypeScript runs — Per-row 1e-9 scalar and 1e-8 parameter checks catch drift hidden by terminal-only assertions.
+- [Phase 25]: Plot full accepted-state traces while binding printed scene anchors to the manifest and optimization summary — This satisfies D-28 without schematic replacement values and keeps learner-visible numbers auditable.
+- [Phase 25]: Use square/raw and circle/standardized terminal markers with written terminal semantics — The source remains understandable without color or motion and distinguishes model selection from mathematical convergence.
+- [Phase 25]: Limit the scaling comparison to conditioning and fixed-step usability — Changing feature units changes coefficient-space L2 geometry, so the paired validation BCE values cannot rank final model quality.
