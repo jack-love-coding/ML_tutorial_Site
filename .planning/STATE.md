@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 25
-current_plan: 7
+current_plan: 8
 status: executing
-stopped_at: Completed 25-08-PLAN.md
-last_updated: "2026-07-22T11:18:51.879Z"
+stopped_at: Completed 25-05-PLAN.md
+last_updated: "2026-07-22T11:46:56.206Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 31
   completed_phases: 0
   total_plans: 13
-  completed_plans: 7
+  completed_plans: 8
   percent: 0
 ---
 
@@ -24,7 +24,7 @@ progress:
 ## Current Position
 
 **Current Phase:** 25
-**Current Plan:** 7
+**Current Plan:** 8
 **Total Plans in Phase:** 13
 **Status:** Ready to execute
 **Last Activity:** 2026-07-22
@@ -755,8 +755,8 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plans 25-06 through 25-08 are 
 
 ## Session
 
-**Last session:** 2026-07-22T11:18:51.875Z
-**Stopped at:** Completed 25-08-PLAN.md
+**Last session:** 2026-07-22T11:46:56.200Z
+**Stopped at:** Completed 25-05-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -769,6 +769,7 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plans 25-06 through 25-08 are 
 | Phase 25 P06 | 43 min | 1 tasks | 6 files |
 | Phase 25 P07 | 15 min | 1 tasks | 6 files |
 | Phase 25 P08 | 13 min | 1 tasks | 6 files |
+| Phase 25 P05 | 19 min | 3 tasks | 9 files |
 
 ## Decisions
 
@@ -787,3 +788,6 @@ Continue `$gsd-execute-phase 25` from Plan 25-05; Plans 25-06 through 25-08 are 
 - [Phase 25]: Validate all five locked diagnostic chains at render time — The animation focuses on two controlled comparisons while the source fails closed on every Plan 25-03 diagnosis.
 - [Phase 25]: Format learner-visible scene numbers from loaded JSON — Expected constants remain drift assertions only, preserving D-28 auditability.
 - [Phase 25]: Separate best-validation and terminal meanings with text and shape — Diamond best markers, square or circle terminals, and dashed or solid paths preserve non-color fallback.
+- [Phase 25]: Keep Batch 4 as an outer enhancer for only optimization and training-diagnostics, preserving existing IDs, quizzes, checkpoints, routes, and progress state. — A narrow adapter delivers the real Banknote case without violating the progressive-migration guardrails.
+- [Phase 25]: Preset selection edits draft state; only explicit Run commits a deterministic engine result. — Separating learner intent from computation prevents reactive retraining and makes invalid or last-finite outcomes auditable.
+- [Phase 25]: Compute the five real diagnostic traces once after local loading and isolate synthetic scenarios in a labeled support section. — Selectors remain responsive without duplicating math, and real versus synthetic provenance stays honest.
