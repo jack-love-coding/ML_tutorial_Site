@@ -998,6 +998,8 @@ test('[Plan 25-05] optimization lab uses explicit draft-run state and the determ
   assert.match(source, /@click="resetExperiment"/)
   assert.match(source, /运行实验/)
   assert.match(source, /Run experiment/)
+  assert.match(source, /降低 learning rate；其他变量保持不变/)
+  assert.match(source, /Lower the learning rate; keep every other variable unchanged\./)
   assert.doesNotMatch(source, /watch\s*\(/)
   assert.doesNotMatch(source, /gradientDescentStep|quadraticGradient|quadraticLoss|pyodide|Python/i)
 })

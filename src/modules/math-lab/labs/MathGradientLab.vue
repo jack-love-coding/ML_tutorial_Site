@@ -191,6 +191,11 @@ const copy = computed(() => props.locale === 'zh-CN'
         initialStep: 'initial step',
         maxIterations: 'max iterations',
       },
+      suggestionMessages: {
+        lowerLearningRate: '降低 learning rate；其他变量保持不变',
+        raiseMaxIterations: '提高 max iterations；其他变量保持不变',
+        lowerInitialStep: '降低 initial step；其他变量保持不变',
+      },
       presetLabels: {
         'raw-fixed': 'raw-fixed · 原始特征固定步长',
         'standardized-too-small': 'standardized-too-small · 太小',
@@ -239,6 +244,11 @@ const copy = computed(() => props.locale === 'zh-CN'
         initialStep: 'initial step',
         maxIterations: 'max iterations',
       },
+      suggestionMessages: {
+        lowerLearningRate: 'Lower the learning rate; keep every other variable unchanged.',
+        raiseMaxIterations: 'Raise max iterations; keep every other variable unchanged.',
+        lowerInitialStep: 'Lower the initial step; keep every other variable unchanged.',
+      },
       presetLabels: {
         'raw-fixed': 'raw-fixed · raw fixed step',
         'standardized-too-small': 'standardized-too-small · too small',
@@ -248,6 +258,20 @@ const copy = computed(() => props.locale === 'zh-CN'
       },
     },
 )
+
+const suggestedActionText = computed(() => {
+  switch (terminalState.value?.reason) {
+    case 'validation-patience':
+    case 'non-finite':
+      return copy.value.suggestionMessages.lowerLearningRate
+    case 'max-iterations':
+      return copy.value.suggestionMessages.raiseMaxIterations
+    case 'line-search-failed':
+      return copy.value.suggestionMessages.lowerInitialStep
+    default:
+      return null
+  }
+})
 </script>
 
 <template>
@@ -325,7 +349,7 @@ const copy = computed(() => props.locale === 'zh-CN'
           </article>
           <article>
             <span>{{ copy.suggestion }}</span>
-            <strong>{{ suggestedVariable ? copy.variableLabels[suggestedVariable] : '—' }}</strong>
+            <strong>{{ suggestedActionText ?? (suggestedVariable ? copy.variableLabels[suggestedVariable] : '—') }}</strong>
           </article>
         </section>
       </template>
