@@ -3,30 +3,30 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 current_phase: 25
-current_plan: 4
+current_plan: 5
 status: executing
-stopped_at: Completed 25-03-PLAN.md
-last_updated: "2026-07-22T09:26:45.212Z"
+stopped_at: Completed 25-04-PLAN.md
+last_updated: "2026-07-22T09:49:48.886Z"
 last_activity: 2026-07-22
 progress:
   total_phases: 31
   completed_phases: 0
   total_plans: 13
-  completed_plans: 3
-  percent: 23
+  completed_plans: 4
+  percent: 0
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-07-22
-**Status:** Executing Phase 25
+**Status:** Ready to execute
 
 ## Current Position
 
 **Current Phase:** 25
-**Current Plan:** 4
+**Current Plan:** 5
 **Total Plans in Phase:** 13
-**Status:** Executing Phase 25
+**Status:** Ready to execute
 **Last Activity:** 2026-07-22
 
 ## Project Reference
@@ -755,8 +755,8 @@ Continue `$gsd-execute-phase 25` from Plan 25-04 to implement the deterministic 
 
 ## Session
 
-**Last session:** 2026-07-22T09:25:37.929Z
-**Stopped at:** Completed 25-03-PLAN.md
+**Last session:** 2026-07-22T09:48:34.035Z
+**Stopped at:** Completed 25-04-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -765,9 +765,13 @@ Continue `$gsd-execute-phase 25` from Plan 25-04 to implement the deterministic 
 |-------|------|----------|-------|
 | 25 | 01 | 1 min | 1 task, 0 files |
 | Phase 25 P03 | 23 min | 3 tasks | 8 files |
+| Phase 25 P04 | 11 min | 2 tasks | 3 files |
 
 ## Decisions
 
 - [Phase 25]: Validate normalized CSV round-trip statistics at 1e-12 — CSV decimal parsing introduces only a few floating-point ulps while retaining a tolerance one thousand times stricter than the scalar output contract.
 - [Phase 25]: Record isolated-kernel and standalone-rerun proofs without temp identities — Deterministic published artifacts must prove their clean execution environment without persisting machine-specific temporary paths or kernelspec names.
 - [Phase 25]: Keep Plan 25-04 RED owners aligned with its future stable-BCE and state-machine filters — Plan 25-03 broad verification stays green while the next plan retains its intentionally failing ownership tests.
+- [Phase 25]: Keep the Banknote loader and logistic engine separated — The loader owns fetch/public-base/CSV trust boundaries while the engine accepts typed rows and remains DOM-free.
+- [Phase 25]: Return explicit invalid-config results while allowing Number.MAX_VALUE — Advanced controls are never silently clamped, and the exact D-24 safety probe remains learner-reachable.
+- [Phase 25]: Verify all accepted states across all five TypeScript runs — Per-row 1e-9 scalar and 1e-8 parameter checks catch drift hidden by terminal-only assertions.
