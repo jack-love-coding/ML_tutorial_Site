@@ -116,7 +116,7 @@ The local snapshot should persist the generated split label beside each stable o
 | NumPy | `2.4.6` (published 2026-05-18) | Manual vectorized logistic objective and reference execution | Already pinned; the exact version reproduced the recommended runs. [VERIFIED: PyPI registry + clean-kernel execution] |
 | pandas | `3.0.3` (published 2026-05-11) | Strict local CSV loading, split/schema checks | Locked by D-14 and already pinned. [VERIFIED: PyPI registry + public requirements] |
 | SciPy | `1.17.1` (published 2026-02-23) | Independent `expit`/stable-function comparisons | Locked by D-14; official docs define `scipy.special.expit` as the logistic sigmoid ufunc. [CITED: https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.expit.html] |
-| `scikit-learn` `[WARNING: package-legitimacy seam returned SUS because download/repository signals were unavailable; planner must add checkpoint:human-verify before install.]` | `1.9.0` (published 2026-06-02) | Final `LogisticRegression` and metric baseline only | Official 1.9 docs match the required L2/intercept semantics and this pin is compatible with the existing NumPy/SciPy pins in a clean kernel. [CITED: https://scikit-learn.org/stable/modules/linear_model.html] [VERIFIED: clean-kernel execution] |
+| `scikit-learn` `[APPROVED: exact official package identity human-verified on 2026-07-22.]` | `1.9.0` (published 2026-06-02) | Final `LogisticRegression` and metric baseline only | Official 1.9 docs match the required L2/intercept semantics and this pin is compatible with the existing NumPy/SciPy pins in a clean kernel. [CITED: https://scikit-learn.org/stable/modules/linear_model.html] [VERIFIED: clean-kernel execution + human approval record] |
 
 ### Supporting
 
@@ -151,11 +151,11 @@ The implementation should use a patch rather than the illustrative append comman
 
 | Package | Registry | Age | Downloads | Source Repo | Verdict | Disposition |
 |---|---|---|---|---|---|---|
-| `scikit-learn` | PyPI | Gate did not return project age; `1.9.0` uploaded 2026-06-02 | unknown | `https://github.com/scikit-learn/scikit-learn` from PyPI metadata | SUS (`unknown-downloads`, `no-repository` in seam output) | Flagged — planner must insert `checkpoint:human-verify` before changing requirements, despite corroborating official docs and PyPI metadata. [VERIFIED: package-legitimacy seam + PyPI registry] |
+| `scikit-learn` | PyPI | Gate did not return project age; `1.9.0` uploaded 2026-06-02 | unknown | `https://github.com/scikit-learn/scikit-learn` from PyPI metadata | SUS seam result, human-resolved | Approved on 2026-07-22 as the exact official `scikit-learn==1.9.0` distribution after checking the official PyPI release, API documentation, and GitHub source. [VERIFIED: package-legitimacy seam + PyPI registry + human approval record] |
 
 **Packages removed due to SLOP verdict:** none. [VERIFIED: package-legitimacy seam]
 
-**Packages flagged as suspicious [SUS]:** `scikit-learn==1.9.0`; the human checkpoint should verify the exact official project name, version, source URL, and PyPI release before installation. [VERIFIED: package-legitimacy seam]
+**Packages previously flagged as suspicious [SUS]:** `scikit-learn==1.9.0`; resolved by explicit human verification on 2026-07-22. Approval text: `approved scikit-learn==1.9.0`. Verified anchors: [PyPI release](https://pypi.org/project/scikit-learn/1.9.0/), [official `LogisticRegression` API](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html), and [official GitHub source](https://github.com/scikit-learn/scikit-learn). No alternate package name or publisher was approved. [VERIFIED: human approval record]
 
 No Node `postinstall` audit applies because the only new package is from PyPI. [VERIFIED: package scope]
 
@@ -610,12 +610,11 @@ All material claims in this research were verified from locked project context, 
 
 ## Open Questions
 
-1. **Package-gate false-negative review**
-   - What we know: the official scikit-learn site documents `LogisticRegression`, PyPI reports `scikit-learn==1.9.0` and its official source URL, the version installed successfully with all existing pins, but the mandatory legitimacy seam returned `SUS` because it could not resolve download/repository signals. [VERIFIED: official docs + PyPI + clean kernel + legitimacy seam]
-   - What's unclear: whether the seam's missing signals are transient or specific to PyPI metadata ingestion. [VERIFIED: legitimacy seam output]
-   - Recommendation: planner inserts `checkpoint:human-verify` immediately before editing/installing the pin; approval should record the official docs, PyPI project, version, source repository, and absence of an alternate package name. [VERIFIED: package-legitimacy protocol]
+1. **Package-gate false-negative review — (RESOLVED 2026-07-22)**
+   - Resolution: the user explicitly recorded `approved scikit-learn==1.9.0` after verification of the [official PyPI release](https://pypi.org/project/scikit-learn/1.9.0/), [official API documentation](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html), and [official GitHub repository](https://github.com/scikit-learn/scikit-learn). The approval covers only the exact project name and version; it does not approve an alternate package or publisher. [VERIFIED: human approval record]
+   - Residual note: the seam's missing download/repository signals remain an audit-tool limitation, not an unresolved implementation choice. Plan 01 verifies this durable record and must not prompt again. [VERIFIED: package-legitimacy protocol]
 
-No numerical, dataset, architecture, or phase-scope choice remains open. [VERIFIED: clean-kernel execution + locked context]
+No numerical, dataset, architecture, package-identity, or phase-scope choice remains open. [VERIFIED: clean-kernel execution + locked context + human approval record]
 
 ## Environment Availability
 
@@ -692,7 +691,7 @@ For media, `ffprobe` must confirm 1920×1080, 30fps H.264, bounded planned durat
 - [ ] `tests/numerical-methods-batch-4-manim.test.ts` — three six-role packages, labels, exact Notebook anchors, media probes, and integrity. [VERIFIED: gap scan]
 - [ ] `scripts/numerical-methods/generate-batch-4-notebook.py` with `--check` and standalone rerun path. [VERIFIED: gap scan]
 - [ ] `scripts/manim/render_numerical_methods_batch_4.py` with atomic publish and `--check`. [VERIFIED: gap scan]
-- [ ] Human verification checkpoint for the seam-flagged `scikit-learn==1.9.0` pin before installation/edit. [VERIFIED: package legitimacy protocol]
+- [x] Human verification of the seam-flagged `scikit-learn==1.9.0` pin completed on 2026-07-22 and durably recorded above before installation/edit. [VERIFIED: human approval record]
 
 ## Security Domain
 
@@ -755,7 +754,7 @@ Do not parallelize media ahead of locked Notebook outputs or Vue lab work ahead 
 ## Metadata
 
 **Confidence breakdown:**
-- Standard stack: MEDIUM — existing pins and clean-kernel compatibility are verified, but the mandatory legitimacy seam requires a human checkpoint for the new scikit-learn pin. [VERIFIED: registry/kernel/gate]
+- Standard stack: HIGH — existing pins and clean-kernel compatibility are verified, and the mandatory legitimacy seam was resolved by explicit human approval of the exact official scikit-learn pin on 2026-07-22. [VERIFIED: registry/kernel/gate + human approval record]
 - Numerical contract: HIGH — exact data, split, constants, traces, gradient check, extreme check, and baseline were reproduced in a clean kernel. [VERIFIED: clean-kernel execution]
 - Architecture: HIGH — it follows the implemented Batch 3 enhancer/companion/generator/media/test seams. [VERIFIED: codebase inspection]
 - Pitfalls: HIGH — critical failure modes were either executed or derived directly from the locked objective/state semantics. [VERIFIED: clean-kernel execution + phase context]
