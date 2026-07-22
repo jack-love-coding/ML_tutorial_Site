@@ -960,6 +960,72 @@ test('[Plan 25-05] Batch 4 resolver stays outermost while both teaching labs rem
   assert.match(styleSource, /@media \(max-width: 390px\)[\s\S]*?math-notebook-companion__supporting-list[\s\S]*?grid-template-columns: 1fr/)
 })
 
+test('[Plan 25-05] optimization lab uses explicit draft-run state and the deterministic Banknote engine', () => {
+  const source = readFileSync(resolve(root, 'src/modules/math-lab/labs/MathGradientLab.vue'), 'utf8')
+  for (const dependency of [
+    'loadBanknoteDataset',
+    'BANKNOTE_TRAINING_PRESETS',
+    'trainLogistic',
+    'terminalSuggestions',
+    'AbortController',
+    'onBeforeUnmount',
+  ]) assert.match(source, new RegExp(dependency))
+  for (const state of [
+    'datasetLoadState', 'selectedPresetId', 'draftConfig', 'committedRun',
+    'runExperiment', 'resetExperiment', 'advancedControlsOpen',
+  ]) assert.match(source, new RegExp(state))
+  for (const presetId of [
+    'raw-fixed', 'standardized-too-small', 'standardized-stable',
+    'standardized-too-large', 'standardized-armijo',
+  ]) assert.match(source, new RegExp(presetId))
+  for (const milestone of [
+    'startState', 'firstBacktrackState', 'bestValidationState',
+    'terminalState', 'lastFiniteState', 'suggestedVariable',
+  ]) assert.match(source, new RegExp(milestone))
+  assert.match(source, /Number\.MAX_VALUE/)
+  assert.match(source, /v-model="draftStep"/)
+  assert.match(source, /@click="runExperiment"/)
+  assert.match(source, /@click="resetExperiment"/)
+  assert.match(source, /运行实验/)
+  assert.match(source, /Run experiment/)
+  assert.doesNotMatch(source, /watch\s*\(/)
+  assert.doesNotMatch(source, /gradientDescentStep|quadraticGradient|quadraticLoss|pyodide|Python/i)
+})
+
+test('[Plan 25-05] diagnostics lab compares real preset traces and keeps five synthetic modes separate', () => {
+  const source = readFileSync(resolve(root, 'src/modules/math-lab/labs/TrainingDiagnosticsLab.vue'), 'utf8')
+  for (const dependency of [
+    'loadBanknoteDataset',
+    'BANKNOTE_TRAINING_PRESETS',
+    'runBanknotePreset',
+    'evaluateTrainingScenario',
+    'AbortController',
+    'onBeforeUnmount',
+  ]) assert.match(source, new RegExp(dependency))
+  for (const state of [
+    'datasetLoadState', 'realRuns', 'primaryRunId', 'comparisonRunId',
+    'curveVisibility', 'realPlot', 'syntheticEvaluation', 'resetDiagnostics',
+  ]) assert.match(source, new RegExp(state))
+  for (const presetId of [
+    'raw-fixed', 'standardized-too-small', 'standardized-stable',
+    'standardized-too-large', 'standardized-armijo',
+  ]) assert.match(source, new RegExp(presetId))
+  for (const scenario of [
+    'healthy', 'high-learning-rate', 'overfitting', 'vanishing-gradient', 'exploding-gradient',
+  ]) assert.match(source, new RegExp(scenario))
+  for (const curve of ['trainBce', 'validationBce', 'gradientNorm']) {
+    assert.match(source, new RegExp(curve))
+  }
+  for (const diagnosticStep of [
+    'visibleSymptom', 'plausibleCause', 'oneVariableChange', 'expectedNextRun',
+  ]) assert.match(source, new RegExp(diagnosticStep))
+  assert.match(source, /training-diagnostics-lab__real-case/)
+  assert.match(source, /training-diagnostics-lab__synthetic-support/)
+  assert.match(source, /确定性合成辅助示例/)
+  assert.match(source, /Deterministic synthetic support examples/)
+  assert.doesNotMatch(source, /pyodide|Python/i)
+})
+
 test('[Plan 25-09] future P25-SC5: shared three-panel illustration exists and is locally bound', () => {
   const publicPath = '/math-lab/numerical-methods/banknote-optimization-diagnostics.png'
   assert.equal(existsSync(absolutePublicPath(publicPath)), true, `${publicPath} is owned by Plan 25-09`)
