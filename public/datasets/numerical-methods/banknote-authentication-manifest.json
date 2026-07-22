@@ -1,0 +1,109 @@
+{
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "source": {
+    "title": "Banknote Authentication",
+    "officialPage": "https://archive.ics.uci.edu/dataset/267/banknote%2Bauthentication",
+    "doi": "10.24432/C55P57",
+    "license": "CC BY 4.0",
+    "zip": {
+      "url": "https://archive.ics.uci.edu/static/public/267/banknote+authentication.zip",
+      "sha256": "1e2acd9a2085fadf3d8145c12d3d22af853320d52294a6590c2eaf75fdc05227"
+    },
+    "member": {
+      "name": "data_banknote_authentication.txt",
+      "bytes": 46400,
+      "sha256": "d0539aaed2139ba7a587b3e34fb345ce503ff7d5d33dbf9912d8e195ce425cb9"
+    }
+  },
+  "normalizedDataset": {
+    "publicPath": "/datasets/numerical-methods/banknote-authentication.csv",
+    "sha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+    "bytes": 59900,
+    "schema": [
+      "banknote_id",
+      "variance",
+      "skewness",
+      "curtosis",
+      "entropy",
+      "class",
+      "split"
+    ],
+    "rowCount": 1372,
+    "classCounts": {
+      "0": 762,
+      "1": 610
+    }
+  },
+  "split": {
+    "seeds": {
+      "trainHoldout": 20260725,
+      "validationTest": 20260726
+    },
+    "algorithmCalls": [
+      "train_test_split(ids, test_size=412, stratify=y, random_state=20260725)",
+      "train_test_split(holdout_ids, test_size=206, stratify=holdout_y, random_state=20260726)"
+    ],
+    "counts": {
+      "train": 960,
+      "validation": 206,
+      "test": 206
+    },
+    "classCounts": {
+      "train": {
+        "0": 533,
+        "1": 427
+      },
+      "validation": {
+        "0": 115,
+        "1": 91
+      },
+      "test": {
+        "0": 114,
+        "1": 92
+      }
+    }
+  },
+  "preprocessing": {
+    "fitSplit": "train",
+    "ddof": 0,
+    "features": [
+      "variance",
+      "skewness",
+      "curtosis",
+      "entropy"
+    ],
+    "trainMeans": {
+      "variance": 0.46886307781249986,
+      "skewness": 1.9775978456250036,
+      "curtosis": 1.3202396866562518,
+      "entropy": -1.1418097847916664
+    },
+    "trainScales": {
+      "variance": 2.8049705227712813,
+      "skewness": 5.81400805653475,
+      "curtosis": 4.234924404032209,
+      "entropy": 2.0726581960156034
+    }
+  },
+  "environment": {
+    "requirementsPath": "public/notebooks/numerical-methods/requirements.txt",
+    "requirementsSha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530",
+    "python": {
+      "implementation": "CPython",
+      "version": "3.12.13",
+      "cacheTag": "cpython-312"
+    },
+    "packages": {
+      "ipykernel": "7.3.0",
+      "jupyterlab": "4.6.1",
+      "nbclient": "0.11.0",
+      "nbformat": "5.10.4",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "scikit-learn": "1.9.0",
+      "scipy": "1.17.1"
+    },
+    "installation": "pip --no-index --find-links=<audited-wheel-cache>",
+    "kernelSelection": "unique temp-prefix kernelspec"
+  }
+}
