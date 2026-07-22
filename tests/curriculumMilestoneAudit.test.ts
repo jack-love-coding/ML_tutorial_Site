@@ -268,7 +268,8 @@ test('milestone audit documents every completed phase and the current refactor s
 
   const stateSource = read('.planning/STATE.md')
   assert.match(stateSource, /Phase 24A navigation and Topic Library implementation completed/)
-  assert.match(stateSource, /^\*\*Status:\*\* Executing Phase 25$/m)
+  assert.match(stateSource, /^current_phase: 25$/m)
+  assert.match(stateSource, /^status: executing$/m)
   assert.match(stateSource, /classification audit of all 53 current modules/)
   assert.match(stateSource, /V3\.1 AI Overview rebuild and Math-to-Code pilot are completed slices/)
   assert.match(stateSource, /Python Data Tools Stage 1 is complete/)

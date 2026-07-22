@@ -115,15 +115,15 @@ test('planning state records shipped Python Data Tools stages and completed nume
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
   ])
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
-  const expectedStatus = '**Status:** Executing Phase 25'
   const expectedFocus = '**Current focus:** Phase 25 — Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics'
   const phaseExecutionCommand = '`$gsd-execute-phase 25`'
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
   assert.match(state, /^\*\*Updated:\*\* 2026-07-22$/m)
-  assert.ok(state.includes(expectedStatus))
   assert.ok(state.includes(expectedFocus))
+  assert.match(state, /^current_phase: 25$/m)
   assert.match(state, /^status: executing$/m)
+  assert.match(state, /^  completed_plans: (?:[1-9]|1[0-2])$/m)
   assert.match(state, /AI Overview rebuild[^\n]*completed/i)
   assert.match(state, /Math-to-Code pilot[^\n]*completed/i)
   assert.match(state, /Python Data Tools Stage 1 is complete/i)
