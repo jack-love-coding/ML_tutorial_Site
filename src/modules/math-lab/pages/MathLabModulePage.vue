@@ -15,6 +15,7 @@ import { conceptIllustrationFor, type ConceptIllustration } from '../data/concep
 import { amesNumericalNotebookForModule } from '../data/amesNumericalNotebook.ts'
 import { numericalBatch2NotebookForModule } from '../data/numericalBatch2Notebook.ts'
 import { numericalBatch3NotebookForModule } from '../data/numericalBatch3Notebook.ts'
+import { numericalBatch4NotebookForModule } from '../data/numericalBatch4Notebook.ts'
 import { checkpointReportForModule, observationPromptForModule } from '../data/checkpointReports'
 import { routeNavigationForModule } from '../data/learningRoutes'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
@@ -88,7 +89,8 @@ const moduleDefinition = computed(() => mathLabModuleRegistry[moduleId.value])
 const notebookCompanion = computed(() =>
   amesNumericalNotebookForModule(moduleId.value)
     ?? numericalBatch2NotebookForModule(moduleId.value)
-    ?? numericalBatch3NotebookForModule(moduleId.value),
+    ?? numericalBatch3NotebookForModule(moduleId.value)
+    ?? numericalBatch4NotebookForModule(moduleId.value),
 )
 const moduleIndex = computed(() =>
   mathLabModules.findIndex((candidate) => candidate.id === moduleDefinition.value?.id),

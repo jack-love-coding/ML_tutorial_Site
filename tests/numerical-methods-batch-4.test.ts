@@ -915,6 +915,51 @@ test('[Plan 25-05] one primary lab, route order, checkpoints, progress, and synt
   assert.doesNotMatch(JSON.stringify(diagnostics), /banknote-training-diagnostics\.mp4/)
 })
 
+test('[Plan 25-05] supporting downloads are localized, base-safe, and rendered without changing legacy companions', () => {
+  const companionSource = readFileSync(
+    resolve(root, 'src/modules/math-lab/components/MathLabNotebookCompanion.vue'),
+    'utf8',
+  )
+  assert.match(companionSource, /NumericalBatch4NotebookCompanion/)
+  assert.match(companionSource, /'supportingDownloads' in props\.companion/)
+  assert.match(companionSource, /withPublicBase\(asset\.publicPath\)/)
+  assert.match(companionSource, /math-notebook-companion__supporting-list/)
+  assert.match(companionSource, /已执行结果与审计文件/)
+  assert.match(companionSource, /Executed results and audit files/)
+
+  for (const moduleId of numericalBatch4ChapterIds) {
+    const companion = numericalBatch4NotebookForModule(moduleId)!
+    for (const asset of [
+      companion.notebook,
+      companion.dataset,
+      companion.requirements,
+      ...companion.supportingDownloads,
+    ]) {
+      assert.equal(withPublicBase(asset.publicPath, '/'), asset.publicPath)
+      assert.equal(
+        withPublicBase(asset.publicPath, '/ML_tutorial_Site/'),
+        `/ML_tutorial_Site${asset.publicPath}`,
+      )
+      assertBilingual(asset.label, `${moduleId} ${asset.filename} label`)
+      assertBilingual(asset.description, `${moduleId} ${asset.filename} description`)
+    }
+  }
+})
+
+test('[Plan 25-05] Batch 4 resolver stays outermost while both teaching labs remain lazy and progress-safe', () => {
+  const pageSource = readFileSync(resolve(root, 'src/modules/math-lab/pages/MathLabModulePage.vue'), 'utf8')
+  const styleSource = readFileSync(resolve(root, 'src/styles/modules/math-lab.css'), 'utf8')
+  const batch3Position = pageSource.indexOf('?? numericalBatch3NotebookForModule(moduleId.value)')
+  const batch4Position = pageSource.indexOf('?? numericalBatch4NotebookForModule(moduleId.value)')
+  assert.ok(batch3Position >= 0 && batch4Position > batch3Position)
+  assert.match(pageSource, /MathGradientLab: defineAsyncComponent\(\(\) => import\('\.\.\/labs\/MathGradientLab\.vue'\)\)/)
+  assert.match(pageSource, /TrainingDiagnosticsLab: defineAsyncComponent\(\(\) => import\('\.\.\/labs\/TrainingDiagnosticsLab\.vue'\)\)/)
+  assert.match(pageSource, /loadMathLabProgress\(\)/)
+  assert.match(pageSource, /saveMathLabProgress\(/)
+  assert.equal(mathLabProgressStorageKey, 'ml-atlas:math-lab-progress:v1')
+  assert.match(styleSource, /@media \(max-width: 390px\)[\s\S]*?math-notebook-companion__supporting-list[\s\S]*?grid-template-columns: 1fr/)
+})
+
 test('[Plan 25-09] future P25-SC5: shared three-panel illustration exists and is locally bound', () => {
   const publicPath = '/math-lab/numerical-methods/banknote-optimization-diagnostics.png'
   assert.equal(existsSync(absolutePublicPath(publicPath)), true, `${publicPath} is owned by Plan 25-09`)
