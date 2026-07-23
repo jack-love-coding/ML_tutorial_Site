@@ -4,30 +4,30 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 25
 current_plan: 13
-status: executing
-stopped_at: Completed 25-12-PLAN.md
-last_updated: "2026-07-22T13:10:09.668Z"
-last_activity: 2026-07-22
+status: verifying
+stopped_at: Completed 25-13-PLAN.md
+last_updated: "2026-07-23T03:45:51.452Z"
+last_activity: 2026-07-23
 progress:
   total_phases: 31
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 13
-  completed_plans: 12
-  percent: 92
+  completed_plans: 13
+  percent: 3
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
-**Updated:** 2026-07-22
-**Status:** Ready to execute
+**Updated:** 2026-07-23
+**Status:** Phase complete — ready for verification
 
 ## Current Position
 
 **Current Phase:** 25
 **Current Plan:** 13
 **Total Plans in Phase:** 13
-**Status:** Ready to execute
-**Last Activity:** 2026-07-22
+**Status:** Phase complete — ready for verification
+**Last Activity:** 2026-07-23
 
 ## Project Reference
 
@@ -745,7 +745,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Continue `$gsd-execute-phase 25` from Plan 25-13 for the bilingual desktop/mobile browser matrix and exact failure probe.
+Run `$gsd-verify-work 25` against the completed automated and human browser acceptance record.
 
 ## Accumulated Context
 
@@ -755,8 +755,8 @@ Continue `$gsd-execute-phase 25` from Plan 25-13 for the bilingual desktop/mobil
 
 ## Session
 
-**Last session:** 2026-07-22T13:10:00.316Z
-**Stopped at:** Completed 25-12-PLAN.md
+**Last session:** 2026-07-23T03:45:51.447Z
+**Stopped at:** Completed 25-13-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -774,6 +774,7 @@ Continue `$gsd-execute-phase 25` from Plan 25-13 for the bilingual desktop/mobil
 | Phase 25 P09 | 14 min | 1 tasks | 4 files |
 | Phase 25 P11 | 8 min | 1 tasks | 9 files |
 | Phase 25 P12 | 15 min | 2 tasks | 2 files |
+| Phase 25 P13 | 14h 35m | 1 tasks | 3 files |
 
 ## Decisions
 
@@ -806,3 +807,6 @@ Continue `$gsd-execute-phase 25` from Plan 25-13 for the bilingual desktop/mobil
 - [Phase 25]: Apply the exact compatible linkify-it 5.0.2 transitive security patch — A gate-changing dependency fix invalidates earlier release evidence, so every final release gate was rerun on the patched HEAD.
 - [Phase 25]: Keep the bilingual desktop/mobile and exact Number.MAX_VALUE browser acceptance pending for Plan 25-13 — Automated source and parity tests do not substitute for the declared browser interaction matrix.
 - [Phase 25]: Record the transient Math-to-Code file-worker failure without changing unrelated code — The exact two files passed 23/23 and the next complete run passed 755/755 with no code change.
+- [Phase 25]: Accept Plan 25-13 only after explicit user approval; automated gates and Playwright observations do not substitute for the blocking human checkpoint.
+- [Phase 25]: Treat missing lower-learning-rate direction as a correctness bug and require full tests, both builds, and bilingual Number.MAX_VALUE browser retesting after the fix.
+- [Phase 25]: Preserve both routes, existing checkpoints and Progress identities, standard/Pages assets, reduced-motion behavior, and video-failure teaching fallbacks.
