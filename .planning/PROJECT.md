@@ -13,8 +13,10 @@ The Curriculum V2 adapter and navigation work remains the compatibility foundati
 - Numerical Methods Batch 1 (`least-squares-fitting`, `lu-decomposition`, `condition-numbers`) is complete.
 - Numerical Methods Batch 2 (`sparse-matrices`, `pca`) is complete.
 - Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) is complete, using one logit-bias calibration case to connect finite-difference checks with nonlinear root finding.
-- Numerical Methods Batch 4 is registered as Phase 25; its approved context uses the existing `optimization` and `training-diagnostics` routes and is ready for research and planning.
+- Numerical Methods Batch 4 (`optimization`, `training-diagnostics`) is complete. Phase 25 connects one reproducible UCI Banknote case to stable BCE, feature scaling, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure recovery, and training-curve diagnosis.
+- Phase 25 passed 45/45 must-have verification, 755 repository tests, standard and GitHub Pages builds, Notebook/Manim integrity checks, security audit, and bilingual desktop/mobile browser acceptance.
 - Homepage Focus and Spine progressive-disclosure redesign remain paused while content depth is built.
+- The next milestone direction has not yet been selected.
 
 ## Core Value
 
@@ -26,16 +28,17 @@ Students should always know where they are in the learning path, why the current
 
 - ✓ The app runs as a static browser learning site with Vue, TypeScript, Vite, Vue Router, Pinia, D3, Three.js, KaTeX, markdown-it, and sanitize-html.
 - ✓ Existing Algorithm, Math Lab, and Data Lab lessons expose typed content and bilingual copy.
-- ✓ Current tests, production build, and GitHub Pages build pass on 2026-06-25.
+- ✓ The unified curriculum read model is introduced through adapters.
+- ✓ Legacy URLs remain reachable with compatibility and redirect coverage.
+- ✓ Progress V2 migration preserves all three v1 progress stores.
+- ✓ Navigation, homepage decisions, and continue-learning recommendations derive from curriculum and progress data.
+- ✓ The generic LessonPage and Lesson Block Renderer are proven with AI Overview, Gradient Descent, and MLP.
+- ✓ Shared curriculum, route, progress, renderer, and Phase 25 numerical behavior have regression coverage.
+- ✓ Phase 25 validation passed on 2026-07-23: 755 tests, production build, GitHub Pages build, and security audit.
 
 ### Active
 
-- [ ] Introduce a unified curriculum read model through adapters.
-- [ ] Preserve all legacy URLs until redirect tests prove compatibility.
-- [ ] Preserve all v1 progress storage during the milestone.
-- [ ] Derive navigation, homepage decisions, and continue-learning recommendations from curriculum/progress data.
-- [ ] Prove the generic LessonPage and Lesson Block Renderer with AI Overview, Gradient Descent, and MLP only.
-- [ ] Add validation tests before every shared curriculum, route, progress, or renderer behavior change.
+- [ ] Select the next milestone before resuming paused homepage, spine, or Python Data Tools Stage 5 work.
 
 ### Out of Scope
 
@@ -65,11 +68,12 @@ Students should always know where they are in the learning path, why the current
 
 | Decision | Rationale | Outcome |
 | --- | --- | --- |
-| Use a catalog read model first | Avoids moving all course content before tests exist | — Pending |
-| Preserve legacy URLs | Prevents broken saved links and route regressions | — Pending |
-| Make Progress V2 idempotent | Protects local user progress and rollback | — Pending |
-| Keep complex labs bespoke behind a registry | Avoids flattening rich labs into weak generic blocks | — Pending |
-| Pilot AI Overview, Gradient Descent, and MLP | Covers orientation, optimization, and neural-network flagship lessons | — Pending |
+| Use a catalog read model first | Avoids moving all course content before tests exist | ✓ Validated through the adapter-backed catalog |
+| Preserve legacy URLs | Prevents broken saved links and route regressions | ✓ Validated by route and redirect coverage |
+| Make Progress V2 idempotent | Protects local user progress and rollback | ✓ Validated while retaining all v1 stores |
+| Keep complex labs bespoke behind a registry | Avoids flattening rich labs into weak generic blocks | ✓ Validated across LessonPage pilots and specialized labs |
+| Pilot AI Overview, Gradient Descent, and MLP | Covers orientation, optimization, and neural-network flagship lessons | ✓ Completed without bulk lesson migration |
+| Rebuild Batch 4 around one reproducible case | Keeps formulas, code, media, and diagnostics numerically consistent | ✓ Validated in Phase 25 with 45/45 must-haves |
 
 ---
-*Last updated: 2026-07-20 for Curriculum V3 numerical-methods content delivery*
+*Last updated: 2026-07-23 after Phase 25 completion*
