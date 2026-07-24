@@ -20,7 +20,10 @@ import {
   coreLearningPathModuleIds,
   curriculumRouteManifestById,
 } from '../src/curriculum/routeManifest.ts'
-import { resolveCanonicalLearnRoute } from '../src/curriculum/routes.ts'
+import {
+  resolveCanonicalLearnRedirect,
+  resolveCanonicalLearnRoute,
+} from '../src/curriculum/routes.ts'
 import { curriculumSpineRequiredModuleIds } from '../src/curriculum/spine.ts'
 import { curriculumTracks } from '../src/curriculum/tracks.ts'
 import { getNavigationAriaCurrent } from '../src/components/navigation/types.ts'
@@ -141,6 +144,18 @@ test('lightweight route manifest stays aligned with the full curriculum catalog'
 })
 
 test('canonical learn route resolver preserves current runtime destinations', () => {
+  const optimizationModule = curriculumCatalog.find(({ id }) => id === 'optimization')
+  const numericalDataModule = curriculumCatalog.find(({ id }) => id === 'numerical-data')
+
+  assert.ok(
+    optimizationModule?.lessons.some(({ id }) => id === 'v3-banknote-optimization-primary-lab'),
+    'the Math deep-link target must belong to the optimization module',
+  )
+  assert.ok(
+    numericalDataModule?.lessons.some(({ id }) => id === 'table-to-vector'),
+    'the Data deep-link target must belong to the numerical-data module',
+  )
+
   assert.equal(resolveCanonicalLearnRoute('gradient-descent'), '/learn/gradient-descent')
   assert.equal(
     resolveCanonicalLearnRoute('gradient-descent', 'loss-function'),
@@ -150,7 +165,33 @@ test('canonical learn route resolver preserves current runtime destinations', ()
     resolveCanonicalLearnRoute('beginner-linear-algebra'),
     '/math-lab/modules/beginner-linear-algebra',
   )
+  assert.equal(
+    resolveCanonicalLearnRoute('optimization', 'v3-banknote-optimization-primary-lab'),
+    '/math-lab/modules/optimization#v3-banknote-optimization-primary-lab',
+  )
   assert.equal(resolveCanonicalLearnRoute('numerical-data'), '/data-lab/modules/numerical-data')
+  assert.equal(
+    resolveCanonicalLearnRoute('numerical-data', 'table-to-vector'),
+    '/data-lab/modules/numerical-data#table-to-vector',
+  )
+  assert.equal(
+    resolveCanonicalLearnRoute('numerical-data', 'invalid lesson'),
+    '/data-lab/modules/numerical-data',
+  )
+  assert.deepEqual(
+    resolveCanonicalLearnRedirect('optimization', 'v3-banknote-optimization-primary-lab'),
+    {
+      path: '/math-lab/modules/optimization',
+      hash: '#v3-banknote-optimization-primary-lab',
+    },
+  )
+  assert.deepEqual(
+    resolveCanonicalLearnRedirect('numerical-data', 'table-to-vector'),
+    {
+      path: '/data-lab/modules/numerical-data',
+      hash: '#table-to-vector',
+    },
+  )
   assert.equal(resolveCanonicalLearnRoute('missing-module'), undefined)
 })
 
@@ -166,6 +207,9 @@ test('router wires canonical routes while preserving legacy deep links', () => {
   assert.match(routerSource, /path: '\/progress'/)
   assert.match(routerSource, /path: '\/python'/)
   assert.match(routerSource, /path: '\/python\/:chapterId'/)
+  assert.match(routerSource, /query: to\.query/)
+  assert.match(routerSource, /redirectRoute\.hash/)
+  assert.match(routerSource, /replace: true/)
 
   const linearChapterIndex = routerSource.indexOf("path: '/learn/linear-regression/:chapterId'")
   const logisticChapterIndex = routerSource.indexOf("path: '/learn/logistic-regression/:chapterId'")

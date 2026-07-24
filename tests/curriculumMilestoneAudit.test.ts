@@ -84,13 +84,59 @@ test('milestone audit keeps current curriculum modules reachable through the man
       assert.equal(resolveCanonicalLearnRedirect(moduleDefinition.id, manifestEntry.firstLessonId), undefined)
     } else {
       assert.equal(resolvedRoute, moduleDefinition.route)
-      assert.equal(resolveCanonicalLearnRedirect(moduleDefinition.id, manifestEntry.firstLessonId), moduleDefinition.route)
+      assert.deepEqual(
+        resolveCanonicalLearnRedirect(moduleDefinition.id, manifestEntry.firstLessonId),
+        { path: moduleDefinition.route },
+      )
     }
   }
 
   for (const moduleId of [...coreLearningPathModuleIds, ...projectPracticeModuleIds]) {
     assert.ok(curriculumRouteManifestById.has(moduleId), `${moduleId} should stay in the route manifest`)
   }
+})
+
+test('milestone audit preserves Math and Data lesson identity through legacy runtime routes', () => {
+  const optimizationModule = curriculumCatalog.find(({ id }) => id === 'optimization')
+  const numericalDataModule = curriculumCatalog.find(({ id }) => id === 'numerical-data')
+
+  assert.ok(
+    optimizationModule?.lessons.some(({ id }) => id === 'v3-banknote-optimization-primary-lab'),
+    'the Math audit target must be a real optimization lesson',
+  )
+  assert.ok(
+    numericalDataModule?.lessons.some(({ id }) => id === 'table-to-vector'),
+    'the Data audit target must be a real numerical-data lesson',
+  )
+
+  assert.equal(
+    resolveCanonicalLearnRoute('optimization', 'v3-banknote-optimization-primary-lab'),
+    '/math-lab/modules/optimization#v3-banknote-optimization-primary-lab',
+  )
+  assert.deepEqual(
+    resolveCanonicalLearnRedirect('optimization', 'v3-banknote-optimization-primary-lab'),
+    {
+      path: '/math-lab/modules/optimization',
+      hash: '#v3-banknote-optimization-primary-lab',
+    },
+  )
+
+  assert.equal(
+    resolveCanonicalLearnRoute('numerical-data', 'table-to-vector'),
+    '/data-lab/modules/numerical-data#table-to-vector',
+  )
+  assert.deepEqual(
+    resolveCanonicalLearnRedirect('numerical-data', 'table-to-vector'),
+    {
+      path: '/data-lab/modules/numerical-data',
+      hash: '#table-to-vector',
+    },
+  )
+
+  assert.equal(
+    resolveCanonicalLearnRoute('numerical-data', 'invalid lesson'),
+    '/data-lab/modules/numerical-data',
+  )
 })
 
 test('milestone audit preserves legacy URL handlers alongside canonical routes', () => {
