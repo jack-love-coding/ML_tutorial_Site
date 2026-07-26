@@ -16,7 +16,21 @@ The Curriculum V2 adapter and navigation work remains the compatibility foundati
 - Numerical Methods Batch 4 (`optimization`, `training-diagnostics`) is complete. Phase 25 connects one reproducible UCI Banknote case to stable BCE, feature scaling, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure recovery, and training-curve diagnosis.
 - Phase 25 passed 45/45 must-have verification, 755 repository tests, standard and GitHub Pages builds, Notebook/Manim integrity checks, security audit, and bilingual desktop/mobile browser acceptance.
 - Homepage Focus and Spine progressive-disclosure redesign remain paused while content depth is built.
-- The next milestone direction has not yet been selected.
+- v1.0 was archived on 2026-07-26 with explicitly accepted planning-provenance and deferred-progress gaps.
+- The selected next milestone is v1.1 Classical Supervised Learning.
+
+## Current State
+
+**Shipped:** v1.0 Curriculum Foundation
+
+The compatibility foundation, Curriculum V3 blueprint, Python Data Tools Stages 1–4, detailed foundation-mathematics route, Numerical Methods Batches 1–4, and Phase 25 reproducible optimization case are available. Historical Phases 1–24A remain documented but lack canonical three-source requirement provenance; Phase 25 is fully preserved in the v1.0 archive.
+
+## Next Milestone Goals
+
+- Build one continuous teaching path from loss values to fitted regression baselines and explainable classification decisions.
+- Rebuild `loss-functions`, `linear-regression`, `project-tabular-regression`, `logistic-regression`, and `classification` with detailed bilingual teaching content.
+- Provide local downloadable datasets, clean-kernel Notebooks, locked outputs, and page-visible reference results.
+- Keep exercises selective and formative; do not expand checkpoint persistence, backend, or homepage redesign scope.
 
 ## Core Value
 
@@ -38,7 +52,10 @@ Students should always know where they are in the learning path, why the current
 
 ### Active
 
-- [ ] Select the next milestone before resuming paused homepage, spine, or Python Data Tools Stage 5 work.
+- [ ] Rebuild the classical supervised-learning route as a coherent loss → regression → classification teaching sequence.
+- [ ] Keep formulas, variable names, code, Notebook outputs, and browser-side deterministic examples numerically consistent.
+- [ ] Publish auditable local datasets, downloadable Notebooks, and bilingual page-visible run outputs for the new content.
+- [ ] Preserve existing routes, checkpoints, Progress V1/V2 storage, and GitHub Pages compatibility.
 
 ### Out of Scope
 
@@ -74,6 +91,26 @@ Students should always know where they are in the learning path, why the current
 | Keep complex labs bespoke behind a registry | Avoids flattening rich labs into weak generic blocks | ✓ Validated across LessonPage pilots and specialized labs |
 | Pilot AI Overview, Gradient Descent, and MLP | Covers orientation, optimization, and neural-network flagship lessons | ✓ Completed without bulk lesson migration |
 | Rebuild Batch 4 around one reproducible case | Keeps formulas, code, media, and diagnostics numerically consistent | ✓ Validated in Phase 25 with 45/45 must-haves |
+| Archive v1.0 with accepted gaps | Content delivery is the current priority; checkpoint persistence belongs with backend identity and sync design | ✓ Accepted on 2026-07-26 with audit and provenance debt preserved |
+| Make classical supervised learning the next milestone | It is the missing bridge from mathematical foundations and data tools into practical model training | — Pending |
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition:**
+
+1. Move verified requirements to Validated.
+2. Move invalidated or explicitly deferred requirements to Out of Scope with a reason.
+3. Add newly discovered requirements and decisions without widening the active phase silently.
+4. Recheck that the product description and content-first priority remain accurate.
+
+**After each milestone:**
+
+1. Review every section against shipped behavior.
+2. Reconfirm the Core Value.
+3. Audit Out of Scope and known technical debt.
+4. Update the project context and next milestone goals.
 
 ---
-*Last updated: 2026-07-23 after Phase 25 completion*
+*Last updated: 2026-07-26 after v1.0 milestone archive*

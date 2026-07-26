@@ -1,44 +1,58 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.0
-milestone_name: milestone
-current_phase: 25
-current_plan: Not started
+milestone_name: Curriculum Foundation
+current_phase: 0
 status: completed
 stopped_at: Completed 25-13-PLAN.md
-last_updated: "2026-07-23T04:05:34.472Z"
-last_activity: 2026-07-23
+last_updated: "2026-07-26T08:41:39.896Z"
+last_activity: 2026-07-26
+last_activity_desc: Milestone v1.0 completed and archived
 progress:
-  total_phases: 31
+  total_phases: 1
   completed_phases: 1
   total_plans: 13
   completed_plans: 13
-  percent: 3
+  percent: 100
+current_plan: Not started
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
-**Updated:** 2026-07-23
-**Status:** Milestone complete
+**Updated:** 2026-07-26
+**Status:** v1.0 milestone complete
 
 ## Current Position
 
-**Current Phase:** 25
-**Current Plan:** Not started
-**Total Plans in Phase:** 13
-**Status:** Milestone complete
-**Last Activity:** 2026-07-23
+Phase: Milestone v1.0 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-07-26 — Milestone v1.0 completed and archived
+
+## Deferred Items
+
+Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
+
+| Category | Item | Status |
+| --- | --- | --- |
+| progress | Checkpoint completion and quiz-attempt persistence | Deferred to backend/database milestone |
+| curriculum | CURR-04 catalog-derived prerequisite ordering | Partial; deferred |
+| homepage | HOME-01 and HOME-02 decision-surface hierarchy | Partial; paused |
+| renderer | LESSON-01 full typed block/checkpoint contract | Partial; deferred |
+| interaction | LAB-02 static workflow labeling cleanup | Partial; deferred |
+| validation | VAL-04 clean milestone provenance and gap-free audit | Accepted technical debt |
+| planning | Historical Phases 1–24A canonical verification/summary provenance | Accepted technical debt |
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-06-25)
+See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 25 — Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics
+**Current focus:** Define v1.1 Classical Supervised Learning requirements and roadmap.
 
 ## Baseline
 
-- `npm test`: pass, 718 tests after Numerical Methods Batch 3.
+- `npm test`: pass, 756 tests after the canonical Math/Data deep-link fix.
 - `npm run build`: pass with existing Vite large-chunk warning.
 - `npm run build:pages`: pass with existing Vite large-chunk warning.
 - `npm run security:audit`: pass, 0 vulnerabilities.
@@ -810,3 +824,7 @@ Run `$gsd-progress` to review the completed milestone and choose the next work d
 - [Phase 25]: Accept Plan 25-13 only after explicit user approval; automated gates and Playwright observations do not substitute for the blocking human checkpoint.
 - [Phase 25]: Treat missing lower-learning-rate direction as a correctness bug and require full tests, both builds, and bilingual Number.MAX_VALUE browser retesting after the fix.
 - [Phase 25]: Preserve both routes, existing checkpoints and Progress identities, standard/Pages assets, reduced-motion behavior, and video-failure teaching fallbacks.
+
+## Operator Next Steps
+
+- Start the next milestone with /gsd-new-milestone
