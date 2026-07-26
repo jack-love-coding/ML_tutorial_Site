@@ -25,6 +25,17 @@ The Curriculum V2 adapter and navigation work remains the compatibility foundati
 
 The compatibility foundation, Curriculum V3 blueprint, Python Data Tools Stages 1–4, detailed foundation-mathematics route, Numerical Methods Batches 1–4, and Phase 25 reproducible optimization case are available. Historical Phases 1–24A remain documented but lack canonical three-source requirement provenance; Phase 25 is fully preserved in the v1.0 archive.
 
+## Current Milestone: v1.1 Classical Supervised Learning
+
+**Goal:** Build one coherent, reproducible teaching corridor from loss values through fitted regression baselines to explainable classification decisions.
+
+**Target features:**
+
+- Rebuild `loss-functions` and `linear-regression` around numerically consistent worked cases, code, diagnostics, and failure modes.
+- Deliver a reproducible `project-tabular-regression` with a local dataset, executed Notebook, controlled baseline improvement, residual analysis, and limitations.
+- Rebuild `logistic-regression` and `classification` around probability scores, calibration, thresholds, costs, subgroup errors, and honest decision boundaries.
+- Publish detailed bilingual lessons, downloadable local assets, page-visible run outputs, and selective formative checks without expanding backend or progress scope.
+
 ## Next Milestone Goals
 
 - Build one continuous teaching path from loss values to fitted regression baselines and explainable classification decisions.
@@ -113,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update the project context and next milestone goals.
 
 ---
-*Last updated: 2026-07-26 after v1.0 milestone archive*
+*Last updated: 2026-07-26 at v1.1 milestone start*

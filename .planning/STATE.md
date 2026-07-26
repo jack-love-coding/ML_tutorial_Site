@@ -1,33 +1,29 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: Curriculum Foundation
-current_phase: 0
-status: completed
-stopped_at: Completed 25-13-PLAN.md
-last_updated: "2026-07-26T08:41:39.896Z"
+milestone: v1.1
+milestone_name: Classical Supervised Learning
+status: planning
+last_updated: "2026-07-26T08:47:05.340Z"
 last_activity: 2026-07-26
-last_activity_desc: Milestone v1.0 completed and archived
 progress:
-  total_phases: 1
-  completed_phases: 1
-  total_plans: 13
-  completed_plans: 13
-  percent: 100
-current_plan: Not started
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-07-26
-**Status:** v1.0 milestone complete
+**Status:** Defining v1.1 requirements
 
 ## Current Position
 
-Phase: Milestone v1.0 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-07-26 — Milestone v1.0 completed and archived
+Status: Defining requirements
+Last activity: 2026-07-26 — Milestone v1.1 started
 
 ## Deferred Items
 
