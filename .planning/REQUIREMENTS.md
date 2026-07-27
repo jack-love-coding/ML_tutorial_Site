@@ -1,0 +1,120 @@
+# Requirements: v1.1 Classical Supervised Learning
+
+**Defined:** 2026-07-27  
+**Core Value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
+
+## v1.1 Requirements
+
+Requirements for the Classical Supervised Learning milestone. Each requirement maps to exactly one roadmap phase.
+
+### Loss Functions
+
+- [ ] **LOSS-01**: Learners can calculate MSE, MAE, and stable binary cross-entropy on fixed examples and aggregate per-example losses into one objective.
+- [ ] **LOSS-02**: Learners can use loss scale and gradients to explain how outliers and confident wrong predictions influence training differently.
+- [ ] **LOSS-03**: Learners can run vectorized NumPy loss implementations and verify the displayed gradients with finite differences.
+
+### Linear Regression
+
+- [ ] **LINR-01**: Learners can connect `ŷ = Xw + b`, residuals, MSE gradients, and coefficient interpretation using consistent notation.
+- [ ] **LINR-02**: Learners can reproduce a locked regression fit using NumPy batch gradient descent.
+- [ ] **LINR-03**: Learners can compare normal-equation, gradient-descent, and scikit-learn coefficients, predictions, and errors on the same split.
+- [ ] **LINR-04**: Learners can use held-out residuals and coefficient stability to identify nonlinearity, heteroscedasticity, or collinearity limitations.
+
+### Tabular Regression Project
+
+- [ ] **TPRJ-01**: Learners can download a local tabular dataset with provenance, checksum, schema, target definition, and fixed train/validation/test split.
+- [ ] **TPRJ-02**: Learners can build a leakage-safe pipeline whose preprocessing rules are fitted on training data only.
+- [ ] **TPRJ-03**: Learners can establish an honest linear baseline and compare one controlled improvement against it.
+- [ ] **TPRJ-04**: Learners can report metrics, residual plots, named failure examples, formula-to-code connections, and project limitations.
+- [ ] **TPRJ-05**: Learners can download the dataset, clean-kernel Notebook, and locked outputs that reproduce the reference results shown on the teaching page.
+
+### Logistic Regression
+
+- [ ] **LOGR-01**: Learners can connect linear scores, sigmoid probabilities, log-odds, maximum likelihood, and binary cross-entropy.
+- [ ] **LOGR-02**: Learners can implement stable binary cross-entropy, logistic gradients, deterministic training, and finite-difference checks in NumPy.
+- [ ] **LOGR-03**: Learners can compare scratch coefficients and probabilities with scikit-learn under aligned preprocessing and regularization settings.
+- [ ] **LOGR-04**: Learners can inspect probability calibration and use a nonlinear example to explain the limit of a linear decision boundary.
+
+### Classification Decisions
+
+- [ ] **CLAS-01**: Learners can distinguish model scores, probabilities, thresholds, and final class decisions.
+- [ ] **CLAS-02**: Learners can calculate a confusion matrix, precision, recall, and F1 from fixed held-out predictions.
+- [ ] **CLAS-03**: Learners can explain that ROC/AUC summarizes ranking across thresholds rather than directly selecting an operating threshold.
+- [ ] **CLAS-04**: Learners can choose and justify a validation threshold using false-positive and false-negative costs while reporting result variation.
+- [ ] **CLAS-05**: Learners can inspect subgroup errors and named misclassified examples rather than relying on one aggregate score.
+- [ ] **CLAS-06**: Learners can still access the existing multiclass and softmax material as supporting content without turning it into the milestone's primary project.
+
+### Content and Quality
+
+- [ ] **QLTY-01**: Learners receive complete Chinese and English teaching for all five milestone modules with consistent formulas, variable names, code, and run outputs.
+- [ ] **QLTY-02**: Each module presents a core question, concept explanation, worked example, formula, code, run output, misconception feedback, and next-step connection.
+- [ ] **QLTY-03**: Exercises remain selective, formative, and non-blocking so detailed teaching remains the primary page content.
+- [ ] **QLTY-04**: Existing module IDs, routes, checkpoints, and Progress V1/V2 behavior remain compatible throughout the rebuild.
+- [ ] **QLTY-05**: Core computations remain outside Vue components with automated tests, and every phase passes standard build, Pages build, and bilingual desktop/mobile checks.
+
+## Future Requirements
+
+Deferred to later milestones and excluded from the v1.1 roadmap.
+
+- **FUT-05**: Add decision-tree, random-forest, and ensemble-learning content.
+- **FUT-06**: Rebuild regularization, model selection, and the remaining generalization/training-diagnostics route.
+- **FUT-07**: Deliver the complete classification-evaluation project after model-selection prerequisites are ready.
+- **FUT-08**: Execute Python Data Tools Stage 5 terminology, consistency, browser, and release validation.
+- **FUT-09**: Resume Homepage Focus and Spine progressive-disclosure work.
+- **FUT-10**: Design backend accounts, synchronized progress ownership, and checkpoint persistence together.
+
+## Out of Scope
+
+| Feature | Reason |
+| --- | --- |
+| New duplicate course IDs or an alternate route tree | Existing canonical and legacy identities must remain stable during the rebuild. |
+| Runtime remote dataset fetching | Teaching data and Notebook execution must remain reproducible and downloadable locally. |
+| Browser Python or Pyodide | Deterministic browser examples continue to use TypeScript; Python remains an authored downloadable artifact. |
+| Large exercise bank or assessment system | The product remains teaching-first and teacher/backend assessment is deferred. |
+| Backend accounts, cloud sync, or checkpoint persistence | These require a later identity, ownership, and database design. |
+| Homepage, global navigation, or visual-system redesign | Content depth is the milestone priority. |
+| Tree models, ensembles, or the full classification project | These belong to the following generalization and evaluation milestone. |
+
+## Traceability
+
+Roadmap phase assignments are populated after roadmap approval.
+
+| Requirement | Phase | Status |
+| --- | --- | --- |
+| LOSS-01 | — | Pending |
+| LOSS-02 | — | Pending |
+| LOSS-03 | — | Pending |
+| LINR-01 | — | Pending |
+| LINR-02 | — | Pending |
+| LINR-03 | — | Pending |
+| LINR-04 | — | Pending |
+| TPRJ-01 | — | Pending |
+| TPRJ-02 | — | Pending |
+| TPRJ-03 | — | Pending |
+| TPRJ-04 | — | Pending |
+| TPRJ-05 | — | Pending |
+| LOGR-01 | — | Pending |
+| LOGR-02 | — | Pending |
+| LOGR-03 | — | Pending |
+| LOGR-04 | — | Pending |
+| CLAS-01 | — | Pending |
+| CLAS-02 | — | Pending |
+| CLAS-03 | — | Pending |
+| CLAS-04 | — | Pending |
+| CLAS-05 | — | Pending |
+| CLAS-06 | — | Pending |
+| QLTY-01 | — | Pending |
+| QLTY-02 | — | Pending |
+| QLTY-03 | — | Pending |
+| QLTY-04 | — | Pending |
+| QLTY-05 | — | Pending |
+
+**Coverage:**
+
+- v1.1 requirements: 27 total
+- Mapped to phases: 0
+- Unmapped: 27
+
+---
+*Requirements defined: 2026-07-27*
+*Last updated: 2026-07-27 after requirements confirmation*
