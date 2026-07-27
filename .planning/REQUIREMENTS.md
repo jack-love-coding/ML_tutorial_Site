@@ -77,44 +77,44 @@ Deferred to later milestones and excluded from the v1.1 roadmap.
 
 ## Traceability
 
-Roadmap phase assignments are populated after roadmap approval.
+Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| LOSS-01 | — | Pending |
-| LOSS-02 | — | Pending |
-| LOSS-03 | — | Pending |
-| LINR-01 | — | Pending |
-| LINR-02 | — | Pending |
-| LINR-03 | — | Pending |
-| LINR-04 | — | Pending |
-| TPRJ-01 | — | Pending |
-| TPRJ-02 | — | Pending |
-| TPRJ-03 | — | Pending |
-| TPRJ-04 | — | Pending |
-| TPRJ-05 | — | Pending |
-| LOGR-01 | — | Pending |
-| LOGR-02 | — | Pending |
-| LOGR-03 | — | Pending |
-| LOGR-04 | — | Pending |
-| CLAS-01 | — | Pending |
-| CLAS-02 | — | Pending |
-| CLAS-03 | — | Pending |
-| CLAS-04 | — | Pending |
-| CLAS-05 | — | Pending |
-| CLAS-06 | — | Pending |
-| QLTY-01 | — | Pending |
-| QLTY-02 | — | Pending |
-| QLTY-03 | — | Pending |
-| QLTY-04 | — | Pending |
-| QLTY-05 | — | Pending |
+| LOSS-01 | Phase 26 | Pending |
+| LOSS-02 | Phase 26 | Pending |
+| LOSS-03 | Phase 26 | Pending |
+| LINR-01 | Phase 27 | Pending |
+| LINR-02 | Phase 27 | Pending |
+| LINR-03 | Phase 27 | Pending |
+| LINR-04 | Phase 27 | Pending |
+| TPRJ-01 | Phase 28 | Pending |
+| TPRJ-02 | Phase 28 | Pending |
+| TPRJ-03 | Phase 28 | Pending |
+| TPRJ-04 | Phase 28 | Pending |
+| TPRJ-05 | Phase 28 | Pending |
+| LOGR-01 | Phase 29 | Pending |
+| LOGR-02 | Phase 29 | Pending |
+| LOGR-03 | Phase 29 | Pending |
+| LOGR-04 | Phase 29 | Pending |
+| CLAS-01 | Phase 30 | Pending |
+| CLAS-02 | Phase 30 | Pending |
+| CLAS-03 | Phase 30 | Pending |
+| CLAS-04 | Phase 30 | Pending |
+| CLAS-05 | Phase 30 | Pending |
+| CLAS-06 | Phase 30 | Pending |
+| QLTY-01 | Phase 31 | Pending |
+| QLTY-02 | Phase 31 | Pending |
+| QLTY-03 | Phase 31 | Pending |
+| QLTY-04 | Phase 31 | Pending |
+| QLTY-05 | Phase 31 | Pending |
 
 **Coverage:**
 
 - v1.1 requirements: 27 total
-- Mapped to phases: 0
-- Unmapped: 27
+- Mapped to phases: 27
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-27*
-*Last updated: 2026-07-27 after requirements confirmation*
+*Last updated: 2026-07-27 after v1.1 roadmap approval*
