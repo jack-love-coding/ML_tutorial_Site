@@ -35,6 +35,9 @@ const LossFunctionsLessonLab = defineAsyncComponent(
 const LossFunctionsResults = defineAsyncComponent(
   () => import('../components/LossFunctionsResults.vue'),
 )
+const LossFunctionsDownloads = defineAsyncComponent(
+  () => import('../components/LossFunctionsDownloads.vue'),
+)
 const AlgorithmCheckpointQuiz = defineAsyncComponent(
   () => import('../components/AlgorithmCheckpointQuiz.vue'),
 )
@@ -610,6 +613,12 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
             @patch-config="patchConfig"
           />
 
+          <LossFunctionsResults
+            :active-section="section"
+            :snapshot="snapshot"
+            :config="experiment.config"
+          />
+
           <div class="story-companion story-companion--lesson">
             <section class="story-companion__panel story-companion__panel--guide">
               <div class="panel__heading">
@@ -800,38 +809,10 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       :locale="currentLocale"
     />
 
-    <section v-if="isLossFunctionsPage" class="results-grid results-grid--loss">
-      <LossFunctionsResults
-        :active-section="activeSection"
-        :snapshot="snapshot"
-        :config="experiment.config"
-      />
-
-      <section class="panel lesson-panel lesson-panel--loss">
-        <div class="panel__heading">
-          <span>{{ t('common.readingGuide') }}</span>
-          <strong>{{ activeSection ? t(activeSection.titleKey) : t(moduleDefinition.titleKey) }}</strong>
-        </div>
-        <p class="lesson-panel__callout">{{ localizedText(activeSection?.callout) }}</p>
-        <div v-if="localizedText(activeSection?.experimentPrompt)" class="lesson-panel__prompt">
-          {{ localizedText(activeSection?.experimentPrompt) }}
-        </div>
-
-        <router-link
-          v-if="lessonBridgeFor(activeSection)"
-          class="lesson-bridge-card"
-          :to="lessonBridgeFor(activeSection)?.route || '/'"
-        >
-          <span>{{ lessonBridgeFor(activeSection)?.eyebrow }}</span>
-          <strong>{{ lessonBridgeFor(activeSection)?.title }}</strong>
-          <p>{{ lessonBridgeFor(activeSection)?.body }}</p>
-          <small>{{ lessonBridgeFor(activeSection)?.cta }}</small>
-        </router-link>
-      </section>
-    </section>
+    <LossFunctionsDownloads v-if="isLossFunctionsPage" />
 
     <section
-      v-else-if="!isLinearRegressionPage && !isWorkflowLessonPage"
+      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isWorkflowLessonPage"
       class="results-grid"
       :class="{ 'results-grid--gradient': isGradientPage }"
     >

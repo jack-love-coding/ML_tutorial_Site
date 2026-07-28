@@ -158,3 +158,57 @@ test('loss lab styles preserve tables focus and teaching meaning at 390px and re
   assert.match(styles, /\.is-pass|\.is-kink/)
   assert.match(styles, /grid-template-columns:\s*1fr/)
 })
+
+test('loss page keeps lazy story composition while placing chapter results beside each lab and downloads once at the end', () => {
+  const view = source('src/views/AlgorithmView.vue')
+  const lossBranchStart = view.indexOf('v-else-if="isLossFunctionsPage"')
+  const checkpointStart = view.indexOf('<AlgorithmCheckpointQuiz')
+  const downloadsStart = view.indexOf('<LossFunctionsDownloads')
+
+  assert.match(view, /defineAsyncComponent\(\s*\(\) => import\('\.\.\/components\/LossFunctionsDownloads\.vue'\)/)
+  assert.match(
+    view,
+    /<LossFunctionsLessonLab[\s\S]*?<LossFunctionsResults[\s\S]*?:active-section="section"/,
+  )
+  assert.equal(view.match(/<LossFunctionsDownloads/g)?.length, 1)
+  assert.ok(lossBranchStart >= 0)
+  assert.ok(checkpointStart > lossBranchStart)
+  assert.ok(downloadsStart > checkpointStart)
+  assert.doesNotMatch(
+    view.slice(checkpointStart, downloadsStart),
+    /<LossFunctionsResults/,
+  )
+})
+
+test('committed loss browser matrix covers bilingual root and seven deep links with local-only responsive interactions', () => {
+  const matrix = source('scripts/qa/lossFunctionsBrowserMatrix.js')
+  const chapterIds = [
+    'why-loss',
+    'regression-losses',
+    'classification-losses',
+    'likelihood-intuition',
+    'negative-log',
+    'mle-bridge',
+    'gradient-verification',
+  ]
+
+  assert.match(matrix, /zh-CN/)
+  assert.match(matrix, /width:\s*390,\s*height:\s*844/)
+  assert.match(matrix, /prefers-reduced-motion|reducedMotion/)
+  assert.match(matrix, /\/learn\/loss-functions/)
+  for (const chapterId of chapterIds) {
+    assert.match(matrix, new RegExp(chapterId))
+  }
+  assert.match(matrix, /code-lab|copy/i)
+  assert.match(matrix, /loss-real-row-select/)
+  assert.match(matrix, /confident/i)
+  assert.match(matrix, /kink|不可微/)
+  assert.match(matrix, /1000/)
+  assert.match(matrix, /algorithm-checkpoint/)
+  assert.match(matrix, /data-loss-downloads/)
+  assert.match(matrix, /scrollWidth/)
+  assert.match(matrix, /overlap/)
+  assert.match(matrix, /pageerror/)
+  assert.match(matrix, /request/)
+  assert.match(matrix, /new URL/)
+})
