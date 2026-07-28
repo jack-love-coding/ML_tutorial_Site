@@ -1,15 +1,19 @@
 ---
 phase: 26
 slug: loss-functions-rebuild
-status: draft
+status: complete
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-07-28
+completed: 2026-07-28
 ---
 
 # Phase 26 — Validation Strategy
 
-> Per-phase validation contract for feedback sampling during execution. The LaDe authorization was explicitly approved on 2026-07-28; Wave 0 remains incomplete until every owner has created its test file.
+> Per-phase validation contract used during execution. The LaDe authorization
+> was explicitly approved on 2026-07-28; every Wave 0 owner created its test
+> file and demonstrated the planned RED → GREEN sequence. The canonical final
+> result is recorded in `26-VERIFICATION.md`.
 
 ---
 
@@ -39,9 +43,25 @@ created: 2026-07-28
 
 ---
 
+## Completion Record
+
+- Phase verifier: **passed**, 37/37 must-haves, 0 unverified behaviors.
+- Focused Phase 26 suite: **88/88 passed**.
+- Repository suite: **837/837 passed**.
+- Offline package: **16 exact members**, four independently rerun Notebooks,
+  repository byte/mtime clean.
+- Root browser matrix: **32/32 passed** across both locales and both viewports.
+- Root build, Pages build, Pages asset tests, and security audit: **passed**.
+
+The task table below is the historical pre-execution sampling map; its original
+owner/readiness cells are retained as planning provenance. Completion evidence
+is the report and release record above.
+
+---
+
 ## Per-Task Verification Map
 
-| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
+| Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists (pre-execution) | Status (pre-execution) |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
 | 26-01-01 | 01 | 1 | LOSS-01, LOSS-02 | T-26-03 | The resolved `approve-lade` authorization is bound to the pinned LaDe-D Jilin identity, complete evidence, and privacy denylist; drift fails closed. | automated contract/preflight | From repository root: `rg -q "Open Questions \\(RESOLVED\\)" .planning/phases/26-loss-functions-rebuild/26-RESEARCH.md && rg -q "2026-07-28.*approve-lade" .planning/phases/26-loss-functions-rebuild/26-RESEARCH.md && rg -q "be2cec02775cafc8d52230303f32134382bcc50b" .planning/phases/26-loss-functions-rebuild/26-RESEARCH.md && rg -q "12e2cf4664dd5b4475d39dddee8872f5a03b3082f08f0eece7f103baee6c6e73" .planning/phases/26-loss-functions-rebuild/26-RESEARCH.md && rg -q "courier_id" .planning/phases/26-loss-functions-rebuild/26-RESEARCH.md && rg -qi "GPS" .planning/phases/26-loss-functions-rebuild/26-RESEARCH.md && rg -qi "precise stop" .planning/phases/26-loss-functions-rebuild/26-RESEARCH.md && rg -q "approve-lade" docs/curriculum-v3/loss-functions/phase-26-data-contract.md && rg -q "be2cec02775cafc8d52230303f32134382bcc50b" docs/curriculum-v3/loss-functions/phase-26-data-contract.md && rg -q "12e2cf4664dd5b4475d39dddee8872f5a03b3082f08f0eece7f103baee6c6e73" docs/curriculum-v3/loss-functions/phase-26-data-contract.md && rg -q "courier_id" docs/curriculum-v3/loss-functions/phase-26-data-contract.md && rg -qi "GPS" docs/curriculum-v3/loss-functions/phase-26-data-contract.md && rg -qi "precise stop" docs/curriculum-v3/loss-functions/phase-26-data-contract.md` | ✅ research exists; contract created by 26-01-01 | ⬜ pending |
 | 26-01-02 | 01 | 1 | LOSS-01, LOSS-02, LOSS-03 | T-26-01/02/03/04, T-26-SC | Source, license, privacy, strict-JSON, mode, and offline/write-free boundaries fail closed. | unit/contract | `python3 -m py_compile scripts/loss-functions/build-phase-26-assets.py && node --test tests/loss-functions-dataset-contract.test.ts && git check-ignore -q .cache/loss-functions/phase-26-sources` | ❌ W0 — owner 26-01-02 | ⬜ pending |
@@ -67,16 +87,17 @@ created: 2026-07-28
 
 ## Wave 0 Requirements
 
-- [ ] `tests/loss-functions-dataset-contract.test.ts` — owner **26-01-02**; source/license/privacy/schema/strict-JSON/bootstrap/atomicity stubs for LOSS-01/02/03.
-- [ ] `tests/loss-functions-math.test.ts` — owner **26-02-01**; pure MSE/MAE/BCE/gradient/guard/probe/finite-difference stubs for LOSS-01/02/03.
-- [ ] `tests/loss-functions-notebook-assets.test.ts` — owner **26-03-01**; candidate inventory/environment/four-kernel/parity/staging/publication/base stubs for LOSS-01/02/03.
-- [ ] `tests/loss-functions-compatibility.test.ts` — owner **26-06-01**; module/route/deep-link/checkpoint/Progress/base/safe-render stubs.
-- [ ] `tests/loss-functions-content.test.mjs` — owner **26-06-01**; seven-chapter bilingual teaching-loop/formula/code/output/scope stubs.
-- [ ] `tests/loss-functions-labs.test.mjs` — owner **26-07-01**; explicit registry/result/download/bounds/accessibility/fallback/page placement stubs.
+- [x] `tests/loss-functions-dataset-contract.test.ts` — source/license/privacy/schema/strict-JSON/bootstrap/atomicity coverage for LOSS-01/02/03.
+- [x] `tests/loss-functions-math.test.ts` — pure MSE/MAE/BCE/gradient/guard/probe/finite-difference coverage for LOSS-01/02/03.
+- [x] `tests/loss-functions-notebook-assets.test.ts` — candidate inventory/environment/four-kernel/parity/staging/publication/base coverage for LOSS-01/02/03.
+- [x] `tests/loss-functions-compatibility.test.ts` — module/route/deep-link/checkpoint/Progress/base/safe-render coverage.
+- [x] `tests/loss-functions-content.test.mjs` — seven-chapter bilingual teaching-loop/formula/code/output/scope coverage.
+- [x] `tests/loss-functions-labs.test.mjs` — explicit registry/result/download/bounds/accessibility/fallback/page placement coverage.
 - [x] `tests/algorithm-progress.test.ts` — existing; Plan 26-06 changes only the exact loss chapter set.
 - [x] Node test runner, npm build scripts, existing Python pins, audited wheel cache, and Playwright CLI — existing infrastructure; no framework or package installation is planned.
 
-`wave_0_complete` remains `false` until every unchecked file above exists and its owning task has demonstrated RED before implementation and GREEN afterward.
+`wave_0_complete` is `true`: every listed file exists and the owning plans
+recorded the required RED and GREEN commits.
 
 ---
 
