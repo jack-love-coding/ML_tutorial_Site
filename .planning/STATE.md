@@ -5,17 +5,17 @@ milestone_name: Classical Supervised Learning
 current_phase: 26
 current_phase_name: Loss Functions Rebuild
 status: ready_to_execute
-stopped_at: Completed 26-05-PLAN.md
-last_updated: "2026-07-28T15:27:05.743Z"
+stopped_at: Completed 26-06-PLAN.md
+last_updated: "2026-07-28T15:58:56.453Z"
 last_activity: 2026-07-28
 last_activity_desc: Phase 26 execution started
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
-current_plan: 26-06
+current_plan: 26-07
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
@@ -26,7 +26,7 @@ current_plan: 26-06
 ## Current Position
 
 Phase: 26 (Loss Functions Rebuild) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-07-28 — Phase 26 execution started
 
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-28T15:27:05.737Z
-**Stopped at:** Completed 26-05-PLAN.md
+**Last session:** 2026-07-28T15:58:17.137Z
+**Stopped at:** Completed 26-06-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -795,6 +795,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 26 P03 | 15 min | 2 tasks | 5 files |
 | Phase 26 P04 | 41 min | 2 tasks | 3 files |
 | Phase 26 P05 | 26 min | 2 tasks | 19 files |
+| Phase 26 P06 | 25m | 3 tasks | 5 files |
 
 ## Decisions
 
@@ -847,6 +848,9 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 26]: Plan 26-05: Treat datasets/loss-functions and notebooks/loss-functions as one lock-scoped transaction with two-group rollback.
 - [Phase 26]: Plan 26-05: Preserve the frozen Plan 26-04 candidate generator hash while evolving publication code independently.
 - [Phase 26]: Plan 26-05: Rerun each public Notebook in its own external temporary package and fresh network-blocked kernel using only the pinned offline wheelhouse.
+- [Phase 26]: Keep loss asset descriptors and chapter bindings module-local instead of extending the global StorySection contract. — Avoid widening the global lesson schema for one module.
+- [Phase 26]: Treat published Notebook outputs as the numerical authority; lesson prose binds visible values through typed output IDs. — Prevent copied numerical values from drifting away from published artifacts.
+- [Phase 26]: Limit Phase 26 gradient verification to dL/dyhat and dL/dz, with parameter training handed to Phase 27 and Phase 29. — Preserve the approved curriculum boundary while completing the output-gradient loop.
 
 ## Operator Next Steps
 

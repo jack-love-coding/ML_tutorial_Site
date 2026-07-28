@@ -35,14 +35,14 @@
 3. Vectorized implementations remain finite for extreme logits and pass deterministic finite-difference gradient checks.
 4. The rebuilt lesson preserves its route and checkpoint while passing focused content, calculation, and GitHub Pages asset tests.
 
-**Plans:** 5/7 plans executed
+**Plans:** 6/7 plans executed
 
 - [x] 26-01-PLAN.md
 - [x] 26-02-PLAN.md
 - [x] 26-03-PLAN.md
 - [x] 26-04-PLAN.md
 - [x] 26-05-PLAN.md
-- [ ] 26-06-PLAN.md
+- [x] 26-06-PLAN.md
 - [ ] 26-07-PLAN.md
 
 - **Wave 1:** `26-01` real-data authorization/source contract; `26-02` pure TypeScript loss, gradient, and finite-difference authority.
@@ -142,7 +142,7 @@
 
 | Phase | Milestone | Requirements | Status |
 | --- | --- | --- | --- |
-| 26. Loss Functions Rebuild | 5/7 | In Progress|  |
+| 26. Loss Functions Rebuild | 6/7 | In Progress|  |
 | 27. Linear Regression Rebuild | v1.1 | 4 | Not started |
 | 28. Tabular Regression Project | v1.1 | 5 | Not started |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
