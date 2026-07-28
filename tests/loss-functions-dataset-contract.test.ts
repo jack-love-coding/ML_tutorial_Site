@@ -180,3 +180,182 @@ test('authorization drift fails closed before generation', () => {
     rmSync(temporaryDirectory, { recursive: true, force: true })
   }
 })
+
+test('tampered source hashes and changed license evidence fail closed', () => {
+  const temporaryDirectory = mkdtempSync(join(tmpdir(), 'phase-26-integrity-'))
+  try {
+    const tamperedSource = join(temporaryDirectory, 'lade.csv')
+    writeFileSync(tamperedSource, 'substituted delivery data\n')
+    const hashProbe = runProbe(
+      'module._validate_source_file(module.LADE, pathlib.Path(sys.argv[2]))',
+      [tamperedSource],
+    )
+    assert.notEqual(hashProbe.status, 0)
+    assert.match(hashProbe.stderr, /SHA-256 drift/)
+
+    const changedContract = join(temporaryDirectory, 'contract.md')
+    writeFileSync(changedContract, readFileSync(contractPath, 'utf8').replaceAll('Apache-2.0', 'Proprietary'))
+    const licenseProbe = runProbe(
+      'module.validate_contract(pathlib.Path(sys.argv[2]))',
+      [changedContract],
+    )
+    assert.notEqual(licenseProbe.status, 0)
+    assert.match(licenseProbe.stderr, /license|contract|Apache-2\.0/i)
+  } finally {
+    rmSync(temporaryDirectory, { recursive: true, force: true })
+  }
+})
+
+test('LaDe validation locks row count, timestamp rollover, schema, and privacy-minimized candidates', () => {
+  const probe = runProbe([
+    'import csv, tempfile',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    path = pathlib.Path(directory) / "lade.csv"',
+    '    rows = []',
+    '    for accept_time, delivery_time in [',
+    '        ("2022-01-31 23:30:00", "2022-02-01 00:30:00"),',
+    '        ("2022-02-01 09:00:00", "2022-02-01 12:00:00"),',
+    '    ]:',
+    '        row = {field: "source-value" for field in module.LADE_SOURCE_FIELDS}',
+    '        row.update({"city": "Jilin", "aoi_type": "residential", "accept_time": accept_time,',
+    '                    "delivery_time": delivery_time, "ds": "2022-02-01"})',
+    '        rows.append(row)',
+    '    with path.open("w", encoding="utf-8", newline="") as handle:',
+    '        writer = csv.DictWriter(handle, fieldnames=module.LADE_SOURCE_FIELDS)',
+    '        writer.writeheader()',
+    '        writer.writerows(rows)',
+    '    result = module.validate_lade_source(path, expected_rows=2)',
+    '    print(json.dumps({',
+    '        "facts": result["facts"],',
+    '        "first": result["normalizedRows"][0],',
+    '        "keys": list(result["normalizedRows"][0]),',
+    '    }, sort_keys=True))',
+  ].join('\n'))
+  assert.equal(probe.status, 0, probe.stderr)
+  const validation = JSON.parse(probe.stdout)
+  assert.equal(validation.facts.rowCount, 2)
+  assert.equal(validation.first.delivery_duration_minutes, 60)
+  assert.deepEqual(validation.keys, [
+    'course_row_id',
+    'source_row_number',
+    'city',
+    'aoi_type',
+    'accept_time',
+    'delivery_time',
+    'ds',
+    'delivery_duration_minutes',
+  ])
+  assert.equal('courier_id' in validation.first, false)
+  assert.equal(Object.keys(validation.first).some((field) => /gps|lat|lng|stop/i.test(field)), false)
+
+  const rowCount = runProbe([
+    'import csv, tempfile',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    path = pathlib.Path(directory) / "lade.csv"',
+    '    row = {field: "source-value" for field in module.LADE_SOURCE_FIELDS}',
+    '    row.update({"city": "Jilin", "aoi_type": "residential",',
+    '                "accept_time": "2022-01-01 00:00:00",',
+    '                "delivery_time": "2022-01-01 01:00:00", "ds": "2022-01-01"})',
+    '    with path.open("w", encoding="utf-8", newline="") as handle:',
+    '        writer = csv.DictWriter(handle, fieldnames=module.LADE_SOURCE_FIELDS)',
+    '        writer.writeheader(); writer.writerow(row)',
+    '    module.validate_lade_source(path, expected_rows=2)',
+  ].join('\n'))
+  assert.notEqual(rowCount.status, 0)
+  assert.match(rowCount.stderr, /row count/i)
+
+  const invalidTimestamp = runProbe([
+    'import csv, tempfile',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    path = pathlib.Path(directory) / "lade.csv"',
+    '    row = {field: "source-value" for field in module.LADE_SOURCE_FIELDS}',
+    '    row.update({"city": "Jilin", "aoi_type": "residential", "accept_time": "not-a-time",',
+    '                "delivery_time": "2022-01-01 01:00:00", "ds": "2022-01-01"})',
+    '    with path.open("w", encoding="utf-8", newline="") as handle:',
+    '        writer = csv.DictWriter(handle, fieldnames=module.LADE_SOURCE_FIELDS)',
+    '        writer.writeheader(); writer.writerow(row)',
+    '    module.validate_lade_source(path, expected_rows=1)',
+  ].join('\n'))
+  assert.notEqual(invalidTimestamp.status, 0)
+  assert.match(invalidTimestamp.stderr, /timestamp|accept_time/i)
+
+  const unexpectedField = runProbe([
+    'import csv, tempfile',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    path = pathlib.Path(directory) / "lade.csv"',
+    '    fields = [*module.LADE_SOURCE_FIELDS, "unexpected_private_field"]',
+    '    row = {field: "source-value" for field in fields}',
+    '    row.update({"city": "Jilin", "aoi_type": "residential",',
+    '                "accept_time": "2022-01-01 00:00:00",',
+    '                "delivery_time": "2022-01-01 01:00:00", "ds": "2022-01-01"})',
+    '    with path.open("w", encoding="utf-8", newline="") as handle:',
+    '        writer = csv.DictWriter(handle, fieldnames=fields)',
+    '        writer.writeheader(); writer.writerow(row)',
+    '    module.validate_lade_source(path, expected_rows=1)',
+  ].join('\n'))
+  assert.notEqual(unexpectedField.status, 0)
+  assert.match(unexpectedField.stderr, /unexpected|schema|field/i)
+})
+
+test('SECOM validation preserves missing values and enforces labels plus the declared 591 observed 590 contract', () => {
+  const fixtureSource = [
+    'import tempfile, zipfile',
+    'def write_archive(path, *, width=590, labels=(-1, 1), declared=591):',
+    '    first = ["NaN", *(["0"] * (width - 1))]',
+    '    second = ["1"] * width',
+    '    with zipfile.ZipFile(path, "w") as archive:',
+    '        archive.writestr("secom.data", " ".join(first) + "\\n" + " ".join(second) + "\\n")',
+    '        archive.writestr("secom_labels.data",',
+    '            f"{labels[0]} 01/01/2008 00:00:00\\n{labels[1]} 01/01/2008 00:01:00\\n")',
+    '        archive.writestr("secom.names", f"Number of Attributes: {declared}\\n")',
+  ].join('\n')
+
+  const valid = runProbe([
+    fixtureSource,
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    path = pathlib.Path(directory) / "secom.zip"',
+    '    write_archive(path)',
+    '    result = module.validate_secom_archive(',
+    '        path, expected_rows=2, expected_label_counts={-1: 1, 1: 1})',
+    '    print(json.dumps(result, sort_keys=True))',
+  ].join('\n'))
+  assert.equal(valid.status, 0, valid.stderr)
+  assert.deepEqual(JSON.parse(valid.stdout), {
+    declaredFeatureCount: 591,
+    failCount: 1,
+    missingValueCount: 1,
+    observedFeatureCount: 590,
+    passCount: 1,
+    rowCount: 2,
+  })
+
+  const invalidLabel = runProbe([
+    fixtureSource,
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    path = pathlib.Path(directory) / "secom.zip"',
+    '    write_archive(path, labels=(-1, 0))',
+    '    module.validate_secom_archive(path, expected_rows=2)',
+  ].join('\n'))
+  assert.notEqual(invalidLabel.status, 0)
+  assert.match(invalidLabel.stderr, /label/i)
+
+  const padded = runProbe([
+    fixtureSource,
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    path = pathlib.Path(directory) / "secom.zip"',
+    '    write_archive(path, width=591)',
+    '    module.validate_secom_archive(path, expected_rows=2)',
+  ].join('\n'))
+  assert.notEqual(padded.status, 0)
+  assert.match(padded.stderr, /590|feature|width/i)
+
+  const hiddenDiscrepancy = runProbe([
+    fixtureSource,
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    path = pathlib.Path(directory) / "secom.zip"',
+    '    write_archive(path, declared=590)',
+    '    module.validate_secom_archive(path, expected_rows=2)',
+  ].join('\n'))
+  assert.notEqual(hiddenDiscrepancy.status, 0)
+  assert.match(hiddenDiscrepancy.stderr, /591|declared|metadata/i)
+})
