@@ -5,17 +5,17 @@ milestone_name: Classical Supervised Learning
 current_phase: 26
 current_phase_name: Loss Functions Rebuild
 status: ready_to_execute
-stopped_at: Completed 26-03-PLAN.md
-last_updated: "2026-07-28T14:06:07.022Z"
+stopped_at: Completed 26-04-PLAN.md
+last_updated: "2026-07-28T14:54:25.802Z"
 last_activity: 2026-07-28
 last_activity_desc: Phase 26 execution started
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 7
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
-current_plan: 26-04
+current_plan: 26-05
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
@@ -26,7 +26,7 @@ current_plan: 26-04
 ## Current Position
 
 Phase: 26 (Loss Functions Rebuild) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-07-28 — Phase 26 execution started
 
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-28T14:05:19.324Z
-**Stopped at:** Completed 26-03-PLAN.md
+**Last session:** 2026-07-28T14:53:47.343Z
+**Stopped at:** Completed 26-04-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -793,6 +793,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 26 P01 | 18 min | 3 tasks | 5 files |
 | Phase 26 P02 | 12 min | 2 tasks | 5 files |
 | Phase 26 P03 | 15 min | 2 tasks | 5 files |
+| Phase 26 P04 | 41 min | 2 tasks | 3 files |
 
 ## Decisions
 
@@ -837,6 +838,10 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 26]: Reuse the Numerical Methods eight-pin environment byte-for-byte — The existing audited 99-wheel cache supplies every required package, so Phase 26 adds no dependency or download path.
 - [Phase 26]: Keep isolated kernelspec names runtime-only — Stable proof IDs distinguish four executions without recording temporary machine identities.
 - [Phase 26]: Reserve public asset publication for Plan 26-05 — Plans 26-03 and 26-04 can target only the exact ignored staging transaction.
+- [Phase 26]: Preserve SECOM canonical missing values and 590 observed fields — Fold-local imputation, scaling, and OOF scores remain auxiliary teaching inputs rather than repairs to the published derivative.
+- [Phase 26]: Match TypeScript diagnostic arithmetic explicitly — Left-fold means and the shared branch sigmoid eliminate Python 3.12 aggregation and one-ULP probability drift while stable BCE stays in the logit domain.
+- [Phase 26]: Keep deterministic plots inside the audited environment — A standard-library 960x540 PNG writer supplies labels, patterns, and metadata without adding packages or widening the wheel audit.
+- [Phase 26]: Keep Plan 26-04 staging-only and indivisible — All 16 members and four execution proofs verify together; Plan 26-05 remains the only public publication boundary.
 
 ## Operator Next Steps
 
