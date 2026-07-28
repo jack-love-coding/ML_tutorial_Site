@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync, rmSync, statSync } from 'node:fs'
+import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import test from 'node:test'
 import {
@@ -350,37 +351,40 @@ test('kernel jobs lock NotebookClient execution and deterministic normalization'
 })
 
 test('candidate transaction creates a fresh root and cleanup removes failed candidates', () => {
-  rmSync(stagingRoot, { recursive: true, force: true })
-  const successful = runProbe([
-    'root = pathlib.Path(sys.argv[2])',
-    'root.mkdir(parents=True)',
-    '(root / "stale.txt").write_text("stale", encoding="utf-8")',
-    'with module.candidate_transaction(root) as transaction:',
-    '    print(json.dumps({',
-    '        "root": transaction.root.relative_to(module.REPO_ROOT).as_posix(),',
-    '        "staleExists": (transaction.root / "stale.txt").exists(),',
-    '        "jobCount": len(transaction.execution_jobs),',
-    '    }, sort_keys=True))',
-    '    (transaction.root / "candidate.txt").write_text("complete", encoding="utf-8")',
-  ].join('\n'), [stagingRoot])
-  assert.equal(successful.status, 0, successful.stderr)
-  assert.deepEqual(JSON.parse(successful.stdout), {
-    jobCount: 4,
-    root: '.cache/loss-functions/phase-26-staging',
-    staleExists: false,
-  })
-  assert.equal(existsSync(resolve(stagingRoot, 'candidate.txt')), true)
+  const transactionRoot = mkdtempSync(resolve(tmpdir(), 'phase-26-transaction-'))
+  try {
+    const successful = runProbe([
+      'root = pathlib.Path(sys.argv[2])',
+      'module.validate_candidate_staging_root = lambda path: path.resolve()',
+      '(root / "stale.txt").write_text("stale", encoding="utf-8")',
+      'with module.candidate_transaction(root) as transaction:',
+      '    print(json.dumps({',
+      '        "staleExists": (transaction.root / "stale.txt").exists(),',
+      '        "jobCount": len(transaction.execution_jobs),',
+      '    }, sort_keys=True))',
+      '    (transaction.root / "candidate.txt").write_text("complete", encoding="utf-8")',
+    ].join('\n'), [transactionRoot])
+    assert.equal(successful.status, 0, successful.stderr)
+    assert.deepEqual(JSON.parse(successful.stdout), {
+      jobCount: 4,
+      staleExists: false,
+    })
+    assert.equal(existsSync(resolve(transactionRoot, 'candidate.txt')), true)
 
-  const failed = runProbe([
-    'root = pathlib.Path(sys.argv[2])',
-    'with module.candidate_transaction(root) as transaction:',
-    '    (transaction.root / "partial.txt").write_text("partial", encoding="utf-8")',
-    '    raise module.Phase26Error("injected candidate failure")',
-  ].join('\n'), [stagingRoot])
-  assert.notEqual(failed.status, 0)
-  assert.match(failed.stderr, /injected candidate failure/)
-  assert.equal(existsSync(stagingRoot), false)
-  assert.equal(existsSync(resolve(root, 'public/phase-26-candidate-test')), false)
+    const failed = runProbe([
+      'root = pathlib.Path(sys.argv[2])',
+      'module.validate_candidate_staging_root = lambda path: path.resolve()',
+      'with module.candidate_transaction(root) as transaction:',
+      '    (transaction.root / "partial.txt").write_text("partial", encoding="utf-8")',
+      '    raise module.Phase26Error("injected candidate failure")',
+    ].join('\n'), [transactionRoot])
+    assert.notEqual(failed.status, 0)
+    assert.match(failed.stderr, /injected candidate failure/)
+    assert.equal(existsSync(transactionRoot), false)
+    assert.equal(existsSync(resolve(root, 'public/phase-26-candidate-test')), false)
+  } finally {
+    rmSync(transactionRoot, { recursive: true, force: true })
+  }
 })
 
 test('dataset-candidate mode is explicit, staging-only, and validates both real sources before Notebook execution', () => {
