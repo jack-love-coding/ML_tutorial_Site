@@ -439,110 +439,106 @@ We now know how to use MSE, MAE, and BCE. Only in the next chapter do we return 
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.likelihoodIntuition.title',
       markdown: {
-        'zh-CN': `如果你抛硬币 10 次，结果出现了 8 次正面，你会觉得“这枚硬币正面概率是 0.2”靠谱吗？
+        'zh-CN': `### 核心问题
+已经会用 BCE 之后，我们怎样把一组已观察数据看成“模型给这些结果分配了多高概率”，而不把似然误解成参数本身的概率？
 
-### 概念直觉
-**似然**不是在问“数据为什么发生”，而是在问：  
-**如果参数真的是这样，眼前这批数据像不像它生成出来的？**
+### 概念解释
+似然从**已观察数据**出发，固定住眼前的标签，再比较候选模型。对第 $i$ 行二分类结果，模型给出的概率是：
 
-在这节里，参数就是“硬币出现正面的概率 $p$”。  
-观测数据是“10 次里有 8 次正面”。  
-于是我们就可以比较：
+$$
+q_i =
+\\begin{cases}
+p_i, & y_i=1,\\\\
+1-p_i, & y_i=0.
+\\end{cases}
+$$
 
-- 如果 $p=0.2$，这组数据看起来像不像它生成的？
-- 如果 $p=0.5$，像不像？
-- 如果 $p=0.8$，像不像？
-
-### 手算例子
-如果我们暂时不管排列顺序，只看“8 次正面、2 次反面”这个结果，那么：
-
-$$L(p) = p^8(1-p)^2$$
-
-把几个候选值代进去：
-
-- $p=0.2$ 时，结果会很小，因为 0.2 很难解释“8 次正面”
-- $p=0.5$ 时，会更合理一些
-- $p=0.8$ 时，通常会明显更大，因为它更像这批数据的来源
+$q_i$ 回答“模型给实际发生的标签多高概率”。页面读取上一章同一批 SECOM 行的 $y_i$、$z_i$、$p_i$ 和 BCE 贡献，所以概率直觉与真实分类结果连续，不会突然换成另一套数值案例。
 
 ### 公式
-这条式子不是在发明新规则，而是在把“这组数据在当前参数下有多合理”写成一个可比较的数。
+如果先采用样本条件独立这个教学假设，整批已观察标签的似然是这些概率的乘积：
 
-$$L(p \\mid \\text{8 heads in 10 tosses}) = p^8(1-p)^2$$
+$$
+\\mathcal{L}
+=\\prod_{i=1}^{n}q_i
+=\\prod_{i=1}^{n}p_i^{y_i}(1-p_i)^{1-y_i}.
+$$
 
-这里的 $L$ 表示似然，$p$ 是我们正在猜的参数。  
-似然越大，不代表参数“绝对正确”，只代表**在候选参数里，它更能解释当前观测结果**。
+似然越大，只表示这个候选模型给当前已观察数据分配了更高联合概率；它不表示“参数有这么大概率”，也不证明模型就是真实的数据生成机制。
 
-> **常见误解**  
-> 不要把“参数的概率”误解成“似然”。这里不是在问“$p=0.8$ 本身有多可能”，而是在问“如果 $p=0.8$，这批数据有多像它生成的”。
+### 代码与结果连接
+Notebook 的锁定分类行已经提供 \`label\` 与 \`probability\`。下面的向量表达式只把已观察标签对应的概率选出来：
 
-### 记住这一点
-似然是在给参数打分：谁最能解释当前数据，谁的似然就更大。
+\`\`\`python
+observed_probabilities = np.where(
+    labels == 1.0,
+    probabilities,
+    1.0 - probabilities,
+)
+likelihood = np.prod(observed_probabilities)
+\`\`\`
 
-### 补充知识点
-似然曲线的最高点通常靠近观测频率。  
-如果 10 次里有 8 次正面，$p=0.8$ 会比 $p=0.2$ 更合理；如果你把正面次数改成 2，曲线峰值也会跟着移动。
+页面按行展示 $q_i$ 与对应 BCE，再让现有似然实验比较候选概率。这里的代码连接概率和乘积；不会重新拟合 SECOM 参数。
 
-### 交互实验设计
-固定抛硬币次数，拖动正面次数和候选概率。观察候选排名、似然曲线和当前标记点：数据不变时是在比较参数，数据一变时整条曲线都会重新定义“谁更合理”。
+> **常见误解**
+> 似然不是“参数的概率”。数据被视为已观察，模型候选在变化；我们比较的是每个候选给这些观察分配的概率。
 
-### 来源参考
-改写自 D2L 对最大似然思想的训练动机，以及 mlcourse.ai 在概率模型中用观测数据比较参数的讲法；本站用硬币例子把参数评分先独立讲清楚。`,
-        en: `If you toss a coin 10 times and get 8 heads, would you find it convincing to say “this coin has head probability 0.2”?
+### 下一步
+联合似然是许多 $q_i$ 的连乘，样本一多就会非常小。下一章用对数把乘积变成求和，再加负号得到可最小化的 NLL。`,
+        en: `### Core Question
+After learning to use BCE, how can we view observed data through the probability assigned by a model without confusing likelihood with the probability of a parameter?
 
-### Concept
-**Likelihood** is not asking why the data happened. It asks:  
-**if the parameter really had this value, how much does the observed data look like it came from it?**
+### Concept Explanation
+Likelihood starts from **observed data**: hold the labels in front of us fixed and compare candidate models. For binary row $i$, the probability assigned by a model to what was actually observed is:
 
-In this chapter, the parameter is the coin-head probability $p$.  
-The observed data is “8 heads out of 10 tosses.”  
-So we can compare:
+$$
+q_i =
+\\begin{cases}
+p_i, & y_i=1,\\\\
+1-p_i, & y_i=0.
+\\end{cases}
+$$
 
-- if $p=0.2$, does this dataset look like it came from that coin?
-- if $p=0.5$, does it?
-- if $p=0.8$, does it?
-
-### Worked Example
-If we ignore ordering for a moment and only track “8 heads and 2 tails,” then:
-
-$$L(p) = p^8(1-p)^2$$
-
-Now plug in a few candidates:
-
-- when $p=0.2$, the result is very small, because 0.2 struggles to explain 8 heads
-- when $p=0.5$, it becomes more plausible
-- when $p=0.8$, it is usually much larger, because that parameter matches the data better
+$q_i$ answers “how much probability did the model assign to the label that occurred?” The page loads $y_i$, $z_i$, $p_i$, and BCE contribution from the same locked SECOM rows used in the previous chapter, so the probability intuition remains connected to the real classification result.
 
 ### Formula
-This formula is not inventing a new rule. It is simply turning “how compatible is the data with this parameter?” into a comparable score.
+Under the teaching assumption that samples are conditionally independent, the likelihood of all observed labels is the product of those probabilities:
 
-$$L(p \\mid \\text{8 heads in 10 tosses}) = p^8(1-p)^2$$
+$$
+\\mathcal{L}
+=\\prod_{i=1}^{n}q_i
+=\\prod_{i=1}^{n}p_i^{y_i}(1-p_i)^{1-y_i}.
+$$
 
-Here $L$ means likelihood and $p$ is the parameter candidate we are testing.  
-A larger likelihood does not mean the parameter is “certainly correct.” It only means **this candidate explains the current observation better than the others**.
+A larger likelihood only means that this candidate assigned more joint probability to the observed data. It is not the probability of the parameter and does not prove that the candidate is the true data-generating mechanism.
 
-> **Common Mistake**  
-> Do not confuse the “probability of the parameter” with likelihood. We are not asking how likely $p=0.8$ is by itself. We are asking how well $p=0.8$ explains the observed data.
+### Code and Output Connection
+The locked Notebook rows already provide \`label\` and \`probability\`. This vector expression selects the probability of each observed label:
 
-### Remember This
-Likelihood is a scoring rule for parameters: the candidate that explains the data better gets the higher score.
+\`\`\`python
+observed_probabilities = np.where(
+    labels == 1.0,
+    probabilities,
+    1.0 - probabilities,
+)
+likelihood = np.prod(observed_probabilities)
+\`\`\`
 
-### Extra Concept
-The peak of the likelihood curve usually sits near the observed frequency.  
-If 8 out of 10 tosses are heads, $p=0.8$ is much more plausible than $p=0.2$; if you change the heads count to 2, the peak moves with the data.
+The page places each $q_i$ beside its BCE contribution, then lets the existing likelihood lab compare candidates. This code connects probabilities to their product without refitting SECOM parameters.
 
-### Interaction Design
-Keep the number of tosses fixed, then drag the heads count and candidate probability. Watch the candidate ranking, likelihood curve, and current marker: with fixed data we compare parameters, while changing data redefines which parameter looks plausible.
+> **Common Mistake**
+> Likelihood is not the probability of a parameter. The data is treated as observed while the candidate model changes; we compare the probability each candidate assigns to those observations.
 
-### Source References
-Adapted from D2L for the maximum-likelihood training motivation and mlcourse.ai for comparing parameters through observed data; this site isolates the coin example before connecting it to loss.`,
+### Next Step
+Joint likelihood multiplies many $q_i$ values and quickly becomes tiny. The next chapter uses a log to turn the product into a sum, then adds a minus sign to obtain a minimizable NLL.`,
       },
       callout: {
-        'zh-CN': '先比较几个候选参数谁更像这组数据的来源，再谈“最优参数”这件事。',
-        en: 'First compare which candidate explains the data better, then talk about the best parameter.',
+        'zh-CN': '固定已观察标签，比较不同候选给这些标签分配的联合概率；不要反过来问参数本身的概率。',
+        en: 'Hold the observed labels fixed and compare the joint probability assigned by candidates; do not reverse the question into a parameter probability.',
       },
       experimentPrompt: {
-        'zh-CN': '保持观测结果固定，切换候选概率，比较哪一个参数让“8 次正面”看起来最合理。',
-        en: 'Keep the observation fixed and compare which probability makes “8 heads” look most plausible.',
+        'zh-CN': '保持观测结果固定，切换候选概率并逐行查看 q_i，再观察乘积怎样给候选排序。',
+        en: 'Keep observations fixed, switch candidate probabilities, inspect each q_i, and see how their product ranks candidates.',
       },
       layoutMode: 'embedded-lab',
       embeddedLabId: 'likelihood-intuition-lab',
@@ -554,100 +550,96 @@ Adapted from D2L for the maximum-likelihood training motivation and mlcourse.ai 
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.negativeLog.title',
       markdown: {
-        'zh-CN': `既然似然已经能给参数打分了，为什么还要多此一举地取对数、再加一个负号？
+        'zh-CN': `许多观测概率都很小时，为什么不能一直直接相乘？负对数又怎样把概率故事变成稳定的逐行损失？
 
-### 概念直觉
-原因有两个：
+### 核心问题
+似然把每行“模型给真实结果的概率”连乘起来。样本一多，乘积会很快靠近 0；如果模型把已经发生的结果判得几乎不可能观察到，这个问题会更明显。我们需要保持排序不变，又避免直接计算极小连乘。
 
-1. 多个样本的联合似然通常是很多小概率连乘，数字会迅速变得极小  
-2. 机器学习更习惯做“最小化”，而不是“最大化”
+### 概念解释
+对数单调递增，所以比较 $L$ 与比较 $\\log L$ 会选出相同的候选。它还让概率连乘变成求和：
 
-对数可以把连乘变成连加，负号可以把“最大化似然”改写成“最小化损失”。
+$$
+\\log\\prod_{i=1}^{n}q_i=\\sum_{i=1}^{n}\\log q_i.
+$$
 
-### 手算例子
-继续看“10 次里 8 次正面”的例子。  
-如果某个候选参数给每次观测的概率都小于 1，那么把 10 个概率相乘后，结果会很快变得非常小。
-
-于是我们做两步变形：
-
-$$\\log L(p) = \\log\\left(p^8(1-p)^2\\right) = 8\\log p + 2\\log(1-p)$$
-
-再乘上负号：
-
-$$-\\log L(p)$$
-
-这样以后，比较参数就变成“谁的负对数似然更小”。
+再加负号，就得到负对数似然（negative log-likelihood, NLL）：每个不可信的已观察结果都会贡献更大的正损失，而且各行贡献可以安全相加。
 
 ### 公式
-对于这个抛硬币例子，负对数似然可以写成：
+Bernoulli 标签 $y_i\\in\\{0,1\\}$ 的单行 NLL 正是 BCE：
 
-$$-\\log L(p) = -\\left[8\\log p + 2\\log(1-p)\\right]$$
+$$
+\\ell_i=-\\left[y_i\\log p_i+(1-y_i)\\log(1-p_i)\\right].
+$$
 
-取对数之后，原来很难读的连乘被变成了容易处理的求和。  
-再加负号以后，我们就把“分数越大越好”的似然，翻译成了“分数越小越好”的损失。
+若模型输出 logit $z_i$，同一个量可以写成数值更稳定的形式：
 
-> **常见误解**  
-> 负对数似然不是在“改变问题”，而是在用更方便计算、更适合优化的语言，重写同一个比较任务。
+$$
+\\ell_i=\\operatorname{softplus}(z_i)-y_i z_i.
+$$
 
-### 记住这一点
-取对数是为了把连乘变连加，加负号是为了把最大化问题改写成最小化问题。
+这不是换了目标，而是避免先把极端 logit 压成舍入后的 0 或 1。
 
-### 补充知识点
-对数函数是单调递增的，所以最大化 $L$ 和最大化 $\\log L$ 会选出同一个参数。  
-负号只改变优化方向：最大化 $\\log L$ 等价于最小化 $-\\log L$。
+### 代码与结果连接
+固定的 SECOM 探针同时保留朴素概率公式、裁剪概率公式和稳定 logit 公式。页面从 \`bce-stability-probes\` 读取状态；下面的核心表达式与 Notebook 完全相同：
 
-### 交互实验设计
-逐步增加样本数，比较上方联合似然曲线和下方 NLL 曲线。注意观察：联合似然会很快接近 0，但 NLL 仍然保持清晰的数值尺度，便于排序和优化。
+\`\`\`python
+def stable_bce_from_logits(logits, targets):
+    return np.logaddexp(0.0, logits) - targets * logits
+\`\`\`
 
-### 来源参考
-改写自 Google Machine Learning Crash Course 对 log loss 数值稳定性的解释，以及 D2L 中把 likelihood 转成 negative log-likelihood 目标函数的训练写法。`,
-        en: `If likelihood already scores parameters, why do we bother taking a log and then adding a minus sign?
+普通 logit 时三种写法接近；极端 logit 时，朴素写法可能得到非有限值，裁剪写法虽有限却改变数值，而 \`np.logaddexp\` 仍直接计算原目标。
 
-### Concept
-There are two main reasons:
+> **常见误解**
+> 概率裁剪能阻止 \`log(0)\`，但它不是稳定公式的同义写法。裁剪改变了输入概率；稳定 logit BCE 只是更可靠地计算同一个 Bernoulli negative log-likelihood。
 
-1. the joint likelihood of many samples is often a product of many small probabilities, so it becomes tiny very quickly  
-2. machine learning usually prefers minimization rather than maximization
+### 下一步
+现在我们知道 NLL 为什么可加、为什么稳定。下一章把“最大化似然”和“最小化负对数似然”并排连接到 MSE、MAE 与 BCE，但仍不进入参数训练。
+`,
+        en: `When many observed probabilities are small, why not keep multiplying them directly? How does a negative log turn the probability story into a stable row-wise loss?
 
-The log turns products into sums, and the minus sign turns “maximize likelihood” into “minimize loss.”
+### Core Question
+Likelihood multiplies the probability assigned by a model to each realized outcome. With more rows, that product rapidly approaches zero; the effect is sharper when the model calls an observed outcome an unlikely observation. We need the same ranking without directly computing a tiny product.
 
-### Worked Example
-Keep using the “8 heads out of 10 tosses” example.  
-If each observation contributes a probability smaller than 1, multiplying 10 such terms makes the joint likelihood shrink very fast.
+### Concept Explanation
+The logarithm is monotonic, so comparing $L$ and comparing $\\log L$ select the same candidate. It also makes probability products become sums:
 
-So we apply two transformations:
+$$
+\\log\\prod_{i=1}^{n}q_i=\\sum_{i=1}^{n}\\log q_i.
+$$
 
-$$\\log L(p) = \\log\\left(p^8(1-p)^2\\right) = 8\\log p + 2\\log(1-p)$$
-
-Then we multiply by -1:
-
-$$-\\log L(p)$$
-
-Now comparing parameters becomes “which one has the smaller negative log-likelihood?”
+Adding a minus sign gives the negative log-likelihood (NLL): every implausible observed result contributes a larger positive loss, and row contributions can be added safely.
 
 ### Formula
-For this coin-toss example, the negative log-likelihood becomes:
+For a Bernoulli label $y_i\\in\\{0,1\\}$, the per-row NLL is exactly BCE:
 
-$$-\\log L(p) = -\\left[8\\log p + 2\\log(1-p)\\right]$$
+$$
+\\ell_i=-\\left[y_i\\log p_i+(1-y_i)\\log(1-p_i)\\right].
+$$
 
-After taking the log, a difficult product becomes an easy sum.  
-After adding the minus sign, a “larger is better” score becomes a “smaller is better” loss.
+When the model emits a logit $z_i$, the same quantity has a numerically stable form:
 
-> **Common Mistake**  
-> Negative log-likelihood does not change the underlying question. It rewrites the same comparison in a form that is easier to compute and easier to optimize.
+$$
+\\ell_i=\\operatorname{softplus}(z_i)-y_i z_i.
+$$
 
-### Remember This
-The log turns multiplication into addition; the minus sign turns maximization into minimization.
+This does not change the objective. It avoids first rounding an extreme logit to probability 0 or 1.
 
-### Extra Concept
-The logarithm is monotonic, so maximizing $L$ and maximizing $\\log L$ choose the same parameter.  
-The minus sign only flips the optimization direction: maximizing $\\log L$ is equivalent to minimizing $-\\log L$.
+### Code and Output Connection
+The locked SECOM probes retain naive-probability, clipped-probability, and stable-logit calculations. The page reads their statuses from \`bce-stability-probes\`; this core expression is identical to the Notebook:
 
-### Interaction Design
-Increase the sample count and compare the joint-likelihood curve above with the NLL curve below. The joint likelihood quickly approaches zero, while NLL keeps a readable scale for ranking and optimization.
+\`\`\`python
+def stable_bce_from_logits(logits, targets):
+    return np.logaddexp(0.0, logits) - targets * logits
+\`\`\`
 
-### Source References
-Adapted from Google Machine Learning Crash Course for the numerical-stability intuition behind log loss and D2L for rewriting likelihood into a negative-log-likelihood objective.`,
+At ordinary logits the three calculations are close. At extreme logits, the naive form can become non-finite, clipping remains finite but changes the value, and \`np.logaddexp\` still evaluates the original objective directly.
+
+> **Common Mistake**
+> Probability clipping prevents \`log(0)\`, but it is not a synonym for a stable formula. Clipping changes the input probability; stable logit BCE computes the same Bernoulli negative log-likelihood more reliably.
+
+### Next Step
+We now know why NLL is additive and why its stable form matters. The next chapter places “maximize likelihood” beside “minimize negative log-likelihood” and connects them to MSE, MAE, and BCE without starting parameter training.
+`,
       },
       callout: {
         'zh-CN': '这一章的重点不是新公式，而是看懂“为什么要把概率语言翻译成优化语言”。',
@@ -667,102 +659,102 @@ Adapted from Google Machine Learning Crash Course for the numerical-stability in
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.mleBridge.title',
       markdown: {
-        'zh-CN': `学到这里，我们终于可以回答一个关键问题：为什么 MSE、MAE、BCE 这些损失会长成现在这样？
+        'zh-CN': `MSE、MAE 与 BCE 为什么会有这些形状？它们能否从同一个“让数据更可信”的原则得到？
 
-### 概念直觉
-答案是：很多常见损失并不是拍脑袋发明出来的。  
-它们来自一种更底层的想法：
+### 核心问题
+最大似然估计（MLE）先选择一个数据生成假设，再寻找使已观察数据概率最大的候选。损失函数不是孤立的惩罚公式：很多 loss 是相应概率模型的负对数似然。
 
-**先假设数据是按某种概率分布生成的，再去寻找最能解释这些数据的参数。**
+### 概念解释
+三条常用桥梁只改变误差假设，不改变比较逻辑：
 
-这就是最大似然估计（MLE）的直觉。
+- Gaussian 误差的负对数似然，在固定方差时与 MSE 只差常数和正比例因子；
+- Laplace 误差的负对数似然，在固定尺度时与 MAE 对齐；
+- Bernoulli 结果的负对数似然就是 BCE。
 
-### 手算例子
-如果你认为连续值误差大多小、偶尔大，而且正负对称，那么 Gaussian 假设通常很自然；  
-如果你觉得少数大偏差并不罕见，那么 Laplace 假设会更合理；  
-如果输出本来就是 0 或 1，那么 Bernoulli 假设最合适。
-
-于是就会得到三条熟悉的桥梁：
-
-- Gaussian 负对数似然会导向 MSE
-- Laplace 负对数似然会导向 MAE
-- Bernoulli 负对数似然会导向 BCE
+配送数据中的代表行让我们比较平方残差与绝对残差，SECOM 代表行让我们查看 0/1 结果的 BCE 贡献。它们来自两个固定数据集，却共享“逐行解释，再聚合”的结构。
 
 ### 公式
-当我们把“找最能解释数据的参数”写成数学形式时，才会出现你熟悉的 MLE 记号：
+最大化似然写作
 
-$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\max_{\\theta} p(\\mathcal{D}\\mid\\theta)$$
+$$
+\\hat{\\theta}_{\\mathrm{MLE}}
+=\\arg\\max_{\\theta}p(\\mathcal D\\mid\\theta).
+$$
 
-如果再把它改写成优化里更常见的最小化形式，就得到：
+由于对数单调递增，再加一个负号，同一选择也可以写作
 
-$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\min_{\\theta} -\\log p(\\mathcal{D}\\mid\\theta)$$
+$$
+\\hat{\\theta}_{\\mathrm{MLE}}
+=\\arg\\min_{\\theta}\\left[-\\log p(\\mathcal D\\mid\\theta)\\right].
+$$
 
-这里 $\\theta$ 是参数，$\\mathcal{D}$ 是数据集。  
-这条式子真正表达的意思并不神秘：**最小化损失，很多时候就是在寻找“最能解释数据”的参数。**
+所以最大化似然与最小化负对数似然选择同一候选；变换改变计算方式和优化方向，不改变候选排序。
 
-> **常见误解**  
-> 不要把 MLE 当成“和损失函数无关的统计附录”。它恰恰解释了为什么很多 loss 会长成今天这个样子。
+### 代码与结果连接
+这一章把两个已锁定输出并排展示，而不在浏览器中重新拟合模型：
 
-### 记住这一点
-很多常见损失，其实是某种数据生成假设下的负对数似然。
+\`\`\`python
+regression_rows = delivery_output["representative_rows"]
+classification_rows = manufacturing_output["contributions"]
+mean_loss = np.mean([row["loss"] for row in classification_rows])
+\`\`\`
 
-### 补充知识点
-选择 loss 时不要只问“哪个公式常用”，而要问“我愿意假设误差长什么样”。  
-高斯假设强调小误差和对称噪声，拉普拉斯假设更能容忍少量大偏差，伯努利假设则对应 0/1 事件。
+\`delivery-representative-rows\` 提供同一残差下的 MSE/MAE 贡献，\`manufacturing-bce-contributions\` 提供 Bernoulli BCE 贡献。页面只复核分布假设如何对应损失；这里不更新 $\\theta$。
 
-### 交互实验设计
-切换 Gaussian、Laplace、Bernoulli 三种假设，并拖动参数。观察“分布假设 -> 似然 -> 负对数 -> loss”的链条：图形形状变化时，等价 loss 的含义也在变化。
+> **常见误解**
+> “高斯对应 MSE”不表示任何回归数据都自动服从高斯分布。它说明：接受该噪声假设与固定尺度后，MLE 的候选排序与最小 MSE 一致。假设是否合适仍需结合任务判断。
 
-### 来源参考
-改写自 D2L 对 MLE 与常见损失的连接、mlcourse.ai 对逻辑回归最大似然的推导，以及 Google MLCC 对 MSE / log loss 应用场景的解释。`,
-        en: `At this point we can finally answer a crucial question: why do losses such as MSE, MAE, and BCE have the shapes they do?
+### 下一步
+我们已经把概率模型、似然和损失连成一条链。下一章只验证损失对模型输出的解析梯度；Phase 27 的线性回归与 Phase 29 的逻辑回归再用链式法则连接参数梯度和完整训练。
+`,
+        en: `Why do MSE, MAE, and BCE have these shapes? Can they follow from one principle of making observed data more plausible?
 
-### Concept
-The answer is that many common losses were not invented arbitrarily.  
-They come from a deeper idea:
+### Core Question
+Maximum likelihood estimation (MLE) chooses a data-generation assumption, then looks for the candidate that gives the observed data the largest probability. A loss is not an isolated penalty formula: many losses are negative log-likelihoods of their probability models.
 
-**first assume the data was generated by some probability model, then find the parameter that explains that data best.**
+### Concept Explanation
+Three common bridges change the error assumption, not the comparison logic:
 
-That is the intuition behind maximum likelihood estimation (MLE).
+- Gaussian-error negative log-likelihood differs from MSE only by a constant and positive scale when variance is fixed;
+- Laplace-error negative log-likelihood aligns with MAE when scale is fixed;
+- Bernoulli negative log-likelihood is BCE.
 
-### Worked Example
-If you believe continuous errors are usually small, occasionally larger, and symmetric around zero, a Gaussian assumption is natural.  
-If you expect a model to tolerate occasional larger deviations more gracefully, a Laplace assumption makes sense.  
-If the output is inherently 0 or 1, a Bernoulli assumption is the right fit.
-
-That gives three familiar bridges:
-
-- Gaussian negative log-likelihood leads to MSE
-- Laplace negative log-likelihood leads to MAE
-- Bernoulli negative log-likelihood leads to BCE
+Representative delivery rows let us compare squared and absolute residual contributions, while representative SECOM rows expose BCE contributions for 0/1 outcomes. They come from two locked datasets but share the structure “explain each row, then aggregate.”
 
 ### Formula
-Only after the intuition is clear do we need the standard MLE notation:
+To maximize likelihood, write
 
-$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\max_{\\theta} p(\\mathcal{D}\\mid\\theta)$$
+$$
+\\hat{\\theta}_{\\mathrm{MLE}}
+=\\arg\\max_{\\theta}p(\\mathcal D\\mid\\theta).
+$$
 
-If we rewrite that in the minimization form used in optimization, we get:
+Because the log is monotonic, adding a minus sign expresses the same selection as
 
-$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\min_{\\theta} -\\log p(\\mathcal{D}\\mid\\theta)$$
+$$
+\\hat{\\theta}_{\\mathrm{MLE}}
+=\\arg\\min_{\\theta}\\left[-\\log p(\\mathcal D\\mid\\theta)\\right].
+$$
 
-Here $\\theta$ is the parameter and $\\mathcal{D}$ is the dataset.  
-The real meaning is simple: **minimizing loss often means finding the parameter that makes the observed data most plausible.**
+Thus maximize likelihood and minimize negative log-likelihood select the same candidate. The transformation changes the computation and optimization direction, not the candidate ranking.
 
-> **Common Mistake**  
-> Do not treat MLE as a detached statistics appendix. It is exactly the idea that explains why many practical losses look the way they do.
+### Code and Output Connection
+This chapter places two locked outputs side by side instead of fitting another model in the browser:
 
-### Remember This
-Many familiar losses are just negative log-likelihoods under different data-generation assumptions.
+\`\`\`python
+regression_rows = delivery_output["representative_rows"]
+classification_rows = manufacturing_output["contributions"]
+mean_loss = np.mean([row["loss"] for row in classification_rows])
+\`\`\`
 
-### Extra Concept
-When choosing a loss, do not only ask which formula is common. Ask what you are willing to assume about the errors.  
-Gaussian assumptions emphasize small symmetric noise, Laplace assumptions tolerate occasional larger deviations, and Bernoulli assumptions match 0-or-1 events.
+\`delivery-representative-rows\` supplies MSE/MAE contributions for the same residuals, and \`manufacturing-bce-contributions\` supplies Bernoulli BCE contributions. The page only checks how assumptions map to losses; it does not update $\\theta$ here.
 
-### Interaction Design
-Switch across Gaussian, Laplace, and Bernoulli, then drag the parameters. Watch the chain “assumption -> likelihood -> negative log -> loss”: when the shape changes, the meaning of the equivalent loss changes too.
+> **Common Mistake**
+> “Gaussian leads to MSE” does not mean every regression dataset is automatically Gaussian. It means that after accepting that noise model and a fixed scale, the MLE ranking agrees with minimum MSE. Whether the assumption fits the task remains a modeling judgment.
 
-### Source References
-Adapted from D2L for the MLE-to-loss connection, mlcourse.ai for the maximum-likelihood derivation of logistic regression, and Google MLCC for practical MSE / log-loss usage intuition.`,
+### Next Step
+We have linked probability models, likelihood, and loss. The next chapter checks only analytic output gradients; Phase 27 on linear regression and Phase 29 on logistic regression will apply the chain rule to parameter gradients and full training.
+`,
       },
       callout: {
         'zh-CN': '把“分布假设 -> 似然 -> 负对数 -> 对应 loss”这条链真正连起来，MLE 就不再神秘。',
@@ -794,6 +786,7 @@ $$
 g_{\\text{num}} = \\frac{L(u+h)-L(u-h)}{2h}
 $$
 
+### 公式
 解析梯度来自公式。对均值目标，单个样本的贡献还要除以批量大小 $n$：
 
 $$
@@ -834,13 +827,14 @@ $|g_{\\text{analytic}}-g_{\\text{num}}|$ 与带尺度的相对误差。平滑点
 ### Core Question
 This chapter checks gradients of the loss with respect to model **outputs** only: $\\partial L/\\partial \\hat y$ for regression and $\\partial L/\\partial z$ for binary classification. It does not derive $\\partial L/\\partial w$ or train model parameters.
 
-### Concept
+### Concept Explanation
 A central difference moves one output upward and downward by a small step $h$, then estimates the slope from two objective evaluations:
 
 $$
 g_{\\text{num}} = \\frac{L(u+h)-L(u-h)}{2h}.
 $$
 
+### Formula
 The analytic gradient comes from the formula. For a mean objective, one sample's contribution also contains the batch factor $1/n$:
 
 $$
