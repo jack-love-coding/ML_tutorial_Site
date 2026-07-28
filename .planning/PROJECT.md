@@ -15,6 +15,10 @@ The Curriculum V2 adapter and navigation work remains the compatibility foundati
 - Numerical Methods Batch 3 (`finite-difference-methods`, `nonlinear-equations`) is complete, using one logit-bias calibration case to connect finite-difference checks with nonlinear root finding.
 - Numerical Methods Batch 4 (`optimization`, `training-diagnostics`) is complete. Phase 25 connects one reproducible UCI Banknote case to stable BCE, feature scaling, fixed-step gradient descent, Armijo backtracking, stopping semantics, failure recovery, and training-curve diagnosis.
 - Phase 25 passed 45/45 must-have verification, 755 repository tests, standard and GitHub Pages builds, Notebook/Manim integrity checks, security audit, and bilingual desktop/mobile browser acceptance.
+- Phase 26 rebuilt `loss-functions` into a verified seven-chapter bilingual
+  teaching loop backed by LaDe and SECOM real data, four independently executed
+  Notebooks, locked local outputs, stable loss/gradient math, and accessible
+  desktop/mobile labs.
 - Homepage Focus and Spine progressive-disclosure redesign remain paused while content depth is built.
 - v1.0 was archived on 2026-07-26 with explicitly accepted planning-provenance and deferred-progress gaps.
 - The selected next milestone is v1.1 Classical Supervised Learning.
@@ -23,7 +27,13 @@ The Curriculum V2 adapter and navigation work remains the compatibility foundati
 
 **Shipped:** v1.0 Curriculum Foundation
 
-The compatibility foundation, Curriculum V3 blueprint, Python Data Tools Stages 1–4, detailed foundation-mathematics route, Numerical Methods Batches 1–4, and Phase 25 reproducible optimization case are available. Historical Phases 1–24A remain documented but lack canonical three-source requirement provenance; Phase 25 is fully preserved in the v1.0 archive.
+The compatibility foundation, Curriculum V3 blueprint, Python Data Tools Stages
+1–4, detailed foundation-mathematics route, Numerical Methods Batches 1–4,
+Phase 25 reproducible optimization case, and Phase 26 loss-functions rebuild
+are available. Phase 26 passed 37/37 must-have verification with all release
+gates green. Historical Phases 1–24A remain documented but lack canonical
+three-source requirement provenance; Phase 25 is fully preserved in the v1.0
+archive.
 
 ## Current Milestone: v1.1 Classical Supervised Learning
 
@@ -60,6 +70,9 @@ Students should always know where they are in the learning path, why the current
 - ✓ The generic LessonPage and Lesson Block Renderer are proven with AI Overview, Gradient Descent, and MLP.
 - ✓ Shared curriculum, route, progress, renderer, and Phase 25 numerical behavior have regression coverage.
 - ✓ Phase 25 validation passed on 2026-07-23: 755 tests, production build, GitHub Pages build, and security audit.
+- ✓ Phase 26 validation passed on 2026-07-28: 37/37 must-haves, 837 tests,
+  production and GitHub Pages builds, 32 bilingual responsive browser cases,
+  four offline Notebook reruns, and a zero-vulnerability security audit.
 
 ### Active
 
@@ -103,7 +116,7 @@ Students should always know where they are in the learning path, why the current
 | Pilot AI Overview, Gradient Descent, and MLP | Covers orientation, optimization, and neural-network flagship lessons | ✓ Completed without bulk lesson migration |
 | Rebuild Batch 4 around one reproducible case | Keeps formulas, code, media, and diagnostics numerically consistent | ✓ Validated in Phase 25 with 45/45 must-haves |
 | Archive v1.0 with accepted gaps | Content delivery is the current priority; checkpoint persistence belongs with backend identity and sync design | ✓ Accepted on 2026-07-26 with audit and provenance debt preserved |
-| Make classical supervised learning the next milestone | It is the missing bridge from mathematical foundations and data tools into practical model training | — Pending |
+| Make classical supervised learning the next milestone | It is the missing bridge from mathematical foundations and data tools into practical model training | ◐ In progress; Phase 26 complete |
 
 ## Evolution
 
@@ -124,4 +137,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update the project context and next milestone goals.
 
 ---
-*Last updated: 2026-07-26 at v1.1 milestone start*
+*Last updated: 2026-07-28 after Phase 26 completion*
