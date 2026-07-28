@@ -1,8 +1,19 @@
-import type { AlgorithmModuleDefinition } from '../types/ml'
-import { simulateLossFunctions } from '../simulations/lossFunctions'
-import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
+import type { AlgorithmModuleDefinition, StorySection } from '../types/ml.ts'
+import { simulateLossFunctions } from '../simulations/lossFunctions.ts'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints.ts'
+import {
+  lossFunctionsChapterBindings,
+  type LossFunctionsChapterBinding,
+} from './lossFunctionsAssets.ts'
 
-export const lossFunctionsModule: AlgorithmModuleDefinition = {
+export interface LossFunctionsChapter extends StorySection, LossFunctionsChapterBinding {}
+
+export interface LossFunctionsModuleDefinition
+  extends Omit<AlgorithmModuleDefinition, 'chapters'> {
+  chapters: LossFunctionsChapter[]
+}
+
+export const lossFunctionsModule: LossFunctionsModuleDefinition = {
   slug: 'loss-functions',
   route: '/learn/loss-functions',
   titleKey: 'modules.lossFunctions.title',
@@ -15,6 +26,7 @@ export const lossFunctionsModule: AlgorithmModuleDefinition = {
   chapters: [
     {
       id: 'why-loss',
+      ...lossFunctionsChapterBindings['why-loss'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.whyLoss.title',
       markdown: {
@@ -48,7 +60,7 @@ $$\\mathcal{L}(\\hat{y}, y)$$
 这里 $\\hat{y}$ 是预测值，$y$ 是真实值，$\\mathcal{L}$ 只是“你决定采用哪种评分规则”的记号。  
 真正困难的地方不是符号，而是**你想让模型更怕什么样的错误**。
 
-> **常见误解**  
+> **常见误解**
 > 不要把“误差”直接当成“损失”。误差只是差多少，损失还包含“你如何看待这个差距”的价值判断。
 
 ### 记住这一点
@@ -93,7 +105,7 @@ $$\\mathcal{L}(\\hat{y}, y)$$
 Here $\\hat{y}$ is the prediction, $y$ is the target, and $\\mathcal{L}$ is the chosen scoring rule.  
 The hard part is not the symbol. The hard part is deciding **what kind of mistake the model should fear more**.
 
-> **Common Mistake**  
+> **Common Mistake**
 > Do not treat error and loss as the same thing. Error is only the gap; loss also includes how you choose to value that gap.
 
 ### Remember This
@@ -123,6 +135,7 @@ Adapted from Google Machine Learning Crash Course for the introductory loss intu
     },
     {
       id: 'regression-losses',
+      ...lossFunctionsChapterBindings['regression-losses'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.regressionLosses.title',
       markdown: {
@@ -241,6 +254,7 @@ Adapted from Google Machine Learning Crash Course for MSE / MAE and outlier intu
     },
     {
       id: 'classification-losses',
+      ...lossFunctionsChapterBindings['classification-losses'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.classificationLosses.title',
       markdown: {
@@ -440,6 +454,7 @@ Adapted from Google Machine Learning Crash Course for log loss and classificatio
     },
     {
       id: 'likelihood-intuition',
+      ...lossFunctionsChapterBindings['likelihood-intuition'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.likelihoodIntuition.title',
       markdown: {
@@ -554,6 +569,7 @@ Adapted from D2L for the maximum-likelihood training motivation and mlcourse.ai 
     },
     {
       id: 'negative-log',
+      ...lossFunctionsChapterBindings['negative-log'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.negativeLog.title',
       markdown: {
@@ -666,6 +682,7 @@ Adapted from Google Machine Learning Crash Course for the numerical-stability in
     },
     {
       id: 'mle-bridge',
+      ...lossFunctionsChapterBindings['mle-bridge'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.mleBridge.title',
       markdown: {
@@ -776,6 +793,119 @@ Adapted from D2L for the MLE-to-loss connection, mlcourse.ai for the maximum-lik
       },
       layoutMode: 'embedded-lab',
       embeddedLabId: 'mle-bridge-lab',
+      metricEmphasis: ['loss'],
+    },
+    {
+      id: 'gradient-verification',
+      ...lossFunctionsChapterBindings['gradient-verification'],
+      eyebrowKey: 'common.chapter',
+      titleKey: 'modules.lossFunctions.sections.gradientVerification.title',
+      markdown: {
+        'zh-CN': `解析梯度写出来以后，我们怎样确认公式和向量化代码真的描述了同一个量？
+
+### 核心问题
+这一章只检查损失对模型**输出**的梯度：回归里的 $\\partial L/\\partial \\hat y$，以及二分类里的 $\\partial L/\\partial z$。它不会提前推导 $\\partial L/\\partial w$，也不会训练模型参数。
+
+### 概念解释
+中心差分会把某一个输出向上、向下各移动一个很小的步长 $h$，再用两次目标函数的变化估计斜率：
+
+$$
+g_{\\text{num}} = \\frac{L(u+h)-L(u-h)}{2h}
+$$
+
+解析梯度来自公式。对均值目标，单个样本的贡献还要除以批量大小 $n$：
+
+$$
+\\frac{\\partial \\operatorname{MSE}}{\\partial \\hat y_i}
+=\\frac{2(\\hat y_i-y_i)}{n},
+\\qquad
+\\frac{\\partial \\operatorname{BCE}}{\\partial z_i}
+=\\frac{\\sigma(z_i)-y_i}{n}.
+$$
+
+把解析值和中心差分放在同一行比较，可以检查漏掉的负号、错误的变量和忘记的 $1/n$。
+
+### 代码与结果连接
+下面的函数与可下载 Notebook 中的 \`manufacturing-central-difference\` 代码单元使用同一变量名。页面读取固定的步长扫描结果，而不是重新抄写一套数值。
+
+\`\`\`python
+def coordinate_central_difference(objective, values, index, step):
+    plus = values.copy()
+    minus = values.copy()
+    plus[index] += step
+    minus[index] -= step
+    return (objective(plus) - objective(minus)) / (2.0 * step)
+\`\`\`
+
+固定扫描使用 $h=10^{-1}$ 到 $10^{-9}$，并同时报告绝对误差
+$|g_{\\text{analytic}}-g_{\\text{num}}|$ 与带尺度的相对误差。平滑点按固定容差 $5\\times10^{-7}$ 标记通过或失败；$h$ 太大时有截断误差，太小时舍入误差会重新变明显。
+
+### MAE 尖点
+当 $\\hat y_i=y_i$ 时，MAE 在 0 处不可导。本站采用子梯度 0 作为实现约定，但对称中心差分得到 0 并不能证明存在唯一导数。固定结果因此标记为“尖点”，不会伪装成普通通过。
+
+> **常见误解**
+> 数值梯度很接近解析梯度，只能说明当前输入、步长和实现彼此一致；它不是对所有输入的数学证明。MAE 尖点更不能按光滑点的规则认证。
+
+### 下一步
+现在我们已经确认了 $\\partial L/\\partial \\hat y$ 和 $\\partial L/\\partial z$。在线性回归与逻辑回归课程里，链式法则会把这些输出梯度继续传到 $w$ 和 $b$；参数更新与完整训练循环留到那两门课。`,
+        en: `Once an analytic gradient is written down, how can we check that the formula and vectorized code describe the same quantity?
+
+### Core Question
+This chapter checks gradients of the loss with respect to model **outputs** only: $\\partial L/\\partial \\hat y$ for regression and $\\partial L/\\partial z$ for binary classification. It does not derive $\\partial L/\\partial w$ or train model parameters.
+
+### Concept
+A central difference moves one output upward and downward by a small step $h$, then estimates the slope from two objective evaluations:
+
+$$
+g_{\\text{num}} = \\frac{L(u+h)-L(u-h)}{2h}.
+$$
+
+The analytic gradient comes from the formula. For a mean objective, one sample's contribution also contains the batch factor $1/n$:
+
+$$
+\\frac{\\partial \\operatorname{MSE}}{\\partial \\hat y_i}
+=\\frac{2(\\hat y_i-y_i)}{n},
+\\qquad
+\\frac{\\partial \\operatorname{BCE}}{\\partial z_i}
+=\\frac{\\sigma(z_i)-y_i}{n}.
+$$
+
+Comparing the analytic and central-difference values on the same row catches a missing sign, the wrong variable, or a forgotten $1/n$.
+
+### Code and Output Connection
+This function uses the same names as the downloadable Notebook cell \`manufacturing-central-difference\`. The page loads the locked step sweep instead of copying a second set of numerical values into prose.
+
+\`\`\`python
+def coordinate_central_difference(objective, values, index, step):
+    plus = values.copy()
+    minus = values.copy()
+    plus[index] += step
+    minus[index] -= step
+    return (objective(plus) - objective(minus)) / (2.0 * step)
+\`\`\`
+
+The locked sweep runs from $h=10^{-1}$ through $10^{-9}$ and reports both absolute error,
+$|g_{\\text{analytic}}-g_{\\text{num}}|$, and scaled relative error. Smooth points are marked pass or fail against the fixed $5\\times10^{-7}$ tolerance. A large $h$ produces truncation error; a very small $h$ eventually exposes rounding error again.
+
+### The MAE Kink
+When $\\hat y_i=y_i$, MAE is not differentiable at zero. This project uses subgradient 0 as an implementation convention, but a symmetric central difference of 0 does not prove that a unique derivative exists. The locked result is therefore marked as a kink, never disguised as an ordinary pass.
+
+> **Common Mistake**
+> A close numerical match shows that one input, step size, and implementation agree. It is not a proof for every input, and the MAE kink cannot be certified using the smooth-point rule.
+
+### Next Step
+We have now checked $\\partial L/\\partial \\hat y$ and $\\partial L/\\partial z$. The later linear- and logistic-regression lessons will use the chain rule to carry those output gradients to $w$ and $b$; parameter updates and full training loops belong there.`,
+      },
+      callout: {
+        'zh-CN': '同时查看解析梯度、中心差分、两种误差和步长，先确认检查的是同一个均值目标。',
+        en: 'Read the analytic gradient, central difference, both errors, and step size together, first confirming they refer to the same mean objective.',
+      },
+      experimentPrompt: {
+        'zh-CN': '比较 MSE、光滑 MAE、MAE 尖点和稳定 BCE 的步长扫描，再到线性/逻辑回归课程继续链式法则。',
+        en: 'Compare the MSE, smooth-MAE, MAE-kink, and stable-BCE sweeps, then continue the chain rule in the linear and logistic regression lessons.',
+      },
+      layoutMode: 'embedded-lab',
+      embeddedLabId: 'loss-gradient-verification-lab',
       metricEmphasis: ['loss'],
     },
   ],
