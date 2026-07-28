@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import {
+  existsSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -15,6 +17,16 @@ import test from 'node:test'
 const root = resolve(import.meta.dirname, '..')
 const generatorPath = resolve(root, 'scripts/loss-functions/build-phase-26-assets.py')
 const contractPath = resolve(root, 'docs/curriculum-v3/loss-functions/phase-26-data-contract.md')
+const stagingRoot = resolve(root, '.cache/loss-functions/phase-26-staging')
+const stagedDatasetRoot = resolve(stagingRoot, 'datasets/loss-functions')
+
+function sha256(path: string) {
+  return createHash('sha256').update(readFileSync(path)).digest('hex')
+}
+
+function readJson(path: string) {
+  return JSON.parse(readFileSync(path, 'utf8'))
+}
 
 function runGenerator(args: readonly string[], environment: NodeJS.ProcessEnv = process.env) {
   return spawnSync('python3', [generatorPath, ...args], {
@@ -358,4 +370,161 @@ test('SECOM validation preserves missing values and enforces labels plus the dec
   ].join('\n'))
   assert.notEqual(hiddenDiscrepancy.status, 0)
   assert.match(hiddenDiscrepancy.stderr, /591|declared|metadata/i)
+})
+
+test('LaDe candidate keeps all real rows, the eight-field privacy boundary, and representative loss arithmetic', () => {
+  const csvPath = resolve(stagedDatasetRoot, 'lade-delivery-jilin.csv')
+  const manifestPath = resolve(stagedDatasetRoot, 'lade-delivery-jilin-manifest.json')
+  assert.equal(existsSync(csvPath), true)
+  assert.equal(existsSync(manifestPath), true)
+
+  const manifest = readJson(manifestPath)
+  const lines = readFileSync(csvPath, 'utf8').trimEnd().split('\n')
+  assert.equal(lines.length, 31_416)
+  assert.equal(lines[0], [
+    'course_row_id',
+    'source_row_number',
+    'city',
+    'aoi_type',
+    'accept_time',
+    'delivery_time',
+    'ds',
+    'delivery_duration_minutes',
+  ].join(','))
+  assert.doesNotMatch(lines[0], /courier|gps|lat|lng|aoi_id|stop/i)
+
+  assert.equal(manifest.contractVersion, 'loss-functions-phase-26-v1')
+  assert.equal(manifest.datasetId, 'lade-delivery-jilin')
+  assert.equal(manifest.source.license, 'Apache-2.0')
+  assert.equal(manifest.source.sourceSha256, '12e2cf4664dd5b4475d39dddee8872f5a03b3082f08f0eece7f103baee6c6e73')
+  assert.equal(manifest.transform.generatorSha256, sha256(generatorPath))
+  assert.equal(manifest.published.rowCount, 31_415)
+  assert.equal(manifest.published.sha256, sha256(csvPath))
+  assert.equal(manifest.published.units.delivery_duration_minutes, 'minutes')
+  assert.equal(manifest.teachingReference.predictionMinutes, 175)
+  assert.equal(Number.isFinite(manifest.teachingReference.aggregate.mse), true)
+  assert.equal(Number.isFinite(manifest.teachingReference.aggregate.mae), true)
+  assert.deepEqual(
+    manifest.teachingReference.representativeRows.map((row: { role: string }) => row.role),
+    ['zero-duration', 'typical-zero-residual', 'long-duration'],
+  )
+  for (const row of manifest.teachingReference.representativeRows) {
+    assert.match(row.courseRowId, /^lade-jilin-\d{5}$/)
+    assert.equal(row.predictionMinutes, 175)
+    assert.equal(row.residualMinutes, row.predictionMinutes - row.targetMinutes)
+    assert.equal(row.squaredError, row.residualMinutes ** 2)
+    assert.equal(row.absoluteError, Math.abs(row.residualMinutes))
+    assert.equal(row.mseOutputGradient, 2 * row.residualMinutes)
+    assert.equal(row.maeOutputSubgradient, Math.sign(row.residualMinutes))
+  }
+})
+
+test('SECOM candidate preserves 590 measurements and missing values while publishing deterministic OOF auxiliary scores', () => {
+  const csvPath = resolve(stagedDatasetRoot, 'secom-manufacturing.csv')
+  const manifestPath = resolve(stagedDatasetRoot, 'secom-manufacturing-manifest.json')
+  assert.equal(existsSync(csvPath), true)
+  assert.equal(existsSync(manifestPath), true)
+
+  const manifest = readJson(manifestPath)
+  const lines = readFileSync(csvPath, 'utf8').trimEnd().split('\n')
+  const header = lines[0]!.split(',')
+  assert.equal(lines.length, 1_568)
+  assert.equal(header.length, 593)
+  assert.deepEqual(header.slice(0, 3), [
+    'course_row_id',
+    'timestamp',
+    'defect_label',
+  ])
+  assert.equal(header[3], 'measurement_000')
+  assert.equal(header.at(-1), 'measurement_589')
+  assert.equal(lines.slice(1).some((line) => line.includes(',,')), true)
+  assert.equal(
+    lines.slice(1).every((line) => ['0', '1'].includes(line.split(',')[2]!)),
+    true,
+  )
+
+  assert.equal(manifest.contractVersion, 'loss-functions-phase-26-v1')
+  assert.equal(manifest.datasetId, 'uci-secom')
+  assert.equal(manifest.source.license, 'CC BY 4.0')
+  assert.equal(manifest.source.revisionOrDoi, '10.24432/C54305')
+  assert.equal(manifest.published.rowCount, 1_567)
+  assert.equal(manifest.published.declaredFeatureCount, 591)
+  assert.equal(manifest.published.observedFeatureCount, 590)
+  assert.equal(manifest.published.sha256, sha256(csvPath))
+  assert.equal(manifest.published.missingValuePolicy, 'Preserve raw NaN as empty CSV fields; no canonical imputation')
+  assert.deepEqual(manifest.transform.labelMapping, { '-1': 0, '1': 1 })
+
+  const oof = manifest.auxiliaryPredictions
+  assert.equal(oof.kind, 'deterministic-five-fold-out-of-fold-logistic')
+  assert.equal(oof.foldCount, 5)
+  assert.equal(oof.randomState, 20_260_728)
+  assert.equal(oof.scoresAreAuxiliaryInputs, true)
+  assert.equal(oof.rows.length, 1_567)
+  assert.equal(new Set(oof.rows.map((row: { courseRowId: string }) => row.courseRowId)).size, 1_567)
+  assert.equal(oof.rows.every((row: {
+    label: number
+    logit: number
+    probability: number
+    stableBce: number
+    perLogitGradient: number
+  }) => (
+    [0, 1].includes(row.label)
+    && Number.isFinite(row.logit)
+    && Number.isFinite(row.probability)
+    && row.probability >= 0
+    && row.probability <= 1
+    && Number.isFinite(row.stableBce)
+    && Number.isFinite(row.perLogitGradient)
+  )), true)
+  assert.match(
+    oof.confidentError.selectionStatus,
+    /^(?:real-oof-row|teaching-logit-fallback)$/,
+  )
+  if (oof.confidentError.selectionStatus === 'teaching-logit-fallback') {
+    assert.equal(oof.confidentError.source, 'synthetic-teaching-logit')
+    assert.equal(oof.confidentError.courseRowId, null)
+  } else {
+    assert.equal(oof.confidentError.source, 'real-secom-oof-row')
+    assert.match(oof.confidentError.courseRowId, /^secom-\d{4}$/)
+  }
+})
+
+test('candidate privacy, schema, license, and hash drift fail closed', () => {
+  const probe = runProbe([
+    'import shutil, tempfile',
+    'source = pathlib.Path(sys.argv[2])',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    root = pathlib.Path(directory) / "datasets" / "loss-functions"',
+    '    shutil.copytree(source, root)',
+    '    manifest_path = root / "lade-delivery-jilin-manifest.json"',
+    '    manifest = module.read_strict_json(manifest_path)',
+    '    manifest["source"]["license"] = "Proprietary"',
+    '    manifest_path.write_bytes(module.strict_json_bytes(manifest))',
+    '    try:',
+    '        module.verify_dataset_candidates(root.parent.parent)',
+    '    except module.Phase26Error as error:',
+    '        print(str(error))',
+    '    else:',
+    '        raise RuntimeError("license drift was accepted")',
+  ].join('\n'), [stagedDatasetRoot])
+  assert.equal(probe.status, 0, probe.stderr)
+  assert.match(probe.stdout, /license|manifest|drift/i)
+
+  const hashProbe = runProbe([
+    'import shutil, tempfile',
+    'source = pathlib.Path(sys.argv[2])',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    root = pathlib.Path(directory) / "datasets" / "loss-functions"',
+    '    shutil.copytree(source, root)',
+    '    path = root / "secom-manufacturing.csv"',
+    '    path.write_bytes(path.read_bytes() + b"tampered\\n")',
+    '    try:',
+    '        module.verify_dataset_candidates(root.parent.parent)',
+    '    except module.Phase26Error as error:',
+    '        print(str(error))',
+    '    else:',
+    '        raise RuntimeError("candidate hash drift was accepted")',
+  ].join('\n'), [stagedDatasetRoot])
+  assert.equal(hashProbe.status, 0, hashProbe.stderr)
+  assert.match(hashProbe.stdout, /hash|sha-256|row count|schema|drift/i)
 })

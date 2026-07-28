@@ -326,3 +326,25 @@ test('candidate transaction creates a fresh root and cleanup removes failed cand
   assert.equal(existsSync(stagingRoot), false)
   assert.equal(existsSync(resolve(root, 'public/phase-26-candidate-test')), false)
 })
+
+test('dataset-candidate mode is explicit, staging-only, and validates both real sources before Notebook execution', () => {
+  const help = runGenerator(['--help'])
+  assert.equal(help.status, 0, help.stderr)
+  assert.match(help.stdout, /--prepare-dataset-candidates/)
+
+  const snapshot = readContractSnapshot()
+  assert.deepEqual(snapshot.datasetCandidatePaths, [
+    'datasets/loss-functions/lade-delivery-jilin.csv',
+    'datasets/loss-functions/lade-delivery-jilin-manifest.json',
+    'datasets/loss-functions/secom-manufacturing.csv',
+    'datasets/loss-functions/secom-manufacturing-manifest.json',
+    'datasets/loss-functions/ATTRIBUTION.md',
+  ])
+  assert.equal(snapshot.datasetContracts.lade.expectedRows, 31_415)
+  assert.equal(snapshot.datasetContracts.lade.referencePredictionMinutes, 175)
+  assert.equal(snapshot.datasetContracts.secom.expectedRows, 1_567)
+  assert.equal(snapshot.datasetContracts.secom.declaredFeatureCount, 591)
+  assert.equal(snapshot.datasetContracts.secom.observedFeatureCount, 590)
+  assert.equal(snapshot.datasetContracts.secom.oofFoldCount, 5)
+  assert.equal(snapshot.datasetContracts.secom.oofRandomState, 20_260_728)
+})
