@@ -237,7 +237,7 @@ test('algorithm modules expose bilingual module-level checkpoints with revisit c
     'attention-transformer': new Set(['tokens-embeddings', 'qkv-scores', 'softmax-weighted-sum', 'multi-head-shapes', 'transformer-block', 'architecture-to-tools']),
     'optimizer-comparison': new Set(['training-loop', 'sgd-batch-noise', 'momentum-rmsprop', 'adam-weight-decay', 'learning-rate-schedules', 'curve-diagnosis']),
     'llm-rag': new Set(['causal-language-modeling', 'decoding-generation', 'tokenization-context', 'embeddings-similarity', 'chunking-retrieval', 'prompt-assembly', 'rag-evaluation', 'rag-is-not-training']),
-    'loss-functions': new Set(['why-loss', 'regression-losses', 'classification-losses', 'likelihood-intuition', 'negative-log', 'mle-bridge']),
+    'loss-functions': new Set(['why-loss', 'regression-losses', 'classification-losses', 'likelihood-intuition', 'negative-log', 'mle-bridge', 'gradient-verification']),
     'gradient-descent': new Set(['loss-function', 'landscape', 'gradient-rule', 'learning-rate', 'saddle-local-minima', 'noise-and-batch']),
     'linear-regression': new Set(['fit-line', 'residual-loss', 'training-motion', 'model-limits', 'multivariate', 'polynomial', 'overfitting', 'regularization']),
     'logistic-regression': new Set(['linear-score', 'sigmoid-probability', 'threshold-decisions', 'log-loss', 'regularization', 'linear-limits']),
