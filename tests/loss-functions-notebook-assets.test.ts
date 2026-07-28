@@ -1,9 +1,19 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
+import {
+  cpSync,
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { tmpdir } from 'node:os'
-import { resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import test from 'node:test'
 import {
   evaluateBceStabilityProbe,
@@ -95,6 +105,39 @@ function runProbe(source: string, args: readonly string[] = []) {
     cwd: root,
     encoding: 'utf8',
   })
+}
+
+function treeSnapshot(treeRoot: string) {
+  if (!existsSync(treeRoot)) return {}
+  const entries: Record<string, string> = {}
+  const visit = (directory: string) => {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name)
+      const status = statSync(path)
+      if (status.isDirectory()) {
+        visit(path)
+      } else {
+        entries[relative(treeRoot, path)] = sha256(path)
+      }
+    }
+  }
+  visit(treeRoot)
+  return entries
+}
+
+function seedPreviousPublicPackage(publicRoot: string) {
+  const datasetRoot = resolve(publicRoot, 'datasets/loss-functions')
+  const notebookRoot = resolve(publicRoot, 'notebooks/loss-functions')
+  mkdirSync(datasetRoot, { recursive: true })
+  mkdirSync(notebookRoot, { recursive: true })
+  writeFileSync(resolve(datasetRoot, 'previous-dataset.txt'), 'previous dataset bytes\n')
+  writeFileSync(resolve(notebookRoot, 'previous-notebook.txt'), 'previous notebook bytes\n')
+}
+
+function publicationResidue(publicRoot: string) {
+  return Object.keys(treeSnapshot(publicRoot)).filter((path) =>
+    /(?:publication|backup|staging|lock)/i.test(path),
+  )
 }
 
 function readContractSnapshot() {
@@ -663,4 +706,154 @@ test('candidate verification rejects changed output values and incomplete manife
   ].join('\n'), [stagingRoot])
   assert.equal(manifestProbe.status, 0, manifestProbe.stderr)
   assert.match(manifestProbe.stdout, /inventory|manifest|16|complete|drift/i)
+})
+
+test('publication CLI accepts only the complete inventory and rejects topic or locale subsets', () => {
+  const help = runGenerator(['--help'])
+  assert.equal(help.status, 0, help.stderr)
+  assert.match(help.stdout, /--publish-candidates/)
+
+  for (const selector of [
+    ['--topic', 'delivery-losses'],
+    ['--locale', 'zh-CN'],
+  ]) {
+    const partialAttempt = runGenerator([
+      '--publish-candidates',
+      '--staging-root',
+      stagingRoot,
+      ...selector,
+    ])
+    assert.notEqual(partialAttempt.status, 0)
+    assert.match(partialAttempt.stderr, /partial|selector|topic|locale/i)
+  }
+})
+
+test('publication atomically swaps both owned groups with the exact complete inventory', () => {
+  const temporaryDirectory = mkdtempSync(join(tmpdir(), 'phase-26-publication-'))
+  try {
+    const publicRoot = resolve(temporaryDirectory, 'public')
+    seedPreviousPublicPackage(publicRoot)
+    const published = runProbe(
+      [
+        'result = module.publish_candidates(',
+        '    pathlib.Path(sys.argv[2]),',
+        '    public_root=pathlib.Path(sys.argv[3]),',
+        '    enforce_public_root=False,',
+        ')',
+        'print(json.dumps(result, sort_keys=True, allow_nan=False))',
+      ].join('\n'),
+      [stagingRoot, publicRoot],
+    )
+    assert.equal(published.status, 0, published.stderr)
+    const result = JSON.parse(published.stdout)
+    assert.equal(result.inventoryCount, 16)
+    assert.equal(result.executionProofCount, 4)
+
+    const expected = treeSnapshot(stagingRoot)
+    const actual = treeSnapshot(publicRoot)
+    assert.deepEqual(actual, expected)
+    assert.deepEqual(publicationResidue(publicRoot), [])
+    assert.equal(existsSync(resolve(publicRoot, 'datasets/loss-functions/previous-dataset.txt')), false)
+    assert.equal(existsSync(resolve(publicRoot, 'notebooks/loss-functions/previous-notebook.txt')), false)
+
+    for (const relativePath of Object.keys(actual).filter((path) => path.endsWith('.json'))) {
+      const source = readFileSync(resolve(publicRoot, relativePath), 'utf8')
+      assert.doesNotMatch(source, /:\s*(?:NaN|Infinity|-Infinity)\b/)
+      assert.doesNotThrow(() => JSON.parse(source))
+    }
+  } finally {
+    rmSync(temporaryDirectory, { recursive: true, force: true })
+  }
+})
+
+test('publication rollback restores both previous groups after pre mid or post swap failure', () => {
+  for (const failurePoint of ['pre-swap', 'mid-swap', 'post-swap']) {
+    const temporaryDirectory = mkdtempSync(join(tmpdir(), `phase-26-rollback-${failurePoint}-`))
+    try {
+      const publicRoot = resolve(temporaryDirectory, 'public')
+      seedPreviousPublicPackage(publicRoot)
+      const before = treeSnapshot(publicRoot)
+      const failed = runProbe(
+        [
+          'module.publish_candidates(',
+          '    pathlib.Path(sys.argv[2]),',
+          '    public_root=pathlib.Path(sys.argv[3]),',
+          '    enforce_public_root=False,',
+          '    failure_point=sys.argv[4],',
+          ')',
+        ].join('\n'),
+        [stagingRoot, publicRoot, failurePoint],
+      )
+      assert.notEqual(failed.status, 0)
+      assert.match(failed.stderr, /injected publication failure/i)
+      assert.deepEqual(treeSnapshot(publicRoot), before)
+      assert.deepEqual(publicationResidue(publicRoot), [])
+    } finally {
+      rmSync(temporaryDirectory, { recursive: true, force: true })
+    }
+  }
+})
+
+test('publication refuses unexpected inventory and candidate hash drift before replacing public bytes', () => {
+  const temporaryDirectory = mkdtempSync(join(tmpdir(), 'phase-26-publication-corruption-'))
+  try {
+    const copiedStagingRoot = resolve(temporaryDirectory, 'candidate')
+    const publicRoot = resolve(temporaryDirectory, 'public')
+    cpSync(stagingRoot, copiedStagingRoot, { recursive: true })
+    seedPreviousPublicPackage(publicRoot)
+    const before = treeSnapshot(publicRoot)
+
+    const unexpectedPath = resolve(
+      copiedStagingRoot,
+      'notebooks/loss-functions/outputs/unexpected.json',
+    )
+    writeFileSync(unexpectedPath, '{}\n')
+    const unexpected = runProbe(
+      [
+        'module.publish_candidates(',
+        '    pathlib.Path(sys.argv[2]),',
+        '    public_root=pathlib.Path(sys.argv[3]),',
+        '    enforce_staging_root=False,',
+        '    enforce_public_root=False,',
+        ')',
+      ].join('\n'),
+      [copiedStagingRoot, publicRoot],
+    )
+    assert.notEqual(unexpected.status, 0)
+    assert.match(unexpected.stderr, /inventory|unexpected/i)
+    assert.deepEqual(treeSnapshot(publicRoot), before)
+    rmSync(unexpectedPath)
+
+    const summaryPath = resolve(
+      copiedStagingRoot,
+      'notebooks/loss-functions/outputs/regression-loss-summary.json',
+    )
+    writeFileSync(summaryPath, '{"tampered":true}\n')
+    const drifted = runProbe(
+      [
+        'module.publish_candidates(',
+        '    pathlib.Path(sys.argv[2]),',
+        '    public_root=pathlib.Path(sys.argv[3]),',
+        '    enforce_staging_root=False,',
+        '    enforce_public_root=False,',
+        ')',
+      ].join('\n'),
+      [copiedStagingRoot, publicRoot],
+    )
+    assert.notEqual(drifted.status, 0)
+    assert.match(drifted.stderr, /hash|summary|drift/i)
+    assert.deepEqual(treeSnapshot(publicRoot), before)
+    assert.deepEqual(publicationResidue(publicRoot), [])
+  } finally {
+    rmSync(temporaryDirectory, { recursive: true, force: true })
+  }
+})
+
+test('publication standards JSON remains strict across every published JSON member', () => {
+  for (const relativePath of readContractSnapshot().inventory.paths as string[]) {
+    if (!relativePath.endsWith('.json')) continue
+    const source = readFileSync(candidatePath(relativePath), 'utf8')
+    assert.doesNotMatch(source, /:\s*(?:NaN|Infinity|-Infinity)\b/)
+    assert.doesNotThrow(() => JSON.parse(source))
+  }
 })
