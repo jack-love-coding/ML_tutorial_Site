@@ -1,5 +1,5 @@
 import type { PlotPoint } from '../types/ml'
-import { createSeededRandom, randomBetween, randomNormal } from './rng'
+import { createSeededRandom, randomBetween, randomNormal } from './rng.ts'
 
 interface DatasetParams {
   kind: string

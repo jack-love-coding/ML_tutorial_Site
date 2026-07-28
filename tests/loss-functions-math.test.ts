@@ -269,7 +269,7 @@ test('MAE h sweep reports a kink and never certifies zero residual as a derivati
 
   sweep.forEach((row) => {
     assert.equal(row.analyticValue, 0)
-    closeTo(row.numericalValue, 0)
+    closeTo(row.numericalValue, 0, 1e-7)
     assert.equal(row.differentiable, false)
     assert.equal(row.status, 'kink')
     assert.match(row.note ?? '', /not a unique derivative/i)

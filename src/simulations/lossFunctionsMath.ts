@@ -48,6 +48,30 @@ export interface BceStabilityProbeRow {
   readonly stable: StableLogitBceEvaluation
 }
 
+export type FiniteDifferenceStatus = 'pass' | 'fail' | 'kink'
+
+export interface StepSweepInput {
+  readonly kind: LossKind
+  readonly targets: readonly number[]
+  readonly outputs: readonly number[]
+  readonly index: number
+  readonly tolerance?: number
+}
+
+export interface StepSweepEvaluation {
+  readonly kind: LossKind
+  readonly coordinate: number
+  readonly step: number
+  readonly analyticValue: number
+  readonly numericalValue: number
+  readonly absoluteError: number
+  readonly scaledRelativeError: number
+  readonly tolerance: number
+  readonly differentiable: boolean
+  readonly status: FiniteDifferenceStatus
+  readonly note: string | null
+}
+
 export const BCE_STABILITY_LOGITS = Object.freeze([
   -1000,
   -20,
@@ -56,9 +80,25 @@ export const BCE_STABILITY_LOGITS = Object.freeze([
   1000,
 ]) as readonly number[]
 
+export const LOCKED_FINITE_DIFFERENCE_STEPS = Object.freeze([
+  1e-1,
+  1e-2,
+  1e-3,
+  1e-4,
+  1e-5,
+  1e-6,
+  1e-7,
+  1e-8,
+  1e-9,
+]) as readonly number[]
+
+export const LOCKED_FINITE_DIFFERENCE_TOLERANCE = 5e-7
+
 const DEFAULT_CLIPPING_EPSILON = 1e-12
 const MAE_SUBDIFFERENTIAL_NOTE =
   'Nondifferentiable at zero residual: subdifferential [-1, 1], implementation convention 0.'
+const MAE_KINK_DIFFERENCE_NOTE =
+  'A symmetric difference may evaluate to 0 here, but it is not a unique derivative at the MAE kink.'
 
 function assertFiniteNumber(value: number, name: string): void {
   if (!Number.isFinite(value)) {
@@ -168,6 +208,14 @@ export function probabilityBinaryCrossEntropy(
   )
 }
 
+export function logitFromProbability(probability: number): number {
+  assertProbability(probability, false)
+  return assertFiniteResult(
+    Math.log(probability) - Math.log1p(-probability),
+    'logit',
+  )
+}
+
 export function evaluateClippedProbabilityBinaryCrossEntropy(
   probability: number,
   label: BinaryLabel,
@@ -254,6 +302,99 @@ export function evaluateLossGradient(
     differentiable: immutableVector(differentiable),
     gradientNotes: immutableVector(gradientNotes),
   })
+}
+
+function assertFiniteVector(values: readonly number[], name: string): void {
+  if (!Array.isArray(values) || values.length === 0) {
+    throw new RangeError(`${name} must be a non-empty array.`)
+  }
+  values.forEach((value, index) => assertFiniteNumber(value, `${name} ${index}`))
+}
+
+function assertCoordinate(index: number, length: number): void {
+  if (!Number.isInteger(index) || index < 0 || index >= length) {
+    throw new RangeError(`coordinate index must be an integer from 0 to ${length - 1}.`)
+  }
+}
+
+export function centralDifferenceCoordinate(
+  objective: (values: readonly number[]) => number,
+  values: readonly number[],
+  index: number,
+  step: number,
+): number {
+  if (typeof objective !== 'function') {
+    throw new TypeError('objective must be a function.')
+  }
+  assertFiniteVector(values, 'values')
+  assertCoordinate(index, values.length)
+  assertFiniteNumber(step, 'step')
+  if (step <= 0 || !Number.isFinite(2 * step)) {
+    throw new RangeError('step must be finite, positive, and safe for a central difference.')
+  }
+
+  const plus = values.map(Number)
+  const minus = values.map(Number)
+  plus[index] = assertFiniteResult(plus[index]! + step, 'positive perturbation')
+  minus[index] = assertFiniteResult(minus[index]! - step, 'negative perturbation')
+  const plusObjective = objective(plus)
+  const minusObjective = objective(minus)
+  assertFiniteNumber(plusObjective, 'positive objective')
+  assertFiniteNumber(minusObjective, 'negative objective')
+  return assertFiniteResult(
+    (plusObjective - minusObjective) / (2 * step),
+    'central difference',
+  )
+}
+
+export function evaluateStepSweep(
+  input: StepSweepInput,
+): readonly StepSweepEvaluation[] {
+  const analytic = evaluateLossGradient(input.kind, input.targets, input.outputs)
+  assertCoordinate(input.index, input.outputs.length)
+  const tolerance = input.tolerance ?? LOCKED_FINITE_DIFFERENCE_TOLERANCE
+  assertFiniteNumber(tolerance, 'tolerance')
+  if (tolerance <= 0) {
+    throw new RangeError('tolerance must be finite and positive.')
+  }
+
+  const analyticValue = analytic.meanObjectiveGradients[input.index]!
+  const differentiable = analytic.differentiable[input.index]!
+  return Object.freeze(
+    LOCKED_FINITE_DIFFERENCE_STEPS.map((step): StepSweepEvaluation => {
+      const numericalValue = centralDifferenceCoordinate(
+        (outputs) => evaluateLossGradient(input.kind, input.targets, outputs).meanObjective,
+        input.outputs,
+        input.index,
+        step,
+      )
+      const absoluteError = assertFiniteResult(
+        Math.abs(analyticValue - numericalValue),
+        'absolute finite-difference error',
+      )
+      const scaledRelativeError = assertFiniteResult(
+        absoluteError / Math.max(1, Math.abs(analyticValue), Math.abs(numericalValue)),
+        'scaled relative finite-difference error',
+      )
+      return Object.freeze({
+        kind: input.kind,
+        coordinate: input.index,
+        step,
+        analyticValue,
+        numericalValue,
+        absoluteError,
+        scaledRelativeError,
+        tolerance,
+        differentiable,
+        status: differentiable
+          ? absoluteError <= tolerance
+            ? 'pass'
+            : 'fail'
+          : 'kink',
+        note: differentiable ? null : MAE_KINK_DIFFERENCE_NOTE,
+      })
+    }),
+  )
 }
 
 function classifyNumericalValue(value: number): NumericalValue {
