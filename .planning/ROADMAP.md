@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 Curriculum Foundation** — 31 recorded phase entries; canonical Phase 25 archive includes 13/13 plans (shipped 2026-07-26 with accepted gaps). See [archived roadmap](milestones/v1.0-ROADMAP.md).
-- 🚧 **v1.1 Classical Supervised Learning** — Phases 26–31 (roadmap approved; ready for Phase 26 discussion).
+- 🚧 **v1.1 Classical Supervised Learning** — Phases 26–31 (Phase 26 planned; ready to execute).
 
 ## Phases
 
@@ -34,6 +34,21 @@
 2. Learners can explain how an outlier changes MSE versus MAE and how a confident wrong probability changes BCE and its gradient.
 3. Vectorized implementations remain finite for extreme logits and pass deterministic finite-difference gradient checks.
 4. The rebuilt lesson preserves its route and checkpoint while passing focused content, calculation, and GitHub Pages asset tests.
+
+**Plans:** 7 plans in 6 waves
+
+- **Wave 1:** `26-01` real-data authorization/source contract; `26-02` pure TypeScript loss, gradient, and finite-difference authority.
+- **Wave 2** *(blocked on Wave 1 completion)*: `26-03` shared bilingual Notebook, isolated environment, and indivisible candidate-pipeline contract.
+- **Wave 3** *(blocked on Wave 2 completion)*: `26-04` full LaDe/SECOM transformations and four independently executed Notebook candidates in ignored staging.
+- **Wave 4** *(blocked on Wave 3 completion)*: `26-05` one complete public-asset transaction, offline reruns, parity, hashes, and rollback proof.
+- **Wave 5** *(blocked on Wave 4 completion)*: `26-06` seven-chapter bilingual typed content, output registry, and compatibility contracts.
+- **Wave 6** *(blocked on Wave 5 completion)*: `26-07` lab/page integration and full release/browser verification.
+
+**Cross-cutting constraints:**
+
+- Page formulas, TypeScript calculations, NumPy code, locked outputs, Notebooks, and labs share one audited numerical contract.
+- Runtime course assets remain local and base-safe; both datasets, four Notebooks, summaries, plots, and manifests publish only as one complete atomic package.
+- The existing module/route, six chapter IDs, checkpoints, Progress V1/V2 identities, sanitized rendering, bilingual parity, mobile layout, and reduced-motion fallbacks remain compatible.
 
 ## Phase 27: Linear Regression Rebuild
 
@@ -119,7 +134,7 @@
 
 | Phase | Milestone | Requirements | Status |
 | --- | --- | --- | --- |
-| 26. Loss Functions Rebuild | v1.1 | 3 | Not started |
+| 26. Loss Functions Rebuild | v1.1 | 3 | Planned — ready to execute |
 | 27. Linear Regression Rebuild | v1.1 | 4 | Not started |
 | 28. Tabular Regression Project | v1.1 | 5 | Not started |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
