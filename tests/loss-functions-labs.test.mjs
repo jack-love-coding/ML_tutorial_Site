@@ -98,3 +98,63 @@ test('result code copy reuses the shared text-only CodeLab presentation', () => 
   assert.match(codeLab, /navigator\.clipboard\.writeText\(props\.code\)/)
   assert.doesNotMatch(results, /v-html/)
 })
+
+test('primary why-loss lab traces one validated real row through the complete objective loop', () => {
+  const why = source('src/components/WhyLossLab.vue')
+
+  assert.match(why, /RegressionLossSummary/)
+  assert.match(why, /representativeRows/)
+  assert.match(why, /selectedRowId/)
+  assert.match(why, /evaluateLossGradient/)
+  assert.match(why, /perElementLosses/)
+  assert.match(why, /perElementGradients/)
+  assert.match(why, /meanObjective/)
+  assert.match(why, /locked-real-row/)
+  assert.match(why, /type="button"[^>]*@click="reset"/)
+  assert.doesNotMatch(why, /type="number"/)
+})
+
+test('regression lab compares typical zero-residual and long-duration real rows with pure MSE and MAE', () => {
+  const regression = source('src/components/RegressionLossLab.vue')
+
+  assert.match(regression, /RegressionLossSummary/)
+  assert.match(regression, /typical-zero-residual/)
+  assert.match(regression, /long-duration/)
+  assert.match(regression, /evaluateLossGradient\('mse'/)
+  assert.match(regression, /evaluateLossGradient\('mae'/)
+  assert.match(regression, /msePerElementGradient|perElementGradients/)
+  assert.match(regression, /maePerElementSubgradient|differentiable/)
+  assert.match(regression, /outlierInfluence/)
+  assert.match(regression, /type="button"[^>]*@click="reset"/)
+})
+
+test('classification lab separates real label logit probability BCE and gradient from bounded teaching controls', () => {
+  const classification = source('src/components/ClassificationLossLab.vue')
+
+  assert.match(classification, /BceGradientSummary/)
+  assert.match(classification, /confidentError/)
+  assert.match(classification, /selectionStatus/)
+  assert.match(classification, /real-secom-oof-row/)
+  assert.match(classification, /teaching-fallback/)
+  assert.match(classification, /evaluateLossGradient\('bce'/)
+  assert.match(classification, /stableSigmoid/)
+  assert.match(classification, /selectedBceRowId/)
+  assert.match(classification, /Number\.isFinite/)
+  assert.match(classification, /type="button"[^>]*@click="resetRealRow"/)
+  assert.doesNotMatch(classification, /(?:min|max)="[-+]?1000"/)
+})
+
+test('loss lab styles preserve tables focus and teaching meaning at 390px and reduced motion', () => {
+  const styles = [
+    source('src/styles/modules/loss-functions.css'),
+    source('src/styles/modules/loss-functions-visuals.css'),
+  ].join('\n')
+
+  assert.match(styles, /\.loss-table-scroll[\s\S]*overflow-x:\s*auto/)
+  assert.match(styles, /\.loss-real-row-select/)
+  assert.match(styles, /:focus-visible/)
+  assert.match(styles, /@media\s*\(max-width:\s*520px\)/)
+  assert.match(styles, /@media\s*\(prefers-reduced-motion:\s*reduce\)/)
+  assert.match(styles, /\.is-pass|\.is-kink/)
+  assert.match(styles, /grid-template-columns:\s*1fr/)
+})
