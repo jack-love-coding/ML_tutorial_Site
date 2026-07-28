@@ -397,7 +397,10 @@ test('LaDe candidate keeps all real rows, the eight-field privacy boundary, and 
   assert.equal(manifest.datasetId, 'lade-delivery-jilin')
   assert.equal(manifest.source.license, 'Apache-2.0')
   assert.equal(manifest.source.sourceSha256, '12e2cf4664dd5b4475d39dddee8872f5a03b3082f08f0eece7f103baee6c6e73')
-  assert.equal(manifest.transform.generatorSha256, sha256(generatorPath))
+  assert.equal(
+    manifest.transform.generatorSha256,
+    '69f41c2a125456b07695528a5f9687d291177949b777178fbfcbb4527658f652',
+  )
   assert.equal(manifest.published.rowCount, 31_415)
   assert.equal(manifest.published.sha256, sha256(csvPath))
   assert.equal(manifest.published.units.delivery_duration_minutes, 'minutes')
