@@ -645,3 +645,302 @@
   align-content: start;
   grid-template-columns: 1fr;
 }
+
+.loss-real-row-lab {
+  display: grid;
+  gap: 18px;
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid rgba(63, 109, 255, 0.14);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(63, 109, 255, 0.1), transparent 36%),
+    rgba(255, 255, 255, 0.92);
+}
+
+.loss-real-row-lab__header {
+  display: grid;
+  gap: 8px;
+}
+
+.loss-real-row-lab__header > span,
+.loss-real-row-lab__source {
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+.loss-real-row-lab__header > strong {
+  font-size: clamp(1.08rem, 2.4vw, 1.42rem);
+}
+
+.loss-real-row-lab__header p,
+.loss-real-row-lab__source {
+  margin: 0;
+}
+
+.loss-real-row-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.loss-real-row-controls label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.loss-real-row-select {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 36px 9px 12px;
+  border: 1px solid rgba(15, 23, 40, 0.18);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.loss-real-row-select:focus-visible,
+.loss-real-row-controls button:focus-visible,
+.loss-gradient-lab select:focus-visible,
+.loss-gradient-lab button:focus-visible,
+.loss-downloads a:focus-visible {
+  outline: 3px solid rgba(63, 109, 255, 0.38);
+  outline-offset: 3px;
+}
+
+.loss-objective-flow,
+.loss-comparison-grid,
+.loss-batch-objectives,
+.loss-gradient-lab__readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.loss-objective-flow article,
+.loss-comparison-grid article,
+.loss-batch-objectives article,
+.loss-gradient-lab__readouts article {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(248, 249, 252, 0.92);
+}
+
+.loss-objective-flow article {
+  position: relative;
+}
+
+.loss-objective-flow article:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -9px;
+  top: 50%;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  color: #3f6dff;
+  font-weight: 800;
+  text-align: center;
+  transform: translateY(-50%);
+}
+
+.loss-objective-flow span,
+.loss-comparison-grid span,
+.loss-batch-objectives span,
+.loss-gradient-lab__readouts span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.loss-objective-flow strong,
+.loss-comparison-grid strong,
+.loss-batch-objectives strong,
+.loss-gradient-lab__readouts strong {
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+.loss-comparison-grid article.is-active {
+  border-color: rgba(63, 109, 255, 0.34);
+  box-shadow: inset 0 0 0 1px rgba(63, 109, 255, 0.1);
+}
+
+.loss-status-note {
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.loss-status-note.is-pass,
+.loss-gradient-status.is-pass {
+  border: 1px solid rgba(30, 166, 122, 0.28);
+  background: rgba(30, 166, 122, 0.1);
+  color: #12654f;
+}
+
+.loss-status-note.is-kink,
+.loss-gradient-status.is-kink {
+  border: 1px dashed rgba(186, 102, 28, 0.42);
+  background: rgba(255, 174, 66, 0.12);
+  color: #82420d;
+}
+
+.loss-outlier-comparison {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 249, 244, 0.9);
+}
+
+.loss-outlier-comparison > header,
+.loss-outlier-comparison > div,
+.loss-outlier-comparison article {
+  display: grid;
+  gap: 8px;
+}
+
+.loss-outlier-comparison > header {
+  grid-template-columns: 1fr auto;
+}
+
+.loss-outlier-comparison > div {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.loss-outlier-comparison article {
+  padding: 12px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.loss-outlier-comparison small {
+  color: var(--muted);
+}
+
+.loss-real-bce-panel {
+  margin-bottom: 18px;
+}
+
+.loss-gradient-lab,
+.loss-results,
+.loss-downloads {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.loss-gradient-lab__header,
+.loss-gradient-lab__controls {
+  display: grid;
+  gap: 12px;
+}
+
+.loss-gradient-lab__controls {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+}
+
+.loss-gradient-lab__controls label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.loss-gradient-lab__controls select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid rgba(15, 23, 40, 0.18);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.loss-table-scroll {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.loss-table-scroll table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.loss-table-scroll th,
+.loss-table-scroll td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(15, 23, 40, 0.08);
+  text-align: left;
+}
+
+.loss-table-scroll th {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+@media (max-width: 520px) {
+  .loss-real-row-controls,
+  .loss-gradient-lab__controls,
+  .loss-outlier-comparison > div,
+  .loss-batch-objectives,
+  .loss-objective-flow,
+  .loss-comparison-grid,
+  .loss-gradient-lab__readouts {
+    grid-template-columns: 1fr;
+  }
+
+  .loss-real-row-controls button,
+  .loss-gradient-lab__controls button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .loss-objective-flow article:not(:last-child)::after {
+    content: '↓';
+    right: 50%;
+    top: auto;
+    bottom: -10px;
+    transform: translateX(50%);
+  }
+
+  .loss-real-row-lab {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .loss-table-scroll table {
+    min-width: 560px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loss-real-row-lab *,
+  .loss-gradient-lab *,
+  .loss-results *,
+  .loss-downloads * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type {
+  BceContributionRow,
+  BceGradientSummary,
+} from '../data/lossFunctionsAssets'
+import {
+  evaluateLossGradient,
+  stableSigmoid,
+} from '../simulations/lossFunctionsMath'
 import type { ExperimentConfig, ExperimentConfigValue, TrainingSnapshot, WorkedExampleRow } from '../types/ml'
 import { round, sigmoid } from '../utils/math'
 import ClassificationViz from './ClassificationViz.vue'
@@ -11,6 +19,7 @@ const props = defineProps<{
   config: ExperimentConfig
   snapshot?: TrainingSnapshot
   accent: string
+  bceSummary?: BceGradientSummary
 }>()
 
 const emit = defineEmits<{
@@ -19,6 +28,115 @@ const emit = defineEmits<{
 }>()
 
 const { locale } = useI18n()
+
+type BceLearningRow = BceContributionRow & {
+  selectionStatus: string
+  source: 'real-secom-oof-row' | 'teaching-fallback'
+}
+
+const fallbackBceRows: readonly BceLearningRow[] = [
+  {
+    courseRowId: 'fallback-correct',
+    fold: 0,
+    label: 0,
+    logit: -2,
+    probability: stableSigmoid(-2),
+    stableBce: 0.126928,
+    perLogitGradient: stableSigmoid(-2),
+    meanObjectiveGradient: stableSigmoid(-2) / 2,
+    selectionStatus: 'teaching-fallback',
+    source: 'teaching-fallback',
+  },
+  {
+    courseRowId: 'fallback-confident-error',
+    fold: 0,
+    label: 1,
+    logit: -4,
+    probability: stableSigmoid(-4),
+    stableBce: 4.01815,
+    perLogitGradient: stableSigmoid(-4) - 1,
+    meanObjectiveGradient: (stableSigmoid(-4) - 1) / 2,
+    selectionStatus: 'teaching-fallback',
+    source: 'teaching-fallback',
+  },
+]
+
+const bceRows = computed<readonly BceLearningRow[]>(() => {
+  if (!props.bceSummary) return fallbackBceRows
+  const confidentError = props.bceSummary.confidentError
+  const candidates = [
+    ...props.bceSummary.rows.slice(0, 3),
+    confidentError,
+  ]
+  const unique = new Map(candidates.map((row) => [row.courseRowId, row]))
+  return [...unique.values()]
+    .filter((row) =>
+      [row.label, row.logit, row.probability, row.stableBce].every(Number.isFinite),
+    )
+    .map((row) => ({
+      ...row,
+      selectionStatus:
+        row.courseRowId === confidentError.courseRowId
+          ? confidentError.selectionStatus
+          : 'representative-oof-row',
+      source: 'real-secom-oof-row' as const,
+    }))
+})
+
+const selectedBceRowId = ref('')
+
+watch(
+  () => bceRows.value.map((row) => row.courseRowId).join('|'),
+  () => {
+    if (!bceRows.value.some((row) => row.courseRowId === selectedBceRowId.value)) {
+      selectedBceRowId.value =
+        bceRows.value.find((row) =>
+          row.selectionStatus.toLowerCase().includes('confident'),
+        )?.courseRowId ??
+        bceRows.value[bceRows.value.length - 1]?.courseRowId ??
+        ''
+    }
+  },
+  { immediate: true },
+)
+
+const selectedBceIndex = computed(() => {
+  const index = bceRows.value.findIndex(
+    (row) => row.courseRowId === selectedBceRowId.value,
+  )
+  return index < 0 ? 0 : index
+})
+const selectedBceRow = computed(() => bceRows.value[selectedBceIndex.value]!)
+const bceEvaluation = computed(() =>
+  evaluateLossGradient('bce',
+    bceRows.value.map((row) => row.label),
+    bceRows.value.map((row) => row.logit)),
+)
+const selectedStableProbability = computed(() =>
+  stableSigmoid(selectedBceRow.value.logit),
+)
+
+const realCopy = computed(() => {
+  const zh = locale.value === 'zh-CN'
+  return {
+    eyebrow: zh ? '真实制造行 · BCE 闭环' : 'Real manufacturing row · BCE loop',
+    title: zh ? '把标签、logit、概率、损失和梯度分开看' : 'Separate label, logit, probability, loss, and gradient',
+    intro: zh
+      ? '这些行来自本地锁定的 SECOM 折外预测。下方旧控件只用于有界教学探索，不会改写真实行结果。'
+      : 'These rows come from locked local SECOM out-of-fold predictions. The bounded teaching controls below do not rewrite the real-row result.',
+    row: zh ? '折外预测行' : 'Out-of-fold prediction row',
+    reset: zh ? '回到高置信错误行' : 'Reset to confident error',
+    label: zh ? '真实标签 y' : 'True label y',
+    logit: 'logit z',
+    probability: zh ? '稳定概率 σ(z)' : 'Stable probability σ(z)',
+    loss: zh ? '逐行 BCE' : 'Per-row BCE',
+    gradient: zh ? 'logit 梯度 σ(z) − y' : 'Logit gradient σ(z) − y',
+    meanGradient: zh ? '代表批次均值梯度' : 'Representative-batch mean gradient',
+    status: zh ? '选择状态' : 'Selection status',
+    real: zh ? '● 本地锁定真实折外行' : '● locked local real OOF row',
+    fallback: zh ? '◇ 内置教学回退值' : '◇ built-in teaching fallback',
+  }
+})
 
 const copy = computed(() =>
   locale.value === 'zh-CN'
@@ -407,10 +525,31 @@ function setLabel(nextLabel: 0 | 1) {
 
 function onNumericInput(key: 'probability' | 'decisionBias', event: Event) {
   const target = event.target as HTMLInputElement
+  const parsed = Number(target.value)
+  if (!Number.isFinite(parsed)) return
+  const value = key === 'probability'
+    ? Math.min(0.99, Math.max(0.01, parsed))
+    : Math.min(1.2, Math.max(-1.2, parsed))
   emit('patch-config', {
     lossFamily: 'classification',
-    [key]: Number(target.value),
+    [key]: value,
   })
+}
+
+function resetRealRow() {
+  selectedBceRowId.value =
+    bceRows.value.find((row) =>
+      row.selectionStatus.toLowerCase().includes('confident'),
+    )?.courseRowId ??
+    bceRows.value[bceRows.value.length - 1]?.courseRowId ??
+    ''
+}
+
+function formatRealValue(value: number) {
+  if (!Number.isFinite(value)) return '—'
+  if (value === 0) return '0'
+  if (Math.abs(value) >= 1000 || Math.abs(value) < 0.001) return value.toExponential(4)
+  return value.toFixed(6)
 }
 
 function barLabel(index: number) {
@@ -431,6 +570,64 @@ function rowNote(row: WorkedExampleRow) {
 
 <template>
   <section class="lesson-lab lesson-lab--classification">
+    <section class="loss-real-row-lab loss-real-bce-panel">
+      <header class="loss-real-row-lab__header">
+        <span>{{ realCopy.eyebrow }}</span>
+        <strong>{{ realCopy.title }}</strong>
+        <p>{{ realCopy.intro }}</p>
+      </header>
+
+      <div class="loss-real-row-controls">
+        <label>
+          <span>{{ realCopy.row }}: {{ selectedBceRow.courseRowId }}</span>
+          <select v-model="selectedBceRowId" class="loss-real-row-select">
+            <option v-for="row in bceRows" :key="row.courseRowId" :value="row.courseRowId">
+              {{ row.courseRowId }} · fold {{ row.fold }} · y={{ row.label }}
+            </option>
+          </select>
+        </label>
+        <button type="button" class="button-quiet" @click="resetRealRow">
+          {{ realCopy.reset }}
+        </button>
+      </div>
+
+      <p class="loss-real-row-lab__source">
+        {{
+          selectedBceRow.source === 'real-secom-oof-row'
+            ? realCopy.real
+            : realCopy.fallback
+        }}
+        · {{ realCopy.status }}: {{ selectedBceRow.selectionStatus }}
+      </p>
+
+      <div class="loss-objective-flow loss-objective-flow--bce">
+        <article>
+          <span>1 · {{ realCopy.label }}</span>
+          <strong>{{ selectedBceRow.label }}</strong>
+        </article>
+        <article>
+          <span>2 · {{ realCopy.logit }}</span>
+          <strong>{{ formatRealValue(selectedBceRow.logit) }}</strong>
+        </article>
+        <article>
+          <span>3 · {{ realCopy.probability }}</span>
+          <strong>{{ formatRealValue(selectedStableProbability) }}</strong>
+        </article>
+        <article>
+          <span>4 · {{ realCopy.loss }}</span>
+          <strong>{{ formatRealValue(bceEvaluation.perElementLosses[selectedBceIndex] ?? 0) }}</strong>
+        </article>
+        <article>
+          <span>5 · {{ realCopy.gradient }}</span>
+          <strong>{{ formatRealValue(bceEvaluation.perElementGradients[selectedBceIndex] ?? 0) }}</strong>
+        </article>
+        <article>
+          <span>6 · {{ realCopy.meanGradient }}</span>
+          <strong>{{ formatRealValue(bceEvaluation.meanObjectiveGradients[selectedBceIndex] ?? 0) }}</strong>
+        </article>
+      </div>
+    </section>
+
     <div class="lesson-lab__controls">
       <div class="lesson-lab__heading">
         <span>{{ copy.probabilityPenalty }}</span>

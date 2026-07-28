@@ -118,6 +118,7 @@ onBeforeUnmount(() => {
     v-if="props.section.id === 'why-loss'"
     :config="props.config"
     :snapshot="props.snapshot"
+    :regression-summary="regressionSummary"
     @update-config="(key, value) => emit('update-config', key, value)"
     @patch-config="emit('patch-config', $event)"
   />
@@ -126,6 +127,7 @@ onBeforeUnmount(() => {
     v-else-if="props.section.id === 'regression-losses'"
     :config="props.config"
     :snapshot="props.snapshot"
+    :regression-summary="regressionSummary"
     @update-config="(key, value) => emit('update-config', key, value)"
     @patch-config="emit('patch-config', $event)"
   />
@@ -135,6 +137,7 @@ onBeforeUnmount(() => {
     :config="props.config"
     :snapshot="props.snapshot"
     :accent="props.accent"
+    :bce-summary="bceSummary"
     @update-config="(key, value) => emit('update-config', key, value)"
     @patch-config="emit('patch-config', $event)"
   />

@@ -1,13 +1,27 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ExperimentConfig, ExperimentConfigValue, PlotPoint, TrainingSnapshot } from '../types/ml'
-import { round } from '../utils/math'
-import LossCurvePlot from './LossCurvePlot.vue'
+import type {
+  RegressionLossRow,
+  RegressionLossSummary,
+} from '../data/lossFunctionsAssets'
+import { evaluateLossGradient } from '../simulations/lossFunctionsMath'
+import type {
+  ExperimentConfig,
+  ExperimentConfigValue,
+  TrainingSnapshot,
+} from '../types/ml'
+
+type RegressionLossKind = 'mse' | 'mae'
+type ComparisonRow = RegressionLossRow & {
+  role: string
+  source: 'locked-real-row' | 'teaching-fallback'
+}
 
 const props = defineProps<{
   config: ExperimentConfig
   snapshot?: TrainingSnapshot
+  regressionSummary?: RegressionLossSummary
 }>()
 
 const emit = defineEmits<{
@@ -16,362 +30,325 @@ const emit = defineEmits<{
 }>()
 
 const { locale } = useI18n()
-const size = 320
-const padding = 28
+const selectedRowId = ref('')
 
-const copy = computed(() =>
-  locale.value === 'zh-CN'
-    ? {
-        singleSample: '单样本手算',
-        regressionFit: '回归拟合',
-        outlier: '离群点实验',
-        outlierStrength: '离群点强度',
-        datasetNoise: '样本噪声',
-        target: '真实值',
-        prediction: '预测值',
-        residual: '残差',
-        totalLoss: '数据集总损失',
-        workedExample: '同一残差的两种惩罚',
-        penaltyAmplifier: '残差放大器',
-        rawResidual: '原始残差强度',
-        activeFit: '当前拟合',
-        mse: '平方误差',
-        mae: '绝对误差',
-        on: '开启',
-        off: '关闭',
-        sensitivity: '离群点一出现，MSE 会更愿意为了少数大误差而移动整条拟合线；MAE 则通常更稳健。',
-      }
-    : {
-        singleSample: 'Single-sample calculation',
-        regressionFit: 'Regression fit',
-        outlier: 'Outlier experiment',
-        outlierStrength: 'Outlier strength',
-        datasetNoise: 'Sample noise',
-        target: 'Target',
-        prediction: 'Prediction',
-        residual: 'Residual',
-        totalLoss: 'Dataset loss',
-        workedExample: 'Two penalties for the same residual',
-        penaltyAmplifier: 'Residual amplifier',
-        rawResidual: 'Raw residual strength',
-        activeFit: 'Current fit',
-        mse: 'Squared error',
-        mae: 'Absolute error',
-        on: 'On',
-        off: 'Off',
-        sensitivity:
-          'Once the outlier appears, MSE is more willing to move the whole fit line for a few large mistakes, while MAE usually stays more robust.',
-      },
-)
-
-const regressionLossKind = computed(() => String(props.config.regressionLossKind ?? 'mse'))
-const targetValue = computed(() => Number(props.config.targetValue ?? 1.2))
-const predictionValue = computed(() => Number(props.config.predictionValue ?? -0.35))
-const residual = computed(() => Number(props.snapshot?.selectedObservation?.residual ?? 0))
-const samples = computed(() => props.snapshot?.regressionSamples ?? [])
-const fit = computed(() => props.snapshot?.regressionFit ?? { slope: 0.65, intercept: 0.4 })
-const includeOutlier = computed(() => Boolean(props.config.includeOutlier ?? true))
-
-const curveSpecs = computed(() => [
+const fallbackRows: readonly ComparisonRow[] = [
   {
-    id: 'mse',
-    label: copy.value.mse,
-    color: '#ff7d4d',
-    points: props.snapshot?.lossCurves?.mse ?? [],
+    courseRowId: 'fallback-zero-duration',
+    role: 'zero-duration',
+    targetMinutes: 0,
+    predictionMinutes: 175,
+    residualMinutes: -175,
+    mseLoss: 30_625,
+    maeLoss: 175,
+    msePerElementGradient: 350,
+    maePerElementSubgradient: 1,
+    maeDifferentiable: true,
+    mseMeanObjectiveGradient: 116.6666667,
+    maeMeanObjectiveSubgradient: 0.3333333,
+    source: 'teaching-fallback',
   },
   {
-    id: 'mae',
-    label: copy.value.mae,
-    color: '#3f6dff',
-    points: props.snapshot?.lossCurves?.mae ?? [],
+    courseRowId: 'fallback-typical',
+    role: 'typical-zero-residual',
+    targetMinutes: 175,
+    predictionMinutes: 175,
+    residualMinutes: 0,
+    mseLoss: 0,
+    maeLoss: 0,
+    msePerElementGradient: 0,
+    maePerElementSubgradient: 0,
+    maeDifferentiable: false,
+    mseMeanObjectiveGradient: 0,
+    maeMeanObjectiveSubgradient: 0,
+    source: 'teaching-fallback',
   },
-])
-
-const markerPoints = computed(() => [
   {
-    id: 'mse-marker',
-    x: predictionValue.value,
-    y: Number(props.snapshot?.selectedObservation?.mse ?? 0),
-    color: '#ff7d4d',
+    courseRowId: 'fallback-long-duration',
+    role: 'long-duration',
+    targetMinutes: 3573,
+    predictionMinutes: 175,
+    residualMinutes: 3398,
+    mseLoss: 11_546_404,
+    maeLoss: 3398,
+    msePerElementGradient: -6796,
+    maePerElementSubgradient: -1,
+    maeDifferentiable: true,
+    mseMeanObjectiveGradient: -2265.3333333,
+    maeMeanObjectiveSubgradient: -0.3333333,
+    source: 'teaching-fallback',
   },
-  {
-    id: 'mae-marker',
-    x: predictionValue.value,
-    y: Number(props.snapshot?.selectedObservation?.mae ?? 0),
-    color: '#3f6dff',
-  },
-])
+]
 
-const fitLine = computed(() => {
-  const x1 = -2.5
-  const x2 = 2.8
-  return [
-    { x: x1, y: fit.value.slope * x1 + fit.value.intercept },
-    { x: x2, y: fit.value.slope * x2 + fit.value.intercept },
-  ]
+const representativeRows = computed<readonly ComparisonRow[]>(() => {
+  const rows = props.regressionSummary?.representativeRows
+  if (!rows?.length) return fallbackRows
+  return rows
+    .filter((row) =>
+      [row.targetMinutes, row.predictionMinutes].every(Number.isFinite),
+    )
+    .map((row) => ({ ...row, source: 'locked-real-row' as const }))
 })
 
-const workedExampleCards = computed(() => [
+watch(
+  () => representativeRows.value.map((row) => row.courseRowId).join('|'),
+  () => {
+    if (!representativeRows.value.some((row) => row.courseRowId === selectedRowId.value)) {
+      selectedRowId.value =
+        representativeRows.value.find((row) => row.role === 'typical-zero-residual')
+          ?.courseRowId ??
+        representativeRows.value[0]?.courseRowId ??
+        ''
+    }
+  },
+  { immediate: true },
+)
+
+const targets = computed(() => representativeRows.value.map((row) => row.targetMinutes))
+const predictions = computed(() =>
+  representativeRows.value.map((row) => row.predictionMinutes),
+)
+const mseEvaluation = computed(() =>
+  evaluateLossGradient('mse', targets.value, predictions.value),
+)
+const maeEvaluation = computed(() =>
+  evaluateLossGradient('mae', targets.value, predictions.value),
+)
+const selectedIndex = computed(() => {
+  const index = representativeRows.value.findIndex(
+    (row) => row.courseRowId === selectedRowId.value,
+  )
+  return index < 0 ? 0 : index
+})
+const selectedRow = computed(() => representativeRows.value[selectedIndex.value]!)
+const msePerElementGradient = computed(
+  () => mseEvaluation.value.perElementGradients[selectedIndex.value] ?? 0,
+)
+const maePerElementSubgradient = computed(
+  () => maeEvaluation.value.perElementGradients[selectedIndex.value] ?? 0,
+)
+const differentiable = computed(
+  () => maeEvaluation.value.differentiable[selectedIndex.value] ?? false,
+)
+const regressionLossKind = computed<RegressionLossKind>(() =>
+  props.config.regressionLossKind === 'mae' ? 'mae' : 'mse',
+)
+
+const longDurationIndex = computed(() =>
+  Math.max(
+    0,
+    representativeRows.value.findIndex((row) => row.role === 'long-duration'),
+  ),
+)
+const baselineIndex = computed(() => {
+  const nonLong = representativeRows.value.findIndex(
+    (row) =>
+      row.role !== 'long-duration' &&
+      Math.abs(row.predictionMinutes - row.targetMinutes) > 0,
+  )
+  return nonLong < 0 ? 0 : nonLong
+})
+const outlierInfluence = computed(() => {
+  const longMse = mseEvaluation.value.perElementLosses[longDurationIndex.value] ?? 0
+  const longMae = maeEvaluation.value.perElementLosses[longDurationIndex.value] ?? 0
+  const baseMse = mseEvaluation.value.perElementLosses[baselineIndex.value] ?? 0
+  const baseMae = maeEvaluation.value.perElementLosses[baselineIndex.value] ?? 0
+  return {
+    mseRatio: baseMse > 0 ? longMse / baseMse : null,
+    maeRatio: baseMae > 0 ? longMae / baseMae : null,
+    longMse,
+    longMae,
+  }
+})
+
+const copy = computed(() => {
+  const zh = locale.value === 'zh-CN'
+  return {
+    eyebrow: zh ? '真实配送行 · MSE 与 MAE' : 'Real delivery rows · MSE versus MAE',
+    title: zh ? '同一批残差，两种不同的训练压力' : 'The same residuals create two different training pressures',
+    intro: zh
+      ? '代表行来自本地锁定的 LaDe-D 运行结果。切换行与损失，观察普通行、零残差行和长时长行如何改变逐行代价与梯度。'
+      : 'Representative rows come from the locked local LaDe-D run. Switch rows and losses to compare ordinary, zero-residual, and long-duration examples.',
+    row: zh ? '代表行' : 'Representative row',
+    loss: zh ? '当前损失' : 'Active loss',
+    reset: zh ? '重置实验' : 'Reset lab',
+    target: zh ? '目标时长' : 'Target duration',
+    prediction: zh ? '预测时长' : 'Predicted duration',
+    residual: zh ? '残差 ŷ − y' : 'Residual ŷ − y',
+    mseLoss: zh ? 'MSE 逐行代价' : 'MSE row loss',
+    maeLoss: zh ? 'MAE 逐行代价' : 'MAE row loss',
+    mseGradient: zh ? 'MSE 输出梯度' : 'MSE output gradient',
+    maeGradient: zh ? 'MAE 子梯度' : 'MAE subgradient',
+    batchMean: zh ? '代表批次均值' : 'Representative-batch mean',
+    outlierTitle: zh ? '长时长行的影响' : 'Long-duration row influence',
+    squared: zh ? 'MSE：残差平方，尺度会快速放大' : 'MSE: residual is squared, so scale grows rapidly',
+    linear: zh ? 'MAE：残差绝对值，保持线性增长' : 'MAE: absolute residual keeps linear growth',
+    ratioUnavailable: zh ? '基准行损失为 0，比例不定义' : 'Ratio is undefined because the baseline loss is zero',
+    kink: zh
+      ? '◆ MAE 在零残差处不可微；这里显示约定子梯度 0。'
+      : '◆ MAE is nondifferentiable at zero residual; the displayed convention uses subgradient 0.',
+    smooth: zh ? '● 当前行处两种损失都可微' : '● Both losses are differentiable at the selected row',
+    real: zh ? '本地锁定真实行' : 'locked local real row',
+    fallback: zh ? '内置教学回退值' : 'built-in teaching fallback',
+    note: zh
+      ? 'MSE 会让大残差拥有更大的梯度尺度，因此更容易被少数极端行牵动；MAE 的非零逐元素梯度只有方向，通常更稳健。'
+      : 'MSE gives large residuals a larger gradient scale, so a few extreme rows can pull harder. MAE keeps only the direction away from its kink and is often more robust.',
+  }
+})
+
+const selectedMetrics = computed(() => [
+  { id: 'target', label: copy.value.target, value: selectedRow.value.targetMinutes },
+  {
+    id: 'prediction',
+    label: copy.value.prediction,
+    value: selectedRow.value.predictionMinutes,
+  },
   {
     id: 'residual',
     label: copy.value.residual,
-    value: round(residual.value),
+    value: selectedRow.value.predictionMinutes - selectedRow.value.targetMinutes,
   },
   {
-    id: 'mse',
-    label: copy.value.mse,
-    value: round(Number(props.snapshot?.selectedObservation?.mse ?? 0)),
+    id: 'mse-loss',
+    label: copy.value.mseLoss,
+    value: mseEvaluation.value.perElementLosses[selectedIndex.value] ?? 0,
   },
   {
-    id: 'mae',
-    label: copy.value.mae,
-    value: round(Number(props.snapshot?.selectedObservation?.mae ?? 0)),
+    id: 'mae-loss',
+    label: copy.value.maeLoss,
+    value: maeEvaluation.value.perElementLosses[selectedIndex.value] ?? 0,
+  },
+  { id: 'mse-gradient', label: copy.value.mseGradient, value: msePerElementGradient.value },
+  {
+    id: 'mae-gradient',
+    label: copy.value.maeGradient,
+    value: maePerElementSubgradient.value,
   },
 ])
 
-const amplifierBars = computed(() => {
-  const residualMagnitude = Math.abs(residual.value)
-  const mseValue = Number(props.snapshot?.selectedObservation?.mse ?? 0)
-  const maeValue = Number(props.snapshot?.selectedObservation?.mae ?? 0)
-  const maxValue = Math.max(residualMagnitude, mseValue, maeValue, 0.001)
-
-  return [
-    {
-      id: 'raw',
-      label: copy.value.rawResidual,
-      value: residualMagnitude,
-      width: `${Math.max(4, (residualMagnitude / maxValue) * 100)}%`,
-    },
-    {
-      id: 'mae',
-      label: copy.value.mae,
-      value: maeValue,
-      width: `${Math.max(4, (maeValue / maxValue) * 100)}%`,
-    },
-    {
-      id: 'mse',
-      label: copy.value.mse,
-      value: mseValue,
-      width: `${Math.max(4, (mseValue / maxValue) * 100)}%`,
-    },
-  ]
-})
-
-function mapX(value: number) {
-  return padding + ((value + 2.8) / 5.6) * (size - padding * 2)
-}
-
-function mapY(value: number) {
-  return size - padding - ((value + 2.2) / 5.8) * (size - padding * 2)
-}
-
-function setLossKind(kind: 'mse' | 'mae') {
+function setLossKind(kind: RegressionLossKind) {
   emit('patch-config', {
     lossFamily: 'regression',
     regressionLossKind: kind,
   })
 }
 
-function onNumericInput(
-  key: 'targetValue' | 'predictionValue' | 'outlierStrength' | 'datasetNoise',
-  event: Event,
-) {
-  const target = event.target as HTMLInputElement
-  emit('patch-config', {
-    lossFamily: 'regression',
-    [key]: Number(target.value),
-  })
+function reset() {
+  selectedRowId.value =
+    representativeRows.value.find((row) => row.role === 'typical-zero-residual')
+      ?.courseRowId ??
+    representativeRows.value[0]?.courseRowId ??
+    ''
+  setLossKind('mse')
 }
 
-function onOutlierToggle() {
-  emit('patch-config', {
-    lossFamily: 'regression',
-    includeOutlier: !includeOutlier.value,
-  })
+function formatNumber(value: number | null) {
+  if (value === null || !Number.isFinite(value)) return '—'
+  if (value === 0) return '0'
+  if (Math.abs(value) >= 1000 || Math.abs(value) < 0.001) return value.toExponential(4)
+  return value.toFixed(4)
 }
 
-function polyline(points: PlotPoint[]) {
-  return points.map((point) => `${mapX(point.x)},${mapY(point.y)}`).join(' ')
+function formatRatio(value: number | null) {
+  return value === null || !Number.isFinite(value)
+    ? copy.value.ratioUnavailable
+    : `${formatNumber(value)}×`
 }
 </script>
 
 <template>
-  <section class="lesson-lab lesson-lab--regression">
-    <div class="lesson-lab__controls">
-      <div class="lesson-lab__heading">
-        <span>{{ copy.singleSample }}</span>
-        <strong>{{ regressionLossKind === 'mse' ? copy.mse : copy.mae }}</strong>
-      </div>
+  <section class="lesson-lab lesson-lab--regression loss-real-row-lab">
+    <header class="loss-real-row-lab__header">
+      <span>{{ copy.eyebrow }}</span>
+      <strong>{{ copy.title }}</strong>
+      <p>{{ copy.intro }}</p>
+    </header>
 
-      <div class="toggle-strip">
-        <button
-          type="button"
-          class="toggle-strip__button"
-          :class="{ 'is-active': regressionLossKind === 'mse' }"
-          @click="setLossKind('mse')"
+    <div class="lesson-lab__controls loss-real-row-controls">
+      <label>
+        <span>{{ copy.loss }}: {{ regressionLossKind.toUpperCase() }}</span>
+        <select
+          class="loss-real-row-select"
+          :value="regressionLossKind"
+          @change="setLossKind(($event.target as HTMLSelectElement).value as RegressionLossKind)"
         >
-          MSE
-        </button>
-        <button
-          type="button"
-          class="toggle-strip__button"
-          :class="{ 'is-active': regressionLossKind === 'mae' }"
-          @click="setLossKind('mae')"
-        >
-          MAE
-        </button>
-      </div>
+          <option value="mse">MSE</option>
+          <option value="mae">MAE</option>
+        </select>
+      </label>
 
-      <div class="control-group__grid">
-        <label class="control">
-          <span class="control__row">
-            <span>{{ copy.target }}</span>
-            <strong>{{ round(targetValue) }}</strong>
-          </span>
-          <input
-            class="control__range"
-            type="range"
-            min="-2.5"
-            max="2.5"
-            step="0.05"
-            :value="targetValue"
-            @input="onNumericInput('targetValue', $event)"
-          />
-        </label>
-        <label class="control">
-          <span class="control__row">
-            <span>{{ copy.prediction }}</span>
-            <strong>{{ round(predictionValue) }}</strong>
-          </span>
-          <input
-            class="control__range"
-            type="range"
-            min="-2.5"
-            max="2.5"
-            step="0.05"
-            :value="predictionValue"
-            @input="onNumericInput('predictionValue', $event)"
-          />
-        </label>
-      </div>
+      <label>
+        <span>{{ copy.row }}: {{ selectedRow.courseRowId }}</span>
+        <select v-model="selectedRowId" class="loss-real-row-select">
+          <option
+            v-for="row in representativeRows"
+            :key="row.courseRowId"
+            :value="row.courseRowId"
+          >
+            {{ row.courseRowId }} · {{ row.role }}
+          </option>
+        </select>
+      </label>
+
+      <button type="button" class="button-quiet" @click="reset">
+        {{ copy.reset }}
+      </button>
     </div>
 
-    <div class="lesson-lab__visual">
-      <div class="lesson-lab__heading">
-        <span>{{ copy.workedExample }}</span>
-        <strong>{{ copy.penaltyAmplifier }}</strong>
-      </div>
-      <div class="residual-amplifier" aria-label="residual penalty amplifier">
-        <article
-          v-for="bar in amplifierBars"
-          :key="bar.id"
-          class="residual-amplifier__item"
-          :class="`residual-amplifier__item--${bar.id}`"
-        >
-          <span>{{ bar.label }}</span>
-          <div class="residual-amplifier__track">
-            <div class="residual-amplifier__fill" :style="{ width: bar.width }" />
-          </div>
-          <strong>{{ round(bar.value) }}</strong>
+    <p class="loss-real-row-lab__source">
+      {{
+        selectedRow.source === 'locked-real-row'
+          ? `● ${copy.real}`
+          : `◇ ${copy.fallback}`
+      }}
+      · {{ selectedRow.role }}
+    </p>
+
+    <div class="loss-comparison-grid">
+      <article
+        v-for="metric in selectedMetrics"
+        :key="metric.id"
+        :class="{ 'is-active': metric.id.startsWith(regressionLossKind) }"
+      >
+        <span>{{ metric.label }}</span>
+        <strong>{{ formatNumber(metric.value) }}</strong>
+      </article>
+    </div>
+
+    <p class="loss-status-note" :class="differentiable ? 'is-pass' : 'is-kink'">
+      {{ differentiable ? copy.smooth : copy.kink }}
+    </p>
+
+    <section class="loss-outlier-comparison">
+      <header>
+        <span>{{ copy.outlierTitle }}</span>
+        <strong>long-duration</strong>
+      </header>
+      <div>
+        <article>
+          <span>■ {{ copy.squared }}</span>
+          <strong>{{ formatNumber(outlierInfluence.longMse) }}</strong>
+          <small>{{ formatRatio(outlierInfluence.mseRatio) }}</small>
+        </article>
+        <article>
+          <span>◆ {{ copy.linear }}</span>
+          <strong>{{ formatNumber(outlierInfluence.longMae) }}</strong>
+          <small>{{ formatRatio(outlierInfluence.maeRatio) }}</small>
         </article>
       </div>
-      <LossCurvePlot
-        :curves="curveSpecs"
-        :marker-x="predictionValue"
-        :marker-points="markerPoints"
-      />
-      <div class="teaching-flow">
-        <article v-for="card in workedExampleCards" :key="card.id" class="teaching-flow__card">
-          <span>{{ card.label }}</span>
-          <strong>{{ card.value }}</strong>
-        </article>
-      </div>
+    </section>
+
+    <div class="loss-batch-objectives">
+      <article>
+        <span>MSE · {{ copy.batchMean }}</span>
+        <strong>{{ formatNumber(mseEvaluation.meanObjective) }}</strong>
+      </article>
+      <article>
+        <span>MAE · {{ copy.batchMean }}</span>
+        <strong>{{ formatNumber(maeEvaluation.meanObjective) }}</strong>
+      </article>
     </div>
 
-    <div class="lesson-lab__summary">
-      <section class="lesson-lab__panel">
-        <div class="lesson-lab__heading">
-          <span>{{ copy.regressionFit }}</span>
-          <strong>{{ copy.activeFit }}</strong>
-        </div>
-
-        <svg :viewBox="`0 0 ${size} ${size}`" class="regression-fit-viz" role="img" aria-label="regression fit">
-          <line :x1="padding" :x2="size - padding" :y1="size - padding" :y2="size - padding" class="chart-axis" />
-          <line :x1="padding" :x2="padding" :y1="padding" :y2="size - padding" class="chart-axis" />
-          <polyline :points="polyline(fitLine)" class="regression-fit-viz__line" />
-          <circle
-            v-for="(sample, index) in samples"
-            :key="`${sample.x}-${sample.y}-${index}`"
-            :cx="mapX(sample.x)"
-            :cy="mapY(sample.y)"
-            r="5.5"
-            class="regression-fit-viz__dot"
-            :class="{ 'is-outlier': includeOutlier && index === samples.length - 1 }"
-          />
-        </svg>
-      </section>
-
-      <section class="lesson-lab__panel">
-        <div class="lesson-lab__heading">
-          <span>{{ copy.outlier }}</span>
-          <strong>{{ includeOutlier ? copy.on : copy.off }}</strong>
-        </div>
-
-        <div class="control-group__grid">
-          <label class="control control--toggle">
-            <span class="control__row">
-              <span>{{ copy.outlier }}</span>
-            </span>
-            <button type="button" class="toggle-strip__button is-active" @click="onOutlierToggle">
-              {{ includeOutlier ? copy.on : copy.off }}
-            </button>
-          </label>
-
-          <label class="control">
-            <span class="control__row">
-              <span>{{ copy.outlierStrength }}</span>
-              <strong>{{ round(Number(props.config.outlierStrength ?? 2.2)) }}</strong>
-            </span>
-            <input
-              class="control__range"
-              type="range"
-              min="0.8"
-              max="3.4"
-              step="0.05"
-              :value="Number(props.config.outlierStrength ?? 2.2)"
-              @input="onNumericInput('outlierStrength', $event)"
-            />
-          </label>
-
-          <label class="control">
-            <span class="control__row">
-              <span>{{ copy.datasetNoise }}</span>
-              <strong>{{ round(Number(props.config.datasetNoise ?? 0.12)) }}</strong>
-            </span>
-            <input
-              class="control__range"
-              type="range"
-              min="0"
-              max="0.35"
-              step="0.01"
-              :value="Number(props.config.datasetNoise ?? 0.12)"
-              @input="onNumericInput('datasetNoise', $event)"
-            />
-          </label>
-        </div>
-
-        <div class="observation-grid">
-          <article class="observation-card">
-            <span>{{ copy.totalLoss }}</span>
-            <strong>{{ round(Number(props.snapshot?.selectedObservation?.totalRegressionLoss ?? 0)) }}</strong>
-          </article>
-          <article class="observation-card">
-            <span>{{ copy.workedExample }}</span>
-            <strong>{{ round(Number(props.snapshot?.selectedObservation?.mse ?? 0)) }} / {{ round(Number(props.snapshot?.selectedObservation?.mae ?? 0)) }}</strong>
-          </article>
-        </div>
-        <p class="lesson-lab__note">{{ copy.sensitivity }}</p>
-      </section>
-    </div>
+    <p class="lesson-lab__note">{{ copy.note }}</p>
   </section>
 </template>
