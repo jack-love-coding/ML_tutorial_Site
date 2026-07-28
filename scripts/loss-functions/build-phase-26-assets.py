@@ -175,6 +175,24 @@ CANDIDATE_PATHS = (
     "notebooks/loss-functions/environment.json",
     "notebooks/loss-functions/outputs/manifest.json",
 )
+DATASET_CANDIDATE_PATHS = CANDIDATE_PATHS[:5]
+GENERATOR_RELATIVE_PATH = "scripts/loss-functions/build-phase-26-assets.py"
+LADE_REFERENCE_PREDICTION_MINUTES = 175
+SECOM_OOF_FOLDS = 5
+SECOM_OOF_RANDOM_STATE = 20_260_728
+SECOM_CONFIDENT_ERROR_THRESHOLD = 0.9
+SECOM_PUBLISHED_PREFIX_FIELDS = (
+    "course_row_id",
+    "timestamp",
+    "defect_label",
+)
+SECOM_MEASUREMENT_FIELDS = tuple(
+    f"measurement_{index:03d}" for index in range(590)
+)
+SECOM_PUBLISHED_FIELDS = (
+    *SECOM_PUBLISHED_PREFIX_FIELDS,
+    *SECOM_MEASUREMENT_FIELDS,
+)
 
 DELIVERY_CODE_CELLS = (
     NotebookCodeCell(
@@ -666,6 +684,21 @@ def candidate_contract_snapshot() -> dict[str, Any]:
             "locales": list(inventory.locales),
             "partialSelectionAllowed": False,
             "publicationAllowed": False,
+        },
+        "datasetCandidatePaths": list(DATASET_CANDIDATE_PATHS),
+        "datasetContracts": {
+            "lade": {
+                "expectedRows": LADE_EXPECTED_ROWS,
+                "publishedFields": list(LADE_PUBLISHED_FIELDS),
+                "referencePredictionMinutes": LADE_REFERENCE_PREDICTION_MINUTES,
+            },
+            "secom": {
+                "expectedRows": SECOM_EXPECTED_ROWS,
+                "declaredFeatureCount": SECOM.declared_feature_count,
+                "observedFeatureCount": SECOM.observed_feature_count,
+                "oofFoldCount": SECOM_OOF_FOLDS,
+                "oofRandomState": SECOM_OOF_RANDOM_STATE,
+            },
         },
         "topics": topics,
         "executionJobs": [
@@ -1358,6 +1391,1080 @@ def validate_secom_archive(
     }
 
 
+def _candidate_source_identity(source: SourceContract, path: Path) -> dict[str, Any]:
+    return {
+        "pageUrl": source.page_url,
+        "downloadUrl": source.download_url,
+        "retrievedAt": "2026-07-28",
+        "revisionOrDoi": source.revision_or_doi,
+        "license": source.license,
+        "attribution": source.attribution,
+        "sourceSha256": sha256_file(path),
+        "sourceBytes": path.stat().st_size,
+    }
+
+
+def _published_file_identity(
+    path: Path,
+    *,
+    staging_relative_path: str,
+    row_count: int,
+    columns: tuple[str, ...],
+    units: dict[str, str],
+    missing_value_policy: str,
+    representative_row_ids: list[str],
+) -> dict[str, Any]:
+    return {
+        "path": staging_relative_path,
+        "sha256": sha256_file(path),
+        "bytes": path.stat().st_size,
+        "rowCount": row_count,
+        "columns": list(columns),
+        "units": units,
+        "missingValuePolicy": missing_value_policy,
+        "representativeRowIds": representative_row_ids,
+    }
+
+
+def _write_csv(
+    path: Path,
+    fieldnames: tuple[str, ...],
+    rows: Iterator[dict[str, Any]] | list[dict[str, Any]],
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=fieldnames,
+            lineterminator="\n",
+            extrasaction="raise",
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def _regression_teaching_row(role: str, row: dict[str, Any]) -> dict[str, Any]:
+    target = float(row["delivery_duration_minutes"])
+    prediction = float(LADE_REFERENCE_PREDICTION_MINUTES)
+    residual = prediction - target
+    return {
+        "role": role,
+        "courseRowId": row["course_row_id"],
+        "sourceRowNumber": row["source_row_number"],
+        "targetMinutes": int(target) if target.is_integer() else target,
+        "predictionMinutes": LADE_REFERENCE_PREDICTION_MINUTES,
+        "residualMinutes": int(residual) if residual.is_integer() else residual,
+        "squaredError": residual * residual,
+        "absoluteError": abs(residual),
+        "mseOutputGradient": 2.0 * residual,
+        "maeOutputSubgradient": 0.0 if residual == 0.0 else math.copysign(1.0, residual),
+        "maeDifferentiable": residual != 0.0,
+        "maeStatus": "kink" if residual == 0.0 else "smooth",
+    }
+
+
+def _select_lade_representatives(
+    rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    zero = next(
+        (row for row in rows if row["delivery_duration_minutes"] == 0),
+        None,
+    )
+    typical = next(
+        (
+            row
+            for row in rows
+            if row["delivery_duration_minutes"] == LADE_REFERENCE_PREDICTION_MINUTES
+        ),
+        None,
+    )
+    maximum = max(
+        rows,
+        key=lambda row: (
+            float(row["delivery_duration_minutes"]),
+            -int(row["source_row_number"]),
+        ),
+    )
+    if zero is None or typical is None:
+        raise Phase26Error(
+            "LaDe representative selection requires real zero-duration and "
+            "175-minute zero-residual rows"
+        )
+    return [
+        _regression_teaching_row("zero-duration", zero),
+        _regression_teaching_row("typical-zero-residual", typical),
+        _regression_teaching_row("long-duration", maximum),
+    ]
+
+
+def _build_lade_candidate(source_cache: Path, dataset_root: Path) -> dict[str, Any]:
+    source_path = source_cache / LADE.cache_name
+    validated = validate_lade_source(source_path)
+    rows = validated["normalizedRows"]
+    representatives = _select_lade_representatives(rows)
+    candidate_path = dataset_root / "lade-delivery-jilin.csv"
+    _write_csv(candidate_path, LADE_PUBLISHED_FIELDS, rows)
+
+    residuals = [
+        float(LADE_REFERENCE_PREDICTION_MINUTES)
+        - float(row["delivery_duration_minutes"])
+        for row in rows
+    ]
+    aggregate = {
+        "mse": math.fsum(residual * residual for residual in residuals) / len(residuals),
+        "mae": math.fsum(abs(residual) for residual in residuals) / len(residuals),
+        "rowCount": len(residuals),
+    }
+    manifest = {
+        "contractVersion": CONTRACT_VERSION,
+        "datasetId": LADE.dataset_id,
+        "source": _candidate_source_identity(LADE, source_path),
+        "transform": {
+            "version": TRANSFORM_VERSION,
+            "generator": GENERATOR_RELATIVE_PATH,
+            "generatorSha256": sha256_file(Path(__file__)),
+            "rules": [
+                "Derive delivery_duration_minutes from accept_time and delivery_time with rollover handling",
+                "Assign stable source-order course_row_id values",
+                "Retain exactly the approved eight-field privacy-minimized derivative",
+            ],
+            "targetDefinition": (
+                "delivery_duration_minutes = delivery_time - accept_time "
+                "with month/day rollover handling"
+            ),
+            "labelMapping": None,
+            "fieldRemovalPolicy": {
+                "allowedFields": list(LADE_PUBLISHED_FIELDS),
+                "removedSourceFields": list(LADE_REMOVED_FIELDS),
+                "policy": (
+                    "Exclude order, region, courier, AOI identifier, GPS, coordinate, "
+                    "and precise stop fields"
+                ),
+            },
+            "missingValuePolicy": "Reject missing required fields; derived durations must be finite",
+        },
+        "published": _published_file_identity(
+            candidate_path,
+            staging_relative_path=DATASET_CANDIDATE_PATHS[0],
+            row_count=len(rows),
+            columns=LADE_PUBLISHED_FIELDS,
+            units={"delivery_duration_minutes": "minutes"},
+            missing_value_policy="No missing values in the approved eight published fields",
+            representative_row_ids=[
+                row["courseRowId"] for row in representatives
+            ],
+        ),
+        "observedFacts": validated["facts"],
+        "teachingReference": {
+            "kind": "complete-file-fixed-median-arithmetic-baseline",
+            "deploymentModel": False,
+            "predictionMinutes": LADE_REFERENCE_PREDICTION_MINUTES,
+            "aggregate": aggregate,
+            "representativeRows": representatives,
+        },
+    }
+    manifest_path = dataset_root / "lade-delivery-jilin-manifest.json"
+    manifest_path.write_bytes(strict_json_bytes(manifest))
+    return manifest
+
+
+def _read_secom_rows(
+    path: Path,
+) -> tuple[list[list[str]], list[int], list[str]]:
+    validate_secom_archive(path)
+    try:
+        with zipfile.ZipFile(path) as archive:
+            data_lines = _decode_zip_member(archive, "secom.data").splitlines()
+            label_lines = _decode_zip_member(
+                archive,
+                "secom_labels.data",
+            ).splitlines()
+    except (OSError, zipfile.BadZipFile, KeyError) as error:
+        raise Phase26Error(f"Cannot read normalized SECOM source rows: {error}") from error
+
+    measurements = [line.split() for line in data_lines]
+    labels: list[int] = []
+    timestamps: list[str] = []
+    for line in label_lines:
+        raw_label, timestamp = line.split(maxsplit=1)
+        labels.append(0 if int(raw_label) == -1 else 1)
+        timestamps.append(timestamp.strip().strip('"'))
+    return measurements, labels, timestamps
+
+
+def _stable_sigmoid_scalar(logit: float) -> float:
+    if logit >= 0.0:
+        exponential = math.exp(-logit)
+        return 1.0 / (1.0 + exponential)
+    exponential = math.exp(logit)
+    return exponential / (1.0 + exponential)
+
+
+def _stable_bce_scalar(logit: float, label: int) -> float:
+    return max(logit, 0.0) + math.log1p(math.exp(-abs(logit))) - label * logit
+
+
+def _fit_secom_oof_predictions(
+    measurements: list[list[str]],
+    labels: list[int],
+) -> dict[str, Any]:
+    try:
+        import numpy as np
+        from sklearn.impute import SimpleImputer
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.model_selection import StratifiedKFold
+        from sklearn.preprocessing import StandardScaler
+    except ImportError as error:
+        raise Phase26Error(
+            "SECOM OOF generation must run inside the audited Phase 26 environment"
+        ) from error
+
+    features = np.asarray(
+        [
+            [np.nan if value == "NaN" else float(value) for value in row]
+            for row in measurements
+        ],
+        dtype=np.float64,
+    )
+    targets = np.asarray(labels, dtype=np.int64)
+    if features.shape != (SECOM_EXPECTED_ROWS, 590):
+        raise Phase26Error(f"SECOM OOF feature shape drifted: {features.shape}")
+    if targets.shape != (SECOM_EXPECTED_ROWS,):
+        raise Phase26Error(f"SECOM OOF label shape drifted: {targets.shape}")
+
+    logits = np.empty(targets.size, dtype=np.float64)
+    fold_ids = np.empty(targets.size, dtype=np.int64)
+    retained_feature_counts: list[int] = []
+    splitter = StratifiedKFold(
+        n_splits=SECOM_OOF_FOLDS,
+        shuffle=True,
+        random_state=SECOM_OOF_RANDOM_STATE,
+    )
+    for fold_number, (train_indices, held_out_indices) in enumerate(
+        splitter.split(features, targets),
+        start=1,
+    ):
+        imputer = SimpleImputer(strategy="median", keep_empty_features=True)
+        train_imputed = imputer.fit_transform(features[train_indices])
+        held_out_imputed = imputer.transform(features[held_out_indices])
+        if not np.isfinite(train_imputed).all() or not np.isfinite(
+            held_out_imputed
+        ).all():
+            raise Phase26Error(
+                f"SECOM fold {fold_number} train-only median imputation remained non-finite"
+            )
+        keep = np.ptp(train_imputed, axis=0) > 0.0
+        if not keep.any():
+            raise Phase26Error(f"SECOM fold {fold_number} removed every feature")
+        retained_feature_counts.append(int(np.count_nonzero(keep)))
+        scaler = StandardScaler()
+        train_scaled = scaler.fit_transform(train_imputed[:, keep])
+        held_out_scaled = scaler.transform(held_out_imputed[:, keep])
+        model = LogisticRegression(
+            C=1.0,
+            penalty="l2",
+            solver="lbfgs",
+            max_iter=5000,
+            tol=1e-10,
+        )
+        model.fit(train_scaled, targets[train_indices])
+        fold_logits = np.asarray(
+            model.decision_function(held_out_scaled),
+            dtype=np.float64,
+        )
+        if fold_logits.shape != (len(held_out_indices),) or not np.isfinite(
+            fold_logits
+        ).all():
+            raise Phase26Error(
+                f"SECOM fold {fold_number} produced malformed or non-finite logits"
+            )
+        logits[held_out_indices] = fold_logits
+        fold_ids[held_out_indices] = fold_number
+
+    if not np.isfinite(logits).all() or set(fold_ids.tolist()) != set(
+        range(1, SECOM_OOF_FOLDS + 1)
+    ):
+        raise Phase26Error("SECOM OOF assignment is incomplete")
+
+    rows: list[dict[str, Any]] = []
+    for index, (label, logit, fold_id) in enumerate(
+        zip(labels, logits.tolist(), fold_ids.tolist(), strict=True),
+        start=1,
+    ):
+        probability = _stable_sigmoid_scalar(float(logit))
+        stable_bce = _stable_bce_scalar(float(logit), label)
+        per_logit_gradient = probability - label
+        rows.append(
+            {
+                "courseRowId": f"secom-{index:04d}",
+                "label": label,
+                "fold": int(fold_id),
+                "logit": float(logit),
+                "probability": probability,
+                "stableBce": stable_bce,
+                "perLogitGradient": per_logit_gradient,
+                "meanObjectiveGradient": per_logit_gradient / len(labels),
+            }
+        )
+
+    ranked = sorted(
+        rows,
+        key=lambda row: (-float(row["stableBce"]), str(row["courseRowId"])),
+    )
+    confident_errors = [
+        row
+        for row in ranked
+        if (
+            (row["label"] == 0 and row["probability"] >= SECOM_CONFIDENT_ERROR_THRESHOLD)
+            or (
+                row["label"] == 1
+                and row["probability"] <= 1.0 - SECOM_CONFIDENT_ERROR_THRESHOLD
+            )
+        )
+    ]
+    if confident_errors:
+        selected = confident_errors[0]
+        confident_error: dict[str, Any] = {
+            "selectionStatus": "real-oof-row",
+            "source": "real-secom-oof-row",
+            "confidenceThreshold": SECOM_CONFIDENT_ERROR_THRESHOLD,
+            **selected,
+        }
+    else:
+        fallback_logit = 6.0
+        fallback_label = 0
+        fallback_probability = _stable_sigmoid_scalar(fallback_logit)
+        fallback_gradient = fallback_probability - fallback_label
+        confident_error = {
+            "selectionStatus": "teaching-logit-fallback",
+            "source": "synthetic-teaching-logit",
+            "courseRowId": None,
+            "confidenceThreshold": SECOM_CONFIDENT_ERROR_THRESHOLD,
+            "label": fallback_label,
+            "fold": None,
+            "logit": fallback_logit,
+            "probability": fallback_probability,
+            "stableBce": _stable_bce_scalar(fallback_logit, fallback_label),
+            "perLogitGradient": fallback_gradient,
+            "meanObjectiveGradient": None,
+        }
+    return {
+        "kind": "deterministic-five-fold-out-of-fold-logistic",
+        "foldCount": SECOM_OOF_FOLDS,
+        "randomState": SECOM_OOF_RANDOM_STATE,
+        "preprocessing": {
+            "fitBoundary": "train-fold-only",
+            "imputation": "median",
+            "constantFeatureRemoval": True,
+            "standardization": "StandardScaler",
+            "retainedFeatureCountByFold": retained_feature_counts,
+        },
+        "model": {
+            "type": "LogisticRegression",
+            "penalty": "l2",
+            "C": 1.0,
+            "solver": "lbfgs",
+            "maxIter": 5000,
+            "tolerance": 1e-10,
+        },
+        "scoresAreAuxiliaryInputs": True,
+        "parameterTrainingLesson": False,
+        "rows": rows,
+        "aggregate": {
+            "meanStableBce": math.fsum(row["stableBce"] for row in rows) / len(rows),
+            "labelCounts": {
+                "0": labels.count(0),
+                "1": labels.count(1),
+            },
+        },
+        "highestContributionRows": ranked[:5],
+        "confidentError": confident_error,
+    }
+
+
+def _build_secom_candidate(source_cache: Path, dataset_root: Path) -> dict[str, Any]:
+    source_path = source_cache / SECOM.cache_name
+    measurements, labels, timestamps = _read_secom_rows(source_path)
+    candidate_rows: list[dict[str, Any]] = []
+    missing_value_count = 0
+    for index, (values, label, timestamp) in enumerate(
+        zip(measurements, labels, timestamps, strict=True),
+        start=1,
+    ):
+        normalized_values = []
+        for value in values:
+            if value == "NaN":
+                normalized_values.append("")
+                missing_value_count += 1
+            else:
+                normalized_values.append(value)
+        row = {
+            "course_row_id": f"secom-{index:04d}",
+            "timestamp": timestamp,
+            "defect_label": label,
+            **dict(zip(SECOM_MEASUREMENT_FIELDS, normalized_values, strict=True)),
+        }
+        candidate_rows.append(row)
+
+    candidate_path = dataset_root / "secom-manufacturing.csv"
+    _write_csv(candidate_path, SECOM_PUBLISHED_FIELDS, candidate_rows)
+    oof = _fit_secom_oof_predictions(measurements, labels)
+    representative_ids = [
+        row["courseRowId"] for row in oof["highestContributionRows"]
+    ]
+    confident_id = oof["confidentError"].get("courseRowId")
+    if confident_id is not None and confident_id not in representative_ids:
+        representative_ids.append(confident_id)
+    manifest = {
+        "contractVersion": CONTRACT_VERSION,
+        "datasetId": SECOM.dataset_id,
+        "source": _candidate_source_identity(SECOM, source_path),
+        "transform": {
+            "version": TRANSFORM_VERSION,
+            "generator": GENERATOR_RELATIVE_PATH,
+            "generatorSha256": sha256_file(Path(__file__)),
+            "rules": [
+                "Preserve exactly 590 observed measurement fields without padding or truncation",
+                "Map raw -1 pass labels to 0 and raw 1 fail labels to 1",
+                "Preserve raw NaN values as empty canonical CSV fields",
+            ],
+            "targetDefinition": (
+                "defect_label: 0 means pass and 1 means fail in the in-house line test"
+            ),
+            "labelMapping": {"-1": 0, "1": 1},
+            "fieldRemovalPolicy": {
+                "removedSourceFields": [],
+                "policy": "No measurement field is padded, truncated, or silently repaired",
+            },
+            "missingValuePolicy": (
+                "Preserve raw NaN as empty CSV fields; no canonical imputation"
+            ),
+        },
+        "published": {
+            **_published_file_identity(
+                candidate_path,
+                staging_relative_path=DATASET_CANDIDATE_PATHS[2],
+                row_count=len(candidate_rows),
+                columns=SECOM_PUBLISHED_FIELDS,
+                units={
+                    "timestamp": "source timestamp",
+                    "defect_label": "binary 0/1",
+                    "measurements": "source-defined process measurements",
+                },
+                missing_value_policy=(
+                    "Preserve raw NaN as empty CSV fields; no canonical imputation"
+                ),
+                representative_row_ids=representative_ids,
+            ),
+            "declaredFeatureCount": SECOM.declared_feature_count,
+            "observedFeatureCount": SECOM.observed_feature_count,
+            "missingValueCount": missing_value_count,
+            "labelCounts": {"0": labels.count(0), "1": labels.count(1)},
+        },
+        "auxiliaryPredictions": oof,
+    }
+    manifest_path = dataset_root / "secom-manufacturing-manifest.json"
+    manifest_path.write_bytes(strict_json_bytes(manifest))
+    return manifest
+
+
+def _attribution_text() -> str:
+    return """# Phase 26 Loss Functions Dataset Attribution
+
+## LaDe-D Jilin delivery data
+
+- Source: Cainiao-AI LaDe, pinned revision `be2cec02775cafc8d52230303f32134382bcc50b`
+- Source page: https://huggingface.co/datasets/Cainiao-AI/LaDe
+- License: Apache-2.0
+- Attribution: Cainiao-AI LaDe dataset card and the LaDe paper, arXiv:2306.10675
+- Course derivative: all 31,415 Jilin delivery rows with exactly eight coarse fields.
+  Order, region, courier, AOI identifier, GPS, coordinate, and precise stop fields
+  are excluded under the approved privacy boundary.
+
+## UCI SECOM manufacturing data
+
+- Source: UCI Machine Learning Repository SECOM dataset
+- DOI: 10.24432/C54305
+- Source page: https://archive.ics.uci.edu/dataset/179/secom
+- License: CC BY 4.0
+- Course derivative: all 1,567 rows, raw missing values preserved, `-1` mapped
+  to pass label `0`, and `1` mapped to fail label `1`.
+- Schema note: upstream metadata declares 591 features while the pinned raw file
+  contains exactly 590 measurement values per row. The course copy records both
+  facts and does not pad, truncate, or impute the canonical CSV.
+"""
+
+
+def build_dataset_candidates(source_cache: Path, staging_root: Path) -> dict[str, Any]:
+    dataset_root = staging_root / "datasets/loss-functions"
+    dataset_root.mkdir(parents=True, exist_ok=True)
+    lade_manifest = _build_lade_candidate(source_cache, dataset_root)
+    secom_manifest = _build_secom_candidate(source_cache, dataset_root)
+    (dataset_root / "ATTRIBUTION.md").write_text(
+        _attribution_text(),
+        encoding="utf-8",
+        newline="\n",
+    )
+    return {
+        "lade": lade_manifest,
+        "secom": secom_manifest,
+    }
+
+
+def _validate_candidate_source_manifest(
+    value: Any,
+    source: SourceContract,
+) -> None:
+    if not isinstance(value, dict):
+        raise Phase26Error(f"{source.dataset_id} source manifest is missing")
+    required = {
+        "pageUrl": source.page_url,
+        "downloadUrl": source.download_url,
+        "retrievedAt": "2026-07-28",
+        "revisionOrDoi": source.revision_or_doi,
+        "license": source.license,
+        "attribution": source.attribution,
+        "sourceSha256": source.sha256,
+    }
+    for key, expected in required.items():
+        if value.get(key) != expected:
+            raise Phase26Error(
+                f"{source.dataset_id} source manifest {key}, license, or identity drifted"
+            )
+    if not isinstance(value.get("sourceBytes"), int) or value["sourceBytes"] <= 0:
+        raise Phase26Error(f"{source.dataset_id} source byte count is invalid")
+    if (
+        source.expected_bytes is not None
+        and value["sourceBytes"] != source.expected_bytes
+    ):
+        raise Phase26Error(f"{source.dataset_id} source byte count drifted")
+
+
+def _validate_candidate_generator(value: Any, dataset_id: str) -> None:
+    if not isinstance(value, dict):
+        raise Phase26Error(f"{dataset_id} transform manifest is missing")
+    if (
+        value.get("version") != TRANSFORM_VERSION
+        or value.get("generator") != GENERATOR_RELATIVE_PATH
+        or value.get("generatorSha256") != sha256_file(Path(__file__))
+    ):
+        raise Phase26Error(f"{dataset_id} generator or transformation hash drifted")
+    if not isinstance(value.get("rules"), list) or not value["rules"]:
+        raise Phase26Error(f"{dataset_id} transformation rules are missing")
+
+
+def _verify_lade_candidate(dataset_root: Path) -> dict[str, Any]:
+    candidate_path = dataset_root / "lade-delivery-jilin.csv"
+    manifest_path = dataset_root / "lade-delivery-jilin-manifest.json"
+    manifest = read_strict_json(manifest_path)
+    if (
+        manifest.get("contractVersion") != CONTRACT_VERSION
+        or manifest.get("datasetId") != LADE.dataset_id
+    ):
+        raise Phase26Error("LaDe candidate manifest contract or dataset ID drifted")
+    _validate_candidate_source_manifest(manifest.get("source"), LADE)
+    transform = manifest.get("transform")
+    _validate_candidate_generator(transform, LADE.dataset_id)
+    if transform.get("targetDefinition") != (
+        "delivery_duration_minutes = delivery_time - accept_time "
+        "with month/day rollover handling"
+    ):
+        raise Phase26Error("LaDe target definition drifted")
+    if transform.get("labelMapping") is not None:
+        raise Phase26Error("LaDe candidate must not invent a label mapping")
+    removal = transform.get("fieldRemovalPolicy")
+    if removal != {
+        "allowedFields": list(LADE_PUBLISHED_FIELDS),
+        "removedSourceFields": list(LADE_REMOVED_FIELDS),
+        "policy": (
+            "Exclude order, region, courier, AOI identifier, GPS, coordinate, "
+            "and precise stop fields"
+        ),
+    }:
+        raise Phase26Error("LaDe privacy field-removal policy drifted")
+
+    rows: list[dict[str, Any]] = []
+    try:
+        with candidate_path.open(encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            if tuple(reader.fieldnames or ()) != LADE_PUBLISHED_FIELDS:
+                raise Phase26Error("LaDe candidate privacy schema drifted")
+            for expected_number, source_row in enumerate(reader, start=1):
+                try:
+                    source_number = int(source_row["source_row_number"])
+                    duration = float(source_row["delivery_duration_minutes"])
+                except (TypeError, ValueError) as error:
+                    raise Phase26Error(
+                        f"LaDe candidate row {expected_number} contains invalid numbers"
+                    ) from error
+                row = {
+                    **source_row,
+                    "source_row_number": source_number,
+                    "delivery_duration_minutes": (
+                        int(duration) if duration.is_integer() else duration
+                    ),
+                }
+                if (
+                    source_number != expected_number
+                    or row["course_row_id"] != f"lade-jilin-{expected_number:05d}"
+                ):
+                    raise Phase26Error(
+                        f"LaDe candidate stable course ID drifted at row {expected_number}"
+                    )
+                for field in ("city", "aoi_type", "accept_time", "delivery_time", "ds"):
+                    if not row[field]:
+                        raise Phase26Error(
+                            f"LaDe candidate row {expected_number} has empty {field}"
+                        )
+                _validate_lade_candidate(row, row_number=expected_number)
+                rows.append(row)
+    except OSError as error:
+        raise Phase26Error(f"Cannot read LaDe candidate: {error}") from error
+    if len(rows) != LADE_EXPECTED_ROWS:
+        raise Phase26Error(
+            f"LaDe candidate row count drift: expected {LADE_EXPECTED_ROWS}, got {len(rows)}"
+        )
+    validate_lade_candidates(rows)
+
+    representatives = _select_lade_representatives(rows)
+    residuals = [
+        float(LADE_REFERENCE_PREDICTION_MINUTES)
+        - float(row["delivery_duration_minutes"])
+        for row in rows
+    ]
+    aggregate = {
+        "mse": math.fsum(residual * residual for residual in residuals) / len(rows),
+        "mae": math.fsum(abs(residual) for residual in residuals) / len(rows),
+        "rowCount": len(rows),
+    }
+    durations = [float(row["delivery_duration_minutes"]) for row in rows]
+    observed_facts = manifest.get("observedFacts")
+    if not isinstance(observed_facts, dict) or any(
+        (
+            observed_facts.get("rowCount") != len(rows),
+            observed_facts.get("publishedFields") != list(LADE_PUBLISHED_FIELDS),
+            observed_facts.get("removedFields") != list(LADE_REMOVED_FIELDS),
+            observed_facts.get("durationMinimumMinutes") != min(durations),
+            observed_facts.get("durationMaximumMinutes") != max(durations),
+            observed_facts.get("durationMedianMinutes") != median(durations),
+            observed_facts.get("zeroDurationRows")
+            != sum(duration == 0 for duration in durations),
+            observed_facts.get("over24HourRows")
+            != sum(duration > 24 * 60 for duration in durations),
+        )
+    ):
+        raise Phase26Error("LaDe candidate observed facts drifted")
+
+    teaching = manifest.get("teachingReference")
+    if teaching != {
+        "kind": "complete-file-fixed-median-arithmetic-baseline",
+        "deploymentModel": False,
+        "predictionMinutes": LADE_REFERENCE_PREDICTION_MINUTES,
+        "aggregate": aggregate,
+        "representativeRows": representatives,
+    }:
+        raise Phase26Error(
+            "LaDe representative rows or MSE/MAE teaching arithmetic drifted"
+        )
+    published = manifest.get("published")
+    expected_published = _published_file_identity(
+        candidate_path,
+        staging_relative_path=DATASET_CANDIDATE_PATHS[0],
+        row_count=len(rows),
+        columns=LADE_PUBLISHED_FIELDS,
+        units={"delivery_duration_minutes": "minutes"},
+        missing_value_policy="No missing values in the approved eight published fields",
+        representative_row_ids=[
+            row["courseRowId"] for row in representatives
+        ],
+    )
+    if published != expected_published:
+        raise Phase26Error("LaDe published candidate hash, schema, or manifest drifted")
+    return {
+        "rowCount": len(rows),
+        "columnCount": len(LADE_PUBLISHED_FIELDS),
+        "durationMinimumMinutes": min(durations),
+        "durationMedianMinutes": median(durations),
+        "durationMaximumMinutes": max(durations),
+        "referencePredictionMinutes": LADE_REFERENCE_PREDICTION_MINUTES,
+        "aggregate": aggregate,
+        "representativeRoles": [
+            row["role"] for row in representatives
+        ],
+    }
+
+
+def _verify_secom_oof(
+    value: Any,
+    labels_by_id: dict[str, int],
+) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise Phase26Error("SECOM auxiliary OOF prediction contract is missing")
+    if (
+        value.get("kind")
+        != "deterministic-five-fold-out-of-fold-logistic"
+        or value.get("foldCount") != SECOM_OOF_FOLDS
+        or value.get("randomState") != SECOM_OOF_RANDOM_STATE
+        or value.get("scoresAreAuxiliaryInputs") is not True
+        or value.get("parameterTrainingLesson") is not False
+    ):
+        raise Phase26Error("SECOM OOF identity or auxiliary-input boundary drifted")
+    preprocessing = value.get("preprocessing")
+    if not isinstance(preprocessing, dict) or any(
+        (
+            preprocessing.get("fitBoundary") != "train-fold-only",
+            preprocessing.get("imputation") != "median",
+            preprocessing.get("constantFeatureRemoval") is not True,
+            preprocessing.get("standardization") != "StandardScaler",
+            not isinstance(preprocessing.get("retainedFeatureCountByFold"), list),
+            len(preprocessing.get("retainedFeatureCountByFold", []))
+            != SECOM_OOF_FOLDS,
+        )
+    ):
+        raise Phase26Error("SECOM OOF train-fold-only preprocessing drifted")
+    if value.get("model") != {
+        "type": "LogisticRegression",
+        "penalty": "l2",
+        "C": 1.0,
+        "solver": "lbfgs",
+        "maxIter": 5000,
+        "tolerance": 1e-10,
+    }:
+        raise Phase26Error("SECOM OOF logistic model contract drifted")
+
+    rows = value.get("rows")
+    if not isinstance(rows, list) or len(rows) != SECOM_EXPECTED_ROWS:
+        raise Phase26Error("SECOM OOF score row count drifted")
+    seen: set[str] = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise Phase26Error("SECOM OOF row is malformed")
+        course_id = row.get("courseRowId")
+        if course_id in seen or course_id not in labels_by_id:
+            raise Phase26Error(f"SECOM OOF course ID drifted: {course_id!r}")
+        seen.add(course_id)
+        label = labels_by_id[course_id]
+        if row.get("label") != label or row.get("fold") not in range(
+            1,
+            SECOM_OOF_FOLDS + 1,
+        ):
+            raise Phase26Error(f"SECOM OOF label/fold drifted for {course_id}")
+        try:
+            logit = float(row["logit"])
+            probability = float(row["probability"])
+            stable_bce = float(row["stableBce"])
+            gradient = float(row["perLogitGradient"])
+            mean_gradient = float(row["meanObjectiveGradient"])
+        except (KeyError, TypeError, ValueError) as error:
+            raise Phase26Error(
+                f"SECOM OOF row {course_id} contains malformed numeric values"
+            ) from error
+        if not all(
+            math.isfinite(number)
+            for number in (
+                logit,
+                probability,
+                stable_bce,
+                gradient,
+                mean_gradient,
+            )
+        ):
+            raise Phase26Error(f"SECOM OOF row {course_id} is non-finite")
+        expected_probability = _stable_sigmoid_scalar(logit)
+        expected_gradient = expected_probability - label
+        if any(
+            (
+                abs(probability - expected_probability) > 1e-15,
+                abs(stable_bce - _stable_bce_scalar(logit, label)) > 1e-12,
+                abs(gradient - expected_gradient) > 1e-15,
+                abs(mean_gradient - expected_gradient / SECOM_EXPECTED_ROWS)
+                > 1e-18,
+            )
+        ):
+            raise Phase26Error(
+                f"SECOM OOF BCE or gradient arithmetic drifted for {course_id}"
+            )
+    if seen != set(labels_by_id):
+        raise Phase26Error("SECOM OOF score inventory is incomplete")
+
+    ranked = sorted(
+        rows,
+        key=lambda row: (-float(row["stableBce"]), str(row["courseRowId"])),
+    )
+    if value.get("highestContributionRows") != ranked[:5]:
+        raise Phase26Error("SECOM OOF contribution ranking drifted")
+    aggregate = value.get("aggregate")
+    expected_aggregate = {
+        "meanStableBce": math.fsum(float(row["stableBce"]) for row in rows)
+        / len(rows),
+        "labelCounts": {
+            "0": sum(label == 0 for label in labels_by_id.values()),
+            "1": sum(label == 1 for label in labels_by_id.values()),
+        },
+    }
+    if aggregate != expected_aggregate:
+        raise Phase26Error("SECOM OOF aggregate BCE drifted")
+
+    confident = value.get("confidentError")
+    if not isinstance(confident, dict) or confident.get(
+        "confidenceThreshold"
+    ) != SECOM_CONFIDENT_ERROR_THRESHOLD:
+        raise Phase26Error("SECOM confident-error selection contract drifted")
+    if confident.get("selectionStatus") == "real-oof-row":
+        course_id = confident.get("courseRowId")
+        matching = next(
+            (row for row in rows if row["courseRowId"] == course_id),
+            None,
+        )
+        if (
+            confident.get("source") != "real-secom-oof-row"
+            or matching is None
+            or any(confident.get(key) != matching.get(key) for key in matching)
+            or not (
+                (
+                    matching["label"] == 0
+                    and matching["probability"] >= SECOM_CONFIDENT_ERROR_THRESHOLD
+                )
+                or (
+                    matching["label"] == 1
+                    and matching["probability"]
+                    <= 1.0 - SECOM_CONFIDENT_ERROR_THRESHOLD
+                )
+            )
+        ):
+            raise Phase26Error(
+                "SECOM real confident-error provenance or threshold drifted"
+            )
+    elif confident.get("selectionStatus") == "teaching-logit-fallback":
+        if (
+            confident.get("source") != "synthetic-teaching-logit"
+            or confident.get("courseRowId") is not None
+            or confident.get("meanObjectiveGradient") is not None
+        ):
+            raise Phase26Error(
+                "SECOM teaching-logit fallback is mislabeled as a real row"
+            )
+    else:
+        raise Phase26Error("SECOM confident-error status is unsupported")
+    return {
+        "meanStableBce": expected_aggregate["meanStableBce"],
+        "confidentErrorStatus": confident["selectionStatus"],
+    }
+
+
+def _verify_secom_candidate(dataset_root: Path) -> dict[str, Any]:
+    candidate_path = dataset_root / "secom-manufacturing.csv"
+    manifest_path = dataset_root / "secom-manufacturing-manifest.json"
+    manifest = read_strict_json(manifest_path)
+    if (
+        manifest.get("contractVersion") != CONTRACT_VERSION
+        or manifest.get("datasetId") != SECOM.dataset_id
+    ):
+        raise Phase26Error("SECOM candidate manifest contract or dataset ID drifted")
+    _validate_candidate_source_manifest(manifest.get("source"), SECOM)
+    transform = manifest.get("transform")
+    _validate_candidate_generator(transform, SECOM.dataset_id)
+    if transform.get("labelMapping") != {"-1": 0, "1": 1}:
+        raise Phase26Error("SECOM candidate label mapping drifted")
+    if transform.get("missingValuePolicy") != (
+        "Preserve raw NaN as empty CSV fields; no canonical imputation"
+    ):
+        raise Phase26Error("SECOM candidate missing-value policy drifted")
+    if transform.get("fieldRemovalPolicy") != {
+        "removedSourceFields": [],
+        "policy": "No measurement field is padded, truncated, or silently repaired",
+    }:
+        raise Phase26Error("SECOM candidate field policy drifted")
+
+    labels_by_id: dict[str, int] = {}
+    missing_value_count = 0
+    try:
+        with candidate_path.open(encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            if tuple(reader.fieldnames or ()) != SECOM_PUBLISHED_FIELDS:
+                raise Phase26Error(
+                    "SECOM candidate schema drifted; exact observed width remains 590"
+                )
+            for expected_number, row in enumerate(reader, start=1):
+                course_id = row["course_row_id"]
+                if course_id != f"secom-{expected_number:04d}":
+                    raise Phase26Error(
+                        f"SECOM candidate stable course ID drifted at row {expected_number}"
+                    )
+                try:
+                    label = int(row["defect_label"])
+                except (TypeError, ValueError) as error:
+                    raise Phase26Error(
+                        f"SECOM candidate row {expected_number} has invalid label"
+                    ) from error
+                if label not in {0, 1}:
+                    raise Phase26Error(
+                        f"SECOM candidate row {expected_number} uses a non-binary label"
+                    )
+                try:
+                    datetime.strptime(row["timestamp"], "%d/%m/%Y %H:%M:%S")
+                except ValueError as error:
+                    raise Phase26Error(
+                        f"SECOM candidate row {expected_number} has invalid timestamp"
+                    ) from error
+                for field in SECOM_MEASUREMENT_FIELDS:
+                    value = row[field]
+                    if value == "":
+                        missing_value_count += 1
+                        continue
+                    try:
+                        numeric = float(value)
+                    except ValueError as error:
+                        raise Phase26Error(
+                            f"SECOM candidate row {expected_number} field {field} is invalid"
+                        ) from error
+                    if not math.isfinite(numeric):
+                        raise Phase26Error(
+                            f"SECOM candidate row {expected_number} field {field} is non-finite"
+                        )
+                labels_by_id[course_id] = label
+    except OSError as error:
+        raise Phase26Error(f"Cannot read SECOM candidate: {error}") from error
+    if len(labels_by_id) != SECOM_EXPECTED_ROWS:
+        raise Phase26Error(
+            f"SECOM candidate row count drift: expected {SECOM_EXPECTED_ROWS}, "
+            f"got {len(labels_by_id)}"
+        )
+    if Counter(labels_by_id.values()) != Counter({0: 1463, 1: 104}):
+        raise Phase26Error("SECOM candidate label counts drifted")
+
+    oof = _verify_secom_oof(
+        manifest.get("auxiliaryPredictions"),
+        labels_by_id,
+    )
+    auxiliary = manifest["auxiliaryPredictions"]
+    representative_ids = [
+        row["courseRowId"] for row in auxiliary["highestContributionRows"]
+    ]
+    confident_id = auxiliary["confidentError"].get("courseRowId")
+    if confident_id is not None and confident_id not in representative_ids:
+        representative_ids.append(confident_id)
+    expected_published = {
+        **_published_file_identity(
+            candidate_path,
+            staging_relative_path=DATASET_CANDIDATE_PATHS[2],
+            row_count=SECOM_EXPECTED_ROWS,
+            columns=SECOM_PUBLISHED_FIELDS,
+            units={
+                "timestamp": "source timestamp",
+                "defect_label": "binary 0/1",
+                "measurements": "source-defined process measurements",
+            },
+            missing_value_policy=(
+                "Preserve raw NaN as empty CSV fields; no canonical imputation"
+            ),
+            representative_row_ids=representative_ids,
+        ),
+        "declaredFeatureCount": 591,
+        "observedFeatureCount": 590,
+        "missingValueCount": missing_value_count,
+        "labelCounts": {
+            "0": sum(label == 0 for label in labels_by_id.values()),
+            "1": sum(label == 1 for label in labels_by_id.values()),
+        },
+    }
+    if manifest.get("published") != expected_published:
+        raise Phase26Error("SECOM candidate hash, 590/591 schema, or manifest drifted")
+    return {
+        "rowCount": SECOM_EXPECTED_ROWS,
+        "columnCount": len(SECOM_PUBLISHED_FIELDS),
+        "declaredFeatureCount": 591,
+        "observedFeatureCount": 590,
+        "missingValueCount": missing_value_count,
+        "oof": oof,
+    }
+
+
+def verify_dataset_candidates(staging_root: Path) -> dict[str, Any]:
+    dataset_root = staging_root / "datasets/loss-functions"
+    if not dataset_root.is_dir():
+        raise Phase26Error(f"Candidate dataset group is missing: {dataset_root}")
+    actual = {
+        path.name
+        for path in dataset_root.iterdir()
+        if path.is_file()
+    }
+    expected = {
+        Path(relative_path).name
+        for relative_path in DATASET_CANDIDATE_PATHS
+    }
+    if actual != expected:
+        raise Phase26Error(
+            f"Candidate dataset inventory drifted: "
+            f"missing={sorted(expected - actual)}, unexpected={sorted(actual - expected)}"
+        )
+    attribution_path = dataset_root / "ATTRIBUTION.md"
+    if attribution_path.read_text(encoding="utf-8") != _attribution_text():
+        raise Phase26Error("Candidate dataset attribution or license evidence drifted")
+    result = {
+        "lade": _verify_lade_candidate(dataset_root),
+        "secom": _verify_secom_candidate(dataset_root),
+    }
+    return result
+
+
+def _run_isolated_worker(
+    isolated: IsolatedEnvironment,
+    function_name: str,
+    arguments: list[str],
+) -> None:
+    payload = json.dumps(
+        {
+            "generator": str(Path(__file__).resolve()),
+            "function": function_name,
+            "arguments": arguments,
+        }
+    )
+    worker = r'''
+import importlib.util
+import json
+import os
+from pathlib import Path
+import sys
+
+payload = json.loads(os.environ["ML_ATLAS_PHASE26_WORKER_PAYLOAD"])
+spec = importlib.util.spec_from_file_location("phase26_worker_module", payload["generator"])
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+function = getattr(module, payload["function"])
+function(*(Path(value) for value in payload["arguments"]))
+'''
+    environment = isolated.environment.copy()
+    environment["ML_ATLAS_PHASE26_WORKER_PAYLOAD"] = payload
+    run_command(
+        [str(isolated.python), "-c", worker],
+        environment=environment,
+    )
+
+
+def prepare_dataset_candidates(
+    cache: Path,
+    staging_root: Path,
+    wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+) -> dict[str, Any]:
+    validated_root = validate_candidate_staging_root(staging_root)
+    try:
+        verify_source_cache(cache)
+        validate_environment_contract(wheel_cache=wheel_cache)
+        with candidate_transaction(validated_root) as transaction:
+            with isolated_environment(wheel_cache) as isolated:
+                _run_isolated_worker(
+                    isolated,
+                    "build_dataset_candidates",
+                    [str(cache.resolve()), str(transaction.root)],
+                )
+            return verify_dataset_candidates(transaction.root)
+    except BaseException:
+        _remove_candidate_root(validated_root)
+        raise
+
+
 def _source_manifest_entry(source: SourceContract, path: Path) -> dict[str, Any]:
     return {
         "datasetId": source.dataset_id,
@@ -1543,6 +2650,7 @@ def main() -> None:
     modes = parser.add_mutually_exclusive_group(required=True)
     modes.add_argument("--bootstrap-sources", action="store_true")
     modes.add_argument("--generate", action="store_true")
+    modes.add_argument("--prepare-dataset-candidates", action="store_true")
     modes.add_argument("--prepare-candidates", action="store_true")
     modes.add_argument("--verify-candidates", action="store_true")
     modes.add_argument("--verify-environment", action="store_true")
@@ -1566,7 +2674,12 @@ def main() -> None:
         print(f"Bootstrapped and pinned two official sources in {args.source_cache}")
         return
 
-    if not args.offline:
+    inherently_offline_modes = (
+        args.prepare_dataset_candidates
+        or args.prepare_candidates
+        or args.generate
+    )
+    if not args.offline and not inherently_offline_modes:
         raise Phase26Error("Local generation, source-cache verification, and --check require --offline")
 
     if args.topic is not None or args.locale is not None:
@@ -1587,6 +2700,20 @@ def main() -> None:
         except BaseException:
             _remove_candidate_root(validated_root)
             raise
+        return
+
+    if args.prepare_dataset_candidates:
+        verified = prepare_dataset_candidates(
+            args.source_cache,
+            args.staging_root,
+            args.wheel_cache,
+        )
+        print(
+            "Prepared complete staging-only dataset candidates: "
+            f"LaDe {verified['lade']['rowCount']} rows, "
+            f"SECOM {verified['secom']['rowCount']} rows with "
+            f"{verified['secom']['observedFeatureCount']} observed measurements."
+        )
         return
 
     if args.generate or args.prepare_candidates:
