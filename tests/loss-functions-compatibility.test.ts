@@ -212,3 +212,11 @@ test('loss-functions learner markdown stays on the shared sanitized math path', 
     }
   }
 })
+
+test('loss-functions chapter deep links continue through the existing generic lazy route', () => {
+  const routerSource = readFileSync(resolve(root, 'src/router/index.ts'), 'utf8')
+  assert.match(routerSource, /path:\s*'\/learn\/:moduleId\/:lessonId'/)
+  assert.match(routerSource, /component:\s*\(\)\s*=>\s*import\('\.\.\/views\/AlgorithmView\.vue'\)/)
+  assert.match(routerSource, /resolveCanonicalLearnRedirect\(moduleId,\s*lessonId\)/)
+  assert.doesNotMatch(routerSource, /gradient-verification/)
+})
