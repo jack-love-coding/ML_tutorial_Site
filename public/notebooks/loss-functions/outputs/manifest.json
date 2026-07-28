@@ -1,0 +1,245 @@
+{
+  "canonicalPayloadSha256": "478da9892d669507944ae60e54574d75408e2257057c8cf4f7042f4363bc247b",
+  "contractVersion": "loss-functions-phase-26-candidate-v1",
+  "datasets": {
+    "lade-delivery-jilin": {
+      "candidateSha256": "8cfb6181890cddd20ca234326807a33ec636da485e04ddd14e6aeab91ead9ede",
+      "rowCount": 31415,
+      "sourceSha256": "12e2cf4664dd5b4475d39dddee8872f5a03b3082f08f0eece7f103baee6c6e73"
+    },
+    "uci-secom": {
+      "candidateSha256": "7549dcd64320ab7fe90fdf0af1283ea2ee2beef808ff094c1c0e95697e907b28",
+      "declaredFeatureCount": 591,
+      "observedFeatureCount": 590,
+      "rowCount": 1567,
+      "sourceSha256": "eea568baf3c2229096d7d294cf0b096b5502bd96d92c0b80a65b84714059be8e"
+    }
+  },
+  "environment": {
+    "path": "notebooks/loss-functions/environment.json",
+    "requirementsSha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530",
+    "sha256": "5b6ca240863b017f333879bba90910ab39300989c3f4f179ec144217737d2831"
+  },
+  "executionProofs": [
+    {
+      "allowErrors": false,
+      "codeSha256": "ee8d7ff2d4d60cf2eb3d968084e84ea5e71a53efc900cc9f16bb30b25dd969a4",
+      "executionCountStartsAt": 1,
+      "freshKernel": true,
+      "kernelNamePublished": false,
+      "locale": "zh-CN",
+      "normalizedOutputSha256": "2ff327e7243c0ed5f912a40b3ba0e7bef4147f0dc300209e0886e358bdf35e64",
+      "notebookPath": "notebooks/loss-functions/delivery-losses.zh-CN.ipynb",
+      "notebookSha256": "b13ffa41e3cdf2eb99525781ac539301e62ad0d4ce3ba9d44431b9f4154a03b9",
+      "proofId": "clean-kernel-delivery-losses-zh-CN",
+      "recordTiming": false,
+      "stripWidgetState": true,
+      "timeoutSeconds": 180,
+      "topicId": "delivery-losses",
+      "workingDirectory": "notebooks/loss-functions"
+    },
+    {
+      "allowErrors": false,
+      "codeSha256": "ee8d7ff2d4d60cf2eb3d968084e84ea5e71a53efc900cc9f16bb30b25dd969a4",
+      "executionCountStartsAt": 1,
+      "freshKernel": true,
+      "kernelNamePublished": false,
+      "locale": "en",
+      "normalizedOutputSha256": "2ff327e7243c0ed5f912a40b3ba0e7bef4147f0dc300209e0886e358bdf35e64",
+      "notebookPath": "notebooks/loss-functions/delivery-losses.en.ipynb",
+      "notebookSha256": "f9161242585a759840d58e6ea4df2c978ba70ee86621941975434a8b2eb8b68a",
+      "proofId": "clean-kernel-delivery-losses-en",
+      "recordTiming": false,
+      "stripWidgetState": true,
+      "timeoutSeconds": 180,
+      "topicId": "delivery-losses",
+      "workingDirectory": "notebooks/loss-functions"
+    },
+    {
+      "allowErrors": false,
+      "codeSha256": "232b082c43cba555ea56834e39bc825569a1ee637bbb4ffbac38cf83285548ef",
+      "executionCountStartsAt": 1,
+      "freshKernel": true,
+      "kernelNamePublished": false,
+      "locale": "zh-CN",
+      "normalizedOutputSha256": "8a378e7925b4000ba3c9dd393b34a4dcd5910ca5df0d6e3126ae359b93763727",
+      "notebookPath": "notebooks/loss-functions/manufacturing-bce-gradients.zh-CN.ipynb",
+      "notebookSha256": "d9cc04ad00e138e008d2f5693365610bd57a74ab568e1e577b5b5105500af9d6",
+      "proofId": "clean-kernel-manufacturing-bce-gradients-zh-CN",
+      "recordTiming": false,
+      "stripWidgetState": true,
+      "timeoutSeconds": 180,
+      "topicId": "manufacturing-bce-gradients",
+      "workingDirectory": "notebooks/loss-functions"
+    },
+    {
+      "allowErrors": false,
+      "codeSha256": "232b082c43cba555ea56834e39bc825569a1ee637bbb4ffbac38cf83285548ef",
+      "executionCountStartsAt": 1,
+      "freshKernel": true,
+      "kernelNamePublished": false,
+      "locale": "en",
+      "normalizedOutputSha256": "8a378e7925b4000ba3c9dd393b34a4dcd5910ca5df0d6e3126ae359b93763727",
+      "notebookPath": "notebooks/loss-functions/manufacturing-bce-gradients.en.ipynb",
+      "notebookSha256": "2cc4aa843f7c0f82f883415dad9dc849cc8faa15ab88c4587bdce7d400cd8f7e",
+      "proofId": "clean-kernel-manufacturing-bce-gradients-en",
+      "recordTiming": false,
+      "stripWidgetState": true,
+      "timeoutSeconds": 180,
+      "topicId": "manufacturing-bce-gradients",
+      "workingDirectory": "notebooks/loss-functions"
+    }
+  ],
+  "generator": {
+    "path": "scripts/loss-functions/build-phase-26-assets.py",
+    "sha256": "69f41c2a125456b07695528a5f9687d291177949b777178fbfcbb4527658f652"
+  },
+  "inventory": [
+    {
+      "bytes": 2188681,
+      "path": "datasets/loss-functions/lade-delivery-jilin.csv",
+      "role": "dataset",
+      "sha256": "8cfb6181890cddd20ca234326807a33ec636da485e04ddd14e6aeab91ead9ede"
+    },
+    {
+      "bytes": 5355,
+      "path": "datasets/loss-functions/lade-delivery-jilin-manifest.json",
+      "role": "dataset-manifest",
+      "sha256": "b14cc779560244c05b60327fba01061352db176e78a89835eda9f35c6edf6462"
+    },
+    {
+      "bytes": 5323751,
+      "path": "datasets/loss-functions/secom-manufacturing.csv",
+      "role": "dataset",
+      "sha256": "7549dcd64320ab7fe90fdf0af1283ea2ee2beef808ff094c1c0e95697e907b28"
+    },
+    {
+      "bytes": 528827,
+      "path": "datasets/loss-functions/secom-manufacturing-manifest.json",
+      "role": "dataset-manifest",
+      "sha256": "d4036466a2db2fb629e859782077d8a56f5db3215340c7eaaf75446fe08605e4"
+    },
+    {
+      "bytes": 1106,
+      "path": "datasets/loss-functions/ATTRIBUTION.md",
+      "role": "attribution",
+      "sha256": "a6c51d9a242edff1315fd777f45b7b8edfcdb8c446108e18bc5aef4b3843e36f"
+    },
+    {
+      "bytes": 13137,
+      "path": "notebooks/loss-functions/delivery-losses.zh-CN.ipynb",
+      "role": "executed-notebook",
+      "sha256": "b13ffa41e3cdf2eb99525781ac539301e62ad0d4ce3ba9d44431b9f4154a03b9"
+    },
+    {
+      "bytes": 13144,
+      "path": "notebooks/loss-functions/delivery-losses.en.ipynb",
+      "role": "executed-notebook",
+      "sha256": "f9161242585a759840d58e6ea4df2c978ba70ee86621941975434a8b2eb8b68a"
+    },
+    {
+      "bytes": 18540,
+      "path": "notebooks/loss-functions/manufacturing-bce-gradients.zh-CN.ipynb",
+      "role": "executed-notebook",
+      "sha256": "d9cc04ad00e138e008d2f5693365610bd57a74ab568e1e577b5b5105500af9d6"
+    },
+    {
+      "bytes": 18553,
+      "path": "notebooks/loss-functions/manufacturing-bce-gradients.en.ipynb",
+      "role": "executed-notebook",
+      "sha256": "2cc4aa843f7c0f82f883415dad9dc849cc8faa15ab88c4587bdce7d400cd8f7e"
+    },
+    {
+      "bytes": 13383279,
+      "path": "notebooks/loss-functions/outputs/regression-loss-summary.json",
+      "role": "locked-summary",
+      "sha256": "260a3f7ed4465981957110ad8d23b89ab6504368ac2c401b72b45f79a45454fd"
+    },
+    {
+      "bytes": 498533,
+      "path": "notebooks/loss-functions/outputs/bce-gradient-summary.json",
+      "role": "locked-summary",
+      "sha256": "e4573ad07b591d3085638dd652e30eb1914842ee61d540e59d00836c6ebcb93b"
+    },
+    {
+      "bytes": 4026,
+      "path": "notebooks/loss-functions/outputs/delivery-losses.png",
+      "role": "plot",
+      "sha256": "cd3a0d182f3b6d63eb7e9036a1a62f9f3c088c43712493c4efb563823ef9d5ff"
+    },
+    {
+      "bytes": 4151,
+      "path": "notebooks/loss-functions/outputs/manufacturing-bce-gradients.png",
+      "role": "plot",
+      "sha256": "19c36f9ae204b8d3e9bd4e2e0805037531333bb00a367823c5fb1ab793bd46dc"
+    },
+    {
+      "bytes": 130,
+      "path": "notebooks/loss-functions/requirements.txt",
+      "role": "requirements",
+      "sha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530"
+    },
+    {
+      "bytes": 1286,
+      "path": "notebooks/loss-functions/environment.json",
+      "role": "environment",
+      "sha256": "5b6ca240863b017f333879bba90910ab39300989c3f4f179ec144217737d2831"
+    },
+    {
+      "bytes": null,
+      "path": "notebooks/loss-functions/outputs/manifest.json",
+      "role": "candidate-manifest",
+      "selfHashExcluded": true,
+      "sha256": null
+    }
+  ],
+  "localeParity": {
+    "delivery-losses": {
+      "codeCellIds": [
+        "delivery-imports",
+        "delivery-loss-functions",
+        "delivery-artifact-helpers",
+        "delivery-local-paths",
+        "delivery-build-output"
+      ],
+      "codeSha256": "ee8d7ff2d4d60cf2eb3d968084e84ea5e71a53efc900cc9f16bb30b25dd969a4",
+      "locales": [
+        "zh-CN",
+        "en"
+      ],
+      "normalizedOutputSha256": "2ff327e7243c0ed5f912a40b3ba0e7bef4147f0dc300209e0886e358bdf35e64"
+    },
+    "manufacturing-bce-gradients": {
+      "codeCellIds": [
+        "manufacturing-imports",
+        "manufacturing-stable-bce",
+        "manufacturing-central-difference",
+        "manufacturing-gradient-sweeps",
+        "manufacturing-artifact-helpers",
+        "manufacturing-local-paths",
+        "manufacturing-build-output"
+      ],
+      "codeSha256": "232b082c43cba555ea56834e39bc825569a1ee637bbb4ffbac38cf83285548ef",
+      "locales": [
+        "zh-CN",
+        "en"
+      ],
+      "normalizedOutputSha256": "8a378e7925b4000ba3c9dd393b34a4dcd5910ca5df0d6e3126ae359b93763727"
+    }
+  },
+  "packageComplete": true,
+  "publicationAllowed": false,
+  "requirements": [
+    "LOSS-01",
+    "LOSS-02",
+    "LOSS-03"
+  ],
+  "standaloneRerunExpectation": {
+    "allowErrors": false,
+    "datasetPathsArePackageRelative": true,
+    "freshKernelEach": true,
+    "normalizedOutputsMustMatch": true,
+    "notebookCount": 4,
+    "offline": true
+  }
+}

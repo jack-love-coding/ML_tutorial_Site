@@ -49,6 +49,7 @@ ENVIRONMENT_CONTRACT_VERSION = "loss-functions-phase-26-environment-v1"
 APPROVAL_DECISION = "approve-lade"
 DEFAULT_SOURCE_CACHE = REPO_ROOT / ".cache/loss-functions/phase-26-sources"
 DEFAULT_STAGING_ROOT = REPO_ROOT / ".cache/loss-functions/phase-26-staging"
+DEFAULT_PUBLIC_ROOT = REPO_ROOT / "public"
 SOURCE_CACHE_MANIFEST = "source-cache-manifest.json"
 
 
@@ -178,6 +179,17 @@ CANDIDATE_PATHS = (
 )
 DATASET_CANDIDATE_PATHS = CANDIDATE_PATHS[:5]
 GENERATOR_RELATIVE_PATH = "scripts/loss-functions/build-phase-26-assets.py"
+# The complete package was built and independently validated by Plan 26-04 before
+# publication code was added.  Publication verifies that exact generator identity
+# instead of rewriting any of the 16 already-approved candidate bytes.
+VALIDATED_CANDIDATE_GENERATOR_SHA256 = (
+    "69f41c2a125456b07695528a5f9687d291177949b777178fbfcbb4527658f652"
+)
+PUBLIC_GROUP_PATHS = (
+    "datasets/loss-functions",
+    "notebooks/loss-functions",
+)
+PUBLICATION_FAILURE_POINTS = frozenset({"pre-swap", "mid-swap", "post-swap"})
 LADE_REFERENCE_PREDICTION_MINUTES = 175
 SECOM_OOF_FOLDS = 5
 SECOM_OOF_RANDOM_STATE = 20_260_728
@@ -2362,20 +2374,27 @@ def _validate_candidate_source_manifest(
         raise Phase26Error(f"{source.dataset_id} source byte count drifted")
 
 
-def _validate_candidate_generator(value: Any, dataset_id: str) -> None:
+def _validate_candidate_generator(
+    value: Any,
+    dataset_id: str,
+    expected_generator_sha256: str,
+) -> None:
     if not isinstance(value, dict):
         raise Phase26Error(f"{dataset_id} transform manifest is missing")
     if (
         value.get("version") != TRANSFORM_VERSION
         or value.get("generator") != GENERATOR_RELATIVE_PATH
-        or value.get("generatorSha256") != sha256_file(Path(__file__))
+        or value.get("generatorSha256") != expected_generator_sha256
     ):
         raise Phase26Error(f"{dataset_id} generator or transformation hash drifted")
     if not isinstance(value.get("rules"), list) or not value["rules"]:
         raise Phase26Error(f"{dataset_id} transformation rules are missing")
 
 
-def _verify_lade_candidate(dataset_root: Path) -> dict[str, Any]:
+def _verify_lade_candidate(
+    dataset_root: Path,
+    expected_generator_sha256: str,
+) -> dict[str, Any]:
     candidate_path = dataset_root / "lade-delivery-jilin.csv"
     manifest_path = dataset_root / "lade-delivery-jilin-manifest.json"
     manifest = read_strict_json(manifest_path)
@@ -2386,7 +2405,11 @@ def _verify_lade_candidate(dataset_root: Path) -> dict[str, Any]:
         raise Phase26Error("LaDe candidate manifest contract or dataset ID drifted")
     _validate_candidate_source_manifest(manifest.get("source"), LADE)
     transform = manifest.get("transform")
-    _validate_candidate_generator(transform, LADE.dataset_id)
+    _validate_candidate_generator(
+        transform,
+        LADE.dataset_id,
+        expected_generator_sha256,
+    )
     if transform.get("targetDefinition") != (
         "delivery_duration_minutes = delivery_time - accept_time "
         "with month/day rollover handling"
@@ -2676,7 +2699,10 @@ def _verify_secom_oof(
     }
 
 
-def _verify_secom_candidate(dataset_root: Path) -> dict[str, Any]:
+def _verify_secom_candidate(
+    dataset_root: Path,
+    expected_generator_sha256: str,
+) -> dict[str, Any]:
     candidate_path = dataset_root / "secom-manufacturing.csv"
     manifest_path = dataset_root / "secom-manufacturing-manifest.json"
     manifest = read_strict_json(manifest_path)
@@ -2687,7 +2713,11 @@ def _verify_secom_candidate(dataset_root: Path) -> dict[str, Any]:
         raise Phase26Error("SECOM candidate manifest contract or dataset ID drifted")
     _validate_candidate_source_manifest(manifest.get("source"), SECOM)
     transform = manifest.get("transform")
-    _validate_candidate_generator(transform, SECOM.dataset_id)
+    _validate_candidate_generator(
+        transform,
+        SECOM.dataset_id,
+        expected_generator_sha256,
+    )
     if transform.get("labelMapping") != {"-1": 0, "1": 1}:
         raise Phase26Error("SECOM candidate label mapping drifted")
     if transform.get("missingValuePolicy") != (
@@ -2804,7 +2834,11 @@ def _verify_secom_candidate(dataset_root: Path) -> dict[str, Any]:
     }
 
 
-def verify_dataset_candidates(staging_root: Path) -> dict[str, Any]:
+def verify_dataset_candidates(
+    staging_root: Path,
+    *,
+    expected_generator_sha256: str = VALIDATED_CANDIDATE_GENERATOR_SHA256,
+) -> dict[str, Any]:
     dataset_root = staging_root / "datasets/loss-functions"
     if not dataset_root.is_dir():
         raise Phase26Error(f"Candidate dataset group is missing: {dataset_root}")
@@ -2826,8 +2860,14 @@ def verify_dataset_candidates(staging_root: Path) -> dict[str, Any]:
     if attribution_path.read_text(encoding="utf-8") != _attribution_text():
         raise Phase26Error("Candidate dataset attribution or license evidence drifted")
     result = {
-        "lade": _verify_lade_candidate(dataset_root),
-        "secom": _verify_secom_candidate(dataset_root),
+        "lade": _verify_lade_candidate(
+            dataset_root,
+            expected_generator_sha256,
+        ),
+        "secom": _verify_secom_candidate(
+            dataset_root,
+            expected_generator_sha256,
+        ),
     }
     return result
 
@@ -2884,7 +2924,10 @@ def prepare_dataset_candidates(
                     "build_dataset_candidates",
                     [str(cache.resolve()), str(transaction.root)],
                 )
-            return verify_dataset_candidates(transaction.root)
+            return verify_dataset_candidates(
+                transaction.root,
+                expected_generator_sha256=sha256_file(Path(__file__)),
+            )
     except BaseException:
         _remove_candidate_root(validated_root)
         raise
@@ -3677,6 +3720,7 @@ def _verify_bce_summary(staging_root: Path) -> dict[str, Any]:
 def _verify_candidate_manifest(
     staging_root: Path,
     notebook_results: dict[str, dict[str, Any]],
+    expected_generator_sha256: str,
 ) -> dict[str, Any]:
     path = staging_root / CANDIDATE_PATHS[-1]
     manifest = read_strict_json(path)
@@ -3689,7 +3733,7 @@ def _verify_candidate_manifest(
         or manifest.get("generator")
         != {
             "path": GENERATOR_RELATIVE_PATH,
-            "sha256": sha256_file(Path(__file__)),
+            "sha256": expected_generator_sha256,
         }
     ):
         raise Phase26Error("Complete candidate manifest header or generator drifted")
@@ -3778,21 +3822,32 @@ def verify_candidates(
     staging_root: Path,
     *,
     enforce_staging_root: bool = True,
+    expected_generator_sha256: str = VALIDATED_CANDIDATE_GENERATOR_SHA256,
 ) -> dict[str, Any]:
     if enforce_staging_root:
         validate_candidate_staging_root(staging_root)
-    actual_files = {
-        path.relative_to(staging_root).as_posix()
-        for path in staging_root.rglob("*")
-        if path.is_file()
-    }
+    actual_files: set[str] = set()
+    for group_relative_path in PUBLIC_GROUP_PATHS:
+        group_root = staging_root / group_relative_path
+        if not group_root.is_dir():
+            continue
+        for path in group_root.rglob("*"):
+            if path.is_symlink():
+                raise Phase26Error(
+                    f"Symlinks are forbidden in candidate inventory: {path}"
+                )
+            if path.is_file():
+                actual_files.add(path.relative_to(staging_root).as_posix())
     if actual_files != set(CANDIDATE_PATHS):
         raise Phase26Error(
             f"Complete candidate inventory drifted: "
             f"missing={sorted(set(CANDIDATE_PATHS) - actual_files)}, "
             f"unexpected={sorted(actual_files - set(CANDIDATE_PATHS))}"
         )
-    dataset_result = verify_dataset_candidates(staging_root)
+    dataset_result = verify_dataset_candidates(
+        staging_root,
+        expected_generator_sha256=expected_generator_sha256,
+    )
     requirements_path = staging_root / "notebooks/loss-functions/requirements.txt"
     if requirements_path.read_bytes() != REQUIREMENTS_PATH.read_bytes():
         raise Phase26Error("Candidate requirements drifted from exact audited pins")
@@ -3839,7 +3894,11 @@ def verify_candidates(
             / "notebooks/loss-functions/outputs/manufacturing-bce-gradients.png"
         ),
     }
-    manifest = _verify_candidate_manifest(staging_root, notebook_results)
+    manifest = _verify_candidate_manifest(
+        staging_root,
+        notebook_results,
+        expected_generator_sha256,
+    )
     return {
         "inventoryCount": len(manifest["inventory"]),
         "executionProofCount": len(manifest["executionProofs"]),
@@ -3884,7 +3943,10 @@ def prepare_candidates(
                     [str(transaction.root)],
                 )
             build_candidate_manifest(transaction.root)
-            return verify_candidates(transaction.root)
+            return verify_candidates(
+                transaction.root,
+                expected_generator_sha256=sha256_file(Path(__file__)),
+            )
     except BaseException:
         _remove_candidate_root(validated_root)
         raise
@@ -4054,6 +4116,199 @@ def compare_committed_tree(regenerated_root: Path, published_root: Path) -> None
             raise Phase26Error(f"Committed bytes differ from regenerated expectations: {relative_path}")
 
 
+def _remove_transaction_path(path: Path) -> None:
+    if path.is_symlink() or path.is_file():
+        path.unlink()
+    elif path.is_dir():
+        shutil.rmtree(path)
+
+
+@contextlib.contextmanager
+def _publication_lock(public_root: Path) -> Iterator[None]:
+    public_root.mkdir(parents=True, exist_ok=True)
+    lock_path = public_root / ".loss-functions-publication.lock"
+    try:
+        descriptor = os.open(
+            lock_path,
+            os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            0o600,
+        )
+    except FileExistsError as error:
+        raise Phase26Error(
+            f"Another loss-functions publication owns the transaction lock: {lock_path}"
+        ) from error
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            handle.write(f"pid={os.getpid()}\n")
+        yield
+    finally:
+        lock_path.unlink(missing_ok=True)
+
+
+def _assert_publication_root(public_root: Path, enforce_public_root: bool) -> Path:
+    resolved = public_root.resolve()
+    expected = DEFAULT_PUBLIC_ROOT.resolve()
+    if enforce_public_root and resolved != expected:
+        raise Phase26Error(
+            f"Published root must resolve exactly to the repository public directory: {expected}"
+        )
+    if resolved == REPO_ROOT.resolve() or not resolved.is_relative_to(REPO_ROOT.resolve()):
+        if enforce_public_root:
+            raise Phase26Error(
+                f"Published root must stay inside the repository public directory: {resolved}"
+            )
+    return resolved
+
+
+def _compare_candidate_and_public_bytes(
+    staging_root: Path,
+    public_root: Path,
+) -> None:
+    for relative_path in CANDIDATE_PATHS:
+        candidate_path = staging_root / relative_path
+        published_path = public_root / relative_path
+        if not published_path.is_file():
+            raise Phase26Error(
+                f"Published inventory member is missing after swap: {relative_path}"
+            )
+        if candidate_path.read_bytes() != published_path.read_bytes():
+            raise Phase26Error(
+                f"Published bytes differ from the validated candidate: {relative_path}"
+            )
+
+
+def publish_candidates(
+    staging_root: Path,
+    *,
+    public_root: Path = DEFAULT_PUBLIC_ROOT,
+    source_cache: Path = DEFAULT_SOURCE_CACHE,
+    wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+    enforce_staging_root: bool = True,
+    enforce_public_root: bool = True,
+    failure_point: str | None = None,
+) -> dict[str, Any]:
+    """Publish both generator-owned groups as one verified rollback transaction."""
+    if failure_point is not None and failure_point not in PUBLICATION_FAILURE_POINTS:
+        raise Phase26Error(f"Unsupported publication failure point: {failure_point}")
+    if enforce_staging_root:
+        validated_staging_root = validate_candidate_staging_root(staging_root)
+    else:
+        validated_staging_root = staging_root.resolve()
+    validated_public_root = _assert_publication_root(
+        public_root,
+        enforce_public_root,
+    )
+
+    validate_authorization()
+    verify_source_cache(source_cache)
+    validate_environment_contract(wheel_cache=wheel_cache)
+    candidate_result = verify_candidates(
+        validated_staging_root,
+        enforce_staging_root=False,
+        expected_generator_sha256=VALIDATED_CANDIDATE_GENERATOR_SHA256,
+    )
+
+    transaction_id = uuid.uuid4().hex
+    transaction_root = (
+        validated_public_root / f".loss-functions-publication-{transaction_id}"
+    )
+    backup_root = (
+        validated_public_root / f".loss-functions-publication-backup-{transaction_id}"
+    )
+    group_records = [
+        (
+            relative_path,
+            transaction_root / relative_path,
+            validated_public_root / relative_path,
+            backup_root / relative_path,
+        )
+        for relative_path in PUBLIC_GROUP_PATHS
+    ]
+    installed_destinations: set[Path] = set()
+
+    with _publication_lock(validated_public_root):
+        try:
+            for relative_path, staged_group, _, _ in group_records:
+                candidate_group = validated_staging_root / relative_path
+                staged_group.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(candidate_group, staged_group)
+            verify_candidates(
+                transaction_root,
+                enforce_staging_root=False,
+                expected_generator_sha256=VALIDATED_CANDIDATE_GENERATOR_SHA256,
+            )
+            _compare_candidate_and_public_bytes(
+                validated_staging_root,
+                transaction_root,
+            )
+
+            if failure_point == "pre-swap":
+                raise Phase26Error("Injected publication failure at pre-swap")
+
+            for index, (_, staged_group, destination, backup) in enumerate(
+                group_records
+            ):
+                if destination.is_symlink():
+                    raise Phase26Error(
+                        f"Published group cannot be a symlink: {destination}"
+                    )
+                backup.parent.mkdir(parents=True, exist_ok=True)
+                if destination.exists():
+                    destination.replace(backup)
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                staged_group.replace(destination)
+                installed_destinations.add(destination)
+                if failure_point == "mid-swap" and index == 0:
+                    raise Phase26Error("Injected publication failure at mid-swap")
+
+            if failure_point == "post-swap":
+                raise Phase26Error("Injected publication failure at post-swap")
+
+            public_result = verify_candidates(
+                validated_public_root,
+                enforce_staging_root=False,
+                expected_generator_sha256=VALIDATED_CANDIDATE_GENERATOR_SHA256,
+            )
+            _compare_candidate_and_public_bytes(
+                validated_staging_root,
+                validated_public_root,
+            )
+        except BaseException:
+            rollback_errors: list[str] = []
+            for _, _, destination, backup in reversed(group_records):
+                try:
+                    if backup.exists():
+                        _remove_transaction_path(destination)
+                        backup.parent.mkdir(parents=True, exist_ok=True)
+                        backup.replace(destination)
+                    elif destination in installed_destinations:
+                        _remove_transaction_path(destination)
+                except OSError as error:
+                    rollback_errors.append(f"{destination}: {error}")
+            if rollback_errors:
+                raise Phase26Error(
+                    "Publication failed and rollback could not restore every group: "
+                    + "; ".join(rollback_errors)
+                )
+            raise
+        else:
+            _remove_transaction_path(backup_root)
+            return {
+                **public_result,
+                "publishedGroups": list(PUBLIC_GROUP_PATHS),
+                "publishedBytes": sum(
+                    (validated_public_root / relative_path).stat().st_size
+                    for relative_path in CANDIDATE_PATHS
+                ),
+                "candidateGeneratorSha256": (
+                    VALIDATED_CANDIDATE_GENERATOR_SHA256
+                ),
+            }
+        finally:
+            _remove_transaction_path(transaction_root)
+            _remove_transaction_path(backup_root)
+
+
 def prepare_candidate_contract(
     cache: Path,
     staging_root: Path,
@@ -4078,6 +4333,7 @@ def main() -> None:
     modes.add_argument("--prepare-dataset-candidates", action="store_true")
     modes.add_argument("--prepare-candidates", action="store_true")
     modes.add_argument("--verify-candidates", action="store_true")
+    modes.add_argument("--publish-candidates", action="store_true")
     modes.add_argument("--verify-environment", action="store_true")
     modes.add_argument("--verify-source-cache", action="store_true")
     modes.add_argument("--check", action="store_true")
@@ -4103,6 +4359,7 @@ def main() -> None:
         args.prepare_dataset_candidates
         or args.prepare_candidates
         or args.generate
+        or args.publish_candidates
     )
     if not args.offline and not inherently_offline_modes:
         raise Phase26Error("Local generation, source-cache verification, and --check require --offline")
@@ -4163,6 +4420,20 @@ def main() -> None:
             "Verified the complete staging-only candidate package: "
             f"{verified['inventoryCount']} members, "
             f"{verified['executionProofCount']} clean-kernel proofs."
+        )
+        return
+
+    if args.publish_candidates:
+        published = publish_candidates(
+            args.staging_root,
+            source_cache=args.source_cache,
+            wheel_cache=args.wheel_cache,
+        )
+        print(
+            "Published the exact complete Phase 26 package atomically: "
+            f"{published['inventoryCount']} members, "
+            f"{published['executionProofCount']} clean-kernel proofs, "
+            f"{published['publishedBytes']} bytes."
         )
         return
 

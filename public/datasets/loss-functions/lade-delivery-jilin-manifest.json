@@ -1,0 +1,184 @@
+{
+  "contractVersion": "loss-functions-phase-26-v1",
+  "datasetId": "lade-delivery-jilin",
+  "observedFacts": {
+    "durationMaximumMinutes": 3573,
+    "durationMedianMinutes": 175,
+    "durationMinimumMinutes": 0,
+    "over24HourRows": 8,
+    "publishedFields": [
+      "course_row_id",
+      "source_row_number",
+      "city",
+      "aoi_type",
+      "accept_time",
+      "delivery_time",
+      "ds",
+      "delivery_duration_minutes"
+    ],
+    "removedFields": [
+      "order_id",
+      "region_id",
+      "courier_id",
+      "lng",
+      "lat",
+      "aoi_id",
+      "accept_gps_time",
+      "accept_gps_lng",
+      "accept_gps_lat",
+      "delivery_gps_time",
+      "delivery_gps_lng",
+      "delivery_gps_lat"
+    ],
+    "rowCount": 31415,
+    "sourceFields": [
+      "order_id",
+      "region_id",
+      "city",
+      "courier_id",
+      "lng",
+      "lat",
+      "aoi_id",
+      "aoi_type",
+      "accept_time",
+      "accept_gps_time",
+      "accept_gps_lng",
+      "accept_gps_lat",
+      "delivery_time",
+      "delivery_gps_time",
+      "delivery_gps_lng",
+      "delivery_gps_lat",
+      "ds"
+    ],
+    "zeroDurationRows": 50
+  },
+  "published": {
+    "bytes": 2188681,
+    "columns": [
+      "course_row_id",
+      "source_row_number",
+      "city",
+      "aoi_type",
+      "accept_time",
+      "delivery_time",
+      "ds",
+      "delivery_duration_minutes"
+    ],
+    "missingValuePolicy": "No missing values in the approved eight published fields",
+    "path": "datasets/loss-functions/lade-delivery-jilin.csv",
+    "representativeRowIds": [
+      "lade-jilin-06864",
+      "lade-jilin-00300",
+      "lade-jilin-25598"
+    ],
+    "rowCount": 31415,
+    "sha256": "8cfb6181890cddd20ca234326807a33ec636da485e04ddd14e6aeab91ead9ede",
+    "units": {
+      "delivery_duration_minutes": "minutes"
+    }
+  },
+  "source": {
+    "attribution": "Cainiao-AI LaDe dataset card and the LaDe paper, arXiv:2306.10675",
+    "downloadUrl": "https://huggingface.co/datasets/Cainiao-AI/LaDe/resolve/be2cec02775cafc8d52230303f32134382bcc50b/delivery/delivery_jl.csv",
+    "license": "Apache-2.0",
+    "pageUrl": "https://huggingface.co/datasets/Cainiao-AI/LaDe",
+    "retrievedAt": "2026-07-28",
+    "revisionOrDoi": "be2cec02775cafc8d52230303f32134382bcc50b",
+    "sourceBytes": 4736342,
+    "sourceSha256": "12e2cf4664dd5b4475d39dddee8872f5a03b3082f08f0eece7f103baee6c6e73"
+  },
+  "teachingReference": {
+    "aggregate": {
+      "mae": 106.08492758236584,
+      "mse": 21178.123380550926,
+      "rowCount": 31415
+    },
+    "deploymentModel": false,
+    "kind": "complete-file-fixed-median-arithmetic-baseline",
+    "predictionMinutes": 175,
+    "representativeRows": [
+      {
+        "absoluteError": 175.0,
+        "courseRowId": "lade-jilin-06864",
+        "maeDifferentiable": true,
+        "maeOutputSubgradient": 1.0,
+        "maeStatus": "smooth",
+        "mseOutputGradient": 350.0,
+        "predictionMinutes": 175,
+        "residualMinutes": 175,
+        "role": "zero-duration",
+        "sourceRowNumber": 6864,
+        "squaredError": 30625.0,
+        "targetMinutes": 0
+      },
+      {
+        "absoluteError": 0.0,
+        "courseRowId": "lade-jilin-00300",
+        "maeDifferentiable": false,
+        "maeOutputSubgradient": 0.0,
+        "maeStatus": "kink",
+        "mseOutputGradient": 0.0,
+        "predictionMinutes": 175,
+        "residualMinutes": 0,
+        "role": "typical-zero-residual",
+        "sourceRowNumber": 300,
+        "squaredError": 0.0,
+        "targetMinutes": 175
+      },
+      {
+        "absoluteError": 3398.0,
+        "courseRowId": "lade-jilin-25598",
+        "maeDifferentiable": true,
+        "maeOutputSubgradient": -1.0,
+        "maeStatus": "smooth",
+        "mseOutputGradient": -6796.0,
+        "predictionMinutes": 175,
+        "residualMinutes": -3398,
+        "role": "long-duration",
+        "sourceRowNumber": 25598,
+        "squaredError": 11546404.0,
+        "targetMinutes": 3573
+      }
+    ]
+  },
+  "transform": {
+    "fieldRemovalPolicy": {
+      "allowedFields": [
+        "course_row_id",
+        "source_row_number",
+        "city",
+        "aoi_type",
+        "accept_time",
+        "delivery_time",
+        "ds",
+        "delivery_duration_minutes"
+      ],
+      "policy": "Exclude order, region, courier, AOI identifier, GPS, coordinate, and precise stop fields",
+      "removedSourceFields": [
+        "order_id",
+        "region_id",
+        "courier_id",
+        "lng",
+        "lat",
+        "aoi_id",
+        "accept_gps_time",
+        "accept_gps_lng",
+        "accept_gps_lat",
+        "delivery_gps_time",
+        "delivery_gps_lng",
+        "delivery_gps_lat"
+      ]
+    },
+    "generator": "scripts/loss-functions/build-phase-26-assets.py",
+    "generatorSha256": "69f41c2a125456b07695528a5f9687d291177949b777178fbfcbb4527658f652",
+    "labelMapping": null,
+    "missingValuePolicy": "Reject missing required fields; derived durations must be finite",
+    "rules": [
+      "Derive delivery_duration_minutes from accept_time and delivery_time with rollover handling",
+      "Assign stable source-order course_row_id values",
+      "Retain exactly the approved eight-field privacy-minimized derivative"
+    ],
+    "targetDefinition": "delivery_duration_minutes = delivery_time - accept_time with month/day rollover handling",
+    "version": "phase-26-normalization-v1"
+  }
+}
