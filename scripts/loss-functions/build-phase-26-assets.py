@@ -54,6 +54,39 @@ class SourceContract:
     observed_feature_count: int | None = None
 
 
+@dataclass(frozen=True)
+class NotebookCodeCell:
+    cell_id: str
+    source: str
+
+
+@dataclass(frozen=True)
+class NotebookTopicContract:
+    topic_id: str
+    code_cells: tuple[NotebookCodeCell, ...]
+    markdown_by_locale: dict[str, dict[str, str]]
+    cell_order: tuple[tuple[str, str], ...]
+
+
+@dataclass(frozen=True)
+class NotebookExecutionJob:
+    topic_id: str
+    locale: str
+    notebook_path: str
+    proof_id: str
+    fresh_kernel: bool = True
+    execution_count_starts_at: int = 1
+    allow_errors: bool = False
+
+
+@dataclass(frozen=True)
+class CandidateInventory:
+    paths: tuple[str, ...]
+    topic_ids: tuple[str, ...]
+    locales: tuple[str, ...]
+    execution_jobs: tuple[NotebookExecutionJob, ...]
+
+
 LADE = SourceContract(
     dataset_id="lade-delivery-jilin",
     cache_name="lade-delivery-jilin.csv",
@@ -83,6 +116,168 @@ SECOM = SourceContract(
 )
 
 SOURCE_CONTRACTS = (LADE, SECOM)
+NOTEBOOK_LOCALES = ("zh-CN", "en")
+NOTEBOOK_TOPIC_IDS = ("delivery-losses", "manufacturing-bce-gradients")
+CANDIDATE_STAGING_IGNORE_ENTRY = "/.cache/loss-functions/phase-26-staging"
+CANDIDATE_PATHS = (
+    "datasets/loss-functions/lade-delivery-jilin.csv",
+    "datasets/loss-functions/lade-delivery-jilin-manifest.json",
+    "datasets/loss-functions/secom-manufacturing.csv",
+    "datasets/loss-functions/secom-manufacturing-manifest.json",
+    "datasets/loss-functions/ATTRIBUTION.md",
+    "notebooks/loss-functions/delivery-losses.zh-CN.ipynb",
+    "notebooks/loss-functions/delivery-losses.en.ipynb",
+    "notebooks/loss-functions/manufacturing-bce-gradients.zh-CN.ipynb",
+    "notebooks/loss-functions/manufacturing-bce-gradients.en.ipynb",
+    "notebooks/loss-functions/outputs/regression-loss-summary.json",
+    "notebooks/loss-functions/outputs/bce-gradient-summary.json",
+    "notebooks/loss-functions/outputs/delivery-losses.png",
+    "notebooks/loss-functions/outputs/manufacturing-bce-gradients.png",
+    "notebooks/loss-functions/requirements.txt",
+    "notebooks/loss-functions/environment.json",
+    "notebooks/loss-functions/outputs/manifest.json",
+)
+
+DELIVERY_CODE_CELLS = (
+    NotebookCodeCell(
+        "delivery-imports",
+        """from pathlib import Path
+import json
+
+import numpy as np
+import pandas as pd""",
+    ),
+    NotebookCodeCell(
+        "delivery-loss-functions",
+        """def regression_losses(targets, predictions):
+    targets = np.asarray(targets, dtype=np.float64)
+    predictions = np.asarray(predictions, dtype=np.float64)
+    if targets.shape != predictions.shape or targets.ndim != 1 or targets.size == 0:
+        raise ValueError("targets and predictions must be equal non-empty vectors")
+    if not np.isfinite(targets).all() or not np.isfinite(predictions).all():
+        raise ValueError("targets and predictions must be finite")
+    residuals = predictions - targets
+    squared = residuals ** 2
+    absolute = np.abs(residuals)
+    return {
+        "residuals": residuals,
+        "squared": squared,
+        "absolute": absolute,
+        "mse": float(np.mean(squared)),
+        "mae": float(np.mean(absolute)),
+    }""",
+    ),
+    NotebookCodeCell(
+        "delivery-local-paths",
+        """DATASET_PATH = Path("../../datasets/loss-functions/lade-delivery-jilin.csv")
+SUMMARY_PATH = Path("outputs/regression-loss-summary.json")
+PLOT_PATH = Path("outputs/delivery-losses.png")""",
+    ),
+)
+
+MANUFACTURING_CODE_CELLS = (
+    NotebookCodeCell(
+        "manufacturing-imports",
+        """from pathlib import Path
+import json
+
+import numpy as np
+import pandas as pd""",
+    ),
+    NotebookCodeCell(
+        "manufacturing-stable-bce",
+        """def stable_bce_from_logits(logits, targets):
+    logits = np.asarray(logits, dtype=np.float64)
+    targets = np.asarray(targets, dtype=np.float64)
+    if logits.shape != targets.shape or logits.ndim != 1 or logits.size == 0:
+        raise ValueError("logits and targets must be equal non-empty vectors")
+    if not np.isfinite(logits).all() or not np.isfinite(targets).all():
+        raise ValueError("logits and targets must be finite")
+    if not np.isin(targets, (0.0, 1.0)).all():
+        raise ValueError("targets must be binary")
+    losses = np.logaddexp(0.0, logits) - targets * logits
+    probabilities = np.where(
+        logits >= 0.0,
+        1.0 / (1.0 + np.exp(-logits)),
+        np.exp(logits) / (1.0 + np.exp(logits)),
+    )
+    gradients = probabilities - targets
+    return losses, gradients, gradients / logits.size""",
+    ),
+    NotebookCodeCell(
+        "manufacturing-central-difference",
+        """def coordinate_central_difference(objective, values, index, step):
+    values = np.asarray(values, dtype=np.float64)
+    if values.ndim != 1 or values.size == 0 or not np.isfinite(values).all():
+        raise ValueError("values must be one finite non-empty vector")
+    if not 0 <= index < values.size:
+        raise IndexError("index is outside the vector")
+    if not np.isfinite(step) or step <= 0.0:
+        raise ValueError("step must be finite and positive")
+    plus = values.copy()
+    minus = values.copy()
+    plus[index] += step
+    minus[index] -= step
+    return float((objective(plus) - objective(minus)) / (2.0 * step))""",
+    ),
+    NotebookCodeCell(
+        "manufacturing-local-paths",
+        """DATASET_PATH = Path("../../datasets/loss-functions/secom-manufacturing.csv")
+SUMMARY_PATH = Path("outputs/bce-gradient-summary.json")
+PLOT_PATH = Path("outputs/manufacturing-bce-gradients.png")""",
+    ),
+)
+
+NOTEBOOK_TOPICS = {
+    "delivery-losses": NotebookTopicContract(
+        topic_id="delivery-losses",
+        code_cells=DELIVERY_CODE_CELLS,
+        markdown_by_locale={
+            "zh-CN": {
+                "delivery-title": "# 配送时长中的 MSE 与 MAE",
+                "delivery-method": "使用同一组本地真实数据预测，逐行比较平方误差与绝对误差。",
+            },
+            "en": {
+                "delivery-title": "# MSE and MAE for delivery duration",
+                "delivery-method": (
+                    "Use one local real-data prediction set to compare squared and absolute "
+                    "error row by row."
+                ),
+            },
+        },
+        cell_order=(
+            ("markdown", "delivery-title"),
+            ("code", "delivery-imports"),
+            ("markdown", "delivery-method"),
+            ("code", "delivery-loss-functions"),
+            ("code", "delivery-local-paths"),
+        ),
+    ),
+    "manufacturing-bce-gradients": NotebookTopicContract(
+        topic_id="manufacturing-bce-gradients",
+        code_cells=MANUFACTURING_CODE_CELLS,
+        markdown_by_locale={
+            "zh-CN": {
+                "manufacturing-title": "# 制造缺陷中的稳定 BCE 与梯度",
+                "manufacturing-method": "在本地真实标签与固定 logits 上验证稳定 BCE 和输出梯度。",
+            },
+            "en": {
+                "manufacturing-title": "# Stable BCE and gradients for manufacturing defects",
+                "manufacturing-method": (
+                    "Verify stable BCE and output gradients on local real labels and fixed logits."
+                ),
+            },
+        },
+        cell_order=(
+            ("markdown", "manufacturing-title"),
+            ("code", "manufacturing-imports"),
+            ("markdown", "manufacturing-method"),
+            ("code", "manufacturing-stable-bce"),
+            ("code", "manufacturing-central-difference"),
+            ("code", "manufacturing-local-paths"),
+        ),
+    ),
+}
 LADE_SOURCE_FIELDS = (
     "order_id",
     "region_id",
@@ -198,6 +393,221 @@ def read_strict_json(path: Path) -> Any:
         )
     except (OSError, json.JSONDecodeError) as error:
         raise Phase26Error(f"Invalid JSON at {path}: {error}") from error
+
+
+def validate_notebook_code_cells(code_cells: tuple[NotebookCodeCell, ...]) -> None:
+    if not code_cells:
+        raise Phase26Error("Each Notebook topic requires at least one shared code cell")
+    seen_ids: set[str] = set()
+    forbidden_patterns = (
+        (r"\brequests\b", "requests/network"),
+        (r"\burllib\b", "urllib/network"),
+        (r"hugging\s*face|huggingface", "Hugging Face/network"),
+        (r"archive\.ics\.uci\.edu|fetch_ucirepo", "UCI/network"),
+        (r"(?:^|\n)\s*[!%]\s*(?:pip|conda|uv)\b", "shell package install"),
+        (r"<script\b|javascript:", "uncontrolled executable HTML"),
+        (r"\b(?:ipywidgets|widget_state)\b|display\s*\(\s*HTML", "widget or raw HTML state"),
+    )
+    for cell in code_cells:
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", cell.cell_id):
+            raise Phase26Error(f"Invalid Notebook code-cell ID: {cell.cell_id!r}")
+        if cell.cell_id in seen_ids:
+            raise Phase26Error(f"Duplicate Notebook code-cell ID: {cell.cell_id}")
+        seen_ids.add(cell.cell_id)
+        if not cell.source.strip():
+            raise Phase26Error(f"Notebook code cell {cell.cell_id} has empty source")
+        for pattern, label in forbidden_patterns:
+            if re.search(pattern, cell.source, flags=re.IGNORECASE):
+                raise Phase26Error(
+                    f"Notebook code cell {cell.cell_id} contains forbidden {label} code"
+                )
+
+
+def validate_notebook_topic(topic: NotebookTopicContract) -> None:
+    if topic.topic_id not in NOTEBOOK_TOPIC_IDS:
+        raise Phase26Error(f"Unknown Notebook topic ID: {topic.topic_id}")
+    validate_notebook_code_cells(topic.code_cells)
+    if tuple(topic.markdown_by_locale) != NOTEBOOK_LOCALES:
+        raise Phase26Error(
+            f"{topic.topic_id} must define markdown dictionaries in exact locale order "
+            f"{NOTEBOOK_LOCALES}"
+        )
+    markdown_ids = {
+        locale: tuple(dictionary)
+        for locale, dictionary in topic.markdown_by_locale.items()
+    }
+    if len(set(markdown_ids.values())) != 1:
+        raise Phase26Error(
+            f"{topic.topic_id} locale markdown dictionaries must use identical cell IDs"
+        )
+    for locale, dictionary in topic.markdown_by_locale.items():
+        for cell_id, source in dictionary.items():
+            if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", cell_id):
+                raise Phase26Error(
+                    f"{topic.topic_id}/{locale} has invalid markdown cell ID {cell_id!r}"
+                )
+            if not source.strip():
+                raise Phase26Error(
+                    f"{topic.topic_id}/{locale} markdown cell {cell_id} is empty"
+                )
+
+    code_by_id = {cell.cell_id: cell for cell in topic.code_cells}
+    ordered_ids: set[str] = set()
+    for kind, cell_id in topic.cell_order:
+        if kind == "code":
+            if cell_id not in code_by_id:
+                raise Phase26Error(
+                    f"{topic.topic_id} cell order references unknown code cell {cell_id}"
+                )
+        elif kind == "markdown":
+            if cell_id not in topic.markdown_by_locale[NOTEBOOK_LOCALES[0]]:
+                raise Phase26Error(
+                    f"{topic.topic_id} cell order references unknown markdown cell {cell_id}"
+                )
+        else:
+            raise Phase26Error(f"{topic.topic_id} has unsupported cell kind {kind!r}")
+        if cell_id in ordered_ids:
+            raise Phase26Error(f"{topic.topic_id} repeats ordered cell ID {cell_id}")
+        ordered_ids.add(cell_id)
+    expected_ids = set(code_by_id) | set(topic.markdown_by_locale[NOTEBOOK_LOCALES[0]])
+    if ordered_ids != expected_ids:
+        raise Phase26Error(
+            f"{topic.topic_id} ordered cell inventory drifted: "
+            f"missing={sorted(expected_ids - ordered_ids)}, "
+            f"unexpected={sorted(ordered_ids - expected_ids)}"
+        )
+
+
+def notebook_blueprint(topic_id: str, locale: str) -> list[dict[str, str]]:
+    if topic_id not in NOTEBOOK_TOPICS:
+        raise Phase26Error(f"Unknown Notebook topic ID: {topic_id}")
+    if locale not in NOTEBOOK_LOCALES:
+        raise Phase26Error(f"Unsupported Notebook locale: {locale}")
+    topic = NOTEBOOK_TOPICS[topic_id]
+    validate_notebook_topic(topic)
+    code_by_id = {cell.cell_id: cell.source.strip() for cell in topic.code_cells}
+    markdown_by_id = topic.markdown_by_locale[locale]
+    return [
+        {
+            "id": cell_id,
+            "kind": kind,
+            "source": (
+                code_by_id[cell_id]
+                if kind == "code"
+                else markdown_by_id[cell_id].strip()
+            ),
+        }
+        for kind, cell_id in topic.cell_order
+    ]
+
+
+def candidate_execution_jobs() -> tuple[NotebookExecutionJob, ...]:
+    return tuple(
+        NotebookExecutionJob(
+            topic_id=topic_id,
+            locale=locale,
+            notebook_path=f"notebooks/loss-functions/{topic_id}.{locale}.ipynb",
+            proof_id=f"clean-kernel-{topic_id}-{locale}",
+        )
+        for topic_id in NOTEBOOK_TOPIC_IDS
+        for locale in NOTEBOOK_LOCALES
+    )
+
+
+def candidate_inventory() -> CandidateInventory:
+    inventory = CandidateInventory(
+        paths=CANDIDATE_PATHS,
+        topic_ids=NOTEBOOK_TOPIC_IDS,
+        locales=NOTEBOOK_LOCALES,
+        execution_jobs=candidate_execution_jobs(),
+    )
+    if len(inventory.paths) != 16 or len(set(inventory.paths)) != len(inventory.paths):
+        raise Phase26Error("Candidate inventory must contain exactly 16 unique package members")
+    for relative_path in inventory.paths:
+        path = Path(relative_path)
+        if path.is_absolute() or ".." in path.parts or path.as_posix() != relative_path:
+            raise Phase26Error(
+                f"Candidate inventory paths must be normalized and staging-relative: {relative_path}"
+            )
+    if tuple(NOTEBOOK_TOPICS) != inventory.topic_ids:
+        raise Phase26Error("Notebook topic definitions and candidate inventory drifted")
+    proof_ids = [job.proof_id for job in inventory.execution_jobs]
+    notebook_paths = [job.notebook_path for job in inventory.execution_jobs]
+    if (
+        len(inventory.execution_jobs) != 4
+        or len(set(proof_ids)) != 4
+        or len(set(notebook_paths)) != 4
+    ):
+        raise Phase26Error("Candidate inventory requires four distinct locale execution jobs")
+    if any(path not in inventory.paths for path in notebook_paths):
+        raise Phase26Error("A locale execution job references a Notebook outside the inventory")
+    return inventory
+
+
+def candidate_contract_snapshot() -> dict[str, Any]:
+    inventory = candidate_inventory()
+    topics: dict[str, Any] = {}
+    for topic_id, topic in NOTEBOOK_TOPICS.items():
+        validate_notebook_topic(topic)
+        topics[topic_id] = {
+            "codeCells": [
+                {"id": cell.cell_id, "source": cell.source.strip()}
+                for cell in topic.code_cells
+            ],
+            "markdownByLocale": topic.markdown_by_locale,
+            "blueprints": {
+                locale: notebook_blueprint(topic_id, locale)
+                for locale in NOTEBOOK_LOCALES
+            },
+        }
+    return {
+        "inventory": {
+            "paths": list(inventory.paths),
+            "topicIds": list(inventory.topic_ids),
+            "locales": list(inventory.locales),
+            "partialSelectionAllowed": False,
+            "publicationAllowed": False,
+        },
+        "topics": topics,
+        "executionJobs": [
+            {
+                "topicId": job.topic_id,
+                "locale": job.locale,
+                "notebookPath": job.notebook_path,
+                "proofId": job.proof_id,
+                "freshKernel": job.fresh_kernel,
+                "executionCountStartsAt": job.execution_count_starts_at,
+                "allowErrors": job.allow_errors,
+            }
+            for job in inventory.execution_jobs
+        ],
+    }
+
+
+def validate_candidate_staging_root(staging_root: Path) -> Path:
+    resolved = staging_root.resolve()
+    public_root = (REPO_ROOT / "public").resolve()
+    expected = DEFAULT_STAGING_ROOT.resolve()
+    if resolved == public_root or resolved.is_relative_to(public_root):
+        raise Phase26Error("Candidate generation cannot target public/ or any public child")
+    if resolved != expected:
+        raise Phase26Error(
+            "Candidate staging root must resolve exactly to "
+            ".cache/loss-functions/phase-26-staging"
+        )
+    gitignore_path = REPO_ROOT / ".gitignore"
+    ignore_entries = {
+        line.strip()
+        for line in gitignore_path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+    if CANDIDATE_STAGING_IGNORE_ENTRY not in ignore_entries:
+        raise Phase26Error(
+            "Phase 26 candidate staging root is not protected by the exact .gitignore entry"
+        )
+    if staging_root.is_symlink():
+        raise Phase26Error("Candidate staging root may not be a symlink")
+    return resolved
 
 
 def contract_snapshot() -> dict[str, Any]:
@@ -658,16 +1068,12 @@ def compare_committed_tree(regenerated_root: Path, published_root: Path) -> None
             raise Phase26Error(f"Committed bytes differ from regenerated expectations: {relative_path}")
 
 
-def generate_contract_candidate(cache: Path, staging_root: Path) -> None:
+def prepare_candidate_contract(cache: Path, staging_root: Path) -> dict[str, Any]:
     verify_source_cache(cache)
-    if staging_root.resolve().is_relative_to((REPO_ROOT / "public").resolve()):
-        raise Phase26Error("Local generation may not write into public/")
-    staging_root.mkdir(parents=True, exist_ok=True)
-    target = staging_root / "source-contract.json"
-    with tempfile.NamedTemporaryFile(dir=staging_root, delete=False) as handle:
-        temporary = Path(handle.name)
-        handle.write(strict_json_bytes(contract_snapshot()))
-    temporary.replace(target)
+    validated_root = validate_candidate_staging_root(staging_root)
+    candidate = candidate_contract_snapshot()
+    validated_root.mkdir(parents=True, exist_ok=True)
+    return candidate
 
 
 def main() -> None:
@@ -675,10 +1081,14 @@ def main() -> None:
     modes = parser.add_mutually_exclusive_group(required=True)
     modes.add_argument("--bootstrap-sources", action="store_true")
     modes.add_argument("--generate", action="store_true")
+    modes.add_argument("--prepare-candidates", action="store_true")
+    modes.add_argument("--verify-candidates", action="store_true")
     modes.add_argument("--verify-source-cache", action="store_true")
     modes.add_argument("--check", action="store_true")
     parser.add_argument("--source-cache", type=Path, default=DEFAULT_SOURCE_CACHE)
     parser.add_argument("--staging-root", type=Path, default=DEFAULT_STAGING_ROOT)
+    parser.add_argument("--topic")
+    parser.add_argument("--locale")
     parser.add_argument("--regenerated-root", type=Path)
     parser.add_argument("--published-root", type=Path)
     parser.add_argument("--offline", action="store_true")
@@ -695,14 +1105,31 @@ def main() -> None:
     if not args.offline:
         raise Phase26Error("Local generation, source-cache verification, and --check require --offline")
 
+    if args.topic is not None or args.locale is not None:
+        raise Phase26Error(
+            "Partial topic or locale selectors are forbidden; prepare and verify the complete "
+            "two-topic/four-locale candidate inventory"
+        )
+
     if args.verify_source_cache:
         verify_source_cache(args.source_cache)
         print("Phase 26 source cache matches exact identities, licenses, and hashes.")
         return
 
-    if args.generate:
-        generate_contract_candidate(args.source_cache, args.staging_root)
-        print(f"Generated an offline contract candidate in {args.staging_root}")
+    if args.generate or args.prepare_candidates:
+        candidate = prepare_candidate_contract(args.source_cache, args.staging_root)
+        print(
+            "Prepared the complete offline candidate contract "
+            f"({len(candidate['inventory']['paths'])} members, "
+            f"{len(candidate['executionJobs'])} fresh-kernel jobs) in {args.staging_root}"
+        )
+        return
+
+    if args.verify_candidates:
+        verify_source_cache(args.source_cache)
+        validate_candidate_staging_root(args.staging_root)
+        candidate_contract_snapshot()
+        print("Verified the complete staging-only candidate inventory and locale contract.")
         return
 
     if bool(args.regenerated_root) != bool(args.published_root):
