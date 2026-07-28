@@ -171,7 +171,11 @@ Each task was committed atomically:
 ## Issues Encountered
 
 - The first optional static Pages inspection incorrectly expected minified JavaScript to contain fully concatenated asset URLs. `withPublicBase` composes those paths at runtime, so the valid static check instead verifies the Pages HTML/helper base and existence of all 16 registered files in `dist`.
-- `npm run security:audit` exits nonzero because the existing lockfile resolves transitive `postcss@8.5.15`, which is covered by current high advisory GHSA-r28c-9q8g-f849. This plan changed no dependency and did not run an unreviewed package-manager repair; the item is recorded in `deferred-items.md`.
+- The plan-closeout security audit initially found transitive `postcss@8.5.15`
+  covered by GHSA-r28c-9q8g-f849. The post-plan release gate reviewed the
+  package-manager dry run and applied the minimal lockfile-only repair to
+  `postcss@8.5.24` and `nanoid@3.3.16`; no top-level dependency or application
+  code changed.
 - The production builds retain the repository's existing large-chunk warning and complete successfully.
 
 ## Known Stubs
@@ -186,7 +190,8 @@ None. Empty arrays in the browser matrix are transient assertion collectors, and
 - `npm run build` — passed; existing chunk-size warning only.
 - Playwright CLI root preview matrix — 32/32 passed across `zh-CN`/`en`, desktop/390px, root plus all seven deep links; no overflow, overlap, dead fragment, console error, warning, or external course-asset request.
 - `npm run build:pages` and focused base/Pages/asset tests — passed; all 16 registered local files exist in `dist` and the built helper carries `/ML_tutorial_Site/`.
-- `npm run security:audit` — did not pass because of the pre-existing transitive PostCSS advisory documented above.
+- `npm run security:audit` — passed with zero vulnerabilities after the reviewed
+  lockfile-only PostCSS repair.
 - `git diff --check` — passed.
 - Stub and threat-surface scans found no learner-facing unfinished wiring and no security surface beyond the plan's validated local JSON, bounded controls, safe code/Markdown rendering, and base-safe public assets.
 
@@ -197,7 +202,7 @@ None - no external service configuration required.
 ## Next Phase Readiness
 
 - Phase 27 and Phase 29 can reuse the locked row and output-gradient patterns for parameter-training lessons without changing Phase 26's route or Progress identities.
-- The loss-functions learning objective is complete; a dedicated dependency maintenance change is still required for a clean security-audit exit.
+- The loss-functions learning objective and all release gates are complete.
 
 ## Self-Check: PASSED
 

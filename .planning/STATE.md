@@ -863,4 +863,4 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ### Blockers
 
-- Dependency maintenance: pre-existing postcss@8.5.15 keeps npm run security:audit red on GHSA-r28c-9q8g-f849; update the lockfile in a dedicated dependency change.
+- None.

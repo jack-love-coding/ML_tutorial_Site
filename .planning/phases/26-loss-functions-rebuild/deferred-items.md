@@ -27,7 +27,7 @@
 - **Scope decision:** Deferred to the GSD state-schema/tooling owner rather than
   directly editing `STATE.md` outside its registered mutation handlers.
 
-## Pre-existing PostCSS security advisory
+## Resolved PostCSS security advisory
 
 - **Discovered during:** Plan 26-07 release verification
 - **Command:** `npm run security:audit`
@@ -35,10 +35,11 @@
   Vite, sanitize-html, and Vue compiler packages. The current registry audit
   reports GHSA-r28c-9q8g-f849 for PostCSS versions through 8.5.17, so the
   repository-standard moderate-level audit exits nonzero with one high finding.
-- **Scope decision:** Deferred. Plan 26-07 changes no dependencies, and an
-  unreviewed package-manager repair is outside the loss-functions page
-  integration scope. The finding must be resolved through a dedicated dependency
-  update that reviews the lockfile and reruns the repository release gates.
-- **Current evidence:** Offline asset verification, 88 focused loss/progress
-  tests, 837 full tests, root and Pages builds, Pages asset checks, and the
-  32-case browser matrix all pass.
+- **Resolution:** The post-plan release gate reviewed `npm audit fix --dry-run`
+  and applied its lockfile-only update: `postcss` moved to 8.5.24 and its
+  transitive `nanoid` dependency moved to 3.3.16. No top-level dependency or
+  application code changed.
+- **Current evidence:** `npm run security:audit` reports zero vulnerabilities.
+  Offline asset verification, focused/full tests, root and Pages builds, Pages
+  asset checks, and the 32-case browser matrix remain the Phase 26 release
+  evidence.
