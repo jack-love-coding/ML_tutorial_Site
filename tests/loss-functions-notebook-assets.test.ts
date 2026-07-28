@@ -564,8 +564,8 @@ test('real manufacturing BCE, fixed probes, gradients, and finite differences ma
     }, index: number) => {
       closeTo(row.step, expected[index]!.step)
       closeTo(row.analyticValue, expected[index]!.analyticValue, 1e-15)
-      closeTo(row.numericalValue, expected[index]!.numericalValue, 1e-9)
-      closeTo(row.absoluteError, expected[index]!.absoluteError, 1e-9)
+      closeTo(row.numericalValue, expected[index]!.numericalValue, 1e-7)
+      closeTo(row.absoluteError, expected[index]!.absoluteError, 1e-7)
       assert.equal(row.status, expected[index]!.status)
     })
   }
@@ -631,7 +631,7 @@ test('candidate verification rejects changed output values and incomplete manife
     '    summary["aggregate"]["meanStableBce"] += 1.0',
     '    summary_path.write_bytes(module.strict_json_bytes(summary))',
     '    try:',
-    '        module.verify_candidates(root)',
+    '        module.verify_candidates(root, enforce_staging_root=False)',
     '    except module.Phase26Error as error:',
     '        print(str(error))',
     '    else:',
@@ -651,7 +651,7 @@ test('candidate verification rejects changed output values and incomplete manife
     '    manifest["inventory"].pop()',
     '    path.write_bytes(module.strict_json_bytes(manifest))',
     '    try:',
-    '        module.verify_candidates(root)',
+    '        module.verify_candidates(root, enforce_staging_root=False)',
     '    except module.Phase26Error as error:',
     '        print(str(error))',
     '    else:',

@@ -21,6 +21,7 @@ import urllib.request
 import uuid
 import venv
 import zipfile
+import zlib
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
@@ -194,6 +195,128 @@ SECOM_PUBLISHED_FIELDS = (
     *SECOM_MEASUREMENT_FIELDS,
 )
 
+NOTEBOOK_ARTIFACT_HELPERS = r'''import struct
+import zlib
+
+
+def write_strict_json(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(
+        value,
+        ensure_ascii=False,
+        indent=2,
+        sort_keys=True,
+        allow_nan=False,
+    ) + "\n"
+    path.write_text(payload, encoding="utf-8", newline="\n")
+
+
+def _png_chunk(kind, payload):
+    return (
+        struct.pack(">I", len(payload))
+        + kind
+        + payload
+        + struct.pack(">I", zlib.crc32(kind + payload) & 0xFFFFFFFF)
+    )
+
+
+def write_pattern_plot(path, *, title, description, non_color_encoding, series):
+    width, height = 960, 540
+    pixels = bytearray([248, 250, 252] * width * height)
+
+    def set_pixel(x, y, color):
+        if 0 <= x < width and 0 <= y < height:
+            offset = (y * width + x) * 3
+            pixels[offset : offset + 3] = bytes(color)
+
+    def line(x0, y0, x1, y1, color, dashed=False):
+        dx = abs(x1 - x0)
+        sx = 1 if x0 < x1 else -1
+        dy = -abs(y1 - y0)
+        sy = 1 if y0 < y1 else -1
+        error = dx + dy
+        step = 0
+        while True:
+            if not dashed or (step // 7) % 2 == 0:
+                set_pixel(x0, y0, color)
+                set_pixel(x0, y0 + 1, color)
+            if x0 == x1 and y0 == y1:
+                break
+            doubled = 2 * error
+            if doubled >= dy:
+                error += dy
+                x0 += sx
+            if doubled <= dx:
+                error += dx
+                y0 += sy
+            step += 1
+
+    left, right, top, bottom = 80, 900, 55, 470
+    line(left, bottom, right, bottom, (30, 41, 59))
+    line(left, top, left, bottom, (30, 41, 59))
+    flattened = [abs(float(value)) for _, values in series for value in values]
+    maximum = max(flattened, default=1.0) or 1.0
+    colors = ((35, 85, 155), (178, 72, 56), (52, 125, 83), (111, 78, 153))
+    for series_index, (_, values) in enumerate(series):
+        values = [float(value) for value in values]
+        if not values:
+            continue
+        for index, value in enumerate(values):
+            x = left + round(index * (right - left) / max(1, len(values) - 1))
+            y = bottom - round(abs(value) / maximum * (bottom - top - 20))
+            if index:
+                previous = float(values[index - 1])
+                previous_x = left + round((index - 1) * (right - left) / max(1, len(values) - 1))
+                previous_y = bottom - round(abs(previous) / maximum * (bottom - top - 20))
+                line(
+                    previous_x,
+                    previous_y,
+                    x,
+                    y,
+                    colors[series_index % len(colors)],
+                    dashed=series_index % 2 == 1,
+                )
+            marker = 4 + series_index
+            for marker_y in range(y - marker, y + marker + 1):
+                for marker_x in range(x - marker, x + marker + 1):
+                    if series_index % 2 == 0:
+                        draw = abs(marker_x - x) + abs(marker_y - y) <= marker
+                    else:
+                        draw = (
+                            abs(marker_x - x) == marker
+                            or abs(marker_y - y) == marker
+                        )
+                    if draw:
+                        set_pixel(
+                            marker_x,
+                            marker_y,
+                            colors[series_index % len(colors)],
+                        )
+
+    raw = b"".join(
+        b"\x00" + bytes(pixels[row * width * 3 : (row + 1) * width * 3])
+        for row in range(height)
+    )
+    metadata = {
+        "Title": title,
+        "Description": description,
+        "NonColorEncoding": non_color_encoding,
+        "Software": "ML Atlas Phase 26 deterministic stdlib PNG writer",
+    }
+    png = bytearray(b"\x89PNG\r\n\x1a\n")
+    png.extend(
+        _png_chunk(
+            b"IHDR",
+            struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0),
+        )
+    )
+    for key, value in metadata.items():
+        png.extend(_png_chunk(b"tEXt", key.encode("latin1") + b"\x00" + value.encode("latin1")))
+    png.extend(_png_chunk(b"IDAT", zlib.compress(raw, level=9)))
+    png.extend(_png_chunk(b"IEND", b""))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(bytes(png))'''
+
 DELIVERY_CODE_CELLS = (
     NotebookCodeCell(
         "delivery-imports",
@@ -205,7 +328,15 @@ import pandas as pd""",
     ),
     NotebookCodeCell(
         "delivery-loss-functions",
-        """def regression_losses(targets, predictions):
+        """def left_fold_mean(values):
+    values = np.asarray(values, dtype=np.float64)
+    total = 0.0
+    for value in values:
+        total += float(value) / values.size
+    return total
+
+
+def regression_losses(targets, predictions):
     targets = np.asarray(targets, dtype=np.float64)
     predictions = np.asarray(predictions, dtype=np.float64)
     if targets.shape != predictions.shape or targets.ndim != 1 or targets.size == 0:
@@ -219,15 +350,109 @@ import pandas as pd""",
         "residuals": residuals,
         "squared": squared,
         "absolute": absolute,
-        "mse": float(np.mean(squared)),
-        "mae": float(np.mean(absolute)),
+        "mse": left_fold_mean(squared),
+        "mae": left_fold_mean(absolute),
+        "mse_per_element_gradients": 2.0 * residuals,
+        "mae_per_element_subgradients": np.sign(residuals),
+        "mae_differentiable": residuals != 0.0,
+        "mse_mean_gradients": 2.0 * residuals / targets.size,
+        "mae_mean_subgradients": np.sign(residuals) / targets.size,
     }""",
+    ),
+    NotebookCodeCell(
+        "delivery-artifact-helpers",
+        NOTEBOOK_ARTIFACT_HELPERS,
     ),
     NotebookCodeCell(
         "delivery-local-paths",
         """DATASET_PATH = Path("../../datasets/loss-functions/lade-delivery-jilin.csv")
+DATASET_MANIFEST_PATH = Path("../../datasets/loss-functions/lade-delivery-jilin-manifest.json")
 SUMMARY_PATH = Path("outputs/regression-loss-summary.json")
 PLOT_PATH = Path("outputs/delivery-losses.png")""",
+    ),
+    NotebookCodeCell(
+        "delivery-build-output",
+        """frame = pd.read_csv(DATASET_PATH)
+dataset_manifest = json.loads(DATASET_MANIFEST_PATH.read_text(encoding="utf-8"))
+targets = frame["delivery_duration_minutes"].to_numpy(dtype=np.float64)
+predictions = np.full(targets.shape, 175.0, dtype=np.float64)
+evaluated = regression_losses(targets, predictions)
+
+rows = []
+for index, course_row_id in enumerate(frame["course_row_id"].astype(str)):
+    rows.append({
+        "courseRowId": course_row_id,
+        "targetMinutes": float(targets[index]),
+        "predictionMinutes": float(predictions[index]),
+        "residualMinutes": float(evaluated["residuals"][index]),
+        "mseLoss": float(evaluated["squared"][index]),
+        "maeLoss": float(evaluated["absolute"][index]),
+        "msePerElementGradient": float(evaluated["mse_per_element_gradients"][index]),
+        "maePerElementSubgradient": float(evaluated["mae_per_element_subgradients"][index]),
+        "maeDifferentiable": bool(evaluated["mae_differentiable"][index]),
+        "mseMeanObjectiveGradient": float(evaluated["mse_mean_gradients"][index]),
+        "maeMeanObjectiveSubgradient": float(evaluated["mae_mean_subgradients"][index]),
+    })
+
+rows_by_id = {row["courseRowId"]: row for row in rows}
+representative_rows = [
+    {"role": reference["role"], **rows_by_id[reference["courseRowId"]]}
+    for reference in dataset_manifest["teachingReference"]["representativeRows"]
+]
+high_contribution_rows = sorted(
+    rows,
+    key=lambda row: (-row["mseLoss"], row["courseRowId"]),
+)[:5]
+histogram_counts, histogram_edges = np.histogram(
+    evaluated["absolute"],
+    bins=np.asarray([0, 15, 30, 60, 120, 240, 480, 960, 1920, 3840], dtype=np.float64),
+)
+summary = {
+    "contractVersion": "loss-functions-phase-26-output-v1",
+    "topicId": "delivery-losses",
+    "dataset": {
+        "datasetId": dataset_manifest["datasetId"],
+        "sha256": dataset_manifest["published"]["sha256"],
+        "rowCount": int(targets.size),
+    },
+    "referencePredictionMinutes": 175,
+    "aggregate": {
+        "mse": evaluated["mse"],
+        "mae": evaluated["mae"],
+        "rowCount": int(targets.size),
+    },
+    "rows": rows,
+    "representativeRows": representative_rows,
+    "highContributionRows": high_contribution_rows,
+    "distribution": {
+        "metric": "absolute residual minutes",
+        "binEdges": [float(value) for value in histogram_edges],
+        "counts": [int(value) for value in histogram_counts],
+    },
+    "plot": {
+        "path": "outputs/delivery-losses.png",
+        "width": 960,
+        "height": 540,
+        "nonColorEncoding": "MSE solid diamond line; MAE dashed square line",
+    },
+}
+write_strict_json(SUMMARY_PATH, summary)
+write_pattern_plot(
+    PLOT_PATH,
+    title="Delivery loss distribution",
+    description="Real LaDe delivery rows summarized by MSE and MAE contribution scale.",
+    non_color_encoding="MSE solid diamond line; MAE dashed square line",
+    series=(
+        ("MSE solid diamond", [row["mseLoss"] for row in high_contribution_rows]),
+        ("MAE dashed square", [row["maeLoss"] for row in high_contribution_rows]),
+    ),
+)
+print(json.dumps({
+    "topicId": summary["topicId"],
+    "rowCount": summary["aggregate"]["rowCount"],
+    "mse": summary["aggregate"]["mse"],
+    "mae": summary["aggregate"]["mae"],
+}, sort_keys=True, allow_nan=False))""",
     ),
 )
 
@@ -277,10 +502,190 @@ import pandas as pd""",
     return float((objective(plus) - objective(minus)) / (2.0 * step))""",
     ),
     NotebookCodeCell(
+        "manufacturing-gradient-sweeps",
+        """LOCKED_STEPS = tuple(10.0 ** -power for power in range(1, 10))
+LOCKED_TOLERANCE = 5e-7
+
+
+def evaluate_gradient_sweep(kind, targets, outputs, index):
+    targets = np.asarray(targets, dtype=np.float64)
+    outputs = np.asarray(outputs, dtype=np.float64)
+    if kind == "mse":
+        objective = lambda values: float(np.mean((values - targets) ** 2))
+        analytic = float(2.0 * (outputs[index] - targets[index]) / targets.size)
+        differentiable = True
+    elif kind == "mae":
+        objective = lambda values: float(np.mean(np.abs(values - targets)))
+        residual = float(outputs[index] - targets[index])
+        analytic = float(np.sign(residual) / targets.size)
+        differentiable = residual != 0.0
+    elif kind == "bce":
+        objective = lambda values: float(
+            np.mean(np.logaddexp(0.0, values) - targets * values)
+        )
+        logit = float(outputs[index])
+        if logit >= 0.0:
+            probability = float(1.0 / (1.0 + np.exp(-logit)))
+        else:
+            exponential = float(np.exp(logit))
+            probability = exponential / (1.0 + exponential)
+        analytic = float((probability - targets[index]) / targets.size)
+        differentiable = True
+    else:
+        raise ValueError(f"unsupported loss kind: {kind}")
+    rows = []
+    for step in LOCKED_STEPS:
+        numerical = coordinate_central_difference(objective, outputs, index, step)
+        absolute_error = abs(analytic - numerical)
+        rows.append({
+            "step": step,
+            "analyticValue": analytic,
+            "numericalValue": numerical,
+            "absoluteError": absolute_error,
+            "scaledRelativeError": absolute_error / max(1.0, abs(analytic), abs(numerical)),
+            "tolerance": LOCKED_TOLERANCE,
+            "differentiable": differentiable,
+            "status": (
+                "kink"
+                if not differentiable
+                else "pass" if absolute_error <= LOCKED_TOLERANCE else "fail"
+            ),
+            "note": (
+                "A symmetric difference is not a unique derivative at the MAE kink."
+                if not differentiable
+                else None
+            ),
+        })
+    return rows""",
+    ),
+    NotebookCodeCell(
+        "manufacturing-artifact-helpers",
+        NOTEBOOK_ARTIFACT_HELPERS,
+    ),
+    NotebookCodeCell(
         "manufacturing-local-paths",
         """DATASET_PATH = Path("../../datasets/loss-functions/secom-manufacturing.csv")
+DATASET_MANIFEST_PATH = Path("../../datasets/loss-functions/secom-manufacturing-manifest.json")
 SUMMARY_PATH = Path("outputs/bce-gradient-summary.json")
 PLOT_PATH = Path("outputs/manufacturing-bce-gradients.png")""",
+    ),
+    NotebookCodeCell(
+        "manufacturing-build-output",
+        """frame = pd.read_csv(DATASET_PATH)
+dataset_manifest = json.loads(DATASET_MANIFEST_PATH.read_text(encoding="utf-8"))
+rows = dataset_manifest["auxiliaryPredictions"]["rows"]
+labels = np.asarray([row["label"] for row in rows], dtype=np.float64)
+logits = np.asarray([row["logit"] for row in rows], dtype=np.float64)
+losses, per_logit_gradients, mean_gradients = stable_bce_from_logits(logits, labels)
+if not np.allclose(losses, [row["stableBce"] for row in rows], rtol=0.0, atol=1e-12):
+    raise RuntimeError("locked OOF BCE values drifted")
+if not np.allclose(
+    per_logit_gradients,
+    [row["perLogitGradient"] for row in rows],
+    rtol=0.0,
+    atol=1e-15,
+):
+    raise RuntimeError("locked OOF gradients drifted")
+
+fixed_probes = []
+for logit in (-1000.0, -20.0, 0.0, 20.0, 1000.0):
+    for label in (0, 1):
+        if logit >= 0.0:
+            probability = float(1.0 / (1.0 + np.exp(-logit)))
+        else:
+            exponential = float(np.exp(logit))
+            probability = exponential / (1.0 + exponential)
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            naive_value = float(
+                -(label * np.log(probability) + (1 - label) * np.log1p(-probability))
+            )
+        if np.isfinite(naive_value):
+            naive = {"status": "finite", "value": naive_value}
+        elif np.isnan(naive_value):
+            naive = {"status": "nan", "value": None}
+        elif naive_value > 0:
+            naive = {"status": "inf", "value": None}
+        else:
+            naive = {"status": "-inf", "value": None}
+        epsilon = 1e-12
+        clipped_probability = float(np.clip(probability, epsilon, 1.0 - epsilon))
+        clipped_value = float(
+            -(label * np.log(clipped_probability)
+              + (1 - label) * np.log1p(-clipped_probability))
+        )
+        stable_value = float(np.logaddexp(0.0, logit) - label * logit)
+        fixed_probes.append({
+            "source": "synthetic-stability-probe",
+            "logit": logit,
+            "label": label,
+            "probability": probability,
+            "naive": naive,
+            "clipped": {
+                "method": "clipped-probability-bce",
+                "status": "finite",
+                "value": clipped_value,
+                "probability": probability,
+                "clippedProbability": clipped_probability,
+                "epsilon": epsilon,
+                "objectiveChanged": clipped_probability != probability,
+            },
+            "stable": {
+                "method": "stable-logit-bce",
+                "status": "finite",
+                "value": stable_value,
+            },
+        })
+
+sweeps = {
+    "mse": evaluate_gradient_sweep("mse", [1.0, 2.0], [1.5, 3.0], 1),
+    "mae": evaluate_gradient_sweep("mae", [0.0, 2.0], [1.0, 3.0], 0),
+    "mae-kink": evaluate_gradient_sweep("mae", [1.0, 2.0], [1.0, 3.0], 0),
+    "bce": evaluate_gradient_sweep("bce", [0.0, 1.0], [0.2, -0.4], 1),
+}
+summary = {
+    "contractVersion": "loss-functions-phase-26-output-v1",
+    "topicId": "manufacturing-bce-gradients",
+    "dataset": {
+        "datasetId": dataset_manifest["datasetId"],
+        "sha256": dataset_manifest["published"]["sha256"],
+        "rowCount": int(labels.size),
+        "declaredFeatureCount": dataset_manifest["published"]["declaredFeatureCount"],
+        "observedFeatureCount": dataset_manifest["published"]["observedFeatureCount"],
+    },
+    "aggregate": {
+        "meanStableBce": float(np.mean(losses)),
+        "rowCount": int(labels.size),
+    },
+    "rows": rows,
+    "highContributionRows": dataset_manifest["auxiliaryPredictions"]["highestContributionRows"],
+    "confidentError": dataset_manifest["auxiliaryPredictions"]["confidentError"],
+    "fixedProbes": fixed_probes,
+    "finiteDifferenceSweeps": sweeps,
+    "plot": {
+        "path": "outputs/manufacturing-bce-gradients.png",
+        "width": 960,
+        "height": 540,
+        "nonColorEncoding": "Smooth losses use solid circles; MAE kink uses dashed squares",
+    },
+}
+write_strict_json(SUMMARY_PATH, summary)
+write_pattern_plot(
+    PLOT_PATH,
+    title="Manufacturing BCE and gradient verification",
+    description="Real SECOM BCE contributions and finite gradient-check errors.",
+    non_color_encoding="Smooth losses use solid circle lines; MAE kink uses dashed square line",
+    series=(
+        ("MSE solid circle", [row["absoluteError"] for row in sweeps["mse"]]),
+        ("MAE dashed square", [row["absoluteError"] for row in sweeps["mae-kink"]]),
+        ("BCE solid diamond", [row["absoluteError"] for row in sweeps["bce"]]),
+    ),
+)
+print(json.dumps({
+    "topicId": summary["topicId"],
+    "rowCount": summary["aggregate"]["rowCount"],
+    "meanStableBce": summary["aggregate"]["meanStableBce"],
+    "confidentErrorStatus": summary["confidentError"]["selectionStatus"],
+}, sort_keys=True, allow_nan=False))""",
     ),
 )
 
@@ -306,7 +711,9 @@ NOTEBOOK_TOPICS = {
             ("code", "delivery-imports"),
             ("markdown", "delivery-method"),
             ("code", "delivery-loss-functions"),
+            ("code", "delivery-artifact-helpers"),
             ("code", "delivery-local-paths"),
+            ("code", "delivery-build-output"),
         ),
     ),
     "manufacturing-bce-gradients": NotebookTopicContract(
@@ -330,7 +737,10 @@ NOTEBOOK_TOPICS = {
             ("markdown", "manufacturing-method"),
             ("code", "manufacturing-stable-bce"),
             ("code", "manufacturing-central-difference"),
+            ("code", "manufacturing-gradient-sweeps"),
+            ("code", "manufacturing-artifact-helpers"),
             ("code", "manufacturing-local-paths"),
+            ("code", "manufacturing-build-output"),
         ),
     ),
 }
@@ -385,14 +795,14 @@ def execute_candidate_notebook(notebook, job, kernel_name, working_directory):
         for output in cell.get("outputs", []):
             output.get("metadata", {}).pop("execution", None)
             output.pop("transient", None)
-    notebook.metadata.pop("widgets", None)
+        cell.metadata.clear()
+    notebook.metadata.clear()
     notebook.metadata["kernelspec"] = {
         "display_name": "Python 3",
         "language": "python",
         "name": "python3",
     }
-    notebook.metadata.setdefault("language_info", {})["name"] = "python"
-    notebook.metadata["language_info"].pop("version", None)
+    notebook.metadata["language_info"] = {"name": "python"}
     return notebook
 '''.strip()
 LADE_SOURCE_FIELDS = (
@@ -1463,6 +1873,16 @@ def _regression_teaching_row(role: str, row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _typescript_mean(values: list[float]) -> float:
+    count = len(values)
+    if count == 0:
+        raise Phase26Error("Cannot average an empty vector")
+    total = 0.0
+    for value in values:
+        total += value / count
+    return total
+
+
 def _select_lade_representatives(
     rows: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
@@ -1511,8 +1931,10 @@ def _build_lade_candidate(source_cache: Path, dataset_root: Path) -> dict[str, A
         for row in rows
     ]
     aggregate = {
-        "mse": math.fsum(residual * residual for residual in residuals) / len(residuals),
-        "mae": math.fsum(abs(residual) for residual in residuals) / len(residuals),
+        "mse": _typescript_mean(
+            [residual * residual for residual in residuals]
+        ),
+        "mae": _typescript_mean([abs(residual) for residual in residuals]),
         "rowCount": len(residuals),
     }
     manifest = {
@@ -2033,8 +2455,10 @@ def _verify_lade_candidate(dataset_root: Path) -> dict[str, Any]:
         for row in rows
     ]
     aggregate = {
-        "mse": math.fsum(residual * residual for residual in residuals) / len(rows),
-        "mae": math.fsum(abs(residual) for residual in residuals) / len(rows),
+        "mse": _typescript_mean(
+            [residual * residual for residual in residuals]
+        ),
+        "mae": _typescript_mean([abs(residual) for residual in residuals]),
         "rowCount": len(rows),
     }
     durations = [float(row["delivery_duration_minutes"]) for row in rows]
@@ -2437,6 +2861,7 @@ function(*(Path(value) for value in payload["arguments"]))
 '''
     environment = isolated.environment.copy()
     environment["ML_ATLAS_PHASE26_WORKER_PAYLOAD"] = payload
+    environment["ML_ATLAS_PHASE26_KERNEL_NAME"] = isolated.kernel_name
     run_command(
         [str(isolated.python), "-c", worker],
         environment=environment,
@@ -2460,6 +2885,1006 @@ def prepare_dataset_candidates(
                     [str(cache.resolve()), str(transaction.root)],
                 )
             return verify_dataset_candidates(transaction.root)
+    except BaseException:
+        _remove_candidate_root(validated_root)
+        raise
+
+
+def _notebook_job_payload(job: NotebookExecutionJob) -> dict[str, Any]:
+    return {
+        "topicId": job.topic_id,
+        "locale": job.locale,
+        "notebookPath": job.notebook_path,
+        "proofId": job.proof_id,
+        "freshKernel": job.fresh_kernel,
+        "executionCountStartsAt": job.execution_count_starts_at,
+        "allowErrors": job.allow_errors,
+        "timeoutSeconds": job.timeout_seconds,
+        "recordTiming": job.record_timing,
+        "workingDirectory": job.working_directory,
+        "kernelNamePublished": job.kernel_name_published,
+        "stripWidgetState": job.strip_widget_state,
+    }
+
+
+def _build_notebook_document(topic_id: str, locale: str) -> Any:
+    try:
+        import nbformat
+    except ImportError as error:
+        raise Phase26Error(
+            "Notebook generation must run inside the audited Phase 26 environment"
+        ) from error
+    notebook = nbformat.v4.new_notebook()
+    notebook.metadata = {
+        "kernelspec": {
+            "display_name": "Python 3",
+            "language": "python",
+            "name": "python3",
+        },
+        "language_info": {"name": "python"},
+    }
+    cells = []
+    for blueprint in notebook_blueprint(topic_id, locale):
+        if blueprint["kind"] == "markdown":
+            cell = nbformat.v4.new_markdown_cell(blueprint["source"])
+        else:
+            cell = nbformat.v4.new_code_cell(blueprint["source"])
+        cell["id"] = blueprint["id"]
+        cell["metadata"] = {}
+        cells.append(cell)
+    notebook.cells = cells
+    return notebook
+
+
+def _execute_notebook_document(
+    notebook: Any,
+    job: NotebookExecutionJob,
+    kernel_name: str,
+    working_directory: Path,
+) -> Any:
+    namespace: dict[str, Any] = {}
+    exec(NOTEBOOK_EXECUTION_WORKER_SOURCE, namespace)
+    return namespace["execute_candidate_notebook"](
+        notebook,
+        _notebook_job_payload(job),
+        kernel_name,
+        working_directory,
+    )
+
+
+def build_notebook_candidates(staging_root: Path) -> None:
+    try:
+        import nbformat
+    except ImportError as error:
+        raise Phase26Error(
+            "Notebook generation must run inside the audited Phase 26 environment"
+        ) from error
+    kernel_name = os.environ.get("ML_ATLAS_PHASE26_KERNEL_NAME")
+    if not kernel_name or not re.fullmatch(r"ml-atlas-phase26-[a-f0-9]{32}", kernel_name):
+        raise Phase26Error("Runtime-only isolated kernelspec identity is missing")
+    notebook_root = staging_root / "notebooks/loss-functions"
+    notebook_root.mkdir(parents=True, exist_ok=True)
+    (notebook_root / "outputs").mkdir(parents=True, exist_ok=True)
+    for job in candidate_execution_jobs():
+        notebook = _build_notebook_document(job.topic_id, job.locale)
+        executed = _execute_notebook_document(
+            notebook,
+            job,
+            kernel_name,
+            notebook_root,
+        )
+        destination = staging_root / job.notebook_path
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(
+            nbformat.writes(executed, version=4),
+            encoding="utf-8",
+            newline="\n",
+        )
+
+
+def _candidate_environment_record(
+    observed_versions: dict[str, str],
+) -> dict[str, Any]:
+    contract = read_strict_json(ENVIRONMENT_CONTRACT_PATH)
+    return {
+        "contractVersion": "loss-functions-phase-26-candidate-environment-v1",
+        "requirements": {
+            "path": "notebooks/loss-functions/requirements.txt",
+            "sha256": sha256_file(REQUIREMENTS_PATH),
+            "pins": EXPECTED_ENVIRONMENT_PINS,
+        },
+        "python": contract["python"],
+        "platform": contract["platform"],
+        "packages": observed_versions,
+        "wheelCache": {
+            "sourceContractVersion": contract["wheelCache"][
+                "sourceContractVersion"
+            ],
+            "manifestSha256": contract["wheelCache"]["manifestSha256"],
+            "wheelCount": contract["wheelCache"]["wheelCount"],
+        },
+        "execution": {
+            "networkAccess": False,
+            "freshKernelJobs": 4,
+            "allowErrors": False,
+            "kernelNamePublished": False,
+            "temporaryPathsPublished": False,
+        },
+    }
+
+
+def _notebook_source_text(cell: dict[str, Any]) -> str:
+    source = cell.get("source", "")
+    if isinstance(source, list):
+        return "".join(source)
+    if isinstance(source, str):
+        return source
+    raise Phase26Error(f"Notebook cell {cell.get('id')} has malformed source")
+
+
+def _notebook_code_payload(notebook: dict[str, Any]) -> list[dict[str, str]]:
+    return [
+        {
+            "id": str(cell.get("id")),
+            "source": _notebook_source_text(cell),
+        }
+        for cell in notebook.get("cells", [])
+        if cell.get("cell_type") == "code"
+    ]
+
+
+def _notebook_output_payload(notebook: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        {
+            "id": str(cell.get("id")),
+            "outputs": cell.get("outputs", []),
+        }
+        for cell in notebook.get("cells", [])
+        if cell.get("cell_type") == "code"
+    ]
+
+
+def _sha256_json(value: Any) -> str:
+    return hashlib.sha256(strict_json_bytes(value)).hexdigest()
+
+
+def _candidate_role(relative_path: str) -> str:
+    if relative_path.endswith("outputs/manifest.json"):
+        return "candidate-manifest"
+    if relative_path.endswith(".ipynb"):
+        return "executed-notebook"
+    if relative_path.endswith("-manifest.json"):
+        return "dataset-manifest"
+    if relative_path.endswith(".csv"):
+        return "dataset"
+    if relative_path.endswith(".png"):
+        return "plot"
+    if relative_path.endswith("summary.json"):
+        return "locked-summary"
+    if relative_path.endswith("requirements.txt"):
+        return "requirements"
+    if relative_path.endswith("environment.json"):
+        return "environment"
+    if relative_path.endswith("ATTRIBUTION.md"):
+        return "attribution"
+    raise Phase26Error(f"Candidate inventory member has no role: {relative_path}")
+
+
+def build_candidate_manifest(staging_root: Path) -> dict[str, Any]:
+    inventory = candidate_inventory()
+    execution_proofs: list[dict[str, Any]] = []
+    locale_notebooks: dict[str, dict[str, dict[str, Any]]] = {
+        topic_id: {} for topic_id in NOTEBOOK_TOPIC_IDS
+    }
+    for job in inventory.execution_jobs:
+        path = staging_root / job.notebook_path
+        notebook = read_strict_json(path)
+        code_payload = _notebook_code_payload(notebook)
+        output_payload = _notebook_output_payload(notebook)
+        locale_notebooks[job.topic_id][job.locale] = {
+            "code": code_payload,
+            "outputs": output_payload,
+        }
+        execution_proofs.append(
+            {
+                **_notebook_job_payload(job),
+                "notebookSha256": sha256_file(path),
+                "codeSha256": _sha256_json(code_payload),
+                "normalizedOutputSha256": _sha256_json(output_payload),
+            }
+        )
+
+    locale_parity: dict[str, Any] = {}
+    for topic_id, locales in locale_notebooks.items():
+        zh = locales["zh-CN"]
+        en = locales["en"]
+        if zh["code"] != en["code"]:
+            raise Phase26Error(f"{topic_id} locale code parity drifted")
+        if zh["outputs"] != en["outputs"]:
+            raise Phase26Error(f"{topic_id} locale output parity drifted")
+        locale_parity[topic_id] = {
+            "locales": list(NOTEBOOK_LOCALES),
+            "codeCellIds": [cell["id"] for cell in zh["code"]],
+            "codeSha256": _sha256_json(zh["code"]),
+            "normalizedOutputSha256": _sha256_json(zh["outputs"]),
+        }
+
+    members: list[dict[str, Any]] = []
+    for relative_path in inventory.paths:
+        path = staging_root / relative_path
+        role = _candidate_role(relative_path)
+        if role == "candidate-manifest":
+            members.append(
+                {
+                    "path": relative_path,
+                    "role": role,
+                    "sha256": None,
+                    "bytes": None,
+                    "selfHashExcluded": True,
+                }
+            )
+        else:
+            if not path.is_file():
+                raise Phase26Error(
+                    f"Candidate inventory member is missing before manifest: {relative_path}"
+                )
+            members.append(
+                {
+                    "path": relative_path,
+                    "role": role,
+                    "sha256": sha256_file(path),
+                    "bytes": path.stat().st_size,
+                }
+            )
+
+    dataset_root = staging_root / "datasets/loss-functions"
+    lade = read_strict_json(
+        dataset_root / "lade-delivery-jilin-manifest.json"
+    )
+    secom = read_strict_json(
+        dataset_root / "secom-manufacturing-manifest.json"
+    )
+    environment_path = staging_root / "notebooks/loss-functions/environment.json"
+    manifest = {
+        "contractVersion": "loss-functions-phase-26-candidate-v1",
+        "packageComplete": True,
+        "publicationAllowed": False,
+        "requirements": ["LOSS-01", "LOSS-02", "LOSS-03"],
+        "generator": {
+            "path": GENERATOR_RELATIVE_PATH,
+            "sha256": sha256_file(Path(__file__)),
+        },
+        "datasets": {
+            LADE.dataset_id: {
+                "sourceSha256": lade["source"]["sourceSha256"],
+                "candidateSha256": lade["published"]["sha256"],
+                "rowCount": lade["published"]["rowCount"],
+            },
+            SECOM.dataset_id: {
+                "sourceSha256": secom["source"]["sourceSha256"],
+                "candidateSha256": secom["published"]["sha256"],
+                "rowCount": secom["published"]["rowCount"],
+                "declaredFeatureCount": 591,
+                "observedFeatureCount": 590,
+            },
+        },
+        "environment": {
+            "path": "notebooks/loss-functions/environment.json",
+            "sha256": sha256_file(environment_path),
+            "requirementsSha256": sha256_file(REQUIREMENTS_PATH),
+        },
+        "inventory": members,
+        "executionProofs": execution_proofs,
+        "localeParity": locale_parity,
+        "standaloneRerunExpectation": {
+            "notebookCount": 4,
+            "freshKernelEach": True,
+            "offline": True,
+            "allowErrors": False,
+            "normalizedOutputsMustMatch": True,
+            "datasetPathsArePackageRelative": True,
+        },
+        "canonicalPayloadSha256": None,
+    }
+    manifest["canonicalPayloadSha256"] = _sha256_json(manifest)
+    manifest_path = staging_root / CANDIDATE_PATHS[-1]
+    manifest_path.write_bytes(strict_json_bytes(manifest))
+    return manifest
+
+
+def _parse_png_contract(path: Path) -> dict[str, Any]:
+    data = path.read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n" or len(data) < 33:
+        raise Phase26Error(f"Candidate plot is not a valid PNG: {path}")
+    offset = 8
+    width: int | None = None
+    height: int | None = None
+    metadata: dict[str, str] = {}
+    saw_end = False
+    while offset < len(data):
+        if offset + 12 > len(data):
+            raise Phase26Error(f"Candidate PNG chunk is truncated: {path}")
+        length = int.from_bytes(data[offset : offset + 4], "big")
+        kind = data[offset + 4 : offset + 8]
+        payload = data[offset + 8 : offset + 8 + length]
+        checksum = int.from_bytes(
+            data[offset + 8 + length : offset + 12 + length],
+            "big",
+        )
+        if len(payload) != length or zlib.crc32(kind + payload) & 0xFFFFFFFF != checksum:
+            raise Phase26Error(f"Candidate PNG chunk checksum drifted: {path}")
+        if kind == b"IHDR":
+            width = int.from_bytes(payload[:4], "big")
+            height = int.from_bytes(payload[4:8], "big")
+        elif kind == b"tEXt":
+            key, separator, value = payload.partition(b"\x00")
+            if not separator:
+                raise Phase26Error(f"Candidate PNG text metadata is malformed: {path}")
+            metadata[key.decode("latin1")] = value.decode("latin1")
+        elif kind == b"IEND":
+            saw_end = True
+        offset += 12 + length
+    if not saw_end or width != 960 or height != 540:
+        raise Phase26Error(f"Candidate plot dimensions or IEND drifted: {path}")
+    for key in ("Title", "Description", "NonColorEncoding", "Software"):
+        if not metadata.get(key):
+            raise Phase26Error(f"Candidate plot metadata {key} is missing: {path}")
+    if not re.search(
+        r"solid|hatched|circle|square|diamond|line",
+        metadata["NonColorEncoding"],
+        flags=re.IGNORECASE,
+    ):
+        raise Phase26Error(f"Candidate plot lacks a non-color encoding: {path}")
+    return {
+        "width": width,
+        "height": height,
+        "metadata": metadata,
+    }
+
+
+def _verify_executed_notebook(
+    staging_root: Path,
+    job: NotebookExecutionJob,
+) -> dict[str, Any]:
+    path = staging_root / job.notebook_path
+    notebook = read_strict_json(path)
+    if notebook.get("nbformat") != 4:
+        raise Phase26Error(f"{job.proof_id} Notebook format drifted")
+    if notebook.get("metadata") != {
+        "kernelspec": {
+            "display_name": "Python 3",
+            "language": "python",
+            "name": "python3",
+        },
+        "language_info": {"name": "python"},
+    }:
+        raise Phase26Error(
+            f"{job.proof_id} contains a machine-specific or unexpected kernelspec"
+        )
+    expected_blueprint = notebook_blueprint(job.topic_id, job.locale)
+    cells = notebook.get("cells")
+    if not isinstance(cells, list) or len(cells) != len(expected_blueprint):
+        raise Phase26Error(f"{job.proof_id} cell inventory drifted")
+    execution_count = 1
+    for cell, expected in zip(cells, expected_blueprint, strict=True):
+        if (
+            cell.get("id") != expected["id"]
+            or cell.get("cell_type") != expected["kind"]
+            or _notebook_source_text(cell).strip() != expected["source"].strip()
+        ):
+            raise Phase26Error(f"{job.proof_id} code/locale cell parity drifted")
+        if cell.get("metadata") != {}:
+            raise Phase26Error(f"{job.proof_id} retained runtime cell metadata")
+        if expected["kind"] == "code":
+            if cell.get("execution_count") != execution_count:
+                raise Phase26Error(
+                    f"{job.proof_id} fresh execution count drifted at "
+                    f"{expected['id']}"
+                )
+            execution_count += 1
+            outputs = cell.get("outputs")
+            if not isinstance(outputs, list):
+                raise Phase26Error(f"{job.proof_id} code output list is malformed")
+            if any(output.get("output_type") == "error" for output in outputs):
+                raise Phase26Error(f"{job.proof_id} contains an error output")
+        elif "execution_count" in cell or "outputs" in cell:
+            raise Phase26Error(f"{job.proof_id} markdown contains execution state")
+    serialized = path.read_text(encoding="utf-8")
+    if re.search(
+        r"ml-atlas-phase26-[a-f0-9]{16,}|(?:/private)?/(?:tmp|var/folders)/",
+        serialized,
+    ):
+        raise Phase26Error(f"{job.proof_id} leaked a temporary path or kernelspec")
+    return {
+        "notebookSha256": sha256_file(path),
+        "code": _notebook_code_payload(notebook),
+        "outputs": _notebook_output_payload(notebook),
+    }
+
+
+def _finite_difference_row(
+    kind: str,
+    targets: list[float],
+    outputs: list[float],
+    index: int,
+    step: float,
+) -> dict[str, Any]:
+    def objective(values: list[float]) -> float:
+        if kind == "mse":
+            return math.fsum(
+                (output - target) ** 2
+                for target, output in zip(targets, values, strict=True)
+            ) / len(targets)
+        if kind == "mae":
+            return math.fsum(
+                abs(output - target)
+                for target, output in zip(targets, values, strict=True)
+            ) / len(targets)
+        if kind == "bce":
+            return math.fsum(
+                _stable_bce_scalar(output, int(target))
+                for target, output in zip(targets, values, strict=True)
+            ) / len(targets)
+        raise Phase26Error(f"Unsupported finite-difference loss: {kind}")
+
+    residual = outputs[index] - targets[index]
+    if kind == "mse":
+        analytic = 2.0 * residual / len(targets)
+        differentiable = True
+    elif kind == "mae":
+        analytic = (0.0 if residual == 0.0 else math.copysign(1.0, residual)) / len(
+            targets
+        )
+        differentiable = residual != 0.0
+    else:
+        analytic = (
+            _stable_sigmoid_scalar(outputs[index]) - targets[index]
+        ) / len(targets)
+        differentiable = True
+    plus = list(outputs)
+    minus = list(outputs)
+    plus[index] += step
+    minus[index] -= step
+    numerical = (objective(plus) - objective(minus)) / (2.0 * step)
+    absolute_error = abs(analytic - numerical)
+    return {
+        "step": step,
+        "analyticValue": analytic,
+        "numericalValue": numerical,
+        "absoluteError": absolute_error,
+        "scaledRelativeError": absolute_error
+        / max(1.0, abs(analytic), abs(numerical)),
+        "tolerance": 5e-7,
+        "differentiable": differentiable,
+        "status": (
+            "kink"
+            if not differentiable
+            else "pass"
+            if absolute_error <= 5e-7
+            else "fail"
+        ),
+        "note": (
+            "A symmetric difference is not a unique derivative at the MAE kink."
+            if not differentiable
+            else None
+        ),
+    }
+
+
+def _verify_regression_summary(staging_root: Path) -> dict[str, Any]:
+    path = staging_root / "notebooks/loss-functions/outputs/regression-loss-summary.json"
+    summary = read_strict_json(path)
+    lade = read_strict_json(
+        staging_root
+        / "datasets/loss-functions/lade-delivery-jilin-manifest.json"
+    )
+    rows = summary.get("rows")
+    if (
+        summary.get("contractVersion") != "loss-functions-phase-26-output-v1"
+        or summary.get("topicId") != "delivery-losses"
+        or not isinstance(rows, list)
+        or len(rows) != LADE_EXPECTED_ROWS
+        or summary.get("referencePredictionMinutes")
+        != LADE_REFERENCE_PREDICTION_MINUTES
+    ):
+        raise Phase26Error("Regression loss summary contract or row count drifted")
+    squared: list[float] = []
+    absolute: list[float] = []
+    for index, row in enumerate(rows):
+        try:
+            target = float(row["targetMinutes"])
+            prediction = float(row["predictionMinutes"])
+            residual = prediction - target
+        except (KeyError, TypeError, ValueError) as error:
+            raise Phase26Error(
+                f"Regression summary row {index + 1} is malformed"
+            ) from error
+        expected = {
+            "courseRowId": f"lade-jilin-{index + 1:05d}",
+            "targetMinutes": target,
+            "predictionMinutes": float(LADE_REFERENCE_PREDICTION_MINUTES),
+            "residualMinutes": residual,
+            "mseLoss": residual * residual,
+            "maeLoss": abs(residual),
+            "msePerElementGradient": 2.0 * residual,
+            "maePerElementSubgradient": (
+                0.0 if residual == 0.0 else math.copysign(1.0, residual)
+            ),
+            "maeDifferentiable": residual != 0.0,
+            "mseMeanObjectiveGradient": 2.0 * residual / LADE_EXPECTED_ROWS,
+            "maeMeanObjectiveSubgradient": (
+                0.0
+                if residual == 0.0
+                else math.copysign(1.0, residual) / LADE_EXPECTED_ROWS
+            ),
+        }
+        if any(
+            (
+                row.get("courseRowId") != expected["courseRowId"],
+                row.get("predictionMinutes") != expected["predictionMinutes"],
+                abs(float(row.get("residualMinutes", math.inf)) - residual) > 1e-12,
+                abs(float(row.get("mseLoss", math.inf)) - expected["mseLoss"])
+                > 1e-9,
+                abs(float(row.get("maeLoss", math.inf)) - expected["maeLoss"])
+                > 1e-12,
+                abs(
+                    float(row.get("msePerElementGradient", math.inf))
+                    - expected["msePerElementGradient"]
+                )
+                > 1e-12,
+                row.get("maePerElementSubgradient")
+                != expected["maePerElementSubgradient"],
+                row.get("maeDifferentiable") is not expected["maeDifferentiable"],
+                abs(
+                    float(row.get("mseMeanObjectiveGradient", math.inf))
+                    - expected["mseMeanObjectiveGradient"]
+                )
+                > 1e-15,
+                abs(
+                    float(row.get("maeMeanObjectiveSubgradient", math.inf))
+                    - expected["maeMeanObjectiveSubgradient"]
+                )
+                > 1e-15,
+            )
+        ):
+            raise Phase26Error(
+                f"Regression summary loss or gradient drifted at row {index + 1}"
+            )
+        squared.append(residual * residual)
+        absolute.append(abs(residual))
+    expected_aggregate = {
+        "mse": _typescript_mean(squared),
+        "mae": _typescript_mean(absolute),
+        "rowCount": len(rows),
+    }
+    if any(
+        (
+            abs(summary.get("aggregate", {}).get("mse", math.inf) - expected_aggregate["mse"])
+            > 1e-10,
+            abs(summary.get("aggregate", {}).get("mae", math.inf) - expected_aggregate["mae"])
+            > 1e-12,
+            summary.get("aggregate", {}).get("rowCount") != len(rows),
+            summary.get("dataset")
+            != {
+                "datasetId": LADE.dataset_id,
+                "sha256": lade["published"]["sha256"],
+                "rowCount": LADE_EXPECTED_ROWS,
+            },
+        )
+    ):
+        raise Phase26Error(
+            "Regression summary aggregate or dataset hash drifted: "
+            f"observedAggregate={summary.get('aggregate')!r}, "
+            f"expectedAggregate={expected_aggregate!r}, "
+            f"observedDataset={summary.get('dataset')!r}, "
+            f"expectedDataset={{'datasetId': {LADE.dataset_id!r}, "
+            f"'sha256': {lade['published']['sha256']!r}, "
+            f"'rowCount': {LADE_EXPECTED_ROWS}}}"
+        )
+    reference_roles = {
+        row["courseRowId"]: row["role"]
+        for row in lade["teachingReference"]["representativeRows"]
+    }
+    expected_representatives = [
+        {"role": reference_roles[row["courseRowId"]], **row}
+        for row in rows
+        if row["courseRowId"] in reference_roles
+    ]
+    expected_representatives.sort(
+        key=lambda row: [
+            "zero-duration",
+            "typical-zero-residual",
+            "long-duration",
+        ].index(row["role"])
+    )
+    if summary.get("representativeRows") != expected_representatives:
+        raise Phase26Error("Regression representative rows drifted")
+    expected_high = sorted(
+        rows,
+        key=lambda row: (-float(row["mseLoss"]), str(row["courseRowId"])),
+    )[:5]
+    if summary.get("highContributionRows") != expected_high:
+        raise Phase26Error("Regression high-contribution ranking drifted")
+    return {
+        "rowCount": len(rows),
+        "mse": expected_aggregate["mse"],
+        "mae": expected_aggregate["mae"],
+    }
+
+
+def _verify_bce_summary(staging_root: Path) -> dict[str, Any]:
+    path = staging_root / "notebooks/loss-functions/outputs/bce-gradient-summary.json"
+    summary = read_strict_json(path)
+    secom = read_strict_json(
+        staging_root / "datasets/loss-functions/secom-manufacturing-manifest.json"
+    )
+    rows = summary.get("rows")
+    locked_rows = secom["auxiliaryPredictions"]["rows"]
+    if (
+        summary.get("contractVersion") != "loss-functions-phase-26-output-v1"
+        or summary.get("topicId") != "manufacturing-bce-gradients"
+        or rows != locked_rows
+    ):
+        raise Phase26Error("BCE summary real OOF rows or output contract drifted")
+    expected_mean = math.fsum(float(row["stableBce"]) for row in rows) / len(rows)
+    if (
+        abs(summary.get("aggregate", {}).get("meanStableBce", math.inf) - expected_mean)
+        > 1e-12
+        or summary.get("aggregate", {}).get("rowCount") != SECOM_EXPECTED_ROWS
+        or summary.get("dataset")
+        != {
+            "datasetId": SECOM.dataset_id,
+            "sha256": secom["published"]["sha256"],
+            "rowCount": SECOM_EXPECTED_ROWS,
+            "declaredFeatureCount": 591,
+            "observedFeatureCount": 590,
+        }
+    ):
+        raise Phase26Error("BCE summary aggregate or dataset contract drifted")
+    if (
+        summary.get("highContributionRows")
+        != secom["auxiliaryPredictions"]["highestContributionRows"]
+        or summary.get("confidentError")
+        != secom["auxiliaryPredictions"]["confidentError"]
+    ):
+        raise Phase26Error("BCE summary contribution/confident-error provenance drifted")
+
+    expected_probes: list[dict[str, Any]] = []
+    for logit in (-1000.0, -20.0, 0.0, 20.0, 1000.0):
+        for label in (0, 1):
+            probability = _stable_sigmoid_scalar(logit)
+            try:
+                naive_value = -(
+                    label * math.log(probability)
+                    + (1 - label) * math.log1p(-probability)
+                )
+            except ValueError:
+                if probability == 0.0:
+                    naive = nonfinite_result("nan" if label == 0 else "inf")
+                else:
+                    naive = nonfinite_result("inf" if label == 0 else "nan")
+            else:
+                naive = {"status": "finite", "value": naive_value}
+            epsilon = 1e-12
+            clipped_probability = min(
+                1.0 - epsilon,
+                max(epsilon, probability),
+            )
+            clipped_value = -(
+                label * math.log(clipped_probability)
+                + (1 - label) * math.log1p(-clipped_probability)
+            )
+            expected_probes.append(
+                {
+                    "source": "synthetic-stability-probe",
+                    "logit": logit,
+                    "label": label,
+                    "probability": probability,
+                    "naive": naive,
+                    "clipped": {
+                        "method": "clipped-probability-bce",
+                        "status": "finite",
+                        "value": clipped_value,
+                        "probability": probability,
+                        "clippedProbability": clipped_probability,
+                        "epsilon": epsilon,
+                        "objectiveChanged": clipped_probability != probability,
+                    },
+                    "stable": {
+                        "method": "stable-logit-bce",
+                        "status": "finite",
+                        "value": _stable_bce_scalar(logit, label),
+                    },
+                }
+            )
+    probes = summary.get("fixedProbes")
+    if not isinstance(probes, list) or len(probes) != 10:
+        raise Phase26Error("BCE fixed-probe inventory drifted")
+    for probe_index, (observed, expected) in enumerate(
+        zip(probes, expected_probes, strict=True)
+    ):
+        observed_naive_value = observed["naive"]["value"]
+        expected_naive_value = expected["naive"]["value"]
+        naive_value_matches = (
+            observed_naive_value is None
+            and expected_naive_value is None
+        ) or (
+            observed_naive_value is not None
+            and expected_naive_value is not None
+            and abs(observed_naive_value - expected_naive_value) <= 1e-12
+        )
+        if (
+            observed["source"] != expected["source"]
+            or observed["logit"] != expected["logit"]
+            or observed["label"] != expected["label"]
+            or abs(observed["probability"] - expected["probability"]) > 1e-15
+            or observed["naive"]["status"] != expected["naive"]["status"]
+            or not naive_value_matches
+            or abs(observed["clipped"]["value"] - expected["clipped"]["value"])
+            > 1e-12
+            or observed["clipped"]["objectiveChanged"]
+            is not expected["clipped"]["objectiveChanged"]
+            or abs(observed["stable"]["value"] - expected["stable"]["value"])
+            > 1e-12
+        ):
+            raise Phase26Error(
+                "BCE fixed naive/clipped/stable probe drifted at "
+                f"index {probe_index}: observed={observed!r}, expected={expected!r}"
+            )
+
+    sweep_inputs = {
+        "mse": ("mse", [1.0, 2.0], [1.5, 3.0], 1),
+        "mae": ("mae", [0.0, 2.0], [1.0, 3.0], 0),
+        "mae-kink": ("mae", [1.0, 2.0], [1.0, 3.0], 0),
+        "bce": ("bce", [0.0, 1.0], [0.2, -0.4], 1),
+    }
+    expected_sweeps = {
+        key: [
+            _finite_difference_row(kind, targets, outputs, index, 10.0**-power)
+            for power in range(1, 10)
+        ]
+        for key, (kind, targets, outputs, index) in sweep_inputs.items()
+    }
+    observed_sweeps = summary.get("finiteDifferenceSweeps")
+    if not isinstance(observed_sweeps, dict):
+        raise Phase26Error("Finite-difference sweep output is missing")
+    for key, expected_rows in expected_sweeps.items():
+        observed_rows = observed_sweeps.get(key)
+        if not isinstance(observed_rows, list) or len(observed_rows) != 9:
+            raise Phase26Error(f"{key} finite-difference sweep inventory drifted")
+        for observed, expected in zip(observed_rows, expected_rows, strict=True):
+            if any(
+                (
+                    observed["step"] != expected["step"],
+                    abs(observed["analyticValue"] - expected["analyticValue"])
+                    > 1e-15,
+                    abs(observed["numericalValue"] - expected["numericalValue"])
+                    > 1e-9,
+                    abs(observed["absoluteError"] - expected["absoluteError"])
+                    > 1e-9,
+                    observed["differentiable"] is not expected["differentiable"],
+                    observed["status"] != expected["status"],
+                )
+            ):
+                raise Phase26Error(f"{key} finite-difference arithmetic drifted")
+    return {
+        "rowCount": len(rows),
+        "meanStableBce": expected_mean,
+        "confidentErrorStatus": summary["confidentError"]["selectionStatus"],
+    }
+
+
+def _verify_candidate_manifest(
+    staging_root: Path,
+    notebook_results: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    path = staging_root / CANDIDATE_PATHS[-1]
+    manifest = read_strict_json(path)
+    if (
+        manifest.get("contractVersion")
+        != "loss-functions-phase-26-candidate-v1"
+        or manifest.get("packageComplete") is not True
+        or manifest.get("publicationAllowed") is not False
+        or manifest.get("requirements") != ["LOSS-01", "LOSS-02", "LOSS-03"]
+        or manifest.get("generator")
+        != {
+            "path": GENERATOR_RELATIVE_PATH,
+            "sha256": sha256_file(Path(__file__)),
+        }
+    ):
+        raise Phase26Error("Complete candidate manifest header or generator drifted")
+    inventory = manifest.get("inventory")
+    if (
+        not isinstance(inventory, list)
+        or [entry.get("path") for entry in inventory] != list(CANDIDATE_PATHS)
+        or len(inventory) != 16
+    ):
+        raise Phase26Error("Complete candidate manifest inventory drifted")
+    for entry in inventory:
+        member_path = staging_root / entry["path"]
+        if not member_path.is_file():
+            raise Phase26Error(
+                f"Complete candidate manifest member is missing: {entry['path']}"
+            )
+        if entry.get("role") == "candidate-manifest":
+            if entry != {
+                "path": CANDIDATE_PATHS[-1],
+                "role": "candidate-manifest",
+                "sha256": None,
+                "bytes": None,
+                "selfHashExcluded": True,
+            }:
+                raise Phase26Error("Candidate manifest self-entry drifted")
+        elif (
+            entry.get("role") != _candidate_role(entry["path"])
+            or entry.get("sha256") != sha256_file(member_path)
+            or entry.get("bytes") != member_path.stat().st_size
+        ):
+            raise Phase26Error(
+                f"Complete candidate manifest hash drifted: {entry['path']}"
+            )
+    canonical_hash = manifest.get("canonicalPayloadSha256")
+    canonical = dict(manifest)
+    canonical["canonicalPayloadSha256"] = None
+    if canonical_hash != _sha256_json(canonical):
+        raise Phase26Error("Candidate manifest canonical payload hash drifted")
+
+    proofs = manifest.get("executionProofs")
+    if not isinstance(proofs, list) or len(proofs) != 4:
+        raise Phase26Error("Candidate manifest clean-kernel proof inventory drifted")
+    for job in candidate_execution_jobs():
+        proof = next(
+            (entry for entry in proofs if entry.get("proofId") == job.proof_id),
+            None,
+        )
+        result = notebook_results[job.proof_id]
+        expected = {
+            **_notebook_job_payload(job),
+            "notebookSha256": result["notebookSha256"],
+            "codeSha256": _sha256_json(result["code"]),
+            "normalizedOutputSha256": _sha256_json(result["outputs"]),
+        }
+        if proof != expected:
+            raise Phase26Error(
+                f"Candidate manifest clean-kernel proof drifted: {job.proof_id}"
+            )
+    parity = manifest.get("localeParity")
+    for topic_id in NOTEBOOK_TOPIC_IDS:
+        zh = notebook_results[f"clean-kernel-{topic_id}-zh-CN"]
+        en = notebook_results[f"clean-kernel-{topic_id}-en"]
+        if zh["code"] != en["code"] or zh["outputs"] != en["outputs"]:
+            raise Phase26Error(f"{topic_id} verified locale output parity drifted")
+        expected = {
+            "locales": list(NOTEBOOK_LOCALES),
+            "codeCellIds": [cell["id"] for cell in zh["code"]],
+            "codeSha256": _sha256_json(zh["code"]),
+            "normalizedOutputSha256": _sha256_json(zh["outputs"]),
+        }
+        if parity.get(topic_id) != expected:
+            raise Phase26Error(f"{topic_id} candidate locale parity hash drifted")
+    if manifest.get("standaloneRerunExpectation") != {
+        "notebookCount": 4,
+        "freshKernelEach": True,
+        "offline": True,
+        "allowErrors": False,
+        "normalizedOutputsMustMatch": True,
+        "datasetPathsArePackageRelative": True,
+    }:
+        raise Phase26Error("Candidate standalone-rerun expectation drifted")
+    return manifest
+
+
+def verify_candidates(
+    staging_root: Path,
+    *,
+    enforce_staging_root: bool = True,
+) -> dict[str, Any]:
+    if enforce_staging_root:
+        validate_candidate_staging_root(staging_root)
+    actual_files = {
+        path.relative_to(staging_root).as_posix()
+        for path in staging_root.rglob("*")
+        if path.is_file()
+    }
+    if actual_files != set(CANDIDATE_PATHS):
+        raise Phase26Error(
+            f"Complete candidate inventory drifted: "
+            f"missing={sorted(set(CANDIDATE_PATHS) - actual_files)}, "
+            f"unexpected={sorted(actual_files - set(CANDIDATE_PATHS))}"
+        )
+    dataset_result = verify_dataset_candidates(staging_root)
+    requirements_path = staging_root / "notebooks/loss-functions/requirements.txt"
+    if requirements_path.read_bytes() != REQUIREMENTS_PATH.read_bytes():
+        raise Phase26Error("Candidate requirements drifted from exact audited pins")
+    environment_path = staging_root / "notebooks/loss-functions/environment.json"
+    environment = read_strict_json(environment_path)
+    if (
+        environment.get("contractVersion")
+        != "loss-functions-phase-26-candidate-environment-v1"
+        or environment.get("requirements")
+        != {
+            "path": "notebooks/loss-functions/requirements.txt",
+            "sha256": sha256_file(REQUIREMENTS_PATH),
+            "pins": EXPECTED_ENVIRONMENT_PINS,
+        }
+        or environment.get("packages") != EXPECTED_ENVIRONMENT_PINS
+        or environment.get("execution")
+        != {
+            "networkAccess": False,
+            "freshKernelJobs": 4,
+            "allowErrors": False,
+            "kernelNamePublished": False,
+            "temporaryPathsPublished": False,
+        }
+    ):
+        raise Phase26Error("Candidate environment or exact package pins drifted")
+    if re.search(
+        r"ml-atlas-phase26-[a-f0-9]{16,}|(?:/private)?/(?:tmp|var/folders)/",
+        environment_path.read_text(encoding="utf-8"),
+    ):
+        raise Phase26Error("Candidate environment leaked a temporary path or kernelspec")
+
+    notebook_results = {
+        job.proof_id: _verify_executed_notebook(staging_root, job)
+        for job in candidate_execution_jobs()
+    }
+    regression = _verify_regression_summary(staging_root)
+    bce = _verify_bce_summary(staging_root)
+    plots = {
+        "delivery": _parse_png_contract(
+            staging_root / "notebooks/loss-functions/outputs/delivery-losses.png"
+        ),
+        "manufacturing": _parse_png_contract(
+            staging_root
+            / "notebooks/loss-functions/outputs/manufacturing-bce-gradients.png"
+        ),
+    }
+    manifest = _verify_candidate_manifest(staging_root, notebook_results)
+    return {
+        "inventoryCount": len(manifest["inventory"]),
+        "executionProofCount": len(manifest["executionProofs"]),
+        "datasets": dataset_result,
+        "regression": regression,
+        "bce": bce,
+        "plots": plots,
+    }
+
+
+def prepare_candidates(
+    cache: Path,
+    staging_root: Path,
+    wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+) -> dict[str, Any]:
+    validated_root = validate_candidate_staging_root(staging_root)
+    try:
+        verify_source_cache(cache)
+        validate_environment_contract(wheel_cache=wheel_cache)
+        with candidate_transaction(validated_root) as transaction:
+            with isolated_environment(wheel_cache) as isolated:
+                _run_isolated_worker(
+                    isolated,
+                    "build_dataset_candidates",
+                    [str(cache.resolve()), str(transaction.root)],
+                )
+                notebook_root = transaction.root / "notebooks/loss-functions"
+                notebook_root.mkdir(parents=True, exist_ok=True)
+                (notebook_root / "requirements.txt").write_bytes(
+                    REQUIREMENTS_PATH.read_bytes()
+                )
+                (notebook_root / "environment.json").write_bytes(
+                    strict_json_bytes(
+                        _candidate_environment_record(
+                            isolated.observed_versions
+                        )
+                    )
+                )
+                _run_isolated_worker(
+                    isolated,
+                    "build_notebook_candidates",
+                    [str(transaction.root)],
+                )
+            build_candidate_manifest(transaction.root)
+            return verify_candidates(transaction.root)
     except BaseException:
         _remove_candidate_root(validated_root)
         raise
@@ -2717,24 +4142,28 @@ def main() -> None:
         return
 
     if args.generate or args.prepare_candidates:
-        candidate = prepare_candidate_contract(
+        candidate = prepare_candidates(
             args.source_cache,
             args.staging_root,
             args.wheel_cache,
         )
         print(
-            "Prepared the complete offline candidate contract "
-            f"({len(candidate['inventory']['paths'])} members, "
-            f"{len(candidate['executionJobs'])} fresh-kernel jobs) in {args.staging_root}"
+            "Prepared the complete offline candidate package "
+            f"({candidate['inventoryCount']} members, "
+            f"{candidate['executionProofCount']} fresh-kernel proofs) in "
+            f"{args.staging_root}"
         )
         return
 
     if args.verify_candidates:
         verify_source_cache(args.source_cache)
-        validate_candidate_staging_root(args.staging_root)
         validate_environment_contract(wheel_cache=args.wheel_cache)
-        candidate_contract_snapshot()
-        print("Verified the complete staging-only candidate inventory and locale contract.")
+        verified = verify_candidates(args.staging_root)
+        print(
+            "Verified the complete staging-only candidate package: "
+            f"{verified['inventoryCount']} members, "
+            f"{verified['executionProofCount']} clean-kernel proofs."
+        )
         return
 
     if bool(args.regenerated_root) != bool(args.published_root):
