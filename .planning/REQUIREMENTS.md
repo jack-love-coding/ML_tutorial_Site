@@ -9,9 +9,9 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 
 ### Loss Functions
 
-- [ ] **LOSS-01**: Learners can calculate MSE, MAE, and stable binary cross-entropy on fixed examples and aggregate per-example losses into one objective.
-- [ ] **LOSS-02**: Learners can use loss scale and gradients to explain how outliers and confident wrong predictions influence training differently.
-- [ ] **LOSS-03**: Learners can run vectorized NumPy loss implementations and verify the displayed gradients with finite differences.
+- [x] **LOSS-01**: Learners can calculate MSE, MAE, and stable binary cross-entropy on fixed examples and aggregate per-example losses into one objective.
+- [x] **LOSS-02**: Learners can use loss scale and gradients to explain how outliers and confident wrong predictions influence training differently.
+- [x] **LOSS-03**: Learners can run vectorized NumPy loss implementations and verify the displayed gradients with finite differences.
 
 ### Linear Regression
 
@@ -81,9 +81,9 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| LOSS-01 | Phase 26 | Pending |
-| LOSS-02 | Phase 26 | Pending |
-| LOSS-03 | Phase 26 | Pending |
+| LOSS-01 | Phase 26 | Complete |
+| LOSS-02 | Phase 26 | Complete |
+| LOSS-03 | Phase 26 | Complete |
 | LINR-01 | Phase 27 | Pending |
 | LINR-02 | Phase 27 | Pending |
 | LINR-03 | Phase 27 | Pending |

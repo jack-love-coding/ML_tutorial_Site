@@ -5,30 +5,30 @@ milestone_name: Classical Supervised Learning
 current_phase: 26
 current_phase_name: Loss Functions Rebuild
 status: ready_to_execute
-stopped_at: Phase 26 planned — 7 plans ready
-last_updated: "2026-07-28T11:47:13Z"
+stopped_at: Completed 26-01-PLAN.md
+last_updated: "2026-07-28T13:23:45.634Z"
 last_activity: 2026-07-28
-last_activity_desc: Phase 26 planning complete — 7 plans in 6 waves
+last_activity_desc: Phase 26 execution started
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 7
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
-current_plan: 26-01
+current_plan: 26-02
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-07-28
-**Status:** Phase 26 planned; ready to execute
+**Status:** ready_to_execute
 
 ## Current Position
 
-Phase: 26 — Loss Functions Rebuild
-Plan: 26-01 of 7
+Phase: 26 (Loss Functions Rebuild) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-07-28 — Phase 26 planning complete
+Last activity: 2026-07-28 — Phase 26 execution started
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Define v1.1 Classical Supervised Learning requirements and roadmap.
+**Current focus:** Phase 26 — Loss Functions Rebuild
 
 ## Baseline
 
@@ -770,9 +770,9 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-28T11:47:13Z
-**Stopped at:** Phase 26 planned — 7 plans ready
-**Resume file:** .planning/phases/26-loss-functions-rebuild/26-01-PLAN.md
+**Last session:** 2026-07-28T13:23:45.629Z
+**Stopped at:** Completed 26-01-PLAN.md
+**Resume file:** None
 
 ## Performance Metrics
 
@@ -790,6 +790,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 25 P11 | 8 min | 1 tasks | 9 files |
 | Phase 25 P12 | 15 min | 2 tasks | 2 files |
 | Phase 25 P13 | 14h 35m | 1 tasks | 3 files |
+| Phase 26 P01 | 18 min | 3 tasks | 5 files |
 
 ## Decisions
 
@@ -825,6 +826,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 25]: Accept Plan 25-13 only after explicit user approval; automated gates and Playwright observations do not substitute for the blocking human checkpoint.
 - [Phase 25]: Treat missing lower-learning-rate direction as a correctness bug and require full tests, both builds, and bilingual Number.MAX_VALUE browser retesting after the fix.
 - [Phase 25]: Preserve both routes, existing checkpoints and Progress identities, standard/Pages assets, reduced-motion behavior, and video-failure teaching fallbacks.
+- [Phase 26]: Authorize only the pinned LaDe-D Jilin revision/hash and privacy-minimized eight-field derivative. — The 2026-07-28 approve-lade decision does not transfer to another version, field set, or use.
+- [Phase 26]: Preserve SECOM declared 591 versus observed 590 measurements without repair. — Padding, truncation, or imputation would silently rewrite the official raw schema.
 
 ## Operator Next Steps
 
