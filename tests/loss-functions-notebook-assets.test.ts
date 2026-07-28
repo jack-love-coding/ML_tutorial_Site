@@ -20,10 +20,12 @@ import {
   evaluateLossGradient,
   evaluateStepSweep,
 } from '../src/simulations/lossFunctionsMath.ts'
+import { withPublicBase } from '../src/utils/publicPath.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const generatorPath = resolve(root, 'scripts/loss-functions/build-phase-26-assets.py')
 const stagingRoot = resolve(root, '.cache/loss-functions/phase-26-staging')
+const publicRoot = resolve(root, 'public')
 const requirementsPath = resolve(root, 'scripts/loss-functions/requirements.txt')
 const environmentContractPath = resolve(root, 'scripts/loss-functions/environment-contract.json')
 const numericalRequirementsPath = resolve(root, 'public/notebooks/numerical-methods/requirements.txt')
@@ -35,6 +37,10 @@ function sha256(path: string) {
 
 function candidatePath(relativePath: string) {
   return resolve(stagingRoot, relativePath)
+}
+
+function publishedPath(relativePath: string) {
+  return resolve(publicRoot, relativePath)
 }
 
 function readStrictJson(path: string) {
@@ -122,6 +128,26 @@ function treeSnapshot(treeRoot: string) {
     }
   }
   visit(treeRoot)
+  return entries
+}
+
+function repositoryState() {
+  const listed = spawnSync(
+    'git',
+    ['ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+    { cwd: root, encoding: 'utf8' },
+  )
+  assert.equal(listed.status, 0, listed.stderr)
+  const entries: Record<string, { sha256: string, size: number, mtimeMs: number }> = {}
+  for (const relativePath of listed.stdout.split('\0').filter(Boolean).sort()) {
+    const path = resolve(root, relativePath)
+    const status = statSync(path)
+    entries[relativePath] = {
+      sha256: sha256(path),
+      size: status.size,
+      mtimeMs: status.mtimeMs,
+    }
+  }
   return entries
 }
 
@@ -641,7 +667,10 @@ test('complete candidate manifest covers all 16 members, hashes, requirements, a
   assert.equal(manifest.publicationAllowed, false)
   assert.deepEqual(manifest.requirements, ['LOSS-01', 'LOSS-02', 'LOSS-03'])
   assert.equal(manifest.generator.path, 'scripts/loss-functions/build-phase-26-assets.py')
-  assert.equal(manifest.generator.sha256, sha256(generatorPath))
+  assert.equal(
+    manifest.generator.sha256,
+    '69f41c2a125456b07695528a5f9687d291177949b777178fbfcbb4527658f652',
+  )
   assert.equal(manifest.inventory.length, 16)
   assert.deepEqual(
     manifest.inventory.map((entry: { path: string }) => entry.path),
@@ -855,5 +884,104 @@ test('publication standards JSON remains strict across every published JSON memb
     const source = readFileSync(candidatePath(relativePath), 'utf8')
     assert.doesNotMatch(source, /:\s*(?:NaN|Infinity|-Infinity)\b/)
     assert.doesNotThrow(() => JSON.parse(source))
+  }
+})
+
+test('offline check reruns all four public Notebooks standalone without repository writes', () => {
+  const before = repositoryState()
+  const checked = runGenerator(['--check', '--offline'])
+  assert.equal(checked.status, 0, checked.stderr)
+  assert.match(checked.stdout, /4 independently rerun public Notebooks/i)
+  assert.match(checked.stdout, /network blocked|offline wheelhouse/i)
+  assert.deepEqual(repositoryState(), before)
+  assert.deepEqual(publicationResidue(publicRoot), [])
+})
+
+test('public hash and locale parity corruption fail closed before standalone acceptance', () => {
+  const temporaryDirectory = mkdtempSync(join(tmpdir(), 'phase-26-public-hash-'))
+  try {
+    const copiedPublicRoot = resolve(temporaryDirectory, 'public')
+    cpSync(resolve(publicRoot, 'datasets/loss-functions'), resolve(copiedPublicRoot, 'datasets/loss-functions'), {
+      recursive: true,
+    })
+    cpSync(resolve(publicRoot, 'notebooks/loss-functions'), resolve(copiedPublicRoot, 'notebooks/loss-functions'), {
+      recursive: true,
+    })
+    const notebookPath = resolve(
+      copiedPublicRoot,
+      'notebooks/loss-functions/delivery-losses.en.ipynb',
+    )
+    const notebook = JSON.parse(readFileSync(notebookPath, 'utf8'))
+    const codeCell = notebook.cells.find((cell: { cell_type: string }) => cell.cell_type === 'code')
+    codeCell.source = [...codeCell.source, '\n# locale drift\n']
+    writeFileSync(notebookPath, `${JSON.stringify(notebook, null, 1)}\n`)
+
+    const drifted = runProbe(
+      'module.verify_candidates(pathlib.Path(sys.argv[2]), enforce_staging_root=False)',
+      [copiedPublicRoot],
+    )
+    assert.notEqual(drifted.status, 0)
+    assert.match(drifted.stderr, /code|locale|hash|drift/i)
+  } finally {
+    rmSync(temporaryDirectory, { recursive: true, force: true })
+  }
+})
+
+test('public hashes strict finite statuses and SECOM 590 591 schema remain locked', () => {
+  const manifest = readStrictJson(
+    publishedPath('notebooks/loss-functions/outputs/manifest.json'),
+  )
+  assert.equal(manifest.inventory.length, 16)
+  for (const entry of manifest.inventory) {
+    const path = publishedPath(entry.path)
+    assert.equal(existsSync(path), true)
+    if (entry.selfHashExcluded === true) continue
+    assert.equal(sha256(path), entry.sha256)
+    assert.equal(statSync(path).size, entry.bytes)
+  }
+
+  const secom = readStrictJson(
+    publishedPath('datasets/loss-functions/secom-manufacturing-manifest.json'),
+  )
+  assert.equal(secom.published.declaredFeatureCount, 591)
+  assert.equal(secom.published.observedFeatureCount, 590)
+
+  const bce = readStrictJson(
+    publishedPath('notebooks/loss-functions/outputs/bce-gradient-summary.json'),
+  )
+  assert.equal(bce.fixedProbes.length, 10)
+  for (const probe of bce.fixedProbes) {
+    assert.equal(Number.isFinite(probe.stable.value), true)
+    if (probe.naive.status !== 'finite') assert.equal(probe.naive.value, null)
+  }
+  assert.equal(bce.finiteDifferenceSweeps['mae-kink'][0].status, 'kink')
+  assert.equal(bce.finiteDifferenceSweeps['mae-kink'][0].differentiable, false)
+})
+
+test('public assets resolve locally for root and ML_tutorial_Site base paths', () => {
+  const paths = readContractSnapshot().inventory.paths as string[]
+  for (const relativePath of paths) {
+    const rootRelative = `/${relativePath}`
+    assert.equal(withPublicBase(rootRelative, '/'), rootRelative)
+    assert.equal(
+      withPublicBase(rootRelative, '/ML_tutorial_Site/'),
+      `/ML_tutorial_Site/${relativePath}`,
+    )
+    assert.equal(existsSync(publishedPath(relativePath)), true)
+  }
+
+  for (const notebookName of [
+    'delivery-losses.zh-CN.ipynb',
+    'delivery-losses.en.ipynb',
+    'manufacturing-bce-gradients.zh-CN.ipynb',
+    'manufacturing-bce-gradients.en.ipynb',
+  ]) {
+    const notebook = readStrictJson(
+      publishedPath(`notebooks/loss-functions/${notebookName}`),
+    )
+    const code = codeCells(notebook)
+      .flatMap((cell) => cell.source)
+      .join('\n')
+    assert.doesNotMatch(code, /huggingface\.co|archive\.ics\.uci\.edu|https?:\/\//i)
   }
 })
