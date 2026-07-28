@@ -190,6 +190,16 @@ PUBLIC_GROUP_PATHS = (
     "notebooks/loss-functions",
 )
 PUBLICATION_FAILURE_POINTS = frozenset({"pre-swap", "mid-swap", "post-swap"})
+NOTEBOOK_GENERATED_OUTPUTS = {
+    "delivery-losses": (
+        "notebooks/loss-functions/outputs/regression-loss-summary.json",
+        "notebooks/loss-functions/outputs/delivery-losses.png",
+    ),
+    "manufacturing-bce-gradients": (
+        "notebooks/loss-functions/outputs/bce-gradient-summary.json",
+        "notebooks/loss-functions/outputs/manufacturing-bce-gradients.png",
+    ),
+}
 LADE_REFERENCE_PREDICTION_MINUTES = 175
 SECOM_OOF_FOLDS = 5
 SECOM_OOF_RANDOM_STATE = 20_260_728
@@ -1356,11 +1366,88 @@ def isolated_environment_variables(root: Path) -> dict[str, str]:
             "JUPYTER_CONFIG_DIR": str(root / "jupyter-config"),
             "JUPYTER_RUNTIME_DIR": str(root / "jupyter-runtime"),
             "IPYTHONDIR": str(root / "ipython"),
+            "PIP_CACHE_DIR": str(root / "pip-cache"),
+            "XDG_CACHE_HOME": str(root / "xdg-cache"),
+            "PYTHONDONTWRITEBYTECODE": "1",
         }
     )
     for key in ("JUPYTER_CONFIG_DIR", "JUPYTER_RUNTIME_DIR", "IPYTHONDIR"):
         Path(environment[key]).mkdir(parents=True, exist_ok=True)
     return environment
+
+
+def _install_loopback_only_network_guard(
+    root: Path,
+    environment: dict[str, str],
+) -> None:
+    guard_root = root / "network-guard"
+    guard_root.mkdir(parents=True, exist_ok=False)
+    guard_source = r'''
+import ipaddress
+import socket
+
+
+class OfflineNetworkError(RuntimeError):
+    pass
+
+
+def _is_loopback_host(host):
+    if host in {"localhost", "localhost.localdomain"}:
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
+def _check_address(address):
+    if isinstance(address, str):
+        return
+    if not isinstance(address, tuple) or not address:
+        raise OfflineNetworkError(f"Network access blocked during Phase 26 check: {address!r}")
+    if not _is_loopback_host(address[0]):
+        raise OfflineNetworkError(f"Network access blocked during Phase 26 check: {address!r}")
+
+
+_original_create_connection = socket.create_connection
+_original_connect = socket.socket.connect
+_original_connect_ex = socket.socket.connect_ex
+_original_getaddrinfo = socket.getaddrinfo
+
+
+def _create_connection(address, *args, **kwargs):
+    _check_address(address)
+    return _original_create_connection(address, *args, **kwargs)
+
+
+def _connect(instance, address):
+    _check_address(address)
+    return _original_connect(instance, address)
+
+
+def _connect_ex(instance, address):
+    _check_address(address)
+    return _original_connect_ex(instance, address)
+
+
+def _getaddrinfo(host, *args, **kwargs):
+    if host is not None and not _is_loopback_host(host):
+        raise OfflineNetworkError(f"DNS/network access blocked during Phase 26 check: {host!r}")
+    return _original_getaddrinfo(host, *args, **kwargs)
+
+
+socket.create_connection = _create_connection
+socket.socket.connect = _connect
+socket.socket.connect_ex = _connect_ex
+socket.getaddrinfo = _getaddrinfo
+'''.lstrip()
+    (guard_root / "sitecustomize.py").write_text(
+        guard_source,
+        encoding="utf-8",
+        newline="\n",
+    )
+    environment["PYTHONPATH"] = str(guard_root)
+    environment["ML_ATLAS_PHASE26_NETWORK_BLOCKED"] = "1"
 
 
 def isolated_venv_python(root: Path) -> Path:
@@ -1418,6 +1505,8 @@ print(json.dumps({"versions": observed, "kernelName": payload["kernelName"]}, so
 @contextlib.contextmanager
 def isolated_environment(
     wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+    *,
+    block_network: bool = False,
 ) -> Iterator[IsolatedEnvironment]:
     verified = validate_environment_contract(wheel_cache=wheel_cache)
     temporary = tempfile.TemporaryDirectory(prefix="ml-atlas-phase26-environment-")
@@ -1426,6 +1515,8 @@ def isolated_environment(
     kernel_prefix = root / "kernel-prefix"
     kernel_name = f"ml-atlas-phase26-{uuid.uuid4().hex}"
     environment = isolated_environment_variables(root)
+    if block_network:
+        _install_loopback_only_network_guard(root, environment)
     try:
         venv.EnvBuilder(
             with_pip=True,
@@ -3345,6 +3436,119 @@ def _verify_executed_notebook(
     }
 
 
+def rerun_public_notebooks(public_root: Path, proof_path: Path) -> None:
+    """Worker entry point: rerun each copied public Notebook in a fresh kernel."""
+    try:
+        import nbformat
+    except ImportError as error:
+        raise Phase26Error(
+            "Standalone reruns must run inside the audited Phase 26 environment"
+        ) from error
+    kernel_name = os.environ.get("ML_ATLAS_PHASE26_KERNEL_NAME")
+    if not kernel_name or not re.fullmatch(
+        r"ml-atlas-phase26-[a-f0-9]{32}",
+        kernel_name,
+    ):
+        raise Phase26Error("Standalone rerun kernelspec identity is missing")
+    if os.environ.get("ML_ATLAS_PHASE26_NETWORK_BLOCKED") != "1":
+        raise Phase26Error("Standalone reruns require the offline network guard")
+
+    proofs: list[dict[str, Any]] = []
+    for ordinal, job in enumerate(candidate_execution_jobs(), start=1):
+        with tempfile.TemporaryDirectory(
+            prefix=f"ml-atlas-phase26-{job.proof_id}-"
+        ) as temporary:
+            package_root = Path(temporary) / "package"
+            for group_relative_path in PUBLIC_GROUP_PATHS:
+                shutil.copytree(
+                    public_root / group_relative_path,
+                    package_root / group_relative_path,
+                )
+            copied_notebook_root = package_root / "notebooks/loss-functions"
+            copied_notebook_path = package_root / job.notebook_path
+            for other_notebook in copied_notebook_root.glob("*.ipynb"):
+                if other_notebook != copied_notebook_path:
+                    other_notebook.unlink()
+            for output_relative_path in NOTEBOOK_GENERATED_OUTPUTS[job.topic_id]:
+                (package_root / output_relative_path).unlink()
+
+            committed = read_strict_json(public_root / job.notebook_path)
+            notebook = nbformat.read(copied_notebook_path, as_version=4)
+            for cell in notebook.cells:
+                if cell.cell_type == "code":
+                    cell.execution_count = None
+                    cell.outputs = []
+            executed = _execute_notebook_document(
+                notebook,
+                job,
+                kernel_name,
+                copied_notebook_root,
+            )
+            normalized_executed = json.loads(
+                nbformat.writes(executed, version=4)
+            )
+            code_payload = _notebook_code_payload(normalized_executed)
+            output_payload = _notebook_output_payload(normalized_executed)
+            if code_payload != _notebook_code_payload(committed):
+                raise Phase26Error(
+                    f"{job.proof_id} standalone code drifted from the public Notebook"
+                )
+            if output_payload != _notebook_output_payload(committed):
+                raise Phase26Error(
+                    f"{job.proof_id} standalone normalized outputs drifted"
+                )
+
+            generated_outputs: list[dict[str, Any]] = []
+            for output_relative_path in NOTEBOOK_GENERATED_OUTPUTS[job.topic_id]:
+                generated_path = package_root / output_relative_path
+                committed_path = public_root / output_relative_path
+                if not generated_path.is_file():
+                    raise Phase26Error(
+                        f"{job.proof_id} did not regenerate {output_relative_path}"
+                    )
+                if generated_path.read_bytes() != committed_path.read_bytes():
+                    raise Phase26Error(
+                        f"{job.proof_id} regenerated output bytes drifted: "
+                        f"{output_relative_path}"
+                    )
+                generated_outputs.append(
+                    {
+                        "path": output_relative_path,
+                        "sha256": sha256_file(generated_path),
+                        "bytes": generated_path.stat().st_size,
+                    }
+                )
+
+            proofs.append(
+                {
+                    "proofId": job.proof_id,
+                    "topicId": job.topic_id,
+                    "locale": job.locale,
+                    "freshKernel": True,
+                    "kernelLaunchOrdinal": ordinal,
+                    "isolatedPackage": True,
+                    "networkBlocked": True,
+                    "codeSha256": _sha256_json(code_payload),
+                    "normalizedOutputSha256": _sha256_json(output_payload),
+                    "generatedOutputs": generated_outputs,
+                }
+            )
+
+    proof_path.parent.mkdir(parents=True, exist_ok=True)
+    proof_path.write_bytes(
+        strict_json_bytes(
+            {
+                "contractVersion": "loss-functions-phase-26-standalone-check-v1",
+                "notebookCount": 4,
+                "freshKernelCount": 4,
+                "networkBlocked": True,
+                "offlineWheelhouse": True,
+                "proofs": proofs,
+            }
+        )
+    )
+
+
 def _finite_difference_row(
     kind: str,
     targets: list[float],
@@ -4309,6 +4513,175 @@ def publish_candidates(
             _remove_transaction_path(backup_root)
 
 
+def _git_visible_repository_snapshot() -> dict[str, tuple[str, int, int]]:
+    listed = subprocess.run(
+        [
+            "git",
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+        ],
+        cwd=REPO_ROOT,
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if listed.returncode != 0:
+        raise Phase26Error(
+            "Could not enumerate repository files for the read-only check: "
+            + listed.stderr.decode("utf-8", errors="replace")
+        )
+    snapshot: dict[str, tuple[str, int, int]] = {}
+    for encoded_relative_path in sorted(
+        path for path in listed.stdout.split(b"\0") if path
+    ):
+        relative_path = encoded_relative_path.decode("utf-8")
+        path = REPO_ROOT / relative_path
+        status = path.lstat()
+        if path.is_symlink():
+            digest = hashlib.sha256(
+                f"symlink:{os.readlink(path)}".encode("utf-8")
+            ).hexdigest()
+        elif path.is_file():
+            digest = sha256_file(path)
+        else:
+            raise Phase26Error(
+                f"Git-visible repository entry is not a file: {relative_path}"
+            )
+        snapshot[relative_path] = (
+            digest,
+            status.st_size,
+            status.st_mtime_ns,
+        )
+    return snapshot
+
+
+def _verify_standalone_proof(
+    proof: dict[str, Any],
+    public_root: Path,
+) -> None:
+    if (
+        proof.get("contractVersion")
+        != "loss-functions-phase-26-standalone-check-v1"
+        or proof.get("notebookCount") != 4
+        or proof.get("freshKernelCount") != 4
+        or proof.get("networkBlocked") is not True
+        or proof.get("offlineWheelhouse") is not True
+    ):
+        raise Phase26Error("Standalone rerun proof header drifted")
+    proofs = proof.get("proofs")
+    if not isinstance(proofs, list) or len(proofs) != 4:
+        raise Phase26Error("Standalone rerun proof inventory drifted")
+    manifest = read_strict_json(
+        public_root / "notebooks/loss-functions/outputs/manifest.json"
+    )
+    committed_proofs = {
+        item["proofId"]: item for item in manifest["executionProofs"]
+    }
+    expected_jobs = list(candidate_execution_jobs())
+    if [item.get("proofId") for item in proofs] != [
+        job.proof_id for job in expected_jobs
+    ]:
+        raise Phase26Error("Standalone rerun job order or identity drifted")
+    if [item.get("kernelLaunchOrdinal") for item in proofs] != [1, 2, 3, 4]:
+        raise Phase26Error("Standalone reruns did not record four kernel launches")
+    for item, job in zip(proofs, expected_jobs, strict=True):
+        committed = committed_proofs[job.proof_id]
+        if (
+            item.get("topicId") != job.topic_id
+            or item.get("locale") != job.locale
+            or item.get("freshKernel") is not True
+            or item.get("isolatedPackage") is not True
+            or item.get("networkBlocked") is not True
+            or item.get("codeSha256") != committed["codeSha256"]
+            or item.get("normalizedOutputSha256")
+            != committed["normalizedOutputSha256"]
+        ):
+            raise Phase26Error(
+                f"{job.proof_id} standalone hash or isolation proof drifted"
+            )
+        expected_outputs = [
+            {
+                "path": relative_path,
+                "sha256": sha256_file(public_root / relative_path),
+                "bytes": (public_root / relative_path).stat().st_size,
+            }
+            for relative_path in NOTEBOOK_GENERATED_OUTPUTS[job.topic_id]
+        ]
+        if item.get("generatedOutputs") != expected_outputs:
+            raise Phase26Error(
+                f"{job.proof_id} standalone generated-output hash drifted"
+            )
+
+
+def check_published_package(
+    *,
+    public_root: Path = DEFAULT_PUBLIC_ROOT,
+    staging_root: Path = DEFAULT_STAGING_ROOT,
+    source_cache: Path = DEFAULT_SOURCE_CACHE,
+    wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+) -> dict[str, Any]:
+    """Verify committed bytes and four reruns without changing repository state."""
+    validated_public_root = _assert_publication_root(public_root, True)
+    validated_staging_root = validate_candidate_staging_root(staging_root)
+    before = _git_visible_repository_snapshot()
+
+    verify_source_cache(source_cache)
+    validate_environment_contract(wheel_cache=wheel_cache)
+    candidate_result = verify_candidates(
+        validated_staging_root,
+        expected_generator_sha256=VALIDATED_CANDIDATE_GENERATOR_SHA256,
+    )
+    public_result = verify_candidates(
+        validated_public_root,
+        enforce_staging_root=False,
+        expected_generator_sha256=VALIDATED_CANDIDATE_GENERATOR_SHA256,
+    )
+    if public_result != candidate_result:
+        raise Phase26Error("Published validation results drifted from the candidate")
+    _compare_candidate_and_public_bytes(
+        validated_staging_root,
+        validated_public_root,
+    )
+
+    with tempfile.TemporaryDirectory(
+        prefix="ml-atlas-phase26-published-check-"
+    ) as temporary:
+        proof_path = Path(temporary) / "standalone-proof.json"
+        with isolated_environment(
+            wheel_cache,
+            block_network=True,
+        ) as isolated:
+            _run_isolated_worker(
+                isolated,
+                "rerun_public_notebooks",
+                [str(validated_public_root), str(proof_path)],
+            )
+        proof = read_strict_json(proof_path)
+        _verify_standalone_proof(proof, validated_public_root)
+
+    after = _git_visible_repository_snapshot()
+    if after != before:
+        changed = sorted(
+            path
+            for path in before.keys() | after.keys()
+            if before.get(path) != after.get(path)
+        )
+        raise Phase26Error(
+            "Offline --check modified repository bytes or mtimes: "
+            + ", ".join(changed)
+        )
+    return {
+        "inventoryCount": public_result["inventoryCount"],
+        "executionProofCount": public_result["executionProofCount"],
+        "standaloneRerunCount": proof["notebookCount"],
+        "networkBlocked": proof["networkBlocked"],
+        "repositoryEntriesChecked": len(after),
+    }
+
+
 def prepare_candidate_contract(
     cache: Path,
     staging_root: Path,
@@ -4444,8 +4817,17 @@ def main() -> None:
         print("Committed bytes match regenerated expectations; check was offline and read-only.")
         return
 
-    verify_source_cache(args.source_cache)
-    print("Source cache is current; full public artifact checking is added in Plan 26-05.")
+    checked = check_published_package(
+        staging_root=args.staging_root,
+        source_cache=args.source_cache,
+        wheel_cache=args.wheel_cache,
+    )
+    print(
+        "Offline public check passed with network blocked and the offline wheelhouse: "
+        f"{checked['inventoryCount']} exact members, "
+        f"{checked['standaloneRerunCount']} independently rerun public Notebooks, "
+        f"{checked['repositoryEntriesChecked']} repository entries byte/mtime-clean."
+    )
 
 
 if __name__ == "__main__":

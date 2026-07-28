@@ -162,7 +162,10 @@ function seedPreviousPublicPackage(publicRoot: string) {
 
 function publicationResidue(publicRoot: string) {
   return Object.keys(treeSnapshot(publicRoot)).filter((path) =>
-    /(?:publication|backup|staging|lock)/i.test(path),
+    path.split('/').some((component) =>
+      component === '.loss-functions-publication.lock'
+      || component.startsWith('.loss-functions-publication-'),
+    ),
   )
 }
 
