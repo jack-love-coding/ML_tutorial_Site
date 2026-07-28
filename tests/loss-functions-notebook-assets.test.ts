@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import test from 'node:test'
+import {
+  evaluateBceStabilityProbe,
+  evaluateLossGradient,
+  evaluateStepSweep,
+} from '../src/simulations/lossFunctionsMath.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const generatorPath = resolve(root, 'scripts/loss-functions/build-phase-26-assets.py')
@@ -15,6 +20,57 @@ const numericalWheelCache = resolve(root, '.cache/numerical-methods/batch-4-whee
 
 function sha256(path: string) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
+}
+
+function candidatePath(relativePath: string) {
+  return resolve(stagingRoot, relativePath)
+}
+
+function readStrictJson(path: string) {
+  const source = readFileSync(path, 'utf8')
+  assert.doesNotMatch(source, /:\s*(?:NaN|Infinity|-Infinity)\b/)
+  return JSON.parse(source)
+}
+
+function codeCells(notebook: {
+  cells: Array<{ cell_type: string, id: string, source: string[], outputs?: unknown[] }>
+}) {
+  return notebook.cells.filter((cell) => cell.cell_type === 'code')
+}
+
+function normalizedCodeOutputs(notebook: {
+  cells: Array<{ cell_type: string, id: string, source: string[], outputs?: unknown[] }>
+}) {
+  return codeCells(notebook).map(({ id, outputs }) => ({ id, outputs: outputs ?? [] }))
+}
+
+function closeTo(actual: number, expected: number, tolerance = 1e-12) {
+  assert.ok(
+    Math.abs(actual - expected) <= tolerance,
+    `${actual} should be within ${tolerance} of ${expected}`,
+  )
+}
+
+function pngContract(path: string) {
+  const bytes = readFileSync(path)
+  assert.deepEqual(bytes.subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+  const width = bytes.readUInt32BE(16)
+  const height = bytes.readUInt32BE(20)
+  const metadata: Record<string, string> = {}
+  let offset = 8
+  while (offset < bytes.length) {
+    const length = bytes.readUInt32BE(offset)
+    const type = bytes.subarray(offset + 4, offset + 8).toString('ascii')
+    const payload = bytes.subarray(offset + 8, offset + 8 + length)
+    if (type === 'tEXt') {
+      const separator = payload.indexOf(0)
+      metadata[payload.subarray(0, separator).toString('latin1')] = payload
+        .subarray(separator + 1)
+        .toString('latin1')
+    }
+    offset += 12 + length
+  }
+  return { width, height, metadata }
 }
 
 function runGenerator(args: readonly string[]) {
@@ -347,4 +403,260 @@ test('dataset-candidate mode is explicit, staging-only, and validates both real 
   assert.equal(snapshot.datasetContracts.secom.observedFeatureCount, 590)
   assert.equal(snapshot.datasetContracts.secom.oofFoldCount, 5)
   assert.equal(snapshot.datasetContracts.secom.oofRandomState, 20_260_728)
+})
+
+test('all four candidate Notebooks execute independently in clean kernels without errors', () => {
+  const manifest = readStrictJson(candidatePath('notebooks/loss-functions/outputs/manifest.json'))
+  assert.equal(manifest.executionProofs.length, 4)
+  assert.equal(new Set(manifest.executionProofs.map((proof: { proofId: string }) => proof.proofId)).size, 4)
+
+  for (const job of readContractSnapshot().executionJobs) {
+    const path = candidatePath(job.notebookPath)
+    const notebook = readStrictJson(path)
+    const code = codeCells(notebook)
+    assert.deepEqual(
+      code.map((cell: { execution_count: number }) => cell.execution_count),
+      code.map((_: unknown, index: number) => index + 1),
+    )
+    assert.equal(
+      code.some((cell: { outputs?: Array<{ output_type?: string }> }) =>
+        (cell.outputs ?? []).some((output) => output.output_type === 'error')),
+      false,
+    )
+    assert.deepEqual(notebook.metadata.kernelspec, {
+      display_name: 'Python 3',
+      language: 'python',
+      name: 'python3',
+    })
+    assert.deepEqual(notebook.metadata.language_info, { name: 'python' })
+    assert.doesNotMatch(
+      readFileSync(path, 'utf8'),
+      /ml-atlas-phase26-[a-f0-9]{16,}|(?:\/private)?\/(?:tmp|var\/folders)\//,
+    )
+
+    const proof = manifest.executionProofs.find(
+      (entry: { proofId: string }) => entry.proofId === job.proofId,
+    )
+    assert.ok(proof)
+    assert.equal(proof.freshKernel, true)
+    assert.equal(proof.allowErrors, false)
+    assert.equal(proof.executionCountStartsAt, 1)
+    assert.equal(proof.kernelNamePublished, false)
+    assert.equal(proof.notebookPath, job.notebookPath)
+    assert.equal(proof.notebookSha256, sha256(path))
+  }
+})
+
+test('locale pairs retain exact code cell IDs, sources, and normalized output hashes', () => {
+  const manifest = readStrictJson(candidatePath('notebooks/loss-functions/outputs/manifest.json'))
+  for (const topicId of ['delivery-losses', 'manufacturing-bce-gradients']) {
+    const zh = readStrictJson(candidatePath(`notebooks/loss-functions/${topicId}.zh-CN.ipynb`))
+    const en = readStrictJson(candidatePath(`notebooks/loss-functions/${topicId}.en.ipynb`))
+    assert.deepEqual(
+      codeCells(zh).map(({ id, source }) => ({ id, source })),
+      codeCells(en).map(({ id, source }) => ({ id, source })),
+    )
+    assert.deepEqual(normalizedCodeOutputs(zh), normalizedCodeOutputs(en))
+    assert.notDeepEqual(
+      zh.cells.filter((cell: { cell_type: string }) => cell.cell_type === 'markdown')
+        .map((cell: { source: string[] }) => cell.source),
+      en.cells.filter((cell: { cell_type: string }) => cell.cell_type === 'markdown')
+        .map((cell: { source: string[] }) => cell.source),
+    )
+
+    const parity = manifest.localeParity[topicId]
+    assert.equal(parity.codeSha256.length, 64)
+    assert.equal(parity.normalizedOutputSha256.length, 64)
+    assert.deepEqual(
+      parity.codeCellIds,
+      codeCells(zh).map(({ id }) => id),
+    )
+  }
+})
+
+test('real delivery rows expose full MSE MAE objectives and output-gradient parity', () => {
+  const summary = readStrictJson(
+    candidatePath('notebooks/loss-functions/outputs/regression-loss-summary.json'),
+  )
+  assert.equal(summary.topicId, 'delivery-losses')
+  assert.equal(summary.rows.length, 31_415)
+  assert.equal(summary.referencePredictionMinutes, 175)
+
+  const targets = summary.rows.map((row: { targetMinutes: number }) => row.targetMinutes)
+  const predictions = summary.rows.map((row: { predictionMinutes: number }) => row.predictionMinutes)
+  const mse = evaluateLossGradient('mse', targets, predictions)
+  const mae = evaluateLossGradient('mae', targets, predictions)
+  closeTo(summary.aggregate.mse, mse.meanObjective, 1e-10)
+  closeTo(summary.aggregate.mae, mae.meanObjective, 1e-12)
+  for (const index of [0, 299, 6_863, 25_597, 31_414]) {
+    const row = summary.rows[index]
+    closeTo(row.mseLoss, mse.perElementLosses[index]!)
+    closeTo(row.maeLoss, mae.perElementLosses[index]!)
+    closeTo(row.msePerElementGradient, mse.perElementGradients[index]!)
+    closeTo(row.maePerElementSubgradient, mae.perElementGradients[index]!)
+    closeTo(row.mseMeanObjectiveGradient, mse.meanObjectiveGradients[index]!, 1e-15)
+    closeTo(row.maeMeanObjectiveSubgradient, mae.meanObjectiveGradients[index]!, 1e-15)
+    assert.equal(row.maeDifferentiable, mae.differentiable[index])
+  }
+  assert.deepEqual(
+    summary.representativeRows.map((row: { role: string }) => row.role),
+    ['zero-duration', 'typical-zero-residual', 'long-duration'],
+  )
+  assert.equal(summary.highContributionRows.length, 5)
+  assert.equal(summary.highContributionRows[0].courseRowId, 'lade-jilin-25598')
+})
+
+test('real manufacturing BCE, fixed probes, gradients, and finite differences match TypeScript', () => {
+  const summary = readStrictJson(
+    candidatePath('notebooks/loss-functions/outputs/bce-gradient-summary.json'),
+  )
+  assert.equal(summary.topicId, 'manufacturing-bce-gradients')
+  assert.equal(summary.rows.length, 1_567)
+  const labels = summary.rows.map((row: { label: number }) => row.label)
+  const logits = summary.rows.map((row: { logit: number }) => row.logit)
+  const bce = evaluateLossGradient('bce', labels, logits)
+  closeTo(summary.aggregate.meanStableBce, bce.meanObjective, 1e-12)
+  for (const index of [0, 100, 999, 1_355, 1_566]) {
+    const row = summary.rows[index]
+    closeTo(row.stableBce, bce.perElementLosses[index]!, 1e-12)
+    closeTo(row.perLogitGradient, bce.perElementGradients[index]!, 1e-15)
+    closeTo(row.meanObjectiveGradient, bce.meanObjectiveGradients[index]!, 1e-18)
+  }
+
+  const typescriptProbes = evaluateBceStabilityProbe()
+  assert.equal(summary.fixedProbes.length, 10)
+  summary.fixedProbes.forEach((row: {
+    logit: number
+    label: number
+    naive: { status: string, value: number | null }
+    clipped: { value: number, objectiveChanged: boolean }
+    stable: { value: number }
+  }, index: number) => {
+    const expected = typescriptProbes[index]!
+    assert.deepEqual([row.logit, row.label], [expected.logit, expected.label])
+    closeTo(row.clipped.value, expected.clipped.value, 1e-12)
+    assert.equal(row.clipped.objectiveChanged, expected.clipped.objectiveChanged)
+    closeTo(row.stable.value, expected.stable.value, 1e-12)
+    if (expected.naive.value === null) {
+      assert.equal(row.naive.value, null)
+      assert.match(row.naive.status, /^(?:inf|-inf|nan)$/)
+    } else {
+      closeTo(row.naive.value ?? Number.NaN, expected.naive.value, 1e-12)
+    }
+  })
+
+  const sweepInputs = {
+    mse: { kind: 'mse' as const, targets: [1, 2], outputs: [1.5, 3], index: 1 },
+    mae: { kind: 'mae' as const, targets: [0, 2], outputs: [1, 3], index: 0 },
+    'mae-kink': { kind: 'mae' as const, targets: [1, 2], outputs: [1, 3], index: 0 },
+    bce: { kind: 'bce' as const, targets: [0, 1], outputs: [0.2, -0.4], index: 1 },
+  }
+  for (const [key, input] of Object.entries(sweepInputs)) {
+    const expected = evaluateStepSweep(input)
+    const actual = summary.finiteDifferenceSweeps[key]
+    assert.equal(actual.length, 9)
+    actual.forEach((row: {
+      step: number
+      analyticValue: number
+      numericalValue: number
+      absoluteError: number
+      status: string
+    }, index: number) => {
+      closeTo(row.step, expected[index]!.step)
+      closeTo(row.analyticValue, expected[index]!.analyticValue, 1e-15)
+      closeTo(row.numericalValue, expected[index]!.numericalValue, 1e-9)
+      closeTo(row.absoluteError, expected[index]!.absoluteError, 1e-9)
+      assert.equal(row.status, expected[index]!.status)
+    })
+  }
+})
+
+test('candidate plots have deterministic dimensions, metadata, and non-color encodings', () => {
+  for (const [relativePath, title] of [
+    ['notebooks/loss-functions/outputs/delivery-losses.png', 'Delivery loss distribution'],
+    ['notebooks/loss-functions/outputs/manufacturing-bce-gradients.png', 'Manufacturing BCE and gradient verification'],
+  ] as const) {
+    const path = candidatePath(relativePath)
+    assert.equal(existsSync(path), true)
+    const plot = pngContract(path)
+    assert.deepEqual([plot.width, plot.height], [960, 540])
+    assert.equal(plot.metadata.Title, title)
+    assert.match(plot.metadata.Description, /real|finite|gradient|loss/i)
+    assert.match(plot.metadata.NonColorEncoding, /solid|hatched|circle|square|line/i)
+  }
+})
+
+test('complete candidate manifest covers all 16 members, hashes, requirements, and rerun expectations', () => {
+  const path = candidatePath('notebooks/loss-functions/outputs/manifest.json')
+  const manifest = readStrictJson(path)
+  assert.equal(manifest.contractVersion, 'loss-functions-phase-26-candidate-v1')
+  assert.equal(manifest.packageComplete, true)
+  assert.equal(manifest.publicationAllowed, false)
+  assert.deepEqual(manifest.requirements, ['LOSS-01', 'LOSS-02', 'LOSS-03'])
+  assert.equal(manifest.generator.path, 'scripts/loss-functions/build-phase-26-assets.py')
+  assert.equal(manifest.generator.sha256, sha256(generatorPath))
+  assert.equal(manifest.inventory.length, 16)
+  assert.deepEqual(
+    manifest.inventory.map((entry: { path: string }) => entry.path),
+    readContractSnapshot().inventory.paths,
+  )
+  for (const entry of manifest.inventory) {
+    const memberPath = candidatePath(entry.path)
+    assert.equal(existsSync(memberPath), true, entry.path)
+    if (entry.path.endsWith('/manifest.json') && entry.role === 'candidate-manifest') {
+      assert.equal(entry.sha256, null)
+      assert.equal(entry.bytes, null)
+      assert.equal(entry.selfHashExcluded, true)
+    } else {
+      assert.equal(entry.sha256, sha256(memberPath), entry.path)
+      assert.equal(entry.bytes, statSync(memberPath).size, entry.path)
+    }
+  }
+  assert.equal(manifest.standaloneRerunExpectation.notebookCount, 4)
+  assert.equal(manifest.standaloneRerunExpectation.freshKernelEach, true)
+  assert.equal(manifest.standaloneRerunExpectation.offline, true)
+  assert.equal(manifest.standaloneRerunExpectation.normalizedOutputsMustMatch, true)
+  assert.equal(manifest.canonicalPayloadSha256.length, 64)
+})
+
+test('candidate verification rejects changed output values and incomplete manifest inventory', () => {
+  const probe = runProbe([
+    'import shutil, tempfile',
+    'source = pathlib.Path(sys.argv[2])',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    root = pathlib.Path(directory) / "candidate"',
+    '    shutil.copytree(source, root)',
+    '    summary_path = root / "notebooks/loss-functions/outputs/bce-gradient-summary.json"',
+    '    summary = module.read_strict_json(summary_path)',
+    '    summary["aggregate"]["meanStableBce"] += 1.0',
+    '    summary_path.write_bytes(module.strict_json_bytes(summary))',
+    '    try:',
+    '        module.verify_candidates(root)',
+    '    except module.Phase26Error as error:',
+    '        print(str(error))',
+    '    else:',
+    '        raise RuntimeError("changed output value was accepted")',
+  ].join('\n'), [stagingRoot])
+  assert.equal(probe.status, 0, probe.stderr)
+  assert.match(probe.stdout, /BCE|summary|hash|output|drift/i)
+
+  const manifestProbe = runProbe([
+    'import shutil, tempfile',
+    'source = pathlib.Path(sys.argv[2])',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    root = pathlib.Path(directory) / "candidate"',
+    '    shutil.copytree(source, root)',
+    '    path = root / "notebooks/loss-functions/outputs/manifest.json"',
+    '    manifest = module.read_strict_json(path)',
+    '    manifest["inventory"].pop()',
+    '    path.write_bytes(module.strict_json_bytes(manifest))',
+    '    try:',
+    '        module.verify_candidates(root)',
+    '    except module.Phase26Error as error:',
+    '        print(str(error))',
+    '    else:',
+    '        raise RuntimeError("incomplete manifest was accepted")',
+  ].join('\n'), [stagingRoot])
+  assert.equal(manifestProbe.status, 0, manifestProbe.stderr)
+  assert.match(manifestProbe.stdout, /inventory|manifest|16|complete|drift/i)
 })
