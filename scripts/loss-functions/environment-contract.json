@@ -1,0 +1,54 @@
+{
+  "contractVersion": "loss-functions-phase-26-environment-v1",
+  "requirements": {
+    "path": "scripts/loss-functions/requirements.txt",
+    "sha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530",
+    "sourcePath": "public/notebooks/numerical-methods/requirements.txt",
+    "sourceSha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530",
+    "pins": {
+      "ipykernel": "7.3.0",
+      "jupyterlab": "4.6.1",
+      "nbclient": "0.11.0",
+      "nbformat": "5.10.4",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "scikit-learn": "1.9.0",
+      "scipy": "1.17.1"
+    }
+  },
+  "wheelCache": {
+    "path": ".cache/numerical-methods/batch-4-wheelhouse",
+    "manifest": "batch-4-wheel-cache-manifest.json",
+    "manifestSha256": "95ca3095110658363933ecfa7c64dc5935e03c09119a612603c38fec30bc78e1",
+    "sourceContractVersion": "numerical-methods-batch-4-v1",
+    "wheelCount": 99
+  },
+  "python": {
+    "implementation": "CPython",
+    "version": "3.12.13",
+    "cacheTag": "cpython-312"
+  },
+  "platform": {
+    "system": "Darwin",
+    "machine": "arm64",
+    "pythonPlatform": "macosx-11.0-arm64"
+  },
+  "installation": {
+    "networkAccess": false,
+    "pipArguments": [
+      "--no-index",
+      "--find-links=<audited-wheel-cache>",
+      "--requirement=scripts/loss-functions/requirements.txt"
+    ]
+  },
+  "execution": {
+    "jobCount": 4,
+    "allowErrors": false,
+    "timeoutSeconds": 180,
+    "recordTiming": false,
+    "workingDirectory": "notebooks/loss-functions",
+    "executionCountStartsAt": 1,
+    "temporaryKernelNamePublished": false,
+    "stripWidgetState": true
+  }
+}

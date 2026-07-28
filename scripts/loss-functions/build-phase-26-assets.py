@@ -4,16 +4,22 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import csv
 import hashlib
 import json
 import math
+import os
+import platform
 import re
 import shutil
+import subprocess
 import sys
+import sysconfig
 import tempfile
 import urllib.request
 import uuid
+import venv
 import zipfile
 from collections import Counter
 from dataclasses import dataclass
@@ -27,8 +33,18 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PHASE_DIR = REPO_ROOT / ".planning/phases/26-loss-functions-rebuild"
 RESEARCH_PATH = PHASE_DIR / "26-RESEARCH.md"
 CONTRACT_PATH = REPO_ROOT / "docs/curriculum-v3/loss-functions/phase-26-data-contract.md"
+REQUIREMENTS_PATH = REPO_ROOT / "scripts/loss-functions/requirements.txt"
+NUMERICAL_REQUIREMENTS_PATH = (
+    REPO_ROOT / "public/notebooks/numerical-methods/requirements.txt"
+)
+ENVIRONMENT_CONTRACT_PATH = (
+    REPO_ROOT / "scripts/loss-functions/environment-contract.json"
+)
+DEFAULT_WHEEL_CACHE = REPO_ROOT / ".cache/numerical-methods/batch-4-wheelhouse"
+WHEEL_CACHE_MANIFEST_NAME = "batch-4-wheel-cache-manifest.json"
 CONTRACT_VERSION = "loss-functions-phase-26-v1"
 TRANSFORM_VERSION = "phase-26-normalization-v1"
+ENVIRONMENT_CONTRACT_VERSION = "loss-functions-phase-26-environment-v1"
 APPROVAL_DECISION = "approve-lade"
 DEFAULT_SOURCE_CACHE = REPO_ROOT / ".cache/loss-functions/phase-26-sources"
 DEFAULT_STAGING_ROOT = REPO_ROOT / ".cache/loss-functions/phase-26-staging"
@@ -77,6 +93,11 @@ class NotebookExecutionJob:
     fresh_kernel: bool = True
     execution_count_starts_at: int = 1
     allow_errors: bool = False
+    timeout_seconds: int = 180
+    record_timing: bool = False
+    working_directory: str = "notebooks/loss-functions"
+    kernel_name_published: bool = False
+    strip_widget_state: bool = True
 
 
 @dataclass(frozen=True)
@@ -85,6 +106,23 @@ class CandidateInventory:
     topic_ids: tuple[str, ...]
     locales: tuple[str, ...]
     execution_jobs: tuple[NotebookExecutionJob, ...]
+
+
+@dataclass(frozen=True)
+class CandidateTransaction:
+    root: Path
+    inventory: CandidateInventory
+    execution_jobs: tuple[NotebookExecutionJob, ...]
+
+
+@dataclass(frozen=True)
+class IsolatedEnvironment:
+    root: Path
+    python: Path
+    kernel_name: str
+    kernel_prefix: Path
+    environment: dict[str, str]
+    observed_versions: dict[str, str]
 
 
 LADE = SourceContract(
@@ -196,11 +234,11 @@ import pandas as pd""",
     if not np.isin(targets, (0.0, 1.0)).all():
         raise ValueError("targets must be binary")
     losses = np.logaddexp(0.0, logits) - targets * logits
-    probabilities = np.where(
-        logits >= 0.0,
-        1.0 / (1.0 + np.exp(-logits)),
-        np.exp(logits) / (1.0 + np.exp(logits)),
-    )
+    probabilities = np.empty_like(logits)
+    nonnegative = logits >= 0.0
+    probabilities[nonnegative] = 1.0 / (1.0 + np.exp(-logits[nonnegative]))
+    negative_exponential = np.exp(logits[~nonnegative])
+    probabilities[~nonnegative] = negative_exponential / (1.0 + negative_exponential)
     gradients = probabilities - targets
     return losses, gradients, gradients / logits.size""",
     ),
@@ -278,6 +316,67 @@ NOTEBOOK_TOPICS = {
         ),
     ),
 }
+
+EXPECTED_ENVIRONMENT_PINS = {
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "scipy": "1.17.1",
+    "nbformat": "5.10.4",
+    "nbclient": "0.11.0",
+    "jupyterlab": "4.6.1",
+    "ipykernel": "7.3.0",
+    "scikit-learn": "1.9.0",
+}
+IMPORT_NAMES = {
+    "numpy": "numpy",
+    "pandas": "pandas",
+    "scipy": "scipy",
+    "nbformat": "nbformat",
+    "nbclient": "nbclient",
+    "jupyterlab": "jupyterlab",
+    "ipykernel": "ipykernel",
+    "scikit-learn": "sklearn",
+}
+
+NOTEBOOK_EXECUTION_WORKER_SOURCE = r'''
+from nbclient import NotebookClient
+
+
+def execute_candidate_notebook(notebook, job, kernel_name, working_directory):
+    client = NotebookClient(
+        notebook,
+        timeout=job["timeoutSeconds"],
+        kernel_name=kernel_name,
+        allow_errors=False,
+        record_timing=False,
+        resources={"metadata": {"path": str(working_directory)}},
+    )
+    client.execute(cwd=str(working_directory))
+
+    expected_count = 1
+    for cell in notebook.cells:
+        cell.metadata.pop("execution", None)
+        if cell.cell_type != "code":
+            continue
+        if cell.execution_count != expected_count:
+            raise RuntimeError(
+                f"Fresh execution count drift: expected {expected_count}, "
+                f"observed {cell.execution_count}"
+            )
+        expected_count += 1
+        for output in cell.get("outputs", []):
+            output.get("metadata", {}).pop("execution", None)
+            output.pop("transient", None)
+    notebook.metadata.pop("widgets", None)
+    notebook.metadata["kernelspec"] = {
+        "display_name": "Python 3",
+        "language": "python",
+        "name": "python3",
+    }
+    notebook.metadata.setdefault("language_info", {})["name"] = "python"
+    notebook.metadata["language_info"].pop("version", None)
+    return notebook
+'''.strip()
 LADE_SOURCE_FIELDS = (
     "order_id",
     "region_id",
@@ -578,6 +677,11 @@ def candidate_contract_snapshot() -> dict[str, Any]:
                 "freshKernel": job.fresh_kernel,
                 "executionCountStartsAt": job.execution_count_starts_at,
                 "allowErrors": job.allow_errors,
+                "timeoutSeconds": job.timeout_seconds,
+                "recordTiming": job.record_timing,
+                "workingDirectory": job.working_directory,
+                "kernelNamePublished": job.kernel_name_published,
+                "stripWidgetState": job.strip_widget_state,
             }
             for job in inventory.execution_jobs
         ],
@@ -608,6 +712,356 @@ def validate_candidate_staging_root(staging_root: Path) -> Path:
     if staging_root.is_symlink():
         raise Phase26Error("Candidate staging root may not be a symlink")
     return resolved
+
+
+def read_environment_pins(path: Path = REQUIREMENTS_PATH) -> dict[str, str]:
+    if not path.is_file():
+        raise Phase26Error(f"Missing exact environment requirements: {path}")
+    pins: dict[str, str] = {}
+    for line_number, raw_line in enumerate(
+        path.read_text(encoding="utf-8").splitlines(),
+        start=1,
+    ):
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.count("==") != 1:
+            raise Phase26Error(
+                f"Requirement line {line_number} is not one exact pin: {raw_line!r}"
+            )
+        name, version = line.split("==", 1)
+        normalized = name.lower()
+        if not name or not version or normalized in pins:
+            raise Phase26Error(
+                f"Duplicate or invalid requirement line {line_number}: {raw_line!r}"
+            )
+        pins[normalized] = version
+    if pins != EXPECTED_ENVIRONMENT_PINS:
+        raise Phase26Error(
+            "Phase 26 requirements must exactly reuse the audited Numerical Methods pins: "
+            f"{pins}"
+        )
+    if (
+        path.resolve() == REQUIREMENTS_PATH.resolve()
+        and path.read_bytes() != NUMERICAL_REQUIREMENTS_PATH.read_bytes()
+    ):
+        raise Phase26Error(
+            "Phase 26 requirements bytes drifted from the audited Numerical Methods source"
+        )
+    return pins
+
+
+def python_identity() -> dict[str, str]:
+    return {
+        "implementation": platform.python_implementation(),
+        "version": platform.python_version(),
+        "cacheTag": sys.implementation.cache_tag or "",
+    }
+
+
+def platform_identity() -> dict[str, str]:
+    return {
+        "system": platform.system(),
+        "machine": platform.machine(),
+        "pythonPlatform": sysconfig.get_platform(),
+    }
+
+
+def validate_environment_contract(
+    contract_path: Path = ENVIRONMENT_CONTRACT_PATH,
+    wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+) -> dict[str, Any]:
+    contract = read_strict_json(contract_path)
+    if contract.get("contractVersion") != ENVIRONMENT_CONTRACT_VERSION:
+        raise Phase26Error("Phase 26 environment contract version drifted")
+
+    pins = read_environment_pins()
+    requirements = contract.get("requirements", {})
+    expected_requirements_hash = sha256_file(REQUIREMENTS_PATH)
+    source_requirements_hash = sha256_file(NUMERICAL_REQUIREMENTS_PATH)
+    if requirements != {
+        "path": "scripts/loss-functions/requirements.txt",
+        "sha256": expected_requirements_hash,
+        "sourcePath": "public/notebooks/numerical-methods/requirements.txt",
+        "sourceSha256": source_requirements_hash,
+        "pins": pins,
+    }:
+        raise Phase26Error("Environment requirements identity or exact pin table drifted")
+
+    current_python = python_identity()
+    current_platform = platform_identity()
+    if contract.get("python") != current_python or contract.get("platform") != current_platform:
+        raise Phase26Error(
+            "Environment Python/platform identity drifted from the audited wheel cache contract"
+        )
+
+    installation = contract.get("installation")
+    if installation != {
+        "networkAccess": False,
+        "pipArguments": [
+            "--no-index",
+            "--find-links=<audited-wheel-cache>",
+            "--requirement=scripts/loss-functions/requirements.txt",
+        ],
+    }:
+        raise Phase26Error("Environment installation must remain pip no-index and offline")
+
+    wheel_contract = contract.get("wheelCache", {})
+    if (
+        wheel_contract.get("path")
+        != ".cache/numerical-methods/batch-4-wheelhouse"
+        or wheel_contract.get("manifest") != WHEEL_CACHE_MANIFEST_NAME
+        or wheel_contract.get("sourceContractVersion")
+        != "numerical-methods-batch-4-v1"
+    ):
+        raise Phase26Error("Audited Numerical Methods wheel-cache identity drifted")
+
+    manifest_path = wheel_cache.resolve() / WHEEL_CACHE_MANIFEST_NAME
+    if not manifest_path.is_file():
+        raise Phase26Error(
+            f"Audited wheel cache is missing {WHEEL_CACHE_MANIFEST_NAME}: {wheel_cache}"
+        )
+    manifest = read_strict_json(manifest_path)
+    if sha256_file(manifest_path) != wheel_contract.get("manifestSha256"):
+        raise Phase26Error("Audited wheel-cache manifest SHA-256 drifted")
+    if (
+        manifest.get("contractVersion") != wheel_contract.get("sourceContractVersion")
+        or manifest.get("requirements", {}).get("sha256")
+        != source_requirements_hash
+        or manifest.get("requirements", {}).get("pins") != pins
+        or manifest.get("python") != current_python
+        or manifest.get("platform") != current_platform
+    ):
+        raise Phase26Error(
+            "Audited wheel-cache requirements, Python, or platform identity drifted"
+        )
+
+    wheel_entries = manifest.get("wheels")
+    if (
+        not isinstance(wheel_entries, list)
+        or not wheel_entries
+        or len(wheel_entries) != wheel_contract.get("wheelCount")
+    ):
+        raise Phase26Error("Audited wheel-cache manifest wheel count drifted")
+    observed_names: set[str] = set()
+    for entry in wheel_entries:
+        if not isinstance(entry, dict) or not isinstance(entry.get("file"), str):
+            raise Phase26Error("Audited wheel-cache manifest contains an invalid wheel entry")
+        path = wheel_cache.resolve() / entry["file"]
+        observed_names.add(path.name)
+        if (
+            not path.is_file()
+            or path.stat().st_size != entry.get("bytes")
+            or sha256_file(path) != entry.get("sha256")
+        ):
+            raise Phase26Error(f"Audited wheel artifact is missing or drifted: {path.name}")
+    actual_names = {path.name for path in wheel_cache.resolve().glob("*.whl")}
+    if actual_names != observed_names:
+        raise Phase26Error("Audited wheel cache has added or missing wheel artifacts")
+
+    return {
+        "pins": pins,
+        "python": current_python,
+        "platform": current_platform,
+        "wheelCount": len(wheel_entries),
+        "installation": "pip --no-index --find-links=<audited-wheel-cache>",
+    }
+
+
+def run_command(
+    command: list[str],
+    *,
+    environment: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
+    completed = subprocess.run(
+        command,
+        cwd=REPO_ROOT,
+        env=environment,
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    if completed.returncode != 0:
+        rendered = " ".join(command)
+        raise Phase26Error(
+            f"Command failed ({completed.returncode}): {rendered}\n{completed.stdout}"
+        )
+    return completed
+
+
+def isolated_environment_variables(root: Path) -> dict[str, str]:
+    environment = os.environ.copy()
+    environment.update(
+        {
+            "PIP_NO_INDEX": "1",
+            "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+            "PIP_NO_INPUT": "1",
+            "JUPYTER_PATH": str(root / "kernel-prefix/share/jupyter"),
+            "JUPYTER_CONFIG_DIR": str(root / "jupyter-config"),
+            "JUPYTER_RUNTIME_DIR": str(root / "jupyter-runtime"),
+            "IPYTHONDIR": str(root / "ipython"),
+        }
+    )
+    for key in ("JUPYTER_CONFIG_DIR", "JUPYTER_RUNTIME_DIR", "IPYTHONDIR"):
+        Path(environment[key]).mkdir(parents=True, exist_ok=True)
+    return environment
+
+
+def isolated_venv_python(root: Path) -> Path:
+    return root / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+
+
+def verify_isolated_imports_and_kernel(
+    python: Path,
+    pins: dict[str, str],
+    kernel_name: str,
+    environment: dict[str, str],
+) -> dict[str, str]:
+    payload = json.dumps(
+        {"pins": pins, "imports": IMPORT_NAMES, "kernelName": kernel_name}
+    )
+    code = r'''
+import importlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import sys
+
+from jupyter_client.kernelspec import KernelSpecManager
+
+payload = json.loads(os.environ["ML_ATLAS_PHASE26_VERIFY_PAYLOAD"])
+observed = {}
+for distribution, expected in payload["pins"].items():
+    importlib.import_module(payload["imports"][distribution])
+    version = importlib.metadata.version(distribution)
+    if version != expected:
+        raise RuntimeError(f"{distribution}: expected {expected}, observed {version}")
+    observed[distribution] = version
+
+manager = KernelSpecManager()
+spec = manager.get_kernel_spec(payload["kernelName"])
+if Path(spec.argv[0]).resolve() != Path(sys.executable).resolve():
+    raise RuntimeError(f"Kernel interpreter drift: {spec.argv[0]} != {sys.executable}")
+print(json.dumps({"versions": observed, "kernelName": payload["kernelName"]}, sort_keys=True))
+'''
+    worker_environment = environment.copy()
+    worker_environment["ML_ATLAS_PHASE26_VERIFY_PAYLOAD"] = payload
+    output = run_command(
+        [str(python), "-c", code],
+        environment=worker_environment,
+    ).stdout.strip().splitlines()
+    if not output:
+        raise Phase26Error("Isolated environment verification produced no result")
+    result = json.loads(output[-1])
+    if result.get("kernelName") != kernel_name or result.get("versions") != pins:
+        raise Phase26Error("Isolated environment package or kernel identity drifted")
+    return result["versions"]
+
+
+@contextlib.contextmanager
+def isolated_environment(
+    wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+) -> Iterator[IsolatedEnvironment]:
+    verified = validate_environment_contract(wheel_cache=wheel_cache)
+    temporary = tempfile.TemporaryDirectory(prefix="ml-atlas-phase26-environment-")
+    root = Path(temporary.name)
+    python = isolated_venv_python(root / "venv")
+    kernel_prefix = root / "kernel-prefix"
+    kernel_name = f"ml-atlas-phase26-{uuid.uuid4().hex}"
+    environment = isolated_environment_variables(root)
+    try:
+        venv.EnvBuilder(
+            with_pip=True,
+            clear=True,
+            symlinks=(os.name != "nt"),
+        ).create(root / "venv")
+        run_command(
+            [
+                str(python),
+                "-m",
+                "pip",
+                "install",
+                "--no-index",
+                f"--find-links={wheel_cache.resolve()}",
+                "--requirement",
+                str(REQUIREMENTS_PATH),
+            ],
+            environment=environment,
+        )
+        run_command(
+            [
+                str(python),
+                "-m",
+                "ipykernel",
+                "install",
+                "--prefix",
+                str(kernel_prefix),
+                "--name",
+                kernel_name,
+                "--display-name",
+                "ML Atlas Phase 26 Isolated Kernel",
+            ],
+            environment=environment,
+        )
+        observed = verify_isolated_imports_and_kernel(
+            python,
+            verified["pins"],
+            kernel_name,
+            environment,
+        )
+        yield IsolatedEnvironment(
+            root=root,
+            python=python,
+            kernel_name=kernel_name,
+            kernel_prefix=kernel_prefix,
+            environment=environment,
+            observed_versions=observed,
+        )
+    finally:
+        temporary.cleanup()
+
+
+def verify_environment(wheel_cache: Path = DEFAULT_WHEEL_CACHE) -> None:
+    temporary_root: Path | None = None
+    with isolated_environment(wheel_cache) as isolated:
+        temporary_root = isolated.root
+        if isolated.observed_versions != EXPECTED_ENVIRONMENT_PINS:
+            raise Phase26Error("Isolated environment observed package versions drifted")
+    if temporary_root is None or temporary_root.exists():
+        raise Phase26Error(
+            "Temporary Phase 26 environment, kernelspec, or scoped state was not removed"
+        )
+    print(
+        "Verified the exact offline Phase 26 environment and removed its temporary "
+        "venv, kernelspec, and scoped Jupyter state."
+    )
+
+
+def _remove_candidate_root(root: Path) -> None:
+    if root.is_symlink() or root.is_file():
+        root.unlink(missing_ok=True)
+    elif root.exists():
+        shutil.rmtree(root)
+
+
+@contextlib.contextmanager
+def candidate_transaction(staging_root: Path) -> Iterator[CandidateTransaction]:
+    root = validate_candidate_staging_root(staging_root)
+    _remove_candidate_root(root)
+    root.mkdir(parents=True, exist_ok=False)
+    try:
+        inventory = candidate_inventory()
+        transaction = CandidateTransaction(
+            root=root,
+            inventory=inventory,
+            execution_jobs=inventory.execution_jobs,
+        )
+        yield transaction
+    except BaseException:
+        _remove_candidate_root(root)
+        raise
 
 
 def contract_snapshot() -> dict[str, Any]:
@@ -1068,12 +1522,20 @@ def compare_committed_tree(regenerated_root: Path, published_root: Path) -> None
             raise Phase26Error(f"Committed bytes differ from regenerated expectations: {relative_path}")
 
 
-def prepare_candidate_contract(cache: Path, staging_root: Path) -> dict[str, Any]:
-    verify_source_cache(cache)
+def prepare_candidate_contract(
+    cache: Path,
+    staging_root: Path,
+    wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+) -> dict[str, Any]:
     validated_root = validate_candidate_staging_root(staging_root)
-    candidate = candidate_contract_snapshot()
-    validated_root.mkdir(parents=True, exist_ok=True)
-    return candidate
+    try:
+        verify_source_cache(cache)
+        validate_environment_contract(wheel_cache=wheel_cache)
+        with candidate_transaction(validated_root):
+            return candidate_contract_snapshot()
+    except BaseException:
+        _remove_candidate_root(validated_root)
+        raise
 
 
 def main() -> None:
@@ -1083,10 +1545,12 @@ def main() -> None:
     modes.add_argument("--generate", action="store_true")
     modes.add_argument("--prepare-candidates", action="store_true")
     modes.add_argument("--verify-candidates", action="store_true")
+    modes.add_argument("--verify-environment", action="store_true")
     modes.add_argument("--verify-source-cache", action="store_true")
     modes.add_argument("--check", action="store_true")
     parser.add_argument("--source-cache", type=Path, default=DEFAULT_SOURCE_CACHE)
     parser.add_argument("--staging-root", type=Path, default=DEFAULT_STAGING_ROOT)
+    parser.add_argument("--wheel-cache", type=Path, default=DEFAULT_WHEEL_CACHE)
     parser.add_argument("--topic")
     parser.add_argument("--locale")
     parser.add_argument("--regenerated-root", type=Path)
@@ -1116,8 +1580,21 @@ def main() -> None:
         print("Phase 26 source cache matches exact identities, licenses, and hashes.")
         return
 
+    if args.verify_environment:
+        validated_root = validate_candidate_staging_root(args.staging_root)
+        try:
+            verify_environment(args.wheel_cache)
+        except BaseException:
+            _remove_candidate_root(validated_root)
+            raise
+        return
+
     if args.generate or args.prepare_candidates:
-        candidate = prepare_candidate_contract(args.source_cache, args.staging_root)
+        candidate = prepare_candidate_contract(
+            args.source_cache,
+            args.staging_root,
+            args.wheel_cache,
+        )
         print(
             "Prepared the complete offline candidate contract "
             f"({len(candidate['inventory']['paths'])} members, "
@@ -1128,6 +1605,7 @@ def main() -> None:
     if args.verify_candidates:
         verify_source_cache(args.source_cache)
         validate_candidate_staging_root(args.staging_root)
+        validate_environment_contract(wheel_cache=args.wheel_cache)
         candidate_contract_snapshot()
         print("Verified the complete staging-only candidate inventory and locale contract.")
         return
