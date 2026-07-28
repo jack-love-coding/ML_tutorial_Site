@@ -4,30 +4,30 @@ milestone: v1.1
 milestone_name: Classical Supervised Learning
 current_phase: 26
 current_phase_name: Loss Functions Rebuild
-status: ready_to_execute
-stopped_at: Completed 26-06-PLAN.md
-last_updated: "2026-07-28T15:58:56.453Z"
+status: verifying
+stopped_at: Completed 26-07-PLAN.md
+last_updated: "2026-07-28T16:41:52.651Z"
 last_activity: 2026-07-28
 last_activity_desc: Phase 26 execution started
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 7
-  completed_plans: 6
-  percent: 0
+  completed_plans: 7
+  percent: 17
 current_plan: 26-07
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-07-28
-**Status:** ready_to_execute
+**Status:** ready_for_verification
 
 ## Current Position
 
 Phase: 26 (Loss Functions Rebuild) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-28 — Phase 26 execution started
 
 ## Deferred Items
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-28T15:58:17.137Z
-**Stopped at:** Completed 26-06-PLAN.md
+**Last session:** 2026-07-28T16:40:51.139Z
+**Stopped at:** Completed 26-07-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -796,6 +796,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 26 P04 | 41 min | 2 tasks | 3 files |
 | Phase 26 P05 | 26 min | 2 tasks | 19 files |
 | Phase 26 P06 | 25m | 3 tasks | 5 files |
+| Phase 26 P07 | 34m | 3 tasks | 11 files |
 
 ## Decisions
 
@@ -851,8 +852,15 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 26]: Keep loss asset descriptors and chapter bindings module-local instead of extending the global StorySection contract. — Avoid widening the global lesson schema for one module.
 - [Phase 26]: Treat published Notebook outputs as the numerical authority; lesson prose binds visible values through typed output IDs. — Prevent copied numerical values from drifting away from published artifacts.
 - [Phase 26]: Limit Phase 26 gradient verification to dL/dyhat and dL/dz, with parameter training handed to Phase 27 and Phase 29. — Preserve the approved curriculum boundary while completing the output-gradient loop.
+- [Phase 26]: Place one chapter-keyed locked-results surface inside each StoryScroller chapter and render consolidated downloads once after the unchanged checkpoint. — Keep formula, interaction, real output, and code in one learning loop.
+- [Phase 26]: Keep fixed extreme BCE probes read-only while learner-controlled loss, row, and h choices remain bounded and finite. — Preserve stability teaching without exposing arbitrary extreme inputs.
+- [Phase 26]: Use validated local summary rows when available and label built-in teaching fallbacks explicitly. — Missing local summaries must not blank formulas or interactions.
 
 ## Operator Next Steps
 
 - Execute Phase 26 with `/gsd-execute-phase 26`.
 - Review the approved plan set under `.planning/phases/26-loss-functions-rebuild/`.
+
+### Blockers
+
+- Dependency maintenance: pre-existing postcss@8.5.15 keeps npm run security:audit red on GHSA-r28c-9q8g-f849; update the lockfile in a dedicated dependency change.

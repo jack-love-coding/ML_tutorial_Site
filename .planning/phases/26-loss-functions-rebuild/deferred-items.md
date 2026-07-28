@@ -26,3 +26,19 @@
   ROADMAP 1/7 status. Only the derived frontmatter percentage remains at 0.
 - **Scope decision:** Deferred to the GSD state-schema/tooling owner rather than
   directly editing `STATE.md` outside its registered mutation handlers.
+
+## Pre-existing PostCSS security advisory
+
+- **Discovered during:** Plan 26-07 release verification
+- **Command:** `npm run security:audit`
+- **Issue:** The existing lockfile resolves transitive `postcss@8.5.15` through
+  Vite, sanitize-html, and Vue compiler packages. The current registry audit
+  reports GHSA-r28c-9q8g-f849 for PostCSS versions through 8.5.17, so the
+  repository-standard moderate-level audit exits nonzero with one high finding.
+- **Scope decision:** Deferred. Plan 26-07 changes no dependencies, and an
+  unreviewed package-manager repair is outside the loss-functions page
+  integration scope. The finding must be resolved through a dedicated dependency
+  update that reviews the lockfile and reruns the repository release gates.
+- **Current evidence:** Offline asset verification, 88 focused loss/progress
+  tests, 837 full tests, root and Pages builds, Pages asset checks, and the
+  32-case browser matrix all pass.
