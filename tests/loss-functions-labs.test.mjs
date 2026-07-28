@@ -37,7 +37,7 @@ test('registry loading validates base-safe summaries and aborts stale result req
   assert.match(registry, /withPublicBase/)
   assert.match(registry, /parseLossFunctionsOutput/)
   assert.match(registry, /new AbortController\(\)/)
-  assert.match(registry, /controller\.abort\(\)/)
+  assert.match(registry, /controller\?\.abort\(\)/)
   assert.match(registry, /watch\(\s*\(\) => props\.section\.id/)
   assert.doesNotMatch(registry, /secom-manufacturing\.csv/)
 })
