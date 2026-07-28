@@ -300,7 +300,10 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.ok(existsSync(new URL('docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md', root)))
   assert.ok(existsSync(new URL('docs/refactor/audits/phase-18-optimizer-cnn-handoff-audit.md', root)))
 
-  const roadmapSource = read('.planning/ROADMAP.md')
+  const roadmapSource = [
+    read('.planning/ROADMAP.md'),
+    read('.planning/milestones/v1.0-ROADMAP.md'),
+  ].join('\n')
   assert.match(roadmapSource, /Phase 21: Attention Q\/K\/V Softmax Task/)
   assert.match(roadmapSource, /AttentionQkvChallengeLab/)
   assert.match(roadmapSource, /row-wise softmax/)
@@ -313,9 +316,14 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.match(roadmapSource, /V3\.1 Minimum Mathematical Foundation/)
 
   const stateSource = read('.planning/STATE.md')
+  const currentPhaseMatch = stateSource.match(/^current_phase: (\d+)$/m)
+  const currentFocusMatch = stateSource.match(/^\*\*Current focus:\*\* Phase (\d+) — .+$/m)
   assert.match(stateSource, /Phase 24A navigation and Topic Library implementation completed/)
-  assert.match(stateSource, /^current_phase: 25$/m)
-  assert.match(stateSource, /^status: (?:verifying|completed)$/m)
+  assert.ok(currentPhaseMatch, 'planning state should expose the current phase')
+  assert.ok(currentFocusMatch, 'planning state should expose the current curriculum focus')
+  assert.ok(Number(currentPhaseMatch[1]) >= 25, 'planning state must not regress before completed Phase 25')
+  assert.equal(currentFocusMatch[1], currentPhaseMatch[1])
+  assert.match(stateSource, /^status: (?:ready_to_execute|executing|verifying|completed)$/m)
   assert.match(stateSource, /classification audit of all 53 current modules/)
   assert.match(stateSource, /V3\.1 AI Overview rebuild and Math-to-Code pilot are completed slices/)
   assert.match(stateSource, /Python Data Tools Stage 1 is complete/)
@@ -359,7 +367,6 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.match(stateSource, /CategoricalVocabularyTaskLab/)
   assert.match(stateSource, /DataQualityDecisionRecordLab/)
   assert.match(stateSource, /project readiness is useful but should wait/)
-  assert.match(stateSource, /Current focus:\*\* Phase 25 — Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics/)
   assert.match(stateSource, /Stage 5 design is complete in four ordered plans/)
   assert.match(roadmapSource, /Numerical Methods Batches 1–4 are completed slices/)
   assert.match(roadmapSource, /Numerical Methods Batch 4 Phase 25[^\n]*13 plans[^\n]*8 waves/)

@@ -110,19 +110,22 @@ const lockedEnvironmentProvenance = {
 }
 
 test('planning state records shipped Python Data Tools stages and completed numerical-methods batches', async () => {
-  const [state, roadmap] = await Promise.all([
+  const [state, currentRoadmap, archivedRoadmap] = await Promise.all([
     readFile(new URL('../.planning/STATE.md', import.meta.url), 'utf8'),
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
+    readFile(new URL('../.planning/milestones/v1.0-ROADMAP.md', import.meta.url), 'utf8'),
   ])
+  const roadmap = `${currentRoadmap}\n${archivedRoadmap}`
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
-  const expectedFocus = '**Current focus:** Phase 25 — Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics'
+  const currentPhaseMatch = state.match(/^current_phase: (\d+)$/m)
+  const currentFocusMatch = state.match(/^\*\*Current focus:\*\* Phase (\d+) — .+$/m)
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
-  assert.match(state, /^\*\*Updated:\*\* 2026-07-23$/m)
-  assert.ok(state.includes(expectedFocus))
-  assert.match(state, /^current_phase: 25$/m)
-  assert.match(state, /^status: (?:verifying|completed)$/m)
-  assert.match(state, /^  completed_plans: 13$/m)
+  assert.ok(currentPhaseMatch, 'planning state should expose the current phase')
+  assert.ok(currentFocusMatch, 'planning state should expose the current curriculum focus')
+  assert.ok(Number(currentPhaseMatch[1]) >= 25, 'planning state must not regress before the completed Batch 4 phase')
+  assert.equal(currentFocusMatch[1], currentPhaseMatch[1])
+  assert.match(state, /^status: (?:ready_to_execute|executing|verifying|completed)$/m)
   assert.match(state, /AI Overview rebuild[^\n]*completed/i)
   assert.match(state, /Math-to-Code pilot[^\n]*completed/i)
   assert.match(state, /Python Data Tools Stage 1 is complete/i)
