@@ -4,16 +4,22 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
-import os
+import math
+import re
 import shutil
 import sys
 import tempfile
 import urllib.request
 import uuid
+import zipfile
+from collections import Counter
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
+from statistics import median
 from typing import Any, Iterator
 
 
@@ -77,6 +83,25 @@ SECOM = SourceContract(
 )
 
 SOURCE_CONTRACTS = (LADE, SECOM)
+LADE_SOURCE_FIELDS = (
+    "order_id",
+    "region_id",
+    "city",
+    "courier_id",
+    "lng",
+    "lat",
+    "aoi_id",
+    "aoi_type",
+    "accept_time",
+    "accept_gps_time",
+    "accept_gps_lng",
+    "accept_gps_lat",
+    "delivery_time",
+    "delivery_gps_time",
+    "delivery_gps_lng",
+    "delivery_gps_lat",
+    "ds",
+)
 LADE_PUBLISHED_FIELDS = (
     "course_row_id",
     "source_row_number",
@@ -88,11 +113,23 @@ LADE_PUBLISHED_FIELDS = (
     "delivery_duration_minutes",
 )
 LADE_REMOVED_FIELDS = (
+    "order_id",
+    "region_id",
     "courier_id",
-    "GPS coordinates",
-    "precise stop fields",
-    "every source field outside the publication allowlist",
+    "lng",
+    "lat",
+    "aoi_id",
+    "accept_gps_time",
+    "accept_gps_lng",
+    "accept_gps_lat",
+    "delivery_gps_time",
+    "delivery_gps_lng",
+    "delivery_gps_lat",
 )
+SECOM_ARCHIVE_MEMBERS = ("secom.data", "secom_labels.data", "secom.names")
+LADE_EXPECTED_ROWS = 31_415
+SECOM_EXPECTED_ROWS = 1_567
+SECOM_EXPECTED_LABEL_COUNTS = {-1: 1_463, 1: 104}
 
 RESEARCH_ANCHORS = (
     "## Open Questions (RESOLVED)",
@@ -114,7 +151,9 @@ CONTRACT_ANCHORS = (
     SECOM.sha256,
     SECOM.license,
     *LADE_PUBLISHED_FIELDS,
-    *LADE_REMOVED_FIELDS[:3],
+    *LADE_REMOVED_FIELDS,
+    "GPS coordinates",
+    "precise stop fields",
 )
 
 
@@ -207,6 +246,254 @@ def validate_authorization() -> None:
     validate_contract()
 
 
+def _parse_lade_timestamp(value: str, *, field: str, row_number: int) -> datetime:
+    for pattern in ("%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S"):
+        try:
+            parsed = datetime.strptime(value, pattern)
+            if pattern.startswith("%m"):
+                return parsed.replace(year=2000)
+            return parsed
+        except ValueError:
+            continue
+    raise Phase26Error(
+        f"LaDe row {row_number} has invalid {field} timestamp: {value!r}"
+    )
+
+
+def _delivery_duration_minutes(
+    accept_value: str,
+    delivery_value: str,
+    *,
+    row_number: int,
+) -> float | int:
+    accept_time = _parse_lade_timestamp(
+        accept_value,
+        field="accept_time",
+        row_number=row_number,
+    )
+    delivery_time = _parse_lade_timestamp(
+        delivery_value,
+        field="delivery_time",
+        row_number=row_number,
+    )
+    if delivery_time < accept_time:
+        try:
+            delivery_time = delivery_time.replace(year=accept_time.year + 1)
+        except ValueError as error:
+            raise Phase26Error(
+                f"LaDe row {row_number} timestamp rollover is invalid"
+            ) from error
+    duration = (delivery_time - accept_time).total_seconds() / 60.0
+    if not math.isfinite(duration) or duration < 0:
+        raise Phase26Error(
+            f"LaDe row {row_number} has non-finite or negative delivery duration: {duration}"
+        )
+    return int(duration) if duration.is_integer() else duration
+
+
+def _validate_lade_candidate(candidate: dict[str, Any], *, row_number: int) -> None:
+    if tuple(candidate) != LADE_PUBLISHED_FIELDS:
+        unexpected = sorted(set(candidate) - set(LADE_PUBLISHED_FIELDS))
+        missing = sorted(set(LADE_PUBLISHED_FIELDS) - set(candidate))
+        raise Phase26Error(
+            f"LaDe normalized row {row_number} violates privacy schema: "
+            f"missing={missing}, unexpected={unexpected}"
+        )
+    lowered_fields = " ".join(candidate).lower()
+    if any(token in lowered_fields for token in ("courier", "gps", "latitude", "longitude", "stop")):
+        raise Phase26Error(
+            f"LaDe normalized row {row_number} contains a denied privacy field"
+        )
+    duration = candidate["delivery_duration_minutes"]
+    if not isinstance(duration, (int, float)) or not math.isfinite(duration):
+        raise Phase26Error(
+            f"LaDe normalized row {row_number} has invalid derived duration"
+        )
+
+
+def validate_lade_candidates(candidates: list[dict[str, Any]]) -> None:
+    course_ids: set[str] = set()
+    for row_number, candidate in enumerate(candidates, start=1):
+        _validate_lade_candidate(candidate, row_number=row_number)
+        course_row_id = candidate["course_row_id"]
+        if course_row_id in course_ids:
+            raise Phase26Error(f"Duplicate LaDe course ID: {course_row_id}")
+        course_ids.add(course_row_id)
+
+
+def validate_lade_source(
+    path: Path,
+    *,
+    expected_rows: int = LADE_EXPECTED_ROWS,
+) -> dict[str, Any]:
+    try:
+        with path.open(encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            if tuple(reader.fieldnames or ()) != LADE_SOURCE_FIELDS:
+                raise Phase26Error(
+                    "LaDe source field/schema drift: "
+                    f"expected {list(LADE_SOURCE_FIELDS)}, got {reader.fieldnames}"
+                )
+            source_rows = list(reader)
+    except OSError as error:
+        raise Phase26Error(f"Cannot read LaDe source {path}: {error}") from error
+
+    if len(source_rows) != expected_rows:
+        raise Phase26Error(
+            f"LaDe row count drift: expected {expected_rows}, got {len(source_rows)}"
+        )
+
+    normalized_rows: list[dict[str, Any]] = []
+    durations: list[float | int] = []
+    for source_row_number, row in enumerate(source_rows, start=1):
+        for required_field in ("city", "aoi_type", "accept_time", "delivery_time", "ds"):
+            if not row.get(required_field):
+                raise Phase26Error(
+                    f"LaDe row {source_row_number} has empty required field {required_field}"
+                )
+        duration = _delivery_duration_minutes(
+            row["accept_time"],
+            row["delivery_time"],
+            row_number=source_row_number,
+        )
+        course_row_id = f"lade-jilin-{source_row_number:05d}"
+        candidate = {
+            "course_row_id": course_row_id,
+            "source_row_number": source_row_number,
+            "city": row["city"],
+            "aoi_type": row["aoi_type"],
+            "accept_time": row["accept_time"],
+            "delivery_time": row["delivery_time"],
+            "ds": row["ds"],
+            "delivery_duration_minutes": duration,
+        }
+        normalized_rows.append(candidate)
+        durations.append(duration)
+
+    validate_lade_candidates(normalized_rows)
+    facts = {
+        "rowCount": len(normalized_rows),
+        "sourceFields": list(LADE_SOURCE_FIELDS),
+        "publishedFields": list(LADE_PUBLISHED_FIELDS),
+        "removedFields": list(LADE_REMOVED_FIELDS),
+        "durationMinimumMinutes": min(durations),
+        "durationMaximumMinutes": max(durations),
+        "durationMedianMinutes": median(durations),
+        "zeroDurationRows": sum(duration == 0 for duration in durations),
+        "over24HourRows": sum(duration > 24 * 60 for duration in durations),
+    }
+    return {"facts": facts, "normalizedRows": normalized_rows}
+
+
+def _decode_zip_member(archive: zipfile.ZipFile, name: str) -> str:
+    info = archive.getinfo(name)
+    if info.file_size > 10 * 1024 * 1024:
+        raise Phase26Error(f"SECOM archive member is unexpectedly large: {name}")
+    try:
+        return archive.read(name).decode("utf-8")
+    except (OSError, UnicodeDecodeError) as error:
+        raise Phase26Error(f"Cannot decode SECOM archive member {name}: {error}") from error
+
+
+def validate_secom_archive(
+    path: Path,
+    *,
+    expected_rows: int = SECOM_EXPECTED_ROWS,
+    expected_label_counts: dict[int, int] | None = None,
+) -> dict[str, int]:
+    expected_counts = expected_label_counts or SECOM_EXPECTED_LABEL_COUNTS
+    try:
+        with zipfile.ZipFile(path) as archive:
+            members = tuple(sorted(archive.namelist()))
+            if members != tuple(sorted(SECOM_ARCHIVE_MEMBERS)):
+                raise Phase26Error(
+                    f"SECOM archive member drift: expected {list(SECOM_ARCHIVE_MEMBERS)}, "
+                    f"got {list(members)}"
+                )
+            data_text = _decode_zip_member(archive, "secom.data")
+            labels_text = _decode_zip_member(archive, "secom_labels.data")
+            names_text = _decode_zip_member(archive, "secom.names")
+    except (OSError, zipfile.BadZipFile, KeyError) as error:
+        raise Phase26Error(f"Invalid SECOM archive {path}: {error}") from error
+
+    if not re.search(r"Number of Attributes:\s*591\b", names_text):
+        raise Phase26Error(
+            "SECOM metadata must preserve the upstream declared 591-feature count"
+        )
+
+    data_lines = data_text.splitlines()
+    label_lines = labels_text.splitlines()
+    if len(data_lines) != expected_rows:
+        raise Phase26Error(
+            f"SECOM row count drift: expected {expected_rows}, got {len(data_lines)}"
+        )
+    if len(label_lines) != expected_rows:
+        raise Phase26Error(
+            f"SECOM label row count drift: expected {expected_rows}, got {len(label_lines)}"
+        )
+
+    missing_value_count = 0
+    for row_number, line in enumerate(data_lines, start=1):
+        values = line.split()
+        if len(values) != 590:
+            raise Phase26Error(
+                f"SECOM row {row_number} observed {len(values)} values; exact raw width is 590"
+            )
+        for column_number, value in enumerate(values, start=1):
+            if value == "NaN":
+                missing_value_count += 1
+                continue
+            try:
+                numeric = float(value)
+            except ValueError as error:
+                raise Phase26Error(
+                    f"SECOM row {row_number} column {column_number} is not numeric or NaN"
+                ) from error
+            if not math.isfinite(numeric):
+                raise Phase26Error(
+                    f"SECOM row {row_number} column {column_number} is non-finite"
+                )
+
+    labels: list[int] = []
+    for row_number, line in enumerate(label_lines, start=1):
+        fields = line.split(maxsplit=1)
+        if len(fields) != 2 or not fields[1].strip():
+            raise Phase26Error(
+                f"SECOM label row {row_number} must contain a label and timestamp"
+            )
+        try:
+            raw_label = int(fields[0])
+        except ValueError as error:
+            raise Phase26Error(f"SECOM label row {row_number} is not an integer") from error
+        if raw_label not in {-1, 1}:
+            raise Phase26Error(
+                f"SECOM label row {row_number} uses unsupported label {raw_label}; "
+                "only -1 -> 0 and 1 -> 1 are allowed"
+            )
+        try:
+            timestamp = fields[1].strip().strip('"')
+            datetime.strptime(timestamp, "%d/%m/%Y %H:%M:%S")
+        except ValueError as error:
+            raise Phase26Error(
+                f"SECOM label row {row_number} has invalid timestamp {fields[1]!r}"
+            ) from error
+        labels.append(raw_label)
+
+    counts = Counter(labels)
+    if dict(counts) != expected_counts:
+        raise Phase26Error(
+            f"SECOM label-count drift: expected {expected_counts}, got {dict(counts)}"
+        )
+    return {
+        "rowCount": len(data_lines),
+        "passCount": counts[-1],
+        "failCount": counts[1],
+        "declaredFeatureCount": 591,
+        "observedFeatureCount": 590,
+        "missingValueCount": missing_value_count,
+    }
+
+
 def _source_manifest_entry(source: SourceContract, path: Path) -> dict[str, Any]:
     return {
         "datasetId": source.dataset_id,
@@ -224,7 +511,16 @@ def _source_manifest_entry(source: SourceContract, path: Path) -> dict[str, Any]
     }
 
 
-def source_cache_manifest(cache: Path) -> dict[str, Any]:
+def validate_source_contents(cache: Path) -> dict[str, Any]:
+    lade = validate_lade_source(cache / LADE.cache_name)
+    secom = validate_secom_archive(cache / SECOM.cache_name)
+    return {
+        "lade": lade["facts"],
+        "secom": secom,
+    }
+
+
+def source_cache_manifest(cache: Path, validation: dict[str, Any]) -> dict[str, Any]:
     return {
         "contractVersion": CONTRACT_VERSION,
         "transformVersion": TRANSFORM_VERSION,
@@ -232,6 +528,15 @@ def source_cache_manifest(cache: Path) -> dict[str, Any]:
         "sources": {
             source.dataset_id: _source_manifest_entry(source, cache / source.cache_name)
             for source in SOURCE_CONTRACTS
+        },
+        "validation": validation,
+        "transform": {
+            "ladeTargetDefinition": (
+                "delivery_duration_minutes = delivery_time - accept_time "
+                "with month/day rollover handling"
+            ),
+            "secomLabelMapping": {"-1": 0, "1": 1},
+            "secomMissingValuePolicy": "Preserve raw NaN as missing; no imputation",
         },
         "publication": {
             "allowedFields": list(LADE_PUBLISHED_FIELDS),
@@ -260,9 +565,10 @@ def verify_source_cache(cache: Path) -> dict[str, Any]:
     for source in SOURCE_CONTRACTS:
         _validate_source_file(source, cache / source.cache_name)
 
+    validation = validate_source_contents(cache)
     manifest_path = cache / SOURCE_CACHE_MANIFEST
     manifest = read_strict_json(manifest_path)
-    expected = source_cache_manifest(cache)
+    expected = source_cache_manifest(cache, validation)
     if manifest != expected:
         raise Phase26Error("Source-cache manifest, license, attribution, or identity drifted")
     return manifest
@@ -314,7 +620,10 @@ def bootstrap_sources(cache: Path) -> None:
     try:
         for source in SOURCE_CONTRACTS:
             _download_exact_source(source, stage / source.cache_name)
-        (stage / SOURCE_CACHE_MANIFEST).write_bytes(strict_json_bytes(source_cache_manifest(stage)))
+        validation = validate_source_contents(stage)
+        (stage / SOURCE_CACHE_MANIFEST).write_bytes(
+            strict_json_bytes(source_cache_manifest(stage, validation))
+        )
         for source in SOURCE_CONTRACTS:
             _validate_source_file(source, stage / source.cache_name)
         _replace_directory_transaction(stage, cache)

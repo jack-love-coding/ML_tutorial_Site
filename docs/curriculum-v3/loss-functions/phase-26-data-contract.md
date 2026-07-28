@@ -51,6 +51,14 @@ dataset, synthetic delivery records, or another use.
 | License evidence | Apache-2.0 declaration on the official Cainiao-AI dataset card |
 | Attribution evidence | Cainiao-AI LaDe dataset card and the LaDe paper, arXiv:2306.10675 |
 
+The validated source header is exactly:
+
+`order_id, region_id, city, courier_id, lng, lat, aoi_id, aoi_type, accept_time, accept_gps_time, accept_gps_lng, accept_gps_lat, delivery_time, delivery_gps_time, delivery_gps_lng, delivery_gps_lat, ds`.
+
+Validation of all 31,415 rows observes finite delivery durations from 0 to 3,573
+minutes, a median of 175 minutes, 50 zero-duration rows, and 8 rows above 24
+hours. Month/day timestamp rollover is handled before duration calculation.
+
 Required attribution links:
 
 - Official dataset card: <https://huggingface.co/datasets/Cainiao-AI/LaDe>
@@ -80,9 +88,12 @@ have one unique deterministic `course_row_id` per source row.
 
 The publication denylist includes, at minimum:
 
-- `courier_id` and any courier/person identifier;
-- latitude, longitude, coordinate pairs, geohashes, or other GPS fields;
-- precise stop, address, route, trajectory, or stop-identifier fields; and
+- `order_id`, `region_id`, `courier_id`, and any other order, region, courier, or
+  person identifier;
+- `lng`, `lat`, `accept_gps_time`, `accept_gps_lng`, `accept_gps_lat`,
+  `delivery_gps_time`, `delivery_gps_lng`, and `delivery_gps_lat`;
+- `aoi_id` and other precise stop, address, route, trajectory, coordinate,
+  geohash, or stop-identifier fields; and
 - every source field not present in the eight-field allowlist above.
 
 A candidate containing a denylisted or unexpected field is a publication error. A
@@ -104,6 +115,10 @@ authorization.
 | Declared feature count | 591 |
 | Observed raw feature values per row | 590 |
 | License | CC BY 4.0 |
+
+Validation observes exactly the three archive members `secom.data`,
+`secom_labels.data`, and `secom.names`; 41,951 raw `NaN` measurement tokens are
+preserved as missing values.
 
 Required attribution link:
 
