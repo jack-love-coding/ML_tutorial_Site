@@ -5,17 +5,17 @@ milestone_name: Classical Supervised Learning
 current_phase: 26
 current_phase_name: Loss Functions Rebuild
 status: ready_to_execute
-stopped_at: Completed 26-04-PLAN.md
-last_updated: "2026-07-28T14:54:25.802Z"
+stopped_at: Completed 26-05-PLAN.md
+last_updated: "2026-07-28T15:27:05.743Z"
 last_activity: 2026-07-28
 last_activity_desc: Phase 26 execution started
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 7
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
-current_plan: 26-05
+current_plan: 26-06
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
@@ -26,7 +26,7 @@ current_plan: 26-05
 ## Current Position
 
 Phase: 26 (Loss Functions Rebuild) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-07-28 — Phase 26 execution started
 
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-28T14:53:47.343Z
-**Stopped at:** Completed 26-04-PLAN.md
+**Last session:** 2026-07-28T15:27:05.737Z
+**Stopped at:** Completed 26-05-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -794,6 +794,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 26 P02 | 12 min | 2 tasks | 5 files |
 | Phase 26 P03 | 15 min | 2 tasks | 5 files |
 | Phase 26 P04 | 41 min | 2 tasks | 3 files |
+| Phase 26 P05 | 26 min | 2 tasks | 19 files |
 
 ## Decisions
 
@@ -842,6 +843,10 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 26]: Match TypeScript diagnostic arithmetic explicitly — Left-fold means and the shared branch sigmoid eliminate Python 3.12 aggregation and one-ULP probability drift while stable BCE stays in the logit domain.
 - [Phase 26]: Keep deterministic plots inside the audited environment — A standard-library 960x540 PNG writer supplies labels, patterns, and metadata without adding packages or widening the wheel audit.
 - [Phase 26]: Keep Plan 26-04 staging-only and indivisible — All 16 members and four execution proofs verify together; Plan 26-05 remains the only public publication boundary.
+- [Phase 26]: Plan 26-05: Publish only the byte-identical Plan 26-04 staging package: exactly 16 members totaling 22,011,681 bytes.
+- [Phase 26]: Plan 26-05: Treat datasets/loss-functions and notebooks/loss-functions as one lock-scoped transaction with two-group rollback.
+- [Phase 26]: Plan 26-05: Preserve the frozen Plan 26-04 candidate generator hash while evolving publication code independently.
+- [Phase 26]: Plan 26-05: Rerun each public Notebook in its own external temporary package and fresh network-blocked kernel using only the pinned offline wheelhouse.
 
 ## Operator Next Steps
 
