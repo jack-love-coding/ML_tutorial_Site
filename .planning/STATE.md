@@ -5,17 +5,17 @@ milestone_name: Classical Supervised Learning
 current_phase: 26
 current_phase_name: Loss Functions Rebuild
 status: ready_to_execute
-stopped_at: Completed 26-01-PLAN.md
-last_updated: "2026-07-28T13:23:45.634Z"
+stopped_at: Completed 26-02-PLAN.md
+last_updated: "2026-07-28T13:41:17.009Z"
 last_activity: 2026-07-28
 last_activity_desc: Phase 26 execution started
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 7
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
-current_plan: 26-02
+current_plan: 26-03
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
@@ -26,7 +26,7 @@ current_plan: 26-02
 ## Current Position
 
 Phase: 26 (Loss Functions Rebuild) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-07-28 — Phase 26 execution started
 
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-28T13:23:45.629Z
-**Stopped at:** Completed 26-01-PLAN.md
+**Last session:** 2026-07-28T13:40:49.798Z
+**Stopped at:** Completed 26-02-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -791,6 +791,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 25 P12 | 15 min | 2 tasks | 2 files |
 | Phase 25 P13 | 14h 35m | 1 tasks | 3 files |
 | Phase 26 P01 | 18 min | 3 tasks | 5 files |
+| Phase 26 P02 | 12 min | 2 tasks | 5 files |
 
 ## Decisions
 
@@ -828,6 +829,9 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 25]: Preserve both routes, existing checkpoints and Progress identities, standard/Pages assets, reduced-motion behavior, and video-failure teaching fallbacks.
 - [Phase 26]: Authorize only the pinned LaDe-D Jilin revision/hash and privacy-minimized eight-field derivative. — The 2026-07-28 approve-lade decision does not transfer to another version, field set, or use.
 - [Phase 26]: Preserve SECOM declared 591 versus observed 590 measurements without repair. — Padding, truncation, or imputation would silently rewrite the official raw schema.
+- [Phase 26]: Keep stable logit-domain BCE as the only canonical binary-loss path — Probability clipping remains comparison-only metadata so extreme confident errors retain the original objective.
+- [Phase 26]: Report MAE zero residual as a kink with subgradient convention 0 — A symmetric finite difference near zero is not evidence of a unique derivative and can never receive pass status.
+- [Phase 26]: Lock the loss-gradient sweep to h=10^-1 through 10^-9 with tolerance 5e-7 — The fixed range shows truncation and rounding behavior while h=1e-5 passes MSE, smooth MAE, and stable BCE.
 
 ## Operator Next Steps
 

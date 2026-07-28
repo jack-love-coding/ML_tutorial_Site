@@ -2,16 +2,17 @@
 
 ## Pre-existing full-suite planning-state assertion
 
-- **Discovered during:** Plan 26-01 optional repository-wide `npm test`
-- **Test:** `tests/python-data-tools-contract.test.ts`
-- **Issue:** The historical Python Data Tools assertion hardcodes Phase 25 state
+- **Discovered during:** Plan 26-01 and Plan 26-02 optional repository-wide `npm test`
+- **Tests:** `tests/python-data-tools-contract.test.ts` and
+  `tests/curriculumMilestoneAudit.test.ts`
+- **Issue:** The historical Python Data Tools and milestone-audit assertions hardcode Phase 25 state
   (`Updated: 2026-07-23`, `current_phase: 25`, 13 completed plans, and the Phase 25
   focus). The repository was already on Phase 26 before Plan 26-01 began, and the
   execution orchestrator had already modified `.planning/STATE.md`.
 - **Scope decision:** Deferred. Updating a historical Stage 4 test is unrelated to
   the Phase 26 dataset contract and would weaken the plan's bounded file scope.
-- **Current evidence:** The Plan 26-01 focused suite passes 8/8, including exact
-  source, privacy, schema, strict-JSON, offline, and write-free checks.
+- **Current evidence:** The Plan 26-01 focused suite passes 8/8, and the Plan
+  26-02 loss-math suite passes 13/13 with the production build succeeding.
 
 ## GSD nested progress percentage
 
