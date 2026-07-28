@@ -1,8 +1,13 @@
 # Phase 26 Loss Functions Data Contract
 
-**Contract version:** `loss-functions-phase-26-v1`  
-**Authorization decision:** `approve-lade`  
-**Decision date:** 2026-07-28  
+**Contract version:** `loss-functions-phase-26-v1`
+
+**Transformation version:** `phase-26-normalization-v1`
+
+**Authorization decision:** `approve-lade`
+
+**Decision date:** 2026-07-28
+
 **Source retrieval date:** 2026-07-28
 
 This contract is the fail-closed boundary for every real-data operation in Phase 26.
@@ -113,7 +118,8 @@ invented 591st measurement is forbidden.
 
 - `--bootstrap-sources` is the only mode allowed to access the network. It may
   request only the two exact official download URLs recorded above.
-- `--generate`, `--verify-source-cache`, and `--check` are offline. They must fail
+- `--generate`, `--verify-source-cache`, and `--check` are offline and mutually
+  exclusive with source bootstrap. They must fail
   when required local source bytes are unavailable or drift from the pinned hashes.
 - `--check` is read-only and may not modify repository files or the source cache.
 - Source-cache files live only under `.cache/loss-functions/phase-26-sources/` and
@@ -132,6 +138,10 @@ explicit status with a JSON `null` value, for example
 forbidden. Synthetic `-1000` and `1000` logit probes never carry a LaDe or SECOM row
 ID.
 
+Every generated manifest records the exact keys `contractVersion`, `license`, and
+`removedFields`. Their required values come from this contract rather than from
+downloaded metadata or caller input.
+
 ## Fail-closed validation matrix
 
 Generation and cache verification must reject:
@@ -148,4 +158,3 @@ Generation and cache verification must reject:
 - SECOM label remapping, missing-value imputation, padding, or truncation; and
 - any network attempt outside explicit source bootstrap or any public write before
   Plan 26-05.
-
