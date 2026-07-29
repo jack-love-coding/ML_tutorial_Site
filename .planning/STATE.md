@@ -5,15 +5,15 @@ milestone_name: Classical Supervised Learning
 current_phase: 27
 current_phase_name: Linear Regression Rebuild
 status: executing
-stopped_at: Phase 27 context gathered
-last_updated: "2026-07-29T10:24:37.125Z"
-last_activity: 2026-07-28
-last_activity_desc: Phase 26 complete, transitioned to Phase 27
+stopped_at: Completed 27-01-PLAN.md
+last_updated: "2026-07-29T10:48:52.596Z"
+last_activity: 2026-07-29
+last_activity_desc: Phase 27 execution started
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 15
+  completed_plans: 8
   percent: 17
 current_plan: null
 ---
@@ -25,10 +25,10 @@ current_plan: null
 
 ## Current Position
 
-Phase: 27 — Linear Regression Rebuild
-Plan: Not started
+Phase: 27 (Linear Regression Rebuild) — EXECUTING
+Plan: 2 of 8
 Status: Ready to execute
-Last activity: 2026-07-28 — Phase 26 complete, transitioned to Phase 27
+Last activity: 2026-07-29 — Phase 27 execution started
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 26 — Loss Functions Rebuild
+**Current focus:** Phase 27 — Linear Regression Rebuild
 
 ## Baseline
 
@@ -770,9 +770,9 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-29T08:50:04.756Z
-**Stopped at:** Phase 27 context gathered
-**Resume file:** .planning/phases/27-linear-regression-rebuild/27-CONTEXT.md
+**Last session:** 2026-07-29T10:48:52.590Z
+**Stopped at:** Completed 27-01-PLAN.md
+**Resume file:** None
 
 ## Performance Metrics
 
@@ -797,6 +797,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 26 P05 | 26 min | 2 tasks | 19 files |
 | Phase 26 P06 | 25m | 3 tasks | 5 files |
 | Phase 26 P07 | 34m | 3 tasks | 11 files |
+| Phase 27 P01 | 17min | 3 tasks | 4 files |
 
 ## Decisions
 
@@ -855,6 +856,10 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 26]: Place one chapter-keyed locked-results surface inside each StoryScroller chapter and render consolidated downloads once after the unchanged checkpoint. — Keep formula, interaction, real output, and code in one learning loop.
 - [Phase 26]: Keep fixed extreme BCE probes read-only while learner-controlled loss, row, and h choices remain bounded and finite. — Preserve stability teaching without exposing arbitrary extreme inputs.
 - [Phase 26]: Use validated local summary rows when available and label built-in teaching fallbacks explicitly. — Missing local summaries must not blank formulas or interactions.
+- [Phase 27]: Represent every model row with an explicit featureOrder plus values so wrong order and leakage columns fail closed at runtime. — Width alone cannot detect reordered or leaked columns at the pure-math boundary.
+- [Phase 27]: Keep generic bounded batch GD separate from the locked full-data Bike fit constants; browser replay does not pretend to refit the full dataset. — The browser owns deterministic calculation and replay while later asset plans own the complete dataset execution.
+- [Phase 27]: Expose staged diagnostics as typed scalar and array fields compatible with the existing TrainingSnapshot contract. — This preserves the global lesson schema while supporting Bike-specific diagnostics.
+- [Phase 27]: Preserve fitDiagnostics as a Bike-only same-case compatibility adapter while removing California authority and the custom linear solver. — Existing renderers keep their contract without reviving superseded numerical authority.
 
 ## Operator Next Steps
 
