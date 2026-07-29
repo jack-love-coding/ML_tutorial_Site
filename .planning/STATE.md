@@ -5,15 +5,15 @@ milestone_name: Classical Supervised Learning
 current_phase: 27
 current_phase_name: Linear Regression Rebuild
 status: executing
-stopped_at: Completed 27-02-PLAN.md
-last_updated: "2026-07-29T11:10:29.083Z"
+stopped_at: Completed 27-03-PLAN.md
+last_updated: "2026-07-29T11:40:41.410Z"
 last_activity: 2026-07-29
 last_activity_desc: Phase 27 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 15
-  completed_plans: 9
+  completed_plans: 10
   percent: 17
 current_plan: null
 ---
@@ -26,7 +26,7 @@ current_plan: null
 ## Current Position
 
 Phase: 27 (Linear Regression Rebuild) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 Status: Ready to execute
 Last activity: 2026-07-29 — Phase 27 execution started
 
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-29T11:10:29.078Z
-**Stopped at:** Completed 27-02-PLAN.md
+**Last session:** 2026-07-29T11:40:41.405Z
+**Stopped at:** Completed 27-03-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -799,6 +799,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 26 P07 | 34m | 3 tasks | 11 files |
 | Phase 27 P01 | 17min | 3 tasks | 4 files |
 | Phase 27 P02 | 15 min | 2 tasks | 6 files |
+| Phase 27 P03 | 24 min | 2 tasks | 2 files |
 
 ## Decisions
 
@@ -865,6 +866,9 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 27]: Keep the Phase 27 Python environment byte-identical to Phase 26 and install exclusively from the audited local wheelhouse with --no-index. — Reusing the proven 99-wheel offline contract avoids environment drift and preserves deterministic two-locale Notebook execution.
 - [Phase 27]: Limit --prepare-candidates to validating the source and isolated environment before creating a fresh empty ignored transaction. — Plan 27-02 establishes the safe transaction boundary while Plan 27-03 remains the sole owner of candidate materialization and Notebook execution.
 - [Phase 27]: Keep every public mutation and standalone public verification path out of the Phase 27 candidate builder. — Plan 27-04 owns atomic publication, rollback, standalone reruns, and GitHub Pages base-path verification as a separate auditable boundary.
+- [Phase 27]: Use the augmented pseudoinverse relation for teaching and numpy.linalg.lstsq as the stable numerical authority. — Avoids explicit Gram-matrix inversion while keeping theta[0] and theta[1:] mapped to intercept and weights.
+- [Phase 27]: Freeze deterministic teaching-row selection at instants 11550, 17213, 15628, 14965, and 15604. — Versioned filters, exclusions, and lowest-instant tie-breaks make reruns auditable.
+- [Phase 27]: Keep all generated regression assets in ignored staging until Plan 27-04. — Maintains a separate atomic publication and rollback boundary with no public mutation in Plan 27-03.
 
 ## Operator Next Steps
 
