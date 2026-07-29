@@ -224,6 +224,8 @@ const copy = computed(() =>
         lockedRow: '固定代表行 #11_550',
         formula: '单行：ŷ = xᵀw + b；残差：r = ŷ − y；批量：ŷ = Xw + b1。',
         staticMeaning: '静态说明：先确认优化收敛与三种 OLS 方法一致，再解读留出残差和系数稳定性。',
+        teachingSummary: '展开静态教学图：从单行残差到优化路径',
+        teachingDiagram: 'Bike 线性回归静态教学图：虚线表示残差，折线表示已发布优化检查点',
         chapterFocus: {
           'fit-line': '先锁定一行真实记录，读出预测、残差和损失贡献。',
           multivariate: '把同一行扩展成固定特征顺序，再切换到批量矩阵。',
@@ -284,6 +286,8 @@ const copy = computed(() =>
         lockedRow: 'Locked representative row #11_550',
         formula: 'One row: ŷ = xᵀw + b; residual: r = ŷ − y; batch: ŷ = Xw + b1.',
         staticMeaning: 'Static explanation: prove convergence and three-method OLS agreement before interpreting held-out residuals or coefficient stability.',
+        teachingSummary: 'Open the static teaching diagram: row residual to optimizer path',
+        teachingDiagram: 'Static Bike linear-regression diagram: dashed residual and published optimizer checkpoints',
         chapterFocus: {
           'fit-line': 'Lock one real row, then read its prediction, residual, and loss contribution.',
           multivariate: 'Expand the same row in the fixed feature order, then switch to the batch matrix.',
@@ -487,7 +491,10 @@ onBeforeUnmount(() => {
     <template #visual>
       <div class="linear-regression-lab__workspace">
         <p class="linear-regression-lab__static-note">{{ copy.staticMeaning }}</p>
-        <div class="linear-regression-lab__viz linear-regression-lab__viz-shell">
+        <div
+          class="linear-regression-lab__viz"
+          :class="{ 'linear-regression-lab__viz-shell': true }"
+        >
           <LinearRegressionMultivariateView
             v-if="isMultivariate"
             :snapshot="visualSnapshot"
@@ -523,7 +530,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
 
-        <div class="linear-regression-lab__control-grid">
+        <div class="linear-regression-lab__control-grid linear-regression-lab__advanced-controls">
           <label class="control">
             <span class="control__row">
               <span>{{ copy.rowBatch }}</span>
@@ -656,6 +663,30 @@ onBeforeUnmount(() => {
             · {{ activeScenario }}
           </p>
         </article>
+
+        <details class="linear-regression-lab__details linear-regression-lab__details--teaching">
+          <summary>{{ copy.teachingSummary }}</summary>
+          <section class="linear-regression-lab__teaching-visual">
+            <span>{{ copy.title }}</span>
+            <svg
+              viewBox="0 0 420 180"
+              class="linear-regression-lab__teaching-svg"
+              role="img"
+              :aria-label="copy.teachingDiagram"
+            >
+              <line x1="34" x2="386" y1="148" y2="148" class="linear-visual-axis" />
+              <line x1="34" x2="34" y1="24" y2="148" class="linear-visual-axis" />
+              <line x1="96" x2="96" y1="118" y2="74" class="linear-visual-residual" />
+              <circle cx="96" cy="118" r="7" class="linear-sample" />
+              <circle cx="96" cy="74" r="5" class="linear-state-dot" />
+              <polyline
+                points="182,126 224,104 268,83 316,62 366,48"
+                class="linear-visual-param-path"
+              />
+            </svg>
+            <p>{{ copy.staticMeaning }}</p>
+          </section>
+        </details>
       </section>
     </template>
 
