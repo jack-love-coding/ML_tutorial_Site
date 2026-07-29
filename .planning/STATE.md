@@ -5,15 +5,15 @@ milestone_name: Classical Supervised Learning
 current_phase: 27
 current_phase_name: Linear Regression Rebuild
 status: executing
-stopped_at: Completed 27-03-PLAN.md
-last_updated: "2026-07-29T11:40:41.410Z"
+stopped_at: Completed 27-04-PLAN.md
+last_updated: "2026-07-29T12:08:41.221Z"
 last_activity: 2026-07-29
 last_activity_desc: Phase 27 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 15
-  completed_plans: 10
+  completed_plans: 11
   percent: 17
 current_plan: null
 ---
@@ -26,7 +26,7 @@ current_plan: null
 ## Current Position
 
 Phase: 27 (Linear Regression Rebuild) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 Status: Ready to execute
 Last activity: 2026-07-29 — Phase 27 execution started
 
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-29T11:40:41.405Z
-**Stopped at:** Completed 27-03-PLAN.md
+**Last session:** 2026-07-29T12:08:41.215Z
+**Stopped at:** Completed 27-04-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -800,6 +800,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 27 P01 | 17min | 3 tasks | 4 files |
 | Phase 27 P02 | 15 min | 2 tasks | 6 files |
 | Phase 27 P03 | 24 min | 2 tasks | 2 files |
+| Phase 27 P04 | 22 min | 3 tasks | 11 files |
 
 ## Decisions
 
@@ -869,6 +870,9 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 27]: Use the augmented pseudoinverse relation for teaching and numpy.linalg.lstsq as the stable numerical authority. — Avoids explicit Gram-matrix inversion while keeping theta[0] and theta[1:] mapped to intercept and weights.
 - [Phase 27]: Freeze deterministic teaching-row selection at instants 11550, 17213, 15628, 14965, and 15604. — Versioned filters, exclusions, and lowest-instant tie-breaks make reruns auditable.
 - [Phase 27]: Keep all generated regression assets in ignored staging until Plan 27-04. — Maintains a separate atomic publication and rollback boundary with no public mutation in Plan 27-03.
+- [Phase 27]: Preserve the frozen Plan 27-03 candidate bytes and environment.json naming as the publication authority. — The completed 27-03 manifest is the verified immutable candidate; stale 27-04 path examples must not rewrite its content.
+- [Phase 27]: Use one complete-directory transaction with exact absence, byte, and mode rollback. — The public package must never expose mixed generations and every failure must restore the prior target exactly.
+- [Phase 27]: Prove each locale in an external network-blocked package and enforce repository hash, size, and mtime cleanliness. — Public reproducibility must not depend on repository execution state or mutate tracked learner assets.
 
 ## Operator Next Steps
 
