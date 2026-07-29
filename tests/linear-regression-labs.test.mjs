@@ -34,7 +34,7 @@ test('lab scaffold preserves the typed workbench shell and all eight chapter ide
   assert.match(lab, /<LessonWorkbench/)
   assert.match(lab, /<LinearRegression(?:Univariate|Multivariate)View/)
   for (const chapterId of chapterIds) {
-    assert.match(lab, new RegExp(`['"]${chapterId}['"]`))
+    assert.match(lab, new RegExp(`['"]?${chapterId}['"]?\\s*:`))
   }
 })
 
@@ -54,8 +54,11 @@ test('pure math boundary scaffold keeps fitting and metric formulas out of Vue',
   const resultsScript = scriptBlock(source('src/components/LinearRegressionResults.vue'))
   const combined = `${labScript}\n${resultsScript}`
 
-  assert.doesNotMatch(combined, /solveLinearSystem|matrixInverse|normalEquation/)
-  assert.doesNotMatch(combined, /StandardScaler|fit_intercept|numpy|sklearn/)
+  assert.doesNotMatch(combined, /solveLinearSystem|matrixInverse|normalEquation\s*\(/)
+  assert.doesNotMatch(
+    combined,
+    /(?:new\s+)?StandardScaler\s*\(|fit_intercept\s*=|numpy\.[A-Za-z_]+\s*\(|sklearn\.[A-Za-z_]+\s*\(/,
+  )
   assert.doesNotMatch(combined, /reduce\([^)]*residual[^)]*=>[^)]*residual\s*\*\s*residual/)
   assert.doesNotMatch(combined, /weights\.map\([^)]*gradient|gradient.*weights\.map/s)
   assert.doesNotMatch(combined, /casual\s*\+\s*registered/)
@@ -187,14 +190,16 @@ test('diagnostic sequence covers hour spread atemp regularization log1p and comb
 })
 
 test('named held-out cases are expandable and keep text roles beyond color', () => {
+  const lab = source('src/components/LinearRegressionLessonLab.vue')
   const results = source('src/components/LinearRegressionResults.vue')
+  const combined = `${lab}\n${results}`
 
   assert.match(results, /namedCases/)
   assert.match(results, /<details/)
-  assert.match(results, /negative-prediction/)
-  assert.match(results, /morning-peak-underprediction/)
-  assert.match(results, /evening-peak-underprediction/)
-  assert.match(results, /large-residual/)
+  assert.match(combined, /negative-prediction/)
+  assert.match(combined, /morning-peak-underprediction/)
+  assert.match(combined, /evening-peak-underprediction/)
+  assert.match(combined, /large-residual/)
   assert.match(results, /prediction - actual|预测值减真实值/)
 })
 

@@ -14,278 +14,276 @@ const { locale } = useI18n()
 
 const dataWidth = 660
 const dataHeight = 360
-const dataPadding = 46
-const stateWidth = 360
-const stateHeight = 220
-const statePadding = 28
-const diagnosticWidth = 260
-const diagnosticHeight = 168
-const diagnosticPadding = 28
+const dataPadding = 48
+const evidenceWidth = 420
+const evidenceHeight = 240
+const evidencePadding = 34
+
+interface EvidenceItem {
+  readonly id: string
+  readonly label: string
+  readonly value: number
+  readonly cue: 'solid' | 'dash' | 'shape'
+}
 
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
-        dataSpace: '数据空间',
-        stateSpace: '训练状态',
-        area: '面积',
-        price: '房价',
-        lossCurve: '损失曲线',
-        parameterPath: '斜率 / 截距轨迹',
-        train: '训练',
-        validation: '验证',
-        curve: '拟合曲线',
+        dataSpace: 'Bike 单车租赁测试切片',
+        dataHeading: '小时 → 租赁数量',
+        xAxis: '小时（hr）',
+        yAxis: '租赁数量（cnt）',
+        actual: '真实值：实心圆',
+        fit: '模型路径：实线',
+        residual: '选中残差：虚线',
+        staticNote: '静态 SVG 与数据表保留全部教学信息；动画只改变选中快照。',
+        evidence: '锁定证据',
+        evidenceHeadings: {
+          convergence: '优化收敛检查点',
+          method: '方法系数最大差异',
+          coefficient: '模型空间系数',
+          diagnostic: '留出集分阶段诊断',
+          row: '逐行损失证据',
+        },
+        empty: '当前快照没有可展示的锁定数值。',
+        label: '证据',
+        value: '锁定值',
+        cue: '非颜色线型 / 形状',
+        selected: '选中的测试行',
+        instant: 'instant',
+        actualValue: '真实租赁量',
+        prediction: '预测租赁量',
+        residualValue: '残差（预测值 − 真实值）',
+        solid: '实线',
+        dash: '虚线',
+        shape: '形状',
       }
     : {
-        dataSpace: 'Data space',
-        stateSpace: 'Training state',
-        area: 'Area',
-        price: 'Price',
-        lossCurve: 'Loss curve',
-        parameterPath: 'Slope / intercept path',
-        train: 'Train',
-        validation: 'Validation',
-        curve: 'Fit curve',
+        dataSpace: 'Bike rental test slice',
+        dataHeading: 'hour → rental count',
+        xAxis: 'Hour (hr)',
+        yAxis: 'Rental count (cnt)',
+        actual: 'Actual: solid circle',
+        fit: 'Model path: solid line',
+        residual: 'Selected residual: dashed line',
+        staticNote: 'Static SVG and the data table preserve the lesson; motion only changes the selected snapshot.',
+        evidence: 'Locked evidence',
+        evidenceHeadings: {
+          convergence: 'Optimizer convergence checkpoints',
+          method: 'Maximum coefficient delta by method',
+          coefficient: 'Model-space coefficients',
+          diagnostic: 'Staged held-out diagnosis',
+          row: 'Per-row loss evidence',
+        },
+        empty: 'This snapshot has no locked values for the selected evidence view.',
+        label: 'Evidence',
+        value: 'Locked value',
+        cue: 'Non-color line / shape cue',
+        selected: 'Selected test row',
+        instant: 'instant',
+        actualValue: 'Actual rentals',
+        prediction: 'Predicted rentals',
+        residualValue: 'Residual (prediction − actual)',
+        solid: 'solid line',
+        dash: 'dashed line',
+        shape: 'shape',
       },
 )
 
-const samples = computed(() => props.snapshot?.regressionSamples ?? [])
-const fit = computed(() => props.snapshot?.regressionFit)
-const fitCurve = computed(() => props.snapshot?.fitCurve ?? [])
-const regressionMeta = computed(() => props.snapshot?.regressionMeta)
-const fitDiagnostics = computed(() => props.snapshot?.fitDiagnostics)
-const highlightIndex = computed(() => Number(props.snapshot?.derivedMetrics?.highlightIndex ?? 0))
-const showValidation = computed(() =>
-  props.sectionId === 'overfitting' || props.sectionId === 'regularization',
+const currentSnapshot = computed(
+  () =>
+    props.snapshot
+    ?? props.snapshots[Math.min(Math.max(props.currentStep, 0), Math.max(props.snapshots.length - 1, 0))],
 )
-const chartMode = computed(() =>
-  props.sectionId === 'training-motion' && fit.value ? 'parameters' : 'loss',
-)
+const samples = computed(() => currentSnapshot.value?.regressionSamples ?? [])
+const fitCurve = computed(() => currentSnapshot.value?.fitCurve ?? [])
+const selectedObservation = computed(() => currentSnapshot.value?.selectedObservation)
+
+const selectedResidual = computed(() => {
+  const row = selectedObservation.value
+  if (!row) return undefined
+  const x = finiteValue(row.area)
+  const actual = finiteValue(row.actualPrice)
+  const prediction = finiteValue(row.predictedPrice)
+  if (x === undefined || actual === undefined || prediction === undefined) return undefined
+  return { x, actual, prediction }
+})
 
 const domain = computed(() => {
-  const visiblePoints = [
+  const points: PlotPoint[] = [
     ...samples.value,
     ...fitCurve.value,
-    ...(fit.value
-      ? samples.value.map((sample) => ({
-          x: sample.x,
-          y: fit.value!.slope * sample.x + fit.value!.intercept,
-        }))
+    ...(selectedResidual.value
+      ? [
+          { x: selectedResidual.value.x, y: selectedResidual.value.actual },
+          { x: selectedResidual.value.x, y: selectedResidual.value.prediction },
+        ]
       : []),
   ]
-
-  return paddedDomain(visiblePoints)
-})
-
-const fitLine = computed(() => {
-  if (!fit.value) return []
-  return [
-    {
-      x: domain.value.xMin,
-      y: fit.value.slope * domain.value.xMin + fit.value.intercept,
-    },
-    {
-      x: domain.value.xMax,
-      y: fit.value.slope * domain.value.xMax + fit.value.intercept,
-    },
-  ]
-})
-
-const visibleFitPoints = computed(() => (fitCurve.value.length ? fitCurve.value : fitLine.value))
-const axisCopy = computed(() => ({
-  xLabel: regressionMeta.value?.xLabel[locale.value as 'zh-CN' | 'en'] ?? copy.value.area,
-  yLabel: regressionMeta.value?.yLabel[locale.value as 'zh-CN' | 'en'] ?? copy.value.price,
-  xUnit: regressionMeta.value?.xUnit[locale.value as 'zh-CN' | 'en'] ?? 'm2',
-  yUnit: regressionMeta.value?.yUnit[locale.value as 'zh-CN' | 'en'] ?? 'w',
-  sourceNote: fitDiagnostics.value?.sourceNote[locale.value as 'zh-CN' | 'en'] ?? '',
-}))
-
-const dataHeading = computed(() => `${axisCopy.value.xLabel} -> ${axisCopy.value.yLabel}`)
-
-const residualSegments = computed(() =>
-  samples.value.map((sample, index) => {
-    const prediction = predict(sample.x)
-    return {
-      id: `${sample.x}-${index}`,
-      index,
-      x: sample.x,
-      actual: sample.y,
-      prediction,
-      split: sample.split ?? 'train',
-    }
-  }),
-)
-
-const lossValues = computed(() => props.snapshots.map((snapshot) => snapshot.loss))
-const trainLossValues = computed(() =>
-  props.snapshots.map((snapshot) => Number(snapshot.derivedMetrics?.trainMse ?? snapshot.loss)),
-)
-const validationLossValues = computed(() =>
-  props.snapshots.map((snapshot) =>
-    Number(snapshot.derivedMetrics?.validationMse ?? snapshot.derivedMetrics?.trainMse ?? snapshot.loss),
-  ),
-)
-const lossPath = computed(() => buildStatePolyline(lossValues.value))
-const trainPath = computed(() => buildStatePolyline(trainLossValues.value))
-const validationPath = computed(() => buildStatePolyline(validationLossValues.value))
-const lossDot = computed(() => pointOnStateLine(lossValues.value, props.currentStep))
-
-const parameterPoints = computed(() =>
-  props.snapshots.map((snapshot) => ({
-    x: Number(snapshot.regressionFit?.slope ?? 0),
-    y: Number(snapshot.regressionFit?.intercept ?? 0),
-  })),
-)
-
-const parameterPath = computed(() => {
-  if (!parameterPoints.value.length) return ''
-  const xs = parameterPoints.value.map((point) => point.x)
-  const ys = parameterPoints.value.map((point) => point.y)
-
-  return parameterPoints.value
-    .map((point) => {
-      const x = scaleState(point.x, Math.min(...xs), Math.max(...xs))
-      const y =
-        stateHeight -
-        statePadding -
-        scaleState(point.y, Math.min(...ys), Math.max(...ys), stateHeight - statePadding * 2)
-      return `${x},${y}`
-    })
-    .join(' ')
-})
-
-const parameterDot = computed(() => {
-  if (!parameterPoints.value.length) return { x: statePadding, y: stateHeight - statePadding }
-  const xs = parameterPoints.value.map((point) => point.x)
-  const ys = parameterPoints.value.map((point) => point.y)
-  const point = parameterPoints.value[Math.min(props.currentStep, parameterPoints.value.length - 1)]!
-  return {
-    x: scaleState(point.x, Math.min(...xs), Math.max(...xs)),
-    y:
-      stateHeight -
-      statePadding -
-      scaleState(point.y, Math.min(...ys), Math.max(...ys), stateHeight - statePadding * 2),
-  }
-})
-
-function predict(area: number) {
-  if (fitCurve.value.length) {
-    const nearest = fitCurve.value.reduce((best, point) =>
-      Math.abs(point.x - area) < Math.abs(best.x - area) ? point : best,
-    )
-    return nearest.y
-  }
-  if (fit.value) return fit.value.slope * area + fit.value.intercept
-  return 0
-}
-
-function paddedDomain(points: PlotPoint[]) {
   const finitePoints = points.filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y))
+  if (!finitePoints.length) return { xMin: 0, xMax: 23, yMin: 0, yMax: 800 }
 
-  if (!finitePoints.length) {
-    return { xMin: 32, xMax: 238, yMin: 60, yMax: 380 }
+  const xs = finitePoints.map((point) => point.x)
+  const ys = finitePoints.map((point) => point.y)
+  const xMin = Math.min(...xs)
+  const xMax = Math.max(...xs)
+  const yMin = Math.min(...ys)
+  const yMax = Math.max(...ys)
+  const xGap = Math.max((xMax - xMin) * 0.08, 1)
+  const yGap = Math.max((yMax - yMin) * 0.1, 20)
+  return { xMin: xMin - xGap, xMax: xMax + xGap, yMin: yMin - yGap, yMax: yMax + yGap }
+})
+
+const evidenceMode = computed<keyof typeof copy.value.evidenceHeadings>(() => {
+  if (props.sectionId === 'training-motion') return 'convergence'
+  if (props.sectionId === 'polynomial') return 'method'
+  if (props.sectionId === 'model-limits' || props.sectionId === 'regularization') {
+    return 'coefficient'
+  }
+  if (props.sectionId === 'overfitting') return 'diagnostic'
+  return 'row'
+})
+
+const evidenceItems = computed<EvidenceItem[]>(() => {
+  if (evidenceMode.value === 'convergence') {
+    return props.snapshots.map((snapshot, index) => ({
+      id: `checkpoint-${snapshot.step}`,
+      label: `stage ${snapshot.step}`,
+      value: snapshot.loss,
+      cue: index === props.currentStep % Math.max(props.snapshots.length, 1) ? 'shape' : 'solid',
+    }))
   }
 
-  const xValues = finitePoints.map((point) => point.x)
-  const yValues = finitePoints.map((point) => point.y)
-  const minX = Math.min(...xValues)
-  const maxX = Math.max(...xValues)
-  const minY = Math.min(...yValues)
-  const maxY = Math.max(...yValues)
-  const xPadding = Math.max((maxX - minX) * 0.08, 0.35)
-  const yPadding = Math.max((maxY - minY) * 0.12, 0.18)
-
-  return {
-    xMin: minX - xPadding,
-    xMax: maxX + xPadding,
-    yMin: minY - yPadding,
-    yMax: maxY + yPadding,
+  if (evidenceMode.value === 'method') {
+    const metrics = currentSnapshot.value?.derivedMetrics
+    return [
+      evidence('gradient-descent', 'Gradient descent', metrics?.gdMaxCoefficientDelta, 'solid'),
+      evidence('normal-equation', 'Normal equation', metrics?.normalEquationMaxCoefficientDelta, 'dash'),
+      evidence('scikit-learn', 'scikit-learn', metrics?.sklearnMaxCoefficientDelta, 'shape'),
+    ].filter(isEvidenceItem)
   }
-}
 
-function mapDataX(value: number) {
-  return (
-    dataPadding +
-    ((value - domain.value.xMin) / (domain.value.xMax - domain.value.xMin || 1)) *
-      (dataWidth - dataPadding * 2)
-  )
-}
+  if (evidenceMode.value === 'coefficient') {
+    return metricArray(currentSnapshot.value, 'weights').map((value, index) => ({
+      id: `weight-${index}`,
+      label: ['season', 'yr', 'mnth', 'hr', 'workingday'][index] ?? `w${index}`,
+      value,
+      cue: index % 3 === 0 ? 'solid' : index % 3 === 1 ? 'dash' : 'shape',
+    }))
+  }
 
-function mapDataY(value: number) {
-  return (
-    dataHeight -
-    dataPadding -
-    ((value - domain.value.yMin) / (domain.value.yMax - domain.value.yMin || 1)) *
-      (dataHeight - dataPadding * 2)
-  )
-}
+  if (evidenceMode.value === 'diagnostic') {
+    const hourly = findSnapshotWithMetric('hourlyResidualMeans')
+    const hourlyHours = metricArray(hourly, 'hourlyResidualHours')
+    const hourlyMeans = metricArray(hourly, 'hourlyResidualMeans')
+    if (hourlyMeans.length) {
+      return hourlyMeans.map((value, index) => ({
+        id: `hour-${hourlyHours[index] ?? index}`,
+        label: `hr ${hourlyHours[index] ?? index}`,
+        value,
+        cue: index % 2 === 0 ? 'dash' : 'shape',
+      }))
+    }
 
-function pointsToPolyline(points: PlotPoint[]) {
-  return points.map((point) => `${mapDataX(point.x)},${mapDataY(point.y)}`).join(' ')
-}
+    const spread = findSnapshotWithMetric('predictionBinResidualStdDev')
+    const bins = metricStringArray(spread, 'predictionBinIds')
+    return metricArray(spread, 'predictionBinResidualStdDev').map((value, index) => ({
+      id: `bin-${index}`,
+      label: bins[index] ?? `bin ${index + 1}`,
+      value,
+      cue: index % 2 === 0 ? 'solid' : 'dash',
+    }))
+  }
 
-function scaleState(value: number, min: number, max: number, size = stateWidth - statePadding * 2) {
-  return statePadding + ((value - min) / (max - min || 1)) * size
-}
+  return (currentSnapshot.value?.sampleLossBreakdown ?? []).map((row, index) => ({
+    id: row.id,
+    label: row.label,
+    value: row.loss,
+    cue: index % 2 === 0 ? 'solid' : 'shape',
+  }))
+})
 
-function buildStatePolyline(values: number[]) {
+const evidencePath = computed(() => {
+  const values = evidenceItems.value.map((item) => item.value)
   if (!values.length) return ''
   const min = Math.min(...values)
   const max = Math.max(...values)
   return values
     .map((value, index) => {
-      const x = statePadding + (index / Math.max(values.length - 1, 1)) * (stateWidth - statePadding * 2)
-      const y = stateHeight - statePadding - ((value - min) / (max - min || 1)) * (stateHeight - statePadding * 2)
+      const x =
+        evidencePadding
+        + (index / Math.max(values.length - 1, 1)) * (evidenceWidth - evidencePadding * 2)
+      const y =
+        evidenceHeight
+        - evidencePadding
+        - ((value - min) / (max - min || 1)) * (evidenceHeight - evidencePadding * 2)
       return `${x},${y}`
     })
     .join(' ')
+})
+
+function finiteValue(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
 }
 
-function pointOnStateLine(values: number[], index: number) {
-  if (!values.length) return { x: statePadding, y: stateHeight - statePadding }
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  const safeIndex = Math.min(index, values.length - 1)
-  const value = values[safeIndex] ?? values[0]!
-  return {
-    x: statePadding + (safeIndex / Math.max(values.length - 1, 1)) * (stateWidth - statePadding * 2),
-    y: stateHeight - statePadding - ((value - min) / (max - min || 1)) * (stateHeight - statePadding * 2),
-  }
+function evidence(
+  id: string,
+  label: string,
+  value: unknown,
+  cue: EvidenceItem['cue'],
+): EvidenceItem | undefined {
+  const numeric = finiteValue(value)
+  return numeric === undefined ? undefined : { id, label, value: numeric, cue }
 }
 
-function diagnosticDomain(item: NonNullable<TrainingSnapshot['fitDiagnostics']>['items'][number]) {
-  const visiblePoints = [...samples.value, ...item.curve]
-  const xValues = visiblePoints.map((point) => point.x)
-  const yValues = visiblePoints.map((point) => point.y)
-
-  return {
-    xMin: Math.min(...xValues) - 0.18,
-    xMax: Math.max(...xValues) + 0.18,
-    yMin: Math.min(...yValues) - 0.2,
-    yMax: Math.max(...yValues) + 0.2,
-  }
+function isEvidenceItem(item: EvidenceItem | undefined): item is EvidenceItem {
+  return item !== undefined
 }
 
-function mapDiagnosticX(value: number, item: NonNullable<TrainingSnapshot['fitDiagnostics']>['items'][number]) {
-  const itemDomain = diagnosticDomain(item)
+function metricArray(snapshot: TrainingSnapshot | undefined, key: string): number[] {
+  const value = snapshot?.derivedMetrics?.[key]
+  return Array.isArray(value)
+    ? value.filter((entry): entry is number => typeof entry === 'number' && Number.isFinite(entry))
+    : []
+}
+
+function metricStringArray(snapshot: TrainingSnapshot | undefined, key: string): string[] {
+  const value = snapshot?.derivedMetrics?.[key]
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : []
+}
+
+function findSnapshotWithMetric(key: string): TrainingSnapshot | undefined {
+  return props.snapshots.find((snapshot) => Array.isArray(snapshot.derivedMetrics?.[key]))
+}
+
+function mapDataX(value: number): number {
   return (
-    diagnosticPadding +
-    ((value - itemDomain.xMin) / (itemDomain.xMax - itemDomain.xMin || 1)) *
-      (diagnosticWidth - diagnosticPadding * 2)
+    dataPadding
+    + ((value - domain.value.xMin) / (domain.value.xMax - domain.value.xMin || 1))
+      * (dataWidth - dataPadding * 2)
   )
 }
 
-function mapDiagnosticY(value: number, item: NonNullable<TrainingSnapshot['fitDiagnostics']>['items'][number]) {
-  const itemDomain = diagnosticDomain(item)
+function mapDataY(value: number): number {
   return (
-    diagnosticHeight -
-    diagnosticPadding -
-    ((value - itemDomain.yMin) / (itemDomain.yMax - itemDomain.yMin || 1)) *
-      (diagnosticHeight - diagnosticPadding * 2)
+    dataHeight
+    - dataPadding
+    - ((value - domain.value.yMin) / (domain.value.yMax - domain.value.yMin || 1))
+      * (dataHeight - dataPadding * 2)
   )
 }
 
-function diagnosticPolyline(item: NonNullable<TrainingSnapshot['fitDiagnostics']>['items'][number]) {
-  return item.curve.map((point) => `${mapDiagnosticX(point.x, item)},${mapDiagnosticY(point.y, item)}`).join(' ')
+function pointsToPolyline(points: PlotPoint[]): string {
+  return points.map((point) => `${mapDataX(point.x)},${mapDataY(point.y)}`).join(' ')
+}
+
+function formatNumber(value: unknown): string {
+  const numeric = finiteValue(value)
+  if (numeric === undefined) return '—'
+  if (Math.abs(numeric) > 99_999 || (numeric !== 0 && Math.abs(numeric) < 0.001)) {
+    return numeric.toExponential(3)
+  }
+  return numeric.toLocaleString(locale.value, { maximumFractionDigits: 3 })
 }
 </script>
 
@@ -294,13 +292,13 @@ function diagnosticPolyline(item: NonNullable<TrainingSnapshot['fitDiagnostics']
     <section class="linear-regression-lab__panel linear-regression-lab__panel--data">
       <div class="linear-regression-lab__heading">
         <span>{{ copy.dataSpace }}</span>
-        <strong>{{ dataHeading }}</strong>
+        <strong>{{ copy.dataHeading }}</strong>
       </div>
       <svg
         :viewBox="`0 0 ${dataWidth} ${dataHeight}`"
         class="linear-regression-lab__data-svg"
         role="img"
-        aria-label="linear regression data space"
+        :aria-label="`${copy.dataSpace}: ${copy.actual}; ${copy.fit}; ${copy.residual}`"
       >
         <line
           :x1="dataPadding"
@@ -316,146 +314,117 @@ function diagnosticPolyline(item: NonNullable<TrainingSnapshot['fitDiagnostics']
           :y2="dataHeight - dataPadding"
           class="linear-axis"
         />
-        <text :x="dataWidth - 12" :y="dataHeight - 16" class="linear-axis-label" text-anchor="end">
-          {{ axisCopy.xLabel }} ({{ axisCopy.xUnit }})
+        <text :x="dataWidth - 12" :y="dataHeight - 14" class="linear-axis-label" text-anchor="end">
+          {{ copy.xAxis }}
         </text>
-        <text :x="12" :y="32" class="linear-axis-label">{{ axisCopy.yLabel }} ({{ axisCopy.yUnit }})</text>
+        <text x="12" y="28" class="linear-axis-label">{{ copy.yAxis }}</text>
         <line
-          v-for="segment in residualSegments"
-          :key="segment.id"
-          :x1="mapDataX(segment.x)"
-          :x2="mapDataX(segment.x)"
-          :y1="mapDataY(segment.actual)"
-          :y2="mapDataY(segment.prediction)"
-          class="linear-residual"
-          :class="{ 'is-emphasis': segment.index === highlightIndex || props.sectionId === 'residual-loss' }"
+          v-if="selectedResidual"
+          :x1="mapDataX(selectedResidual.x)"
+          :x2="mapDataX(selectedResidual.x)"
+          :y1="mapDataY(selectedResidual.actual)"
+          :y2="mapDataY(selectedResidual.prediction)"
+          class="linear-residual is-emphasis"
+          stroke-dasharray="8 5"
         />
-        <polyline :points="pointsToPolyline(visibleFitPoints)" class="linear-fit-line" />
+        <polyline
+          v-if="fitCurve.length"
+          :points="pointsToPolyline(fitCurve)"
+          class="linear-fit-line"
+        />
         <circle
           v-for="(sample, index) in samples"
           :key="`${sample.x}-${sample.y}-${index}`"
           :cx="mapDataX(sample.x)"
           :cy="mapDataY(sample.y)"
-          :r="index === highlightIndex ? 7 : 5.6"
+          :r="index === props.currentStep % Math.max(samples.length, 1) ? 7 : 5"
           class="linear-sample"
-          :class="{
-            'is-highlight': index === highlightIndex,
-            'is-validation': showValidation && sample.split === 'validation',
-          }"
+          :class="{ 'is-highlight': index === props.currentStep % Math.max(samples.length, 1) }"
         />
       </svg>
+      <div class="linear-state-legend">
+        <span><i class="legend-dot legend-dot--train"></i>{{ copy.actual }}</span>
+        <span>━ {{ copy.fit }}</span>
+        <span>┊ {{ copy.residual }}</span>
+      </div>
+      <p class="linear-regression-lab__source-note">{{ copy.staticNote }}</p>
     </section>
 
     <section class="linear-regression-lab__panel linear-regression-lab__panel--state">
       <div class="linear-regression-lab__heading">
-        <span>{{ copy.stateSpace }}</span>
-        <strong>{{ chartMode === 'parameters' ? copy.parameterPath : copy.lossCurve }}</strong>
+        <span>{{ copy.evidence }}</span>
+        <strong>{{ copy.evidenceHeadings[evidenceMode] }}</strong>
       </div>
       <svg
-        :viewBox="`0 0 ${stateWidth} ${stateHeight}`"
+        v-if="evidenceItems.length"
+        :viewBox="`0 0 ${evidenceWidth} ${evidenceHeight}`"
         class="linear-regression-lab__state-svg"
         role="img"
-        aria-label="linear regression training state"
+        :aria-label="`${copy.evidence}: ${copy.evidenceHeadings[evidenceMode]}; ${copy.cue}`"
       >
         <line
-          :x1="statePadding"
-          :x2="stateWidth - statePadding"
-          :y1="stateHeight - statePadding"
-          :y2="stateHeight - statePadding"
+          :x1="evidencePadding"
+          :x2="evidenceWidth - evidencePadding"
+          :y1="evidenceHeight - evidencePadding"
+          :y2="evidenceHeight - evidencePadding"
           class="linear-axis"
         />
         <line
-          :x1="statePadding"
-          :x2="statePadding"
-          :y1="statePadding"
-          :y2="stateHeight - statePadding"
+          :x1="evidencePadding"
+          :x2="evidencePadding"
+          :y1="evidencePadding"
+          :y2="evidenceHeight - evidencePadding"
           class="linear-axis"
         />
-        <template v-if="chartMode === 'parameters'">
-          <polyline :points="parameterPath" class="linear-state-line linear-state-line--parameter" />
-          <circle :cx="parameterDot.x" :cy="parameterDot.y" r="6" class="linear-state-dot" />
-        </template>
-        <template v-else-if="showValidation">
-          <polyline :points="trainPath" class="linear-state-line" />
-          <polyline :points="validationPath" class="linear-state-line linear-state-line--validation" />
-        </template>
-        <template v-else>
-          <polyline :points="lossPath" class="linear-state-line" />
-          <circle :cx="lossDot.x" :cy="lossDot.y" r="6" class="linear-state-dot" />
-        </template>
-      </svg>
-      <div v-if="showValidation" class="linear-state-legend">
-        <span><i class="legend-dot legend-dot--train"></i>{{ copy.train }}</span>
-        <span><i class="legend-dot legend-dot--validation"></i>{{ copy.validation }}</span>
-      </div>
-    </section>
-
-    <section v-if="fitDiagnostics" class="linear-regression-lab__diagnostics">
-      <div class="linear-regression-lab__heading">
-        <span>{{ locale === 'zh-CN' ? '真实数据诊断' : 'Real-data diagnostics' }}</span>
-        <strong>Degree 1 / 3 / 7</strong>
-      </div>
-      <div class="linear-regression-lab__diagnostic-grid">
-        <article
-          v-for="item in fitDiagnostics.items"
+        <polyline
+          :points="evidencePath"
+          class="linear-state-line"
+          stroke-dasharray="9 4"
+        />
+        <circle
+          v-for="(item, index) in evidenceItems"
           :key="item.id"
-          class="linear-regression-lab__diagnostic"
-          :class="`is-${item.id}`"
-        >
-          <header>
-            <span>{{ item.label[locale as 'zh-CN' | 'en'] }}</span>
-            <strong>degree {{ item.degree }}</strong>
-          </header>
-          <svg
-            :viewBox="`0 0 ${diagnosticWidth} ${diagnosticHeight}`"
-            class="linear-regression-lab__diagnostic-svg"
-            role="img"
-            :aria-label="item.label[locale as 'zh-CN' | 'en']"
-          >
-            <line
-              :x1="diagnosticPadding"
-              :x2="diagnosticWidth - diagnosticPadding"
-              :y1="diagnosticHeight - diagnosticPadding"
-              :y2="diagnosticHeight - diagnosticPadding"
-              class="linear-axis"
-            />
-            <line
-              :x1="diagnosticPadding"
-              :x2="diagnosticPadding"
-              :y1="diagnosticPadding"
-              :y2="diagnosticHeight - diagnosticPadding"
-              class="linear-axis"
-            />
-            <polyline :points="diagnosticPolyline(item)" class="linear-diagnostic-fit" />
-            <circle
-              v-for="(sample, index) in samples"
-              :key="`${item.id}-${sample.x}-${index}`"
-              :cx="mapDiagnosticX(sample.x, item)"
-              :cy="mapDiagnosticY(sample.y, item)"
-              :r="sample.split === 'validation' ? 4.8 : 4"
-              class="linear-sample"
-              :class="{ 'is-validation': sample.split === 'validation' }"
-            />
-          </svg>
-          <dl>
-            <div>
-              <dt>{{ copy.train }}</dt>
-              <dd>{{ item.trainMse.toFixed(2) }}</dd>
-            </div>
-            <div>
-              <dt>{{ copy.validation }}</dt>
-              <dd>{{ item.validationMse.toFixed(2) }}</dd>
-            </div>
-            <div>
-              <dt>{{ locale === 'zh-CN' ? '权重范数' : 'Weight norm' }}</dt>
-              <dd>{{ item.weightNorm.toFixed(2) }}</dd>
-            </div>
-          </dl>
-          <p>{{ item.cause[locale as 'zh-CN' | 'en'] }}</p>
-          <p>{{ item.response[locale as 'zh-CN' | 'en'] }}</p>
-        </article>
-      </div>
-      <p class="linear-regression-lab__source-note">{{ axisCopy.sourceNote }}</p>
+          :cx="evidencePadding + (index / Math.max(evidenceItems.length - 1, 1)) * (evidenceWidth - evidencePadding * 2)"
+          :cy="evidencePath.split(' ')[index]?.split(',')[1] ?? evidenceHeight - evidencePadding"
+          :r="item.cue === 'shape' ? 7 : 5"
+          class="linear-state-dot"
+        />
+      </svg>
+      <p v-else class="linear-regression-lab__source-note">{{ copy.empty }}</p>
+      <table v-if="evidenceItems.length" class="linear-regression-results__table">
+        <thead>
+          <tr>
+            <th scope="col">{{ copy.label }}</th>
+            <th scope="col">{{ copy.value }}</th>
+            <th scope="col">{{ copy.cue }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in evidenceItems" :key="`table-${item.id}`">
+            <th scope="row">{{ item.label }}</th>
+            <td>{{ formatNumber(item.value) }}</td>
+            <td>{{ copy[item.cue] }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <dl v-if="selectedObservation" class="linear-regression-results__metric-grid">
+        <div>
+          <dt>{{ copy.instant }}</dt>
+          <dd>{{ selectedObservation.instant }}</dd>
+        </div>
+        <div>
+          <dt>{{ copy.actualValue }}</dt>
+          <dd>{{ formatNumber(selectedObservation.actualPrice) }}</dd>
+        </div>
+        <div>
+          <dt>{{ copy.prediction }}</dt>
+          <dd>{{ formatNumber(selectedObservation.predictedPrice) }}</dd>
+        </div>
+        <div>
+          <dt>{{ copy.residualValue }}</dt>
+          <dd>{{ formatNumber(selectedObservation.residual) }}</dd>
+        </div>
+      </dl>
     </section>
   </div>
 </template>
