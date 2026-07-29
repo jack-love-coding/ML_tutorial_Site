@@ -4,30 +4,30 @@ milestone: v1.1
 milestone_name: Classical Supervised Learning
 current_phase: 27
 current_phase_name: Linear Regression Rebuild
-status: executing
-stopped_at: Completed 27-07-PLAN.md
-last_updated: "2026-07-29T13:30:19.947Z"
+status: verifying
+stopped_at: Completed 27-08-PLAN.md
+last_updated: "2026-07-29T14:11:05.736Z"
 last_activity: 2026-07-29
 last_activity_desc: Phase 27 execution started
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 15
-  completed_plans: 14
-  percent: 17
+  completed_plans: 15
+  percent: 33
 current_plan: null
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-07-28
-**Status:** Ready to execute
+**Status:** Phase complete — ready for verification
 
 ## Current Position
 
 Phase: 27 (Linear Regression Rebuild) — EXECUTING
 Plan: 8 of 8
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-07-29 — Phase 27 execution started
 
 ## Deferred Items
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-29T13:30:19.941Z
-**Stopped at:** Completed 27-07-PLAN.md
+**Last session:** 2026-07-29T14:11:05.730Z
+**Stopped at:** Completed 27-08-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -804,6 +804,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 27 P05 | 23 min | 2 tasks | 2 files |
 | Phase 27 P06 | 20m | 3 tasks | 8 files |
 | Phase 27 P07 | 23min | 3 tasks | 5 files |
+| Phase 27 P08 | 33m | 3 tasks | 8 files |
 
 ## Decisions
 
@@ -885,6 +886,9 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 27]: Keep strict-summary consumers independently abortable — Avoids undocumented parent timing and shared mutable state while preserving the registered parser boundary.
 - [Phase 27]: Keep regression Vue views presentation-only — Pure simulation snapshots and strict parsed outputs remain the only numerical authority; Vue only formats and maps coordinates.
 - [Phase 27]: Use deterministic Bike SVG and tables instead of regression-specific Three.js — Text, shapes, and line patterns preserve Bike evidence across reduced-motion, mobile, and non-WebGL contexts.
+- [Phase 27]: Keep the typed nine-file asset registry as the sole authority for chapter outputs and downloads.
+- [Phase 27]: Treat malformed or unavailable summary data as a quiet fail-closed state backed by labeled bilingual teaching fixtures.
+- [Phase 27]: Place one consolidated download surface after the unchanged checkpoint and keep chapter-local code reproduction beside each workbench.
 
 ## Operator Next Steps
 
