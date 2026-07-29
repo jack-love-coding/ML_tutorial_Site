@@ -5,15 +5,15 @@ milestone_name: Classical Supervised Learning
 current_phase: 27
 current_phase_name: Linear Regression Rebuild
 status: executing
-stopped_at: Completed 27-01-PLAN.md
-last_updated: "2026-07-29T10:48:52.596Z"
+stopped_at: Completed 27-02-PLAN.md
+last_updated: "2026-07-29T11:10:29.083Z"
 last_activity: 2026-07-29
 last_activity_desc: Phase 27 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 15
-  completed_plans: 8
+  completed_plans: 9
   percent: 17
 current_plan: null
 ---
@@ -26,7 +26,7 @@ current_plan: null
 ## Current Position
 
 Phase: 27 (Linear Regression Rebuild) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-07-29 — Phase 27 execution started
 
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-29T10:48:52.590Z
-**Stopped at:** Completed 27-01-PLAN.md
+**Last session:** 2026-07-29T11:10:29.078Z
+**Stopped at:** Completed 27-02-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -798,6 +798,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 26 P06 | 25m | 3 tasks | 5 files |
 | Phase 26 P07 | 34m | 3 tasks | 11 files |
 | Phase 27 P01 | 17min | 3 tasks | 4 files |
+| Phase 27 P02 | 15 min | 2 tasks | 6 files |
 
 ## Decisions
 
@@ -860,6 +861,10 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 27]: Keep generic bounded batch GD separate from the locked full-data Bike fit constants; browser replay does not pretend to refit the full dataset. — The browser owns deterministic calculation and replay while later asset plans own the complete dataset execution.
 - [Phase 27]: Expose staged diagnostics as typed scalar and array fields compatible with the existing TrainingSnapshot contract. — This preserves the global lesson schema while supporting Bike-specific diagnostics.
 - [Phase 27]: Preserve fitDiagnostics as a Bike-only same-case compatibility adapter while removing California authority and the custom linear solver. — Existing renderers keep their contract without reviving superseded numerical authority.
+- [Phase 27]: Reuse the Phase 25 Bike Sharing authority through bikeSharingContract.mjs instead of introducing a second CSV parser or hash convention. — This preserves one auditable schema, ordering, boundary, and checksum authority across the data preparation and linear-regression phases.
+- [Phase 27]: Keep the Phase 27 Python environment byte-identical to Phase 26 and install exclusively from the audited local wheelhouse with --no-index. — Reusing the proven 99-wheel offline contract avoids environment drift and preserves deterministic two-locale Notebook execution.
+- [Phase 27]: Limit --prepare-candidates to validating the source and isolated environment before creating a fresh empty ignored transaction. — Plan 27-02 establishes the safe transaction boundary while Plan 27-03 remains the sole owner of candidate materialization and Notebook execution.
+- [Phase 27]: Keep every public mutation and standalone public verification path out of the Phase 27 candidate builder. — Plan 27-04 owns atomic publication, rollback, standalone reruns, and GitHub Pages base-path verification as a separate auditable boundary.
 
 ## Operator Next Steps
 
