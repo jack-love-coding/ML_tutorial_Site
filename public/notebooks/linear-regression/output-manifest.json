@@ -1,0 +1,230 @@
+{
+  "canonicalPayloadSha256": "7d1f238681839ac3494166fed55b85c538320098490a9c84d79ce37d85911272",
+  "contract": {
+    "features": {
+      "binaryUnscaled": [
+        "workingday"
+      ],
+      "collinearityOnly": [
+        "atemp"
+      ],
+      "continuous": [
+        "temp",
+        "hum",
+        "windspeed",
+        "hr"
+      ],
+      "leakageExcluded": [
+        "casual",
+        "registered"
+      ],
+      "order": [
+        "temp",
+        "hum",
+        "windspeed",
+        "workingday",
+        "hr"
+      ]
+    },
+    "methodTolerance": 1e-06,
+    "normalEquation": {
+      "augmentedDesign": "X_tilde = [1, X]",
+      "explicitInverseUsed": false,
+      "formula": "theta = (X_tilde^T X_tilde)^+ X_tilde^T y",
+      "implementation": "numpy.linalg.lstsq",
+      "interceptMapping": "theta[0] = b",
+      "term": {
+        "en": "normal equation",
+        "zh-CN": "正规方程"
+      },
+      "weightMapping": "theta[1:] = w"
+    },
+    "residualSign": "prediction - actual",
+    "scalerFit": "train-only",
+    "split": {
+      "index": 13903,
+      "kind": "chronological-first-80-percent",
+      "testRows": 3476,
+      "testStartInstant": 13904,
+      "trainEndInstant": 13903,
+      "trainRows": 13903
+    }
+  },
+  "contractVersion": "linear-regression-phase-27-candidate-v1",
+  "environment": {
+    "path": "notebooks/linear-regression/environment.json",
+    "requirementsSha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530",
+    "sha256": "73ff1158e9fdf34ca4a1fadc43ce18592f280d3a0024c68d186113a1696565d2"
+  },
+  "executionProofs": [
+    {
+      "allowErrors": false,
+      "codeSha256": "23e6735a4153a459606c0e7a7e83699b8611908f600890c2d0790fcfdbcf2349",
+      "executionCountStartsAt": 1,
+      "freshKernel": true,
+      "kernelNamePublished": false,
+      "locale": "zh-CN",
+      "normalizedOutputSha256": "ed1547c13fe5d70cc760ee85c6f3269d4a312fa24b543659916be7f313ad6480",
+      "notebookPath": "notebooks/linear-regression/bike-linear-regression.zh-CN.ipynb",
+      "notebookSha256": "852368fb5ffa67748db4bcff1267dad8c0361fcbafc32945f10066057a9d024a",
+      "proofId": "clean-kernel-bike-linear-regression-zh-CN",
+      "recordTiming": false,
+      "stripWidgetState": true,
+      "timeoutSeconds": 180,
+      "workingDirectory": "notebooks/linear-regression"
+    },
+    {
+      "allowErrors": false,
+      "codeSha256": "23e6735a4153a459606c0e7a7e83699b8611908f600890c2d0790fcfdbcf2349",
+      "executionCountStartsAt": 1,
+      "freshKernel": true,
+      "kernelNamePublished": false,
+      "locale": "en",
+      "normalizedOutputSha256": "ed1547c13fe5d70cc760ee85c6f3269d4a312fa24b543659916be7f313ad6480",
+      "notebookPath": "notebooks/linear-regression/bike-linear-regression.en.ipynb",
+      "notebookSha256": "4ae8c98201f8d921dfb2b48b3f49e852fa1452e439818b573176547355d5616c",
+      "proofId": "clean-kernel-bike-linear-regression-en",
+      "recordTiming": false,
+      "stripWidgetState": true,
+      "timeoutSeconds": 180,
+      "workingDirectory": "notebooks/linear-regression"
+    }
+  ],
+  "generator": {
+    "path": "scripts/linear-regression/build-phase-27-assets.py",
+    "sha256": "c7220cb2c10bc73cfe1ec68de023e0f64e873c44218dc1692e31ffbd8b0e5047"
+  },
+  "inventory": [
+    {
+      "bytes": 160533,
+      "path": "notebooks/linear-regression/bike-linear-regression.zh-CN.ipynb",
+      "role": "executed-notebook",
+      "sha256": "852368fb5ffa67748db4bcff1267dad8c0361fcbafc32945f10066057a9d024a"
+    },
+    {
+      "bytes": 160687,
+      "path": "notebooks/linear-regression/bike-linear-regression.en.ipynb",
+      "role": "executed-notebook",
+      "sha256": "4ae8c98201f8d921dfb2b48b3f49e852fa1452e439818b573176547355d5616c"
+    },
+    {
+      "bytes": 14653,
+      "path": "notebooks/linear-regression/linear-regression-summary.json",
+      "role": "locked-summary",
+      "sha256": "d37e97507f58901b57db68f36bfd0c88e70ce86fbe2e57e14a1d41c95960e0aa"
+    },
+    {
+      "bytes": 123442,
+      "path": "notebooks/linear-regression/gradient-descent-trace.csv",
+      "role": "complete-gradient-trace",
+      "sha256": "6085708a783132c94e290d7062ecebcaa783914d7456a2d462243acb60c9f300"
+    },
+    {
+      "bytes": 1381,
+      "path": "notebooks/linear-regression/coefficients.csv",
+      "role": "complete-coefficient-table",
+      "sha256": "8d6bac211861ae4129e2425e981b9cf9007665f084be3d4486fddb687072f7fd"
+    },
+    {
+      "bytes": 234990,
+      "path": "notebooks/linear-regression/heldout-residuals.csv",
+      "role": "complete-heldout-residuals",
+      "sha256": "a44b5d32f83cd36d814921f1a5ef28fc5623d80800e83fc022a7692e06463932"
+    },
+    {
+      "bytes": 130,
+      "path": "notebooks/linear-regression/requirements.txt",
+      "role": "requirements",
+      "sha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530"
+    },
+    {
+      "bytes": 1368,
+      "path": "notebooks/linear-regression/environment.json",
+      "role": "environment",
+      "sha256": "73ff1158e9fdf34ca4a1fadc43ce18592f280d3a0024c68d186113a1696565d2"
+    },
+    {
+      "bytes": null,
+      "path": "notebooks/linear-regression/output-manifest.json",
+      "role": "candidate-manifest",
+      "selfHashExcluded": true,
+      "sha256": null
+    }
+  ],
+  "localeParity": {
+    "codeCellIds": [
+      "imports-and-contract",
+      "load-local-source",
+      "split-and-scale",
+      "batch-gradient-descent",
+      "three-method-fit",
+      "diagnostics-and-teaching-rows",
+      "assertions-and-complete-outputs"
+    ],
+    "codeSha256": "23e6735a4153a459606c0e7a7e83699b8611908f600890c2d0790fcfdbcf2349",
+    "locales": [
+      "zh-CN",
+      "en"
+    ],
+    "normalizedOutputSha256": "ed1547c13fe5d70cc760ee85c6f3269d4a312fa24b543659916be7f313ad6480"
+  },
+  "packageComplete": true,
+  "publicationAllowed": false,
+  "requirements": [
+    "LINR-02",
+    "LINR-03",
+    "LINR-04"
+  ],
+  "rerun": {
+    "allowErrors": false,
+    "command": "python3 scripts/linear-regression/build-phase-27-assets.py --prepare-candidates --staging-root .cache/linear-regression/phase-27-staging --offline",
+    "freshKernelEach": true,
+    "normalizedOutputsMustMatch": true,
+    "offline": true
+  },
+  "resolvedInstants": [
+    11550,
+    17213,
+    15628,
+    14965,
+    15604
+  ],
+  "selectionRuleVersion": "bike-linear-regression-teaching-rows-v1",
+  "source": {
+    "path": "datasets/python-data-tools/bike-sharing-hour.csv",
+    "rows": 17379,
+    "sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f"
+  },
+  "teachingRows": [
+    {
+      "instant": 11550,
+      "partition": "train",
+      "role": "representative-training-row",
+      "rule": "inclusive training cnt IQR, minimum absolute base-OLS residual, lowest instant tie-break"
+    },
+    {
+      "instant": 17213,
+      "partition": "held-out",
+      "role": "negative-prediction",
+      "rule": "minimum raw-count prediction, lowest instant tie-break"
+    },
+    {
+      "instant": 15628,
+      "partition": "held-out",
+      "role": "morning-peak-underprediction",
+      "rule": "hr 7-9, maximum positive actual - prediction, lowest instant tie-break"
+    },
+    {
+      "instant": 14965,
+      "partition": "held-out",
+      "role": "evening-peak-underprediction",
+      "rule": "hr 16-19, maximum positive actual - prediction, lowest instant tie-break"
+    },
+    {
+      "instant": 15604,
+      "partition": "held-out",
+      "role": "large-residual",
+      "rule": "exclude prior named rows, maximum absolute residual, lowest instant tie-break"
+    }
+  ]
+}

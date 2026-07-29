@@ -1,0 +1,574 @@
+{
+  "coefficients": {
+    "modelSpace": {
+      "featureOrder": [
+        "temp",
+        "hum",
+        "windspeed",
+        "workingday",
+        "hr"
+      ],
+      "intercept": 173.01032849472756,
+      "weights": [
+        62.72389095302256,
+        -37.11641560210167,
+        0.8094458661608451,
+        2.379718677784879,
+        47.90143384325898
+      ]
+    },
+    "originalDatasetUnits": {
+      "featureOrder": [
+        "temp",
+        "hum",
+        "windspeed",
+        "workingday",
+        "hr"
+      ],
+      "intercept": 50.024112570538804,
+      "interpretation": "conditional association holding modeled features fixed; not causal",
+      "weights": [
+        317.2535485260497,
+        -187.27958330364518,
+        6.579856142563411,
+        2.379718677784879,
+        6.930197725726849
+      ]
+    }
+  },
+  "contractVersion": "linear-regression-phase-27-summary-v1",
+  "diagnostics": {
+    "collinearity": {
+      "addedFeature": "atemp",
+      "conditionNumber": 17.240661944055777,
+      "featureOrder": [
+        "temp",
+        "atemp",
+        "hum",
+        "windspeed",
+        "workingday",
+        "hr"
+      ],
+      "lasso": {
+        "alpha": 0.1,
+        "intercept": 173.56018336807387,
+        "objective": "mse-plus-l1",
+        "sameObjectiveAsOls": false,
+        "testMetrics": {
+          "mae": 134.9779396858657,
+          "mse": 40103.63455273307,
+          "r2": 0.17505241265344929
+        },
+        "weights": [
+          14.56277083657803,
+          48.498629072342396,
+          -37.43082425704814,
+          2.45931991908017,
+          1.5763735428403947,
+          47.66884256805156
+        ]
+      },
+      "ols": {
+        "atempCoefficient": 48.79910362080849,
+        "baseTestMse": 40142.538618835824,
+        "intercept": 173.24875000976766,
+        "objective": "mse",
+        "perturbationL2": 0.027800000019931593,
+        "tempCoefficient": 14.34341206288322,
+        "testMetrics": {
+          "mae": 134.94919421066695,
+          "mse": 40092.502084990534,
+          "r2": 0.17528141190770252
+        },
+        "weights": [
+          14.34341206288322,
+          48.79910362080849,
+          -37.493405807939375,
+          2.5456912679964874,
+          2.0313817375153307,
+          47.72922519993564
+        ]
+      },
+      "perturbation": {
+        "formula": "0.13524512 * alternating_24_row_blocks + 0.03349182 * linear_minus_one_to_one",
+        "version": "alternating-day-plus-linear-v1"
+      },
+      "ridge": {
+        "alpha": 300.0,
+        "intercept": 173.3023587222597,
+        "objective": "mse-plus-l2",
+        "perturbationL2": 0.009139999925777954,
+        "testMetrics": {
+          "mae": 135.205290304801,
+          "mse": 40163.590785440996,
+          "r2": 0.17381908928836243
+        },
+        "weights": [
+          27.24156234461552,
+          35.36283275243259,
+          -36.78111538500926,
+          2.301706458671119,
+          1.9530587100062409,
+          46.95543100049867
+        ]
+      },
+      "tempAtempTrainingCorrelation": 0.9923834525986027,
+      "unchangedContract": [
+        "rows",
+        "split",
+        "target",
+        "base-features",
+        "preprocessing"
+      ]
+    },
+    "hourlyResiduals": [
+      {
+        "hour": 0,
+        "meanResidual": -3.2463370859235
+      },
+      {
+        "hour": 1,
+        "meanResidual": 22.936304990011212
+      },
+      {
+        "hour": 2,
+        "meanResidual": 41.94603712196218
+      },
+      {
+        "hour": 3,
+        "meanResidual": 59.66158979626279
+      },
+      {
+        "hour": 4,
+        "meanResidual": 68.67689561006367
+      },
+      {
+        "hour": 5,
+        "meanResidual": 54.25567926484808
+      },
+      {
+        "hour": 6,
+        "meanResidual": -13.214120130446865
+      },
+      {
+        "hour": 7,
+        "meanResidual": -187.98396758214403
+      },
+      {
+        "hour": 8,
+        "meanResidual": -367.4186505830957
+      },
+      {
+        "hour": 9,
+        "meanResidual": -151.62692454370102
+      },
+      {
+        "hour": 10,
+        "meanResidual": -68.78015398005495
+      },
+      {
+        "hour": 11,
+        "meanResidual": -95.36522898884218
+      },
+      {
+        "hour": 12,
+        "meanResidual": -140.83856461047577
+      },
+      {
+        "hour": 13,
+        "meanResidual": -121.25896038613298
+      },
+      {
+        "hour": 14,
+        "meanResidual": -90.13186764884213
+      },
+      {
+        "hour": 15,
+        "meanResidual": -102.17404996557661
+      },
+      {
+        "hour": 16,
+        "meanResidual": -181.23350542588165
+      },
+      {
+        "hour": 17,
+        "meanResidual": -366.62932250017235
+      },
+      {
+        "hour": 18,
+        "meanResidual": -309.9133738415724
+      },
+      {
+        "hour": 19,
+        "meanResidual": -159.4391588846088
+      },
+      {
+        "hour": 20,
+        "meanResidual": -49.898555874689656
+      },
+      {
+        "hour": 21,
+        "meanResidual": 19.939028860317457
+      },
+      {
+        "hour": 22,
+        "meanResidual": 70.74865584624081
+      },
+      {
+        "hour": 23,
+        "meanResidual": 118.14198706242688
+      }
+    ],
+    "log1p": {
+      "coefficientScale": "log1p-rental-count",
+      "intercept": 4.5243866871376355,
+      "inverseTransform": "expm1",
+      "inverseTransformedCountMetrics": {
+        "mae": 155.52129519755852,
+        "mse": 52330.26740534246,
+        "r2": -0.07645424966339065
+      },
+      "logSpaceMetrics": {
+        "mae": 0.9343322223193253,
+        "mse": 1.2691771381360377,
+        "r2": 0.3559768700481879
+      },
+      "rawTargetObjectiveComparable": false,
+      "targetTransform": "log1p",
+      "weights": [
+        0.45948715199351015,
+        -0.2571503352331541,
+        0.013913634032088007,
+        -0.037467134459753595,
+        0.6647188626577636
+      ]
+    },
+    "namedCases": [
+      {
+        "actual": 13.0,
+        "explanationRole": {
+          "en": "lowest raw-count prediction",
+          "zh-CN": "最低原始租车数预测"
+        },
+        "hour": 0,
+        "instant": 17213,
+        "prediction": -47.41549314522561,
+        "residual": -60.41549314522561,
+        "role": "negative-prediction",
+        "timestamp": "2012-12-25 00:00"
+      },
+      {
+        "actual": 834.0,
+        "explanationRole": {
+          "en": "largest positive morning actual-minus-prediction gap",
+          "zh-CN": "早高峰最大的实际值减预测值正差距"
+        },
+        "hour": 8,
+        "instant": 15628,
+        "prediction": 101.88209657050064,
+        "residual": -732.1179034294994,
+        "role": "morning-peak-underprediction",
+        "timestamp": "2012-10-18 08:00"
+      },
+      {
+        "actual": 976.0,
+        "explanationRole": {
+          "en": "largest positive evening actual-minus-prediction gap",
+          "zh-CN": "晚高峰最大的实际值减预测值正差距"
+        },
+        "hour": 17,
+        "instant": 14965,
+        "prediction": 281.0929017808493,
+        "residual": -694.9070982191507,
+        "role": "evening-peak-underprediction",
+        "timestamp": "2012-09-20 17:00"
+      },
+      {
+        "actual": 817.0,
+        "explanationRole": {
+          "en": "largest remaining absolute residual",
+          "zh-CN": "排除前三行后的最大绝对残差"
+        },
+        "hour": 8,
+        "instant": 15604,
+        "prediction": 92.41434915378804,
+        "residual": -724.5856508462119,
+        "role": "large-residual",
+        "timestamp": "2012-10-17 08:00"
+      }
+    ],
+    "predictionBins": [
+      {
+        "bin": 1,
+        "lowerPrediction": -47.41549314522561,
+        "mae": 78.37824477958097,
+        "residualStdDev": 135.91482837639265,
+        "rows": 869,
+        "upperPrediction": 96.97911541513608
+      },
+      {
+        "bin": 2,
+        "lowerPrediction": 96.97911541513608,
+        "mae": 133.92574957460522,
+        "residualStdDev": 185.60313200813465,
+        "rows": 869,
+        "upperPrediction": 167.16999158611748
+      },
+      {
+        "bin": 3,
+        "lowerPrediction": 167.16999158611748,
+        "mae": 147.17724489009004,
+        "residualStdDev": 176.64915258125393,
+        "rows": 869,
+        "upperPrediction": 237.22183873773776
+      },
+      {
+        "bin": 4,
+        "lowerPrediction": 237.22183873773776,
+        "mae": 181.70532226526527,
+        "residualStdDev": 209.11251335664963,
+        "rows": 869,
+        "upperPrediction": 399.9190105447821
+      }
+    ],
+    "residualSign": "prediction - actual",
+    "stagedOrder": [
+      "optimization-complete",
+      "hourly-residual-shape",
+      "prediction-bin-spread",
+      "named-heldout-cases",
+      "coefficient-stability",
+      "log1p-comparison",
+      "combined-review"
+    ]
+  },
+  "features": {
+    "binaryUnscaled": [
+      "workingday"
+    ],
+    "collinearityOnly": [
+      "atemp"
+    ],
+    "continuous": [
+      "temp",
+      "hum",
+      "windspeed",
+      "hr"
+    ],
+    "leakageExcluded": [
+      "casual",
+      "registered"
+    ],
+    "order": [
+      "temp",
+      "hum",
+      "windspeed",
+      "workingday",
+      "hr"
+    ]
+  },
+  "methods": {
+    "agreement": {
+      "agrees": true,
+      "byMethod": {
+        "numpyBatchGradientDescent": {
+          "maxCoefficientDelta": 2.7979374817022062e-08,
+          "maxPredictionDelta": 2.3821542072255397e-08
+        },
+        "numpyLstsq": {
+          "maxCoefficientDelta": 0.0,
+          "maxPredictionDelta": 0.0
+        },
+        "sklearnLinearRegression": {
+          "maxCoefficientDelta": 4.902744876744691e-13,
+          "maxPredictionDelta": 1.1937117960769683e-12
+        }
+      },
+      "maxCoefficientDelta": 2.7979374817022062e-08,
+      "maxPredictionDelta": 2.3821542072255397e-08,
+      "tolerance": 1e-06
+    },
+    "normalEquation": {
+      "augmentedDesign": "X_tilde = [1, X]",
+      "conditionNumber": 3.330152755248962,
+      "formula": "theta = (X_tilde^T X_tilde)^+ X_tilde^T y",
+      "implementation": "numpy.linalg.lstsq",
+      "intercept": 173.01032849472756,
+      "interceptMapping": "theta[0] = b",
+      "rank": 6,
+      "rationale": "Use the stable least-squares solver instead of explicitly forming an inverse / 使用稳定最小二乘求解器而非显式求逆",
+      "singularValues": [
+        146.5647306672784,
+        144.41678694672638,
+        120.54808853482155,
+        104.76524547221081,
+        96.17155778289741,
+        44.011413721567
+      ],
+      "term": {
+        "en": "normal equation",
+        "zh-CN": "正规方程"
+      },
+      "weightMapping": "theta[1:] = w",
+      "weights": [
+        62.72389095302256,
+        -37.11641560210167,
+        0.8094458661608451,
+        2.379718677784879,
+        47.90143384325898
+      ]
+    },
+    "numpyBatchGradientDescent": {
+      "intercept": 173.01032847247703,
+      "weights": [
+        62.72389095222884,
+        -37.11641560255006,
+        0.8094458659955012,
+        2.3797187057642537,
+        47.90143384324225
+      ]
+    },
+    "roles": {
+      "normalEquation": "non-iterative numerical reference",
+      "numpyBatchGradientDescent": "transparent iterative parameter learning",
+      "scikitLearnLinearRegression": "practical API counterpart"
+    },
+    "scikitLearnLinearRegression": {
+      "fitIntercept": true,
+      "intercept": 173.01032849472747,
+      "rank": 5,
+      "singularValues": [
+        144.41711610563874,
+        120.58128655556499,
+        104.77609543822174,
+        96.17939294850078,
+        54.681396970697875
+      ],
+      "weights": [
+        62.72389095302207,
+        -37.11641560210158,
+        0.8094458661608551,
+        2.379718677784892,
+        47.90143384325902
+      ]
+    },
+    "tolerance": 1e-06
+  },
+  "metrics": {
+    "test": {
+      "mae": 135.2966403773854,
+      "mse": 40142.538618835824,
+      "r2": 0.17425214066245964
+    },
+    "train": {
+      "mae": 98.80005326431211,
+      "mse": 18105.236540017046,
+      "r2": 0.35041732905011236
+    }
+  },
+  "optimization": {
+    "config": {
+      "gradientTolerance": 1e-08,
+      "initialization": "zeros",
+      "learningRate": 0.1,
+      "maxUpdates": 5000
+    },
+    "result": {
+      "gradientNorm": 9.964423234025087e-09,
+      "intercept": 173.01032847247703,
+      "mse": 18105.236540017046,
+      "reason": "gradient-tolerance",
+      "updates": 772,
+      "weights": [
+        62.72389095222884,
+        -37.11641560255006,
+        0.8094458659955012,
+        2.3797187057642537,
+        47.90143384324225
+      ]
+    }
+  },
+  "preprocessing": {
+    "ddof": 0,
+    "fitPartition": "train-only",
+    "means": {
+      "hr": 11.546572682154931,
+      "hum": 0.6229957563115874,
+      "temp": 0.4991699633172697,
+      "windspeed": 0.1940965906638855
+    },
+    "scales": {
+      "hr": 6.911986603994767,
+      "hum": 0.19818719663596795,
+      "temp": 0.197709028770319,
+      "windspeed": 0.12301877862112308
+    },
+    "standardized": [
+      "temp",
+      "hum",
+      "windspeed",
+      "hr"
+    ],
+    "unscaled": [
+      "workingday"
+    ]
+  },
+  "representativeTrainingRow": {
+    "actual": 174.0,
+    "explanationRole": {
+      "en": "ordinary training row inside the inclusive target IQR",
+      "zh-CN": "训练目标四分位区间内的普通训练行"
+    },
+    "hour": 10,
+    "instant": 11550,
+    "lossContribution": 3.3141687275224924e-05,
+    "prediction": 173.9942431182681,
+    "rawFeatures": {
+      "hr": 10.0,
+      "hum": 0.78,
+      "temp": 0.62,
+      "windspeed": 0.2537,
+      "workingday": 1.0
+    },
+    "residual": -0.0057568817319122445,
+    "role": "representative-training-row",
+    "timestamp": "2012-05-01 10:00",
+    "transformedValues": [
+      0.6111508282360743,
+      0.7922017484146537,
+      0.4845065932550254,
+      1.0,
+      -0.22375226845218318
+    ],
+    "unaveragedInterceptGradientContribution": -0.011513763463824489,
+    "unaveragedWeightGradientContribution": [
+      -0.007036646077030587,
+      -0.00912122354687452,
+      -0.0055784943114017835,
+      -0.011513763463824489,
+      0.002576230693452596
+    ]
+  },
+  "selectionRuleVersion": "bike-linear-regression-teaching-rows-v1",
+  "source": {
+    "path": "datasets/python-data-tools/bike-sharing-hour.csv",
+    "rows": 17379,
+    "sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+    "target": "cnt",
+    "targetRelationship": "cnt = casual + registered"
+  },
+  "split": {
+    "index": 13903,
+    "kind": "chronological-first-80-percent",
+    "testRows": 3476,
+    "testStart": {
+      "instant": 13904,
+      "timestamp": "2012-08-07 12:00"
+    },
+    "trainEnd": {
+      "instant": 13903,
+      "timestamp": "2012-08-07 11:00"
+    },
+    "trainRows": 13903
+  }
+}

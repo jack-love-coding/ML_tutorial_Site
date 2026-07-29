@@ -145,6 +145,12 @@ function readCandidateJson(relativePath: string) {
   return JSON.parse(readFileSync(resolve(stagingRoot, relativePath), 'utf8'))
 }
 
+function readPublicJson(relativePath: string) {
+  const source = readFileSync(resolve(publicRoot, relativePath), 'utf8')
+  assert.doesNotMatch(source, /:\s*(?:NaN|Infinity|-Infinity)\b/)
+  return JSON.parse(source)
+}
+
 function readCsvRows(relativePath: string) {
   const lines = readFileSync(resolve(stagingRoot, relativePath), 'utf8')
     .trim()
@@ -1418,6 +1424,103 @@ test('publication corruption matrix fails before public mutation and removes pri
       rmSync(temporaryDirectory, { recursive: true, force: true })
     }
   }
+})
+
+test('public inventory public hash strict JSON CSV and parity lock the exact nine-member generation', () => {
+  const target = resolve(publicRoot, publicPackageRelativePath)
+  assert.deepEqual(
+    readdirSync(target).sort(),
+    [...EXPECTED_PUBLIC_FILES].sort(),
+  )
+  assert.deepEqual(treeSnapshot(target), treeSnapshot(candidatePackageRoot))
+  assert.deepEqual(publicationResidue(publicRoot), [])
+
+  const manifest = readPublicJson(
+    'notebooks/linear-regression/output-manifest.json',
+  )
+  assert.equal(manifest.packageComplete, true)
+  assert.equal(manifest.publicationAllowed, false)
+  assert.equal(manifest.inventory.length, 9)
+  assert.equal(
+    manifest.generator.sha256,
+    'c7220cb2c10bc73cfe1ec68de023e0f64e873c44218dc1692e31ffbd8b0e5047',
+  )
+  for (const entry of manifest.inventory) {
+    const publishedPath = resolve(publicRoot, entry.path)
+    assert.equal(existsSync(publishedPath), true, entry.path)
+    if (entry.selfHashExcluded === true) continue
+    assert.equal(sha256(publishedPath), entry.sha256, entry.path)
+    assert.equal(statSync(publishedPath).size, entry.bytes, entry.path)
+    assert.deepEqual(
+      readFileSync(publishedPath),
+      readFileSync(resolve(stagingRoot, entry.path)),
+      entry.path,
+    )
+  }
+
+  for (const name of [
+    'bike-linear-regression.zh-CN.ipynb',
+    'bike-linear-regression.en.ipynb',
+    'linear-regression-summary.json',
+    'environment.json',
+    'output-manifest.json',
+  ]) {
+    assert.doesNotThrow(() =>
+      readPublicJson(`notebooks/linear-regression/${name}`))
+  }
+
+  const zh = readPublicJson(
+    'notebooks/linear-regression/bike-linear-regression.zh-CN.ipynb',
+  )
+  const en = readPublicJson(
+    'notebooks/linear-regression/bike-linear-regression.en.ipynb',
+  )
+  const normalized = (notebook: Record<string, any>) =>
+    notebook.cells
+      .filter((cell: Record<string, any>) => cell.cell_type === 'code')
+      .map((cell: Record<string, any>) => ({
+        id: cell.id,
+        source: cell.source,
+        outputs: cell.outputs,
+      }))
+  assert.deepEqual(normalized(zh), normalized(en))
+  const executableCode = normalized(en)
+    .flatMap((cell: { source: string[] | string }) => cell.source)
+    .join('\n')
+  assert.doesNotMatch(
+    executableCode,
+    /archive\.ics\.uci\.edu|https?:\/\/|requests|urllib|pip install/i,
+  )
+
+  const residualLines = readFileSync(
+    resolve(target, 'heldout-residuals.csv'),
+    'utf8',
+  ).trim().split(/\r?\n/)
+  assert.equal(residualLines.length, 3_477)
+  assert.equal(
+    residualLines[0],
+    'instant,timestamp,hr,actual,prediction,residual',
+  )
+  residualLines.slice(1).forEach((line, index) => {
+    const [instant, , , actual, prediction, residual] = line.split(',')
+    assert.equal(Number(instant), 13_904 + index)
+    closeTo(
+      Number(residual),
+      Number(prediction) - Number(actual),
+      1e-9,
+    )
+  })
+
+  assert.equal(
+    readFileSync(resolve(target, 'gradient-descent-trace.csv'), 'utf8')
+      .trim().split(/\r?\n/).length,
+    774,
+  )
+  assert.equal(
+    readFileSync(resolve(target, 'coefficients.csv'), 'utf8')
+      .trim().split(/\r?\n/)[0],
+    'method,space,feature,coefficient',
+  )
 })
 
 test.todo('offline rerun [27-W0-02] leaves repository bytes and mtimes unchanged [owner Plan 27-04]')
