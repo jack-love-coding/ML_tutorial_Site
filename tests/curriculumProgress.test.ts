@@ -133,6 +133,68 @@ test('progress v2 migration merges algorithm, math lab, and data lab v1 stores',
   assert.equal(storage.getItem(dataLabProgressStorageKey), dataRaw)
 })
 
+test('linear regression progress preservation keeps raw V1 bytes and merges both checkpoint attempts into V2', () => {
+  const algorithmRaw = json({
+    completedModuleSlugs: ['linear-regression'],
+    lastVisitedModuleSlug: 'linear-regression',
+    quizAttempts: [
+      {
+        quizId: 'linear-residual-mse',
+        moduleSlug: 'linear-regression',
+        selected: 'aggregate',
+        correct: true,
+        misconceptionTags: [],
+        attemptedAt: '2026-07-01T08:00:00.000Z',
+      },
+      {
+        quizId: 'linear-regularization-validation',
+        moduleSlug: 'linear-regression',
+        selected: 'tradeoff',
+        correct: true,
+        misconceptionTags: [],
+        attemptedAt: '2026-07-01T08:05:00.000Z',
+      },
+    ],
+    updatedAt: '2026-07-01T08:05:00.000Z',
+  })
+  const storage = new MemoryStorage({
+    [algorithmProgressStorageKey]: algorithmRaw,
+  })
+  const before = storage.dump()
+  const progress = migrateLearningProgressV2(storage, '2026-07-02T00:00:00.000Z')
+
+  assert.equal(storage.getItem(algorithmProgressStorageKey), algorithmRaw)
+  assert.equal(storage.dump()[algorithmProgressStorageKey], before[algorithmProgressStorageKey])
+  assert.equal(progress.modules['linear-regression']?.completed, true)
+  assert.deepEqual(
+    progress.modules['linear-regression']?.attempts.map(({ quizId }) => quizId),
+    ['linear-residual-mse', 'linear-regularization-validation'],
+  )
+  assert.equal(progress.lastVisited?.moduleId, 'linear-regression')
+})
+
+test('linear regression progress reorder retains every preserved deep link without mutating V1', () => {
+  const adapterSource = read('src/curriculum/adapters/algorithmAdapter.ts')
+  const start = adapterSource.indexOf("slug: 'linear-regression'")
+  const end = adapterSource.indexOf("\n  {\n    slug: 'logistic-regression'", start)
+  const manifestSource = adapterSource.slice(start, end)
+  const lessonIds = [...manifestSource.matchAll(/\{ id: '([^']+)'/g)].map((match) => match[1])
+
+  assert.deepEqual(lessonIds, [
+    'fit-line',
+    'multivariate',
+    'residual-loss',
+    'training-motion',
+    'polynomial',
+    'model-limits',
+    'overfitting',
+    'regularization',
+  ])
+  for (const lessonId of lessonIds) {
+    assert.match(`/learn/linear-regression/${lessonId}`, /^\/learn\/linear-regression\/[^/]+$/)
+  }
+})
+
 test('progress v2 migration is idempotent when v1 input does not change', () => {
   const storage = new MemoryStorage({
     [algorithmProgressStorageKey]: json({

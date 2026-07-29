@@ -46,7 +46,7 @@ test('algorithm view has a dedicated linear regression lesson branch', () => {
   assert.doesNotMatch(algorithmViewSource, /<template v-else-if="isLinearRegressionPage"\s*\/>/)
 })
 
-test('linear regression chapter routes are wired before the generic algorithm route', () => {
+test('linear regression route preservation keeps lazy bespoke routes before generic algorithm routes', () => {
   const routerSource = readFileSync(
     new URL('../src/router/index.ts', import.meta.url),
     'utf8',
@@ -139,52 +139,25 @@ test('linear regression advanced chapters and subviews are wired', () => {
   assert.match(componentSource, /linear-regression-lab__advanced-controls/)
 })
 
-test('linear regression overfitting chapter uses real-data diagnostics and local video', () => {
+test('Plans 27-07/08 retain explicit page, result, media, and fallback integration surfaces', () => {
   const moduleSource = readFileSync(
     new URL('../src/data/linearRegressionModule.ts', import.meta.url),
     'utf8',
   )
-  const simulationSource = readFileSync(
-    new URL('../src/simulations/linearRegression.ts', import.meta.url),
-    'utf8',
-  )
-  const dataSource = readFileSync(
-    new URL('../src/data/californiaHousingSubset.ts', import.meta.url),
-    'utf8',
-  )
   const componentSource = readFileSync(componentPath, 'utf8')
   const pagedSource = readFileSync(pagedComponentPath, 'utf8')
-  const univariateSource = readFileSync(
-    new URL('../src/components/LinearRegressionUnivariateView.vue', import.meta.url),
-    'utf8',
-  )
-  const videoPath = new URL('../public/manim/linear-regression/fit-comparison.mp4', import.meta.url)
-  const posterPath = new URL('../public/manim/linear-regression/fit-comparison.svg', import.meta.url)
-  const regularizationVideoPath = new URL('../public/manim/linear-regression/regularization-geometry.mp4', import.meta.url)
-  const regularizationPosterPath = new URL('../public/manim/linear-regression/regularization-geometry.svg', import.meta.url)
 
-  assert.match(moduleSource, /California Housing/)
-  assert.match(moduleSource, /fit-comparison\.mp4/)
-  assert.match(moduleSource, /regularization-geometry\.mp4/)
-  assert.match(moduleSource, /degree 1/)
-  assert.match(moduleSource, /degree 3/)
-  assert.match(moduleSource, /degree 7/)
-  assert.match(dataSource, /datasetSize: 20640/)
-  assert.match(dataSource, /featureCount: 8/)
-  assert.match(dataSource, /MedInc/)
-  assert.match(simulationSource, /fitDiagnostics/)
-  assert.match(simulationSource, /regressionMeta/)
-  assert.match(componentSource, /isRealCaliforniaFamily/)
-  assert.match(univariateSource, /linear-regression-lab__diagnostic-grid/)
-  assert.match(univariateSource, /fitDiagnostics/)
+  assert.doesNotMatch(moduleSource, /California Housing|MedHouseVal/)
+  assert.match(componentSource, /LinearRegressionMultivariateView/)
+  assert.match(componentSource, /LinearRegressionUnivariateView/)
+  assert.match(pagedSource, /MarkdownMathContent/)
+  assert.match(pagedSource, /withPublicBase/)
+  assert.match(pagedSource, /LinearRegressionLessonLab/)
+  assert.match(pagedSource, /LinearRegressionResults/)
   assert.match(pagedSource, /story-media--linear/)
   assert.match(pagedSource, /<video/)
   assert.match(styleSource, /\.story-media/)
-  assert.match(styleSource, /\.linear-regression-lab__diagnostic-grid/)
-  assert.ok(existsSync(videoPath), 'fit comparison video should be generated')
-  assert.ok(existsSync(posterPath), 'fit comparison poster should be generated')
-  assert.ok(existsSync(regularizationVideoPath), 'regularization geometry video should be generated')
-  assert.ok(existsSync(regularizationPosterPath), 'regularization geometry poster should be generated')
+  assert.match(styleSource, /@media \(prefers-reduced-motion: reduce\)/)
 })
 
 test('linear regression lecture adds the required teaching frame and animated diagrams', () => {
