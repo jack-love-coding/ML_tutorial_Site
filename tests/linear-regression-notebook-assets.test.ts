@@ -2,17 +2,21 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
+  chmodSync,
   cpSync,
   existsSync,
   mkdtempSync,
+  mkdirSync,
   readdirSync,
   readFileSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import test from 'node:test'
+import { withPublicBase } from '../src/utils/publicPath.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const generatorPath = resolve(root, 'scripts/linear-regression/build-phase-27-assets.py')
@@ -29,6 +33,12 @@ const inheritedEnvironmentContractPath = resolve(
 )
 const stagingRoot = resolve(root, '.cache/linear-regression/phase-27-staging')
 const publicRoot = resolve(root, 'public')
+const candidatePackageRoot = resolve(
+  stagingRoot,
+  'notebooks/linear-regression',
+)
+const publicPackageRelativePath = 'notebooks/linear-regression'
+const publicationLockName = '.linear-regression-publication.lock'
 
 const EXPECTED_CANDIDATE_FILES = Object.freeze([
   'notebooks/linear-regression/bike-linear-regression.zh-CN.ipynb',
@@ -56,6 +66,11 @@ const EXPECTED_CONTINUOUS_FEATURES = Object.freeze([
   'windspeed',
   'hr',
 ] as const)
+
+const EXPECTED_PUBLIC_FILES = Object.freeze(
+  EXPECTED_CANDIDATE_FILES.map((path) =>
+    path.replace('notebooks/linear-regression/', '')),
+)
 
 const TEACHING_ROW_ROLES = Object.freeze([
   Object.freeze({
@@ -145,6 +160,78 @@ function closeTo(actual: number, expected: number, tolerance: number) {
     Math.abs(actual - expected) <= tolerance,
     `expected ${actual} to be within ${tolerance} of ${expected}`,
   )
+}
+
+function treeSnapshot(treeRoot: string) {
+  if (!existsSync(treeRoot)) return {}
+  const entries: Record<
+    string,
+    { kind: 'directory', mode: number }
+    | { kind: 'file', mode: number, bytes: number, sha256: string }
+  > = {}
+  const visit = (directory: string) => {
+    for (const name of readdirSync(directory).sort()) {
+      const path = join(directory, name)
+      const status = statSync(path)
+      const relativePath = relative(treeRoot, path)
+      if (status.isDirectory()) {
+        entries[relativePath] = {
+          kind: 'directory',
+          mode: status.mode & 0o777,
+        }
+        visit(path)
+      } else {
+        entries[relativePath] = {
+          kind: 'file',
+          mode: status.mode & 0o777,
+          bytes: status.size,
+          sha256: sha256(path),
+        }
+      }
+    }
+  }
+  visit(treeRoot)
+  return entries
+}
+
+function seedCompletePublicTarget(temporaryPublicRoot: string) {
+  const target = resolve(temporaryPublicRoot, publicPackageRelativePath)
+  mkdirSync(resolve(temporaryPublicRoot, 'notebooks'), { recursive: true })
+  cpSync(candidatePackageRoot, target, { recursive: true })
+  EXPECTED_PUBLIC_FILES.forEach((name, index) => {
+    const path = resolve(target, name)
+    writeFileSync(path, `seeded-prior-${index}-${name}\n`, 'utf8')
+    chmodSync(path, index % 2 === 0 ? 0o640 : 0o600)
+  })
+  chmodSync(target, 0o750)
+  return target
+}
+
+function publicationResidue(temporaryPublicRoot: string) {
+  return Object.keys(treeSnapshot(temporaryPublicRoot)).filter((path) =>
+    path.split('/').some((component) =>
+      component === publicationLockName
+      || component.startsWith('.linear-regression-publication-'),
+    ),
+  )
+}
+
+function publishFixture(
+  fixturePublicRoot: string,
+  failurePoint?: string,
+) {
+  return runProbe([
+    'result = module.publish_candidates_atomically(',
+    '    pathlib.Path(sys.argv[2]),',
+    '    public_root=pathlib.Path(sys.argv[3]),',
+    '    enforce_staging_root=False,',
+    '    enforce_public_root=False,',
+    ...(failurePoint === undefined
+      ? []
+      : [`    failure_point=${JSON.stringify(failurePoint)},`]),
+    ')',
+    'print(json.dumps(result, sort_keys=True, allow_nan=False))',
+  ].join('\n'), [stagingRoot, fixturePublicRoot])
 }
 
 test('inventory scaffold locks the exact indivisible nine-member candidate package', () => {
@@ -961,7 +1048,370 @@ test('candidate verification [27-W0-02] rejects changed contract code output and
     rmSync(temporaryRoot, { recursive: true, force: true })
   }
 })
-test.todo('publication [27-W0-02] accepts only the complete nine-member package [owner Plan 27-04]')
-test.todo('rollback [27-W0-02] restores absent or seeded public targets byte-for-byte [owner Plan 27-04]')
+test('publication accepts exactly one complete-package path and preserves frozen candidate provenance', () => {
+  const help = runGenerator(['--help'])
+  assert.equal(help.status, 0, help.stderr)
+  assert.match(help.stdout, /--publish-candidates/)
+  assert.doesNotMatch(help.stdout, /--publish-topic|--publish-locale|--publish-file/)
+
+  for (const selector of [
+    ['--topic', 'bike-linear-regression'],
+    ['--locale', 'zh-CN'],
+    ['--file', 'coefficients.csv'],
+  ]) {
+    const attempt = runGenerator([
+      '--publish-candidates',
+      '--staging-root',
+      stagingRoot,
+      ...selector,
+    ])
+    assert.notEqual(attempt.status, 0)
+    assert.match(attempt.stderr, /partial|selector|topic|locale|file/i)
+  }
+
+  const manifest = readCandidateJson(
+    'notebooks/linear-regression/output-manifest.json',
+  )
+  const source = readFileSync(generatorPath, 'utf8')
+  assert.equal(manifest.generator.sha256.length, 64)
+  assert.notEqual(manifest.generator.sha256, sha256(generatorPath))
+  assert.match(source, /VALIDATED_CANDIDATE_GENERATOR_SHA256/)
+  assert.match(source, new RegExp(manifest.generator.sha256))
+})
+
+test('publication succeeds from an absent target as one complete directory move', () => {
+  const temporaryDirectory = mkdtempSync(
+    resolve(tmpdir(), 'phase-27-absent-target-'),
+  )
+  try {
+    const fixturePublicRoot = resolve(temporaryDirectory, 'public')
+    mkdirSync(fixturePublicRoot, { recursive: true })
+    const candidateBefore = treeSnapshot(candidatePackageRoot)
+    const published = publishFixture(fixturePublicRoot)
+    assert.equal(published.status, 0, published.stderr)
+    const result = JSON.parse(published.stdout)
+    assert.equal(result.inventoryCount, 9)
+    assert.equal(result.priorTarget, 'absent')
+    assert.equal(result.backupCreated, false)
+
+    const target = resolve(fixturePublicRoot, publicPackageRelativePath)
+    assert.deepEqual(treeSnapshot(target), candidateBefore)
+    assert.deepEqual(
+      readdirSync(target).sort(),
+      [...EXPECTED_PUBLIC_FILES].sort(),
+    )
+    assert.deepEqual(treeSnapshot(candidatePackageRoot), candidateBefore)
+    assert.deepEqual(publicationResidue(fixturePublicRoot), [])
+  } finally {
+    rmSync(temporaryDirectory, { recursive: true, force: true })
+  }
+})
+
+test('replacement succeeds from a seeded existing target without partial visibility or residue', () => {
+  const temporaryDirectory = mkdtempSync(
+    resolve(tmpdir(), 'phase-27-seeded-replacement-'),
+  )
+  try {
+    const fixturePublicRoot = resolve(temporaryDirectory, 'public')
+    const target = seedCompletePublicTarget(fixturePublicRoot)
+    const seeded = treeSnapshot(target)
+    assert.notDeepEqual(seeded, treeSnapshot(candidatePackageRoot))
+
+    const published = publishFixture(fixturePublicRoot)
+    assert.equal(published.status, 0, published.stderr)
+    const result = JSON.parse(published.stdout)
+    assert.equal(result.inventoryCount, 9)
+    assert.equal(result.priorTarget, 'seeded-existing-target')
+    assert.equal(result.backupCreated, true)
+    assert.deepEqual(treeSnapshot(target), treeSnapshot(candidatePackageRoot))
+    assert.deepEqual(
+      readdirSync(target).sort(),
+      [...EXPECTED_PUBLIC_FILES].sort(),
+    )
+    assert.deepEqual(publicationResidue(fixturePublicRoot), [])
+  } finally {
+    rmSync(temporaryDirectory, { recursive: true, force: true })
+  }
+})
+
+test('rollback restores absent or seeded targets after every transaction-stage failure and interrupt', () => {
+  const failurePoints = [
+    'candidate-verification',
+    'temporary-preparation',
+    'backup-move',
+    'target-move',
+    'post-move-verification',
+    'final-verification',
+    'cleanup',
+    'interrupt',
+  ]
+  for (const fixture of ['absent target', 'seeded existing target'] as const) {
+    for (const failurePoint of failurePoints) {
+      const temporaryDirectory = mkdtempSync(
+        resolve(
+          tmpdir(),
+          `phase-27-${fixture.replaceAll(' ', '-')}-${failurePoint}-`,
+        ),
+      )
+      try {
+        const fixturePublicRoot = resolve(temporaryDirectory, 'public')
+        mkdirSync(fixturePublicRoot, { recursive: true })
+        const target = resolve(fixturePublicRoot, publicPackageRelativePath)
+        if (fixture === 'seeded existing target') {
+          seedCompletePublicTarget(fixturePublicRoot)
+        }
+        const before = treeSnapshot(target)
+        const failed = publishFixture(fixturePublicRoot, failurePoint)
+        assert.notEqual(failed.status, 0, `${fixture}: ${failurePoint}`)
+        assert.match(
+          failed.stderr,
+          /injected publication (?:failure|interrupt)/i,
+          `${fixture}: ${failurePoint}`,
+        )
+        assert.deepEqual(
+          treeSnapshot(target),
+          before,
+          `${fixture}: ${failurePoint}`,
+        )
+        assert.deepEqual(
+          publicationResidue(fixturePublicRoot),
+          [],
+          `${fixture}: ${failurePoint}`,
+        )
+      } finally {
+        rmSync(temporaryDirectory, { recursive: true, force: true })
+      }
+    }
+  }
+})
+
+test('publication lock contention fails without changing seeded public bytes or modes', () => {
+  const temporaryDirectory = mkdtempSync(
+    resolve(tmpdir(), 'phase-27-lock-contention-'),
+  )
+  try {
+    const fixturePublicRoot = resolve(temporaryDirectory, 'public')
+    const target = seedCompletePublicTarget(fixturePublicRoot)
+    const before = treeSnapshot(target)
+    const lockPath = resolve(fixturePublicRoot, publicationLockName)
+    writeFileSync(lockPath, 'held-by-test\n', { mode: 0o600 })
+    const failed = publishFixture(fixturePublicRoot)
+    assert.notEqual(failed.status, 0)
+    assert.match(failed.stderr, /lock|another.*publication/i)
+    assert.deepEqual(treeSnapshot(target), before)
+    assert.deepEqual(publicationResidue(fixturePublicRoot), [
+      publicationLockName,
+    ])
+    rmSync(lockPath)
+    assert.deepEqual(publicationResidue(fixturePublicRoot), [])
+  } finally {
+    rmSync(temporaryDirectory, { recursive: true, force: true })
+  }
+})
+
+test('publication corruption matrix fails before public mutation and removes private residue', () => {
+  const cases = [
+    {
+      name: 'source SHA',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/linear-regression-summary.json"',
+        'value = module.read_strict_json(path)',
+        'value["source"]["sha256"] = "0" * 64',
+        'path.write_bytes(module.strict_json_bytes(value))',
+      ],
+      reseal: 'notebooks/linear-regression/linear-regression-summary.json',
+    },
+    {
+      name: 'row order',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/heldout-residuals.csv"',
+        'rows = path.read_text(encoding="utf-8").splitlines()',
+        'rows[2], rows[3] = rows[3], rows[2]',
+        'path.write_text("\\n".join(rows) + "\\n", encoding="utf-8")',
+      ],
+      reseal: 'notebooks/linear-regression/heldout-residuals.csv',
+    },
+    {
+      name: 'split boundary',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/linear-regression-summary.json"',
+        'value = module.read_strict_json(path)',
+        'value["split"]["index"] = 1',
+        'path.write_bytes(module.strict_json_bytes(value))',
+      ],
+      reseal: 'notebooks/linear-regression/linear-regression-summary.json',
+    },
+    {
+      name: 'leakage feature',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/linear-regression-summary.json"',
+        'value = module.read_strict_json(path)',
+        'value["features"]["order"].append("casual")',
+        'path.write_bytes(module.strict_json_bytes(value))',
+      ],
+      reseal: 'notebooks/linear-regression/linear-regression-summary.json',
+    },
+    {
+      name: 'workingday scaling',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/linear-regression-summary.json"',
+        'value = module.read_strict_json(path)',
+        'value["preprocessing"]["standardized"].append("workingday")',
+        'value["preprocessing"]["unscaled"] = []',
+        'path.write_bytes(module.strict_json_bytes(value))',
+      ],
+      reseal: 'notebooks/linear-regression/linear-regression-summary.json',
+    },
+    {
+      name: 'residual sign',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/linear-regression-summary.json"',
+        'value = module.read_strict_json(path)',
+        'value["diagnostics"]["residualSign"] = "actual - prediction"',
+        'path.write_bytes(module.strict_json_bytes(value))',
+      ],
+      reseal: 'notebooks/linear-regression/linear-regression-summary.json',
+    },
+    {
+      name: 'method tolerance',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/linear-regression-summary.json"',
+        'value = module.read_strict_json(path)',
+        'value["methods"]["tolerance"] = 0.001',
+        'path.write_bytes(module.strict_json_bytes(value))',
+      ],
+      reseal: 'notebooks/linear-regression/linear-regression-summary.json',
+    },
+    {
+      name: 'locked metric',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/linear-regression-summary.json"',
+        'value = module.read_strict_json(path)',
+        'value["metrics"]["test"]["mse"] += 1',
+        'path.write_bytes(module.strict_json_bytes(value))',
+      ],
+      reseal: 'notebooks/linear-regression/linear-regression-summary.json',
+    },
+    {
+      name: 'CSV shape',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/coefficients.csv"',
+        'rows = path.read_text(encoding="utf-8").splitlines()',
+        'rows[0] += ",unexpected"',
+        'path.write_text("\\n".join(rows) + "\\n", encoding="utf-8")',
+      ],
+      reseal: 'notebooks/linear-regression/coefficients.csv',
+    },
+    {
+      name: 'environment identity',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/environment.json"',
+        'value = module.read_strict_json(path)',
+        'value["packages"]["numpy"] = "0.0.0"',
+        'path.write_bytes(module.strict_json_bytes(value))',
+      ],
+      reseal: 'notebooks/linear-regression/environment.json',
+    },
+    {
+      name: 'generator identity',
+      mutation: [
+        'manifest_path = candidate / "notebooks/linear-regression/output-manifest.json"',
+        'manifest = module.read_strict_json(manifest_path)',
+        'manifest["generator"]["sha256"] = "0" * 64',
+        'manifest["canonicalPayloadSha256"] = None',
+        'manifest["canonicalPayloadSha256"] = module._sha256_json(manifest)',
+        'manifest_path.write_bytes(module.strict_json_bytes(manifest))',
+      ],
+    },
+    {
+      name: 'code output parity',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/bike-linear-regression.en.ipynb"',
+        'value = module.read_strict_json(path)',
+        'cell = next(item for item in value["cells"] if item["cell_type"] == "code")',
+        'cell["source"] = ["FEATURE_ORDER = ()\\n"]',
+        'path.write_bytes(module.strict_json_bytes(value))',
+      ],
+      reseal: 'notebooks/linear-regression/bike-linear-regression.en.ipynb',
+    },
+    {
+      name: 'file hash',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/coefficients.csv"',
+        'path.write_bytes(path.read_bytes() + b"tampered\\n")',
+      ],
+    },
+    {
+      name: 'unexpected file',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/unexpected.txt"',
+        'path.write_text("unexpected\\n", encoding="utf-8")',
+      ],
+    },
+    {
+      name: 'missing file',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/coefficients.csv"',
+        'path.unlink()',
+      ],
+    },
+    {
+      name: 'nonfinite JSON',
+      mutation: [
+        'path = candidate / "notebooks/linear-regression/linear-regression-summary.json"',
+        'source = path.read_text(encoding="utf-8")',
+        'path.write_text(source.replace("40142.538619", "NaN", 1), encoding="utf-8")',
+      ],
+    },
+  ]
+
+  for (const corruption of cases) {
+    const temporaryDirectory = mkdtempSync(
+      resolve(tmpdir(), `phase-27-corrupt-${corruption.name.replaceAll(' ', '-')}-`),
+    )
+    try {
+      const copiedCandidate = resolve(temporaryDirectory, 'candidate')
+      const fixturePublicRoot = resolve(temporaryDirectory, 'public')
+      cpSync(stagingRoot, copiedCandidate, { recursive: true })
+      const target = seedCompletePublicTarget(fixturePublicRoot)
+      const before = treeSnapshot(target)
+      const reseal = corruption.reseal === undefined
+        ? []
+        : [
+            'manifest_path = candidate / "notebooks/linear-regression/output-manifest.json"',
+            'manifest = module.read_strict_json(manifest_path)',
+            `member = candidate / ${JSON.stringify(corruption.reseal)}`,
+            `entry = next(item for item in manifest["inventory"] if item["path"] == ${JSON.stringify(corruption.reseal)})`,
+            'entry["sha256"] = module.sha256_file(member)',
+            'entry["bytes"] = member.stat().st_size',
+            'manifest["canonicalPayloadSha256"] = None',
+            'manifest["canonicalPayloadSha256"] = module._sha256_json(manifest)',
+            'manifest_path.write_bytes(module.strict_json_bytes(manifest))',
+          ]
+      const failed = runProbe([
+        'candidate = pathlib.Path(sys.argv[2])',
+        ...corruption.mutation,
+        ...reseal,
+        'module.publish_candidates_atomically(',
+        '    candidate,',
+        '    public_root=pathlib.Path(sys.argv[3]),',
+        '    enforce_staging_root=False,',
+        '    enforce_public_root=False,',
+        ')',
+      ].join('\n'), [copiedCandidate, fixturePublicRoot])
+      assert.notEqual(failed.status, 0, corruption.name)
+      assert.match(
+        failed.stderr,
+        /candidate|code|CSV|environment|feature|generator|hash|inventory|metric|non-finite|residual|row|scal|source|split|tolerance|unexpected/i,
+        corruption.name,
+      )
+      assert.deepEqual(treeSnapshot(target), before, corruption.name)
+      assert.deepEqual(publicationResidue(fixturePublicRoot), [], corruption.name)
+    } finally {
+      rmSync(temporaryDirectory, { recursive: true, force: true })
+    }
+  }
+})
+
 test.todo('offline rerun [27-W0-02] leaves repository bytes and mtimes unchanged [owner Plan 27-04]')
 test.todo('base paths [27-W0-02] resolve every public member for root and Pages [owner Plan 27-04]')
