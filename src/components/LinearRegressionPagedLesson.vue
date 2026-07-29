@@ -19,6 +19,7 @@ import type {
   TrainingSnapshot,
 } from '../types/ml'
 import { withPublicBase } from '../utils/publicPath'
+import CodeLab from '../modules/math-lab/components/CodeLab.vue'
 import LinearRegressionLessonLab from './LinearRegressionLessonLab.vue'
 import LinearRegressionResults from './LinearRegressionResults.vue'
 import MarkdownMathContent from './MarkdownMathContent.vue'
@@ -118,6 +119,13 @@ const copy = computed(() => {
     features: zh ? '模型特征' : 'Model features',
     outputs: zh ? '本章结果接口' : 'Chapter result interfaces',
     localFiles: zh ? '关联本地文件' : 'Related local files',
+    reproducibility: zh ? '离线复现命令' : 'Offline reproduction command',
+    reproducibilityTitle: zh
+      ? '验证本章共享的九文件发布包'
+      : 'Verify the shared nine-file release package',
+    copyCode: zh ? '复制命令' : 'Copy command',
+    copiedCode: zh ? '已复制' : 'Copied',
+    outputLabel: zh ? '本章绑定输出' : 'Chapter-bound outputs',
     nextLesson: zh ? '下一课' : 'Next lesson',
     nextTitle: zh ? '从表格回归走向线性分类边界' : 'From tabular regression to a linear classification boundary',
     nextBody: zh
@@ -172,6 +180,11 @@ const activeOutputLabels = computed(() =>
 )
 const loadedSummary = computed(() =>
   summaryState.value.status === 'ready' ? summaryState.value.summary : undefined,
+)
+const reproducibilityCommand =
+  'python3 scripts/linear-regression/build-phase-27-assets.py --check --offline'
+const activeAssetPaths = computed(() =>
+  activeChapterAssets.value.map((asset) => asset.publicPath).join('\n'),
 )
 
 function localizedText(value?: LocalizedCopy) {
@@ -369,11 +382,24 @@ onBeforeUnmount(abortActiveLoad)
                     </ul>
                   </section>
                 </div>
+
+                <CodeLab
+                  :title="copy.reproducibilityTitle"
+                  :label="copy.reproducibility"
+                  :code="reproducibilityCommand"
+                  :output="activeAssetPaths"
+                  :copy-label="copy.copyCode"
+                  :copied-label="copy.copiedCode"
+                  :output-label="copy.outputLabel"
+                />
               </section>
             </section>
 
             <section class="linear-course-page__workbench">
-              <div class="linear-course-page__lab-block">
+              <div
+                class="linear-course-page__lab-block"
+                data-testid="linear-course-lab"
+              >
                 <div class="linear-course-page__section-heading">
                   <span>{{ copy.experiment }}</span>
                   <strong>{{ sectionTitle(props.section) }}</strong>
@@ -396,7 +422,10 @@ onBeforeUnmount(abortActiveLoad)
                 />
               </div>
 
-              <div class="linear-course-page__result-block">
+              <div
+                class="linear-course-page__result-block"
+                data-testid="linear-course-results"
+              >
                 <div class="linear-course-page__section-heading">
                   <span>{{ copy.results }}</span>
                   <strong>{{ activeOutputLabels.join(' · ') }}</strong>

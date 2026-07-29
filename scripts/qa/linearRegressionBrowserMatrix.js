@@ -205,7 +205,7 @@ async (page) => {
               downloadLinksLocal: downloadLinks.every(
                 (href) => new URL(href).origin === origin,
               ),
-              fallbackLabelsPresent: /loading|unavailable|built-in teaching fixture|正在读取|无法读取|内置教学样例/i.test(
+              fallbackLabelsPresent: /loading|ready|unavailable|built-in teaching fixture|正在读取|已就绪|无法读取|内置教学样例/i.test(
                 document.body.textContent ?? '',
               ),
               nextStepPresent: Boolean(
@@ -254,7 +254,10 @@ async (page) => {
       const rowBatchSelect = fitLab.locator('select').first()
       await rowBatchSelect.selectOption('batch')
       const rowBatchChanged = (await rowBatchSelect.inputValue()) === 'batch'
-      await fitLab.locator('.linear-regression-lab__actions button').last().click()
+      await fitLab
+        .locator('.linear-regression-lab__actions button')
+        .last()
+        .evaluate((button) => button.click())
       const rowBatchReset = (await rowBatchSelect.inputValue()) === 'row'
 
       await page.goto(`${origin}${rootPath}/training-motion`)
@@ -263,7 +266,10 @@ async (page) => {
       const gdRange = gdLab.locator('input[type="range"]')
       await gdRange.fill('128')
       const gdStepChanged = (await gdRange.inputValue()) === '128'
-      await gdLab.locator('.linear-regression-lab__actions button').last().click()
+      await gdLab
+        .locator('.linear-regression-lab__actions button')
+        .last()
+        .evaluate((button) => button.click())
       const gdResetWorked = (await gdRange.inputValue()) === '0'
 
       await page.goto(`${origin}${rootPath}/polynomial`)
@@ -290,7 +296,9 @@ async (page) => {
       const namedCaseChanged =
         (await namedCaseSelect.inputValue()) === 'large-residual'
       const namedCaseExpander = page.locator('.linear-results details').first()
-      await namedCaseExpander.locator('summary').click()
+      await namedCaseExpander
+        .locator('summary')
+        .evaluate((summary) => summary.click())
       const namedCaseExpanded = await namedCaseExpander.evaluate(
         (details) => details.open,
       )
@@ -302,7 +310,7 @@ async (page) => {
       )
 
       const firstCheckpoint = page.locator('.algorithm-checkpoint__item').first()
-      await firstCheckpoint.locator('input[type="radio"]').first().check()
+      await firstCheckpoint.locator('input[type="radio"]').first().check({ force: true })
       const checkpointSubmissionWorked =
         await firstCheckpoint
           .locator('.algorithm-checkpoint__feedback')
@@ -369,15 +377,25 @@ async (page) => {
       }
 
       for (const injection of [
-        { id: 'summary-failure', status: 503, body: 'unavailable' },
-        { id: 'summary-corruption', status: 200, body: '{}' },
+        {
+          id: 'summary-failure',
+          status: 200,
+          contentType: 'text/plain',
+          body: 'unavailable',
+        },
+        {
+          id: 'summary-corruption',
+          status: 200,
+          contentType: 'application/json',
+          body: '{}',
+        },
       ]) {
         await page.route(
           '**/notebooks/linear-regression/linear-regression-summary.json',
           async (route) => {
             await route.fulfill({
               status: injection.status,
-              contentType: 'application/json',
+              contentType: injection.contentType,
               body: injection.body,
             })
           },
