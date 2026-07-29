@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import contextlib
 import hashlib
 import json
+import math
 import os
 import platform
 import re
@@ -29,6 +31,12 @@ ENVIRONMENT_CONTRACT_PATH = (
     REPO_ROOT / "scripts/linear-regression/environment-contract.json"
 )
 SOURCE_BRIDGE_PATH = REPO_ROOT / "scripts/linear-regression/verify-bike-source.mjs"
+SOURCE_CSV_PATH = (
+    REPO_ROOT / "public/datasets/python-data-tools/bike-sharing-hour.csv"
+)
+SOURCE_DICTIONARY_PATH = (
+    REPO_ROOT / "public/datasets/python-data-tools/data-dictionary.json"
+)
 DEFAULT_WHEEL_CACHE = REPO_ROOT / ".cache/numerical-methods/batch-4-wheelhouse"
 DEFAULT_STAGING_ROOT = REPO_ROOT / ".cache/linear-regression/phase-27-staging"
 DEFAULT_PUBLIC_ROOT = REPO_ROOT / "public"
@@ -64,6 +72,28 @@ EXPECTED_ENVIRONMENT_PINS = {
     "jupyterlab": "4.6.1",
     "ipykernel": "7.3.0",
     "scikit-learn": "1.9.0",
+}
+SUMMARY_CONTRACT_VERSION = "linear-regression-phase-27-summary-v1"
+CANDIDATE_CONTRACT_VERSION = "linear-regression-phase-27-candidate-v1"
+SELECTION_RULE_VERSION = "bike-linear-regression-teaching-rows-v1"
+METHOD_TOLERANCE = 1e-6
+GD_LEARNING_RATE = 0.1
+GD_MAX_UPDATES = 5_000
+GD_GRADIENT_TOLERANCE = 1e-8
+RIDGE_ALPHA = 300.0
+LASSO_ALPHA = 0.1
+EXPECTED_REFERENCE_WEIGHTS = (
+    62.7238909530,
+    -37.1164156021,
+    0.8094458662,
+    2.3797186778,
+    47.9014338433,
+)
+EXPECTED_REFERENCE_INTERCEPT = 173.0103284947
+EXPECTED_TEST_METRICS = {
+    "mse": 40_142.538619,
+    "mae": 135.296640,
+    "r2": 0.174252,
 }
 IMPORT_NAMES = {
     "numpy": "numpy",
@@ -902,6 +932,1204 @@ def verify_source_contract() -> dict[str, Any]:
     return contract
 
 
+def load_verified_bike_frame(path: Path = SOURCE_CSV_PATH) -> Any:
+    """Load the immutable Bike source after asserting its complete trust contract."""
+    try:
+        import numpy as np
+        import pandas as pd
+    except ImportError as error:
+        raise Phase27Error(
+            "Bike calculations must run inside the audited Phase 27 environment"
+        ) from error
+
+    if path.resolve() != SOURCE_CSV_PATH.resolve():
+        raise Phase27Error("Bike calculations require the committed source path")
+    if not path.is_file() or sha256_file(path) != SOURCE_SHA256:
+        raise Phase27Error("Bike source SHA-256 drifted before fitting")
+    frame = pd.read_csv(path)
+    expected_columns = (
+        "instant",
+        "dteday",
+        "season",
+        "yr",
+        "mnth",
+        "hr",
+        "holiday",
+        "weekday",
+        "workingday",
+        "weathersit",
+        "temp",
+        "atemp",
+        "hum",
+        "windspeed",
+        "casual",
+        "registered",
+        "cnt",
+    )
+    if tuple(frame.columns) != expected_columns or len(frame) != SOURCE_ROWS:
+        raise Phase27Error("Bike source schema or row count drifted before fitting")
+    expected_instants = np.arange(1, SOURCE_ROWS + 1, dtype=np.int64)
+    if not np.array_equal(frame["instant"].to_numpy(), expected_instants):
+        raise Phase27Error("Bike source row order drifted before fitting")
+    if not np.array_equal(
+        frame["casual"].to_numpy() + frame["registered"].to_numpy(),
+        frame["cnt"].to_numpy(),
+    ):
+        raise Phase27Error("Bike target relationship drifted before fitting")
+    if set(frame["workingday"].unique()) != {0, 1}:
+        raise Phase27Error("Bike workingday is no longer an unscaled binary field")
+    dictionary = read_strict_json(SOURCE_DICTIONARY_PATH)
+    fields = {item.get("name"): item for item in dictionary.get("fields", [])}
+    if (
+        dictionary.get("version") != "bike-sharing-hour-v1"
+        or fields.get("cnt", {}).get("relationship")
+        != "cnt = casual + registered"
+        or fields.get("workingday", {}).get("type") != "binary-category"
+        or any(feature not in fields for feature in FEATURE_ORDER)
+    ):
+        raise Phase27Error("Bike data dictionary roles drifted before fitting")
+    return frame
+
+
+def make_chronological_split(frame: Any) -> tuple[Any, Any]:
+    if len(frame) != SOURCE_ROWS or SPLIT_INDEX != int(len(frame) * 0.8):
+        raise Phase27Error("Chronological split size drifted")
+    train = frame.iloc[:SPLIT_INDEX].copy()
+    held_out = frame.iloc[SPLIT_INDEX:].copy()
+    train_end = train.iloc[-1]
+    test_start = held_out.iloc[0]
+    if (
+        int(train_end["instant"]) != 13_903
+        or str(train_end["dteday"]) != "2012-08-07"
+        or int(train_end["hr"]) != 11
+        or int(test_start["instant"]) != 13_904
+        or str(test_start["dteday"]) != "2012-08-07"
+        or int(test_start["hr"]) != 12
+    ):
+        raise Phase27Error("Chronological split boundary rows drifted")
+    return train, held_out
+
+
+def fit_training_scaler(train: Any) -> dict[str, Any]:
+    try:
+        import numpy as np
+        from sklearn.preprocessing import StandardScaler
+    except ImportError as error:
+        raise Phase27Error("Train-only scaling requires the audited environment") from error
+
+    scaler = StandardScaler()
+    values = train.loc[:, list(CONTINUOUS_FEATURES)].to_numpy(dtype=float)
+    scaler.fit(values)
+    if (
+        not np.isfinite(scaler.mean_).all()
+        or not np.isfinite(scaler.scale_).all()
+        or np.any(scaler.scale_ <= 0)
+    ):
+        raise Phase27Error("Train-only scaler emitted invalid statistics")
+    return {
+        "scaler": scaler,
+        "means": {
+            feature: float(scaler.mean_[index])
+            for index, feature in enumerate(CONTINUOUS_FEATURES)
+        },
+        "scales": {
+            feature: float(scaler.scale_[index])
+            for index, feature in enumerate(CONTINUOUS_FEATURES)
+        },
+    }
+
+
+def build_model_matrix(frame: Any, scaler_contract: dict[str, Any]) -> Any:
+    try:
+        import numpy as np
+    except ImportError as error:
+        raise Phase27Error("Model-matrix construction requires NumPy") from error
+
+    if "workingday" in scaler_contract["means"] or "workingday" in scaler_contract["scales"]:
+        raise Phase27Error("workingday must never enter the scaler contract")
+    continuous = scaler_contract["scaler"].transform(
+        frame.loc[:, list(CONTINUOUS_FEATURES)].to_numpy(dtype=float)
+    )
+    continuous_index = {
+        feature: index for index, feature in enumerate(CONTINUOUS_FEATURES)
+    }
+    columns = []
+    for feature in FEATURE_ORDER:
+        if feature == "workingday":
+            column = frame["workingday"].to_numpy(dtype=float)
+            if not np.isin(column, [0.0, 1.0]).all():
+                raise Phase27Error("workingday must remain binary and unscaled")
+        else:
+            column = continuous[:, continuous_index[feature]]
+        columns.append(column)
+    matrix = np.column_stack(columns)
+    if (
+        matrix.shape != (len(frame), len(FEATURE_ORDER))
+        or not np.isfinite(matrix).all()
+    ):
+        raise Phase27Error("Canonical model matrix is malformed or non-finite")
+    return matrix
+
+
+def _metric_record(actual: Any, prediction: Any) -> dict[str, float]:
+    try:
+        import numpy as np
+        from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+    except ImportError as error:
+        raise Phase27Error("Regression metrics require the audited environment") from error
+
+    values = {
+        "mse": float(mean_squared_error(actual, prediction)),
+        "mae": float(mean_absolute_error(actual, prediction)),
+        "r2": float(r2_score(actual, prediction)),
+    }
+    if not np.isfinite(list(values.values())).all():
+        raise Phase27Error("Regression metrics became non-finite")
+    return values
+
+
+def _gradient_state(
+    matrix: Any,
+    targets: Any,
+    weights: Any,
+    intercept: float,
+) -> tuple[float, Any, float, float]:
+    try:
+        import numpy as np
+    except ImportError as error:
+        raise Phase27Error("Batch gradient descent requires NumPy") from error
+
+    residuals = matrix @ weights + intercept - targets
+    mse = float(np.mean(residuals * residuals))
+    weight_gradient = (2.0 / len(matrix)) * (matrix.T @ residuals)
+    intercept_gradient = float(2.0 * np.mean(residuals))
+    gradient_norm = float(
+        np.linalg.norm(np.append(weight_gradient, intercept_gradient))
+    )
+    if not np.isfinite(
+        np.concatenate(
+            [
+                np.asarray([mse, intercept_gradient, gradient_norm]),
+                np.asarray(weight_gradient),
+                np.asarray(residuals),
+            ]
+        )
+    ).all():
+        raise Phase27Error("Batch gradient descent reached a non-finite state")
+    return mse, weight_gradient, intercept_gradient, gradient_norm
+
+
+def run_numpy_batch_gd(matrix: Any, targets: Any) -> dict[str, Any]:
+    try:
+        import numpy as np
+    except ImportError as error:
+        raise Phase27Error("Batch gradient descent requires NumPy") from error
+
+    weights = np.zeros(matrix.shape[1], dtype=float)
+    intercept = 0.0
+    trace: list[dict[str, Any]] = []
+    for update in range(GD_MAX_UPDATES + 1):
+        mse, weight_gradient, intercept_gradient, gradient_norm = _gradient_state(
+            matrix,
+            targets,
+            weights,
+            intercept,
+        )
+        trace.append(
+            {
+                "update": update,
+                "mse": mse,
+                "gradientNorm": gradient_norm,
+                "intercept": float(intercept),
+                "weights": [float(value) for value in weights],
+            }
+        )
+        if gradient_norm <= GD_GRADIENT_TOLERANCE:
+            if update != 772:
+                raise Phase27Error(
+                    f"Locked batch GD stop drifted: expected 772, observed {update}"
+                )
+            return {
+                "method": "numpy-batch-gradient-descent",
+                "weights": weights.copy(),
+                "intercept": float(intercept),
+                "updates": update,
+                "mse": mse,
+                "gradientNorm": gradient_norm,
+                "reason": "gradient-tolerance",
+                "trace": trace,
+            }
+        if update == GD_MAX_UPDATES:
+            raise Phase27Error("Locked batch GD hit its update cap")
+        weights = weights - GD_LEARNING_RATE * weight_gradient
+        intercept = float(intercept - GD_LEARNING_RATE * intercept_gradient)
+    raise Phase27Error("Batch GD reached an unreachable state")
+
+
+def fit_lstsq_reference(matrix: Any, targets: Any) -> dict[str, Any]:
+    try:
+        import numpy as np
+    except ImportError as error:
+        raise Phase27Error("Least-squares reference requires NumPy") from error
+
+    augmented = np.column_stack([np.ones(len(matrix), dtype=float), matrix])
+    theta, residual_sums, rank, singular_values = np.linalg.lstsq(
+        augmented,
+        targets,
+        rcond=None,
+    )
+    if rank != augmented.shape[1] or not np.isfinite(theta).all():
+        raise Phase27Error("Augmented least-squares reference lost rank or finiteness")
+    return {
+        "method": "numpy-lstsq",
+        "weights": theta[1:].copy(),
+        "intercept": float(theta[0]),
+        "rank": int(rank),
+        "singularValues": [float(value) for value in singular_values],
+        "conditionNumber": float(np.linalg.cond(augmented)),
+        "residualSums": [float(value) for value in residual_sums],
+        "predictions": augmented @ theta,
+    }
+
+
+def fit_sklearn_reference(matrix: Any, targets: Any) -> dict[str, Any]:
+    try:
+        import numpy as np
+        from sklearn.linear_model import LinearRegression
+    except ImportError as error:
+        raise Phase27Error("scikit-learn reference requires the audited environment") from error
+
+    model = LinearRegression(fit_intercept=True)
+    model.fit(matrix, targets)
+    weights = np.asarray(model.coef_, dtype=float)
+    intercept = float(model.intercept_)
+    if not np.isfinite(np.append(weights, intercept)).all():
+        raise Phase27Error("scikit-learn reference emitted non-finite parameters")
+    return {
+        "method": "sklearn-linear-regression",
+        "model": model,
+        "weights": weights,
+        "intercept": intercept,
+        "rank": int(model.rank_),
+        "singularValues": [float(value) for value in model.singular_],
+        "predictions": model.predict(matrix),
+    }
+
+
+def compute_method_deltas(
+    gd: dict[str, Any],
+    lstsq: dict[str, Any],
+    sklearn: dict[str, Any],
+    held_out_matrix: Any,
+) -> dict[str, Any]:
+    try:
+        import numpy as np
+    except ImportError as error:
+        raise Phase27Error("Method comparison requires NumPy") from error
+
+    reference_parameters = np.append(lstsq["intercept"], lstsq["weights"])
+    reference_predictions = (
+        held_out_matrix @ lstsq["weights"] + lstsq["intercept"]
+    )
+    methods = {}
+    for name, result in (
+        ("numpyBatchGradientDescent", gd),
+        ("numpyLstsq", lstsq),
+        ("sklearnLinearRegression", sklearn),
+    ):
+        parameters = np.append(result["intercept"], result["weights"])
+        predictions = held_out_matrix @ result["weights"] + result["intercept"]
+        methods[name] = {
+            "maxCoefficientDelta": float(
+                np.max(np.abs(parameters - reference_parameters))
+            ),
+            "maxPredictionDelta": float(
+                np.max(np.abs(predictions - reference_predictions))
+            ),
+        }
+    max_coefficient_delta = max(
+        item["maxCoefficientDelta"] for item in methods.values()
+    )
+    max_prediction_delta = max(
+        item["maxPredictionDelta"] for item in methods.values()
+    )
+    if (
+        max_coefficient_delta > METHOD_TOLERANCE
+        or max_prediction_delta > METHOD_TOLERANCE
+    ):
+        raise Phase27Error(
+            "The three unregularized methods exceeded the 1e-6 agreement tolerance"
+        )
+    return {
+        "tolerance": METHOD_TOLERANCE,
+        "byMethod": methods,
+        "maxCoefficientDelta": max_coefficient_delta,
+        "maxPredictionDelta": max_prediction_delta,
+        "agrees": True,
+    }
+
+
+def _timestamp(record: Any) -> str:
+    return f"{record['dteday']} {int(record['hr']):02d}:00"
+
+
+def _teaching_row_record(
+    frame: Any,
+    predictions: Any,
+    position: int,
+    role: str,
+    explanation_en: str,
+    explanation_zh: str,
+) -> dict[str, Any]:
+    record = frame.iloc[position]
+    prediction = float(predictions[position])
+    actual = float(record["cnt"])
+    return {
+        "role": role,
+        "instant": int(record["instant"]),
+        "timestamp": _timestamp(record),
+        "hour": int(record["hr"]),
+        "actual": actual,
+        "prediction": prediction,
+        "residual": prediction - actual,
+        "explanationRole": {"en": explanation_en, "zh-CN": explanation_zh},
+    }
+
+
+def select_teaching_rows(
+    train: Any,
+    held_out: Any,
+    train_matrix: Any,
+    held_out_matrix: Any,
+    lstsq: dict[str, Any],
+) -> dict[str, Any]:
+    try:
+        import numpy as np
+    except ImportError as error:
+        raise Phase27Error("Teaching-row selection requires NumPy") from error
+
+    train_predictions = train_matrix @ lstsq["weights"] + lstsq["intercept"]
+    held_predictions = held_out_matrix @ lstsq["weights"] + lstsq["intercept"]
+    train_actual = train["cnt"].to_numpy(dtype=float)
+    held_actual = held_out["cnt"].to_numpy(dtype=float)
+    train_residuals = train_predictions - train_actual
+    held_residuals = held_predictions - held_actual
+    q1, q3 = np.quantile(train_actual, [0.25, 0.75])
+    eligible = np.flatnonzero((train_actual >= q1) & (train_actual <= q3))
+    representative_position = min(
+        eligible,
+        key=lambda position: (
+            abs(float(train_residuals[position])),
+            int(train.iloc[position]["instant"]),
+        ),
+    )
+    representative = _teaching_row_record(
+        train,
+        train_predictions,
+        int(representative_position),
+        "representative-training-row",
+        "ordinary training row inside the inclusive target IQR",
+        "训练目标四分位区间内的普通训练行",
+    )
+    transformed = train_matrix[int(representative_position)]
+    residual = representative["residual"]
+    representative.update(
+        {
+            "rawFeatures": {
+                feature: float(train.iloc[int(representative_position)][feature])
+                for feature in FEATURE_ORDER
+            },
+            "transformedValues": [float(value) for value in transformed],
+            "lossContribution": float(residual * residual),
+            "unaveragedWeightGradientContribution": [
+                float(2.0 * residual * value) for value in transformed
+            ],
+            "unaveragedInterceptGradientContribution": float(2.0 * residual),
+        }
+    )
+
+    def lowest_instant(candidates: Any, score: Any, *, maximize: bool) -> int:
+        ordered = sorted(
+            (int(position) for position in candidates),
+            key=lambda position: (
+                -float(score[position]) if maximize else float(score[position]),
+                int(held_out.iloc[position]["instant"]),
+            ),
+        )
+        if not ordered:
+            raise Phase27Error("A required held-out teaching role has no candidates")
+        return ordered[0]
+
+    all_positions = np.arange(len(held_out))
+    negative_position = lowest_instant(
+        all_positions,
+        held_predictions,
+        maximize=False,
+    )
+    underprediction = held_actual - held_predictions
+    hours = held_out["hr"].to_numpy(dtype=int)
+    morning_positions = np.flatnonzero(
+        (hours >= 7) & (hours <= 9) & (underprediction > 0)
+    )
+    morning_position = lowest_instant(
+        morning_positions,
+        underprediction,
+        maximize=True,
+    )
+    evening_positions = np.flatnonzero(
+        (hours >= 16) & (hours <= 19) & (underprediction > 0)
+    )
+    evening_position = lowest_instant(
+        evening_positions,
+        underprediction,
+        maximize=True,
+    )
+    excluded = {negative_position, morning_position, evening_position}
+    remaining = [position for position in all_positions if position not in excluded]
+    large_position = lowest_instant(
+        remaining,
+        np.abs(held_residuals),
+        maximize=True,
+    )
+    cases = [
+        _teaching_row_record(
+            held_out,
+            held_predictions,
+            negative_position,
+            "negative-prediction",
+            "lowest raw-count prediction",
+            "最低原始租车数预测",
+        ),
+        _teaching_row_record(
+            held_out,
+            held_predictions,
+            morning_position,
+            "morning-peak-underprediction",
+            "largest positive morning actual-minus-prediction gap",
+            "早高峰最大的实际值减预测值正差距",
+        ),
+        _teaching_row_record(
+            held_out,
+            held_predictions,
+            evening_position,
+            "evening-peak-underprediction",
+            "largest positive evening actual-minus-prediction gap",
+            "晚高峰最大的实际值减预测值正差距",
+        ),
+        _teaching_row_record(
+            held_out,
+            held_predictions,
+            large_position,
+            "large-residual",
+            "largest remaining absolute residual",
+            "排除前三行后的最大绝对残差",
+        ),
+    ]
+    resolved = [representative["instant"], *[case["instant"] for case in cases]]
+    expected = [11_550, 17_213, 15_628, 14_965, 15_604]
+    if resolved != expected:
+        raise Phase27Error(
+            f"Deterministic teaching-row selection drifted: {resolved} != {expected}"
+        )
+    return {
+        "selectionRuleVersion": SELECTION_RULE_VERSION,
+        "representativeTrainingRow": representative,
+        "namedCases": cases,
+    }
+
+
+def compute_residual_diagnostics(
+    held_out: Any,
+    predictions: Any,
+) -> dict[str, Any]:
+    try:
+        import numpy as np
+        import pandas as pd
+    except ImportError as error:
+        raise Phase27Error("Held-out diagnostics require the audited environment") from error
+
+    actual = held_out["cnt"].to_numpy(dtype=float)
+    residuals = predictions - actual
+    diagnostic_frame = pd.DataFrame(
+        {
+            "hour": held_out["hr"].to_numpy(dtype=int),
+            "prediction": predictions,
+            "residual": residuals,
+            "absoluteResidual": np.abs(residuals),
+        }
+    )
+    hourly = (
+        diagnostic_frame.groupby("hour", sort=True)["residual"]
+        .mean()
+        .reindex(range(24))
+    )
+    if hourly.isna().any():
+        raise Phase27Error("Held-out hourly residual summary lost an hour")
+    bin_ids, edges = pd.qcut(
+        diagnostic_frame["prediction"],
+        q=4,
+        labels=False,
+        retbins=True,
+        duplicates="raise",
+    )
+    diagnostic_frame["bin"] = bin_ids.astype(int) + 1
+    prediction_bins = []
+    for bin_id in range(1, 5):
+        values = diagnostic_frame.loc[diagnostic_frame["bin"] == bin_id]
+        prediction_bins.append(
+            {
+                "bin": bin_id,
+                "lowerPrediction": float(edges[bin_id - 1]),
+                "upperPrediction": float(edges[bin_id]),
+                "rows": int(len(values)),
+                "residualStdDev": float(values["residual"].std(ddof=0)),
+                "mae": float(values["absoluteResidual"].mean()),
+            }
+        )
+    return {
+        "residualSign": "prediction - actual",
+        "hourlyResiduals": [
+            {"hour": int(hour), "meanResidual": float(value)}
+            for hour, value in hourly.items()
+        ],
+        "predictionBins": prediction_bins,
+    }
+
+
+def _extended_atemp_matrix(
+    frame: Any,
+    scaler: Any,
+) -> Any:
+    try:
+        import numpy as np
+    except ImportError as error:
+        raise Phase27Error("Collinearity comparison requires NumPy") from error
+
+    continuous = ("temp", "atemp", "hum", "windspeed", "hr")
+    standardized = scaler.transform(frame.loc[:, list(continuous)].to_numpy(float))
+    return np.column_stack(
+        [
+            standardized[:, 0],
+            standardized[:, 1],
+            standardized[:, 2],
+            standardized[:, 3],
+            frame["workingday"].to_numpy(float),
+            standardized[:, 4],
+        ]
+    )
+
+
+def compute_collinearity_comparison(
+    train: Any,
+    held_out: Any,
+    base_test_mse: float,
+) -> dict[str, Any]:
+    try:
+        import numpy as np
+        from sklearn.linear_model import Lasso, LinearRegression, Ridge
+        from sklearn.preprocessing import StandardScaler
+    except ImportError as error:
+        raise Phase27Error("Collinearity comparison requires scikit-learn") from error
+
+    extended_continuous = ("temp", "atemp", "hum", "windspeed", "hr")
+    scaler = StandardScaler().fit(
+        train.loc[:, list(extended_continuous)].to_numpy(float)
+    )
+    train_matrix = _extended_atemp_matrix(train, scaler)
+    test_matrix = _extended_atemp_matrix(held_out, scaler)
+    train_targets = train["cnt"].to_numpy(float)
+    test_targets = held_out["cnt"].to_numpy(float)
+    ols = LinearRegression(fit_intercept=True).fit(train_matrix, train_targets)
+    ridge = Ridge(alpha=RIDGE_ALPHA, fit_intercept=True).fit(
+        train_matrix,
+        train_targets,
+    )
+    lasso = Lasso(
+        alpha=LASSO_ALPHA,
+        fit_intercept=True,
+        max_iter=100_000,
+        tol=1e-10,
+        selection="cyclic",
+    ).fit(train_matrix, train_targets)
+    row_index = np.arange(len(train_targets), dtype=float)
+    perturbation = (
+        0.13524512 * np.where((row_index.astype(int) // 24) % 2 == 0, 1.0, -1.0)
+        + 0.03349182 * np.linspace(-1.0, 1.0, len(train_targets))
+    )
+    ols_perturbed = LinearRegression(fit_intercept=True).fit(
+        train_matrix,
+        train_targets + perturbation,
+    )
+    ridge_perturbed = Ridge(alpha=RIDGE_ALPHA, fit_intercept=True).fit(
+        train_matrix,
+        train_targets + perturbation,
+    )
+    ols_change = float(np.linalg.norm(ols_perturbed.coef_ - ols.coef_))
+    ridge_change = float(np.linalg.norm(ridge_perturbed.coef_ - ridge.coef_))
+    if ridge_change >= ols_change:
+        raise Phase27Error("Locked Ridge stability comparison no longer stabilizes")
+    return {
+        "addedFeature": "atemp",
+        "unchangedContract": [
+            "rows",
+            "split",
+            "target",
+            "base-features",
+            "preprocessing",
+        ],
+        "featureOrder": [
+            "temp",
+            "atemp",
+            "hum",
+            "windspeed",
+            "workingday",
+            "hr",
+        ],
+        "tempAtempTrainingCorrelation": float(
+            np.corrcoef(
+                train["temp"].to_numpy(float),
+                train["atemp"].to_numpy(float),
+            )[0, 1]
+        ),
+        "conditionNumber": float(
+            np.linalg.cond(
+                np.column_stack([np.ones(len(train_matrix)), train_matrix])
+            )
+        ),
+        "ols": {
+            "objective": "mse",
+            "weights": [float(value) for value in ols.coef_],
+            "intercept": float(ols.intercept_),
+            "tempCoefficient": float(ols.coef_[0]),
+            "atempCoefficient": float(ols.coef_[1]),
+            "testMetrics": _metric_record(
+                test_targets,
+                ols.predict(test_matrix),
+            ),
+            "baseTestMse": base_test_mse,
+            "perturbationL2": ols_change,
+        },
+        "ridge": {
+            "objective": "mse-plus-l2",
+            "alpha": RIDGE_ALPHA,
+            "weights": [float(value) for value in ridge.coef_],
+            "intercept": float(ridge.intercept_),
+            "testMetrics": _metric_record(
+                test_targets,
+                ridge.predict(test_matrix),
+            ),
+            "perturbationL2": ridge_change,
+        },
+        "lasso": {
+            "objective": "mse-plus-l1",
+            "alpha": LASSO_ALPHA,
+            "weights": [float(value) for value in lasso.coef_],
+            "intercept": float(lasso.intercept_),
+            "testMetrics": _metric_record(
+                test_targets,
+                lasso.predict(test_matrix),
+            ),
+            "sameObjectiveAsOls": False,
+        },
+        "perturbation": {
+            "version": "alternating-day-plus-linear-v1",
+            "formula": (
+                "0.13524512 * alternating_24_row_blocks "
+                "+ 0.03349182 * linear_minus_one_to_one"
+            ),
+        },
+    }
+
+
+def compute_log_target_comparison(
+    train_matrix: Any,
+    held_out_matrix: Any,
+    train_targets: Any,
+    held_out_targets: Any,
+) -> dict[str, Any]:
+    try:
+        import numpy as np
+        from sklearn.linear_model import LinearRegression
+    except ImportError as error:
+        raise Phase27Error("log1p comparison requires the audited environment") from error
+
+    model = LinearRegression(fit_intercept=True)
+    log_targets = np.log1p(train_targets)
+    model.fit(train_matrix, log_targets)
+    log_predictions = model.predict(held_out_matrix)
+    count_predictions = np.expm1(log_predictions)
+    if not np.isfinite(count_predictions).all():
+        raise Phase27Error("log1p inverse-transformed predictions became non-finite")
+    return {
+        "targetTransform": "log1p",
+        "inverseTransform": "expm1",
+        "coefficientScale": "log1p-rental-count",
+        "rawTargetObjectiveComparable": False,
+        "logSpaceMetrics": _metric_record(
+            np.log1p(held_out_targets),
+            log_predictions,
+        ),
+        "inverseTransformedCountMetrics": _metric_record(
+            held_out_targets,
+            count_predictions,
+        ),
+        "weights": [float(value) for value in model.coef_],
+        "intercept": float(model.intercept_),
+    }
+
+
+def _convert_coefficients(
+    weights: Any,
+    intercept: float,
+    scaler_contract: dict[str, Any],
+) -> dict[str, Any]:
+    converted = []
+    original_intercept = float(intercept)
+    for index, feature in enumerate(FEATURE_ORDER):
+        weight = float(weights[index])
+        if feature == "workingday":
+            converted.append(weight)
+            continue
+        scale = scaler_contract["scales"][feature]
+        mean = scaler_contract["means"][feature]
+        converted.append(weight / scale)
+        original_intercept -= weight * mean / scale
+    if not all(math.isfinite(value) for value in [*converted, original_intercept]):
+        raise Phase27Error("Original-unit coefficient conversion became non-finite")
+    return {"weights": converted, "intercept": original_intercept}
+
+
+def compute_complete_candidate_model() -> dict[str, Any]:
+    try:
+        import numpy as np
+    except ImportError as error:
+        raise Phase27Error("Candidate calculation requires the audited environment") from error
+
+    frame = load_verified_bike_frame()
+    train, held_out = make_chronological_split(frame)
+    scaler = fit_training_scaler(train)
+    train_matrix = build_model_matrix(train, scaler)
+    held_out_matrix = build_model_matrix(held_out, scaler)
+    train_targets = train["cnt"].to_numpy(dtype=float)
+    held_out_targets = held_out["cnt"].to_numpy(dtype=float)
+    lstsq = fit_lstsq_reference(train_matrix, train_targets)
+    sklearn = fit_sklearn_reference(train_matrix, train_targets)
+    gd = run_numpy_batch_gd(train_matrix, train_targets)
+    deltas = compute_method_deltas(gd, lstsq, sklearn, held_out_matrix)
+    reference_train_predictions = (
+        train_matrix @ lstsq["weights"] + lstsq["intercept"]
+    )
+    reference_test_predictions = (
+        held_out_matrix @ lstsq["weights"] + lstsq["intercept"]
+    )
+    train_metrics = _metric_record(train_targets, reference_train_predictions)
+    test_metrics = _metric_record(held_out_targets, reference_test_predictions)
+    for observed, expected in zip(
+        [*lstsq["weights"], lstsq["intercept"]],
+        [*EXPECTED_REFERENCE_WEIGHTS, EXPECTED_REFERENCE_INTERCEPT],
+        strict=True,
+    ):
+        if abs(float(observed) - expected) > 1e-9:
+            raise Phase27Error("Locked least-squares parameter anchor drifted")
+    for name, expected in EXPECTED_TEST_METRICS.items():
+        if abs(test_metrics[name] - expected) > 1e-6:
+            raise Phase27Error(f"Locked held-out {name} anchor drifted")
+
+    selected = select_teaching_rows(
+        train,
+        held_out,
+        train_matrix,
+        held_out_matrix,
+        lstsq,
+    )
+    residual_diagnostics = compute_residual_diagnostics(
+        held_out,
+        reference_test_predictions,
+    )
+    collinearity = compute_collinearity_comparison(
+        train,
+        held_out,
+        test_metrics["mse"],
+    )
+    log1p = compute_log_target_comparison(
+        train_matrix,
+        held_out_matrix,
+        train_targets,
+        held_out_targets,
+    )
+    original = _convert_coefficients(
+        lstsq["weights"],
+        lstsq["intercept"],
+        scaler,
+    )
+    summary = {
+        "contractVersion": SUMMARY_CONTRACT_VERSION,
+        "source": {
+            "path": "datasets/python-data-tools/bike-sharing-hour.csv",
+            "sha256": SOURCE_SHA256,
+            "rows": SOURCE_ROWS,
+            "target": "cnt",
+            "targetRelationship": "cnt = casual + registered",
+        },
+        "features": {
+            "order": list(FEATURE_ORDER),
+            "continuous": list(CONTINUOUS_FEATURES),
+            "binaryUnscaled": ["workingday"],
+            "collinearityOnly": ["atemp"],
+            "leakageExcluded": ["casual", "registered"],
+        },
+        "split": {
+            "kind": "chronological-first-80-percent",
+            "index": SPLIT_INDEX,
+            "trainRows": len(train),
+            "testRows": len(held_out),
+            "trainEnd": {
+                "instant": 13_903,
+                "timestamp": "2012-08-07 11:00",
+            },
+            "testStart": {
+                "instant": 13_904,
+                "timestamp": "2012-08-07 12:00",
+            },
+        },
+        "preprocessing": {
+            "fitPartition": "train-only",
+            "standardized": list(CONTINUOUS_FEATURES),
+            "unscaled": ["workingday"],
+            "ddof": 0,
+            "means": scaler["means"],
+            "scales": scaler["scales"],
+        },
+        "optimization": {
+            "config": {
+                "initialization": "zeros",
+                "learningRate": GD_LEARNING_RATE,
+                "maxUpdates": GD_MAX_UPDATES,
+                "gradientTolerance": GD_GRADIENT_TOLERANCE,
+            },
+            "result": {
+                "updates": gd["updates"],
+                "reason": gd["reason"],
+                "mse": gd["mse"],
+                "gradientNorm": gd["gradientNorm"],
+                "weights": [float(value) for value in gd["weights"]],
+                "intercept": gd["intercept"],
+            },
+        },
+        "methods": {
+            "tolerance": METHOD_TOLERANCE,
+            "roles": {
+                "numpyBatchGradientDescent": (
+                    "transparent iterative parameter learning"
+                ),
+                "normalEquation": "non-iterative numerical reference",
+                "scikitLearnLinearRegression": "practical API counterpart",
+            },
+            "normalEquation": {
+                "term": {"en": "normal equation", "zh-CN": "正规方程"},
+                "augmentedDesign": "X_tilde = [1, X]",
+                "formula": "theta = (X_tilde^T X_tilde)^+ X_tilde^T y",
+                "interceptMapping": "theta[0] = b",
+                "weightMapping": "theta[1:] = w",
+                "implementation": "numpy.linalg.lstsq",
+                "rationale": (
+                    "Use the stable least-squares solver instead of explicitly "
+                    "forming an inverse / 使用稳定最小二乘求解器而非显式求逆"
+                ),
+                "rank": lstsq["rank"],
+                "singularValues": lstsq["singularValues"],
+                "conditionNumber": lstsq["conditionNumber"],
+                "weights": [float(value) for value in lstsq["weights"]],
+                "intercept": lstsq["intercept"],
+            },
+            "numpyBatchGradientDescent": {
+                "weights": [float(value) for value in gd["weights"]],
+                "intercept": gd["intercept"],
+            },
+            "scikitLearnLinearRegression": {
+                "fitIntercept": True,
+                "weights": [float(value) for value in sklearn["weights"]],
+                "intercept": sklearn["intercept"],
+                "rank": sklearn["rank"],
+                "singularValues": sklearn["singularValues"],
+            },
+            "agreement": deltas,
+        },
+        "metrics": {"train": train_metrics, "test": test_metrics},
+        "coefficients": {
+            "modelSpace": {
+                "featureOrder": list(FEATURE_ORDER),
+                "weights": [float(value) for value in lstsq["weights"]],
+                "intercept": lstsq["intercept"],
+            },
+            "originalDatasetUnits": {
+                "featureOrder": list(FEATURE_ORDER),
+                **original,
+                "interpretation": (
+                    "conditional association holding modeled features fixed; not causal"
+                ),
+            },
+        },
+        "selectionRuleVersion": selected["selectionRuleVersion"],
+        "representativeTrainingRow": selected["representativeTrainingRow"],
+        "diagnostics": {
+            "stagedOrder": [
+                "optimization-complete",
+                "hourly-residual-shape",
+                "prediction-bin-spread",
+                "named-heldout-cases",
+                "coefficient-stability",
+                "log1p-comparison",
+                "combined-review",
+            ],
+            **residual_diagnostics,
+            "namedCases": selected["namedCases"],
+            "collinearity": collinearity,
+            "log1p": log1p,
+        },
+    }
+    return {
+        "frame": frame,
+        "train": train,
+        "heldOut": held_out,
+        "trainMatrix": train_matrix,
+        "heldOutMatrix": held_out_matrix,
+        "trainTargets": train_targets,
+        "heldOutTargets": held_out_targets,
+        "testPredictions": reference_test_predictions,
+        "lstsq": lstsq,
+        "sklearn": sklearn,
+        "gd": gd,
+        "summary": summary,
+    }
+
+
+def _format_csv_number(value: Any) -> str:
+    number = float(value)
+    if not math.isfinite(number):
+        raise Phase27Error("Candidate CSV cannot contain a non-finite number")
+    return format(number, ".17g")
+
+
+def _write_csv(
+    path: Path,
+    fieldnames: list[str],
+    rows: list[dict[str, Any]],
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, lineterminator="\n")
+        writer.writeheader()
+        for row in rows:
+            if set(row) != set(fieldnames):
+                raise Phase27Error(f"Candidate CSV row keys drifted for {path.name}")
+            writer.writerow(row)
+
+
+def write_data_candidate_bundle(staging_root: Path) -> dict[str, Any]:
+    root = staging_root.resolve()
+    model = compute_complete_candidate_model()
+    notebook_root = root / "notebooks/linear-regression"
+    notebook_root.mkdir(parents=True, exist_ok=True)
+    summary_path = notebook_root / "linear-regression-summary.json"
+    summary_path.write_bytes(strict_json_bytes(model["summary"]))
+
+    trace_rows = []
+    trace_fields = [
+        "update",
+        "mse",
+        "gradient_norm",
+        "intercept",
+        *FEATURE_ORDER,
+    ]
+    for point in model["gd"]["trace"]:
+        trace_rows.append(
+            {
+                "update": point["update"],
+                "mse": _format_csv_number(point["mse"]),
+                "gradient_norm": _format_csv_number(point["gradientNorm"]),
+                "intercept": _format_csv_number(point["intercept"]),
+                **{
+                    feature: _format_csv_number(point["weights"][index])
+                    for index, feature in enumerate(FEATURE_ORDER)
+                },
+            }
+        )
+    _write_csv(
+        notebook_root / "gradient-descent-trace.csv",
+        trace_fields,
+        trace_rows,
+    )
+
+    coefficient_rows: list[dict[str, Any]] = []
+    methods = (
+        (
+            "numpy-batch-gradient-descent",
+            model["gd"]["weights"],
+            model["gd"]["intercept"],
+        ),
+        (
+            "numpy-lstsq",
+            model["lstsq"]["weights"],
+            model["lstsq"]["intercept"],
+        ),
+        (
+            "sklearn-linear-regression",
+            model["sklearn"]["weights"],
+            model["sklearn"]["intercept"],
+        ),
+    )
+    for method, weights, intercept in methods:
+        coefficient_rows.append(
+            {
+                "method": method,
+                "space": "model",
+                "feature": "intercept",
+                "coefficient": _format_csv_number(intercept),
+            }
+        )
+        coefficient_rows.extend(
+            {
+                "method": method,
+                "space": "model",
+                "feature": feature,
+                "coefficient": _format_csv_number(weights[index]),
+            }
+            for index, feature in enumerate(FEATURE_ORDER)
+        )
+    original = model["summary"]["coefficients"]["originalDatasetUnits"]
+    coefficient_rows.append(
+        {
+            "method": "numpy-lstsq",
+            "space": "original-dataset-unit",
+            "feature": "intercept",
+            "coefficient": _format_csv_number(original["intercept"]),
+        }
+    )
+    coefficient_rows.extend(
+        {
+            "method": "numpy-lstsq",
+            "space": "original-dataset-unit",
+            "feature": feature,
+            "coefficient": _format_csv_number(original["weights"][index]),
+        }
+        for index, feature in enumerate(FEATURE_ORDER)
+    )
+    _write_csv(
+        notebook_root / "coefficients.csv",
+        ["method", "space", "feature", "coefficient"],
+        coefficient_rows,
+    )
+
+    residual_rows = []
+    for (_, record), prediction in zip(
+        model["heldOut"].iterrows(),
+        model["testPredictions"],
+        strict=True,
+    ):
+        actual = float(record["cnt"])
+        residual_rows.append(
+            {
+                "instant": int(record["instant"]),
+                "timestamp": _timestamp(record),
+                "hr": int(record["hr"]),
+                "actual": _format_csv_number(actual),
+                "prediction": _format_csv_number(prediction),
+                "residual": _format_csv_number(float(prediction) - actual),
+            }
+        )
+    _write_csv(
+        notebook_root / "heldout-residuals.csv",
+        ["instant", "timestamp", "hr", "actual", "prediction", "residual"],
+        residual_rows,
+    )
+    return {
+        "summary": model["summary"],
+        "paths": [
+            summary_path,
+            notebook_root / "gradient-descent-trace.csv",
+            notebook_root / "coefficients.csv",
+            notebook_root / "heldout-residuals.csv",
+        ],
+    }
+
+
+def _run_isolated_worker(
+    isolated: IsolatedEnvironment,
+    function_name: str,
+    arguments: list[Path],
+) -> None:
+    payload = json.dumps(
+        {
+            "generator": str(Path(__file__).resolve()),
+            "function": function_name,
+            "arguments": [str(argument) for argument in arguments],
+        }
+    )
+    worker = r'''
+import importlib.util
+import json
+import os
+from pathlib import Path
+import sys
+
+payload = json.loads(os.environ["ML_ATLAS_PHASE27_WORKER_PAYLOAD"])
+spec = importlib.util.spec_from_file_location("phase27_worker_module", payload["generator"])
+module = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = module
+spec.loader.exec_module(module)
+function = getattr(module, payload["function"])
+function(*(Path(value) for value in payload["arguments"]))
+'''
+    environment = isolated.environment.copy()
+    environment["ML_ATLAS_PHASE27_WORKER_PAYLOAD"] = payload
+    environment["ML_ATLAS_PHASE27_KERNEL_NAME"] = isolated.kernel_name
+    run_command(
+        [str(isolated.python), "-c", worker],
+        environment=environment,
+    )
+
+
+def prepare_data_candidates(
+    staging_root: Path = DEFAULT_STAGING_ROOT,
+    wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+) -> dict[str, Any]:
+    root = validate_candidate_staging_root(staging_root)
+    try:
+        verify_source_contract()
+        validate_environment_contract(wheel_cache=wheel_cache)
+        with CandidateTransaction(root) as transaction:
+            with isolated_environment(wheel_cache) as isolated:
+                _run_isolated_worker(
+                    isolated,
+                    "write_data_candidate_bundle",
+                    [transaction.root],
+                )
+            expected = {
+                "notebooks/linear-regression/linear-regression-summary.json",
+                "notebooks/linear-regression/gradient-descent-trace.csv",
+                "notebooks/linear-regression/coefficients.csv",
+                "notebooks/linear-regression/heldout-residuals.csv",
+            }
+            actual = {
+                path.relative_to(transaction.root).as_posix()
+                for path in transaction.root.rglob("*")
+                if path.is_file()
+            }
+            if actual != expected:
+                raise Phase27Error(
+                    f"Intermediate data-candidate inventory drifted: {sorted(actual)}"
+                )
+        return {
+            "stagingRoot": root.relative_to(REPO_ROOT).as_posix(),
+            "candidateFilesCreated": 4,
+            "publicationAllowed": False,
+        }
+    except BaseException:
+        _remove_candidate_root(root)
+        raise
+
+
 def _remove_candidate_root(root: Path) -> None:
     if root.is_symlink() or root.is_file():
         root.unlink(missing_ok=True)
@@ -962,6 +2190,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_mutually_exclusive_group(required=True)
     modes.add_argument("--verify-environment", action="store_true")
+    modes.add_argument("--prepare-data-candidates", action="store_true")
     modes.add_argument("--prepare-candidates", action="store_true")
     modes.add_argument("--verify-candidates", action="store_true")
     parser.add_argument("--staging-root", type=Path, default=DEFAULT_STAGING_ROOT)
@@ -981,6 +2210,13 @@ def main() -> None:
         )
     if args.verify_environment:
         verify_environment(args.wheel_cache)
+        return
+    if args.prepare_data_candidates:
+        result = prepare_data_candidates(args.staging_root, args.wheel_cache)
+        print(
+            "Prepared the finite full-fit Phase 27 data candidates: "
+            f"{result['candidateFilesCreated']} files, no public mutation."
+        )
         return
     if args.prepare_candidates:
         result = prepare_candidates(args.staging_root, args.wheel_cache)
