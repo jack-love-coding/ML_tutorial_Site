@@ -194,7 +194,7 @@ test('deterministic teaching-row role scaffold locks five instants and tie-break
   )
 })
 
-test('safety scaffold enumerates fail-closed source cell inventory and selector classes', () => {
+test('safety scaffold [27-W0-03] enumerates fail-closed source cell inventory and selector classes', () => {
   const rejectedClasses = Object.freeze([
     'remote URL',
     'network import',
@@ -242,8 +242,8 @@ test('staging scaffold is the exact ignored non-public transaction root', () => 
 
 test.todo('kernel and locale parity execute independently [owner Plan 27-03]')
 test.todo('numerical contract emits complete coefficient GD and residual tables [owner Plan 27-03]')
-test.todo('candidate verification rejects missing unexpected and corrupted members [owner Plan 27-03]')
-test.todo('publication accepts only the complete nine-member package [owner Plan 27-04]')
-test.todo('rollback restores absent or seeded public targets byte-for-byte [owner Plan 27-04]')
-test.todo('offline rerun leaves repository bytes and mtimes unchanged [owner Plan 27-04]')
-test.todo('base paths resolve every public member for root and Pages [owner Plan 27-04]')
+test.todo('candidate verification [27-W0-02] rejects missing unexpected and corrupted members [owner Plan 27-03]')
+test.todo('publication [27-W0-02] accepts only the complete nine-member package [owner Plan 27-04]')
+test.todo('rollback [27-W0-02] restores absent or seeded public targets byte-for-byte [owner Plan 27-04]')
+test.todo('offline rerun [27-W0-02] leaves repository bytes and mtimes unchanged [owner Plan 27-04]')
+test.todo('base paths [27-W0-02] resolve every public member for root and Pages [owner Plan 27-04]')
