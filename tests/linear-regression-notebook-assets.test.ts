@@ -169,6 +169,11 @@ function treeSnapshot(treeRoot: string) {
     { kind: 'directory', mode: number }
     | { kind: 'file', mode: number, bytes: number, sha256: string }
   > = {}
+  const rootStatus = statSync(treeRoot)
+  entries['.'] = {
+    kind: 'directory',
+    mode: rootStatus.mode & 0o777,
+  }
   const visit = (directory: string) => {
     for (const name of readdirSync(directory).sort()) {
       const path = join(directory, name)
@@ -457,7 +462,8 @@ test('inventory shell exposes one exact package with no partial or public mode',
   assert.match(help.stdout, /--verify-environment/)
   assert.match(help.stdout, /--prepare-candidates/)
   assert.match(help.stdout, /--verify-candidates/)
-  assert.doesNotMatch(help.stdout, /--publish-candidates|--check/)
+  assert.match(help.stdout, /--publish-candidates/)
+  assert.doesNotMatch(help.stdout, /--check/)
 })
 
 test('environment shell validates every audited wheel and exact isolated settings', () => {
@@ -1359,8 +1365,9 @@ test('publication corruption matrix fails before public mutation and removes pri
       name: 'nonfinite JSON',
       mutation: [
         'path = candidate / "notebooks/linear-regression/linear-regression-summary.json"',
-        'source = path.read_text(encoding="utf-8")',
-        'path.write_text(source.replace("40142.538619", "NaN", 1), encoding="utf-8")',
+        'value = module.read_strict_json(path)',
+        'value["metrics"]["test"]["mse"] = float("nan")',
+        'path.write_text(json.dumps(value, allow_nan=True), encoding="utf-8")',
       ],
     },
   ]

@@ -64,6 +64,26 @@ EXPECTED_CANDIDATE_FILES = (
     "notebooks/linear-regression/environment.json",
     "notebooks/linear-regression/output-manifest.json",
 )
+PUBLIC_PACKAGE_RELATIVE_PATH = Path("notebooks/linear-regression")
+PUBLICATION_LOCK_NAME = ".linear-regression-publication.lock"
+PUBLICATION_FAILURE_POINTS = frozenset(
+    {
+        "candidate-verification",
+        "temporary-preparation",
+        "backup-move",
+        "target-move",
+        "post-move-verification",
+        "final-verification",
+        "cleanup",
+        "interrupt",
+    }
+)
+# Plan 27-03 built and independently verified the candidate before this
+# publication implementation changed the generator source.  Publication remains
+# bound to that exact creating identity and never rewrites the approved bytes.
+VALIDATED_CANDIDATE_GENERATOR_SHA256 = (
+    "c7220cb2c10bc73cfe1ec68de023e0f64e873c44218dc1692e31ffbd8b0e5047"
+)
 EXPECTED_ENVIRONMENT_PINS = {
     "numpy": "2.4.6",
     "pandas": "3.0.3",
@@ -2971,15 +2991,22 @@ def _verify_candidate_tables(staging_root: Path) -> dict[str, int]:
         or int(residuals[-1]["instant"]) != 17_379
     ):
         raise Phase27Error("Complete held-out residual table drifted")
-    for row in residuals:
+    for index, row in enumerate(residuals):
         actual = float(row["actual"])
         prediction = float(row["prediction"])
         residual = float(row["residual"])
+        expected_instant = SPLIT_INDEX + index + 1
         if (
-            not all(math.isfinite(value) for value in [actual, prediction, residual])
+            int(row["instant"]) != expected_instant
+            or not all(
+                math.isfinite(value)
+                for value in [actual, prediction, residual]
+            )
             or abs(residual - (prediction - actual)) > 1e-9
         ):
-            raise Phase27Error("Held-out residual sign or finiteness drifted")
+            raise Phase27Error(
+                "Held-out residual row order, sign, or finiteness drifted"
+            )
     return {
         "traceRows": len(trace),
         "coefficientRows": len(coefficients),
@@ -3054,6 +3081,7 @@ def _verify_executed_notebook(
 def _verify_candidate_manifest(
     staging_root: Path,
     notebook_results: dict[str, dict[str, Any]],
+    expected_generator_sha256: str,
 ) -> dict[str, Any]:
     path = staging_root / EXPECTED_CANDIDATE_FILES[-1]
     manifest = read_strict_json(path)
@@ -3065,7 +3093,7 @@ def _verify_candidate_manifest(
         or manifest.get("generator")
         != {
             "path": "scripts/linear-regression/build-phase-27-assets.py",
-            "sha256": sha256_file(Path(__file__)),
+            "sha256": expected_generator_sha256,
         }
         or manifest.get("source")
         != {
@@ -3194,6 +3222,7 @@ def verify_candidates(
     staging_root: Path,
     *,
     enforce_staging_root: bool = True,
+    expected_generator_sha256: str = VALIDATED_CANDIDATE_GENERATOR_SHA256,
 ) -> dict[str, Any]:
     if enforce_staging_root:
         validate_candidate_staging_root(staging_root)
@@ -3243,7 +3272,11 @@ def verify_candidates(
         job.proof_id: _verify_executed_notebook(root, job)
         for job in candidate_jobs()
     }
-    manifest = _verify_candidate_manifest(root, notebook_results)
+    manifest = _verify_candidate_manifest(
+        root,
+        notebook_results,
+        expected_generator_sha256,
+    )
     return {
         "inventoryCount": inventory["inventoryCount"],
         "executionProofCount": len(manifest["executionProofs"]),
@@ -3377,11 +3410,306 @@ def prepare_candidates(
                     "write_candidate_bundle",
                     [transaction.root],
                 )
-            result = verify_candidates(transaction.root)
+            result = verify_candidates(
+                transaction.root,
+                expected_generator_sha256=sha256_file(Path(__file__)),
+            )
         return result
     except BaseException:
         _remove_candidate_root(root)
         raise
+
+
+def _remove_transaction_path(path: Path) -> None:
+    if path.is_symlink() or path.is_file():
+        path.unlink(missing_ok=True)
+    elif path.is_dir():
+        shutil.rmtree(path)
+
+
+@contextlib.contextmanager
+def acquire_publication_lock(public_root: Path) -> Iterator[Path]:
+    """Own the single Phase 27 public-package transaction lock."""
+    public_root.mkdir(parents=True, exist_ok=True)
+    lock_path = public_root / PUBLICATION_LOCK_NAME
+    try:
+        descriptor = os.open(
+            lock_path,
+            os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+            0o600,
+        )
+    except FileExistsError as error:
+        raise Phase27Error(
+            "Another linear-regression publication owns the transaction lock: "
+            f"{lock_path}"
+        ) from error
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            handle.write(f"pid={os.getpid()}\n")
+        yield lock_path
+    finally:
+        lock_path.unlink(missing_ok=True)
+
+
+def _assert_publication_root(
+    public_root: Path,
+    enforce_public_root: bool,
+) -> Path:
+    resolved = public_root.resolve()
+    expected = DEFAULT_PUBLIC_ROOT.resolve()
+    if enforce_public_root and resolved != expected:
+        raise Phase27Error(
+            "Published root must resolve exactly to the repository public "
+            f"directory: {expected}"
+        )
+    if resolved == REPO_ROOT.resolve() and enforce_public_root:
+        raise Phase27Error("The repository root cannot be used as the public root")
+    return resolved
+
+
+def _direct_package_inventory(package_root: Path) -> set[str]:
+    if not package_root.is_dir() or package_root.is_symlink():
+        raise Phase27Error(
+            "The public linear-regression target must be one real directory"
+        )
+    actual: set[str] = set()
+    for path in package_root.rglob("*"):
+        if path.is_symlink():
+            raise Phase27Error(
+                f"Public-package symlinks are forbidden: {path}"
+            )
+        if path.is_file():
+            actual.add(path.relative_to(package_root).as_posix())
+    expected = {
+        Path(path).name
+        for path in EXPECTED_CANDIDATE_FILES
+    }
+    if actual != expected:
+        raise Phase27Error(
+            "Existing public target is not one complete nine-member package: "
+            f"missing={sorted(expected - actual)}, "
+            f"unexpected={sorted(actual - expected)}"
+        )
+    return actual
+
+
+def _compare_package_bytes_and_modes(
+    candidate_package: Path,
+    installed_package: Path,
+) -> None:
+    expected_names = _direct_package_inventory(candidate_package)
+    if _direct_package_inventory(installed_package) != expected_names:
+        raise Phase27Error("Installed public package inventory drifted")
+    for name in sorted(expected_names):
+        candidate = candidate_package / name
+        installed = installed_package / name
+        if (
+            candidate.read_bytes() != installed.read_bytes()
+            or candidate.stat().st_mode & 0o777
+            != installed.stat().st_mode & 0o777
+        ):
+            raise Phase27Error(
+                "Installed public package bytes or modes drifted from the "
+                f"validated candidate: {name}"
+            )
+
+
+def verify_public_bundle(public_root: Path) -> dict[str, Any]:
+    """Verify the canonical public directory using the frozen candidate identity."""
+    package_root = public_root / PUBLIC_PACKAGE_RELATIVE_PATH
+    _direct_package_inventory(package_root)
+    with tempfile.TemporaryDirectory(
+        prefix="ml-atlas-phase27-public-verification-"
+    ) as directory:
+        verification_root = Path(directory)
+        copied_package = (
+            verification_root / PUBLIC_PACKAGE_RELATIVE_PATH
+        )
+        copied_package.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(package_root, copied_package)
+        return verify_candidates(
+            verification_root,
+            enforce_staging_root=False,
+            expected_generator_sha256=(
+                VALIDATED_CANDIDATE_GENERATOR_SHA256
+            ),
+        )
+
+
+def restore_public_backup(
+    target: Path,
+    backup: Path,
+    *,
+    prior_target_existed: bool,
+    installed_target: bool,
+) -> None:
+    """Restore exact prior absence or the byte/mode-identical moved backup."""
+    if backup.exists():
+        _remove_transaction_path(target)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        backup.replace(target)
+    elif installed_target:
+        _remove_transaction_path(target)
+    if prior_target_existed != target.exists():
+        raise Phase27Error(
+            "Publication rollback could not restore the prior target state"
+        )
+
+
+def publish_candidates_atomically(
+    staging_root: Path,
+    *,
+    public_root: Path = DEFAULT_PUBLIC_ROOT,
+    enforce_staging_root: bool = True,
+    enforce_public_root: bool = True,
+    failure_point: str | None = None,
+) -> dict[str, Any]:
+    """Publish one complete verified directory or restore the exact prior state."""
+    if (
+        failure_point is not None
+        and failure_point not in PUBLICATION_FAILURE_POINTS
+    ):
+        raise Phase27Error(
+            f"Unsupported publication failure point: {failure_point}"
+        )
+    validated_staging_root = (
+        validate_candidate_staging_root(staging_root)
+        if enforce_staging_root
+        else staging_root.resolve()
+    )
+    validated_public_root = _assert_publication_root(
+        public_root,
+        enforce_public_root,
+    )
+    if failure_point == "candidate-verification":
+        raise Phase27Error(
+            "Injected publication failure at candidate-verification"
+        )
+    validate_environment_contract()
+    candidate_result = verify_candidates(
+        validated_staging_root,
+        enforce_staging_root=False,
+        expected_generator_sha256=VALIDATED_CANDIDATE_GENERATOR_SHA256,
+    )
+    candidate_package = (
+        validated_staging_root / PUBLIC_PACKAGE_RELATIVE_PATH
+    )
+    _direct_package_inventory(candidate_package)
+
+    transaction_id = uuid.uuid4().hex
+    transaction_root = (
+        validated_public_root
+        / f".linear-regression-publication-{transaction_id}"
+    )
+    backup_root = (
+        validated_public_root
+        / f".linear-regression-publication-backup-{transaction_id}"
+    )
+    staged_package = transaction_root / PUBLIC_PACKAGE_RELATIVE_PATH
+    backup_package = backup_root / PUBLIC_PACKAGE_RELATIVE_PATH
+    target = validated_public_root / PUBLIC_PACKAGE_RELATIVE_PATH
+    prior_target_existed = target.exists()
+    installed_target = False
+    backup_created = False
+
+    with acquire_publication_lock(validated_public_root):
+        try:
+            staged_package.parent.mkdir(parents=True, exist_ok=False)
+            shutil.copytree(candidate_package, staged_package)
+            verify_candidates(
+                transaction_root,
+                enforce_staging_root=False,
+                expected_generator_sha256=(
+                    VALIDATED_CANDIDATE_GENERATOR_SHA256
+                ),
+            )
+            _compare_package_bytes_and_modes(
+                candidate_package,
+                staged_package,
+            )
+            if failure_point == "temporary-preparation":
+                raise Phase27Error(
+                    "Injected publication failure at temporary-preparation"
+                )
+
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if prior_target_existed:
+                _direct_package_inventory(target)
+                backup_package.parent.mkdir(parents=True, exist_ok=False)
+                target.replace(backup_package)
+                backup_created = True
+            if failure_point == "backup-move":
+                raise Phase27Error(
+                    "Injected publication failure at backup-move"
+                )
+
+            staged_package.replace(target)
+            installed_target = True
+            if failure_point == "target-move":
+                raise Phase27Error(
+                    "Injected publication failure at target-move"
+                )
+            if failure_point == "interrupt":
+                raise KeyboardInterrupt(
+                    "Injected publication interrupt after target-move"
+                )
+            if failure_point == "post-move-verification":
+                raise Phase27Error(
+                    "Injected publication failure at post-move-verification"
+                )
+
+            public_result = verify_public_bundle(validated_public_root)
+            _compare_package_bytes_and_modes(candidate_package, target)
+            if public_result != candidate_result:
+                raise Phase27Error(
+                    "Final public verification drifted from the candidate"
+                )
+            if failure_point == "final-verification":
+                raise Phase27Error(
+                    "Injected publication failure at final-verification"
+                )
+            if failure_point == "cleanup":
+                raise Phase27Error("Injected publication failure at cleanup")
+
+            _remove_transaction_path(backup_root)
+            _remove_transaction_path(transaction_root)
+            return {
+                **public_result,
+                "publishedDirectory": PUBLIC_PACKAGE_RELATIVE_PATH.as_posix(),
+                "publishedBytes": sum(
+                    (target / Path(path).name).stat().st_size
+                    for path in EXPECTED_CANDIDATE_FILES
+                ),
+                "priorTarget": (
+                    "seeded-existing-target"
+                    if prior_target_existed
+                    else "absent"
+                ),
+                "backupCreated": backup_created,
+                "candidateGeneratorSha256": (
+                    VALIDATED_CANDIDATE_GENERATOR_SHA256
+                ),
+            }
+        except BaseException:
+            rollback_error: BaseException | None = None
+            try:
+                restore_public_backup(
+                    target,
+                    backup_package,
+                    prior_target_existed=prior_target_existed,
+                    installed_target=installed_target,
+                )
+            except BaseException as error:
+                rollback_error = error
+            finally:
+                _remove_transaction_path(transaction_root)
+                _remove_transaction_path(backup_root)
+            if rollback_error is not None:
+                raise Phase27Error(
+                    "Publication failed and rollback could not restore the "
+                    f"prior package: {rollback_error}"
+                ) from rollback_error
+            raise
 
 
 def main() -> None:
@@ -3391,6 +3719,7 @@ def main() -> None:
     modes.add_argument("--prepare-data-candidates", action="store_true")
     modes.add_argument("--prepare-candidates", action="store_true")
     modes.add_argument("--verify-candidates", action="store_true")
+    modes.add_argument("--publish-candidates", action="store_true")
     parser.add_argument("--staging-root", type=Path, default=DEFAULT_STAGING_ROOT)
     parser.add_argument("--wheel-cache", type=Path, default=DEFAULT_WHEEL_CACHE)
     parser.add_argument("--topic")
@@ -3399,7 +3728,7 @@ def main() -> None:
     parser.add_argument("--offline", action="store_true")
     args = parser.parse_args()
 
-    if not args.offline:
+    if not args.offline and not args.publish_candidates:
         raise Phase27Error("Every Phase 27 candidate mode requires --offline")
     if args.topic is not None or args.locale is not None or args.file is not None:
         raise Phase27Error(
@@ -3423,6 +3752,14 @@ def main() -> None:
             f"{result['inventoryCount']} members, "
             f"{result['executionProofCount']} independent clean-kernel proofs, "
             "no public mutation."
+        )
+        return
+    if args.publish_candidates:
+        result = publish_candidates_atomically(args.staging_root)
+        print(
+            "Published the exact complete Phase 27 package atomically: "
+            f"{result['inventoryCount']} members, "
+            f"{result['publishedBytes']} bytes."
         )
         return
     validate_environment_contract(wheel_cache=args.wheel_cache)
