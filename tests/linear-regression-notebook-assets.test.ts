@@ -123,6 +123,27 @@ function readContractSnapshot() {
   return JSON.parse(probe.stdout)
 }
 
+function readCandidateJson(relativePath: string) {
+  return JSON.parse(readFileSync(resolve(stagingRoot, relativePath), 'utf8'))
+}
+
+function readCsvRows(relativePath: string) {
+  const lines = readFileSync(resolve(stagingRoot, relativePath), 'utf8')
+    .trim()
+    .split(/\r?\n/)
+  const header = lines[0]!.split(',')
+  return lines.slice(1).map((line) => Object.fromEntries(
+    line.split(',').map((value, index) => [header[index]!, value]),
+  ))
+}
+
+function closeTo(actual: number, expected: number, tolerance: number) {
+  assert.ok(
+    Math.abs(actual - expected) <= tolerance,
+    `expected ${actual} to be within ${tolerance} of ${expected}`,
+  )
+}
+
 test('inventory scaffold locks the exact indivisible nine-member candidate package', () => {
   assert.equal(EXPECTED_CANDIDATE_FILES.length, 9)
   assert.equal(new Set(EXPECTED_CANDIDATE_FILES).size, 9)
@@ -582,7 +603,159 @@ test('candidate verification shell fails closed on missing unexpected or partial
   assert.match(probe.stdout, /unexpected\.txt/)
 })
 
-test.todo('numerical contract emits complete coefficient GD and residual tables [owner Plan 27-03]')
+test('numerical contract emits complete coefficient GD and residual tables [owner Plan 27-03]', () => {
+  const help = runGenerator(['--help'])
+  assert.equal(help.status, 0, help.stderr)
+  assert.match(help.stdout, /--prepare-data-candidates/)
+
+  const summary = readCandidateJson(
+    'notebooks/linear-regression/linear-regression-summary.json',
+  )
+  assert.equal(summary.contractVersion, 'linear-regression-phase-27-summary-v1')
+  assert.deepEqual(summary.source, {
+    path: 'datasets/python-data-tools/bike-sharing-hour.csv',
+    sha256: 'e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f',
+    rows: 17_379,
+    target: 'cnt',
+    targetRelationship: 'cnt = casual + registered',
+  })
+  assert.deepEqual(summary.features, {
+    order: EXPECTED_FEATURE_ORDER,
+    continuous: EXPECTED_CONTINUOUS_FEATURES,
+    binaryUnscaled: ['workingday'],
+    collinearityOnly: ['atemp'],
+    leakageExcluded: ['casual', 'registered'],
+  })
+  assert.equal(summary.split.index, 13_903)
+  assert.equal(summary.split.trainRows, 13_903)
+  assert.equal(summary.split.testRows, 3_476)
+  assert.equal(summary.split.trainEnd.instant, 13_903)
+  assert.equal(summary.split.testStart.instant, 13_904)
+  assert.deepEqual(summary.preprocessing.standardized, EXPECTED_CONTINUOUS_FEATURES)
+  assert.deepEqual(summary.preprocessing.unscaled, ['workingday'])
+  closeTo(summary.preprocessing.means.temp, 0.4991699633, 1e-10)
+  closeTo(summary.preprocessing.means.hum, 0.6229957563, 1e-10)
+  closeTo(summary.preprocessing.means.windspeed, 0.1940965907, 1e-10)
+  closeTo(summary.preprocessing.means.hr, 11.5465726822, 1e-10)
+  closeTo(summary.preprocessing.scales.temp, 0.1977090288, 1e-10)
+  closeTo(summary.preprocessing.scales.hum, 0.1981871966, 1e-10)
+  closeTo(summary.preprocessing.scales.windspeed, 0.1230187786, 1e-10)
+  closeTo(summary.preprocessing.scales.hr, 6.9119866040, 1e-10)
+
+  assert.deepEqual(summary.optimization.config, {
+    initialization: 'zeros',
+    learningRate: 0.1,
+    maxUpdates: 5_000,
+    gradientTolerance: 1e-8,
+  })
+  assert.equal(summary.optimization.result.updates, 772)
+  assert.equal(summary.optimization.result.reason, 'gradient-tolerance')
+  assert.ok(summary.optimization.result.gradientNorm <= 1e-8)
+  assert.equal(summary.methods.tolerance, 1e-6)
+  assert.equal(summary.methods.normalEquation.term.en, 'normal equation')
+  assert.equal(summary.methods.normalEquation.term['zh-CN'], '正规方程')
+  assert.equal(summary.methods.normalEquation.augmentedDesign, 'X_tilde = [1, X]')
+  assert.equal(
+    summary.methods.normalEquation.formula,
+    'theta = (X_tilde^T X_tilde)^+ X_tilde^T y',
+  )
+  assert.equal(summary.methods.normalEquation.interceptMapping, 'theta[0] = b')
+  assert.equal(summary.methods.normalEquation.weightMapping, 'theta[1:] = w')
+  assert.equal(summary.methods.normalEquation.implementation, 'numpy.linalg.lstsq')
+  assert.match(summary.methods.normalEquation.rationale, /inverse|求逆/)
+  assert.equal(summary.methods.normalEquation.rank, 6)
+  assert.ok(summary.methods.normalEquation.conditionNumber > 3.3)
+  assert.ok(summary.methods.normalEquation.conditionNumber < 3.4)
+
+  const expectedWeights = [
+    62.7238909530,
+    -37.1164156021,
+    0.8094458662,
+    2.3797186778,
+    47.9014338433,
+  ]
+  summary.methods.normalEquation.weights.forEach((value: number, index: number) =>
+    closeTo(value, expectedWeights[index]!, 1e-9))
+  closeTo(summary.methods.normalEquation.intercept, 173.0103284947, 1e-9)
+  assert.ok(summary.methods.agreement.maxCoefficientDelta <= 1e-6)
+  assert.ok(summary.methods.agreement.maxPredictionDelta <= 1e-6)
+  closeTo(summary.metrics.test.mse, 40_142.538619, 1e-6)
+  closeTo(summary.metrics.test.mae, 135.296640, 1e-6)
+  closeTo(summary.metrics.test.r2, 0.174252, 1e-6)
+
+  assert.equal(summary.representativeTrainingRow.instant, 11_550)
+  assert.equal(summary.representativeTrainingRow.role, 'representative-training-row')
+  assert.deepEqual(
+    summary.diagnostics.namedCases.map((row: { instant: number }) => row.instant),
+    [17_213, 15_628, 14_965, 15_604],
+  )
+  for (const row of summary.diagnostics.namedCases) {
+    closeTo(row.residual, row.prediction - row.actual, 1e-12)
+    assert.equal(typeof row.timestamp, 'string')
+    assert.equal(typeof row.explanationRole.en, 'string')
+    assert.equal(typeof row.explanationRole['zh-CN'], 'string')
+  }
+  assert.equal(summary.diagnostics.hourlyResiduals.length, 24)
+  assert.equal(summary.diagnostics.predictionBins.length, 4)
+  assert.equal(summary.diagnostics.collinearity.addedFeature, 'atemp')
+  assert.deepEqual(summary.diagnostics.collinearity.unchangedContract, [
+    'rows',
+    'split',
+    'target',
+    'base-features',
+    'preprocessing',
+  ])
+  assert.equal(summary.diagnostics.collinearity.ridge.objective, 'mse-plus-l2')
+  assert.equal(summary.diagnostics.collinearity.lasso.objective, 'mse-plus-l1')
+  assert.equal(summary.diagnostics.log1p.rawTargetObjectiveComparable, false)
+  assert.equal(summary.diagnostics.log1p.inverseTransform, 'expm1')
+
+  const trace = readCsvRows(
+    'notebooks/linear-regression/gradient-descent-trace.csv',
+  )
+  assert.equal(trace.length, 773)
+  assert.equal(Number(trace[0]!.update), 0)
+  assert.equal(Number(trace.at(-1)!.update), 772)
+  assert.ok(Number(trace.at(-1)!.gradient_norm) <= 1e-8)
+  assert.equal(
+    trace.every((row) => Object.values(row).every((value) => Number.isFinite(Number(value)))),
+    true,
+  )
+
+  const coefficients = readCsvRows(
+    'notebooks/linear-regression/coefficients.csv',
+  )
+  assert.equal(
+    new Set(coefficients.map((row) => row.method)).has('numpy-batch-gradient-descent'),
+    true,
+  )
+  assert.equal(
+    new Set(coefficients.map((row) => row.method)).has('numpy-lstsq'),
+    true,
+  )
+  assert.equal(
+    new Set(coefficients.map((row) => row.method)).has('sklearn-linear-regression'),
+    true,
+  )
+  assert.equal(
+    coefficients.every((row) => Number.isFinite(Number(row.coefficient))),
+    true,
+  )
+
+  const residuals = readCsvRows(
+    'notebooks/linear-regression/heldout-residuals.csv',
+  )
+  assert.equal(residuals.length, 3_476)
+  assert.equal(Number(residuals[0]!.instant), 13_904)
+  assert.equal(Number(residuals.at(-1)!.instant), 17_379)
+  for (const row of residuals) {
+    closeTo(
+      Number(row.residual),
+      Number(row.prediction) - Number(row.actual),
+      1e-9,
+    )
+  }
+})
 test.todo('candidate verification [27-W0-02] rejects missing unexpected and corrupted members [owner Plan 27-03]')
 test.todo('publication [27-W0-02] accepts only the complete nine-member package [owner Plan 27-04]')
 test.todo('rollback [27-W0-02] restores absent or seeded public targets byte-for-byte [owner Plan 27-04]')
