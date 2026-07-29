@@ -5,15 +5,15 @@ milestone_name: Classical Supervised Learning
 current_phase: 27
 current_phase_name: Linear Regression Rebuild
 status: executing
-stopped_at: Completed 27-05-PLAN.md
-last_updated: "2026-07-29T12:36:50.949Z"
+stopped_at: Completed 27-06-PLAN.md
+last_updated: "2026-07-29T13:02:05.338Z"
 last_activity: 2026-07-29
 last_activity_desc: Phase 27 execution started
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 15
-  completed_plans: 12
+  completed_plans: 13
   percent: 17
 current_plan: null
 ---
@@ -26,7 +26,7 @@ current_plan: null
 ## Current Position
 
 Phase: 27 (Linear Regression Rebuild) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 Status: Ready to execute
 Last activity: 2026-07-29 — Phase 27 execution started
 
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-29T12:36:50.944Z
-**Stopped at:** Completed 27-05-PLAN.md
+**Last session:** 2026-07-29T13:02:05.332Z
+**Stopped at:** Completed 27-06-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -802,6 +802,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 27 P03 | 24 min | 2 tasks | 2 files |
 | Phase 27 P04 | 22 min | 3 tasks | 11 files |
 | Phase 27 P05 | 23 min | 2 tasks | 2 files |
+| Phase 27 P06 | 20m | 3 tasks | 8 files |
 
 ## Decisions
 
@@ -877,6 +878,9 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 27]: Treat the published linear-regression manifest as exact cross-generation identity while validating summary and CSV structures independently and fail-closed.
 - [Phase 27]: Deep-copy and recursively freeze every accepted generated regression result before course consumers receive it.
 - [Phase 27]: Dispatch only registered summary, manifest, and numerical CSV output IDs; keep public path resolution outside parsers and owned by withPublicBase.
+- [Phase 27]: Preserve all eight literal linear-regression lesson IDs while assigning the locked Bike corridor responsibilities and order.
+- [Phase 27]: Teach the normal equation conceptually but use numpy.linalg.lstsq as the stable executable implementation.
+- [Phase 27]: Keep full-precision regression result authority in the typed local registry.
 
 ## Operator Next Steps
 
