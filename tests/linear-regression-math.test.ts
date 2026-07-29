@@ -125,7 +125,7 @@ test('prediction residual MSE MAE and R2 follow the D-10 batch fixture', async (
   assert.deepEqual(result.residuals, [3, -1])
   assert.equal(result.mse, 5)
   assert.equal(result.mae, 2)
-  closeTo(result.r2, -9)
+  closeTo(result.r2, -19)
   assert.equal(Object.isFrozen(result), true)
   assert.equal(Object.isFrozen(result.predictions), true)
   assert.equal(Object.isFrozen(result.residuals), true)
@@ -194,7 +194,7 @@ test('coefficient conversion preserves workingday and shifts the intercept under
   )
 
   assert.deepEqual(converted.weights, [2, 2, 2, 3, 2])
-  assert.equal(converted.intercept, -180)
+  assert.equal(converted.intercept, -100)
   assert.equal(converted.weights[3], 3, 'workingday must remain unscaled')
   assert.equal(Object.isFrozen(converted), true)
   assert.equal(Object.isFrozen(converted.weights), true)
@@ -288,6 +288,14 @@ test('prediction rejects malformed order leakage width and non-finite numeric st
     RangeError,
   )
   assert.throws(
+    () => authority.predictRegressionBatch(
+      Array.from({ length: 20_001 }, () => HAND_ROWS[0]!),
+      weights,
+      0,
+    ),
+    RangeError,
+  )
+  assert.throws(
     () => authority.predictRegressionRow(
       { featureOrder: EXPECTED_FEATURE_ORDER, values: [1, 2] },
       weights,
@@ -356,6 +364,18 @@ test('prediction rejects malformed order leakage width and non-finite numeric st
       maxUpdates: 0,
       gradientTolerance: 1e-8,
     }),
+    RangeError,
+  )
+  assert.throws(
+    () => authority.evaluateRegressionBatch(HAND_ROWS, [1], weights, 0),
+    RangeError,
+  )
+  assert.throws(
+    () => authority.evaluateRegressionBatch(HAND_ROWS, [1, 1], weights, 0),
+    RangeError,
+  )
+  assert.throws(
+    () => authority.deriveHeldoutDiagnostics({} as never),
     RangeError,
   )
 })
