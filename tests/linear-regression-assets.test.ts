@@ -463,7 +463,7 @@ test('strict CSV parsers reject malformed extra missing non-finite wrong-order a
     ['residual header', 'linear-regression-heldout-residuals', ['bad', ...residuals.slice(1)].join('\n'), /header/],
     ['residual missing row', 'linear-regression-heldout-residuals', residuals.slice(0, -1).join('\n'), /3476|rows/],
     ['residual wrong order', 'linear-regression-heldout-residuals', residuals.map((line, index) =>
-      index === 2 ? line.replace(/^13904,/, '13999,') : line).join('\n'), /instant/],
+      index === 2 ? line.replace(/^\d+,/, '13999,') : line).join('\n'), /instant/],
     ['residual non-finite', 'linear-regression-heldout-residuals', residuals.map((line, index) =>
       index === 1 ? line.replace(/,[^,]+$/, ',NaN') : line).join('\n'), /finite/],
     ['residual arithmetic', 'linear-regression-heldout-residuals', residuals.map((line, index) =>
