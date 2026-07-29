@@ -227,6 +227,29 @@ function publicationResidue(temporaryPublicRoot: string) {
   )
 }
 
+function repositoryState() {
+  const listed = spawnSync(
+    'git',
+    ['ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+    { cwd: root, encoding: 'utf8' },
+  )
+  assert.equal(listed.status, 0, listed.stderr)
+  const entries: Record<
+    string,
+    { sha256: string, size: number, mtimeMs: number }
+  > = {}
+  for (const relativePath of listed.stdout.split('\0').filter(Boolean).sort()) {
+    const path = resolve(root, relativePath)
+    const status = statSync(path)
+    entries[relativePath] = {
+      sha256: sha256(path),
+      size: status.size,
+      mtimeMs: status.mtimeMs,
+    }
+  }
+  return entries
+}
+
 function publishFixture(
   fixturePublicRoot: string,
   failurePoint?: string,
@@ -469,7 +492,7 @@ test('inventory shell exposes one exact package with no partial or public mode',
   assert.match(help.stdout, /--prepare-candidates/)
   assert.match(help.stdout, /--verify-candidates/)
   assert.match(help.stdout, /--publish-candidates/)
-  assert.doesNotMatch(help.stdout, /--check/)
+  assert.match(help.stdout, /--check/)
 })
 
 test('environment shell validates every audited wheel and exact isolated settings', () => {
@@ -613,6 +636,9 @@ test('safety shell rejects network shell install HTML widget iframe and unsafe s
 })
 
 test('staging shell rejects public roots remote roots and every subset selector', () => {
+  const publishedBefore = treeSnapshot(
+    resolve(root, 'public/notebooks/linear-regression'),
+  )
   const publicAttempt = runGenerator([
     '--prepare-candidates',
     '--offline',
@@ -646,7 +672,10 @@ test('staging shell rejects public roots remote roots and every subset selector'
     assert.notEqual(attempt.status, 0)
     assert.match(attempt.stderr, /partial|selector|topic|locale|file/i)
   }
-  assert.equal(existsSync(resolve(root, 'public/notebooks/linear-regression')), false)
+  assert.deepEqual(
+    treeSnapshot(resolve(root, 'public/notebooks/linear-regression')),
+    publishedBefore,
+  )
 })
 
 test('cleanup shell removes stale bytes and injected transaction failures', () => {
@@ -1523,5 +1552,93 @@ test('public inventory public hash strict JSON CSV and parity lock the exact nin
   )
 })
 
-test.todo('offline rerun [27-W0-02] leaves repository bytes and mtimes unchanged [owner Plan 27-04]')
-test.todo('base paths [27-W0-02] resolve every public member for root and Pages [owner Plan 27-04]')
+test('offline rerun independently reproduces both public Notebooks without repository writes', () => {
+  const before = repositoryState()
+  const checked = runGenerator(['--check', '--offline'])
+  assert.equal(checked.status, 0, checked.stderr)
+  assert.match(checked.stdout, /2 independently rerun public Notebooks/i)
+  assert.match(checked.stdout, /network blocked|offline wheelhouse/i)
+  assert.match(checked.stdout, /byte\/size\/mtime-clean/i)
+  assert.deepEqual(repositoryState(), before)
+  assert.deepEqual(publicationResidue(publicRoot), [])
+})
+
+test('offline guards reject external DNS repository mutation and malformed rerun proofs', () => {
+  const network = runProbe([
+    'import subprocess, tempfile',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    guard_root = pathlib.Path(directory)',
+    '    environment = module.isolated_environment_variables(guard_root)',
+    '    module._install_loopback_only_network_guard(guard_root, environment)',
+    '    attempt = subprocess.run(',
+    '        [sys.executable, "-c", "import socket; socket.getaddrinfo(\\"example.com\\", 443)"],',
+    '        env=environment,',
+    '        text=True,',
+    '        stdout=subprocess.PIPE,',
+    '        stderr=subprocess.STDOUT,',
+    '        check=False,',
+    '    )',
+    '    print(json.dumps({"returncode": attempt.returncode, "output": attempt.stdout}))',
+  ].join('\n'))
+  assert.equal(network.status, 0, network.stderr)
+  const networkResult = JSON.parse(network.stdout)
+  assert.notEqual(networkResult.returncode, 0)
+  assert.match(networkResult.output, /blocked|OfflineNetworkError|DNS\/network/i)
+
+  const dirty = runProbe([
+    'module.verify_repository_clean(',
+    '    {"tracked.txt": ("a", 1, 1)},',
+    '    {"tracked.txt": ("b", 1, 2)},',
+    ')',
+  ].join('\n'))
+  assert.notEqual(dirty.status, 0)
+  assert.match(dirty.stderr, /bytes|sizes|mtimes|tracked\.txt/i)
+
+  const malformedProof = runProbe([
+    'module._verify_standalone_proof(',
+    '    {',
+    '        "contractVersion": "linear-regression-phase-27-standalone-check-v1",',
+    '        "notebookCount": 2,',
+    '        "freshKernelCount": 2,',
+    '        "networkBlocked": True,',
+    '        "offlineWheelhouse": True,',
+    '        "proofs": [{"locale": "drifted"}],',
+    '    },',
+    '    pathlib.Path(sys.argv[2]),',
+    ')',
+  ].join('\n'), [publicRoot])
+  assert.notEqual(malformedProof.status, 0)
+  assert.match(malformedProof.stderr, /proof|inventory|kernel|drift/i)
+})
+
+test('base paths resolve all nine public members locally for root and GitHub Pages', () => {
+  const manifest = readPublicJson(
+    'notebooks/linear-regression/output-manifest.json',
+  )
+  for (const entry of manifest.inventory) {
+    const rootRelative = `/${entry.path}`
+    assert.equal(withPublicBase(rootRelative, '/'), rootRelative)
+    assert.equal(
+      withPublicBase(rootRelative, '/ML_tutorial_Site/'),
+      `/ML_tutorial_Site/${entry.path}`,
+    )
+    assert.equal(existsSync(resolve(publicRoot, entry.path)), true)
+  }
+  for (const locale of ['zh-CN', 'en']) {
+    const notebook = readPublicJson(
+      `notebooks/linear-regression/bike-linear-regression.${locale}.ipynb`,
+    )
+    const code = notebook.cells
+      .filter((cell: Record<string, any>) => cell.cell_type === 'code')
+      .flatMap((cell: Record<string, any>) => cell.source)
+      .join('\n')
+    assert.doesNotMatch(
+      code,
+      /archive\.ics\.uci\.edu|https?:\/\/|requests|urllib|socket|pip install/i,
+    )
+    assert.match(
+      code,
+      /\.\.\/\.\.\/datasets\/python-data-tools\/bike-sharing-hour\.csv/,
+    )
+  }
+})

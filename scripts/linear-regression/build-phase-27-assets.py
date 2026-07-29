@@ -1289,7 +1289,7 @@ def verify_source_contract() -> dict[str, Any]:
     return contract
 
 
-def load_verified_bike_frame(path: Path = SOURCE_CSV_PATH) -> Any:
+def load_verified_bike_frame(path: Path | None = None) -> Any:
     """Load the immutable Bike source after asserting its complete trust contract."""
     try:
         import numpy as np
@@ -1299,11 +1299,15 @@ def load_verified_bike_frame(path: Path = SOURCE_CSV_PATH) -> Any:
             "Bike calculations must run inside the audited Phase 27 environment"
         ) from error
 
-    if path.resolve() != SOURCE_CSV_PATH.resolve():
+    resolved_path = SOURCE_CSV_PATH if path is None else path
+    if resolved_path.resolve() != SOURCE_CSV_PATH.resolve():
         raise Phase27Error("Bike calculations require the committed source path")
-    if not path.is_file() or sha256_file(path) != SOURCE_SHA256:
+    if (
+        not resolved_path.is_file()
+        or sha256_file(resolved_path) != SOURCE_SHA256
+    ):
         raise Phase27Error("Bike source SHA-256 drifted before fitting")
-    frame = pd.read_csv(path)
+    frame = pd.read_csv(resolved_path)
     expected_columns = (
         "instant",
         "dteday",
@@ -3712,6 +3716,308 @@ def publish_candidates_atomically(
             raise
 
 
+def _git_visible_repository_snapshot() -> dict[str, tuple[str, int, int]]:
+    listed = subprocess.run(
+        [
+            "git",
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+        ],
+        cwd=REPO_ROOT,
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if listed.returncode != 0:
+        raise Phase27Error(
+            "Could not enumerate repository files for the read-only check: "
+            + listed.stderr.decode("utf-8", errors="replace")
+        )
+    snapshot: dict[str, tuple[str, int, int]] = {}
+    for encoded_relative_path in sorted(
+        path for path in listed.stdout.split(b"\0") if path
+    ):
+        relative_path = encoded_relative_path.decode("utf-8")
+        path = REPO_ROOT / relative_path
+        status = path.lstat()
+        if path.is_symlink():
+            digest = hashlib.sha256(
+                f"symlink:{os.readlink(path)}".encode("utf-8")
+            ).hexdigest()
+        elif path.is_file():
+            digest = sha256_file(path)
+        else:
+            raise Phase27Error(
+                "Git-visible repository entry is not a file: "
+                f"{relative_path}"
+            )
+        snapshot[relative_path] = (
+            digest,
+            status.st_size,
+            status.st_mtime_ns,
+        )
+    return snapshot
+
+
+def verify_repository_clean(
+    before: dict[str, tuple[str, int, int]],
+    after: dict[str, tuple[str, int, int]],
+) -> None:
+    if after == before:
+        return
+    changed = sorted(
+        path
+        for path in before.keys() | after.keys()
+        if before.get(path) != after.get(path)
+    )
+    raise Phase27Error(
+        "Offline --check modified repository bytes, sizes, or mtimes: "
+        + ", ".join(changed)
+    )
+
+
+def rerun_public_notebook(
+    public_root: Path,
+    job: NotebookJob,
+    kernel_name: str,
+    launch_ordinal: int,
+) -> dict[str, Any]:
+    """Rerun one public Notebook in its own external package and kernel."""
+    try:
+        import nbformat
+    except ImportError as error:
+        raise Phase27Error(
+            "Standalone reruns require the audited Phase 27 environment"
+        ) from error
+    if os.environ.get("ML_ATLAS_PHASE27_NETWORK_BLOCKED") != "1":
+        raise Phase27Error(
+            "Standalone reruns require the loopback-only network guard"
+        )
+    if not re.fullmatch(r"ml-atlas-phase27-[a-f0-9]{32}", kernel_name):
+        raise Phase27Error("Standalone rerun kernelspec identity is missing")
+
+    generated_relative_paths = (
+        "notebooks/linear-regression/linear-regression-summary.json",
+        "notebooks/linear-regression/gradient-descent-trace.csv",
+        "notebooks/linear-regression/coefficients.csv",
+        "notebooks/linear-regression/heldout-residuals.csv",
+    )
+    with tempfile.TemporaryDirectory(
+        prefix=f"ml-atlas-phase27-{job.proof_id}-"
+    ) as directory:
+        package_root = Path(directory) / "package"
+        copied_package = package_root / PUBLIC_PACKAGE_RELATIVE_PATH
+        copied_package.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(
+            public_root / PUBLIC_PACKAGE_RELATIVE_PATH,
+            copied_package,
+        )
+        copied_dataset_root = (
+            package_root / "datasets/python-data-tools"
+        )
+        copied_dataset_root.mkdir(parents=True, exist_ok=True)
+        copied_source = copied_dataset_root / SOURCE_CSV_PATH.name
+        copied_dictionary = copied_dataset_root / SOURCE_DICTIONARY_PATH.name
+        shutil.copy2(SOURCE_CSV_PATH, copied_source)
+        shutil.copy2(SOURCE_DICTIONARY_PATH, copied_dictionary)
+        if sha256_file(copied_source) != SOURCE_SHA256:
+            raise Phase27Error(
+                f"{job.proof_id} external dataset copy drifted"
+            )
+
+        copied_notebook = package_root / job.notebook_path
+        for other_notebook in copied_package.glob("*.ipynb"):
+            if other_notebook != copied_notebook:
+                other_notebook.unlink()
+        committed = read_strict_json(public_root / job.notebook_path)
+        notebook = nbformat.read(copied_notebook, as_version=4)
+        for cell in notebook.cells:
+            if cell.cell_type == "code":
+                cell.execution_count = None
+                cell.outputs = []
+        executed = execute_notebook_job(
+            notebook,
+            job,
+            kernel_name,
+            copied_package,
+        )
+        normalized_executed = json.loads(
+            nbformat.writes(executed, version=4)
+        )
+        code_payload = _notebook_code_payload(normalized_executed)
+        output_payload = normalize_notebook_outputs(normalized_executed)
+        if code_payload != _notebook_code_payload(committed):
+            raise Phase27Error(
+                f"{job.proof_id} standalone code drifted"
+            )
+        if output_payload != normalize_notebook_outputs(committed):
+            raise Phase27Error(
+                f"{job.proof_id} standalone normalized outputs drifted"
+            )
+
+        for relative_path in generated_relative_paths:
+            (package_root / relative_path).unlink()
+        original_source = globals()["SOURCE_CSV_PATH"]
+        original_dictionary = globals()["SOURCE_DICTIONARY_PATH"]
+        try:
+            globals()["SOURCE_CSV_PATH"] = copied_source
+            globals()["SOURCE_DICTIONARY_PATH"] = copied_dictionary
+            write_data_candidate_bundle(package_root)
+        finally:
+            globals()["SOURCE_CSV_PATH"] = original_source
+            globals()["SOURCE_DICTIONARY_PATH"] = original_dictionary
+
+        generated_outputs = []
+        for relative_path in generated_relative_paths:
+            regenerated = package_root / relative_path
+            published = public_root / relative_path
+            if (
+                not regenerated.is_file()
+                or regenerated.read_bytes() != published.read_bytes()
+            ):
+                raise Phase27Error(
+                    f"{job.proof_id} regenerated output bytes drifted: "
+                    f"{relative_path}"
+                )
+            generated_outputs.append(
+                {
+                    "path": relative_path,
+                    "sha256": sha256_file(regenerated),
+                    "bytes": regenerated.stat().st_size,
+                }
+            )
+        return {
+            "proofId": job.proof_id,
+            "locale": job.locale,
+            "freshKernel": True,
+            "kernelLaunchOrdinal": launch_ordinal,
+            "isolatedPackage": True,
+            "networkBlocked": True,
+            "codeSha256": _sha256_json(code_payload),
+            "normalizedOutputSha256": _sha256_json(output_payload),
+            "generatedOutputs": generated_outputs,
+        }
+
+
+def _offline_rerun_worker(public_root: Path, proof_path: Path) -> None:
+    kernel_name = os.environ.get("ML_ATLAS_PHASE27_KERNEL_NAME", "")
+    proofs = [
+        rerun_public_notebook(public_root, job, kernel_name, ordinal)
+        for ordinal, job in enumerate(candidate_jobs(), start=1)
+    ]
+    proof_path.parent.mkdir(parents=True, exist_ok=True)
+    proof_path.write_bytes(
+        strict_json_bytes(
+            {
+                "contractVersion": (
+                    "linear-regression-phase-27-standalone-check-v1"
+                ),
+                "notebookCount": 2,
+                "freshKernelCount": 2,
+                "networkBlocked": True,
+                "offlineWheelhouse": True,
+                "proofs": proofs,
+            }
+        )
+    )
+
+
+def _verify_standalone_proof(
+    proof: dict[str, Any],
+    public_root: Path,
+) -> None:
+    if (
+        proof.get("contractVersion")
+        != "linear-regression-phase-27-standalone-check-v1"
+        or proof.get("notebookCount") != 2
+        or proof.get("freshKernelCount") != 2
+        or proof.get("networkBlocked") is not True
+        or proof.get("offlineWheelhouse") is not True
+    ):
+        raise Phase27Error("Standalone rerun proof header drifted")
+    proofs = proof.get("proofs")
+    jobs = list(candidate_jobs())
+    if (
+        not isinstance(proofs, list)
+        or len(proofs) != 2
+        or [item.get("proofId") for item in proofs]
+        != [job.proof_id for job in jobs]
+        or [item.get("kernelLaunchOrdinal") for item in proofs]
+        != [1, 2]
+    ):
+        raise Phase27Error(
+            "Standalone rerun proof inventory or kernel order drifted"
+        )
+    manifest = read_strict_json(
+        public_root
+        / "notebooks/linear-regression/output-manifest.json"
+    )
+    committed_proofs = {
+        item["proofId"]: item for item in manifest["executionProofs"]
+    }
+    for item, job in zip(proofs, jobs, strict=True):
+        committed = committed_proofs[job.proof_id]
+        if (
+            item.get("locale") != job.locale
+            or item.get("freshKernel") is not True
+            or item.get("isolatedPackage") is not True
+            or item.get("networkBlocked") is not True
+            or item.get("codeSha256") != committed["codeSha256"]
+            or item.get("normalizedOutputSha256")
+            != committed["normalizedOutputSha256"]
+        ):
+            raise Phase27Error(
+                f"{job.proof_id} standalone parity or isolation proof drifted"
+            )
+        for generated in item.get("generatedOutputs", []):
+            path = public_root / generated["path"]
+            if (
+                generated.get("sha256") != sha256_file(path)
+                or generated.get("bytes") != path.stat().st_size
+            ):
+                raise Phase27Error(
+                    f"{job.proof_id} standalone generated hash drifted"
+                )
+
+
+def offline_check(
+    *,
+    public_root: Path = DEFAULT_PUBLIC_ROOT,
+    wheel_cache: Path = DEFAULT_WHEEL_CACHE,
+) -> dict[str, Any]:
+    """Independently rerun both public Notebooks without repository mutation."""
+    validated_public_root = _assert_publication_root(public_root, True)
+    before = _git_visible_repository_snapshot()
+    validate_environment_contract(wheel_cache=wheel_cache)
+    public_result = verify_public_bundle(validated_public_root)
+
+    with tempfile.TemporaryDirectory(
+        prefix="ml-atlas-phase27-published-check-"
+    ) as directory:
+        proof_path = Path(directory) / "standalone-proof.json"
+        with isolated_environment(wheel_cache) as isolated:
+            _run_isolated_worker(
+                isolated,
+                "_offline_rerun_worker",
+                [validated_public_root, proof_path],
+            )
+        proof = read_strict_json(proof_path)
+        _verify_standalone_proof(proof, validated_public_root)
+
+    after = _git_visible_repository_snapshot()
+    verify_repository_clean(before, after)
+    return {
+        "inventoryCount": public_result["inventoryCount"],
+        "executionProofCount": public_result["executionProofCount"],
+        "standaloneRerunCount": proof["notebookCount"],
+        "networkBlocked": proof["networkBlocked"],
+        "repositoryEntriesChecked": len(after),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_mutually_exclusive_group(required=True)
@@ -3720,6 +4026,7 @@ def main() -> None:
     modes.add_argument("--prepare-candidates", action="store_true")
     modes.add_argument("--verify-candidates", action="store_true")
     modes.add_argument("--publish-candidates", action="store_true")
+    modes.add_argument("--check", action="store_true")
     parser.add_argument("--staging-root", type=Path, default=DEFAULT_STAGING_ROOT)
     parser.add_argument("--wheel-cache", type=Path, default=DEFAULT_WHEEL_CACHE)
     parser.add_argument("--topic")
@@ -3760,6 +4067,18 @@ def main() -> None:
             "Published the exact complete Phase 27 package atomically: "
             f"{result['inventoryCount']} members, "
             f"{result['publishedBytes']} bytes."
+        )
+        return
+    if args.check:
+        result = offline_check(wheel_cache=args.wheel_cache)
+        print(
+            "Offline public check passed with network blocked and the exact "
+            "offline wheelhouse: "
+            f"{result['inventoryCount']} members, "
+            f"{result['standaloneRerunCount']} independently rerun public "
+            "Notebooks, "
+            f"{result['repositoryEntriesChecked']} repository entries "
+            "byte/size/mtime-clean."
         )
         return
     validate_environment_contract(wheel_cache=args.wheel_cache)
