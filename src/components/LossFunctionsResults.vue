@@ -1,8 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import {
+  lossFunctionsAssetById,
+  lossFunctionsChapterBindings,
+  lossFunctionsChapterIds,
+  lossFunctionsTopics,
+  parseLossFunctionsOutput,
+  type BceGradientSummary,
+  type LossFunctionsChapterId,
+  type LossFunctionsSummaryOutputId,
+  type RegressionLossSummary,
+} from '../data/lossFunctionsAssets'
 import type { AppLocale, ExperimentConfig, StorySection, TrainingSnapshot } from '../types/ml'
 import { round } from '../utils/math'
+import { withPublicBase } from '../utils/publicPath'
+import CodeLab from '../modules/math-lab/components/CodeLab.vue'
 
 const props = defineProps<{
   activeSection?: StorySection
@@ -23,6 +36,208 @@ const distributionKind = computed(() => String(props.config.distributionKind ?? 
 const sectionSummary = computed(() =>
   localizedText(props.activeSection?.callout ?? { 'zh-CN': '', en: '' }),
 )
+
+const regressionSummary = ref<RegressionLossSummary>()
+const bceSummary = ref<BceGradientSummary>()
+const summaryLoading = ref(false)
+const summaryError = ref(false)
+let resultController: AbortController | undefined
+
+function isKnownChapter(value: string): value is LossFunctionsChapterId {
+  return lossFunctionsChapterIds.includes(value as LossFunctionsChapterId)
+}
+
+function summaryIdsForChapter(chapterId: LossFunctionsChapterId) {
+  return lossFunctionsChapterBindings[chapterId].assetIds.filter(
+    (assetId): assetId is LossFunctionsSummaryOutputId =>
+      assetId === 'regression-loss-summary' || assetId === 'bce-gradient-summary',
+  )
+}
+
+async function loadLockedResults(chapterId: string) {
+  resultController?.abort()
+  const requestController = new AbortController()
+  resultController = requestController
+  regressionSummary.value = undefined
+  bceSummary.value = undefined
+  summaryError.value = false
+
+  if (!isKnownChapter(chapterId)) {
+    summaryLoading.value = false
+    return
+  }
+
+  const outputIds = summaryIdsForChapter(chapterId)
+  summaryLoading.value = outputIds.length > 0
+
+  try {
+    const loaded = await Promise.all(
+      outputIds.map(async (outputId) => {
+        const asset = lossFunctionsAssetById.get(outputId)
+        if (!asset || asset.kind !== 'locked-summary') {
+          throw new TypeError(`Missing locked summary descriptor: ${outputId}`)
+        }
+        const response = await fetch(withPublicBase(asset.publicPath), {
+          signal: requestController.signal,
+          headers: { Accept: 'application/json' },
+        })
+        if (!response.ok) {
+          throw new Error(`Unable to load ${outputId}: ${response.status}`)
+        }
+        return [outputId, parseLossFunctionsOutput(outputId, await response.json())] as const
+      }),
+    )
+
+    if (requestController.signal.aborted) return
+    for (const [outputId, output] of loaded) {
+      if (outputId === 'regression-loss-summary') {
+        regressionSummary.value = output as RegressionLossSummary
+      } else {
+        bceSummary.value = output as BceGradientSummary
+      }
+    }
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') return
+    if (!requestController.signal.aborted) summaryError.value = true
+  } finally {
+    if (!requestController.signal.aborted) summaryLoading.value = false
+  }
+}
+
+watch(activeSectionId, loadLockedResults, { immediate: true })
+
+onBeforeUnmount(() => {
+  resultController?.abort()
+})
+
+const resultCopy = computed(() => {
+  const zh = locale.value === 'zh-CN'
+  return {
+    eyebrow: zh ? '本地固定运行结果' : 'Locked local run results',
+    loading: zh
+      ? '正在读取本章的小型 JSON 汇总；上面的公式与页面内计算仍可使用。'
+      : 'Loading this chapter’s small JSON summary; the formulas and built-in calculation above remain available.',
+    error: zh
+      ? '本地结果暂时无法读取；上面的公式、示例和实验仍然可用。'
+      : 'Local results are unavailable; the formulas, worked example, and lab above still work.',
+    aggregate: zh ? '完整数据汇总' : 'Full-data summary',
+    realRows: zh ? '代表真实行' : 'Representative real rows',
+    highRows: zh ? '高贡献真实行' : 'High-contribution real rows',
+    confident: zh ? '真实高置信错误行' : 'Real confident-error row',
+    fixed: zh ? '固定数值稳定性表（合成探针）' : 'Fixed numerical-stability table (synthetic probes)',
+    gradients: zh ? '固定有限差分结果' : 'Locked finite-difference results',
+    rowId: zh ? '行 ID' : 'Row ID',
+    target: zh ? '目标' : 'Target',
+    prediction: zh ? '预测' : 'Prediction',
+    residual: zh ? '残差' : 'Residual',
+    mse: 'MSE',
+    mae: 'MAE',
+    label: zh ? '标签' : 'Label',
+    logit: 'logit',
+    probability: zh ? '概率' : 'Probability',
+    bce: 'stable BCE',
+    gradient: zh ? '逐元素梯度' : 'Per-element gradient',
+    meanGradient: zh ? '均值目标梯度' : 'Mean-objective gradient',
+    source: zh ? '来源' : 'Source',
+    naive: zh ? '朴素概率 BCE' : 'Naive probability BCE',
+    clipped: zh ? '裁剪概率 BCE' : 'Clipped probability BCE',
+    stable: zh ? '稳定 logit BCE' : 'Stable logit BCE',
+    status: zh ? '状态' : 'Status',
+    objectiveChanged: zh ? '目标已改变' : 'objective changed',
+    step: 'h',
+    analytic: zh ? '解析梯度' : 'Analytic gradient',
+    numerical: zh ? '中心差分' : 'Central difference',
+    errorValue: zh ? '绝对误差' : 'Absolute error',
+    copy: zh ? '复制 NumPy 代码' : 'Copy NumPy code',
+    copied: zh ? '已复制' : 'Copied',
+    output: zh ? '对应运行输出' : 'Matching run output',
+    codeTitle: zh ? '本章 NumPy 对照' : 'Chapter NumPy reference',
+    plotAlt: zh
+      ? '本地固定运行结果图；图中的线型、形状和文字共同表达差异。'
+      : 'Locked local run-result plot; line style, shape, and text jointly encode the comparison.',
+  }
+})
+
+const regressionRows = computed(() => {
+  if (!regressionSummary.value) return []
+  return activeSectionId.value === 'regression-losses'
+    ? regressionSummary.value.highContributionRows.slice(0, 5)
+    : regressionSummary.value.representativeRows
+})
+
+const bceRows = computed(() => bceSummary.value?.highContributionRows.slice(0, 5) ?? [])
+const fixedProbes = computed(() => bceSummary.value?.fixedProbes ?? [])
+const gradientSummaryRows = computed(() => {
+  const sweeps = bceSummary.value?.finiteDifferenceSweeps
+  if (!sweeps) return []
+  return (['mse', 'mae', 'mae-kink', 'bce'] as const).map((kind) => {
+    const rows = sweeps[kind]
+    return {
+      kind,
+      row: rows.find(({ step }) => step === 1e-5) ?? rows[0]!,
+    }
+  })
+})
+
+const resultPlot = computed(() => {
+  if (activeSectionId.value === 'regression-losses') {
+    return lossFunctionsTopics['delivery-losses'].plot
+  }
+  if (
+    activeSectionId.value === 'classification-losses'
+    || activeSectionId.value === 'gradient-verification'
+  ) {
+    return lossFunctionsTopics['manufacturing-bce-gradients'].plot
+  }
+  return undefined
+})
+
+const codePresentation = computed(() => {
+  if (activeSectionId.value === 'why-loss' || activeSectionId.value === 'regression-losses') {
+    return {
+      code: [
+        'residual = y_pred - y_true',
+        'per_row_mse = residual ** 2',
+        'per_row_mae = np.abs(residual)',
+        'mse = np.mean(per_row_mse)',
+        'mae = np.mean(per_row_mae)',
+      ].join('\n'),
+      output: regressionSummary.value
+        ? `MSE=${formatNumber(regressionSummary.value.aggregate.mse)}\nMAE=${formatNumber(regressionSummary.value.aggregate.mae)}\nn=${regressionSummary.value.aggregate.rowCount}`
+        : '',
+    }
+  }
+  if (
+    activeSectionId.value === 'classification-losses'
+    || activeSectionId.value === 'likelihood-intuition'
+    || activeSectionId.value === 'negative-log'
+  ) {
+    return {
+      code: [
+        'loss = np.logaddexp(0.0, logits) - labels * logits',
+        'probability = np.exp(-np.logaddexp(0.0, -logits))',
+        'gradient = (probability - labels) / labels.size',
+      ].join('\n'),
+      output: bceSummary.value
+        ? `mean stable BCE=${formatNumber(bceSummary.value.aggregate.meanStableBce)}\nn=${bceSummary.value.aggregate.rowCount}`
+        : '',
+    }
+  }
+  if (activeSectionId.value === 'gradient-verification') {
+    return {
+      code: [
+        'plus[index] += h',
+        'minus[index] -= h',
+        'numeric = (loss_fn(plus) - loss_fn(minus)) / (2.0 * h)',
+        'absolute_error = abs(analytic - numeric)',
+      ].join('\n'),
+      output: gradientSummaryRows.value
+        .map(({ kind, row }) => `${kind}: ${row.status}, error=${formatNumber(row.absoluteError)}`)
+        .join('\n'),
+    }
+  }
+  return undefined
+})
 
 const panelCopy = computed(() => {
   const shared =
@@ -272,6 +487,236 @@ function formatNumber(value: number) {
     <div class="loss-reading-panel__note">
       <span>{{ panelCopy.noteLabel }}</span>
       <p>{{ panelCopy.note }}</p>
+    </div>
+
+    <div class="loss-locked-results">
+      <div class="panel__heading">
+        <span>{{ resultCopy.eyebrow }}</span>
+        <strong>{{ resultCopy.aggregate }}</strong>
+      </div>
+
+      <p
+        v-if="summaryLoading || summaryError"
+        class="loss-results__fallback"
+        :class="{ 'is-error': summaryError }"
+        role="status"
+        aria-live="polite"
+      >
+        {{ summaryLoading ? resultCopy.loading : resultCopy.error }}
+      </p>
+
+      <template v-if="regressionSummary">
+        <div class="loss-reading-grid loss-reading-grid--locked">
+          <article class="loss-reading-card">
+            <span>MSE · n={{ regressionSummary.aggregate.rowCount }}</span>
+            <strong>{{ formatNumber(regressionSummary.aggregate.mse) }}</strong>
+          </article>
+          <article class="loss-reading-card">
+            <span>MAE · n={{ regressionSummary.aggregate.rowCount }}</span>
+            <strong>{{ formatNumber(regressionSummary.aggregate.mae) }}</strong>
+          </article>
+          <article class="loss-reading-card">
+            <span>{{ resultCopy.prediction }}</span>
+            <strong>{{ formatNumber(regressionSummary.referencePredictionMinutes) }} min</strong>
+          </article>
+        </div>
+
+        <div class="loss-table-scroll">
+          <table class="loss-locked-table">
+            <caption>
+              {{
+                activeSectionId === 'regression-losses'
+                  ? resultCopy.highRows
+                  : resultCopy.realRows
+              }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ resultCopy.rowId }}</th>
+                <th scope="col">{{ resultCopy.target }}</th>
+                <th scope="col">{{ resultCopy.prediction }}</th>
+                <th scope="col">{{ resultCopy.residual }}</th>
+                <th scope="col">{{ resultCopy.mse }}</th>
+                <th scope="col">{{ resultCopy.mae }}</th>
+                <th scope="col">{{ resultCopy.gradient }}</th>
+                <th scope="col">{{ resultCopy.meanGradient }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in regressionRows" :key="row.courseRowId">
+                <th scope="row">{{ row.courseRowId }}</th>
+                <td>{{ formatNumber(row.targetMinutes) }}</td>
+                <td>{{ formatNumber(row.predictionMinutes) }}</td>
+                <td>{{ formatNumber(row.residualMinutes) }}</td>
+                <td>{{ formatNumber(row.mseLoss) }}</td>
+                <td>{{ formatNumber(row.maeLoss) }}</td>
+                <td>
+                  MSE {{ formatNumber(row.msePerElementGradient) }}
+                  / MAE {{ formatNumber(row.maePerElementSubgradient) }}
+                </td>
+                <td>
+                  MSE {{ formatNumber(row.mseMeanObjectiveGradient) }}
+                  / MAE {{ formatNumber(row.maeMeanObjectiveSubgradient) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </template>
+
+      <template v-if="bceSummary">
+        <div class="loss-reading-grid loss-reading-grid--locked">
+          <article class="loss-reading-card">
+            <span>mean stable BCE · n={{ bceSummary.aggregate.rowCount }}</span>
+            <strong>{{ formatNumber(bceSummary.aggregate.meanStableBce) }}</strong>
+          </article>
+          <article class="loss-reading-card">
+            <span>SECOM</span>
+            <strong>
+              {{ bceSummary.dataset.observedFeatureCount }}
+              /
+              {{ bceSummary.dataset.declaredFeatureCount }}
+            </strong>
+          </article>
+        </div>
+
+        <article
+          v-if="activeSectionId === 'classification-losses'"
+          class="loss-confident-row"
+        >
+          <span>● {{ resultCopy.confident }} · {{ bceSummary.confidentError.source }}</span>
+          <strong>{{ bceSummary.confidentError.courseRowId }}</strong>
+          <p>
+            y={{ bceSummary.confidentError.label }},
+            z={{ formatNumber(bceSummary.confidentError.logit) }},
+            p={{ formatNumber(bceSummary.confidentError.probability) }},
+            BCE={{ formatNumber(bceSummary.confidentError.stableBce) }},
+            ∂L/∂z={{ formatNumber(bceSummary.confidentError.perLogitGradient) }}
+          </p>
+        </article>
+
+        <div
+          v-if="activeSectionId === 'classification-losses'"
+          class="loss-table-scroll"
+        >
+          <table class="loss-locked-table">
+            <caption>{{ resultCopy.highRows }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ resultCopy.rowId }}</th>
+                <th scope="col">{{ resultCopy.label }}</th>
+                <th scope="col">{{ resultCopy.logit }}</th>
+                <th scope="col">{{ resultCopy.probability }}</th>
+                <th scope="col">{{ resultCopy.bce }}</th>
+                <th scope="col">{{ resultCopy.gradient }}</th>
+                <th scope="col">{{ resultCopy.meanGradient }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in bceRows" :key="row.courseRowId">
+                <th scope="row">{{ row.courseRowId }}</th>
+                <td>{{ row.label }}</td>
+                <td>{{ formatNumber(row.logit) }}</td>
+                <td>{{ formatNumber(row.probability) }}</td>
+                <td>{{ formatNumber(row.stableBce) }}</td>
+                <td>{{ formatNumber(row.perLogitGradient) }}</td>
+                <td>{{ formatNumber(row.meanObjectiveGradient) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          v-if="activeSectionId === 'classification-losses' || activeSectionId === 'negative-log'"
+          class="loss-table-scroll"
+        >
+          <table class="loss-locked-table loss-locked-table--probes">
+            <caption>{{ resultCopy.fixed }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ resultCopy.logit }}</th>
+                <th scope="col">{{ resultCopy.label }}</th>
+                <th scope="col">{{ resultCopy.naive }}</th>
+                <th scope="col">{{ resultCopy.clipped }}</th>
+                <th scope="col">{{ resultCopy.stable }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in fixedProbes" :key="`${row.logit}-${row.label}`">
+                <th scope="row">{{ row.logit }}</th>
+                <td>{{ row.label }}</td>
+                <td>
+                  {{ row.naive.status }}
+                  <span v-if="row.naive.value !== null">
+                    · {{ formatNumber(row.naive.value) }}
+                  </span>
+                </td>
+                <td>
+                  {{ formatNumber(row.clipped.value) }}
+                  <span v-if="row.clipped.objectiveChanged">
+                    · ▲ {{ resultCopy.objectiveChanged }}
+                  </span>
+                </td>
+                <td>● {{ row.stable.status }} · {{ formatNumber(row.stable.value) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          v-if="activeSectionId === 'gradient-verification'"
+          class="loss-table-scroll"
+        >
+          <table class="loss-locked-table">
+            <caption>{{ resultCopy.gradients }} · h=1e-5</caption>
+            <thead>
+              <tr>
+                <th scope="col">loss</th>
+                <th scope="col">{{ resultCopy.step }}</th>
+                <th scope="col">{{ resultCopy.analytic }}</th>
+                <th scope="col">{{ resultCopy.numerical }}</th>
+                <th scope="col">{{ resultCopy.errorValue }}</th>
+                <th scope="col">{{ resultCopy.status }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="{ kind, row } in gradientSummaryRows" :key="kind">
+                <th scope="row">{{ kind }}</th>
+                <td>{{ row.step.toExponential(0) }}</td>
+                <td>{{ formatNumber(row.analyticValue) }}</td>
+                <td>{{ formatNumber(row.numericalValue) }}</td>
+                <td>{{ formatNumber(row.absoluteError) }}</td>
+                <td>
+                  {{ row.status === 'pass' ? '●' : row.status === 'kink' ? '◆' : '▲' }}
+                  {{ row.status }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </template>
+
+      <figure v-if="resultPlot" class="loss-result-plot">
+        <img
+          :src="withPublicBase(resultPlot.publicPath)"
+          :alt="resultCopy.plotAlt"
+          width="960"
+          height="540"
+          loading="lazy"
+        />
+        <figcaption>{{ localizedText(resultPlot.description) }}</figcaption>
+      </figure>
+
+      <CodeLab
+        v-if="codePresentation"
+        :title="resultCopy.codeTitle"
+        :label="resultCopy.eyebrow"
+        :code="codePresentation.code"
+        :output="codePresentation.output"
+        :copy-label="resultCopy.copy"
+        :copied-label="resultCopy.copied"
+        :output-label="resultCopy.output"
+      />
     </div>
   </section>
 </template>

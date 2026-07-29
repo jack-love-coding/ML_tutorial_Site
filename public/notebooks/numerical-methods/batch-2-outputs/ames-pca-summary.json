@@ -1,0 +1,89 @@
+{
+  "contractVersion": "numerical-methods-batch-2-v1",
+  "outputId": "ames-pca-summary",
+  "datasetSha256": "763867f46c9a8616d7e7ea7599f4ab1cf408609c8aea06e496e65f9330df20fc",
+  "rows": 2927,
+  "columns": 8,
+  "features": [
+    "overall_quality",
+    "first_floor_sqft",
+    "second_floor_sqft",
+    "living_area_sqft",
+    "basement_sqft",
+    "garage_cars",
+    "garage_area_sqft",
+    "house_age_at_sale"
+  ],
+  "singularValues": [
+    110.14202005872835,
+    68.30309561741622,
+    53.306345714059326,
+    44.04365028288754,
+    29.955937493447667,
+    25.05257815188605,
+    17.395253731198054,
+    3.229273492940082
+  ],
+  "explainedVarianceRatio": [
+    0.518075870456838,
+    0.19923611508890943,
+    0.12135149015146957,
+    0.08284263453370773,
+    0.0383224372698729,
+    0.026803539120958245,
+    0.01292256800361974,
+    0.00044534537462442093
+  ],
+  "cumulativeExplainedVariance": [
+    0.518075870456838,
+    0.7173119855457475,
+    0.8386634756972171,
+    0.9215061102309249,
+    0.9598285475007978,
+    0.986632086621756,
+    0.9995546546253758,
+    1.0000000000000002
+  ],
+  "componentsForAtLeast90Percent": 4,
+  "twoComponentExplainedVariance": 0.7173119855457475,
+  "twoComponentStandardizedRmse": 0.531684130338919,
+  "k90StandardizedRmse": 0.2801676101355673,
+  "spectralDifference": 1.3322676295501878e-15,
+  "reconstructionFormulaDifference": 1.1102230246251565e-16,
+  "pc1StrongestLoadings": [
+    {
+      "feature": "garage_cars",
+      "loading": 0.40972675193926644
+    },
+    {
+      "feature": "garage_area_sqft",
+      "loading": 0.40789344921400694
+    },
+    {
+      "feature": "overall_quality",
+      "loading": 0.40229719450641116
+    },
+    {
+      "feature": "basement_sqft",
+      "loading": 0.36576737954027
+    }
+  ],
+  "pc2StrongestLoadings": [
+    {
+      "feature": "second_floor_sqft",
+      "loading": 0.7623350466433395
+    },
+    {
+      "feature": "living_area_sqft",
+      "loading": 0.38818250422573164
+    },
+    {
+      "feature": "basement_sqft",
+      "loading": -0.3577920984079251
+    },
+    {
+      "feature": "first_floor_sqft",
+      "loading": -0.34773812241476443
+    }
+  ]
+}

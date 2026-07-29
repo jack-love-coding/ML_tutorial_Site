@@ -1,0 +1,29 @@
+{
+  "localeInVideo": "zh-CN",
+  "durationSeconds": 78,
+  "labels": [
+    {"zh-CN": "数值方法 · 有限差分", "en": "Numerical methods · finite differences"},
+    {"zh-CN": "只调用函数，也能检查局部斜率吗？", "en": "Can function calls alone check local slope?"},
+    {"zh-CN": "本节不训练模型", "en": "No model is trained in this lesson"},
+    {"zh-CN": "先把模型输出变成一条可重复计算的残差曲线", "en": "First turn model outputs into a reproducible residual curve"},
+    {"zh-CN": "固定输入", "en": "Fixed input"},
+    {"zh-CN": "加偏置并压到 0–1", "en": "Add bias and map to 0–1"},
+    {"zh-CN": "取平均再减目标", "en": "Average, then subtract the target"},
+    {"zh-CN": "负残差：当前平均概率仍低于 0.62", "en": "Negative residual: mean probability remains below 0.62"},
+    {"zh-CN": "在 b₀ 左右采样：割线斜率逼近切线斜率", "en": "Sample around b₀: a secant slope approaches the tangent slope"},
+    {"zh-CN": "前向差分", "en": "Forward difference"},
+    {"zh-CN": "中心差分", "en": "Central difference"},
+    {"zh-CN": "步长从 1e−1 扫到 1e−12：误差不是单调下降", "en": "Sweep from 1e−1 to 1e−12: error is not monotone"},
+    {"zh-CN": "中心差分最佳采样：h=1e−5", "en": "Best sampled central step: h=1e−5"},
+    {"zh-CN": "h 过大", "en": "h is too large"},
+    {"zh-CN": "主导：截断误差", "en": "Dominant: truncation error"},
+    {"zh-CN": "h 过小", "en": "h is too small"},
+    {"zh-CN": "主导：浮点相消", "en": "Dominant: floating-point cancellation"},
+    {"zh-CN": "稳定窗口 = 截断与舍入之间的折中", "en": "Stable window = balance between truncation and roundoff"},
+    {"zh-CN": "固定 Notebook 输出：差分值必须与同一解析导数对齐", "en": "Locked Notebook output: align the finite difference with the analytic derivative"},
+    {"zh-CN": "最小步长 ≠ 最好步长", "en": "Smallest step does not equal best step"},
+    {"zh-CN": "有限差分回答：这里有多陡？", "en": "Finite differences answer: how steep is it here?"},
+    {"zh-CN": "下一章保持同一个 F(b)", "en": "The next lesson keeps the same F(b)"},
+    {"zh-CN": "匹配平均概率不等于完成完整概率校准", "en": "Matching mean probability is not complete probability calibration"}
+  ]
+}

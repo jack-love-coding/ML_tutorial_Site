@@ -1162,46 +1162,9 @@ export const curriculumCatalogMetadata = [
       "least-squares-fitting:objective-7"
     ],
     "relatedModuleIds": [
-      "pca"
-    ],
-    "legacyRoute": "/math-lab/modules/least-squares-fitting"
-  },
-  {
-    "id": "pca",
-    "source": {
-      "namespace": "math-lab",
-      "id": "pca"
-    },
-    "domain": "math",
-    "level": "advanced",
-    "title": {
-      "zh-CN": "主成分分析（PCA）",
-      "en": "Principal Component Analysis (PCA)"
-    },
-    "summary": {
-      "zh-CN": "把中心化数据转到最大方差方向，用更少坐标保留主要结构。",
-      "en": "Rotate centered data into maximum-variance directions and keep the main structure with fewer coordinates."
-    },
-    "route": "/math-lab/modules/pca",
-    "estimatedMinutes": 60,
-    "prerequisiteIds": [
-      "svd",
-      "least-squares-fitting",
-      "eigenvalues-eigenvectors",
-      "linear-algebra-rank-null-space"
-    ],
-    "outcomeIds": [
-      "pca:objective-1",
-      "pca:objective-2",
-      "pca:objective-3",
-      "pca:objective-4",
-      "pca:objective-5",
-      "pca:objective-6"
-    ],
-    "relatedModuleIds": [
       "lu-decomposition"
     ],
-    "legacyRoute": "/math-lab/modules/pca"
+    "legacyRoute": "/math-lab/modules/least-squares-fitting"
   },
   {
     "id": "lu-decomposition",
@@ -1233,42 +1196,9 @@ export const curriculumCatalogMetadata = [
       "lu-decomposition:objective-6"
     ],
     "relatedModuleIds": [
-      "sparse-matrices"
-    ],
-    "legacyRoute": "/math-lab/modules/lu-decomposition"
-  },
-  {
-    "id": "sparse-matrices",
-    "source": {
-      "namespace": "math-lab",
-      "id": "sparse-matrices"
-    },
-    "domain": "math",
-    "level": "intermediate",
-    "title": {
-      "zh-CN": "稀疏矩阵",
-      "en": "Sparse Matrices"
-    },
-    "summary": {
-      "zh-CN": "用 nnz、COO 和 CSR 理解如何只存非零项，并让大规模线性代数真正可计算。",
-      "en": "Use nnz, COO, and CSR to store only nonzeros and make large-scale linear algebra computable."
-    },
-    "route": "/math-lab/modules/sparse-matrices",
-    "estimatedMinutes": 38,
-    "prerequisiteIds": [
-      "lu-decomposition"
-    ],
-    "outcomeIds": [
-      "sparse-matrices:objective-1",
-      "sparse-matrices:objective-2",
-      "sparse-matrices:objective-3",
-      "sparse-matrices:objective-4",
-      "sparse-matrices:objective-5"
-    ],
-    "relatedModuleIds": [
       "condition-numbers"
     ],
-    "legacyRoute": "/math-lab/modules/sparse-matrices"
+    "legacyRoute": "/math-lab/modules/lu-decomposition"
   },
   {
     "id": "condition-numbers",
@@ -1301,9 +1231,83 @@ export const curriculumCatalogMetadata = [
       "condition-numbers:objective-6"
     ],
     "relatedModuleIds": [
-      "finite-difference-methods"
+      "sparse-matrices"
     ],
     "legacyRoute": "/math-lab/modules/condition-numbers"
+  },
+  {
+    "id": "sparse-matrices",
+    "source": {
+      "namespace": "math-lab",
+      "id": "sparse-matrices"
+    },
+    "domain": "math",
+    "level": "intermediate",
+    "title": {
+      "zh-CN": "稀疏矩阵",
+      "en": "Sparse Matrices"
+    },
+    "summary": {
+      "zh-CN": "用 nnz、COO 和 CSR 理解如何只存非零项，并让大规模线性代数真正可计算。",
+      "en": "Use nnz, COO, and CSR to store only nonzeros and make large-scale linear algebra computable."
+    },
+    "route": "/math-lab/modules/sparse-matrices",
+    "estimatedMinutes": 70,
+    "prerequisiteIds": [
+      "lu-decomposition"
+    ],
+    "outcomeIds": [
+      "sparse-matrices:objective-1",
+      "sparse-matrices:objective-2",
+      "sparse-matrices:objective-3",
+      "sparse-matrices:objective-4",
+      "sparse-matrices:objective-5",
+      "sparse-matrices:objective-6",
+      "sparse-matrices:objective-7"
+    ],
+    "relatedModuleIds": [
+      "pca"
+    ],
+    "legacyRoute": "/math-lab/modules/sparse-matrices"
+  },
+  {
+    "id": "pca",
+    "source": {
+      "namespace": "math-lab",
+      "id": "pca"
+    },
+    "domain": "math",
+    "level": "advanced",
+    "title": {
+      "zh-CN": "主成分分析（PCA）",
+      "en": "Principal Component Analysis (PCA)"
+    },
+    "summary": {
+      "zh-CN": "把中心化数据转到最大方差方向，用更少坐标保留主要结构。",
+      "en": "Rotate centered data into maximum-variance directions and keep the main structure with fewer coordinates."
+    },
+    "route": "/math-lab/modules/pca",
+    "estimatedMinutes": 75,
+    "prerequisiteIds": [
+      "svd",
+      "least-squares-fitting",
+      "eigenvalues-eigenvectors",
+      "linear-algebra-rank-null-space"
+    ],
+    "outcomeIds": [
+      "pca:objective-1",
+      "pca:objective-2",
+      "pca:objective-3",
+      "pca:objective-4",
+      "pca:objective-5",
+      "pca:objective-6",
+      "pca:objective-7",
+      "pca:objective-8"
+    ],
+    "relatedModuleIds": [
+      "finite-difference-methods"
+    ],
+    "legacyRoute": "/math-lab/modules/pca"
   },
   {
     "id": "finite-difference-methods",
@@ -1322,7 +1326,7 @@ export const curriculumCatalogMetadata = [
       "en": "Approximate derivatives from nearby function values, and connect step size, error, and gradient checking."
     },
     "route": "/math-lab/modules/finite-difference-methods",
-    "estimatedMinutes": 38,
+    "estimatedMinutes": 75,
     "prerequisiteIds": [
       "taylor-series",
       "linear-algebra-distance-similarity"
@@ -1332,7 +1336,9 @@ export const curriculumCatalogMetadata = [
       "finite-difference-methods:objective-2",
       "finite-difference-methods:objective-3",
       "finite-difference-methods:objective-4",
-      "finite-difference-methods:objective-5"
+      "finite-difference-methods:objective-5",
+      "finite-difference-methods:objective-6",
+      "finite-difference-methods:objective-7"
     ],
     "relatedModuleIds": [
       "nonlinear-equations"
@@ -1356,7 +1362,7 @@ export const curriculumCatalogMetadata = [
       "en": "Drive nonlinear residuals to zero with bisection, Newton, secant, and Jacobian linearization."
     },
     "route": "/math-lab/modules/nonlinear-equations",
-    "estimatedMinutes": 44,
+    "estimatedMinutes": 80,
     "prerequisiteIds": [
       "taylor-series",
       "finite-difference-methods",
@@ -1367,7 +1373,9 @@ export const curriculumCatalogMetadata = [
       "nonlinear-equations:objective-2",
       "nonlinear-equations:objective-3",
       "nonlinear-equations:objective-4",
-      "nonlinear-equations:objective-5"
+      "nonlinear-equations:objective-5",
+      "nonlinear-equations:objective-6",
+      "nonlinear-equations:objective-7"
     ],
     "relatedModuleIds": [
       "optimization"
@@ -1391,7 +1399,7 @@ export const curriculumCatalogMetadata = [
       "en": "Move from minima, derivative tests, and line search to gradient descent and Newton methods."
     },
     "route": "/math-lab/modules/optimization",
-    "estimatedMinutes": 38,
+    "estimatedMinutes": 90,
     "prerequisiteIds": [
       "taylor-series",
       "linear-algebra-distance-similarity",
@@ -1403,7 +1411,9 @@ export const curriculumCatalogMetadata = [
       "optimization:objective-3",
       "optimization:objective-4",
       "optimization:objective-5",
-      "optimization:objective-6"
+      "optimization:objective-6",
+      "optimization:objective-7",
+      "optimization:objective-8"
     ],
     "relatedModuleIds": [
       "training-diagnostics"
@@ -1427,12 +1437,14 @@ export const curriculumCatalogMetadata = [
       "en": "Read loss curves, gradient norms, and generalization gaps as actionable training signals."
     },
     "route": "/math-lab/modules/training-diagnostics",
-    "estimatedMinutes": 32,
+    "estimatedMinutes": 75,
     "prerequisiteIds": [],
     "outcomeIds": [
       "training-diagnostics:objective-1",
       "training-diagnostics:objective-2",
-      "training-diagnostics:objective-3"
+      "training-diagnostics:objective-3",
+      "training-diagnostics:objective-4",
+      "training-diagnostics:objective-5"
     ],
     "relatedModuleIds": [
       "deep-architecture-math"

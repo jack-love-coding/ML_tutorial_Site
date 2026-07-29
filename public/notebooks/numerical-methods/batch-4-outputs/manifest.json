@@ -1,0 +1,264 @@
+{
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "dataset": {
+    "publicPath": "/datasets/numerical-methods/banknote-authentication.csv",
+    "sha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+    "bytes": 59900,
+    "manifest": {
+      "publicPath": "/datasets/numerical-methods/banknote-authentication-manifest.json",
+      "sha256": "37603db152ff5d7fd3ce09ce5a776402e468c62f5b449fbe22a706b7c659dbee",
+      "bytes": 2874
+    },
+    "dataDictionary": {
+      "publicPath": "/datasets/numerical-methods/banknote-authentication-data-dictionary.json",
+      "sha256": "04c7460e92e83dae685e3016654b83d072ebbc7559d4b714497bfedf83504dac",
+      "bytes": 2149
+    },
+    "split": {
+      "seeds": {
+        "trainHoldout": 20260725,
+        "validationTest": 20260726
+      },
+      "algorithmCalls": [
+        "train_test_split(ids, test_size=412, stratify=y, random_state=20260725)",
+        "train_test_split(holdout_ids, test_size=206, stratify=holdout_y, random_state=20260726)"
+      ],
+      "counts": {
+        "train": 960,
+        "validation": 206,
+        "test": 206
+      },
+      "classCounts": {
+        "train": {
+          "0": 533,
+          "1": 427
+        },
+        "validation": {
+          "0": 115,
+          "1": 91
+        },
+        "test": {
+          "0": 114,
+          "1": 92
+        }
+      }
+    },
+    "preprocessing": {
+      "fitSplit": "train",
+      "ddof": 0,
+      "features": [
+        "variance",
+        "skewness",
+        "curtosis",
+        "entropy"
+      ],
+      "trainMeans": {
+        "variance": 0.46886307781249986,
+        "skewness": 1.9775978456250036,
+        "curtosis": 1.3202396866562518,
+        "entropy": -1.1418097847916664
+      },
+      "trainScales": {
+        "variance": 2.8049705227712813,
+        "skewness": 5.81400805653475,
+        "curtosis": 4.234924404032209,
+        "entropy": 2.0726581960156034
+      }
+    }
+  },
+  "generator": {
+    "path": "scripts/numerical-methods/generate-batch-4-notebook.py",
+    "sha256": "69525e71f57ba43264f951436eb9ee1733fc4a3c41adc3d9d57621927f3d1663"
+  },
+  "requirements": {
+    "publicPath": "/notebooks/numerical-methods/requirements.txt",
+    "sha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530",
+    "pins": {
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "scipy": "1.17.1",
+      "nbformat": "5.10.4",
+      "nbclient": "0.11.0",
+      "jupyterlab": "4.6.1",
+      "ipykernel": "7.3.0",
+      "scikit-learn": "1.9.0"
+    }
+  },
+  "wheelCacheAudit": {
+    "manifestFile": "batch-4-wheel-cache-manifest.json",
+    "manifestSha256": "95ca3095110658363933ecfa7c64dc5935e03c09119a612603c38fec30bc78e1",
+    "requirementsSha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530",
+    "wheelCount": 99,
+    "installation": "pip --no-index --find-links=<audited-wheel-cache>"
+  },
+  "environment": {
+    "python": {
+      "implementation": "CPython",
+      "version": "3.12.13",
+      "cacheTag": "cpython-312"
+    },
+    "packages": {
+      "ipykernel": "7.3.0",
+      "jupyterlab": "4.6.1",
+      "nbclient": "0.11.0",
+      "nbformat": "5.10.4",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "scikit-learn": "1.9.0",
+      "scipy": "1.17.1"
+    },
+    "exactPinImportCount": 8,
+    "ambientThirdPartyPackagesUsed": false,
+    "kernel": {
+      "selection": "unique temp-prefix kernelspec",
+      "interpreter": "temporary venv",
+      "generatedNotebook": "pass",
+      "standaloneNotebook": "pass"
+    }
+  },
+  "loader": {
+    "library": "pandas",
+    "call": "pandas.read_csv",
+    "datasetPublicPath": "/datasets/numerical-methods/banknote-authentication.csv",
+    "datasetSha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+    "schema": [
+      "banknote_id",
+      "variance",
+      "skewness",
+      "curtosis",
+      "entropy",
+      "class",
+      "split"
+    ],
+    "schemaValidatedBeforeNumpy": true,
+    "rowCount": 1372,
+    "splitCounts": {
+      "train": 960,
+      "validation": 206,
+      "test": 206
+    }
+  },
+  "constants": {
+    "contractVersion": "numerical-methods-batch-4-v1",
+    "parameterOrder": [
+      "variance",
+      "skewness",
+      "curtosis",
+      "entropy",
+      "intercept"
+    ],
+    "l2": 0.001,
+    "maxIterations": 500,
+    "gradientTolerance": 1e-05,
+    "relativeLossTolerance": 1e-10,
+    "parameterStepTolerance": 1e-07,
+    "validationMinDelta": 1e-07,
+    "validationPatience": 60,
+    "armijo": {
+      "initialStep": 32.0,
+      "c": 0.0001,
+      "rho": 0.5,
+      "maxBacktracks": 30,
+      "minimumStep": 1e-12
+    },
+    "runs": {
+      "raw-fixed": {
+        "featureSpace": "raw",
+        "method": "fixed",
+        "step": 4.0
+      },
+      "standardized-too-small": {
+        "featureSpace": "standardized",
+        "method": "fixed",
+        "step": 0.02
+      },
+      "standardized-stable": {
+        "featureSpace": "standardized",
+        "method": "fixed",
+        "step": 4.0
+      },
+      "standardized-too-large": {
+        "featureSpace": "standardized",
+        "method": "fixed",
+        "step": 32.0
+      },
+      "standardized-armijo": {
+        "featureSpace": "standardized",
+        "method": "armijo",
+        "initialStep": 32.0
+      }
+    },
+    "finalThreshold": 0.5,
+    "baselineC": 1.0416666666666667
+  },
+  "constantsSha256": "f759186d0be526e84c80f6930d91981af0d303e8138edcbae4f65e4f3d30f041",
+  "notebook": {
+    "moduleIds": [
+      "optimization",
+      "training-diagnostics"
+    ],
+    "locale": "zh-CN",
+    "cleanKernel": true,
+    "cellErrors": 0,
+    "timingStripped": true,
+    "publicPath": "/notebooks/numerical-methods/banknote-logistic-optimization.zh-CN.ipynb",
+    "sha256": "6e7e83e63d700f255335328a23a510fa347e34a5521aa13e0ee078256ed69b86",
+    "bytes": 48644
+  },
+  "outputs": [
+    {
+      "outputId": "banknote-logistic-optimization-summary",
+      "publicPath": "/notebooks/numerical-methods/batch-4-outputs/optimization-summary.json",
+      "sha256": "69168316433ac27cca6071cb351f1c871dffc77426654b10c167c275949f390d",
+      "bytes": 15178
+    },
+    {
+      "outputId": "banknote-training-diagnostics-summary",
+      "publicPath": "/notebooks/numerical-methods/batch-4-outputs/training-diagnostics-summary.json",
+      "sha256": "08edf88e84a16775188bc1e9e33487011e21dacf855df3ba2d00743e1a2744c1",
+      "bytes": 4836
+    },
+    {
+      "outputId": "banknote-training-traces-json",
+      "rowCount": 1222,
+      "publicPath": "/notebooks/numerical-methods/batch-4-outputs/banknote-training-traces.json",
+      "sha256": "e74c8495b8d72df4e19af37138ca32fb8b34c2d41568838f5c0355d3684180c0",
+      "bytes": 799448
+    },
+    {
+      "outputId": "banknote-training-traces-csv",
+      "rowCount": 1222,
+      "header": [
+        "contract_version",
+        "run_id",
+        "iteration",
+        "feature_space",
+        "method",
+        "train_bce",
+        "validation_bce",
+        "objective",
+        "gradient_norm",
+        "parameter_step_norm",
+        "accepted_step_size",
+        "backtrack_count",
+        "relative_objective_change",
+        "is_best_validation",
+        "w_variance",
+        "w_skewness",
+        "w_curtosis",
+        "w_entropy",
+        "intercept"
+      ],
+      "publicPath": "/notebooks/numerical-methods/batch-4-outputs/banknote-training-traces.csv",
+      "sha256": "d6ab4fd1a857dedd9e2d9f6a8f44966f740cbfcb17851e9e5006d5390e2f7e39",
+      "bytes": 372874
+    }
+  ],
+  "standaloneRerun": {
+    "status": "pass",
+    "source": "copied download-form Notebook with local CSV beside it",
+    "sameIsolatedKernelContract": true,
+    "outputParity": true
+  },
+  "mediaOutputsIncluded": false
+}

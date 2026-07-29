@@ -96,17 +96,7 @@ export const mathLearningPhases: readonly MathLearningPhase[] = [
   {
     id: 'data-geometry-numerics',
     title: copy('阶段四：数据几何与数值稳定', 'Phase 4: Data Geometry and Numerical Stability'),
-    moduleIds: [
-      'least-squares-fitting',
-      'pca',
-      'lu-decomposition',
-      'sparse-matrices',
-      'condition-numbers',
-      'finite-difference-methods',
-      'nonlinear-equations',
-      'optimization',
-      'training-diagnostics',
-    ],
+    moduleIds: numericalDeepeningModuleIds,
   },
   {
     id: 'deep-architecture',

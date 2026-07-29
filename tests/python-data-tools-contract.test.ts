@@ -109,21 +109,23 @@ const lockedEnvironmentProvenance = {
   generatedOn: 'darwin-arm64',
 }
 
-test('planning state records shipped V3.1 slices and the ordered Python Data Tools stages', async () => {
-  const [state, roadmap] = await Promise.all([
+test('planning state records shipped Python Data Tools stages and completed numerical-methods batches', async () => {
+  const [state, currentRoadmap, archivedRoadmap] = await Promise.all([
     readFile(new URL('../.planning/STATE.md', import.meta.url), 'utf8'),
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
+    readFile(new URL('../.planning/milestones/v1.0-ROADMAP.md', import.meta.url), 'utf8'),
   ])
+  const roadmap = `${currentRoadmap}\n${archivedRoadmap}`
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
-  const expectedStatus = '**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–4 are completed slices; Python Data Tools Stage 5 consistency and browser validation has a complete four-plan design and is ready for execution. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.'
-  const expectedFocus = '**Current focus:** Execute Python Data Tools Stage 5 Plans 01–04 in order: visible terminology and asset regeneration, deterministic authority/request/Progress gates, real-browser matrix, then standard/Pages release closeout. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.'
-  const expectedNextCommand = 'Execute Python Data Tools Stage 5 Plan 01, then Plans 02–04 in dependency order, while keeping Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused.'
+  const currentPhaseMatch = state.match(/^current_phase: (\d+)$/m)
+  const currentFocusMatch = state.match(/^\*\*Current focus:\*\* Phase (\d+) — .+$/m)
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
-  assert.match(state, /^\*\*Updated:\*\* 2026-07-17$/m)
-  assert.ok(state.includes(expectedStatus))
-  assert.ok(state.includes(expectedFocus))
-  assert.match(state, /Curriculum V3\.0 blueprint and audit are complete/i)
+  assert.ok(currentPhaseMatch, 'planning state should expose the current phase')
+  assert.ok(currentFocusMatch, 'planning state should expose the current curriculum focus')
+  assert.ok(Number(currentPhaseMatch[1]) >= 25, 'planning state must not regress before the completed Batch 4 phase')
+  assert.equal(currentFocusMatch[1], currentPhaseMatch[1])
+  assert.match(state, /^status: (?:ready_to_execute|executing|verifying|completed)$/m)
   assert.match(state, /AI Overview rebuild[^\n]*completed/i)
   assert.match(state, /Math-to-Code pilot[^\n]*completed/i)
   assert.match(state, /Python Data Tools Stage 1 is complete/i)
@@ -135,8 +137,7 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
   assert.doesNotMatch(state, /V3\.1 (?:as a whole )?is (?:fully )?complete/i)
   assert.match(state, /without changing runtime lesson content/i)
   assert.match(state, /Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused/i)
-  assert.ok(state.includes(expectedNextCommand))
-  assert.match(state, /while keeping Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused\./)
+  assert.match(roadmap, /Numerical Methods Batch 4 Phase 25[^\n]*13 plans[^\n]*8 waves/i)
 
   const stageLabels = [
     'Data and execution contract',
@@ -145,7 +146,10 @@ test('planning state records shipped V3.1 slices and the ordered Python Data Too
     'English parity and runtime refactor',
     'Consistency, browser, and build validation',
   ]
-  const stageLines = roadmap
+  const pythonStageSection = roadmap
+    .split('### Python Data Tools Course Rebuild')[1]!
+    .split('### Numerical Methods Content Deepening')[0]!
+  const stageLines = pythonStageSection
     .split('\n')
     .filter((line) => /^\d+\. \*\*.+\*\* — (?:Completed|Current|Planned|Designed \/ ready for execution) —/.test(line))
 

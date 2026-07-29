@@ -1,6 +1,8 @@
+import { logitCalibrationDerivative, logitCalibrationResidual } from './logitCalibration.ts'
+
 export type FiniteDifferenceMethod = 'forward' | 'backward' | 'central'
 
-export type FiniteDifferenceFunctionKind = 'exp-shift' | 'quadratic'
+export type FiniteDifferenceFunctionKind = 'calibration' | 'exp-shift' | 'quadratic'
 
 export type Vector2Tuple = [number, number]
 
@@ -43,16 +45,19 @@ export interface FiniteDifferenceJacobianEvaluation {
 const MACHINE_EPSILON = Number.EPSILON
 
 function lectureFunction(kind: FiniteDifferenceFunctionKind, x: number) {
+  if (kind === 'calibration') return logitCalibrationResidual(x)
   if (kind === 'quadratic') return 2 * x ** 2 + 15 * x + 1
   return Math.exp(x) - 2
 }
 
 function lectureDerivative(kind: FiniteDifferenceFunctionKind, x: number) {
+  if (kind === 'calibration') return logitCalibrationDerivative(x)
   if (kind === 'quadratic') return 4 * x + 15
   return Math.exp(x)
 }
 
 function estimateCurvatureBound(kind: FiniteDifferenceFunctionKind, x: number) {
+  if (kind === 'calibration') return 0.25
   if (kind === 'quadratic') return 4
   return Math.exp(Math.abs(x) + 1)
 }

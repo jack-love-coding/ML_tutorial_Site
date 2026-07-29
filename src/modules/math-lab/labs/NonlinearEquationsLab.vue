@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { MathLabLocale } from '../types/mathLab'
 import {
   evaluateNonlinearRootFinding,
@@ -14,10 +14,11 @@ const props = withDefaults(defineProps<{
   locale: 'zh-CN',
 })
 
-const functionKind = ref<NonlinearFunctionKind>('cubic')
+const functionKind = ref<NonlinearFunctionKind>('calibration')
 const iterations = ref(5)
-const newtonStart = ref(1)
-const secantPrevious = ref(2)
+const newtonStart = ref(0)
+const secantPrevious = ref(-1)
+const secantCurrent = ref(1)
 
 const plot = {
   left: 36,
@@ -26,7 +27,7 @@ const plot = {
   bottom: 256,
 }
 
-const functionOptions: NonlinearFunctionKind[] = ['cubic', 'cosine', 'flat']
+const functionOptions: NonlinearFunctionKind[] = ['calibration', 'cubic', 'cosine', 'flat']
 
 const labels = computed(() => {
   const zh = props.locale === 'zh-CN'
@@ -38,8 +39,9 @@ const labels = computed(() => {
       : 'Switch functions and adjust starting points to compare bisection, Newton, and secant convergence speed, residuals, and failure risks.',
     function: zh ? '函数' : 'Function',
     iterations: zh ? '迭代次数' : 'Iterations',
-    newtonStart: zh ? 'Newton / 割线当前点' : 'Newton / secant current point',
+    newtonStart: zh ? 'Newton 初始点' : 'Newton start',
     secantPrevious: zh ? '割线前一点' : 'Secant previous point',
+    secantCurrent: zh ? '割线当前点' : 'Secant current point',
     trueRoot: zh ? '参考根' : 'reference root',
     bisection: zh ? '二分法' : 'Bisection',
     newton: zh ? 'Newton 法' : 'Newton',
@@ -73,8 +75,27 @@ const evaluation = computed(() =>
     iterations: iterations.value,
     newtonStart: newtonStart.value,
     secantPrevious: secantPrevious.value,
+    secantCurrent: secantCurrent.value,
   }),
 )
+
+watch(functionKind, (kind) => {
+  if (kind === 'calibration') {
+    newtonStart.value = 0
+    secantPrevious.value = -1
+    secantCurrent.value = 1
+    return
+  }
+  if (kind === 'cubic') {
+    newtonStart.value = 1
+    secantPrevious.value = 2
+    secantCurrent.value = 1
+    return
+  }
+  newtonStart.value = 1
+  secantPrevious.value = -1
+  secantCurrent.value = 1
+})
 
 const curveSamples = computed(() => {
   const [xmin, xmax] = definition.value.domain
@@ -170,6 +191,7 @@ const methodSummaries = computed(() => [
 
 function functionLabel(kind: NonlinearFunctionKind) {
   const zh = props.locale === 'zh-CN'
+  if (kind === 'calibration') return zh ? '偏置校准残差' : 'Bias-calibration residual'
   if (kind === 'cubic') return zh ? '三次方程' : 'Cubic equation'
   if (kind === 'cosine') return zh ? '余弦不动点' : 'Cosine fixed point'
   return zh ? '平坦重根' : 'Flat multiple root'
@@ -274,12 +296,17 @@ function formatNumber(value: number, digits = 5) {
 
         <label>
           {{ labels.newtonStart }}: {{ newtonStart.toFixed(2) }}
-          <input v-model.number="newtonStart" type="range" min="-1.2" max="2.2" step="0.05" />
+          <input v-model.number="newtonStart" type="range" :min="definition.domain[0]" :max="definition.domain[1]" step="0.05" />
         </label>
 
         <label>
           {{ labels.secantPrevious }}: {{ secantPrevious.toFixed(2) }}
-          <input v-model.number="secantPrevious" type="range" min="-1.2" max="2.2" step="0.05" />
+          <input v-model.number="secantPrevious" type="range" :min="definition.domain[0]" :max="definition.domain[1]" step="0.05" />
+        </label>
+
+        <label>
+          {{ labels.secantCurrent }}: {{ secantCurrent.toFixed(2) }}
+          <input v-model.number="secantCurrent" type="range" :min="definition.domain[0]" :max="definition.domain[1]" step="0.05" />
         </label>
       </div>
 

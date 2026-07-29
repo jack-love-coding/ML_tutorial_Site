@@ -29,8 +29,8 @@ const labels = computed(() => {
     eyebrow: zh ? '互动实验' : 'Interactive lab',
     title: zh ? 'PCA 投影与重建实验' : 'PCA Projection and Reconstruction Lab',
     subtitle: zh
-      ? '选择点云、保留主成分个数，并给所有点加入同一个平移，观察中心化、主方向和解释方差如何变化。'
-      : 'Choose a point cloud, keep one or two principal components, and add a common shift to see how centering, directions, and explained variance behave.',
+      ? '这是二维几何示意，不是 Ames 散点。选择点云、保留主成分个数，并给所有点加入同一个平移，观察中心化、主方向和解释方差如何变化；页面固定输出与 Notebook 才是八维 Ames 计算。'
+      : 'This is a 2D geometric schematic, not an Ames scatter plot. Choose a point cloud, retain one or two components, and add a common shift to inspect centering, directions, and explained variance; the locked page output and Notebook contain the real eight-dimensional Ames computation.',
     dataset: zh ? '点云类型' : 'Point cloud',
     lecture: zh ? '六点中心化例子' : 'Six-point centering example',
     correlated: zh ? '强相关特征' : 'Strongly correlated features',

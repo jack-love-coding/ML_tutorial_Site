@@ -1,4 +1,10 @@
-export type NonlinearFunctionKind = 'cubic' | 'cosine' | 'flat'
+import {
+  LOGIT_CALIBRATION_ROOT,
+  logitCalibrationDerivative,
+  logitCalibrationResidual,
+} from './logitCalibration.ts'
+
+export type NonlinearFunctionKind = 'calibration' | 'cubic' | 'cosine' | 'flat'
 
 export type RootMethodStatus = 'converged' | 'running' | 'stalled' | 'diverged'
 
@@ -44,6 +50,7 @@ export interface NonlinearRootFindingInput {
   iterations: number
   newtonStart: number
   secantPrevious: number
+  secantCurrent?: number
 }
 
 export interface NonlinearRootFindingEvaluation {
@@ -86,6 +93,16 @@ const ROOT_TOLERANCE = 1e-10
 const SMALL_DENOMINATOR = 1e-12
 
 export const nonlinearFunctionDefinitions: Record<NonlinearFunctionKind, NonlinearFunctionDefinition> = {
+  calibration: {
+    kind: 'calibration',
+    label: 'mean(sigmoid(z+b)) - 0.62',
+    formula: 'F(b)=\\operatorname{mean}(\\sigma(z+b))-0.62',
+    domain: [-4, 4],
+    bracket: [-4, 4],
+    trueRoot: LOGIT_CALIBRATION_ROOT,
+    f: logitCalibrationResidual,
+    derivative: logitCalibrationDerivative,
+  },
   cubic: {
     kind: 'cubic',
     label: 'x^3 - x - 1',
@@ -320,7 +337,12 @@ export function evaluateNonlinearRootFinding(input: NonlinearRootFindingInput): 
     bracket: definition.bracket,
     bisection: iterateBisection(input.functionKind, input.iterations),
     newton: iterateNewton(input.functionKind, input.newtonStart, input.iterations),
-    secant: iterateSecant(input.functionKind, input.secantPrevious, input.newtonStart, input.iterations),
+    secant: iterateSecant(
+      input.functionKind,
+      input.secantPrevious,
+      input.secantCurrent ?? input.newtonStart,
+      input.iterations,
+    ),
   }
 }
 

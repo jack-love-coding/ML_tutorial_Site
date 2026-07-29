@@ -1,0 +1,16 @@
+{
+  "contractVersion": "numerical-methods-batch-3-v1",
+  "fixture": {
+    "publicPath": "/datasets/numerical-methods/logit-calibration-fixture.json",
+    "sha256": "f78fab203ad67476d26937fb7ae84e57b6aefaa86e4045f01b3b1c85b3b78bbc",
+    "bytes": 451,
+    "logitCount": 12,
+    "targetPositiveRate": 0.62
+  },
+  "provenance": {
+    "kind": "project-authored-teaching-fixture",
+    "createdAt": "2026-07-20",
+    "containsPersonalData": false,
+    "productionDataset": false
+  }
+}

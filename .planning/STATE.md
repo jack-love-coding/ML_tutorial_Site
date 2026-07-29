@@ -1,26 +1,59 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: paused
-last_updated: "2026-07-17T00:00:00.000Z"
+milestone: v1.1
+milestone_name: Classical Supervised Learning
+current_phase: 27
+current_phase_name: Linear Regression Rebuild
+status: planning
+stopped_at: Completed 26-07-PLAN.md
+last_updated: "2026-07-28T17:05:51.427Z"
+last_activity: 2026-07-28
+last_activity_desc: Phase 26 complete, transitioned to Phase 27
+progress:
+  total_phases: 6
+  completed_phases: 1
+  total_plans: 7
+  completed_plans: 7
+  percent: 17
+current_plan: null
 ---
 
-# GSD State: ML Atlas Curriculum V2
+# GSD State: ML Atlas Curriculum V3 Content Delivery
 
-**Updated:** 2026-07-17
-**Status:** Curriculum V3.0 blueprint and audit are complete. The V3.1 AI Overview rebuild, Math-to-Code pilot, and Python Data Tools Stages 1–4 are completed slices; Python Data Tools Stage 5 consistency and browser validation has a complete four-plan design and is ready for execution. Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
+**Updated:** 2026-07-28
+**Status:** Ready to plan
+
+## Current Position
+
+Phase: 27 — Linear Regression Rebuild
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-28 — Phase 26 complete, transitioned to Phase 27
+
+## Deferred Items
+
+Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
+
+| Category | Item | Status |
+| --- | --- | --- |
+| progress | Checkpoint completion and quiz-attempt persistence | Deferred to backend/database milestone |
+| curriculum | CURR-04 catalog-derived prerequisite ordering | Partial; deferred |
+| homepage | HOME-01 and HOME-02 decision-surface hierarchy | Partial; paused |
+| renderer | LESSON-01 full typed block/checkpoint contract | Partial; deferred |
+| interaction | LAB-02 static workflow labeling cleanup | Partial; deferred |
+| validation | VAL-04 clean milestone provenance and gap-free audit | Accepted technical debt |
+| planning | Historical Phases 1–24A canonical verification/summary provenance | Accepted technical debt |
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-06-25)
+See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Execute Python Data Tools Stage 5 Plans 01–04 in order: visible terminology and asset regeneration, deterministic authority/request/Progress gates, real-browser matrix, then standard/Pages release closeout. Do not expand into Phase 24B Homepage Focus or Phase 24C Spine progressive disclosure.
+**Current focus:** Phase 26 — Loss Functions Rebuild
 
 ## Baseline
 
-- `npm test`: pass, 645 tests after the Stage 4 quality-consolidation follow-up.
+- `npm test`: pass, 756 tests after the canonical Math/Data deep-link fix.
 - `npm run build`: pass with existing Vite large-chunk warning.
 - `npm run build:pages`: pass with existing Vite large-chunk warning.
 - `npm run security:audit`: pass, 0 vulnerabilities.
@@ -100,6 +133,8 @@ See `.planning/codebase/`:
 - Python Data Tools Stage 4 completed all 12 plans across 9 waves: eight paired bilingual chapters, manifest-driven JSON/PNG/Plotly results, five static teaching prompts, exact legacy redirects, course-review compatibility, and preserved Progress V1/V2 storage all passed focused/full/build/browser gates.
 - Python Data Tools Stage 4 quality consolidation completed in `69dca50`: current-chapter output loading, on-demand PNG fallbacks, structured Plotly labels, a dedicated course route view, and Course Review presentation without visible Progress state all passed 645 tests, both builds, security audit, and focused browser checks.
 - Python Data Tools Stage 5 design is complete in four ordered plans. Execution must first remove learner-visible evidence/证据 code terminology while preserving internal output IDs, then verify the full authority/hash chain, run the 36-cell bilingual responsive matrix plus six failure injections, and close with standard/Pages release gates.
+- Numerical Methods Batch 2 completed the UCI SMS TF-IDF/CSR and standardized Ames PCA teaching route with two standalone executed Notebooks, locked outputs, one shared illustration, two Manim videos, real-case lab alignment, exact route-order reconciliation, and full release/browser validation.
+- Numerical Methods Batch 3 completed the finite-difference and nonlinear-equation route through one deterministic logit-bias calibration case, a shared executed Notebook, locked step-size and solver traces, two upgraded existing labs, one shared illustration, two Manim videos, and full release/browser validation.
 - Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 - Curriculum V3.0 changed no runtime lesson, route, or Progress V1/V2 data or storage behavior.
 
@@ -703,6 +738,129 @@ See `.planning/codebase/`:
 - Python Data Tools Stage 5 design is complete: four ordered plans cover learner-visible terminology and deterministic asset regeneration, authority/request/Progress gates, a 36-cell bilingual responsive matrix plus six failure injections, and standard/Pages release closeout.
 - Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure remain paused.
 
+### Numerical Methods Batch 2 - Sparse Matrices and PCA
+
+- Completed detailed bilingual `sparse-matrices` and `pca` lessons while preserving their existing URLs, checkpoints, and Progress behavior.
+- Added a verified 5,574-row UCI SMS snapshot and deterministic TF-IDF/CSR Notebook; fixed output is `5574×1881`, `nnz=69798`, density `0.66571%`, and about `97.55x` dense/CSR storage ratio.
+- Added a standalone Ames PCA Notebook over `2927×8` standardized features; two components retain `71.7312%`, four retain `92.1506%`, and four-component reconstruction RMSE is `0.280168`.
+- Added one shared generated illustration, two 1080p Manim videos with local posters/transcripts/metadata, and upgraded the existing sparse/PCA labs to state their real-data versus schematic boundaries.
+- Reconciled the Numerical Methods route order and regenerated catalog documentation.
+- Verified both standalone Notebook reruns, both Manim asset checks, 708 tests, standard and Pages builds, a 0-vulnerability audit, and Chinese/English desktop plus 390px browser checks with zero console errors and no horizontal overflow.
+- Completion record: `docs/refactor/summaries/numerical-methods-batch-2.md`.
+
+### Numerical Methods Batch 3 - Finite Differences and Nonlinear Equations
+
+- Completed detailed bilingual `finite-difference-methods` and `nonlinear-equations` lessons while preserving their existing URLs, checkpoints, and Progress behavior.
+- Added one deterministic 12-logit calibration fixture and a shared executed Notebook that connects finite-difference derivative checks directly to solving the same residual equation.
+- Locked the complete `h=10^-1` through `10^-12` error sweep and the bisection, Newton, and secant traces, including explicit invalid-bracket and saturated-derivative failure cases.
+- Upgraded the two existing labs with the real calibration preset while retaining their earlier comparison functions and teaching modes.
+- Added one shared generated illustration and two 1080p Manim videos with local posters, transcripts, English summaries, labels, prompts, and hash metadata.
+- Verified the shared Notebook rerun, Manim asset checks, 718 tests, standard and Pages builds, a 0-vulnerability audit, and Chinese/English desktop plus 390px browser checks with zero console errors and no horizontal overflow.
+- Completion record: `docs/refactor/summaries/numerical-methods-batch-3.md`.
+
 ## Next Recommended Command
 
-Execute Python Data Tools Stage 5 Plan 01, then Plans 02–04 in dependency order, while keeping Phase 24B Homepage Focus and Phase 24C Spine progressive disclosure paused.
+Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
+
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 25 added: Numerical Methods Batch 4: Logistic Regression Optimization and Training Diagnostics
+
+## Session
+
+**Last session:** 2026-07-28T16:40:51.139Z
+**Stopped at:** Completed 26-07-PLAN.md
+**Resume file:** None
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Notes |
+|-------|------|----------|-------|
+| 25 | 01 | 1 min | 1 task, 0 files |
+| Phase 25 P03 | 23 min | 3 tasks | 8 files |
+| Phase 25 P04 | 11 min | 2 tasks | 3 files |
+| Phase 25 P06 | 43 min | 1 tasks | 6 files |
+| Phase 25 P07 | 15 min | 1 tasks | 6 files |
+| Phase 25 P08 | 13 min | 1 tasks | 6 files |
+| Phase 25 P05 | 19 min | 3 tasks | 9 files |
+| Phase 25 P10 | 15 min | 2 tasks | 7 files |
+| Phase 25 P09 | 14 min | 1 tasks | 4 files |
+| Phase 25 P11 | 8 min | 1 tasks | 9 files |
+| Phase 25 P12 | 15 min | 2 tasks | 2 files |
+| Phase 25 P13 | 14h 35m | 1 tasks | 3 files |
+| Phase 26 P01 | 18 min | 3 tasks | 5 files |
+| Phase 26 P02 | 12 min | 2 tasks | 5 files |
+| Phase 26 P03 | 15 min | 2 tasks | 5 files |
+| Phase 26 P04 | 41 min | 2 tasks | 3 files |
+| Phase 26 P05 | 26 min | 2 tasks | 19 files |
+| Phase 26 P06 | 25m | 3 tasks | 5 files |
+| Phase 26 P07 | 34m | 3 tasks | 11 files |
+
+## Decisions
+
+- [Phase 25]: Validate normalized CSV round-trip statistics at 1e-12 — CSV decimal parsing introduces only a few floating-point ulps while retaining a tolerance one thousand times stricter than the scalar output contract.
+- [Phase 25]: Record isolated-kernel and standalone-rerun proofs without temp identities — Deterministic published artifacts must prove their clean execution environment without persisting machine-specific temporary paths or kernelspec names.
+- [Phase 25]: Keep Plan 25-04 RED owners aligned with its future stable-BCE and state-machine filters — Plan 25-03 broad verification stays green while the next plan retains its intentionally failing ownership tests.
+- [Phase 25]: Keep the Banknote loader and logistic engine separated — The loader owns fetch/public-base/CSV trust boundaries while the engine accepts typed rows and remains DOM-free.
+- [Phase 25]: Return explicit invalid-config results while allowing Number.MAX_VALUE — Advanced controls are never silently clamped, and the exact D-24 safety probe remains learner-reachable.
+- [Phase 25]: Verify all accepted states across all five TypeScript runs — Per-row 1e-9 scalar and 1e-8 parameter checks catch drift hidden by terminal-only assertions.
+- [Phase 25]: Plot full accepted-state traces while binding printed scene anchors to the manifest and optimization summary — This satisfies D-28 without schematic replacement values and keeps learner-visible numbers auditable.
+- [Phase 25]: Use square/raw and circle/standardized terminal markers with written terminal semantics — The source remains understandable without color or motion and distinguishes model selection from mathematical convergence.
+- [Phase 25]: Limit the scaling comparison to conditioning and fixed-step usability — Changing feature units changes coefficient-space L2 geometry, so the paired validation BCE values cannot rank final model quality.
+- [Phase 25]: Reconstruct the rejected alpha=32 candidate from the fixed-step run and verify it shares the accepted alpha=16 direction. — The locked trace stores accepted states only, so a rejected trial must remain an audited annotation rather than a fabricated trace row.
+- [Phase 25]: Use the penalized training objective and gradient only for Armijo acceptance. — Validation is evaluated after acceptance and must not leak into sufficient-decrease decisions.
+- [Phase 25]: Encode fixed-step and Armijo traces with dashed-square versus solid-circle semantics. — The comparison must remain readable without color or motion.
+- [Phase 25]: Validate all five locked diagnostic chains at render time — The animation focuses on two controlled comparisons while the source fails closed on every Plan 25-03 diagnosis.
+- [Phase 25]: Format learner-visible scene numbers from loaded JSON — Expected constants remain drift assertions only, preserving D-28 auditability.
+- [Phase 25]: Separate best-validation and terminal meanings with text and shape — Diamond best markers, square or circle terminals, and dashed or solid paths preserve non-color fallback.
+- [Phase 25]: Keep Batch 4 as an outer enhancer for only optimization and training-diagnostics, preserving existing IDs, quizzes, checkpoints, routes, and progress state. — A narrow adapter delivers the real Banknote case without violating the progressive-migration guardrails.
+- [Phase 25]: Preset selection edits draft state; only explicit Run commits a deterministic engine result. — Separating learner intent from computation prevents reactive retraining and makes invalid or last-finite outcomes auditable.
+- [Phase 25]: Compute the five real diagnostic traces once after local loading and isolate synthetic scenarios in a labeled support section. — Selectors remain responsive without duplicating math, and real versus synthetic provenance stays honest.
+- [Phase 25]: Validate one exact three-scene Batch 4 renderer manifest before any render — Scene IDs/classes, six roles, depth-three trees, bilingual labels, output IDs, anchors, dependencies, and hashes are one fail-closed contract.
+- [Phase 25]: Hash-preserve every pre-existing non-Batch-4 media file across publication — The temporary copy, published directory, and rollback state must keep Batches 1-3 byte-identical.
+- [Phase 25]: Keep the Batch 4 renderer --check path offline and write-free — Check mode only validates local sources, dependencies, ffprobe output, metadata bytes, and hashes.
+- [Phase 25]: Share one VisualAsset object and one local public path across both target modules. — Reference-identical bindings prevent the generated pixels, bilingual transcript, non-color marker semantics, and locked numerical anchors from drifting independently.
+- [Phase 25]: Normalize the selected built-in ImageGen output once to exact 1664x936 publication dimensions. — The first generated composition met the scientific visual contract; a dimensions-only resize preserved it while satisfying exact 16:9 publication and retaining source and final integrity provenance.
+- [Phase 25]: Treat only the verified temporary-package swap as the successful publication — The failed pre-publication Manim attempt left public media and Notebook outputs byte-identical.
+- [Phase 25]: Bind all three Batch 4 videos through typed bilingual VisualAsset records — Local posters and transcripts must carry the lesson when motion is reduced or video fails.
+- [Phase 25]: Use Manim 0.20.1 stretch_to_fit_width for non-proportional label sizing — The set_width stretch keyword is unsupported in the installed renderer API.
+- [Phase 25]: Apply the exact compatible linkify-it 5.0.2 transitive security patch — A gate-changing dependency fix invalidates earlier release evidence, so every final release gate was rerun on the patched HEAD.
+- [Phase 25]: Keep the bilingual desktop/mobile and exact Number.MAX_VALUE browser acceptance pending for Plan 25-13 — Automated source and parity tests do not substitute for the declared browser interaction matrix.
+- [Phase 25]: Record the transient Math-to-Code file-worker failure without changing unrelated code — The exact two files passed 23/23 and the next complete run passed 755/755 with no code change.
+- [Phase 25]: Accept Plan 25-13 only after explicit user approval; automated gates and Playwright observations do not substitute for the blocking human checkpoint.
+- [Phase 25]: Treat missing lower-learning-rate direction as a correctness bug and require full tests, both builds, and bilingual Number.MAX_VALUE browser retesting after the fix.
+- [Phase 25]: Preserve both routes, existing checkpoints and Progress identities, standard/Pages assets, reduced-motion behavior, and video-failure teaching fallbacks.
+- [Phase 26]: Authorize only the pinned LaDe-D Jilin revision/hash and privacy-minimized eight-field derivative. — The 2026-07-28 approve-lade decision does not transfer to another version, field set, or use.
+- [Phase 26]: Preserve SECOM declared 591 versus observed 590 measurements without repair. — Padding, truncation, or imputation would silently rewrite the official raw schema.
+- [Phase 26]: Keep stable logit-domain BCE as the only canonical binary-loss path — Probability clipping remains comparison-only metadata so extreme confident errors retain the original objective.
+- [Phase 26]: Report MAE zero residual as a kink with subgradient convention 0 — A symmetric finite difference near zero is not evidence of a unique derivative and can never receive pass status.
+- [Phase 26]: Lock the loss-gradient sweep to h=10^-1 through 10^-9 with tolerance 5e-7 — The fixed range shows truncation and rounding behavior while h=1e-5 passes MSE, smooth MAE, and stable BCE.
+- [Phase 26]: Treat the exact 16 candidate paths as one package — Rejecting topic and locale subset selectors makes partial publication structurally unavailable.
+- [Phase 26]: Reuse the Numerical Methods eight-pin environment byte-for-byte — The existing audited 99-wheel cache supplies every required package, so Phase 26 adds no dependency or download path.
+- [Phase 26]: Keep isolated kernelspec names runtime-only — Stable proof IDs distinguish four executions without recording temporary machine identities.
+- [Phase 26]: Reserve public asset publication for Plan 26-05 — Plans 26-03 and 26-04 can target only the exact ignored staging transaction.
+- [Phase 26]: Preserve SECOM canonical missing values and 590 observed fields — Fold-local imputation, scaling, and OOF scores remain auxiliary teaching inputs rather than repairs to the published derivative.
+- [Phase 26]: Match TypeScript diagnostic arithmetic explicitly — Left-fold means and the shared branch sigmoid eliminate Python 3.12 aggregation and one-ULP probability drift while stable BCE stays in the logit domain.
+- [Phase 26]: Keep deterministic plots inside the audited environment — A standard-library 960x540 PNG writer supplies labels, patterns, and metadata without adding packages or widening the wheel audit.
+- [Phase 26]: Keep Plan 26-04 staging-only and indivisible — All 16 members and four execution proofs verify together; Plan 26-05 remains the only public publication boundary.
+- [Phase 26]: Plan 26-05: Publish only the byte-identical Plan 26-04 staging package: exactly 16 members totaling 22,011,681 bytes.
+- [Phase 26]: Plan 26-05: Treat datasets/loss-functions and notebooks/loss-functions as one lock-scoped transaction with two-group rollback.
+- [Phase 26]: Plan 26-05: Preserve the frozen Plan 26-04 candidate generator hash while evolving publication code independently.
+- [Phase 26]: Plan 26-05: Rerun each public Notebook in its own external temporary package and fresh network-blocked kernel using only the pinned offline wheelhouse.
+- [Phase 26]: Keep loss asset descriptors and chapter bindings module-local instead of extending the global StorySection contract. — Avoid widening the global lesson schema for one module.
+- [Phase 26]: Treat published Notebook outputs as the numerical authority; lesson prose binds visible values through typed output IDs. — Prevent copied numerical values from drifting away from published artifacts.
+- [Phase 26]: Limit Phase 26 gradient verification to dL/dyhat and dL/dz, with parameter training handed to Phase 27 and Phase 29. — Preserve the approved curriculum boundary while completing the output-gradient loop.
+- [Phase 26]: Place one chapter-keyed locked-results surface inside each StoryScroller chapter and render consolidated downloads once after the unchanged checkpoint. — Keep formula, interaction, real output, and code in one learning loop.
+- [Phase 26]: Keep fixed extreme BCE probes read-only while learner-controlled loss, row, and h choices remain bounded and finite. — Preserve stability teaching without exposing arbitrary extreme inputs.
+- [Phase 26]: Use validated local summary rows when available and label built-in teaching fallbacks explicitly. — Missing local summaries must not blank formulas or interactions.
+
+## Operator Next Steps
+
+- Execute Phase 26 with `/gsd-execute-phase 26`.
+- Review the approved plan set under `.planning/phases/26-loss-functions-rebuild/`.
+
+### Blockers
+
+- None.

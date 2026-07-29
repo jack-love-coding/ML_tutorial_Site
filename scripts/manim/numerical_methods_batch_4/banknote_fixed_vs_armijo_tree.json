@@ -1,0 +1,149 @@
+{
+  "pipeline": [
+    "ConceptAnalyzer",
+    "PrerequisiteExplorer",
+    "MathematicalEnricher",
+    "VisualDesigner",
+    "NarrativeComposer",
+    "CodeGenerator"
+  ],
+  "sceneId": "banknote-fixed-vs-armijo",
+  "sceneClass": "BanknoteFixedVsArmijoScene",
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "root": "FA0",
+  "maxDepth": 3,
+  "durationSeconds": 72,
+  "storyboardCuts": [0, 8, 18, 30, 43, 55, 65, 72],
+  "posterSecond": 68,
+  "outputDependencies": [
+    {
+      "path": "public/notebooks/numerical-methods/batch-4-outputs/optimization-summary.json",
+      "outputId": "banknote-logistic-optimization-summary",
+      "role": "Exact Armijo rejection/acceptance flags, constants, run summaries, and terminal meanings",
+      "runIds": ["standardized-too-large", "standardized-armijo"],
+      "requiredAnchors": [
+        "armijoCheck.initialTrialStep",
+        "armijoCheck.initialTrialAccepted",
+        "armijoCheck.firstAcceptedStep",
+        "armijoCheck.firstBacktrackCount",
+        "armijoCheck.allAcceptedRowsSatisfySufficientDecrease"
+      ]
+    },
+    {
+      "path": "public/notebooks/numerical-methods/batch-4-outputs/banknote-training-traces.json",
+      "role": "Shared iteration-0 state, exact alpha-32 and alpha-16 candidates, full accepted-state paths, and terminals",
+      "runIds": ["standardized-too-large", "standardized-armijo"],
+      "integrityLinks": ["contractVersion", "datasetSha256", "constantsSha256"]
+    }
+  ],
+  "semanticBoundaries": {
+    "lineSearchQuantity": "penalized training objective only",
+    "validationRole": "updated only after an accepted step; never participates in Armijo acceptance",
+    "traceRows": "iteration 0 and accepted finite states only; rejected trials are not rows",
+    "scope": "locked fixed-versus-Armijo behavior, not optimizer-family or final-model ranking"
+  },
+  "fallbackReferences": {
+    "reducedMotion": "The fully composed 65–72 second final frame contains the 32 reject, 16 accept, one-backtrack, terminal, and training-objective-only meanings.",
+    "videoFailure": [
+      "docs/curriculum-v3/numerical-methods/manim/banknote-fixed-vs-armijo-transcript.zh-CN.md",
+      "docs/curriculum-v3/numerical-methods/manim/banknote-fixed-vs-armijo-summary.en.md",
+      "docs/curriculum-v3/numerical-methods/manim/banknote-fixed-vs-armijo-labels.json"
+    ],
+    "nonColor": "Fixed uses a dashed path and square marker; Armijo uses a solid path and circle marker; rejection/acceptance and terminal meanings are written."
+  },
+  "topologicalOrder": [
+    "F_OBJECTIVE",
+    "F_DIRECTION",
+    "F_TERMINALS",
+    "FA1",
+    "FA2",
+    "FA3",
+    "FA4",
+    "FA0"
+  ],
+  "nodes": [
+    {
+      "id": "F_OBJECTIVE",
+      "concept": "惩罚训练目标由训练 BCE 与权重 L2 组成，验证 BCE 不属于线搜索目标",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": [
+        "training BCE",
+        "coefficient L2",
+        "intercept excluded",
+        "no validation leakage"
+      ]
+    },
+    {
+      "id": "F_DIRECTION",
+      "concept": "负梯度方向与步长共同决定候选参数",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["d=-g", "candidate theta + alpha d", "gradient norm"]
+    },
+    {
+      "id": "F_TERMINALS",
+      "concept": "验证耐心停止是模型选择语义，梯度范数收敛是数学收敛语义",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["model-selection", "mathematical-convergence", "typed terminal"]
+    },
+    {
+      "id": "FA1",
+      "concept": "固定步长直接采用候选；Armijo 用惩罚训练目标检查充分下降",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_OBJECTIVE", "F_DIRECTION"],
+      "foundationRefs": ["fixed alpha", "Armijo inequality", "c=1e-4"]
+    },
+    {
+      "id": "FA2",
+      "concept": "共享的 alpha 32 首个候选使目标上升，因此 Armijo 拒绝而固定法采用",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["FA1"],
+      "foundationRefs": [
+        "standardized-too-large iteration 1",
+        "initialTrialAccepted=false",
+        "rejected trial not traced"
+      ]
+    },
+    {
+      "id": "FA3",
+      "concept": "rho=0.5 产生一次回溯，alpha 16 满足充分下降并写入迭代 1",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["FA2"],
+      "foundationRefs": ["firstAcceptedStep=16", "firstBacktrackCount=1", "accepted finite state"]
+    },
+    {
+      "id": "FA4",
+      "concept": "完整已接受轨迹与类型化终点限定比较结论",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["FA3", "F_TERMINALS"],
+      "foundationRefs": [
+        "fixed validation-patience at 73",
+        "Armijo gradient-norm at 48",
+        "all accepted rows satisfy sufficient decrease"
+      ]
+    },
+    {
+      "id": "FA0",
+      "concept": "在同一锁定起点上，Armijo 先检查惩罚训练目标的充分下降，再采用候选步长",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["FA2", "FA3", "FA4"],
+      "foundationRefs": [
+        "banknote-fixed-vs-armijo",
+        "32 reject",
+        "16 accept",
+        "one backtrack",
+        "training objective only"
+      ]
+    }
+  ]
+}

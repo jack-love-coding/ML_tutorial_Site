@@ -1,0 +1,49 @@
+{
+  "contractVersion": "loss-functions-phase-26-candidate-environment-v1",
+  "execution": {
+    "allowErrors": false,
+    "freshKernelJobs": 4,
+    "kernelNamePublished": false,
+    "networkAccess": false,
+    "temporaryPathsPublished": false
+  },
+  "packages": {
+    "ipykernel": "7.3.0",
+    "jupyterlab": "4.6.1",
+    "nbclient": "0.11.0",
+    "nbformat": "5.10.4",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "scikit-learn": "1.9.0",
+    "scipy": "1.17.1"
+  },
+  "platform": {
+    "machine": "arm64",
+    "pythonPlatform": "macosx-11.0-arm64",
+    "system": "Darwin"
+  },
+  "python": {
+    "cacheTag": "cpython-312",
+    "implementation": "CPython",
+    "version": "3.12.13"
+  },
+  "requirements": {
+    "path": "notebooks/loss-functions/requirements.txt",
+    "pins": {
+      "ipykernel": "7.3.0",
+      "jupyterlab": "4.6.1",
+      "nbclient": "0.11.0",
+      "nbformat": "5.10.4",
+      "numpy": "2.4.6",
+      "pandas": "3.0.3",
+      "scikit-learn": "1.9.0",
+      "scipy": "1.17.1"
+    },
+    "sha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530"
+  },
+  "wheelCache": {
+    "manifestSha256": "95ca3095110658363933ecfa7c64dc5935e03c09119a612603c38fec30bc78e1",
+    "sourceContractVersion": "numerical-methods-batch-4-v1",
+    "wheelCount": 99
+  }
+}

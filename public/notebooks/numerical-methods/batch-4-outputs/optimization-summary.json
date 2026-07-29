@@ -1,0 +1,572 @@
+{
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "outputId": "banknote-logistic-optimization-summary",
+  "datasetSha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+  "constantsSha256": "f759186d0be526e84c80f6930d91981af0d303e8138edcbae4f65e4f3d30f041",
+  "loader": {
+    "library": "pandas",
+    "call": "pandas.read_csv",
+    "datasetPublicPath": "/datasets/numerical-methods/banknote-authentication.csv",
+    "datasetSha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+    "schema": [
+      "banknote_id",
+      "variance",
+      "skewness",
+      "curtosis",
+      "entropy",
+      "class",
+      "split"
+    ],
+    "schemaValidatedBeforeNumpy": true,
+    "rowCount": 1372,
+    "splitCounts": {
+      "train": 960,
+      "validation": 206,
+      "test": 206
+    }
+  },
+  "preprocessing": {
+    "fitSplit": "train",
+    "ddof": 0,
+    "features": [
+      "variance",
+      "skewness",
+      "curtosis",
+      "entropy"
+    ],
+    "trainMeans": {
+      "variance": 0.46886307781250003,
+      "skewness": 1.9775978456249999,
+      "curtosis": 1.32023968665625,
+      "entropy": -1.1418097847916668
+    },
+    "trainScales": {
+      "variance": 2.8049705227712796,
+      "skewness": 5.81400805653475,
+      "curtosis": 4.234924404032209,
+      "entropy": 2.072658196015603
+    }
+  },
+  "constants": {
+    "contractVersion": "numerical-methods-batch-4-v1",
+    "parameterOrder": [
+      "variance",
+      "skewness",
+      "curtosis",
+      "entropy",
+      "intercept"
+    ],
+    "l2": 0.001,
+    "maxIterations": 500,
+    "gradientTolerance": 1e-05,
+    "relativeLossTolerance": 1e-10,
+    "parameterStepTolerance": 1e-07,
+    "validationMinDelta": 1e-07,
+    "validationPatience": 60,
+    "armijo": {
+      "initialStep": 32.0,
+      "c": 0.0001,
+      "rho": 0.5,
+      "maxBacktracks": 30,
+      "minimumStep": 1e-12
+    },
+    "runs": {
+      "raw-fixed": {
+        "featureSpace": "raw",
+        "method": "fixed",
+        "step": 4.0
+      },
+      "standardized-too-small": {
+        "featureSpace": "standardized",
+        "method": "fixed",
+        "step": 0.02
+      },
+      "standardized-stable": {
+        "featureSpace": "standardized",
+        "method": "fixed",
+        "step": 4.0
+      },
+      "standardized-too-large": {
+        "featureSpace": "standardized",
+        "method": "fixed",
+        "step": 32.0
+      },
+      "standardized-armijo": {
+        "featureSpace": "standardized",
+        "method": "armijo",
+        "initialStep": 32.0
+      }
+    },
+    "finalThreshold": 0.5,
+    "baselineC": 1.0416666666666667
+  },
+  "extremeLogitCheck": {
+    "probeLogits": [
+      1000.0,
+      -1000.0
+    ],
+    "naiveFinite": false,
+    "naiveOutcomeKinds": [
+      "positive-infinity",
+      "positive-infinity",
+      "not-a-number",
+      "not-a-number"
+    ],
+    "stableWrongPositive": 1000.0,
+    "stableWrongNegative": 1000.0,
+    "stableCorrectPositive": 0.0,
+    "stableCorrectNegative": 0.0,
+    "scipyExpitAgreement": true
+  },
+  "gradientCheck": {
+    "probeParameters": [
+      0.2,
+      -0.1,
+      0.05,
+      0.15,
+      -0.3
+    ],
+    "step": 1e-06,
+    "analytic": [
+      0.4074267941557056,
+      0.1938586342753076,
+      -0.05962056201510581,
+      0.0685809980537723,
+      -0.01710231228560142
+    ],
+    "centeredDifference": [
+      0.4074267941911458,
+      0.19385863425647187,
+      -0.05962056193187237,
+      0.0685809980471852,
+      -0.0171023123440861
+    ],
+    "absoluteErrors": [
+      3.544020632517686e-11,
+      1.8835738524458634e-11,
+      8.32334340339358e-11,
+      6.587091982979132e-12,
+      5.84846823747931e-11
+    ],
+    "maxAbsoluteError": 8.32334340339358e-11,
+    "interceptExcludedFromL2": true
+  },
+  "armijoCheck": {
+    "initialTrialStep": 32.0,
+    "initialTrialAccepted": false,
+    "firstAcceptedStep": 16.0,
+    "firstBacktrackCount": 1,
+    "allAcceptedRowsSatisfySufficientDecrease": true
+  },
+  "terminalFixtures": [
+    {
+      "fixtureId": "priority-gradient",
+      "terminal": {
+        "kind": "mathematical-convergence",
+        "reason": "gradient-norm",
+        "iteration": 3,
+        "messageKey": "batch4.terminal.gradient-norm"
+      }
+    },
+    {
+      "fixtureId": "priority-loss-step",
+      "terminal": {
+        "kind": "mathematical-convergence",
+        "reason": "loss-and-step",
+        "iteration": 3,
+        "messageKey": "batch4.terminal.loss-and-step"
+      }
+    },
+    {
+      "fixtureId": "priority-validation",
+      "terminal": {
+        "kind": "model-selection",
+        "reason": "validation-patience",
+        "iteration": 60,
+        "messageKey": "batch4.terminal.validation-patience"
+      }
+    },
+    {
+      "fixtureId": "priority-max",
+      "terminal": {
+        "kind": "safety",
+        "reason": "max-iterations",
+        "iteration": 5,
+        "messageKey": "batch4.terminal.max-iterations"
+      }
+    },
+    {
+      "fixtureId": "non-finite-probe",
+      "terminal": {
+        "kind": "safety",
+        "reason": "non-finite",
+        "iteration": 0,
+        "messageKey": "batch4.terminal.non-finite",
+        "attemptedIteration": 1
+      },
+      "lastFinite": {
+        "iteration": 0,
+        "trainBce": 0.6931471805599453,
+        "validationBce": 0.6931471805599453,
+        "objective": 0.6931471805599453,
+        "gradientNorm": 0.44123397955093496,
+        "parameterStepNorm": 0.0,
+        "acceptedStepSize": 0.0,
+        "backtrackCount": 0,
+        "relativeObjectiveChange": null,
+        "isBestValidation": true,
+        "parameters": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "fixtureId": "line-search-probe",
+      "terminal": {
+        "kind": "safety",
+        "reason": "line-search-failed",
+        "iteration": 0,
+        "messageKey": "batch4.terminal.line-search-failed",
+        "attemptedIteration": 1
+      },
+      "lastFinite": {
+        "iteration": 0,
+        "trainBce": 0.6931471805599453,
+        "validationBce": 0.6931471805599453,
+        "objective": 0.6931471805599453,
+        "gradientNorm": 0.44123397955093496,
+        "parameterStepNorm": 0.0,
+        "acceptedStepSize": 0.0,
+        "backtrackCount": 0,
+        "relativeObjectiveChange": null,
+        "isBestValidation": true,
+        "parameters": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    }
+  ],
+  "runOrder": [
+    "raw-fixed",
+    "standardized-too-small",
+    "standardized-stable",
+    "standardized-too-large",
+    "standardized-armijo"
+  ],
+  "runs": {
+    "raw-fixed": {
+      "runId": "raw-fixed",
+      "featureSpace": "raw",
+      "method": "fixed",
+      "config": {
+        "l2": 0.001,
+        "step": 4.0,
+        "maxIterations": 500,
+        "gradientTolerance": 1e-05,
+        "relativeLossTolerance": 1e-10,
+        "parameterStepTolerance": 1e-07,
+        "validationMinDelta": 1e-07,
+        "validationPatience": 60,
+        "armijo": null
+      },
+      "start": {
+        "iteration": 0,
+        "trainBce": 0.6931471805599453,
+        "validationBce": 0.6931471805599453,
+        "objective": 0.6931471805599453,
+        "gradientNorm": 1.8145715074101576,
+        "parameterStepNorm": 0.0,
+        "acceptedStepSize": 0.0,
+        "backtrackCount": 0,
+        "relativeObjectiveChange": null,
+        "isBestValidation": true,
+        "parameters": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "firstBacktrack": null,
+      "bestValidation": {
+        "iteration": 52,
+        "bce": 0.031908920166439064,
+        "parameters": [
+          -3.7565008716566135,
+          -2.1847118186821044,
+          -2.6992527811323908,
+          -0.40794560530296836,
+          3.451773594305243
+        ]
+      },
+      "terminal": {
+        "kind": "model-selection",
+        "reason": "validation-patience",
+        "iteration": 112,
+        "messageKey": "batch4.terminal.validation-patience"
+      },
+      "eligibleForFinalSelection": false,
+      "traceRowCount": 113
+    },
+    "standardized-too-small": {
+      "runId": "standardized-too-small",
+      "featureSpace": "standardized",
+      "method": "fixed",
+      "config": {
+        "l2": 0.001,
+        "step": 0.02,
+        "maxIterations": 500,
+        "gradientTolerance": 1e-05,
+        "relativeLossTolerance": 1e-10,
+        "parameterStepTolerance": 1e-07,
+        "validationMinDelta": 1e-07,
+        "validationPatience": 60,
+        "armijo": null
+      },
+      "start": {
+        "iteration": 0,
+        "trainBce": 0.6931471805599453,
+        "validationBce": 0.6931471805599453,
+        "objective": 0.6931471805599453,
+        "gradientNorm": 0.44123397955093496,
+        "parameterStepNorm": 0.0,
+        "acceptedStepSize": 0.0,
+        "backtrackCount": 0,
+        "relativeObjectiveChange": null,
+        "isBestValidation": true,
+        "parameters": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "firstBacktrack": null,
+      "bestValidation": {
+        "iteration": 500,
+        "bce": 0.288343568660986,
+        "parameters": [
+          -1.5111706417920237,
+          -0.9283558437522393,
+          -0.4132190176984097,
+          -0.0064166850227935154,
+          -0.246276000428815
+        ]
+      },
+      "terminal": {
+        "kind": "safety",
+        "reason": "max-iterations",
+        "iteration": 500,
+        "messageKey": "batch4.terminal.max-iterations"
+      },
+      "eligibleForFinalSelection": false,
+      "traceRowCount": 501
+    },
+    "standardized-stable": {
+      "runId": "standardized-stable",
+      "featureSpace": "standardized",
+      "method": "fixed",
+      "config": {
+        "l2": 0.001,
+        "step": 4.0,
+        "maxIterations": 500,
+        "gradientTolerance": 1e-05,
+        "relativeLossTolerance": 1e-10,
+        "parameterStepTolerance": 1e-07,
+        "validationMinDelta": 1e-07,
+        "validationPatience": 60,
+        "armijo": null
+      },
+      "start": {
+        "iteration": 0,
+        "trainBce": 0.6931471805599453,
+        "validationBce": 0.6931471805599453,
+        "objective": 0.6931471805599453,
+        "gradientNorm": 0.44123397955093496,
+        "parameterStepNorm": 0.0,
+        "acceptedStepSize": 0.0,
+        "backtrackCount": 0,
+        "relativeObjectiveChange": null,
+        "isBestValidation": true,
+        "parameters": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "firstBacktrack": null,
+      "bestValidation": {
+        "iteration": 484,
+        "bce": 0.06825592665802883,
+        "parameters": [
+          -4.598018099412159,
+          -4.558107247901782,
+          -4.1802694961514195,
+          0.2982798546936273,
+          -1.3454229880614923
+        ]
+      },
+      "terminal": {
+        "kind": "mathematical-convergence",
+        "reason": "gradient-norm",
+        "iteration": 484,
+        "messageKey": "batch4.terminal.gradient-norm"
+      },
+      "eligibleForFinalSelection": true,
+      "traceRowCount": 485
+    },
+    "standardized-too-large": {
+      "runId": "standardized-too-large",
+      "featureSpace": "standardized",
+      "method": "fixed",
+      "config": {
+        "l2": 0.001,
+        "step": 32.0,
+        "maxIterations": 500,
+        "gradientTolerance": 1e-05,
+        "relativeLossTolerance": 1e-10,
+        "parameterStepTolerance": 1e-07,
+        "validationMinDelta": 1e-07,
+        "validationPatience": 60,
+        "armijo": null
+      },
+      "start": {
+        "iteration": 0,
+        "trainBce": 0.6931471805599453,
+        "validationBce": 0.6931471805599453,
+        "objective": 0.6931471805599453,
+        "gradientNorm": 0.44123397955093496,
+        "parameterStepNorm": 0.0,
+        "acceptedStepSize": 0.0,
+        "backtrackCount": 0,
+        "relativeObjectiveChange": null,
+        "isBestValidation": true,
+        "parameters": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "firstBacktrack": null,
+      "bestValidation": {
+        "iteration": 13,
+        "bce": 0.05885315617651155,
+        "parameters": [
+          -5.778759191678211,
+          -5.6360405165665854,
+          -5.269822754754,
+          0.38927533908658235,
+          -1.9589386787805683
+        ]
+      },
+      "terminal": {
+        "kind": "model-selection",
+        "reason": "validation-patience",
+        "iteration": 73,
+        "messageKey": "batch4.terminal.validation-patience"
+      },
+      "eligibleForFinalSelection": false,
+      "traceRowCount": 74
+    },
+    "standardized-armijo": {
+      "runId": "standardized-armijo",
+      "featureSpace": "standardized",
+      "method": "armijo",
+      "config": {
+        "l2": 0.001,
+        "step": 32.0,
+        "maxIterations": 500,
+        "gradientTolerance": 1e-05,
+        "relativeLossTolerance": 1e-10,
+        "parameterStepTolerance": 1e-07,
+        "validationMinDelta": 1e-07,
+        "validationPatience": 60,
+        "armijo": {
+          "initialStep": 32.0,
+          "c": 0.0001,
+          "rho": 0.5,
+          "maxBacktracks": 30,
+          "minimumStep": 1e-12
+        }
+      },
+      "start": {
+        "iteration": 0,
+        "trainBce": 0.6931471805599453,
+        "validationBce": 0.6931471805599453,
+        "objective": 0.6931471805599453,
+        "gradientNorm": 0.44123397955093496,
+        "parameterStepNorm": 0.0,
+        "acceptedStepSize": 0.0,
+        "backtrackCount": 0,
+        "relativeObjectiveChange": null,
+        "isBestValidation": true,
+        "parameters": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "firstBacktrack": {
+        "iteration": 1,
+        "trainBce": 0.5000886180367202,
+        "validationBce": 0.6887655259477389,
+        "objective": 0.5246184695107567,
+        "gradientNorm": 0.17298461905862944,
+        "parameterStepNorm": 7.059743672814959,
+        "acceptedStepSize": 16.0,
+        "backtrackCount": 1,
+        "relativeObjectiveChange": 0.16852871104918854,
+        "isBestValidation": true,
+        "parameters": [
+          -5.7887471580473955,
+          -3.7123003428083714,
+          1.3276757686495864,
+          -0.07881945443136111,
+          -0.8833333333333333
+        ]
+      },
+      "bestValidation": {
+        "iteration": 48,
+        "bce": 0.06824699289297452,
+        "parameters": [
+          -4.598465395266233,
+          -4.558763355705237,
+          -4.180883656385103,
+          0.2982393232531427,
+          -1.3457375309610977
+        ]
+      },
+      "terminal": {
+        "kind": "mathematical-convergence",
+        "reason": "gradient-norm",
+        "iteration": 48,
+        "messageKey": "batch4.terminal.gradient-norm"
+      },
+      "eligibleForFinalSelection": true,
+      "traceRowCount": 49
+    }
+  },
+  "finalSelection": {
+    "rule": "mathematical-convergence eligibility, then lowest best validation BCE",
+    "selectedRunId": "standardized-armijo",
+    "selectedIteration": 48,
+    "transientUnstableMinimumCannotWin": true
+  },
+  "ownership": "optimization owns the five-run numerical comparison"
+}

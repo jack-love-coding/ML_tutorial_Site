@@ -1,0 +1,72 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "root": "FD0",
+  "maxDepth": 3,
+  "topologicalOrder": ["F_SIGMOID", "F_SLOPE", "F_FLOAT", "FD1", "FD2", "FD3", "FD4", "FD0"],
+  "nodes": [
+    {
+      "id": "F_SIGMOID",
+      "concept": "logit、加性偏置、sigmoid 与平均概率",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["logit", "sigmoid", "mean probability", "scalar bias"]
+    },
+    {
+      "id": "F_SLOPE",
+      "concept": "割线斜率在局部逼近切线斜率",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["secant slope", "tangent slope", "derivative"]
+    },
+    {
+      "id": "F_FLOAT",
+      "concept": "浮点数有效位、相近数相减与除以小步长",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["floating-point precision", "cancellation", "machine epsilon"]
+    },
+    {
+      "id": "FD1",
+      "concept": "固定 12 个 logit 定义单调偏置残差 F(b)",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_SIGMOID"],
+      "foundationRefs": ["target rate 0.62", "probe b=0.35", "signed residual"]
+    },
+    {
+      "id": "FD2",
+      "concept": "前向差分与中心差分使用不同采样点和截断阶",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["FD1", "F_SLOPE"],
+      "foundationRefs": ["forward stencil", "central stencil", "O(h)", "O(h^2)"]
+    },
+    {
+      "id": "FD3",
+      "concept": "步长扫描形成截断误差与浮点误差共同决定的 U 形曲线",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["FD2", "F_FLOAT"],
+      "foundationRefs": ["step sweep", "stable window", "error reversal"]
+    },
+    {
+      "id": "FD4",
+      "concept": "用解析 sigmoid 导数核对差分近似但不把单点对齐外推为普遍正确",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["FD1", "FD3"],
+      "foundationRefs": ["analytic derivative", "independent check", "scope boundary"]
+    },
+    {
+      "id": "FD0",
+      "concept": "在 logit 偏置残差上选择有限差分步长并解释误差来源",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["FD3", "FD4"],
+      "foundationRefs": ["b=0.35", "central h=1e-5", "finite difference to root finding"]
+    }
+  ]
+}

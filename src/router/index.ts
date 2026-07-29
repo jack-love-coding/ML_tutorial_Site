@@ -21,8 +21,20 @@ function redirectCanonicalLearnRoute(to: RouteLocationNormalized) {
   const canonicalRoute = resolveCanonicalLearnRoute(moduleId, lessonId)
   const redirectRoute = resolveCanonicalLearnRedirect(moduleId, lessonId)
 
-  if (redirectRoute && redirectRoute !== to.path) return { path: redirectRoute }
-  if (!canonicalRoute) return { path: '/' }
+  if (!canonicalRoute) return { path: '/', replace: true }
+  if (
+    redirectRoute
+    && (
+      redirectRoute.path !== to.path
+      || (redirectRoute.hash ?? '') !== to.hash
+    )
+  ) {
+    return {
+      ...redirectRoute,
+      query: to.query,
+      replace: true,
+    }
+  }
   return true
 }
 

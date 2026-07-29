@@ -84,13 +84,59 @@ test('milestone audit keeps current curriculum modules reachable through the man
       assert.equal(resolveCanonicalLearnRedirect(moduleDefinition.id, manifestEntry.firstLessonId), undefined)
     } else {
       assert.equal(resolvedRoute, moduleDefinition.route)
-      assert.equal(resolveCanonicalLearnRedirect(moduleDefinition.id, manifestEntry.firstLessonId), moduleDefinition.route)
+      assert.deepEqual(
+        resolveCanonicalLearnRedirect(moduleDefinition.id, manifestEntry.firstLessonId),
+        { path: moduleDefinition.route },
+      )
     }
   }
 
   for (const moduleId of [...coreLearningPathModuleIds, ...projectPracticeModuleIds]) {
     assert.ok(curriculumRouteManifestById.has(moduleId), `${moduleId} should stay in the route manifest`)
   }
+})
+
+test('milestone audit preserves Math and Data lesson identity through legacy runtime routes', () => {
+  const optimizationModule = curriculumCatalog.find(({ id }) => id === 'optimization')
+  const numericalDataModule = curriculumCatalog.find(({ id }) => id === 'numerical-data')
+
+  assert.ok(
+    optimizationModule?.lessons.some(({ id }) => id === 'v3-banknote-optimization-primary-lab'),
+    'the Math audit target must be a real optimization lesson',
+  )
+  assert.ok(
+    numericalDataModule?.lessons.some(({ id }) => id === 'table-to-vector'),
+    'the Data audit target must be a real numerical-data lesson',
+  )
+
+  assert.equal(
+    resolveCanonicalLearnRoute('optimization', 'v3-banknote-optimization-primary-lab'),
+    '/math-lab/modules/optimization#v3-banknote-optimization-primary-lab',
+  )
+  assert.deepEqual(
+    resolveCanonicalLearnRedirect('optimization', 'v3-banknote-optimization-primary-lab'),
+    {
+      path: '/math-lab/modules/optimization',
+      hash: '#v3-banknote-optimization-primary-lab',
+    },
+  )
+
+  assert.equal(
+    resolveCanonicalLearnRoute('numerical-data', 'table-to-vector'),
+    '/data-lab/modules/numerical-data#table-to-vector',
+  )
+  assert.deepEqual(
+    resolveCanonicalLearnRedirect('numerical-data', 'table-to-vector'),
+    {
+      path: '/data-lab/modules/numerical-data',
+      hash: '#table-to-vector',
+    },
+  )
+
+  assert.equal(
+    resolveCanonicalLearnRoute('numerical-data', 'invalid lesson'),
+    '/data-lab/modules/numerical-data',
+  )
 })
 
 test('milestone audit preserves legacy URL handlers alongside canonical routes', () => {
@@ -254,7 +300,10 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.ok(existsSync(new URL('docs/refactor/audits/phase-15-curriculum-architecture-teaching-route-audit.md', root)))
   assert.ok(existsSync(new URL('docs/refactor/audits/phase-18-optimizer-cnn-handoff-audit.md', root)))
 
-  const roadmapSource = read('.planning/ROADMAP.md')
+  const roadmapSource = [
+    read('.planning/ROADMAP.md'),
+    read('.planning/milestones/v1.0-ROADMAP.md'),
+  ].join('\n')
   assert.match(roadmapSource, /Phase 21: Attention Q\/K\/V Softmax Task/)
   assert.match(roadmapSource, /AttentionQkvChallengeLab/)
   assert.match(roadmapSource, /row-wise softmax/)
@@ -267,8 +316,14 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.match(roadmapSource, /V3\.1 Minimum Mathematical Foundation/)
 
   const stateSource = read('.planning/STATE.md')
+  const currentPhaseMatch = stateSource.match(/^current_phase: (\d+)$/m)
+  const currentFocusMatch = stateSource.match(/^\*\*Current focus:\*\* Phase (\d+) — .+$/m)
   assert.match(stateSource, /Phase 24A navigation and Topic Library implementation completed/)
-  assert.match(stateSource, /Curriculum V3\.0 blueprint and audit are complete/)
+  assert.ok(currentPhaseMatch, 'planning state should expose the current phase')
+  assert.ok(currentFocusMatch, 'planning state should expose the current curriculum focus')
+  assert.ok(Number(currentPhaseMatch[1]) >= 25, 'planning state must not regress before completed Phase 25')
+  assert.equal(currentFocusMatch[1], currentPhaseMatch[1])
+  assert.match(stateSource, /^status: (?:ready_to_execute|executing|verifying|completed)$/m)
   assert.match(stateSource, /classification audit of all 53 current modules/)
   assert.match(stateSource, /V3\.1 AI Overview rebuild and Math-to-Code pilot are completed slices/)
   assert.match(stateSource, /Python Data Tools Stage 1 is complete/)
@@ -312,6 +367,8 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.match(stateSource, /CategoricalVocabularyTaskLab/)
   assert.match(stateSource, /DataQualityDecisionRecordLab/)
   assert.match(stateSource, /project readiness is useful but should wait/)
-  assert.match(stateSource, /Current focus:\*\* Execute Python Data Tools Stage 5 Plans 01–04 in order/)
   assert.match(stateSource, /Stage 5 design is complete in four ordered plans/)
+  assert.match(roadmapSource, /Numerical Methods Batches 1–4 are completed slices/)
+  assert.match(roadmapSource, /Numerical Methods Batch 4 Phase 25[^\n]*13 plans[^\n]*8 waves/)
+  assert.match(roadmapSource, /\*\*Wave 8\*\* \*\(blocked on Wave 7 completion\)\*/)
 })

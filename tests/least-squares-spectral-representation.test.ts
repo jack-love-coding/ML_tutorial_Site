@@ -107,7 +107,7 @@ test('runtime enhancements keep long lessons while removing review-question bank
     'least-squares-fitting': 70,
     'eigenvalues-eigenvectors': 65,
     svd: 65,
-    pca: 60,
+    pca: 75,
   } as const
 
   for (const chapterId of chapterIds) {
@@ -133,7 +133,7 @@ test('runtime enhancements keep long lessons while removing review-question bank
     }
 
     const newSections = moduleDefinition.sections.filter(({ id }) => id.startsWith('v3-'))
-    assert.equal(newSections.length, 3)
+    assert.equal(newSections.length, chapterId === 'pca' ? 7 : 3)
     assert.doesNotMatch(
       newSections.map(({ title, content }) => `${title['zh-CN']}\n${content['zh-CN']}`).join('\n'),
       /证据/,

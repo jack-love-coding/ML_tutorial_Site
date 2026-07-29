@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "batchId": "numerical-methods-batch-3",
+  "render": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "videoCodec": "h264",
+    "localeInVideo": "zh-CN",
+    "command": "python scripts/manim/render_numerical_methods_batch_3.py",
+    "checkCommand": "python scripts/manim/render_numerical_methods_batch_3.py --check",
+    "publication": "validated temporary copy followed by atomic numerical-method directory replacement"
+  },
+  "notebookOutputs": [
+    "/notebooks/numerical-methods/batch-3-outputs/finite-difference-calibration-summary.json",
+    "/notebooks/numerical-methods/batch-3-outputs/nonlinear-calibration-summary.json"
+  ],
+  "scenes": [
+    {
+      "id": "logit-calibration-finite-difference",
+      "className": "CalibrationFiniteDifferenceScene",
+      "durationSeconds": 78,
+      "storyboardCuts": [
+        0,
+        8,
+        19,
+        32,
+        47,
+        60,
+        70,
+        78
+      ],
+      "posterSecond": 64,
+      "outputId": "finite-difference-calibration-summary",
+      "source": "scripts/manim/numerical_methods_batch_3/calibration_finite_difference.py",
+      "tree": "scripts/manim/numerical_methods_batch_3/calibration_finite_difference_tree.json",
+      "prompt": "scripts/manim/numerical_methods_batch_3/calibration_finite_difference_prompt.md",
+      "transcript": "docs/curriculum-v3/numerical-methods/manim/logit-calibration-finite-difference-transcript.zh-CN.md",
+      "englishSummary": "docs/curriculum-v3/numerical-methods/manim/logit-calibration-finite-difference-summary.en.md",
+      "labels": "docs/curriculum-v3/numerical-methods/manim/logit-calibration-finite-difference-labels.json",
+      "mp4": "/manim/numerical-methods/logit-calibration-finite-difference.mp4",
+      "poster": "/manim/numerical-methods/logit-calibration-finite-difference-poster.png"
+    },
+    {
+      "id": "logit-calibration-root-finding",
+      "className": "CalibrationRootFindingScene",
+      "durationSeconds": 80,
+      "storyboardCuts": [
+        0,
+        9,
+        20,
+        34,
+        48,
+        61,
+        71,
+        77,
+        80
+      ],
+      "posterSecond": 65,
+      "outputId": "nonlinear-calibration-summary",
+      "source": "scripts/manim/numerical_methods_batch_3/calibration_root_finding.py",
+      "tree": "scripts/manim/numerical_methods_batch_3/calibration_root_finding_tree.json",
+      "prompt": "scripts/manim/numerical_methods_batch_3/calibration_root_finding_prompt.md",
+      "transcript": "docs/curriculum-v3/numerical-methods/manim/logit-calibration-root-finding-transcript.zh-CN.md",
+      "englishSummary": "docs/curriculum-v3/numerical-methods/manim/logit-calibration-root-finding-summary.en.md",
+      "labels": "docs/curriculum-v3/numerical-methods/manim/logit-calibration-root-finding-labels.json",
+      "mp4": "/manim/numerical-methods/logit-calibration-root-finding.mp4",
+      "poster": "/manim/numerical-methods/logit-calibration-root-finding-poster.png"
+    }
+  ],
+  "integrity": {
+    "scripts/manim/render_numerical_methods_batch_3.py": "0efd8ce0d687702e1e726f44a4d7f66035d0a45f70c9fa6cbfffd166261738bc",
+    "scripts/manim/numerical_methods_batch_3/palette.py": "759972c8c68440934ab191b57cc43edcfffa6094a9853ff54a99e79213afa924",
+    "scripts/manim/numerical_methods_batch_3/common.py": "31bdd8c7183090875cad7dc673b780837e5ae666e82c5f0d91d7be1b2112f831",
+    "/datasets/numerical-methods/logit-calibration-fixture.json": "f78fab203ad67476d26937fb7ae84e57b6aefaa86e4045f01b3b1c85b3b78bbc",
+    "/notebooks/numerical-methods/batch-3-outputs/finite-difference-calibration-summary.json": "2da5af07af508d4ead5c66bcc0c0d448b44faf12cd811fe2fd691ce8b6c0db4b",
+    "/notebooks/numerical-methods/batch-3-outputs/nonlinear-calibration-summary.json": "2051eb705f9ec31814d5a26c6a6299ff24d37d1275c72c6151baa65985a7830f",
+    "scripts/manim/numerical_methods_batch_3/calibration_finite_difference.py": "b23e7cb35049dc20315e3bd8c61e31c13b4b5fa306f92c7ad1f8fae2cb250153",
+    "scripts/manim/numerical_methods_batch_3/calibration_finite_difference_tree.json": "b7bc01c6499d9644e96822ee111bbce1cda8c63728a4694f340b8e924615b3ce",
+    "scripts/manim/numerical_methods_batch_3/calibration_finite_difference_prompt.md": "aae6cfeb660f73a783bdc49be9c9e97472bd2309bf403d734f6ab206b5f1183c",
+    "docs/curriculum-v3/numerical-methods/manim/logit-calibration-finite-difference-transcript.zh-CN.md": "e4ffcaf9f60199daf559d315ff98c559d2538ef3529ac90846ffb7357de5ab97",
+    "docs/curriculum-v3/numerical-methods/manim/logit-calibration-finite-difference-summary.en.md": "cce97f288043d722e2da84afaa545126a184bf5b326f59a1c45247dd75d52225",
+    "docs/curriculum-v3/numerical-methods/manim/logit-calibration-finite-difference-labels.json": "93b47700bb661058f3f3065582dfc932b1b2051b88c0ccee6d643b45b1a561e2",
+    "/manim/numerical-methods/logit-calibration-finite-difference.mp4": "2eb5ee4acf12d39602d89d9cd279210e523bd949714d523d0e601921383fb72c",
+    "/manim/numerical-methods/logit-calibration-finite-difference-poster.png": "2d19db25254b4f22ef9afa15c067f1630eb254876f3e18abe748595da23836df",
+    "scripts/manim/numerical_methods_batch_3/calibration_root_finding.py": "facd6b1ea85928d792568352577cc3d16ed1530e1cedfc6b1259895c6f63bf45",
+    "scripts/manim/numerical_methods_batch_3/calibration_root_finding_tree.json": "1f7f80841755c5200eed182a30a64246d9c32757aff725a665f10e43735c2663",
+    "scripts/manim/numerical_methods_batch_3/calibration_root_finding_prompt.md": "fb66ef7871880abac610d20a63b6a48d6ba39d682b0a486796dd9651ad7eda76",
+    "docs/curriculum-v3/numerical-methods/manim/logit-calibration-root-finding-transcript.zh-CN.md": "140f22a32f7e43aa62a942e8ecbc0f6a8a8ec742fce81f52f940095b5c4d36ee",
+    "docs/curriculum-v3/numerical-methods/manim/logit-calibration-root-finding-summary.en.md": "e8da7d41f3ece21b9f926dfb413b1fcee22c5c1a7038a69ce6075aee55472432",
+    "docs/curriculum-v3/numerical-methods/manim/logit-calibration-root-finding-labels.json": "f562ece0276b6465d7f9f8fd0b7baf80f98c82a850278888d0cb8e301619c02f",
+    "/manim/numerical-methods/logit-calibration-root-finding.mp4": "ba8b2a1b18f17cc68b551a3d02e05d0ca94b5d7d5982baa4e20d4cb3218dd0e5",
+    "/manim/numerical-methods/logit-calibration-root-finding-poster.png": "62c102f1596bb7ff4fd03efa5b94ad0382abf53dee96e56e28300a36d2b2d1f9"
+  }
+}

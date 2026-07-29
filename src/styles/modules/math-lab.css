@@ -926,6 +926,37 @@
   font-weight: 700;
 }
 
+.math-notebook-companion__supporting {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.math-notebook-companion__supporting > header {
+  display: grid;
+  gap: 5px;
+}
+
+.math-notebook-companion__supporting > header h3 {
+  margin: 0;
+}
+
+.math-notebook-companion__supporting-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.math-notebook-companion__supporting-list li,
+.math-notebook-companion__supporting-list .math-notebook-companion__download {
+  min-width: 0;
+  height: 100%;
+}
+
 .math-lab-case-anchor {
   display: grid;
   gap: 5px;
@@ -2858,6 +2889,12 @@
 
   .math-checkpoint-report__actions .action-button {
     width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .math-notebook-companion__supporting-list {
+    grid-template-columns: 1fr;
   }
 }
 

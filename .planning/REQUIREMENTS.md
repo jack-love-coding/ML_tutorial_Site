@@ -1,109 +1,120 @@
-# Requirements: ML Atlas Curriculum V2
+# Requirements: v1.1 Classical Supervised Learning
 
-**Defined:** 2026-06-25
+**Defined:** 2026-07-27  
 **Core Value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
 
-## v1 Requirements
+## v1.1 Requirements
 
-### Curriculum Contract
+Requirements for the Classical Supervised Learning milestone. Each requirement maps to exactly one roadmap phase.
 
-- [ ] **CURR-01**: Every existing Algorithm, Math Lab, and Data Lab module appears in a unified curriculum catalog with a globally unique canonical ID.
-- [ ] **CURR-02**: Every catalog module records its source namespace and legacy source ID.
-- [ ] **CURR-03**: Every catalog module exposes bilingual title and summary copy.
-- [ ] **CURR-04**: The core learning track is generated from catalog records and respects prerequisite ordering.
-- [ ] **CURR-05**: Prerequisite validation fails on missing IDs or cycles.
+### Loss Functions
 
-### Routing and Navigation
+- [x] **LOSS-01**: Learners can calculate MSE, MAE, and stable binary cross-entropy on fixed examples and aggregate per-example losses into one objective.
+- [x] **LOSS-02**: Learners can use loss scale and gradients to explain how outliers and confident wrong predictions influence training differently.
+- [x] **LOSS-03**: Learners can run vectorized NumPy loss implementations and verify the displayed gradients with finite differences.
 
-- [ ] **ROUTE-01**: Canonical curriculum routes support `/learn/:moduleId` and `/learn/:moduleId/:lessonId`.
-- [ ] **ROUTE-02**: Legacy `/math-lab/*`, `/data-lab/*`, and bespoke algorithm chapter URLs remain reachable through redirects or direct support.
-- [ ] **ROUTE-03**: Top navigation can be derived from Learning Path, Topic Library, Projects, and Progress groups.
-- [ ] **ROUTE-04**: Route and asset behavior remains compatible with GitHub Pages base path.
+### Linear Regression
 
-### Progress
+- [ ] **LINR-01**: Learners can connect `ŷ = Xw + b`, residuals, MSE gradients, and coefficient interpretation using consistent notation.
+- [ ] **LINR-02**: Learners can reproduce a locked regression fit using NumPy batch gradient descent.
+- [ ] **LINR-03**: Learners can compare normal-equation, gradient-descent, and scikit-learn coefficients, predictions, and errors on the same split.
+- [ ] **LINR-04**: Learners can use held-out residuals and coefficient stability to identify nonlinearity, heteroscedasticity, or collinearity limitations.
 
-- [ ] **PROG-01**: Progress V2 merges Algorithm, Math Lab, and Data Lab v1 progress without deleting v1 stores.
-- [ ] **PROG-02**: Progress migration is idempotent and schema-versioned.
-- [ ] **PROG-03**: Progress migration tolerates corrupted JSON, missing stores, and duplicate runs.
-- [ ] **PROG-04**: Continue-learning can recommend the next lesson across all curriculum domains.
+### Tabular Regression Project
 
-### Homepage and Information Architecture
+- [ ] **TPRJ-01**: Learners can download a local tabular dataset with provenance, checksum, schema, target definition, and fixed train/validation/test split.
+- [ ] **TPRJ-02**: Learners can build a leakage-safe pipeline whose preprocessing rules are fitted on training data only.
+- [ ] **TPRJ-03**: Learners can establish an honest linear baseline and compare one controlled improvement against it.
+- [ ] **TPRJ-04**: Learners can report metrics, residual plots, named failure examples, formula-to-code connections, and project limitations.
+- [ ] **TPRJ-05**: Learners can download the dataset, clean-kernel Notebook, and locked outputs that reproduce the reference results shown on the teaching page.
 
-- [ ] **HOME-01**: Homepage first screen presents start, continue, and one recommended next lesson instead of the full catalog.
-- [ ] **HOME-02**: Homepage route choices separate core path, deep-learning path, math deepening, projects, and topic exploration.
-- [ ] **HOME-03**: Homepage uses curriculum/progress data instead of duplicating a long hand-authored learning path.
-- [ ] **HOME-04**: Homepage remains bilingual and mobile-readable.
+### Logistic Regression
 
-### Lesson Renderer and Interaction
+- [ ] **LOGR-01**: Learners can connect linear scores, sigmoid probabilities, log-odds, maximum likelihood, and binary cross-entropy.
+- [ ] **LOGR-02**: Learners can implement stable binary cross-entropy, logistic gradients, deterministic training, and finite-difference checks in NumPy.
+- [ ] **LOGR-03**: Learners can compare scratch coefficients and probabilities with scikit-learn under aligned preprocessing and regularization settings.
+- [ ] **LOGR-04**: Learners can inspect probability calibration and use a nonlinear example to explain the limit of a linear decision boundary.
 
-- [ ] **LESSON-01**: A generic LessonPage supports explanation, worked example, formula, visual, video, prediction, lab, reflection, and checkpoint blocks.
-- [ ] **LESSON-02**: A lab registry embeds complex existing components without rewriting them into generic code.
-- [ ] **LESSON-03**: AI Overview, Gradient Descent, and MLP render through the pilot LessonPage path with parity tests.
-- [ ] **LAB-01**: New interaction protocol records learning goal, prediction prompt, manipulable variables, observable metrics, success criteria, reflection prompt, and evidence.
-- [ ] **LAB-02**: Existing static workflow tabs are not promoted to core experiments until they satisfy the interaction protocol or are labeled as navigation/reading aids.
+### Classification Decisions
 
-### Validation
+- [ ] **CLAS-01**: Learners can distinguish model scores, probabilities, thresholds, and final class decisions.
+- [ ] **CLAS-02**: Learners can calculate a confusion matrix, precision, recall, and F1 from fixed held-out predictions.
+- [ ] **CLAS-03**: Learners can explain that ROC/AUC summarizes ranking across thresholds rather than directly selecting an operating threshold.
+- [ ] **CLAS-04**: Learners can choose and justify a validation threshold using false-positive and false-negative costs while reporting result variation.
+- [ ] **CLAS-05**: Learners can inspect subgroup errors and named misclassified examples rather than relying on one aggregate score.
+- [ ] **CLAS-06**: Learners can still access the existing multiclass and softmax material as supporting content without turning it into the milestone's primary project.
 
-- [ ] **VAL-01**: Each phase passes `npm test`.
-- [ ] **VAL-02**: Each phase passes `npm run build`.
-- [ ] **VAL-03**: Each phase passes `npm run build:pages`.
-- [ ] **VAL-04**: Milestone audit verifies content reachability, route compatibility, progress retention, bilingual completeness, and UI fallback behavior.
+### Content and Quality
 
-## v2 Requirements
+- [ ] **QLTY-01**: Learners receive complete Chinese and English teaching for all five milestone modules with consistent formulas, variable names, code, and run outputs.
+- [ ] **QLTY-02**: Each module presents a core question, concept explanation, worked example, formula, code, run output, misconception feedback, and next-step connection.
+- [ ] **QLTY-03**: Exercises remain selective, formative, and non-blocking so detailed teaching remains the primary page content.
+- [ ] **QLTY-04**: Existing module IDs, routes, checkpoints, and Progress V1/V2 behavior remain compatible throughout the rebuild.
+- [ ] **QLTY-05**: Core computations remain outside Vue components with automated tests, and every phase passes standard build, Pages build, and bilingual desktop/mobile checks.
 
-### Future Curriculum Expansion
+## Future Requirements
 
-- **FUT-01**: Add new courses after Curriculum V2 stabilizes.
-- **FUT-02**: Add cloud-synced user accounts or cross-device progress.
-- **FUT-03**: Add full browser visual regression for core pages.
-- **FUT-04**: Migrate every Math Lab and Data Lab lesson body into block format.
+Deferred to later milestones and excluded from the v1.1 roadmap.
+
+- **FUT-05**: Add decision-tree, random-forest, and ensemble-learning content.
+- **FUT-06**: Rebuild regularization, model selection, and the remaining generalization/training-diagnostics route.
+- **FUT-07**: Deliver the complete classification-evaluation project after model-selection prerequisites are ready.
+- **FUT-08**: Execute Python Data Tools Stage 5 terminology, consistency, browser, and release validation.
+- **FUT-09**: Resume Homepage Focus and Spine progressive-disclosure work.
+- **FUT-10**: Design backend accounts, synchronized progress ownership, and checkpoint persistence together.
 
 ## Out of Scope
 
 | Feature | Reason |
 | --- | --- |
-| New UI framework | Existing stack and style rules require using current primitives. |
-| Backend account system | Not needed for static-site curriculum coherence. |
-| Deleting legacy routes in this milestone | Compatibility must survive until redirects are tested and shipped. |
-| Deleting v1 progress stores | User progress retention and rollback are higher priority. |
-| Bulk course rewrite | Too high risk; adapters and pilots must prove the contract first. |
+| New duplicate course IDs or an alternate route tree | Existing canonical and legacy identities must remain stable during the rebuild. |
+| Runtime remote dataset fetching | Teaching data and Notebook execution must remain reproducible and downloadable locally. |
+| Browser Python or Pyodide | Deterministic browser examples continue to use TypeScript; Python remains an authored downloadable artifact. |
+| Large exercise bank or assessment system | The product remains teaching-first and teacher/backend assessment is deferred. |
+| Backend accounts, cloud sync, or checkpoint persistence | These require a later identity, ownership, and database design. |
+| Homepage, global navigation, or visual-system redesign | Content depth is the milestone priority. |
+| Tree models, ensembles, or the full classification project | These belong to the following generalization and evaluation milestone. |
 
 ## Traceability
 
+Roadmap phase assignments are canonical in the approved v1.1 roadmap.
+
 | Requirement | Phase | Status |
 | --- | --- | --- |
-| CURR-01 | Phase 1 | Pending |
-| CURR-02 | Phase 1 | Pending |
-| CURR-03 | Phase 1 | Pending |
-| CURR-04 | Phase 1 | Pending |
-| CURR-05 | Phase 1 | Pending |
-| ROUTE-01 | Phase 2 | Pending |
-| ROUTE-02 | Phase 2 | Pending |
-| ROUTE-03 | Phase 2 | Pending |
-| ROUTE-04 | Phase 2 | Pending |
-| PROG-01 | Phase 3 | Pending |
-| PROG-02 | Phase 3 | Pending |
-| PROG-03 | Phase 3 | Pending |
-| PROG-04 | Phase 3 | Pending |
-| HOME-01 | Phase 4 | Pending |
-| HOME-02 | Phase 4 | Pending |
-| HOME-03 | Phase 4 | Pending |
-| HOME-04 | Phase 4 | Pending |
-| LESSON-01 | Phase 5 | Pending |
-| LESSON-02 | Phase 5 | Pending |
-| LESSON-03 | Phase 5 | Pending |
-| LAB-01 | Phase 6 | Pending |
-| LAB-02 | Phase 6 | Pending |
-| VAL-01 | Phases 1-7 | Pending |
-| VAL-02 | Phases 1-7 | Pending |
-| VAL-03 | Phases 1-7 | Pending |
-| VAL-04 | Phase 7 | Pending |
+| LOSS-01 | Phase 26 | Complete |
+| LOSS-02 | Phase 26 | Complete |
+| LOSS-03 | Phase 26 | Complete |
+| LINR-01 | Phase 27 | Pending |
+| LINR-02 | Phase 27 | Pending |
+| LINR-03 | Phase 27 | Pending |
+| LINR-04 | Phase 27 | Pending |
+| TPRJ-01 | Phase 28 | Pending |
+| TPRJ-02 | Phase 28 | Pending |
+| TPRJ-03 | Phase 28 | Pending |
+| TPRJ-04 | Phase 28 | Pending |
+| TPRJ-05 | Phase 28 | Pending |
+| LOGR-01 | Phase 29 | Pending |
+| LOGR-02 | Phase 29 | Pending |
+| LOGR-03 | Phase 29 | Pending |
+| LOGR-04 | Phase 29 | Pending |
+| CLAS-01 | Phase 30 | Pending |
+| CLAS-02 | Phase 30 | Pending |
+| CLAS-03 | Phase 30 | Pending |
+| CLAS-04 | Phase 30 | Pending |
+| CLAS-05 | Phase 30 | Pending |
+| CLAS-06 | Phase 30 | Pending |
+| QLTY-01 | Phase 31 | Pending |
+| QLTY-02 | Phase 31 | Pending |
+| QLTY-03 | Phase 31 | Pending |
+| QLTY-04 | Phase 31 | Pending |
+| QLTY-05 | Phase 31 | Pending |
 
 **Coverage:**
-- v1 requirements: 26 total
-- Mapped to phases: 26
-- Unmapped: 0
+
+- v1.1 requirements: 27 total
+- Mapped to phases: 27
+- Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-06-25*
-*Last updated: 2026-06-25 after initial Curriculum V2 planning*
+*Requirements defined: 2026-07-27*
+*Last updated: 2026-07-27 after v1.1 roadmap approval*

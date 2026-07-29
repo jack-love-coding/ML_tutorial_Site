@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "banknote-fixed-vs-armijo",
+  "sceneClass": "BanknoteFixedVsArmijoScene",
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "localeInVideo": "zh-CN",
+  "durationSeconds": 72,
+  "lockedAnchors": {
+    "initialTrialStep": 32.0,
+    "initialTrialAccepted": false,
+    "firstAcceptedStep": 16.0,
+    "firstBacktrackCount": 1,
+    "fixedTerminalIteration": 73,
+    "armijoTerminalIteration": 48,
+    "source": "banknote-logistic-optimization-summary plus banknote-training-traces.json"
+  },
+  "valueBindings": {
+    "initialTrialStep": "optimization.armijoCheck.initialTrialStep",
+    "initialTrialAccepted": "optimization.armijoCheck.initialTrialAccepted",
+    "firstAcceptedStep": "optimization.armijoCheck.firstAcceptedStep",
+    "firstBacktrackCount": "optimization.armijoCheck.firstBacktrackCount",
+    "allAcceptedRowsSatisfySufficientDecrease": "optimization.armijoCheck.allAcceptedRowsSatisfySufficientDecrease",
+    "c": "optimization.constants.armijo.c",
+    "rho": "optimization.constants.armijo.rho",
+    "startObjective": "traces.runs.standardized-armijo.start.objective",
+    "startGradientNorm": "traces.runs.standardized-armijo.start.gradientNorm",
+    "fixedFirstObjective": "traces.runs.standardized-too-large.trace[1].objective",
+    "fixedFirstTrainBce": "traces.runs.standardized-too-large.trace[1].trainBce",
+    "fixedFirstStep": "traces.runs.standardized-too-large.trace[1].acceptedStepSize",
+    "acceptedFirstObjective": "traces.runs.standardized-armijo.trace[1].objective",
+    "acceptedFirstTrainBce": "traces.runs.standardized-armijo.trace[1].trainBce",
+    "acceptedFirstStep": "traces.runs.standardized-armijo.trace[1].acceptedStepSize",
+    "acceptedFirstBacktracks": "traces.runs.standardized-armijo.trace[1].backtrackCount",
+    "fixedTerminal": "optimization.runs.standardized-too-large.terminal",
+    "armijoTerminal": "optimization.runs.standardized-armijo.terminal",
+    "armijoBestValidation": "optimization.runs.standardized-armijo.bestValidation"
+  },
+  "semanticBoundaries": {
+    "sufficientDecrease": "penalized training objective and training gradient only",
+    "validation": "best-checkpoint/patience update after acceptance only",
+    "rejectedTrial": "not an accepted trace row",
+    "terminal": "validation-patience is model selection; gradient-norm is mathematical convergence"
+  },
+  "fallbacks": {
+    "reducedMotion": "Use the fully composed 65–72 second final frame/poster together with transcript and summaries.",
+    "videoFailure": [
+      "banknote-fixed-vs-armijo-transcript.zh-CN.md",
+      "banknote-fixed-vs-armijo-summary.en.md",
+      "banknote-fixed-vs-armijo-labels.json"
+    ],
+    "nonColor": "Fixed is a dashed path with a square; Armijo is a solid path with a circle; ×/reject and ✓/accept plus terminal text carry the meaning."
+  },
+  "labels": [
+    {
+      "id": "fa.opening.kicker",
+      "zh-CN": "数值方法 · 步长选择",
+      "en": "Numerical methods · step selection"
+    },
+    {
+      "id": "fa.opening.question",
+      "zh-CN": "固定 32，还是先检查再接受？",
+      "en": "Use fixed 32, or check before accepting?"
+    },
+    {
+      "id": "fa.opening.shared-start",
+      "zh-CN": "同一标准化 Banknote 起点 · 同一训练梯度",
+      "en": "Same standardized Banknote start · same training gradient"
+    },
+    {
+      "id": "fa.opening.fixed",
+      "zh-CN": "■ 固定步长：直接采用 α = {initialTrialStep}",
+      "en": "■ Fixed step: directly apply α = {initialTrialStep}"
+    },
+    {
+      "id": "fa.opening.armijo",
+      "zh-CN": "● Armijo：先试 α = {initialTrialStep}，再检查充分下降",
+      "en": "● Armijo: try α = {initialTrialStep}, then test sufficient decrease"
+    },
+    {
+      "id": "fa.objective.heading",
+      "zh-CN": "充分下降只检查惩罚训练目标",
+      "en": "Sufficient decrease tests only the penalized training objective"
+    },
+    {
+      "id": "fa.objective.definition",
+      "zh-CN": "J(θ) = 训练 BCE + λ/2 · ||w||²",
+      "en": "J(θ) = training BCE + λ/2 · ||w||²"
+    },
+    {
+      "id": "fa.objective.direction",
+      "zh-CN": "下降方向 d = −g",
+      "en": "Descent direction d = −g"
+    },
+    {
+      "id": "fa.objective.rule",
+      "zh-CN": "J(θ + αd) ≤ J(θ) − cα||g||²",
+      "en": "J(θ + αd) ≤ J(θ) − cα||g||²"
+    },
+    {
+      "id": "fa.objective.constants",
+      "zh-CN": "锁定常数：c = {c}，ρ = {rho}",
+      "en": "Locked constants: c = {c}, ρ = {rho}"
+    },
+    {
+      "id": "fa.objective.validation-boundary",
+      "zh-CN": "验证 BCE 不参与接受或拒绝",
+      "en": "Validation BCE does not participate in acceptance or rejection"
+    },
+    {
+      "id": "fa.fixed.heading",
+      "zh-CN": "固定步长 32：候选目标上升，仍被直接采用",
+      "en": "Fixed step 32: candidate objective rises but is still adopted"
+    },
+    {
+      "id": "fa.fixed.start",
+      "zh-CN": "迭代 0 · J = {startObjective} · ||g|| = {startGradientNorm}",
+      "en": "Iteration 0 · J = {startObjective} · ||g|| = {startGradientNorm}"
+    },
+    {
+      "id": "fa.fixed.candidate",
+      "zh-CN": "■ 固定 {fixedFirstStep} · 直接采用",
+      "en": "■ Fixed {fixedFirstStep} · directly adopted"
+    },
+    {
+      "id": "fa.fixed.objective",
+      "zh-CN": "候选 J = {fixedFirstObjective}",
+      "en": "Candidate J = {fixedFirstObjective}"
+    },
+    {
+      "id": "fa.fixed.train-bce",
+      "zh-CN": "训练 BCE = {fixedFirstTrainBce}",
+      "en": "Training BCE = {fixedFirstTrainBce}"
+    },
+    {
+      "id": "fa.fixed.overshoot",
+      "zh-CN": "目标上升：首步越过可接受区域",
+      "en": "Objective rises: the first step overshoots the acceptable region"
+    },
+    {
+      "id": "fa.reject.heading",
+      "zh-CN": "Armijo 第一次试 32：未达到充分下降",
+      "en": "Armijo first tries 32: sufficient decrease is not met"
+    },
+    {
+      "id": "fa.reject.status",
+      "zh-CN": "× 拒绝 · 不写入轨迹",
+      "en": "× Reject · do not write a trace row"
+    },
+    {
+      "id": "fa.reject.comparison",
+      "zh-CN": "候选 J 大于充分下降上界",
+      "en": "Candidate J is greater than the sufficient-decrease bound"
+    },
+    {
+      "id": "fa.reject.boundary",
+      "zh-CN": "比较 J = 训练 BCE + L2；不读取验证 BCE",
+      "en": "Compare J = training BCE + L2; do not read validation BCE"
+    },
+    {
+      "id": "fa.accept.heading",
+      "zh-CN": "回退一次：{initialTrialStep} × {rho} = {firstAcceptedStep}",
+      "en": "Backtrack once: {initialTrialStep} × {rho} = {firstAcceptedStep}"
+    },
+    {
+      "id": "fa.accept.count",
+      "zh-CN": "回溯次数 = {firstBacktrackCount}",
+      "en": "Backtrack count = {firstBacktrackCount}"
+    },
+    {
+      "id": "fa.accept.status",
+      "zh-CN": "✓ 接受 · 写入迭代 1",
+      "en": "✓ Accept · write iteration 1"
+    },
+    {
+      "id": "fa.accept.objective",
+      "zh-CN": "候选 J = {acceptedFirstObjective}",
+      "en": "Candidate J = {acceptedFirstObjective}"
+    },
+    {
+      "id": "fa.accept.train-bce",
+      "zh-CN": "训练 BCE = {acceptedFirstTrainBce}",
+      "en": "Training BCE = {acceptedFirstTrainBce}"
+    },
+    {
+      "id": "fa.accept.comparison",
+      "zh-CN": "候选 J 小于或等于充分下降上界",
+      "en": "Candidate J is less than or equal to the sufficient-decrease bound"
+    },
+    {
+      "id": "fa.accept.validation-boundary",
+      "zh-CN": "接受后才更新验证检查点",
+      "en": "Update the validation checkpoint only after acceptance"
+    },
+    {
+      "id": "fa.trajectory.heading",
+      "zh-CN": "完整已接受轨迹：固定 32 震荡；Armijo 只保留通过检查的状态",
+      "en": "Complete accepted traces: fixed 32 oscillates; Armijo keeps only checked states"
+    },
+    {
+      "id": "fa.trajectory.fixed",
+      "zh-CN": "■ 固定 32 · 虚线",
+      "en": "■ Fixed 32 · dashed line"
+    },
+    {
+      "id": "fa.trajectory.armijo",
+      "zh-CN": "● Armijo · 实线",
+      "en": "● Armijo · solid line"
+    },
+    {
+      "id": "fa.trajectory.axis",
+      "zh-CN": "纵轴：log₁₀ 惩罚训练目标；横轴：Notebook 已接受状态",
+      "en": "Vertical: log₁₀ penalized training objective; horizontal: accepted Notebook states"
+    },
+    {
+      "id": "fa.trajectory.rejected",
+      "zh-CN": "拒绝试探不进入轨迹",
+      "en": "Rejected trials do not enter the trace"
+    },
+    {
+      "id": "fa.conclusion.title",
+      "zh-CN": "先检查充分下降，再决定是否采用步长",
+      "en": "Test sufficient decrease before deciding to adopt a step"
+    },
+    {
+      "id": "fa.conclusion.fixed-terminal",
+      "zh-CN": "■ 固定 32 · 迭代 {fixedTerminal.iteration} · 验证耐心停止",
+      "en": "■ Fixed 32 · iteration {fixedTerminal.iteration} · validation-patience stop"
+    },
+    {
+      "id": "fa.conclusion.armijo-terminal",
+      "zh-CN": "● Armijo · 迭代 {armijoTerminal.iteration} · 梯度范数收敛",
+      "en": "● Armijo · iteration {armijoTerminal.iteration} · gradient-norm convergence"
+    },
+    {
+      "id": "fa.conclusion.armijo-best",
+      "zh-CN": "最佳验证 BCE {armijoBestValidation.bce}",
+      "en": "Best validation BCE {armijoBestValidation.bce}"
+    },
+    {
+      "id": "fa.conclusion.scope",
+      "zh-CN": "接受规则只读训练 BCE + L2；验证 BCE 不参与线搜索",
+      "en": "The acceptance rule reads training BCE + L2 only; validation BCE does not participate in line search"
+    },
+    {
+      "id": "fa.conclusion.bound",
+      "zh-CN": "这是锁定运行的步长机制比较，不是通用优化器排名",
+      "en": "This is a locked-run step mechanism comparison, not a universal optimizer ranking"
+    }
+  ]
+}

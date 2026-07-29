@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "batchId": "numerical-methods-batch-2",
+  "render": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "videoCodec": "h264",
+    "localeInVideo": "zh-CN",
+    "command": "python scripts/manim/render_numerical_methods_batch_2.py",
+    "checkCommand": "python scripts/manim/render_numerical_methods_batch_2.py --check",
+    "publication": "validated temporary copy followed by atomic numerical-method directory replacement"
+  },
+  "notebookOutputs": [
+    "/notebooks/numerical-methods/batch-2-outputs/sms-sparse-summary.json",
+    "/notebooks/numerical-methods/batch-2-outputs/ames-pca-summary.json"
+  ],
+  "scenes": [
+    {
+      "id": "sms-csr-matvec",
+      "className": "SmsCsrMatvecScene",
+      "durationSeconds": 75,
+      "storyboardCuts": [
+        0,
+        7,
+        18,
+        31,
+        46,
+        59,
+        69,
+        75
+      ],
+      "posterSecond": 63,
+      "outputId": "sms-sparse-summary",
+      "source": "scripts/manim/numerical_methods_batch_2/sms_csr_matvec.py",
+      "tree": "scripts/manim/numerical_methods_batch_2/sms_csr_matvec_tree.json",
+      "prompt": "scripts/manim/numerical_methods_batch_2/sms_csr_matvec_prompt.md",
+      "transcript": "docs/curriculum-v3/numerical-methods/manim/sms-csr-matvec-transcript.zh-CN.md",
+      "englishSummary": "docs/curriculum-v3/numerical-methods/manim/sms-csr-matvec-summary.en.md",
+      "labels": "docs/curriculum-v3/numerical-methods/manim/sms-csr-matvec-labels.json",
+      "mp4": "/manim/numerical-methods/sms-csr-matvec.mp4",
+      "poster": "/manim/numerical-methods/sms-csr-matvec-poster.png"
+    },
+    {
+      "id": "ames-pca-projection",
+      "className": "AmesPcaProjectionScene",
+      "durationSeconds": 80,
+      "storyboardCuts": [
+        0,
+        8,
+        20,
+        34,
+        47,
+        62,
+        72,
+        80
+      ],
+      "posterSecond": 57,
+      "outputId": "ames-pca-summary",
+      "source": "scripts/manim/numerical_methods_batch_2/ames_pca_projection.py",
+      "tree": "scripts/manim/numerical_methods_batch_2/ames_pca_projection_tree.json",
+      "prompt": "scripts/manim/numerical_methods_batch_2/ames_pca_projection_prompt.md",
+      "transcript": "docs/curriculum-v3/numerical-methods/manim/ames-pca-projection-transcript.zh-CN.md",
+      "englishSummary": "docs/curriculum-v3/numerical-methods/manim/ames-pca-projection-summary.en.md",
+      "labels": "docs/curriculum-v3/numerical-methods/manim/ames-pca-projection-labels.json",
+      "mp4": "/manim/numerical-methods/ames-pca-projection.mp4",
+      "poster": "/manim/numerical-methods/ames-pca-projection-poster.png"
+    }
+  ],
+  "integrity": {
+    "scripts/manim/render_numerical_methods_batch_2.py": "e936d2447ff30904a941994ab3d9b27d62df12ef6ff9b3eb2c05faa5a5e1a959",
+    "scripts/manim/numerical_methods_batch_2/palette.py": "14772ba26cd8e7e5a0443a3f691a8c4940e8cffb8b2ce03cfcb6c7818786ffb8",
+    "scripts/manim/numerical_methods_batch_2/common.py": "30c9785d8a2cabe46bb9237021aca1d3656c32dc27681003ec79572db7814586",
+    "/notebooks/numerical-methods/batch-2-outputs/sms-sparse-summary.json": "04e10734535c324033714da494b0035ab55a0bf45d6fab59368f6c34f2ecb2be",
+    "/notebooks/numerical-methods/batch-2-outputs/ames-pca-summary.json": "04b3dea0d3112d8fa680887b49666d182b755d36a8cd4f7bad09c2fd8ecf833d",
+    "scripts/manim/numerical_methods_batch_2/sms_csr_matvec.py": "f0d541d3fa54e08dd6a536be7129d8c28c6f7f2af22541296ba60e432b706396",
+    "scripts/manim/numerical_methods_batch_2/sms_csr_matvec_tree.json": "af9d911d9270e6be979564d6410450e2a892ecefe9f0904a042a81cd87f5e73b",
+    "scripts/manim/numerical_methods_batch_2/sms_csr_matvec_prompt.md": "f896bf5ca7945054553fefb39a7dce062303d692c01cd42dccd1a5097cccddf9",
+    "docs/curriculum-v3/numerical-methods/manim/sms-csr-matvec-transcript.zh-CN.md": "3fde2d680e561467912eec3cb183c19ac839ef7220ae68938686d2944c4090fb",
+    "docs/curriculum-v3/numerical-methods/manim/sms-csr-matvec-summary.en.md": "ada676a129cef716b369f013bae678b300d2a2c81afc9d70d3168743804f8c44",
+    "docs/curriculum-v3/numerical-methods/manim/sms-csr-matvec-labels.json": "7500cdc71542de547e2130e042841cc326dda212e5d19bdd0b5bde137f16c385",
+    "/manim/numerical-methods/sms-csr-matvec.mp4": "4aa36b92c3c830e2ac2fa9f3e3209a862d0b266935035d0cc12f30585144bd99",
+    "/manim/numerical-methods/sms-csr-matvec-poster.png": "3d7d5914de82f2db349e18656cd8ea335c7a40b03f55ab195cb966245ea0240b",
+    "scripts/manim/numerical_methods_batch_2/ames_pca_projection.py": "c618eef33cf7b3a64bb2a9389f6a3c5364a59af1c71141d5ba7e4ba5e0bd85da",
+    "scripts/manim/numerical_methods_batch_2/ames_pca_projection_tree.json": "92602f29185c47c4c3ecc0f6c8b7191f2b5811d5440e2ddf3a175e813f5d9367",
+    "scripts/manim/numerical_methods_batch_2/ames_pca_projection_prompt.md": "ef9bc93e09191caf306ff9ea28c876c19e910e50a3058553455b3b929c028646",
+    "docs/curriculum-v3/numerical-methods/manim/ames-pca-projection-transcript.zh-CN.md": "5006019f1e24f75cae562a2bd8ad54744884d426289593ae632b4333648c0b5c",
+    "docs/curriculum-v3/numerical-methods/manim/ames-pca-projection-summary.en.md": "e799b4da28861a5e28b5023acf5f50aa54280d6a6371240e124ff2de50d223d4",
+    "docs/curriculum-v3/numerical-methods/manim/ames-pca-projection-labels.json": "8b3f057e4742ebeadb823a79cfb4eeeea84fb11eae2e5752791bdaef79953294",
+    "/manim/numerical-methods/ames-pca-projection.mp4": "db0a3af1b104f12ad500897e150e71fee3ea1f4ca1bf1be03bc308c9fb74a9de",
+    "/manim/numerical-methods/ames-pca-projection-poster.png": "8eaa40a648cf2014bfd3c3e8867f30f85a318c8cc3ad24c4cb467d0879ba25a5"
+  }
+}

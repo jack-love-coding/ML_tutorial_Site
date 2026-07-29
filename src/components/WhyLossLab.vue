@@ -1,13 +1,27 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { ExperimentConfig, ExperimentConfigValue, TrainingSnapshot } from '../types/ml'
-import { round } from '../utils/math'
-import LossCurvePlot from './LossCurvePlot.vue'
+import type {
+  RegressionLossRow,
+  RegressionLossSummary,
+} from '../data/lossFunctionsAssets'
+import { evaluateLossGradient } from '../simulations/lossFunctionsMath'
+import type {
+  ExperimentConfig,
+  ExperimentConfigValue,
+  TrainingSnapshot,
+} from '../types/ml'
+
+type RegressionLossKind = 'mse' | 'mae'
+type LearningRow = RegressionLossRow & {
+  role: string
+  source: 'locked-real-row' | 'teaching-fallback'
+}
 
 const props = defineProps<{
   config: ExperimentConfig
   snapshot?: TrainingSnapshot
+  regressionSummary?: RegressionLossSummary
 }>()
 
 const emit = defineEmits<{
@@ -16,266 +30,234 @@ const emit = defineEmits<{
 }>()
 
 const { locale } = useI18n()
+const selectedRowId = ref('')
 
-const copy = computed(() =>
-  locale.value === 'zh-CN'
-    ? {
-        lessonFocus: '误差如何变成目标',
-        lossRule: '评分规则',
-        target: '真实值',
-        prediction: '预测值',
-        residual: '误差',
-        currentPenalty: '单样本损失',
-        objective: '平均目标',
-        sampleCards: '三条样本记录',
-        flow: '从误差到目标',
-        pipelineInput: '样本输入',
-        mse: '平方误差',
-        mae: '绝对误差',
-        samplePrefix: '房价样本',
-        objectiveNote:
-          '误差本身还不是训练目标。只有当我们用损失规则给每个样本打分，并把这些分数合并起来之后，模型才知道自己要往哪里改。',
-      }
-    : {
-        lessonFocus: 'How error becomes an objective',
-        lossRule: 'Scoring rule',
-        target: 'Target',
-        prediction: 'Prediction',
-        residual: 'Error',
-        currentPenalty: 'Single-sample loss',
-        objective: 'Average objective',
-        sampleCards: 'Three sample records',
-        flow: 'From error to objective',
-        pipelineInput: 'Sample input',
-        mse: 'Squared error',
-        mae: 'Absolute error',
-        samplePrefix: 'House sample',
-        objectiveNote:
-          'Error alone is not yet the training target. The model only knows what to improve after each sample is scored by a loss rule and those scores are merged into one objective.',
-      },
-)
+const fallbackRows: readonly LearningRow[] = [
+  {
+    courseRowId: 'fallback-zero-duration',
+    role: 'zero-duration',
+    targetMinutes: 0,
+    predictionMinutes: 175,
+    residualMinutes: -175,
+    mseLoss: 30_625,
+    maeLoss: 175,
+    msePerElementGradient: 350,
+    maePerElementSubgradient: 1,
+    maeDifferentiable: true,
+    mseMeanObjectiveGradient: 116.6666667,
+    maeMeanObjectiveSubgradient: 0.3333333,
+    source: 'teaching-fallback',
+  },
+  {
+    courseRowId: 'fallback-typical',
+    role: 'typical-zero-residual',
+    targetMinutes: 175,
+    predictionMinutes: 175,
+    residualMinutes: 0,
+    mseLoss: 0,
+    maeLoss: 0,
+    msePerElementGradient: 0,
+    maePerElementSubgradient: 0,
+    maeDifferentiable: false,
+    mseMeanObjectiveGradient: 0,
+    maeMeanObjectiveSubgradient: 0,
+    source: 'teaching-fallback',
+  },
+  {
+    courseRowId: 'fallback-long-duration',
+    role: 'long-duration',
+    targetMinutes: 3573,
+    predictionMinutes: 175,
+    residualMinutes: 3398,
+    mseLoss: 11_546_404,
+    maeLoss: 3398,
+    msePerElementGradient: -6796,
+    maePerElementSubgradient: -1,
+    maeDifferentiable: true,
+    mseMeanObjectiveGradient: -2265.3333333,
+    maeMeanObjectiveSubgradient: -0.3333333,
+    source: 'teaching-fallback',
+  },
+]
 
-const regressionLossKind = computed(() => String(props.config.regressionLossKind ?? 'mse'))
-const targetValue = computed(() => Number(props.config.targetValue ?? 1.2))
-const predictionValue = computed(() => Number(props.config.predictionValue ?? -0.35))
-const residual = computed(() => Number(props.snapshot?.selectedObservation?.residual ?? 0))
-const currentPenalty = computed(() =>
-  Number(
-    props.snapshot?.selectedObservation?.[
-      regressionLossKind.value === 'mse' ? 'mse' : 'mae'
-    ] ?? 0,
-  ),
-)
-const sampleBreakdown = computed(() => props.snapshot?.sampleLossBreakdown ?? [])
-const objectiveValue = computed(() => {
-  if (!sampleBreakdown.value.length) return 0
-  return sampleBreakdown.value.reduce((sum, sample) => sum + sample.loss, 0) / sampleBreakdown.value.length
+const representativeRows = computed<readonly LearningRow[]>(() => {
+  const rows = props.regressionSummary?.representativeRows
+  if (!rows?.length) return fallbackRows
+  return rows
+    .filter((row) =>
+      [
+        row.targetMinutes,
+        row.predictionMinutes,
+        row.residualMinutes,
+      ].every(Number.isFinite),
+    )
+    .map((row) => ({ ...row, source: 'locked-real-row' as const }))
 })
 
-const curveSpecs = computed(() => [
-  {
-    id: 'mse',
-    label: copy.value.mse,
-    color: '#ff7d4d',
-    points: props.snapshot?.lossCurves?.mse ?? [],
+watch(
+  () => representativeRows.value.map((row) => row.courseRowId).join('|'),
+  () => {
+    if (!representativeRows.value.some((row) => row.courseRowId === selectedRowId.value)) {
+      selectedRowId.value = representativeRows.value[0]?.courseRowId ?? ''
+    }
   },
-  {
-    id: 'mae',
-    label: copy.value.mae,
-    color: '#3f6dff',
-    points: props.snapshot?.lossCurves?.mae ?? [],
-  },
-])
+  { immediate: true },
+)
 
-const markerPoints = computed(() => [
-  {
-    id: 'mse-marker',
-    x: predictionValue.value,
-    y: Number(props.snapshot?.selectedObservation?.mse ?? 0),
-    color: '#ff7d4d',
-  },
-  {
-    id: 'mae-marker',
-    x: predictionValue.value,
-    y: Number(props.snapshot?.selectedObservation?.mae ?? 0),
-    color: '#3f6dff',
-  },
-])
+const regressionLossKind = computed<RegressionLossKind>(() =>
+  props.config.regressionLossKind === 'mae' ? 'mae' : 'mse',
+)
+const targets = computed(() => representativeRows.value.map((row) => row.targetMinutes))
+const predictions = computed(() =>
+  representativeRows.value.map((row) => row.predictionMinutes),
+)
+const evaluation = computed(() =>
+  evaluateLossGradient(regressionLossKind.value, targets.value, predictions.value),
+)
+const selectedIndex = computed(() => {
+  const index = representativeRows.value.findIndex(
+    (row) => row.courseRowId === selectedRowId.value,
+  )
+  return index < 0 ? 0 : index
+})
+const selectedRow = computed(() => representativeRows.value[selectedIndex.value]!)
+const perElementLosses = computed(() => evaluation.value.perElementLosses)
+const perElementGradients = computed(() => evaluation.value.perElementGradients)
+const meanObjective = computed(() => evaluation.value.meanObjective)
+
+const copy = computed(() => {
+  const zh = locale.value === 'zh-CN'
+  return {
+    eyebrow: zh ? '真实配送行 · 完整目标链' : 'Real delivery row · complete objective loop',
+    title: zh ? '一条预测怎样进入训练目标' : 'How one prediction enters the training objective',
+    intro: zh
+      ? '选择一条本地锁定代表行，沿着目标、预测、残差、逐行损失、输出梯度和批次均值逐步核对。'
+      : 'Choose a locked local representative row and trace target, prediction, residual, row loss, output gradient, and batch mean.',
+    lossRule: zh ? '损失规则' : 'Loss rule',
+    row: zh ? '代表行' : 'Representative row',
+    current: zh ? '当前' : 'Current',
+    reset: zh ? '重置实验' : 'Reset lab',
+    target: zh ? '目标时长 y' : 'Target duration y',
+    prediction: zh ? '预测时长 ŷ' : 'Predicted duration ŷ',
+    residual: zh ? '残差 ŷ − y' : 'Residual ŷ − y',
+    rowLoss: zh ? '逐行损失 ℓ' : 'Per-row loss ℓ',
+    rowGradient: zh ? '输出梯度 ∂ℓ/∂ŷ' : 'Output gradient ∂ℓ/∂ŷ',
+    objective: zh ? '代表批次均值 L' : 'Representative-batch mean L',
+    sourceReal: zh ? '本地锁定真实行' : 'locked local real row',
+    sourceFallback: zh ? '内置教学回退值' : 'built-in teaching fallback',
+    note: zh
+      ? '训练不会直接最小化“残差”这个标签；它先用损失规则把每条残差变成可比较的代价，再对批次取均值。梯度给出当前预测应调整的方向与尺度。'
+      : 'Training does not minimize the residual label directly. A loss rule first turns every residual into a comparable cost, then the batch is averaged. The gradient supplies the direction and scale for changing the prediction.',
+    kink: zh ? '此处是 MAE 尖点：子梯度取 0，但函数不可微。' : 'This is the MAE kink: the chosen subgradient is 0, but the function is nondifferentiable.',
+  }
+})
 
 const flowCards = computed(() => [
+  { id: 'target', label: copy.value.target, value: selectedRow.value.targetMinutes },
   {
-    id: 'error',
+    id: 'prediction',
+    label: copy.value.prediction,
+    value: selectedRow.value.predictionMinutes,
+  },
+  {
+    id: 'residual',
     label: copy.value.residual,
-    value: round(residual.value),
+    value: selectedRow.value.predictionMinutes - selectedRow.value.targetMinutes,
   },
   {
-    id: 'penalty',
-    label: copy.value.currentPenalty,
-    value: round(currentPenalty.value),
+    id: 'loss',
+    label: copy.value.rowLoss,
+    value: perElementLosses.value[selectedIndex.value] ?? 0,
   },
   {
-    id: 'objective',
-    label: copy.value.objective,
-    value: round(objectiveValue.value),
+    id: 'gradient',
+    label: copy.value.rowGradient,
+    value: perElementGradients.value[selectedIndex.value] ?? 0,
   },
+  { id: 'objective', label: copy.value.objective, value: meanObjective.value },
 ])
 
-function setLossKind(kind: 'mse' | 'mae') {
+function setLossKind(kind: RegressionLossKind) {
   emit('patch-config', {
     lossFamily: 'regression',
     regressionLossKind: kind,
   })
 }
 
-function onNumericInput(key: 'targetValue' | 'predictionValue', event: Event) {
-  const target = event.target as HTMLInputElement
-  emit('patch-config', {
-    lossFamily: 'regression',
-    [key]: Number(target.value),
-  })
+function reset() {
+  selectedRowId.value = representativeRows.value[0]?.courseRowId ?? ''
+  setLossKind('mse')
 }
 
-function localizedSampleLabel(label: string) {
-  return `${copy.value.samplePrefix} ${label}`
+function formatNumber(value: number) {
+  if (!Number.isFinite(value)) return '—'
+  if (value === 0) return '0'
+  if (Math.abs(value) >= 1000 || Math.abs(value) < 0.001) return value.toExponential(4)
+  return value.toFixed(4)
 }
 </script>
 
 <template>
-  <section class="lesson-lab lesson-lab--overview">
-    <div class="lesson-lab__controls">
-      <div class="lesson-lab__heading">
-        <span>{{ copy.lossRule }}</span>
-        <strong>{{ regressionLossKind === 'mse' ? copy.mse : copy.mae }}</strong>
-      </div>
+  <section class="lesson-lab lesson-lab--overview loss-real-row-lab">
+    <header class="loss-real-row-lab__header">
+      <span>{{ copy.eyebrow }}</span>
+      <strong>{{ copy.title }}</strong>
+      <p>{{ copy.intro }}</p>
+    </header>
 
-      <div class="toggle-strip">
-        <button
-          type="button"
-          class="toggle-strip__button"
-          :class="{ 'is-active': regressionLossKind === 'mse' }"
-          @click="setLossKind('mse')"
+    <div class="lesson-lab__controls loss-real-row-controls">
+      <label>
+        <span>{{ copy.lossRule }} · {{ copy.current }}: {{ regressionLossKind.toUpperCase() }}</span>
+        <select
+          class="loss-real-row-select"
+          :value="regressionLossKind"
+          @change="setLossKind(($event.target as HTMLSelectElement).value as RegressionLossKind)"
         >
-          MSE
-        </button>
-        <button
-          type="button"
-          class="toggle-strip__button"
-          :class="{ 'is-active': regressionLossKind === 'mae' }"
-          @click="setLossKind('mae')"
-        >
-          MAE
-        </button>
-      </div>
+          <option value="mse">MSE</option>
+          <option value="mae">MAE</option>
+        </select>
+      </label>
 
-      <div class="control-group__grid">
-        <label class="control">
-          <span class="control__row">
-            <span>{{ copy.target }}</span>
-            <strong>{{ round(targetValue) }}</strong>
-          </span>
-          <input
-            class="control__range"
-            type="range"
-            min="-2.5"
-            max="2.5"
-            step="0.05"
-            :value="targetValue"
-            @input="onNumericInput('targetValue', $event)"
-          />
-        </label>
+      <label>
+        <span>{{ copy.row }} · {{ copy.current }}: {{ selectedRow.courseRowId }}</span>
+        <select v-model="selectedRowId" class="loss-real-row-select">
+          <option
+            v-for="row in representativeRows"
+            :key="row.courseRowId"
+            :value="row.courseRowId"
+          >
+            {{ row.courseRowId }} · {{ row.role }}
+          </option>
+        </select>
+      </label>
 
-        <label class="control">
-          <span class="control__row">
-            <span>{{ copy.prediction }}</span>
-            <strong>{{ round(predictionValue) }}</strong>
-          </span>
-          <input
-            class="control__range"
-            type="range"
-            min="-2.5"
-            max="2.5"
-            step="0.05"
-            :value="predictionValue"
-            @input="onNumericInput('predictionValue', $event)"
-          />
-        </label>
-      </div>
+      <button type="button" class="button-quiet" @click="reset">
+        {{ copy.reset }}
+      </button>
     </div>
 
-    <div class="lesson-lab__visual">
-      <div class="lesson-lab__heading">
-        <span>{{ copy.lessonFocus }}</span>
-        <strong>{{ copy.flow }}</strong>
-      </div>
-      <div class="loss-pipeline-illustration" aria-label="error to objective pipeline">
-        <div class="loss-pipeline-illustration__track" aria-hidden="true">
-          <span />
-        </div>
-        <article class="loss-pipeline-illustration__node">
-          <span>{{ copy.pipelineInput }}</span>
-          <strong>{{ copy.target }} {{ round(targetValue) }} · {{ copy.prediction }} {{ round(predictionValue) }}</strong>
-        </article>
-        <article
-          v-for="card in flowCards"
-          :key="`pipeline-${card.id}`"
-          class="loss-pipeline-illustration__node"
-        >
-          <span>{{ card.label }}</span>
-          <strong>{{ card.value }}</strong>
-        </article>
-      </div>
-      <LossCurvePlot
-        :curves="curveSpecs"
-        :marker-x="predictionValue"
-        :marker-points="markerPoints"
-      />
-      <div class="teaching-flow">
-        <article v-for="card in flowCards" :key="card.id" class="teaching-flow__card">
-          <span>{{ card.label }}</span>
-          <strong>{{ card.value }}</strong>
-        </article>
-      </div>
+    <p class="loss-real-row-lab__source">
+      {{
+        selectedRow.source === 'locked-real-row'
+          ? `● ${copy.sourceReal}`
+          : `◇ ${copy.sourceFallback}`
+      }}
+      · n={{ representativeRows.length }}
+    </p>
+
+    <div class="loss-objective-flow" aria-label="target to mean objective">
+      <article v-for="(card, index) in flowCards" :key="card.id">
+        <span>{{ index + 1 }} · {{ card.label }}</span>
+        <strong>{{ formatNumber(card.value) }}</strong>
+      </article>
     </div>
 
-    <div class="lesson-lab__summary">
-      <section class="lesson-lab__panel">
-        <div class="lesson-lab__heading">
-          <span>{{ copy.sampleCards }}</span>
-          <strong>{{ sampleBreakdown.length }}</strong>
-        </div>
-        <div class="sample-loss-grid">
-          <article v-for="sample in sampleBreakdown" :key="sample.id" class="sample-loss-card">
-            <span>{{ localizedSampleLabel(sample.label) }}</span>
-            <strong>{{ round(sample.loss) }}</strong>
-            <p>
-              {{ copy.target }} {{ round(sample.target) }} · {{ copy.prediction }}
-              {{ round(sample.prediction) }}
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section class="lesson-lab__panel">
-        <div class="lesson-lab__heading">
-          <span>{{ copy.flow }}</span>
-          <strong>{{ round(objectiveValue) }}</strong>
-        </div>
-        <div class="observation-grid">
-          <article class="observation-card">
-            <span>{{ copy.residual }}</span>
-            <strong>{{ round(residual) }}</strong>
-          </article>
-          <article class="observation-card">
-            <span>{{ copy.currentPenalty }}</span>
-            <strong>{{ round(currentPenalty) }}</strong>
-          </article>
-          <article class="observation-card">
-            <span>{{ copy.objective }}</span>
-            <strong>{{ round(objectiveValue) }}</strong>
-          </article>
-        </div>
-        <p class="lesson-lab__note">{{ copy.objectiveNote }}</p>
-      </section>
-    </div>
+    <p
+      v-if="regressionLossKind === 'mae' && !evaluation.differentiable[selectedIndex]"
+      class="loss-status-note is-kink"
+    >
+      ◆ {{ copy.kink }}
+    </p>
+    <p class="lesson-lab__note">{{ copy.note }}</p>
   </section>
 </template>

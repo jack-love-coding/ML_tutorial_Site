@@ -1,0 +1,23 @@
+{
+  "contractVersion": "numerical-methods-sms-v1",
+  "fields": [
+    {
+      "name": "sms_id",
+      "unit": "row id",
+      "zh-CN": "按 UCI 原始文件顺序生成的一基稳定消息编号。",
+      "en": "One-based stable message id following the UCI source order."
+    },
+    {
+      "name": "label",
+      "unit": "category",
+      "zh-CN": "UCI 提供的 ham 或 spam 标签；本章只用来解释语料组成，不训练分类器。",
+      "en": "The UCI ham or spam label; used only to describe the corpus, not to train a classifier in this lesson."
+    },
+    {
+      "name": "message",
+      "unit": "UTF-8 text",
+      "zh-CN": "未经改写、清洗或去重的原始短信文本。",
+      "en": "Original SMS text without rewriting, cleaning, or deduplication."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "localeInVideo": "zh-CN",
+  "durationSeconds": 80,
+  "labels": [
+    {"zh-CN": "数值方法 · 非线性求根", "en": "Numerical methods · nonlinear root finding"},
+    {"zh-CN": "同一条残差曲线，哪里等于零？", "en": "Where does the same residual curve equal zero?"},
+    {"zh-CN": "沿用上一章的 12 个固定 logit", "en": "Reuse the previous lesson's 12 fixed logits"},
+    {"zh-CN": "连续 + 单调 + 两端异号：区间内有且只有一个根", "en": "Continuous, monotone, opposite endpoint signs: exactly one root"},
+    {"zh-CN": "存在性", "en": "Existence"},
+    {"zh-CN": "唯一性", "en": "Uniqueness"},
+    {"zh-CN": "二分法：每一步只保留仍然异号的半个区间", "en": "Bisection: retain the sign-changing half"},
+    {"zh-CN": "始终保留含根区间", "en": "Always preserve a root-containing interval"},
+    {"zh-CN": "Newton 法：用当前切线预测下一次与横轴的交点", "en": "Newton: use the current tangent to predict the next intercept"},
+    {"zh-CN": "初始 b₀ = 0", "en": "Initial b₀ = 0"},
+    {"zh-CN": "割线法：用两个历史函数值代替解析导数", "en": "Secant: replace the analytic derivative with two function values"},
+    {"zh-CN": "初始点：−1 与 1", "en": "Initial points: −1 and 1"},
+    {"zh-CN": "不需要解析导数", "en": "No analytic derivative required"},
+    {"zh-CN": "不能只数迭代：每种更新读取的信息不同", "en": "Do not count iterations alone: updates read different information"},
+    {"zh-CN": "函数求值", "en": "Function evaluations"},
+    {"zh-CN": "导数求值", "en": "Derivative evaluations"},
+    {"zh-CN": "速度、稳定性、导数成本与函数调用要一起比较", "en": "Compare speed, reliability, derivative cost, and function calls together"},
+    {"zh-CN": "求解器必须先检查失败条件，再报告近似根", "en": "A solver must check failure conditions before reporting a root"},
+    {"zh-CN": "无效区间 [−4, −3]", "en": "Invalid bracket [−4, −3]"},
+    {"zh-CN": "二分法应拒绝启动", "en": "Bisection should refuse to start"},
+    {"zh-CN": "Newton 步可能离开保护域", "en": "A Newton step may leave the safeguarded domain"},
+    {"zh-CN": "非线性求根回答：哪里等于零？", "en": "Root finding answers: where does it equal zero?"},
+    {"zh-CN": "匹配一个平均值只解决这个标量方程", "en": "Matching one mean solves only this scalar equation"},
+    {"zh-CN": "下一章把求零扩展为最小化目标函数", "en": "The next lesson extends zero finding to objective minimization"}
+  ]
+}

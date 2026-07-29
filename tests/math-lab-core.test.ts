@@ -457,10 +457,10 @@ test('math lab modules include the zero-base AI math path with the linear algebr
       'probability-likelihood-entropy',
       'markov-chains',
       'least-squares-fitting',
-      'pca',
       'lu-decomposition',
-      'sparse-matrices',
       'condition-numbers',
+      'sparse-matrices',
+      'pca',
       'finite-difference-methods',
       'nonlinear-equations',
       'optimization',
@@ -2025,7 +2025,7 @@ test('optimization module preserves lecture coverage with bilingual repair and i
   assert.ok(optimizationModule.sections.some((section) => section.labIds?.includes('optimization-gradient-lab')))
 
   const sectionIds = optimizationModule.sections.map((section) => section.id)
-  assert.deepEqual(sectionIds, [
+  const legacySectionIds = [
     'optimization-learning-objectives',
     'optimization-problem-statement',
     'optimization-local-global',
@@ -2037,7 +2037,11 @@ test('optimization module preserves lecture coverage with bilingual repair and i
     'optimization-newton-nd',
     'optimization-ml-practice',
     'optimization-review-questions',
-  ])
+  ]
+  assert.deepEqual(
+    sectionIds.filter((sectionId) => legacySectionIds.includes(sectionId)),
+    legacySectionIds,
+  )
 
   const zhBody = optimizationModule.sections.map((section) => `${section.title['zh-CN']}\n${section.content['zh-CN']}`).join('\n')
   const enBody = optimizationModule.sections.map((section) => `${section.title.en}\n${section.content.en}`).join('\n')

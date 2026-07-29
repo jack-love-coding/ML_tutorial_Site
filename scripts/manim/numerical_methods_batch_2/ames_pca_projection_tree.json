@@ -1,0 +1,72 @@
+{
+  "pipeline": ["ConceptAnalyzer", "PrerequisiteExplorer", "MathematicalEnricher", "VisualDesigner", "NarrativeComposer", "CodeGenerator"],
+  "root": "P0",
+  "maxDepth": 3,
+  "topologicalOrder": ["F_SCALE", "F_VARIANCE", "F_BASIS", "P1", "P2", "P3", "P4", "P0"],
+  "nodes": [
+    {
+      "id": "F_SCALE",
+      "concept": "均值、总体标准差与 z-score 标准化",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["mean", "population standard deviation", "z-score"]
+    },
+    {
+      "id": "F_VARIANCE",
+      "concept": "方差、协方差和相关变化方向",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["variance", "covariance", "correlation"]
+    },
+    {
+      "id": "F_BASIS",
+      "concept": "正交单位向量、投影与坐标基变换",
+      "depth": 3,
+      "isFoundation": true,
+      "prerequisites": [],
+      "foundationRefs": ["orthonormal basis", "projection", "change of coordinates"]
+    },
+    {
+      "id": "P1",
+      "concept": "8 个不同单位的 Ames 特征标准化为 Z∈R^(2927×8)",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["F_SCALE"],
+      "foundationRefs": ["feature matrix", "ddof zero", "unsupervised input"]
+    },
+    {
+      "id": "P2",
+      "concept": "协方差矩阵 C=ZᵀZ/n 的特征向量按解释方差排序",
+      "depth": 2,
+      "isFoundation": false,
+      "prerequisites": ["P1", "F_VARIANCE", "F_BASIS"],
+      "foundationRefs": ["eigenvector", "eigenvalue", "principal direction"]
+    },
+    {
+      "id": "P3",
+      "concept": "Z=UΣVᵀ 与 C=VΛVᵀ 给出相同主方向，λ=σ²/n",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["P2"],
+      "foundationRefs": ["singular value decomposition", "spectral equivalence"]
+    },
+    {
+      "id": "P4",
+      "concept": "累计解释方差选择 k，投影与重构误差描述信息保留",
+      "depth": 1,
+      "isFoundation": false,
+      "prerequisites": ["P2", "F_BASIS"],
+      "foundationRefs": ["cumulative explained variance", "reconstruction", "RMSE"]
+    },
+    {
+      "id": "P0",
+      "concept": "Ames PCA：标准化、旋转主轴、选择 k=4 并解释重构边界",
+      "depth": 0,
+      "isFoundation": false,
+      "prerequisites": ["P3", "P4"],
+      "foundationRefs": ["2927 by 8 matrix", "90 percent threshold", "unsupervised limitation"]
+    }
+  ]
+}

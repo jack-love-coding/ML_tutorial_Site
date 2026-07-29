@@ -13,6 +13,9 @@ import { mathFoundationsModules } from './mathFoundationsModules.ts'
 import { minimumFoundationBeginnerModules } from './minimumFoundationModules.ts'
 import { buildMonteCarloModule } from './monteCarloModule.ts'
 import { buildNonlinearEquationsModule } from './nonlinearEquationsModule.ts'
+import { enhanceNumericalBatch2Module } from './numericalBatch2Modules.ts'
+import { enhanceNumericalBatch3Module } from './numericalBatch3Modules.ts'
+import { enhanceNumericalBatch4Module } from './numericalBatch4Modules.ts'
 import { buildOptimizationModule } from './optimizationModule.ts'
 import { buildPcaModule } from './pcaModule.ts'
 import { enhanceProbabilityUncertaintyModule } from './probabilityUncertaintyRouteModules.ts'
@@ -201,8 +204,14 @@ const aiMathPathModules: MathLabModule[] = aiMathPathModuleIds.map((moduleId, in
     throw new Error(`Missing math lab module: ${moduleId}`)
   }
 
-  const moduleDefinition = enhanceAmesNumericalMethodsModule(
-    enhanceProbabilityUncertaintyModule(sourceModuleDefinition),
+  const moduleDefinition = enhanceNumericalBatch4Module(
+    enhanceNumericalBatch3Module(
+      enhanceAmesNumericalMethodsModule(
+        enhanceNumericalBatch2Module(
+          enhanceProbabilityUncertaintyModule(sourceModuleDefinition),
+        ),
+      ),
+    ),
   )
 
   return {

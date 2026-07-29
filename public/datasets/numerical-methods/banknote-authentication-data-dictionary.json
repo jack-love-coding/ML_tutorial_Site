@@ -1,0 +1,55 @@
+{
+  "contractVersion": "numerical-methods-batch-4-v1",
+  "dataset": "UCI Banknote Authentication",
+  "attribution": {
+    "officialPage": "https://archive.ics.uci.edu/dataset/267/banknote%2Bauthentication",
+    "doi": "10.24432/C55P57",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "classMeaning": "The UCI source does not define semantic meanings for class 0 and class 1."
+  },
+  "fields": [
+    {
+      "name": "banknote_id",
+      "unit": "row id",
+      "zh-CN": "按 UCI 原始文件顺序生成的一基稳定行号。",
+      "en": "One-based stable row id following the UCI source order."
+    },
+    {
+      "name": "variance",
+      "unit": "continuous wavelet feature",
+      "zh-CN": "UCI 提供的小波变换图像 variance 特征。",
+      "en": "UCI variance feature derived from the wavelet-transformed image."
+    },
+    {
+      "name": "skewness",
+      "unit": "continuous wavelet feature",
+      "zh-CN": "UCI 提供的小波变换图像 skewness 特征。",
+      "en": "UCI skewness feature derived from the wavelet-transformed image."
+    },
+    {
+      "name": "curtosis",
+      "unit": "continuous wavelet feature",
+      "zh-CN": "UCI 源文件拼写为 curtosis 的连续特征；本项目保留该拼写。",
+      "en": "Continuous feature spelled curtosis by the UCI source; this project preserves that spelling."
+    },
+    {
+      "name": "entropy",
+      "unit": "continuous wavelet feature",
+      "zh-CN": "UCI 提供的小波变换图像 entropy 特征。",
+      "en": "UCI entropy feature derived from the wavelet-transformed image."
+    },
+    {
+      "name": "class",
+      "unit": "binary category",
+      "zh-CN": "UCI 提供的 class 0 或 class 1；源页面未定义两类的人类语义。",
+      "en": "UCI class 0 or class 1; the source page does not define human-readable meanings."
+    },
+    {
+      "name": "split",
+      "unit": "dataset partition",
+      "zh-CN": "固定的 train、validation 或 test 分配；划分后不再重排。",
+      "en": "Persisted train, validation, or test assignment with no later reshuffling."
+    }
+  ]
+}

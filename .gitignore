@@ -17,6 +17,9 @@ output/playwright/css-split/
 .worktrees/
 .python-data-tools-venv/
 __pycache__/
+.cache/numerical-methods/batch-4-wheelhouse/
+/.cache/loss-functions/phase-26-sources
+/.cache/loss-functions/phase-26-staging
 
 # Editor directories and files
 .vscode/*

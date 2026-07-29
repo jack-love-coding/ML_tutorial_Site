@@ -20,6 +20,10 @@ test('pca module preserves source coverage with bilingual repair and inline proj
 
   assert.deepEqual(moduleDefinition.sections.map((section) => section.id), [
     'pca-learning-objectives',
+    'v3-pca-ames-contract',
+    'v3-pca-ames-spectrum-output',
+    'v3-pca-ames-loadings',
+    'v3-pca-to-finite-difference',
     'v3-pca-shared-data',
     'pca-what-problem-it-solves',
     'pca-centering-and-covariance',

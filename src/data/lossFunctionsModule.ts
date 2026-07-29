@@ -1,8 +1,19 @@
-import type { AlgorithmModuleDefinition } from '../types/ml'
-import { simulateLossFunctions } from '../simulations/lossFunctions'
-import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
+import type { AlgorithmModuleDefinition, StorySection } from '../types/ml.ts'
+import { simulateLossFunctions } from '../simulations/lossFunctions.ts'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints.ts'
+import {
+  lossFunctionsChapterBindings,
+  type LossFunctionsChapterBinding,
+} from './lossFunctionsAssets.ts'
 
-export const lossFunctionsModule: AlgorithmModuleDefinition = {
+export interface LossFunctionsChapter extends StorySection, LossFunctionsChapterBinding {}
+
+export interface LossFunctionsModuleDefinition
+  extends Omit<AlgorithmModuleDefinition, 'chapters'> {
+  chapters: LossFunctionsChapter[]
+}
+
+export const lossFunctionsModule: LossFunctionsModuleDefinition = {
   slug: 'loss-functions',
   route: '/learn/loss-functions',
   titleKey: 'modules.lossFunctions.title',
@@ -15,107 +26,126 @@ export const lossFunctionsModule: AlgorithmModuleDefinition = {
   chapters: [
     {
       id: 'why-loss',
+      ...lossFunctionsChapterBindings['why-loss'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.whyLoss.title',
       markdown: {
-        'zh-CN': `如果你要预测 3 套房子的价格，模型到底要怎样才算“做得好”？
+        'zh-CN': `### 核心问题
+同一条真实 LaDe-D 配送记录，怎样从真实值 $y_i$ 和预测值 $\\hat y_i$ 一路走到残差、单样本损失、输出梯度与整批均值目标？
 
-### 概念直觉
-在真正训练模型之前，我们必须先把“做得好”翻译成一个数字规则。  
-**误差**只是预测值和真实值之间的差距；**损失**是我们用什么规则去评价这个差距；**总体目标**则是把所有样本的损失合并起来，得到训练时真正要优化的分数。
+### 概念解释
+先把三个层次分开：
 
-换句话说：
+- **误差（残差）** $r_i$ 只描述第 $i$ 行预测偏了多少；
+- **单样本损失** $\\ell_i$ 用选定规则把残差改写成非负贡献；
+- **训练目标** $L$ 把 $n$ 个贡献聚合成一个均值。
 
-- 单个样本先产生单个误差
-- 误差经过规则变成单个损失
-- 所有样本的损失再聚合成总体目标
-
-### 手算例子
-假设 3 套房子的真实价格分别是 180、220、260（单位先不管），模型预测成了 160、235、250。
-
-- 第 1 套误差是 -20
-- 第 2 套误差是 +15
-- 第 3 套误差是 -10
-
-如果我们只看误差，还不知道模型到底该更在意哪一种偏差。  
-损失函数的作用，就是把这些偏差重新写成“训练时要认真对待的分数”。
+页面从固定的本地结果表读取一条代表行。你可以沿着
+$y_i \\rightarrow \\hat y_i \\rightarrow r_i \\rightarrow \\ell_i
+\\rightarrow \\partial \\ell_i/\\partial \\hat y_i \\rightarrow L$
+逐项核对，而不需要相信另一组手填数字。
 
 ### 公式
-最抽象的写法其实很简单：它只是在说“把预测和真实值喂给一个评分规则”。
+本站统一使用“预测减真实”的残差方向：
 
-$$\\mathcal{L}(\\hat{y}, y)$$
+$$
+r_i = \\hat y_i-y_i,
+\\qquad
+\\ell_i = \\ell(\\hat y_i,y_i),
+\\qquad
+L = \\frac{1}{n}\\sum_{i=1}^{n}\\ell_i.
+$$
 
-这里 $\\hat{y}$ 是预测值，$y$ 是真实值，$\\mathcal{L}$ 只是“你决定采用哪种评分规则”的记号。  
-真正困难的地方不是符号，而是**你想让模型更怕什么样的错误**。
+误差可以为正、为负或为零；MSE/MAE 的单样本贡献不会因正负抵消。对均值目标求导时，单样本梯度还会多出 $1/n$。
 
-> **常见误解**  
-> 不要把“误差”直接当成“损失”。误差只是差多少，损失还包含“你如何看待这个差距”的价值判断。
+### 代码与结果连接
+可下载 Notebook 的 \`delivery-loss-functions\` 代码单元把公式直接写成向量运算：
 
-### 记住这一点
-损失函数不是公式装饰，而是机器学习问题的评分标准。
+\`\`\`python
+def left_fold_mean(values):
+    total = 0.0
+    for value in values:
+        total += float(value) / values.size
+    return total
 
-### 补充知识点
-同一批误差可以被不同 loss 改写成完全不同的训练目标。  
-如果只是把残差直接平均，正负误差可能互相抵消；平方、绝对值、负对数这些变形，本质上都是先把“错在哪里”改写成不会抵消、且符合任务偏好的分数。
+def regression_losses(targets, predictions):
+    residuals = predictions - targets
+    squared = residuals ** 2
+    absolute = np.abs(residuals)
+    return {"residuals": residuals,
+            "mse": left_fold_mean(squared),
+            "mae": left_fold_mean(absolute)}
+\`\`\`
 
-### 交互实验设计
-在实验里先切换 MSE / MAE，再拖动真实值和预测值。重点观察“误差 -> 单样本损失 -> 平均目标”这条流水线：误差只是输入，损失规则才决定模型最终看到的训练分数。
+页面绑定同一份逐行结果和总体摘要：表格负责显示当前行的 $y_i$、$\\hat y_i$、$r_i$、贡献与梯度，摘要负责显示 $n$ 行均值。公式、代码和页面因此共享同一套变量。
 
-### 来源参考
-改写自 Google Machine Learning Crash Course 对 loss 的入门直觉，以及 D2L 中 objective / loss 的训练框架；本站将其重组为“误差、损失、目标”三层入口。`,
-        en: `Suppose you are predicting the prices of three houses. What does it actually mean for the model to be “good”?
+> **常见误解**
+> “误差、损失、目标”不是三个同义词。残差是输入，损失规则决定每行贡献，均值目标才是整批训练要最小化的量。
 
-### Concept
-Before we train anything, we must translate “good” into a scoring rule.  
-**Error** is just the gap between prediction and truth. **Loss** is the rule we use to judge that gap. The **objective** is what we get after combining the losses from all samples into one number.
+### 下一步
+下一章会在同一配送数据上分别选择平方和绝对值规则，比较 MSE 与 MAE 怎样改变长时配送行的贡献和梯度尺度。`,
+        en: `### Core Question
+For one real LaDe-D delivery row, how do target $y_i$ and prediction $\\hat y_i$ lead to a residual, per-example loss, output gradient, and the batch mean objective?
 
-In other words:
+### Concept Explanation
+Keep three layers separate:
 
-- each sample creates an error
-- the error becomes a loss under a chosen rule
-- all sample losses are combined into the objective we optimize
+- **error (residual)** $r_i$ only describes how far row $i$ is off;
+- **per-example loss** $\\ell_i$ rewrites that residual into a nonnegative contribution under a chosen rule;
+- the **training objective** $L$ aggregates $n$ contributions into one mean.
 
-### Worked Example
-Imagine three house prices with true values 180, 220, and 260, while the model predicts 160, 235, and 250.
-
-- the first error is -20
-- the second error is +15
-- the third error is -10
-
-Errors alone do not yet tell the model which kind of mistake matters more.  
-The loss function rewrites those gaps into the score that training will actually care about.
+The page loads one representative row from the fixed local result table. You can trace
+$y_i \\rightarrow \\hat y_i \\rightarrow r_i \\rightarrow \\ell_i
+\\rightarrow \\partial \\ell_i/\\partial \\hat y_i \\rightarrow L$
+without trusting a second set of hand-entered numbers.
 
 ### Formula
-The most abstract version of a loss is still simple: it just says “apply a scoring rule to prediction and truth.”
+This course consistently defines the residual as prediction minus target:
 
-$$\\mathcal{L}(\\hat{y}, y)$$
+$$
+r_i = \\hat y_i-y_i,
+\\qquad
+\\ell_i = \\ell(\\hat y_i,y_i),
+\\qquad
+L = \\frac{1}{n}\\sum_{i=1}^{n}\\ell_i.
+$$
 
-Here $\\hat{y}$ is the prediction, $y$ is the target, and $\\mathcal{L}$ is the chosen scoring rule.  
-The hard part is not the symbol. The hard part is deciding **what kind of mistake the model should fear more**.
+An error may be positive, negative, or zero; MSE and MAE per-example contributions do not cancel by sign. Differentiating the mean objective also introduces the factor $1/n$.
 
-> **Common Mistake**  
-> Do not treat error and loss as the same thing. Error is only the gap; loss also includes how you choose to value that gap.
+### Code and Output Connection
+The downloadable Notebook cell \`delivery-loss-functions\` writes the formulas as vector operations:
 
-### Remember This
-The loss function is the grading rule of the learning problem, not decorative algebra.
+\`\`\`python
+def left_fold_mean(values):
+    total = 0.0
+    for value in values:
+        total += float(value) / values.size
+    return total
 
-### Extra Concept
-The same errors can become very different objectives under different losses.  
-If we only average raw residuals, positive and negative errors can cancel. Squaring, absolute value, and negative logs all rewrite “what went wrong” into a score that does not cancel and matches the task preference.
+def regression_losses(targets, predictions):
+    residuals = predictions - targets
+    squared = residuals ** 2
+    absolute = np.abs(residuals)
+    return {"residuals": residuals,
+            "mse": left_fold_mean(squared),
+            "mae": left_fold_mean(absolute)}
+\`\`\`
 
-### Interaction Design
-In the lab, switch between MSE and MAE, then drag the target and prediction. Watch the pipeline “error -> single-sample loss -> average objective”: error is only the input, while the loss rule decides the score the model sees.
+The page binds the same per-row result and aggregate summary: the table supplies $y_i$, $\\hat y_i$, $r_i$, contribution, and gradient for the selected row, while the summary supplies the mean over all $n$ rows. Formula, code, and page therefore share one vocabulary.
 
-### Source References
-Adapted from Google Machine Learning Crash Course for the introductory loss intuition and D2L for the objective / loss training frame; this site reorganizes them into the three layers of error, loss, and objective.`,
+> **Common Mistake**
+> Error, loss, and objective are not synonyms. The residual is an input, the loss rule determines each per-example contribution, and the mean objective is what training minimizes over the batch.
+
+### Next Step
+The next chapter applies squared and absolute-value rules to the same delivery data and compares how MSE and MAE change a long-duration row's contribution and gradient scale.`,
       },
       callout: {
-        'zh-CN': '先盯住一个样本的误差，再看三个样本怎样被合成一个总体目标。',
-        en: 'Start with one sample error, then watch three sample losses combine into one objective.',
+        'zh-CN': '沿一条真实行检查 y、ŷ、r、单样本贡献、梯度和 n 行均值，不要跳过中间层。',
+        en: 'Trace y, ŷ, r, per-example contribution, gradient, and the n-row mean on one real row without skipping a layer.',
       },
       experimentPrompt: {
-        'zh-CN': '拖动真实值和预测值，先观察误差，再观察同一个误差在不同规则下会得到怎样的损失。',
-        en: 'Drag the target and prediction, first inspect the error, then compare how different rules score that same gap.',
+        'zh-CN': '先选一条代表行核对残差方向，再切换评分规则，观察单行贡献与总体均值如何分开。',
+        en: 'Select a representative row to check residual direction, then switch the scoring rule and keep the row contribution separate from the aggregate mean.',
       },
       layoutMode: 'embedded-lab',
       embeddedLabId: 'loss-functions-overview',
@@ -123,117 +153,136 @@ Adapted from Google Machine Learning Crash Course for the introductory loss intu
     },
     {
       id: 'regression-losses',
+      ...lossFunctionsChapterBindings['regression-losses'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.regressionLosses.title',
       markdown: {
-        'zh-CN': `如果模型把房价多猜了 5 万和多猜了 50 万，我们真的应该把这两种错误看得一样重吗？
+        'zh-CN': `### 核心问题
+在同一批真实 LaDe-D 配送记录上，为什么一个典型行和一个长时配送行会让 MSE 与 MAE 给出完全不同的贡献与梯度尺度？
 
-### 概念直觉
-回归问题里最常见的两种损失是 **MSE** 和 **MAE**。  
-它们都从**残差**出发。残差就是“预测值减去真实值”之后得到的差。
+### 概念解释
+页面保留同一个固定预测 $\\hat y$，只让真实配送时长 $y_i$ 随行变化。这样比较的不是两个模型，而是同一残差 $r_i=\\hat y_i-y_i$ 经过两种评分规则后的结果。
 
-- MSE 会把残差平方，所以大误差会被明显放大
-- MAE 取绝对值，所以大误差虽然更严重，但不会被平方放大
+- **典型行**让你先检查残差、平方和绝对值的逐行关系；
+- **长时配送行**显示大残差怎样主导平方损失；
+- 完整分布说明这种差异是否只发生在一个样本，还是会改变总体目标。
 
-这意味着二者不是“写法不同”，而是在表达两种不同的教学态度：  
-**你到底想让模型更怕离群点，还是更稳健地面对离群点？**
-
-### 手算例子
-假设真实值是 10，模型预测成 13，那么残差是 3。
-
-- MSE：$3^2 = 9$
-- MAE：$|3| = 3$
-
-如果另一个样本残差变成 6：
-
-- MSE：$6^2 = 36$
-- MAE：$|6| = 6$
-
-你会发现：误差翻倍时，MAE 也只是翻倍，但 MSE 会放大得更快。
+所有行值、代表行角色、贡献排行与分布箱都从本地锁定摘要读取。正文只解释字段之间的关系，不另造第二套统计数字。
 
 ### 公式
-这两条公式看上去都在“平均误差”，但一个在平均平方误差，另一个在平均绝对误差。
+逐行贡献与总体目标必须分开写：
 
-$$\\text{MSE} = \\frac{1}{N}\\sum_i (\\hat{y}_i - y_i)^2$$
+$$
+\\ell_i^{\\operatorname{MSE}}=r_i^2,
+\\qquad
+\\operatorname{MSE}=\\frac{1}{n}\\sum_i r_i^2,
+$$
 
-$$\\text{MAE} = \\frac{1}{N}\\sum_i |\\hat{y}_i - y_i|$$
+$$
+\\ell_i^{\\operatorname{MAE}}=|r_i|,
+\\qquad
+\\operatorname{MAE}=\\frac{1}{n}\\sum_i |r_i|.
+$$
 
-其中 $N$ 是样本数，$\\hat{y}_i - y_i$ 是第 $i$ 个样本的残差。  
-平方会让“大错”被惩罚得更重，绝对值则让惩罚增长得更均匀。
+对预测输出求导时，MSE 的尺度随残差增长，而光滑 MAE 行的符号梯度幅度保持固定：
 
-> **常见误解**  
-> 不要把 “MSE 更常见” 误解成 “MSE 一定更好”。如果数据里有明显离群点，MAE 往往会更稳健。
+$$
+\\frac{\\partial \\ell_i^{\\operatorname{MSE}}}{\\partial \\hat y_i}=2r_i,
+\\qquad
+\\frac{\\partial \\ell_i^{\\operatorname{MAE}}}{\\partial \\hat y_i}
+=\\operatorname{sign}(r_i).
+$$
 
-### 记住这一点
-MSE 和 MAE 的区别，本质上是在问：你希望模型多害怕大误差？
+均值目标再把这两项分别除以 $n$。因此长时配送行不仅有更大的 MSE 贡献，也会产生更大的 MSE 输出梯度；MAE 则线性增长。
 
-### 补充知识点
-MSE 的曲线是光滑的，离目标越远斜率越大，所以梯度下降会更用力地纠正大残差。  
-MAE 的曲线在 0 附近有尖角，惩罚增长更线性，因此遇到离群点时通常不那么容易被单个大误差牵着走。
+### 代码与结果连接
+Notebook 的向量化实现与公式使用同一组 \`targets\`、\`predictions\`、\`residuals\` 名称：
 
-### 交互实验设计
-先用单样本面板手算同一个残差下的 MSE 和 MAE，再开启离群点。观察拟合线、总损失和残差放大条：同样的数据，在不同 loss 下会形成不同的“最好直线”。
+\`\`\`python
+residuals = predictions - targets
+squared = residuals ** 2
+absolute = np.abs(residuals)
 
-### 来源参考
-改写自 Google Machine Learning Crash Course 中对 MSE / MAE 与离群点的解释、D2L 的回归损失视角，以及 CS357 最小二乘对平方误差的数学动机。`,
-        en: `If a model misses a house price by 5 and by 50, should those two mistakes really be treated as equally serious?
+mse = left_fold_mean(squared)
+mae = left_fold_mean(absolute)
+mse_mean_gradients = 2.0 * residuals / targets.size
+mae_mean_subgradients = np.sign(residuals) / targets.size
+\`\`\`
 
-### Concept
-The two most common regression losses are **MSE** and **MAE**.  
-Both start from the **residual**, which is simply prediction minus target.
+页面把典型行、长时配送行和逐行贡献表放在公式旁边，并用实线菱形与虚线方形区分 MSE/MAE 图线。颜色不是唯一线索。
 
-- MSE squares the residual, so large errors get amplified
-- MAE uses the absolute value, so large errors matter more, but they are not amplified by squaring
+> **常见误解**
+> “MAE 对离群点更稳健”不等于“MAE 总是更好”。损失选择表达任务偏好；还必须考虑优化、噪声假设和错误成本。
 
-So these are not just two notations. They encode two different attitudes:  
-**should the model fear outliers more, or stay more robust to them?**
+### 下一步
+回归里输出是任意实数；下一章转向二分类概率 $p$ 与 logit $z$，观察一个自信错误为什么会让 BCE 急剧增大。`,
+        en: `### Core Question
+On the same real LaDe-D delivery records, why do a typical row and a long-duration row produce very different MSE versus MAE contribution and gradient scales?
 
-### Worked Example
-Suppose the true value is 10 and the model predicts 13. The residual is 3.
+### Concept Explanation
+The page keeps one fixed prediction $\\hat y$ and lets the real delivery target $y_i$ vary by row. We are therefore not comparing two models; we are comparing how two scoring rules transform the same residual $r_i=\\hat y_i-y_i$.
 
-- MSE: $3^2 = 9$
-- MAE: $|3| = 3$
+- A **typical row** first checks the per-row relationship among residual, square, and absolute value.
+- A **long-duration row** shows how a large residual can dominate squared loss.
+- The complete distribution shows whether that contrast is isolated or changes the aggregate objective.
 
-Now imagine another sample with residual 6:
-
-- MSE: $6^2 = 36$
-- MAE: $|6| = 6$
-
-When the error doubles, MAE doubles, but MSE grows much faster.
+All row values, representative roles, contribution rankings, and distribution bins come from the locked local summary. The prose explains relationships among fields instead of creating a second numerical authority.
 
 ### Formula
-Both formulas average errors, but one averages squared residuals and the other averages absolute residuals.
+Keep per-row contributions separate from aggregate objectives:
 
-$$\\text{MSE} = \\frac{1}{N}\\sum_i (\\hat{y}_i - y_i)^2$$
+$$
+\\ell_i^{\\operatorname{MSE}}=r_i^2,
+\\qquad
+\\operatorname{MSE}=\\frac{1}{n}\\sum_i r_i^2,
+$$
 
-$$\\text{MAE} = \\frac{1}{N}\\sum_i |\\hat{y}_i - y_i|$$
+$$
+\\ell_i^{\\operatorname{MAE}}=|r_i|,
+\\qquad
+\\operatorname{MAE}=\\frac{1}{n}\\sum_i |r_i|.
+$$
 
-Here $N$ is the number of samples, and $\\hat{y}_i - y_i$ is the residual for sample $i$.  
-Squaring punishes large mistakes more strongly. Absolute value grows more evenly.
+For output gradients, MSE scale grows with the residual, while a smooth MAE row keeps a fixed signed magnitude:
 
-> **Common Mistake**  
-> Do not confuse “more common” with “always better.” If the dataset contains strong outliers, MAE is often more robust.
+$$
+\\frac{\\partial \\ell_i^{\\operatorname{MSE}}}{\\partial \\hat y_i}=2r_i,
+\\qquad
+\\frac{\\partial \\ell_i^{\\operatorname{MAE}}}{\\partial \\hat y_i}
+=\\operatorname{sign}(r_i).
+$$
 
-### Remember This
-The real difference between MSE and MAE is how much you want the model to fear large errors.
+The mean objective divides both quantities by $n$. A long-duration row therefore has both a larger MSE contribution and a larger MSE output gradient, while MAE grows linearly.
 
-### Extra Concept
-MSE is smooth, and its slope grows as the prediction moves farther from the target, so gradient descent pushes harder on large residuals.  
-MAE has a corner near zero and grows more linearly, so it is usually less easily dominated by one extreme outlier.
+### Code and Output Connection
+The Notebook vectorization uses the same \`targets\`, \`predictions\`, and \`residuals\` names as the formulas:
 
-### Interaction Design
-Start with the single-sample calculation, then enable the outlier. Watch the fitted line, total loss, and residual amplifier: the same data can produce different “best lines” under different losses.
+\`\`\`python
+residuals = predictions - targets
+squared = residuals ** 2
+absolute = np.abs(residuals)
 
-### Source References
-Adapted from Google Machine Learning Crash Course for MSE / MAE and outlier intuition, D2L for the regression-loss framing, and CS357 for the least-squares motivation behind squared error.`,
+mse = left_fold_mean(squared)
+mae = left_fold_mean(absolute)
+mse_mean_gradients = 2.0 * residuals / targets.size
+mae_mean_subgradients = np.sign(residuals) / targets.size
+\`\`\`
+
+The page places the typical row, long-duration row, and per-row contribution table beside the formulas. The plot distinguishes MSE and MAE with solid diamonds versus dashed squares, so color is not the only cue.
+
+> **Common Mistake**
+> “MAE is more robust to outliers” does not mean “MAE is always better.” A loss expresses task preference and must also fit the optimization, noise assumption, and cost of mistakes.
+
+### Next Step
+Regression outputs can be any real number. The next chapter moves to binary probability $p$ and logit $z$ to explain why a confidently wrong prediction makes BCE grow sharply.`,
       },
       callout: {
-        'zh-CN': '重点看同一个残差在 MSE 和 MAE 下会被“重新放大”成多大的惩罚。',
-        en: 'Focus on how the same residual gets re-weighted into very different penalties under MSE and MAE.',
+        'zh-CN': '先比典型行，再比长时配送行：平方让贡献和梯度尺度随 |r| 放大，绝对值保持线性。',
+        en: 'Compare the typical row, then the long-duration row: squaring amplifies contribution and gradient scale with |r|, while absolute value stays linear.',
       },
       experimentPrompt: {
-        'zh-CN': '先用单样本手算，再打开离群点，看拟合线为什么会被 MSE 拉得更厉害。',
-        en: 'Start with the single-sample calculation, then enable the outlier and see why MSE pulls the fit harder.',
+        'zh-CN': '在代表行和完整分布之间切换，分别核对逐行贡献、总体均值与非颜色图形标记。',
+        en: 'Switch between representative rows and the full distribution, checking per-row contributions, aggregate means, and non-color plot markers separately.',
       },
       layoutMode: 'embedded-lab',
       embeddedLabId: 'regression-loss-lab',
@@ -241,198 +290,144 @@ Adapted from Google Machine Learning Crash Course for MSE / MAE and outlier intu
     },
     {
       id: 'classification-losses',
+      ...lossFunctionsChapterBindings['classification-losses'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.classificationLosses.title',
       markdown: {
-        'zh-CN': `如果一个模型把垃圾邮件判错了，而且它还 99% 自信，这种错误是不是应该比“只错一点点”更严重？
+        'zh-CN': `### 核心问题
+在真实 SECOM 二分类结果里，一个模型为什么会因为**自信地判错**而得到很大的 BCE，而且我们怎样在极端 logit 下仍计算同一个目标？
 
-### 概念直觉
-分类问题和回归不同。  
-这里我们不仅关心“对还是错”，还关心**模型有多自信**。
+### 概念解释
+标签 $y$ 只能是 0 或 1。模型先输出任意实数 logit $z$，再通过
+$p = \\sigma(z)$ 得到正类概率。概率域 BCE 检查真实标签拿到了多少概率：
 
-先从最简单的二分类说起。  
-如果类别只有“垃圾邮件 / 非垃圾邮件”两种，那么模型只需要给出一个概率 $p$：
+$$
+\\ell_{\\operatorname{BCE}}(y,p)
+=-[y\\log p+(1-y)\\log(1-p)].
+$$
 
-- $p$ 表示“属于正类”的概率
-- 另一个类别的概率就自动是 $1-p$
-
-这就是为什么二分类里只需要一个数字。  
-也正因为如此，二分类交叉熵 BCE 只需要盯住“真实类别最终拿到了多少概率”。
-
-但一旦类别从 2 个变成 3 个、4 个甚至更多，情况就变了。  
-这时我们不能只给出一个概率，因为：
-
-- 我们需要同时给出每个类别的概率
-- 这些概率必须加起来等于 1
-- 同一个样本不应该同时“高概率属于多个互斥类别”
-
-所以从 BCE 走向 Softmax，本质上不是“换一个新 loss”，而是**从一个概率扩展成一整组归一化概率**。
-
-### 手算例子
-先看二分类。假设真实标签是 1：
-
-- 如果模型给出 $p=0.99$，说明它不仅猜对了，而且非常自信
-- 如果模型给出 $p=0.55$，说明它虽然偏向正确答案，但还很犹豫
-- 如果模型给出 $p=0.01$，说明它几乎在“自信地说反话”
-
-这三种情况都不是同一种表现，所以不能只用“对 / 错”两个字来概括。
-
-接着看三分类。  
-假设一个样本真实属于类别 A，模型先给出三个原始分数：
-
-$$z = [2.0, 1.0, 0.2]$$
-
-这些分数本身还不是概率，因为它们既不一定大于 0，也不一定加起来等于 1。  
-Softmax 会把它们变成一组真正的概率分布。  
-最后如果 A 拿到的概率最高，而且足够高，那么损失就低；如果 A 的概率不高，损失就会上升。
+当预测正确且有把握时，真类概率接近 1，损失很小；当模型自信地判错时，真类概率接近 0，负对数会迅速增大。页面从固定的 SECOM 逐行结果中读取置信错误行、逐行 BCE、logit 梯度与整批均值，不把辅助 OOF 分数误称为本章训练出的模型。
 
 ### 公式
-二分类交叉熵先回答的是：模型有没有把足够高的概率给到真实标签？
+概率直觉清楚以后，计算改到 logit 域。本站的唯一规范实现是
+\`softplus(z) - y z\`：
 
-$$\\text{BCE}(y, p) = -\\left[y\\log p + (1-y)\\log(1-p)\\right]$$
+$$
+\\ell_{\\operatorname{BCE}}(y,z)
+=\\operatorname{softplus}(z)-yz
+=\\log(1+e^z)-yz.
+$$
 
-这里 $y$ 是真实标签，取值只能是 0 或 1；$p$ 是模型给正类的概率。  
-当 $y=1$ 时，公式主要看 $\\log p$；当 $y=0$ 时，公式主要看 $\\log(1-p)$。
+它与普通有限输入上的概率公式等价，但不会先把 $p$ 舍入到 0 或 1。对 logit 的逐行梯度尤其简单：
 
-如果类别不止两个，我们就要先把每个类别分数 $z_i$ 变成概率：
+$$
+\\frac{\\partial \\ell_i}{\\partial z_i}=p_i-y_i,
+\\qquad
+\\frac{\\partial L}{\\partial z_i}=\\frac{p_i-y_i}{n}.
+$$
 
-$$\\text{softmax}(z_i)=\\frac{e^{z_i}}{\\sum_j e^{z_j}}$$
+逐元素形式就是 \`p - y\`；对均值目标再除以 $n$。
 
-这样得到的 $p_i$ 会自动满足：
+页面还读取固定的极端 logit 探针，明确区分“朴素概率公式变成非有限”“裁剪后有限但目标被改变”和“稳定 logit BCE 仍有限”。
 
-$$p_1 + p_2 + \\cdots + p_K = 1$$
+### 代码与结果连接
+Notebook 的 \`manufacturing-stable-bce\` 单元与 TypeScript 数学工具使用同一 $y$、$z$、$p$、$n$ 记号：
 
-多分类交叉熵再去检查：真实类别到底拿到了多少概率？
+\`\`\`python
+def stable_bce_from_logits(logits, targets):
+    losses = np.logaddexp(0.0, logits) - targets * logits
+    probabilities = np.empty_like(logits)
+    nonnegative = logits >= 0.0
+    probabilities[nonnegative] = 1.0 / (1.0 + np.exp(-logits[nonnegative]))
+    negative_exponential = np.exp(logits[~nonnegative])
+    probabilities[~nonnegative] = (
+        negative_exponential / (1.0 + negative_exponential)
+    )
+    gradients = probabilities - targets
+    return losses, gradients, gradients / logits.size
+\`\`\`
 
-$$\\text{CE}(\\mathbf{y}, \\mathbf{p}) = -\\sum_i y_i\\log p_i$$
+\`np.logaddexp(0.0, logits)\` 是向量化 softplus；返回值把逐行损失、逐 logit 梯度和均值目标梯度分开。页面表格、置信错误卡片与稳定性对照全部绑定同一份锁定摘要。
 
-如果真实标签是 one-hot，也就是只有真类那一项等于 1，那么它会进一步简化成：
+### Softmax 桥梁
+互斥多分类把一个 $p$ 扩展为总和为 1 的概率向量；Softmax 负责归一化多个 logit。这里仅保留这条从 BCE 到多分类交叉熵的桥，不展开多分类梯度或决策分析。
 
-$$\\text{CE} = -\\log p_{\\text{true}}$$
+> **常见误解**
+> 概率裁剪不是稳定 BCE 的同义词。裁剪会改变极端输入的目标；规范路径直接在 logit 域计算原目标。
 
-最关键的一步桥梁在这里：如果 Softmax 只剩两个类别，它会退化成 Sigmoid。
+### 下一步
+我们已经会使用 MSE、MAE 和 BCE。下一章才回到概率来源，先问“一个模型给已观察数据多高的概率”，再进入似然、负对数与 MLE。`,
+        en: `### Core Question
+In the real SECOM binary results, why does a model receive a large BCE when it is **confidently wrong**, and how can we compute the same objective at extreme logits?
 
-$$\\frac{e^{z_1}}{e^{z_0}+e^{z_1}} = \\frac{1}{1+e^{-(z_1-z_0)}} = \\sigma(z_1-z_0)$$
+### Concept Explanation
+The label $y$ is either 0 or 1. The model first emits an unrestricted logit $z$, then
+$p = \\sigma(z)$ gives the positive-class probability. Probability-domain BCE asks how much probability the true label received:
 
-这说明：
+$$
+\\ell_{\\operatorname{BCE}}(y,p)
+=-[y\\log p+(1-y)\\log(1-p)].
+$$
 
-- 两类 Softmax 本质上就是 Sigmoid 的另一种写法
-- 二分类交叉熵 BCE，可以看成 Softmax cross-entropy 在两类情形下的特例
-
-> **常见误解**  
-> 不要把 Softmax 当成“和 BCE 没关系的另一套系统”，也不要把多分类简单理解成“给每个类各自套一个 sigmoid”。真正变化的不是“惩罚真类概率不足”这个思想，而是输出从一个概率变成了一整组必须共同归一化的概率。
-
-### 记住这一点
-BCE 解决的是“二分类里真类概率够不够高”，Softmax 解决的是“多分类里整组概率如何合法分配”；而二类 Softmax 恰好会退化回 BCE 背后的 Sigmoid 形式。
-
-### 补充知识点
-准确率只看最终有没有判对，不能区分“0.51 勉强对”和“0.99 非常确定”。  
-交叉熵把置信度也纳入惩罚，因此更适合作为训练目标：正确但不自信会继续被推动，错误且自信会被强烈惩罚。
-
-### 交互实验设计
-先拖动 BCE 概率，看同一标签下 loss 如何随置信度变化；再看 Softmax 概率预算图，观察真类概率、竞争类概率和分母如何一起变化。最后对比“每类一个 sigmoid”的反例，确认 softmax 适合互斥多分类。
-
-### 来源参考
-改写自 Google Machine Learning Crash Course 的 log loss / classification probability 讲解、D2L 的 softmax regression 结构，以及 mlcourse.ai 对逻辑回归似然和交叉熵的推导线索。`,
-        en: `If a model labels an email incorrectly and is 99% confident about it, should that mistake be treated the same as being only slightly wrong?
-
-### Concept
-Classification is different from regression.  
-Here we care not only about being right or wrong, but also about **confidence**.
-
-Start with the simplest case: binary classification.  
-If there are only two classes, such as “spam / not spam,” then the model only needs to output one probability $p$:
-
-- $p$ is the probability of the positive class
-- the other class is automatically $1-p$
-
-That is why binary classification only needs one number.  
-And that is why BCE only has to ask how much probability the true class finally received.
-
-But once we move from 2 classes to 3, 4, or more, the situation changes.  
-Now one probability is no longer enough because:
-
-- we must output a probability for every class
-- all probabilities must add up to 1
-- one sample should not strongly belong to multiple mutually exclusive classes at the same time
-
-So moving from BCE to softmax is not really “switching to a brand-new loss.”  
-It is **expanding from one probability into a full normalized probability vector**.
-
-### Worked Example
-First look at the binary case. Assume the true label is 1:
-
-- if the model predicts $p=0.99$, it is correct and very confident
-- if the model predicts $p=0.55$, it leans correct but is still hesitant
-- if the model predicts $p=0.01$, it is almost confidently saying the opposite
-
-These are not the same kind of performance, so “right / wrong” alone is not enough.
-
-Now move to three classes.  
-Suppose the true class is A and the model first produces three raw scores:
-
-$$z = [2.0, 1.0, 0.2]$$
-
-Those values are not probabilities yet, because they do not have to be positive or sum to 1.  
-Softmax converts them into a real probability distribution.  
-If class A ends up with the largest and sufficiently high probability, the loss is low. If A receives too little probability, the loss rises.
+A correct confident prediction gives the true class probability near 1 and a small loss. A confidently wrong prediction gives the true class probability near 0, so the negative log grows sharply. The page loads the confident-error row, per-row BCE, logit gradient, and batch mean from the fixed SECOM output; it never describes the auxiliary OOF scores as a model trained in this chapter.
 
 ### Formula
-Binary cross-entropy first asks: did the model assign enough probability to the true label?
+After the probability intuition is clear, computation moves to the logit domain. The only canonical implementation in this course is
+\`softplus(z) - y z\`:
 
-$$\\text{BCE}(y, p) = -\\left[y\\log p + (1-y)\\log(1-p)\\right]$$
+$$
+\\ell_{\\operatorname{BCE}}(y,z)
+=\\operatorname{softplus}(z)-yz
+=\\log(1+e^z)-yz.
+$$
 
-Here $y$ is the true label, which can only be 0 or 1, and $p$ is the predicted probability of the positive class.  
-When $y=1$, the formula mainly looks at $\\log p$; when $y=0$, it mainly looks at $\\log(1-p)$.
+It agrees with the probability expression on ordinary finite inputs without first rounding $p$ to 0 or 1. The per-logit gradient is especially simple:
 
-If we have more than two classes, we first turn each class score $z_i$ into a probability:
+$$
+\\frac{\\partial \\ell_i}{\\partial z_i}=p_i-y_i,
+\\qquad
+\\frac{\\partial L}{\\partial z_i}=\\frac{p_i-y_i}{n}.
+$$
 
-$$\\text{softmax}(z_i)=\\frac{e^{z_i}}{\\sum_j e^{z_j}}$$
+The elementwise form is simply \`p - y\`; the mean objective then divides it by $n$.
 
-This automatically gives probabilities that satisfy:
+The page also loads the locked extreme-logit probes and clearly separates “naive probability formula becomes non-finite,” “clipping is finite but changes the objective,” and “stable logit BCE stays finite.”
 
-$$p_1 + p_2 + \\cdots + p_K = 1$$
+### Code and Output Connection
+The Notebook cell \`manufacturing-stable-bce\` and the TypeScript math utility use the same $y$, $z$, $p$, and $n$ notation:
 
-Multiclass cross-entropy then checks how much probability the true class received:
+\`\`\`python
+def stable_bce_from_logits(logits, targets):
+    losses = np.logaddexp(0.0, logits) - targets * logits
+    probabilities = np.empty_like(logits)
+    nonnegative = logits >= 0.0
+    probabilities[nonnegative] = 1.0 / (1.0 + np.exp(-logits[nonnegative]))
+    negative_exponential = np.exp(logits[~nonnegative])
+    probabilities[~nonnegative] = (
+        negative_exponential / (1.0 + negative_exponential)
+    )
+    gradients = probabilities - targets
+    return losses, gradients, gradients / logits.size
+\`\`\`
 
-$$\\text{CE}(\\mathbf{y}, \\mathbf{p}) = -\\sum_i y_i\\log p_i$$
+\`np.logaddexp(0.0, logits)\` is vectorized softplus. The return values keep per-row loss, per-logit gradient, and mean-objective gradient distinct. The row table, confident-error card, and stability comparison all bind the same locked summary.
 
-If the target is one-hot, meaning only the true class has value 1, then the expression simplifies to:
+### Softmax Bridge
+Mutually exclusive multiclass classification expands one $p$ into a probability vector that sums to 1; Softmax normalizes multiple logits. This is only a short bridge from BCE to multiclass cross-entropy, not a multiclass gradient or decision lesson.
 
-$$\\text{CE} = -\\log p_{\\text{true}}$$
+> **Common Mistake**
+> Probability clipping is not another name for stable BCE. Clipping changes the objective at extreme inputs; the canonical path computes the original objective directly in logit space.
 
-The most important bridge appears here: if softmax only has two classes, it collapses into sigmoid.
-
-$$\\frac{e^{z_1}}{e^{z_0}+e^{z_1}} = \\frac{1}{1+e^{-(z_1-z_0)}} = \\sigma(z_1-z_0)$$
-
-That means:
-
-- two-class softmax is really another way to write sigmoid
-- BCE is the special two-class case of softmax cross-entropy
-
-> **Common Mistake**  
-> Do not treat softmax as a completely unrelated system, and do not reduce multiclass classification to “one sigmoid per class.” The core idea never changed: the true class should receive high probability. What changed is that the output must grow from one probability into a full normalized distribution.
-
-### Remember This
-BCE answers “is the true-class probability high enough in binary classification?” Softmax answers “how do we distribute probability legally across many classes?” and two-class softmax collapses right back into the sigmoid form behind BCE.
-
-### Extra Concept
-Accuracy only checks whether the final decision is right. It cannot distinguish “barely right at 0.51” from “very confident at 0.99.”  
-Cross-entropy includes confidence in the penalty, so it is more useful as a training objective: correct-but-hesitant predictions are still pushed, while confident mistakes are punished strongly.
-
-### Interaction Design
-First drag the BCE probability and watch how loss changes with confidence for the same label. Then inspect the softmax probability-budget graphic: the true-class probability, competing probabilities, and denominator move together. Finally compare the “one sigmoid per class” counterexample to see why softmax fits mutually exclusive multiclass tasks.
-
-### Source References
-Adapted from Google Machine Learning Crash Course for log loss and classification probability, D2L for the softmax regression structure, and mlcourse.ai for the likelihood-to-cross-entropy line in logistic regression.`,
+### Next Step
+We now know how to use MSE, MAE, and BCE. Only in the next chapter do we return to their probabilistic origin, starting with the probability a model assigns to observed data and then moving through likelihood, negative log, and MLE.`,
       },
       callout: {
-        'zh-CN': '先在 BCE 面板里理解“真类概率不够高就会被罚”，再到 Softmax 面板里看这个思想如何推广成一整组归一化概率。',
-        en: 'Use the BCE panel to understand why low true-class probability is punished, then move to the softmax panel to see that same idea expanded into a normalized probability vector.',
+        'zh-CN': '先读真实置信错误行，再比较朴素、裁剪和稳定三条计算路径；规范目标始终是 logit 域 BCE。',
+        en: 'Read the real confident-error row, then compare naive, clipped, and stable paths; logit-domain BCE remains the canonical objective.',
       },
       experimentPrompt: {
-        'zh-CN': '先固定真实标签并拖动 BCE 概率，再观察下方 Softmax 面板里的 logit、分母和三类概率条如何一起变化。',
-        en: 'First fix the true label and drag the BCE probability, then inspect how the logits, denominator, and three probability bars change together in the softmax panel below.',
+        'zh-CN': '固定 y 后移动 z，观察 p、逐行 BCE 与 p-y；随后查看极端探针，确认裁剪与稳定计算不是同一目标。',
+        en: 'Hold y fixed and move z to compare p, per-row BCE, and p-y; then inspect the extreme probes and confirm that clipping and stable evaluation are not the same objective.',
       },
       layoutMode: 'embedded-lab',
       embeddedLabId: 'classification-loss-lab',
@@ -440,113 +435,110 @@ Adapted from Google Machine Learning Crash Course for log loss and classificatio
     },
     {
       id: 'likelihood-intuition',
+      ...lossFunctionsChapterBindings['likelihood-intuition'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.likelihoodIntuition.title',
       markdown: {
-        'zh-CN': `如果你抛硬币 10 次，结果出现了 8 次正面，你会觉得“这枚硬币正面概率是 0.2”靠谱吗？
+        'zh-CN': `### 核心问题
+已经会用 BCE 之后，我们怎样把一组已观察数据看成“模型给这些结果分配了多高概率”，而不把似然误解成参数本身的概率？
 
-### 概念直觉
-**似然**不是在问“数据为什么发生”，而是在问：  
-**如果参数真的是这样，眼前这批数据像不像它生成出来的？**
+### 概念解释
+似然从**已观察数据**出发，固定住眼前的标签，再比较候选模型。对第 $i$ 行二分类结果，模型给出的概率是：
 
-在这节里，参数就是“硬币出现正面的概率 $p$”。  
-观测数据是“10 次里有 8 次正面”。  
-于是我们就可以比较：
+$$
+q_i =
+\\begin{cases}
+p_i, & y_i=1,\\\\
+1-p_i, & y_i=0.
+\\end{cases}
+$$
 
-- 如果 $p=0.2$，这组数据看起来像不像它生成的？
-- 如果 $p=0.5$，像不像？
-- 如果 $p=0.8$，像不像？
-
-### 手算例子
-如果我们暂时不管排列顺序，只看“8 次正面、2 次反面”这个结果，那么：
-
-$$L(p) = p^8(1-p)^2$$
-
-把几个候选值代进去：
-
-- $p=0.2$ 时，结果会很小，因为 0.2 很难解释“8 次正面”
-- $p=0.5$ 时，会更合理一些
-- $p=0.8$ 时，通常会明显更大，因为它更像这批数据的来源
+$q_i$ 回答“模型给实际发生的标签多高概率”。页面读取上一章同一批 SECOM 行的 $y_i$、$z_i$、$p_i$ 和 BCE 贡献，所以概率直觉与真实分类结果连续，不会突然换成另一套数值案例。
 
 ### 公式
-这条式子不是在发明新规则，而是在把“这组数据在当前参数下有多合理”写成一个可比较的数。
+如果先采用样本条件独立这个教学假设，整批已观察标签的似然是这些概率的乘积：
 
-$$L(p \\mid \\text{8 heads in 10 tosses}) = p^8(1-p)^2$$
+$$
+\\mathcal{L}
+=\\prod_{i=1}^{n}q_i
+=\\prod_{i=1}^{n}p_i^{y_i}(1-p_i)^{1-y_i}.
+$$
 
-这里的 $L$ 表示似然，$p$ 是我们正在猜的参数。  
-似然越大，不代表参数“绝对正确”，只代表**在候选参数里，它更能解释当前观测结果**。
+似然越大，只表示这个候选模型给当前已观察数据分配了更高联合概率；它不表示“参数有这么大概率”，也不证明模型就是真实的数据生成机制。
 
-> **常见误解**  
-> 不要把“参数的概率”误解成“似然”。这里不是在问“$p=0.8$ 本身有多可能”，而是在问“如果 $p=0.8$，这批数据有多像它生成的”。
+### 代码与结果连接
+Notebook 的锁定分类行已经提供 \`label\` 与 \`probability\`。下面的向量表达式只把已观察标签对应的概率选出来：
 
-### 记住这一点
-似然是在给参数打分：谁最能解释当前数据，谁的似然就更大。
+\`\`\`python
+observed_probabilities = np.where(
+    labels == 1.0,
+    probabilities,
+    1.0 - probabilities,
+)
+likelihood = np.prod(observed_probabilities)
+\`\`\`
 
-### 补充知识点
-似然曲线的最高点通常靠近观测频率。  
-如果 10 次里有 8 次正面，$p=0.8$ 会比 $p=0.2$ 更合理；如果你把正面次数改成 2，曲线峰值也会跟着移动。
+页面按行展示 $q_i$ 与对应 BCE，再让现有似然实验比较候选概率。这里的代码连接概率和乘积；不会重新拟合 SECOM 参数。
 
-### 交互实验设计
-固定抛硬币次数，拖动正面次数和候选概率。观察候选排名、似然曲线和当前标记点：数据不变时是在比较参数，数据一变时整条曲线都会重新定义“谁更合理”。
+> **常见误解**
+> 似然不是“参数的概率”。数据被视为已观察，模型候选在变化；我们比较的是每个候选给这些观察分配的概率。
 
-### 来源参考
-改写自 D2L 对最大似然思想的训练动机，以及 mlcourse.ai 在概率模型中用观测数据比较参数的讲法；本站用硬币例子把参数评分先独立讲清楚。`,
-        en: `If you toss a coin 10 times and get 8 heads, would you find it convincing to say “this coin has head probability 0.2”?
+### 下一步
+联合似然是许多 $q_i$ 的连乘，样本一多就会非常小。下一章用对数把乘积变成求和，再加负号得到可最小化的 NLL。`,
+        en: `### Core Question
+After learning to use BCE, how can we view observed data through the probability assigned by a model without confusing likelihood with the probability of a parameter?
 
-### Concept
-**Likelihood** is not asking why the data happened. It asks:  
-**if the parameter really had this value, how much does the observed data look like it came from it?**
+### Concept Explanation
+Likelihood starts from **observed data**: hold the labels in front of us fixed and compare candidate models. For binary row $i$, the probability assigned by a model to what was actually observed is:
 
-In this chapter, the parameter is the coin-head probability $p$.  
-The observed data is “8 heads out of 10 tosses.”  
-So we can compare:
+$$
+q_i =
+\\begin{cases}
+p_i, & y_i=1,\\\\
+1-p_i, & y_i=0.
+\\end{cases}
+$$
 
-- if $p=0.2$, does this dataset look like it came from that coin?
-- if $p=0.5$, does it?
-- if $p=0.8$, does it?
-
-### Worked Example
-If we ignore ordering for a moment and only track “8 heads and 2 tails,” then:
-
-$$L(p) = p^8(1-p)^2$$
-
-Now plug in a few candidates:
-
-- when $p=0.2$, the result is very small, because 0.2 struggles to explain 8 heads
-- when $p=0.5$, it becomes more plausible
-- when $p=0.8$, it is usually much larger, because that parameter matches the data better
+$q_i$ answers “how much probability did the model assign to the label that occurred?” The page loads $y_i$, $z_i$, $p_i$, and BCE contribution from the same locked SECOM rows used in the previous chapter, so the probability intuition remains connected to the real classification result.
 
 ### Formula
-This formula is not inventing a new rule. It is simply turning “how compatible is the data with this parameter?” into a comparable score.
+Under the teaching assumption that samples are conditionally independent, the likelihood of all observed labels is the product of those probabilities:
 
-$$L(p \\mid \\text{8 heads in 10 tosses}) = p^8(1-p)^2$$
+$$
+\\mathcal{L}
+=\\prod_{i=1}^{n}q_i
+=\\prod_{i=1}^{n}p_i^{y_i}(1-p_i)^{1-y_i}.
+$$
 
-Here $L$ means likelihood and $p$ is the parameter candidate we are testing.  
-A larger likelihood does not mean the parameter is “certainly correct.” It only means **this candidate explains the current observation better than the others**.
+A larger likelihood only means that this candidate assigned more joint probability to the observed data. It is not the probability of the parameter and does not prove that the candidate is the true data-generating mechanism.
 
-> **Common Mistake**  
-> Do not confuse the “probability of the parameter” with likelihood. We are not asking how likely $p=0.8$ is by itself. We are asking how well $p=0.8$ explains the observed data.
+### Code and Output Connection
+The locked Notebook rows already provide \`label\` and \`probability\`. This vector expression selects the probability of each observed label:
 
-### Remember This
-Likelihood is a scoring rule for parameters: the candidate that explains the data better gets the higher score.
+\`\`\`python
+observed_probabilities = np.where(
+    labels == 1.0,
+    probabilities,
+    1.0 - probabilities,
+)
+likelihood = np.prod(observed_probabilities)
+\`\`\`
 
-### Extra Concept
-The peak of the likelihood curve usually sits near the observed frequency.  
-If 8 out of 10 tosses are heads, $p=0.8$ is much more plausible than $p=0.2$; if you change the heads count to 2, the peak moves with the data.
+The page places each $q_i$ beside its BCE contribution, then lets the existing likelihood lab compare candidates. This code connects probabilities to their product without refitting SECOM parameters.
 
-### Interaction Design
-Keep the number of tosses fixed, then drag the heads count and candidate probability. Watch the candidate ranking, likelihood curve, and current marker: with fixed data we compare parameters, while changing data redefines which parameter looks plausible.
+> **Common Mistake**
+> Likelihood is not the probability of a parameter. The data is treated as observed while the candidate model changes; we compare the probability each candidate assigns to those observations.
 
-### Source References
-Adapted from D2L for the maximum-likelihood training motivation and mlcourse.ai for comparing parameters through observed data; this site isolates the coin example before connecting it to loss.`,
+### Next Step
+Joint likelihood multiplies many $q_i$ values and quickly becomes tiny. The next chapter uses a log to turn the product into a sum, then adds a minus sign to obtain a minimizable NLL.`,
       },
       callout: {
-        'zh-CN': '先比较几个候选参数谁更像这组数据的来源，再谈“最优参数”这件事。',
-        en: 'First compare which candidate explains the data better, then talk about the best parameter.',
+        'zh-CN': '固定已观察标签，比较不同候选给这些标签分配的联合概率；不要反过来问参数本身的概率。',
+        en: 'Hold the observed labels fixed and compare the joint probability assigned by candidates; do not reverse the question into a parameter probability.',
       },
       experimentPrompt: {
-        'zh-CN': '保持观测结果固定，切换候选概率，比较哪一个参数让“8 次正面”看起来最合理。',
-        en: 'Keep the observation fixed and compare which probability makes “8 heads” look most plausible.',
+        'zh-CN': '保持观测结果固定，切换候选概率并逐行查看 q_i，再观察乘积怎样给候选排序。',
+        en: 'Keep observations fixed, switch candidate probabilities, inspect each q_i, and see how their product ranks candidates.',
       },
       layoutMode: 'embedded-lab',
       embeddedLabId: 'likelihood-intuition-lab',
@@ -554,103 +546,100 @@ Adapted from D2L for the maximum-likelihood training motivation and mlcourse.ai 
     },
     {
       id: 'negative-log',
+      ...lossFunctionsChapterBindings['negative-log'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.negativeLog.title',
       markdown: {
-        'zh-CN': `既然似然已经能给参数打分了，为什么还要多此一举地取对数、再加一个负号？
+        'zh-CN': `许多观测概率都很小时，为什么不能一直直接相乘？负对数又怎样把概率故事变成稳定的逐行损失？
 
-### 概念直觉
-原因有两个：
+### 核心问题
+似然把每行“模型给真实结果的概率”连乘起来。样本一多，乘积会很快靠近 0；如果模型把已经发生的结果判得几乎不可能观察到，这个问题会更明显。我们需要保持排序不变，又避免直接计算极小连乘。
 
-1. 多个样本的联合似然通常是很多小概率连乘，数字会迅速变得极小  
-2. 机器学习更习惯做“最小化”，而不是“最大化”
+### 概念解释
+对数单调递增，所以比较 $L$ 与比较 $\\log L$ 会选出相同的候选。它还让概率连乘变成求和：
 
-对数可以把连乘变成连加，负号可以把“最大化似然”改写成“最小化损失”。
+$$
+\\log\\prod_{i=1}^{n}q_i=\\sum_{i=1}^{n}\\log q_i.
+$$
 
-### 手算例子
-继续看“10 次里 8 次正面”的例子。  
-如果某个候选参数给每次观测的概率都小于 1，那么把 10 个概率相乘后，结果会很快变得非常小。
-
-于是我们做两步变形：
-
-$$\\log L(p) = \\log\\left(p^8(1-p)^2\\right) = 8\\log p + 2\\log(1-p)$$
-
-再乘上负号：
-
-$$-\\log L(p)$$
-
-这样以后，比较参数就变成“谁的负对数似然更小”。
+再加负号，就得到负对数似然（negative log-likelihood, NLL）：每个不可信的已观察结果都会贡献更大的正损失，而且各行贡献可以安全相加。
 
 ### 公式
-对于这个抛硬币例子，负对数似然可以写成：
+Bernoulli 标签 $y_i\\in\\{0,1\\}$ 的单行 NLL 正是 BCE：
 
-$$-\\log L(p) = -\\left[8\\log p + 2\\log(1-p)\\right]$$
+$$
+\\ell_i=-\\left[y_i\\log p_i+(1-y_i)\\log(1-p_i)\\right].
+$$
 
-取对数之后，原来很难读的连乘被变成了容易处理的求和。  
-再加负号以后，我们就把“分数越大越好”的似然，翻译成了“分数越小越好”的损失。
+若模型输出 logit $z_i$，同一个量可以写成数值更稳定的形式：
 
-> **常见误解**  
-> 负对数似然不是在“改变问题”，而是在用更方便计算、更适合优化的语言，重写同一个比较任务。
+$$
+\\ell_i=\\operatorname{softplus}(z_i)-y_i z_i.
+$$
 
-### 记住这一点
-取对数是为了把连乘变连加，加负号是为了把最大化问题改写成最小化问题。
+这不是换了目标，而是避免先把极端 logit 压成舍入后的 0 或 1。
 
-### 补充知识点
-对数函数是单调递增的，所以最大化 $L$ 和最大化 $\\log L$ 会选出同一个参数。  
-负号只改变优化方向：最大化 $\\log L$ 等价于最小化 $-\\log L$。
+### 代码与结果连接
+固定的 SECOM 探针同时保留朴素概率公式、裁剪概率公式和稳定 logit 公式。页面从 \`bce-stability-probes\` 读取状态；下面的核心表达式与 Notebook 完全相同：
 
-### 交互实验设计
-逐步增加样本数，比较上方联合似然曲线和下方 NLL 曲线。注意观察：联合似然会很快接近 0，但 NLL 仍然保持清晰的数值尺度，便于排序和优化。
+\`\`\`python
+def stable_bce_from_logits(logits, targets):
+    return np.logaddexp(0.0, logits) - targets * logits
+\`\`\`
 
-### 来源参考
-改写自 Google Machine Learning Crash Course 对 log loss 数值稳定性的解释，以及 D2L 中把 likelihood 转成 negative log-likelihood 目标函数的训练写法。`,
-        en: `If likelihood already scores parameters, why do we bother taking a log and then adding a minus sign?
+普通 logit 时三种写法接近；极端 logit 时，朴素写法可能得到非有限值，裁剪写法虽有限却改变数值，而 \`np.logaddexp\` 仍直接计算原目标。
 
-### Concept
-There are two main reasons:
+> **常见误解**
+> 概率裁剪能阻止 \`log(0)\`，但它不是稳定公式的同义写法。裁剪改变了输入概率；稳定 logit BCE 只是更可靠地计算同一个 Bernoulli negative log-likelihood。
 
-1. the joint likelihood of many samples is often a product of many small probabilities, so it becomes tiny very quickly  
-2. machine learning usually prefers minimization rather than maximization
+### 下一步
+现在我们知道 NLL 为什么可加、为什么稳定。下一章把“最大化似然”和“最小化负对数似然”并排连接到 MSE、MAE 与 BCE，但仍不进入参数训练。
+`,
+        en: `When many observed probabilities are small, why not keep multiplying them directly? How does a negative log turn the probability story into a stable row-wise loss?
 
-The log turns products into sums, and the minus sign turns “maximize likelihood” into “minimize loss.”
+### Core Question
+Likelihood multiplies the probability assigned by a model to each realized outcome. With more rows, that product rapidly approaches zero; the effect is sharper when the model calls an observed outcome an unlikely observation. We need the same ranking without directly computing a tiny product.
 
-### Worked Example
-Keep using the “8 heads out of 10 tosses” example.  
-If each observation contributes a probability smaller than 1, multiplying 10 such terms makes the joint likelihood shrink very fast.
+### Concept Explanation
+The logarithm is monotonic, so comparing $L$ and comparing $\\log L$ select the same candidate. It also makes probability products become sums:
 
-So we apply two transformations:
+$$
+\\log\\prod_{i=1}^{n}q_i=\\sum_{i=1}^{n}\\log q_i.
+$$
 
-$$\\log L(p) = \\log\\left(p^8(1-p)^2\\right) = 8\\log p + 2\\log(1-p)$$
-
-Then we multiply by -1:
-
-$$-\\log L(p)$$
-
-Now comparing parameters becomes “which one has the smaller negative log-likelihood?”
+Adding a minus sign gives the negative log-likelihood (NLL): every implausible observed result contributes a larger positive loss, and row contributions can be added safely.
 
 ### Formula
-For this coin-toss example, the negative log-likelihood becomes:
+For a Bernoulli label $y_i\\in\\{0,1\\}$, the per-row NLL is exactly BCE:
 
-$$-\\log L(p) = -\\left[8\\log p + 2\\log(1-p)\\right]$$
+$$
+\\ell_i=-\\left[y_i\\log p_i+(1-y_i)\\log(1-p_i)\\right].
+$$
 
-After taking the log, a difficult product becomes an easy sum.  
-After adding the minus sign, a “larger is better” score becomes a “smaller is better” loss.
+When the model emits a logit $z_i$, the same quantity has a numerically stable form:
 
-> **Common Mistake**  
-> Negative log-likelihood does not change the underlying question. It rewrites the same comparison in a form that is easier to compute and easier to optimize.
+$$
+\\ell_i=\\operatorname{softplus}(z_i)-y_i z_i.
+$$
 
-### Remember This
-The log turns multiplication into addition; the minus sign turns maximization into minimization.
+This does not change the objective. It avoids first rounding an extreme logit to probability 0 or 1.
 
-### Extra Concept
-The logarithm is monotonic, so maximizing $L$ and maximizing $\\log L$ choose the same parameter.  
-The minus sign only flips the optimization direction: maximizing $\\log L$ is equivalent to minimizing $-\\log L$.
+### Code and Output Connection
+The locked SECOM probes retain naive-probability, clipped-probability, and stable-logit calculations. The page reads their statuses from \`bce-stability-probes\`; this core expression is identical to the Notebook:
 
-### Interaction Design
-Increase the sample count and compare the joint-likelihood curve above with the NLL curve below. The joint likelihood quickly approaches zero, while NLL keeps a readable scale for ranking and optimization.
+\`\`\`python
+def stable_bce_from_logits(logits, targets):
+    return np.logaddexp(0.0, logits) - targets * logits
+\`\`\`
 
-### Source References
-Adapted from Google Machine Learning Crash Course for the numerical-stability intuition behind log loss and D2L for rewriting likelihood into a negative-log-likelihood objective.`,
+At ordinary logits the three calculations are close. At extreme logits, the naive form can become non-finite, clipping remains finite but changes the value, and \`np.logaddexp\` still evaluates the original objective directly.
+
+> **Common Mistake**
+> Probability clipping prevents \`log(0)\`, but it is not a synonym for a stable formula. Clipping changes the input probability; stable logit BCE computes the same Bernoulli negative log-likelihood more reliably.
+
+### Next Step
+We now know why NLL is additive and why its stable form matters. The next chapter places “maximize likelihood” beside “minimize negative log-likelihood” and connects them to MSE, MAE, and BCE without starting parameter training.
+`,
       },
       callout: {
         'zh-CN': '这一章的重点不是新公式，而是看懂“为什么要把概率语言翻译成优化语言”。',
@@ -666,105 +655,106 @@ Adapted from Google Machine Learning Crash Course for the numerical-stability in
     },
     {
       id: 'mle-bridge',
+      ...lossFunctionsChapterBindings['mle-bridge'],
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.lossFunctions.sections.mleBridge.title',
       markdown: {
-        'zh-CN': `学到这里，我们终于可以回答一个关键问题：为什么 MSE、MAE、BCE 这些损失会长成现在这样？
+        'zh-CN': `MSE、MAE 与 BCE 为什么会有这些形状？它们能否从同一个“让数据更可信”的原则得到？
 
-### 概念直觉
-答案是：很多常见损失并不是拍脑袋发明出来的。  
-它们来自一种更底层的想法：
+### 核心问题
+最大似然估计（MLE）先选择一个数据生成假设，再寻找使已观察数据概率最大的候选。损失函数不是孤立的惩罚公式：很多 loss 是相应概率模型的负对数似然。
 
-**先假设数据是按某种概率分布生成的，再去寻找最能解释这些数据的参数。**
+### 概念解释
+三条常用桥梁只改变误差假设，不改变比较逻辑：
 
-这就是最大似然估计（MLE）的直觉。
+- Gaussian 误差的负对数似然，在固定方差时与 MSE 只差常数和正比例因子；
+- Laplace 误差的负对数似然，在固定尺度时与 MAE 对齐；
+- Bernoulli 结果的负对数似然就是 BCE。
 
-### 手算例子
-如果你认为连续值误差大多小、偶尔大，而且正负对称，那么 Gaussian 假设通常很自然；  
-如果你觉得少数大偏差并不罕见，那么 Laplace 假设会更合理；  
-如果输出本来就是 0 或 1，那么 Bernoulli 假设最合适。
-
-于是就会得到三条熟悉的桥梁：
-
-- Gaussian 负对数似然会导向 MSE
-- Laplace 负对数似然会导向 MAE
-- Bernoulli 负对数似然会导向 BCE
+配送数据中的代表行让我们比较平方残差与绝对残差，SECOM 代表行让我们查看 0/1 结果的 BCE 贡献。它们来自两个固定数据集，却共享“逐行解释，再聚合”的结构。
 
 ### 公式
-当我们把“找最能解释数据的参数”写成数学形式时，才会出现你熟悉的 MLE 记号：
+最大化似然写作
 
-$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\max_{\\theta} p(\\mathcal{D}\\mid\\theta)$$
+$$
+\\hat{\\theta}_{\\mathrm{MLE}}
+=\\arg\\max_{\\theta}p(\\mathcal D\\mid\\theta).
+$$
 
-如果再把它改写成优化里更常见的最小化形式，就得到：
+由于对数单调递增，再加一个负号，同一选择也可以写作
 
-$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\min_{\\theta} -\\log p(\\mathcal{D}\\mid\\theta)$$
+$$
+\\hat{\\theta}_{\\mathrm{MLE}}
+=\\arg\\min_{\\theta}\\left[-\\log p(\\mathcal D\\mid\\theta)\\right].
+$$
 
-这里 $\\theta$ 是参数，$\\mathcal{D}$ 是数据集。  
-这条式子真正表达的意思并不神秘：**最小化损失，很多时候就是在寻找“最能解释数据”的参数。**
+所以最大化似然与最小化负对数似然选择同一候选；变换改变计算方式和优化方向，不改变候选排序。
 
-> **常见误解**  
-> 不要把 MLE 当成“和损失函数无关的统计附录”。它恰恰解释了为什么很多 loss 会长成今天这个样子。
+### 代码与结果连接
+这一章把两个已锁定输出并排展示，而不在浏览器中重新拟合模型：
 
-### 记住这一点
-很多常见损失，其实是某种数据生成假设下的负对数似然。
+\`\`\`python
+regression_rows = delivery_output["representative_rows"]
+classification_rows = manufacturing_output["contributions"]
+mean_loss = np.mean([row["loss"] for row in classification_rows])
+\`\`\`
 
-### 补充知识点
-选择 loss 时不要只问“哪个公式常用”，而要问“我愿意假设误差长什么样”。  
-高斯假设强调小误差和对称噪声，拉普拉斯假设更能容忍少量大偏差，伯努利假设则对应 0/1 事件。
+\`delivery-representative-rows\` 提供同一残差下的 MSE/MAE 贡献，\`manufacturing-bce-contributions\` 提供 Bernoulli BCE 贡献。页面只复核分布假设如何对应损失；这里不更新 $\\theta$。
 
-### 交互实验设计
-切换 Gaussian、Laplace、Bernoulli 三种假设，并拖动参数。观察“分布假设 -> 似然 -> 负对数 -> loss”的链条：图形形状变化时，等价 loss 的含义也在变化。
+> **常见误解**
+> “高斯对应 MSE”不表示任何回归数据都自动服从高斯分布。它说明：接受该噪声假设与固定尺度后，MLE 的候选排序与最小 MSE 一致。假设是否合适仍需结合任务判断。
 
-### 来源参考
-改写自 D2L 对 MLE 与常见损失的连接、mlcourse.ai 对逻辑回归最大似然的推导，以及 Google MLCC 对 MSE / log loss 应用场景的解释。`,
-        en: `At this point we can finally answer a crucial question: why do losses such as MSE, MAE, and BCE have the shapes they do?
+### 下一步
+我们已经把概率模型、似然和损失连成一条链。下一章只验证损失对模型输出的解析梯度；Phase 27 的线性回归与 Phase 29 的逻辑回归再用链式法则连接参数梯度和完整训练。
+`,
+        en: `Why do MSE, MAE, and BCE have these shapes? Can they follow from one principle of making observed data more plausible?
 
-### Concept
-The answer is that many common losses were not invented arbitrarily.  
-They come from a deeper idea:
+### Core Question
+Maximum likelihood estimation (MLE) chooses a data-generation assumption, then looks for the candidate that gives the observed data the largest probability. A loss is not an isolated penalty formula: many losses are negative log-likelihoods of their probability models.
 
-**first assume the data was generated by some probability model, then find the parameter that explains that data best.**
+### Concept Explanation
+Three common bridges change the error assumption, not the comparison logic:
 
-That is the intuition behind maximum likelihood estimation (MLE).
+- Gaussian-error negative log-likelihood differs from MSE only by a constant and positive scale when variance is fixed;
+- Laplace-error negative log-likelihood aligns with MAE when scale is fixed;
+- Bernoulli negative log-likelihood is BCE.
 
-### Worked Example
-If you believe continuous errors are usually small, occasionally larger, and symmetric around zero, a Gaussian assumption is natural.  
-If you expect a model to tolerate occasional larger deviations more gracefully, a Laplace assumption makes sense.  
-If the output is inherently 0 or 1, a Bernoulli assumption is the right fit.
-
-That gives three familiar bridges:
-
-- Gaussian negative log-likelihood leads to MSE
-- Laplace negative log-likelihood leads to MAE
-- Bernoulli negative log-likelihood leads to BCE
+Representative delivery rows let us compare squared and absolute residual contributions, while representative SECOM rows expose BCE contributions for 0/1 outcomes. They come from two locked datasets but share the structure “explain each row, then aggregate.”
 
 ### Formula
-Only after the intuition is clear do we need the standard MLE notation:
+To maximize likelihood, write
 
-$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\max_{\\theta} p(\\mathcal{D}\\mid\\theta)$$
+$$
+\\hat{\\theta}_{\\mathrm{MLE}}
+=\\arg\\max_{\\theta}p(\\mathcal D\\mid\\theta).
+$$
 
-If we rewrite that in the minimization form used in optimization, we get:
+Because the log is monotonic, adding a minus sign expresses the same selection as
 
-$$\\hat{\\theta}_{\\text{MLE}} = \\arg\\min_{\\theta} -\\log p(\\mathcal{D}\\mid\\theta)$$
+$$
+\\hat{\\theta}_{\\mathrm{MLE}}
+=\\arg\\min_{\\theta}\\left[-\\log p(\\mathcal D\\mid\\theta)\\right].
+$$
 
-Here $\\theta$ is the parameter and $\\mathcal{D}$ is the dataset.  
-The real meaning is simple: **minimizing loss often means finding the parameter that makes the observed data most plausible.**
+Thus maximize likelihood and minimize negative log-likelihood select the same candidate. The transformation changes the computation and optimization direction, not the candidate ranking.
 
-> **Common Mistake**  
-> Do not treat MLE as a detached statistics appendix. It is exactly the idea that explains why many practical losses look the way they do.
+### Code and Output Connection
+This chapter places two locked outputs side by side instead of fitting another model in the browser:
 
-### Remember This
-Many familiar losses are just negative log-likelihoods under different data-generation assumptions.
+\`\`\`python
+regression_rows = delivery_output["representative_rows"]
+classification_rows = manufacturing_output["contributions"]
+mean_loss = np.mean([row["loss"] for row in classification_rows])
+\`\`\`
 
-### Extra Concept
-When choosing a loss, do not only ask which formula is common. Ask what you are willing to assume about the errors.  
-Gaussian assumptions emphasize small symmetric noise, Laplace assumptions tolerate occasional larger deviations, and Bernoulli assumptions match 0-or-1 events.
+\`delivery-representative-rows\` supplies MSE/MAE contributions for the same residuals, and \`manufacturing-bce-contributions\` supplies Bernoulli BCE contributions. The page only checks how assumptions map to losses; it does not update $\\theta$ here.
 
-### Interaction Design
-Switch across Gaussian, Laplace, and Bernoulli, then drag the parameters. Watch the chain “assumption -> likelihood -> negative log -> loss”: when the shape changes, the meaning of the equivalent loss changes too.
+> **Common Mistake**
+> “Gaussian leads to MSE” does not mean every regression dataset is automatically Gaussian. It means that after accepting that noise model and a fixed scale, the MLE ranking agrees with minimum MSE. Whether the assumption fits the task remains a modeling judgment.
 
-### Source References
-Adapted from D2L for the MLE-to-loss connection, mlcourse.ai for the maximum-likelihood derivation of logistic regression, and Google MLCC for practical MSE / log-loss usage intuition.`,
+### Next Step
+We have linked probability models, likelihood, and loss. The next chapter checks only analytic output gradients; Phase 27 on linear regression and Phase 29 on logistic regression will apply the chain rule to parameter gradients and full training.
+`,
       },
       callout: {
         'zh-CN': '把“分布假设 -> 似然 -> 负对数 -> 对应 loss”这条链真正连起来，MLE 就不再神秘。',
@@ -776,6 +766,121 @@ Adapted from D2L for the MLE-to-loss connection, mlcourse.ai for the maximum-lik
       },
       layoutMode: 'embedded-lab',
       embeddedLabId: 'mle-bridge-lab',
+      metricEmphasis: ['loss'],
+    },
+    {
+      id: 'gradient-verification',
+      ...lossFunctionsChapterBindings['gradient-verification'],
+      eyebrowKey: 'common.chapter',
+      titleKey: 'modules.lossFunctions.sections.gradientVerification.title',
+      markdown: {
+        'zh-CN': `解析梯度写出来以后，我们怎样确认公式和向量化代码真的描述了同一个量？
+
+### 核心问题
+这一章只检查损失对模型**输出**的梯度：回归里的 $\\partial L/\\partial \\hat y$，以及二分类里的 $\\partial L/\\partial z$。它不会提前推导 $\\partial L/\\partial w$，也不会训练模型参数。
+
+### 概念解释
+中心差分会把某一个输出向上、向下各移动一个很小的步长 $h$，再用两次目标函数的变化估计斜率：
+
+$$
+g_{\\text{num}} = \\frac{L(u+h)-L(u-h)}{2h}
+$$
+
+### 公式
+解析梯度来自公式。对均值目标，单个样本的贡献还要除以批量大小 $n$：
+
+$$
+\\frac{\\partial \\operatorname{MSE}}{\\partial \\hat y_i}
+=\\frac{2(\\hat y_i-y_i)}{n},
+\\qquad
+\\frac{\\partial \\operatorname{BCE}}{\\partial z_i}
+=\\frac{\\sigma(z_i)-y_i}{n}.
+$$
+
+把解析值和中心差分放在同一行比较，可以检查漏掉的负号、错误的变量和忘记的 $1/n$。
+
+### 代码与结果连接
+下面的函数与可下载 Notebook 中的 \`manufacturing-central-difference\` 代码单元使用同一变量名。页面读取固定的步长扫描结果，而不是重新抄写一套数值。
+
+\`\`\`python
+def coordinate_central_difference(objective, values, index, step):
+    plus = values.copy()
+    minus = values.copy()
+    plus[index] += step
+    minus[index] -= step
+    return (objective(plus) - objective(minus)) / (2.0 * step)
+\`\`\`
+
+固定扫描使用 $h=10^{-1}$ 到 $10^{-9}$，并同时报告绝对误差
+$|g_{\\text{analytic}}-g_{\\text{num}}|$ 与带尺度的相对误差。平滑点按固定容差 $5\\times10^{-7}$ 标记通过或失败；$h$ 太大时有截断误差，太小时舍入误差会重新变明显。
+
+### MAE 尖点
+当 $\\hat y_i=y_i$ 时，MAE 在 0 处不可导。本站采用子梯度 0 作为实现约定，但对称中心差分得到 0 并不能证明存在唯一导数。固定结果因此标记为“尖点”，不会伪装成普通通过。
+
+> **常见误解**
+> 数值梯度很接近解析梯度，只能说明当前输入、步长和实现彼此一致；它不是对所有输入的数学证明。MAE 尖点更不能按光滑点的规则认证。
+
+### 下一步
+现在我们已经确认了 $\\partial L/\\partial \\hat y$ 和 $\\partial L/\\partial z$。在线性回归与逻辑回归课程里，链式法则会把这些输出梯度继续传到 $w$ 和 $b$；参数更新与完整训练循环留到那两门课。`,
+        en: `Once an analytic gradient is written down, how can we check that the formula and vectorized code describe the same quantity?
+
+### Core Question
+This chapter checks gradients of the loss with respect to model **outputs** only: $\\partial L/\\partial \\hat y$ for regression and $\\partial L/\\partial z$ for binary classification. It does not derive $\\partial L/\\partial w$ or train model parameters.
+
+### Concept Explanation
+A central difference moves one output upward and downward by a small step $h$, then estimates the slope from two objective evaluations:
+
+$$
+g_{\\text{num}} = \\frac{L(u+h)-L(u-h)}{2h}.
+$$
+
+### Formula
+The analytic gradient comes from the formula. For a mean objective, one sample's contribution also contains the batch factor $1/n$:
+
+$$
+\\frac{\\partial \\operatorname{MSE}}{\\partial \\hat y_i}
+=\\frac{2(\\hat y_i-y_i)}{n},
+\\qquad
+\\frac{\\partial \\operatorname{BCE}}{\\partial z_i}
+=\\frac{\\sigma(z_i)-y_i}{n}.
+$$
+
+Comparing the analytic and central-difference values on the same row catches a missing sign, the wrong variable, or a forgotten $1/n$.
+
+### Code and Output Connection
+This function uses the same names as the downloadable Notebook cell \`manufacturing-central-difference\`. The page loads the locked step sweep instead of copying a second set of numerical values into prose.
+
+\`\`\`python
+def coordinate_central_difference(objective, values, index, step):
+    plus = values.copy()
+    minus = values.copy()
+    plus[index] += step
+    minus[index] -= step
+    return (objective(plus) - objective(minus)) / (2.0 * step)
+\`\`\`
+
+The locked sweep runs from $h=10^{-1}$ through $10^{-9}$ and reports both absolute error,
+$|g_{\\text{analytic}}-g_{\\text{num}}|$, and scaled relative error. Smooth points are marked pass or fail against the fixed $5\\times10^{-7}$ tolerance. A large $h$ produces truncation error; a very small $h$ eventually exposes rounding error again.
+
+### The MAE Kink
+When $\\hat y_i=y_i$, MAE is not differentiable at zero. This project uses subgradient 0 as an implementation convention, but a symmetric central difference of 0 does not prove that a unique derivative exists. The locked result is therefore marked as a kink, never disguised as an ordinary pass.
+
+> **Common Mistake**
+> A close numerical match shows that one input, step size, and implementation agree. It is not a proof for every input, and the MAE kink cannot be certified using the smooth-point rule.
+
+### Next Step
+We have now checked $\\partial L/\\partial \\hat y$ and $\\partial L/\\partial z$. The later linear- and logistic-regression lessons will use the chain rule to carry those output gradients to $w$ and $b$; parameter updates and full training loops belong there.`,
+      },
+      callout: {
+        'zh-CN': '同时查看解析梯度、中心差分、两种误差和步长，先确认检查的是同一个均值目标。',
+        en: 'Read the analytic gradient, central difference, both errors, and step size together, first confirming they refer to the same mean objective.',
+      },
+      experimentPrompt: {
+        'zh-CN': '比较 MSE、光滑 MAE、MAE 尖点和稳定 BCE 的步长扫描，再到线性/逻辑回归课程继续链式法则。',
+        en: 'Compare the MSE, smooth-MAE, MAE-kink, and stable-BCE sweeps, then continue the chain rule in the linear and logistic regression lessons.',
+      },
+      layoutMode: 'embedded-lab',
+      embeddedLabId: 'loss-gradient-verification-lab',
       metricEmphasis: ['loss'],
     },
   ],

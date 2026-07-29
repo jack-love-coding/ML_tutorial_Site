@@ -5,8 +5,14 @@ import type {
   PlotPoint,
   TrainingSnapshot,
 } from '../types/ml'
-import { generateDataset } from '../utils/datasets'
-import { clamp, sigmoid } from '../utils/math'
+import { generateDataset } from '../utils/datasets.ts'
+import { clamp, sigmoid } from '../utils/math.ts'
+import {
+  evaluateLossGradient,
+  logitFromProbability,
+  stableBinaryCrossEntropy,
+  type BinaryLabel,
+} from './lossFunctionsMath.ts'
 
 const regressionDomain = { min: -3, max: 3 }
 const probabilityMin = 0.01
@@ -24,21 +30,26 @@ function makeCurve(
   })
 }
 
-function safeProbability(value: number) {
-  return clamp(value, probabilityMin, probabilityMax)
+function requireProbability(value: number, name: string) {
+  if (!Number.isFinite(value) || value <= 0 || value >= 1) {
+    throw new RangeError(`${name} must be finite and strictly between 0 and 1.`)
+  }
+  return value
 }
 
-function mse(target: number, prediction: number) {
-  return (prediction - target) ** 2
+function singleRegressionLoss(
+  target: number,
+  prediction: number,
+  kind: 'mse' | 'mae',
+) {
+  return evaluateLossGradient(kind, [target], [prediction]).perElementLosses[0]!
 }
 
-function mae(target: number, prediction: number) {
-  return Math.abs(prediction - target)
-}
-
-function bce(label: number, probability: number) {
-  const safe = safeProbability(probability)
-  return -(label * Math.log(safe) + (1 - label) * Math.log(1 - safe))
+function binaryCrossEntropyAtProbability(
+  label: BinaryLabel,
+  probability: number,
+) {
+  return stableBinaryCrossEntropy(logitFromProbability(probability), label)
 }
 
 function gaussianLikelihood(observation: number, mean: number, sigma: number) {
@@ -60,8 +71,7 @@ function laplaceNll(observation: number, mean: number, scale = 0.65) {
 }
 
 function bernoulliLikelihood(label: number, probability: number) {
-  const safe = safeProbability(probability)
-  return label === 1 ? safe : 1 - safe
+  return label === 1 ? probability : 1 - probability
 }
 
 function bernoulliNll(label: number, probability: number) {
@@ -69,20 +79,20 @@ function bernoulliNll(label: number, probability: number) {
 }
 
 function jointBernoulliLikelihood(trialCount: number, observedSuccesses: number, probability: number) {
-  const safe = safeProbability(probability)
   const failures = trialCount - observedSuccesses
-  return safe ** observedSuccesses * (1 - safe) ** failures
+  return probability ** observedSuccesses * (1 - probability) ** failures
 }
 
 function jointBernoulliLogLikelihood(trialCount: number, observedSuccesses: number, probability: number) {
-  const safe = safeProbability(probability)
   const failures = trialCount - observedSuccesses
-  return observedSuccesses * Math.log(safe) + failures * Math.log(1 - safe)
+  return observedSuccesses * Math.log(probability) + failures * Math.log1p(-probability)
 }
 
 function buildBernoulliTerms(trialCount: number, observedSuccesses: number, probability: number) {
-  const safe = safeProbability(probability)
-  return Array.from({ length: trialCount }, (_, index) => (index < observedSuccesses ? safe : 1 - safe))
+  return Array.from(
+    { length: trialCount },
+    (_, index) => (index < observedSuccesses ? probability : 1 - probability),
+  )
 }
 
 function softmax(logits: number[]) {
@@ -97,13 +107,11 @@ function softmaxCrossEntropy(probabilities: number[], trueIndex: number) {
 }
 
 function binaryMarginForProbability(probability: number) {
-  const safe = safeProbability(probability)
-  return Math.log(safe / (1 - safe))
+  return Math.log(probability / (1 - probability))
 }
 
 function softmaxLeadForProbability(probability: number, classCount: number) {
-  const safe = safeProbability(probability)
-  return Math.log(((classCount - 1) * safe) / (1 - safe))
+  return Math.log(((classCount - 1) * probability) / (1 - probability))
 }
 
 function createRegressionSamples(noise: number, includeOutlier: boolean, outlierStrength: number) {
@@ -139,11 +147,9 @@ function evaluateFitLoss(
   intercept: number,
   kind: 'mse' | 'mae',
 ) {
-  const total = samples.reduce((sum, sample) => {
-    const prediction = slope * sample.x + intercept
-    return sum + (kind === 'mse' ? mse(sample.y, prediction) : mae(sample.y, prediction))
-  }, 0)
-  return total / samples.length
+  const targets = samples.map(({ y }) => y)
+  const predictions = samples.map(({ x }) => slope * x + intercept)
+  return evaluateLossGradient(kind, targets, predictions).meanObjective
 }
 
 function fitRegressionLine(samples: PlotPoint[], kind: 'mse' | 'mae') {
@@ -195,7 +201,7 @@ function buildWhyLossBreakdown(target: number, prediction: number, kind: 'mse' |
 
   return items.map((item) => ({
     ...item,
-    loss: kind === 'mse' ? mse(item.target, item.prediction) : mae(item.target, item.prediction),
+    loss: singleRegressionLoss(item.target, item.prediction, kind),
   }))
 }
 
@@ -234,8 +240,12 @@ export function simulateLossFunctions(config: ExperimentConfig): ModuleSimulatio
 
   const targetValue = Number(config.targetValue ?? 1.2)
   const predictionValue = Number(config.predictionValue ?? -0.35)
-  const probability = safeProbability(Number(config.probability ?? 0.76))
-  const classificationLabel = Number(config.classificationLabel ?? 1)
+  const probability = requireProbability(Number(config.probability ?? 0.76), 'probability')
+  const classificationLabelValue = Number(config.classificationLabel ?? 1)
+  if (classificationLabelValue !== 0 && classificationLabelValue !== 1) {
+    throw new RangeError('classificationLabel must be 0 or 1.')
+  }
+  const classificationLabel = classificationLabelValue as BinaryLabel
   const includeOutlier = Boolean(config.includeOutlier ?? true)
   const outlierStrength = Number(config.outlierStrength ?? 2.2)
   const datasetNoise = Number(config.datasetNoise ?? 0.12)
@@ -244,11 +254,18 @@ export function simulateLossFunctions(config: ExperimentConfig): ModuleSimulatio
   const decisionBias = Number(config.decisionBias ?? 0.05)
   const trialCount = Math.max(4, Math.round(Number(config.trialCount ?? 10)))
   const observedSuccesses = clamp(Math.round(Number(config.observedSuccesses ?? 8)), 0, trialCount)
-  const candidateProbability = safeProbability(Number(config.candidateProbability ?? 0.8))
+  const candidateProbability = requireProbability(
+    Number(config.candidateProbability ?? 0.8),
+    'candidateProbability',
+  )
 
   const regressionCurves = {
-    mse: makeCurve(regressionDomain.min, regressionDomain.max, 160, (value) => mse(targetValue, value)),
-    mae: makeCurve(regressionDomain.min, regressionDomain.max, 160, (value) => mae(targetValue, value)),
+    mse: makeCurve(regressionDomain.min, regressionDomain.max, 160, (value) =>
+      singleRegressionLoss(targetValue, value, 'mse'),
+    ),
+    mae: makeCurve(regressionDomain.min, regressionDomain.max, 160, (value) =>
+      singleRegressionLoss(targetValue, value, 'mae'),
+    ),
   }
 
   const regressionSamples = createRegressionSamples(datasetNoise, includeOutlier, outlierStrength)
@@ -261,8 +278,12 @@ export function simulateLossFunctions(config: ExperimentConfig): ModuleSimulatio
   )
 
   const classificationCurves = {
-    bcePositive: makeCurve(probabilityMin, probabilityMax, 160, (value) => bce(1, value)),
-    bceNegative: makeCurve(probabilityMin, probabilityMax, 160, (value) => bce(0, value)),
+    bcePositive: makeCurve(probabilityMin, probabilityMax, 160, (value) =>
+      binaryCrossEntropyAtProbability(1, value),
+    ),
+    bceNegative: makeCurve(probabilityMin, probabilityMax, 160, (value) =>
+      binaryCrossEntropyAtProbability(0, value),
+    ),
   }
 
   const classificationSamples = generateDataset({
@@ -350,13 +371,13 @@ export function simulateLossFunctions(config: ExperimentConfig): ModuleSimulatio
         : bernoulliNll(classificationLabel, probability)
 
   const sampleLossBreakdown = buildWhyLossBreakdown(targetValue, predictionValue, regressionLossKind)
-  const positiveConfidence = bce(1, 0.99)
-  const hesitantConfidence = bce(1, 0.55)
-  const confidentMistake = bce(1, 0.01)
+  const positiveConfidence = binaryCrossEntropyAtProbability(1, 0.99)
+  const hesitantConfidence = binaryCrossEntropyAtProbability(1, 0.55)
+  const confidentMistake = binaryCrossEntropyAtProbability(1, 0.01)
 
   const snapshot: TrainingSnapshot = {
     step: 0,
-    loss: regressionLossKind === 'mse' ? mse(targetValue, predictionValue) : mae(targetValue, predictionValue),
+    loss: singleRegressionLoss(targetValue, predictionValue, regressionLossKind),
     lossCurves: {
       ...regressionCurves,
       ...classificationCurves,
@@ -386,10 +407,10 @@ export function simulateLossFunctions(config: ExperimentConfig): ModuleSimulatio
     perSampleLikelihoods,
     selectedObservation: {
       residual: predictionValue - targetValue,
-      mse: mse(targetValue, predictionValue),
-      mae: mae(targetValue, predictionValue),
+      mse: singleRegressionLoss(targetValue, predictionValue, 'mse'),
+      mae: singleRegressionLoss(targetValue, predictionValue, 'mae'),
       totalRegressionLoss: regressionLoss,
-      bce: bce(classificationLabel, probability),
+      bce: binaryCrossEntropyAtProbability(classificationLabel, probability),
       probability,
       multiclassCrossEntropy: softmaxCrossEntropy(multiclassProbabilities, 0),
       binaryMargin,
