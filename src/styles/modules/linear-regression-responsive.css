@@ -346,9 +346,11 @@
 
 @media (max-width: 1080px) {
   .linear-course-page__grid,
+  .linear-course-page__learning-grid,
   .linear-course-page__fuel-grid,
   .linear-course-page__residual-grid,
-  .linear-course-page__review {
+  .linear-course-page__review,
+  .linear-downloads__groups {
     grid-template-columns: 1fr;
   }
 
@@ -427,6 +429,13 @@
     padding: 14px;
   }
 
+  .linear-course-page__narrative,
+  .linear-course-page__contract,
+  .linear-course-page__result-block,
+  .linear-downloads__group {
+    padding: 14px;
+  }
+
   .linear-course-page__header h2 {
     font-size: 2.05rem;
   }
@@ -444,7 +453,9 @@
   }
 
   .linear-course-page__nav,
-  .linear-course-page__pager {
+  .linear-course-page__pager,
+  .linear-course-page__contract-list,
+  .linear-downloads__list li {
     grid-template-columns: 1fr;
   }
 
@@ -487,5 +498,57 @@
 
   .linear-regression-lab__three-canvas {
     min-height: 300px;
+  }
+}
+
+@media (max-width: 390px) {
+  .linear-course-page {
+    gap: 12px;
+  }
+
+  .linear-course-page__mobile-toggle,
+  .linear-course-page__header,
+  .linear-course-page__narrative,
+  .linear-course-page__contract,
+  .linear-course-page__result-block,
+  .linear-course-page__guide-card,
+  .linear-course-page__pager-link,
+  .linear-downloads__group {
+    padding: 12px;
+  }
+
+  .linear-course-page__header h2 {
+    font-size: 1.8rem;
+  }
+
+  .linear-course-page__summary-state {
+    padding: 12px 12px 12px 42px;
+  }
+
+  .linear-course-page__summary-state::before {
+    top: 12px;
+    left: 11px;
+  }
+
+  .linear-course-page__summary-state dl div,
+  .linear-results__inline-list div {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .linear-regression-lab {
+    padding: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .algorithm-view--linear *,
+  .algorithm-view--linear *::before,
+  .algorithm-view--linear *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
   }
 }

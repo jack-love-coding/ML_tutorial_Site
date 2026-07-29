@@ -139,7 +139,7 @@ test('linear regression advanced chapters and subviews are wired', () => {
   assert.match(componentSource, /linear-regression-lab__advanced-controls/)
 })
 
-test('Plans 27-07/08 retain explicit page, result, media, and fallback integration surfaces', () => {
+test('Plans 27-07/08 retain explicit page, result, typed asset, and fallback integration surfaces', () => {
   const moduleSource = readFileSync(
     new URL('../src/data/linearRegressionModule.ts', import.meta.url),
     'utf8',
@@ -154,9 +154,11 @@ test('Plans 27-07/08 retain explicit page, result, media, and fallback integrati
   assert.match(pagedSource, /withPublicBase/)
   assert.match(pagedSource, /LinearRegressionLessonLab/)
   assert.match(pagedSource, /LinearRegressionResults/)
-  assert.match(pagedSource, /story-media--linear/)
-  assert.match(pagedSource, /<video/)
-  assert.match(styleSource, /\.story-media/)
+  assert.match(pagedSource, /linearRegressionChapterAssets/)
+  assert.match(pagedSource, /parseLinearRegressionSummary/)
+  assert.match(pagedSource, /new AbortController\(\)/)
+  assert.match(pagedSource, /linear-course-page__summary-state/)
+  assert.doesNotMatch(pagedSource, /story-media--linear|<video/)
   assert.match(styleSource, /@media \(prefers-reduced-motion: reduce\)/)
 })
 
@@ -192,19 +194,23 @@ test('linear regression lecture adds the required teaching frame and animated di
   assert.match(styleSource, /@keyframes linear-weight-shrink/)
 })
 
-test('linear regression paged lesson promotes data illustrations into visible content', () => {
+test('linear regression paged lesson composes the locked Bike contract beside lab results', () => {
   const pagedSource = readFileSync(pagedComponentPath, 'utf8')
 
-  assert.match(pagedSource, /fuelRows/)
-  assert.match(pagedSource, /weight: 3\.5/)
-  assert.match(pagedSource, /mpg: 18/)
-  assert.match(pagedSource, /linear-course-page__fuel-grid/)
-  assert.match(pagedSource, /linear-course-page__equation-figure/)
-  assert.match(pagedSource, /y' = b \+ w1x1/)
-  assert.match(pagedSource, /linear-course-page__residual-grid/)
-  assert.match(pagedSource, /linear-course-page__wide-figure/)
-  assert.match(pagedSource, /LinearRegressionLessonLab/)
-  assert.match(pagedSource, /LinearRegressionResults/)
+  assert.match(pagedSource, /Bike Sharing/)
+  assert.match(pagedSource, /loadedSummary\.source\.target/)
+  assert.match(pagedSource, /loadedSummary\.features\.order/)
+  assert.match(pagedSource, /linear-course-page__learning-grid/)
+  assert.match(pagedSource, /linear-course-page__contract/)
+  assert.match(
+    pagedSource,
+    /LinearRegressionLessonLab[\s\S]*LinearRegressionResults/,
+  )
+  assert.doesNotMatch(pagedSource, /fuelRows|residualRows|California|MPG/)
+  assert.doesNotMatch(
+    pagedSource.match(/<script setup lang="ts">([\s\S]*?)<\/script>/)?.[1] ?? '',
+    /reduce\([^)]*residual|\*\*\s*2/,
+  )
 })
 
 test('linear regression cockpit keeps teaching diagrams and presets collapsed by default', () => {
