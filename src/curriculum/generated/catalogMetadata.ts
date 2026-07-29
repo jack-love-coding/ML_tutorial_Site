@@ -373,8 +373,8 @@ export const curriculumCatalogMetadata = [
       "en": "Linear Regression"
     },
     "summary": {
-      "zh-CN": "从拟合一条线开始，逐步走到残差、损失、参数更新和模型边界，让线性回归成为一门完整独立的教学页。",
-      "en": "Start by fitting a line, then move through residuals, loss, parameter updates, and model limits so linear regression stands on its own."
+      "zh-CN": "八章共享同一时间切分、五特征顺序和结果注册表，把公式、NumPy、scikit-learn 与真实模型限制连成一条学习路径。",
+      "en": "Eight chapters share one chronological split, five-feature order, and result registry to connect formulas, NumPy, scikit-learn, and real model limitations."
     },
     "route": "/learn/linear-regression",
     "estimatedMinutes": 96,
