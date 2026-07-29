@@ -271,7 +271,7 @@ Do not round the split to a date boundary: D-05 locks row membership, and the 80
 
 Use residual sign `r = ŷ - y` everywhere. For one real row, show `ŷᵢ = xᵢᵀw + b`, `rᵢ = ŷᵢ - yᵢ`, and unaveraged contributions `2rᵢxᵢ` and `2rᵢ`; then generalize to `ŷ = Xw + b1`, `MSE = rᵀr/n`, `∇w = 2Xᵀr/n`, and `∂MSE/∂b = 2·1ᵀr/n`. [VERIFIED: analytical derivation + D-10]
 
-The plan should lock one representative training row after generation and carry its exact identifier, transformed values, prediction, residual, loss contribution, and gradient contribution through the first four chapters. Tests must assert that row-level contributions reduce to the batch formulas. [VERIFIED: D-10/D-17 synthesis]
+The representative training row is selected deterministically from the base OLS fit: restrict training rows to raw `cnt` within the inclusive training interquartile range, choose the minimum absolute residual, and break ties by lowest `instant`. On the locked snapshot this resolves to `instant=11550`; generated output, the manifest, and tests must freeze that ID together with its transformed values, prediction, residual, loss contribution, and gradient contribution through the first four chapters. Tests must assert that row-level contributions reduce to the batch formulas. [RESOLVED: locked generator contract + local deterministic recomputation]
 
 ### Pattern 3: Optimization Gate Before Model Diagnosis
 
@@ -305,6 +305,8 @@ Use held-out residuals with the same sign `prediction - actual`. The local fit a
 For spread, bin by held-out prediction quartile and show both residual standard deviation and MAE. Candidate residual standard deviations rise from about `136.0` in the lowest prediction bin to `209.2` in the highest, while MAE rises from about `78.4` to `181.7`. Describe this as widening residual spread consistent with heteroscedasticity, not as a causal or formal proof; functional-form misspecification can also structure residuals. [VERIFIED: local held-out computation] [CITED: https://www.itl.nist.gov/div898/handbook/pmd/section4/pmd442.htm]
 
 For collinearity, add only `atemp`. Its training correlation with `temp` is about `0.99238`; the transformed design condition number rises from about `3.33` to `17.24`; OLS allocates approximately `14.34` to `temp` and `48.80` to `atemp` instead of the base model's single `temp` coefficient `62.72`, while held-out MSE remains close (`40092.50` versus `40142.54`). A candidate Ridge stability comparison at `alpha=300` reduces sensitivity to a small deterministic target perturbation from coefficient-vector L2 change `0.0278` to `0.00914`; lock the exact perturbation and alpha in generated outputs before publication. [VERIFIED: local collinearity computation] [CITED: https://scikit-learn.org/stable/modules/linear_model.html]
+
+Named held-out cases use the base raw-count OLS predictions and a deterministic role contract. Select the negative-prediction case by minimum prediction; select morning and evening peak underpredictions by maximum positive `actual - prediction` within `hr` 7–9 and 16–19 respectively; then select the large-residual case by maximum absolute residual after excluding the three prior rows. Break every tie by lowest `instant`; keep the canonical stored residual as `prediction - actual`. The locked snapshot resolves these roles to `instant=17213`, `15628`, `14965`, and `15604` respectively. Generated output, manifest metadata, Notebook tables, browser summaries, and tests must freeze these IDs and role definitions. [RESOLVED: D-23 generator contract + local deterministic recomputation]
 
 ### Pattern 6: One Source, Two Executed Notebook Variants
 
@@ -523,21 +525,23 @@ The production generator should reconstruct columns into `feature_order` explici
 |---|-------|---------|---------------|
 | — | None. Recommendations are derived from locked context, repository inspection, official documentation, or calculations against the frozen local snapshot. | — | — |
 
-All claims in this research were verified or cited; no user confirmation is needed for an assumed fact. The Ridge `alpha=300`, representative row, named records, display precision, and media choice remain implementation-discretion values that the generator/planner must lock and test, not unverified external claims. [VERIFIED: `27-CONTEXT.md`]
+All claims in this research were verified or cited; no user confirmation is needed for an assumed fact. Ridge `alpha=300` and display precision remain implementation-discretion values that the generator must lock and test. Representative/named rows and the Phase 27 media path are resolved below and are no longer open execution decisions. [VERIFIED: `27-CONTEXT.md` + resolved generator/media contracts]
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Which exact representative row and three-to-five held-out records should be published?**
-   - What we know: the locked test partition contains negative predictions and large peak-hour underpredictions; for example `instant=17213` (`2012-12-25 00:00`) has actual `13` and prediction about `-47.42`, while `instant=15628` (`2012-10-18 08:00`) has actual `834` and prediction about `101.88`. [VERIFIED: local held-out computation]
-   - What's unclear: the final set should optimize teaching coverage and bilingual explanation length, not numerical availability. [VERIFIED: D-23]
-   - Recommendation: select one ordinary training row for chapters 1–4 and four held-out cases covering negative prediction, morning peak underprediction, evening peak underprediction, and one large residual; freeze them by `instant` in the output manifest and tests. [VERIFIED: constraint synthesis]
+1. **RESOLVED — Which exact representative row and held-out records are published?**
+   - Ordinary training row: among rows whose raw `cnt` is within the inclusive training IQR, choose the minimum absolute base-OLS residual, tie by lowest `instant`; this resolves to `instant=11550`.
+   - Negative prediction: choose the held-out row with minimum raw-count prediction, tie by lowest `instant`; this resolves to `instant=17213`.
+   - Morning peak underprediction: among held-out rows with `hr` 7–9, maximize positive `actual - prediction`, tie by lowest `instant`; this resolves to `instant=15628`.
+   - Evening peak underprediction: among held-out rows with `hr` 16–19, maximize positive `actual - prediction`, tie by lowest `instant`; this resolves to `instant=14965`.
+   - Large residual: after excluding the three prior held-out rows, maximize absolute residual, tie by lowest `instant`; this resolves to `instant=15604`.
+   - Generator, strict output, manifest, both Notebooks, typed parser, chapter content, and tests must freeze the five IDs and their role definitions. `actual - prediction` is used only as the underprediction ranking score; the canonical stored residual remains `prediction - actual`. [RESOLVED: deterministic local recomputation against the locked source/split/base OLS contract]
 
-2. **Does Phase 27 need new Manim/3D media?**
-   - What we know: deterministic D3/static plots can express convergence, residual shape/spread, and coefficient movement; existing unrelated media may not satisfy D-28. [VERIFIED: codebase/asset inspection + D-28]
-   - What's unclear: whether the completed data-driven lab still has a teaching gap that animation materially closes. [VERIFIED: D-28 discretion]
-   - Recommendation: plan no new Manim/Three.js asset in the critical path; add one only through an explicit need-and-consistency checkpoint after plots are implemented. [VERIFIED: D-28 + `AGENTS.md`]
+2. **RESOLVED — Does Phase 27 need new Manim/3D media?**
+   - No new Manim or Three.js asset is in the Phase 27 critical path. Use deterministic plots/D3 and the current workbench for convergence, residual shape/spread, and coefficient movement.
+   - Existing media may be reused only when it is data-neutral and semantically consistent with the Bike case. A future new media asset is deferred outside Phase 27 rather than introduced as a hidden execution checkpoint. [RESOLVED: D-28 + `AGENTS.md`]
 
-Neither question blocks planning. [VERIFIED: `27-CONTEXT.md` discretion]
+Both questions are resolved and block neither planning nor execution. [RESOLVED]
 
 ## Environment Availability
 
