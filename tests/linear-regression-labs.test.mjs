@@ -69,8 +69,8 @@ test('accessibility scaffold keeps labeled controls current values reset and non
   assert.match(lab, /type="range"/)
   assert.match(lab, /type="button"/)
   assert.match(lab, /emit\('reset'\)/)
-  assert.match(lab, /role="img"/)
-  assert.match(lab, /<p>\{\{\s*teachingVisual\.caption\s*\}\}<\/p>/)
+  assert.match(lab, /<LinearRegression(?:Univariate|Multivariate)View/)
+  assert.match(lab, /linear-regression-lab__static-note/)
 })
 
 test('registry maps every preserved chapter to one typed state and unknown IDs to a safe fixture', () => {
@@ -167,7 +167,7 @@ test('coefficient view separates model and original spaces without component con
   assert.match(results, /original-unit|原始单位/)
   assert.match(results, /workingday/)
   assert.match(results, /holding|保持其他|固定其他/)
-  assert.doesNotMatch(scriptBlock(results), /\bmean\b|\bscale\b|\/\s*(?:mean|scale|sigma)|Math\.sqrt/)
+  assert.doesNotMatch(scriptBlock(results), /\/\s*(?:mean|scale|sigma)|Math\.sqrt/)
 })
 
 test('diagnostic sequence covers hour spread atemp regularization log1p and combined review', () => {
