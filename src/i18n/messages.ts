@@ -555,33 +555,33 @@ export const messages = {
       },
       linearRegression: {
         title: '线性回归',
-        kicker: 'Regression Studio',
-        intro: '用“房屋面积 -> 房价预测”这条真实感更强的样例，把斜率、截距、残差、MSE 和训练动态完整串起来。',
-        summary: '从拟合一条线开始，逐步走到残差、损失、参数更新和模型边界，让线性回归成为一门完整独立的教学页。',
+        kicker: 'Bike Regression Studio',
+        intro: '沿一份本地 Bike Sharing 小时快照，从单行 cnt 预测走到批量梯度、三种 OLS 对照、系数解释和留出残差诊断。',
+        summary: '八章共享同一时间切分、五特征顺序和结果注册表，把公式、NumPy、scikit-learn 与真实模型限制连成一条学习路径。',
         sections: {
           fitLine: {
-            title: '先把“面积与房价”拟合成一条可解释的直线',
-          },
-          residualLoss: {
-            title: '残差与 MSE：每个点如何被计分',
-          },
-          trainingMotion: {
-            title: '训练如何同时推动斜率、截距和损失变化',
-          },
-          modelLimits: {
-            title: '一条直线的表达边界，以及通往逻辑回归的桥',
+            title: '从一条 Bike 小时记录到 cnt 预测',
           },
           multivariate: {
-            title: '多元线性回归：面积和房龄一起解释房价',
+            title: '固定特征顺序、时间切分与批量矩阵预测',
+          },
+          residualLoss: {
+            title: '从一项残差到整批 MSE 与梯度',
+          },
+          trainingMotion: {
+            title: 'NumPy 批量梯度下降如何学习并停止',
           },
           polynomial: {
-            title: '多项式回归：让线性参数画出弯曲关系',
+            title: '正规方程、稳定 lstsq 与三种 OLS 对照',
+          },
+          modelLimits: {
+            title: '把模型空间系数翻译回原始单位',
           },
           overfitting: {
-            title: '过拟合现象：训练误差下降不等于泛化更好',
+            title: '留出残差诊断：小时曲线、扩散与真实失败案例',
           },
           regularization: {
-            title: '正则化：用 L1 / L2 约束过度复杂的曲线',
+            title: 'atemp 共线性、Ridge/Lasso 与线性边界',
           },
         },
       },
@@ -1276,33 +1276,33 @@ export const messages = {
       },
       linearRegression: {
         title: 'Linear Regression',
-        kicker: 'Regression Studio',
-        intro: 'Use a housing-price story to teach slope, intercept, residuals, MSE, and training dynamics as one connected lesson.',
-        summary: 'Start by fitting a line, then move through residuals, loss, parameter updates, and model limits so linear regression stands on its own.',
+        kicker: 'Bike Regression Studio',
+        intro: 'Follow one local Bike Sharing hourly snapshot from a single cnt prediction through batch gradients, three OLS methods, coefficient interpretation, and held-out residual diagnosis.',
+        summary: 'Eight chapters share one chronological split, five-feature order, and result registry to connect formulas, NumPy, scikit-learn, and real model limitations.',
         sections: {
           fitLine: {
-            title: 'Fit one interpretable line to area and price',
-          },
-          residualLoss: {
-            title: 'Residuals and MSE: how every point gets scored',
-          },
-          trainingMotion: {
-            title: 'Training moves slope, intercept, and loss together',
-          },
-          modelLimits: {
-            title: 'The limit of one line, and the bridge to logistic regression',
+            title: 'From one Bike hour to a cnt prediction',
           },
           multivariate: {
-            title: 'Multivariate linear regression: area and age explain price together',
+            title: 'Fixed feature order, chronological split, and batch prediction',
+          },
+          residualLoss: {
+            title: 'From one residual to batch MSE and gradients',
+          },
+          trainingMotion: {
+            title: 'How NumPy batch gradient descent learns and stops',
           },
           polynomial: {
-            title: 'Polynomial regression: linear weights can draw curved relationships',
+            title: 'Normal equation, stable lstsq, and three OLS methods',
+          },
+          modelLimits: {
+            title: 'Translate model-space coefficients to original units',
           },
           overfitting: {
-            title: 'Overfitting: lower training error is not always better generalization',
+            title: 'Held-out diagnosis: hourly shape, spread, and real failure cases',
           },
           regularization: {
-            title: 'Regularization: use L1 / L2 to restrain complex curves',
+            title: 'atemp collinearity, Ridge/Lasso, and the linear boundary',
           },
         },
       },

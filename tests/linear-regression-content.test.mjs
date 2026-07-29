@@ -59,7 +59,7 @@ function assertBilingualLoop(id, requiredPatterns) {
   assert.match(source, /### Interpretation/)
   assert.match(source, /### 下一步/)
   assert.match(source, /### Next Step/)
-  assert.match(source, /```python/)
+  assert.match(source, /\\`\\`\\`python/)
   assert.match(source, /experimentPrompt:/)
   assert.match(source, /callout:/)
   for (const pattern of requiredPatterns) {
