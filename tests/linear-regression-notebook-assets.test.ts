@@ -1,10 +1,19 @@
 import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+} from 'node:fs'
+import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import test from 'node:test'
 
 const root = resolve(import.meta.dirname, '..')
+const generatorPath = resolve(root, 'scripts/linear-regression/build-phase-27-assets.py')
+const sourceBridgePath = resolve(root, 'scripts/linear-regression/verify-bike-source.mjs')
 const requirementsPath = resolve(root, 'scripts/linear-regression/requirements.txt')
 const environmentContractPath = resolve(
   root,
@@ -80,6 +89,38 @@ const TEACHING_ROW_ROLES = Object.freeze([
 
 function sha256(path: string) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
+}
+
+function runGenerator(args: readonly string[]) {
+  return spawnSync('python3', [generatorPath, ...args], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+}
+
+function runProbe(source: string, args: readonly string[] = []) {
+  const loader = [
+    'import importlib.util, json, pathlib, sys',
+    'generator_path = pathlib.Path(sys.argv[1])',
+    'spec = importlib.util.spec_from_file_location("phase27_assets", generator_path)',
+    'module = importlib.util.module_from_spec(spec)',
+    'sys.modules[spec.name] = module',
+    'spec.loader.exec_module(module)',
+    source,
+  ].join('\n')
+  return spawnSync('python3', ['-c', loader, generatorPath, ...args], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+}
+
+function readContractSnapshot() {
+  const probe = runProbe([
+    'snapshot = module.candidate_contract_snapshot()',
+    'print(json.dumps(snapshot, ensure_ascii=False, sort_keys=True, allow_nan=False))',
+  ].join('\n'))
+  assert.equal(probe.status, 0, probe.stderr)
+  return JSON.parse(probe.stdout)
 }
 
 test('inventory scaffold locks the exact indivisible nine-member candidate package', () => {
@@ -240,7 +281,253 @@ test('staging scaffold is the exact ignored non-public transaction root', () => 
   assert.equal(stagingRoot, resolve(root, '.cache/linear-regression/phase-27-staging'))
 })
 
-test.todo('kernel and locale parity execute independently [owner Plan 27-03]')
+test('source bridge delegates to the existing Bike authority and reports immutable boundaries', () => {
+  const source = readFileSync(sourceBridgePath, 'utf8')
+  assert.match(source, /from ['"]\.\.\/python-data-tools\/bikeSharingContract\.mjs['"]/)
+  assert.match(source, /verifyBikeSharingSnapshot/)
+  assert.match(source, /validatePythonDataToolsArtifacts/)
+  assert.match(source, /parseBikeSharingCsv/)
+  assert.doesNotMatch(source, /function\s+parseCsv|split\s*\(\s*['"]\\n/)
+
+  const bridge = spawnSync('node', [sourceBridgePath], {
+    cwd: root,
+    encoding: 'utf8',
+  })
+  assert.equal(bridge.status, 0, bridge.stderr)
+  const contract = JSON.parse(bridge.stdout)
+  assert.equal(contract.contractVersion, 'linear-regression-bike-source-v1')
+  assert.equal(contract.source.rows, 17_379)
+  assert.equal(
+    contract.source.sha256,
+    'e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f',
+  )
+  assert.deepEqual(contract.schema.columnOrder, [
+    'instant',
+    'dteday',
+    'season',
+    'yr',
+    'mnth',
+    'hr',
+    'holiday',
+    'weekday',
+    'workingday',
+    'weathersit',
+    'temp',
+    'atemp',
+    'hum',
+    'windspeed',
+    'casual',
+    'registered',
+    'cnt',
+  ])
+  assert.deepEqual(contract.features.order, EXPECTED_FEATURE_ORDER)
+  assert.deepEqual(contract.features.continuous, EXPECTED_CONTINUOUS_FEATURES)
+  assert.deepEqual(contract.features.leakageExcluded, ['casual', 'registered'])
+  assert.equal(contract.target.relationship, 'cnt = casual + registered')
+  assert.equal(contract.split.index, 13_903)
+  assert.equal(contract.boundaryRecords.first.instant, '1')
+  assert.equal(contract.boundaryRecords.trainEnd.instant, '13903')
+  assert.equal(contract.boundaryRecords.testStart.instant, '13904')
+  assert.equal(contract.boundaryRecords.last.instant, '17379')
+})
+
+test('inventory shell exposes one exact package with no partial or public mode', () => {
+  const snapshot = readContractSnapshot()
+  assert.deepEqual(snapshot.inventory.paths, EXPECTED_CANDIDATE_FILES)
+  assert.deepEqual(snapshot.inventory.locales, ['zh-CN', 'en'])
+  assert.equal(snapshot.inventory.partialSelectionAllowed, false)
+  assert.equal(snapshot.inventory.publicationAllowed, false)
+  assert.deepEqual(snapshot.features.order, EXPECTED_FEATURE_ORDER)
+  assert.deepEqual(snapshot.features.continuous, EXPECTED_CONTINUOUS_FEATURES)
+  assert.equal(snapshot.split.index, 13_903)
+
+  const help = runGenerator(['--help'])
+  assert.equal(help.status, 0, help.stderr)
+  assert.match(help.stdout, /--verify-environment/)
+  assert.match(help.stdout, /--prepare-candidates/)
+  assert.match(help.stdout, /--verify-candidates/)
+  assert.doesNotMatch(help.stdout, /--publish-candidates|--check/)
+})
+
+test('environment shell validates every audited wheel and exact isolated settings', () => {
+  const verified = runProbe([
+    'result = module.validate_environment_contract()',
+    'print(json.dumps(result, sort_keys=True, allow_nan=False))',
+  ].join('\n'))
+  assert.equal(verified.status, 0, verified.stderr)
+  const result = JSON.parse(verified.stdout)
+  assert.deepEqual(result.pins, {
+    ipykernel: '7.3.0',
+    jupyterlab: '4.6.1',
+    nbclient: '0.11.0',
+    nbformat: '5.10.4',
+    numpy: '2.4.6',
+    pandas: '3.0.3',
+    'scikit-learn': '1.9.0',
+    scipy: '1.17.1',
+  })
+  assert.equal(result.wheelCount, 99)
+  assert.equal(result.installation, 'pip --no-index --find-links=<audited-wheel-cache>')
+
+  const source = readFileSync(generatorPath, 'utf8')
+  assert.match(source, /TemporaryDirectory\(prefix="ml-atlas-phase27-environment-/)
+  assert.match(source, /PIP_NO_INDEX/)
+  assert.match(source, /JUPYTER_CONFIG_DIR/)
+  assert.match(source, /JUPYTER_RUNTIME_DIR/)
+  assert.match(source, /ipykernel/)
+  assert.match(source, /finally:/)
+  assert.doesNotMatch(source, /pip\s+install(?![\s\S]{0,120}--no-index)/)
+})
+
+test('kernel shell declares two independent clean-kernel locale jobs', () => {
+  const snapshot = readContractSnapshot()
+  assert.equal(snapshot.executionJobs.length, 2)
+  assert.deepEqual(
+    snapshot.executionJobs.map((job: { locale: string }) => job.locale),
+    ['zh-CN', 'en'],
+  )
+  assert.equal(
+    new Set(snapshot.executionJobs.map((job: { proofId: string }) => job.proofId)).size,
+    2,
+  )
+  for (const job of snapshot.executionJobs) {
+    assert.equal(job.freshKernel, true)
+    assert.equal(job.executionCountStartsAt, 1)
+    assert.equal(job.allowErrors, false)
+    assert.equal(job.timeoutSeconds, 180)
+    assert.equal(job.recordTiming, false)
+    assert.equal(job.workingDirectory, 'notebooks/linear-regression')
+    assert.equal(job.kernelNamePublished, false)
+    assert.equal(job.stripWidgetState, true)
+  }
+})
+
+test('locale parity shell shares ordered code while localizing complete markdown', () => {
+  const snapshot = readContractSnapshot()
+  const zh = snapshot.blueprints['zh-CN']
+  const en = snapshot.blueprints.en
+  assert.deepEqual(
+    zh.map((cell: { id: string }) => cell.id),
+    en.map((cell: { id: string }) => cell.id),
+  )
+  assert.deepEqual(
+    zh.filter((cell: { kind: string }) => cell.kind === 'code'),
+    en.filter((cell: { kind: string }) => cell.kind === 'code'),
+  )
+  assert.notDeepEqual(
+    zh.filter((cell: { kind: string }) => cell.kind === 'markdown'),
+    en.filter((cell: { kind: string }) => cell.kind === 'markdown'),
+  )
+  assert.equal(zh.some((cell: { source: string }) => /正规方程/.test(cell.source)), true)
+  assert.equal(en.some((cell: { source: string }) => /normal equation/.test(cell.source)), true)
+  for (const blueprint of [zh, en]) {
+    const text = blueprint.map((cell: { source: string }) => cell.source).join('\n')
+    assert.match(text, /X_tilde\s*=\s*\[1,\s*X\]/)
+    assert.match(text, /pinv\(X_tilde\)/)
+    assert.match(text, /theta\[0\]\s*=\s*b/)
+    assert.match(text, /theta\[1:\]\s*=\s*w/)
+    assert.match(text, /numpy\.linalg\.lstsq/)
+    assert.match(text, /gradient descent/i)
+    assert.match(text, /scikit-learn/)
+  }
+})
+
+test('teaching role shell freezes all five deterministic IDs and selection rules', () => {
+  const snapshot = readContractSnapshot()
+  assert.deepEqual(snapshot.teachingRows, TEACHING_ROW_ROLES)
+})
+
+test('safety shell rejects network shell install HTML widget iframe and unsafe source', () => {
+  for (const unsafe of [
+    'import requests',
+    'import urllib.request',
+    'DATA = "https://example.com/data.csv"',
+    '!pip install numpy',
+    'import subprocess; subprocess.run(["sh"])',
+    'display(HTML("<script>alert(1)</script>"))',
+    'import ipywidgets',
+    '<iframe src="https://example.com"></iframe>',
+  ]) {
+    const injection = runProbe([
+      `bad = module.NotebookCodeCell("bad-cell", ${JSON.stringify(unsafe)})`,
+      'module.validate_notebook_code_cells((bad,))',
+    ].join('\n'))
+    assert.notEqual(injection.status, 0, unsafe)
+    assert.match(injection.stderr, /forbidden|unsafe|network|shell|HTML|widget|iframe/i)
+  }
+})
+
+test('staging shell rejects public roots remote roots and every subset selector', () => {
+  const publicAttempt = runGenerator([
+    '--prepare-candidates',
+    '--offline',
+    '--staging-root',
+    resolve(root, 'public/notebooks/linear-regression'),
+  ])
+  assert.notEqual(publicAttempt.status, 0)
+  assert.match(publicAttempt.stderr, /public|staging/i)
+
+  for (const selector of [
+    ['--topic', 'bike-linear-regression'],
+    ['--locale', 'zh-CN'],
+    ['--file', 'coefficients.csv'],
+  ]) {
+    const attempt = runGenerator([
+      '--prepare-candidates',
+      '--offline',
+      '--staging-root',
+      stagingRoot,
+      ...selector,
+    ])
+    assert.notEqual(attempt.status, 0)
+    assert.match(attempt.stderr, /partial|selector|topic|locale|file/i)
+  }
+  assert.equal(existsSync(resolve(root, 'public/notebooks/linear-regression')), false)
+})
+
+test('cleanup shell removes stale bytes and injected transaction failures', () => {
+  const temporaryRoot = mkdtempSync(resolve(tmpdir(), 'phase-27-transaction-'))
+  try {
+    const probe = runProbe([
+      'root = pathlib.Path(sys.argv[2])',
+      'module.validate_candidate_staging_root = lambda path: path.resolve()',
+      '(root / "stale.txt").write_text("stale", encoding="utf-8")',
+      'try:',
+      '    with module.CandidateTransaction(root) as transaction:',
+      '        print(json.dumps({"staleExists": (transaction.root / "stale.txt").exists()}))',
+      '        (transaction.root / "partial.txt").write_text("partial", encoding="utf-8")',
+      '        raise module.Phase27Error("injected candidate failure")',
+      'except module.Phase27Error:',
+      '    pass',
+      'print(json.dumps({"rootExists": root.exists()}))',
+    ].join('\n'), [temporaryRoot])
+    assert.equal(probe.status, 0, probe.stderr)
+    const lines = probe.stdout.trim().split('\n').map((line) => JSON.parse(line))
+    assert.deepEqual(lines, [
+      { staleExists: false },
+      { rootExists: false },
+    ])
+  } finally {
+    rmSync(temporaryRoot, { recursive: true, force: true })
+  }
+})
+
+test('candidate verification shell fails closed on missing unexpected or partial inventory', () => {
+  const probe = runProbe([
+    'import tempfile',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    root = pathlib.Path(directory)',
+    '    try:',
+    '        module.verify_candidate_inventory(root, enforce_staging_root=False)',
+    '    except module.Phase27Error as error:',
+    '        print(str(error))',
+    '    else:',
+    '        raise RuntimeError("missing inventory was accepted")',
+  ].join('\n'))
+  assert.equal(probe.status, 0, probe.stderr)
+  assert.match(probe.stdout, /inventory|missing|nine|9/i)
+})
+
 test.todo('numerical contract emits complete coefficient GD and residual tables [owner Plan 27-03]')
 test.todo('candidate verification [27-W0-02] rejects missing unexpected and corrupted members [owner Plan 27-03]')
 test.todo('publication [27-W0-02] accepts only the complete nine-member package [owner Plan 27-04]')
