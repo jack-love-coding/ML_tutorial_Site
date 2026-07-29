@@ -867,6 +867,7 @@ test('candidate verification [27-W0-02] seals independent locale jobs and exact 
   assert.equal(manifest.contract.residualSign, 'prediction - actual')
   assert.equal(manifest.contract.methodTolerance, 1e-6)
   assert.equal(manifest.selectionRuleVersion, 'bike-linear-regression-teaching-rows-v1')
+  assert.deepEqual(manifest.teachingRows, TEACHING_ROW_ROLES)
   assert.deepEqual(manifest.resolvedInstants, [
     11_550,
     17_213,
@@ -912,6 +913,13 @@ test('candidate verification [27-W0-02] rejects changed contract code output and
       mutate(value: Record<string, any>) {
         value.cells.find((cell: Record<string, any>) =>
           cell.cell_type === 'code').source = ['FEATURE_ORDER = ()\n']
+      },
+    },
+    {
+      name: 'changed selection filter and tie-break',
+      path: 'notebooks/linear-regression/output-manifest.json',
+      mutate(value: Record<string, any>) {
+        value.teachingRows[2].rule = 'hr 6-9, highest instant tie-break'
       },
     },
   ]

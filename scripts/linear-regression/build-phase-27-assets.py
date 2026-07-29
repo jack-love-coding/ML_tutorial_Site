@@ -7,6 +7,7 @@ import argparse
 import csv
 import contextlib
 import hashlib
+import importlib.metadata
 import json
 import math
 import os
@@ -162,56 +163,382 @@ SHARED_CODE_CELLS = (
     NotebookCodeCell(
         "imports-and-contract",
         """from pathlib import Path
+import hashlib
+import json
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Lasso, LinearRegression, Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.preprocessing import StandardScaler
 
 FEATURE_ORDER = ("temp", "hum", "windspeed", "workingday", "hr")
 CONTINUOUS_FEATURES = ("temp", "hum", "windspeed", "hr")
 SPLIT_INDEX = 13_903
+SOURCE_SHA256 = "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f"
+METHOD_TOLERANCE = 1e-6
+LEARNING_RATE = 0.1
+MAX_UPDATES = 5_000
+GRADIENT_TOLERANCE = 1e-8
 DATASET_PATH = Path("../../datasets/python-data-tools/bike-sharing-hour.csv")""",
     ),
     NotebookCodeCell(
         "load-local-source",
-        """frame = pd.read_csv(DATASET_PATH)
+        """assert hashlib.sha256(DATASET_PATH.read_bytes()).hexdigest() == SOURCE_SHA256
+frame = pd.read_csv(DATASET_PATH)
 assert len(frame) == 17_379
 assert tuple(frame.columns) == (
     "instant", "dteday", "season", "yr", "mnth", "hr", "holiday",
     "weekday", "workingday", "weathersit", "temp", "atemp", "hum",
     "windspeed", "casual", "registered", "cnt",
 )
-assert np.array_equal(frame["casual"] + frame["registered"], frame["cnt"])""",
+assert np.array_equal(frame["instant"].to_numpy(), np.arange(1, 17_380))
+assert np.array_equal(frame["casual"] + frame["registered"], frame["cnt"])
+print(json.dumps({
+    "sourceSha256": SOURCE_SHA256,
+    "rows": len(frame),
+    "target": "cnt",
+    "leakageExcluded": ["casual", "registered"],
+}, sort_keys=True))""",
     ),
     NotebookCodeCell(
-        "split-and-scale-shell",
+        "split-and-scale",
         """train = frame.iloc[:SPLIT_INDEX].copy()
 held_out = frame.iloc[SPLIT_INDEX:].copy()
+assert int(train.iloc[-1]["instant"]) == 13_903
+assert int(held_out.iloc[0]["instant"]) == 13_904
 scaler = StandardScaler()
-X_train_continuous = scaler.fit_transform(train.loc[:, CONTINUOUS_FEATURES])
-X_held_out_continuous = scaler.transform(held_out.loc[:, CONTINUOUS_FEATURES])
-# Plan 27-03 materializes X_train and X_held_out in canonical FEATURE_ORDER.""",
+X_train_continuous = scaler.fit_transform(train.loc[:, list(CONTINUOUS_FEATURES)])
+X_held_out_continuous = scaler.transform(held_out.loc[:, list(CONTINUOUS_FEATURES)])
+
+def build_matrix(partition, scaled):
+    scaled_columns = {
+        feature: scaled[:, index]
+        for index, feature in enumerate(CONTINUOUS_FEATURES)
+    }
+    return np.column_stack([
+        partition["workingday"].to_numpy(float)
+        if feature == "workingday"
+        else scaled_columns[feature]
+        for feature in FEATURE_ORDER
+    ])
+
+X_train = build_matrix(train, X_train_continuous)
+X_held_out = build_matrix(held_out, X_held_out_continuous)
+y_train = train["cnt"].to_numpy(float)
+y_held_out = held_out["cnt"].to_numpy(float)
+assert np.array_equal(X_train[:, 3], train["workingday"].to_numpy(float))
+scaler_table = pd.DataFrame({
+    "feature": CONTINUOUS_FEATURES,
+    "train_mean": scaler.mean_,
+    "train_population_scale": scaler.scale_,
+})
+print(scaler_table.to_string(index=False))""",
     ),
     NotebookCodeCell(
-        "normal-equation-shell",
-        """# Conceptual relation: theta = pinv(X_tilde) @ y
-# Executable reference: numpy.linalg.lstsq avoids an explicit matrix inverse.
+        "batch-gradient-descent",
+        """def gradient_state(matrix, target, weights, intercept):
+    residual = matrix @ weights + intercept - target
+    mse = float(np.mean(residual * residual))
+    weight_gradient = (2.0 / len(matrix)) * (matrix.T @ residual)
+    intercept_gradient = float(2.0 * np.mean(residual))
+    gradient_norm = float(np.linalg.norm(
+        np.append(weight_gradient, intercept_gradient)
+    ))
+    assert np.isfinite(np.append(
+        [mse, intercept_gradient, gradient_norm],
+        weight_gradient,
+    )).all()
+    return mse, weight_gradient, intercept_gradient, gradient_norm
+
+gd_weights = np.zeros(X_train.shape[1], dtype=float)
+gd_intercept = 0.0
+trace_rows = []
+for update in range(MAX_UPDATES + 1):
+    mse, weight_gradient, intercept_gradient, gradient_norm = gradient_state(
+        X_train, y_train, gd_weights, gd_intercept
+    )
+    trace_rows.append({
+        "update": update,
+        "mse": mse,
+        "gradient_norm": gradient_norm,
+        "intercept": gd_intercept,
+        **dict(zip(FEATURE_ORDER, gd_weights, strict=True)),
+    })
+    if gradient_norm <= GRADIENT_TOLERANCE:
+        break
+    assert update < MAX_UPDATES
+    gd_weights = gd_weights - LEARNING_RATE * weight_gradient
+    gd_intercept = float(gd_intercept - LEARNING_RATE * intercept_gradient)
+
+gd_trace = pd.DataFrame(trace_rows)
+assert update == 772
+assert gradient_norm <= GRADIENT_TOLERANCE
+print(json.dumps({
+    "updates": update,
+    "reason": "gradient-tolerance",
+    "gradientNorm": gradient_norm,
+    "learningRate": LEARNING_RATE,
+}, sort_keys=True))
+print(gd_trace.to_csv(index=False, float_format="%.17g"))""",
+    ),
+    NotebookCodeCell(
+        "three-method-fit",
+        """# Conceptual normal equation / 正规方程:
+# X_tilde = [1, X]
+# theta = (X_tilde^T X_tilde)^+ X_tilde^T y
+# The stable executable authority is numpy.linalg.lstsq, not an explicit inverse.
 X_tilde = np.column_stack([np.ones(len(X_train)), X_train])
-theta, *_ = np.linalg.lstsq(X_tilde, y_train, rcond=None)
+theta, residual_sums, rank, singular_values = np.linalg.lstsq(
+    X_tilde, y_train, rcond=None
+)
 b = theta[0]
 w = theta[1:]
-sklearn_model = LinearRegression(fit_intercept=True)""",
+sklearn_model = LinearRegression(fit_intercept=True).fit(X_train, y_train)
+lstsq_train_prediction = X_train @ w + b
+lstsq_test_prediction = X_held_out @ w + b
+gd_test_prediction = X_held_out @ gd_weights + gd_intercept
+sklearn_test_prediction = sklearn_model.predict(X_held_out)
+np.testing.assert_allclose(gd_weights, w, rtol=0.0, atol=METHOD_TOLERANCE)
+np.testing.assert_allclose(gd_intercept, b, rtol=0.0, atol=METHOD_TOLERANCE)
+np.testing.assert_allclose(
+    sklearn_model.coef_, w, rtol=0.0, atol=METHOD_TOLERANCE
+)
+np.testing.assert_allclose(
+    sklearn_model.intercept_, b, rtol=0.0, atol=METHOD_TOLERANCE
+)
+np.testing.assert_allclose(
+    gd_test_prediction, lstsq_test_prediction, rtol=0.0, atol=METHOD_TOLERANCE
+)
+np.testing.assert_allclose(
+    sklearn_test_prediction,
+    lstsq_test_prediction,
+    rtol=0.0,
+    atol=METHOD_TOLERANCE,
+)
+
+def metrics(actual, prediction):
+    return {
+        "mse": float(mean_squared_error(actual, prediction)),
+        "mae": float(mean_absolute_error(actual, prediction)),
+        "r2": float(r2_score(actual, prediction)),
+    }
+
+method_table = pd.DataFrame([
+    {"method": method, "feature": feature, "coefficient": float(value)}
+    for method, weights, intercept in (
+        ("numpy-batch-gradient-descent", gd_weights, gd_intercept),
+        ("numpy-lstsq", w, b),
+        ("sklearn-linear-regression", sklearn_model.coef_, sklearn_model.intercept_),
+    )
+    for feature, value in (
+        ("intercept", intercept),
+        *zip(FEATURE_ORDER, weights, strict=True),
+    )
+])
+method_delta = {
+    "tolerance": METHOD_TOLERANCE,
+    "maxCoefficientDelta": float(max(
+        np.max(np.abs(np.append(gd_intercept, gd_weights) - theta)),
+        np.max(np.abs(
+            np.append(sklearn_model.intercept_, sklearn_model.coef_) - theta
+        )),
+    )),
+    "maxPredictionDelta": float(max(
+        np.max(np.abs(gd_test_prediction - lstsq_test_prediction)),
+        np.max(np.abs(sklearn_test_prediction - lstsq_test_prediction)),
+    )),
+}
+metric_output = {
+    "train": metrics(y_train, lstsq_train_prediction),
+    "test": metrics(y_held_out, lstsq_test_prediction),
+    "normalEquation": {
+        "term": {"en": "normal equation", "zh-CN": "正规方程"},
+        "augmentedDesign": "X_tilde = [1, X]",
+        "formula": "theta = (X_tilde^T X_tilde)^+ X_tilde^T y",
+        "interceptMapping": "theta[0] = b",
+        "weightMapping": "theta[1:] = w",
+        "implementation": "numpy.linalg.lstsq",
+        "rank": int(rank),
+        "singularValues": [float(value) for value in singular_values],
+        "conditionNumber": float(np.linalg.cond(X_tilde)),
+    },
+    "methodDelta": method_delta,
+}
+print(method_table.to_string(index=False))
+print(json.dumps(metric_output, sort_keys=True))""",
     ),
     NotebookCodeCell(
-        "deterministic-row-roles",
-        """TEACHING_ROW_INSTANTS = {
-    "representative-training-row": 11_550,
-    "negative-prediction": 17_213,
-    "morning-peak-underprediction": 15_628,
-    "evening-peak-underprediction": 14_965,
-    "large-residual": 15_604,
-}""",
+        "diagnostics-and-teaching-rows",
+        """train_residual = lstsq_train_prediction - y_train
+held_residual = lstsq_test_prediction - y_held_out
+q1, q3 = np.quantile(y_train, [0.25, 0.75])
+eligible = np.flatnonzero((y_train >= q1) & (y_train <= q3))
+representative_position = min(
+    eligible,
+    key=lambda position: (
+        abs(float(train_residual[position])),
+        int(train.iloc[position]["instant"]),
+    ),
+)
+negative_position = min(
+    range(len(held_out)),
+    key=lambda position: (
+        float(lstsq_test_prediction[position]),
+        int(held_out.iloc[position]["instant"]),
+    ),
+)
+underprediction = y_held_out - lstsq_test_prediction
+hours = held_out["hr"].to_numpy(int)
+morning_position = min(
+    np.flatnonzero((hours >= 7) & (hours <= 9) & (underprediction > 0)),
+    key=lambda position: (
+        -float(underprediction[position]),
+        int(held_out.iloc[position]["instant"]),
+    ),
+)
+evening_position = min(
+    np.flatnonzero((hours >= 16) & (hours <= 19) & (underprediction > 0)),
+    key=lambda position: (
+        -float(underprediction[position]),
+        int(held_out.iloc[position]["instant"]),
+    ),
+)
+excluded = {negative_position, morning_position, evening_position}
+large_position = min(
+    (position for position in range(len(held_out)) if position not in excluded),
+    key=lambda position: (
+        -abs(float(held_residual[position])),
+        int(held_out.iloc[position]["instant"]),
+    ),
+)
+role_positions = [
+    ("negative-prediction", negative_position),
+    ("morning-peak-underprediction", int(morning_position)),
+    ("evening-peak-underprediction", int(evening_position)),
+    ("large-residual", large_position),
+]
+named_cases = [{
+    "role": role,
+    "instant": int(held_out.iloc[position]["instant"]),
+    "timestamp": (
+        f"{held_out.iloc[position]['dteday']} "
+        f"{int(held_out.iloc[position]['hr']):02d}:00"
+    ),
+    "actual": float(y_held_out[position]),
+    "prediction": float(lstsq_test_prediction[position]),
+    "residual": float(held_residual[position]),
+} for role, position in role_positions]
+resolved_instants = [
+    int(train.iloc[representative_position]["instant"]),
+    *[row["instant"] for row in named_cases],
+]
+assert resolved_instants == [11_550, 17_213, 15_628, 14_965, 15_604]
+
+residual_frame = pd.DataFrame({
+    "hour": hours,
+    "prediction": lstsq_test_prediction,
+    "residual": held_residual,
+    "absolute_residual": np.abs(held_residual),
+})
+hourly_residual = (
+    residual_frame.groupby("hour", sort=True)["residual"].mean().reset_index()
+)
+residual_frame["prediction_bin"], bin_edges = pd.qcut(
+    residual_frame["prediction"],
+    q=4,
+    labels=False,
+    retbins=True,
+    duplicates="raise",
+)
+prediction_bins = residual_frame.groupby("prediction_bin", sort=True).agg(
+    residual_std_dev=("residual", lambda values: float(np.std(values, ddof=0))),
+    mae=("absolute_residual", "mean"),
+    rows=("residual", "size"),
+).reset_index()
+
+extended_continuous = ("temp", "atemp", "hum", "windspeed", "hr")
+extended_scaler = StandardScaler().fit(train.loc[:, list(extended_continuous)])
+extended_train_scaled = extended_scaler.transform(
+    train.loc[:, list(extended_continuous)]
+)
+extended_test_scaled = extended_scaler.transform(
+    held_out.loc[:, list(extended_continuous)]
+)
+extended_train = np.column_stack([
+    extended_train_scaled[:, 0],
+    extended_train_scaled[:, 1],
+    extended_train_scaled[:, 2],
+    extended_train_scaled[:, 3],
+    train["workingday"].to_numpy(float),
+    extended_train_scaled[:, 4],
+])
+extended_test = np.column_stack([
+    extended_test_scaled[:, 0],
+    extended_test_scaled[:, 1],
+    extended_test_scaled[:, 2],
+    extended_test_scaled[:, 3],
+    held_out["workingday"].to_numpy(float),
+    extended_test_scaled[:, 4],
+])
+atemp_ols = LinearRegression().fit(extended_train, y_train)
+ridge = Ridge(alpha=300.0).fit(extended_train, y_train)
+lasso = Lasso(
+    alpha=0.1, max_iter=100_000, tol=1e-10, selection="cyclic"
+).fit(extended_train, y_train)
+log_model = LinearRegression().fit(X_train, np.log1p(y_train))
+log_count_prediction = np.expm1(log_model.predict(X_held_out))
+diagnostics = {
+    "resolvedInstants": resolved_instants,
+    "namedCases": named_cases,
+    "hourlyResiduals": hourly_residual.to_dict(orient="records"),
+    "predictionBins": prediction_bins.to_dict(orient="records"),
+    "collinearity": {
+        "addedFeature": "atemp",
+        "tempAtempTrainingCorrelation": float(np.corrcoef(
+            train["temp"], train["atemp"]
+        )[0, 1]),
+        "conditionNumber": float(np.linalg.cond(np.column_stack([
+            np.ones(len(extended_train)), extended_train
+        ]))),
+        "olsTemp": float(atemp_ols.coef_[0]),
+        "olsAtemp": float(atemp_ols.coef_[1]),
+        "olsTestMetrics": metrics(y_held_out, atemp_ols.predict(extended_test)),
+        "ridgeObjective": "mse-plus-l2",
+        "ridgeAlpha": 300.0,
+        "ridgeTestMetrics": metrics(y_held_out, ridge.predict(extended_test)),
+        "lassoObjective": "mse-plus-l1",
+        "lassoAlpha": 0.1,
+        "lassoTestMetrics": metrics(y_held_out, lasso.predict(extended_test)),
+    },
+    "log1p": {
+        "rawTargetObjectiveComparable": False,
+        "inverseTransform": "expm1",
+        "countScaleMetrics": metrics(y_held_out, log_count_prediction),
+    },
+}
+print(hourly_residual.to_string(index=False))
+print(prediction_bins.to_string(index=False))
+print(pd.DataFrame(named_cases).to_string(index=False))
+print(json.dumps(diagnostics, sort_keys=True))""",
+    ),
+    NotebookCodeCell(
+        "assertions-and-complete-outputs",
+        """assert method_delta["maxCoefficientDelta"] <= METHOD_TOLERANCE
+assert method_delta["maxPredictionDelta"] <= METHOD_TOLERANCE
+assert len(gd_trace) == 773
+assert len(held_out) == 3_476
+assert np.isfinite(method_table["coefficient"]).all()
+assert np.isfinite(gd_trace.select_dtypes(include=[np.number])).all().all()
+assert np.isfinite(held_residual).all()
+print(json.dumps({
+    "assertionsPassed": True,
+    "codeAuthority": "shared-byte-identical-blueprint",
+    "normalEquationImplementation": "numpy.linalg.lstsq",
+    "residualSign": "prediction - actual",
+    "completeTraceRows": len(gd_trace),
+    "completeHeldoutResidualRows": len(held_out),
+    "resolvedInstants": resolved_instants,
+}, sort_keys=True))""",
     ),
 )
 
@@ -228,10 +555,12 @@ MARKDOWN_BY_LOCALE = {
         ),
         "normal-equation": (
             "## 正规方程与稳定实现\n"
-            "概念映射为 `X_tilde = [1, X]`、`theta = pinv(X_tilde) @ y`、"
-            "`theta[0] = b`、`theta[1:] = w`。代码使用 `numpy.linalg.lstsq`，"
-            "避免显式求逆并提高数值稳定性。三种方法的角色分别是 NumPy batch "
-            "gradient descent、正规方程数值参考和 scikit-learn LinearRegression。"
+            "概念映射为 `X_tilde = [1, X]`、"
+            "`theta = (X_tilde^T X_tilde)^+ X_tilde^T y`"
+            "（也可简写为 `theta = pinv(X_tilde) @ y`）、`theta[0] = b`、"
+            "`theta[1:] = w`。代码使用 `numpy.linalg.lstsq`，避免显式求逆并"
+            "保留秩与奇异值诊断。三种方法的角色分别是 NumPy batch gradient "
+            "descent、正规方程数值参考和 scikit-learn LinearRegression。"
         ),
         "row-roles": (
             "## 可复核记录\n"
@@ -239,9 +568,10 @@ MARKDOWN_BY_LOCALE = {
             "与最低 instant 并列规则确定；完整计算与输出由 Plan 27-03 生成。"
         ),
         "handoff": (
-            "## 下一步\n"
-            "此共享代码壳冻结数据、公式、变量和角色；Plan 27-03 在同一壳内完成三方法"
-            "拟合、完整表格和两个独立内核执行。"
+            "## 完整结果与限制\n"
+            "下方共享代码给出完整 GD 轨迹、三方法系数和容差、训练/留出指标、小时残差、"
+            "预测分箱、五个确定记录、仅新增 atemp 的共线性对照，以及不同目标尺度的 "
+            "log1p 对照。方法一致只说明优化完成，不代表线性模型已经充分。"
         ),
     },
     "en": {
@@ -258,10 +588,12 @@ MARKDOWN_BY_LOCALE = {
         "normal-equation": (
             "## Normal equation and stable implementation\n"
             "The conceptual mapping is `X_tilde = [1, X]`, "
-            "`theta = pinv(X_tilde) @ y`, `theta[0] = b`, and `theta[1:] = w`. "
-            "The code uses `numpy.linalg.lstsq` instead of an explicit inverse for "
-            "numerical stability. The three roles are NumPy batch gradient descent, "
-            "the normal equation numerical reference, and scikit-learn LinearRegression."
+            "`theta = (X_tilde^T X_tilde)^+ X_tilde^T y` (equivalently "
+            "`theta = pinv(X_tilde) @ y`), `theta[0] = b`, and `theta[1:] = w`. "
+            "The code uses `numpy.linalg.lstsq` instead of forming an explicit inverse, "
+            "and retains rank and singular-value diagnostics. The three roles are NumPy "
+            "batch gradient descent, the normal equation numerical reference, and "
+            "scikit-learn LinearRegression."
         ),
         "row-roles": (
             "## Auditable rows\n"
@@ -270,9 +602,12 @@ MARKDOWN_BY_LOCALE = {
             "lowest-instant tie-break. Plan 27-03 generates their complete results."
         ),
         "handoff": (
-            "## Next step\n"
-            "This shared shell freezes source, formula, variables, and row roles. "
-            "Plan 27-03 completes all three fits, full tables, and two independent kernels."
+            "## Complete results and limitations\n"
+            "The shared code below emits the complete GD trace, three-method coefficients "
+            "and tolerances, train/held-out metrics, hourly residuals, prediction bins, "
+            "five deterministic records, the atemp-only collinearity comparison, and the "
+            "different-scale log1p comparison. Method agreement proves optimizer "
+            "completion; it does not prove that the linear model is adequate."
         ),
     },
 }
@@ -282,12 +617,14 @@ CELL_ORDER = (
     ("code", "imports-and-contract"),
     ("markdown", "source-boundary"),
     ("code", "load-local-source"),
-    ("code", "split-and-scale-shell"),
+    ("code", "split-and-scale"),
     ("markdown", "normal-equation"),
-    ("code", "normal-equation-shell"),
+    ("code", "batch-gradient-descent"),
+    ("code", "three-method-fit"),
     ("markdown", "row-roles"),
-    ("code", "deterministic-row-roles"),
+    ("code", "diagnostics-and-teaching-rows"),
     ("markdown", "handoff"),
+    ("code", "assertions-and-complete-outputs"),
 )
 
 TEACHING_ROWS = (
@@ -2054,6 +2391,867 @@ def write_data_candidate_bundle(staging_root: Path) -> dict[str, Any]:
     }
 
 
+def _notebook_job_payload(job: NotebookJob) -> dict[str, Any]:
+    return {
+        "locale": job.locale,
+        "notebookPath": job.notebook_path,
+        "proofId": job.proof_id,
+        "freshKernel": job.fresh_kernel,
+        "executionCountStartsAt": job.execution_count_starts_at,
+        "allowErrors": job.allow_errors,
+        "timeoutSeconds": job.timeout_seconds,
+        "recordTiming": job.record_timing,
+        "workingDirectory": job.working_directory,
+        "kernelNamePublished": job.kernel_name_published,
+        "stripWidgetState": job.strip_widget_state,
+    }
+
+
+def _build_notebook_document(locale: str) -> Any:
+    try:
+        import nbformat
+    except ImportError as error:
+        raise Phase27Error(
+            "Notebook generation must run inside the audited Phase 27 environment"
+        ) from error
+
+    notebook = nbformat.v4.new_notebook()
+    notebook.metadata = {
+        "kernelspec": {
+            "display_name": "Python 3",
+            "language": "python",
+            "name": "python3",
+        },
+        "language_info": {"name": "python"},
+    }
+    cells = []
+    for blueprint in build_notebook_blueprint(locale):
+        if blueprint["kind"] == "markdown":
+            cell = nbformat.v4.new_markdown_cell(blueprint["source"])
+        else:
+            cell = nbformat.v4.new_code_cell(blueprint["source"])
+        cell["id"] = blueprint["id"]
+        cell["metadata"] = {}
+        cells.append(cell)
+    notebook.cells = cells
+    return notebook
+
+
+def execute_notebook_job(
+    notebook: Any,
+    job: NotebookJob,
+    kernel_name: str,
+    working_directory: Path,
+) -> Any:
+    try:
+        from nbclient import NotebookClient
+    except ImportError as error:
+        raise Phase27Error(
+            "Notebook execution must run inside the audited Phase 27 environment"
+        ) from error
+
+    client = NotebookClient(
+        notebook,
+        timeout=job.timeout_seconds,
+        kernel_name=kernel_name,
+        allow_errors=False,
+        record_timing=False,
+        resources={"metadata": {"path": str(working_directory)}},
+    )
+    client.execute(cwd=str(working_directory))
+    expected_count = job.execution_count_starts_at
+    for cell in notebook.cells:
+        cell.metadata.pop("execution", None)
+        if cell.cell_type != "code":
+            cell.metadata.clear()
+            continue
+        if cell.execution_count != expected_count:
+            raise Phase27Error(
+                "Fresh execution count drifted: "
+                f"expected {expected_count}, observed {cell.execution_count}"
+            )
+        expected_count += 1
+        for output in cell.get("outputs", []):
+            if output.get("output_type") == "error":
+                raise Phase27Error(
+                    f"Notebook {job.locale} retained an execution error"
+                )
+            output.get("metadata", {}).pop("execution", None)
+            output.pop("transient", None)
+        cell.metadata.clear()
+    notebook.metadata.clear()
+    notebook.metadata["kernelspec"] = {
+        "display_name": "Python 3",
+        "language": "python",
+        "name": "python3",
+    }
+    notebook.metadata["language_info"] = {"name": "python"}
+    return notebook
+
+
+def _notebook_source_text(cell: dict[str, Any]) -> str:
+    source = cell.get("source", "")
+    if isinstance(source, list):
+        return "".join(source)
+    if isinstance(source, str):
+        return source
+    raise Phase27Error(f"Notebook cell {cell.get('id')} has malformed source")
+
+
+def _notebook_code_payload(notebook: dict[str, Any]) -> list[dict[str, str]]:
+    return [
+        {
+            "id": str(cell.get("id")),
+            "source": _notebook_source_text(cell),
+        }
+        for cell in notebook.get("cells", [])
+        if cell.get("cell_type") == "code"
+    ]
+
+
+def normalize_notebook_outputs(
+    notebook: dict[str, Any],
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "id": str(cell.get("id")),
+            "outputs": cell.get("outputs", []),
+        }
+        for cell in notebook.get("cells", [])
+        if cell.get("cell_type") == "code"
+    ]
+
+
+def _sha256_json(value: Any) -> str:
+    return hashlib.sha256(strict_json_bytes(value)).hexdigest()
+
+
+def _candidate_environment_record(
+    observed_versions: dict[str, str],
+) -> dict[str, Any]:
+    contract = read_strict_json(ENVIRONMENT_CONTRACT_PATH)
+    return {
+        "contractVersion": "linear-regression-phase-27-candidate-environment-v1",
+        "requirements": {
+            "path": "notebooks/linear-regression/requirements.txt",
+            "sha256": sha256_file(REQUIREMENTS_PATH),
+            "pins": EXPECTED_ENVIRONMENT_PINS,
+        },
+        "python": contract["python"],
+        "platform": contract["platform"],
+        "packages": observed_versions,
+        "wheelCache": {
+            "sourceContractVersion": contract["wheelCache"][
+                "sourceContractVersion"
+            ],
+            "manifestSha256": contract["wheelCache"]["manifestSha256"],
+            "wheelCount": contract["wheelCache"]["wheelCount"],
+        },
+        "execution": {
+            "networkAccess": False,
+            "freshKernelJobs": 2,
+            "allowErrors": False,
+            "kernelNamePublished": False,
+            "temporaryPathsPublished": False,
+            "codeParityRequired": True,
+            "normalizedOutputParityRequired": True,
+        },
+    }
+
+
+def _candidate_role(relative_path: str) -> str:
+    if relative_path.endswith("output-manifest.json"):
+        return "candidate-manifest"
+    if relative_path.endswith(".ipynb"):
+        return "executed-notebook"
+    if relative_path.endswith("linear-regression-summary.json"):
+        return "locked-summary"
+    if relative_path.endswith("gradient-descent-trace.csv"):
+        return "complete-gradient-trace"
+    if relative_path.endswith("coefficients.csv"):
+        return "complete-coefficient-table"
+    if relative_path.endswith("heldout-residuals.csv"):
+        return "complete-heldout-residuals"
+    if relative_path.endswith("requirements.txt"):
+        return "requirements"
+    if relative_path.endswith("environment.json"):
+        return "environment"
+    raise Phase27Error(f"Candidate inventory member has no role: {relative_path}")
+
+
+def _execute_and_write_notebook_candidates(staging_root: Path) -> None:
+    try:
+        import nbformat
+    except ImportError as error:
+        raise Phase27Error(
+            "Notebook generation must run inside the audited Phase 27 environment"
+        ) from error
+    kernel_name = os.environ.get("ML_ATLAS_PHASE27_KERNEL_NAME")
+    if not kernel_name or not re.fullmatch(
+        r"ml-atlas-phase27-[a-f0-9]{32}",
+        kernel_name,
+    ):
+        raise Phase27Error("Runtime-only isolated kernelspec identity is missing")
+
+    for job in candidate_jobs():
+        with tempfile.TemporaryDirectory(
+            prefix=f"ml-atlas-phase27-notebook-{job.locale}-"
+        ) as directory:
+            package_public = Path(directory) / "public"
+            dataset_path = (
+                package_public
+                / "datasets/python-data-tools/bike-sharing-hour.csv"
+            )
+            working_directory = package_public / "notebooks/linear-regression"
+            dataset_path.parent.mkdir(parents=True, exist_ok=True)
+            working_directory.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(SOURCE_CSV_PATH, dataset_path)
+            if sha256_file(dataset_path) != SOURCE_SHA256:
+                raise Phase27Error("Notebook job source copy drifted")
+            notebook = _build_notebook_document(job.locale)
+            executed = execute_notebook_job(
+                notebook,
+                job,
+                kernel_name,
+                working_directory,
+            )
+            destination = staging_root / job.notebook_path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(
+                nbformat.writes(executed, version=4),
+                encoding="utf-8",
+                newline="\n",
+            )
+
+
+def _build_candidate_manifest(staging_root: Path) -> dict[str, Any]:
+    execution_proofs: list[dict[str, Any]] = []
+    locale_results: dict[str, dict[str, Any]] = {}
+    for job in candidate_jobs():
+        path = staging_root / job.notebook_path
+        notebook = read_strict_json(path)
+        code = _notebook_code_payload(notebook)
+        outputs = normalize_notebook_outputs(notebook)
+        locale_results[job.locale] = {"code": code, "outputs": outputs}
+        execution_proofs.append(
+            {
+                **_notebook_job_payload(job),
+                "notebookSha256": sha256_file(path),
+                "codeSha256": _sha256_json(code),
+                "normalizedOutputSha256": _sha256_json(outputs),
+            }
+        )
+    zh = locale_results["zh-CN"]
+    en = locale_results["en"]
+    if zh["code"] != en["code"]:
+        raise Phase27Error("Locale Notebook code parity drifted")
+    if zh["outputs"] != en["outputs"]:
+        raise Phase27Error("Locale Notebook normalized output parity drifted")
+
+    members = []
+    for relative_path in EXPECTED_CANDIDATE_FILES:
+        path = staging_root / relative_path
+        role = _candidate_role(relative_path)
+        if role == "candidate-manifest":
+            members.append(
+                {
+                    "path": relative_path,
+                    "role": role,
+                    "sha256": None,
+                    "bytes": None,
+                    "selfHashExcluded": True,
+                }
+            )
+            continue
+        if not path.is_file():
+            raise Phase27Error(
+                f"Candidate member is missing before manifest: {relative_path}"
+            )
+        members.append(
+            {
+                "path": relative_path,
+                "role": role,
+                "sha256": sha256_file(path),
+                "bytes": path.stat().st_size,
+            }
+        )
+    summary = read_strict_json(
+        staging_root
+        / "notebooks/linear-regression/linear-regression-summary.json"
+    )
+    environment_path = (
+        staging_root / "notebooks/linear-regression/environment.json"
+    )
+    resolved_instants = [
+        summary["representativeTrainingRow"]["instant"],
+        *[
+            record["instant"]
+            for record in summary["diagnostics"]["namedCases"]
+        ],
+    ]
+    manifest = {
+        "contractVersion": CANDIDATE_CONTRACT_VERSION,
+        "packageComplete": True,
+        "publicationAllowed": False,
+        "requirements": ["LINR-02", "LINR-03", "LINR-04"],
+        "generator": {
+            "path": "scripts/linear-regression/build-phase-27-assets.py",
+            "sha256": sha256_file(Path(__file__)),
+        },
+        "source": {
+            "path": "datasets/python-data-tools/bike-sharing-hour.csv",
+            "sha256": SOURCE_SHA256,
+            "rows": SOURCE_ROWS,
+        },
+        "contract": {
+            "features": {
+                "order": list(FEATURE_ORDER),
+                "continuous": list(CONTINUOUS_FEATURES),
+                "binaryUnscaled": ["workingday"],
+                "collinearityOnly": ["atemp"],
+                "leakageExcluded": ["casual", "registered"],
+            },
+            "split": {
+                "kind": "chronological-first-80-percent",
+                "index": SPLIT_INDEX,
+                "trainRows": SPLIT_INDEX,
+                "testRows": SOURCE_ROWS - SPLIT_INDEX,
+                "trainEndInstant": 13_903,
+                "testStartInstant": 13_904,
+            },
+            "scalerFit": "train-only",
+            "residualSign": "prediction - actual",
+            "methodTolerance": METHOD_TOLERANCE,
+            "normalEquation": {
+                "term": {"en": "normal equation", "zh-CN": "正规方程"},
+                "augmentedDesign": "X_tilde = [1, X]",
+                "formula": "theta = (X_tilde^T X_tilde)^+ X_tilde^T y",
+                "interceptMapping": "theta[0] = b",
+                "weightMapping": "theta[1:] = w",
+                "implementation": "numpy.linalg.lstsq",
+                "explicitInverseUsed": False,
+            },
+        },
+        "selectionRuleVersion": SELECTION_RULE_VERSION,
+        "teachingRows": list(TEACHING_ROWS),
+        "resolvedInstants": resolved_instants,
+        "environment": {
+            "path": "notebooks/linear-regression/environment.json",
+            "sha256": sha256_file(environment_path),
+            "requirementsSha256": sha256_file(REQUIREMENTS_PATH),
+        },
+        "inventory": members,
+        "executionProofs": execution_proofs,
+        "localeParity": {
+            "locales": list(NOTEBOOK_LOCALES),
+            "codeCellIds": [record["id"] for record in zh["code"]],
+            "codeSha256": _sha256_json(zh["code"]),
+            "normalizedOutputSha256": _sha256_json(zh["outputs"]),
+        },
+        "rerun": {
+            "command": (
+                "python3 scripts/linear-regression/build-phase-27-assets.py "
+                "--prepare-candidates "
+                "--staging-root .cache/linear-regression/phase-27-staging "
+                "--offline"
+            ),
+            "freshKernelEach": True,
+            "offline": True,
+            "allowErrors": False,
+            "normalizedOutputsMustMatch": True,
+        },
+        "canonicalPayloadSha256": None,
+    }
+    manifest["canonicalPayloadSha256"] = _sha256_json(manifest)
+    manifest_path = (
+        staging_root / "notebooks/linear-regression/output-manifest.json"
+    )
+    manifest_path.write_bytes(strict_json_bytes(manifest))
+    return manifest
+
+
+def write_candidate_bundle(staging_root: Path) -> None:
+    observed_versions = {
+        distribution: importlib.metadata.version(distribution)
+        for distribution in EXPECTED_ENVIRONMENT_PINS
+    }
+    if observed_versions != EXPECTED_ENVIRONMENT_PINS:
+        raise Phase27Error("Candidate worker package identity drifted")
+    write_data_candidate_bundle(staging_root)
+    notebook_root = staging_root / "notebooks/linear-regression"
+    (notebook_root / "requirements.txt").write_bytes(REQUIREMENTS_PATH.read_bytes())
+    (notebook_root / "environment.json").write_bytes(
+        strict_json_bytes(_candidate_environment_record(observed_versions))
+    )
+    _execute_and_write_notebook_candidates(staging_root)
+    _build_candidate_manifest(staging_root)
+
+
+def _assert_finite_tree(value: Any, path: str = "root") -> None:
+    if isinstance(value, bool) or value is None or isinstance(value, str):
+        return
+    if isinstance(value, (int, float)):
+        if not math.isfinite(float(value)):
+            raise Phase27Error(f"Non-finite candidate value at {path}")
+        return
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            _assert_finite_tree(item, f"{path}[{index}]")
+        return
+    if isinstance(value, dict):
+        for key, item in value.items():
+            _assert_finite_tree(item, f"{path}.{key}")
+        return
+    raise Phase27Error(f"Unsupported candidate value at {path}: {type(value)}")
+
+
+def _verify_summary(staging_root: Path) -> dict[str, Any]:
+    path = (
+        staging_root
+        / "notebooks/linear-regression/linear-regression-summary.json"
+    )
+    summary = read_strict_json(path)
+    _assert_finite_tree(summary)
+    expected_instants = [11_550, 17_213, 15_628, 14_965, 15_604]
+    observed_instants = [
+        summary.get("representativeTrainingRow", {}).get("instant"),
+        *[
+            record.get("instant")
+            for record in summary.get("diagnostics", {}).get("namedCases", [])
+        ],
+    ]
+    normal = summary.get("methods", {}).get("normalEquation", {})
+    if (
+        summary.get("contractVersion") != SUMMARY_CONTRACT_VERSION
+        or summary.get("source")
+        != {
+            "path": "datasets/python-data-tools/bike-sharing-hour.csv",
+            "sha256": SOURCE_SHA256,
+            "rows": SOURCE_ROWS,
+            "target": "cnt",
+            "targetRelationship": "cnt = casual + registered",
+        }
+        or summary.get("features", {}).get("order") != list(FEATURE_ORDER)
+        or summary.get("features", {}).get("continuous")
+        != list(CONTINUOUS_FEATURES)
+        or summary.get("features", {}).get("binaryUnscaled")
+        != ["workingday"]
+        or summary.get("features", {}).get("leakageExcluded")
+        != ["casual", "registered"]
+        or summary.get("split", {}).get("index") != SPLIT_INDEX
+        or summary.get("split", {}).get("trainRows") != SPLIT_INDEX
+        or summary.get("split", {}).get("testRows")
+        != SOURCE_ROWS - SPLIT_INDEX
+        or summary.get("preprocessing", {}).get("standardized")
+        != list(CONTINUOUS_FEATURES)
+        or summary.get("preprocessing", {}).get("unscaled")
+        != ["workingday"]
+        or summary.get("optimization", {}).get("config")
+        != {
+            "initialization": "zeros",
+            "learningRate": GD_LEARNING_RATE,
+            "maxUpdates": GD_MAX_UPDATES,
+            "gradientTolerance": GD_GRADIENT_TOLERANCE,
+        }
+        or summary.get("optimization", {}).get("result", {}).get("updates")
+        != 772
+        or summary.get("optimization", {}).get("result", {}).get("reason")
+        != "gradient-tolerance"
+        or summary.get("optimization", {}).get("result", {}).get("gradientNorm")
+        > GD_GRADIENT_TOLERANCE
+        or summary.get("methods", {}).get("tolerance") != METHOD_TOLERANCE
+        or normal.get("augmentedDesign") != "X_tilde = [1, X]"
+        or normal.get("formula")
+        != "theta = (X_tilde^T X_tilde)^+ X_tilde^T y"
+        or normal.get("interceptMapping") != "theta[0] = b"
+        or normal.get("weightMapping") != "theta[1:] = w"
+        or normal.get("implementation") != "numpy.linalg.lstsq"
+        or summary.get("selectionRuleVersion") != SELECTION_RULE_VERSION
+        or observed_instants != expected_instants
+        or summary.get("diagnostics", {}).get("residualSign")
+        != "prediction - actual"
+        or summary.get("diagnostics", {})
+        .get("collinearity", {})
+        .get("addedFeature")
+        != "atemp"
+        or summary.get("diagnostics", {})
+        .get("collinearity", {})
+        .get("ridge", {})
+        .get("objective")
+        != "mse-plus-l2"
+        or summary.get("diagnostics", {})
+        .get("collinearity", {})
+        .get("lasso", {})
+        .get("objective")
+        != "mse-plus-l1"
+        or summary.get("diagnostics", {})
+        .get("log1p", {})
+        .get("rawTargetObjectiveComparable")
+        is not False
+    ):
+        raise Phase27Error("Candidate summary contract or selection drifted")
+    parameters = [*normal.get("weights", []), normal.get("intercept")]
+    for observed, expected in zip(
+        parameters,
+        [*EXPECTED_REFERENCE_WEIGHTS, EXPECTED_REFERENCE_INTERCEPT],
+        strict=True,
+    ):
+        if abs(float(observed) - expected) > 1e-9:
+            raise Phase27Error("Candidate least-squares parameter drifted")
+    for name, expected in EXPECTED_TEST_METRICS.items():
+        observed = summary.get("metrics", {}).get("test", {}).get(name)
+        if abs(float(observed) - expected) > 1e-6:
+            raise Phase27Error(f"Candidate held-out {name} drifted")
+    agreement = summary.get("methods", {}).get("agreement", {})
+    if (
+        agreement.get("agrees") is not True
+        or agreement.get("maxCoefficientDelta", math.inf) > METHOD_TOLERANCE
+        or agreement.get("maxPredictionDelta", math.inf) > METHOD_TOLERANCE
+    ):
+        raise Phase27Error("Candidate three-method agreement drifted")
+    return summary
+
+
+def _read_csv_records(path: Path, expected_fields: list[str]) -> list[dict[str, str]]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames != expected_fields:
+            raise Phase27Error(f"Candidate CSV header drifted: {path.name}")
+        rows = list(reader)
+    if any(set(row) != set(expected_fields) for row in rows):
+        raise Phase27Error(f"Candidate CSV row shape drifted: {path.name}")
+    return rows
+
+
+def _verify_candidate_tables(staging_root: Path) -> dict[str, int]:
+    root = staging_root / "notebooks/linear-regression"
+    trace_fields = [
+        "update",
+        "mse",
+        "gradient_norm",
+        "intercept",
+        *FEATURE_ORDER,
+    ]
+    trace = _read_csv_records(root / "gradient-descent-trace.csv", trace_fields)
+    if (
+        len(trace) != 773
+        or int(trace[0]["update"]) != 0
+        or int(trace[-1]["update"]) != 772
+        or float(trace[-1]["gradient_norm"]) > GD_GRADIENT_TOLERANCE
+    ):
+        raise Phase27Error("Complete gradient-descent trace drifted")
+    for row in trace:
+        if not all(math.isfinite(float(row[field])) for field in trace_fields):
+            raise Phase27Error("Complete gradient-descent trace is non-finite")
+
+    coefficients = _read_csv_records(
+        root / "coefficients.csv",
+        ["method", "space", "feature", "coefficient"],
+    )
+    expected_methods = {
+        "numpy-batch-gradient-descent",
+        "numpy-lstsq",
+        "sklearn-linear-regression",
+    }
+    if (
+        not expected_methods.issubset({row["method"] for row in coefficients})
+        or not all(
+            math.isfinite(float(row["coefficient"])) for row in coefficients
+        )
+    ):
+        raise Phase27Error("Complete coefficient table drifted")
+
+    residuals = _read_csv_records(
+        root / "heldout-residuals.csv",
+        ["instant", "timestamp", "hr", "actual", "prediction", "residual"],
+    )
+    if (
+        len(residuals) != SOURCE_ROWS - SPLIT_INDEX
+        or int(residuals[0]["instant"]) != 13_904
+        or int(residuals[-1]["instant"]) != 17_379
+    ):
+        raise Phase27Error("Complete held-out residual table drifted")
+    for row in residuals:
+        actual = float(row["actual"])
+        prediction = float(row["prediction"])
+        residual = float(row["residual"])
+        if (
+            not all(math.isfinite(value) for value in [actual, prediction, residual])
+            or abs(residual - (prediction - actual)) > 1e-9
+        ):
+            raise Phase27Error("Held-out residual sign or finiteness drifted")
+    return {
+        "traceRows": len(trace),
+        "coefficientRows": len(coefficients),
+        "residualRows": len(residuals),
+    }
+
+
+def _verify_executed_notebook(
+    staging_root: Path,
+    job: NotebookJob,
+) -> dict[str, Any]:
+    path = staging_root / job.notebook_path
+    notebook = read_strict_json(path)
+    expected_blueprint = build_notebook_blueprint(job.locale)
+    cells = notebook.get("cells")
+    if (
+        not isinstance(cells, list)
+        or [cell.get("id") for cell in cells]
+        != [cell["id"] for cell in expected_blueprint]
+        or len(cells) != len(expected_blueprint)
+    ):
+        raise Phase27Error(f"Notebook {job.locale} cell inventory drifted")
+    expected_execution_count = 1
+    for cell, expected in zip(cells, expected_blueprint, strict=True):
+        expected_type = "code" if expected["kind"] == "code" else "markdown"
+        if (
+            cell.get("cell_type") != expected_type
+            or _notebook_source_text(cell) != expected["source"]
+        ):
+            raise Phase27Error(
+                f"Notebook {job.locale} source drifted at {expected['id']}"
+            )
+        if expected_type == "code":
+            if cell.get("execution_count") != expected_execution_count:
+                raise Phase27Error(
+                    f"Notebook {job.locale} is not a fresh sequential execution"
+                )
+            expected_execution_count += 1
+            outputs = cell.get("outputs")
+            if not isinstance(outputs, list) or any(
+                output.get("output_type") == "error" for output in outputs
+            ):
+                raise Phase27Error(
+                    f"Notebook {job.locale} output or allow_errors drifted"
+                )
+    serialized = path.read_text(encoding="utf-8")
+    if (
+        re.search(
+            r"ml-atlas-phase27-[a-f0-9]{16,}|(?:/private)?/(?:tmp|var/folders)/",
+            serialized,
+        )
+        or "widget_state" in serialized
+    ):
+        raise Phase27Error(
+            f"Notebook {job.locale} leaked temporary kernel or widget state"
+        )
+    code = _notebook_code_payload(notebook)
+    outputs = normalize_notebook_outputs(notebook)
+    output_text = json.dumps(outputs, ensure_ascii=False)
+    for instant in ("11550", "17213", "15628", "14965", "15604"):
+        if instant not in output_text:
+            raise Phase27Error(
+                f"Notebook {job.locale} output lost teaching instant {instant}"
+            )
+    return {
+        "notebookSha256": sha256_file(path),
+        "code": code,
+        "outputs": outputs,
+    }
+
+
+def _verify_candidate_manifest(
+    staging_root: Path,
+    notebook_results: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    path = staging_root / EXPECTED_CANDIDATE_FILES[-1]
+    manifest = read_strict_json(path)
+    if (
+        manifest.get("contractVersion") != CANDIDATE_CONTRACT_VERSION
+        or manifest.get("packageComplete") is not True
+        or manifest.get("publicationAllowed") is not False
+        or manifest.get("requirements") != ["LINR-02", "LINR-03", "LINR-04"]
+        or manifest.get("generator")
+        != {
+            "path": "scripts/linear-regression/build-phase-27-assets.py",
+            "sha256": sha256_file(Path(__file__)),
+        }
+        or manifest.get("source")
+        != {
+            "path": "datasets/python-data-tools/bike-sharing-hour.csv",
+            "sha256": SOURCE_SHA256,
+            "rows": SOURCE_ROWS,
+        }
+        or manifest.get("selectionRuleVersion") != SELECTION_RULE_VERSION
+        or manifest.get("teachingRows") != list(TEACHING_ROWS)
+        or manifest.get("resolvedInstants")
+        != [11_550, 17_213, 15_628, 14_965, 15_604]
+    ):
+        raise Phase27Error("Complete candidate manifest header drifted")
+    contract = manifest.get("contract", {})
+    if (
+        contract.get("features", {}).get("order") != list(FEATURE_ORDER)
+        or contract.get("features", {}).get("continuous")
+        != list(CONTINUOUS_FEATURES)
+        or contract.get("features", {}).get("binaryUnscaled")
+        != ["workingday"]
+        or contract.get("features", {}).get("leakageExcluded")
+        != ["casual", "registered"]
+        or contract.get("split", {}).get("index") != SPLIT_INDEX
+        or contract.get("scalerFit") != "train-only"
+        or contract.get("residualSign") != "prediction - actual"
+        or contract.get("methodTolerance") != METHOD_TOLERANCE
+        or contract.get("normalEquation", {}).get("explicitInverseUsed")
+        is not False
+        or contract.get("normalEquation", {}).get("augmentedDesign")
+        != "X_tilde = [1, X]"
+        or contract.get("normalEquation", {}).get("formula")
+        != "theta = (X_tilde^T X_tilde)^+ X_tilde^T y"
+        or contract.get("normalEquation", {}).get("interceptMapping")
+        != "theta[0] = b"
+        or contract.get("normalEquation", {}).get("weightMapping")
+        != "theta[1:] = w"
+        or contract.get("normalEquation", {}).get("implementation")
+        != "numpy.linalg.lstsq"
+    ):
+        raise Phase27Error("Complete candidate manifest numerical contract drifted")
+    inventory = manifest.get("inventory")
+    if (
+        not isinstance(inventory, list)
+        or len(inventory) != 9
+        or [entry.get("path") for entry in inventory]
+        != list(EXPECTED_CANDIDATE_FILES)
+    ):
+        raise Phase27Error("Complete candidate manifest inventory drifted")
+    for entry in inventory:
+        member_path = staging_root / entry["path"]
+        if not member_path.is_file():
+            raise Phase27Error(
+                f"Complete candidate manifest member is missing: {entry['path']}"
+            )
+        if entry.get("role") == "candidate-manifest":
+            if entry != {
+                "path": EXPECTED_CANDIDATE_FILES[-1],
+                "role": "candidate-manifest",
+                "sha256": None,
+                "bytes": None,
+                "selfHashExcluded": True,
+            }:
+                raise Phase27Error("Candidate manifest self-entry drifted")
+        elif (
+            entry.get("role") != _candidate_role(entry["path"])
+            or entry.get("sha256") != sha256_file(member_path)
+            or entry.get("bytes") != member_path.stat().st_size
+        ):
+            raise Phase27Error(
+                f"Complete candidate manifest hash drifted: {entry['path']}"
+            )
+    canonical_hash = manifest.get("canonicalPayloadSha256")
+    canonical = dict(manifest)
+    canonical["canonicalPayloadSha256"] = None
+    if canonical_hash != _sha256_json(canonical):
+        raise Phase27Error("Candidate manifest canonical payload hash drifted")
+
+    proofs = manifest.get("executionProofs")
+    if not isinstance(proofs, list) or len(proofs) != 2:
+        raise Phase27Error("Candidate clean-kernel proof inventory drifted")
+    for job in candidate_jobs():
+        result = notebook_results[job.proof_id]
+        expected = {
+            **_notebook_job_payload(job),
+            "notebookSha256": result["notebookSha256"],
+            "codeSha256": _sha256_json(result["code"]),
+            "normalizedOutputSha256": _sha256_json(result["outputs"]),
+        }
+        proof = next(
+            (entry for entry in proofs if entry.get("proofId") == job.proof_id),
+            None,
+        )
+        if proof != expected:
+            raise Phase27Error(
+                f"Candidate clean-kernel proof drifted: {job.proof_id}"
+            )
+    zh = notebook_results[candidate_jobs()[0].proof_id]
+    en = notebook_results[candidate_jobs()[1].proof_id]
+    if zh["code"] != en["code"] or zh["outputs"] != en["outputs"]:
+        raise Phase27Error("Verified Notebook locale parity drifted")
+    expected_parity = {
+        "locales": list(NOTEBOOK_LOCALES),
+        "codeCellIds": [record["id"] for record in zh["code"]],
+        "codeSha256": _sha256_json(zh["code"]),
+        "normalizedOutputSha256": _sha256_json(zh["outputs"]),
+    }
+    if manifest.get("localeParity") != expected_parity:
+        raise Phase27Error("Candidate locale parity proof drifted")
+    if manifest.get("rerun") != {
+        "command": (
+            "python3 scripts/linear-regression/build-phase-27-assets.py "
+            "--prepare-candidates "
+            "--staging-root .cache/linear-regression/phase-27-staging "
+            "--offline"
+        ),
+        "freshKernelEach": True,
+        "offline": True,
+        "allowErrors": False,
+        "normalizedOutputsMustMatch": True,
+    }:
+        raise Phase27Error("Candidate rerun contract drifted")
+    return manifest
+
+
+def verify_candidates(
+    staging_root: Path,
+    *,
+    enforce_staging_root: bool = True,
+) -> dict[str, Any]:
+    if enforce_staging_root:
+        validate_candidate_staging_root(staging_root)
+    root = staging_root.resolve()
+    inventory = verify_candidate_inventory(
+        root,
+        enforce_staging_root=False,
+    )
+    verify_source_contract()
+    if (
+        (root / "notebooks/linear-regression/requirements.txt").read_bytes()
+        != REQUIREMENTS_PATH.read_bytes()
+    ):
+        raise Phase27Error("Candidate requirements drifted from exact audited pins")
+    environment_path = root / "notebooks/linear-regression/environment.json"
+    environment = read_strict_json(environment_path)
+    if (
+        environment.get("contractVersion")
+        != "linear-regression-phase-27-candidate-environment-v1"
+        or environment.get("requirements")
+        != {
+            "path": "notebooks/linear-regression/requirements.txt",
+            "sha256": sha256_file(REQUIREMENTS_PATH),
+            "pins": EXPECTED_ENVIRONMENT_PINS,
+        }
+        or environment.get("packages") != EXPECTED_ENVIRONMENT_PINS
+        or environment.get("execution")
+        != {
+            "networkAccess": False,
+            "freshKernelJobs": 2,
+            "allowErrors": False,
+            "kernelNamePublished": False,
+            "temporaryPathsPublished": False,
+            "codeParityRequired": True,
+            "normalizedOutputParityRequired": True,
+        }
+    ):
+        raise Phase27Error("Candidate environment or package identity drifted")
+    if re.search(
+        r"ml-atlas-phase27-[a-f0-9]{16,}|(?:/private)?/(?:tmp|var/folders)/",
+        environment_path.read_text(encoding="utf-8"),
+    ):
+        raise Phase27Error("Candidate environment leaked a temporary identity")
+    summary = _verify_summary(root)
+    tables = _verify_candidate_tables(root)
+    notebook_results = {
+        job.proof_id: _verify_executed_notebook(root, job)
+        for job in candidate_jobs()
+    }
+    manifest = _verify_candidate_manifest(root, notebook_results)
+    return {
+        "inventoryCount": inventory["inventoryCount"],
+        "executionProofCount": len(manifest["executionProofs"]),
+        "summary": summary,
+        "tables": tables,
+    }
+
+
 def _run_isolated_worker(
     isolated: IsolatedEnvironment,
     function_name: str,
@@ -2170,17 +3368,17 @@ def prepare_candidates(
 ) -> dict[str, Any]:
     root = validate_candidate_staging_root(staging_root)
     try:
-        source = verify_source_contract()
-        verify_environment(wheel_cache)
-        with CandidateTransaction(root):
-            snapshot = candidate_contract_snapshot()
-        return {
-            "stagingRoot": root.relative_to(REPO_ROOT).as_posix(),
-            "sourceSha256": source["source"]["sha256"],
-            "inventoryCount": len(snapshot["inventory"]["paths"]),
-            "candidateFilesCreated": 0,
-            "publicationAllowed": False,
-        }
+        verify_source_contract()
+        validate_environment_contract(wheel_cache=wheel_cache)
+        with CandidateTransaction(root) as transaction:
+            with isolated_environment(wheel_cache) as isolated:
+                _run_isolated_worker(
+                    isolated,
+                    "write_candidate_bundle",
+                    [transaction.root],
+                )
+            result = verify_candidates(transaction.root)
+        return result
     except BaseException:
         _remove_candidate_root(root)
         raise
@@ -2221,15 +3419,18 @@ def main() -> None:
     if args.prepare_candidates:
         result = prepare_candidates(args.staging_root, args.wheel_cache)
         print(
-            "Prepared only the fresh ignored Phase 27 transaction shell: "
-            f"{result['inventoryCount']} declared members, "
-            f"{result['candidateFilesCreated']} candidate files, no public mutation."
+            "Prepared and verified the complete ignored Phase 27 candidate package: "
+            f"{result['inventoryCount']} members, "
+            f"{result['executionProofCount']} independent clean-kernel proofs, "
+            "no public mutation."
         )
         return
-    verify_source_contract()
     validate_environment_contract(wheel_cache=args.wheel_cache)
-    result = verify_candidate_inventory(args.staging_root)
-    print(f"Verified the complete {result['inventoryCount']}-member candidate inventory.")
+    result = verify_candidates(args.staging_root)
+    print(
+        "Verified the complete nine-member Phase 27 candidate package "
+        f"({result['inventoryCount']} members)."
+    )
 
 
 if __name__ == "__main__":
