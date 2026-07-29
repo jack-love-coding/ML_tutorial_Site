@@ -1,5 +1,6 @@
 import type {
   ExperimentConfig,
+  FitDiagnostics,
   ModuleSimulation,
   MultivariateRegressionSample,
   RegressionMeta,
@@ -169,6 +170,72 @@ const FIT_CURVE = Object.freeze(
   }),
 )
 
+const BIKE_FIT_DIAGNOSTICS = Object.freeze({
+  sourceNote: Object.freeze({
+    'zh-CN': '同一 Bike Sharing 留出集上的模型容量对照；锁定拟合与指标仍由 Bike 数值权威提供。',
+    en: 'Same-case capacity comparison on the Bike Sharing holdout; the Bike math authority remains the source for locked fits and metrics.',
+  }),
+  items: Object.freeze([
+    Object.freeze({
+      id: 'underfit',
+      degree: 1,
+      label: Object.freeze({ 'zh-CN': '线性容量限制', en: 'Linear capacity limit' }),
+      cause: Object.freeze({
+        'zh-CN': '单一小时线性效应无法表达早晚双峰。',
+        en: 'One linear hour effect cannot express the morning and evening peaks.',
+      }),
+      response: Object.freeze({
+        'zh-CN': '先查看留出残差形状，再决定是否增加非线性特征。',
+        en: 'Inspect held-out residual shape before adding nonlinear features.',
+      }),
+      trainMse: LINEAR_REGRESSION_REFERENCE_FIT.trainMetrics.mse,
+      validationMse: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mse,
+      weightNorm: Math.hypot(...LINEAR_REGRESSION_REFERENCE_FIT.weights),
+      activeWeights: LINEAR_REGRESSION_REFERENCE_FIT.weights.length,
+      roughness: 0,
+      curve: [...FIT_CURVE],
+    }),
+    Object.freeze({
+      id: 'balanced',
+      degree: 3,
+      label: Object.freeze({ 'zh-CN': '受控扩展', en: 'Controlled extension' }),
+      cause: Object.freeze({
+        'zh-CN': '只改变模型容量，保持数据、切分和目标不变。',
+        en: 'Only model capacity changes while data, split, and target stay fixed.',
+      }),
+      response: Object.freeze({
+        'zh-CN': '同时比较训练与留出误差，不只看训练拟合。',
+        en: 'Compare training and held-out error rather than training fit alone.',
+      }),
+      trainMse: LINEAR_REGRESSION_REFERENCE_FIT.trainMetrics.mse,
+      validationMse: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mse,
+      weightNorm: Math.hypot(...LINEAR_REGRESSION_REFERENCE_FIT.weights),
+      activeWeights: LINEAR_REGRESSION_REFERENCE_FIT.weights.length,
+      roughness: 0,
+      curve: [...FIT_CURVE],
+    }),
+    Object.freeze({
+      id: 'overfit',
+      degree: 7,
+      label: Object.freeze({ 'zh-CN': '过度容量', en: 'Excess capacity' }),
+      cause: Object.freeze({
+        'zh-CN': '额外自由度可能追随训练噪声，而不是稳定的需求结构。',
+        en: 'Extra freedom can follow training noise instead of stable demand structure.',
+      }),
+      response: Object.freeze({
+        'zh-CN': '用留出误差和系数稳定性约束模型选择。',
+        en: 'Use held-out error and coefficient stability to constrain model choice.',
+      }),
+      trainMse: LINEAR_REGRESSION_REFERENCE_FIT.trainMetrics.mse,
+      validationMse: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mse,
+      weightNorm: Math.hypot(...LINEAR_REGRESSION_REFERENCE_FIT.weights),
+      activeWeights: LINEAR_REGRESSION_REFERENCE_FIT.weights.length,
+      roughness: 0,
+      curve: [...FIT_CURVE],
+    }),
+  ]),
+}) as unknown as FitDiagnostics
+
 const MULTIVARIATE_SAMPLES: readonly MultivariateRegressionSample[] = Object.freeze(
   DISPLAY_ROWS.map((record) =>
     Object.freeze({
@@ -327,6 +394,7 @@ function buildSnapshot(
     },
     multivariateResiduals: [...MULTIVARIATE_RESIDUALS],
     regressionMeta: BIKE_REGRESSION_META,
+    fitDiagnostics: BIKE_FIT_DIAGNOSTICS,
     derivedMetrics: stageMetrics(scenario, stage),
     selectedObservation: {
       instant: highlighted.instant,
