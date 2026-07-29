@@ -379,6 +379,38 @@ test('environment shell validates every audited wheel and exact isolated setting
   assert.doesNotMatch(source, /pip\s+install(?![\s\S]{0,120}--no-index)/)
 })
 
+test('environment and source drift fail before candidate transaction work', () => {
+  const environmentDrift = runProbe([
+    'import tempfile',
+    'contract = module.read_strict_json(module.ENVIRONMENT_CONTRACT_PATH)',
+    'contract["execution"]["jobCount"] = 1',
+    'with tempfile.TemporaryDirectory() as directory:',
+    '    path = pathlib.Path(directory) / "environment.json"',
+    '    path.write_bytes(module.strict_json_bytes(contract))',
+    '    module.validate_environment_contract(contract_path=path)',
+  ].join('\n'))
+  assert.notEqual(environmentDrift.status, 0)
+  assert.match(environmentDrift.stderr, /environment|execution|drift/i)
+
+  for (const mutation of [
+    'contract["source"]["sha256"] = "0" * 64',
+    'contract["split"]["index"] = 1',
+    'contract["features"]["order"] = list(reversed(contract["features"]["order"]))',
+  ]) {
+    const sourceDrift = runProbe([
+      'original_run_command = module.run_command',
+      'contract = json.loads(original_run_command(["node", str(module.SOURCE_BRIDGE_PATH)]).stdout)',
+      mutation,
+      'class Completed:',
+      '    stdout = json.dumps(contract)',
+      'module.run_command = lambda *args, **kwargs: Completed()',
+      'module.verify_source_contract()',
+    ].join('\n'))
+    assert.notEqual(sourceDrift.status, 0)
+    assert.match(sourceDrift.stderr, /source|split|feature|drift/i)
+  }
+})
+
 test('kernel shell declares two independent clean-kernel locale jobs', () => {
   const snapshot = readContractSnapshot()
   assert.equal(snapshot.executionJobs.length, 2)
@@ -467,6 +499,15 @@ test('staging shell rejects public roots remote roots and every subset selector'
   assert.notEqual(publicAttempt.status, 0)
   assert.match(publicAttempt.stderr, /public|staging/i)
 
+  const remoteAttempt = runGenerator([
+    '--prepare-candidates',
+    '--offline',
+    '--staging-root',
+    'https://example.com/phase-27',
+  ])
+  assert.notEqual(remoteAttempt.status, 0)
+  assert.match(remoteAttempt.stderr, /remote|staging/i)
+
   for (const selector of [
     ['--topic', 'bike-linear-regression'],
     ['--locale', 'zh-CN'],
@@ -523,9 +564,22 @@ test('candidate verification shell fails closed on missing unexpected or partial
     '        print(str(error))',
     '    else:',
     '        raise RuntimeError("missing inventory was accepted")',
+    '    for relative_path in module.EXPECTED_CANDIDATE_FILES:',
+    '        path = root / relative_path',
+    '        path.parent.mkdir(parents=True, exist_ok=True)',
+    '        path.write_text("placeholder", encoding="utf-8")',
+    '    extra = root / "notebooks/linear-regression/unexpected.txt"',
+    '    extra.write_text("unexpected", encoding="utf-8")',
+    '    try:',
+    '        module.verify_candidate_inventory(root, enforce_staging_root=False)',
+    '    except module.Phase27Error as error:',
+    '        print(str(error))',
+    '    else:',
+    '        raise RuntimeError("unexpected inventory was accepted")',
   ].join('\n'))
   assert.equal(probe.status, 0, probe.stderr)
   assert.match(probe.stdout, /inventory|missing|nine|9/i)
+  assert.match(probe.stdout, /unexpected\.txt/)
 })
 
 test.todo('numerical contract emits complete coefficient GD and residual tables [owner Plan 27-03]')
