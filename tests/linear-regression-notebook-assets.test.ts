@@ -2,10 +2,13 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
+  cpSync,
   existsSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
@@ -756,7 +759,200 @@ test('numerical contract emits complete coefficient GD and residual tables [owne
     )
   }
 })
-test.todo('candidate verification [27-W0-02] rejects missing unexpected and corrupted members [owner Plan 27-03]')
+test('candidate verification [27-W0-02] seals independent locale jobs and exact hashes [owner Plan 27-03]', () => {
+  const verified = runGenerator([
+    '--verify-candidates',
+    '--staging-root',
+    stagingRoot,
+    '--offline',
+  ])
+  assert.equal(verified.status, 0, verified.stderr)
+  assert.match(verified.stdout, /nine-member|9-member|9 member/i)
+
+  const notebookRoot = resolve(stagingRoot, 'notebooks/linear-regression')
+  const actual = readdirSync(notebookRoot).sort()
+  assert.deepEqual(actual, EXPECTED_CANDIDATE_FILES.map((path) =>
+    path.replace('notebooks/linear-regression/', '')).sort())
+
+  const zh = readCandidateJson(
+    'notebooks/linear-regression/bike-linear-regression.zh-CN.ipynb',
+  )
+  const en = readCandidateJson(
+    'notebooks/linear-regression/bike-linear-regression.en.ipynb',
+  )
+  const zhCode = zh.cells
+    .filter((cell: { cell_type: string }) => cell.cell_type === 'code')
+    .map((cell: { id: string, source: readonly string[] | string }) => ({
+      id: cell.id,
+      source: cell.source,
+    }))
+  const enCode = en.cells
+    .filter((cell: { cell_type: string }) => cell.cell_type === 'code')
+    .map((cell: { id: string, source: readonly string[] | string }) => ({
+      id: cell.id,
+      source: cell.source,
+    }))
+  assert.deepEqual(zhCode, enCode)
+  assert.notDeepEqual(
+    zh.cells.filter((cell: { cell_type: string }) => cell.cell_type === 'markdown'),
+    en.cells.filter((cell: { cell_type: string }) => cell.cell_type === 'markdown'),
+  )
+  for (const notebook of [zh, en]) {
+    const codeCells = notebook.cells.filter(
+      (cell: { cell_type: string }) => cell.cell_type === 'code',
+    )
+    assert.deepEqual(
+      codeCells.map((cell: { execution_count: number }) => cell.execution_count),
+      codeCells.map((_: unknown, index: number) => index + 1),
+    )
+    assert.equal(
+      codeCells.every((cell: { outputs: readonly { output_type: string }[] }) =>
+        cell.outputs.every((output) => output.output_type !== 'error')),
+      true,
+    )
+    const completeText = JSON.stringify(notebook)
+    assert.match(completeText, /normal equation|正规方程/)
+    assert.match(completeText, /X_tilde = \[1, X\]/)
+    assert.match(
+      completeText,
+      /theta = \(X_tilde\^T X_tilde\)\^\+ X_tilde\^T y/,
+    )
+    assert.match(completeText, /numpy\.linalg\.lstsq/)
+    assert.match(completeText, /11550/)
+    assert.match(completeText, /17213/)
+    assert.match(completeText, /15628/)
+    assert.match(completeText, /14965/)
+    assert.match(completeText, /15604/)
+    assert.doesNotMatch(completeText, /ml-atlas-phase27-[a-f0-9]{16,}/)
+    assert.doesNotMatch(completeText, /\/(?:private\/)?(?:tmp|var\/folders)\//)
+  }
+
+  const manifest = readCandidateJson(
+    'notebooks/linear-regression/output-manifest.json',
+  )
+  assert.equal(manifest.contractVersion, 'linear-regression-phase-27-candidate-v1')
+  assert.equal(manifest.packageComplete, true)
+  assert.equal(manifest.publicationAllowed, false)
+  assert.deepEqual(manifest.requirements, ['LINR-02', 'LINR-03', 'LINR-04'])
+  assert.deepEqual(
+    manifest.inventory.map((entry: { path: string }) => entry.path),
+    EXPECTED_CANDIDATE_FILES,
+  )
+  assert.equal(manifest.inventory.length, 9)
+  for (const entry of manifest.inventory.slice(0, -1)) {
+    const path = resolve(stagingRoot, entry.path)
+    assert.equal(entry.bytes, readFileSync(path).byteLength)
+    assert.equal(entry.sha256, sha256(path))
+  }
+  assert.deepEqual(
+    manifest.executionProofs.map((proof: { proofId: string }) => proof.proofId),
+    [
+      'clean-kernel-bike-linear-regression-zh-CN',
+      'clean-kernel-bike-linear-regression-en',
+    ],
+  )
+  assert.equal(new Set(
+    manifest.executionProofs.map((proof: { proofId: string }) => proof.proofId),
+  ).size, 2)
+  assert.equal(
+    manifest.executionProofs[0].codeSha256,
+    manifest.executionProofs[1].codeSha256,
+  )
+  assert.equal(
+    manifest.executionProofs[0].normalizedOutputSha256,
+    manifest.executionProofs[1].normalizedOutputSha256,
+  )
+  assert.deepEqual(manifest.contract.features.order, EXPECTED_FEATURE_ORDER)
+  assert.equal(manifest.contract.split.index, 13_903)
+  assert.equal(manifest.contract.residualSign, 'prediction - actual')
+  assert.equal(manifest.contract.methodTolerance, 1e-6)
+  assert.equal(manifest.selectionRuleVersion, 'bike-linear-regression-teaching-rows-v1')
+  assert.deepEqual(manifest.resolvedInstants, [
+    11_550,
+    17_213,
+    15_628,
+    14_965,
+    15_604,
+  ])
+  assert.equal(manifest.environment.path, 'notebooks/linear-regression/environment.json')
+  assert.equal(manifest.rerun.command, [
+    'python3 scripts/linear-regression/build-phase-27-assets.py',
+    '--prepare-candidates',
+    '--staging-root .cache/linear-regression/phase-27-staging',
+    '--offline',
+  ].join(' '))
+})
+
+test('candidate verification [27-W0-02] rejects changed contract code output and inventory [owner Plan 27-03]', () => {
+  const mutations = [
+    {
+      name: 'changed summary source hash',
+      path: 'notebooks/linear-regression/linear-regression-summary.json',
+      mutate(value: Record<string, any>) {
+        value.source.sha256 = '0'.repeat(64)
+      },
+    },
+    {
+      name: 'changed method tolerance',
+      path: 'notebooks/linear-regression/linear-regression-summary.json',
+      mutate(value: Record<string, any>) {
+        value.methods.tolerance = 1e-3
+      },
+    },
+    {
+      name: 'changed teaching selection',
+      path: 'notebooks/linear-regression/linear-regression-summary.json',
+      mutate(value: Record<string, any>) {
+        value.diagnostics.namedCases.reverse()
+      },
+    },
+    {
+      name: 'changed notebook code',
+      path: 'notebooks/linear-regression/bike-linear-regression.en.ipynb',
+      mutate(value: Record<string, any>) {
+        value.cells.find((cell: Record<string, any>) =>
+          cell.cell_type === 'code').source = ['FEATURE_ORDER = ()\n']
+      },
+    },
+  ]
+
+  for (const mutation of mutations) {
+    const temporaryRoot = mkdtempSync(resolve(tmpdir(), 'phase-27-corruption-'))
+    try {
+      cpSync(stagingRoot, temporaryRoot, { recursive: true })
+      const path = resolve(temporaryRoot, mutation.path)
+      const value = JSON.parse(readFileSync(path, 'utf8'))
+      mutation.mutate(value)
+      writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`, 'utf8')
+      const probe = runProbe([
+        'root = pathlib.Path(sys.argv[2])',
+        'module.verify_candidates(root, enforce_staging_root=False)',
+      ].join('\n'), [temporaryRoot])
+      assert.notEqual(probe.status, 0, mutation.name)
+      assert.match(probe.stderr, /drift|hash|source|tolerance|selection|code|candidate/i)
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true })
+    }
+  }
+
+  const temporaryRoot = mkdtempSync(resolve(tmpdir(), 'phase-27-inventory-'))
+  try {
+    cpSync(stagingRoot, temporaryRoot, { recursive: true })
+    writeFileSync(
+      resolve(temporaryRoot, 'notebooks/linear-regression/unexpected.txt'),
+      'unexpected',
+      'utf8',
+    )
+    const probe = runProbe([
+      'root = pathlib.Path(sys.argv[2])',
+      'module.verify_candidates(root, enforce_staging_root=False)',
+    ].join('\n'), [temporaryRoot])
+    assert.notEqual(probe.status, 0)
+    assert.match(probe.stderr, /inventory|unexpected/i)
+  } finally {
+    rmSync(temporaryRoot, { recursive: true, force: true })
+  }
+})
 test.todo('publication [27-W0-02] accepts only the complete nine-member package [owner Plan 27-04]')
 test.todo('rollback [27-W0-02] restores absent or seeded public targets byte-for-byte [owner Plan 27-04]')
 test.todo('offline rerun [27-W0-02] leaves repository bytes and mtimes unchanged [owner Plan 27-04]')
