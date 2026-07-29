@@ -92,35 +92,33 @@ test('Task 27-01-03 RED: optimizer completion precedes Bike diagnostic interpret
   assert.ok(Number(optimization.derivedMetrics?.sklearnMaxCoefficientDelta) <= 1e-6)
 
   const hourly = snapshots[1]!
-  assert.deepEqual(hourly.derivedMetrics?.hourlyResiduals, [
-    { hour: 8, meanResidual: -367.4 },
-    { hour: 17, meanResidual: -366.6 },
-    { hour: 23, meanResidual: 118.1 },
-  ])
+  assert.deepEqual(hourly.derivedMetrics?.hourlyResidualHours, [8, 17, 23])
+  assert.deepEqual(hourly.derivedMetrics?.hourlyResidualMeans, [-367.4, -366.6, 118.1])
 
   const spread = snapshots[2]!
-  assert.deepEqual(spread.derivedMetrics?.predictionBinSpread, [
-    { bin: 1, residualStdDev: 136, mae: 78.4 },
-    { bin: 4, residualStdDev: 209.2, mae: 181.7 },
+  assert.deepEqual(spread.derivedMetrics?.predictionBinIds, [1, 2, 3, 4])
+  assert.deepEqual(spread.derivedMetrics?.predictionBinResidualStdDev, [
+    136,
+    152.8,
+    177.6,
+    209.2,
   ])
+  assert.deepEqual(spread.derivedMetrics?.predictionBinMae, [78.4, 105.3, 143.6, 181.7])
 
   const stability = snapshots[3]!
-  assert.deepEqual(stability.derivedMetrics?.atempComparison, {
-    baseTemp: 62.723890953,
-    atempOlsTemp: 14.34,
-    atempOlsAtemp: 48.8,
-    baseTestMse: 40142.538619,
-    atempTestMse: 40092.5,
-    ridgeObjective: 'mse-plus-l2',
-    lassoObjective: 'mse-plus-l1',
-  })
+  assert.equal(stability.derivedMetrics?.baseTempCoefficient, 62.723890953)
+  assert.equal(stability.derivedMetrics?.atempOlsTempCoefficient, 14.34)
+  assert.equal(stability.derivedMetrics?.atempOlsAtempCoefficient, 48.8)
+  assert.equal(stability.derivedMetrics?.baseTestMse, 40142.538619)
+  assert.equal(stability.derivedMetrics?.atempTestMse, 40092.5)
+  assert.equal(stability.derivedMetrics?.ridgeObjective, 'mse-plus-l2')
+  assert.equal(stability.derivedMetrics?.lassoObjective, 'mse-plus-l1')
 
   const named = snapshots[4]!
   assert.deepEqual(named.derivedMetrics?.namedCaseInstants, [17_213, 15_628, 14_965, 15_604])
 
   const log1p = snapshots[5]!
-  assert.deepEqual(log1p.derivedMetrics?.targetScaleLabels, {
-    raw: 'rental-count',
-    transformed: 'log1p-rental-count',
-  })
+  assert.equal(log1p.derivedMetrics?.rawTargetScale, 'rental-count')
+  assert.equal(log1p.derivedMetrics?.transformedTargetScale, 'log1p-rental-count')
+  assert.equal(log1p.derivedMetrics?.inverseTransformRequired, true)
 })
