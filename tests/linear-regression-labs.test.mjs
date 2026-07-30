@@ -89,33 +89,47 @@ test('registry maps every preserved chapter to one typed state and unknown IDs t
   assert.doesNotMatch(lab, /(?:activeScenario|chapterState)[\s\S]{0,160}\?\?\s*(?:true|['"]fit-line['"])/)
 })
 
-test('loading uses the registered summary with base-safe abortable strict parsing', () => {
+test('loading assembles the strict four-file package with one base-safe abortable lifecycle', () => {
   const lab = source('src/components/LinearRegressionLessonLab.vue')
 
   assert.match(lab, /linearRegressionAssetById/)
-  assert.match(lab, /parseLinearRegressionSummary/)
+  for (const outputId of [
+    'linear-regression-summary',
+    'linear-regression-gradient-descent-trace',
+    'linear-regression-coefficients',
+    'linear-regression-heldout-residuals',
+  ]) {
+    assert.match(lab, new RegExp(outputId))
+  }
+  assert.match(lab, /parseLinearRegressionOutput/)
+  assert.match(lab, /createLinearRegressionWorkbenchPackage/)
+  assert.match(lab, /Promise\.all/)
   assert.match(lab, /withPublicBase\(.*\.publicPath\)/)
   assert.match(lab, /new AbortController\(\)/)
   assert.match(lab, /signal:\s*requestController\.signal/)
-  assert.match(lab, /headers:\s*\{\s*Accept:\s*['"]application\/json['"]\s*\}/)
+  assert.match(lab, /application\/json/)
+  assert.match(lab, /text\/csv/)
   assert.match(lab, /if\s*\(!response\.ok\)/)
   assert.match(lab, /watch\(\s*\(\)\s*=>\s*props\.section\.id/)
   assert.match(lab, /onBeforeUnmount\(\(\)\s*=>\s*\{[\s\S]*abort\(\)/)
   assert.doesNotMatch(lab, /fetch\(\s*['"]\/notebooks\/linear-regression/)
+  assert.doesNotMatch(lab, /parseLinearRegressionSummary/)
 })
 
-test('fallback states retain formulas and a clearly labeled bilingual hand fixture', () => {
+test('fallback states retain formulas and only the audited compact published baseline', () => {
   const lab = source('src/components/LinearRegressionLessonLab.vue')
   const results = source('src/components/LinearRegressionResults.vue')
   const combined = `${lab}\n${results}`
 
-  assert.match(combined, /lockedSummaryState/)
+  assert.match(combined, /workbenchState/)
   assert.match(combined, /loading|正在读取/)
   assert.match(combined, /invalid|无法读取|unavailable/)
-  assert.match(combined, /built-in teaching fixture|内置教学样例/)
+  assert.match(combined, /LINEAR_REGRESSION_PUBLISHED_BASELINE/)
+  assert.match(combined, /audited compact|审计过的精简/)
   assert.match(combined, /ŷ|prediction|预测/)
   assert.match(combined, /residual|残差/)
-  assert.doesNotMatch(combined, /fallback[\s\S]{0,240}(?:40142\.538619|135\.296640|0\.174252)/)
+  assert.match(lab, /:disabled="workbenchState\.status !== 'ready'"/)
+  assert.doesNotMatch(lab, /builtInTeachingFixture/)
 })
 
 test('controls are bounded finite keyboard-operable and reset to chapter defaults', () => {
@@ -139,11 +153,13 @@ test('row to batch results come from the pure Bike authority and preserve the lo
   const results = source('src/components/LinearRegressionResults.vue')
   const combined = `${lab}\n${results}`
 
-  assert.match(combined, /simulateLinearRegression/)
+  assert.match(lab, /selectRowBatchResult/)
   assert.match(combined, /representativeTrainingRow/)
   assert.match(combined, /11_?550/)
   assert.match(combined, /lossContribution/)
   assert.match(combined, /unaveragedWeightGradientContribution/)
+  assert.match(lab, /13_?903/)
+  assert.match(lab, /3_?476/)
   assert.match(combined, /row.*batch|batch.*row|单行.*批量|批量.*单行/s)
 })
 
@@ -152,6 +168,8 @@ test('method comparison proves optimizer completion before model diagnosis', () 
   const results = source('src/components/LinearRegressionResults.vue')
   const combined = `${lab}\n${results}`
 
+  assert.match(lab, /selectGradientTracePoint/)
+  assert.match(lab, /selectMethodResult/)
   assert.match(combined, /optimizationGate/)
   assert.match(combined, /methodComparisonRows/)
   assert.match(combined, /gradient-descent/)
@@ -163,8 +181,10 @@ test('method comparison proves optimizer completion before model diagnosis', () 
 })
 
 test('coefficient view separates model and original spaces without component conversion', () => {
+  const lab = source('src/components/LinearRegressionLessonLab.vue')
   const results = source('src/components/LinearRegressionResults.vue')
 
+  assert.match(lab, /selectCoefficientResult/)
   assert.match(results, /coefficientRows/)
   assert.match(results, /model-space|模型空间/)
   assert.match(results, /original-unit|原始单位/)
@@ -178,6 +198,8 @@ test('diagnostic sequence covers hour spread atemp regularization log1p and comb
   const results = source('src/components/LinearRegressionResults.vue')
   const combined = `${lab}\n${results}`
 
+  assert.match(lab, /selectHeldoutCase/)
+  assert.match(lab, /selectAtempComparison/)
   assert.match(combined, /residualChartData/)
   assert.match(combined, /hourlyResiduals/)
   assert.match(combined, /predictionBins/)
@@ -217,7 +239,72 @@ test('Bike visuals are deterministic static SVG or tables with non-color cues', 
   assert.doesNotMatch(scriptBlock(combined), /solveLinearSystem|StandardScaler|matrixInverse/)
 })
 
-test.skip('[27-08 deferred] page composition places each chapter result beside its workbench')
-test.skip('[27-08 deferred] downloads expose the complete registered local package once')
-test.skip('[27-08 deferred] module styles prove mobile and reduced-motion layout')
-test.skip('[27-08 deferred] browser matrix covers bilingual root and eight deep links')
+test('each of the six controls owns a stable aria-live numerical output hook', () => {
+  const lab = source('src/components/LinearRegressionLessonLab.vue')
+
+  for (const hook of [
+    'linear-output-row-batch',
+    'linear-output-gd-trace',
+    'linear-output-method',
+    'linear-output-coefficient-space',
+    'linear-output-heldout-case',
+    'linear-output-atemp-comparison',
+  ]) {
+    assert.match(lab, new RegExp(`data-testid=["']${hook}["']`))
+  }
+  for (const field of [
+    'rawFeatures',
+    'trainMetrics',
+    'testMetrics',
+    'gradientNorm',
+    'maxCoefficientDelta',
+    'maxPredictionDelta',
+    'timestamp',
+    'correlation',
+    'conditionNumber',
+    'perturbationL2',
+  ]) {
+    assert.match(lab, new RegExp(field))
+  }
+  assert.match(lab, /aria-live="polite"/)
+})
+
+test('page composition places each chapter result beside its workbench', () => {
+  const page = source('src/components/LinearRegressionPagedLesson.vue')
+
+  assert.match(page, /data-testid="linear-course-lab"/)
+  assert.match(page, /data-testid="linear-course-results"/)
+  assert.match(page, /<LinearRegressionLessonLab[\s\S]*<LinearRegressionResults/)
+})
+
+test('downloads expose the complete registered local package once', () => {
+  const downloads = source('src/components/LinearRegressionDownloads.vue')
+  const algorithmView = source('src/views/AlgorithmView.vue')
+
+  assert.match(downloads, /linearRegressionAssets/)
+  assert.match(downloads, /withPublicBase\(asset\.publicPath\)/)
+  assert.equal((algorithmView.match(/<LinearRegressionDownloads/g) ?? []).length, 1)
+})
+
+test('module styles prove mobile and reduced-motion layout', () => {
+  const styles = [
+    source('src/styles/modules/linear-regression.css'),
+    source('src/styles/modules/linear-regression-responsive.css'),
+  ].join('\n')
+
+  assert.match(styles, /@media \(max-width: 390px\)/)
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/)
+  assert.match(styles, /animation-duration:\s*0\.001ms/)
+})
+
+test('browser matrix covers bilingual root and eight deep links', () => {
+  const matrix = source('scripts/qa/linearRegressionBrowserMatrix.js')
+
+  assert.match(matrix, /expectedCaseCount\s*=\s*36/)
+  assert.match(matrix, /locales\s*=\s*\[['"]zh-CN['"],\s*['"]en['"]\]/)
+  assert.match(matrix, /width:\s*1440/)
+  assert.match(matrix, /width:\s*390/)
+  for (const chapterId of chapterIds) {
+    assert.match(matrix, new RegExp(`['"]${chapterId}['"]`))
+  }
+})
