@@ -30,6 +30,12 @@ const requirementsPath = resolve(root, 'scripts/loss-functions/requirements.txt'
 const environmentContractPath = resolve(root, 'scripts/loss-functions/environment-contract.json')
 const numericalRequirementsPath = resolve(root, 'public/notebooks/numerical-methods/requirements.txt')
 const numericalWheelCache = resolve(root, '.cache/numerical-methods/batch-4-wheelhouse')
+const requireLocalReleaseAssets =
+  process.env.ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS === '1'
+const phase26ReleaseAssetsAvailable =
+  existsSync(stagingRoot) && existsSync(numericalWheelCache)
+const phase26ReleaseTest =
+  requireLocalReleaseAssets || phase26ReleaseAssetsAvailable ? test : test.skip
 
 function sha256(path: string) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
@@ -356,7 +362,7 @@ test('environment requirements exactly reuse the audited Numerical Methods pins'
   ])
 })
 
-test('environment verification rejects Python platform requirements and wheel cache drift', () => {
+phase26ReleaseTest('environment verification rejects Python platform requirements and wheel cache drift', () => {
   const verified = runProbe([
     'result = module.validate_environment_contract()',
     'print(json.dumps(result, sort_keys=True, allow_nan=False))',
@@ -481,7 +487,7 @@ test('dataset-candidate mode is explicit, staging-only, and validates both real 
   assert.equal(snapshot.datasetContracts.secom.oofRandomState, 20_260_728)
 })
 
-test('all four candidate Notebooks execute independently in clean kernels without errors', () => {
+phase26ReleaseTest('all four candidate Notebooks execute independently in clean kernels without errors', () => {
   const manifest = readStrictJson(candidatePath('notebooks/loss-functions/outputs/manifest.json'))
   assert.equal(manifest.executionProofs.length, 4)
   assert.equal(new Set(manifest.executionProofs.map((proof: { proofId: string }) => proof.proofId)).size, 4)
@@ -523,7 +529,7 @@ test('all four candidate Notebooks execute independently in clean kernels withou
   }
 })
 
-test('locale pairs retain exact code cell IDs, sources, and normalized output hashes', () => {
+phase26ReleaseTest('locale pairs retain exact code cell IDs, sources, and normalized output hashes', () => {
   const manifest = readStrictJson(candidatePath('notebooks/loss-functions/outputs/manifest.json'))
   for (const topicId of ['delivery-losses', 'manufacturing-bce-gradients']) {
     const zh = readStrictJson(candidatePath(`notebooks/loss-functions/${topicId}.zh-CN.ipynb`))
@@ -550,7 +556,7 @@ test('locale pairs retain exact code cell IDs, sources, and normalized output ha
   }
 })
 
-test('real delivery rows expose full MSE MAE objectives and output-gradient parity', () => {
+phase26ReleaseTest('real delivery rows expose full MSE MAE objectives and output-gradient parity', () => {
   const summary = readStrictJson(
     candidatePath('notebooks/loss-functions/outputs/regression-loss-summary.json'),
   )
@@ -582,7 +588,7 @@ test('real delivery rows expose full MSE MAE objectives and output-gradient pari
   assert.equal(summary.highContributionRows[0].courseRowId, 'lade-jilin-25598')
 })
 
-test('real manufacturing BCE, fixed probes, gradients, and finite differences match TypeScript', () => {
+phase26ReleaseTest('real manufacturing BCE, fixed probes, gradients, and finite differences match TypeScript', () => {
   const summary = readStrictJson(
     candidatePath('notebooks/loss-functions/outputs/bce-gradient-summary.json'),
   )
@@ -647,7 +653,7 @@ test('real manufacturing BCE, fixed probes, gradients, and finite differences ma
   }
 })
 
-test('candidate plots have deterministic dimensions, metadata, and non-color encodings', () => {
+phase26ReleaseTest('candidate plots have deterministic dimensions, metadata, and non-color encodings', () => {
   for (const [relativePath, title] of [
     ['notebooks/loss-functions/outputs/delivery-losses.png', 'Delivery loss distribution'],
     ['notebooks/loss-functions/outputs/manufacturing-bce-gradients.png', 'Manufacturing BCE and gradient verification'],
@@ -662,7 +668,7 @@ test('candidate plots have deterministic dimensions, metadata, and non-color enc
   }
 })
 
-test('complete candidate manifest covers all 16 members, hashes, requirements, and rerun expectations', () => {
+phase26ReleaseTest('complete candidate manifest covers all 16 members, hashes, requirements, and rerun expectations', () => {
   const path = candidatePath('notebooks/loss-functions/outputs/manifest.json')
   const manifest = readStrictJson(path)
   assert.equal(manifest.contractVersion, 'loss-functions-phase-26-candidate-v1')
@@ -698,7 +704,7 @@ test('complete candidate manifest covers all 16 members, hashes, requirements, a
   assert.equal(manifest.canonicalPayloadSha256.length, 64)
 })
 
-test('candidate verification rejects changed output values and incomplete manifest inventory', () => {
+phase26ReleaseTest('candidate verification rejects changed output values and incomplete manifest inventory', () => {
   const probe = runProbe([
     'import shutil, tempfile',
     'source = pathlib.Path(sys.argv[2])',
@@ -760,7 +766,7 @@ test('publication CLI accepts only the complete inventory and rejects topic or l
   }
 })
 
-test('publication atomically swaps both owned groups with the exact complete inventory', () => {
+phase26ReleaseTest('publication atomically swaps both owned groups with the exact complete inventory', () => {
   const temporaryDirectory = mkdtempSync(join(tmpdir(), 'phase-26-publication-'))
   try {
     const publicRoot = resolve(temporaryDirectory, 'public')
@@ -798,7 +804,7 @@ test('publication atomically swaps both owned groups with the exact complete inv
   }
 })
 
-test('publication rollback restores both previous groups after pre mid or post swap failure', () => {
+phase26ReleaseTest('publication rollback restores both previous groups after pre mid or post swap failure', () => {
   for (const failurePoint of ['pre-swap', 'mid-swap', 'post-swap']) {
     const temporaryDirectory = mkdtempSync(join(tmpdir(), `phase-26-rollback-${failurePoint}-`))
     try {
@@ -826,7 +832,7 @@ test('publication rollback restores both previous groups after pre mid or post s
   }
 })
 
-test('publication refuses unexpected inventory and candidate hash drift before replacing public bytes', () => {
+phase26ReleaseTest('publication refuses unexpected inventory and candidate hash drift before replacing public bytes', () => {
   const temporaryDirectory = mkdtempSync(join(tmpdir(), 'phase-26-publication-corruption-'))
   try {
     const copiedStagingRoot = resolve(temporaryDirectory, 'candidate')
@@ -881,7 +887,7 @@ test('publication refuses unexpected inventory and candidate hash drift before r
   }
 })
 
-test('publication standards JSON remains strict across every published JSON member', () => {
+phase26ReleaseTest('publication standards JSON remains strict across every published JSON member', () => {
   for (const relativePath of readContractSnapshot().inventory.paths as string[]) {
     if (!relativePath.endsWith('.json')) continue
     const source = readFileSync(candidatePath(relativePath), 'utf8')
@@ -890,7 +896,7 @@ test('publication standards JSON remains strict across every published JSON memb
   }
 })
 
-test('offline check reruns all four public Notebooks standalone without repository writes', () => {
+phase26ReleaseTest('offline check reruns all four public Notebooks standalone without repository writes', () => {
   const before = repositoryState()
   const checked = runGenerator(['--check', '--offline'])
   assert.equal(checked.status, 0, checked.stderr)

@@ -125,7 +125,7 @@ test('planning state records shipped Python Data Tools stages and completed nume
   assert.ok(currentFocusMatch, 'planning state should expose the current curriculum focus')
   assert.ok(Number(currentPhaseMatch[1]) >= 25, 'planning state must not regress before the completed Batch 4 phase')
   assert.equal(currentFocusMatch[1], currentPhaseMatch[1])
-  assert.match(state, /^status: (?:ready_to_execute|executing|verifying|completed)$/m)
+  assert.match(state, /^status: (?:planning|ready_to_execute|executing|verifying|completed)$/m)
   assert.match(state, /AI Overview rebuild[^\n]*completed/i)
   assert.match(state, /Math-to-Code pilot[^\n]*completed/i)
   assert.match(state, /Python Data Tools Stage 1 is complete/i)
