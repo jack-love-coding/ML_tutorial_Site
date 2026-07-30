@@ -117,6 +117,14 @@ test('linear regression lesson lab uses a unified experiment card layout', () =>
   assert.match(styleSource, /\.lesson-workbench--cockpit/)
 })
 
+test('linear regression course workbench contains the desktop cockpit within its column', () => {
+  assert.match(
+    styleSource,
+    /\.linear-course-page__workbench\s+\.lesson-workbench--cockpit\s+\.lesson-workbench__grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s,
+    'the nested cockpit must use its course column width instead of the viewport desktop breakpoint',
+  )
+})
+
 test('linear regression advanced chapters and subviews are wired', () => {
   const moduleSource = readFileSync(
     new URL('../src/data/linearRegressionModule.ts', import.meta.url),

@@ -74,7 +74,7 @@ async (page) => {
   }
 
   const readSemanticOutput = async (hook) =>
-    page.locator(`[data-testid="${hook}"]`).innerText()
+    page.locator(`[data-testid="${hook}"]`).textContent()
 
   const containsAll = (text, expectedValues) =>
     expectedValues.every((value) => text.includes(String(value)))
@@ -474,7 +474,7 @@ async (page) => {
       const phase28Bridge = page.locator(
         '[data-testid="linear-phase-28-bridge"]',
       )
-      const phase28BridgeText = await phase28Bridge.innerText()
+      const phase28BridgeText = await phase28Bridge.textContent()
       const phase28BridgeHref = await phase28Bridge.getAttribute('href')
       const nextStepPresent =
         phase28BridgeHref?.endsWith('/learn/housing-price-project') === true
@@ -523,7 +523,7 @@ async (page) => {
         downloadCount,
         nextStepPresent,
         linearBoundaryVisible:
-          /linear model|线性模型|tabular regression|表格回归/i.test(
+          /linear[- ]model|线性模型|tabular[- ]regression|表格回归/i.test(
             regularizationText ?? '',
           ),
         consoleErrors: [...caseConsoleErrors],

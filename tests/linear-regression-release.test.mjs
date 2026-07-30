@@ -181,6 +181,7 @@ test('route matrix contract probes navigation interactions downloads fallbacks a
 
 test('Phase 28 bridge names the exact housing project route and bilingual handoff', () => {
   const page = source('src/components/LinearRegressionPagedLesson.vue')
+  const matrix = source('scripts/qa/linearRegressionBrowserMatrix.js')
   const housing = source('src/data/housingPriceProjectModule.ts')
   const routeManifest = source('src/curriculum/routeManifest.ts')
   const adapter = source('src/curriculum/adapters/algorithmAdapter.ts')
@@ -205,10 +206,24 @@ test('Phase 28 bridge names the exact housing project route and bilingual handof
   assert.match(routeManifest, /id:\s*'housing-price-project'[\s\S]*route:\s*'\/learn\/housing-price-project'/)
   assert.match(adapter, /slug:\s*'housing-price-project'[\s\S]*route:\s*'\/learn\/housing-price-project'/)
   assert.match(v3Audit, /'housing-price-project':\s*\['project-tabular-regression'\]/)
+  assert.match(matrix, /const phase28BridgeText\s*=\s*await phase28Bridge\.textContent\(\)/)
+  assert.doesNotMatch(matrix, /const phase28BridgeText\s*=\s*await phase28Bridge\.innerText\(\)/)
+  assert.ok(matrix.includes('linear[- ]model'))
+  assert.ok(matrix.includes('tabular[- ]regression'))
 })
 
 test('browser matrix records exact package-backed semantic changes for all six controls', () => {
   const matrix = source('scripts/qa/linearRegressionBrowserMatrix.js')
+
+  assert.match(
+    matrix,
+    /const readSemanticOutput[\s\S]{0,160}\.textContent\(\)/,
+    'semantic hooks must include compact headings that remain in the DOM but are visually hidden',
+  )
+  assert.doesNotMatch(
+    matrix,
+    /const readSemanticOutput[\s\S]{0,160}\.innerText\(\)/,
+  )
 
   for (const hook of [
     'linear-output-row-batch',
