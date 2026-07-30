@@ -251,14 +251,12 @@ test('split and locked Bike GD anchors reproduce D-13 through D-17', async () =>
   })
 
   const { means, scales } = authority.LINEAR_REGRESSION_PREPROCESSING
-  closeTo(means.temp, 0.4991699633)
-  closeTo(means.hum, 0.6229957563)
-  closeTo(means.windspeed, 0.1940965907)
-  closeTo(means.hr, 11.5465726822)
-  closeTo(scales.temp, 0.1977090288)
-  closeTo(scales.hum, 0.1981871966)
-  closeTo(scales.windspeed, 0.1230187786)
-  closeTo(scales.hr, 6.911986604)
+  const publishedPreprocessing = baseline.preprocessing as {
+    means: typeof means
+    scales: typeof scales
+  }
+  assert.deepEqual(means, publishedPreprocessing.means)
+  assert.deepEqual(scales, publishedPreprocessing.scales)
   assert.equal('workingday' in means, false)
   assert.equal('workingday' in scales, false)
 

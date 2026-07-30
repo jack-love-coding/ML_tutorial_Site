@@ -119,6 +119,15 @@ export interface LinearRegressionPublishedDisplayRow {
 
 export interface LinearRegressionPublishedBaseline {
   readonly featureOrder: typeof FEATURE_ORDER
+  readonly split: {
+    readonly totalRows: 17_379
+    readonly trainEndExclusive: 13_903
+    readonly testStartInclusive: 13_903
+    readonly trainBoundaryInstant: 13_903
+    readonly trainBoundaryTimestamp: '2012-08-07 11:00'
+    readonly testBoundaryInstant: 13_904
+    readonly testBoundaryTimestamp: '2012-08-07 12:00'
+  }
   readonly preprocessing: Readonly<Record<string, unknown>>
   readonly metrics: {
     readonly train: LinearRegressionMetricSet
@@ -685,6 +694,15 @@ export function selectAtempComparison(
 export const LINEAR_REGRESSION_PUBLISHED_BASELINE: LinearRegressionPublishedBaseline =
   frozenCopy({
     featureOrder: FEATURE_ORDER,
+    split: {
+      totalRows: 17_379,
+      trainEndExclusive: 13_903,
+      testStartInclusive: 13_903,
+      trainBoundaryInstant: 13_903,
+      trainBoundaryTimestamp: '2012-08-07 11:00',
+      testBoundaryInstant: 13_904,
+      testBoundaryTimestamp: '2012-08-07 12:00',
+    },
     preprocessing: {
       ddof: 0,
       fitPartition: 'train-only',

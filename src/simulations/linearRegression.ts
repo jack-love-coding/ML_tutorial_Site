@@ -1,23 +1,18 @@
 import type {
   ExperimentConfig,
-  FitDiagnostics,
   ModuleSimulation,
   MultivariateRegressionSample,
   RegressionMeta,
   TrainingSnapshot,
 } from '../types/ml'
 import {
-  LINEAR_REGRESSION_FEATURE_ORDER,
-  LINEAR_REGRESSION_HELDOUT_DIAGNOSTIC_INPUT,
-  LINEAR_REGRESSION_METHOD_COMPARISON,
-  LINEAR_REGRESSION_REFERENCE_FIT,
   compareRegressionMethods,
-  convertRegressionCoefficients,
+  createPublishedHeldoutDiagnosticInput,
+  createPublishedRegressionMethodComparison,
+  createPublishedRegressionReferenceFit,
   deriveHeldoutDiagnostics,
-  predictRegressionRow,
-  transformRegressionRow,
-  type RegressionFeature,
 } from './linearRegressionBike.ts'
+import { LINEAR_REGRESSION_PUBLISHED_BASELINE } from './linearRegressionWorkbench.ts'
 
 type LinearRegressionScenario =
   | 'linear'
@@ -36,6 +31,40 @@ const LINEAR_REGRESSION_SCENARIOS = new Set<LinearRegressionScenario>([
   'regularized',
 ])
 
+const BASELINE = LINEAR_REGRESSION_PUBLISHED_BASELINE
+const REFERENCE_FIT = createPublishedRegressionReferenceFit()
+const METHOD_COMPARISON = createPublishedRegressionMethodComparison()
+const METHOD_AGREEMENT = compareRegressionMethods(METHOD_COMPARISON)
+const HELDOUT_DIAGNOSTICS = deriveHeldoutDiagnostics(
+  createPublishedHeldoutDiagnosticInput(),
+)
+
+const ORIGINAL_COEFFICIENT_VIEW = BASELINE.coefficientViews.find(
+  ({ method, space }) =>
+    method === 'numpy-lstsq' && space === 'original-dataset-unit',
+)
+
+if (!ORIGINAL_COEFFICIENT_VIEW) {
+  throw new TypeError('Published original-unit coefficient view is missing.')
+}
+
+const ORIGINAL_INTERCEPT =
+  ORIGINAL_COEFFICIENT_VIEW.rows.find(({ feature }) => feature === 'intercept')
+    ?.coefficient
+const ORIGINAL_HOUR_WEIGHT =
+  ORIGINAL_COEFFICIENT_VIEW.rows.find(({ feature }) => feature === 'hr')
+    ?.coefficient
+
+if (
+  ORIGINAL_INTERCEPT === undefined
+  || ORIGINAL_HOUR_WEIGHT === undefined
+) {
+  throw new TypeError('Published original-unit intercept/hour coefficient is missing.')
+}
+
+const PUBLISHED_ORIGINAL_INTERCEPT: number = ORIGINAL_INTERCEPT
+const PUBLISHED_ORIGINAL_HOUR_WEIGHT: number = ORIGINAL_HOUR_WEIGHT
+
 const BIKE_REGRESSION_META: RegressionMeta = Object.freeze({
   xLabel: Object.freeze({ 'zh-CN': '小时', en: 'Hour' }),
   yLabel: Object.freeze({ 'zh-CN': '租车次数', en: 'Rental count' }),
@@ -44,222 +73,61 @@ const BIKE_REGRESSION_META: RegressionMeta = Object.freeze({
   sampleLabel: Object.freeze({ 'zh-CN': '小时记录', en: 'Hourly record' }),
   sourceName: 'UCI Bike Sharing Dataset',
   sourceUrl: 'https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset',
-  featureName: LINEAR_REGRESSION_FEATURE_ORDER.join(', '),
+  featureName: BASELINE.featureOrder.join(', '),
   targetName: 'cnt',
-  datasetSize: 17_379,
-  featureCount: LINEAR_REGRESSION_FEATURE_ORDER.length,
+  datasetSize: BASELINE.split.totalRows,
+  featureCount: BASELINE.featureOrder.length,
 })
 
-interface BikeDisplayRecord extends Readonly<Record<RegressionFeature, number>> {
-  readonly instant: number
-  readonly cnt: number
-}
-
-const BIKE_DISPLAY_RECORDS: readonly BikeDisplayRecord[] = Object.freeze([
-  Object.freeze({
-    instant: 13_904,
-    temp: 0.74,
-    hum: 0.62,
-    windspeed: 0.1642,
-    workingday: 1,
-    hr: 12,
-    cnt: 445,
-  }),
-  Object.freeze({
-    instant: 14_965,
-    temp: 0.72,
-    hum: 0.54,
-    windspeed: 0.2239,
-    workingday: 1,
-    hr: 17,
-    cnt: 700,
-  }),
-  Object.freeze({
-    instant: 15_604,
-    temp: 0.52,
-    hum: 0.83,
-    windspeed: 0.0896,
-    workingday: 1,
-    hr: 18,
-    cnt: 900,
-  }),
-  Object.freeze({
-    instant: 15_628,
-    temp: 0.5,
-    hum: 0.72,
-    windspeed: 0.1343,
-    workingday: 1,
-    hr: 8,
-    cnt: 600,
-  }),
-  Object.freeze({
-    instant: 16_420,
-    temp: 0.42,
-    hum: 0.77,
-    windspeed: 0.1045,
-    workingday: 0,
-    hr: 14,
-    cnt: 281,
-  }),
-  Object.freeze({
-    instant: 17_213,
-    temp: 0.24,
-    hum: 0.87,
-    windspeed: 0.194,
-    workingday: 1,
-    hr: 4,
-    cnt: 7,
-  }),
-])
-
-const METHOD_AGREEMENT = compareRegressionMethods(
-  LINEAR_REGRESSION_METHOD_COMPARISON,
-)
-const HELDOUT_DIAGNOSTICS = deriveHeldoutDiagnostics(
-  LINEAR_REGRESSION_HELDOUT_DIAGNOSTIC_INPUT,
-)
-const ORIGINAL_COEFFICIENTS = convertRegressionCoefficients(
-  LINEAR_REGRESSION_REFERENCE_FIT.weights,
-  LINEAR_REGRESSION_REFERENCE_FIT.intercept,
-)
-
-const DISPLAY_ROWS = Object.freeze(
-  BIKE_DISPLAY_RECORDS.map((record) => {
-    const row = transformRegressionRow(record)
-    const prediction = predictRegressionRow(
-      row,
-      LINEAR_REGRESSION_REFERENCE_FIT.weights,
-      LINEAR_REGRESSION_REFERENCE_FIT.intercept,
-    )
-    return Object.freeze({
-      ...record,
-      row,
-      prediction,
-      residual: prediction - record.cnt,
-    })
-  }),
-)
-
 const REGRESSION_SAMPLES = Object.freeze(
-  DISPLAY_ROWS.map((record) =>
+  BASELINE.displayRows.map((record) =>
     Object.freeze({
-      x: record.hr,
-      y: record.cnt,
-      split: 'validation' as const,
-    }),
-  ),
+      x: record.hour,
+      y: record.actual,
+      split: record.partition === 'train' ? 'train' as const : 'validation' as const,
+    })),
+)
+
+const VALIDATION_SAMPLES = Object.freeze(
+  REGRESSION_SAMPLES.filter(({ split }) => split === 'validation'),
 )
 
 const FIT_CURVE = Object.freeze(
-  Array.from({ length: 24 }, (_value, hour) => {
-    const row = transformRegressionRow({
-      temp: 0.4991699633,
-      hum: 0.6229957563,
-      windspeed: 0.1940965907,
-      workingday: 1,
-      hr: hour,
-    })
-    return Object.freeze({
-      x: hour,
-      y: predictRegressionRow(
-        row,
-        LINEAR_REGRESSION_REFERENCE_FIT.weights,
-        LINEAR_REGRESSION_REFERENCE_FIT.intercept,
-      ),
-    })
-  }),
+  BASELINE.displayRows.map((record) =>
+    Object.freeze({
+      x: record.hour,
+      y: record.prediction,
+    })),
 )
 
-const BIKE_FIT_DIAGNOSTICS = Object.freeze({
-  sourceNote: Object.freeze({
-    'zh-CN': '同一 Bike Sharing 留出集上的模型容量对照；锁定拟合与指标仍由 Bike 数值权威提供。',
-    en: 'Same-case capacity comparison on the Bike Sharing holdout; the Bike math authority remains the source for locked fits and metrics.',
-  }),
-  items: Object.freeze([
-    Object.freeze({
-      id: 'underfit',
-      degree: 1,
-      label: Object.freeze({ 'zh-CN': '线性容量限制', en: 'Linear capacity limit' }),
-      cause: Object.freeze({
-        'zh-CN': '单一小时线性效应无法表达早晚双峰。',
-        en: 'One linear hour effect cannot express the morning and evening peaks.',
-      }),
-      response: Object.freeze({
-        'zh-CN': '先查看留出残差形状，再决定是否增加非线性特征。',
-        en: 'Inspect held-out residual shape before adding nonlinear features.',
-      }),
-      trainMse: LINEAR_REGRESSION_REFERENCE_FIT.trainMetrics.mse,
-      validationMse: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mse,
-      weightNorm: Math.hypot(...LINEAR_REGRESSION_REFERENCE_FIT.weights),
-      activeWeights: LINEAR_REGRESSION_REFERENCE_FIT.weights.length,
-      roughness: 0,
-      curve: [...FIT_CURVE],
-    }),
-    Object.freeze({
-      id: 'balanced',
-      degree: 3,
-      label: Object.freeze({ 'zh-CN': '受控扩展', en: 'Controlled extension' }),
-      cause: Object.freeze({
-        'zh-CN': '只改变模型容量，保持数据、切分和目标不变。',
-        en: 'Only model capacity changes while data, split, and target stay fixed.',
-      }),
-      response: Object.freeze({
-        'zh-CN': '同时比较训练与留出误差，不只看训练拟合。',
-        en: 'Compare training and held-out error rather than training fit alone.',
-      }),
-      trainMse: LINEAR_REGRESSION_REFERENCE_FIT.trainMetrics.mse,
-      validationMse: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mse,
-      weightNorm: Math.hypot(...LINEAR_REGRESSION_REFERENCE_FIT.weights),
-      activeWeights: LINEAR_REGRESSION_REFERENCE_FIT.weights.length,
-      roughness: 0,
-      curve: [...FIT_CURVE],
-    }),
-    Object.freeze({
-      id: 'overfit',
-      degree: 7,
-      label: Object.freeze({ 'zh-CN': '过度容量', en: 'Excess capacity' }),
-      cause: Object.freeze({
-        'zh-CN': '额外自由度可能追随训练噪声，而不是稳定的需求结构。',
-        en: 'Extra freedom can follow training noise instead of stable demand structure.',
-      }),
-      response: Object.freeze({
-        'zh-CN': '用留出误差和系数稳定性约束模型选择。',
-        en: 'Use held-out error and coefficient stability to constrain model choice.',
-      }),
-      trainMse: LINEAR_REGRESSION_REFERENCE_FIT.trainMetrics.mse,
-      validationMse: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mse,
-      weightNorm: Math.hypot(...LINEAR_REGRESSION_REFERENCE_FIT.weights),
-      activeWeights: LINEAR_REGRESSION_REFERENCE_FIT.weights.length,
-      roughness: 0,
-      curve: [...FIT_CURVE],
-    }),
-  ]),
-}) as unknown as FitDiagnostics
-
-const MULTIVARIATE_SAMPLES: readonly MultivariateRegressionSample[] = Object.freeze(
-  DISPLAY_ROWS.map((record) =>
-    Object.freeze({
-      area: record.temp,
-      age: record.hum,
-      price: record.cnt,
-      split: 'validation' as const,
-    }),
-  ),
-)
+const MULTIVARIATE_SAMPLES: readonly MultivariateRegressionSample[] =
+  Object.freeze(
+    BASELINE.displayRows.map((record) =>
+      Object.freeze({
+        area: record.rawFeatures.temp,
+        age: record.rawFeatures.hum,
+        price: record.actual,
+        split:
+          record.partition === 'train'
+            ? 'train' as const
+            : 'validation' as const,
+      })),
+  )
 
 const MULTIVARIATE_RESIDUALS = Object.freeze(
-  DISPLAY_ROWS.map((record) =>
+  BASELINE.displayRows.map((record) =>
     Object.freeze({
-      area: record.temp,
-      age: record.hum,
-      actualPrice: record.cnt,
+      area: record.rawFeatures.temp,
+      age: record.rawFeatures.hum,
+      actualPrice: record.actual,
       predictedPrice: record.prediction,
       residual: record.residual,
-    }),
-  ),
+    })),
 )
 
-function asScenario(value: ExperimentConfig[string]): LinearRegressionScenario {
+function asScenario(
+  value: ExperimentConfig[string],
+): LinearRegressionScenario {
   const scenario = String(value ?? 'linear') as LinearRegressionScenario
   return LINEAR_REGRESSION_SCENARIOS.has(scenario) ? scenario : 'linear'
 }
@@ -270,27 +138,25 @@ function commonMetrics(
   return {
     scenario,
     dataSource: 'uci-bike-sharing',
-    mse: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mse,
-    trainMse: LINEAR_REGRESSION_REFERENCE_FIT.trainMetrics.mse,
-    validationMse: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mse,
-    mae: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mae,
-    r2: LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.r2,
-    weights: [...LINEAR_REGRESSION_REFERENCE_FIT.weights],
-    intercept: LINEAR_REGRESSION_REFERENCE_FIT.intercept,
-    gradientNorm: LINEAR_REGRESSION_METHOD_COMPARISON.gradientDescent.gradientNorm ?? 0,
-    updates: LINEAR_REGRESSION_METHOD_COMPARISON.gradientDescent.updates ?? 0,
+    mse: BASELINE.metrics.test.mse,
+    trainMse: BASELINE.metrics.train.mse,
+    validationMse: BASELINE.metrics.test.mse,
+    mae: BASELINE.metrics.test.mae,
+    r2: BASELINE.metrics.test.r2,
+    weights: [...REFERENCE_FIT.weights],
+    intercept: REFERENCE_FIT.intercept,
+    gradientNorm: METHOD_COMPARISON.gradientDescent.gradientNorm!,
+    updates: METHOD_COMPARISON.gradientDescent.updates!,
     gdMaxCoefficientDelta:
-      LINEAR_REGRESSION_METHOD_COMPARISON.gradientDescent.maxCoefficientDelta,
+      METHOD_COMPARISON.gradientDescent.maxCoefficientDelta,
     normalEquationMaxCoefficientDelta:
-      LINEAR_REGRESSION_METHOD_COMPARISON.normalEquation.maxCoefficientDelta,
+      METHOD_COMPARISON.normalEquation.maxCoefficientDelta,
     sklearnMaxCoefficientDelta:
-      LINEAR_REGRESSION_METHOD_COMPARISON.scikitLearn.maxCoefficientDelta,
+      METHOD_COMPARISON.scikitLearn.maxCoefficientDelta,
     methodTolerance: METHOD_AGREEMENT.tolerance,
     methodsAgree: METHOD_AGREEMENT.agrees,
-    modelComplexity: LINEAR_REGRESSION_FEATURE_ORDER.length,
-    weightNorm: Math.hypot(...LINEAR_REGRESSION_REFERENCE_FIT.weights),
-    activeWeights: LINEAR_REGRESSION_REFERENCE_FIT.weights.length,
-    regularizationPenalty: 0,
+    modelComplexity: BASELINE.featureOrder.length,
+    activeWeights: REFERENCE_FIT.weights.length,
     regularizationType: scenario === 'regularized' ? 'l2' : 'none',
     statusKey: 'optimization-complete',
   }
@@ -308,8 +174,10 @@ function stageMetrics(
   if (stage === 'hourly-residual-shape') {
     return {
       ...metrics,
-      hourlyResidualHours: HELDOUT_DIAGNOSTICS.hourlyResiduals.map(({ hour }) => hour),
-      hourlyResidualMeans: HELDOUT_DIAGNOSTICS.hourlyResiduals.map(
+      hourlyResidualHours: BASELINE.diagnostics.hourlyResiduals.map(
+        ({ hour }) => hour,
+      ),
+      hourlyResidualMeans: BASELINE.diagnostics.hourlyResiduals.map(
         ({ meanResidual }) => meanResidual,
       ),
     }
@@ -318,11 +186,24 @@ function stageMetrics(
   if (stage === 'prediction-bin-spread') {
     return {
       ...metrics,
-      predictionBinIds: HELDOUT_DIAGNOSTICS.predictionBins.map(({ bin }) => bin),
-      predictionBinResidualStdDev: HELDOUT_DIAGNOSTICS.predictionBins.map(
+      predictionBinIds: BASELINE.diagnostics.predictionBins.map(
+        ({ bin }) => bin,
+      ),
+      predictionBinLowerBounds: BASELINE.diagnostics.predictionBins.map(
+        ({ lowerPrediction }) => lowerPrediction,
+      ),
+      predictionBinUpperBounds: BASELINE.diagnostics.predictionBins.map(
+        ({ upperPrediction }) => upperPrediction,
+      ),
+      predictionBinRows: BASELINE.diagnostics.predictionBins.map(
+        ({ rows }) => rows,
+      ),
+      predictionBinResidualStdDev: BASELINE.diagnostics.predictionBins.map(
         ({ residualStdDev }) => residualStdDev,
       ),
-      predictionBinMae: HELDOUT_DIAGNOSTICS.predictionBins.map(({ mae }) => mae),
+      predictionBinMae: BASELINE.diagnostics.predictionBins.map(
+        ({ mae }) => mae,
+      ),
     }
   }
 
@@ -336,6 +217,8 @@ function stageMetrics(
       baseTestMse: stability.baseTestMse,
       atempTestMse: stability.atempTestMse,
       ridgeAlpha: stability.ridgeAlpha,
+      olsPerturbationL2: stability.olsPerturbationL2,
+      ridgePerturbationL2: stability.ridgePerturbationL2,
       ridgeObjective: stability.ridgeObjective,
       lassoObjective: stability.lassoObjective,
     }
@@ -344,19 +227,55 @@ function stageMetrics(
   if (stage === 'named-heldout-cases') {
     return {
       ...metrics,
-      namedCaseInstants: HELDOUT_DIAGNOSTICS.namedCases.map(({ instant }) => instant),
+      namedCaseInstants: HELDOUT_DIAGNOSTICS.namedCases.map(
+        ({ instant }) => instant,
+      ),
       namedCaseRoles: HELDOUT_DIAGNOSTICS.namedCases.map(({ role }) => role),
+      namedCasePredictions: HELDOUT_DIAGNOSTICS.namedCases.map(
+        ({ prediction }) => prediction,
+      ),
+      namedCaseActuals: HELDOUT_DIAGNOSTICS.namedCases.map(
+        ({ actual }) => actual,
+      ),
+      namedCaseResiduals: HELDOUT_DIAGNOSTICS.namedCases.map(
+        ({ residual }) => residual,
+      ),
     }
   }
 
   if (stage === 'log1p-comparison') {
+    const log1p = BASELINE.diagnostics.log1pComparison as {
+      readonly targetTransform: string
+      readonly coefficientScale: string
+      readonly inverseTransform: string
+      readonly inverseTransformedCountMetrics: {
+        readonly mae: number
+        readonly mse: number
+        readonly r2: number
+      }
+      readonly logSpaceMetrics: {
+        readonly mae: number
+        readonly mse: number
+        readonly r2: number
+      }
+    }
     return {
       ...metrics,
       rawTargetScale: HELDOUT_DIAGNOSTICS.log1pComparison.rawTargetScale,
       transformedTargetScale:
         HELDOUT_DIAGNOSTICS.log1pComparison.transformedTargetScale,
       inverseTransformRequired:
-        HELDOUT_DIAGNOSTICS.log1pComparison.inverseTransformRequiredForCountMetrics,
+        HELDOUT_DIAGNOSTICS.log1pComparison
+          .inverseTransformRequiredForCountMetrics,
+      log1pTransform: log1p.targetTransform,
+      log1pCoefficientScale: log1p.coefficientScale,
+      log1pInverseTransform: log1p.inverseTransform,
+      log1pCountMse: log1p.inverseTransformedCountMetrics.mse,
+      log1pCountMae: log1p.inverseTransformedCountMetrics.mae,
+      log1pCountR2: log1p.inverseTransformedCountMetrics.r2,
+      log1pSpaceMse: log1p.logSpaceMetrics.mse,
+      log1pSpaceMae: log1p.logSpaceMetrics.mae,
+      log1pSpaceR2: log1p.logSpaceMetrics.r2,
     }
   }
 
@@ -368,57 +287,58 @@ function buildSnapshot(
   stage: (typeof HELDOUT_DIAGNOSTICS.stagedOrder)[number],
   step: number,
 ): TrainingSnapshot {
-  const highlighted = DISPLAY_ROWS[step % DISPLAY_ROWS.length] ?? DISPLAY_ROWS[0]!
+  const highlighted =
+    BASELINE.displayRows[step % BASELINE.displayRows.length]
+    ?? BASELINE.displayRows[0]!
   const loss =
     stage === 'optimization-complete'
-      ? LINEAR_REGRESSION_REFERENCE_FIT.trainMetrics.mse
-      : LINEAR_REGRESSION_REFERENCE_FIT.testMetrics.mse
+      ? BASELINE.metrics.train.mse
+      : BASELINE.metrics.test.mse
 
   return {
     step,
     loss,
     regressionSamples: [...REGRESSION_SAMPLES],
     regressionFit: {
-      slope: ORIGINAL_COEFFICIENTS.weights[4]!,
-      intercept: ORIGINAL_COEFFICIENTS.intercept,
+      slope: PUBLISHED_ORIGINAL_HOUR_WEIGHT,
+      intercept: PUBLISHED_ORIGINAL_INTERCEPT,
     },
     fitCurve: [...FIT_CURVE],
-    validationSamples: [...REGRESSION_SAMPLES],
+    validationSamples: [...VALIDATION_SAMPLES],
     multivariateSamples: [...MULTIVARIATE_SAMPLES],
     multivariatePlane: {
-      weights: [
-        LINEAR_REGRESSION_REFERENCE_FIT.weights[0]!,
-        LINEAR_REGRESSION_REFERENCE_FIT.weights[1]!,
-      ],
-      intercept: LINEAR_REGRESSION_REFERENCE_FIT.intercept,
+      weights: [REFERENCE_FIT.weights[0]!, REFERENCE_FIT.weights[1]!],
+      intercept: REFERENCE_FIT.intercept,
     },
     multivariateResiduals: [...MULTIVARIATE_RESIDUALS],
     regressionMeta: BIKE_REGRESSION_META,
-    fitDiagnostics: BIKE_FIT_DIAGNOSTICS,
     derivedMetrics: stageMetrics(scenario, stage),
     selectedObservation: {
       instant: highlighted.instant,
-      area: highlighted.hr,
-      age: highlighted.hum,
-      actualPrice: highlighted.cnt,
+      area: highlighted.hour,
+      age: highlighted.rawFeatures.hum,
+      actualPrice: highlighted.actual,
       predictedPrice: highlighted.prediction,
       residual: highlighted.residual,
     },
-    sampleLossBreakdown: DISPLAY_ROWS.slice(0, 4).map((record) => ({
-      id: `bike-${record.instant}`,
-      label: String(record.instant),
-      target: record.cnt,
-      prediction: record.prediction,
-      loss: record.residual ** 2,
-    })),
+    sampleLossBreakdown: [
+      {
+        id: `bike-${BASELINE.representativeRow.instant}`,
+        label: String(BASELINE.representativeRow.instant),
+        target: BASELINE.representativeRow.actual as number,
+        prediction: BASELINE.representativeRow.prediction as number,
+        loss: BASELINE.representativeRow.lossContribution as number,
+      },
+    ],
   }
 }
 
-export function simulateLinearRegression(config: ExperimentConfig): ModuleSimulation {
+export function simulateLinearRegression(
+  config: ExperimentConfig,
+): ModuleSimulation {
   const scenario = asScenario(config.scenario)
   return {
     snapshots: HELDOUT_DIAGNOSTICS.stagedOrder.map((stage, index) =>
-      buildSnapshot(scenario, stage, index),
-    ),
+      buildSnapshot(scenario, stage, index)),
   }
 }

@@ -1,3 +1,5 @@
+import { LINEAR_REGRESSION_PUBLISHED_BASELINE } from './linearRegressionWorkbench.ts'
+
 export const LINEAR_REGRESSION_FEATURE_ORDER = Object.freeze([
   'temp',
   'hum',
@@ -283,31 +285,20 @@ function immutableRow(row: RegressionRow): RegressionRow {
   })
 }
 
-export const LINEAR_REGRESSION_SPLIT = Object.freeze({
-  totalRows: 17_379,
-  trainEndExclusive: 13_903,
-  testStartInclusive: 13_903,
-  trainBoundaryInstant: 13_903,
-  trainBoundaryTimestamp: '2012-08-07 11:00',
-  testBoundaryInstant: 13_904,
-  testBoundaryTimestamp: '2012-08-07 12:00',
-})
+export const LINEAR_REGRESSION_SPLIT =
+  LINEAR_REGRESSION_PUBLISHED_BASELINE.split
+
+const PUBLISHED_PREPROCESSING =
+  LINEAR_REGRESSION_PUBLISHED_BASELINE.preprocessing as {
+    readonly means: Readonly<Record<RegressionContinuousFeature, number>>
+    readonly scales: Readonly<Record<RegressionContinuousFeature, number>>
+  }
 
 export const LINEAR_REGRESSION_PREPROCESSING: RegressionPreprocessing = Object.freeze({
   featureOrder: LINEAR_REGRESSION_FEATURE_ORDER,
   continuousFeatures: LINEAR_REGRESSION_CONTINUOUS_FEATURES,
-  means: Object.freeze({
-    temp: 0.4991699633,
-    hum: 0.6229957563,
-    windspeed: 0.1940965907,
-    hr: 11.5465726822,
-  }),
-  scales: Object.freeze({
-    temp: 0.1977090288,
-    hum: 0.1981871966,
-    windspeed: 0.1230187786,
-    hr: 6.911986604,
-  }),
+  means: PUBLISHED_PREPROCESSING.means,
+  scales: PUBLISHED_PREPROCESSING.scales,
 })
 
 export function transformRegressionRow(
@@ -628,62 +619,64 @@ export function convertRegressionCoefficients(
   })
 }
 
-export const LINEAR_REGRESSION_REFERENCE_FIT: RegressionFit = Object.freeze({
-  method: 'numpy-lstsq-reference',
-  weights: Object.freeze([
-    62.723890953,
-    -37.1164156021,
-    0.8094458662,
-    2.3797186778,
-    47.9014338433,
-  ]),
-  intercept: 173.0103284947,
-  trainMetrics: immutableMetrics({
-    mse: 18_105.23654,
-    mae: 98.800052,
-    r2: 0.350417,
-  }),
-  testMetrics: immutableMetrics({
-    mse: 40_142.538619,
-    mae: 135.29664,
-    r2: 0.174252,
-  }),
-})
+export function createPublishedRegressionReferenceFit(): RegressionFit {
+  const reference = LINEAR_REGRESSION_PUBLISHED_BASELINE.methods.find(
+    ({ method }) => method === 'numpy-lstsq',
+  )
+  if (!reference) {
+    throw new TypeError('Published NumPy least-squares result is missing.')
+  }
+  return Object.freeze({
+    method: 'numpy-lstsq-reference',
+    weights: immutableVector(reference.weights),
+    intercept: reference.intercept,
+    trainMetrics: immutableMetrics(reference.trainMetrics),
+    testMetrics: immutableMetrics(reference.testMetrics),
+  })
+}
 
-const REFERENCE_WEIGHTS = LINEAR_REGRESSION_REFERENCE_FIT.weights
-
-export const LINEAR_REGRESSION_METHOD_COMPARISON: RegressionMethodComparison = Object.freeze({
-  tolerance: 1e-6,
-  gradientDescent: Object.freeze({
-    method: 'batch-gradient-descent',
-    weights: Object.freeze([
-      REFERENCE_WEIGHTS[0]! + 2.8e-8,
-      ...REFERENCE_WEIGHTS.slice(1),
-    ]),
-    intercept: LINEAR_REGRESSION_REFERENCE_FIT.intercept + 1.1e-8,
-    updates: 772,
-    gradientNorm: 9.96e-9,
-    maxCoefficientDelta: 2.8e-8,
-    maxPredictionDelta: 8.4e-8,
-  }),
-  normalEquation: Object.freeze({
-    method: 'normal-equation',
-    weights: immutableVector(REFERENCE_WEIGHTS),
-    intercept: LINEAR_REGRESSION_REFERENCE_FIT.intercept,
-    maxCoefficientDelta: 0,
-    maxPredictionDelta: 0,
-  }),
-  scikitLearn: Object.freeze({
-    method: 'scikit-learn',
-    weights: Object.freeze([
-      REFERENCE_WEIGHTS[0]! + 5.1e-13,
-      ...REFERENCE_WEIGHTS.slice(1),
-    ]),
-    intercept: LINEAR_REGRESSION_REFERENCE_FIT.intercept + 2.8e-13,
-    maxCoefficientDelta: 5.1e-13,
-    maxPredictionDelta: 1.2e-12,
-  }),
-})
+export function createPublishedRegressionMethodComparison():
+RegressionMethodComparison {
+  const methods = LINEAR_REGRESSION_PUBLISHED_BASELINE.methods
+  const gradientDescent = methods.find(
+    ({ method }) => method === 'numpy-batch-gradient-descent',
+  )
+  const normalEquation = methods.find(
+    ({ method }) => method === 'numpy-lstsq',
+  )
+  const scikitLearn = methods.find(
+    ({ method }) => method === 'sklearn-linear-regression',
+  )
+  if (!gradientDescent || !normalEquation || !scikitLearn) {
+    throw new TypeError('Published three-method comparison is incomplete.')
+  }
+  return Object.freeze({
+    tolerance: 1e-6,
+    gradientDescent: Object.freeze({
+      method: 'batch-gradient-descent',
+      weights: immutableVector(gradientDescent.weights),
+      intercept: gradientDescent.intercept,
+      updates: gradientDescent.updates,
+      gradientNorm: gradientDescent.gradientNorm,
+      maxCoefficientDelta: gradientDescent.maxCoefficientDelta,
+      maxPredictionDelta: gradientDescent.maxPredictionDelta,
+    }),
+    normalEquation: Object.freeze({
+      method: 'normal-equation',
+      weights: immutableVector(normalEquation.weights),
+      intercept: normalEquation.intercept,
+      maxCoefficientDelta: normalEquation.maxCoefficientDelta,
+      maxPredictionDelta: normalEquation.maxPredictionDelta,
+    }),
+    scikitLearn: Object.freeze({
+      method: 'scikit-learn',
+      weights: immutableVector(scikitLearn.weights),
+      intercept: scikitLearn.intercept,
+      maxCoefficientDelta: scikitLearn.maxCoefficientDelta,
+      maxPredictionDelta: scikitLearn.maxPredictionDelta,
+    }),
+  })
+}
 
 function assertMethodResult(result: RegressionMethodResult, name: string): void {
   if (result === null || typeof result !== 'object' || Array.isArray(result)) {
@@ -747,64 +740,55 @@ const EXPECTED_CASE_ROLES = Object.freeze([
   'large-residual',
 ] as const)
 
-export const LINEAR_REGRESSION_HELDOUT_DIAGNOSTIC_INPUT: HeldoutDiagnosticInput =
-  Object.freeze({
-    hourlyResiduals: Object.freeze([
-      Object.freeze({ hour: 8, meanResidual: -367.4 }),
-      Object.freeze({ hour: 17, meanResidual: -366.6 }),
-      Object.freeze({ hour: 23, meanResidual: 118.1 }),
-    ]),
-    predictionBins: Object.freeze([
-      Object.freeze({ bin: 1, residualStdDev: 136, mae: 78.4 }),
-      Object.freeze({ bin: 2, residualStdDev: 152.8, mae: 105.3 }),
-      Object.freeze({ bin: 3, residualStdDev: 177.6, mae: 143.6 }),
-      Object.freeze({ bin: 4, residualStdDev: 209.2, mae: 181.7 }),
-    ]),
-    namedCases: Object.freeze([
-      Object.freeze({
-        role: 'negative-prediction',
-        instant: 17_213,
-        hour: 4,
-        prediction: -10,
-        actual: 7,
-        residual: -17,
-      }),
-      Object.freeze({
-        role: 'morning-peak-underprediction',
-        instant: 15_628,
-        hour: 8,
-        prediction: 200,
-        actual: 600,
-        residual: -400,
-      }),
-      Object.freeze({
-        role: 'evening-peak-underprediction',
-        instant: 14_965,
-        hour: 17,
-        prediction: 250,
-        actual: 700,
-        residual: -450,
-      }),
-      Object.freeze({
-        role: 'large-residual',
-        instant: 15_604,
-        hour: 18,
-        prediction: 300,
-        actual: 900,
-        residual: -600,
-      }),
-    ]),
+export function createPublishedHeldoutDiagnosticInput(): HeldoutDiagnosticInput {
+  const diagnostics = LINEAR_REGRESSION_PUBLISHED_BASELINE.diagnostics
+  const atemp = diagnostics.atempComparison
+  const withAtemp = atemp.withAtemp as {
+    readonly tempCoefficient: number
+    readonly atempCoefficient: number
+    readonly perturbationL2: number
+    readonly testMetrics: { readonly mse: number }
+  }
+  const ridge = atemp.ridge as {
+    readonly alpha: number
+    readonly perturbationL2: number
+    readonly objective: 'mse-plus-l2'
+  }
+  const lasso = atemp.lasso as {
+    readonly objective: 'mse-plus-l1'
+  }
+
+  return Object.freeze({
+    hourlyResiduals: Object.freeze(
+      diagnostics.hourlyResiduals.map(({ hour, meanResidual }) =>
+        Object.freeze({ hour, meanResidual })),
+    ),
+    predictionBins: Object.freeze(
+      diagnostics.predictionBins.map(({ bin, residualStdDev, mae }) =>
+        Object.freeze({ bin, residualStdDev, mae })),
+    ),
+    namedCases: Object.freeze(
+      diagnostics.namedCases.map(({ role, row }) =>
+        Object.freeze({
+          role,
+          instant: row.instant,
+          hour: row.hour,
+          prediction: row.prediction,
+          actual: row.actual,
+          residual: row.residual,
+        })),
+    ),
     coefficientStability: Object.freeze({
-      baseTemp: 62.723890953,
-      atempOlsTemp: 14.34,
-      atempOlsAtemp: 48.8,
-      baseTestMse: 40_142.538619,
-      atempTestMse: 40_092.5,
-      ridgeAlpha: 300,
-      olsPerturbationL2: 0.0278,
-      ridgePerturbationL2: 0.00914,
-      ridgeObjective: 'mse-plus-l2',
-      lassoObjective: 'mse-plus-l1',
+      baseTemp: atemp.withoutAtemp.tempCoefficient,
+      atempOlsTemp: withAtemp.tempCoefficient,
+      atempOlsAtemp: withAtemp.atempCoefficient,
+      baseTestMse: atemp.withoutAtemp.testMetrics.mse,
+      atempTestMse: withAtemp.testMetrics.mse,
+      ridgeAlpha: ridge.alpha,
+      olsPerturbationL2: withAtemp.perturbationL2,
+      ridgePerturbationL2: ridge.perturbationL2,
+      ridgeObjective: ridge.objective,
+      lassoObjective: lasso.objective,
     }),
     log1pComparison: Object.freeze({
       rawTargetScale: 'rental-count',
@@ -812,6 +796,7 @@ export const LINEAR_REGRESSION_HELDOUT_DIAGNOSTIC_INPUT: HeldoutDiagnosticInput 
       inverseTransformRequiredForCountMetrics: true,
     }),
   })
+}
 
 function assertHeldoutDiagnosticInput(input: HeldoutDiagnosticInput): void {
   if (input === null || typeof input !== 'object' || Array.isArray(input)) {
