@@ -20,6 +20,7 @@ __pycache__/
 .cache/numerical-methods/batch-4-wheelhouse/
 /.cache/loss-functions/phase-26-sources
 /.cache/loss-functions/phase-26-staging
+/.cache/linear-regression/phase-27-staging
 
 # Editor directories and files
 .vscode/*

@@ -1,13 +1,33 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import {
+  linearRegressionAssetById,
+  linearRegressionChapterIds,
+  parseLinearRegressionOutput,
+  type LinearRegressionChapterId,
+  type LinearRegressionNamedCaseRole,
+} from '../data/linearRegressionAssets'
+import { simulateLinearRegression } from '../simulations/linearRegression'
+import {
+  LINEAR_REGRESSION_PUBLISHED_BASELINE,
+  createLinearRegressionWorkbenchPackage,
+  selectAtempComparison,
+  selectCoefficientResult,
+  selectGradientTracePoint,
+  selectHeldoutCase,
+  selectMethodResult,
+  selectRowBatchResult,
+  type LinearRegressionMethodId,
+  type LinearRegressionWorkbenchPackage,
+} from '../simulations/linearRegressionWorkbench'
 import type {
   ExperimentConfig,
   ExperimentPreset,
   StorySection,
   TrainingSnapshot,
 } from '../types/ml'
-import { round } from '../utils/math'
+import { withPublicBase } from '../utils/publicPath'
 import LinearRegressionMultivariateView from './LinearRegressionMultivariateView.vue'
 import LinearRegressionUnivariateView from './LinearRegressionUnivariateView.vue'
 import LessonWorkbench from './LessonWorkbench.vue'
@@ -32,391 +52,668 @@ const emit = defineEmits<{
   'apply-preset': [config: Partial<ExperimentConfig>]
 }>()
 
-const { t, locale } = useI18n()
+type WorkbenchMode =
+  | 'row-prediction'
+  | 'batch-prediction'
+  | 'residual-gradient'
+  | 'gradient-descent'
+  | 'method-comparison'
+  | 'coefficient-meaning'
+  | 'heldout-diagnosis'
+  | 'combined-review'
+type LinearScenario = 'linear' | 'multivariate' | 'polynomial' | 'overfit' | 'regularized'
+type RowBatchMode = 'row' | 'batch'
+type MethodFocus = 'gradient-descent' | 'normal-equation' | 'scikit-learn'
+type CoefficientSpace = 'model-space' | 'original-unit'
+type DiagnosticStage =
+  | 'optimization-complete'
+  | 'hourly-residual-shape'
+  | 'prediction-bin-spread'
+  | 'named-heldout-cases'
+  | 'coefficient-stability'
+  | 'log1p-comparison'
+  | 'combined-review'
 
-const regularizationOptions = ['none', 'l1', 'l2', 'elastic'] as const
-type LinearRegularizationType = (typeof regularizationOptions)[number]
+interface ChapterWorkbenchState {
+  readonly mode: WorkbenchMode
+  readonly scenario: LinearScenario
+  readonly defaultRowBatchMode: RowBatchMode
+  readonly defaultDiagnosticStage: DiagnosticStage
+}
+
+type WorkbenchLoadState =
+  | { readonly status: 'loading' }
+  | { readonly status: 'ready'; readonly workbench: LinearRegressionWorkbenchPackage }
+  | { readonly status: 'invalid'; readonly reason: 'load-failed' | 'unknown-chapter' }
+
+const chapterStates = {
+  'fit-line': {
+    mode: 'row-prediction',
+    scenario: 'linear',
+    defaultRowBatchMode: 'row',
+    defaultDiagnosticStage: 'optimization-complete',
+  },
+  multivariate: {
+    mode: 'batch-prediction',
+    scenario: 'multivariate',
+    defaultRowBatchMode: 'batch',
+    defaultDiagnosticStage: 'optimization-complete',
+  },
+  'residual-loss': {
+    mode: 'residual-gradient',
+    scenario: 'linear',
+    defaultRowBatchMode: 'row',
+    defaultDiagnosticStage: 'optimization-complete',
+  },
+  'training-motion': {
+    mode: 'gradient-descent',
+    scenario: 'linear',
+    defaultRowBatchMode: 'batch',
+    defaultDiagnosticStage: 'optimization-complete',
+  },
+  polynomial: {
+    mode: 'method-comparison',
+    scenario: 'polynomial',
+    defaultRowBatchMode: 'batch',
+    defaultDiagnosticStage: 'optimization-complete',
+  },
+  'model-limits': {
+    mode: 'coefficient-meaning',
+    scenario: 'linear',
+    defaultRowBatchMode: 'batch',
+    defaultDiagnosticStage: 'optimization-complete',
+  },
+  overfitting: {
+    mode: 'heldout-diagnosis',
+    scenario: 'overfit',
+    defaultRowBatchMode: 'batch',
+    defaultDiagnosticStage: 'hourly-residual-shape',
+  },
+  regularization: {
+    mode: 'combined-review',
+    scenario: 'regularized',
+    defaultRowBatchMode: 'batch',
+    defaultDiagnosticStage: 'combined-review',
+  },
+} satisfies Record<LinearRegressionChapterId, ChapterWorkbenchState>
+
+const safeChapterFallback = Object.freeze({
+  mode: 'row-prediction',
+  scenario: 'linear',
+  defaultRowBatchMode: 'row',
+  defaultDiagnosticStage: 'optimization-complete',
+}) satisfies ChapterWorkbenchState
+
+const methodOptions = [
+  'gradient-descent',
+  'normal-equation',
+  'scikit-learn',
+] as const satisfies readonly MethodFocus[]
+const coefficientSpaces = [
+  'model-space',
+  'original-unit',
+] as const satisfies readonly CoefficientSpace[]
+const diagnosticStages = [
+  'optimization-complete',
+  'hourly-residual-shape',
+  'prediction-bin-spread',
+  'named-heldout-cases',
+  'coefficient-stability',
+  'log1p-comparison',
+  'combined-review',
+] as const satisfies readonly DiagnosticStage[]
+const namedCaseRoles = [
+  'negative-prediction',
+  'morning-peak-underprediction',
+  'evening-peak-underprediction',
+  'large-residual',
+] as const satisfies readonly LinearRegressionNamedCaseRole[]
+
+const { t, locale } = useI18n()
+const workbenchState = ref<WorkbenchLoadState>({ status: 'loading' })
+const rowBatchMode = ref<RowBatchMode>('row')
+const gdTraceStep = ref(0)
+const methodFocus = ref<MethodFocus>('gradient-descent')
+const coefficientSpace = ref<CoefficientSpace>('model-space')
+const diagnosticStage = ref<DiagnosticStage>('optimization-complete')
+const selectedHeldoutCase = ref<LinearRegressionNamedCaseRole>('negative-prediction')
+const atempComparison = ref(false)
+let activeController: AbortController | undefined
+
+function isKnownLinearRegressionChapter(value: string): value is LinearRegressionChapterId {
+  return linearRegressionChapterIds.includes(value as LinearRegressionChapterId)
+}
+
+const activeChapterId = computed<LinearRegressionChapterId | 'unknown-chapter'>(() =>
+  isKnownLinearRegressionChapter(props.section.id) ? props.section.id : 'unknown-chapter',
+)
+const activeChapterState = computed<ChapterWorkbenchState>(() =>
+  activeChapterId.value === 'unknown-chapter'
+    ? safeChapterFallback
+    : chapterStates[activeChapterId.value],
+)
+const activeScenario = computed(() =>
+  activeChapterId.value === 'unknown-chapter'
+    ? 'audited-compact-fallback'
+    : activeChapterState.value.scenario,
+)
 
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
-        controls: '实验控制',
-        advanced: '进阶调参',
-        presets: '章节预设',
-        focus: '本章看什么',
-        selectedHouse: '当前样本',
-        predicted: '预测',
-        actual: '真实',
+        title: 'Bike 线性回归工作台',
+        controls: '本章控制',
+        current: '当前值',
+        reset: '重置本章',
+        rowMode: '单行',
+        batchMode: '批量',
+        rowBatch: '计算范围',
+        gdStep: '梯度下降轨迹步',
+        method: '方法焦点',
+        coefficientSpace: '系数空间',
+        diagnosticStage: '诊断阶段',
+        heldoutCase: '留出记录',
+        atemp: '加入 atemp 对照',
+        atempOff: '关闭',
+        atempOn: '开启',
+        ready: '严格校验的四文件本地运行结果已就绪',
+        loading: '正在读取四个本地运行结果文件；暂时只显示审计过的精简基线。',
+        invalid: '四文件运行结果无法完整校验；控件已停用，只显示审计过的精简基线，不会在页面中重算拟合。',
+        unknown: '未知章节：控件已停用，只显示审计过的精简基线。',
+        fixture: '审计过的精简基线',
+        lockedRow: '固定代表行 #11_550',
+        formula: '单行：ŷ = xᵀw + b；残差：r = ŷ − y；批量：ŷ = Xw + b1。',
+        staticMeaning: '静态说明：先确认优化收敛与三种 OLS 方法一致，再解读留出残差和系数稳定性。',
+        teachingSummary: '展开静态教学图：从单行残差到优化路径',
+        teachingDiagram: 'Bike 线性回归静态教学图：虚线表示残差，折线表示已发布优化检查点',
+        outputRow: '单行运行结果',
+        outputBatch: '批量运行结果',
+        outputGd: '梯度下降运行结果',
+        outputMethod: '方法对照结果',
+        outputCoefficients: '系数表结果',
+        outputHeldout: '命名留出记录结果',
+        outputAtemp: 'atemp 受控对照结果',
+        featureValues: '特征值',
+        featureOrder: '特征顺序',
+        trainRows: '训练行数',
+        testRows: '留出行数',
+        trainMetrics: '训练指标',
+        testMetrics: '留出指标',
+        instant: 'instant',
+        timestamp: '时间',
+        hour: '小时',
+        actual: '实际值',
+        prediction: '预测值',
         residual: '残差',
-        area: '面积',
-        age: '房龄',
-        price: '房价',
-        loss: 'MSE',
-        trainMse: '训练 MSE',
-        validationMse: '验证 MSE',
-        mae: 'MAE',
-        slope: '斜率',
+        lossContribution: '损失贡献',
+        update: '更新步',
+        mse: 'MSE',
+        gradientNorm: '梯度范数',
         intercept: '截距',
-        gradient: '梯度强度',
-        status: '状态',
-        degree: '阶数',
-        weightNorm: '权重范数',
-        activeWeights: '有效权重',
-        penalty: '正则惩罚',
-        areaWeight: '面积权重',
-        ageWeight: '房龄权重',
-        outlierOn: '离群点开启',
-        outlierOff: '离群点关闭',
-        regularizationLabels: {
-          none: '无正则',
-          l1: 'L1',
-          l2: 'L2',
-          elastic: 'Elastic Net',
+        coefficients: '系数',
+        role: '方法角色',
+        coefficientDelta: '最大系数差',
+        predictionDelta: '最大预测差',
+        correlation: 'temp/atemp 训练相关系数',
+        conditionNumber: '条件数',
+        tempCoefficient: 'temp 系数',
+        atempCoefficient: 'atemp 系数',
+        perturbation: '目标扰动下系数变化 L2',
+        unavailableRows: '完整记录尚不可用；以下精简值来自已交叉校验的发布基线。',
+        baseStability: '基础模型未加入 atemp；temp 独自承担温度方向的线性关联。',
+        addedStability: '只加入 atemp 后，temp 与 atemp 分摊系数；Ridge 在已发布扰动对照中更稳定。',
+        chapterFocus: {
+          'fit-line': '先锁定一行真实记录，读出预测、残差和损失贡献。',
+          multivariate: '把同一行扩展成固定特征顺序，再切换到批量矩阵。',
+          'residual-loss': '从一行的梯度贡献过渡到批量平均梯度。',
+          'training-motion': '沿真实 GD 轨迹查看停止条件，而不是在组件内重新拟合。',
+          polynomial: '比较 GD、正规方程参考和 scikit-learn 的一致性。',
+          'model-limits': '区分模型空间系数与原始数据单位下的条件关联。',
+          overfitting: '先通过优化门，再依次查看小时残差、预测分箱和命名记录。',
+          regularization: '只增加 atemp，比较 OLS 分配与 Ridge/Lasso 的不同目标。',
+          'unknown-chapter': '当前章节不在发布清单中。',
         },
-        statusText: {
-          initializing: '初始模型',
-          'coarse-search': '大步校正',
-          settling: '快速下降',
-          refining: '细调参数',
-          'capacity-limit': '表达受限',
-          plateau: '接近收敛',
-          overfitting: '正在过拟合',
-          regularized: '正则约束中',
+        methodLabels: {
+          'gradient-descent': 'NumPy 批量梯度下降',
+          'normal-equation': '正规方程 / lstsq 参考',
+          'scikit-learn': 'scikit-learn',
         },
-        focusText: {
-          'fit-line': '先看散点和直线的相对位置，把斜率和截距理解成模型语言。',
-          'residual-loss': '重点看竖直残差线，以及少数大误差如何影响 MSE。',
-          'training-motion': '把左侧直线移动和右侧参数轨迹连起来读。',
-          'model-limits': '观察弯曲趋势和离群点如何暴露“一条线”的表达边界。',
-          multivariate: '看 3D 平面如何同时解释面积、房龄和房价。',
-          polynomial: '看多项式特征如何让线性权重画出曲线。',
-          overfitting: '盯住训练 MSE 和验证 MSE 是否开始分叉。',
-          regularization: '比较 L1 / L2 / Elastic Net 如何压小权重并让曲线更克制。',
+        spaceLabels: {
+          'model-space': '模型空间',
+          'original-unit': '原始数据单位',
+        },
+        stageLabels: {
+          'optimization-complete': '1. 优化完成',
+          'hourly-residual-shape': '2. 小时残差形状',
+          'prediction-bin-spread': '3. 预测分箱离散程度',
+          'named-heldout-cases': '4. 命名留出记录',
+          'coefficient-stability': '5. 系数稳定性',
+          'log1p-comparison': '6. log1p 补充',
+          'combined-review': '7. 综合复盘',
+        },
+        caseLabels: {
+          'negative-prediction': '负预测',
+          'morning-peak-underprediction': '早高峰低估',
+          'evening-peak-underprediction': '晚高峰低估',
+          'large-residual': '大残差',
         },
       }
     : {
-        controls: 'Experiment controls',
-        advanced: 'Advanced tuning',
-        presets: 'Chapter presets',
-        focus: 'What to watch',
-        selectedHouse: 'Selected house',
-        predicted: 'Predicted',
+        title: 'Bike linear-regression workbench',
+        controls: 'Chapter controls',
+        current: 'Current value',
+        reset: 'Reset chapter',
+        rowMode: 'One row',
+        batchMode: 'Batch',
+        rowBatch: 'Calculation scope',
+        gdStep: 'Gradient-descent trace step',
+        method: 'Method focus',
+        coefficientSpace: 'Coefficient space',
+        diagnosticStage: 'Diagnostic stage',
+        heldoutCase: 'Held-out record',
+        atemp: 'Add atemp comparison',
+        atempOff: 'Off',
+        atempOn: 'On',
+        ready: 'The strictly validated four-file local run is ready',
+        loading: 'Loading all four local result files; only the audited compact baseline is shown for now.',
+        invalid: 'The four-file result package could not be validated. Controls are disabled and only the audited compact baseline is shown; the page does not refit the model.',
+        unknown: 'Unknown chapter: controls are disabled and only the audited compact baseline is shown.',
+        fixture: 'Audited compact baseline',
+        lockedRow: 'Locked representative row #11_550',
+        formula: 'One row: ŷ = xᵀw + b; residual: r = ŷ − y; batch: ŷ = Xw + b1.',
+        staticMeaning: 'Static explanation: prove convergence and three-method OLS agreement before interpreting held-out residuals or coefficient stability.',
+        teachingSummary: 'Open the static teaching diagram: row residual to optimizer path',
+        teachingDiagram: 'Static Bike linear-regression diagram: dashed residual and published optimizer checkpoints',
+        outputRow: 'One-row run result',
+        outputBatch: 'Batch run result',
+        outputGd: 'Gradient-descent run result',
+        outputMethod: 'Method comparison result',
+        outputCoefficients: 'Coefficient-table result',
+        outputHeldout: 'Named held-out record result',
+        outputAtemp: 'Controlled atemp comparison result',
+        featureValues: 'Feature values',
+        featureOrder: 'Feature order',
+        trainRows: 'Training rows',
+        testRows: 'Held-out rows',
+        trainMetrics: 'Training metrics',
+        testMetrics: 'Held-out metrics',
+        instant: 'instant',
+        timestamp: 'Timestamp',
+        hour: 'Hour',
         actual: 'Actual',
+        prediction: 'Prediction',
         residual: 'Residual',
-        area: 'Area',
-        age: 'Age',
-        price: 'Price',
-        loss: 'MSE',
-        trainMse: 'Train MSE',
-        validationMse: 'Validation MSE',
-        mae: 'MAE',
-        slope: 'Slope',
+        lossContribution: 'Loss contribution',
+        update: 'Update',
+        mse: 'MSE',
+        gradientNorm: 'Gradient norm',
         intercept: 'Intercept',
-        gradient: 'Gradient norm',
-        status: 'Status',
-        degree: 'Degree',
-        weightNorm: 'Weight norm',
-        activeWeights: 'Active weights',
-        penalty: 'Penalty',
-        areaWeight: 'Area weight',
-        ageWeight: 'Age weight',
-        outlierOn: 'Outlier on',
-        outlierOff: 'Outlier off',
-        regularizationLabels: {
-          none: 'None',
-          l1: 'L1',
-          l2: 'L2',
-          elastic: 'Elastic Net',
+        coefficients: 'Coefficients',
+        role: 'Method role',
+        coefficientDelta: 'Maximum coefficient delta',
+        predictionDelta: 'Maximum prediction delta',
+        correlation: 'temp/atemp training correlation',
+        conditionNumber: 'Condition number',
+        tempCoefficient: 'temp coefficient',
+        atempCoefficient: 'atemp coefficient',
+        perturbation: 'Coefficient-change L2 under target perturbation',
+        unavailableRows: 'Complete rows are unavailable; these compact values come from the cross-authority-audited published baseline.',
+        baseStability: 'The base model excludes atemp, so temp carries the modeled temperature association alone.',
+        addedStability: 'Adding only atemp splits the coefficients; Ridge is more stable in the published perturbation comparison.',
+        chapterFocus: {
+          'fit-line': 'Lock one real row, then read its prediction, residual, and loss contribution.',
+          multivariate: 'Expand the same row in the fixed feature order, then switch to the batch matrix.',
+          'residual-loss': 'Move from one row’s gradient contribution to the batch mean gradient.',
+          'training-motion': 'Replay the real GD trace and stop condition without fitting inside the component.',
+          polynomial: 'Compare GD, the normal-equation reference, and scikit-learn agreement.',
+          'model-limits': 'Separate model-space coefficients from conditional associations in original data units.',
+          overfitting: 'Pass the optimization gate, then inspect hour shape, prediction bins, and named records.',
+          regularization: 'Add only atemp, then contrast OLS allocation with the different Ridge/Lasso objectives.',
+          'unknown-chapter': 'This chapter is not in the published registry.',
         },
-        statusText: {
-          initializing: 'Initial model',
-          'coarse-search': 'Coarse correction',
-          settling: 'Falling quickly',
-          refining: 'Fine tuning',
-          'capacity-limit': 'Capacity limit',
-          plateau: 'Near convergence',
-          overfitting: 'Overfitting',
-          regularized: 'Regularized',
+        methodLabels: {
+          'gradient-descent': 'NumPy batch gradient descent',
+          'normal-equation': 'Normal equation / lstsq reference',
+          'scikit-learn': 'scikit-learn',
         },
-        focusText: {
-          'fit-line': 'Read the scatter and line first, then connect slope and intercept to model language.',
-          'residual-loss': 'Watch the vertical residuals and how a few large errors influence MSE.',
-          'training-motion': 'Connect the moving line on the left to the parameter path on the right.',
-          'model-limits': 'Use curvature and outliers to see the expressive limit of one line.',
-          multivariate: 'Watch a 3D plane explain area, age, and price at the same time.',
-          polynomial: 'See how polynomial features let linear weights draw a curve.',
-          overfitting: 'Watch train MSE and validation MSE split apart.',
-          regularization: 'Compare how L1 / L2 / Elastic Net shrink weights and restrain the curve.',
+        spaceLabels: {
+          'model-space': 'Model space',
+          'original-unit': 'Original data units',
+        },
+        stageLabels: {
+          'optimization-complete': '1. Optimization complete',
+          'hourly-residual-shape': '2. Hourly residual shape',
+          'prediction-bin-spread': '3. Prediction-bin spread',
+          'named-heldout-cases': '4. Named held-out records',
+          'coefficient-stability': '5. Coefficient stability',
+          'log1p-comparison': '6. log1p supplement',
+          'combined-review': '7. Combined review',
+        },
+        caseLabels: {
+          'negative-prediction': 'Negative prediction',
+          'morning-peak-underprediction': 'Morning peak underprediction',
+          'evening-peak-underprediction': 'Evening peak underprediction',
+          'large-residual': 'Large residual',
         },
       },
 )
 
-const isMultivariate = computed(() => props.section.id === 'multivariate')
-const isRealCaliforniaFamily = computed(() =>
-  props.section.id === 'overfitting' || props.section.id === 'regularization',
-)
-const isPolynomialFamily = computed(() =>
-  props.section.id === 'polynomial' ||
-  props.section.id === 'overfitting' ||
-  props.section.id === 'regularization',
-)
-const showRegularizationControls = computed(() => props.section.id === 'regularization')
-const showElasticAlphaControl = computed(
-  () => showRegularizationControls.value && configString('regularizationType', 'l2') === 'elastic',
-)
-const showValidationControls = computed(() => !isRealCaliforniaFamily.value && props.section.id === 'polynomial')
-const showOutlierControls = computed(() =>
-  !isPolynomialFamily.value &&
-  !isMultivariate.value &&
-  ['residual-loss', 'model-limits'].includes(props.section.id),
-)
+const methodIdByFocus = {
+  'gradient-descent': 'numpy-batch-gradient-descent',
+  'normal-equation': 'numpy-lstsq',
+  'scikit-learn': 'sklearn-linear-regression',
+} as const satisfies Record<MethodFocus, LinearRegressionMethodId>
 
-const readoutCards = computed(() => {
-  const metrics = props.snapshot?.derivedMetrics ?? {}
-  const statusKey = String(metrics.statusKey ?? 'initializing') as keyof typeof copy.value.statusText
-  const weights = Array.isArray(metrics.weights) ? metrics.weights : []
-
-  if (isMultivariate.value) {
-    return [
-      { id: 'loss', label: copy.value.loss, value: round(Number(metrics.mse ?? props.snapshot?.loss ?? 0), 2) },
-      { id: 'area-weight', label: copy.value.areaWeight, value: round(Number(weights[0] ?? 0), 3) },
-      { id: 'age-weight', label: copy.value.ageWeight, value: round(Number(weights[1] ?? 0), 3) },
-      { id: 'intercept', label: copy.value.intercept, value: round(Number(metrics.intercept ?? 0), 2) },
-      { id: 'gradient', label: copy.value.gradient, value: round(Number(metrics.gradientNorm ?? 0), 3) },
-      { id: 'status', label: copy.value.status, value: copy.value.statusText[statusKey] ?? statusKey },
-    ]
-  }
-
-  if (isPolynomialFamily.value) {
-    return [
-      { id: 'train', label: copy.value.trainMse, value: round(Number(metrics.trainMse ?? 0), 2) },
-      { id: 'validation', label: copy.value.validationMse, value: round(Number(metrics.validationMse ?? 0), 2) },
-      { id: 'degree', label: copy.value.degree, value: Number(metrics.polynomialDegree ?? props.config.polynomialDegree ?? 1) },
-      { id: 'norm', label: copy.value.weightNorm, value: round(Number(metrics.weightNorm ?? 0), 3) },
-      { id: 'active', label: copy.value.activeWeights, value: Number(metrics.activeWeights ?? 0) },
-      {
-        id: 'penalty',
-        label: showRegularizationControls.value ? copy.value.penalty : copy.value.status,
-        value: showRegularizationControls.value
-          ? round(Number(metrics.regularizationPenalty ?? 0), 3)
-          : copy.value.statusText[statusKey] ?? statusKey,
-      },
-    ]
-  }
-
-  return [
-    { id: 'loss', label: copy.value.loss, value: round(Number(metrics.mse ?? props.snapshot?.loss ?? 0), 2) },
-    { id: 'mae', label: copy.value.mae, value: round(Number(metrics.mae ?? 0), 2) },
-    { id: 'slope', label: copy.value.slope, value: round(Number(metrics.slope ?? props.snapshot?.regressionFit?.slope ?? 0), 3) },
-    { id: 'intercept', label: copy.value.intercept, value: round(Number(metrics.intercept ?? props.snapshot?.regressionFit?.intercept ?? 0), 2) },
-    { id: 'gradient', label: copy.value.gradient, value: round(Number(metrics.gradientNorm ?? 0), 3) },
-    { id: 'status', label: copy.value.status, value: copy.value.statusText[statusKey] ?? statusKey },
-  ]
+const activeWorkbench = computed(() =>
+  workbenchState.value.status === 'ready'
+    ? workbenchState.value.workbench
+    : undefined,
+)
+const selectedTeachingRow = computed(() =>
+  activeWorkbench.value
+    ? selectRowBatchResult(activeWorkbench.value, 'row').row
+    : LINEAR_REGRESSION_PUBLISHED_BASELINE.representativeRow,
+)
+const selectedRowBatchResult = computed(() => {
+  if (!activeWorkbench.value) return undefined
+  return rowBatchMode.value === 'row'
+    ? selectRowBatchResult(activeWorkbench.value, 'row')
+    : selectRowBatchResult(activeWorkbench.value, 'batch')
 })
-
-const selectedObservation = computed(() => props.snapshot?.selectedObservation ?? {})
-const regressionMeta = computed(() => props.snapshot?.regressionMeta)
-const selectedSampleLabel = computed(
-  () => regressionMeta.value?.sampleLabel[locale.value as 'zh-CN' | 'en'] ?? copy.value.selectedHouse,
+const selectedGradientTracePoint = computed(() =>
+  activeWorkbench.value
+    ? selectGradientTracePoint(activeWorkbench.value, gdTraceStep.value)
+    : undefined,
 )
-const selectedXAxisLabel = computed(
-  () => regressionMeta.value?.xLabel[locale.value as 'zh-CN' | 'en'] ?? copy.value.area,
+const selectedMethodResult = computed(() =>
+  activeWorkbench.value
+    ? selectMethodResult(
+        activeWorkbench.value,
+        methodIdByFocus[methodFocus.value],
+      )
+    : undefined,
 )
-const selectedXUnit = computed(
-  () => regressionMeta.value?.xUnit[locale.value as 'zh-CN' | 'en'] ?? 'm2',
-)
-const selectedYUnit = computed(
-  () => regressionMeta.value?.yUnit[locale.value as 'zh-CN' | 'en'] ?? 'w',
-)
-const selectedSummary = computed(() => {
-  const rows = [
-    {
-      label: selectedXAxisLabel.value,
-      value: `${round(Number(selectedObservation.value.area ?? 0), 2)} ${selectedXUnit.value}`,
-    },
-  ]
-
-  if (isMultivariate.value) {
-    rows.push({
-      label: copy.value.age,
-      value: `${round(Number(selectedObservation.value.age ?? 0), 1)} y`,
-    })
-  }
-
-  rows.push(
-    {
-      label: copy.value.actual,
-      value: `${round(Number(selectedObservation.value.actualPrice ?? 0), 2)} ${selectedYUnit.value}`,
-    },
-    {
-      label: copy.value.predicted,
-      value: `${round(Number(selectedObservation.value.predictedPrice ?? 0), 2)} ${selectedYUnit.value}`,
-    },
-    {
-      label: copy.value.residual,
-      value: `${round(Number(selectedObservation.value.residual ?? 0), 2)} ${selectedYUnit.value}`,
-    },
+const selectedCoefficientResult = computed(() => {
+  if (!activeWorkbench.value) return undefined
+  return selectCoefficientResult(
+    activeWorkbench.value,
+    'numpy-lstsq',
+    coefficientSpace.value === 'model-space'
+      ? 'model'
+      : 'original-dataset-unit',
   )
-
-  return rows
 })
-
-const teachingVisual = computed(() => {
-  const visuals =
-    locale.value === 'zh-CN'
-      ? {
-          'fit-line': {
-            label: '章节插图',
-            title: '斜率旋转，截距平移',
-            caption: '直线的角度由斜率控制，整体高度由截距控制；训练动画会同时调整这两个量。',
-          },
-          'residual-loss': {
-            label: '残差动画',
-            title: '误差先竖直量，再平方汇总',
-            caption: '残差线保留方向，MSE 把它平方后平均；大残差会在动效里更突出。',
-          },
-          'training-motion': {
-            label: '参数路径',
-            title: '一轮更新对应两个空间',
-            caption: '左侧直线在数据空间移动，右侧点在参数空间移动，二者由同一次梯度更新连接。',
-          },
-          'model-limits': {
-            label: '模型边界',
-            title: '直线无法追随弯曲趋势',
-            caption: '当残差在一端连续偏向同一方向，问题通常不只是训练轮数不够。',
-          },
-          multivariate: {
-            label: '3D 示意',
-            title: '多个特征把线扩展成平面',
-            caption: '面积和房龄分别改变平面在两个方向上的倾斜，残差变成点到平面的距离。',
-          },
-          polynomial: {
-            label: '特征扩展',
-            title: 'x、x²、x³ 合成曲线',
-            caption: '曲线来自输入特征扩展；权重仍然是线性相加的参数。',
-          },
-          overfitting: {
-            label: '泛化诊断',
-            title: '训练与验证曲线分叉',
-            caption: '训练误差下降但验证误差抬头时，模型可能开始记住噪声。',
-          },
-          regularization: {
-            label: '正则动画',
-            title: '不同惩罚给参数不同边界',
-            caption: 'L1 更容易产生稀疏权重，L2 更平滑地整体收缩，Elastic Net 把两种约束混合在一起。',
-          },
-        }
-      : {
-          'fit-line': {
-            label: 'Chapter diagram',
-            title: 'Slope rotates, intercept shifts',
-            caption: 'Slope controls the line angle and intercept controls its height; playback adjusts both together.',
-          },
-          'residual-loss': {
-            label: 'Residual animation',
-            title: 'Measure vertically, then square',
-            caption: 'Residuals keep direction while MSE squares and averages them; large residuals become visually dominant.',
-          },
-          'training-motion': {
-            label: 'Parameter path',
-            title: 'One update, two spaces',
-            caption: 'The line moves in data space while the point moves in parameter space under the same gradient update.',
-          },
-          'model-limits': {
-            label: 'Model limit',
-            title: 'One line cannot follow curvature',
-            caption: 'When residuals lean the same way at one end, the issue is often model capacity, not just more epochs.',
-          },
-          multivariate: {
-            label: '3D sketch',
-            title: 'Several features become a plane',
-            caption: 'Area and age tilt the plane in different directions; residuals become distances to that plane.',
-          },
-          polynomial: {
-            label: 'Feature expansion',
-            title: 'x, x², x³ combine into a curve',
-            caption: 'Curvature comes from expanded input features; weights are still linearly added parameters.',
-          },
-          overfitting: {
-            label: 'Generalization check',
-            title: 'Train and validation split apart',
-            caption: 'When train error falls but validation error rises, the model may be memorizing noise.',
-          },
-          regularization: {
-            label: 'Regularization animation',
-            title: 'Different penalties create different boundaries',
-            caption: 'L1 more readily creates sparse weights, L2 shrinks smoothly, and Elastic Net blends both constraints.',
-          },
-        }
-
-  return visuals[props.section.id as keyof typeof visuals] ?? visuals['fit-line']
+const selectedHeldoutResult = computed(() =>
+  activeWorkbench.value
+    ? selectHeldoutCase(activeWorkbench.value, selectedHeldoutCase.value)
+    : undefined,
+)
+const selectedAtempResult = computed(() =>
+  activeWorkbench.value
+    ? selectAtempComparison(activeWorkbench.value)
+    : undefined,
+)
+const optimizationGate = computed(() => {
+  if (!activeWorkbench.value) return false
+  const result = selectMethodResult(
+    activeWorkbench.value,
+    'numpy-batch-gradient-descent',
+  )
+  return (
+    result.updates === 772
+    && typeof result.gradientNorm === 'number'
+    && Number.isFinite(result.gradientNorm)
+  )
 })
-
-const currentRegularizationType = computed(() => {
-  const value = configString('regularizationType', 'l2') as LinearRegularizationType
-  return regularizationOptions.includes(value) ? value : 'l2'
+const scenarioSimulation = computed(() =>
+  activeChapterId.value === 'unknown-chapter'
+    ? undefined
+    : simulateLinearRegression({
+        ...props.config,
+        scenario: activeChapterState.value.scenario,
+      }),
+)
+const visualSnapshots = computed(() =>
+  scenarioSimulation.value?.snapshots.length
+    ? scenarioSimulation.value.snapshots
+    : props.snapshots,
+)
+const visualSnapshot = computed(() => {
+  const snapshots = visualSnapshots.value
+  if (!snapshots.length) return props.snapshot
+  const stageIndex =
+    activeChapterState.value.mode === 'heldout-diagnosis'
+      || activeChapterState.value.mode === 'combined-review'
+      ? diagnosticStages.indexOf(diagnosticStage.value)
+      : Math.min(props.currentStep, snapshots.length - 1)
+  return snapshots[Math.max(0, stageIndex)] ?? snapshots[0]
 })
+const isMultivariate = computed(() => activeChapterState.value.scenario === 'multivariate')
 
-function configNumber(key: string, fallback: number) {
-  return Number(props.config[key] ?? fallback)
+async function loadWorkbenchPackage(chapterId: string): Promise<void> {
+  activeController?.abort()
+  const requestController = new AbortController()
+  activeController = requestController
+
+  if (!isKnownLinearRegressionChapter(chapterId)) {
+    workbenchState.value = { status: 'invalid', reason: 'unknown-chapter' }
+    return
+  }
+
+  workbenchState.value = { status: 'loading' }
+  try {
+    const summaryDescriptor = linearRegressionAssetById.get(
+      'linear-regression-summary',
+    )
+    const traceDescriptor = linearRegressionAssetById.get(
+      'linear-regression-gradient-descent-trace',
+    )
+    const coefficientDescriptor = linearRegressionAssetById.get(
+      'linear-regression-coefficients',
+    )
+    const residualDescriptor = linearRegressionAssetById.get(
+      'linear-regression-heldout-residuals',
+    )
+    if (
+      !summaryDescriptor
+      || summaryDescriptor.kind !== 'locked-summary'
+      || !traceDescriptor
+      || traceDescriptor.kind !== 'complete-gradient-trace'
+      || !coefficientDescriptor
+      || coefficientDescriptor.kind !== 'complete-coefficient-table'
+      || !residualDescriptor
+      || residualDescriptor.kind !== 'complete-heldout-residuals'
+    ) {
+      throw new TypeError('Missing registered linear-regression workbench descriptors')
+    }
+
+    const responses = await Promise.all([
+      fetch(withPublicBase(summaryDescriptor.publicPath), {
+        signal: requestController.signal,
+        headers: { Accept: 'application/json' },
+      }),
+      fetch(withPublicBase(traceDescriptor.publicPath), {
+        signal: requestController.signal,
+        headers: { Accept: 'text/csv' },
+      }),
+      fetch(withPublicBase(coefficientDescriptor.publicPath), {
+        signal: requestController.signal,
+        headers: { Accept: 'text/csv' },
+      }),
+      fetch(withPublicBase(residualDescriptor.publicPath), {
+        signal: requestController.signal,
+        headers: { Accept: 'text/csv' },
+      }),
+    ])
+    for (const response of responses) {
+      if (!response.ok) {
+        throw new Error(
+          `Unable to load linear-regression workbench output: ${response.status}`,
+        )
+      }
+    }
+
+    const [summaryPayload, traceCsv, coefficientCsv, residualCsv] =
+      await Promise.all([
+        responses[0]!.json(),
+        responses[1]!.text(),
+        responses[2]!.text(),
+        responses[3]!.text(),
+      ])
+    const workbench = createLinearRegressionWorkbenchPackage({
+      summary: parseLinearRegressionOutput(
+        'linear-regression-summary',
+        summaryPayload,
+      ),
+      gradientTrace: parseLinearRegressionOutput(
+        'linear-regression-gradient-descent-trace',
+        traceCsv,
+      ),
+      coefficients: parseLinearRegressionOutput(
+        'linear-regression-coefficients',
+        coefficientCsv,
+      ),
+      heldoutResiduals: parseLinearRegressionOutput(
+        'linear-regression-heldout-residuals',
+        residualCsv,
+      ),
+    })
+    if (!requestController.signal.aborted) {
+      workbenchState.value = { status: 'ready', workbench }
+    }
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') return
+    if (!requestController.signal.aborted) {
+      workbenchState.value = { status: 'invalid', reason: 'load-failed' }
+    }
+  }
 }
 
-function configString(key: string, fallback: string) {
-  return String(props.config[key] ?? fallback)
+function boundedInteger(value: unknown, minimum: number, maximum: number, fallback: number): number {
+  const numeric = Number(value)
+  if (!Number.isFinite(numeric)) return fallback
+  return Math.min(maximum, Math.max(minimum, Math.round(numeric)))
 }
 
-function onRangeInput(key: string, event: Event) {
+function publishedField(
+  value: Readonly<Record<string, unknown>>,
+  key: string,
+): unknown {
+  return Reflect.get(value, key)
+}
+
+function publishedNestedField(
+  value: Readonly<Record<string, unknown>>,
+  key: string,
+  nestedKey: string,
+): unknown {
+  const nested = Reflect.get(value, key)
+  if (typeof nested !== 'object' || nested === null) return ''
+  return Reflect.get(nested, nestedKey)
+}
+
+function onGdTraceInput(event: Event): void {
   const target = event.target as HTMLInputElement
-  emit('patch-config', { [key]: Number(target.value) })
+  gdTraceStep.value = boundedInteger(target.value, 0, 772, 0)
 }
 
-function toggleOutlier() {
-  emit('patch-config', { includeOutlier: !Boolean(props.config.includeOutlier) })
+function setDiagnosticStage(stage: DiagnosticStage): void {
+  const requestedIndex = diagnosticStages.indexOf(stage)
+  const optimizationIndex = diagnosticStages.indexOf('optimization-complete')
+  if (!optimizationGate.value && requestedIndex > optimizationIndex) {
+    diagnosticStage.value = 'optimization-complete'
+    return
+  }
+  diagnosticStage.value = stage
 }
 
-function setRegularizationType(value: string) {
-  emit('patch-config', { regularizationType: value })
+function onDiagnosticSelect(event: Event): void {
+  const value = (event.target as HTMLSelectElement).value
+  if (diagnosticStages.includes(value as DiagnosticStage)) {
+    setDiagnosticStage(value as DiagnosticStage)
+  }
 }
+
+function handleDiagnosticKeydown(event: KeyboardEvent): void {
+  if (event.key !== 'Home' && event.key !== 'End') return
+  event.preventDefault()
+  setDiagnosticStage(event.key === 'Home' ? diagnosticStages[0] : diagnosticStages.at(-1)!)
+}
+
+function resetActiveLab(): void {
+  const defaults = activeChapterState.value
+  rowBatchMode.value = defaults.defaultRowBatchMode
+  gdTraceStep.value = 0
+  methodFocus.value = 'gradient-descent'
+  coefficientSpace.value = 'model-space'
+  diagnosticStage.value = defaults.defaultDiagnosticStage
+  selectedHeldoutCase.value = 'negative-prediction'
+  atempComparison.value = false
+  emit('reset')
+}
+
+watch(
+  () => props.section.id,
+  (chapterId) => {
+    const state = isKnownLinearRegressionChapter(chapterId)
+      ? chapterStates[chapterId]
+      : safeChapterFallback
+    rowBatchMode.value = state.defaultRowBatchMode
+    diagnosticStage.value = state.defaultDiagnosticStage
+    void loadWorkbenchPackage(chapterId)
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => {
+  activeController?.abort()
+})
 </script>
 
 <template>
   <LessonWorkbench
     class="linear-regression-lab"
     :accent="props.accent"
+    :data-scenario="activeScenario"
     :section-id="props.section.id"
     variant="cockpit"
     :style="{ '--linear-accent': props.accent }"
   >
     <template #task>
       <section class="linear-regression-lab__focus linear-regression-lab__focus--task">
-        <span>{{ copy.focus }}</span>
-        <p>{{ copy.focusText[props.section.id as keyof typeof copy.focusText] }}</p>
+        <span>{{ copy.title }}</span>
+        <p>{{ copy.chapterFocus[activeChapterId] }}</p>
+        <p>{{ copy.formula }}</p>
       </section>
     </template>
 
     <template #visual>
-    <div class="linear-regression-lab__workspace">
-      <div class="linear-regression-lab__viz" :class="'linear-regression-lab__viz-shell'">
-        <LinearRegressionMultivariateView
-          v-if="isMultivariate"
-          :snapshot="props.snapshot"
-          :snapshots="props.snapshots"
-          :current-step="props.currentStep"
-          :accent="props.accent"
-        />
-        <LinearRegressionUnivariateView
-          v-else
-          :snapshot="props.snapshot"
-          :snapshots="props.snapshots"
-          :current-step="props.currentStep"
-          :section-id="props.section.id"
-        />
+      <div class="linear-regression-lab__workspace">
+        <p class="linear-regression-lab__static-note">{{ copy.staticMeaning }}</p>
+        <div
+          class="linear-regression-lab__viz"
+          :class="{ 'linear-regression-lab__viz-shell': true }"
+        >
+          <LinearRegressionMultivariateView
+            v-if="isMultivariate"
+            :snapshot="visualSnapshot"
+            :snapshots="visualSnapshots"
+            :current-step="props.currentStep"
+            :accent="props.accent"
+          />
+          <LinearRegressionUnivariateView
+            v-else
+            :snapshot="visualSnapshot"
+            :snapshots="visualSnapshots"
+            :current-step="props.currentStep"
+            :section-id="props.section.id"
+          />
+        </div>
       </div>
-    </div>
     </template>
 
     <template #controls>
-      <div class="linear-regression-lab__controls">
+      <section class="linear-regression-lab__controls" :aria-label="copy.controls">
         <div class="linear-regression-lab__actions">
           <button type="button" class="action-button action-button--primary" @click="emit('toggle-play')">
             {{ props.isPlaying ? t('actions.pause') : t('actions.play') }}
@@ -427,380 +724,411 @@ function setRegularizationType(value: string) {
           <button type="button" class="action-button" @click="emit('replay')">
             {{ t('actions.replay') }}
           </button>
-          <button type="button" class="action-button" @click="emit('reset')">
-            {{ t('actions.reset') }}
+          <button type="button" class="action-button" @click="resetActiveLab">
+            {{ copy.reset }}
           </button>
         </div>
 
-        <div class="linear-regression-lab__control-grid">
+        <div class="linear-regression-lab__control-grid linear-regression-lab__advanced-controls">
           <label class="control">
             <span class="control__row">
-              <span>{{ t('controls.learningRate') }}</span>
-              <strong>{{ round(configNumber('learningRate', 0.11), 2) }}</strong>
+              <span>{{ copy.rowBatch }}</span>
+              <strong>{{ rowBatchMode === 'row' ? copy.rowMode : copy.batchMode }}</strong>
             </span>
-            <input
-              class="control__range"
-              type="range"
-              min="0.02"
-              max="0.24"
-              step="0.01"
-              :value="configNumber('learningRate', 0.11)"
-              @input="onRangeInput('learningRate', $event)"
-            />
+            <select
+              v-model="rowBatchMode"
+              :aria-label="copy.rowBatch"
+              :disabled="workbenchState.status !== 'ready'"
+            >
+              <option value="row">{{ copy.rowMode }}</option>
+              <option value="batch">{{ copy.batchMode }}</option>
+            </select>
           </label>
 
-          <label class="control">
+          <label v-if="activeChapterState.mode === 'gradient-descent'" class="control">
             <span class="control__row">
-              <span>{{ t('controls.epochs') }}</span>
-              <strong>{{ configNumber('epochs', 36) }}</strong>
+              <span>{{ copy.gdStep }}</span>
+              <strong>{{ gdTraceStep }} / 772</strong>
             </span>
             <input
-              class="control__range"
-              type="range"
-              min="16"
-              max="80"
-              step="2"
-              :value="configNumber('epochs', 36)"
-              @input="onRangeInput('epochs', $event)"
-            />
-          </label>
-
-          <label class="control">
-            <span class="control__row">
-              <span>{{ t('controls.animationSpeed') }}</span>
-              <strong>{{ configNumber('playbackMs', 120) }}ms</strong>
-            </span>
-            <input
-              class="control__range"
-              type="range"
-              min="70"
-              max="260"
-              step="10"
-              :value="configNumber('playbackMs', 120)"
-              @input="onRangeInput('playbackMs', $event)"
-            />
-          </label>
-
-          <label v-if="!isRealCaliforniaFamily" class="control">
-            <span class="control__row">
-              <span>{{ isMultivariate ? t('controls.featureNoise') : t('controls.datasetNoise') }}</span>
-              <strong>{{ round(configNumber(isMultivariate ? 'featureNoise' : 'datasetNoise', 0.08), 2) }}</strong>
-            </span>
-            <input
-              class="control__range"
               type="range"
               min="0"
-              :max="isMultivariate ? 0.45 : 0.42"
-              step="0.01"
-              :value="configNumber(isMultivariate ? 'featureNoise' : 'datasetNoise', 0.08)"
-              @input="onRangeInput(isMultivariate ? 'featureNoise' : 'datasetNoise', $event)"
-            />
-          </label>
-
-          <label v-if="showOutlierControls" class="control">
-            <span class="control__row">
-              <span>{{ t('controls.outlierStrength') }}</span>
-              <strong>{{ round(configNumber('outlierStrength', 36), 0) }}</strong>
-            </span>
-            <input
-              class="control__range"
-              type="range"
-              min="0"
-              max="120"
-              step="2"
-              :value="configNumber('outlierStrength', 36)"
-              @input="onRangeInput('outlierStrength', $event)"
-            />
-          </label>
-
-          <label v-if="showOutlierControls" class="control control--toggle">
-            <span class="control__row">
-              <span>{{ t('controls.includeOutlier') }}</span>
-              <strong>{{ Boolean(props.config.includeOutlier) ? copy.outlierOn : copy.outlierOff }}</strong>
-            </span>
-            <button type="button" class="toggle-strip__button is-active" @click="toggleOutlier">
-              {{ Boolean(props.config.includeOutlier) ? t('controls.options.on') : t('controls.options.off') }}
-            </button>
-          </label>
-        </div>
-
-        <div v-if="isPolynomialFamily" class="linear-regression-lab__advanced-controls">
-          <label class="control">
-            <span class="control__row">
-              <span>{{ t('controls.polynomialDegree') }}</span>
-              <strong>{{ configNumber('polynomialDegree', 2) }}</strong>
-            </span>
-            <input
-              class="control__range"
-              type="range"
-              min="1"
-              max="7"
+              max="772"
               step="1"
-              :value="configNumber('polynomialDegree', 2)"
-              @input="onRangeInput('polynomialDegree', $event)"
+              :value="gdTraceStep"
+              :aria-label="copy.gdStep"
+              :disabled="workbenchState.status !== 'ready'"
+              @input="onGdTraceInput"
             />
           </label>
 
-          <label v-if="showValidationControls" class="control">
+          <label v-if="activeChapterState.mode === 'method-comparison'" class="control">
             <span class="control__row">
-              <span>{{ t('controls.validationSplit') }}</span>
-              <strong>{{ round(configNumber('validationSplit', 0.32) * 100, 0) }}%</strong>
+              <span>{{ copy.method }}</span>
+              <strong>{{ copy.methodLabels[methodFocus] }}</strong>
             </span>
-            <input
-              class="control__range"
-              type="range"
-              min="0.18"
-              max="0.48"
-              step="0.01"
-              :value="configNumber('validationSplit', 0.32)"
-              @input="onRangeInput('validationSplit', $event)"
-            />
+            <select
+              v-model="methodFocus"
+              :aria-label="copy.method"
+              :disabled="workbenchState.status !== 'ready'"
+            >
+              <option v-for="method in methodOptions" :key="method" :value="method">
+                {{ copy.methodLabels[method] }}
+              </option>
+            </select>
           </label>
 
-          <label v-if="showRegularizationControls" class="control">
+          <label v-if="activeChapterState.mode === 'coefficient-meaning'" class="control">
             <span class="control__row">
-              <span>{{ t('controls.lambda') }}</span>
-              <strong>{{ round(configNumber('lambda', 0.28), 2) }}</strong>
+              <span>{{ copy.coefficientSpace }}</span>
+              <strong>{{ copy.spaceLabels[coefficientSpace] }}</strong>
             </span>
-            <input
-              class="control__range"
-              type="range"
-              min="0"
-              max="0.8"
-              step="0.01"
-              :value="configNumber('lambda', 0.28)"
-              @input="onRangeInput('lambda', $event)"
-            />
+            <select
+              v-model="coefficientSpace"
+              :aria-label="copy.coefficientSpace"
+              :disabled="workbenchState.status !== 'ready'"
+            >
+              <option v-for="space in coefficientSpaces" :key="space" :value="space">
+                {{ copy.spaceLabels[space] }}
+              </option>
+            </select>
           </label>
 
-          <label v-if="showElasticAlphaControl" class="control">
+          <label
+            v-if="activeChapterState.mode === 'heldout-diagnosis' || activeChapterState.mode === 'combined-review'"
+            class="control"
+            @keydown="handleDiagnosticKeydown"
+          >
             <span class="control__row">
-              <span>{{ t('controls.elasticAlpha') }}</span>
-              <strong>{{ round(configNumber('elasticAlpha', 0.5) * 100, 0) }}%</strong>
+              <span>{{ copy.diagnosticStage }}</span>
+              <strong>{{ copy.stageLabels[diagnosticStage] }}</strong>
             </span>
-            <input
-              class="control__range"
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              :value="configNumber('elasticAlpha', 0.5)"
-              @input="onRangeInput('elasticAlpha', $event)"
-            />
-          </label>
-
-          <div v-if="showRegularizationControls" class="control control--toggle">
-            <span class="control__row">
-              <span>{{ t('controls.regularizationType') }}</span>
-              <strong>{{ copy.regularizationLabels[currentRegularizationType] }}</strong>
-            </span>
-            <div class="regularization-switch">
-              <button
-                v-for="option in regularizationOptions"
-                :key="option"
-                type="button"
-                class="toggle-strip__button"
-                :class="{ 'is-active': currentRegularizationType === option }"
-                @click="setRegularizationType(option)"
+            <select
+              :value="diagnosticStage"
+              :aria-label="copy.diagnosticStage"
+              :disabled="workbenchState.status !== 'ready'"
+              @change="onDiagnosticSelect"
+            >
+              <option
+                v-for="stage in diagnosticStages"
+                :key="stage"
+                :value="stage"
+                :disabled="!optimizationGate && stage !== 'optimization-complete'"
               >
-                {{ copy.regularizationLabels[option] }}
-              </button>
-            </div>
+                {{ copy.stageLabels[stage] }}
+              </option>
+            </select>
+          </label>
+
+          <label v-if="diagnosticStage === 'named-heldout-cases'" class="control">
+            <span class="control__row">
+              <span>{{ copy.heldoutCase }}</span>
+              <strong>{{ copy.caseLabels[selectedHeldoutCase] }}</strong>
+            </span>
+            <select
+              v-model="selectedHeldoutCase"
+              :aria-label="copy.heldoutCase"
+              :disabled="workbenchState.status !== 'ready'"
+            >
+              <option v-for="role in namedCaseRoles" :key="role" :value="role">
+                {{ copy.caseLabels[role] }}
+              </option>
+            </select>
+          </label>
+
+          <div v-if="diagnosticStage === 'coefficient-stability'" class="control control--toggle">
+            <span class="control__row">
+              <span>{{ copy.atemp }}</span>
+              <strong>{{ atempComparison ? copy.atempOn : copy.atempOff }}</strong>
+            </span>
+            <button
+              type="button"
+              class="toggle-strip__button"
+              :class="{ 'is-active': atempComparison }"
+              :aria-pressed="atempComparison"
+              :disabled="workbenchState.status !== 'ready'"
+              @click="atempComparison = !atempComparison"
+            >
+              {{ atempComparison ? copy.atempOn : copy.atempOff }}
+            </button>
           </div>
         </div>
-      </div>
+      </section>
     </template>
 
     <template #metrics>
-      <div class="linear-regression-lab__readout">
+      <section class="linear-regression-lab__readout" aria-live="polite">
+        <p v-if="workbenchState.status === 'loading'" role="status">
+          {{ copy.loading }}
+        </p>
+        <p v-else-if="workbenchState.status === 'invalid'" role="status">
+          {{ workbenchState.reason === 'unknown-chapter' ? copy.unknown : copy.invalid }}
+        </p>
+        <p v-else role="status">{{ copy.ready }}</p>
+
         <article
-          v-for="card in readoutCards"
-          :key="card.id"
-          class="linear-regression-lab__metric"
+          class="linear-regression-lab__selected"
+          data-testid="linear-output-row-batch"
+          aria-live="polite"
         >
-          <span>{{ card.label }}</span>
-          <strong>{{ card.value }}</strong>
+          <div class="linear-regression-lab__heading">
+            <span>
+              {{
+                selectedRowBatchResult?.kind === 'batch'
+                  ? copy.outputBatch
+                  : copy.outputRow
+              }}
+            </span>
+            <strong>{{ workbenchState.status === 'ready' ? copy.lockedRow : copy.fixture }}</strong>
+          </div>
+          <template v-if="selectedRowBatchResult?.kind === 'row'">
+            <p>
+              {{ copy.instant }} {{ selectedRowBatchResult.row.instant }}
+              · {{ copy.timestamp }} {{ selectedRowBatchResult.row.timestamp }}
+              · {{ copy.hour }} {{ selectedRowBatchResult.row.hour }}
+            </p>
+            <p>
+              {{ copy.featureValues }}:
+              {{ selectedRowBatchResult.row.rawFeatures }}
+            </p>
+            <p>
+              {{ copy.prediction }} {{ selectedRowBatchResult.row.prediction }}
+              · {{ copy.actual }} {{ selectedRowBatchResult.row.actual }}
+              · {{ copy.residual }} {{ selectedRowBatchResult.row.residual }}
+              · {{ copy.lossContribution }}
+              {{ selectedRowBatchResult.row.lossContribution }}
+            </p>
+          </template>
+          <template v-else-if="selectedRowBatchResult?.kind === 'batch'">
+            <p>
+              {{ copy.trainRows }} {{ selectedRowBatchResult.trainRows }}
+              × {{ selectedRowBatchResult.featureOrder.length }}
+              · {{ copy.testRows }} {{ selectedRowBatchResult.testRows }}
+            </p>
+            <p>
+              {{ copy.featureOrder }}:
+              {{ selectedRowBatchResult.featureOrder.join(' · ') }}
+            </p>
+            <p>
+              {{ copy.trainMetrics }}:
+              MSE {{ selectedRowBatchResult.trainMetrics.mse }}
+              · MAE {{ selectedRowBatchResult.trainMetrics.mae }}
+              · R² {{ selectedRowBatchResult.trainMetrics.r2 }}
+            </p>
+            <p>
+              {{ copy.testMetrics }}:
+              MSE {{ selectedRowBatchResult.testMetrics.mse }}
+              · MAE {{ selectedRowBatchResult.testMetrics.mae }}
+              · R² {{ selectedRowBatchResult.testMetrics.r2 }}
+            </p>
+          </template>
+          <template v-else>
+            <p>{{ copy.unavailableRows }}</p>
+            <p>
+              {{ copy.instant }} {{ selectedTeachingRow.instant }}
+              · {{ copy.featureValues }} {{ selectedTeachingRow.rawFeatures }}
+            </p>
+            <p>
+              {{ copy.prediction }} {{ selectedTeachingRow.prediction }}
+              · {{ copy.actual }} {{ selectedTeachingRow.actual }}
+              · {{ copy.residual }} {{ selectedTeachingRow.residual }}
+            </p>
+          </template>
         </article>
 
-        <section class="linear-regression-lab__selected">
+        <article
+          v-if="activeChapterState.mode === 'gradient-descent'"
+          class="linear-regression-lab__selected"
+          data-testid="linear-output-gd-trace"
+          aria-live="polite"
+        >
           <div class="linear-regression-lab__heading">
-            <span>{{ selectedSampleLabel }}</span>
-            <strong>{{ copy.predicted }} vs {{ copy.actual }}</strong>
+            <span>{{ copy.outputGd }}</span>
+            <strong>{{ copy.update }} {{ selectedGradientTracePoint?.update ?? gdTraceStep }}</strong>
           </div>
-          <div class="linear-regression-lab__mini-grid">
-            <article v-for="item in selectedSummary" :key="item.label">
-              <span>{{ item.label }}</span>
-              <strong>{{ item.value }}</strong>
-            </article>
+          <p v-if="selectedGradientTracePoint">
+            {{ copy.mse }} {{ selectedGradientTracePoint.mse }}
+            · {{ copy.gradientNorm }} {{ selectedGradientTracePoint.gradientNorm }}
+            · {{ copy.intercept }} {{ selectedGradientTracePoint.intercept }}
+          </p>
+          <p v-if="selectedGradientTracePoint">
+            {{ copy.coefficients }}:
+            {{ selectedGradientTracePoint.weights.join(' · ') }}
+          </p>
+          <p v-else>{{ copy.unavailableRows }}</p>
+        </article>
+
+        <article
+          v-if="activeChapterState.mode === 'method-comparison'"
+          class="linear-regression-lab__selected"
+          data-testid="linear-output-method"
+          aria-live="polite"
+        >
+          <div class="linear-regression-lab__heading">
+            <span>{{ copy.outputMethod }}</span>
+            <strong>{{ selectedMethodResult?.method ?? copy.methodLabels[methodFocus] }}</strong>
           </div>
-        </section>
+          <template v-if="selectedMethodResult">
+            <p>
+              {{ copy.role }}: {{ selectedMethodResult.role }}
+              · {{ copy.intercept }} {{ selectedMethodResult.intercept }}
+            </p>
+            <p>
+              {{ copy.testMetrics }}:
+              MSE {{ selectedMethodResult.testMetrics.mse }}
+              · MAE {{ selectedMethodResult.testMetrics.mae }}
+              · R² {{ selectedMethodResult.testMetrics.r2 }}
+            </p>
+            <p>
+              {{ copy.coefficientDelta }} {{ selectedMethodResult.maxCoefficientDelta }}
+              · {{ copy.predictionDelta }} {{ selectedMethodResult.maxPredictionDelta }}
+              <template v-if="selectedMethodResult.updates !== undefined">
+                · {{ copy.update }} {{ selectedMethodResult.updates }}
+                · {{ copy.gradientNorm }} {{ selectedMethodResult.gradientNorm }}
+              </template>
+            </p>
+            <p>{{ copy.coefficients }}: {{ selectedMethodResult.weights.join(' · ') }}</p>
+          </template>
+          <p v-else>{{ copy.unavailableRows }}</p>
+        </article>
+
+        <article
+          v-if="activeChapterState.mode === 'coefficient-meaning'"
+          class="linear-regression-lab__selected"
+          data-testid="linear-output-coefficient-space"
+          aria-live="polite"
+        >
+          <div class="linear-regression-lab__heading">
+            <span>{{ copy.outputCoefficients }}</span>
+            <strong>{{ copy.spaceLabels[coefficientSpace] }}</strong>
+          </div>
+          <table v-if="selectedCoefficientResult">
+            <thead>
+              <tr>
+                <th>{{ copy.featureValues }}</th>
+                <th>{{ copy.coefficients }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in selectedCoefficientResult.rows" :key="row.feature">
+                <th>{{ row.feature }}</th>
+                <td>{{ row.coefficient }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p v-else>{{ copy.unavailableRows }}</p>
+        </article>
+
+        <article
+          v-if="diagnosticStage === 'named-heldout-cases'"
+          class="linear-regression-lab__selected"
+          data-testid="linear-output-heldout-case"
+          aria-live="polite"
+        >
+          <div class="linear-regression-lab__heading">
+            <span>{{ copy.outputHeldout }}</span>
+            <strong>{{ selectedHeldoutResult?.role ?? copy.caseLabels[selectedHeldoutCase] }}</strong>
+          </div>
+          <template v-if="selectedHeldoutResult">
+            <p>
+              {{ copy.instant }} {{ selectedHeldoutResult.row.instant }}
+              · {{ copy.timestamp }} {{ selectedHeldoutResult.row.timestamp }}
+              · {{ copy.hour }} {{ selectedHeldoutResult.row.hour }}
+            </p>
+            <p>
+              {{ copy.actual }} {{ selectedHeldoutResult.row.actual }}
+              · {{ copy.prediction }} {{ selectedHeldoutResult.row.prediction }}
+              · {{ copy.residual }} {{ selectedHeldoutResult.row.residual }}
+              · {{ copy.role }} {{ selectedHeldoutResult.summaryCase.role }}
+            </p>
+          </template>
+          <p v-else>{{ copy.unavailableRows }}</p>
+        </article>
+
+        <article
+          v-if="diagnosticStage === 'coefficient-stability'"
+          class="linear-regression-lab__selected"
+          data-testid="linear-output-atemp-comparison"
+          aria-live="polite"
+        >
+          <div class="linear-regression-lab__heading">
+            <span>{{ copy.outputAtemp }}</span>
+            <strong>{{ atempComparison ? copy.atempOn : copy.atempOff }}</strong>
+          </div>
+          <template v-if="selectedAtempResult && !atempComparison">
+            <p>{{ copy.baseStability }}</p>
+            <p>
+              {{ copy.tempCoefficient }}
+              {{ selectedAtempResult.withoutAtemp.tempCoefficient }}
+              · {{ copy.testMetrics }} MSE
+              {{ selectedAtempResult.withoutAtemp.testMetrics.mse }}
+            </p>
+          </template>
+          <template v-else-if="selectedAtempResult">
+            <p>{{ copy.addedStability }}</p>
+            <p>
+              {{ copy.correlation }} {{ selectedAtempResult.correlation }}
+              · {{ copy.conditionNumber }} {{ selectedAtempResult.conditionNumber }}
+            </p>
+            <p>
+              {{ copy.tempCoefficient }}
+              {{ publishedField(selectedAtempResult.withAtemp, 'tempCoefficient') }}
+              · {{ copy.atempCoefficient }}
+              {{ publishedField(selectedAtempResult.withAtemp, 'atempCoefficient') }}
+              · {{ copy.testMetrics }} MSE
+              {{ publishedNestedField(selectedAtempResult.withAtemp, 'testMetrics', 'mse') }}
+            </p>
+            <p>
+              OLS {{ copy.perturbation }}
+              {{ publishedField(selectedAtempResult.withAtemp, 'perturbationL2') }}
+              · Ridge {{ copy.perturbation }}
+              {{ publishedField(selectedAtempResult.ridge, 'perturbationL2') }}
+            </p>
+          </template>
+          <p v-else>{{ copy.unavailableRows }}</p>
+        </article>
 
         <details class="linear-regression-lab__details linear-regression-lab__details--teaching">
-          <summary>
-            <span>{{ teachingVisual.label }}</span>
-            <strong>{{ teachingVisual.title }}</strong>
-          </summary>
-
-          <section
-            class="linear-regression-lab__teaching-visual"
-            :class="`linear-regression-lab__teaching-visual--${props.section.id}`"
-          >
-          <div class="linear-regression-lab__heading">
-            <span>{{ teachingVisual.label }}</span>
-            <strong>{{ teachingVisual.title }}</strong>
-          </div>
-
-          <svg
-            viewBox="0 0 360 180"
-            class="linear-regression-lab__teaching-svg"
-            role="img"
-            :aria-label="teachingVisual.title"
-          >
-            <defs>
-              <marker
-                id="linear-visual-arrow"
-                markerWidth="8"
-                markerHeight="8"
-                refX="6"
-                refY="4"
-                orient="auto"
-              >
-                <path d="M1,1 L7,4 L1,7 Z" class="linear-visual-marker" />
-              </marker>
-            </defs>
-
-            <template v-if="props.section.id === 'fit-line'">
-              <line x1="42" x2="318" y1="144" y2="144" class="linear-visual-axis" />
-              <line x1="42" x2="42" y1="30" y2="144" class="linear-visual-axis" />
-              <circle cx="80" cy="120" r="6" class="linear-visual-dot" />
-              <circle cx="132" cy="98" r="6" class="linear-visual-dot" />
-              <circle cx="188" cy="76" r="6" class="linear-visual-dot" />
-              <circle cx="250" cy="52" r="6" class="linear-visual-dot" />
-              <line x1="58" x2="304" y1="132" y2="38" class="linear-visual-fit" />
-              <line x1="254" x2="305" y1="58" y2="38" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
-              <line x1="42" x2="70" y1="132" y2="132" class="linear-visual-intercept" />
-              <text x="268" y="86" class="linear-visual-label">w</text>
-              <text x="74" y="126" class="linear-visual-label">b</text>
-            </template>
-
-            <template v-else-if="props.section.id === 'residual-loss'">
-              <line x1="44" x2="318" y1="142" y2="142" class="linear-visual-axis" />
-              <line x1="44" x2="44" y1="30" y2="142" class="linear-visual-axis" />
-              <line x1="58" x2="306" y1="126" y2="52" class="linear-visual-fit" />
-              <circle cx="192" cy="62" r="7" class="linear-visual-dot is-actual" />
-              <circle cx="192" cy="86" r="5.5" class="linear-visual-dot is-predicted" />
-              <line x1="192" x2="192" y1="62" y2="86" class="linear-visual-residual" />
-              <rect x="232" y="58" width="72" height="46" rx="5" class="linear-visual-loss-box" />
-              <text x="244" y="77" class="linear-visual-label">e</text>
-              <text x="260" y="77" class="linear-visual-label">-></text>
-              <text x="282" y="77" class="linear-visual-label">e²</text>
-              <path d="M198 75 C216 68, 220 68, 232 76" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
-            </template>
-
-            <template v-else-if="props.section.id === 'training-motion'">
-              <line x1="38" x2="158" y1="138" y2="138" class="linear-visual-axis" />
-              <line x1="38" x2="38" y1="42" y2="138" class="linear-visual-axis" />
-              <line x1="46" x2="150" y1="120" y2="84" class="linear-visual-fit is-before" />
-              <line x1="46" x2="150" y1="124" y2="54" class="linear-visual-fit is-after" />
-              <path d="M166 88 C184 78, 190 74, 202 70" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
-              <rect x="210" y="38" width="112" height="104" rx="6" class="linear-visual-plane" />
-              <polyline points="232,118 246,100 260,86 280,70 302,58" class="linear-visual-param-path" />
-              <circle cx="280" cy="70" r="7" class="linear-visual-param-dot" />
-              <text x="220" y="56" class="linear-visual-label">w / b</text>
-            </template>
-
-            <template v-else-if="props.section.id === 'model-limits'">
-              <line x1="40" x2="320" y1="142" y2="142" class="linear-visual-axis" />
-              <line x1="40" x2="40" y1="34" y2="142" class="linear-visual-axis" />
-              <path d="M58 126 C120 116, 164 86, 212 70 C254 56, 284 40, 310 28" class="linear-visual-true-curve" />
-              <line x1="58" x2="310" y1="128" y2="50" class="linear-visual-fit" />
-              <line x1="230" x2="230" y1="64" y2="75" class="linear-visual-residual" />
-              <line x1="272" x2="272" y1="44" y2="62" class="linear-visual-residual" />
-              <line x1="304" x2="304" y1="31" y2="52" class="linear-visual-residual" />
-              <text x="210" y="116" class="linear-visual-label">capacity limit</text>
-            </template>
-
-            <template v-else-if="props.section.id === 'multivariate'">
-              <polygon points="72,126 176,76 296,102 184,150" class="linear-visual-plane-surface" />
-              <line x1="72" x2="176" y1="126" y2="76" class="linear-visual-axis" />
-              <line x1="72" x2="184" y1="126" y2="150" class="linear-visual-axis" />
-              <line x1="72" x2="72" y1="126" y2="44" class="linear-visual-axis" />
-              <line x1="150" x2="150" y1="68" y2="92" class="linear-visual-residual" />
-              <line x1="230" x2="230" y1="82" y2="108" class="linear-visual-residual" />
-              <circle cx="150" cy="68" r="6" class="linear-visual-dot" />
-              <circle cx="230" cy="82" r="6" class="linear-visual-dot" />
-              <circle cx="258" cy="120" r="6" class="linear-visual-dot" />
-              <text x="76" y="40" class="linear-visual-label">price</text>
-              <text x="242" y="150" class="linear-visual-label">area + age</text>
-            </template>
-
-            <template v-else-if="props.section.id === 'polynomial'">
-              <line x1="40" x2="320" y1="142" y2="142" class="linear-visual-axis" />
-              <rect x="62" y="104" width="30" height="38" rx="4" class="linear-visual-feature-bar" />
-              <rect x="104" y="82" width="30" height="60" rx="4" class="linear-visual-feature-bar is-square" />
-              <rect x="146" y="60" width="30" height="82" rx="4" class="linear-visual-feature-bar is-cube" />
-              <path d="M198 124 C222 62, 258 58, 302 96" class="linear-visual-curve" />
-              <path d="M178 92 C190 88, 194 88, 202 86" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
-              <text x="67" y="158" class="linear-visual-label">x</text>
-              <text x="105" y="158" class="linear-visual-label">x²</text>
-              <text x="146" y="158" class="linear-visual-label">x³</text>
-            </template>
-
-            <template v-else-if="props.section.id === 'overfitting'">
-              <line x1="44" x2="318" y1="142" y2="142" class="linear-visual-axis" />
-              <line x1="44" x2="44" y1="34" y2="142" class="linear-visual-axis" />
-              <path d="M58 122 C98 80, 120 144, 158 76 C196 14, 232 142, 300 58" class="linear-visual-overfit-curve" />
-              <polyline points="60,118 116,94 172,76 228,64 296,54" class="linear-visual-train-line" />
-              <polyline points="60,122 116,104 172,86 228,96 296,118" class="linear-visual-validation-line" />
-              <text x="210" y="56" class="linear-visual-label">train</text>
-              <text x="210" y="114" class="linear-visual-label">val</text>
-            </template>
-
-            <template v-else>
-              <line x1="40" x2="320" y1="142" y2="142" class="linear-visual-axis" />
-              <rect x="64" y="54" width="30" height="88" rx="4" class="linear-visual-weight-bar is-large" />
-              <rect x="112" y="84" width="30" height="58" rx="4" class="linear-visual-weight-bar is-medium" />
-              <rect x="160" y="112" width="30" height="30" rx="4" class="linear-visual-weight-bar is-small" />
-              <path d="M210 122 C232 62, 258 66, 302 104" class="linear-visual-overfit-curve is-muted" />
-              <path d="M210 116 C238 88, 270 82, 306 96" class="linear-visual-curve" />
-              <path d="M196 66 C208 66, 210 66, 220 68" class="linear-visual-arrow" marker-end="url(#linear-visual-arrow)" />
-              <text x="72" y="158" class="linear-visual-label">|w|</text>
-              <text x="238" y="140" class="linear-visual-label">smooth</text>
-            </template>
-          </svg>
-
-          <p>{{ teachingVisual.caption }}</p>
+          <summary>{{ copy.teachingSummary }}</summary>
+          <section class="linear-regression-lab__teaching-visual">
+            <span>{{ copy.title }}</span>
+            <svg
+              viewBox="0 0 420 180"
+              class="linear-regression-lab__teaching-svg"
+              role="img"
+              :aria-label="copy.teachingDiagram"
+            >
+              <line x1="34" x2="386" y1="148" y2="148" class="linear-visual-axis" />
+              <line x1="34" x2="34" y1="24" y2="148" class="linear-visual-axis" />
+              <line x1="96" x2="96" y1="118" y2="74" class="linear-visual-residual" />
+              <circle cx="96" cy="118" r="7" class="linear-sample" />
+              <circle cx="96" cy="74" r="5" class="linear-state-dot" />
+              <polyline
+                points="182,126 224,104 268,83 316,62 366,48"
+                class="linear-visual-param-path"
+              />
+            </svg>
+            <p>{{ copy.staticMeaning }}</p>
           </section>
         </details>
-      </div>
+      </section>
     </template>
 
     <template #presets>
       <details class="linear-regression-lab__details linear-regression-lab__details--presets">
-        <summary>
-          <span>{{ copy.presets }}</span>
-          <strong>{{ t('common.presets') }}</strong>
-        </summary>
-        <section class="linear-regression-lab__presets">
-          <div class="linear-regression-lab__heading">
-            <span>{{ copy.presets }}</span>
-            <strong>{{ t('common.presets') }}</strong>
-          </div>
-          <div class="linear-regression-lab__preset-list">
-            <button
-              v-for="preset in props.presets"
-              :key="preset.id"
-              type="button"
-              class="preset-card"
-              :class="{ 'is-linked': preset.id === props.section.presetId }"
-              @click="emit('apply-preset', preset.config)"
-            >
-              <span>{{ preset.id === props.section.presetId ? t('common.tryThis') : t('actions.applyPreset') }}</span>
-              <strong>{{ preset.label[locale as 'zh-CN' | 'en'] }}</strong>
-              <p>{{ preset.description[locale as 'zh-CN' | 'en'] }}</p>
-            </button>
-          </div>
-        </section>
+        <summary>{{ t('common.presets') }}</summary>
+        <div class="linear-regression-lab__preset-list">
+          <button
+            v-for="preset in props.presets"
+            :key="preset.id"
+            type="button"
+            class="preset-card"
+            @click="emit('apply-preset', preset.config)"
+          >
+            <strong>{{ preset.label[locale as 'zh-CN' | 'en'] }}</strong>
+            <p>{{ preset.description[locale as 'zh-CN' | 'en'] }}</p>
+          </button>
+        </div>
       </details>
     </template>
   </LessonWorkbench>

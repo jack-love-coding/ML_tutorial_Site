@@ -186,6 +186,40 @@ test('algorithm progress persists last visited, completion, and quiz attempts', 
   assert.deepEqual(loadAlgorithmProgress(storage).quizAttempts, [])
 })
 
+test('linear regression checkpoint preservation keeps the V1 record and both attempt identities', () => {
+  const linearCheckpoints = algorithmCheckpointsBySlug['linear-regression']
+  const attemptedAt = [
+    '2026-07-01T08:00:00.000Z',
+    '2026-07-01T08:05:00.000Z',
+  ]
+  const attempts = linearCheckpoints.map((checkpoint, index) =>
+    buildAlgorithmQuizAttempt(
+      'linear-regression',
+      checkpoint,
+      checkpoint.answer,
+      attemptedAt[index]!,
+    ))
+  const storage = new MemoryStorage({
+    [algorithmProgressStorageKey]: JSON.stringify({
+      completedModuleSlugs: ['linear-regression'],
+      lastVisitedModuleSlug: 'linear-regression',
+      quizAttempts: attempts,
+      updatedAt: '2026-07-01T08:05:00.000Z',
+    }),
+  })
+  const rawBefore = storage.getItem(algorithmProgressStorageKey)
+  const progress = loadAlgorithmProgress(storage)
+
+  assert.equal(algorithmProgressStorageKey, 'ml-atlas:algorithm-progress:v1')
+  assert.deepEqual(progress.completedModuleSlugs, ['linear-regression'])
+  assert.equal(progress.lastVisitedModuleSlug, 'linear-regression')
+  assert.deepEqual(
+    progress.quizAttempts.map(({ quizId }) => quizId),
+    ['linear-residual-mse', 'linear-regularization-validation'],
+  )
+  assert.equal(storage.getItem(algorithmProgressStorageKey), rawBefore)
+})
+
 test('algorithm modules expose bilingual module-level checkpoints with revisit chapters', () => {
   const expectedSlugs: ModuleSlug[] = [
     'ai-overview',
@@ -239,7 +273,7 @@ test('algorithm modules expose bilingual module-level checkpoints with revisit c
     'llm-rag': new Set(['causal-language-modeling', 'decoding-generation', 'tokenization-context', 'embeddings-similarity', 'chunking-retrieval', 'prompt-assembly', 'rag-evaluation', 'rag-is-not-training']),
     'loss-functions': new Set(['why-loss', 'regression-losses', 'classification-losses', 'likelihood-intuition', 'negative-log', 'mle-bridge', 'gradient-verification']),
     'gradient-descent': new Set(['loss-function', 'landscape', 'gradient-rule', 'learning-rate', 'saddle-local-minima', 'noise-and-batch']),
-    'linear-regression': new Set(['fit-line', 'residual-loss', 'training-motion', 'model-limits', 'multivariate', 'polynomial', 'overfitting', 'regularization']),
+    'linear-regression': new Set(['fit-line', 'multivariate', 'residual-loss', 'training-motion', 'polynomial', 'model-limits', 'overfitting', 'regularization']),
     'logistic-regression': new Set(['linear-score', 'sigmoid-probability', 'threshold-decisions', 'log-loss', 'regularization', 'linear-limits']),
     classification: new Set(['scores', 'thresholds', 'confusionMatrix', 'precisionRecall', 'costTradeoff', 'rocAuc', 'biasCalibration', 'multiclass']),
     mlp: new Set(['linearLimits', 'neuronAffine', 'activations', 'hiddenRepresentation', 'forwardOutput', 'backprop', 'trainingDynamics', 'capacityGeneralization']),

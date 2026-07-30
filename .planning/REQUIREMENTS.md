@@ -15,10 +15,10 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 
 ### Linear Regression
 
-- [ ] **LINR-01**: Learners can connect `ŷ = Xw + b`, residuals, MSE gradients, and coefficient interpretation using consistent notation.
-- [ ] **LINR-02**: Learners can reproduce a locked regression fit using NumPy batch gradient descent.
-- [ ] **LINR-03**: Learners can compare normal-equation, gradient-descent, and scikit-learn coefficients, predictions, and errors on the same split.
-- [ ] **LINR-04**: Learners can use held-out residuals and coefficient stability to identify nonlinearity, heteroscedasticity, or collinearity limitations.
+- [x] **LINR-01**: Learners can connect `ŷ = Xw + b`, residuals, MSE gradients, and coefficient interpretation using consistent notation.
+- [x] **LINR-02**: Learners can reproduce a locked regression fit using NumPy batch gradient descent.
+- [x] **LINR-03**: Learners can compare normal-equation, gradient-descent, and scikit-learn coefficients, predictions, and errors on the same split.
+- [x] **LINR-04**: Learners can use held-out residuals and coefficient stability to identify nonlinearity, heteroscedasticity, or collinearity limitations.
 
 ### Tabular Regression Project
 
@@ -84,10 +84,10 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 | LOSS-01 | Phase 26 | Complete |
 | LOSS-02 | Phase 26 | Complete |
 | LOSS-03 | Phase 26 | Complete |
-| LINR-01 | Phase 27 | Pending |
-| LINR-02 | Phase 27 | Pending |
-| LINR-03 | Phase 27 | Pending |
-| LINR-04 | Phase 27 | Pending |
+| LINR-01 | Phase 27 | Complete |
+| LINR-02 | Phase 27 | Complete |
+| LINR-03 | Phase 27 | Complete |
+| LINR-04 | Phase 27 | Complete |
 | TPRJ-01 | Phase 28 | Pending |
 | TPRJ-02 | Phase 28 | Pending |
 | TPRJ-03 | Phase 28 | Pending |

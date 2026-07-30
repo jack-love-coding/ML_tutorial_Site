@@ -1,6 +1,10 @@
-import type { AlgorithmModuleDefinition, LocalizedCopy } from '../types/ml'
-import { simulateLinearRegression } from '../simulations/linearRegression'
-import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
+import type { AlgorithmModuleDefinition, LocalizedCopy } from '../types/ml.ts'
+import { simulateLinearRegression } from '../simulations/linearRegression.ts'
+import { algorithmCheckpointsBySlug } from './algorithmCheckpoints.ts'
+import {
+  linearRegressionChapterAssets,
+  type LinearRegressionChapterId,
+} from './linearRegressionAssets.ts'
 
 function loc(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
@@ -16,6 +20,8 @@ interface LinearRegressionTeachingFrame {
   experimentDesign: LocalizedCopy
   sourceReference: LocalizedCopy
 }
+
+export const linearRegressionChapterContentBindings = linearRegressionChapterAssets
 
 function withTeachingFrame(base: LocalizedCopy, frame: LinearRegressionTeachingFrame): LocalizedCopy {
   return loc(
@@ -72,468 +78,487 @@ ${frame.sourceReference.en}`,
   )
 }
 
-const linearRegressionTeachingFrames: Record<string, LinearRegressionTeachingFrame> = {
+const linearRegressionTeachingFrames: Record<
+  LinearRegressionChapterId,
+  LinearRegressionTeachingFrame
+> = {
   'fit-line': {
     coreQuestion: loc(
-      '一条回归线到底在表达什么关系，斜率和截距分别负责哪一部分？',
-      'What relationship does one regression line express, and what roles do slope and intercept play?',
+      '怎样用五个已知字段回答“这个小时会租出多少辆车”，同时不偷看目标答案？',
+      'How can five known fields answer “how many bikes will be rented this hour” without leaking the target?',
     ),
     concept: loc(
-      `知识点：线性回归先把“输入变大时输出怎样变”写成一条可解释的趋势线。斜率控制方向和变化速度，截距控制整条线的基线位置。`,
-      `Key idea: linear regression turns "how the output changes as the input grows" into an interpretable trend line. The slope controls direction and rate; the intercept controls the baseline shift.`,
+      '每一行先成为按固定顺序排列的特征向量，再由同一组权重和截距生成预测。目标 cnt 保留“租车次数”这个真实单位。',
+      'Each row first becomes a feature vector in a fixed order, then the same weights and intercept produce a prediction. The cnt target stays in real rental-count units.',
     ),
     workedExample: loc(
-      `若 $w=1.5, b=35$，面积 $50m^2$ 的预测房价是 $1.5\\times50+35=110$ 万；面积 $100m^2$ 的预测是 $185$ 万。面积增加 $50m^2$，预测增加 $75$ 万，正好由斜率 $w$ 决定。`,
-      `If $w=1.5$ and $b=35$, a $50m^2$ home predicts $1.5\\times50+35=110$; a $100m^2$ home predicts $185$. The extra $50m^2$ adds $75$, exactly controlled by the slope $w$.`,
+      '代表训练行 instant=11550 先按 temp、hum、windspeed、workingday、hr 排列。把该行代入 xᵀw+b 得到一项预测；页面数值来自绑定结果，不在正文复制第二份完整精度。',
+      'Representative training row instant=11550 is ordered as temp, hum, windspeed, workingday, hr. Substituting it into xᵀw+b gives one prediction; page values come from the bound result rather than a second full-precision copy in prose.',
     ),
     formula: loc(
-      `$$\\hat{y}=wx+b,\\quad \\Delta\\hat{y}=w\\Delta x$$
-
-$\\hat{y}$ 是预测值，$x$ 是输入特征，$w$ 是单位输入变化带来的预测变化，$b$ 是整体偏移。`,
-      `$$\\hat{y}=wx+b,\\quad \\Delta\\hat{y}=w\\Delta x$$
-
-$\\hat{y}$ is the prediction, $x$ is the input feature, $w$ is the prediction change per input unit, and $b$ is the global offset.`,
+      '$$\\hat y_i=x_i^\\top w+b$$\n\n$x_i$ 是第 i 行五维输入，$w$ 是同序权重，$b$ 是截距，$\\hat y_i$ 是 cnt 预测。',
+      '$$\\hat y_i=x_i^\\top w+b$$\n\n$x_i$ is the five-feature row, $w$ follows the same order, $b$ is the intercept, and $\\hat y_i$ predicts cnt.',
     ),
     commonMistake: loc(
-      `不要把截距 $b$ 当成“0 平方米房子的真实价格”。它主要是让整条线在当前数据范围内能放到合适高度。`,
-      `Do not read the intercept $b$ as the real price of a zero-area home. Its main job is to place the line at the right height over the observed data range.`,
+      'casual 和 registered 不能作为输入：casual + registered = cnt，加入它们等于把答案拆开后交给模型。',
+      'casual and registered cannot be inputs: casual + registered = cnt, so including them hands the target to the model in two pieces.',
     ),
     visualAnimation: loc(
-      `实验卡会用小图把散点、趋势线、斜率箭头和截距抬升分开标出；播放训练时，线会旋转和平移，帮助学生把参数变化看成几何动作。`,
-      `The lab adds a mini diagram for dots, the trend line, the slope arrow, and the intercept lift. During playback, the line rotates and shifts so parameter changes become geometric motion.`,
+      '本章只需要一行字段到点积的静态顺序图；动画不是理解公式的前提。',
+      'This chapter needs only a static row-to-dot-product order diagram; animation is not required to understand the formula.',
     ),
     experimentDesign: loc(
-      `使用“面积主导”预设，先保持无离群点，再逐步播放训练。观察：线的角度是否贴近数据云，截距是否把整体高度调准。`,
-      `Use the baseline preset without outliers, then play training step by step. Watch whether the line angle matches the cloud and whether the intercept places the line at the right height.`,
+      '先预测符号与大致范围，再查看代表行结果，解释每个字段如何进入同一个点积。',
+      'Predict the sign and rough range first, then reveal the representative-row result and explain how each field enters one dot product.',
     ),
     sourceReference: loc(
-      `D2L 线性回归章节；CS357 最小二乘中的线性拟合视角；站内前置【损失函数】。`,
-      `D2L linear regression; the CS357 least-squares view of linear fitting; the site's earlier Loss Functions lesson.`,
-    ),
-  },
-  'residual-loss': {
-    coreQuestion: loc(
-      '直线画出来以后，怎样把每个样本的偏差汇总成一个可优化的数？',
-      'After the line is drawn, how do per-sample deviations become one optimizable number?',
-    ),
-    concept: loc(
-      `知识点：残差保留了“预测偏高还是偏低”的方向，MSE 把残差平方后求平均，得到训练真正要下降的目标。`,
-      `Key idea: residuals keep the direction of the error, while MSE squares and averages residuals into the objective training tries to reduce.`,
-    ),
-    workedExample: loc(
-      `三个样本的残差分别是 $5,-10,15$ 万，则
-
-$$\\text{MSE}=\\frac{5^2+(-10)^2+15^2}{3}=116.7$$
-
-同样的残差绝对值平均为 $10$，这也解释了 MSE 为什么会更强调大误差。`,
-      `If three residuals are $5,-10,15$, then
-
-$$\\text{MSE}=\\frac{5^2+(-10)^2+15^2}{3}=116.7$$
-
-The corresponding mean absolute residual is $10$, which shows why MSE emphasizes large mistakes more strongly.`,
-    ),
-    formula: loc(
-      `$$e_i=\\hat{y}_i-y_i,\\quad \\text{MSE}=\\frac{1}{N}\\sum_{i=1}^{N}e_i^2$$
-
-$e_i$ 是第 $i$ 个样本的残差，$N$ 是样本数。平方会消掉正负号，同时放大大残差。`,
-      `$$e_i=\\hat{y}_i-y_i,\\quad \\text{MSE}=\\frac{1}{N}\\sum_{i=1}^{N}e_i^2$$
-
-$e_i$ is the residual for sample $i$, and $N$ is the sample count. Squaring removes the sign and amplifies large residuals.`,
-    ),
-    commonMistake: loc(
-      `不要只看残差正负来判断模型好坏。训练目标看的是所有残差经过损失规则后的合计。`,
-      `Do not judge fit quality only from residual signs. Training cares about the aggregate after residuals pass through the loss rule.`,
-    ),
-    visualAnimation: loc(
-      `本章小图会让竖直残差线闪烁，并把“残差 -> 平方 -> 平均”的路径画出来；离群点开启后，大残差会更醒目。`,
-      `The mini diagram pulses the vertical residual segment and shows the path from residual to square to average. With the outlier enabled, the large residual becomes visually dominant.`,
-    ),
-    experimentDesign: loc(
-      `打开离群点强度滑杆，比较同一条线下普通样本和离群样本的残差长度，再观察 MSE 是否被少数大误差拉高。`,
-      `Adjust the outlier strength slider, compare ordinary residuals with the outlier residual, and watch whether MSE is pulled upward by a few large errors.`,
-    ),
-    sourceReference: loc(
-      `Google Machine Learning Crash Course 的损失直觉；D2L 线性回归目标函数；站内【损失函数：MSE/MAE】。`,
-      `Google Machine Learning Crash Course loss intuition; D2L's linear-regression objective; the site's MSE/MAE lesson.`,
-    ),
-  },
-  'training-motion': {
-    coreQuestion: loc(
-      '梯度下降怎样同时改变斜率、截距，并让 MSE 逐步下降？',
-      'How does gradient descent change slope and intercept together while reducing MSE?',
-    ),
-    concept: loc(
-      `知识点：训练不是一次性找出完美直线，而是反复计算当前误差对参数的方向建议，再沿负梯度更新参数。`,
-      `Key idea: training does not find the perfect line in one jump. It repeatedly asks how current errors push the parameters, then updates along the negative gradient.`,
-    ),
-    workedExample: loc(
-      `若当前 $w=1.20, b=30$，梯度为 $\\frac{\\partial L}{\\partial w}=-0.8, \\frac{\\partial L}{\\partial b}=0.4$，学习率 $\\eta=0.1$，则
-
-$$w'=1.20-0.1(-0.8)=1.28$$
-$$b'=30-0.1(0.4)=29.96$$
-
-斜率变大，截距略降，这就是一小步参数更新。`,
-      `If $w=1.20$, $b=30$, the gradient is $\\frac{\\partial L}{\\partial w}=-0.8$, $\\frac{\\partial L}{\\partial b}=0.4$, and $\\eta=0.1$, then
-
-$$w'=1.20-0.1(-0.8)=1.28$$
-$$b'=30-0.1(0.4)=29.96$$
-
-The slope increases and the intercept nudges down: one small parameter update.`,
-    ),
-    formula: loc(
-      `$$w_{t+1}=w_t-\\eta\\frac{\\partial \\text{MSE}}{\\partial w},\\quad b_{t+1}=b_t-\\eta\\frac{\\partial \\text{MSE}}{\\partial b}$$
-
-$\\eta$ 是学习率，偏导数告诉当前参数该如何影响损失。`,
-      `$$w_{t+1}=w_t-\\eta\\frac{\\partial \\text{MSE}}{\\partial w},\\quad b_{t+1}=b_t-\\eta\\frac{\\partial \\text{MSE}}{\\partial b}$$
-
-$\\eta$ is the learning rate, and the partial derivatives describe how the current parameters affect the loss.`,
-    ),
-    commonMistake: loc(
-      `不要以为梯度是在直接移动数据点。数据不动，动的是参数；参数一动，预测线才跟着变。`,
-      `Do not think the gradient moves the data points. The data stays fixed; the parameters move, and the prediction line changes because of that.`,
-    ),
-    visualAnimation: loc(
-      `本章会同时展示“数据空间里的直线移动”和“参数空间里的路径移动”，当前参数点会随播放脉冲高亮。`,
-      `This chapter shows both the moving line in data space and the path in parameter space, with the current parameter point pulsing during playback.`,
-    ),
-    experimentDesign: loc(
-      `先播放默认训练，再调大学习率。比较损失下降速度、参数轨迹平滑度，以及直线是否出现明显来回摆动。`,
-      `Play the default training, then increase the learning rate. Compare loss speed, path smoothness, and whether the line starts swinging back and forth.`,
-    ),
-    sourceReference: loc(
-      `D2L 线性回归训练循环；站内【梯度下降：负梯度和学习率】。`,
-      `D2L's linear-regression training loop; the site's Gradient Descent lesson on negative gradients and learning rate.`,
-    ),
-  },
-  'model-limits': {
-    coreQuestion: loc(
-      '什么时候问题不在优化，而在“一条直线”本身表达能力不够？',
-      'When is the issue not optimization, but the limited expressivity of one straight line?',
-    ),
-    concept: loc(
-      `知识点：线性模型的预测形状被模型族限制住。若真实关系弯曲，再多训练轮数也只能在直线族里找折中。`,
-      `Key idea: a linear model is constrained by its model family. If the true relationship bends, more epochs can only find a compromise inside the family of straight lines.`,
-    ),
-    workedExample: loc(
-      `假设高面积样本真实价为 $390$ 万，而直线预测 $360$ 万，残差为 $-30$ 万。若相邻高面积样本都类似偏低，就不是单个噪声点，而是系统性弯曲没有被模型表达出来。`,
-      `Suppose a large home is actually $390$ but the line predicts $360$, giving a residual of $-30$. If neighboring large homes are also underpredicted, this is not one noisy point; it is systematic curvature the model cannot express.`,
-    ),
-    formula: loc(
-      `线性模型满足：
-
-$$\\hat{y}=wx+b,\\quad \\frac{d^2\\hat{y}}{dx^2}=0$$
-
-第二个式子提醒我们：这条线没有弯曲能力。`,
-      `A linear model satisfies:
-
-$$\\hat{y}=wx+b,\\quad \\frac{d^2\\hat{y}}{dx^2}=0$$
-
-The second statement is the warning: this model has no curvature.`,
-    ),
-    commonMistake: loc(
-      `不要把所有高残差都归因于“还没训练够”。先看残差是否有结构性方向，再判断是不是模型能力不足。`,
-      `Do not blame every large residual on insufficient training. First check whether residuals have a systematic pattern, then ask whether model capacity is the bottleneck.`,
-    ),
-    visualAnimation: loc(
-      `小图会把弯曲数据和一条直线叠在一起，并用连续偏离的残差段提示“系统性误差”。`,
-      `The mini diagram overlays curved data with one straight line and uses repeated residual segments to mark systematic error.`,
-    ),
-    experimentDesign: loc(
-      `切换“线性边界”预设，观察高面积端是否持续偏离。若损失趋稳但残差仍有方向，说明应该换特征或模型，而不是只加训练轮数。`,
-      `Switch to the limits preset and inspect whether the high-area end stays biased. If loss stabilizes while residuals keep a direction, change features or model family instead of only adding epochs.`,
-    ),
-    sourceReference: loc(
-      `D2L 模型选择与线性模型限制；CS357 最小二乘拟合残差视角；下一课【逻辑回归】的线性打分桥接。`,
-      `D2L model selection and linear-model limits; the CS357 residual view of least squares; the bridge to the next Logistic Regression lesson.`,
+      '本地 UCI Bike Sharing 快照、数据字典、D2L 线性回归与站内损失函数章节。',
+      'Local UCI Bike Sharing snapshot and dictionary, D2L linear regression, and the site Loss Functions lesson.',
     ),
   },
   multivariate: {
     coreQuestion: loc(
-      '多个特征进入模型后，每个权重怎样解释自己的贡献？',
-      'When multiple features enter the model, how does each weight explain its own contribution?',
+      '一行预测怎样推广为整批矩阵预测，同时保持切分和预处理不泄漏？',
+      'How does one-row prediction become a batch matrix prediction without split or preprocessing leakage?',
     ),
     concept: loc(
-      `知识点：多元线性回归把一条线扩展成高维空间里的平面或超平面。每个权重对应一个特征方向上的倾斜程度。`,
-      `Key idea: multivariate linear regression extends a line into a plane or hyperplane. Each weight controls tilt along one feature direction.`,
+      '先按时间切分，再只用训练集拟合连续特征的均值和尺度；workingday 保持 0/1。每种拟合方法接收同一设计矩阵。',
+      'Split chronologically first, fit continuous-feature means and scales on training data only, and keep workingday as 0/1. Every fitting method receives the same design matrix.',
     ),
     workedExample: loc(
-      `若 $w_{area}=1.4, w_{age}=-2.5, b=60$，面积 $100m^2$、房龄 $10$ 年的预测为：
-
-$$1.4\\times100-2.5\\times10+60=175$$
-
-同样面积下，房龄每增加 1 年，预测少 $2.5$ 万。`,
-      `If $w_{area}=1.4$, $w_{age}=-2.5$, and $b=60$, a $100m^2$ home aged $10$ years predicts:
-
-$$1.4\\times100-2.5\\times10+60=175$$
-
-At the same area, one extra year of age reduces the prediction by $2.5$.`,
+      '17,379 行按原顺序取前 80% 训练、后 20% 留出。代表行与整批都使用 temp、hum、windspeed、workingday、hr 这一唯一顺序。',
+      'The 17,379 rows keep their order: first 80% for training and final 20% held out. Both the representative row and the batch use the single order temp, hum, windspeed, workingday, hr.',
     ),
     formula: loc(
-      `$$\\hat{y}=w_1x_1+w_2x_2+\\cdots+w_dx_d+b$$
-
-$d$ 是特征数量，$w_j$ 表示第 $j$ 个特征在其它特征不变时对预测的线性贡献。`,
-      `$$\\hat{y}=w_1x_1+w_2x_2+\\cdots+w_dx_d+b$$
-
-$d$ is the number of features, and $w_j$ is the linear contribution of feature $j$ when the others are held fixed.`,
+      '$$\\hat y=Xw+b\\mathbf 1$$\n\nX 的每一列与 w 的同一位置一一对应。',
+      '$$\\hat y=Xw+b\\mathbf 1$$\n\nEach column of X corresponds to the same position in w.',
     ),
     commonMistake: loc(
-      `不要直接比较不同量纲下的权重大小。面积、房龄、距离等单位不同，权重大小要结合特征尺度理解。`,
-      `Do not compare raw weights across features with different units. Area, age, and distance have different scales, so weight magnitude needs feature-scale context.`,
+      '不能先对全体数据 fit scaler 再切分；那会让留出期的统计量参与训练规则。',
+      'Do not fit the scaler on all data before splitting; that lets held-out-period statistics shape the training rule.',
     ),
     visualAnimation: loc(
-      `3D 视图会显示点云、回归平面和每个点到平面的残差段；播放时平面会同时旋转、升降。`,
-      `The 3D view shows the point cloud, regression plane, and residual segments to the plane. During playback, the plane rotates and shifts together.`,
+      '矩阵示意图用文字和列标签固定顺序，颜色仅作为辅助，不承担唯一含义。',
+      'The matrix diagram locks order with text and column labels; color is supporting information, not the only signal.',
     ),
     experimentDesign: loc(
-      `使用“面积 + 房龄平面”预设，观察面积权重通常把平面抬高，房龄权重通常把平面压低。`,
-      `Use the area-plus-age preset and watch the area weight usually lift the plane while the age weight usually pulls it down.`,
+      '尝试调换两列并解释为什么宽度仍正确却语义已经错误，再重置到固定顺序。',
+      'Imagine swapping two columns and explain why the width still looks valid while the semantics are wrong, then reset to the fixed order.',
     ),
     sourceReference: loc(
-      `D2L 多特征线性回归；CS357 设计矩阵和最小二乘。`,
-      `D2L multifeature linear regression; CS357 design matrices and least squares.`,
+      '本地固定时间切分、scikit-learn StandardScaler 训练集拟合约定与 CS357 设计矩阵。',
+      'Local locked chronological split, scikit-learn train-only StandardScaler convention, and CS357 design matrices.',
+    ),
+  },
+  'residual-loss': {
+    coreQuestion: loc(
+      '一个样本的预测偏差怎样汇总成整批 MSE 和参数梯度？',
+      'How does one sample’s prediction miss aggregate into batch MSE and parameter gradients?',
+    ),
+    concept: loc(
+      '统一使用 residual = prediction - actual。单行先给出损失与梯度贡献，整批再取平均。',
+      'Use residual = prediction - actual everywhere. Derive one-row loss and gradient contributions first, then average over the batch.',
+    ),
+    workedExample: loc(
+      '若一行残差 r_i 为正，预测偏高；它对 MSE 的贡献是 r_i²，对权重未平均的贡献是 2r_i x_i，对截距是 2r_i。',
+      'If one residual r_i is positive, the prediction is high. It contributes r_i² to MSE, 2r_i x_i to the unaveraged weight gradient, and 2r_i to the intercept gradient.',
+    ),
+    formula: loc(
+      '$$r=\\hat y-y,\\quad \\mathrm{MSE}=r^\\top r/n,\\quad \\nabla_w=2X^\\top r/n,\\quad \\partial_b=2\\mathbf1^\\top r/n$$',
+      '$$r=\\hat y-y,\\quad \\mathrm{MSE}=r^\\top r/n,\\quad \\nabla_w=2X^\\top r/n,\\quad \\partial_b=2\\mathbf1^\\top r/n$$',
+    ),
+    commonMistake: loc(
+      '不要在某一章把残差改写成 actual - prediction；符号翻转会同时翻转梯度。',
+      'Do not silently switch residuals to actual - prediction in another chapter; that flips the gradient too.',
+    ),
+    visualAnimation: loc(
+      '残差段同时带“预测偏高/偏低”文字与正负号，避免只靠颜色判断。',
+      'Residual segments carry high/low text and signs so meaning never depends on color alone.',
+    ),
+    experimentDesign: loc(
+      '先判断代表行残差正负，再展开 r_i²、2r_i x_i 与整批平均的关系。',
+      'Predict the representative residual sign, then expand the connection among r_i², 2r_i x_i, and the batch average.',
+    ),
+    sourceReference: loc(
+      '站内损失函数章节、Phase 27 纯数学测试和 scikit-learn 回归指标。',
+      'The site Loss Functions lesson, Phase 27 pure-math tests, and scikit-learn regression metrics.',
+    ),
+  },
+  'training-motion': {
+    coreQuestion: loc(
+      'NumPy 批量梯度下降怎样从零初始化走到稳定解，并知道何时停止？',
+      'How does NumPy batch gradient descent move from zero initialization to a stable fit and know when to stop?',
+    ),
+    concept: loc(
+      '每次更新都使用整批 X 与 y；轨迹同时记录 MSE、梯度范数和有限性。停止条件属于算法定义，不靠“看起来平了”。',
+      'Every update uses the full X and y batch. The trace records MSE, gradient norm, and finiteness; stopping is an algorithm contract, not a visual guess.',
+    ),
+    workedExample: loc(
+      '一次更新先计算 predictions、residuals、grad_w 和 grad_b，再按 learning_rate 同时更新 w 与 b。参考输出绑定保存完整轨迹。',
+      'One update computes predictions, residuals, grad_w, and grad_b before learning_rate updates w and b together. The bound reference output stores the complete trace.',
+    ),
+    formula: loc(
+      '$$w_{t+1}=w_t-\\eta\\nabla_w,\\qquad b_{t+1}=b_t-\\eta\\partial_b$$',
+      '$$w_{t+1}=w_t-\\eta\\nabla_w,\\qquad b_{t+1}=b_t-\\eta\\partial_b$$',
+    ),
+    commonMistake: loc(
+      '三种方法系数接近只能说明实现与优化完成度一致，不能证明线性模型足够表达 Bike 需求。',
+      'Three methods agreeing shows implementation and optimization agreement, not that a linear model adequately represents Bike demand.',
+    ),
+    visualAnimation: loc(
+      '轨迹图用更新编号、MSE 与 gradient_norm 数字标签承载信息；reduced motion 下仍可逐行阅读。',
+      'The trace carries update number, MSE, and gradient_norm as text; reduced-motion mode remains fully readable row by row.',
+    ),
+    experimentDesign: loc(
+      '先预测加大学习率会更快还是震荡，再运行浏览器中的有界回放并与固定完整轨迹区分。',
+      'Predict whether a larger learning rate will move faster or oscillate, then run the bounded browser replay while keeping it distinct from the locked full trace.',
+    ),
+    sourceReference: loc(
+      'NumPy 向量运算、站内梯度下降章节与锁定 Notebook 轨迹。',
+      'NumPy vector operations, the site Gradient Descent lesson, and the locked Notebook trace.',
     ),
   },
   polynomial: {
     coreQuestion: loc(
-      '为什么多项式回归能画曲线，却仍然属于“线性参数”模型？',
-      'Why can polynomial regression draw curves while still being linear in its parameters?',
+      '同一切分、同一设计矩阵下，梯度下降、正规方程参考和 sklearn 是否得到同一个 OLS 解？',
+      'On the same split and design matrix, do gradient descent, the normal-equation reference, and sklearn reach the same OLS solution?',
     ),
     concept: loc(
-      `知识点：我们没有把权重变成非线性，而是把输入扩展成 $x,x^2,x^3$ 等新特征。模型对这些新特征仍然做线性加权。`,
-      `Key idea: we do not make the weights nonlinear. We expand the input into features like $x,x^2,x^3$, then linearly weight those features.`,
+      '正规方程描述非迭代参考关系；可执行代码用 lstsq 直接解最小二乘，不显式形成可能不稳定的逆矩阵。',
+      'The normal equation states a non-iterative reference relation; executable code uses lstsq to solve least squares directly instead of forming a potentially unstable inverse.',
     ),
     workedExample: loc(
-      `令 $\\hat{y}=3x-0.5x^2+4$。当 $x=2$ 时：
-
-$$\\hat{y}=3\\times2-0.5\\times4+4=8$$
-
-虽然图像会弯，但参数 $3,-0.5,4$ 仍然只是一组线性相加的系数。`,
-      `Let $\\hat{y}=3x-0.5x^2+4$. At $x=2$:
-
-$$\\hat{y}=3\\times2-0.5\\times4+4=8$$
-
-The graph bends, but the parameters $3,-0.5,4$ are still linearly added coefficients.`,
+      '先给 X 增加一列 1 得到 X_tilde。解出的 theta[0] 是 b，theta[1:] 是 w；随后在完全相同数据上比较三种 OLS 方法。',
+      'Add a column of ones to X to form X_tilde. The solution maps theta[0] to b and theta[1:] to w, then all three OLS methods are compared on identical data.',
     ),
     formula: loc(
-      `$$\\phi(x)=[x,x^2,x^3],\\quad \\hat{y}=\\mathbf{w}^{\\top}\\phi(x)+b$$
-
-$\\phi(x)$ 是特征扩展；只要模型对 $\\mathbf{w}$ 仍然线性，就仍可使用线性模型训练直觉。`,
-      `$$\\phi(x)=[x,x^2,x^3],\\quad \\hat{y}=\\mathbf{w}^{\\top}\\phi(x)+b$$
-
-$\\phi(x)$ is the feature expansion. As long as the model remains linear in $\\mathbf{w}$, the linear-model training intuition still applies.`,
+      'X_tilde = [1, X]\n\ntheta = (X_tilde^T X_tilde)^+ X_tilde^T y\n\ntheta[0] = b，theta[1:] = w',
+      'X_tilde = [1, X]\n\ntheta = (X_tilde^T X_tilde)^+ X_tilde^T y\n\ntheta[0] = b and theta[1:] = w',
     ),
     commonMistake: loc(
-      `不要把“曲线图像”直接等同于“非线性参数模型”。多项式回归的非线性来自特征，不来自参数相乘。`,
-      `Do not equate a curved graph with a nonlinear-parameter model. Polynomial regression gets curvature from features, not from multiplying parameters together.`,
+      '不要把公式中的伪逆写成运行时显式求逆；np.linalg.lstsq 更稳定，还能报告 rank 与 singular_values。',
+      'Do not turn the pseudoinverse notation into an explicit runtime inverse; np.linalg.lstsq is more stable and also reports rank and singular_values.',
     ),
     visualAnimation: loc(
-      `小图会展示 $x,x^2,x^3$ 三个特征柱如何合成曲线；阶数升高时，曲线会变得更灵活。`,
-      `The mini diagram shows $x,x^2,x^3$ feature bars combining into a curve. As degree increases, the curve becomes more flexible.`,
+      '三方法对照以方法名、最大参数差和指标差呈现；形状与文字同时区分，不只使用颜色。',
+      'The three-method comparison shows method names, maximum parameter deltas, and metric deltas; shapes and text supplement color.',
     ),
     experimentDesign: loc(
-      `把阶数从 1 调到 2、3、5，观察残差下降的同时，曲线是否开始追逐局部波动。`,
-      `Move the degree from 1 to 2, 3, and 5. Watch residuals fall, then check whether the curve starts chasing local wiggles.`,
+      '先判断三种 OLS 方法应不应该一致，再把同一 Bike 案例的 hr 多项式扩展作为简短容量观察。',
+      'First decide whether the three OLS methods should agree, then use an hr polynomial extension of the same Bike case as a concise capacity observation.',
     ),
     sourceReference: loc(
-      `D2L 多项式回归与欠拟合/过拟合；CS357 线性最小二乘中的特征列视角。`,
-      `D2L polynomial regression and underfit/overfit; the CS357 view of feature columns in linear least squares.`,
+      'NumPy lstsq、scikit-learn LinearRegression、CS357 最小二乘与锁定双语 Notebook。',
+      'NumPy lstsq, scikit-learn LinearRegression, CS357 least squares, and the locked bilingual Notebooks.',
+    ),
+  },
+  'model-limits': {
+    coreQuestion: loc(
+      '标准化空间里的系数怎样翻译回原始单位，又怎样避免把关联说成因果？',
+      'How do standardized-space coefficients translate back to original units without turning association into causation?',
+    ),
+    concept: loc(
+      '模型空间系数适合比较同一预处理后的参数；原始单位系数回答输入增加一个原始单位时预测怎样变化。',
+      'Model-space coefficients describe the fitted transformed design; original-unit coefficients describe prediction change per original input unit.',
+    ),
+    workedExample: loc(
+      '连续特征满足 x_scaled=(x-mean)/scale，因此 w_original=w_model/scale；截距还要扣除各列均值带来的平移。',
+      'For continuous features x_scaled=(x-mean)/scale, so w_original=w_model/scale; the intercept also subtracts the shifts introduced by feature means.',
+    ),
+    formula: loc(
+      '$$w_j^{raw}=w_j^{model}/s_j,\\qquad b^{raw}=b^{model}-\\sum_j w_j^{model}\\mu_j/s_j$$',
+      '$$w_j^{raw}=w_j^{model}/s_j,\\qquad b^{raw}=b^{model}-\\sum_j w_j^{model}\\mu_j/s_j$$',
+    ),
+    commonMistake: loc(
+      '“保持其它已建模特征不变”是条件解释，不是温度或湿度造成租车变化的因果结论。',
+      '“Holding other modeled features fixed” is a conditional interpretation, not a causal claim that temperature or humidity produces the demand change.',
+    ),
+    visualAnimation: loc(
+      '系数表明确分成 model space 与 original units 两栏，并保留特征名和单位。',
+      'The coefficient table separates model space from original units and retains feature names and units.',
+    ),
+    experimentDesign: loc(
+      '选择一个系数，先给出条件解释，再指出季节、天气类别和小时周期等遗漏因素。',
+      'Choose one coefficient, give a conditional interpretation, then name omitted factors such as season, weather category, and cyclical hour structure.',
+    ),
+    sourceReference: loc(
+      '固定 StandardScaler 参数、锁定系数表与 scikit-learn coef_/intercept_。',
+      'Locked StandardScaler parameters, coefficient table, and scikit-learn coef_/intercept_.',
     ),
   },
   overfitting: {
     coreQuestion: loc(
-      '在真实 California Housing 数据上，为什么训练误差继续下降，验证误差却可能变差？',
-      'On real California Housing data, why can training error keep falling while validation error gets worse?',
+      '优化已经完成后，留出残差还暴露了哪些模型限制？',
+      'After optimization is complete, which model limitations remain visible in held-out residuals?',
     ),
     concept: loc(
-      `知识点：过拟合发生在模型容量超过稳定规律所需时。这里用 California Housing 的 MedInc → MedHouseVal 子集做诊断：模型如果为了少数训练街区剧烈弯折，验证街区上的误差就会抬头。`,
-      `Key idea: overfitting happens when model capacity exceeds what the stable pattern needs. Here the California Housing MedInc → MedHouseVal subset shows it directly: if the model bends hard for a few training block groups, validation error rises.`,
+      '先看 loss、梯度范数和三方法一致性确认拟合完成，再看小时曲线、需求增大时的残差扩散和真实失败记录。',
+      'First use loss, gradient norm, and three-method agreement to confirm fitting is complete; then inspect hourly shape, widening spread at higher demand, and real failure records.',
     ),
     workedExample: loc(
-      `比较三组结果：
-
-| 模型 | 训练 MSE | 验证 MSE |
-|---|---:|---:|
-| degree 1 欠拟合 | 高 | 高 |
-| degree 3 泛化较好 | 中 | 低 |
-| degree 7 过拟合 | 低 | 高 |
-
-真实数据里不只看训练误差。degree 7 可能训练更好，但验证误差明显更差。`,
-      `Compare three outcomes:
-
-| Model | Train MSE | Validation MSE |
-|---|---:|---:|
-| Degree 1 underfit | high | high |
-| Degree 3 better generalization | medium | low |
-| Degree 7 overfit | low | high |
-
-On real data, do not read training error alone. Degree 7 can fit training better but generalize much worse.`,
+      'instant=17213 是负预测；15628 与 14965 分别是早晚高峰低估；15604 是排除前三例后的大残差。负预测不裁剪，因为裁剪会改变指标。',
+      'instant=17213 is the negative prediction; 15628 and 14965 are morning and evening peak underpredictions; 15604 is the large residual after excluding those cases. The negative prediction is not clipped because clipping would change metrics.',
     ),
     formula: loc(
-      `泛化判断至少要同时看：
-
-$$\\text{Train MSE}=\\frac{1}{N_{train}}\\sum e_i^2,\\quad \\text{Val MSE}=\\frac{1}{N_{val}}\\sum e_i^2$$
-
-两者分叉时，训练集读数就不能单独作为成功证据。`,
-      `Generalization requires reading both:
-
-$$\\text{Train MSE}=\\frac{1}{N_{train}}\\sum e_i^2,\\quad \\text{Val MSE}=\\frac{1}{N_{val}}\\sum e_i^2$$
-
-When they split, the training metric alone is not evidence of success.`,
+      '$$\\mathrm{MSE}=\\frac1n\\sum r_i^2,\\quad \\mathrm{MAE}=\\frac1n\\sum |r_i|,\\quad R^2=1-\\frac{\\sum r_i^2}{\\sum(y_i-\\bar y)^2}$$',
+      '$$\\mathrm{MSE}=\\frac1n\\sum r_i^2,\\quad \\mathrm{MAE}=\\frac1n\\sum |r_i|,\\quad R^2=1-\\frac{\\sum r_i^2}{\\sum(y_i-\\bar y)^2}$$',
     ),
     commonMistake: loc(
-      `不要把“训练误差最低”当成“模型最好”。欠拟合常来自模型太简单、特征不足或训练不够；过拟合常来自容量过高、数据太少、噪声较大或训练太久。`,
-      `Do not treat "lowest training error" as "best model." Underfitting often comes from too little capacity, weak features, or insufficient training; overfitting often comes from too much capacity, too little data, noise, or training too long.`,
+      '三方法一致不等于残差随机；持续的小时形状与高需求扩散属于模型空间限制，不是“再训练几轮”能修复。',
+      'Method agreement does not make residuals random; persistent hourly shape and high-demand spread are model-space limits, not something a few more epochs will fix.',
     ),
     visualAnimation: loc(
-      `实验卡会同时画训练/验证点、训练/验证误差曲线和三联诊断；视频会把 degree 1、3、7 放在同一批真实点上比较。`,
-      `The lab draws train and validation points, error curves, and a three-panel diagnostic. The video compares degrees 1, 3, and 7 on the same real points.`,
+      '诊断图同时提供小时标签、需求分箱、误差方向和表格说明，关键结论不只存在于动画里。',
+      'Diagnostic views include hour labels, demand bins, error direction, and table explanations; key conclusions never exist only in motion.',
     ),
     experimentDesign: loc(
-      `使用“高阶过拟合”预设，先播放到后半段，再把阶数从 7 降到 3。重点看验证 MSE、权重范数和曲线弯折是否一起下降。`,
-      `Use the high-degree overfit preset, play into the later epochs, then lower degree from 7 to 3. Watch validation MSE, weight norm, and curve roughness move together.`,
+      '先选“优化没完成”或“模型限制”，再展开四个已解析案例；最后只做一次简短 raw cnt 与 log1p(cnt) 对照。',
+      'Choose “unfinished optimization” or “model limitation” before expanding the four resolved cases; finish with one concise raw-cnt versus log1p(cnt) comparison.',
     ),
     sourceReference: loc(
-      `scikit-learn California Housing 与 underfitting/overfitting 示例；Google MLCC 泛化、验证集诊断和 L2 regularization。`,
-      `scikit-learn California Housing and underfitting/overfitting examples; Google MLCC generalization, validation diagnostics, and L2 regularization.`,
+      '锁定留出残差、NIST 残差诊断思路与本地完整残差下载。',
+      'Locked held-out residuals, NIST residual-diagnostic guidance, and the local complete-residual download.',
     ),
   },
   regularization: {
     coreQuestion: loc(
-      '正则化怎样在“拟合训练数据”和“保持模型克制”之间做取舍？',
-      'How does regularization trade off fitting the training data against keeping the model restrained?',
+      '只加入 atemp 后为什么 temp 系数会不稳定，Ridge 与 Lasso 又改变了什么目标？',
+      'Why can adding only atemp destabilize the temp coefficient, and how do Ridge and Lasso change the objective?',
     ),
     concept: loc(
-      `知识点：正则化把参数大小也写进目标函数。接在 California Housing 的过拟合诊断之后，它回答的是：如果我们想保留高阶特征，又不想让权重失控，该怎样给复杂度加成本？`,
-      `Key idea: regularization puts parameter size into the objective. After the California Housing overfitting diagnosis, it asks: if we want to keep high-degree features without letting weights explode, how do we add a cost to complexity?`,
+      '保持行、切分、目标和预处理不变，只添加 atemp。高度相关输入可以让单个 OLS 系数大幅移动，即使预测和误差变化较小。',
+      'Keep rows, split, target, and preprocessing fixed and add only atemp. Correlated inputs can move individual OLS coefficients substantially even when predictions and errors move little.',
     ),
     workedExample: loc(
-      `若当前 MSE 为 $24$，使用 L2 正则，$\\lambda=0.5$，权重为 $[3,1]$：
-
-$$\\text{loss}=24+0.5(3^2+1^2)=29$$
-
-较大的权重会让总损失上升，训练就会倾向于把权重压小。`,
-      `If MSE is $24$, L2 regularization uses $\\lambda=0.5$, and weights are $[3,1]$:
-
-$$\\text{loss}=24+0.5(3^2+1^2)=29$$
-
-Large weights raise the total loss, so training is encouraged to shrink them.`,
+      '先对比 base OLS 与 add-only-atemp OLS 的 temp/atemp 系数，再查看 Ridge 的整体收缩和 Lasso 的稀疏偏好。',
+      'First compare temp/atemp coefficients for base OLS and add-only-atemp OLS, then inspect Ridge’s smooth shrinkage and Lasso’s sparse preference.',
     ),
     formula: loc(
-      `$$L_{ridge}=\\text{MSE}+\\lambda\\sum_j w_j^2,\quad L_{lasso}=\\text{MSE}+\\lambda\\sum_j |w_j|$$
-
-L2 倾向于整体缩小权重；L1 更容易把部分权重推到 0。`,
-      `$$L_{ridge}=\\text{MSE}+\\lambda\\sum_j w_j^2,\quad L_{lasso}=\\text{MSE}+\\lambda\\sum_j |w_j|$$
-
-L2 tends to shrink weights overall; L1 more readily pushes some weights to zero.`,
+      '$$J_{OLS}=\\mathrm{MSE},\\quad J_{Ridge}=\\mathrm{MSE}+\\alpha\\lVert w\\rVert_2^2,\\quad J_{Lasso}=\\mathrm{MSE}+\\alpha\\lVert w\\rVert_1$$',
+      '$$J_{OLS}=\\mathrm{MSE},\\quad J_{Ridge}=\\mathrm{MSE}+\\alpha\\lVert w\\rVert_2^2,\\quad J_{Lasso}=\\mathrm{MSE}+\\alpha\\lVert w\\rVert_1$$',
     ),
     commonMistake: loc(
-      `不要期待正则化一定降低训练误差。它优化的是“训练损失 + 参数惩罚”的总目标，而不是单独追求训练 MSE 最小。`,
-      `Do not expect regularization to always lower training error. It optimizes the combined objective, not training MSE alone.`,
+      'Ridge、Lasso 与 OLS 的目标函数不同，因此系数不应被要求与 OLS 完全一致；这不是三方法 OLS 对照失败。',
+      'Ridge, Lasso, and OLS have different objective functions, so their coefficients are not expected to match OLS exactly; this is not a failure of the three-method OLS comparison.',
     ),
     visualAnimation: loc(
-      `小图会把大权重柱逐步压短，并用曲线从抖动到平滑的变化说明正则化如何限制模型自由度。`,
-      `The mini diagram shrinks large weight bars and shows a wavy curve becoming smoother to explain how regularization limits freedom.`,
+      '综合复盘面板把收敛、方法一致性、残差形状和系数稳定性放在同一页，但保留此前分阶段讲解。',
+      'The combined review panel places convergence, method agreement, residual shape, and coefficient stability together without replacing the earlier staged explanation.',
     ),
     experimentDesign: loc(
-      `在同一批 California Housing 点上切换 none、L1、L2，并逐步增大 $\\lambda$。重点比较权重范数、有效权重数量、曲线弯折和验证 MSE。`,
-      `On the same California Housing points, switch between none, L1, and L2 while increasing $\\lambda$. Compare weight norm, active weight count, curve roughness, and validation MSE.`,
+      '先预测加 atemp 后哪个系数会移动，再比较 Ridge/Lasso；最后写出线性边界并进入 Phase 28 表格回归项目。',
+      'Predict which coefficient will move after atemp is added, then compare Ridge/Lasso; finish by stating the linear boundary and continue to the Phase 28 tabular-regression project.',
     ),
     sourceReference: loc(
-      `D2L 权重衰减和正则化；CS357 最小二乘稳定性与病态问题；站内【梯度下降】学习率与参数路径。`,
-      `D2L weight decay and regularization; CS357 least-squares stability and ill-conditioning; the site's Gradient Descent lesson on learning rate and parameter paths.`,
+      '锁定 atemp 诊断、scikit-learn Ridge/Lasso 与 Phase 28 项目交接。',
+      'Locked atemp diagnostic, scikit-learn Ridge/Lasso, and the Phase 28 project handoff.',
     ),
   },
 }
 
 export const linearRegressionModule: AlgorithmModuleDefinition = {
   slug: 'linear-regression',
-  route: '/learn/linear-regression',
   titleKey: 'modules.linearRegression.title',
   kickerKey: 'modules.linearRegression.kicker',
   introKey: 'modules.linearRegression.intro',
   summaryKey: 'modules.linearRegression.summary',
-  theme: '#edf7f2',
-  accent: '#db6c3a',
+  route: '/learn/linear-regression',
+  theme: '#2f6feb',
+  accent: '#14b8a6',
   checkpoints: algorithmCheckpointsBySlug['linear-regression'],
+  sourceNote: loc(
+    '课程使用本地 UCI Bike Sharing hourly 快照、固定时间切分与已执行双语 Notebook；页面只绑定注册表中的结果和下载。',
+    'This course uses the local UCI Bike Sharing hourly snapshot, locked chronological split, and executed bilingual Notebooks; the page binds only registered results and downloads.',
+  ),
   chapters: [
     {
       id: 'fit-line',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.linearRegression.sections.fitLine.title',
+      estimatedMinutes: 9,
       markdown: loc(
-        `在线性回归里，我们先不急着谈训练算法，而是先问一个更朴素的问题：如果横轴是房屋面积，纵轴是房价，一条直线到底在表达什么？
+        `从一个真实问题开始：已知某小时的 temp、hum、windspeed、workingday、hr，预测原始租车次数 cnt。主线不切换数据集，也不把目标做缩放。
 
-$$\\hat{y}=wx+b$$
+casual 和 registered 明确排除，因为 casual + registered = cnt；把它们放进 X 会发生目标泄漏。
 
-- $x$ 是面积
-- $w$ 是斜率，表示面积每增加 1 平方米，预测价格大约增加多少
-- $b$ 是截距，表示整条线被整体抬高或压低了多少
+代表训练行是 instant=11550。单行预测写成 $\\hat y_i=x_i^\\top w+b$，其中 x、w、b 与代码变量同名。
 
-散点是一个个真实样本，直线是模型对“总体趋势”的概括。  
-本章最重要的直觉是：回归线不是装饰物，而是模型对面积和价格关系的正式表达。`,
-        `In linear regression, do not start with the optimizer. Start with the simpler question: if area is on the x-axis and price is on the y-axis, what is a line actually saying?
+### 运行结果
+参考输出绑定：\`representative-training-row\`。页面从 \`linearRegressionChapterAssets\` 读取该行，不复制另一张完整精度表。
 
-$$\\hat{y}=wx+b$$
+### sklearn 对照
+\`\`\`python
+model = LinearRegression().fit(X_train, y_train)
+prediction = model.predict(X_train[row_index:row_index + 1])
+\`\`\`
 
-- $x$ is the area
-- $w$ is the slope, telling us how much price changes per extra square meter
-- $b$ is the intercept, shifting the whole line up or down
+sklearn 的 predict 与 NumPy 的点积回答同一个问题。
 
-The dots are real houses. The line is the model’s summary of the overall trend.  
-The key intuition in this chapter is that the regression line is the model’s formal statement about the relationship itself.`,
+### 解释
+预测保留“辆次/小时”的单位；权重项是条件贡献，截距是共同基线。
+
+### 下一步
+下一章 \`multivariate\` 把一行点积推广为整批 X @ w + b。`,
+        `Start with one real question: given temp, hum, windspeed, workingday, and hr for an hour, predict raw rental count cnt. The main path never switches datasets or scales the target.
+
+casual and registered are excluded because casual + registered = cnt; putting them in X leaks the target.
+
+The representative training row is instant=11550. Its prediction is $\\hat y_i=x_i^\\top w+b$, using the same x, w, and b names as code.
+
+### Run Result
+Reference Output binding: \`representative-training-row\`. The page reads this row through \`linearRegressionChapterAssets\` instead of copying another full-precision table.
+
+### sklearn Comparison
+\`\`\`python
+model = LinearRegression().fit(X_train, y_train)
+prediction = model.predict(X_train[row_index:row_index + 1])
+\`\`\`
+
+sklearn predict and the NumPy dot product answer the same question.
+
+### Interpretation
+The prediction remains in rentals per hour. Weight terms are conditional contributions; the intercept is the shared baseline.
+
+### Next Step
+Chapter \`multivariate\` generalizes one row to batch X @ w + b.`,
       ),
       callout: loc(
-        '先盯住散点和直线的相对位置，不急着看损失公式。',
-        'Start with the relative position of the dots and the line before focusing on loss.',
+        '先守住字段语义：ID 用于追踪，五个特征进入模型，cnt 是目标，casual/registered 是泄漏列。',
+        'Protect field semantics first: the ID tracks a row, five features enter the model, cnt is the target, and casual/registered leak it.',
       ),
       experimentPrompt: loc(
-        '先用“面积主导”预设，观察每个点离回归线有多远，再想一想斜率和截距分别在控制什么。',
-        'Use the baseline preset first and ask what the slope and intercept are each controlling.',
+        '查看结果前，先写下 instant=11550 的预测应高于还是低于真实 cnt，并说明理由。',
+        'Before revealing the result, predict whether instant=11550 is above or below actual cnt and explain why.',
       ),
       presetId: 'baseline-fit',
+      metricEmphasis: ['loss'],
+    },
+    {
+      id: 'multivariate',
+      eyebrowKey: 'common.chapter',
+      titleKey: 'modules.linearRegression.sections.multivariate.title',
+      estimatedMinutes: 10,
+      markdown: loc(
+        `固定特征顺序只有一个：temp、hum、windspeed、workingday、hr。17,379 行保持时间顺序，前 80% 是训练集，后 20% 是 held-out test。
+
+连续列只在训练集上 fit StandardScaler；留出集只能 transform。workingday 保持二元 0/1，不参与标准化。代码中的批量形式就是 X @ w + b。
+
+$$\\hat y=Xw+b\\mathbf1$$
+
+### 运行结果
+参考输出绑定：\`batch-contract\`，记录切分、特征顺序和训练集统计量。
+
+### sklearn 对照
+\`\`\`python
+continuous = ["temp", "hum", "windspeed", "hr"]
+feature_order = ["temp", "hum", "windspeed", "workingday", "hr"]
+scaler = StandardScaler().fit(train[continuous])  # train-only
+X_train = assemble(scaler.transform(train[continuous]), train["workingday"])
+X_test = assemble(scaler.transform(test[continuous]), test["workingday"])
+predictions = X_test @ w + b
+sklearn_predictions = model.predict(X_test)
+\`\`\`
+
+### 解释
+列宽正确不代表列语义正确；交换 hum 与 windspeed 会静默改变每个权重的含义。
+
+### 下一步
+\`residual-loss\` 从一项 prediction - actual 推广到残差向量和 MSE。`,
+        `There is one fixed feature order: temp, hum, windspeed, workingday, hr. The 17,379 rows retain chronological order: first 80% train and final 20% held-out test.
+
+Continuous columns fit StandardScaler on training data only; the holdout is transform-only. workingday stays binary 0/1 and is not standardized. In code, the batch form is X @ w + b.
+
+$$\\hat y=Xw+b\\mathbf1$$
+
+### Run Result
+Reference Output binding: \`batch-contract\`, which records the split, feature order, and training-only statistics.
+
+### sklearn Comparison
+\`\`\`python
+continuous = ["temp", "hum", "windspeed", "hr"]
+feature_order = ["temp", "hum", "windspeed", "workingday", "hr"]
+scaler = StandardScaler().fit(train[continuous])  # train-only
+X_train = assemble(scaler.transform(train[continuous]), train["workingday"])
+X_test = assemble(scaler.transform(test[continuous]), test["workingday"])
+predictions = X_test @ w + b
+sklearn_predictions = model.predict(X_test)
+\`\`\`
+
+### Interpretation
+Correct width does not guarantee correct semantics; swapping hum and windspeed silently changes every weight meaning.
+
+### Next Step
+\`residual-loss\` moves from one prediction - actual term to a residual vector and MSE.`,
+      ),
+      callout: loc(
+        '切分先于预处理；同一 X、同一 b 约定才让三种拟合方法可比较。',
+        'Split before preprocessing; the same X and intercept convention make three fitting methods comparable.',
+      ),
+      experimentPrompt: loc(
+        '如果先在全部 17,379 行上 fit scaler，哪一条留出信息会提前进入训练？',
+        'If the scaler were fit on all 17,379 rows, which held-out information would enter training early?',
+      ),
+      presetId: 'multivariate-plane',
       metricEmphasis: ['loss'],
     },
     {
       id: 'residual-loss',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.linearRegression.sections.residualLoss.title',
+      estimatedMinutes: 10,
       markdown: loc(
-        `直线画出来之后，下一步就要问：它画得好不好？
+        `全课程固定残差符号：residual = prediction - actual，即 $r_i=\\hat y_i-y_i$。
 
-每个点到直线的竖直距离，就是这个样本的残差。  
-残差告诉我们单个样本错了多少，而 **MSE** 把所有残差平方后取平均，变成训练时真正优化的目标：
+单行从 $r_i^2$、$2r_ix_i$ 和 $2r_i$ 出发；整批为：
 
-$$\\text{MSE}=\\frac{1}{N}\\sum_i (\\hat{y}_i-y_i)^2$$
+$$\\mathrm{MSE}=r^Tr/n,\\quad \\nabla_w=2X^Tr/n,\\quad \\partial_b=2\\mathbf1^Tr/n$$
 
-为什么这里主讲 MSE？
+### 运行结果
+参考输出绑定：\`residuals-and-metrics\`。完整 3,476 行残差保留在注册下载，不在页面一次性渲染。
 
-- 它会放大大误差，让模型认真修正明显偏离的样本
-- 它和后面的梯度更新配合得很自然
-- 它能和你前面学过的 loss function 内容直接接上
+### sklearn 对照
+\`\`\`python
+residuals = predictions - y_test
+mse = mean_squared_error(y_test, predictions)
+mae = mean_absolute_error(y_test, predictions)
+r2 = r2_score(y_test, predictions)
+\`\`\`
 
-MAE 仍然会作为对比出现，但本模块把它放在提醒位置，而不是展开第二套训练流程。`,
-        `Once the line is drawn, the next question is: how good is it?
+### 解释
+正残差表示预测偏高，负残差表示预测偏低。MSE 用平方强调大偏差，MAE 保留 cnt 的原单位，R² 比较相对基准。
 
-The vertical distance from each point to the line is the residual.  
-Residuals describe per-sample error, while **MSE** averages the squared residuals into the objective that training actually minimizes:
+### 下一步
+\`training-motion\` 把这些批量梯度放进可执行 NumPy 更新循环。`,
+        `The entire course fixes one residual sign: residual = prediction - actual, so $r_i=\\hat y_i-y_i$.
 
-$$\\text{MSE}=\\frac{1}{N}\\sum_i (\\hat{y}_i-y_i)^2$$
+Start from one-row contributions $r_i^2$, $2r_ix_i$, and $2r_i$; the batch form is:
 
-Why focus on MSE here?
+$$\\mathrm{MSE}=r^Tr/n,\\quad \\nabla_w=2X^Tr/n,\\quad \\partial_b=2\\mathbf1^Tr/n$$
 
-- it amplifies larger mistakes
-- it works naturally with gradient-based updates
-- it connects directly to the earlier loss-function lesson
+### Run Result
+Reference Output binding: \`residuals-and-metrics\`. The complete 3,476-row residual file remains a registered download rather than one oversized page table.
 
-MAE still appears as a comparison, but this module keeps it in that comparison role instead of building a second full training flow.`,
+### sklearn Comparison
+\`\`\`python
+residuals = predictions - y_test
+mse = mean_squared_error(y_test, predictions)
+mae = mean_absolute_error(y_test, predictions)
+r2 = r2_score(y_test, predictions)
+\`\`\`
+
+### Interpretation
+A positive residual means the prediction is high; a negative one means it is low. MSE emphasizes large misses, MAE keeps cnt units, and R² compares with a baseline.
+
+### Next Step
+\`training-motion\` places these batch gradients inside an executable NumPy update loop.`,
       ),
       callout: loc(
-        '先看残差，再看 MSE 怎样把所有样本的误差重新汇总成一个训练目标。',
-        'Look at residuals first, then watch MSE aggregate them into one objective.',
+        '残差符号、公式、NumPy 和 sklearn 指标必须始终一致。',
+        'Residual sign, formulas, NumPy, and sklearn metrics must remain consistent.',
       ),
       experimentPrompt: loc(
-        '打开离群点后，观察残差线和 MSE 是否会立刻被少数大误差拖着走。',
-        'Enable the outlier and see how quickly a few large residuals start to dominate MSE.',
+        '先判断代表行的 r_i 符号，再解释为什么它对 grad_w 的方向会随 x_i 改变。',
+        'Predict the representative row’s r_i sign, then explain why its grad_w direction depends on x_i.',
       ),
       presetId: 'residual-focus',
       metricEmphasis: ['loss'],
@@ -542,181 +567,297 @@ MAE still appears as a comparison, but this module keeps it in that comparison r
       id: 'training-motion',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.linearRegression.sections.trainingMotion.title',
+      estimatedMinutes: 11,
       markdown: loc(
-        `有了目标函数之后，线性回归的训练就不再神秘了：它只是不断微调斜率和截距，让 MSE 下降。
+        `NumPy batch gradient descent 从 w=0、b=0 开始。每次迭代用完整训练批次计算 predictions、residuals、grad_w、grad_b，再统一更新。
 
-本章最值得看的不是“线又动了一下”，而是：
+### 运行结果
+参考输出绑定：\`gradient-descent-result\`。完整轨迹记录 update、MSE、gradient_norm、w、b 和停止原因；每步都必须通过 isfinite 检查。
 
-- 斜率如何逐步朝正确方向旋转
-- 截距如何上下平移，把整条线推向数据云
-- 损失如何随着这些小更新逐渐下降
+### sklearn 对照
+\`\`\`python
+for update in range(max_updates):
+    predictions = X_train @ w + b
+    residuals = predictions - y_train
+    grad_w = 2 * X_train.T @ residuals / len(y_train)
+    grad_b = 2 * residuals.mean()
+    gradient_norm = np.sqrt(grad_w @ grad_w + grad_b ** 2)
+    if not np.isfinite(gradient_norm):
+        raise FloatingPointError("non-finite batch GD state")
+    w -= learning_rate * grad_w
+    b -= learning_rate * grad_b
+    if gradient_norm <= gradient_tolerance:
+        stop_reason = "gradient_tolerance"
+        break
 
-如果学生能把参数平面上的轨迹，和数据空间里的直线移动连起来，后面再看逻辑回归就会轻松很多。`,
-        `Once the objective is clear, linear-regression training stops feeling mysterious: it just keeps adjusting slope and intercept to reduce MSE.
+sklearn_fit = LinearRegression().fit(X_train, y_train)
+\`\`\`
 
-The important thing here is not merely that the line moves. It is that:
+### 解释
+NumPy 批量梯度下降解释参数怎样学到；sklearn fit 是连续实践对照。浏览器的短回放不冒充完整数据重训。
 
-- the slope rotates toward a better direction
-- the intercept shifts the whole line up or down
-- the loss falls as those small updates accumulate
+### 下一步
+\`polynomial\` 用同一切分比较 GD、稳定 lstsq 参考和 sklearn。`,
+        `NumPy batch gradient descent starts from w=0 and b=0. Every iteration uses the complete training batch to compute predictions, residuals, grad_w, and grad_b before one joint update.
 
-If students can connect the parameter trajectory to the line movement in data space, logistic regression becomes much easier later.`,
+### Run Result
+Reference Output binding: \`gradient-descent-result\`. The complete trace records update, MSE, gradient_norm, w, b, and stop reason; every state must pass an isfinite guard.
+
+### sklearn Comparison
+\`\`\`python
+for update in range(max_updates):
+    predictions = X_train @ w + b
+    residuals = predictions - y_train
+    grad_w = 2 * X_train.T @ residuals / len(y_train)
+    grad_b = 2 * residuals.mean()
+    gradient_norm = np.sqrt(grad_w @ grad_w + grad_b ** 2)
+    if not np.isfinite(gradient_norm):
+        raise FloatingPointError("non-finite batch GD state")
+    w -= learning_rate * grad_w
+    b -= learning_rate * grad_b
+    if gradient_norm <= gradient_tolerance:
+        stop_reason = "gradient_tolerance"
+        break
+
+sklearn_fit = LinearRegression().fit(X_train, y_train)
+\`\`\`
+
+### Interpretation
+NumPy batch gradient descent explains how parameters are learned; sklearn fit is the continuous practical counterpart. The short browser replay does not pretend to refit the complete dataset.
+
+### Next Step
+\`polynomial\` compares GD, the stable lstsq reference, and sklearn on the same split.`,
       ),
       callout: loc(
-        '一边看左侧的直线，一边看右侧参数轨迹。同一轮更新，要在两个视图里同时读懂。',
-        'Read the line and the parameter trajectory together. One update should make sense in both views.',
+        '先证明优化完成，再讨论残差模式；不要把模型限制误判成“还没收敛”。',
+        'Prove optimization completion before diagnosing residual patterns; do not mislabel model limits as unfinished convergence.',
       ),
       experimentPrompt: loc(
-        '点击播放后，再改学习率和训练轮数，比较“收敛更快”和“抖动更大”之间的取舍。',
-        'Play the training, then adjust learning rate and epochs to compare faster movement with less stable updates.',
+        '先预测 learning_rate 增大时轨迹会怎样，再观察 loss 与 gradient_norm 是否给出同一停止判断。',
+        'Predict what a larger learning_rate will do, then check whether loss and gradient_norm support the same stopping conclusion.',
       ),
       presetId: 'training-playback',
-      metricEmphasis: ['loss'],
-    },
-    {
-      id: 'model-limits',
-      eyebrowKey: 'common.chapter',
-      titleKey: 'modules.linearRegression.sections.modelLimits.title',
-      markdown: loc(
-        `线性回归最重要的边界，不在“有没有训练够”，而在“它只能表达一条线”。
-
-如果房价和面积的关系本身带一点弯曲，或者数据里混入了明显离群点，那么再努力训练，模型也只能在“一条直线”这个表达框架里妥协。
-
-这时学生应该看见两件事：
-
-1. 损失可能已经下降了很多，但仍然留有系统性误差
-2. 问题不一定出在优化器，更可能出在线性模型的表达能力
-
-逻辑回归同样从线性打分出发，但它预测的不是连续房价，而是类别概率。  
-两者共享“参数在推动决策”的直觉，只是任务、损失和输出解释不同。`,
-        `The most important limit of linear regression is not whether we trained long enough. It is that the model can only express one line.
-
-If the relationship between area and price bends slightly, or if the dataset contains a strong outlier, training harder still leaves the model inside a single straight-line family.
-
-Students should notice two things:
-
-1. loss may fall a lot while systematic error remains
-2. the bottleneck may be model expressivity rather than the optimizer
-
-Logistic regression also starts from a linear score, but it predicts class probability rather than continuous price.  
-The parameter intuition carries over, while the task, the loss, and the output meaning change.`,
-      ),
-      callout: loc(
-        '明确区分“优化没做好”和“模型本身不够表达”。',
-        'Separate insufficient optimization from insufficient model expressivity.',
-      ),
-      experimentPrompt: loc(
-        '切到“线性边界”预设后，观察高面积样本为什么会系统性偏离回归线，然后顺着桥接卡进入逻辑回归。',
-        'Switch to the limits preset and inspect why larger homes drift systematically away from the line.',
-      ),
-      presetId: 'limits-bridge',
-      metricEmphasis: ['loss'],
-    },
-    {
-      id: 'multivariate',
-      eyebrowKey: 'common.chapter',
-      titleKey: 'modules.linearRegression.sections.multivariate.title',
-      markdown: loc(
-        `真实房价很少只由面积决定。把房龄也放进来之后，模型不再是一条线，而是一个平面：
-
-$$\hat{y}=w_1x_{\text{area}}+w_2x_{\text{age}}+b$$
-
-- $w_1$ 仍然描述面积增加时，预测价格怎样变化
-- $w_2$ 描述房龄增加时，预测价格怎样变化
-- $b$ 仍然是整体基线
-
-多元线性回归的重点不是“公式变长了”，而是每个权重都在解释一个特征对预测的贡献。`,
-        `Real housing prices rarely depend on area alone. Once age is added, the model becomes a plane instead of one line:
-
-$$\hat{y}=w_1x_{\text{area}}+w_2x_{\text{age}}+b$$
-
-- $w_1$ describes how price changes with area
-- $w_2$ describes how price changes with age
-- $b$ remains the baseline shift
-
-The point of multivariate regression is not a longer formula. It is that each weight explains one feature's contribution.`,
-      ),
-      callout: loc(
-        '看 3D 点云和平面：面积把平面往上推，房龄通常把平面往下拉。',
-        'Read the 3D cloud and plane: area usually lifts the plane, while age usually pulls it down.',
-      ),
-      experimentPrompt: loc(
-        '播放训练，观察回归平面怎样同时调整面积权重、房龄权重和截距。',
-        'Play training and watch the plane adjust area weight, age weight, and intercept together.',
-      ),
-      presetId: 'multivariate-plane',
       metricEmphasis: ['loss'],
     },
     {
       id: 'polynomial',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.linearRegression.sections.polynomial.title',
+      estimatedMinutes: 12,
       markdown: loc(
-        `如果面积和房价的关系有弯曲趋势，模型可以继续保持“线性参数”，但把输入特征扩展成多项式：
+        `本章保留旧 ID，但责任改为三方法 OLS 对照。概念上的 normal equation / 正规方程使用增广设计：
 
-$$\hat{y}=w_1x+w_2x^2+w_3x^3+b$$
+X_tilde = [1, X]
 
-它仍然是对参数线性的模型，只是特征不再只有原始面积。这样一来，直线可以变成曲线，模型表达能力明显增强。`,
-        `If the relationship between area and price bends, the model can stay linear in parameters while expanding the input into polynomial features:
+theta = (X_tilde^T X_tilde)^+ X_tilde^T y
 
-$$\hat{y}=w_1x+w_2x^2+w_3x^3+b$$
+theta[0] = b，theta[1:] = w
 
-The model is still linear in its weights, but the features are no longer just raw area. The line can become a curve.`,
+### 运行结果
+参考输出绑定：\`method-comparison\`。NumPy 批量梯度下降、np.linalg.lstsq 与 scikit-learn 使用相同切分、相同设计矩阵和相同截距约定。
+
+### sklearn 对照
+\`\`\`python
+X_tilde = np.column_stack([np.ones(len(X_train)), X_train])
+theta, residuals, rank, singular_values = np.linalg.lstsq(
+    X_tilde, y_train, rcond=None
+)
+b_reference = theta[0]
+w_reference = theta[1:]
+sklearn_model = LinearRegression(fit_intercept=True).fit(X_train, y_train)
+\`\`\`
+
+可执行代码使用 np.linalg.lstsq，因为它比显式形成逆矩阵更稳定，并保留 rank 与 singular_values 诊断。
+
+### 解释
+三种未正则 OLS 方法应在锁定容差内一致；这验证实现，不代表残差已经没有结构。随后只做同一 Bike 案例的简短 hr 多项式容量观察。
+
+### 下一步
+\`model-limits\` 把模型空间系数翻译回原始单位。`,
+        `This chapter keeps its old ID but now owns the three-method OLS comparison. The conceptual normal equation uses an augmented design:
+
+X_tilde = [1, X]
+
+theta = (X_tilde^T X_tilde)^+ X_tilde^T y
+
+theta[0] = b and theta[1:] = w
+
+### Run Result
+Reference Output binding: \`method-comparison\`. NumPy batch gradient descent, np.linalg.lstsq, and scikit-learn use the same split, same design matrix, and same intercept convention.
+
+### sklearn Comparison
+\`\`\`python
+X_tilde = np.column_stack([np.ones(len(X_train)), X_train])
+theta, residuals, rank, singular_values = np.linalg.lstsq(
+    X_tilde, y_train, rcond=None
+)
+b_reference = theta[0]
+w_reference = theta[1:]
+sklearn_model = LinearRegression(fit_intercept=True).fit(X_train, y_train)
+\`\`\`
+
+Executable code uses np.linalg.lstsq because it is more stable than forming an explicit inverse and retains rank and singular_values diagnostics.
+
+### Interpretation
+The three unregularized OLS methods should agree within the locked tolerance. That validates implementation, not residual adequacy. A concise hr polynomial observation then extends capacity on the same Bike case.
+
+### Next Step
+\`model-limits\` translates model-space coefficients back to original units.`,
       ),
       callout: loc(
-        '调多项式阶数，观察同一套线性权重怎样画出更弯的曲线。',
-        'Adjust polynomial degree and watch linear weights draw a more flexible curve.',
+        '正规方程是关系，lstsq 是稳定实现；两者不是“手推公式”和“另一个算法”的冲突。',
+        'The normal equation is the relation and lstsq is the stable implementation; they are not competing stories.',
       ),
       experimentPrompt: loc(
-        '把阶数从 2 调到 5，对比曲线表达能力提升后，残差是否更容易被压低。',
-        'Move degree from 2 to 5 and compare how added flexibility changes residuals.',
+        '先预测三种 OLS 的系数差应多大，再解释为什么多项式扩展改变容量却仍对参数线性。',
+        'Predict the three OLS coefficient delta, then explain why polynomial expansion changes capacity while remaining linear in parameters.',
       ),
       presetId: 'polynomial-curve',
+      metricEmphasis: ['loss'],
+    },
+    {
+      id: 'model-limits',
+      eyebrowKey: 'common.chapter',
+      titleKey: 'modules.linearRegression.sections.modelLimits.title',
+      estimatedMinutes: 9,
+      markdown: loc(
+        `StandardScaler 让模型空间系数可稳定训练，但解释时要回到原始单位：
+
+$$w_j^{raw}=w_j^{model}/scale_j$$
+
+$$b^{raw}=b^{model}-\\sum_j w_j^{model}mean_j/scale_j$$
+
+workingday 没有缩放，所以它的二元变化直接保留。
+
+### 运行结果
+参考输出绑定：\`coefficient-table\`，并列模型空间与原始单位的 coef_、intercept_。
+
+### sklearn 对照
+\`\`\`python
+w_model = sklearn_model.coef_
+b_model = sklearn_model.intercept_
+w_original = w_model / scaler.scale_
+b_original = b_model - np.sum(w_model * scaler.mean_ / scaler.scale_)
+\`\`\`
+
+### 解释
+“保持其它已建模特征不变”时，一个原始单位变化对应多少 cnt 预测变化。这是条件关联，不是因果结论；hour 也不是周期特征的完整表达。
+
+### 下一步
+\`overfitting\` 在确认优化完成后读取留出残差结构。`,
+        `StandardScaler supports stable fitting in model space, but interpretation should return to original units:
+
+$$w_j^{raw}=w_j^{model}/scale_j$$
+
+$$b^{raw}=b^{model}-\\sum_j w_j^{model}mean_j/scale_j$$
+
+workingday is unscaled, so its binary change stays direct.
+
+### Run Result
+Reference Output binding: \`coefficient-table\`, placing model-space and original-unit coef_ and intercept_ side by side.
+
+### sklearn Comparison
+\`\`\`python
+w_model = sklearn_model.coef_
+b_model = sklearn_model.intercept_
+w_original = w_model / scaler.scale_
+b_original = b_model - np.sum(w_model * scaler.mean_ / scaler.scale_)
+\`\`\`
+
+### Interpretation
+Holding other modeled features fixed, an original-unit change maps to a cnt prediction change. This is conditional association, not a causal conclusion; raw hour is also not a complete cyclical representation.
+
+### Next Step
+\`overfitting\` reads held-out residual structure after optimization is confirmed.`,
+      ),
+      callout: loc(
+        '先说明系数所在空间和单位，再做条件解释；不能只比较绝对值大小。',
+        'Name coefficient space and units before interpreting conditionally; do not compare magnitudes alone.',
+      ),
+      experimentPrompt: loc(
+        '任选 temp 或 hum：先写一个合格的条件解释，再写一句不能推出的因果说法。',
+        'Choose temp or hum: write one valid conditional interpretation and one causal statement that cannot be concluded.',
+      ),
+      presetId: 'limits-bridge',
       metricEmphasis: ['loss'],
     },
     {
       id: 'overfitting',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.linearRegression.sections.overfitting.title',
+      estimatedMinutes: 12,
       markdown: loc(
-        `模型越复杂，不一定越好。这里开始换成真实的 **California Housing** 子集：横轴是街区收入中位数 **MedInc**，纵轴是街区房价中位数 **MedHouseVal**，目标单位是 10 万美元。
+        `先确认优化结束：loss 已稳定、gradient_norm 足够小、三种 OLS 在容差内一致。随后留出 MSE、MAE、R² 仍显示模型并未解释全部需求结构。
 
-同一批真实点上，三种模型会给出完全不同的诊断：
+小时残差曲线暴露早晚高峰非线性；需求更高时残差离散程度增大，表现为 widening spread。
 
-- **degree 1 欠拟合**：曲线太简单，训练和验证都偏高。
-- **degree 3 泛化较好**：抓住收入和房价之间的主要弯曲趋势。
-- **degree 7 过拟合**：训练误差更低，但曲线为了少数训练点剧烈摆动，验证误差升高。
+### 运行结果
+绑定：\`heldout-diagnostics\` 与 \`named-cases\`。可展开记录包括：
 
-欠拟合可能来自模型太简单、特征不足或训练不够；过拟合可能来自模型容量过高、数据太少、噪声太大或训练太久。  
-本章先用真实数据把问题看清楚，下一章再回答：如果还想保留高阶特征，怎样用正则化让它别过度弯折。`,
-        `A more complex model is not automatically better. This chapter switches to a real **California Housing** subset: the x-axis is block-group median income **MedInc**, the y-axis is block-group median house value **MedHouseVal**, and the target unit is $100,000.
+- instant=17213：negative prediction / 负预测，不裁剪
+- instant=15628：早高峰低估
+- instant=14965：晚高峰低估
+- instant=15604：排除前三例后的大残差
 
-On the same real points, three models give different diagnoses:
+### sklearn 对照
+\`\`\`python
+heldout = pd.DataFrame({
+    "prediction": model.predict(X_test),
+    "actual": y_test,
+})
+heldout["residual"] = heldout["prediction"] - heldout["actual"]
+metrics = {
+    "MSE": mean_squared_error(y_test, heldout["prediction"]),
+    "MAE": mean_absolute_error(y_test, heldout["prediction"]),
+    "R2": r2_score(y_test, heldout["prediction"]),
+}
+\`\`\`
 
-- **degree 1 underfits**: the curve is too simple, so train and validation errors both stay high.
-- **degree 3 generalizes better**: it captures the main bend between income and value.
-- **degree 7 overfits**: training error falls, but the curve swings for a few training points and validation error rises.
+### 解释
+raw cnt 是主结论。log1p(cnt) 只做一次简短对照：它会改变残差形状和系数解释，不能与 raw 指标混成一张排行榜。
 
-Underfitting can come from too little capacity, weak features, or insufficient training; overfitting can come from too much capacity, too little data, noise, or training too long.  
-This chapter makes the diagnosis visible first, then the next chapter asks how regularization keeps high-degree features restrained.`,
+### 下一步
+\`regularization\` 用 add-only-atemp 对照分离共线性与正则目标。`,
+        `First confirm optimization is complete: loss is stable, gradient_norm is small, and three OLS methods agree within tolerance. Held-out MSE, MAE, and R² still show that the model does not explain all demand structure.
+
+The hourly residual curve exposes nonlinear morning/evening peaks; residual spread widens as demand grows.
+
+### Run Result
+Bindings: \`heldout-diagnostics\` and \`named-cases\`. Expandable records include:
+
+- instant=17213: negative prediction, not clipped
+- instant=15628: morning-peak underprediction
+- instant=14965: evening-peak underprediction
+- instant=15604: large residual after excluding the first three
+
+### sklearn Comparison
+\`\`\`python
+heldout = pd.DataFrame({
+    "prediction": model.predict(X_test),
+    "actual": y_test,
+})
+heldout["residual"] = heldout["prediction"] - heldout["actual"]
+metrics = {
+    "MSE": mean_squared_error(y_test, heldout["prediction"]),
+    "MAE": mean_absolute_error(y_test, heldout["prediction"]),
+    "R2": r2_score(y_test, heldout["prediction"]),
+}
+\`\`\`
+
+### Interpretation
+Raw cnt remains the main conclusion. log1p(cnt) is one concise comparison: it changes residual shape and coefficient meaning, so its metrics do not join a raw-target ranking.
+
+### Next Step
+\`regularization\` uses an add-only-atemp comparison to separate collinearity from regularized objectives.`,
       ),
       callout: loc(
-        '用真实数据同时看训练点、验证点和三联诊断，不要只盯训练 MSE。',
-        'Read real training points, validation points, and the three-panel diagnostic together.',
+        '方法一致证明优化，不证明模型充分；残差结构才回答模型遗漏了什么。',
+        'Method agreement proves optimization, not model adequacy; residual structure shows what the model misses.',
       ),
       experimentPrompt: loc(
-        '先播放 degree 7，再把阶数降到 3。比较验证 MSE、权重范数和曲线弯折是否同步变小。',
-        'Play degree 7 first, then lower degree to 3. Compare validation MSE, weight norm, and curve roughness.',
+        '先把四个案例归类为负预测、高峰低估或大残差，再说明哪一种模式是线性 hour 特征难以表达的。',
+        'Classify the four cases as negative prediction, peak underprediction, or large residual, then identify which pattern a linear hour feature misses.',
       ),
-      media: {
-        title: loc('真实数据上的欠拟合、泛化较好与过拟合', 'Underfit, better fit, and overfit on real data'),
-        body: loc(
-          '同一批 California Housing 点上，degree 1 抓不住趋势，degree 3 保留主要弯曲，degree 7 为训练点剧烈摆动。',
-          'On the same California Housing points, degree 1 misses the trend, degree 3 keeps the main bend, and degree 7 swings for training points.',
-        ),
-        assetPath: '/manim/linear-regression/fit-comparison.mp4',
-        posterPath: '/manim/linear-regression/fit-comparison.svg',
-      },
       presetId: 'overfit-warning',
       metricEmphasis: ['loss'],
     },
@@ -724,63 +865,59 @@ This chapter makes the diagnosis visible first, then the next chapter asks how r
       id: 'regularization',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.linearRegression.sections.regularization.title',
+      estimatedMinutes: 11,
       markdown: loc(
-        `过拟合章节里，degree 7 可以把训练点贴得更近，但代价是权重很大、曲线很抖、验证误差升高。正则化就是在损失函数里加入“别让参数太夸张”的提醒。
+        `控制变量：行、时间切分、raw cnt、原五个特征和预处理全部不变，只加入 atemp。temp 与 atemp 高度相关，OLS 可以在两列之间重新分配系数。
 
-![正则化把复杂模型压进更克制的预算边界](/linear-regression/generated/regularization-budget.png)
+$$J_{OLS}=MSE$$
+$$J_{Ridge}=MSE+\\alpha\\lVert w\\rVert_2^2$$
+$$J_{Lasso}=MSE+\\alpha\\lVert w\\rVert_1$$
 
-*这张辅助图没有公式和坐标，只表达一个直觉：正则化像一个预算边界，把原本摇摆很大的参数连接压得更平顺。*
+### 运行结果
+参考输出绑定：\`model-limit-review\`。综合复盘 combined review 同时列出收敛、三方法 OLS 一致、小时/扩散残差与 temp/atemp 系数稳定性。
 
-统一写法是：
+### sklearn 对照
+\`\`\`python
+ols_atemp = LinearRegression().fit(X_train_with_atemp, y_train)
+ridge_atemp = Ridge(alpha=ridge_alpha).fit(X_train_with_atemp, y_train)
+lasso_atemp = Lasso(alpha=lasso_alpha).fit(X_train_with_atemp, y_train)
+\`\`\`
 
-$$\\text{loss}=\\text{MSE}+\\lambda\\cdot\\text{penalty}(\\mathbf{w})$$
+### 解释
+Ridge、Lasso 与 OLS 的目标函数不同，因此系数不需要与 OLS 相等。Ridge 倾向平滑分担相关特征，Lasso 倾向把部分系数压到零。
 
-三种常见惩罚对应三种不同的参数偏好：
+### 下一步
+线性边界已经明确：一阶 hour 难以表达双峰，相关特征让单个系数不稳定。下一站是 Phase 28 / 阶段 28 的表格回归项目。`,
+        `Controlled comparison: rows, chronological split, raw cnt, the original five features, and preprocessing all stay fixed; only atemp is added. Because temp and atemp are highly correlated, OLS can redistribute their coefficients.
 
-| 方法 | 惩罚项 | 几何约束 | 典型效果 |
-|---|---|---|---|
-| L1 / Lasso | $\\sum_j |w_j|$ | 菱形，有尖角 | 更容易让部分权重变成 0，适合做稀疏选择 |
-| L2 / Ridge | $\\sum_j w_j^2$ | 圆形或球形，边界光滑 | 更倾向整体缩小权重，通常更稳定 |
-| Elastic Net | $\\alpha\\sum_j |w_j|+(1-\\alpha)\\sum_j w_j^2$ | 介于菱形和圆之间 | 同时保留稀疏性和整体收缩，适合相关特征较多时 |
+$$J_{OLS}=MSE$$
+$$J_{Ridge}=MSE+\\alpha\\lVert w\\rVert_2^2$$
+$$J_{Lasso}=MSE+\\alpha\\lVert w\\rVert_1$$
 
-本章的重点不是“正则化一定让训练 MSE 更低”。它优化的是训练误差和参数复杂度的合成目标：允许训练贴合度稍微变差，换取验证误差、权重范数和曲线弯折更稳定。`,
-        `In the overfitting chapter, degree 7 can hug training points more closely, but the cost is large weights, a wavy curve, and higher validation error. Regularization adds a reminder to the loss: do not let the weights become too extreme.
+### Run Result
+Reference Output binding: \`model-limit-review\`. The combined review places convergence, three-method OLS agreement, hourly/spread residuals, and temp/atemp coefficient stability together.
 
-![Regularization pushes a flexible model through a calmer complexity budget](/linear-regression/generated/regularization-budget.png)
+### sklearn Comparison
+\`\`\`python
+ols_atemp = LinearRegression().fit(X_train_with_atemp, y_train)
+ridge_atemp = Ridge(alpha=ridge_alpha).fit(X_train_with_atemp, y_train)
+lasso_atemp = Lasso(alpha=lasso_alpha).fit(X_train_with_atemp, y_train)
+\`\`\`
 
-*This support image contains no formulas or axes. It gives the intuition: regularization acts like a budget boundary that makes overly flexible parameter connections settle into a calmer shape.*
+### Interpretation
+Ridge, Lasso, and OLS have different objectives, so their coefficients are not expected to equal OLS. Ridge tends to share correlated effects smoothly; Lasso tends to push some coefficients to zero.
 
-The shared objective is:
-
-$$\\text{loss}=\\text{MSE}+\\lambda\\cdot\\text{penalty}(\\mathbf{w})$$
-
-The common penalties create different parameter preferences:
-
-| Method | Penalty | Geometry | Typical effect |
-|---|---|---|---|
-| L1 / Lasso | $\\sum_j |w_j|$ | Diamond with corners | More easily pushes some weights to zero; useful for sparse selection |
-| L2 / Ridge | $\\sum_j w_j^2$ | Smooth circle or sphere | Shrinks weights overall and is usually stable |
-| Elastic Net | $\\alpha\\sum_j |w_j|+(1-\\alpha)\\sum_j w_j^2$ | Between diamond and circle | Mixes sparsity with smooth shrinkage, useful when features are correlated |
-
-The point is not that regularization always lowers training MSE. It optimizes a combined objective: accept a little less training fit in exchange for steadier validation error, weight norm, and curve roughness.`,
+### Next Step
+The linear boundary is explicit: a first-order hour feature misses two peaks, and correlated features destabilize individual coefficients. Continue to the Phase 28 tabular-regression project.`,
       ),
       callout: loc(
-        '切换 L1 / L2 / Elastic Net，比较权重范数、有效权重数量、曲线弯折和验证误差。',
-        'Switch L1 / L2 / Elastic Net and compare weight norm, active weights, curve roughness, and validation error.',
+        '先做 add-only-atemp OLS 对照，再单独说明 Ridge/Lasso 的不同目标。',
+        'Run the add-only-atemp OLS comparison first, then explain Ridge/Lasso as different objectives.',
       ),
       experimentPrompt: loc(
-        '保持 degree 7，逐步增大 λ；再切到 Elastic Net 调整 α。观察训练 MSE 可能上升，但验证 MSE、权重范数和曲线摆动会更稳定。',
-        'Keep degree 7, increase lambda, then switch to Elastic Net and adjust alpha. Training MSE may rise, while validation MSE, weight norm, and curve movement become steadier.',
+        '预测加入 atemp 后 temp 系数、留出预测和误差会怎样变化，再用结果修正解释。',
+        'Predict how adding atemp changes the temp coefficient, held-out predictions, and error, then revise your explanation from the result.',
       ),
-      media: {
-        title: loc('L1、L2 与 Elastic Net 的参数几何', 'Parameter Geometry of L1, L2, and Elastic Net'),
-        body: loc(
-          'RSS 等高线从未正则化解向外扩散；L1 菱形更容易在角点相交，L2 圆形会平滑收缩，Elastic Net 的边界介于两者之间。',
-          'RSS contours spread around the unregularized solution. The L1 diamond often meets at corners, L2 shrinks smoothly, and Elastic Net sits between them.',
-        ),
-        assetPath: '/manim/linear-regression/regularization-geometry.mp4',
-        posterPath: '/manim/linear-regression/regularization-geometry.svg',
-      },
       presetId: 'regularized-balance',
       metricEmphasis: ['loss'],
     },
@@ -812,8 +949,8 @@ The point is not that regularization always lowers training MSE. It optimizes a 
   presets: [
     {
       id: 'baseline-fit',
-      label: loc('面积主导', 'Baseline fit'),
-      description: loc('低噪声、无离群点，先把“散点 + 直线”这层关系看清楚。', 'Low noise and no outlier so the scatter-line relationship is easy to read.'),
+      label: loc('Bike 单行预测', 'Bike row prediction'),
+      description: loc('用代表训练行连接固定字段顺序、点积与原始 cnt 预测。', 'Connect the representative row, fixed feature order, dot product, and raw cnt prediction.'),
       config: {
         scenario: 'linear',
         learningRate: 0.11,
@@ -827,8 +964,8 @@ The point is not that regularization always lowers training MSE. It optimizes a 
     },
     {
       id: 'residual-focus',
-      label: loc('残差放大镜', 'Residual focus'),
-      description: loc('打开离群点，让残差线和 MSE 的变化更容易被看见。', 'Enable an outlier so the residuals and MSE response become more visible.'),
+      label: loc('残差与 MSE', 'Residual and MSE'),
+      description: loc('固定 residual = prediction - actual，连接单行贡献与整批平均。', 'Fix residual = prediction - actual and connect one-row contributions to the batch mean.'),
       config: {
         scenario: 'linear',
         learningRate: 0.1,
@@ -842,8 +979,8 @@ The point is not that regularization always lowers training MSE. It optimizes a 
     },
     {
       id: 'training-playback',
-      label: loc('训练动态', 'Training playback'),
-      description: loc('让斜率和截距从明显错误的位置开始，方便观察参数如何一路收敛。', 'Start the line from a clearly wrong state so the parameter trajectory is easy to follow.'),
+      label: loc('批量 GD 回放', 'Batch GD playback'),
+      description: loc('观察有界浏览器轨迹，同时与完整锁定训练轨迹保持清楚边界。', 'Observe a bounded browser trace while keeping it distinct from the complete locked fit trace.'),
       config: {
         scenario: 'linear',
         learningRate: 0.14,
@@ -857,8 +994,8 @@ The point is not that regularization always lowers training MSE. It optimizes a 
     },
     {
       id: 'limits-bridge',
-      label: loc('线性边界', 'Limits bridge'),
-      description: loc('让高面积样本略带弯曲，再叠加离群点，观察“一条线不够”时会发生什么。', 'Bend the larger-home samples slightly and add an outlier to show the limit of one line.'),
+      label: loc('系数解释', 'Coefficient interpretation'),
+      description: loc('区分模型空间、原始单位和条件非因果解释。', 'Separate model space, original units, and conditional noncausal interpretation.'),
       config: {
         scenario: 'curved',
         learningRate: 0.12,
@@ -872,8 +1009,8 @@ The point is not that regularization always lowers training MSE. It optimizes a 
     },
     {
       id: 'multivariate-plane',
-      label: loc('面积 + 房龄平面', 'Area + age plane'),
-      description: loc('加入房龄特征，让一条线扩展成 3D 空间里的回归平面。', 'Add home age so one line becomes a regression plane in 3D.'),
+      label: loc('五特征批量预测', 'Five-feature batch prediction'),
+      description: loc('固定 temp、hum、windspeed、workingday、hr 的列顺序。', 'Lock the temp, hum, windspeed, workingday, hr column order.'),
       config: {
         scenario: 'multivariate',
         learningRate: 0.08,
@@ -885,8 +1022,8 @@ The point is not that regularization always lowers training MSE. It optimizes a 
     },
     {
       id: 'polynomial-curve',
-      label: loc('二次曲线拟合', 'Quadratic curve'),
-      description: loc('用二次特征表达轻微弯曲的面积-房价关系。', 'Use a quadratic feature to express a gently curved area-price relationship.'),
+      label: loc('三方法与容量', 'Three methods and capacity'),
+      description: loc('先核对三种 OLS，再观察同一 Bike 案例的多项式容量。', 'Check three OLS methods before observing polynomial capacity on the same Bike case.'),
       config: {
         scenario: 'polynomial',
         learningRate: 0.07,
@@ -900,8 +1037,8 @@ The point is not that regularization always lowers training MSE. It optimizes a 
     },
     {
       id: 'overfit-warning',
-      label: loc('高阶过拟合', 'High-degree overfit'),
-      description: loc('用真实 California Housing 子集和七阶曲线观察训练误差下降、验证误差抬头。', 'Use a real California Housing subset and a seventh-degree curve to watch train and validation errors split.'),
+      label: loc('留出残差诊断', 'Held-out residual diagnosis'),
+      description: loc('在同一 Bike 留出集上观察小时非线性、扩散和真实失败案例。', 'Inspect hourly nonlinearity, widening spread, and real failures on the same Bike holdout.'),
       config: {
         scenario: 'overfit',
         learningRate: 0.06,
@@ -915,8 +1052,8 @@ The point is not that regularization always lowers training MSE. It optimizes a 
     },
     {
       id: 'regularized-balance',
-      label: loc('正则化约束', 'Regularized balance'),
-      description: loc('在同一批真实数据上切换 L1 / L2，观察权重收缩、曲线平滑和验证误差。', 'Switch L1 / L2 on the same real data and compare weight shrinkage, smoothing, and validation error.'),
+      label: loc('atemp 稳定性', 'atemp stability'),
+      description: loc('只加入 atemp，再区分 OLS、Ridge 与 Lasso 的目标。', 'Add only atemp, then separate OLS, Ridge, and Lasso objectives.'),
       config: {
         scenario: 'regularized',
         learningRate: 0.055,
@@ -951,9 +1088,7 @@ The point is not that regularization always lowers training MSE. It optimizes a 
 }
 
 linearRegressionModule.chapters = linearRegressionModule.chapters.map((chapter) => {
-  const frame = linearRegressionTeachingFrames[chapter.id]
-  if (!frame) return chapter
-
+  const frame = linearRegressionTeachingFrames[chapter.id as LinearRegressionChapterId]
   return {
     ...chapter,
     markdown: withTeachingFrame(chapter.markdown, frame),

@@ -143,7 +143,7 @@
 | Phase | Milestone | Requirements | Status |
 | --- | --- | --- | --- |
 | 26. Loss Functions Rebuild | 7/7 | Complete    | 2026-07-28 |
-| 27. Linear Regression Rebuild | v1.1 | 4 | Not started |
+| 27. Linear Regression Rebuild | 12/12 | Complete    | 2026-07-30 |
 | 28. Tabular Regression Project | v1.1 | 5 | Not started |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |

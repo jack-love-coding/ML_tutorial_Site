@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
-current_phase: 27
-current_phase_name: Linear Regression Rebuild
+current_phase: 28
+current_phase_name: Tabular Regression Project
 status: planning
-stopped_at: Completed 26-07-PLAN.md
-last_updated: "2026-07-28T17:05:51.427Z"
-last_activity: 2026-07-28
-last_activity_desc: Phase 26 complete, transitioned to Phase 27
+stopped_at: Completed 27-12-PLAN.md
+last_updated: "2026-07-30T10:57:35.450Z"
+last_activity: 2026-07-30
+last_activity_desc: Phase 27 complete, transitioned to Phase 28
 progress:
   total_phases: 6
-  completed_phases: 1
-  total_plans: 7
-  completed_plans: 7
-  percent: 17
+  completed_phases: 2
+  total_plans: 19
+  completed_plans: 19
+  percent: 33
 current_plan: null
 ---
 
@@ -25,10 +25,10 @@ current_plan: null
 
 ## Current Position
 
-Phase: 27 — Linear Regression Rebuild
+Phase: 28 — Tabular Regression Project
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-07-28 — Phase 26 complete, transitioned to Phase 27
+Last activity: 2026-07-30 — Phase 27 complete, transitioned to Phase 28
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 26 — Loss Functions Rebuild
+**Current focus:** Phase 27 — Linear Regression Rebuild
 
 ## Baseline
 
@@ -770,8 +770,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-07-28T16:40:51.139Z
-**Stopped at:** Completed 26-07-PLAN.md
+**Last session:** 2026-07-29T14:11:05.730Z
+**Stopped at:** Completed 27-08-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -797,6 +797,14 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Phase 26 P05 | 26 min | 2 tasks | 19 files |
 | Phase 26 P06 | 25m | 3 tasks | 5 files |
 | Phase 26 P07 | 34m | 3 tasks | 11 files |
+| Phase 27 P01 | 17min | 3 tasks | 4 files |
+| Phase 27 P02 | 15 min | 2 tasks | 6 files |
+| Phase 27 P03 | 24 min | 2 tasks | 2 files |
+| Phase 27 P04 | 22 min | 3 tasks | 11 files |
+| Phase 27 P05 | 23 min | 2 tasks | 2 files |
+| Phase 27 P06 | 20m | 3 tasks | 8 files |
+| Phase 27 P07 | 23min | 3 tasks | 5 files |
+| Phase 27 P08 | 33m | 3 tasks | 8 files |
 
 ## Decisions
 
@@ -855,6 +863,32 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 26]: Place one chapter-keyed locked-results surface inside each StoryScroller chapter and render consolidated downloads once after the unchanged checkpoint. — Keep formula, interaction, real output, and code in one learning loop.
 - [Phase 26]: Keep fixed extreme BCE probes read-only while learner-controlled loss, row, and h choices remain bounded and finite. — Preserve stability teaching without exposing arbitrary extreme inputs.
 - [Phase 26]: Use validated local summary rows when available and label built-in teaching fallbacks explicitly. — Missing local summaries must not blank formulas or interactions.
+- [Phase 27]: Represent every model row with an explicit featureOrder plus values so wrong order and leakage columns fail closed at runtime. — Width alone cannot detect reordered or leaked columns at the pure-math boundary.
+- [Phase 27]: Keep generic bounded batch GD separate from the locked full-data Bike fit constants; browser replay does not pretend to refit the full dataset. — The browser owns deterministic calculation and replay while later asset plans own the complete dataset execution.
+- [Phase 27]: Expose staged diagnostics as typed scalar and array fields compatible with the existing TrainingSnapshot contract. — This preserves the global lesson schema while supporting Bike-specific diagnostics.
+- [Phase 27]: Preserve fitDiagnostics as a Bike-only same-case compatibility adapter while removing California authority and the custom linear solver. — Existing renderers keep their contract without reviving superseded numerical authority.
+- [Phase 27]: Reuse the Phase 25 Bike Sharing authority through bikeSharingContract.mjs instead of introducing a second CSV parser or hash convention. — This preserves one auditable schema, ordering, boundary, and checksum authority across the data preparation and linear-regression phases.
+- [Phase 27]: Keep the Phase 27 Python environment byte-identical to Phase 26 and install exclusively from the audited local wheelhouse with --no-index. — Reusing the proven 99-wheel offline contract avoids environment drift and preserves deterministic two-locale Notebook execution.
+- [Phase 27]: Limit --prepare-candidates to validating the source and isolated environment before creating a fresh empty ignored transaction. — Plan 27-02 establishes the safe transaction boundary while Plan 27-03 remains the sole owner of candidate materialization and Notebook execution.
+- [Phase 27]: Keep every public mutation and standalone public verification path out of the Phase 27 candidate builder. — Plan 27-04 owns atomic publication, rollback, standalone reruns, and GitHub Pages base-path verification as a separate auditable boundary.
+- [Phase 27]: Use the augmented pseudoinverse relation for teaching and numpy.linalg.lstsq as the stable numerical authority. — Avoids explicit Gram-matrix inversion while keeping theta[0] and theta[1:] mapped to intercept and weights.
+- [Phase 27]: Freeze deterministic teaching-row selection at instants 11550, 17213, 15628, 14965, and 15604. — Versioned filters, exclusions, and lowest-instant tie-breaks make reruns auditable.
+- [Phase 27]: Keep all generated regression assets in ignored staging until Plan 27-04. — Maintains a separate atomic publication and rollback boundary with no public mutation in Plan 27-03.
+- [Phase 27]: Preserve the frozen Plan 27-03 candidate bytes and environment.json naming as the publication authority. — The completed 27-03 manifest is the verified immutable candidate; stale 27-04 path examples must not rewrite its content.
+- [Phase 27]: Use one complete-directory transaction with exact absence, byte, and mode rollback. — The public package must never expose mixed generations and every failure must restore the prior target exactly.
+- [Phase 27]: Prove each locale in an external network-blocked package and enforce repository hash, size, and mtime cleanliness. — Public reproducibility must not depend on repository execution state or mutate tracked learner assets.
+- [Phase 27]: Treat the published linear-regression manifest as exact cross-generation identity while validating summary and CSV structures independently and fail-closed.
+- [Phase 27]: Deep-copy and recursively freeze every accepted generated regression result before course consumers receive it.
+- [Phase 27]: Dispatch only registered summary, manifest, and numerical CSV output IDs; keep public path resolution outside parsers and owned by withPublicBase.
+- [Phase 27]: Preserve all eight literal linear-regression lesson IDs while assigning the locked Bike corridor responsibilities and order.
+- [Phase 27]: Teach the normal equation conceptually but use numpy.linalg.lstsq as the stable executable implementation.
+- [Phase 27]: Keep full-precision regression result authority in the typed local registry.
+- [Phase 27]: Keep strict-summary consumers independently abortable — Avoids undocumented parent timing and shared mutable state while preserving the registered parser boundary.
+- [Phase 27]: Keep regression Vue views presentation-only — Pure simulation snapshots and strict parsed outputs remain the only numerical authority; Vue only formats and maps coordinates.
+- [Phase 27]: Use deterministic Bike SVG and tables instead of regression-specific Three.js — Text, shapes, and line patterns preserve Bike evidence across reduced-motion, mobile, and non-WebGL contexts.
+- [Phase 27]: Keep the typed nine-file asset registry as the sole authority for chapter outputs and downloads.
+- [Phase 27]: Treat malformed or unavailable summary data as a quiet fail-closed state backed by labeled bilingual teaching fixtures.
+- [Phase 27]: Place one consolidated download surface after the unchanged checkpoint and keep chapter-local code reproduction beside each workbench.
 
 ## Operator Next Steps
 
