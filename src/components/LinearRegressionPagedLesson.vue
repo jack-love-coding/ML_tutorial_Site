@@ -126,12 +126,12 @@ const copy = computed(() => {
     copyCode: zh ? '复制命令' : 'Copy command',
     copiedCode: zh ? '已复制' : 'Copied',
     outputLabel: zh ? '本章绑定输出' : 'Chapter-bound outputs',
-    nextLesson: zh ? '下一课' : 'Next lesson',
-    nextTitle: zh ? '从表格回归走向线性分类边界' : 'From tabular regression to a linear classification boundary',
+    nextLesson: zh ? '阶段 28' : 'Phase 28',
+    nextTitle: zh ? '继续进入表格回归项目' : 'Continue to the tabular-regression project',
     nextBody: zh
-      ? '线性回归输出连续租赁量；逻辑回归继续使用线性打分，但把它映射成类别概率。'
-      : 'Linear regression predicts a continuous rental count; logistic regression keeps the linear score but maps it to class probability.',
-    nextCta: zh ? '进入逻辑回归' : 'Open Logistic Regression',
+      ? '把本课确认的线性模型边界带入现有房价项目：使用冻结本地数据、防泄漏流水线、诚实基线、受控改进与残差复盘。'
+      : "Carry this lesson's linear-model boundary into the existing housing project with frozen local data, a leakage-safe pipeline, an honest baseline, controlled improvement, and residual review.",
+    nextCta: zh ? '进入房价预测项目' : 'Open Housing Price Project',
   }
 })
 
@@ -486,7 +486,8 @@ onBeforeUnmount(abortActiveLoad)
           <router-link
             v-if="!nextSection"
             class="lesson-bridge-card"
-            to="/learn/logistic-regression"
+            data-testid="linear-phase-28-bridge"
+            to="/learn/housing-price-project"
           >
             <span>{{ copy.nextLesson }}</span>
             <strong>{{ copy.nextTitle }}</strong>

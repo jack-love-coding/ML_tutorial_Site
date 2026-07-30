@@ -25,6 +25,8 @@ async (page) => {
   ]
   const locales = ['zh-CN', 'en']
   const expectedCaseCount = 36
+  const expectedInteractionCount = 4
+  const expectedFailureInjectionCount = 8
   const results = []
   const interactions = []
   const failureInjections = []
@@ -63,6 +65,19 @@ async (page) => {
         || requestUrl.includes('/datasets/python-data-tools/')
       return isCourseAsset && !requestUrl.startsWith(`${origin}/`)
     })
+
+  const waitForWorkbenchReady = async () => {
+    await page.waitForFunction(() => {
+      const control = document.querySelector('.linear-regression-lab select')
+      return control instanceof HTMLSelectElement && !control.disabled
+    })
+  }
+
+  const readSemanticOutput = async (hook) =>
+    page.locator(`[data-testid="${hook}"]`).innerText()
+
+  const containsAll = (text, expectedValues) =>
+    expectedValues.every((value) => text.includes(String(value)))
 
   for (const locale of locales) {
     await setLocale(locale)
@@ -250,51 +265,159 @@ async (page) => {
 
       await page.goto(`${origin}${rootPath}/fit-line`)
       await page.waitForLoadState('networkidle')
+      await waitForWorkbenchReady()
       const fitLab = page.locator('.linear-regression-lab')
       const rowBatchSelect = fitLab.locator('select').first()
+      const rowText = await readSemanticOutput('linear-output-row-batch')
       await rowBatchSelect.selectOption('batch')
       const rowBatchChanged = (await rowBatchSelect.inputValue()) === 'batch'
+      const batchText = await readSemanticOutput('linear-output-row-batch')
       await fitLab
         .locator('.linear-regression-lab__actions button')
         .last()
         .evaluate((button) => button.click())
       const rowBatchReset = (await rowBatchSelect.inputValue()) === 'row'
+      const resetRowText = await readSemanticOutput('linear-output-row-batch')
+      const rowBatchSemantic =
+        containsAll(rowText, [11550, 173.9942431182681, 174, -0.0057568817319122445])
+        && rowText !== batchText
+        && containsAll(batchText, [13903, 3476, 40142.538618835824])
+        && resetRowText === rowText
 
       await page.goto(`${origin}${rootPath}/training-motion`)
       await page.waitForLoadState('networkidle')
+      await waitForWorkbenchReady()
       const gdLab = page.locator('.linear-regression-lab')
       const gdRange = gdLab.locator('input[type="range"]')
-      await gdRange.fill('128')
-      const gdStepChanged = (await gdRange.inputValue()) === '128'
+      const gdStartText = await readSemanticOutput('linear-output-gd-trace')
+      await gdRange.fill('772')
+      const gdStepChanged = (await gdRange.inputValue()) === '772'
+      const gdEndText = await readSemanticOutput('linear-output-gd-trace')
       await gdLab
         .locator('.linear-regression-lab__actions button')
         .last()
         .evaluate((button) => button.click())
       const gdResetWorked = (await gdRange.inputValue()) === '0'
+      const gdResetText = await readSemanticOutput('linear-output-gd-trace')
+      const gdTraceSemantic =
+        containsAll(gdStartText, [0, 58370.9353376969, 482.1558909149629])
+        && gdStartText !== gdEndText
+        && containsAll(gdEndText, [
+          772,
+          18105.236540017046,
+          9.964423234025087e-9,
+          173.01032847247703,
+          62.72389095222884,
+        ])
+        && gdResetText === gdStartText
 
       await page.goto(`${origin}${rootPath}/polynomial`)
       await page.waitForLoadState('networkidle')
+      await waitForWorkbenchReady()
       const methodSelect = page.locator('.linear-regression-lab select').nth(1)
-      await methodSelect.selectOption('scikit-learn')
+      const methodTexts = {}
+      for (const method of [
+        'gradient-descent',
+        'normal-equation',
+        'scikit-learn',
+      ]) {
+        await methodSelect.selectOption(method)
+        methodTexts[method] = await readSemanticOutput('linear-output-method')
+      }
       const methodChanged = (await methodSelect.inputValue()) === 'scikit-learn'
+      const methodSemantic =
+        new Set(Object.values(methodTexts)).size === 3
+        && containsAll(methodTexts['gradient-descent'], [
+          'numpy-batch-gradient-descent',
+          772,
+          9.964423234025087e-9,
+        ])
+        && containsAll(methodTexts['normal-equation'], [
+          'numpy-lstsq',
+          173.01032849472756,
+          0,
+        ])
+        && containsAll(methodTexts['scikit-learn'], [
+          'sklearn-linear-regression',
+          173.01032849472747,
+          4.902744876744691e-13,
+        ])
 
       await page.goto(`${origin}${rootPath}/model-limits`)
       await page.waitForLoadState('networkidle')
+      await waitForWorkbenchReady()
       const coefficientSelect = page.locator('.linear-regression-lab select').nth(1)
+      await coefficientSelect.selectOption('model-space')
+      const modelSpaceText = await readSemanticOutput(
+        'linear-output-coefficient-space',
+      )
       await coefficientSelect.selectOption('original-unit')
       const coefficientSpaceChanged =
         (await coefficientSelect.inputValue()) === 'original-unit'
+      const originalUnitText = await readSemanticOutput(
+        'linear-output-coefficient-space',
+      )
+      const coefficientSpaceSemantic =
+        modelSpaceText !== originalUnitText
+        && containsAll(modelSpaceText, [
+          173.01032849472756,
+          62.72389095302256,
+          -37.11641560210167,
+        ])
+        && containsAll(originalUnitText, [
+          50.024112570538804,
+          317.2535485260497,
+          -187.27958330364518,
+        ])
 
       await page.goto(`${origin}${rootPath}/overfitting`)
       await page.waitForLoadState('networkidle')
+      await waitForWorkbenchReady()
       const diagnosticSelect = page.locator('.linear-regression-lab select').nth(1)
       await diagnosticSelect.selectOption('named-heldout-cases')
       const diagnosticChanged =
         (await diagnosticSelect.inputValue()) === 'named-heldout-cases'
       const namedCaseSelect = page.locator('.linear-regression-lab select').nth(2)
-      await namedCaseSelect.selectOption('large-residual')
+      const namedCaseTexts = {}
+      for (const namedCase of [
+        'negative-prediction',
+        'morning-peak-underprediction',
+        'evening-peak-underprediction',
+        'large-residual',
+      ]) {
+        await namedCaseSelect.selectOption(namedCase)
+        namedCaseTexts[namedCase] = await readSemanticOutput(
+          'linear-output-heldout-case',
+        )
+      }
       const namedCaseChanged =
         (await namedCaseSelect.inputValue()) === 'large-residual'
+      const heldoutCaseSemantic =
+        new Set(Object.values(namedCaseTexts)).size === 4
+        && containsAll(namedCaseTexts['negative-prediction'], [
+          17213,
+          13,
+          -47.41549314522561,
+          -60.41549314522561,
+        ])
+        && containsAll(namedCaseTexts['morning-peak-underprediction'], [
+          15628,
+          834,
+          101.88209657050064,
+          -732.1179034294994,
+        ])
+        && containsAll(namedCaseTexts['evening-peak-underprediction'], [
+          14965,
+          976,
+          281.0929017808493,
+          -694.9070982191507,
+        ])
+        && containsAll(namedCaseTexts['large-residual'], [
+          15604,
+          817,
+          92.41434915378804,
+          -724.5856508462119,
+        ])
       const namedCaseExpander = page.locator('.linear-results details').first()
       await namedCaseExpander
         .locator('summary')
@@ -318,17 +441,74 @@ async (page) => {
 
       await page.goto(`${origin}${rootPath}/regularization`)
       await page.waitForLoadState('networkidle')
-      const regularizationText = await page.textContent('body')
-      const nextStepPresent = Boolean(
-        await page.locator('.lesson-bridge-card').count(),
+      await waitForWorkbenchReady()
+      const regularizationDiagnostic = page
+        .locator('.linear-regression-lab select')
+        .nth(1)
+      await regularizationDiagnostic.selectOption('coefficient-stability')
+      const atempOffText = await readSemanticOutput(
+        'linear-output-atemp-comparison',
       )
+      const atempToggle = page.locator(
+        '.linear-regression-lab .toggle-strip__button',
+      )
+      await atempToggle.click()
+      const atempOnText = await readSemanticOutput(
+        'linear-output-atemp-comparison',
+      )
+      const atempComparisonSemantic =
+        atempOffText !== atempOnText
+        && containsAll(atempOffText, [
+          62.72389095302256,
+          40142.538618835824,
+        ])
+        && containsAll(atempOnText, [
+          0.9923834525986027,
+          17.240661944055777,
+          14.34341206288322,
+          48.79910362080849,
+          0.027800000019931593,
+          0.009139999925777954,
+        ])
+      const regularizationText = await page.textContent('body')
+      const phase28Bridge = page.locator(
+        '[data-testid="linear-phase-28-bridge"]',
+      )
+      const phase28BridgeText = await phase28Bridge.innerText()
+      const phase28BridgeHref = await phase28Bridge.getAttribute('href')
+      const nextStepPresent =
+        phase28BridgeHref?.endsWith('/learn/housing-price-project') === true
+        && (
+          locale === 'zh-CN'
+            ? containsAll(phase28BridgeText, [
+                '阶段 28',
+                '继续进入表格回归项目',
+                '把本课确认的线性模型边界带入现有房价项目：使用冻结本地数据、防泄漏流水线、诚实基线、受控改进与残差复盘。',
+                '进入房价预测项目',
+              ])
+            : containsAll(phase28BridgeText, [
+                'Phase 28',
+                'Continue to the tabular-regression project',
+                "Carry this lesson's linear-model boundary into the existing housing project with frozen local data, a leakage-safe pipeline, an honest baseline, controlled improvement, and residual review.",
+                'Open Housing Price Project',
+              ])
+        )
       const downloadCount = await page.locator(
         '[data-linear-regression-downloads] a[download]',
       ).count()
 
+      const semanticChecks = {
+        rowBatch: rowBatchSemantic,
+        gdTrace: gdTraceSemantic,
+        method: methodSemantic,
+        coefficientSpace: coefficientSpaceSemantic,
+        heldoutCase: heldoutCaseSemantic,
+        atempComparison: atempComparisonSemantic,
+      }
       const interactionResult = {
         locale,
         viewport: viewport.id,
+        semanticChecks,
         rowBatchChanged,
         rowBatchReset,
         gdStepChanged,
@@ -353,7 +533,8 @@ async (page) => {
       interactions.push(interactionResult)
 
       if (
-        !interactionResult.rowBatchChanged
+        !Object.values(interactionResult.semanticChecks).every(Boolean)
+        || !interactionResult.rowBatchChanged
         || !interactionResult.rowBatchReset
         || !interactionResult.gdStepChanged
         || !interactionResult.gdResetWorked
@@ -408,7 +589,10 @@ async (page) => {
           .locator(
             '.linear-regression-lab [role="status"], .linear-results__fallback[role="status"]',
           )
-          .filter({ hasText: /unavailable|invalid|无法读取|内置教学样例/i })
+          .filter({
+            hasText:
+              /unavailable|invalid|audited compact baseline|无法读取|内置教学样例|审计过的精简基线/i,
+          })
           .first()
           .isVisible()
         const fullDataMetricLeaked = /40142\.538619|135\.296640|0\.174252/.test(
@@ -475,6 +659,20 @@ async (page) => {
         expectedCaseCount,
         actualCaseCount: results.length,
         failures,
+      })}`,
+    )
+  }
+
+  if (
+    interactions.length !== expectedInteractionCount
+    || failureInjections.length !== expectedFailureInjectionCount
+  ) {
+    throw new Error(
+      `Linear-regression semantic matrix count failed: ${JSON.stringify({
+        expectedInteractionCount,
+        actualInteractionCount: interactions.length,
+        expectedFailureInjectionCount,
+        actualFailureInjectionCount: failureInjections.length,
       })}`,
     )
   }
