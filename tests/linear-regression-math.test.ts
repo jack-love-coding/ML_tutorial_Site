@@ -31,6 +31,10 @@ async function loadAuthority() {
   return import('../src/simulations/linearRegressionBike.ts')
 }
 
+async function loadPublishedBaseline() {
+  return import('../src/simulations/linearRegressionWorkbench.ts')
+}
+
 function closeTo(actual: number, expected: number, tolerance = 1e-12) {
   assert.ok(
     Math.abs(actual - expected) <= tolerance,
@@ -228,6 +232,8 @@ test('GD is finite deterministic bounded and reaches a smooth fixture optimum', 
 
 test('split and locked Bike GD anchors reproduce D-13 through D-17', async () => {
   const authority = await loadAuthority()
+  const { LINEAR_REGRESSION_PUBLISHED_BASELINE: baseline } =
+    await loadPublishedBaseline()
 
   assert.deepEqual(authority.LINEAR_REGRESSION_FEATURE_ORDER, EXPECTED_FEATURE_ORDER)
   assert.deepEqual(
@@ -256,23 +262,25 @@ test('split and locked Bike GD anchors reproduce D-13 through D-17', async () =>
   assert.equal('workingday' in means, false)
   assert.equal('workingday' in scales, false)
 
-  const fit = authority.LINEAR_REGRESSION_REFERENCE_FIT
-  vectorCloseTo(
-    fit.weights,
-    [62.723890953, -37.1164156021, 0.8094458662, 2.3797186778, 47.9014338433],
-    1e-10,
-  )
-  closeTo(fit.intercept, 173.0103284947, 1e-10)
-  closeTo(fit.trainMetrics.mse, 18105.23654, 1e-6)
-  closeTo(fit.trainMetrics.mae, 98.800052, 1e-6)
-  closeTo(fit.trainMetrics.r2, 0.350417, 1e-6)
-  closeTo(fit.testMetrics.mse, 40142.538619, 1e-6)
-  closeTo(fit.testMetrics.mae, 135.29664, 1e-6)
-  closeTo(fit.testMetrics.r2, 0.174252, 1e-6)
+  const fit = authority.createPublishedRegressionReferenceFit()
+  const reference = baseline.methods.find(
+    ({ method }) => method === 'numpy-lstsq',
+  )!
+  assert.deepEqual(fit.weights, reference.weights)
+  assert.equal(fit.intercept, reference.intercept)
+  assert.deepEqual(fit.trainMetrics, baseline.metrics.train)
+  assert.deepEqual(fit.testMetrics, baseline.metrics.test)
 
-  const comparison = authority.LINEAR_REGRESSION_METHOD_COMPARISON
-  assert.equal(comparison.gradientDescent.updates, 772)
-  closeTo(comparison.gradientDescent.gradientNorm, 9.96e-9, 1e-12)
+  const comparison = authority.createPublishedRegressionMethodComparison()
+  const gradientDescent = baseline.methods.find(
+    ({ method }) => method === 'numpy-batch-gradient-descent',
+  )!
+  assert.equal(comparison.gradientDescent.updates, gradientDescent.updates)
+  assert.equal(
+    comparison.gradientDescent.gradientNorm,
+    gradientDescent.gradientNorm,
+  )
+  assert.deepEqual(comparison.gradientDescent.weights, gradientDescent.weights)
   assert.ok(comparison.gradientDescent.maxCoefficientDelta <= 1e-6)
   assert.ok(comparison.normalEquation.maxCoefficientDelta <= 1e-6)
   assert.ok(comparison.scikitLearn.maxCoefficientDelta <= 1e-6)
@@ -382,34 +390,39 @@ test('prediction rejects malformed order leakage width and non-finite numeric st
 
 test('diagnostic reducers retain D-19 through D-24 staged Bike meanings', async () => {
   const authority = await loadAuthority()
+  const { LINEAR_REGRESSION_PUBLISHED_BASELINE: baseline } =
+    await loadPublishedBaseline()
   const diagnostics = authority.deriveHeldoutDiagnostics(
-    authority.LINEAR_REGRESSION_HELDOUT_DIAGNOSTIC_INPUT,
+    authority.createPublishedHeldoutDiagnosticInput(),
   )
 
-  assert.deepEqual(
-    diagnostics.hourlyResiduals
-      .filter(({ hour }: { hour: number }) => [8, 17, 23].includes(hour))
-      .map(({ hour, meanResidual }: { hour: number; meanResidual: number }) => [
-        hour,
-        Math.round(meanResidual * 10) / 10,
-      ]),
-    [[8, -367.4], [17, -366.6], [23, 118.1]],
-  )
+  assert.deepEqual(diagnostics.hourlyResiduals, baseline.diagnostics.hourlyResiduals)
   assert.ok(
     diagnostics.predictionBins.at(-1)!.residualStdDev
       > diagnostics.predictionBins[0]!.residualStdDev,
   )
-  closeTo(diagnostics.predictionBins[0]!.residualStdDev, 136, 1e-9)
-  closeTo(diagnostics.predictionBins.at(-1)!.residualStdDev, 209.2, 1e-9)
-  closeTo(diagnostics.predictionBins[0]!.mae, 78.4, 1e-9)
-  closeTo(diagnostics.predictionBins.at(-1)!.mae, 181.7, 1e-9)
+  assert.deepEqual(
+    diagnostics.predictionBins,
+    baseline.diagnostics.predictionBins.map(
+      ({ bin, residualStdDev, mae }) => ({ bin, residualStdDev, mae }),
+    ),
+  )
   assert.deepEqual(
     diagnostics.namedCases.map(({ instant }: { instant: number }) => instant),
-    [17_213, 15_628, 14_965, 15_604],
+    baseline.diagnostics.namedCases.map(({ row }) => row.instant),
   )
-  closeTo(diagnostics.coefficientStability.baseTemp, 62.723890953, 1e-10)
-  closeTo(diagnostics.coefficientStability.atempOlsTemp, 14.34, 1e-12)
-  closeTo(diagnostics.coefficientStability.atempOlsAtemp, 48.8, 1e-12)
+  assert.equal(
+    diagnostics.coefficientStability.baseTemp,
+    baseline.diagnostics.atempComparison.withoutAtemp.tempCoefficient,
+  )
+  assert.equal(
+    diagnostics.coefficientStability.atempOlsTemp,
+    baseline.diagnostics.atempComparison.withAtemp.tempCoefficient,
+  )
+  assert.equal(
+    diagnostics.coefficientStability.atempOlsAtemp,
+    baseline.diagnostics.atempComparison.withAtemp.atempCoefficient,
+  )
   assert.equal(diagnostics.coefficientStability.ridgeObjective, 'mse-plus-l2')
   assert.equal(diagnostics.coefficientStability.lassoObjective, 'mse-plus-l1')
   assert.equal(diagnostics.log1pComparison.rawTargetScale, 'rental-count')

@@ -20,6 +20,7 @@ import {
   selectRowBatchResult,
   type LinearRegressionWorkbenchPackage,
 } from '../src/simulations/linearRegressionWorkbench.ts'
+import { simulateLinearRegression } from '../src/simulations/linearRegression.ts'
 
 const root = resolve(import.meta.dirname, '..')
 const packageRoot = resolve(root, 'public/notebooks/linear-regression')
@@ -438,4 +439,62 @@ test('source CSV, strict outputs, selectors, and compact baseline form one audit
   }
 
   assertDeepFrozen(baseline)
+})
+
+test('all seven synchronous facade snapshots remain numerically identical to the audited baseline', () => {
+  const baseline = LINEAR_REGRESSION_PUBLISHED_BASELINE
+  const snapshots = simulateLinearRegression({
+    scenario: 'linear',
+    learningRate: Number.NaN,
+    epochs: Number.POSITIVE_INFINITY,
+  }).snapshots
+  const reference = baseline.methods.find(
+    ({ method }) => method === 'numpy-lstsq',
+  )!
+  const gradientDescent = baseline.methods.find(
+    ({ method }) => method === 'numpy-batch-gradient-descent',
+  )!
+
+  assert.equal(snapshots.length, 7)
+  snapshots.forEach((snapshot, index) => {
+    const display = baseline.displayRows[index % baseline.displayRows.length]!
+    assert.equal(snapshot.step, index)
+    assert.deepEqual(snapshot.derivedMetrics?.weights, reference.weights)
+    assert.equal(snapshot.derivedMetrics?.intercept, reference.intercept)
+    assert.equal(snapshot.derivedMetrics?.trainMse, baseline.metrics.train.mse)
+    assert.equal(snapshot.derivedMetrics?.validationMse, baseline.metrics.test.mse)
+    assert.equal(snapshot.derivedMetrics?.mae, baseline.metrics.test.mae)
+    assert.equal(snapshot.derivedMetrics?.r2, baseline.metrics.test.r2)
+    assert.equal(
+      snapshot.derivedMetrics?.gradientNorm,
+      gradientDescent.gradientNorm,
+    )
+    assert.deepEqual(snapshot.selectedObservation, {
+      instant: display.instant,
+      area: display.hour,
+      age: display.rawFeatures.hum,
+      actualPrice: display.actual,
+      predictedPrice: display.prediction,
+      residual: display.residual,
+    })
+  })
+
+  assert.deepEqual(
+    snapshots[1]!.derivedMetrics?.hourlyResidualMeans,
+    baseline.diagnostics.hourlyResiduals.map(({ meanResidual }) => meanResidual),
+  )
+  assert.deepEqual(
+    snapshots[2]!.derivedMetrics?.predictionBinResidualStdDev,
+    baseline.diagnostics.predictionBins.map(
+      ({ residualStdDev }) => residualStdDev,
+    ),
+  )
+  assert.deepEqual(
+    snapshots[3]!.derivedMetrics?.baseTempCoefficient,
+    baseline.diagnostics.atempComparison.withoutAtemp.tempCoefficient,
+  )
+  assert.deepEqual(
+    snapshots[4]!.derivedMetrics?.namedCaseInstants,
+    baseline.diagnostics.namedCases.map(({ row }) => row.instant),
+  )
 })
