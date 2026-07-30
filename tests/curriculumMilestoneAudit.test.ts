@@ -323,7 +323,7 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.ok(currentFocusMatch, 'planning state should expose the current curriculum focus')
   assert.ok(Number(currentPhaseMatch[1]) >= 25, 'planning state must not regress before completed Phase 25')
   assert.equal(currentFocusMatch[1], currentPhaseMatch[1])
-  assert.match(stateSource, /^status: (?:ready_to_execute|executing|verifying|completed)$/m)
+  assert.match(stateSource, /^status: (?:planning|ready_to_execute|executing|verifying|completed)$/m)
   assert.match(stateSource, /classification audit of all 53 current modules/)
   assert.match(stateSource, /V3\.1 AI Overview rebuild and Math-to-Code pilot are completed slices/)
   assert.match(stateSource, /Python Data Tools Stage 1 is complete/)

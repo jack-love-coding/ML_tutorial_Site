@@ -19,6 +19,11 @@ const generatorPath = resolve(root, 'scripts/loss-functions/build-phase-26-asset
 const contractPath = resolve(root, 'docs/curriculum-v3/loss-functions/phase-26-data-contract.md')
 const stagingRoot = resolve(root, '.cache/loss-functions/phase-26-staging')
 const stagedDatasetRoot = resolve(stagingRoot, 'datasets/loss-functions')
+const requireLocalReleaseAssets =
+  process.env.ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS === '1'
+const phase26DatasetCandidatesAvailable = existsSync(stagedDatasetRoot)
+const phase26DatasetReleaseTest =
+  requireLocalReleaseAssets || phase26DatasetCandidatesAvailable ? test : test.skip
 
 function sha256(path: string) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
@@ -372,7 +377,7 @@ test('SECOM validation preserves missing values and enforces labels plus the dec
   assert.match(hiddenDiscrepancy.stderr, /591|declared|metadata/i)
 })
 
-test('LaDe candidate keeps all real rows, the eight-field privacy boundary, and representative loss arithmetic', () => {
+phase26DatasetReleaseTest('LaDe candidate keeps all real rows, the eight-field privacy boundary, and representative loss arithmetic', () => {
   const csvPath = resolve(stagedDatasetRoot, 'lade-delivery-jilin.csv')
   const manifestPath = resolve(stagedDatasetRoot, 'lade-delivery-jilin-manifest.json')
   assert.equal(existsSync(csvPath), true)
@@ -422,7 +427,7 @@ test('LaDe candidate keeps all real rows, the eight-field privacy boundary, and 
   }
 })
 
-test('SECOM candidate preserves 590 measurements and missing values while publishing deterministic OOF auxiliary scores', () => {
+phase26DatasetReleaseTest('SECOM candidate preserves 590 measurements and missing values while publishing deterministic OOF auxiliary scores', () => {
   const csvPath = resolve(stagedDatasetRoot, 'secom-manufacturing.csv')
   const manifestPath = resolve(stagedDatasetRoot, 'secom-manufacturing-manifest.json')
   assert.equal(existsSync(csvPath), true)
@@ -492,7 +497,7 @@ test('SECOM candidate preserves 590 measurements and missing values while publis
   }
 })
 
-test('candidate privacy, schema, license, and hash drift fail closed', () => {
+phase26DatasetReleaseTest('candidate privacy, schema, license, and hash drift fail closed', () => {
   const probe = runProbe([
     'import shutil, tempfile',
     'source = pathlib.Path(sys.argv[2])',

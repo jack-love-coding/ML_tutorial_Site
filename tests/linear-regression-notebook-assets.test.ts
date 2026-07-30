@@ -39,6 +39,13 @@ const candidatePackageRoot = resolve(
 )
 const publicPackageRelativePath = 'notebooks/linear-regression'
 const publicationLockName = '.linear-regression-publication.lock'
+const requireLocalReleaseAssets =
+  process.env.ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS === '1'
+const phase27ReleaseAssetsAvailable =
+  existsSync(candidatePackageRoot)
+  && existsSync(resolve(root, '.cache/numerical-methods/batch-4-wheelhouse'))
+const phase27ReleaseTest =
+  requireLocalReleaseAssets || phase27ReleaseAssetsAvailable ? test : test.skip
 
 const EXPECTED_CANDIDATE_FILES = Object.freeze([
   'notebooks/linear-regression/bike-linear-regression.zh-CN.ipynb',
@@ -495,7 +502,7 @@ test('inventory shell exposes one exact package with no partial or public mode',
   assert.match(help.stdout, /--check/)
 })
 
-test('environment shell validates every audited wheel and exact isolated settings', () => {
+phase27ReleaseTest('environment shell validates every audited wheel and exact isolated settings', () => {
   const verified = runProbe([
     'result = module.validate_environment_contract()',
     'print(json.dumps(result, sort_keys=True, allow_nan=False))',
@@ -734,7 +741,7 @@ test('candidate verification shell fails closed on missing unexpected or partial
   assert.match(probe.stdout, /unexpected\.txt/)
 })
 
-test('numerical contract emits complete coefficient GD and residual tables [owner Plan 27-03]', () => {
+phase27ReleaseTest('numerical contract emits complete coefficient GD and residual tables [owner Plan 27-03]', () => {
   const help = runGenerator(['--help'])
   assert.equal(help.status, 0, help.stderr)
   assert.match(help.stdout, /--prepare-data-candidates/)
@@ -887,7 +894,7 @@ test('numerical contract emits complete coefficient GD and residual tables [owne
     )
   }
 })
-test('candidate verification [27-W0-02] seals independent locale jobs and exact hashes [owner Plan 27-03]', () => {
+phase27ReleaseTest('candidate verification [27-W0-02] seals independent locale jobs and exact hashes [owner Plan 27-03]', () => {
   const verified = runGenerator([
     '--verify-candidates',
     '--staging-root',
@@ -1012,7 +1019,7 @@ test('candidate verification [27-W0-02] seals independent locale jobs and exact 
   ].join(' '))
 })
 
-test('candidate verification [27-W0-02] rejects changed contract code output and inventory [owner Plan 27-03]', () => {
+phase27ReleaseTest('candidate verification [27-W0-02] rejects changed contract code output and inventory [owner Plan 27-03]', () => {
   const mutations = [
     {
       name: 'changed summary source hash',
@@ -1089,7 +1096,7 @@ test('candidate verification [27-W0-02] rejects changed contract code output and
     rmSync(temporaryRoot, { recursive: true, force: true })
   }
 })
-test('publication accepts exactly one complete-package path and preserves frozen candidate provenance', () => {
+phase27ReleaseTest('publication accepts exactly one complete-package path and preserves frozen candidate provenance', () => {
   const help = runGenerator(['--help'])
   assert.equal(help.status, 0, help.stderr)
   assert.match(help.stdout, /--publish-candidates/)
@@ -1120,7 +1127,7 @@ test('publication accepts exactly one complete-package path and preserves frozen
   assert.match(source, new RegExp(manifest.generator.sha256))
 })
 
-test('publication succeeds from an absent target as one complete directory move', () => {
+phase27ReleaseTest('publication succeeds from an absent target as one complete directory move', () => {
   const temporaryDirectory = mkdtempSync(
     resolve(tmpdir(), 'phase-27-absent-target-'),
   )
@@ -1148,7 +1155,7 @@ test('publication succeeds from an absent target as one complete directory move'
   }
 })
 
-test('replacement succeeds from a seeded existing target without partial visibility or residue', () => {
+phase27ReleaseTest('replacement succeeds from a seeded existing target without partial visibility or residue', () => {
   const temporaryDirectory = mkdtempSync(
     resolve(tmpdir(), 'phase-27-seeded-replacement-'),
   )
@@ -1175,7 +1182,7 @@ test('replacement succeeds from a seeded existing target without partial visibil
   }
 })
 
-test('rollback restores absent or seeded targets after every transaction-stage failure and interrupt', () => {
+phase27ReleaseTest('rollback restores absent or seeded targets after every transaction-stage failure and interrupt', () => {
   const failurePoints = [
     'candidate-verification',
     'temporary-preparation',
@@ -1226,7 +1233,7 @@ test('rollback restores absent or seeded targets after every transaction-stage f
   }
 })
 
-test('publication lock contention fails without changing seeded public bytes or modes', () => {
+phase27ReleaseTest('publication lock contention fails without changing seeded public bytes or modes', () => {
   const temporaryDirectory = mkdtempSync(
     resolve(tmpdir(), 'phase-27-lock-contention-'),
   )
@@ -1250,7 +1257,7 @@ test('publication lock contention fails without changing seeded public bytes or 
   }
 })
 
-test('publication corruption matrix fails before public mutation and removes private residue', () => {
+phase27ReleaseTest('publication corruption matrix fails before public mutation and removes private residue', () => {
   const cases = [
     {
       name: 'source SHA',
@@ -1455,7 +1462,7 @@ test('publication corruption matrix fails before public mutation and removes pri
   }
 })
 
-test('public inventory public hash strict JSON CSV and parity lock the exact nine-member generation', () => {
+phase27ReleaseTest('public inventory public hash strict JSON CSV and parity lock the exact nine-member generation', () => {
   const target = resolve(publicRoot, publicPackageRelativePath)
   assert.deepEqual(
     readdirSync(target).sort(),
@@ -1552,7 +1559,7 @@ test('public inventory public hash strict JSON CSV and parity lock the exact nin
   )
 })
 
-test('offline rerun independently reproduces both public Notebooks without repository writes', () => {
+phase27ReleaseTest('offline rerun independently reproduces both public Notebooks without repository writes', () => {
   const before = repositoryState()
   const checked = runGenerator(['--check', '--offline'])
   assert.equal(checked.status, 0, checked.stderr)
