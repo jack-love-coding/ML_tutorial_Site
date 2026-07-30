@@ -1,45 +1,30 @@
 ---
 phase: 27-linear-regression-rebuild
-verified: 2026-07-30T09:33:15Z
-status: gaps_found
-score: 51/52 must-haves verified
+verified: 2026-07-30T10:54:31Z
+status: passed
+score: 52/52 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
   previous_status: gaps_found
-  previous_score: 41/52
+  previous_score: 51/52
   gaps_closed:
-    - "One strict Bike package now drives the simulation facade, all six workbench selectors, and the visible numerical outputs; cross-authority tests compare source CSV, published JSON/CSVs, selectors, compact baseline, and facade snapshots."
-    - "The final lesson bridge now targets the existing Phase 28 housing project route and is asserted by source and browser checks."
-    - "Plan 27-03 now declares the actual ignored staging package paths under .cache/linear-regression/phase-27-staging/notebooks/linear-regression/."
-    - "The committed browser matrix was independently rerun: 36/36 cases, four semantic interaction runs, eight failure injections, and zero route/layout/request/console/warning failures."
-  gaps_remaining:
-    - "Learner-facing linear-regression UI still renders the prohibited standalone terms 证据 / Evidence."
+    - "All six LinearRegression*.vue files now pass an all-component learner-copy scan; the univariate panel, row result, empty state, table heading, and SVG accessible name use natural bilingual result/chart wording without learner-facing 证据 or standalone Evidence/evidence."
+  gaps_remaining: []
   regressions: []
-gaps:
-  - truth: "Learner-facing linear-regression copy uses plain result/observation/comparison/reference-output terminology and does not use 证据 / Evidence as a navigation label or unexplained teaching term."
-    status: failed
-    reason: "LinearRegressionUnivariateView renders 锁定证据, 逐行损失证据, 证据, Locked evidence, Per-row loss evidence, and Evidence in the visible panel heading and SVG accessible name. The current terminology test scans only linearRegressionModule.ts, so it passes without examining this rendered component."
-    artifacts:
-      - path: "src/components/LinearRegressionUnivariateView.vue"
-        issue: "Lines 40-49 and 70-79 define prohibited learner-facing labels; lines 355-363 render them visibly and in the SVG aria-label."
-      - path: "tests/linear-regression-content.test.mjs"
-        issue: "Lines 212-223 claim a plain-terminology contract but only apply the 证据 exclusion to moduleSource, not the Phase 27 Vue components."
-    missing:
-      - "Replace the visible 证据 / Evidence labels with the approved result, observation, comparison, or reference-output wording in both locales."
-      - "Expand the terminology test to scan the rendered linear-regression component copy, especially LinearRegressionUnivariateView.vue, so this regression fails closed."
+gaps: []
 ---
 
 # Phase 27: Linear Regression Rebuild Verification Report
 
 **Phase Goal:** Rebuild `linear-regression` around one reproducible regression case that connects matrix prediction, MSE gradients, three fitting methods, coefficient meaning, and held-out residual diagnosis.
-**Verified:** 2026-07-30T09:33:15Z
-**Status:** gaps_found
-**Re-verification:** Yes — after closure of the three prior blocking concerns
+**Verified:** 2026-07-30T10:54:31Z
+**Status:** passed
+**Re-verification:** Yes — after Plan 27-12 terminology closure
 
 ## Goal Achievement
 
-The prior numerical-authority, hollow-control, Phase 28 bridge, staging-metadata, and browser-behavior gaps are closed in the live code and independently exercised. The phase remains blocked by one directly observable contract violation: the primary univariate view uses the explicitly prohibited learner-facing `证据 / Evidence` terminology, while its test scans only the course-data file and therefore gives a misleading green result.
+All 52 merged roadmap/plan truths are now verified. Plan 27-12 closes the final terminology gap without changing numerical, routing, progress, responsive, asset, download, or Phase 28 bridge behavior. The current tree independently passes the offline package replay, 145-test Phase 27 suite, 941-test workspace suite, both builds, exact 36-case browser matrix, Pages/no-remote checks, and security audit.
 
 ### Observable Truths
 
@@ -51,7 +36,7 @@ The 52 truths below merge all five ROADMAP success criteria with every PLAN fron
 | R2 | Clean-kernel Notebook reproduction compares NumPy batch GD, normal equation/lstsq, and sklearn on one fixed split. | ✓ VERIFIED | Isolated `--check --offline` independently reran both locale Notebooks; full suite repeated the check successfully. |
 | R3 | Three-method coefficients, predictions, and metrics agree within documented tolerances with objective differences explicit. | ✓ VERIFIED | Strict summary/parser and authority tests preserve full-precision deltas below `1e-6`; OLS, Ridge, and Lasso roles remain distinct. |
 | R4 | Held-out residual/coefficient-stability views identify model limitations after optimization proof. | ✓ VERIFIED | Strict package, selectors, results panel, and browser matrix show hourly shape, spread, named cases, atemp instability, regularization, and log1p after convergence. |
-| R5 | Existing route, checkpoint, interactive lab, downloads, tests, and both builds remain valid. | ✓ VERIFIED | 940 tests pass; both builds pass; exact browser matrix passes 36/36 with six semantic outputs and nine downloads. |
+| R5 | Existing route, checkpoint, interactive lab, downloads, tests, and both builds remain valid. | ✓ VERIFIED | 941 tests pass; both builds pass; exact browser matrix passes 36/36 with six semantic outputs and nine downloads. |
 | P01.1 | A DOM-free authority implements feature order, prediction, residual, MSE gradients, metrics, and coefficient conversion. | ✓ VERIFIED | `linearRegressionBike.ts` and focused math tests remain substantive and green. |
 | P01.2 | Exact split, train-only scaling, unscaled workingday, and leakage exclusions are represented. | ✓ VERIFIED | Source, manifest, parsers, and tests lock 13,903/3,476, four scaled continuous features, unscaled `workingday`, and excluded leakage fields. |
 | P01.3 | Deterministic zero-init GD uses 0.1/5,000/1e-8, stops at 772, and checks 1e-6 agreement. | ✓ VERIFIED | Generated trace contains updates 0–772; strict package and tests agree. |
@@ -72,7 +57,7 @@ The 52 truths below merge all five ROADMAP success criteria with every PLAN fron
 | P03.7 | Representative/named selection freezes instants and tie-break rules. | ✓ VERIFIED | Instants 11550, 17213, 15628, 14965, and 15604 remain exact across source, outputs, selectors, and baseline. |
 | P04.1 | Nine public members publish only after complete transaction verification. | ✓ VERIFIED | Publisher and complete-package tests pass. |
 | P04.2 | Absent/replacement publication rolls back exact bytes/modes on injected failures. | ✓ VERIFIED | Full rollback and lock-contention matrices pass. |
-| P04.3 | Offline check reruns both Notebooks externally and proves repository immutability. | ✓ VERIFIED | Canonical verifier run reports 9 members, 2 rerun Notebooks, and 1,377 entries byte/size/mtime clean. |
+| P04.3 | Offline check reruns both Notebooks externally and proves repository immutability. | ✓ VERIFIED | Canonical verifier run reports 9 members, 2 rerun Notebooks, and 1,379 entries byte/size/mtime clean. |
 | P04.4 | Public package preserves compact/full residual values with no runtime network/partial package. | ✓ VERIFIED | Exact local package, complete residual CSV, runtime registry, and no-remote scan pass. |
 | P04.5 | Tolerance/hash/contract/parity/non-finite corruption fails closed. | ✓ VERIFIED | Parser, candidate, publication, and offline corruption matrices pass. |
 | P05.1 | Runtime consumers use only nine typed, local, base-safe assets. | ✓ VERIFIED | Literal registry and `withPublicBase` wiring pass root and Pages tests. |
@@ -96,11 +81,11 @@ The 52 truths below merge all five ROADMAP success criteria with every PLAN fron
 | P08.1 | Paged lesson composes chapters, checkpoint, one download area, and correct next-step bridge. | ✓ VERIFIED | Final `linear-phase-28-bridge` targets `/learn/housing-price-project`; source and browser matrix assert it. |
 | P08.2 | Typed base-safe loads/downloads fail closed to bilingual static content. | ✓ VERIFIED | Four-file abortable load and eight injected failure paths pass without full-data leakage. |
 | P08.3 | Both locales/viewports can navigate and operate every lab/download without layout/link/accessibility failure. | ✓ VERIFIED | Exact matrix passes 36/36; semantic checks pass in all four locale/viewport pairs with zero layout/link/request/console/warning issues. |
-| P08.4 | Copy is learner-facing and no semantically inconsistent media remains. | ✗ FAILED | Media now matches the Bike authority, but `LinearRegressionUnivariateView.vue` visibly renders the prohibited `证据 / Evidence` terminology in both locales. |
-| P08.5 | Offline/tests/build/browser/Pages/security gates all block release. | ✓ VERIFIED | Offline replay, 940-test suite, both builds, exact browser matrix, and audit were independently rerun successfully. |
-| P08.6 | Protected hashes/status/index, scope allowlists, residue, and no-remote scans are enforced. | ✓ VERIFIED | Only the pre-existing protected changes remain; hashes are exact; no preview listener or verifier browser session remains. |
+| P08.4 | Copy is learner-facing and no semantically inconsistent media remains. | ✓ VERIFIED | All six discovered components are scanned. The RED commit fails on the seven prior learner-copy violations; current copy uses `锁定结果`/`逐行损失结果`/`结果` and `Locked result`/`Per-row loss result`/`Result`, including empty state and SVG accessible name. |
+| P08.5 | Offline/tests/build/browser/Pages/security gates all block release. | ✓ VERIFIED | Offline replay, 145 focused tests, 941 full tests, both builds, exact browser matrix, Pages 11/11, no-remote 5/5, and audit were independently rerun successfully. |
+| P08.6 | Protected hashes/status/index, scope allowlists, residue, and no-remote scans are enforced. | ✓ VERIFIED | Protected hashes and exact two-line pre-report status match; index is empty, `git diff --check` passes, the verifier session closed, and port 4173 is free. |
 
-**Score:** 51/52 truths verified (0 present, behavior-unverified)
+**Score:** 52/52 truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
@@ -114,13 +99,13 @@ The 52 truths below merge all five ROADMAP success criteria with every PLAN fron
 | `src/data/linearRegressionModule.ts` | Eight-chapter bilingual course | ✓ VERIFIED | Complete and wired through the asynchronous catalog. |
 | `src/simulations/linearRegressionWorkbench.ts` | Strict package constructor, selectors, compact authority | ✓ VERIFIED | Substantive and cross-checked against source and published outputs. |
 | `src/components/LinearRegressionLessonLab.vue` | Six package-backed interactive outputs | ✓ VERIFIED | All refs drive pure selectors and visible `aria-live` output hooks. |
-| `src/components/LinearRegressionUnivariateView.vue` | Bike SVG/table with learner-facing localized copy | ✗ PARTIAL | Numerical data is aligned, but visible and accessible copy violates D-26. |
+| `src/components/LinearRegressionUnivariateView.vue` | Bike SVG/table with learner-facing localized copy | ✓ VERIFIED | Result/chart wording is natural in both locales and feeds the visible panel, table, empty state, and SVG accessible name. |
 | `src/components/LinearRegressionResults.vue` | Strict generated-result presentation | ✓ VERIFIED | Real package results flow into methods and diagnostics. |
 | `src/components/LinearRegressionPagedLesson.vue` | Lesson composition and Phase 28 bridge | ✓ VERIFIED | Bridge has stable hook and exact housing-project target. |
 | `src/components/LinearRegressionDownloads.vue` | Nine local downloads | ✓ VERIFIED | One base-safe download area exposes all members. |
 | `scripts/qa/linearRegressionBrowserMatrix.js` | 36-case semantic release matrix | ✓ VERIFIED | Independently executed with 36/36, 4 interactions, and 8 failure injections. |
 | `tests/linear-regression-authority.test.ts` | Non-self-referential authority chain | ✓ VERIFIED | Reads source CSV and published JSON/CSVs through production parsers, then compares selectors/baseline/facade. |
-| `tests/linear-regression-content.test.mjs` | Bilingual content and terminology gate | ⚠️ PARTIAL | Substantive and passing, but the terminology assertion does not scan rendered component copy. |
+| `tests/linear-regression-content.test.mjs` | Bilingual content and terminology gate | ✓ VERIFIED | Filesystem discovery scans all six components, both locales, visible/template/accessibility copy, and ignores structural identifiers; RED proof catches every prior violation. |
 | `.planning/phases/27-linear-regression-rebuild/27-03-PLAN.md` | Literal staging metadata | ✓ VERIFIED | Declares the actual `notebooks/linear-regression/` candidate root and `environment.json`. |
 
 ### Key Link Verification
@@ -133,7 +118,7 @@ The 52 truths below merge all five ROADMAP success criteria with every PLAN fron
 | Simulation facade | published baseline | exact shared authority | ✓ WIRED | Seven facade snapshots pass parity tests. |
 | Final lesson bridge | Phase 28 housing project | stable router-link | ✓ WIRED | Exact href verified in source and browser. |
 | Plan 27-03 metadata | staging package | literal paths | ✓ WIRED | All declared candidates exist. |
-| Terminology test | rendered univariate copy | source scan | ✗ NOT_WIRED | Test scans `linearRegressionModule.ts` only and misses the component that renders the prohibited terms. |
+| Terminology test | all `LinearRegression*.vue` learner copy | discovered inventory plus structured extraction | ✓ WIRED | Six files, both locale branches, visible template text, static accessibility text, and dynamic `copy.*` bindings are covered. |
 
 ### Data-Flow Trace (Level 4)
 
@@ -150,16 +135,14 @@ The 52 truths below merge all five ROADMAP success criteria with every PLAN fron
 
 | Behavior | Command | Result | Status |
 | --- | --- | --- | --- |
-| Focused Phase 27 regression suite | `node --test tests/linear-regression-*.test.* ...` | 144 pass, 0 fail | ✓ PASS |
-| Independent offline reproduction | `python3 scripts/linear-regression/build-phase-27-assets.py --check --offline` | 9 members; 2 independent Notebook reruns; 1,377 entries unchanged | ✓ PASS |
-| Full workspace suite | `npm test` | 940 pass, 0 fail, 0 skipped | ✓ PASS |
+| Focused Phase 27 regression suite | `node --test tests/linear-regression-*.test.* ...` | 145 pass, 0 fail | ✓ PASS |
+| Independent offline reproduction | `python3 scripts/linear-regression/build-phase-27-assets.py --check --offline` | 9 members; 2 independent Notebook reruns; 1,379 entries unchanged | ✓ PASS |
+| Full workspace suite | `npm test` | 941 pass, 0 fail, 0 skipped | ✓ PASS |
 | Standard production build | `npm run build` | Build succeeds; existing large-chunk advisory only | ✓ PASS |
 | GitHub Pages build | `npm run build:pages` | Build succeeds under Pages base | ✓ PASS |
-| Exact browser matrix | Vite root preview plus `linearRegressionBrowserMatrix.js` | 36/36; 4/4 six-output semantic runs; 8/8 failure injections; zero route issues | ✓ PASS |
+| Exact browser matrix | Vite root preview plus `linearRegressionBrowserMatrix.js` | 36/36, 0 failures; 4×6 semantic checks; 8 safe failure injections; session/port cleaned | ✓ PASS |
 | Security audit | `npm run security:audit` | 0 vulnerabilities | ✓ PASS |
 | Protected baseline/cleanup | SHA-256, status, listener, session checks | Hashes exact; only protected pre-existing changes; port free; verifier session closed | ✓ PASS |
-
-One diagnostic run launched a second offline replay concurrently with an already-running replay and observed output drift. The canonical isolated command and the normal full-suite command subsequently passed independently. Concurrency between two verification processes is not a declared Phase 27 contract, so this did not change a must-have status.
 
 ### Probe Execution
 
@@ -169,36 +152,32 @@ No `scripts/**/tests/probe-*.sh` probe is declared or present for Phase 27. The 
 
 | Requirement | Source Plans | Description | Status | Evidence |
 | --- | --- | --- | --- | --- |
-| LINR-01 | 01, 05–10 | Connect affine prediction, residuals, MSE gradients, and coefficients | ✓ SATISFIED | Pure authority, strict package, selectors, bilingual narrative, and browser outputs align. |
-| LINR-02 | 01–04, 06–11 | Reproduce locked NumPy batch GD | ✓ SATISFIED | Both clean-kernel Notebooks rerun offline to update 772. |
-| LINR-03 | 01–11 | Compare normal equation, GD, and sklearn on one split | ✓ SATISFIED | Exact published method deltas and runtime selector/facade parity pass. |
-| LINR-04 | 01, 03–11 | Diagnose held-out residual/coefficient limitations | ✓ SATISFIED | Strict residual/case/atemp/regularization/log1p sequence is visible and interactive. |
+| LINR-01 | 01, 05–12 | Connect affine prediction, residuals, MSE gradients, and coefficients | ✓ SATISFIED | Pure authority, strict package, selectors, bilingual narrative, and browser outputs align. |
+| LINR-02 | 01–04, 06–12 | Reproduce locked NumPy batch GD | ✓ SATISFIED | Both clean-kernel Notebooks rerun offline to update 772. |
+| LINR-03 | 01–12 | Compare normal equation, GD, and sklearn on one split | ✓ SATISFIED | Exact published method deltas and runtime selector/facade parity pass. |
+| LINR-04 | 01, 03–12 | Diagnose held-out residual/coefficient limitations | ✓ SATISFIED | Strict residual/case/atemp/regularization/log1p sequence is visible and interactive. |
 
-No Phase 27 requirement is orphaned. The remaining D-26 learner-copy failure is a PLAN/CONTEXT must-have rather than an unmapped REQUIREMENTS.md ID.
+No Phase 27 requirement is orphaned.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 | --- | --- | --- | --- | --- |
-| `src/components/LinearRegressionUnivariateView.vue` | 40–49, 70–79, 355–363 | Prohibited learner-facing audit jargon | 🛑 Blocker | Both visible panel copy and accessible SVG names violate the locked plain-language contract. |
-| `tests/linear-regression-content.test.mjs` | 212–223 | Misleading narrow terminology gate | ⚠️ Warning | Test title claims learner terminology coverage but scans only `linearRegressionModule.ts`. |
 | Production builds | n/a | Existing chunks above the configured advisory threshold | ℹ️ Info | Builds succeed; not introduced as a Phase 27 goal failure. |
 
 No unreferenced `TBD`, `FIXME`, or `XXX` marker and no `test.skip`/`test.todo` were found in the Phase 27 runtime/test files.
 
 ### Human Verification Required
 
-None. The remaining gap is directly observable in source and rendered browser copy; the runtime interaction/layout contract was exercised automatically.
+None.
 
 ### Gaps Summary
 
-The numerical and behavioral phase goal is otherwise implemented: all three previous blocker groups are closed, the exact browser matrix is green, and every roadmap success criterion has supporting code and execution evidence. Release remains blocked because D-26 explicitly forbids `证据 / Evidence` as a standalone learner-facing label, yet the univariate view renders exactly those labels in both locales and its test does not cover that component.
+No gaps remain. The implementation forms one auditable Bike-data chain from source CSV and two independently executed Notebooks through strict published outputs, pure selectors, visible lab/results, held-out diagnosis, downloads, checkpoint/progress preservation, and the Phase 28 housing-project bridge. Plan 27-12 closes D-26 with a test that demonstrably fails on the prior component and passes on the current learner-facing copy.
 
-This is not deferred. Phase 31 may re-audit cross-module consistency, but Phase 27 Plans 06, 08, 10, and 11 explicitly own the current learner-facing terminology gate.
-
-**Next action:** plan the single copy/test gap, then re-run Phase 27 verification (`/gsd:plan-phase 27 --gaps`).
+**Next action:** Phase 27 is ready to proceed.
 
 ---
 
-_Verified: 2026-07-30T09:33:15Z_
+_Verified: 2026-07-30T10:54:31Z_
 _Verifier: the agent (gsd-verifier)_
