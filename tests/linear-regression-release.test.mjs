@@ -30,7 +30,7 @@ const phasePathPatterns = [
   /^tests\/linear-regression-/,
   /^tests\/algorithm-progress\.test\.ts$/,
   /^tests\/curriculumProgress\.test\.ts$/,
-  /^src\/simulations\/linearRegression(?:Bike)?\.ts$/,
+  /^src\/simulations\/linearRegression(?:Bike|Workbench)?\.ts$/,
   /^src\/data\/linearRegression(?:Assets|Module)\.ts$/,
   /^src\/i18n\/messages\.ts$/,
   /^src\/curriculum\/adapters\/algorithmAdapter\.ts$/,
@@ -107,6 +107,7 @@ function collectPhaseRuntimeFiles() {
   const fixed = [
     'src/simulations/linearRegression.ts',
     'src/simulations/linearRegressionBike.ts',
+    'src/simulations/linearRegressionWorkbench.ts',
     'src/data/linearRegressionAssets.ts',
     'src/data/linearRegressionModule.ts',
     'src/components/LinearRegressionPagedLesson.vue',
@@ -178,9 +179,70 @@ test('route matrix contract probes navigation interactions downloads fallbacks a
   }
 })
 
+test('Phase 28 bridge names the exact housing project route and bilingual handoff', () => {
+  const page = source('src/components/LinearRegressionPagedLesson.vue')
+  const housing = source('src/data/housingPriceProjectModule.ts')
+  const routeManifest = source('src/curriculum/routeManifest.ts')
+  const adapter = source('src/curriculum/adapters/algorithmAdapter.ts')
+  const v3Audit = source('src/curriculum/v3/audit.ts')
+
+  for (const token of [
+    'data-testid="linear-phase-28-bridge"',
+    'to="/learn/housing-price-project"',
+    "nextLesson: zh ? '阶段 28' : 'Phase 28'",
+    "'继续进入表格回归项目'",
+    "'Continue to the tabular-regression project'",
+    "'把本课确认的线性模型边界带入现有房价项目：使用冻结本地数据、防泄漏流水线、诚实基线、受控改进与残差复盘。'",
+    "\"Carry this lesson's linear-model boundary into the existing housing project with frozen local data, a leakage-safe pipeline, an honest baseline, controlled improvement, and residual review.\"",
+    "'进入房价预测项目'",
+    "'Open Housing Price Project'",
+  ]) {
+    assert.match(page, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  }
+
+  assert.match(housing, /slug:\s*'housing-price-project'/)
+  assert.match(housing, /route:\s*'\/learn\/housing-price-project'/)
+  assert.match(routeManifest, /id:\s*'housing-price-project'[\s\S]*route:\s*'\/learn\/housing-price-project'/)
+  assert.match(adapter, /slug:\s*'housing-price-project'[\s\S]*route:\s*'\/learn\/housing-price-project'/)
+  assert.match(v3Audit, /'housing-price-project':\s*\['project-tabular-regression'\]/)
+})
+
+test('browser matrix records exact package-backed semantic changes for all six controls', () => {
+  const matrix = source('scripts/qa/linearRegressionBrowserMatrix.js')
+
+  for (const hook of [
+    'linear-output-row-batch',
+    'linear-output-gd-trace',
+    'linear-output-method',
+    'linear-output-coefficient-space',
+    'linear-output-heldout-case',
+    'linear-output-atemp-comparison',
+  ]) {
+    assert.match(matrix, new RegExp(hook))
+  }
+
+  assert.match(matrix, /const semanticChecks = \{[\s\S]*rowBatch[\s\S]*gdTrace[\s\S]*method[\s\S]*coefficientSpace[\s\S]*heldoutCase[\s\S]*atempComparison[\s\S]*\}/)
+  assert.match(matrix, /expectedInteractionCount\s*=\s*4/)
+  assert.match(matrix, /expectedFailureInjectionCount\s*=\s*8/)
+  assert.match(matrix, /interactions\.length\s*!==\s*expectedInteractionCount/)
+  assert.match(matrix, /failureInjections\.length\s*!==\s*expectedFailureInjectionCount/)
+  assert.match(matrix, /Object\.values\(interactionResult\.semanticChecks\)\.every/)
+  assert.match(matrix, /11550/)
+  assert.match(matrix, /13903/)
+  assert.match(matrix, /3476/)
+  assert.match(matrix, /772/)
+  assert.match(matrix, /17213/)
+  assert.match(matrix, /15628/)
+  assert.match(matrix, /14965/)
+  assert.match(matrix, /15604/)
+  assert.match(matrix, /0\.9923834525986027/)
+  assert.match(matrix, /17\.240661944055777/)
+})
+
 test('scope classifier fixtures allow only Phase 27 paths and the exact protected baseline', () => {
   for (const line of [
     ' M src/components/LinearRegressionPagedLesson.vue',
+    ' M src/simulations/linearRegressionWorkbench.ts',
     '?? src/components/LinearRegressionDownloads.vue',
     ' M src/styles/modules/linear-regression-responsive.css',
     '?? scripts/qa/linearRegressionBrowserMatrix.js',
