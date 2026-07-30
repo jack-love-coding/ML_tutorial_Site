@@ -158,8 +158,9 @@ test('row to batch results come from the pure Bike authority and preserve the lo
   assert.match(combined, /11_?550/)
   assert.match(combined, /lossContribution/)
   assert.match(combined, /unaveragedWeightGradientContribution/)
-  assert.match(lab, /13_?903/)
-  assert.match(lab, /3_?476/)
+  assert.match(lab, /selectedRowBatchResult\.trainRows/)
+  assert.match(lab, /selectedRowBatchResult\.testRows/)
+  assert.match(lab, /selectedRowBatchResult\.featureOrder\.length/)
   assert.match(combined, /row.*batch|batch.*row|单行.*批量|批量.*单行/s)
 })
 
