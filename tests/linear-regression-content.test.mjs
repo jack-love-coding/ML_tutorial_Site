@@ -1,11 +1,113 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 
 const root = new URL('../', import.meta.url)
 
 function read(path) {
   return readFileSync(new URL(path, root), 'utf8')
+}
+
+function componentInventory() {
+  return readdirSync(new URL('src/components/', root), { withFileTypes: true })
+    .filter((entry) => entry.isFile() && /^LinearRegression.*\.vue$/.test(entry.name))
+    .map((entry) => entry.name)
+    .sort()
+}
+
+function componentBlock(source, tagName) {
+  return source.match(new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`))?.[1] ?? ''
+}
+
+function constInitializer(source, name) {
+  const declaration = new RegExp(`\\bconst\\s+${name}\\b`).exec(source)
+  if (!declaration) return ''
+  const assignment = source.indexOf('=', declaration.index + declaration[0].length)
+  if (assignment < 0) return ''
+
+  let roundDepth = 0
+  let squareDepth = 0
+  let curlyDepth = 0
+  let quote = ''
+  let escaped = false
+  let enteredInitializer = false
+
+  for (let index = assignment + 1; index < source.length; index += 1) {
+    const character = source[index]
+    if (quote) {
+      if (escaped) {
+        escaped = false
+      } else if (character === '\\') {
+        escaped = true
+      } else if (character === quote) {
+        quote = ''
+      }
+      continue
+    }
+    if (character === "'" || character === '"' || character === '`') {
+      quote = character
+      continue
+    }
+    if (character === '(') roundDepth += 1
+    if (character === ')') roundDepth -= 1
+    if (character === '[') squareDepth += 1
+    if (character === ']') squareDepth -= 1
+    if (character === '{') curlyDepth += 1
+    if (character === '}') curlyDepth -= 1
+    if ('([{'.includes(character)) enteredInitializer = true
+    if (
+      character === '\n'
+      && enteredInitializer
+      && roundDepth === 0
+      && squareDepth === 0
+      && curlyDepth === 0
+    ) {
+      return source.slice(assignment + 1, index)
+    }
+  }
+  return source.slice(assignment + 1)
+}
+
+function stringLiteralValues(source) {
+  return [...source.matchAll(/(['"`])((?:\\[\s\S]|(?!\1)[\s\S])*?)\1/g)]
+    .filter((match) => {
+      const previous = source.slice(0, match.index).trimEnd().at(-1)
+      const next = source.slice(match.index + match[0].length).trimStart()[0]
+      return !(next === ':' && (previous === '{' || previous === ','))
+    })
+    .map((match) => match[2].replaceAll("\\'", "'").replaceAll('\\"', '"'))
+}
+
+function learnerFacingCopy(source) {
+  const script = componentBlock(source, 'script')
+  const template = componentBlock(source, 'template')
+  const localizedRegions = [
+    constInitializer(script, 'copy'),
+    constInitializer(script, 'outputLabels'),
+  ].filter(Boolean)
+  const localizedStrings = localizedRegions.flatMap(stringLiteralValues)
+  const accessibilityStrings = [
+    ...template.matchAll(/(?<!:)\\b(?:aria-label|title|alt|placeholder)="([^"]+)"/g),
+  ].map((match) => match[1].trim())
+  const dynamicAccessibilityBindings = [
+    ...template.matchAll(/:(?:aria-label|title|alt|placeholder)="([^"]+)"/g),
+  ].map((match) => match[1].trim())
+  const visibleTemplateText = template
+    .replaceAll(/<!--[\s\S]*?-->/g, ' ')
+    .replaceAll(/\{\{[\s\S]*?\}\}/g, ' ')
+    .replaceAll(/<[^>]+>/g, '\n')
+    .split('\n')
+    .map((value) => value.replaceAll(/\s+/g, ' ').trim())
+    .filter(Boolean)
+
+  return {
+    localizedRegions,
+    localizedStrings,
+    accessibilityStrings,
+    dynamicAccessibilityBindings,
+    visibleTemplateText,
+    corpus: [...localizedStrings, ...accessibilityStrings, ...visibleTemplateText],
+  }
 }
 
 const moduleSource = read('src/data/linearRegressionModule.ts')
@@ -209,7 +311,7 @@ test('regularization isolates atemp instability and distinguishes Ridge and Lass
   ])
 })
 
-test('bilingual notation, typed output bindings, safe rendering, and plain learner terminology stay aligned', () => {
+test('bilingual notation, typed output bindings, and safe rendering stay aligned', () => {
   assert.match(moduleSource, /linearRegressionChapterAssets/)
   for (const id of expectedChapterIds) {
     assert.match(assetSource, new RegExp(`['"]?${id}['"]?: Object\\.freeze`))
@@ -221,6 +323,57 @@ test('bilingual notation, typed output bindings, safe rendering, and plain learn
   assert.doesNotMatch(moduleSource, /证据/)
   assert.match(moduleSource, /结果|观察|对照|参考输出/)
   assert.match(moduleSource, /Run Result|Observation|Comparison|Reference Output/)
+})
+
+test('all linear-regression component learner copy uses plain result terminology', () => {
+  const inventory = componentInventory()
+  assert.equal(inventory.length, 6, 'the current LinearRegression*.vue inventory should be complete')
+  assert.ok(inventory.includes('LinearRegressionUnivariateView.vue'))
+
+  const violations = []
+  for (const filename of inventory) {
+    const source = read(`src/components/${filename}`)
+    const learnerCopy = learnerFacingCopy(source)
+    assert.ok(learnerCopy.localizedRegions.length > 0, `${filename} should expose localized copy`)
+    assert.ok(
+      learnerCopy.localizedStrings.some((value) => /[\u3400-\u9fff]/u.test(value)),
+      `${filename} should scan the Chinese locale branch`,
+    )
+    assert.ok(
+      learnerCopy.localizedStrings.some((value) => /[A-Za-z]{3}/.test(value)),
+      `${filename} should scan the English locale branch`,
+    )
+    for (const binding of learnerCopy.dynamicAccessibilityBindings) {
+      assert.match(binding, /\bcopy\./, `${filename} accessibility copy must use scanned localized fields`)
+    }
+    learnerCopy.corpus.forEach((value) => {
+      if (/证据/u.test(value) || /\b[Ee]vidence\b/u.test(value)) {
+        violations.push(`${filename}: ${JSON.stringify(value)}`)
+      }
+    })
+  }
+
+  const univariate = read('src/components/LinearRegressionUnivariateView.vue')
+  assert.match(
+    univariate,
+    /:aria-label="`\$\{copy\.evidence\}: \$\{copy\.evidenceHeadings\[evidenceMode\]\}; \$\{copy\.cue\}`"/,
+  )
+
+  const structuralFixture = learnerFacingCopy(`
+    <script setup lang="ts">
+    import Evidence from './Evidence'
+    const evidenceWidth = 420
+    const evidence = () => 'internal-only'
+    const copy = computed(() => ({ label: 'Result' }))
+    </script>
+    <template>
+      <section class="evidence-panel" data-evidence="internal">
+        <span>{{ copy.label }}</span>
+      </section>
+    </template>
+  `)
+  assert.deepEqual(structuralFixture.corpus, ['Result'])
+  assert.deepEqual(violations, [], violations.join('\n'))
 })
 
 test('adapter order uses the same eight literal IDs and title keys without aliases', () => {
