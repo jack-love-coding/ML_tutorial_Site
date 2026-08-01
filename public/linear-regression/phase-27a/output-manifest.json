@@ -1,0 +1,121 @@
+{
+  "contractVersion": "linear-regression-phase-27a-manifest-v1",
+  "packageVersion": "27A.1",
+  "datasetSha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+  "members": [
+    {
+      "relativePath": "bike-linear-regression-course.en.ipynb",
+      "publicPath": "/linear-regression/phase-27a/bike-linear-regression-course.en.ipynb",
+      "bytes": 65031,
+      "sha256": "9484d078656c977fea966664b480e3c68b581d2e1987fe3b5cabe5264f7acd28"
+    },
+    {
+      "relativePath": "bike-linear-regression-course.zh-CN.ipynb",
+      "publicPath": "/linear-regression/phase-27a/bike-linear-regression-course.zh-CN.ipynb",
+      "bytes": 65021,
+      "sha256": "017a0cfe7322b3606329b477b34b15d619b89d8a4236c5e9177153741b494527"
+    },
+    {
+      "relativePath": "environment.json",
+      "publicPath": "/linear-regression/phase-27a/environment.json",
+      "bytes": 343,
+      "sha256": "f46a1d8736910ea50b5dc0128f6bae4136d07134a0aa271a2d4a9c3df6f7d035"
+    },
+    {
+      "relativePath": "feature-stage-metrics.csv",
+      "publicPath": "/linear-regression/phase-27a/feature-stage-metrics.csv",
+      "bytes": 1063,
+      "sha256": "43a2eb8e5756f8529ae02ee1772cdd3a68643c0c9c96bbd04f5cff557144edd3"
+    },
+    {
+      "relativePath": "figures/coefficients.png",
+      "publicPath": "/linear-regression/phase-27a/figures/coefficients.png",
+      "bytes": 56281,
+      "sha256": "efd0754c296d3f746067435d0dfc9b49e49c13809393861258dc6d4500f3c2b6"
+    },
+    {
+      "relativePath": "figures/feature-stages.png",
+      "publicPath": "/linear-regression/phase-27a/figures/feature-stages.png",
+      "bytes": 39494,
+      "sha256": "86bcbbea7d3a56b50a5a53f3ad8d8595286193da605286570453e3c54244bdad"
+    },
+    {
+      "relativePath": "figures/final-test.png",
+      "publicPath": "/linear-regression/phase-27a/figures/final-test.png",
+      "bytes": 177012,
+      "sha256": "f57148a47795739673c3b366b4da6f10d4585648eb9562b00d8cd83951aedbf5"
+    },
+    {
+      "relativePath": "figures/fit-line-temp.png",
+      "publicPath": "/linear-regression/phase-27a/figures/fit-line-temp.png",
+      "bytes": 118512,
+      "sha256": "336844e12ee26ea82b472c8147e585ebb1e89a2019a6ae4cd7cd176fa9c69b05"
+    },
+    {
+      "relativePath": "figures/gradient-descent.png",
+      "publicPath": "/linear-regression/phase-27a/figures/gradient-descent.png",
+      "bytes": 71797,
+      "sha256": "10f7519dde45d2ae26945a3cebeb55033dfdfb659d5c34d07c1470cfe217b762"
+    },
+    {
+      "relativePath": "figures/hour-and-polynomial.png",
+      "publicPath": "/linear-regression/phase-27a/figures/hour-and-polynomial.png",
+      "bytes": 103006,
+      "sha256": "01a184cc62a0fbf12de610d43e88dba6045a298aea18a14f1c53c1f90ccf692f"
+    },
+    {
+      "relativePath": "figures/regularization.png",
+      "publicPath": "/linear-regression/phase-27a/figures/regularization.png",
+      "bytes": 120828,
+      "sha256": "b8c74c5da6b940d885dd730ce14e28606945c63f1266b8e659237e2c40c37a57"
+    },
+    {
+      "relativePath": "figures/residual-loss.png",
+      "publicPath": "/linear-regression/phase-27a/figures/residual-loss.png",
+      "bytes": 118761,
+      "sha256": "b7146553717cb16c301e15c7b495bfa859f082e7966e5924289e7035a742ba4d"
+    },
+    {
+      "relativePath": "figures/split-and-target.png",
+      "publicPath": "/linear-regression/phase-27a/figures/split-and-target.png",
+      "bytes": 55905,
+      "sha256": "3c39468a27eaec1b2e846a8550c9cf741efc34c70e4d82fcfa6f9d286c5a7234"
+    },
+    {
+      "relativePath": "figures/train-feature-relations.png",
+      "publicPath": "/linear-regression/phase-27a/figures/train-feature-relations.png",
+      "bytes": 337598,
+      "sha256": "4ee2e2037403bc4a2e874d86ad85eee77b48364c8f707e4c24efc46962d7930d"
+    },
+    {
+      "relativePath": "figures/validation-diagnostics.png",
+      "publicPath": "/linear-regression/phase-27a/figures/validation-diagnostics.png",
+      "bytes": 205362,
+      "sha256": "efb2bb28ca2e5abedfca2fbad159f19cb08d9b830c734f312ea77efb8956607a"
+    },
+    {
+      "relativePath": "gradient-descent-trace.csv",
+      "publicPath": "/linear-regression/phase-27a/gradient-descent-trace.csv",
+      "bytes": 11521,
+      "sha256": "889bdd36281a22930a494045c56a20a414a38cfd0a555b7b66ae2d478dafdac8"
+    },
+    {
+      "relativePath": "linear-regression-course-summary.json",
+      "publicPath": "/linear-regression/phase-27a/linear-regression-course-summary.json",
+      "bytes": 73085,
+      "sha256": "29ca75c8e6296624036625ea4f3e69c0ee50e04dc3d7e2c6bc63b97e46778126"
+    },
+    {
+      "relativePath": "requirements.txt",
+      "publicPath": "/linear-regression/phase-27a/requirements.txt",
+      "bytes": 117,
+      "sha256": "9b5734e83c4aa18e9ffc08a5b570c1f4ef6448a7665a25fb9d2b9783a2949922"
+    },
+    {
+      "relativePath": "test-residuals.csv",
+      "publicPath": "/linear-regression/phase-27a/test-residuals.csv",
+      "bytes": 216739,
+      "sha256": "5d2c8cc8cb1966f60cae4b58afe7636d2c989737f12dab8943d68991261632fe"
+    }
+  ]
+}
