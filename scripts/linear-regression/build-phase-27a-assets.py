@@ -23,6 +23,7 @@ import pandas as pd
 import sklearn
 from nbclient import NotebookClient
 from nbformat.v4 import new_code_cell, new_markdown_cell, new_notebook
+from jupyter_client.kernelspec import KernelSpecManager
 from sklearn.linear_model import Lasso, LinearRegression, Ridge
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
@@ -36,9 +37,12 @@ from phase27a_analysis import (
     coefficient_rows,
     coefficient_spaces,
     core_gradient_descent,
+    binned_feature_profile,
+    deterministic_sample,
     engineer_cycle_features,
     finite_tree,
     fit_stages,
+    gradient_descent_suite,
     load_bike_data,
     metric_set,
     named_failure_cases,
@@ -47,6 +51,7 @@ from phase27a_analysis import (
     residual_records,
     select_stage,
     split_chronologically,
+    univariate_sufficient_statistics,
 )
 
 
@@ -56,6 +61,8 @@ DEFAULT_OUTPUT = ROOT / "public/linear-regression/phase-27a"
 PUBLIC_PREFIX = "/linear-regression/phase-27a"
 CONTRACT_VERSION = "linear-regression-phase-27a-summary-v2"
 PACKAGE_VERSION = "27A.1"
+INTERACTION_CONTRACT_VERSION = "linear-regression-phase-27b-interaction-v1"
+INTERACTION_MANIFEST_VERSION = "linear-regression-phase-27b-interaction-manifest-v1"
 
 COLORS = {
     "ink": "#20304a",
@@ -92,6 +99,296 @@ def json_ready(value: Any) -> Any:
     if isinstance(value, pd.Timestamp):
         return value.isoformat()
     return value
+
+
+def interaction_base(scene_id: str, source_cell_id: str) -> dict[str, str]:
+    return {
+        "contractVersion": INTERACTION_CONTRACT_VERSION,
+        "sceneId": scene_id,
+        "sourceCellId": source_cell_id,
+    }
+
+
+def xy_points(
+    frame: pd.DataFrame,
+    x: str,
+    y: str,
+    *,
+    split: str | None = None,
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in frame.itertuples(index=False):
+        entry: dict[str, Any] = {"x": float(getattr(row, x)), "y": float(getattr(row, y))}
+        if hasattr(row, "instant"):
+            entry["instant"] = int(row.instant)
+        if split is not None:
+            entry["split"] = split
+        rows.append(entry)
+    return rows
+
+
+def write_interaction_assets(
+    root: Path,
+    parts: Any,
+    fits: list[Any],
+    selected: Any,
+    validation_records: list[dict[str, Any]],
+    paths: dict[str, Any],
+) -> dict[str, Any]:
+    """Publish small browser assets derived only from the locked analysis flow."""
+    output = root / "interactions"
+    output.mkdir(parents=True, exist_ok=True)
+    train = engineer_cycle_features(parts.train)
+    validation = engineer_cycle_features(parts.validation)
+    test = engineer_cycle_features(parts.test)
+
+    line = LinearRegression().fit(train[["temp"]], train["cnt"])
+    line_prediction = line.predict(train[["temp"]])
+    baseline = {
+        "slope": float(line.coef_[0]),
+        "intercept": float(line.intercept_),
+        "mse": float(mean_squared_error(train["cnt"], line_prediction)),
+    }
+    train_points = xy_points(deterministic_sample(train, 180), "temp", "cnt", split="train")
+    point_domain = {
+        "x": [float(train.temp.min()), float(train.temp.max())],
+        "y": [0.0, float(train.cnt.max())],
+    }
+
+    fit_line = {
+        **interaction_base("fit-line", "fit-line-chart"),
+        "points": train_points,
+        "domain": point_domain,
+        "baseline": {"slope": baseline["slope"], "intercept": baseline["intercept"]},
+    }
+
+    matrix_columns = [
+        *dict.fromkeys(
+            feature
+            for fit in fits
+            for feature in fit.spec.features
+            if feature not in LEAKAGE_COLUMNS and feature != "cnt"
+        ),
+        "cnt",
+    ]
+    multivariate = {
+        **interaction_base("multivariate", "split-target-chart"),
+        "partitions": [
+            {
+                "id": identifier,
+                "start": int(start),
+                "end": int(end),
+                "rows": int(len(part)),
+                "targetMean": float(part.cnt.mean()),
+            }
+            for identifier, start, end, part in (
+                ("train", 0, TRAIN_END, parts.train),
+                ("validation", TRAIN_END, VALIDATION_END, parts.validation),
+                ("test", VALIDATION_END, len(parts.train) + len(parts.validation) + len(parts.test), parts.test),
+            )
+        ],
+        "sampleRows": {
+            identifier: [
+                {column: float(getattr(row, column)) for column in matrix_columns}
+                for row in deterministic_sample(part, 8).itertuples(index=False)
+            ]
+            for identifier, part in (
+                ("train", train),
+                ("validation", validation),
+                ("test", test),
+            )
+        },
+        "stages": [
+            {
+                "id": fit.spec.id,
+                "features": list(fit.spec.features),
+                "trainRmse": float(fit.train_metrics["rmse"]),
+                "validationRmse": float(fit.validation_metrics["rmse"]),
+            }
+            for fit in fits
+        ],
+        "forbiddenFeatures": [*LEAKAGE_COLUMNS, "cnt"],
+    }
+
+    residual_loss = {
+        **interaction_base("residual-loss", "residual-loss-chart"),
+        "points": train_points,
+        "domain": point_domain,
+        "statistics": univariate_sufficient_statistics(train),
+        "baseline": baseline,
+    }
+
+    traces = gradient_descent_suite(train)
+    training_motion = {
+        **interaction_base("training-motion", "gradient-descent-chart"),
+        "traces": [
+            {
+                "learningRate": float(trace["learningRate"]),
+                "status": trace["status"],
+                "points": [
+                    {
+                        "update": int(point["update"]),
+                        "mse": float(point["mse"]),
+                        "gradientNorm": float(point["gradientNorm"]),
+                        "intercept": float(point["intercept"]),
+                        "weightTemp": float(point["weight_temp"]),
+                    }
+                    for point in trace["trace"]
+                ],
+            }
+            for trace in traces
+        ],
+    }
+
+    temperature_sample = deterministic_sample(train, 120)
+    polynomial_curves = []
+    grid = np.linspace(float(train.temp.min()), float(train.temp.max()), 81)
+    for metric in polynomial_degree_metrics(parts):
+        degree = int(metric["degree"])
+        coefficients = np.polyfit(train.temp.to_numpy(float), train.cnt.to_numpy(float), degree)
+        polynomial_curves.append(
+            {
+                **metric,
+                "points": [{"x": float(x), "y": float(y)} for x, y in zip(grid, np.polyval(coefficients, grid), strict=True)],
+            }
+        )
+    # Compare every stage against the same validation-hour target curve used for
+    # selection, never against the locked test partition.
+    hourly_actual = validation.groupby("hr", observed=True).cnt.mean()
+    stage_hourly_predictions = []
+    for fit in fits:
+        predictions = fit.validation_prediction
+        hourly = pd.DataFrame({"hr": validation.hr.to_numpy(int), "prediction": predictions}).groupby("hr", observed=True).prediction.mean()
+        stage_hourly_predictions.append(
+            {
+                "id": fit.spec.id,
+                "trainRmse": float(fit.train_metrics["rmse"]),
+                "validationRmse": float(fit.validation_metrics["rmse"]),
+                "points": [{"x": float(hour), "y": float(value)} for hour, value in hourly.items()],
+            }
+        )
+    polynomial = {
+        **interaction_base("polynomial", "hour-polynomial-chart"),
+        "temperaturePoints": xy_points(temperature_sample, "temp", "cnt", split="train"),
+        "polynomialCurves": polynomial_curves,
+        "hourlyActual": [{"x": float(hour), "y": float(value)} for hour, value in hourly_actual.items()],
+        "stageHourlyPredictions": stage_hourly_predictions,
+    }
+
+    spaces = coefficient_spaces(selected.pipeline)
+    model_limits = {
+        **interaction_base("model-limits", "coefficient-chart"),
+        "spaces": spaces,
+        "featureProfiles": [
+            {
+                "feature": feature,
+                "domain": [float(train[feature].min()), float(train[feature].max())],
+                "reference": float(train[feature].median()),
+                "marginal": binned_feature_profile(train, feature),
+            }
+            for feature in ("temp", "hum", "windspeed", "hr")
+        ],
+    }
+
+    validation_frame = pd.DataFrame(validation_records)
+    hourly_residuals = validation_frame.groupby("hour", observed=True).residual.agg(
+        mean="mean", mae=lambda values: float(np.mean(np.abs(values)))
+    )
+    prediction_sample = deterministic_sample(validation_frame, 240)
+    overfitting = {
+        **interaction_base("overfitting", "diagnostic-chart"),
+        "complexity": [
+            {
+                "id": fit.spec.id,
+                "trainRmse": float(fit.train_metrics["rmse"]),
+                "validationRmse": float(fit.validation_metrics["rmse"]),
+            }
+            for fit in fits
+        ],
+        "hourlyResiduals": [
+            {"hour": int(hour), "mean": float(row["mean"]), "mae": float(row["mae"])}
+            for hour, row in hourly_residuals.iterrows()
+        ],
+        "predictionSample": [
+            {
+                "actual": float(row.actual),
+                "prediction": float(row.prediction),
+                "residual": float(row.residual),
+                "hour": int(row.hour),
+            }
+            for row in prediction_sample.itertuples(index=False)
+        ],
+        "namedCases": [
+            {
+                "role": row["role"],
+                "instant": int(row["instant"]),
+                "timestamp": str(row["timestamp"]),
+                "hour": int(row["hour"]),
+                "actual": float(row["actual"]),
+                "prediction": float(row["prediction"]),
+                "residual": float(row["residual"]),
+            }
+            for row in named_failure_cases(validation_records)
+        ],
+    }
+
+    regular_features = list(paths["features"])
+    scaler = StandardScaler().fit(train[regular_features])
+    x_train = scaler.transform(train[regular_features])
+    x_validation = scaler.transform(validation[regular_features])
+    ols = LinearRegression().fit(x_train, train.cnt.to_numpy(float))
+    regularization = {
+        **interaction_base("regularization", "regularization-chart"),
+        "correlation": float(train[["temp", "atemp"]].corr().iloc[0, 1]),
+        "temperatureSample": [
+            {"temp": float(row.temp), "atemp": float(row.atemp)}
+            for row in deterministic_sample(train, 180).itertuples(index=False)
+        ],
+        "ols": {
+            "validationRmse": float(mean_squared_error(validation.cnt, ols.predict(x_validation)) ** 0.5),
+            "coefficients": {
+                feature: float(value)
+                for feature, value in zip(regular_features, ols.coef_, strict=True)
+            },
+        },
+        "paths": [*paths["ridge"], *paths["lasso"]],
+    }
+
+    assets = [
+        fit_line,
+        multivariate,
+        residual_loss,
+        training_motion,
+        polynomial,
+        model_limits,
+        overfitting,
+        regularization,
+    ]
+    manifest_assets = []
+    for asset in assets:
+        finite_tree(asset)
+        filename = f"{asset['sceneId']}.json"
+        path = output / filename
+        path.write_text(json.dumps(json_ready(asset), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        manifest_assets.append(
+            {
+                "sceneId": asset["sceneId"],
+                "publicPath": f"{PUBLIC_PREFIX}/interactions/{filename}",
+                "sourceCellId": asset["sourceCellId"],
+                "sha256": sha256(path),
+                "bytes": path.stat().st_size,
+            }
+        )
+    manifest = {
+        "contractVersion": INTERACTION_MANIFEST_VERSION,
+        "datasetSha256": SOURCE_SHA256,
+        "assets": manifest_assets,
+    }
+    (root / "interaction-manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return manifest
 
 
 def setup_plot() -> None:
@@ -537,10 +834,14 @@ print('The test partition was evaluated once after feature and regularization de
 
 
 def execute_notebook(notebook: Any, workdir: Path) -> Any:
+    kernels = KernelSpecManager().find_kernel_specs()
+    kernel_name = "python3" if "python3" in kernels else "ml-atlas-phase27a"
+    if kernel_name not in kernels:
+        raise RuntimeError("A Python 3 Jupyter kernel is required to execute Phase 27A notebooks")
     return NotebookClient(
         notebook,
         timeout=300,
-        kernel_name="python3",
+        kernel_name=kernel_name,
         record_timing=False,
         resources={"metadata": {"path": str(workdir)}},
     ).execute()
@@ -582,6 +883,14 @@ def build_bundle(root: Path) -> None:
     validation_records = residual_records(engineer_cycle_features(parts.validation), selected.validation_prediction)
     test_records = residual_records(engineer_cycle_features(parts.test), final_prediction)
     paths = regularization_paths(parts)
+    interaction_manifest = write_interaction_assets(
+        root,
+        parts,
+        fits,
+        selected,
+        validation_records,
+        paths,
+    )
 
     plotters: list[tuple[str, Callable[[Path], dict[str, Any]]]] = [
         ("fit-line-temp", lambda path: plot_fit_line(parts.train, path)),
@@ -708,7 +1017,13 @@ def build_bundle(root: Path) -> None:
             "stageMetrics": f"{PUBLIC_PREFIX}/feature-stage-metrics.csv",
             "gradientTrace": f"{PUBLIC_PREFIX}/gradient-descent-trace.csv",
             "residuals": f"{PUBLIC_PREFIX}/test-residuals.csv",
+            "interactionManifest": f"{PUBLIC_PREFIX}/interaction-manifest.json",
             "manifest": f"{PUBLIC_PREFIX}/output-manifest.json",
+        },
+        "interactions": {
+            "contractVersion": interaction_manifest["contractVersion"],
+            "manifest": f"{PUBLIC_PREFIX}/interaction-manifest.json",
+            "sceneIds": [asset["sceneId"] for asset in interaction_manifest["assets"]],
         },
     }
     finite_tree(summary)

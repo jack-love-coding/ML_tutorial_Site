@@ -48,11 +48,11 @@ watch(() => props.block.id, () => {
     <span class="linear-lesson-block__eyebrow">{{ zh ? '数学连接' : 'Mathematical connection' }}</span>
     <h3>{{ localized(block.title) }}</h3>
     <MarkdownMathContent :source="block.formula" />
-    <p>{{ localized(block.explanation) }}</p>
+    <MarkdownMathContent :source="localized(block.explanation)" />
     <dl class="linear-lesson-block__variables">
       <div v-for="variable in block.variables" :key="variable.symbol">
         <dt><MarkdownMathContent :source="variable.symbol" /></dt>
-        <dd>{{ localized(variable.meaning) }}</dd>
+        <dd><MarkdownMathContent :source="localized(variable.meaning)" /></dd>
       </div>
     </dl>
   </section>
@@ -69,7 +69,11 @@ watch(() => props.block.id, () => {
       :copy-label="zh ? '复制代码' : 'Copy code'"
       :copied-label="zh ? '已复制' : 'Copied'"
     />
-    <p v-if="block.note" class="linear-lesson-block__note">{{ localized(block.note) }}</p>
+    <MarkdownMathContent
+      v-if="block.note"
+      class="linear-lesson-block__note"
+      :source="localized(block.note)"
+    />
   </section>
 
   <section
@@ -80,7 +84,7 @@ watch(() => props.block.id, () => {
     <span class="linear-lesson-block__eyebrow">{{ zh ? '运行结果' : 'Runtime output' }}</span>
     <h3>{{ localized(block.title) }}</h3>
     <pre><code>{{ block.output }}</code></pre>
-    <p>{{ localized(block.interpretation) }}</p>
+    <MarkdownMathContent :source="localized(block.interpretation)" />
   </section>
 
   <figure
@@ -140,6 +144,9 @@ watch(() => props.block.id, () => {
         </tbody>
       </table>
     </div>
-    <p class="linear-lesson-block__note">{{ localized(block.caption) }}</p>
+    <MarkdownMathContent
+      class="linear-lesson-block__note"
+      :source="localized(block.caption)"
+    />
   </section>
 </template>

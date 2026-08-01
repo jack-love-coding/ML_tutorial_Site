@@ -336,8 +336,9 @@ test('all linear-regression component learner copy uses plain result terminology
     const learnerCopy = learnerFacingCopy(source)
     if (filename === 'LinearRegressionLessonBlock.vue' || filename === 'LinearRegressionObservationLab.vue') {
       if (filename === 'LinearRegressionObservationLab.vue') {
-        assert.match(source, /localized\(props\.controlLabels/)
-        assert.match(source, /zh\.value\s*\?/)
+        assert.match(source, /sceneId: LinearRegressionObservationSceneId/)
+        assert.match(source, /controls: LinearRegressionObservationControl\[\]/)
+        assert.match(source, /locale\.value === 'zh-CN'/)
       } else {
         assert.match(source, /localized\(block\.|localized\(figure\./)
       }

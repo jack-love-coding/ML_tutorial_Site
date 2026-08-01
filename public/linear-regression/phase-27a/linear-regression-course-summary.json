@@ -2610,6 +2610,21 @@
     "stageMetrics": "/linear-regression/phase-27a/feature-stage-metrics.csv",
     "gradientTrace": "/linear-regression/phase-27a/gradient-descent-trace.csv",
     "residuals": "/linear-regression/phase-27a/test-residuals.csv",
+    "interactionManifest": "/linear-regression/phase-27a/interaction-manifest.json",
     "manifest": "/linear-regression/phase-27a/output-manifest.json"
+  },
+  "interactions": {
+    "contractVersion": "linear-regression-phase-27b-interaction-manifest-v1",
+    "manifest": "/linear-regression/phase-27a/interaction-manifest.json",
+    "sceneIds": [
+      "fit-line",
+      "multivariate",
+      "residual-loss",
+      "training-motion",
+      "polynomial",
+      "model-limits",
+      "overfitting",
+      "regularization"
+    ]
   }
 }

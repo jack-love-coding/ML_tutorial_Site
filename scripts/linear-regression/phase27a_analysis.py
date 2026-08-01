@@ -236,6 +236,73 @@ def metric_set(actual: np.ndarray, prediction: np.ndarray) -> dict[str, float]:
     }
 
 
+def deterministic_sample(frame: pd.DataFrame, count: int) -> pd.DataFrame:
+    """Return an ordered, repeatable sample that covers the full partition."""
+    if count <= 0:
+        raise ValueError("sample count must be positive")
+    if frame.empty:
+        raise ValueError("cannot sample an empty frame")
+    positions = np.linspace(0, len(frame) - 1, min(count, len(frame)), dtype=int)
+    return frame.iloc[np.unique(positions)].copy()
+
+
+def univariate_sufficient_statistics(
+    frame: pd.DataFrame,
+    feature: str = "temp",
+    target: str = "cnt",
+) -> dict[str, float | int]:
+    """Sufficient statistics for exact browser-side OLS and outlier updates."""
+    x = frame[feature].to_numpy(float)
+    y = frame[target].to_numpy(float)
+    return {
+        "n": int(len(frame)),
+        "sumX": float(x.sum()),
+        "sumY": float(y.sum()),
+        "sumXX": float(x @ x),
+        "sumXY": float(x @ y),
+        "sumYY": float(y @ y),
+    }
+
+
+def gradient_descent_suite(
+    train: pd.DataFrame,
+    learning_rates: Iterable[float] = (0.01, 0.1, 0.5),
+    max_updates: int = 1_500,
+) -> list[dict[str, Any]]:
+    """Create train-only traces with an explicit, data-derived terminal status."""
+    suite: list[dict[str, Any]] = []
+    for learning_rate in learning_rates:
+        result = core_gradient_descent(
+            train,
+            learning_rate=float(learning_rate),
+            max_updates=max_updates,
+        )
+        final = result["trace"][-1]
+        if not math.isfinite(float(final["mse"])) or float(final["mse"]) > 1e12:
+            status = "diverged"
+        elif float(final["gradientNorm"]) <= float(result["gradientTolerance"]):
+            status = "converged"
+        else:
+            status = "max-updates"
+        suite.append({**result, "status": status})
+    return suite
+
+
+def binned_feature_profile(
+    frame: pd.DataFrame,
+    feature: str,
+    bins: int = 12,
+) -> list[dict[str, float]]:
+    """Training-only marginal means for a compact, honest visual fallback."""
+    values = frame[[feature, "cnt"]].dropna().sort_values(feature)
+    groups = pd.qcut(values[feature], q=min(bins, values[feature].nunique()), duplicates="drop")
+    profile = values.groupby(groups, observed=True).agg(x=(feature, "mean"), y=("cnt", "mean"))
+    return [
+        {"x": float(row.x), "y": float(row.y)}
+        for row in profile.itertuples(index=False)
+    ]
+
+
 def fit_stages(parts: PartitionedBikeData) -> list[StageFit]:
     train = engineer_cycle_features(parts.train)
     validation = engineer_cycle_features(parts.validation)
