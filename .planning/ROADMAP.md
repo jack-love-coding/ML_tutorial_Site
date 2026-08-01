@@ -74,11 +74,33 @@
 4. Held-out residual and coefficient-stability views expose nonlinearity, heteroscedasticity, or collinearity as model limitations rather than optimization failures.
 5. The existing route, checkpoint, interactive lab, downloadable assets, tests, and both production builds remain valid.
 
+## Phase 27A: Linear Regression Teaching Experience Redesign
+
+**Internal phase number:** 27.1
+
+**Goal:** Turn the completed Bike Sharing linear-regression implementation into a single-column, data-driven teaching course whose code, plots, runtime outputs, compact observation labs, and final references form one readable eight-chapter flow.
+
+**Depends on:** Phase 27
+
+**Requirements:** LINR-05, LINR-06, LINR-07, LINR-08
+
+**Success Criteria:**
+
+1. All eight existing deep links render a single-column teaching flow; the chapter lab follows the explanation and never competes with it horizontally.
+2. A deterministic 60/20/20 chronological split drives train-only exploration, validation-based feature selection, and exactly one final test evaluation.
+3. Executed bilingual Notebooks and local Matplotlib figures connect Bike data exploration, feature stages, fitting behavior, residual diagnosis, coefficient interpretation, and regularization to page-visible code and results.
+4. Every chapter uses typed bilingual lesson blocks, copyable code, accessible figure fallbacks, and at most three observation controls without adding an exercise bank.
+5. Existing routes, checkpoints, progress stores, downloads, base-safe paths, tests, and production builds remain compatible; public references appear only at the end of the final chapter.
+
+**Plans:** 1/1 plan complete
+
+- [x] 27.1-01-PLAN.md
+
 ## Phase 28: Tabular Regression Project
 
 **Goal:** Rebuild the existing housing-price project into the `project-tabular-regression` capability loop with a frozen local dataset, leakage-safe pipeline, honest baseline, controlled improvement, and reviewable limitations.
 
-**Depends on:** Phase 27 and the existing data-pipeline lessons
+**Depends on:** Phase 27A and the existing data-pipeline lessons
 
 **Requirements:** TPRJ-01, TPRJ-02, TPRJ-03, TPRJ-04, TPRJ-05
 
@@ -144,6 +166,7 @@
 | --- | --- | --- | --- |
 | 26. Loss Functions Rebuild | 7/7 | Complete    | 2026-07-28 |
 | 27. Linear Regression Rebuild | 12/12 | Complete    | 2026-07-30 |
+| 27A. Linear Regression Teaching Experience Redesign | v1.1 | 4 | In progress |
 | 28. Tabular Regression Project | v1.1 | 5 | Not started |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |

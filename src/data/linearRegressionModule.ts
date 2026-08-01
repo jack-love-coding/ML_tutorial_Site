@@ -23,59 +23,11 @@ interface LinearRegressionTeachingFrame {
 
 export const linearRegressionChapterContentBindings = linearRegressionChapterAssets
 
-function withTeachingFrame(base: LocalizedCopy, frame: LinearRegressionTeachingFrame): LocalizedCopy {
-  return loc(
-    `${base['zh-CN']}
-
-### 核心问题
-${frame.coreQuestion['zh-CN']}
-
-### 概念直觉
-${frame.concept['zh-CN']}
-
-### 手算例子
-${frame.workedExample['zh-CN']}
-
-### 公式
-${frame.formula['zh-CN']}
-
-### 常见误解
-${frame.commonMistake['zh-CN']}
-
-### 插图与动画
-${frame.visualAnimation['zh-CN']}
-
-### 交互实验设计
-${frame.experimentDesign['zh-CN']}
-
-### 来源参考
-${frame.sourceReference['zh-CN']}`,
-    `${base.en}
-
-### Core Question
-${frame.coreQuestion.en}
-
-### Concept Intuition
-${frame.concept.en}
-
-### Worked Example
-${frame.workedExample.en}
-
-### Formula
-${frame.formula.en}
-
-### Common Mistake
-${frame.commonMistake.en}
-
-### Diagram and Animation
-${frame.visualAnimation.en}
-
-### Interactive Experiment Design
-${frame.experimentDesign.en}
-
-### Source References
-${frame.sourceReference.en}`,
-  )
+function withTeachingFrame(base: LocalizedCopy, _frame: LinearRegressionTeachingFrame): LocalizedCopy {
+  // Phase 27A renders the dedicated typed lesson blocks. Keep the legacy chapter
+  // markdown unchanged for route/checkpoint compatibility without appending the
+  // repeated planning template to learner-facing content.
+  return base
 }
 
 const linearRegressionTeachingFrames: Record<
@@ -367,8 +319,8 @@ export const linearRegressionModule: AlgorithmModuleDefinition = {
   accent: '#14b8a6',
   checkpoints: algorithmCheckpointsBySlug['linear-regression'],
   sourceNote: loc(
-    '课程使用本地 UCI Bike Sharing hourly 快照、固定时间切分与已执行双语 Notebook；页面只绑定注册表中的结果和下载。',
-    'This course uses the local UCI Bike Sharing hourly snapshot, locked chronological split, and executed bilingual Notebooks; the page binds only registered results and downloads.',
+    '课程使用本地 UCI Bike Sharing hourly 快照、60/20/20 时间切分与已执行双语 Notebook；公开资料集中放在第八章末尾。',
+    'This course uses the local UCI Bike Sharing hourly snapshot, a chronological 60/20/20 split, and executed bilingual notebooks; public references are collected at the end of chapter eight.',
   ),
   chapters: [
     {

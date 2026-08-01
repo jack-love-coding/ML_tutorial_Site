@@ -1,0 +1,2615 @@
+{
+  "contractVersion": "linear-regression-phase-27a-summary-v2",
+  "packageVersion": "27A.1",
+  "generatedFrom": "scripts/linear-regression/build-phase-27a-assets.py",
+  "source": {
+    "dataset": "UCI Bike Sharing Dataset hour.csv",
+    "localPublicPath": "/datasets/python-data-tools/bike-sharing-hour.csv",
+    "sha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+    "rows": 17379,
+    "license": "CC BY 4.0"
+  },
+  "split": {
+    "strategy": "chronological-60-20-20",
+    "train": {
+      "startRow": 0,
+      "endRowExclusive": 10427,
+      "rows": 10427,
+      "instantRange": [
+        1,
+        10427
+      ]
+    },
+    "validation": {
+      "startRow": 10427,
+      "endRowExclusive": 13903,
+      "rows": 3476,
+      "instantRange": [
+        10428,
+        13903
+      ]
+    },
+    "test": {
+      "startRow": 13903,
+      "endRowExclusive": 17379,
+      "rows": 3476,
+      "instantRange": [
+        13904,
+        17379
+      ]
+    },
+    "mutuallyExclusive": true
+  },
+  "trainingOnlyExploration": {
+    "missingValues": {
+      "instant": 0,
+      "dteday": 0,
+      "season": 0,
+      "yr": 0,
+      "mnth": 0,
+      "hr": 0,
+      "holiday": 0,
+      "weekday": 0,
+      "workingday": 0,
+      "weathersit": 0,
+      "temp": 0,
+      "atemp": 0,
+      "hum": 0,
+      "windspeed": 0,
+      "casual": 0,
+      "registered": 0,
+      "cnt": 0,
+      "timestamp": 0
+    },
+    "target": {
+      "count": 10427.0,
+      "mean": 144.796874,
+      "std": 134.620655,
+      "min": 1.0,
+      "25%": 32.0,
+      "50%": 110.0,
+      "75%": 213.0,
+      "max": 782.0
+    },
+    "coreFeatures": {
+      "temp": {
+        "count": 10427.0,
+        "mean": 0.459676,
+        "std": 0.197383,
+        "min": 0.02,
+        "25%": 0.3,
+        "50%": 0.44,
+        "75%": 0.62,
+        "max": 0.96
+      },
+      "hum": {
+        "count": 10427.0,
+        "mean": 0.63067,
+        "std": 0.197766,
+        "min": 0.0,
+        "25%": 0.47,
+        "50%": 0.62,
+        "75%": 0.79,
+        "max": 1.0
+      },
+      "windspeed": {
+        "count": 10427.0,
+        "mean": 0.195572,
+        "std": 0.125696,
+        "min": 0.0,
+        "25%": 0.1045,
+        "50%": 0.194,
+        "75%": 0.2836,
+        "max": 0.8507
+      },
+      "workingday": {
+        "count": 10427.0,
+        "mean": 0.682843,
+        "std": 0.465392,
+        "min": 0.0,
+        "25%": 0.0,
+        "50%": 1.0,
+        "75%": 1.0,
+        "max": 1.0
+      },
+      "hr": {
+        "count": 10427.0,
+        "mean": 11.560756,
+        "std": 6.908435,
+        "min": 0.0,
+        "25%": 6.0,
+        "50%": 12.0,
+        "75%": 18.0,
+        "max": 23.0
+      },
+      "cnt": {
+        "count": 10427.0,
+        "mean": 144.796874,
+        "std": 134.620655,
+        "min": 1.0,
+        "25%": 32.0,
+        "50%": 110.0,
+        "75%": 213.0,
+        "max": 782.0
+      }
+    }
+  },
+  "leakage": {
+    "forbiddenFeatureColumns": [
+      "casual",
+      "registered"
+    ],
+    "targetIdentity": "casual + registered = cnt",
+    "preprocessorsFitOn": "train-only-during-selection",
+    "testUsage": "single-final-evaluation-after-freeze"
+  },
+  "featureStages": [
+    {
+      "id": "temperature-only",
+      "order": 0,
+      "features": [
+        "temp"
+      ],
+      "estimator": "ols",
+      "alpha": null,
+      "includesAtemp": false,
+      "trainMetrics": {
+        "mse": 15091.548566497497,
+        "rmse": 122.84766406610056,
+        "mae": 94.53962917892767,
+        "r2": 0.1671782439714894
+      },
+      "validationMetrics": {
+        "mse": 48060.52463347295,
+        "rmse": 219.22710743307488,
+        "mae": 166.66082076557254,
+        "r2": -0.03494563560135355
+      }
+    },
+    {
+      "id": "core-five",
+      "order": 1,
+      "features": [
+        "temp",
+        "hum",
+        "windspeed",
+        "workingday",
+        "hr"
+      ],
+      "estimator": "ols",
+      "alpha": null,
+      "includesAtemp": false,
+      "trainMetrics": {
+        "mse": 12080.870645071058,
+        "rmse": 109.91301399320764,
+        "mae": 81.82676024814565,
+        "r2": 0.33332143744898624
+      },
+      "validationMetrics": {
+        "mse": 39124.360514796615,
+        "rmse": 197.79878795077744,
+        "mae": 141.1253441247682,
+        "r2": 0.15748763732218374
+      }
+    },
+    {
+      "id": "calendar-categories",
+      "order": 2,
+      "features": [
+        "temp",
+        "hum",
+        "windspeed",
+        "workingday",
+        "holiday",
+        "yr",
+        "hr",
+        "season",
+        "weathersit",
+        "weekday",
+        "mnth"
+      ],
+      "estimator": "ols",
+      "alpha": null,
+      "includesAtemp": false,
+      "trainMetrics": {
+        "mse": 11213.48217847083,
+        "rmse": 105.89373059096006,
+        "mae": 79.95559627529738,
+        "r2": 0.38118796239371766
+      },
+      "validationMetrics": {
+        "mse": 33241.02458552959,
+        "rmse": 182.3212126592229,
+        "mae": 141.21783714763794,
+        "r2": 0.28418065387179414
+      }
+    },
+    {
+      "id": "calendar-weather-cycle",
+      "order": 3,
+      "features": [
+        "temp",
+        "hum",
+        "windspeed",
+        "workingday",
+        "holiday",
+        "yr",
+        "season",
+        "weathersit",
+        "weekday",
+        "mnth",
+        "hour_sin",
+        "hour_cos",
+        "workingday_hour_sin",
+        "workingday_hour_cos"
+      ],
+      "estimator": "ols",
+      "alpha": null,
+      "includesAtemp": false,
+      "trainMetrics": {
+        "mse": 9089.189167173734,
+        "rmse": 95.33723914176313,
+        "mae": 69.9651972632137,
+        "r2": 0.49841631892665716
+      },
+      "validationMetrics": {
+        "mse": 27839.07109454642,
+        "rmse": 166.85044529322187,
+        "mae": 127.00431752182381,
+        "r2": 0.4005074778474259
+      }
+    },
+    {
+      "id": "ridge-with-atemp",
+      "order": 4,
+      "features": [
+        "temp",
+        "hum",
+        "windspeed",
+        "workingday",
+        "holiday",
+        "yr",
+        "season",
+        "weathersit",
+        "weekday",
+        "mnth",
+        "hour_sin",
+        "hour_cos",
+        "workingday_hour_sin",
+        "workingday_hour_cos",
+        "atemp"
+      ],
+      "estimator": "ridge",
+      "alpha": 10.0,
+      "includesAtemp": true,
+      "trainMetrics": {
+        "mse": 9084.600892713846,
+        "rmse": 95.31317271350191,
+        "mae": 69.88031677204307,
+        "r2": 0.4986695212256782
+      },
+      "validationMetrics": {
+        "mse": 27900.98521544395,
+        "rmse": 167.03588002415515,
+        "mae": 126.45308147636105,
+        "r2": 0.3991742059014022
+      }
+    },
+    {
+      "id": "lasso-with-atemp",
+      "order": 5,
+      "features": [
+        "temp",
+        "hum",
+        "windspeed",
+        "workingday",
+        "holiday",
+        "yr",
+        "season",
+        "weathersit",
+        "weekday",
+        "mnth",
+        "hour_sin",
+        "hour_cos",
+        "workingday_hour_sin",
+        "workingday_hour_cos",
+        "atemp"
+      ],
+      "estimator": "lasso",
+      "alpha": 1.0,
+      "includesAtemp": true,
+      "trainMetrics": {
+        "mse": 9348.299534019205,
+        "rmse": 96.68660472898614,
+        "mae": 69.9455159952837,
+        "r2": 0.48411740521541047
+      },
+      "validationMetrics": {
+        "mse": 29970.614247546026,
+        "rmse": 173.12023061313784,
+        "mae": 124.5268436006363,
+        "r2": 0.3546063708554219
+      }
+    }
+  ],
+  "polynomialDiagnostics": [
+    {
+      "degree": 1,
+      "trainRmse": 122.84766406610056,
+      "validationRmse": 219.22710743307513
+    },
+    {
+      "degree": 2,
+      "trainRmse": 122.82843442945821,
+      "validationRmse": 218.90146033982123
+    },
+    {
+      "degree": 3,
+      "trainRmse": 122.80801291085417,
+      "validationRmse": 218.86672232365413
+    },
+    {
+      "degree": 5,
+      "trainRmse": 122.35926423554365,
+      "validationRmse": 219.0506445137559
+    },
+    {
+      "degree": 8,
+      "trainRmse": 122.02808676091051,
+      "validationRmse": 219.0458061094765
+    }
+  ],
+  "selection": {
+    "primaryMetric": "validation-rmse",
+    "secondaryMetrics": [
+      "mae",
+      "r2"
+    ],
+    "simplicityTolerance": 0.01,
+    "selectedStageId": "calendar-weather-cycle",
+    "bestValidationRmse": 166.85044529322187,
+    "selectedValidationMetrics": {
+      "mse": 27839.07109454642,
+      "rmse": 166.85044529322187,
+      "mae": 127.00431752182381,
+      "r2": 0.4005074778474259
+    }
+  },
+  "gradientDescent": {
+    "features": [
+      "temp",
+      "hum",
+      "windspeed",
+      "workingday",
+      "hr"
+    ],
+    "learningRate": 0.1,
+    "updates": 765,
+    "gradientTolerance": 1e-08,
+    "finalMse": 12080.87064507106,
+    "maxParameterDeltaVsSklearn": 2.762671247324988e-08,
+    "scalerFitRows": 10427
+  },
+  "coefficientInterpretation": {
+    "selectedStage": [
+      {
+        "feature": "temp",
+        "coefficient": 27.775064444566173
+      },
+      {
+        "feature": "hum",
+        "coefficient": -8.314039233630472
+      },
+      {
+        "feature": "windspeed",
+        "coefficient": -3.536996962174557
+      },
+      {
+        "feature": "hour_sin",
+        "coefficient": -59.7056202359965
+      },
+      {
+        "feature": "hour_cos",
+        "coefficient": -66.09789671759637
+      },
+      {
+        "feature": "workingday_hour_sin",
+        "coefficient": 11.774416344709417
+      },
+      {
+        "feature": "workingday_hour_cos",
+        "coefficient": 17.54772280326458
+      },
+      {
+        "feature": "workingday",
+        "coefficient": 8.339127617966787
+      },
+      {
+        "feature": "holiday",
+        "coefficient": -12.570014912714383
+      },
+      {
+        "feature": "yr",
+        "coefficient": 76.59279572614999
+      },
+      {
+        "feature": "season_2",
+        "coefficient": 10.889289682471398
+      },
+      {
+        "feature": "season_3",
+        "coefficient": 26.5607101172741
+      },
+      {
+        "feature": "season_4",
+        "coefficient": 43.750565283017046
+      },
+      {
+        "feature": "weathersit_2",
+        "coefficient": -9.800343946686034
+      },
+      {
+        "feature": "weathersit_3",
+        "coefficient": -54.57982993287355
+      },
+      {
+        "feature": "weathersit_4",
+        "coefficient": -30.79477628637605
+      },
+      {
+        "feature": "weekday_1",
+        "coefficient": -2.0050538814730205
+      },
+      {
+        "feature": "weekday_2",
+        "coefficient": 0.22558006108553844
+      },
+      {
+        "feature": "weekday_3",
+        "coefficient": -3.436161937237342
+      },
+      {
+        "feature": "weekday_4",
+        "coefficient": -1.094870291970169
+      },
+      {
+        "feature": "weekday_5",
+        "coefficient": 2.0796187548474414
+      },
+      {
+        "feature": "weekday_6",
+        "coefficient": 6.93728464762572
+      },
+      {
+        "feature": "mnth_2",
+        "coefficient": 10.316786892964517
+      },
+      {
+        "feature": "mnth_3",
+        "coefficient": 22.84953853653766
+      },
+      {
+        "feature": "mnth_4",
+        "coefficient": 42.0636750675555
+      },
+      {
+        "feature": "mnth_5",
+        "coefficient": 75.88023209727461
+      },
+      {
+        "feature": "mnth_6",
+        "coefficient": 62.583618505813426
+      },
+      {
+        "feature": "mnth_7",
+        "coefficient": 31.58675445050997
+      },
+      {
+        "feature": "mnth_8",
+        "coefficient": 39.12665023715288
+      },
+      {
+        "feature": "mnth_9",
+        "coefficient": 51.359398710461505
+      },
+      {
+        "feature": "mnth_10",
+        "coefficient": 43.65141348792485
+      },
+      {
+        "feature": "mnth_11",
+        "coefficient": 26.72543282058348
+      },
+      {
+        "feature": "mnth_12",
+        "coefficient": 24.931967412870637
+      }
+    ],
+    "finalRefit": [
+      {
+        "feature": "temp",
+        "coefficient": 30.353257802962545
+      },
+      {
+        "feature": "hum",
+        "coefficient": -8.538630503041944
+      },
+      {
+        "feature": "windspeed",
+        "coefficient": -3.601165456052068
+      },
+      {
+        "feature": "hour_sin",
+        "coefficient": -72.82638592709584
+      },
+      {
+        "feature": "hour_cos",
+        "coefficient": -80.34939695077934
+      },
+      {
+        "feature": "workingday_hour_sin",
+        "coefficient": 13.207979763206293
+      },
+      {
+        "feature": "workingday_hour_cos",
+        "coefficient": 22.11097330963051
+      },
+      {
+        "feature": "workingday",
+        "coefficient": 8.770826156527065
+      },
+      {
+        "feature": "holiday",
+        "coefficient": -8.506333319495937
+      },
+      {
+        "feature": "yr",
+        "coefficient": 86.65479005344024
+      },
+      {
+        "feature": "season_2",
+        "coefficient": 28.196277212161082
+      },
+      {
+        "feature": "season_3",
+        "coefficient": 19.11352799875756
+      },
+      {
+        "feature": "season_4",
+        "coefficient": 41.1449471648974
+      },
+      {
+        "feature": "weathersit_2",
+        "coefficient": -13.570630977210481
+      },
+      {
+        "feature": "weathersit_3",
+        "coefficient": -67.96004448532392
+      },
+      {
+        "feature": "weathersit_4",
+        "coefficient": -37.24390096235347
+      },
+      {
+        "feature": "weekday_1",
+        "coefficient": -3.9964646354769435
+      },
+      {
+        "feature": "weekday_2",
+        "coefficient": 0.32289527290919423
+      },
+      {
+        "feature": "weekday_3",
+        "coefficient": -0.9781543981486037
+      },
+      {
+        "feature": "weekday_4",
+        "coefficient": 1.3582830501880587
+      },
+      {
+        "feature": "weekday_5",
+        "coefficient": 3.5579335475594105
+      },
+      {
+        "feature": "weekday_6",
+        "coefficient": 11.170273891708435
+      },
+      {
+        "feature": "mnth_2",
+        "coefficient": 9.675401589464983
+      },
+      {
+        "feature": "mnth_3",
+        "coefficient": 30.201327020547456
+      },
+      {
+        "feature": "mnth_4",
+        "coefficient": 34.49029339936025
+      },
+      {
+        "feature": "mnth_5",
+        "coefficient": 54.01434392443265
+      },
+      {
+        "feature": "mnth_6",
+        "coefficient": 51.111788718000376
+      },
+      {
+        "feature": "mnth_7",
+        "coefficient": 37.9394594575167
+      },
+      {
+        "feature": "mnth_8",
+        "coefficient": 46.243078718049674
+      },
+      {
+        "feature": "mnth_9",
+        "coefficient": 59.50389543258301
+      },
+      {
+        "feature": "mnth_10",
+        "coefficient": 49.57194352067304
+      },
+      {
+        "feature": "mnth_11",
+        "coefficient": 32.89405900521087
+      },
+      {
+        "feature": "mnth_12",
+        "coefficient": 30.801398529203293
+      }
+    ],
+    "selectedStageSpaces": {
+      "modelSpace": {
+        "intercept": 84.8390171261196,
+        "rows": [
+          {
+            "feature": "temp",
+            "coefficient": 27.775064444566173
+          },
+          {
+            "feature": "hum",
+            "coefficient": -8.314039233630472
+          },
+          {
+            "feature": "windspeed",
+            "coefficient": -3.536996962174557
+          },
+          {
+            "feature": "hour_sin",
+            "coefficient": -59.7056202359965
+          },
+          {
+            "feature": "hour_cos",
+            "coefficient": -66.09789671759637
+          },
+          {
+            "feature": "workingday_hour_sin",
+            "coefficient": 11.774416344709417
+          },
+          {
+            "feature": "workingday_hour_cos",
+            "coefficient": 17.54772280326458
+          },
+          {
+            "feature": "workingday",
+            "coefficient": 8.339127617966787
+          },
+          {
+            "feature": "holiday",
+            "coefficient": -12.570014912714383
+          },
+          {
+            "feature": "yr",
+            "coefficient": 76.59279572614999
+          },
+          {
+            "feature": "season_2",
+            "coefficient": 10.889289682471398
+          },
+          {
+            "feature": "season_3",
+            "coefficient": 26.5607101172741
+          },
+          {
+            "feature": "season_4",
+            "coefficient": 43.750565283017046
+          },
+          {
+            "feature": "weathersit_2",
+            "coefficient": -9.800343946686034
+          },
+          {
+            "feature": "weathersit_3",
+            "coefficient": -54.57982993287355
+          },
+          {
+            "feature": "weathersit_4",
+            "coefficient": -30.79477628637605
+          },
+          {
+            "feature": "weekday_1",
+            "coefficient": -2.0050538814730205
+          },
+          {
+            "feature": "weekday_2",
+            "coefficient": 0.22558006108553844
+          },
+          {
+            "feature": "weekday_3",
+            "coefficient": -3.436161937237342
+          },
+          {
+            "feature": "weekday_4",
+            "coefficient": -1.094870291970169
+          },
+          {
+            "feature": "weekday_5",
+            "coefficient": 2.0796187548474414
+          },
+          {
+            "feature": "weekday_6",
+            "coefficient": 6.93728464762572
+          },
+          {
+            "feature": "mnth_2",
+            "coefficient": 10.316786892964517
+          },
+          {
+            "feature": "mnth_3",
+            "coefficient": 22.84953853653766
+          },
+          {
+            "feature": "mnth_4",
+            "coefficient": 42.0636750675555
+          },
+          {
+            "feature": "mnth_5",
+            "coefficient": 75.88023209727461
+          },
+          {
+            "feature": "mnth_6",
+            "coefficient": 62.583618505813426
+          },
+          {
+            "feature": "mnth_7",
+            "coefficient": 31.58675445050997
+          },
+          {
+            "feature": "mnth_8",
+            "coefficient": 39.12665023715288
+          },
+          {
+            "feature": "mnth_9",
+            "coefficient": 51.359398710461505
+          },
+          {
+            "feature": "mnth_10",
+            "coefficient": 43.65141348792485
+          },
+          {
+            "feature": "mnth_11",
+            "coefficient": 26.72543282058348
+          },
+          {
+            "feature": "mnth_12",
+            "coefficient": 24.931967412870637
+          }
+        ]
+      },
+      "rawContinuousUnits": {
+        "intercept": 51.39685065515707,
+        "rows": [
+          {
+            "feature": "temp",
+            "coefficient": 140.72316752865748
+          },
+          {
+            "feature": "hum",
+            "coefficient": -42.04182471472397
+          },
+          {
+            "feature": "windspeed",
+            "coefficient": -28.14060166693249
+          },
+          {
+            "feature": "hour_sin",
+            "coefficient": -84.5022757326742
+          },
+          {
+            "feature": "hour_cos",
+            "coefficient": -93.40958149470896
+          },
+          {
+            "feature": "workingday_hour_sin",
+            "coefficient": 20.160121871870132
+          },
+          {
+            "feature": "workingday_hour_cos",
+            "coefficient": 30.01917521693323
+          },
+          {
+            "feature": "workingday",
+            "coefficient": 8.339127617966787
+          },
+          {
+            "feature": "holiday",
+            "coefficient": -12.570014912714383
+          },
+          {
+            "feature": "yr",
+            "coefficient": 76.59279572614999
+          },
+          {
+            "feature": "season_2",
+            "coefficient": 10.889289682471398
+          },
+          {
+            "feature": "season_3",
+            "coefficient": 26.5607101172741
+          },
+          {
+            "feature": "season_4",
+            "coefficient": 43.750565283017046
+          },
+          {
+            "feature": "weathersit_2",
+            "coefficient": -9.800343946686034
+          },
+          {
+            "feature": "weathersit_3",
+            "coefficient": -54.57982993287355
+          },
+          {
+            "feature": "weathersit_4",
+            "coefficient": -30.79477628637605
+          },
+          {
+            "feature": "weekday_1",
+            "coefficient": -2.0050538814730205
+          },
+          {
+            "feature": "weekday_2",
+            "coefficient": 0.22558006108553844
+          },
+          {
+            "feature": "weekday_3",
+            "coefficient": -3.436161937237342
+          },
+          {
+            "feature": "weekday_4",
+            "coefficient": -1.094870291970169
+          },
+          {
+            "feature": "weekday_5",
+            "coefficient": 2.0796187548474414
+          },
+          {
+            "feature": "weekday_6",
+            "coefficient": 6.93728464762572
+          },
+          {
+            "feature": "mnth_2",
+            "coefficient": 10.316786892964517
+          },
+          {
+            "feature": "mnth_3",
+            "coefficient": 22.84953853653766
+          },
+          {
+            "feature": "mnth_4",
+            "coefficient": 42.0636750675555
+          },
+          {
+            "feature": "mnth_5",
+            "coefficient": 75.88023209727461
+          },
+          {
+            "feature": "mnth_6",
+            "coefficient": 62.583618505813426
+          },
+          {
+            "feature": "mnth_7",
+            "coefficient": 31.58675445050997
+          },
+          {
+            "feature": "mnth_8",
+            "coefficient": 39.12665023715288
+          },
+          {
+            "feature": "mnth_9",
+            "coefficient": 51.359398710461505
+          },
+          {
+            "feature": "mnth_10",
+            "coefficient": 43.65141348792485
+          },
+          {
+            "feature": "mnth_11",
+            "coefficient": 26.72543282058348
+          },
+          {
+            "feature": "mnth_12",
+            "coefficient": 24.931967412870637
+          }
+        ]
+      }
+    },
+    "finalRefitSpaces": {
+      "modelSpace": {
+        "intercept": 88.86893025435737,
+        "rows": [
+          {
+            "feature": "temp",
+            "coefficient": 30.353257802962545
+          },
+          {
+            "feature": "hum",
+            "coefficient": -8.538630503041944
+          },
+          {
+            "feature": "windspeed",
+            "coefficient": -3.601165456052068
+          },
+          {
+            "feature": "hour_sin",
+            "coefficient": -72.82638592709584
+          },
+          {
+            "feature": "hour_cos",
+            "coefficient": -80.34939695077934
+          },
+          {
+            "feature": "workingday_hour_sin",
+            "coefficient": 13.207979763206293
+          },
+          {
+            "feature": "workingday_hour_cos",
+            "coefficient": 22.11097330963051
+          },
+          {
+            "feature": "workingday",
+            "coefficient": 8.770826156527065
+          },
+          {
+            "feature": "holiday",
+            "coefficient": -8.506333319495937
+          },
+          {
+            "feature": "yr",
+            "coefficient": 86.65479005344024
+          },
+          {
+            "feature": "season_2",
+            "coefficient": 28.196277212161082
+          },
+          {
+            "feature": "season_3",
+            "coefficient": 19.11352799875756
+          },
+          {
+            "feature": "season_4",
+            "coefficient": 41.1449471648974
+          },
+          {
+            "feature": "weathersit_2",
+            "coefficient": -13.570630977210481
+          },
+          {
+            "feature": "weathersit_3",
+            "coefficient": -67.96004448532392
+          },
+          {
+            "feature": "weathersit_4",
+            "coefficient": -37.24390096235347
+          },
+          {
+            "feature": "weekday_1",
+            "coefficient": -3.9964646354769435
+          },
+          {
+            "feature": "weekday_2",
+            "coefficient": 0.32289527290919423
+          },
+          {
+            "feature": "weekday_3",
+            "coefficient": -0.9781543981486037
+          },
+          {
+            "feature": "weekday_4",
+            "coefficient": 1.3582830501880587
+          },
+          {
+            "feature": "weekday_5",
+            "coefficient": 3.5579335475594105
+          },
+          {
+            "feature": "weekday_6",
+            "coefficient": 11.170273891708435
+          },
+          {
+            "feature": "mnth_2",
+            "coefficient": 9.675401589464983
+          },
+          {
+            "feature": "mnth_3",
+            "coefficient": 30.201327020547456
+          },
+          {
+            "feature": "mnth_4",
+            "coefficient": 34.49029339936025
+          },
+          {
+            "feature": "mnth_5",
+            "coefficient": 54.01434392443265
+          },
+          {
+            "feature": "mnth_6",
+            "coefficient": 51.111788718000376
+          },
+          {
+            "feature": "mnth_7",
+            "coefficient": 37.9394594575167
+          },
+          {
+            "feature": "mnth_8",
+            "coefficient": 46.243078718049674
+          },
+          {
+            "feature": "mnth_9",
+            "coefficient": 59.50389543258301
+          },
+          {
+            "feature": "mnth_10",
+            "coefficient": 49.57194352067304
+          },
+          {
+            "feature": "mnth_11",
+            "coefficient": 32.89405900521087
+          },
+          {
+            "feature": "mnth_12",
+            "coefficient": 30.801398529203293
+          }
+        ]
+      },
+      "rawContinuousUnits": {
+        "intercept": 44.04452767692303,
+        "rows": [
+          {
+            "feature": "temp",
+            "coefficient": 153.5248945976276
+          },
+          {
+            "feature": "hum",
+            "coefficient": -43.08366356645015
+          },
+          {
+            "feature": "windspeed",
+            "coefficient": -29.273298730619373
+          },
+          {
+            "feature": "hour_sin",
+            "coefficient": -103.0466173213015
+          },
+          {
+            "feature": "hour_cos",
+            "coefficient": -113.57504750119243
+          },
+          {
+            "feature": "workingday_hour_sin",
+            "coefficient": 22.583661075439753
+          },
+          {
+            "feature": "workingday_hour_cos",
+            "coefficient": 37.787373183161556
+          },
+          {
+            "feature": "workingday",
+            "coefficient": 8.770826156527065
+          },
+          {
+            "feature": "holiday",
+            "coefficient": -8.506333319495937
+          },
+          {
+            "feature": "yr",
+            "coefficient": 86.65479005344024
+          },
+          {
+            "feature": "season_2",
+            "coefficient": 28.196277212161082
+          },
+          {
+            "feature": "season_3",
+            "coefficient": 19.11352799875756
+          },
+          {
+            "feature": "season_4",
+            "coefficient": 41.1449471648974
+          },
+          {
+            "feature": "weathersit_2",
+            "coefficient": -13.570630977210481
+          },
+          {
+            "feature": "weathersit_3",
+            "coefficient": -67.96004448532392
+          },
+          {
+            "feature": "weathersit_4",
+            "coefficient": -37.24390096235347
+          },
+          {
+            "feature": "weekday_1",
+            "coefficient": -3.9964646354769435
+          },
+          {
+            "feature": "weekday_2",
+            "coefficient": 0.32289527290919423
+          },
+          {
+            "feature": "weekday_3",
+            "coefficient": -0.9781543981486037
+          },
+          {
+            "feature": "weekday_4",
+            "coefficient": 1.3582830501880587
+          },
+          {
+            "feature": "weekday_5",
+            "coefficient": 3.5579335475594105
+          },
+          {
+            "feature": "weekday_6",
+            "coefficient": 11.170273891708435
+          },
+          {
+            "feature": "mnth_2",
+            "coefficient": 9.675401589464983
+          },
+          {
+            "feature": "mnth_3",
+            "coefficient": 30.201327020547456
+          },
+          {
+            "feature": "mnth_4",
+            "coefficient": 34.49029339936025
+          },
+          {
+            "feature": "mnth_5",
+            "coefficient": 54.01434392443265
+          },
+          {
+            "feature": "mnth_6",
+            "coefficient": 51.111788718000376
+          },
+          {
+            "feature": "mnth_7",
+            "coefficient": 37.9394594575167
+          },
+          {
+            "feature": "mnth_8",
+            "coefficient": 46.243078718049674
+          },
+          {
+            "feature": "mnth_9",
+            "coefficient": 59.50389543258301
+          },
+          {
+            "feature": "mnth_10",
+            "coefficient": 49.57194352067304
+          },
+          {
+            "feature": "mnth_11",
+            "coefficient": 32.89405900521087
+          },
+          {
+            "feature": "mnth_12",
+            "coefficient": 30.801398529203293
+          }
+        ]
+      }
+    },
+    "tempAtempTrainingCorrelation": 0.9920042252402431
+  },
+  "validationDiagnostics": {
+    "metrics": {
+      "mse": 27839.07109454642,
+      "rmse": 166.85044529322187,
+      "mae": 127.00431752182381,
+      "r2": 0.4005074778474259
+    },
+    "namedFailureCases": [
+      {
+        "role": "negative-prediction",
+        "instant": 10657,
+        "timestamp": "2012-03-25T03:00:00",
+        "hour": 3,
+        "workingday": 0,
+        "actual": 18.0,
+        "prediction": -7.469590498916702,
+        "residual": -25.469590498916702
+      },
+      {
+        "role": "morning-peak-underprediction",
+        "instant": 13588,
+        "timestamp": "2012-07-25T08:00:00",
+        "hour": 8,
+        "workingday": 1,
+        "actual": 788.0,
+        "prediction": 240.7227202380205,
+        "residual": -547.2772797619796
+      },
+      {
+        "role": "evening-peak-underprediction",
+        "instant": 10623,
+        "timestamp": "2012-03-23T17:00:00",
+        "hour": 17,
+        "workingday": 1,
+        "actual": 957.0,
+        "prediction": 319.9456970278736,
+        "residual": -637.0543029721264
+      },
+      {
+        "role": "large-residual",
+        "instant": 13766,
+        "timestamp": "2012-08-01T18:00:00",
+        "hour": 18,
+        "workingday": 1,
+        "actual": 891.0,
+        "prediction": 282.9252916298187,
+        "residual": -608.0747083701813
+      }
+    ]
+  },
+  "regularization": {
+    "features": [
+      "temp",
+      "atemp",
+      "hum",
+      "windspeed",
+      "workingday",
+      "hour_sin",
+      "hour_cos"
+    ],
+    "ridge": [
+      {
+        "model": "ridge",
+        "alpha": 0.01,
+        "validationRmse": 188.42452486763398,
+        "coefficients": {
+          "temp": 7.483765525917016,
+          "atemp": 33.7329422989684,
+          "hum": -12.85711880552214,
+          "windspeed": -5.085948667494218,
+          "workingday": 1.3908128365252046,
+          "hour_sin": -46.407643255126985,
+          "hour_cos": -48.79899542580059
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 0.01778279410038923,
+        "validationRmse": 188.42454238680878,
+        "coefficients": {
+          "temp": 7.485169461820269,
+          "atemp": 33.7315311765356,
+          "hum": -12.857119488846779,
+          "windspeed": -5.085998509455641,
+          "workingday": 1.3908179595435135,
+          "hour_sin": -46.40760801827299,
+          "hour_cos": -48.79895583040435
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 0.03162277660168379,
+        "validationRmse": 188.42457354090993,
+        "coefficients": {
+          "temp": 7.487665298099067,
+          "atemp": 33.72902256269992,
+          "hum": -12.85712070872578,
+          "windspeed": -5.086087107723097,
+          "workingday": 1.3908270668501066,
+          "hour_sin": -46.40754535490976,
+          "hour_cos": -48.79888541801482
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 0.05623413251903491,
+        "validationRmse": 188.42462894196422,
+        "coefficients": {
+          "temp": 7.492101209446774,
+          "atemp": 33.724563935924316,
+          "hum": -12.85712289298087,
+          "windspeed": -5.086244550644306,
+          "workingday": 1.390843253174852,
+          "hour_sin": -46.407433914384455,
+          "hour_cos": -48.7987602028637
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 0.1,
+        "validationRmse": 188.42472746164364,
+        "coefficients": {
+          "temp": 7.499981972447562,
+          "atemp": 33.71664279951361,
+          "hum": -12.85712682447829,
+          "windspeed": -5.086524182108496,
+          "workingday": 1.390872008520062,
+          "hour_sin": -46.407235718126294,
+          "hour_cos": -48.79853752823846
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 0.1778279410038923,
+        "validationRmse": 188.42490266068845,
+        "coefficients": {
+          "temp": 7.513972417624461,
+          "atemp": 33.70258062530029,
+          "hum": -12.857133964983541,
+          "windspeed": -5.08702035294067,
+          "workingday": 1.390923053734252,
+          "hour_sin": -46.40688319449621,
+          "hour_cos": -48.79814152814356
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 0.31622776601683794,
+        "validationRmse": 188.42521422452324,
+        "coefficients": {
+          "temp": 7.538776494828569,
+          "atemp": 33.67764920228898,
+          "hum": -12.857147132869002,
+          "windspeed": -5.0878992424852045,
+          "workingday": 1.3910135433646897,
+          "hour_sin": -46.40625607178686,
+          "hour_cos": -48.797437258844454
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 0.5623413251903491,
+        "validationRmse": 188.42576830583312,
+        "coefficients": {
+          "temp": 7.582649914881384,
+          "atemp": 33.633549980680144,
+          "hum": -12.85717202575487,
+          "windspeed": -5.089451342678053,
+          "workingday": 1.3911735699427967,
+          "hour_sin": -46.40514012754778,
+          "hour_cos": -48.79618465020899
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 1.0,
+        "validationRmse": 188.4267537186523,
+        "coefficients": {
+          "temp": 7.6599338927570875,
+          "atemp": 33.55586651131679,
+          "hum": -12.857220907635304,
+          "windspeed": -5.092177611201692,
+          "workingday": 1.391455361612854,
+          "hour_sin": -46.40315334062227,
+          "hour_cos": -48.79395647333269
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 1.7782794100389228,
+        "validationRmse": 188.42850634999124,
+        "coefficients": {
+          "temp": 7.795087733787172,
+          "atemp": 33.4200086026148,
+          "hum": -12.85732212923421,
+          "windspeed": -5.096920930240623,
+          "workingday": 1.3919478488690926,
+          "hour_sin": -46.3996130822349,
+          "hour_cos": -48.78999203077202
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 3.1622776601683795,
+        "validationRmse": 188.43162379076497,
+        "coefficients": {
+          "temp": 8.02847375978439,
+          "atemp": 33.18538987833464,
+          "hum": -12.857545719183216,
+          "windspeed": -5.105036181019839,
+          "workingday": 1.392797325944743,
+          "hour_sin": -46.39329562400982,
+          "hour_cos": -48.78293574080191
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 5.623413251903491,
+        "validationRmse": 188.4371691636397,
+        "coefficients": {
+          "temp": 8.422821243002321,
+          "atemp": 32.788907672091355,
+          "hum": -12.858072664299733,
+          "windspeed": -5.11851707599727,
+          "workingday": 1.3942297313915009,
+          "hour_sin": -46.381996749902974,
+          "hour_cos": -48.77036904079408
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 10.0,
+        "validationRmse": 188.44703233116647,
+        "coefficients": {
+          "temp": 9.06527783578003,
+          "atemp": 32.14281746737165,
+          "hum": -12.85937618767627,
+          "windspeed": -5.139788392594296,
+          "workingday": 1.3965545424857948,
+          "hour_sin": -46.36172247225102,
+          "hour_cos": -48.74797100163621
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 17.78279410038923,
+        "validationRmse": 188.46456482820142,
+        "coefficients": {
+          "temp": 10.052200252532979,
+          "atemp": 31.149860338744716,
+          "hum": -12.862656714811228,
+          "windspeed": -5.170473511068398,
+          "workingday": 1.4001003119791384,
+          "hour_sin": -46.32519960915563,
+          "hour_cos": -48.708016981799275
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 31.622776601683793,
+        "validationRmse": 188.49568302387934,
+        "coefficients": {
+          "temp": 11.439206444831878,
+          "atemp": 29.75311802510701,
+          "hum": -12.87073441831971,
+          "windspeed": -5.208166700456268,
+          "workingday": 1.4050130981364886,
+          "hour_sin": -46.25919491279929,
+          "hour_cos": -48.63672588441153
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 56.23413251903491,
+        "validationRmse": 188.55078003968137,
+        "coefficients": {
+          "temp": 13.162716911401692,
+          "atemp": 28.014237432401636,
+          "hum": -12.889479803644834,
+          "windspeed": -5.241232200822597,
+          "workingday": 1.4109359813053992,
+          "hour_sin": -46.13993005925961,
+          "hour_cos": -48.50969597412529
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 100.0,
+        "validationRmse": 188.64811285285163,
+        "coefficients": {
+          "temp": 15.003513225383593,
+          "atemp": 26.14903985653362,
+          "hum": -12.929418454767289,
+          "windspeed": -5.244496233298946,
+          "workingday": 1.4168251335810371,
+          "hour_sin": -45.92573568037426,
+          "hour_cos": -48.28434750510823
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 177.82794100389228,
+        "validationRmse": 188.81994192833506,
+        "coefficients": {
+          "temp": 16.674287042980634,
+          "atemp": 24.437699826357164,
+          "hum": -13.006792458747775,
+          "windspeed": -5.1791833755938566,
+          "workingday": 1.421188364642067,
+          "hour_sin": -45.54587246352121,
+          "hour_cos": -47.88797855717775
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 316.22776601683796,
+        "validationRmse": 189.1234539908214,
+        "coefficients": {
+          "temp": 17.97277586485004,
+          "atemp": 23.066583668329734,
+          "hum": -13.143201022159582,
+          "windspeed": -4.994375029973456,
+          "workingday": 1.4224735548758707,
+          "hour_sin": -44.884576096124285,
+          "hour_cos": -47.20034050021181
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 562.341325190349,
+        "validationRmse": 189.65921066218178,
+        "coefficients": {
+          "temp": 18.844098864707597,
+          "atemp": 22.05509562020076,
+          "hum": -13.360586747764458,
+          "windspeed": -4.624608553126619,
+          "workingday": 1.418910905353816,
+          "hour_sin": -43.76260834317482,
+          "hour_cos": -46.03286123718079
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 1000.0,
+        "validationRmse": 190.59983344269452,
+        "coefficients": {
+          "temp": 19.318971508616002,
+          "atemp": 21.29383141260257,
+          "hum": -13.661610164034329,
+          "windspeed": -3.989294387025841,
+          "workingday": 1.4075193762214917,
+          "hour_sin": -41.92935270747789,
+          "hour_cos": -44.117118517276246
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 1778.2794100389228,
+        "validationRmse": 192.22619825327112,
+        "coefficients": {
+          "temp": 19.413021706802606,
+          "atemp": 20.59907135239981,
+          "hum": -13.980463245912224,
+          "windspeed": -3.0153191443122926,
+          "workingday": 1.3825371283643841,
+          "hour_sin": -39.0971444188568,
+          "hour_cos": -41.13527302194783
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 3162.2776601683795,
+        "validationRmse": 194.9463318245595,
+        "coefficients": {
+          "temp": 19.049029643597404,
+          "atemp": 19.726704265234773,
+          "hum": -14.110397029356841,
+          "windspeed": -1.7079173904560947,
+          "workingday": 1.3341195665298482,
+          "hour_sin": -35.05629719941136,
+          "hour_cos": -36.83865467651778
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 5623.413251903491,
+        "validationRmse": 199.2289177009451,
+        "coefficients": {
+          "temp": 18.03559513387983,
+          "atemp": 18.379017818110405,
+          "hum": -13.691240940608912,
+          "windspeed": -0.25275045452809297,
+          "workingday": 1.2492182839745634,
+          "hour_sin": -29.85290938972104,
+          "hour_cos": -31.252605173394283
+        }
+      },
+      {
+        "model": "ridge",
+        "alpha": 10000.0,
+        "validationRmse": 205.36711504135974,
+        "coefficients": {
+          "temp": 16.163046555961678,
+          "atemp": 16.293270754717756,
+          "hum": -12.392108632728936,
+          "windspeed": 0.9763897427475957,
+          "workingday": 1.116466584165428,
+          "hour_sin": -23.89611198792611,
+          "hour_cos": -24.830603896403087
+        }
+      }
+    ],
+    "lasso": [
+      {
+        "model": "lasso",
+        "alpha": 0.01,
+        "validationRmse": 188.43290878902792,
+        "coefficients": {
+          "temp": 7.446742921997155,
+          "atemp": 33.76380781785303,
+          "hum": -12.847462058959499,
+          "windspeed": -5.068878266957279,
+          "workingday": 1.3809108019622258,
+          "hour_sin": -46.39934156758785,
+          "hour_cos": -48.78948097031502
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 0.01778279410038923,
+        "validationRmse": 188.4394542654467,
+        "coefficients": {
+          "temp": 7.419062054639975,
+          "atemp": 33.786688341004464,
+          "hum": -12.839948601719929,
+          "windspeed": -5.055630352937874,
+          "workingday": 1.3732084960408533,
+          "hour_sin": -46.39284482494575,
+          "hour_cos": -48.78203647585625
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 0.03162277660168379,
+        "validationRmse": 188.45109890508206,
+        "coefficients": {
+          "temp": 7.369837738167003,
+          "atemp": 33.82737630421524,
+          "hum": -12.826587575412587,
+          "windspeed": -5.032071860211241,
+          "workingday": 1.3595116440111765,
+          "hour_sin": -46.38129180127294,
+          "hour_cos": -48.76879808464201
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 0.05623413251903491,
+        "validationRmse": 188.4718219889316,
+        "coefficients": {
+          "temp": 7.28230347183725,
+          "atemp": 33.89973055075596,
+          "hum": -12.80282793564147,
+          "windspeed": -4.990178292190256,
+          "workingday": 1.335154815110381,
+          "hour_sin": -46.360747297715434,
+          "hour_cos": -48.74525652611733
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 0.1,
+        "validationRmse": 188.50872294139947,
+        "coefficients": {
+          "temp": 7.12663863792939,
+          "atemp": 34.02840104794146,
+          "hum": -12.760576682201556,
+          "windspeed": -4.915679622073549,
+          "workingday": 1.2918415533319596,
+          "hour_sin": -46.324213422265004,
+          "hour_cos": -48.70339305740147
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 0.1778279410038923,
+        "validationRmse": 188.57449958227053,
+        "coefficients": {
+          "temp": 6.849831578372241,
+          "atemp": 34.2572046727261,
+          "hum": -12.685442100828064,
+          "windspeed": -4.783200554663713,
+          "workingday": 1.2148184993594964,
+          "hour_sin": -46.25924599866708,
+          "hour_cos": -48.628948112781444
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 0.31622776601683794,
+        "validationRmse": 188.6919630246787,
+        "coefficients": {
+          "temp": 6.357586450575628,
+          "atemp": 34.66408625904022,
+          "hum": -12.551831848674059,
+          "windspeed": -4.547615538872736,
+          "workingday": 1.077849972688672,
+          "hour_sin": -46.143715758505586,
+          "hour_cos": -48.49656420067865
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 0.5623413251903491,
+        "validationRmse": 188.90240534660387,
+        "coefficients": {
+          "temp": 5.482235883087909,
+          "atemp": 35.38763659296114,
+          "hum": -12.31423549492908,
+          "windspeed": -4.128679502223119,
+          "workingday": 0.8342816580161647,
+          "hour_sin": -45.93827070910434,
+          "hour_cos": -48.261148615589526
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 1.0,
+        "validationRmse": 189.2815437984753,
+        "coefficients": {
+          "temp": 3.925615535825487,
+          "atemp": 36.674313699344765,
+          "hum": -11.891722804828282,
+          "windspeed": -3.3836940633482904,
+          "workingday": 0.401149131119879,
+          "hour_sin": -45.57293200356284,
+          "hour_cos": -47.84251392787234
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 1.7782794100389228,
+        "validationRmse": 189.9735790138018,
+        "coefficients": {
+          "temp": 1.2437190573586008,
+          "atemp": 38.84907832904372,
+          "hum": -11.156082649883492,
+          "windspeed": -2.0652675418687556,
+          "workingday": 0.0,
+          "hour_sin": -44.9224030130425,
+          "hour_cos": -47.09715413447883
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 3.1622776601683795,
+        "validationRmse": 191.23386783591368,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 39.14419849691671,
+          "hum": -9.884385108431525,
+          "windspeed": -0.0,
+          "workingday": 0.0,
+          "hour_sin": -43.78213100913075,
+          "hour_cos": -45.78473473681937
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 5.623413251903491,
+        "validationRmse": 193.45735523847824,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 37.144163869811734,
+          "hum": -8.413446356384593,
+          "windspeed": -0.0,
+          "workingday": 0.0,
+          "hour_sin": -42.131756405906415,
+          "hour_cos": -43.90454274956626
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 10.0,
+        "validationRmse": 197.59321470542818,
+        "coefficients": {
+          "temp": 4.254599800998861,
+          "atemp": 29.37067209599608,
+          "hum": -5.729404304652913,
+          "windspeed": -0.0,
+          "workingday": 0.0,
+          "hour_sin": -39.18465477047514,
+          "hour_cos": -40.53685329070568
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 17.78279410038923,
+        "validationRmse": 205.52123299712906,
+        "coefficients": {
+          "temp": 12.138036375857322,
+          "atemp": 15.232479094887577,
+          "hum": -0.9513305541703744,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": -33.94296794496324,
+          "hour_cos": -34.54635508041085
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 31.622776601683793,
+        "validationRmse": 219.40424960930196,
+        "coefficients": {
+          "temp": 16.975211974116352,
+          "atemp": 0.0,
+          "hum": -0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": -22.02917863323442,
+          "hour_cos": -21.996346420523164
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 56.23413251903491,
+        "validationRmse": 246.2533896060849,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": -0.20282343520336024,
+          "hour_cos": 0.0
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 100.0,
+        "validationRmse": 246.34255736375215,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": 0.0,
+          "hour_cos": 0.0
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 177.82794100389228,
+        "validationRmse": 246.34255736375215,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": 0.0,
+          "hour_cos": 0.0
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 316.22776601683796,
+        "validationRmse": 246.34255736375215,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": 0.0,
+          "hour_cos": 0.0
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 562.341325190349,
+        "validationRmse": 246.34255736375215,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": 0.0,
+          "hour_cos": 0.0
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 1000.0,
+        "validationRmse": 246.34255736375215,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": 0.0,
+          "hour_cos": 0.0
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 1778.2794100389228,
+        "validationRmse": 246.34255736375215,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": 0.0,
+          "hour_cos": 0.0
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 3162.2776601683795,
+        "validationRmse": 246.34255736375215,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": 0.0,
+          "hour_cos": 0.0
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 5623.413251903491,
+        "validationRmse": 246.34255736375215,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": 0.0,
+          "hour_cos": 0.0
+        }
+      },
+      {
+        "model": "lasso",
+        "alpha": 10000.0,
+        "validationRmse": 246.34255736375215,
+        "coefficients": {
+          "temp": 0.0,
+          "atemp": 0.0,
+          "hum": 0.0,
+          "windspeed": 0.0,
+          "workingday": 0.0,
+          "hour_sin": 0.0,
+          "hour_cos": 0.0
+        }
+      }
+    ]
+  },
+  "finalTest": {
+    "refitRows": 13903,
+    "evaluatedRows": 3476,
+    "evaluationCount": 1,
+    "stageId": "calendar-weather-cycle",
+    "metrics": {
+      "mse": 26605.248545128186,
+      "rmse": 163.11115395682842,
+      "mae": 120.98919662573905,
+      "r2": 0.45271953919291164
+    },
+    "namedFailureCases": [
+      {
+        "role": "negative-prediction",
+        "instant": 17213,
+        "timestamp": "2012-12-25T00:00:00",
+        "hour": 0,
+        "workingday": 0,
+        "actual": 13.0,
+        "prediction": -34.062533753168054,
+        "residual": -47.062533753168054
+      },
+      {
+        "role": "morning-peak-underprediction",
+        "instant": 15628,
+        "timestamp": "2012-10-18T08:00:00",
+        "hour": 8,
+        "workingday": 1,
+        "actual": 834.0,
+        "prediction": 227.6224021116137,
+        "residual": -606.3775978883863
+      },
+      {
+        "role": "evening-peak-underprediction",
+        "instant": 14774,
+        "timestamp": "2012-09-12T18:00:00",
+        "hour": 18,
+        "workingday": 1,
+        "actual": 977.0,
+        "prediction": 372.5153517431821,
+        "residual": -604.4846482568179
+      },
+      {
+        "role": "large-residual",
+        "instant": 15604,
+        "timestamp": "2012-10-17T08:00:00",
+        "hour": 8,
+        "workingday": 1,
+        "actual": 817.0,
+        "prediction": 212.515495712154,
+        "residual": -604.484504287846
+      }
+    ]
+  },
+  "figures": [
+    {
+      "id": "fit-line-temp",
+      "chapterId": "fit-line",
+      "sourceCellId": "fit-line-chart",
+      "title": {
+        "zh-CN": "训练集温度与租车量的第一条拟合直线",
+        "en": "The first fitted line for training temperature and rentals"
+      },
+      "alt": {
+        "zh-CN": "训练集温度散点与线性回归拟合直线",
+        "en": "Training temperature scatter plot with a fitted regression line"
+      },
+      "caption": {
+        "zh-CN": "直线概括整体上升趋势，但同一温度下租车量仍有很大差异。",
+        "en": "The line captures the overall rise, while rentals still vary widely at the same temperature."
+      },
+      "readingHint": {
+        "zh-CN": "先沿横轴比较温度，再观察点到直线的垂直距离。",
+        "en": "Compare temperature along the x-axis, then inspect each point's vertical distance to the line."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/fit-line-temp.png",
+      "sha256": "336844e12ee26ea82b472c8147e585ebb1e89a2019a6ae4cd7cd176fa9c69b05",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "intercept": 16.610176225496843,
+        "slope": 278.8632459768215
+      }
+    },
+    {
+      "id": "split-and-target",
+      "chapterId": "multivariate",
+      "sourceCellId": "split-target-chart",
+      "title": {
+        "zh-CN": "时间切分与目标分布",
+        "en": "Chronological split and target distribution"
+      },
+      "alt": {
+        "zh-CN": "训练验证测试时间切分及目标分布直方图",
+        "en": "Chronological train-validation-test split and target histograms"
+      },
+      "caption": {
+        "zh-CN": "三个集合保持时间顺序，后期租车量分布与训练期并不完全相同。",
+        "en": "The three partitions preserve time order, and later rental counts do not exactly match the training period."
+      },
+      "readingHint": {
+        "zh-CN": "注意验证集不是从训练数据中随机抽出的。",
+        "en": "Notice that validation rows were not randomly sampled from training."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/split-and-target.png",
+      "sha256": "3c39468a27eaec1b2e846a8550c9cf741efc34c70e4d82fcfa6f9d286c5a7234",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "trainTarget": {
+          "count": 10427.0,
+          "mean": 144.797,
+          "std": 134.621,
+          "min": 1.0,
+          "25%": 32.0,
+          "50%": 110.0,
+          "75%": 213.0,
+          "max": 782.0
+        },
+        "validationTarget": {
+          "count": 3476.0,
+          "mean": 264.157,
+          "std": 215.525,
+          "min": 1.0,
+          "25%": 68.75,
+          "50%": 233.0,
+          "75%": 395.0,
+          "max": 957.0
+        }
+      }
+    },
+    {
+      "id": "train-feature-relations",
+      "chapterId": "multivariate",
+      "sourceCellId": "feature-relations-chart",
+      "title": {
+        "zh-CN": "只使用训练集观察特征关系",
+        "en": "Feature relationships inspected on training data only"
+      },
+      "alt": {
+        "zh-CN": "温度湿度风速小时与平均租车量的四幅关系图",
+        "en": "Four relationship plots for temperature, humidity, windspeed, hour and mean rentals"
+      },
+      "caption": {
+        "zh-CN": "小时的非线性形状提示单条直线不足以表达通勤节奏。",
+        "en": "The nonlinear hourly shape suggests one straight effect cannot represent commuting rhythms."
+      },
+      "readingHint": {
+        "zh-CN": "比较散点范围与橙色分组均值线。",
+        "en": "Compare the scatter range with the orange grouped-mean line."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/train-feature-relations.png",
+      "sha256": "4ee2e2037403bc4a2e874d86ad85eee77b48364c8f707e4c24efc46962d7930d",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "temp": {
+          "temp": 1.0,
+          "hum": -0.0035,
+          "windspeed": -0.0158,
+          "workingday": 0.0712,
+          "hr": 0.1259,
+          "cnt": 0.4089
+        },
+        "hum": {
+          "temp": -0.0035,
+          "hum": 1.0,
+          "windspeed": -0.2928,
+          "workingday": 0.0416,
+          "hr": -0.2539,
+          "cnt": -0.286
+        },
+        "windspeed": {
+          "temp": -0.0158,
+          "hum": -0.2928,
+          "windspeed": 1.0,
+          "workingday": -0.0099,
+          "hr": 0.131,
+          "cnt": 0.0925
+        },
+        "workingday": {
+          "temp": 0.0712,
+          "hum": 0.0416,
+          "windspeed": -0.0099,
+          "workingday": 1.0,
+          "hr": 0.0024,
+          "cnt": 0.0305
+        },
+        "hr": {
+          "temp": 0.1259,
+          "hum": -0.2539,
+          "windspeed": 0.131,
+          "workingday": 0.0024,
+          "hr": 1.0,
+          "cnt": 0.4032
+        },
+        "cnt": {
+          "temp": 0.4089,
+          "hum": -0.286,
+          "windspeed": 0.0925,
+          "workingday": 0.0305,
+          "hr": 0.4032,
+          "cnt": 1.0
+        }
+      }
+    },
+    {
+      "id": "residual-loss",
+      "chapterId": "residual-loss",
+      "sourceCellId": "residual-loss-chart",
+      "title": {
+        "zh-CN": "残差与损失函数",
+        "en": "Residuals and loss functions"
+      },
+      "alt": {
+        "zh-CN": "预测与实际差距以及绝对误差平方误差贡献对比",
+        "en": "Prediction-to-actual gaps and a comparison of absolute versus squared error contributions"
+      },
+      "caption": {
+        "zh-CN": "平方让大残差获得更高权重，因此 MSE 对异常大误差更敏感。",
+        "en": "Squaring gives large residuals more weight, making MSE more sensitive to extreme errors."
+      },
+      "readingHint": {
+        "zh-CN": "右图已归一化，比较两条曲线的增长速度。",
+        "en": "The right panel is normalized; compare how quickly the two curves grow."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/residual-loss.png",
+      "sha256": "b7146553717cb16c301e15c7b495bfa859f082e7966e5924289e7035a742ba4d",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "mse": 15091.548566497497,
+        "rmse": 122.84766406610056,
+        "mae": 94.53962917892768,
+        "r2": 0.1671782439714894
+      }
+    },
+    {
+      "id": "gradient-descent",
+      "chapterId": "training-motion",
+      "sourceCellId": "gradient-descent-chart",
+      "title": {
+        "zh-CN": "训练集标准化与梯度下降轨迹",
+        "en": "Training-only scaling and gradient-descent trajectory"
+      },
+      "alt": {
+        "zh-CN": "特征标准化前后箱线图与损失梯度轨迹",
+        "en": "Feature boxplots before and after scaling plus loss and gradient trajectories"
+      },
+      "caption": {
+        "zh-CN": "只用训练集拟合缩放参数后，不同特征进入相近数值尺度，优化更稳定。",
+        "en": "After fitting scaling parameters on training only, features enter comparable ranges and optimization stabilizes."
+      },
+      "readingHint": {
+        "zh-CN": "第三图使用对数坐标，下降后趋平表示接近最小值。",
+        "en": "The third panel uses log scales; flattening after the drop indicates convergence."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/gradient-descent.png",
+      "sha256": "10f7519dde45d2ae26945a3cebeb55033dfdfb659d5c34d07c1470cfe217b762",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "rawStandardDeviation": {
+          "temp": 0.197383,
+          "hum": 0.197766,
+          "windspeed": 0.125696,
+          "hr": 6.908435
+        },
+        "scaledMean": [
+          0.0,
+          -0.0,
+          -0.0,
+          -0.0
+        ],
+        "scaledStandardDeviation": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "hour-and-polynomial",
+      "chapterId": "polynomial",
+      "sourceCellId": "hour-polynomial-chart",
+      "title": {
+        "zh-CN": "小时周期与多项式复杂度",
+        "en": "Hourly cycles and polynomial complexity"
+      },
+      "alt": {
+        "zh-CN": "工作日分时需求曲线与不同多项式次数训练验证误差",
+        "en": "Hourly demand curves by working day and train-validation errors for polynomial degrees"
+      },
+      "caption": {
+        "zh-CN": "特征可以非线性变换，而模型对参数仍保持线性；复杂度必须由验证集检验。",
+        "en": "Features may be transformed nonlinearly while the model remains linear in its parameters; validation must justify complexity."
+      },
+      "readingHint": {
+        "zh-CN": "左图关注 23 点到 0 点的周期衔接，右图比较训练和验证 RMSE。",
+        "en": "On the left, consider the 23-to-0 boundary; on the right, compare train and validation RMSE."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/hour-and-polynomial.png",
+      "sha256": "01a184cc62a0fbf12de610d43e88dba6045a298aea18a14f1c53c1f90ccf692f",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "polynomialDegrees": [
+          {
+            "degree": 1,
+            "trainRmse": 122.84766406610056,
+            "validationRmse": 219.22710743307513
+          },
+          {
+            "degree": 2,
+            "trainRmse": 122.82843442945821,
+            "validationRmse": 218.90146033982123
+          },
+          {
+            "degree": 3,
+            "trainRmse": 122.80801291085417,
+            "validationRmse": 218.86672232365413
+          },
+          {
+            "degree": 5,
+            "trainRmse": 122.35926423554365,
+            "validationRmse": 219.0506445137559
+          },
+          {
+            "degree": 8,
+            "trainRmse": 122.02808676091051,
+            "validationRmse": 219.0458061094765
+          }
+        ]
+      }
+    },
+    {
+      "id": "feature-stages",
+      "chapterId": "polynomial",
+      "sourceCellId": "feature-stage-chart",
+      "title": {
+        "zh-CN": "预先声明的特征阶段",
+        "en": "Predeclared feature stages"
+      },
+      "alt": {
+        "zh-CN": "六个特征与正则化阶段的训练验证RMSE柱状图",
+        "en": "Train and validation RMSE bars for six feature and regularization stages"
+      },
+      "caption": {
+        "zh-CN": "增加特征通常降低训练误差，但是否值得保留由验证误差和简洁性共同决定。",
+        "en": "More features often lower training error, but validation performance and simplicity decide whether they stay."
+      },
+      "readingHint": {
+        "zh-CN": "重点比较橙色验证柱，不要只看蓝色训练柱。",
+        "en": "Focus on the orange validation bars rather than only the blue training bars."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/feature-stages.png",
+      "sha256": "86bcbbea7d3a56b50a5a53f3ad8d8595286193da605286570453e3c54244bdad",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "bestValidationRmse": 166.85044529322187
+      }
+    },
+    {
+      "id": "coefficients",
+      "chapterId": "model-limits",
+      "sourceCellId": "coefficient-chart",
+      "title": {
+        "zh-CN": "条件系数的方向与大小",
+        "en": "Direction and magnitude of conditional coefficients"
+      },
+      "alt": {
+        "zh-CN": "标准化连续特征和编码类别特征的系数条形图",
+        "en": "Coefficient bars for standardized continuous and encoded categorical features"
+      },
+      "caption": {
+        "zh-CN": "系数描述其他入模变量保持不变时的条件关联，不能直接解释为因果效应。",
+        "en": "Coefficients describe conditional associations while other included variables are held fixed; they are not direct causal effects."
+      },
+      "readingHint": {
+        "zh-CN": "先确认特征经过何种缩放或编码，再解释系数。",
+        "en": "Check each feature's scaling or encoding before interpreting its coefficient."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/coefficients.png",
+      "sha256": "efd0754c296d3f746067435d0dfc9b49e49c13809393861258dc6d4500f3c2b6",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "largestAbsolute": [
+          {
+            "feature": "yr",
+            "coefficient": 76.59279572614999
+          },
+          {
+            "feature": "mnth_5",
+            "coefficient": 75.88023209727461
+          },
+          {
+            "feature": "hour_cos",
+            "coefficient": -66.09789671759637
+          },
+          {
+            "feature": "mnth_6",
+            "coefficient": 62.583618505813426
+          },
+          {
+            "feature": "hour_sin",
+            "coefficient": -59.7056202359965
+          }
+        ]
+      }
+    },
+    {
+      "id": "validation-diagnostics",
+      "chapterId": "overfitting",
+      "sourceCellId": "diagnostic-chart",
+      "title": {
+        "zh-CN": "验证集残差诊断",
+        "en": "Validation residual diagnostics"
+      },
+      "alt": {
+        "zh-CN": "验证集预测实际对照残差拟合值和分小时残差图",
+        "en": "Validation prediction-versus-actual, residual-versus-fitted, and hourly residual plots"
+      },
+      "caption": {
+        "zh-CN": "残差仍随时段呈现结构，说明线性模型遗漏了部分需求机制。",
+        "en": "Residuals retain time-of-day structure, showing that the linear model misses part of the demand mechanism."
+      },
+      "readingHint": {
+        "zh-CN": "随机云团较理想；可辨认的弧线或时段偏差表示系统性遗漏。",
+        "en": "A random cloud is preferable; visible curves or hourly bias indicate systematic omissions."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/validation-diagnostics.png",
+      "sha256": "efb2bb28ca2e5abedfca2fbad159f19cb08d9b830c734f312ea77efb8956607a",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "hourlyResidual": [
+          {
+            "hr": 0,
+            "mean": 94.0376,
+            "median": 111.0843
+          },
+          {
+            "hr": 1,
+            "mean": 106.2581,
+            "median": 122.3488
+          },
+          {
+            "hr": 2,
+            "mean": 110.3219,
+            "median": 118.2212
+          },
+          {
+            "hr": 3,
+            "mean": 121.2369,
+            "median": 117.1739
+          },
+          {
+            "hr": 4,
+            "mean": 128.7519,
+            "median": 129.2836
+          },
+          {
+            "hr": 5,
+            "mean": 120.3445,
+            "median": 125.8332
+          },
+          {
+            "hr": 6,
+            "mean": 56.6947,
+            "median": 46.8285
+          },
+          {
+            "hr": 7,
+            "mean": -111.7885,
+            "median": -163.184
+          },
+          {
+            "hr": 8,
+            "mean": -268.6651,
+            "median": -398.5716
+          },
+          {
+            "hr": 9,
+            "mean": -54.1941,
+            "median": -58.4446
+          },
+          {
+            "hr": 10,
+            "mean": 31.6261,
+            "median": 65.6974
+          },
+          {
+            "hr": 11,
+            "mean": 16.0371,
+            "median": 53.8849
+          },
+          {
+            "hr": 12,
+            "mean": -16.4766,
+            "median": 24.825
+          },
+          {
+            "hr": 13,
+            "mean": 1.0705,
+            "median": 48.8863
+          },
+          {
+            "hr": 14,
+            "mean": 30.2043,
+            "median": 79.0783
+          },
+          {
+            "hr": 15,
+            "mean": 22.646,
+            "median": 63.8954
+          },
+          {
+            "hr": 16,
+            "mean": -63.9578,
+            "median": -62.9539
+          },
+          {
+            "hr": 17,
+            "mean": -293.0973,
+            "median": -341.1741
+          },
+          {
+            "hr": 18,
+            "mean": -277.4744,
+            "median": -320.3137
+          },
+          {
+            "hr": 19,
+            "mean": -151.1756,
+            "median": -160.4772
+          },
+          {
+            "hr": 20,
+            "mean": -57.8311,
+            "median": -59.2658
+          },
+          {
+            "hr": 21,
+            "mean": -5.548,
+            "median": 0.0614
+          },
+          {
+            "hr": 22,
+            "mean": 27.8396,
+            "median": 30.7179
+          },
+          {
+            "hr": 23,
+            "mean": 64.2546,
+            "median": 69.3978
+          }
+        ]
+      }
+    },
+    {
+      "id": "regularization",
+      "chapterId": "regularization",
+      "sourceCellId": "regularization-chart",
+      "title": {
+        "zh-CN": "共线性与正则化系数路径",
+        "en": "Collinearity and regularization coefficient paths"
+      },
+      "alt": {
+        "zh-CN": "温度体感温度相关散点及Ridge Lasso系数路径",
+        "en": "Temperature-apparent-temperature correlation and Ridge/Lasso coefficient paths"
+      },
+      "caption": {
+        "zh-CN": "temp 与 atemp 高度相关；Ridge 平滑收缩，Lasso 会把部分系数压到零。",
+        "en": "temp and atemp are highly correlated; Ridge shrinks smoothly while Lasso can drive coefficients to zero."
+      },
+      "readingHint": {
+        "zh-CN": "沿横轴增大 alpha，观察两种方法如何处理相关特征。",
+        "en": "Move right as alpha increases and compare how the methods handle correlated features."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/regularization.png",
+      "sha256": "b8c74c5da6b940d885dd730ce14e28606945c63f1266b8e659237e2c40c37a57",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "tempAtempCorrelation": 0.9920042252402431
+      }
+    },
+    {
+      "id": "final-test",
+      "chapterId": "regularization",
+      "sourceCellId": "final-test-chart",
+      "title": {
+        "zh-CN": "冻结方案后的唯一一次测试集评价",
+        "en": "The single test evaluation after freezing the design"
+      },
+      "alt": {
+        "zh-CN": "测试期实际预测时间序列与最终残差分布",
+        "en": "Test-period actual and predicted time series with the final residual distribution"
+      },
+      "caption": {
+        "zh-CN": "测试集只回答冻结方案面对未来时段的表现，不再用于修改特征。",
+        "en": "The test set only reports how the frozen design handles a later period; it is not used to revise features."
+      },
+      "readingHint": {
+        "zh-CN": "左图只抽样显示以保持可读，指标使用全部 3476 行。",
+        "en": "The left panel is sampled for readability; metrics use all 3,476 rows."
+      },
+      "publicPath": "/linear-regression/phase-27a/figures/final-test.png",
+      "sha256": "f57148a47795739673c3b366b4da6f10d4585648eb9562b00d8cd83951aedbf5",
+      "width": 1536,
+      "loading": "lazy",
+      "fallback": {
+        "residualQuantiles": {
+          "0": -606.3775978883863,
+          "0.1": -240.70816732458655,
+          "0.5": 51.07174987777598,
+          "0.9": 142.6597912029256,
+          "1": 273.5208734579427
+        }
+      }
+    }
+  ],
+  "downloads": {
+    "notebookZh": "/linear-regression/phase-27a/bike-linear-regression-course.zh-CN.ipynb",
+    "notebookEn": "/linear-regression/phase-27a/bike-linear-regression-course.en.ipynb",
+    "summary": "/linear-regression/phase-27a/linear-regression-course-summary.json",
+    "stageMetrics": "/linear-regression/phase-27a/feature-stage-metrics.csv",
+    "gradientTrace": "/linear-regression/phase-27a/gradient-descent-trace.csv",
+    "residuals": "/linear-regression/phase-27a/test-residuals.csv",
+    "manifest": "/linear-regression/phase-27a/output-manifest.json"
+  }
+}

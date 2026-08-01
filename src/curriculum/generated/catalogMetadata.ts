@@ -373,8 +373,8 @@ export const curriculumCatalogMetadata = [
       "en": "Linear Regression"
     },
     "summary": {
-      "zh-CN": "八章共享同一时间切分、五特征顺序和结果注册表，把公式、NumPy、scikit-learn 与真实模型限制连成一条学习路径。",
-      "en": "Eight chapters share one chronological split, five-feature order, and result registry to connect formulas, NumPy, scikit-learn, and real model limitations."
+      "zh-CN": "八章共享 60/20/20 时间切分和可复现实验资产，把详细讲解、Python 代码、真实运行输出与 Matplotlib 图表连成完整教学流。",
+      "en": "Eight chapters share a chronological 60/20/20 split and reproducible assets, joining detailed explanations, Python code, actual outputs, and Matplotlib figures into one teaching flow."
     },
     "route": "/learn/linear-regression",
     "estimatedMinutes": 96,

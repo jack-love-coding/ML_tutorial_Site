@@ -1,0 +1,14 @@
+{
+  "contractVersion": "linear-regression-phase-27a-environment-v1",
+  "python": "3.12.13",
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "dependencies": {
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "scikit-learn": "1.9.0",
+    "matplotlib": "3.10.9",
+    "nbformat": "5.10.4",
+    "nbclient": "0.11.0",
+    "ipykernel": "7.3.0"
+  }
+}

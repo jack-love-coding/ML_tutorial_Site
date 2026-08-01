@@ -556,32 +556,32 @@ export const messages = {
       linearRegression: {
         title: '线性回归',
         kicker: 'Bike Regression Studio',
-        intro: '沿一份本地 Bike Sharing 小时快照，从单行 cnt 预测走到批量梯度、三种 OLS 对照、系数解释和留出残差诊断。',
-        summary: '八章共享同一时间切分、五特征顺序和结果注册表，把公式、NumPy、scikit-learn 与真实模型限制连成一条学习路径。',
+        intro: '沿同一份 Bike Sharing 真实数据，从温度直线走到时间切分、梯度训练、周期特征、残差诊断和最终测试。',
+        summary: '八章共享 60/20/20 时间切分和可复现实验资产，把详细讲解、Python 代码、真实运行输出与 Matplotlib 图表连成完整教学流。',
         sections: {
           fitLine: {
-            title: '从一条 Bike 小时记录到 cnt 预测',
+            title: '从 temp → cnt 建立第一条预测直线',
           },
           multivariate: {
-            title: '固定特征顺序、时间切分与批量矩阵预测',
+            title: '认识字段、时间切分与设计矩阵',
           },
           residualLoss: {
-            title: '从一项残差到整批 MSE 与梯度',
+            title: '从单个残差理解 MSE、RMSE、MAE 与 R²',
           },
           trainingMotion: {
-            title: 'NumPy 批量梯度下降如何学习并停止',
+            title: '训练集标准化与 NumPy 梯度下降',
           },
           polynomial: {
-            title: '正规方程、稳定 lstsq 与三种 OLS 对照',
+            title: '多项式、类别与小时周期特征',
           },
           modelLimits: {
-            title: '把模型空间系数翻译回原始单位',
+            title: '系数解释、条件关联与因果边界',
           },
           overfitting: {
-            title: '留出残差诊断：小时曲线、扩散与真实失败案例',
+            title: '训练/验证误差与残差结构诊断',
           },
           regularization: {
-            title: 'atemp 共线性、Ridge/Lasso 与线性边界',
+            title: '共线性、Ridge/Lasso 与最终测试',
           },
         },
       },
@@ -1277,32 +1277,32 @@ export const messages = {
       linearRegression: {
         title: 'Linear Regression',
         kicker: 'Bike Regression Studio',
-        intro: 'Follow one local Bike Sharing hourly snapshot from a single cnt prediction through batch gradients, three OLS methods, coefficient interpretation, and held-out residual diagnosis.',
-        summary: 'Eight chapters share one chronological split, five-feature order, and result registry to connect formulas, NumPy, scikit-learn, and real model limitations.',
+        intro: 'Follow one real Bike Sharing dataset from a temperature line through chronological splitting, gradient training, cyclical features, residual diagnosis, and final testing.',
+        summary: 'Eight chapters share a chronological 60/20/20 split and reproducible assets, joining detailed explanations, Python code, actual outputs, and Matplotlib figures into one teaching flow.',
         sections: {
           fitLine: {
-            title: 'From one Bike hour to a cnt prediction',
+            title: 'Build the first temp → cnt prediction line',
           },
           multivariate: {
-            title: 'Fixed feature order, chronological split, and batch prediction',
+            title: 'Fields, chronological splitting, and the design matrix',
           },
           residualLoss: {
-            title: 'From one residual to batch MSE and gradients',
+            title: 'From one residual to MSE, RMSE, MAE, and R²',
           },
           trainingMotion: {
-            title: 'How NumPy batch gradient descent learns and stops',
+            title: 'Training-only scaling and NumPy gradient descent',
           },
           polynomial: {
-            title: 'Normal equation, stable lstsq, and three OLS methods',
+            title: 'Polynomial, categorical, and cyclical-hour features',
           },
           modelLimits: {
-            title: 'Translate model-space coefficients to original units',
+            title: 'Coefficient interpretation, conditional association, and causality limits',
           },
           overfitting: {
-            title: 'Held-out diagnosis: hourly shape, spread, and real failure cases',
+            title: 'Train-validation error and residual-structure diagnosis',
           },
           regularization: {
-            title: 'atemp collinearity, Ridge/Lasso, and the linear boundary',
+            title: 'Collinearity, Ridge/Lasso, and the final test',
           },
         },
       },

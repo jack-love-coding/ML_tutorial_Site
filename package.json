@@ -19,7 +19,7 @@
     "markdown-it": "^14.1.1",
     "pinia": "^3.0.4",
     "plotly.js-basic-dist-min": "3.7.0",
-    "sanitize-html": "^2.17.4",
+    "sanitize-html": "^2.17.6",
     "three": "^0.184.0",
     "vue": "^3.5.30",
     "vue-i18n": "^11.3.0",

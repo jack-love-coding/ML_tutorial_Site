@@ -327,13 +327,23 @@ test('bilingual notation, typed output bindings, and safe rendering stay aligned
 
 test('all linear-regression component learner copy uses plain result terminology', () => {
   const inventory = componentInventory()
-  assert.equal(inventory.length, 6, 'the current LinearRegression*.vue inventory should be complete')
+  assert.equal(inventory.length, 8, 'the current LinearRegression*.vue inventory should be complete')
   assert.ok(inventory.includes('LinearRegressionUnivariateView.vue'))
 
   const violations = []
   for (const filename of inventory) {
     const source = read(`src/components/${filename}`)
     const learnerCopy = learnerFacingCopy(source)
+    if (filename === 'LinearRegressionLessonBlock.vue' || filename === 'LinearRegressionObservationLab.vue') {
+      if (filename === 'LinearRegressionObservationLab.vue') {
+        assert.match(source, /localized\(props\.controlLabels/)
+        assert.match(source, /zh\.value\s*\?/)
+      } else {
+        assert.match(source, /localized\(block\.|localized\(figure\./)
+      }
+      assert.doesNotMatch(source, /证据|\bEvidence\b/)
+      continue
+    }
     assert.ok(learnerCopy.localizedRegions.length > 0, `${filename} should expose localized copy`)
     assert.ok(
       learnerCopy.localizedStrings.some((value) => /[\u3400-\u9fff]/u.test(value)),
