@@ -19,6 +19,10 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 - [x] **LINR-02**: Learners can reproduce a locked regression fit using NumPy batch gradient descent.
 - [x] **LINR-03**: Learners can compare normal-equation, gradient-descent, and scikit-learn coefficients, predictions, and errors on the same split.
 - [x] **LINR-04**: Learners can use held-out residuals and coefficient stability to identify nonlinearity, heteroscedasticity, or collinearity limitations.
+- [x] **LINR-05**: Learners can read each linear-regression chapter as a single-column sequence of explanation, code, runtime output, figure interpretation, and a compact full-width observation lab.
+- [x] **LINR-06**: Learners can use train-only Bike Sharing exploration to explain why progressively adding numeric, categorical, and cyclical features changes validation fit.
+- [x] **LINR-07**: Learners can distinguish target, preprocessing, and evaluation leakage while following a chronological train/validation/test workflow whose test partition is evaluated once.
+- [x] **LINR-08**: Learners can download bilingual executed Notebooks and local figures that reproduce the displayed fitting, residual, coefficient, and regularization results, with references collected only at the course end.
 
 ### Tabular Regression Project
 
@@ -88,6 +92,10 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 | LINR-02 | Phase 27 | Complete |
 | LINR-03 | Phase 27 | Complete |
 | LINR-04 | Phase 27 | Complete |
+| LINR-05 | Phase 27A | Complete |
+| LINR-06 | Phase 27A | Complete |
+| LINR-07 | Phase 27A | Complete |
+| LINR-08 | Phase 27A | Complete |
 | TPRJ-01 | Phase 28 | Pending |
 | TPRJ-02 | Phase 28 | Pending |
 | TPRJ-03 | Phase 28 | Pending |
@@ -111,8 +119,8 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 
 **Coverage:**
 
-- v1.1 requirements: 27 total
-- Mapped to phases: 27
+- v1.1 requirements: 31 total
+- Mapped to phases: 31
 - Unmapped: 0 ✓
 
 ---
