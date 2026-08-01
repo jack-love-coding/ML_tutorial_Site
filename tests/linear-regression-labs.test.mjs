@@ -270,21 +270,23 @@ test('each of the six controls owns a stable aria-live numerical output hook', (
   assert.match(lab, /aria-live="polite"/)
 })
 
-test('page composition places each chapter result beside its workbench', () => {
+test('page composition places one compact v2 observation lab after the teaching blocks', () => {
   const page = source('src/components/LinearRegressionPagedLesson.vue')
 
   assert.match(page, /data-testid="linear-course-lab"/)
   assert.match(page, /data-testid="linear-course-results"/)
-  assert.match(page, /<LinearRegressionLessonLab[\s\S]*<LinearRegressionResults/)
+  assert.match(page, /<LinearRegressionObservationLab/)
+  assert.doesNotMatch(page, /<LinearRegressionLessonLab|<LinearRegressionResults/)
 })
 
-test('downloads expose the complete registered local package once', () => {
-  const downloads = source('src/components/LinearRegressionDownloads.vue')
+test('downloads are centralized in the eighth typed lesson while legacy assets remain registered', () => {
+  const lesson = source('src/data/linearRegressionLesson.ts')
   const algorithmView = source('src/views/AlgorithmView.vue')
 
-  assert.match(downloads, /linearRegressionAssets/)
-  assert.match(downloads, /withPublicBase\(asset\.publicPath\)/)
-  assert.equal((algorithmView.match(/<LinearRegressionDownloads/g) ?? []).length, 1)
+  assert.match(lesson, /downloads:\s*\[/)
+  assert.match(lesson, /phase-27a\/output-manifest\.json/)
+  assert.match(lesson, /notebooks\/linear-regression\/bike-linear-regression\.zh-CN\.ipynb/)
+  assert.equal((algorithmView.match(/<LinearRegressionDownloads/g) ?? []).length, 0)
 })
 
 test('module styles prove mobile and reduced-motion layout', () => {

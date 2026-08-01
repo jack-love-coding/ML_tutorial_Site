@@ -31,13 +31,14 @@ const phasePathPatterns = [
   /^tests\/algorithm-progress\.test\.ts$/,
   /^tests\/curriculumProgress\.test\.ts$/,
   /^src\/simulations\/linearRegression(?:Bike|Workbench)?\.ts$/,
-  /^src\/data\/linearRegression(?:Assets|Module)\.ts$/,
+  /^src\/data\/linearRegression(?:Assets|Lesson|Module)\.ts$/,
   /^src\/i18n\/messages\.ts$/,
   /^src\/curriculum\/adapters\/algorithmAdapter\.ts$/,
   /^src\/components\/LinearRegression.*\.vue$/,
   /^src\/views\/AlgorithmView\.vue$/,
   /^src\/styles\/modules\/linear-regression.*\.css$/,
   /^public\/notebooks\/linear-regression\//,
+  /^public\/linear-regression\/phase-27a\//,
 ]
 
 const forbiddenPathPatterns = [
@@ -110,6 +111,9 @@ function collectPhaseRuntimeFiles() {
     'src/simulations/linearRegressionWorkbench.ts',
     'src/data/linearRegressionAssets.ts',
     'src/data/linearRegressionModule.ts',
+    'src/data/linearRegressionLesson.ts',
+    'src/components/LinearRegressionLessonBlock.vue',
+    'src/components/LinearRegressionObservationLab.vue',
     'src/components/LinearRegressionPagedLesson.vue',
     'src/components/LinearRegressionLessonLab.vue',
     'src/components/LinearRegressionResults.vue',
@@ -190,7 +194,7 @@ test('Phase 28 bridge names the exact housing project route and bilingual handof
   for (const token of [
     'data-testid="linear-phase-28-bridge"',
     'to="/learn/housing-price-project"',
-    "nextLesson: zh ? '阶段 28' : 'Phase 28'",
+    "nextLesson: zh.value ? '阶段 28' : 'Phase 28'",
     "'继续进入表格回归项目'",
     "'Continue to the tabular-regression project'",
     "'把本课确认的线性模型边界带入现有房价项目：使用冻结本地数据、防泄漏流水线、诚实基线、受控改进与残差复盘。'",
@@ -302,6 +306,7 @@ test('no remote runtime exists in Phase 27 executable sources or generated Noteb
     'src/simulations/linearRegression.ts',
     'src/data/linearRegressionModule.ts',
     'src/data/linearRegressionAssets.ts',
+    'src/data/linearRegressionLesson.ts',
   ])
 
   for (const relativePath of collectPhaseRuntimeFiles()) {
@@ -341,43 +346,36 @@ test('no remote runtime exists in Phase 27 executable sources or generated Noteb
   assert.deepEqual(violations, [])
 })
 
-test('Task 27-08-02 production page composes typed chapter-local results and safe loading', () => {
+test('Phase 27A production page composes typed blocks, local figures, and chapter-local observation results', () => {
   const page = source('src/components/LinearRegressionPagedLesson.vue')
   const pageScript = scriptBlock(page)
+  const block = source('src/components/LinearRegressionLessonBlock.vue')
 
-  assert.match(page, /linearRegressionChapterAssets/)
-  assert.match(page, /activeChapterAssetBinding/)
-  assert.match(page, /loadChapterSummary/)
-  assert.match(page, /abortActiveLoad/)
-  assert.match(page, /parseLinearRegressionSummary/)
-  assert.match(page, /withPublicBase\(.*publicPath/)
-  assert.match(page, /new AbortController\(\)/)
-  assert.match(page, /CodeLab/)
-  assert.match(page, /build-phase-27-assets\.py --check --offline/)
+  assert.match(page, /linearRegressionLessonFor/)
+  assert.match(page, /LinearRegressionLessonBlock/)
+  assert.match(page, /linear-course-page__lesson-flow/)
+  assert.match(block, /linearRegressionFigures/)
+  assert.match(block, /withPublicBase\(figure\.publicPath\)/)
+  assert.match(block, /loading="lazy"/)
+  assert.match(block, /CodeLab/)
   assert.match(page, /data-testid="linear-course-lab"/)
   assert.match(page, /data-testid="linear-course-results"/)
-  assert.match(page, /LinearRegressionLessonLab[\s\S]*LinearRegressionResults/)
+  assert.match(page, /LinearRegressionObservationLab/)
+  assert.doesNotMatch(page, /learning-grid|loadChapterSummary|AbortController/)
   assert.doesNotMatch(page, /fuelRows|residualRows|California|MPG|fuel/i)
   assert.doesNotMatch(pageScript, /\*\*\s*2|reduce\([^)]*residual|solveLinearSystem|matrixInverse/)
-  assert.doesNotMatch(page, /v-html|<iframe/)
+  assert.doesNotMatch(page + block, /v-html|<iframe/)
 })
 
-test('Task 27-08-02 production download surface appears once after the unchanged checkpoint', () => {
-  const downloadsPath = resolve(root, 'src/components/LinearRegressionDownloads.vue')
-  assert.ok(existsSync(downloadsPath), 'LinearRegressionDownloads.vue must exist')
-
-  const downloads = readFileSync(downloadsPath, 'utf8')
+test('Phase 27A download surface is centralized in chapter eight while legacy files remain available', () => {
+  const lesson = source('src/data/linearRegressionLesson.ts')
   const algorithmView = source('src/views/AlgorithmView.vue')
-  const checkpointIndex = algorithmView.indexOf('<AlgorithmCheckpointQuiz')
-  const downloadIndex = algorithmView.indexOf('<LinearRegressionDownloads')
 
-  assert.match(downloads, /linearRegressionAssets/)
-  assert.match(downloads, /downloadGroups/)
-  assert.match(downloads, /localizedAssetLabel/)
-  assert.match(downloads, /withPublicBase\(asset\.publicPath\)/)
-  assert.match(downloads, /data-linear-regression-downloads/)
-  assert.equal((algorithmView.match(/<LinearRegressionDownloads/g) ?? []).length, 1)
-  assert.ok(checkpointIndex >= 0 && downloadIndex > checkpointIndex)
+  assert.doesNotMatch(algorithmView, /LinearRegressionDownloads/)
+  assert.match(lesson, /downloads:\s*\[/)
+  assert.match(lesson, /phase-27a\/bike-linear-regression-course\.zh-CN\.ipynb/)
+  assert.match(lesson, /notebooks\/linear-regression\/bike-linear-regression\.zh-CN\.ipynb/)
+  assert.equal(existsSync(resolve(root, 'public/notebooks/linear-regression/bike-linear-regression.zh-CN.ipynb')), true)
 })
 
 test('Task 27-08-02 production styles preserve focus mobile non-color and reduced-motion meaning', () => {

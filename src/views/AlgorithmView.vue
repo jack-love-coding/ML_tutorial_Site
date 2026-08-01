@@ -44,9 +44,6 @@ const AlgorithmCheckpointQuiz = defineAsyncComponent(
 const LinearRegressionPagedLesson = defineAsyncComponent(
   () => import('../components/LinearRegressionPagedLesson.vue'),
 )
-const LinearRegressionDownloads = defineAsyncComponent(
-  () => import('../components/LinearRegressionDownloads.vue'),
-)
 const LogisticRegressionPagedLesson = defineAsyncComponent(
   () => import('../components/LogisticRegressionPagedLesson.vue'),
 )
@@ -813,7 +810,6 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     />
 
     <LossFunctionsDownloads v-if="isLossFunctionsPage" />
-    <LinearRegressionDownloads v-if="isLinearRegressionPage" />
 
     <section
       v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isWorkflowLessonPage"

@@ -96,7 +96,7 @@ test('linear regression paged lesson renders one current chapter with sidebar an
   assert.match(pagedSource, /`\/learn\/linear-regression\/\$\{section\.id\}`/)
   assert.match(pagedSource, /v-for="\(\s*chapter,\s*index\s*\) in props\.moduleDefinition\.chapters"/)
   assert.doesNotMatch(pagedSource, /class="story-card"/)
-  assert.match(styleSource, /\.linear-course-page__sidebar\s*\{[^}]*position: sticky/s)
+  assert.match(styleSource, /@media \(min-width: 1440px\)[\s\S]*\.linear-course-page__sidebar[\s\S]*position: sticky/)
   assert.match(styleSource, /\.linear-course-page__mobile-toggle/)
   assert.match(styleSource, /\.linear-course-page__pager/)
 })
@@ -117,11 +117,11 @@ test('linear regression lesson lab uses a unified experiment card layout', () =>
   assert.match(styleSource, /\.lesson-workbench--cockpit/)
 })
 
-test('linear regression course workbench contains the desktop cockpit within its column', () => {
+test('linear regression observation lab keeps the cockpit in the full-width teaching flow', () => {
   assert.match(
     styleSource,
-    /\.linear-course-page__workbench\s+\.lesson-workbench--cockpit\s+\.lesson-workbench__grid\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/s,
-    'the nested cockpit must use its course column width instead of the viewport desktop breakpoint',
+    /\.linear-observation-lab__controls\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/s,
+    'the compact observation lab must expose at most two control columns',
   )
 })
 
@@ -147,7 +147,7 @@ test('linear regression advanced chapters and subviews are wired', () => {
   assert.match(componentSource, /linear-regression-lab__advanced-controls/)
 })
 
-test('Plans 27-07/08 retain explicit page, result, typed asset, and fallback integration surfaces', () => {
+test('Phase 27A retains result labs while rendering dedicated typed lesson blocks', () => {
   const moduleSource = readFileSync(
     new URL('../src/data/linearRegressionModule.ts', import.meta.url),
     'utf8',
@@ -158,24 +158,25 @@ test('Plans 27-07/08 retain explicit page, result, typed asset, and fallback int
   assert.doesNotMatch(moduleSource, /California Housing|MedHouseVal/)
   assert.match(componentSource, /LinearRegressionMultivariateView/)
   assert.match(componentSource, /LinearRegressionUnivariateView/)
-  assert.match(pagedSource, /MarkdownMathContent/)
+  assert.match(pagedSource, /LinearRegressionLessonBlock/)
   assert.match(pagedSource, /withPublicBase/)
-  assert.match(pagedSource, /LinearRegressionLessonLab/)
-  assert.match(pagedSource, /LinearRegressionResults/)
-  assert.match(pagedSource, /linearRegressionChapterAssets/)
-  assert.match(pagedSource, /parseLinearRegressionSummary/)
-  assert.match(pagedSource, /new AbortController\(\)/)
-  assert.match(pagedSource, /linear-course-page__summary-state/)
+  assert.match(pagedSource, /LinearRegressionObservationLab/)
+  assert.match(pagedSource, /linearRegressionLessonFor/)
+  assert.match(pagedSource, /linear-course-page__lesson-flow/)
+  assert.match(pagedSource, /loading="lazy"|LinearRegressionLessonBlock/)
   assert.doesNotMatch(pagedSource, /story-media--linear|<video/)
   assert.match(styleSource, /@media \(prefers-reduced-motion: reduce\)/)
 })
 
-test('linear regression lecture adds the required teaching frame and animated diagrams', () => {
+test('linear regression lecture replaces the planning template with the seven typed block kinds', () => {
   const moduleSource = readFileSync(
     new URL('../src/data/linearRegressionModule.ts', import.meta.url),
     'utf8',
   )
-  const componentSource = readFileSync(componentPath, 'utf8')
+  const lessonSource = readFileSync(
+    new URL('../src/data/linearRegressionLesson.ts', import.meta.url),
+    'utf8',
+  )
   for (const heading of [
     '### 核心问题',
     '### 概念直觉',
@@ -186,33 +187,26 @@ test('linear regression lecture adds the required teaching frame and animated di
     '### 交互实验设计',
     '### 来源参考',
   ]) {
-    assert.match(moduleSource, new RegExp(heading))
+    assert.doesNotMatch(moduleSource, new RegExp(heading))
   }
-
-  assert.match(moduleSource, /withTeachingFrame/)
-  assert.match(moduleSource, /linearRegressionTeachingFrames/)
-  assert.match(moduleSource, /D2L/)
-  assert.match(moduleSource, /CS357/)
-  assert.match(componentSource, /linear-regression-lab__teaching-visual/)
-  assert.match(componentSource, /linear-regression-lab__teaching-svg/)
-  assert.match(componentSource, /linear-visual-residual/)
-  assert.match(componentSource, /linear-visual-param-path/)
-  assert.match(styleSource, /@keyframes linear-residual-pulse/)
-  assert.match(styleSource, /@keyframes linear-path-flow/)
-  assert.match(styleSource, /@keyframes linear-weight-shrink/)
+  for (const kind of ['explanation', 'formula', 'code', 'runtime-output', 'figure', 'table', 'observation-lab']) {
+    assert.match(lessonSource, new RegExp(`kind: '${kind}'`))
+  }
+  assert.match(lessonSource, /UCI Bike Sharing Dataset/)
+  assert.match(lessonSource, /NIST Residual Analysis/)
 })
 
-test('linear regression paged lesson composes the locked Bike contract beside lab results', () => {
+test('linear regression paged lesson composes one vertical flow with the lab after teaching blocks', () => {
   const pagedSource = readFileSync(pagedComponentPath, 'utf8')
 
-  assert.match(pagedSource, /Bike Sharing/)
-  assert.match(pagedSource, /loadedSummary\.source\.target/)
-  assert.match(pagedSource, /loadedSummary\.features\.order/)
-  assert.match(pagedSource, /linear-course-page__learning-grid/)
-  assert.match(pagedSource, /linear-course-page__contract/)
+  assert.match(pagedSource, /linear-course-page__lesson-flow/)
+  assert.match(pagedSource, /block\.kind === 'observation-lab'/)
+  assert.match(pagedSource, /linear-course-page__observation/)
+  assert.doesNotMatch(pagedSource, /linear-course-page__learning-grid/)
+  assert.doesNotMatch(pagedSource, /linear-course-page__workbench/)
   assert.match(
     pagedSource,
-    /LinearRegressionLessonLab[\s\S]*LinearRegressionResults/,
+    /LinearRegressionObservationLab/,
   )
   assert.doesNotMatch(pagedSource, /fuelRows|residualRows|California|MPG/)
   assert.doesNotMatch(
