@@ -28,3 +28,4 @@
 @import './overrides/cockpit-details.css';
 @import './overrides/final-shell.css';
 @import './layout/site-header.css';
+@import './modules/neural-guided.css';

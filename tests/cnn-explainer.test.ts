@@ -1397,7 +1397,7 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
   assert.match(algorithmViewSource, /const routeChapterLock = ref\(''\)/)
   assert.match(algorithmViewSource, /function syncRouteChapterIntoView\(chapterId: string\)/)
   assert.match(algorithmViewSource, /if \(routeChapterLock\.value && nextChapter !== routeChapterLock\.value\) return/)
-  assert.match(algorithmViewSource, /document\.getElementById\(chapterId\)\?\.scrollIntoView/)
+  assert.match(algorithmViewSource, /chapterTarget\(\)\?\.scrollIntoView/)
   assert.match(
     algorithmViewSource,
     /<CnnExplainerLab v-if="isCnnVisualizationPage && section\.id === activeChapter"/,

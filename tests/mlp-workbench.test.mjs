@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { mlpLessonFocusConfigs } from '../src/lessons/neuralGuided.ts'
 
 const root = new URL('../', import.meta.url)
 
@@ -61,9 +62,31 @@ test('MLP remains an independent guided module in the required-core order', () =
   assert.match(algorithmViewSource, /slug\.value === 'mlp'/)
   assert.match(algorithmViewSource, /visualAssetsFor/)
   assert.match(algorithmViewSource, /mlp-playground-stage/)
-  assert.match(algorithmViewSource, /mlp-playground-jump/)
+  assert.match(algorithmViewSource, /NeuralGuidedLesson/)
+  assert.match(algorithmViewSource, /onNeuralChapterChange/)
+  assert.doesNotMatch(algorithmViewSource, /mlp-playground-jump/)
   assert.doesNotMatch(algorithmViewSource, /<MlpLessonLab/)
   assert.doesNotMatch(algorithmViewSource, /mlp-playground-rail/)
+})
+
+test('MLP guided focus config covers every chapter with a bounded control set', () => {
+  const expectedIds = [
+    'linearLimits',
+    'neuronAffine',
+    'activations',
+    'hiddenRepresentation',
+    'forwardOutput',
+    'backprop',
+    'trainingDynamics',
+    'capacityGeneralization',
+  ]
+
+  assert.deepEqual(mlpLessonFocusConfigs.map((config) => config.chapterId), expectedIds)
+  for (const config of mlpLessonFocusConfigs) {
+    assert.ok(config.guidedControls.length <= 5, `${config.chapterId} should expose at most five guided controls`)
+    assert.ok(config.evidence['zh-CN'].length > 0)
+    assert.ok(config.evidence.en.length > 0)
+  }
 })
 
 test('professional lesson labs keep the shared workbench shell where it is still used', () => {
@@ -143,10 +166,11 @@ test('MLP visible source stays readable in Chinese', () => {
   const visibleSources = [
     'src/components/MlpPlaygroundCockpit.vue',
     'src/data/mlpModule.ts',
+    'src/lessons/NeuralGuidedLesson.vue',
     'src/views/AlgorithmView.vue',
   ].map(read).join('\n')
 
-  for (const phrase of ['当前章节任务', '输出拟合图', '线性模型为什么会在 XOR 上失败', '回到 MLP 实验台']) {
+  for (const phrase of ['本章动手任务', '输出拟合图', '线性模型为什么会在 XOR 上失败', '深入探索']) {
     assert.match(visibleSources, new RegExp(phrase))
   }
 

@@ -57,18 +57,20 @@ test('lesson lab registry declares the Phase 5 pilot modules and placements', ()
   }
 })
 
-test('AlgorithmView routes AI Overview, Gradient Descent, and MLP through LessonPage pilots', () => {
+test('AlgorithmView routes article pilots through LessonPage and MLP through its guided shell', () => {
   const algorithmViewSource = read('src/views/AlgorithmView.vue')
 
   assert.match(algorithmViewSource, /const LessonPage = defineAsyncComponent\(\(\) => import\('\.\.\/lessons\/LessonPage\.vue'\)\)/)
+  assert.match(algorithmViewSource, /const NeuralGuidedLesson = defineAsyncComponent/)
   assert.match(algorithmViewSource, /isLessonPagePilotSlug/)
   assert.match(algorithmViewSource, /lessonLabRegistry/)
   assert.match(algorithmViewSource, /const isLessonPagePilot = computed/)
   assert.match(algorithmViewSource, /const activeLessonLab = computed/)
-  assert.match(algorithmViewSource, /<LessonPage\s+v-if="isLessonPagePilot"/)
+  assert.match(algorithmViewSource, /<NeuralGuidedLesson\s+v-if="isMlpPage"/)
+  assert.match(algorithmViewSource, /<LessonPage\s+v-else-if="isLessonPagePilot"/)
   assert.match(algorithmViewSource, /activeLessonLab\?\.labId === 'ai-overview-task-lab'/)
   assert.match(algorithmViewSource, /activeLessonLab\?\.labId === 'gradient-chapter-lab'/)
-  assert.match(algorithmViewSource, /activeLessonLab\?\.placement === 'top' && isMlpPage/)
+  assert.match(algorithmViewSource, /:mode="mode"/)
   assert.match(algorithmViewSource, /MlpPlaygroundCockpit/)
   assert.match(algorithmViewSource, /GradientChapterLab/)
   assert.match(algorithmViewSource, /AiOverviewLessonLab/)

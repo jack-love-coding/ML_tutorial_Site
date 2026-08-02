@@ -67,6 +67,9 @@ const MlpBackpropBridgeLab = defineAsyncComponent(
   () => import('../components/MlpBackpropBridgeLab.vue'),
 )
 const LessonPage = defineAsyncComponent(() => import('../lessons/LessonPage.vue'))
+const NeuralGuidedLesson = defineAsyncComponent(
+  () => import('../lessons/NeuralGuidedLesson.vue'),
+)
 
 const route = useRoute()
 const router = useRouter()
@@ -75,7 +78,6 @@ const experimentStore = useExperimentStore()
 const { experiments } = storeToRefs(experimentStore)
 
 const activeChapter = ref('')
-const mlpPlaygroundRef = ref<HTMLElement | null>(null)
 const progress = ref(loadAlgorithmProgress())
 const moduleDefinition = shallowRef<AlgorithmModuleDefinition>()
 const routeChapterLock = ref('')
@@ -129,6 +131,7 @@ const isLinearRegressionPage = computed(() => slug.value === 'linear-regression'
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
 const isClassificationPage = computed(() => slug.value === 'classification')
 const isMlpPage = computed(() => slug.value === 'mlp')
+const isNeuralGuidedPage = computed(() => isMlpPage.value || isCnnVisualizationPage.value)
 const isLessonPagePilot = computed(() => isLessonPagePilotSlug(slug.value))
 const activeLessonLab = computed(() =>
   isLessonPagePilotSlug(slug.value) ? lessonLabRegistry[slug.value] : undefined,
@@ -243,10 +246,6 @@ function visualAssetsFor(section?: StorySection) {
   if (!section?.visualIds?.length) return []
   const visualIds = new Set(section.visualIds)
   return moduleDefinition.value?.visuals?.filter((asset) => visualIds.has(asset.id)) ?? []
-}
-
-function scrollToMlpPlayground() {
-  mlpPlaygroundRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 function sectionCompanionCopy(section?: StorySection) {
@@ -376,18 +375,22 @@ function stopRouteChapterSync() {
 function syncRouteChapterIntoView(chapterId: string) {
   routeChapterLock.value = chapterId
   stopRouteChapterSync()
+  const chapterTarget = () =>
+    isNeuralGuidedPage.value
+      ? document.querySelector<HTMLElement>('.neural-guided-lesson')
+      : document.getElementById(chapterId)
   nextTick(() => {
     routeChapterScrollFrame = window.requestAnimationFrame(() => {
       activeChapter.value = chapterId
-      document.getElementById(chapterId)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+      chapterTarget()?.scrollIntoView({ behavior: 'auto', block: 'start' })
       routeChapterScrollFrame = window.requestAnimationFrame(() => {
         routeChapterScrollFrame = 0
         activeChapter.value = chapterId
-        document.getElementById(chapterId)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+        chapterTarget()?.scrollIntoView({ behavior: 'auto', block: 'start' })
         routeChapterUnlockTimer = window.setTimeout(() => {
           if (routeChapterLock.value === chapterId) {
             activeChapter.value = chapterId
-            document.getElementById(chapterId)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+            chapterTarget()?.scrollIntoView({ behavior: 'auto', block: 'start' })
             routeChapterLock.value = ''
           }
           routeChapterUnlockTimer = undefined
@@ -437,6 +440,16 @@ function onChapterChange(nextChapter: string) {
   syncChapterPreset(nextChapter)
 }
 
+function onNeuralChapterChange(nextChapter: string) {
+  if (nextChapter === activeChapter.value) return
+  activeChapter.value = nextChapter
+  syncChapterPreset(nextChapter)
+  const targetPath = `/learn/${slug.value}/${nextChapter}`
+  if (route.path !== targetPath) {
+    void router.push(targetPath)
+  }
+}
+
 function patchConfig(partialConfig: Partial<ExperimentConfig>) {
   experimentStore.patchConfig(slug.value, partialConfig)
 }
@@ -461,6 +474,8 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       'algorithm-view--logistic': isLogisticRegressionPage,
       'algorithm-view--classification': isClassificationPage,
       'algorithm-view--mlp': isMlpPage,
+      'algorithm-view--cnn': isCnnVisualizationPage,
+      'algorithm-view--neural': isNeuralGuidedPage,
     }"
   >
     <section
@@ -492,8 +507,32 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </div>
     </section>
 
+    <NeuralGuidedLesson
+      v-if="isMlpPage"
+      :module-definition="moduleDefinition"
+      :active-id="activeChapter"
+      variant="mlp"
+      @change="onNeuralChapterChange"
+    >
+      <template #lab="{ section, mode }">
+        <section class="mlp-playground-stage">
+          <MlpPlaygroundCockpit
+            :accent="moduleDefinition.accent"
+            :section="section"
+            :mode="mode"
+          />
+        </section>
+
+        <MlpBackpropBridgeLab
+          v-if="section.id === 'backprop'"
+          :accent="moduleDefinition.accent"
+          class="mlp-guided-backprop"
+        />
+      </template>
+    </NeuralGuidedLesson>
+
     <LessonPage
-      v-if="isLessonPagePilot"
+      v-else-if="isLessonPagePilot"
       :module-definition="moduleDefinition"
       :active-id="activeChapter"
       :variant="slug"
@@ -502,27 +541,6 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       :show-sources="activeLessonLab?.showSources"
       @change="onChapterChange"
     >
-      <template #before-story>
-        <template v-if="activeLessonLab?.placement === 'top' && isMlpPage">
-          <section ref="mlpPlaygroundRef" class="mlp-playground-stage">
-            <MlpPlaygroundCockpit
-              :accent="moduleDefinition.accent"
-              :section="activeSection"
-            />
-          </section>
-
-          <button
-            type="button"
-            class="mlp-playground-jump"
-            :aria-label="locale === 'zh-CN' ? '回到 MLP 实验台' : 'Back to MLP playground'"
-            @click="scrollToMlpPlayground"
-          >
-            <span>{{ locale === 'zh-CN' ? '实验台' : 'Lab' }}</span>
-            <strong>↑</strong>
-          </button>
-        </template>
-      </template>
-
       <template #lab="{ section }">
         <AiOverviewLessonLab
           v-if="activeLessonLab?.labId === 'ai-overview-task-lab'"
@@ -546,11 +564,6 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
           @reset="experimentStore.reset(slug)"
           @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
           @update-start-point="updateGradientStartPoint"
-        />
-
-        <MlpBackpropBridgeLab
-          v-else-if="isMlpPage && section.id === 'backprop'"
-          :accent="moduleDefinition.accent"
         />
       </template>
     </LessonPage>

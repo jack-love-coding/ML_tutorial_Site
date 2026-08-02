@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type {
   AppLocale,
@@ -19,6 +19,11 @@ import {
   createMlpPlaygroundSession,
   normalizeMlpPlaygroundState,
 } from '../simulations/mlpPlayground'
+import {
+  mlpLessonFocusByChapter,
+  type MlpGuidedControl,
+  type NeuralLabMode,
+} from '../lessons/neuralGuided'
 import { round } from '../utils/math'
 import MlpNetworkGraph from './MlpNetworkGraph.vue'
 import MlpOutputFitMap from './MlpOutputFitMap.vue'
@@ -27,6 +32,7 @@ import MlpTrainingTimeline from './MlpTrainingTimeline.vue'
 const props = defineProps<{
   accent: string
   section?: StorySection
+  mode: NeuralLabMode
 }>()
 
 const { locale } = useI18n()
@@ -99,6 +105,13 @@ const copy = computed(() =>
         colorLegend: '橙色偏向 -1，蓝色偏向 +1；白色附近是边界。',
         outputHint: '粗线是当前 0 等值线，淡线是最近几次训练留下的边界轨迹。',
         networkHint: '线条颜色表示权重正负，粗细表示权重大小，节点小图显示该节点对输入平面的响应。',
+        scenarios: '场景',
+        architecture: '网络架构',
+        evidence: '当前观察证据',
+        advancedData: '数据与输入',
+        advancedOptimization: '训练与约束',
+        advancedDiagnostics: '诊断',
+        primaryResult: '主要结果',
         datasets: {
           circle: '同心圆',
           xor: 'XOR',
@@ -160,6 +173,13 @@ const copy = computed(() =>
         colorLegend: 'Orange leans -1, blue leans +1; white is near the boundary.',
         outputHint: 'The bold line is the current zero contour; pale lines are recent boundary traces.',
         networkHint: 'Link color shows weight sign, width shows weight size, and node maps show each response over the input plane.',
+        scenarios: 'Scenarios',
+        architecture: 'Network architecture',
+        evidence: 'Evidence to watch',
+        advancedData: 'Data and inputs',
+        advancedOptimization: 'Training and constraints',
+        advancedDiagnostics: 'Diagnostics',
+        primaryResult: 'Primary result',
         datasets: {
           circle: 'Circle',
           xor: 'XOR',
@@ -512,6 +532,8 @@ const metricCards = computed(() => {
 })
 
 const focusText = computed(() => copy.value.focus[props.section?.playgroundFocus ?? 'network'])
+const lessonFocus = computed(() => mlpLessonFocusByChapter.get(props.section?.id ?? 'linearLimits'))
+const guidedControls = computed(() => new Set(lessonFocus.value?.guidedControls ?? []))
 const epochDisplay = computed(() =>
   String(snapshot.value.iteration).padStart(6, '0').replace(/\B(?=(\d{3})+(?!\d))/g, ','),
 )
@@ -519,12 +541,29 @@ const networkSummary = computed(() =>
   state.value.networkShape.length ? `${state.value.networkShape.length}` : copy.value.noHiddenLayers,
 )
 
+function showsGuidedControl(control: MlpGuidedControl) {
+  return guidedControls.value.has(control)
+}
+
+watch(
+  () => props.section?.id,
+  () => {
+    const scenario = lessonFocus.value?.scenario
+    if (scenario) quickPreset(scenario)
+  },
+  { immediate: true },
+)
+
 onBeforeUnmount(stopPlayback)
 </script>
 
 <template>
-  <section class="mlp-playground-cockpit" :style="{ '--mlp-accent': props.accent }">
-    <header class="mlp-playground-toolbar">
+  <section
+    class="mlp-playground-cockpit mlp-guided-cockpit"
+    :class="`is-${props.mode}`"
+    :style="{ '--mlp-accent': props.accent }"
+  >
+    <header class="mlp-guided-toolbar">
       <div class="mlp-run-controls" aria-label="MLP training controls">
         <button type="button" class="mlp-icon-button" :title="copy.reset" :aria-label="copy.reset" @click="resetWith()">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -559,58 +598,26 @@ onBeforeUnmount(stopPlayback)
         <strong>{{ epochDisplay }}</strong>
       </div>
 
-      <label class="mlp-top-select">
-        <span>{{ copy.learningRate }}</span>
-        <select :value="state.learningRate" @change="onSelectInput('learningRate', $event)">
-          <option v-for="rate in learningRates" :key="rate" :value="rate">{{ rate }}</option>
-        </select>
-      </label>
+      <div class="mlp-guided-toolbar__result">
+        <span>{{ copy.primaryResult }}</span>
+        <strong>{{ copy.trainLoss }} {{ round(snapshot.trainLoss, 3) }}</strong>
+        <em>{{ copy.testLoss }} {{ round(snapshot.testLoss, 3) }}</em>
+      </div>
 
-      <label class="mlp-top-select">
-        <span>{{ copy.activation }}</span>
-        <select :value="state.activation" @change="onSelectInput('activation', $event, true)">
-          <option v-for="activation in activations" :key="activation" :value="activation">
-            {{ activation }}
-          </option>
-        </select>
-      </label>
-
-      <label class="mlp-top-select">
-        <span>{{ copy.regularization }}</span>
-        <select :value="state.regularizationType" @change="onSelectInput('regularizationType', $event)">
-          <option v-for="regularization in regularizations" :key="regularization" :value="regularization">
-            {{ regularization }}
-          </option>
-        </select>
-      </label>
-
-      <label class="mlp-top-select">
-        <span>{{ copy.regularizationRate }}</span>
-        <select :value="state.regularizationRate" @change="onSelectInput('regularizationRate', $event)">
-          <option v-for="rate in regularizationRates" :key="rate" :value="rate">{{ rate }}</option>
-        </select>
-      </label>
-
-      <label class="mlp-top-select">
-        <span>{{ copy.problem }}</span>
-        <select :value="state.problemType" @change="onSelectInput('problemType', $event, true)">
-          <option value="classification">{{ copy.classification }}</option>
-          <option value="regression">{{ copy.regression }}</option>
-        </select>
-      </label>
+      <div class="mlp-scenario-switch" :aria-label="copy.scenarios">
+        <button type="button" :class="{ 'is-active': activeDatasetKey === 'xor' }" @click="quickPreset('xor')">XOR</button>
+        <button type="button" :class="{ 'is-active': activeDatasetKey === 'circle' }" @click="quickPreset('circle')">
+          {{ copy.datasets.circle }}
+        </button>
+        <button type="button" :class="{ 'is-active': state.problemType === 'regression' }" @click="quickPreset('regression')">
+          {{ copy.regression }}
+        </button>
+      </div>
     </header>
 
-    <section class="mlp-playground-lesson-strip">
-      <span>{{ copy.task }}</span>
-      <strong>{{ localizedText(props.section?.title) || copy.title }}</strong>
-      <p>{{ localizedText(props.section?.experimentPrompt) || focusText }}</p>
-    </section>
-
-    <div class="mlp-playground-workspace">
-      <aside class="mlp-data-panel">
-        <h3>{{ copy.data }}</h3>
-        <p>{{ copy.dataQuestion }}</p>
-
+    <section v-if="guidedControls.size" class="mlp-guided-controls" aria-label="Guided controls">
+      <div v-if="showsGuidedControl('dataset')" class="mlp-guided-control mlp-guided-control--dataset">
+        <span>{{ copy.data }}</span>
         <div class="mlp-dataset-list">
           <button
             v-for="dataset in datasetOptions"
@@ -619,123 +626,189 @@ onBeforeUnmount(stopPlayback)
             class="mlp-dataset-choice"
             :class="[`mlp-dataset-choice--${dataset}`, { 'is-active': isDatasetActive(dataset) }]"
             :title="datasetLabel(dataset)"
+            :aria-label="datasetLabel(dataset)"
             @click="chooseDataset(dataset)"
           >
             <span aria-hidden="true" />
           </button>
         </div>
+      </div>
 
-        <section class="mlp-fit-advice" aria-live="polite">
-          <span>{{ fitAdviceLabels.heading }}</span>
-          <strong>{{ currentFitAdvice.title }}</strong>
-          <p>{{ currentFitAdvice.summary }}</p>
-          <div class="mlp-fit-advice__chips">
-            <small v-for="chip in currentFitAdvice.chips" :key="chip">{{ chip }}</small>
-          </div>
-          <button type="button" @click="applyFitAdvice">{{ fitAdviceLabels.apply }}</button>
-        </section>
-
-        <label class="mlp-slider-control">
-          <span>{{ copy.trainRatio }} <strong>{{ Math.round(state.trainRatio * 100) }}%</strong></span>
-          <input type="range" min="0.1" max="0.9" step="0.05" :value="state.trainRatio" @input="onRangeInput('trainRatio', $event, true)" />
-        </label>
-
-        <label class="mlp-slider-control">
-          <span>{{ copy.noise }} <strong>{{ round(state.noise, 2) }}</strong></span>
-          <input type="range" min="0" max="0.5" step="0.01" :value="state.noise" @input="onRangeInput('noise', $event, true)" />
-        </label>
-
-        <label class="mlp-slider-control">
-          <span>{{ copy.batchSize }} <strong>{{ state.batchSize }}</strong></span>
-          <input type="range" min="1" max="50" step="1" :value="state.batchSize" @input="onRangeInput('batchSize', $event)" />
-        </label>
-
-        <button type="button" class="mlp-regenerate-button" @click="regenerateData">{{ copy.regenerate }}</button>
-      </aside>
-
-      <aside class="mlp-features-panel">
-        <h3>{{ copy.features }}</h3>
-        <p>{{ copy.featureQuestion }}</p>
-        <button
-          v-for="feature in MLP_FEATURES"
-          :key="feature.key"
-          type="button"
-          class="mlp-feature-toggle"
-          :class="[`mlp-feature-toggle--${feature.key}`, { 'is-active': state.featureKeys.includes(feature.key) }]"
-          @click="toggleFeature(feature.key)"
-        >
-          <span class="mlp-feature-toggle__label">{{ feature.label }}</span>
-          <span class="mlp-feature-toggle__swatch" aria-hidden="true" />
-        </button>
-      </aside>
-
-      <section class="mlp-network-panel">
-        <div class="mlp-network-header">
-          <button type="button" class="mlp-layer-button" :disabled="state.networkShape.length >= 6" @click="addLayer">+</button>
-          <button type="button" class="mlp-layer-button" :disabled="!state.networkShape.length" @click="removeLayer">-</button>
-          <strong>{{ networkSummary }}</strong>
-          <span>{{ copy.hiddenLayers }}</span>
-        </div>
-
-        <div class="mlp-network__editors">
-          <div
-            v-for="(count, index) in state.networkShape"
-            :key="`layer-${index}`"
-            class="mlp-layer-stepper"
+      <div v-if="showsGuidedControl('features')" class="mlp-guided-control mlp-guided-control--features">
+        <span>{{ copy.features }}</span>
+        <div>
+          <button
+            v-for="feature in MLP_FEATURES"
+            :key="feature.key"
+            type="button"
+            class="mlp-feature-toggle"
+            :class="[`mlp-feature-toggle--${feature.key}`, { 'is-active': state.featureKeys.includes(feature.key) }]"
+            @click="toggleFeature(feature.key)"
           >
-            <div class="mlp-layer-stepper__actions">
-              <button type="button" @click="resizeLayer(index, 1)">+</button>
-              <button type="button" @click="resizeLayer(index, -1)">-</button>
-            </div>
-            <strong class="mlp-layer-stepper__count">{{ count }} {{ copy.neurons }}</strong>
+            <span class="mlp-feature-toggle__label">{{ feature.label }}</span>
+            <span class="mlp-feature-toggle__swatch" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+
+      <label v-if="showsGuidedControl('activation')" class="mlp-guided-control">
+        <span>{{ copy.activation }}</span>
+        <select :value="state.activation" @change="onSelectInput('activation', $event, true)">
+          <option v-for="activation in activations" :key="activation" :value="activation">{{ activation }}</option>
+        </select>
+      </label>
+
+      <label v-if="showsGuidedControl('learningRate')" class="mlp-guided-control">
+        <span>{{ copy.learningRate }}</span>
+        <select :value="state.learningRate" @change="onSelectInput('learningRate', $event)">
+          <option v-for="rate in learningRates" :key="rate" :value="rate">{{ rate }}</option>
+        </select>
+      </label>
+
+      <label v-if="showsGuidedControl('batchSize')" class="mlp-guided-control">
+        <span>{{ copy.batchSize }} <strong>{{ state.batchSize }}</strong></span>
+        <input type="range" min="1" max="50" step="1" :value="state.batchSize" @input="onRangeInput('batchSize', $event)" />
+      </label>
+
+      <label v-if="showsGuidedControl('noise')" class="mlp-guided-control">
+        <span>{{ copy.noise }} <strong>{{ round(state.noise, 2) }}</strong></span>
+        <input type="range" min="0" max="0.5" step="0.01" :value="state.noise" @input="onRangeInput('noise', $event, true)" />
+      </label>
+
+      <label v-if="showsGuidedControl('regularization')" class="mlp-guided-control">
+        <span>{{ copy.regularization }}</span>
+        <select :value="state.regularizationType" @change="onSelectInput('regularizationType', $event)">
+          <option v-for="regularization in regularizations" :key="regularization" :value="regularization">{{ regularization }}</option>
+        </select>
+      </label>
+    </section>
+
+    <p class="mlp-guided-evidence">
+      <span>{{ copy.evidence }}</span>
+      <strong>{{ localizedText(lessonFocus?.evidence) || focusText }}</strong>
+    </p>
+
+    <div class="mlp-guided-flow">
+      <article class="mlp-guided-stage mlp-guided-stage--data">
+        <header>
+          <span>01 · {{ copy.data }}</span>
+          <strong>{{ datasetLabel(activeDatasetKey) }}</strong>
+        </header>
+        <button
+          type="button"
+          class="mlp-dataset-choice mlp-guided-dataset-preview"
+          :class="[`mlp-dataset-choice--${activeDatasetKey}`, 'is-active']"
+          :aria-label="datasetLabel(activeDatasetKey)"
+          @click="regenerateData"
+        >
+          <span aria-hidden="true" />
+        </button>
+        <small>{{ state.featureKeys.join(' · ') }}</small>
+      </article>
+
+      <span class="mlp-guided-arrow" aria-hidden="true">→</span>
+
+      <article class="mlp-guided-stage mlp-guided-stage--network">
+        <header>
+          <span>02 · {{ copy.architecture }}</span>
+          <strong>{{ networkSummary }} {{ copy.hiddenLayers }}</strong>
+        </header>
+
+        <div v-if="showsGuidedControl('layers')" class="mlp-guided-layer-controls">
+          <button type="button" :disabled="state.networkShape.length >= 6" @click="addLayer">+ {{ copy.hiddenLayers }}</button>
+          <button type="button" :disabled="!state.networkShape.length" @click="removeLayer">− {{ copy.hiddenLayers }}</button>
+          <div v-for="(count, index) in state.networkShape" :key="`guided-layer-${index}`">
+            <button type="button" @click="resizeLayer(index, -1)">−</button>
+            <strong>{{ count }}</strong>
+            <button type="button" @click="resizeLayer(index, 1)">+</button>
           </div>
         </div>
 
-        <MlpNetworkGraph
-          :snapshot="snapshot"
-          :previous-snapshot="previousSnapshot"
-          :state="state"
-        />
+        <MlpNetworkGraph :snapshot="snapshot" :previous-snapshot="previousSnapshot" :state="state" />
+      </article>
 
-        <p class="mlp-panel-note">{{ copy.networkHint }}</p>
-      </section>
+      <span class="mlp-guided-arrow" aria-hidden="true">→</span>
 
-      <aside class="mlp-output-panel">
-        <h3>{{ copy.output }}</h3>
-        <div class="mlp-output-losses">
-          <strong>{{ copy.testLoss }} {{ round(snapshot.testLoss, 3) }}</strong>
-          <span>{{ copy.trainLoss }} {{ round(snapshot.trainLoss, 3) }}</span>
-        </div>
-
-        <div class="mlp-panel-heading">
-          <span>{{ copy.lossCurve }}</span>
-          <strong>{{ snapshot.lossHistory.length }}</strong>
-        </div>
-        <MlpTrainingTimeline
-          :snapshot="snapshot"
-          :train-label="copy.trainLoss"
-          :test-label="copy.testLoss"
-        />
-
+      <article class="mlp-guided-stage mlp-guided-stage--output">
+        <header>
+          <span>03 · {{ copy.output }}</span>
+          <strong>{{ round(snapshot.testLoss, 3) }}</strong>
+        </header>
         <MlpOutputFitMap
           :snapshot="snapshot"
           :state="state"
           :history="contourHistory"
           :accent="props.accent"
         />
-
         <div class="mlp-output-legend">
           <span>{{ copy.colorLegend }}</span>
-          <div>
-            <i>-1</i>
-            <b />
-            <i>0</i>
-            <b />
-            <i>1</i>
+          <div><i>-1</i><b /><i>0</i><b /><i>1</i></div>
+        </div>
+      </article>
+    </div>
+
+    <section v-if="props.mode === 'explore'" class="mlp-explore-panel">
+      <article>
+        <header><span>{{ copy.advancedData }}</span><strong>{{ copy.dataQuestion }}</strong></header>
+        <label class="mlp-top-select">
+          <span>{{ copy.problem }}</span>
+          <select :value="state.problemType" @change="onSelectInput('problemType', $event, true)">
+            <option value="classification">{{ copy.classification }}</option>
+            <option value="regression">{{ copy.regression }}</option>
+          </select>
+        </label>
+        <label class="mlp-slider-control">
+          <span>{{ copy.trainRatio }} <strong>{{ Math.round(state.trainRatio * 100) }}%</strong></span>
+          <input type="range" min="0.1" max="0.9" step="0.05" :value="state.trainRatio" @input="onRangeInput('trainRatio', $event, true)" />
+        </label>
+        <label class="mlp-slider-control">
+          <span>{{ copy.noise }} <strong>{{ round(state.noise, 2) }}</strong></span>
+          <input type="range" min="0" max="0.5" step="0.01" :value="state.noise" @input="onRangeInput('noise', $event, true)" />
+        </label>
+        <button type="button" class="mlp-regenerate-button" @click="regenerateData">{{ copy.regenerate }}</button>
+      </article>
+
+      <article>
+        <header><span>{{ copy.advancedOptimization }}</span><strong>{{ copy.activation }}</strong></header>
+        <label class="mlp-top-select">
+          <span>{{ copy.activation }}</span>
+          <select :value="state.activation" @change="onSelectInput('activation', $event, true)">
+            <option v-for="activation in activations" :key="activation" :value="activation">{{ activation }}</option>
+          </select>
+        </label>
+        <label class="mlp-top-select">
+          <span>{{ copy.learningRate }}</span>
+          <select :value="state.learningRate" @change="onSelectInput('learningRate', $event)">
+            <option v-for="rate in learningRates" :key="rate" :value="rate">{{ rate }}</option>
+          </select>
+        </label>
+        <label class="mlp-top-select">
+          <span>{{ copy.regularization }}</span>
+          <select :value="state.regularizationType" @change="onSelectInput('regularizationType', $event)">
+            <option v-for="regularization in regularizations" :key="regularization" :value="regularization">{{ regularization }}</option>
+          </select>
+        </label>
+        <label class="mlp-top-select">
+          <span>{{ copy.regularizationRate }}</span>
+          <select :value="state.regularizationRate" @change="onSelectInput('regularizationRate', $event)">
+            <option v-for="rate in regularizationRates" :key="rate" :value="rate">{{ rate }}</option>
+          </select>
+        </label>
+        <label class="mlp-slider-control">
+          <span>{{ copy.batchSize }} <strong>{{ state.batchSize }}</strong></span>
+          <input type="range" min="1" max="50" step="1" :value="state.batchSize" @input="onRangeInput('batchSize', $event)" />
+        </label>
+      </article>
+
+      <article class="mlp-explore-panel__diagnostics">
+        <header><span>{{ copy.advancedDiagnostics }}</span><strong>{{ copy.lossCurve }}</strong></header>
+        <MlpTrainingTimeline :snapshot="snapshot" :train-label="copy.trainLoss" :test-label="copy.testLoss" />
+        <div class="mlp-explore-metrics">
+          <div v-for="metric in metricCards" :key="metric.id">
+            <span>{{ metric.label }}</span>
+            <strong>{{ metric.value }}</strong>
           </div>
         </div>
-        <p class="mlp-panel-note">{{ copy.outputHint }}</p>
-
         <div class="mlp-output-checks">
           <label>
             <input type="checkbox" :checked="state.showTestData" @change="onCheckboxInput('showTestData', $event)" />
@@ -746,19 +819,17 @@ onBeforeUnmount(stopPlayback)
             <span>{{ copy.discretize }}</span>
           </label>
         </div>
-      </aside>
-    </div>
-
-    <section class="mlp-metrics-panel">
-      <article v-for="metric in metricCards" :key="metric.id" class="mlp-metric">
-        <span>{{ metric.label }}</span>
-        <strong>{{ metric.value }}</strong>
       </article>
-      <div class="mlp-preset-strip">
-        <button type="button" @click="quickPreset('xor')">XOR</button>
-        <button type="button" @click="quickPreset('circle')">{{ copy.datasets.circle }}</button>
-        <button type="button" @click="quickPreset('regression')">{{ copy.regression }}</button>
-      </div>
+
+      <article class="mlp-fit-advice" aria-live="polite">
+        <span>{{ fitAdviceLabels.heading }}</span>
+        <strong>{{ currentFitAdvice.title }}</strong>
+        <p>{{ currentFitAdvice.summary }}</p>
+        <div class="mlp-fit-advice__chips">
+          <small v-for="chip in currentFitAdvice.chips" :key="chip">{{ chip }}</small>
+        </div>
+        <button type="button" @click="applyFitAdvice">{{ fitAdviceLabels.apply }}</button>
+      </article>
     </section>
   </section>
 </template>
