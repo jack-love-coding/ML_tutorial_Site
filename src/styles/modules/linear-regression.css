@@ -1408,6 +1408,288 @@
   font-weight: 800;
 }
 
+.linear-observation-lab--interactive {
+  overflow: hidden;
+  padding: clamp(14px, 2.5vw, 24px);
+  background:
+    linear-gradient(145deg, rgba(219, 108, 58, 0.045), transparent 38%),
+    #ffffff;
+}
+
+.linear-interaction-scene {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.linear-interaction-scene__header,
+.linear-interaction-scene__readout,
+.linear-interaction-scene__details {
+  display: grid;
+  gap: 7px;
+}
+
+.linear-interaction-scene__header h4,
+.linear-interaction-scene__header p,
+.linear-interaction-scene__readout p,
+.linear-interaction-scene__details p {
+  margin: 0;
+}
+
+.linear-interaction-scene__header span,
+.linear-interaction-scene__readout > span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.linear-interaction-scene__controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.linear-interaction-scene__control,
+.linear-interaction-scene__controls > label,
+.linear-interaction-scene__controls > fieldset {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 8px;
+  background: rgba(247, 249, 252, 0.92);
+}
+
+.linear-interaction-scene__control span,
+.linear-interaction-scene__controls label > span,
+.linear-interaction-scene__controls legend {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.linear-interaction-scene__controls input,
+.linear-interaction-scene__controls select,
+.linear-interaction-scene__controls button {
+  min-width: 0;
+  min-height: 40px;
+}
+
+.linear-interaction-scene__controls select {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid rgba(15, 23, 40, 0.16);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.linear-interaction-scene__range,
+.linear-interaction-scene__playback {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+
+.linear-interaction-scene__range input {
+  flex: 1;
+  width: 100%;
+}
+
+.linear-interaction-scene__range output {
+  min-width: 58px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  text-align: right;
+}
+
+.linear-interaction-scene__playback {
+  flex-wrap: wrap;
+}
+
+.linear-interaction-scene__playback button,
+.linear-interaction-scene__button {
+  padding: 7px 11px;
+  border: 1px solid rgba(15, 23, 40, 0.14);
+  border-radius: 6px;
+  background: #ffffff;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.linear-interaction-scene__playback button[aria-pressed="true"],
+.linear-interaction-scene__button.is-active {
+  border-color: var(--linear-accent, #db6c3a);
+  background: rgba(219, 108, 58, 0.1);
+}
+
+.linear-interaction-scene__chart {
+  min-width: 0;
+  padding: clamp(8px, 1.8vw, 16px);
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 9px;
+  background: #fbfcfe;
+}
+
+.linear-interaction-scene__chart svg,
+.linear-interaction-scene svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  overflow: visible;
+}
+
+.linear-interaction-scene__axis {
+  fill: none;
+  stroke: #718096;
+  stroke-width: 1.5;
+}
+
+.linear-interaction-scene__grid {
+  fill: none;
+  stroke: rgba(113, 128, 150, 0.22);
+  stroke-width: 1;
+}
+
+.linear-interaction-scene__point {
+  fill: #087f9c;
+  stroke: #ffffff;
+  stroke-width: 1.4;
+}
+
+.linear-interaction-scene__point.is-selected,
+.linear-interaction-scene__point.is-teaching {
+  fill: #ffffff;
+  stroke: #c2410c;
+  stroke-width: 4;
+}
+
+.linear-interaction-scene__point.is-teaching {
+  cursor: grab;
+  touch-action: none;
+}
+
+.linear-interaction-scene__point.is-teaching:active {
+  cursor: grabbing;
+}
+
+.linear-interaction-scene__line {
+  fill: none;
+  stroke: #c2410c;
+  stroke-width: 3;
+  transition: d 180ms ease, points 180ms ease, transform 180ms ease;
+}
+
+.linear-interaction-scene__line.is-baseline {
+  stroke: #334155;
+  stroke-dasharray: 9 6;
+  stroke-width: 2;
+}
+
+.linear-interaction-scene__line.is-secondary {
+  stroke: #15803d;
+  stroke-dasharray: 3 5;
+}
+
+.linear-interaction-scene__bar {
+  fill: #2563eb;
+  transition: width 180ms ease, height 180ms ease, x 180ms ease, y 180ms ease;
+}
+
+.linear-interaction-scene__bar.is-validation {
+  fill: #c2410c;
+}
+
+.linear-interaction-scene__label {
+  fill: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.linear-interaction-scene__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.linear-interaction-scene__readout {
+  padding: 14px 16px;
+  border-left: 5px solid var(--linear-accent, #db6c3a);
+  border-radius: 7px;
+  background: #f6f8fb;
+  font-variant-numeric: tabular-nums;
+}
+
+.linear-interaction-scene__metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.linear-interaction-scene__metric-grid > div {
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.linear-interaction-scene__metric-grid dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.linear-interaction-scene__metric-grid dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  font-weight: 900;
+}
+
+.linear-interaction-scene__details {
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.linear-interaction-scene__details summary {
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.linear-interaction-scene__table-wrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.linear-interaction-scene__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+.linear-interaction-scene__table th,
+.linear-interaction-scene__table td {
+  padding: 8px;
+  border-bottom: 1px solid rgba(15, 23, 40, 0.09);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.linear-interaction-scene :focus-visible {
+  outline: 3px solid rgba(194, 65, 12, 0.38);
+  outline-offset: 3px;
+}
+
 .linear-course-page__references ol {
   display: grid;
   gap: 12px;
@@ -1497,6 +1779,22 @@
 
   .linear-observation-lab__controls {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .linear-interaction-scene__controls,
+  .linear-interaction-scene__metric-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .linear-interaction-scene *,
+  .linear-interaction-scene *::before,
+  .linear-interaction-scene *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 

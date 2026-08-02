@@ -100,10 +100,64 @@
       "sha256": "889bdd36281a22930a494045c56a20a414a38cfd0a555b7b66ae2d478dafdac8"
     },
     {
+      "relativePath": "interaction-manifest.json",
+      "publicPath": "/linear-regression/phase-27a/interaction-manifest.json",
+      "bytes": 2409,
+      "sha256": "f10b73d8dbc8789ffeabd277348f4db8e36df05714fd8b8bbed2ab2c9549ef3d"
+    },
+    {
+      "relativePath": "interactions/fit-line.json",
+      "publicPath": "/linear-regression/phase-27a/interactions/fit-line.json",
+      "bytes": 17104,
+      "sha256": "fad0fcd5a7faac4225f5ca202a965ea2bddda3e02b78fdb3c813b1cfd3ab9eed"
+    },
+    {
+      "relativePath": "interactions/model-limits.json",
+      "publicPath": "/linear-regression/phase-27a/interactions/model-limits.json",
+      "bytes": 11437,
+      "sha256": "6b326500c3b6be73db5cac61d4d624c8ed46a403ebf4c320e7e499270f4b46b7"
+    },
+    {
+      "relativePath": "interactions/multivariate.json",
+      "publicPath": "/linear-regression/phase-27a/interactions/multivariate.json",
+      "bytes": 14572,
+      "sha256": "deb8d30ce03b8a2b6c4878f03f6a0aabe4dfccaf101eaa6baf02659637b14af1"
+    },
+    {
+      "relativePath": "interactions/overfitting.json",
+      "publicPath": "/linear-regression/phase-27a/interactions/overfitting.json",
+      "bytes": 35352,
+      "sha256": "071365d6b2eb7bc753d114d5b0392b5b0456a48655e80d3b8cb2c51b728488e5"
+    },
+    {
+      "relativePath": "interactions/polynomial.json",
+      "publicPath": "/linear-regression/phase-27a/interactions/polynomial.json",
+      "bytes": 57880,
+      "sha256": "e0503dff7e647b4a82a334ed7d9c7e6e6f9cf08aed7fc7f2148f2bae9d9d5cd4"
+    },
+    {
+      "relativePath": "interactions/regularization.json",
+      "publicPath": "/linear-regression/phase-27a/interactions/regularization.json",
+      "bytes": 29812,
+      "sha256": "1ff2d2dbfcc517ce0a326f9996a7afed75990a224808170ee3c55bfe88731ba8"
+    },
+    {
+      "relativePath": "interactions/residual-loss.json",
+      "publicPath": "/linear-regression/phase-27a/interactions/residual-loss.json",
+      "bytes": 17311,
+      "sha256": "7deca29aae2befaf59a991782856d037b755cc7ffd69545cc000cafa01ddf6ac"
+    },
+    {
+      "relativePath": "interactions/training-motion.json",
+      "publicPath": "/linear-regression/phase-27a/interactions/training-motion.json",
+      "bytes": 64286,
+      "sha256": "fceaad32d5ed70e3bd76553060effa7cd62cef6a542393e13d2b54eeb2876d85"
+    },
+    {
       "relativePath": "linear-regression-course-summary.json",
       "publicPath": "/linear-regression/phase-27a/linear-regression-course-summary.json",
-      "bytes": 73085,
-      "sha256": "29ca75c8e6296624036625ea4f3e69c0ee50e04dc3d7e2c6bc63b97e46778126"
+      "bytes": 73545,
+      "sha256": "d4bcec84fef70e9ccc0a7011225cb2eee3aaa941ef7e99249bf867f28779377f"
     },
     {
       "relativePath": "requirements.txt",

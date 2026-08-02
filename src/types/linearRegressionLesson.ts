@@ -9,6 +9,55 @@ export type LinearRegressionLessonBlockKind =
   | 'table'
   | 'observation-lab'
 
+export type LinearRegressionObservationSceneId =
+  | 'fit-line'
+  | 'multivariate'
+  | 'residual-loss'
+  | 'training-motion'
+  | 'polynomial'
+  | 'model-limits'
+  | 'overfitting'
+  | 'regularization'
+
+interface LinearRegressionObservationControlBase {
+  id: string
+  label: LocalizedCopy
+}
+
+export interface LinearRegressionRangeControl extends LinearRegressionObservationControlBase {
+  kind: 'range'
+  min: number
+  max: number
+  step: number
+  defaultValue: number
+  suffix?: LocalizedCopy
+}
+
+export interface LinearRegressionSelectControl extends LinearRegressionObservationControlBase {
+  kind: 'select'
+  defaultValue: string
+  options: Array<{ value: string; label: LocalizedCopy }>
+}
+
+export interface LinearRegressionPlaybackControl extends LinearRegressionObservationControlBase {
+  kind: 'playback'
+  defaultValue: number
+}
+
+export interface LinearRegressionDragPointControl extends LinearRegressionObservationControlBase {
+  kind: 'drag-point'
+  defaultValue: { x: number; y: number }
+  xRange: readonly [number, number]
+  yRange: readonly [number, number]
+  step: number
+}
+
+export type LinearRegressionObservationControl =
+  | LinearRegressionRangeControl
+  | LinearRegressionSelectControl
+  | LinearRegressionPlaybackControl
+  | LinearRegressionDragPointControl
+
 interface LinearRegressionLessonBlockBase {
   id: string
   kind: LinearRegressionLessonBlockKind
@@ -57,7 +106,8 @@ export interface LinearRegressionTableBlock extends LinearRegressionLessonBlockB
 export interface LinearRegressionObservationLabBlock extends LinearRegressionLessonBlockBase {
   kind: 'observation-lab'
   prompt: LocalizedCopy
-  controlLabels: LocalizedCopy[]
+  sceneId: LinearRegressionObservationSceneId
+  controls: LinearRegressionObservationControl[]
 }
 
 export type LinearRegressionLessonBlock =

@@ -14,6 +14,7 @@ import type { LinearRegressionExplanationBlock } from '../types/linearRegression
 import { withPublicBase } from '../utils/publicPath'
 import LinearRegressionLessonBlock from './LinearRegressionLessonBlock.vue'
 import LinearRegressionObservationLab from './LinearRegressionObservationLab.vue'
+import MarkdownMathContent from './MarkdownMathContent.vue'
 
 const props = defineProps<{
   moduleDefinition: AlgorithmModuleDefinition
@@ -173,7 +174,7 @@ watch(() => props.section.id, () => {
               <strong>{{ progressPercent }}%</strong>
             </div>
             <h2>{{ sectionTitle(props.section) }}</h2>
-            <p>{{ sectionSummary }}</p>
+            <MarkdownMathContent :source="sectionSummary" />
           </header>
 
           <div class="linear-course-page__lesson-flow" data-testid="linear-lesson-flow">
@@ -187,19 +188,19 @@ watch(() => props.section.id, () => {
                 <header class="linear-course-page__observation-heading">
                   <span>{{ copy.observation }}</span>
                   <h3>{{ localizedText(block.title) }}</h3>
-                  <p>{{ localizedText(block.prompt) }}</p>
+                  <MarkdownMathContent :source="localizedText(block.prompt)" />
                   <div class="linear-course-page__control-summary" :aria-label="copy.controls">
                     <small>{{ copy.controls }}</small>
                     <ul>
-                      <li v-for="label in block.controlLabels" :key="localizedText(label)">
-                        {{ localizedText(label) }}
+                      <li v-for="control in block.controls" :key="control.id">
+                        {{ localizedText(control.label) }}
                       </li>
                     </ul>
                   </div>
                 </header>
                 <LinearRegressionObservationLab
-                  :chapter-id="props.section.id"
-                  :control-labels="block.controlLabels"
+                  :scene-id="block.sceneId"
+                  :controls="block.controls"
                   data-testid="linear-course-results"
                 />
               </section>

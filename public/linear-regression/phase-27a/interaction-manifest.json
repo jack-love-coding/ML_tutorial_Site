@@ -1,0 +1,62 @@
+{
+  "contractVersion": "linear-regression-phase-27b-interaction-manifest-v1",
+  "datasetSha256": "e03de4ee4ef4dc376ac6e04bf829673c6269e8eba5c60fa121640fa2f829504f",
+  "assets": [
+    {
+      "sceneId": "fit-line",
+      "publicPath": "/linear-regression/phase-27a/interactions/fit-line.json",
+      "sourceCellId": "fit-line-chart",
+      "sha256": "fad0fcd5a7faac4225f5ca202a965ea2bddda3e02b78fdb3c813b1cfd3ab9eed",
+      "bytes": 17104
+    },
+    {
+      "sceneId": "multivariate",
+      "publicPath": "/linear-regression/phase-27a/interactions/multivariate.json",
+      "sourceCellId": "split-target-chart",
+      "sha256": "deb8d30ce03b8a2b6c4878f03f6a0aabe4dfccaf101eaa6baf02659637b14af1",
+      "bytes": 14572
+    },
+    {
+      "sceneId": "residual-loss",
+      "publicPath": "/linear-regression/phase-27a/interactions/residual-loss.json",
+      "sourceCellId": "residual-loss-chart",
+      "sha256": "7deca29aae2befaf59a991782856d037b755cc7ffd69545cc000cafa01ddf6ac",
+      "bytes": 17311
+    },
+    {
+      "sceneId": "training-motion",
+      "publicPath": "/linear-regression/phase-27a/interactions/training-motion.json",
+      "sourceCellId": "gradient-descent-chart",
+      "sha256": "fceaad32d5ed70e3bd76553060effa7cd62cef6a542393e13d2b54eeb2876d85",
+      "bytes": 64286
+    },
+    {
+      "sceneId": "polynomial",
+      "publicPath": "/linear-regression/phase-27a/interactions/polynomial.json",
+      "sourceCellId": "hour-polynomial-chart",
+      "sha256": "e0503dff7e647b4a82a334ed7d9c7e6e6f9cf08aed7fc7f2148f2bae9d9d5cd4",
+      "bytes": 57880
+    },
+    {
+      "sceneId": "model-limits",
+      "publicPath": "/linear-regression/phase-27a/interactions/model-limits.json",
+      "sourceCellId": "coefficient-chart",
+      "sha256": "6b326500c3b6be73db5cac61d4d624c8ed46a403ebf4c320e7e499270f4b46b7",
+      "bytes": 11437
+    },
+    {
+      "sceneId": "overfitting",
+      "publicPath": "/linear-regression/phase-27a/interactions/overfitting.json",
+      "sourceCellId": "diagnostic-chart",
+      "sha256": "071365d6b2eb7bc753d114d5b0392b5b0456a48655e80d3b8cb2c51b728488e5",
+      "bytes": 35352
+    },
+    {
+      "sceneId": "regularization",
+      "publicPath": "/linear-regression/phase-27a/interactions/regularization.json",
+      "sourceCellId": "regularization-chart",
+      "sha256": "1ff2d2dbfcc517ce0a326f9996a7afed75990a224808170ee3c55bfe88731ba8",
+      "bytes": 29812
+    }
+  ]
+}
