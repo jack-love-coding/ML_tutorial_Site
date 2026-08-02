@@ -21,7 +21,7 @@ const emit = defineEmits<{
   change: [id: string]
 }>()
 
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const mode = ref<NeuralLabMode>('guided')
 
 const copy = computed(() =>
@@ -68,7 +68,8 @@ function localizedText(value?: LocalizedCopy) {
 }
 
 function sectionTitle(section = activeSection.value) {
-  return localizedText(section?.title)
+  if (!section) return ''
+  return localizedText(section.title) || t(section.titleKey)
 }
 </script>
 

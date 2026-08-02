@@ -4,8 +4,15 @@ import { interpolateBrBG, interpolateGreys, interpolateOranges, interpolateRdBu,
 import { useI18n } from 'vue-i18n'
 import type { AppLocale, StorySection } from '../types/ml'
 import MarkdownMathContent from './MarkdownMathContent.vue'
+import CnnArchitectureTrack from './cnn/CnnArchitectureTrack.vue'
+import CnnGuidedInputPanel from './cnn/CnnGuidedInputPanel.vue'
+import CnnLayerInspector from './cnn/CnnLayerInspector.vue'
 import {
-  buildCnnHyperparameterSnapshot,
+  cnnLessonFocusByChapter,
+  cnnLessonFocusConfigs,
+  type NeuralLabMode,
+} from '../lessons/neuralGuided'
+import {
   buildCnnOperationDetail,
   calculateReceptiveField,
   roundCnnValue,
@@ -22,6 +29,7 @@ import { withPublicBase } from '../utils/publicPath'
 
 const props = defineProps<{
   section: StorySection
+  mode: NeuralLabMode
 }>()
 
 const { locale } = useI18n()
@@ -639,12 +647,6 @@ const poolFocusedCell = ref<CnnPoolFocusedCell | undefined>()
 const highlightedSoftmaxIndex = ref<number | undefined>()
 const focusedDenseSourceIndex = ref<number | undefined>()
 const hoverReadout = ref<CnnHoverReadout | undefined>()
-const hyperInputSize = ref(5)
-const hyperPadding = ref(0)
-const hyperKernelSize = ref(2)
-const hyperStride = ref(1)
-const hyperOutputRow = ref(0)
-const hyperOutputCol = ref(0)
 
 let playbackTimer: number | undefined
 let detailPlaybackTimer: number | undefined
@@ -1426,6 +1428,10 @@ const rowMax = computed(() => Math.max(0, (selectedLayer.value?.outputShape[0] ?
 const colMax = computed(() => Math.max(0, (selectedLayer.value?.outputShape[1] ?? 1) - 1))
 const hasSpatialSelection = computed(() => Boolean(selectedMatrix.value && selectedLayer.value?.outputShape.length === 3))
 const sortedScores = computed(() => [...scores.value].sort((left, right) => right.probability - left.probability))
+const guidedTopScores = computed(() => sortedScores.value.slice(0, 3))
+const lessonFocus = computed(
+  () => cnnLessonFocusByChapter.get(props.section.id) ?? cnnLessonFocusConfigs[0]!,
+)
 const selectedSample = computed(() => sampleImages.value.find((sample) => sample.label === selectedImageName.value))
 const selectedSampleScore = computed(() => scores.value.find((score) => score.label === selectedSample.value?.label))
 const selectedSamplePredictionMatches = computed(() =>
@@ -2732,37 +2738,6 @@ const overviewLayerStrip = computed<CnnOverviewLayerStrip | undefined>(() => {
     }),
   }
 })
-const hyperPaddedSize = computed(() => hyperInputSize.value + hyperPadding.value * 2)
-const hyperKernelMax = computed(() => Math.max(1, hyperPaddedSize.value))
-const hyperStrideMax = computed(() => Math.max(1, hyperPaddedSize.value - hyperKernelSize.value + 1))
-const hyperparameterSnapshot = computed(() =>
-  buildCnnHyperparameterSnapshot({
-    inputSize: hyperInputSize.value,
-    padding: hyperPadding.value,
-    kernelSize: hyperKernelSize.value,
-    stride: hyperStride.value,
-    selectedRow: hyperOutputRow.value,
-    selectedCol: hyperOutputCol.value,
-  }),
-)
-const hyperOutputSize = computed(() => hyperparameterSnapshot.value.outputSize)
-const hyperInputCells = computed(() => hyperparameterSnapshot.value.inputCells)
-const hyperKernelCells = computed(() => hyperparameterSnapshot.value.kernelCells)
-const hyperOutputCells = computed(() => hyperparameterSnapshot.value.outputCells)
-const hyperStrideValid = computed(() => hyperparameterSnapshot.value.strideFits)
-const hyperFormulaMarkdown = computed(() => {
-  const snapshot = hyperparameterSnapshot.value
-  return `$$O = \\left\\lfloor \\frac{N + 2P - K}{S} \\right\\rfloor + 1 = \\left\\lfloor \\frac{${snapshot.inputSize} + 2\\times${snapshot.padding} - ${snapshot.kernelSize}}{${snapshot.stride}} \\right\\rfloor + 1 = ${snapshot.outputSize}$$`
-})
-const hyperWindowNarration = computed(() => {
-  const snapshot = hyperparameterSnapshot.value
-  return localized(
-    loc(
-      `当前选中 output (${snapshot.selectedRow}, ${snapshot.selectedCol})，所以 ${snapshot.kernelSize}×${snapshot.kernelSize} 窗口从 padding 后输入的 (${snapshot.selectedStartRow}, ${snapshot.selectedStartCol}) 开始读取。`,
-      `Output (${snapshot.selectedRow}, ${snapshot.selectedCol}) is selected, so the ${snapshot.kernelSize}x${snapshot.kernelSize} window starts reading at (${snapshot.selectedStartRow}, ${snapshot.selectedStartCol}) on the padded input.`,
-    ),
-  )
-})
 const detailStepCount = computed(() => {
   const layer = selectedLayer.value
   if (!layer) return 0
@@ -3675,9 +3650,13 @@ watch([rowMax, colMax], () => {
   selectedCol.value = Math.min(selectedCol.value, colMax.value)
 })
 
-watch([hyperInputSize, hyperPadding, hyperKernelSize, hyperStride, hyperOutputRow, hyperOutputCol], () => {
-  clampHyperparameterControls()
-})
+watch(
+  () => props.section.id,
+  (sectionId) => {
+    if (!layers.value.length) return
+    selectLayer(preferredLayerIndexForSection(sectionId), preferredNodeIndexForSection(sectionId))
+  },
+)
 
 async function runInference(imageUrl: string, imageName: string) {
   const requestId = ++inferenceRequestId
@@ -3722,14 +3701,16 @@ function preferredLayerIndexForSection(sectionId = props.section.id) {
     return firstPoolIndex >= 0 ? firstPoolIndex : 0
   }
   if (sectionId === 'channels-feature-maps') {
-    const laterConvIndex = layers.value.findIndex((layer) => layer.kind === 'conv' && layer.index > 2)
+    const firstPoolIndex = layers.value.findIndex((layer) => layer.kind === 'pool')
+    const laterConvIndex = layers.value.findIndex(
+      (layer) => layer.kind === 'conv' && layer.index > firstPoolIndex,
+    )
     if (laterConvIndex >= 0) return laterConvIndex
     const firstConvIndex = layers.value.findIndex((layer) => layer.kind === 'conv')
     return firstConvIndex >= 0 ? firstConvIndex : 0
   }
   if (sectionId === 'pooling-classifier-head') {
-    const firstPoolIndex = layers.value.findIndex((layer) => layer.kind === 'pool')
-    return firstPoolIndex >= 0 ? firstPoolIndex : 0
+    return layers.value.filter((layer) => layer.kind === 'pool').at(-1)?.index ?? 0
   }
   if (sectionId === 'transfer-learning-review') {
     const denseIndex = layers.value.findIndex((layer) => layer.kind === 'dense')
@@ -3921,18 +3902,6 @@ function selectForwardStoryStep(step: CnnForwardStoryStep) {
 
 function selectConnectionNode(connection: CnnConnectionSummary) {
   selectLayer(connection.layerIndex, connection.nodeIndex)
-}
-
-function selectHyperOutputCell(row: number, col: number) {
-  hyperOutputRow.value = row
-  hyperOutputCol.value = col
-  setHoverReadout({
-    eyebrow: copy.value.outputGrid,
-    title: `${copy.value.outputCell} (${row}, ${col})`,
-    body: hyperWindowNarration.value,
-    value: `${copy.value.selectedWindowStart}: (${hyperparameterSnapshot.value.selectedStartRow}, ${hyperparameterSnapshot.value.selectedStartCol})`,
-    tone: 'activation',
-  })
 }
 
 function setHoverReadout(readout: CnnHoverReadout) {
@@ -4238,20 +4207,6 @@ function focusFlattenLedgerItem(item: CnnFlattenLedgerItem) {
     value: `${item.formula} = ${item.formattedValue}`,
     tone: item.kind === 'index' ? 'activation' : 'neutral',
   })
-}
-
-function clampHyperparameterControls() {
-  hyperInputSize.value = clampUiInteger(hyperInputSize.value, 3, 7)
-  hyperPadding.value = clampUiInteger(hyperPadding.value, 0, 3)
-  hyperKernelSize.value = clampUiInteger(hyperKernelSize.value, 1, hyperKernelMax.value)
-  hyperStride.value = clampUiInteger(hyperStride.value, 1, hyperStrideMax.value)
-  hyperOutputRow.value = clampUiInteger(hyperOutputRow.value, 0, Math.max(0, hyperOutputSize.value - 1))
-  hyperOutputCol.value = clampUiInteger(hyperOutputCol.value, 0, Math.max(0, hyperOutputSize.value - 1))
-}
-
-function clampUiInteger(value: number, min: number, max: number) {
-  if (!Number.isFinite(value)) return min
-  return Math.min(Math.max(Math.round(value), min), Math.max(min, max))
 }
 
 function focusConvMathCell(contribution: CnnChannelContribution, row: number, col: number) {
@@ -4753,6 +4708,11 @@ function resetSelection() {
 function selectSampleImage(sample: CnnSampleImage) {
   revokeUserObjectUrl()
   void runInference(sample.url, sample.label)
+}
+
+function selectGuidedSample(sampleId: string) {
+  const sample = sampleImages.value.find((item) => item.id === sampleId)
+  if (sample) selectSampleImage(sample)
 }
 
 function sampleClassAriaLabel(sample: CnnSampleClassCard) {
@@ -5494,12 +5454,6 @@ function matrixGridStyle(matrix: number[][] | undefined) {
   }
 }
 
-function hyperGridStyle(size: number) {
-  return {
-    gridTemplateColumns: `repeat(${Math.max(1, size)}, minmax(0, 1fr))`,
-  }
-}
-
 function sampleGridStyle(rows: { value: number; row: number; col: number }[][] | undefined) {
   return {
     gridTemplateColumns: `repeat(${rows?.[0]?.length ?? 1}, minmax(0, 1fr))`,
@@ -6088,6 +6042,99 @@ function rangeFromValues(values: number[]): [number, number] {
 
 <template>
   <section class="cnn-explainer-lab" :data-status="status">
+    <div v-if="props.mode === 'guided'" class="cnn-guided-workbench">
+      <header class="cnn-guided-workbench__header">
+        <div>
+          <span>{{ copy.title }}</span>
+          <strong>{{ sectionHint }}</strong>
+        </div>
+        <div class="cnn-guided-workbench__actions" aria-label="CNN guided controls">
+          <p :class="`is-${status}`"><i aria-hidden="true" />{{ statusLabel }}</p>
+          <button v-if="lessonFocus.guidedControls.includes('playback')" type="button" :disabled="status !== 'ready' || reducedMotion" @click="togglePlayback">
+            <span aria-hidden="true">{{ isPlaying ? 'Ⅱ' : '▶' }}</span>
+            {{ isPlaying ? copy.pause : copy.play }}
+          </button>
+          <button v-if="lessonFocus.guidedControls.includes('playback')" type="button" :disabled="status !== 'ready'" @click="stepForward">
+            <span aria-hidden="true">→</span>
+            {{ copy.step }}
+          </button>
+          <button v-if="lessonFocus.guidedControls.includes('playback')" type="button" :disabled="status !== 'ready'" @click="resetSelection">
+            <span aria-hidden="true">↺</span>
+            {{ copy.reset }}
+          </button>
+        </div>
+      </header>
+
+      <input
+        ref="fileInputRef"
+        class="cnn-explainer-lab__file"
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        @change="onFileChange"
+      />
+
+      <p v-if="reducedMotion" class="cnn-explainer-lab__notice">{{ copy.reducedMotion }}</p>
+      <p v-if="fileError" class="cnn-explainer-lab__notice is-error">{{ fileError }}</p>
+      <p v-if="status === 'error'" class="cnn-explainer-lab__notice is-error">{{ statusMessage || copy.fallback }}</p>
+
+      <p class="cnn-guided-workbench__evidence">
+        <span>{{ locale === 'zh-CN' ? '本章观察证据' : 'Evidence to watch' }}</span>
+        <strong>{{ lessonFocus.evidence[locale as AppLocale] }}</strong>
+      </p>
+
+      <div class="cnn-guided-workbench__flow">
+        <CnnGuidedInputPanel
+          :image-url="selectedImageUrl"
+          :image-name="selectedImageName"
+          :samples="sampleClassCards"
+          :disabled="status === 'loading'"
+          :show-upload="lessonFocus.guidedControls.includes('upload')"
+          :show-samples="lessonFocus.guidedControls.includes('sample')"
+          @upload="onUploadClick"
+          @select="selectGuidedSample"
+        />
+
+        <CnnArchitectureTrack
+          :layers="layers"
+          :selected-layer-index="selectedLayerIndex"
+          :section-id="props.section.id"
+          @select="selectPipelineStep"
+        />
+
+        <section class="cnn-guided-output" :aria-label="copy.score">
+          <header>
+            <span>{{ copy.score }}</span>
+            <strong>{{ copy.prediction }}</strong>
+          </header>
+          <button
+            v-for="(score, index) in guidedTopScores"
+            :key="score.id"
+            type="button"
+            :class="{ 'is-top': index === 0 }"
+            @click="selectScore(score)"
+          >
+            <span>{{ index + 1 }}</span>
+            <strong>{{ score.label }}</strong>
+            <em>{{ formatPercent(score.probability) }}</em>
+            <i><b :style="{ width: formatPercent(score.probability) }" /></i>
+          </button>
+          <p v-if="topPrediction">
+            <span aria-hidden="true">✓</span>
+            top-1 · {{ topPrediction.label }}
+          </p>
+        </section>
+
+        <CnnLayerInspector
+          :layer="selectedLayer"
+          :detail="selectedDetail"
+          :scores="scores"
+          :default-view="lessonFocus.inspectorView"
+          :section-id="props.section.id"
+        />
+      </div>
+    </div>
+
+    <div v-else class="cnn-explainer-explore">
     <header class="cnn-explainer-lab__header">
       <div>
         <span>{{ copy.title }}</span>
@@ -6844,125 +6891,6 @@ function rangeFromValues(values: number[]): [number, number] {
               </div>
               <p v-else>{{ copy.noConnections }}</p>
             </div>
-          </div>
-        </section>
-
-        <section v-if="showDetails" class="cnn-hyperparameter-lab">
-          <header>
-            <span>{{ copy.hyperparameterLab }}</span>
-            <strong>{{ copy.hyperparameterLabTitle }}</strong>
-            <p>{{ copy.hyperparameterLabHint }}</p>
-          </header>
-
-          <div class="cnn-hyperparameter-lab__controls">
-            <label>
-              <span>{{ copy.inputSize }}</span>
-              <strong>{{ hyperInputSize }}×{{ hyperInputSize }}</strong>
-              <input v-model.number="hyperInputSize" type="range" min="3" max="7" step="1" />
-            </label>
-            <label>
-              <span>{{ copy.padding }}</span>
-              <strong>{{ hyperPadding }}</strong>
-              <input v-model.number="hyperPadding" type="range" min="0" max="3" step="1" />
-            </label>
-            <label>
-              <span>{{ copy.kernelSize }}</span>
-              <strong>{{ hyperKernelSize }}×{{ hyperKernelSize }}</strong>
-              <input v-model.number="hyperKernelSize" type="range" min="1" :max="hyperKernelMax" step="1" />
-            </label>
-            <label>
-              <span>{{ copy.stride }}</span>
-              <strong>{{ hyperStride }}</strong>
-              <input v-model.number="hyperStride" type="range" min="1" :max="hyperStrideMax" step="1" />
-            </label>
-          </div>
-
-          <div class="cnn-hyperparameter-lab__stage" :aria-label="copy.hyperparameterLab">
-            <article>
-              <div>
-                <span>{{ copy.paddedInput }}</span>
-                <strong>{{ hyperparameterSnapshot.paddedSize }}×{{ hyperparameterSnapshot.paddedSize }}</strong>
-              </div>
-              <div
-                class="cnn-hyper-grid cnn-hyper-grid--input"
-                :style="hyperGridStyle(hyperparameterSnapshot.paddedSize)"
-                :aria-label="copy.paddedInput"
-              >
-                <i
-                  v-for="cell in hyperInputCells"
-                  :key="cell.id"
-                  :class="{ 'is-padding': cell.isPadding, 'is-kernel': cell.isKernel }"
-                  :title="`${copy.row} ${cell.row}, ${copy.col} ${cell.col}`"
-                >
-                  {{ cell.label }}
-                </i>
-              </div>
-            </article>
-
-            <article>
-              <div>
-                <span>{{ copy.kernelFootprint }}</span>
-                <strong>{{ hyperKernelSize }}×{{ hyperKernelSize }}</strong>
-              </div>
-              <div
-                class="cnn-hyper-grid cnn-hyper-grid--kernel"
-                :style="hyperGridStyle(hyperKernelSize)"
-                :aria-label="copy.kernelFootprint"
-              >
-                <i v-for="cell in hyperKernelCells" :key="cell.id" class="is-kernel">
-                  {{ cell.label }}
-                </i>
-              </div>
-            </article>
-
-            <article>
-              <div>
-                <span>{{ copy.outputGrid }}</span>
-                <strong>{{ hyperOutputSize }}×{{ hyperOutputSize }}</strong>
-              </div>
-              <p>{{ copy.hoverOutputCell }}</p>
-              <div
-                class="cnn-hyper-grid cnn-hyper-grid--output"
-                :style="hyperGridStyle(hyperOutputSize)"
-                :aria-label="copy.outputGrid"
-              >
-                <button
-                  v-for="cell in hyperOutputCells"
-                  :key="cell.id"
-                  type="button"
-                  :class="{ 'is-selected': cell.isSelected }"
-                  :aria-pressed="cell.isSelected"
-                  @mouseenter="selectHyperOutputCell(cell.row, cell.col)"
-                  @focus="selectHyperOutputCell(cell.row, cell.col)"
-                  @click="selectHyperOutputCell(cell.row, cell.col)"
-                >
-                  {{ cell.label }}
-                </button>
-              </div>
-            </article>
-          </div>
-
-          <div class="cnn-hyperparameter-lab__explain">
-            <div class="cnn-hyperparameter-lab__formula">
-              <span>{{ copy.shapeFormula }}</span>
-              <MarkdownMathContent :source="hyperFormulaMarkdown" />
-            </div>
-            <div class="cnn-hyperparameter-lab__metrics">
-              <div>
-                <span>{{ copy.outputSize }}</span>
-                <strong>{{ hyperOutputSize }}×{{ hyperOutputSize }}</strong>
-              </div>
-              <div>
-                <span>{{ copy.selectedWindowStart }}</span>
-                <strong>({{ hyperparameterSnapshot.selectedStartRow }}, {{ hyperparameterSnapshot.selectedStartCol }})</strong>
-              </div>
-              <div>
-                <span>{{ copy.stride }}</span>
-                <strong>{{ hyperStrideValid ? copy.validStride : copy.invalidStride }}</strong>
-              </div>
-            </div>
-            <p>{{ copy.shapeLayerNote }}</p>
-            <p>{{ hyperWindowNarration }}</p>
           </div>
         </section>
 
@@ -8415,6 +8343,7 @@ function rangeFromValues(values: number[]): [number, number] {
           </div>
         </section>
       </section>
+    </div>
     </div>
   </section>
 </template>

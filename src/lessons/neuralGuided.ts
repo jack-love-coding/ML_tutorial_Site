@@ -2,6 +2,26 @@ import type { LocalizedCopy, MlpPlaygroundFocus } from '../types/ml'
 
 export type NeuralLabMode = 'guided' | 'explore'
 
+export type CnnInspectorView = 'role' | 'operation' | 'shape'
+
+export type CnnGuidedControl = 'sample' | 'upload' | 'playback' | 'layer' | 'inspector'
+
+export type CnnSemanticStage =
+  | 'input'
+  | 'conv-block-1'
+  | 'pool-1'
+  | 'conv-block-2'
+  | 'pool-2'
+  | 'classifier'
+
+export interface CnnLessonFocusConfig {
+  chapterId: string
+  stage: CnnSemanticStage
+  inspectorView: CnnInspectorView
+  guidedControls: CnnGuidedControl[]
+  evidence: LocalizedCopy
+}
+
 export type MlpGuidedControl =
   | 'dataset'
   | 'features'
@@ -87,4 +107,53 @@ export const mlpLessonFocusConfigs: MlpLessonFocusConfig[] = [
 
 export const mlpLessonFocusByChapter = new Map(
   mlpLessonFocusConfigs.map((config) => [config.chapterId, config]),
+)
+
+export const cnnLessonFocusConfigs: CnnLessonFocusConfig[] = [
+  {
+    chapterId: 'image-volume',
+    stage: 'input',
+    inspectorView: 'shape',
+    guidedControls: ['sample', 'upload', 'playback', 'layer', 'inspector'],
+    evidence: copy('确认一张图片先成为高 × 宽 × 3 的数值体。', 'Confirm that an image first becomes a height x width x 3 volume.'),
+  },
+  {
+    chapterId: 'kernel-convolution',
+    stage: 'conv-block-1',
+    inspectorView: 'operation',
+    guidedControls: ['sample', 'playback', 'layer', 'inspector'],
+    evidence: copy('选中第一个卷积块，把局部窗口、kernel 与一个输出值对齐。', 'Select the first convolution block and align its local window, kernel, and one output value.'),
+  },
+  {
+    chapterId: 'padding-stride-shape',
+    stage: 'pool-1',
+    inspectorView: 'shape',
+    guidedControls: ['playback', 'layer', 'inspector'],
+    evidence: copy('沿架构轨道比较每次卷积和池化前后的空间尺寸。', 'Compare spatial sizes before and after each convolution and pooling stage.'),
+  },
+  {
+    chapterId: 'channels-feature-maps',
+    stage: 'conv-block-2',
+    inspectorView: 'role',
+    guidedControls: ['sample', 'layer', 'inspector'],
+    evidence: copy('切换到第二个卷积块，观察 channel 数量如何增加。', 'Move to the second convolution block and watch the channel count grow.'),
+  },
+  {
+    chapterId: 'pooling-classifier-head',
+    stage: 'classifier',
+    inspectorView: 'operation',
+    guidedControls: ['playback', 'layer', 'inspector'],
+    evidence: copy('追踪 feature maps 如何经 Flatten 和 Softmax 变成 top-3。', 'Trace feature maps through Flatten and Softmax into the top three classes.'),
+  },
+  {
+    chapterId: 'transfer-learning-review',
+    stage: 'classifier',
+    inspectorView: 'role',
+    guidedControls: ['sample', 'upload', 'layer', 'inspector'],
+    evidence: copy('把卷积骨干视为冻结的特征提取器，只替换任务分类头。', 'Treat the convolutional backbone as frozen and replace only the task head.'),
+  },
+]
+
+export const cnnLessonFocusByChapter = new Map(
+  cnnLessonFocusConfigs.map((config) => [config.chapterId, config]),
 )

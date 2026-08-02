@@ -121,7 +121,6 @@ const isWorkflowLessonPage = computed(
     isClassificationProjectPage.value ||
     isModelSelectionPage.value ||
     isTreeForestPage.value ||
-    isCnnVisualizationPage.value ||
     isSequenceEmbeddingBridgePage.value ||
     isAttentionTransformerPage.value ||
     isOptimizerComparisonPage.value ||
@@ -531,6 +530,23 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </template>
     </NeuralGuidedLesson>
 
+    <NeuralGuidedLesson
+      v-else-if="isCnnVisualizationPage"
+      :module-definition="moduleDefinition"
+      :active-id="activeChapter"
+      variant="cnn-visualization"
+      @change="onNeuralChapterChange"
+    >
+      <template #lab="{ section, mode }">
+        <CnnExplainerLab :section="section" :mode="mode" />
+        <CnnShapeParameterChallengeLab
+          v-if="section.id === 'padding-stride-shape'"
+          :accent="moduleDefinition.accent"
+          class="cnn-guided-shape-challenge"
+        />
+      </template>
+    </NeuralGuidedLesson>
+
     <LessonPage
       v-else-if="isLessonPagePilot"
       :module-definition="moduleDefinition"
@@ -593,12 +609,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
             </section>
           </div>
 
-          <CnnShapeParameterChallengeLab
-            v-if="isCnnVisualizationPage && section.id === 'channels-feature-maps'"
-            :accent="moduleDefinition.accent"
-          />
-          <CnnExplainerLab v-if="isCnnVisualizationPage && section.id === activeChapter" :section="section" />
-          <AppliedWorkflowLessonLab v-else-if="!isCnnVisualizationPage" :module-slug="slug" :section="section" />
+          <AppliedWorkflowLessonLab :module-slug="slug" :section="section" />
         </template>
       </StoryScroller>
     </section>
@@ -825,7 +836,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     <LossFunctionsDownloads v-if="isLossFunctionsPage" />
 
     <section
-      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isWorkflowLessonPage"
+      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isWorkflowLessonPage && !isNeuralGuidedPage"
       class="results-grid"
       :class="{ 'results-grid--gradient': isGradientPage }"
     >

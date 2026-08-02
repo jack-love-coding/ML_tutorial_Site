@@ -12,6 +12,7 @@ import {
   type CnnLayerSnapshot,
   tinyVggClassLabels,
 } from '../src/utils/cnnExplainer.ts'
+import { cnnLessonFocusConfigs } from '../src/lessons/neuralGuided.ts'
 
 const root = new URL('../', import.meta.url)
 
@@ -344,6 +345,10 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
   const routerSource = read('src/router/index.ts')
   const moduleSource = read('src/data/cnnVisualizationModule.ts')
   const stylesheetSource = read('src/styles/modules/cnn-explainer.css')
+  const guidedStyles = read('src/styles/modules/neural-guided.css')
+  const architectureSource = read('src/components/cnn/CnnArchitectureTrack.vue')
+  const inputSource = read('src/components/cnn/CnnGuidedInputPanel.vue')
+  const inspectorSource = read('src/components/cnn/CnnLayerInspector.vue')
   const reluMatricesStyle = stylesheetSource.match(/\.cnn-relu-detail__matrices\s*\{[^}]+\}/)?.[0] ?? ''
 
   assert.match(packageSource, /"@tensorflow\/tfjs": "\^4\.22\.0"/)
@@ -405,25 +410,23 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
   assert.match(componentSource, /connectionSummaries/)
   assert.match(componentSource, /selectConnectionNode/)
   assert.match(componentSource, /kernelSizeForNode/)
-  assert.match(componentSource, /buildCnnHyperparameterSnapshot/)
-  assert.match(componentSource, /hyperInputSize/)
-  assert.match(componentSource, /hyperPadding/)
-  assert.match(componentSource, /hyperKernelSize/)
-  assert.match(componentSource, /hyperStride/)
-  assert.match(componentSource, /hyperOutputSize/)
-  assert.match(componentSource, /hyperFormulaMarkdown/)
-  assert.match(componentSource, /hyperWindowNarration/)
-  assert.match(componentSource, /selectHyperOutputCell/)
-  assert.match(componentSource, /clampHyperparameterControls/)
-  assert.match(componentSource, /class="cnn-hyperparameter-lab"/)
-  assert.match(componentSource, /class="cnn-hyperparameter-lab__controls"/)
-  assert.match(componentSource, /class="cnn-hyper-grid cnn-hyper-grid--input"/)
-  assert.match(componentSource, /class="cnn-hyper-grid cnn-hyper-grid--kernel"/)
-  assert.match(componentSource, /class="cnn-hyper-grid cnn-hyper-grid--output"/)
-  assert.match(componentSource, /@mouseenter="selectHyperOutputCell\(cell\.row, cell\.col\)"/)
-  assert.match(componentSource, /copy\.hyperparameterLab/)
-  assert.match(componentSource, /copy\.shapeLayerNote/)
-  assert.match(componentSource, /copy\.hoverOutputCell/)
+  assert.doesNotMatch(componentSource, /class="cnn-hyperparameter-lab"/)
+  assert.doesNotMatch(stylesheetSource, /\.cnn-hyperparameter-lab/)
+  assert.match(componentSource, /props\.mode === 'guided'/)
+  assert.match(componentSource, /class="cnn-explainer-explore"/)
+  assert.match(componentSource, /guidedTopScores/)
+  assert.match(componentSource, /CnnArchitectureTrack/)
+  assert.match(componentSource, /CnnGuidedInputPanel/)
+  assert.match(componentSource, /CnnLayerInspector/)
+  assert.match(architectureSource, /'conv-block-1'/)
+  assert.match(architectureSource, /'conv-block-2'/)
+  assert.match(architectureSource, /'classifier'/)
+  assert.match(architectureSource, /stage\.shape\.join\(' × '\)/)
+  assert.match(inputSource, /PNG \/ JPG \/ WebP/)
+  assert.match(inspectorSource, /CnnInspectorView/)
+  assert.match(inspectorSource, /role="tablist"/)
+  assert.match(guidedStyles, /cnn-guided-track__scroll/)
+  assert.match(guidedStyles, /scroll-snap-type: x mandatory/)
   assert.match(componentSource, /interface CnnConvMathFocus/)
   assert.match(componentSource, /interface CnnConvAnimatorAnchor/)
   assert.match(componentSource, /interface CnnConvAnimatorDetail/)
@@ -1212,14 +1215,6 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
   assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-layer-inspector__metrics/)
   assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-layer-inspector__connections/)
   assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-layer-inspector__chips button:focus-visible/)
-  assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-hyperparameter-lab/)
-  assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-hyperparameter-lab__controls/)
-  assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-hyperparameter-lab__stage/)
-  assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-hyper-grid--input/)
-  assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-hyper-grid--kernel/)
-  assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-hyper-grid--output button:hover/)
-  assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-hyper-grid--output button:focus-visible/)
-  assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-hyperparameter-lab__explain/)
   assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-pipeline-rail/)
   assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-pipeline-rail__steps/)
   assert.match(read('src/styles/modules/cnn-explainer.css'), /cnn-pipeline-rail__step\.is-current/)
@@ -1400,8 +1395,9 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
   assert.match(algorithmViewSource, /chapterTarget\(\)\?\.scrollIntoView/)
   assert.match(
     algorithmViewSource,
-    /<CnnExplainerLab v-if="isCnnVisualizationPage && section\.id === activeChapter"/,
+    /<NeuralGuidedLesson\s+v-else-if="isCnnVisualizationPage"/,
   )
+  assert.match(algorithmViewSource, /<CnnExplainerLab :section="section" :mode="mode"/)
   assert.match(algorithmViewSource, /route\.params\.lessonId/)
   assert.match(algorithmViewSource, /syncRouteChapterIntoView\(matchedChapter\.id\)/)
   assert.match(algorithmViewSource, /router\.replace\(`\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`\)/)
@@ -1415,4 +1411,24 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
   assert.match(moduleSource, /Tiny VGG/)
   assert.match(moduleSource, /browser-side forward pass/)
   assert.match(moduleSource, /REF-CNN-EXPLAINER/)
+})
+
+test('CNN guided focus config covers every chapter with bounded bilingual controls', () => {
+  assert.deepEqual(
+    cnnLessonFocusConfigs.map((config) => config.chapterId),
+    [
+      'image-volume',
+      'kernel-convolution',
+      'padding-stride-shape',
+      'channels-feature-maps',
+      'pooling-classifier-head',
+      'transfer-learning-review',
+    ],
+  )
+
+  for (const config of cnnLessonFocusConfigs) {
+    assert.ok(config.guidedControls.length <= 5)
+    assert.ok(config.evidence['zh-CN'])
+    assert.ok(config.evidence.en)
+  }
 })
