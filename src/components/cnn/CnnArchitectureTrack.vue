@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { CnnLayerSnapshot } from '../../utils/cnnExplainer'
+import type { CnnLayerSnapshot, CnnNodeSnapshot } from '../../utils/cnnExplainer'
+
+interface PreviewCell {
+  id: string
+  x: number
+  y: number
+  size: number
+  value: number
+}
 
 interface SemanticStage {
   id: string
@@ -12,6 +20,10 @@ interface SemanticStage {
   shape: number[]
   parameterCount: number
   zone: 'backbone' | 'head'
+  previewLayer: CnnLayerSnapshot
+  previewNodes: CnnNodeSnapshot[]
+  previewMin: number
+  previewMax: number
 }
 
 const props = defineProps<{
@@ -28,8 +40,8 @@ const { locale } = useI18n()
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
-        title: '一条架构主线',
-        hint: '选择任一阶段，下方只展开这一个检查器。',
+        title: '真实网络结构与激活流',
+        hint: '每组小图都来自当前图片的真实前向激活；选择阶段会同步下方检查器。',
         input: '输入',
         conv1: '卷积块 1',
         pool1: '池化 1',
@@ -40,10 +52,13 @@ const copy = computed(() =>
         classifier: '可替换 classifier head',
         params: '参数',
         noParams: '无可学习参数',
+        maps: '张真实激活图',
+        channels: '个输入通道',
+        classes: '个类别分数',
       }
     : {
-        title: 'One architecture path',
-        hint: 'Choose a stage to open only one inspector below.',
+        title: 'Live network structure and activations',
+        hint: 'Every tile is a real forward activation for the current image; choosing a stage syncs the inspector.',
         input: 'Input',
         conv1: 'Conv block 1',
         pool1: 'Pooling 1',
@@ -54,6 +69,9 @@ const copy = computed(() =>
         classifier: 'Replaceable classifier head',
         params: 'parameters',
         noParams: 'No trainable parameters',
+        maps: 'real activation maps',
+        channels: 'input channels',
+        classes: 'class scores',
       },
 )
 
@@ -77,6 +95,11 @@ function makeStage(
   const layers = members.filter((layer): layer is CnnLayerSnapshot => Boolean(layer))
   if (!layers.length) return undefined
   const last = layers.at(-1) ?? layers[0]
+  const previewLayer = [...layers].reverse().find((layer) => layer.nodes.length) ?? last
+  const previewNodes = representativeNodes(previewLayer)
+  const previewValues = previewNodes.flatMap((node) => valuesFromNode(node))
+  const previewMin = previewValues.length ? Math.min(...previewValues) : 0
+  const previewMax = previewValues.length ? Math.max(...previewValues) : 1
   return {
     id,
     label,
@@ -86,7 +109,90 @@ function makeStage(
     shape: last.outputShape,
     parameterCount: layers.reduce((sum, layer) => sum + layer.parameterCount, 0),
     zone,
+    previewLayer,
+    previewNodes,
+    previewMin,
+    previewMax,
   }
+}
+
+function isMatrixOutput(output: CnnNodeSnapshot['output']): output is number[][] {
+  return Array.isArray(output) && Array.isArray(output[0])
+}
+
+function representativeNodes(layer: CnnLayerSnapshot) {
+  const count = layer.kind === 'dense' ? 6 : 3
+  if (layer.nodes.length <= count) return layer.nodes
+  const indices = Array.from({ length: count }, (_, index) =>
+    Math.round((index * (layer.nodes.length - 1)) / Math.max(1, count - 1)),
+  )
+  return indices.map((index) => layer.nodes[index]!).filter(Boolean)
+}
+
+function valuesFromNode(node: CnnNodeSnapshot) {
+  if (!isMatrixOutput(node.output)) return [Number(node.output) || 0]
+  const rowStep = Math.max(1, Math.floor(node.output.length / 12))
+  const colStep = Math.max(1, Math.floor((node.output[0]?.length ?? 1) / 12))
+  const values: number[] = []
+  for (let row = 0; row < node.output.length; row += rowStep) {
+    for (let col = 0; col < (node.output[row]?.length ?? 0); col += colStep) {
+      values.push(node.output[row]?.[col] ?? 0)
+    }
+  }
+  return values
+}
+
+function previewCells(node: CnnNodeSnapshot): PreviewCell[] {
+  if (!isMatrixOutput(node.output) || !node.output.length) return []
+  const target = 8
+  const rows = node.output.length
+  const cols = node.output[0]?.length ?? 1
+  const cells: PreviewCell[] = []
+  for (let row = 0; row < target; row += 1) {
+    for (let col = 0; col < target; col += 1) {
+      const sourceRow = Math.min(rows - 1, Math.floor((row / target) * rows))
+      const sourceCol = Math.min(cols - 1, Math.floor((col / target) * cols))
+      cells.push({
+        id: `${node.id}-${row}-${col}`,
+        x: col * (56 / target),
+        y: row * (56 / target),
+        size: 56 / target + 0.15,
+        value: node.output[sourceRow]?.[sourceCol] ?? 0,
+      })
+    }
+  }
+  return cells
+}
+
+function normalizedPreviewValue(stage: SemanticStage, value: number) {
+  const span = stage.previewMax - stage.previewMin
+  if (!Number.isFinite(value) || !Number.isFinite(span) || span === 0) return 0.5
+  return Math.min(1, Math.max(0, (value - stage.previewMin) / span))
+}
+
+function previewColor(stage: SemanticStage, node: CnnNodeSnapshot, value: number) {
+  const normalized = normalizedPreviewValue(stage, value)
+  if (stage.id === 'input') {
+    const low = 18
+    const high = Math.round(42 + normalized * 213)
+    if (node.index === 0) return `rgb(${high}, ${low}, ${low})`
+    if (node.index === 1) return `rgb(${low}, ${high}, ${low})`
+    return `rgb(${low}, ${low}, ${high})`
+  }
+  const red = Math.round(246 - normalized * 176)
+  const green = Math.round(248 - normalized * 94)
+  const blue = Math.round(251 - normalized * 24)
+  return `rgb(${red}, ${green}, ${blue})`
+}
+
+function denseBarHeight(stage: SemanticStage, node: CnnNodeSnapshot) {
+  return `${Math.round(18 + normalizedPreviewValue(stage, Number(node.output) || 0) * 70)}%`
+}
+
+function stageMapLabel(stage: SemanticStage) {
+  if (stage.id === 'input') return `${stage.previewLayer.nodes.length} ${copy.value.channels}`
+  if (stage.id === 'classifier') return `${stage.previewLayer.nodes.length} ${copy.value.classes}`
+  return `${stage.previewLayer.nodes.length} ${copy.value.maps}`
 }
 
 const stages = computed<SemanticStage[]>(() => {
@@ -142,11 +248,49 @@ function stageParameterLabel(stage: SemanticStage) {
             :aria-current="isSelected(stage) ? 'step' : undefined"
             @click="emit('select', stage.representativeIndex)"
           >
-            <span>{{ String(index + 1).padStart(2, '0') }}</span>
-            <strong>{{ stage.label }}</strong>
-            <em>{{ stage.kind }}</em>
-            <b>{{ stage.shape.join(' × ') }}</b>
-            <small>{{ stageParameterLabel(stage) }}</small>
+            <div class="cnn-guided-track__stage-heading">
+              <span>{{ String(index + 1).padStart(2, '0') }}</span>
+              <div>
+                <strong>{{ stage.label }}</strong>
+                <em>{{ stage.kind }}</em>
+              </div>
+            </div>
+
+            <div
+              v-if="stage.previewLayer.kind !== 'dense'"
+              class="cnn-guided-track__feature-stack"
+              aria-hidden="true"
+            >
+              <svg
+                v-for="(node, nodeIndex) in stage.previewNodes"
+                :key="node.id"
+                viewBox="0 0 56 56"
+                :style="{ '--map-index': nodeIndex }"
+              >
+                <rect
+                  v-for="cell in previewCells(node)"
+                  :key="cell.id"
+                  :x="cell.x"
+                  :y="cell.y"
+                  :width="cell.size"
+                  :height="cell.size"
+                  :fill="previewColor(stage, node, cell.value)"
+                />
+              </svg>
+            </div>
+            <div v-else class="cnn-guided-track__logits" aria-hidden="true">
+              <i
+                v-for="node in stage.previewNodes"
+                :key="node.id"
+                :style="{ height: denseBarHeight(stage, node) }"
+              />
+            </div>
+
+            <small class="cnn-guided-track__map-count">{{ stageMapLabel(stage) }}</small>
+            <div class="cnn-guided-track__stage-meta">
+              <b>{{ stage.shape.join(' × ') }}</b>
+              <small>{{ stageParameterLabel(stage) }}</small>
+            </div>
           </button>
           <i v-if="index < stages.length - 1" aria-hidden="true">→</i>
         </li>

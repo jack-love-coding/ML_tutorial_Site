@@ -1020,6 +1020,9 @@
   display: grid;
   min-width: 0;
   grid-template-columns: 176px minmax(0, 1fr) 190px;
+  grid-template-areas:
+    'track track track'
+    'input inspector output';
   gap: 10px;
   align-items: stretch;
 }
@@ -1036,6 +1039,7 @@
 
 .cnn-guided-input {
   display: grid;
+  grid-area: input;
   align-content: start;
   gap: 8px;
   padding: 10px;
@@ -1165,6 +1169,7 @@
 
 .cnn-guided-track {
   display: grid;
+  grid-area: track;
   align-content: start;
   gap: 10px;
   padding: 10px;
@@ -1238,10 +1243,10 @@
   display: grid;
   width: 100%;
   min-width: 0;
-  min-height: 142px;
+  min-height: 232px;
   align-content: start;
-  gap: 4px;
-  padding: 9px;
+  gap: 7px;
+  padding: 10px;
   border: 1px solid #dbe3ed;
   border-top: 3px solid #94a3b8;
   border-radius: 8px;
@@ -1263,14 +1268,36 @@
   box-shadow: 0 0 0 1px #2563eb;
 }
 
-.cnn-guided-track button > span {
+.cnn-guided-track__stage-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 7px;
+}
+
+.cnn-guided-track__stage-heading > span {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e2e8f0;
   color: #94a3b8;
   font-size: 0.62rem;
   font-weight: 850;
 }
 
+.cnn-guided-track li.is-selected .cnn-guided-track__stage-heading > span {
+  background: #2563eb;
+  color: white;
+}
+
+.cnn-guided-track__stage-heading > div {
+  display: grid;
+  gap: 2px;
+}
+
 .cnn-guided-track button strong {
-  min-height: 30px;
   color: #0f172a;
   font-size: 0.74rem;
   line-height: 1.25;
@@ -1282,14 +1309,97 @@
   font-style: normal;
 }
 
-.cnn-guided-track button b {
+.cnn-guided-track__feature-stack {
+  position: relative;
+  display: grid;
+  min-height: 82px;
+  place-items: center;
+  margin: 2px 0;
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(219, 234, 254, 0.62), rgba(248, 250, 252, 0.92)),
+    #f8fafc;
+}
+
+.cnn-guided-track__feature-stack::after {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  left: 7px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #93c5fd, transparent);
+  content: '';
+}
+
+.cnn-guided-track__feature-stack svg {
+  position: absolute;
+  width: 66px;
+  height: 66px;
+  overflow: hidden;
+  border: 1px solid rgba(30, 41, 59, 0.22);
+  border-radius: 5px;
+  background: white;
+  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.12);
+  transform: translate(calc((var(--map-index) - 1) * 13px), calc((var(--map-index) - 1) * -5px));
+}
+
+.cnn-guided-track__feature-stack svg:first-child {
+  z-index: 3;
+}
+
+.cnn-guided-track__feature-stack svg:nth-child(2) {
+  z-index: 2;
+  opacity: 0.86;
+}
+
+.cnn-guided-track__feature-stack svg:nth-child(3) {
+  z-index: 1;
+  opacity: 0.72;
+}
+
+.cnn-guided-track__logits {
+  display: flex;
+  min-height: 82px;
+  align-items: end;
+  justify-content: center;
+  gap: 5px;
+  padding: 12px 10px 8px;
+  border-bottom: 1px solid #fed7aa;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fffaf5, #fff7ed);
+}
+
+.cnn-guided-track__logits i {
+  width: 8px;
+  min-height: 8px;
+  border-radius: 3px 3px 1px 1px;
+  background: linear-gradient(180deg, #fb923c, #ea580c);
+  box-shadow: 0 0 0 1px rgba(194, 65, 12, 0.16);
+}
+
+.cnn-guided-track__map-count {
+  color: #475569;
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.cnn-guided-track__stage-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
   margin-top: auto;
+  padding-top: 7px;
+  border-top: 1px solid #dbe3ed;
+}
+
+.cnn-guided-track__stage-meta b {
   color: #1d4ed8;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.67rem;
 }
 
-.cnn-guided-track button small {
+.cnn-guided-track__stage-meta small {
   color: #64748b;
   font-size: 0.53rem;
   line-height: 1.25;
@@ -1304,6 +1414,7 @@
 
 .cnn-guided-output {
   display: grid;
+  grid-area: output;
   align-content: start;
   gap: 7px;
   padding: 10px;
@@ -1398,7 +1509,7 @@
 
 .cnn-guided-inspector {
   overflow: hidden;
-  grid-column: 1 / -1;
+  grid-area: inspector;
 }
 
 .cnn-guided-inspector > header {
@@ -1570,6 +1681,10 @@
 @media (max-width: 900px) {
   .cnn-guided-workbench__flow {
     grid-template-columns: 150px minmax(0, 1fr);
+    grid-template-areas:
+      'track track'
+      'input inspector'
+      'output output';
   }
 
   .cnn-guided-output {
@@ -1661,12 +1776,12 @@
   }
 
   .cnn-guided-track li {
-    flex: 0 0 126px;
+    flex: 0 0 180px;
     scroll-snap-align: start;
   }
 
   .cnn-guided-track li > button {
-    min-height: 126px;
+    min-height: 220px;
   }
 
   .cnn-guided-output {
