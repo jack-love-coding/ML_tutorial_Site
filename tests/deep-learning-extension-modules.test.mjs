@@ -307,7 +307,13 @@ test('deep learning extension modules cover required learning loops and referenc
       assert.match(moduleSource, new RegExp(refId))
     }
 
-    assert.doesNotMatch(moduleSource, /https?:\/\//)
+    if (expectation.slug === 'cnn-visualization') {
+      assert.match(moduleSource, /https:\/\/cs231n\.github\.io\/convolutional-networks\//)
+      assert.match(moduleSource, /https:\/\/d2l\.ai\/chapter_convolutional-neural-networks\//)
+      assert.match(moduleSource, /https:\/\/docs\.pytorch\.org\/tutorials\/beginner\/transfer_learning_tutorial\.html/)
+    } else {
+      assert.doesNotMatch(moduleSource, /https?:\/\//)
+    }
     assert.doesNotMatch(moduleSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
   }
 })

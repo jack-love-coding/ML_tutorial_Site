@@ -1,9 +1,39 @@
-import type { AlgorithmModuleDefinition, LocalizedCopy, ModuleSimulation, StorySection } from '../types/ml'
+import type {
+  AlgorithmModuleDefinition,
+  LocalizedCopy,
+  ModuleSimulation,
+  ModuleSourceReference,
+  StorySection,
+} from '../types/ml'
 import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
 
 function loc(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
 }
+
+const cnnSources: ModuleSourceReference[] = [
+  {
+    label: loc('CNN Explainer（交互与 Tiny VGG 资产）', 'CNN Explainer (interaction and Tiny VGG assets)'),
+    href: 'https://poloclub.github.io/cnn-explainer/',
+    license: 'MIT',
+  },
+  {
+    label: loc('Stanford CS231n：卷积神经网络', 'Stanford CS231n: Convolutional Networks'),
+    href: 'https://cs231n.github.io/convolutional-networks/',
+  },
+  {
+    label: loc('Dive into Deep Learning：卷积神经网络', 'Dive into Deep Learning: Convolutional Neural Networks'),
+    href: 'https://d2l.ai/chapter_convolutional-neural-networks/index.html',
+  },
+  {
+    label: loc('PyTorch：计算机视觉迁移学习教程', 'PyTorch: Transfer Learning for Computer Vision Tutorial'),
+    href: 'https://docs.pytorch.org/tutorials/beginner/transfer_learning_tutorial.html',
+  },
+  {
+    label: loc('卷积算术指南', 'A Guide to Convolution Arithmetic'),
+    href: 'https://arxiv.org/abs/1603.07285',
+  },
+]
 
 function chapter(
   id: string,
@@ -19,6 +49,7 @@ function chapter(
     markdown,
     callout,
     experimentPrompt,
+    sources: cnnSources,
   }
 }
 
@@ -75,8 +106,7 @@ CNN 仍然是可微模型：卷积层和全连接层有可训练参数，ReLU �
 ### 老师会先问
 这个模型看见的是像素矩阵，还是人类脑中的“物体”？先回答这个问题，后面的 kernel、feature map 和分类头才不会神秘化。
 
-### Ref ID
-REF-CNN-EXPLAINER、REF-CS231N-CNN、REF-D2L-CNN`,
+`,
         `The first step in a CNN is not "recognizing cats and dogs". It is reading an image as a 3D numeric volume: height, width, and channels.
 
 ### What is an image inside the model?
@@ -93,16 +123,15 @@ The lab on the right uses a Tiny VGG-style small CNN and runs a real browser-sid
 ### Teacher question
 Does the model see a pixel matrix, or the human idea of an "object"? Answering that first keeps kernels, feature maps, and classifier heads concrete.
 
-### Ref ID
-REF-CNN-EXPLAINER, REF-CS231N-CNN, REF-D2L-CNN`,
+`,
       ),
       loc(
         'CNN 把图片当作 H × W × C 的数值体，用局部连接和参数共享降低复杂度。',
         'A CNN reads an image as an H × W × C volume and reduces complexity through local connectivity and weight sharing.',
       ),
       loc(
-        '在右侧 volume 阶段，先说清一张 32×32×3 图片在模型里有哪三个维度。',
-        'Use the volume stage to name the three dimensions of a 32×32×3 image inside the model.',
+        '在 volume 阶段，先说清实验实际使用的 64×64×3 图片张量包含哪三个维度。',
+        'Use the volume stage to name the three dimensions in the actual 64×64×3 image tensor.',
       ),
     ),
     chapter(
@@ -139,8 +168,7 @@ kernel 本身不是固定边缘检测器。训练开始时它只是参数；经�
 ### 实验台动作
 点击 Conv 层中的一个节点，再移动 row/col。公式视图会把输入 patch、kernel、逐 channel 乘积、bias 和 ReLU 前后的数值对齐。
 
-### Ref ID
-REF-CNN-EXPLAINER、REF-CS231N-CNN、REF-D2L-CNN`,
+`,
         `The core action of a convolution layer is simple: slide a small kernel over the image and compute one weighted sum at each location.
 
 ### Manual computation on a 5x5 image
@@ -171,8 +199,7 @@ A kernel is not born as a fixed edge detector. At initialization it is just para
 ### Lab action
 Click a node in a Conv layer, then move row/col. The formula view aligns the input patch, kernel, per-channel products, bias, and values before and after ReLU.
 
-### Ref ID
-REF-CNN-EXPLAINER, REF-CS231N-CNN, REF-D2L-CNN`,
+`,
       ),
       loc(
         'kernel 滑过图像，局部加权和生成 feature map；同一组权重在空间上复用。',
@@ -210,8 +237,7 @@ padding 不是为了“补数据”。它决定边缘像素能不能参与足够
 ### 实验台动作
 沿着 Overview 单步播放：valid convolution 会缩小空间尺寸，MaxPool 会用 $2\\times2$ window 再降采样，Flatten 会把空间坐标改写成向量索引。
 
-### Ref ID
-REF-CNN-EXPLAINER、REF-CONV-ARITHMETIC、REF-D2L-CNN`,
+`,
         `A CNN introduction should teach students to calculate shapes. Otherwise the architecture becomes a list of mysterious layer names.
 
 ### Output-size formula
@@ -235,8 +261,7 @@ Did this layer change spatial size, channel count, or both? Being able to separa
 ### Lab action
 Step through the Overview: valid convolution shrinks spatial size, MaxPool downsamples with a $2\\times2$ window, and Flatten rewrites spatial coordinates as vector indices.
 
-### Ref ID
-REF-CNN-EXPLAINER, REF-CONV-ARITHMETIC, REF-D2L-CNN`,
+`,
       ),
       loc(
         'padding、kernel 和 stride 决定输出尺寸；channel 数由 filter 个数决定。',
@@ -268,8 +293,7 @@ $$3 \\times 3 \\times 3 \\times 16 + 16$$
 ### 实验台动作
 切换不同 filter 和颜色尺度：activation 颜色看响应强弱，weights 颜色看连接权重，logit 颜色看分类头的原始分数。
 
-### Ref ID
-REF-CNN-EXPLAINER、REF-CS231N-CNN、REF-D2L-CNN`,
+`,
         `A CNN layer usually learns many filters, not just one kernel. Each filter creates one feature map, and stacking them gives the output channels.
 
 ### How channels change
@@ -287,8 +311,7 @@ Early feature maps may respond to edges, color blobs, or textures; deeper featur
 ### Lab action
 Switch filters and color scales: activation color shows response strength, weights color shows connection weights, and logit color shows raw classifier-head scores.
 
-### Ref ID
-REF-CNN-EXPLAINER, REF-CS231N-CNN, REF-D2L-CNN`,
+`,
       ),
       loc(
         'filter 个数决定输出 channel；参数数量按 kernel、输入 channel 和输出 channel 计算。',
@@ -330,8 +353,7 @@ Dense 层先产生 logits，Softmax 再把这些原始分数转成和为 1 的�
 ### 想一想
 如果池化太 aggressive，空间信息会丢失；如果完全不降采样，计算量和过拟合风险可能上升。
 
-### Ref ID
-REF-CNN-EXPLAINER、REF-CS231N-CNN、REF-D2L-CNN`,
+`,
         `A CNN backbone gradually turns local textures into more abstract feature maps, then a classifier head turns the representation into class scores.
 
 ### A common small structure
@@ -359,8 +381,7 @@ The Dense layer first creates logits, then Softmax converts those raw scores int
 ### Think about it
 If pooling is too aggressive, spatial information disappears; if no downsampling happens, computation and overfitting risk can rise.
 
-### Ref ID
-REF-CNN-EXPLAINER, REF-CS231N-CNN, REF-D2L-CNN`,
+`,
       ),
       loc(
         '卷积主干提取 feature map，pooling 控制空间尺寸，分类头把表示变成类别分数。',
@@ -397,8 +418,7 @@ classifier = nn.Linear(num_features, num_classes)
 - 错误样本集中在哪些类别或场景？
 - 上传图片的预测是否和训练类别一致？如果不一致，是模型能力问题、数据分布问题，还是类别定义问题？
 
-### Ref ID
-REF-CNN-EXPLAINER、REF-PYTORCH-CV-TRANSFER、REF-CS231N-CNN`,
+`,
         `The first CNN chapter does not need to train a large vision model immediately, but students should know that real projects often use transfer learning.
 
 ### Transfer-learning skeleton
@@ -421,8 +441,7 @@ Training a CNN from scratch needs more data and compute. Transfer learning start
 - Which classes or scenes dominate errors?
 - Does the uploaded-image prediction match the training classes? If not, is the issue model capacity, data distribution, or class definition?
 
-### Ref ID
-REF-CNN-EXPLAINER, REF-PYTORCH-CV-TRANSFER, REF-CS231N-CNN`,
+`,
       ),
       loc(
         '迁移学习不是跳过 CNN 原理，而是把已有视觉表示当作项目起点。',

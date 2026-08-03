@@ -53,13 +53,41 @@
 }
 
 .markdown-math pre {
+  position: relative;
   max-width: 100%;
   overflow-x: auto;
-  padding: 16px;
+  padding: 48px 16px 16px;
   border-radius: 16px;
   background: #0c1628;
   color: white;
   line-height: 1.6;
+}
+
+.markdown-math .markdown-code-copy {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.markdown-math .markdown-code-copy:hover,
+.markdown-math .markdown-code-copy:focus-visible,
+.markdown-math .markdown-code-copy[data-copy-state='copied'] {
+  border-color: rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.markdown-math .markdown-code-copy[data-copy-state='failed'] {
+  border-color: #fca5a5;
+  color: #fecaca;
 }
 
 .markdown-math pre code {

@@ -6069,6 +6069,8 @@ function rangeFromValues(values: number[]): [number, number] {
         ref="fileInputRef"
         class="cnn-explainer-lab__file"
         type="file"
+        tabindex="-1"
+        aria-hidden="true"
         accept="image/png,image/jpeg,image/webp"
         @change="onFileChange"
       />
@@ -6077,9 +6079,9 @@ function rangeFromValues(values: number[]): [number, number] {
       <p v-if="fileError" class="cnn-explainer-lab__notice is-error">{{ fileError }}</p>
       <p v-if="status === 'error'" class="cnn-explainer-lab__notice is-error">{{ statusMessage || copy.fallback }}</p>
 
-      <p class="cnn-guided-workbench__evidence">
-        <span>{{ locale === 'zh-CN' ? '本章观察证据' : 'Evidence to watch' }}</span>
-        <strong>{{ lessonFocus.evidence[locale as AppLocale] }}</strong>
+      <p class="cnn-guided-workbench__observation">
+        <span>{{ locale === 'zh-CN' ? '观察重点' : 'What to watch' }}</span>
+        <strong>{{ lessonFocus.observation[locale as AppLocale] }}</strong>
       </p>
 
       <div class="cnn-guided-workbench__flow">
@@ -6144,13 +6146,15 @@ function rangeFromValues(values: number[]): [number, number] {
     </header>
 
     <div class="cnn-explainer-lab__controls" aria-label="CNN explainer controls">
-      <button type="button" class="action-button action-button--primary" @click="onUploadClick">
+      <button type="button" class="action-button action-button--primary" :aria-label="copy.upload" @click="onUploadClick">
         {{ copy.upload }}
       </button>
       <input
         ref="fileInputRef"
         class="cnn-explainer-lab__file"
         type="file"
+        tabindex="-1"
+        aria-hidden="true"
         accept="image/png,image/jpeg,image/webp"
         @change="onFileChange"
       />

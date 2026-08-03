@@ -107,7 +107,9 @@ const copy = computed(() =>
         networkHint: '线条颜色表示权重正负，粗细表示权重大小，节点小图显示该节点对输入平面的响应。',
         scenarios: '场景',
         architecture: '网络架构',
-        evidence: '当前观察证据',
+        observation: '观察重点',
+        runControls: 'MLP 训练控制',
+        guidedControls: '本章控制',
         advancedData: '数据与输入',
         advancedOptimization: '训练与约束',
         advancedDiagnostics: '诊断',
@@ -175,7 +177,9 @@ const copy = computed(() =>
         networkHint: 'Link color shows weight sign, width shows weight size, and node maps show each response over the input plane.',
         scenarios: 'Scenarios',
         architecture: 'Network architecture',
-        evidence: 'Evidence to watch',
+        observation: 'What to watch',
+        runControls: 'MLP training controls',
+        guidedControls: 'Chapter controls',
         advancedData: 'Data and inputs',
         advancedOptimization: 'Training and constraints',
         advancedDiagnostics: 'Diagnostics',
@@ -234,6 +238,13 @@ function sync(nextSnapshot: MlpPlaygroundSnapshot, options: { clearHistory?: boo
 function resetWith(partial: Partial<MlpPlaygroundState> = {}) {
   stopPlayback()
   sync(session.value.reset({ ...state.value, ...partial }), { clearHistory: true })
+}
+
+function resetToChapterInitialState(partial: Partial<MlpPlaygroundState>) {
+  stopPlayback()
+  const nextState = normalizeMlpPlaygroundState({ ...DEFAULT_MLP_PLAYGROUND_STATE, ...partial })
+  session.value = createMlpPlaygroundSession(nextState)
+  sync(session.value.snapshot(), { clearHistory: true })
 }
 
 function updateWithoutReset(partial: Partial<MlpPlaygroundState>) {
@@ -548,8 +559,8 @@ function showsGuidedControl(control: MlpGuidedControl) {
 watch(
   () => props.section?.id,
   () => {
-    const scenario = lessonFocus.value?.scenario
-    if (scenario) quickPreset(scenario)
+    const initialState = lessonFocus.value?.initialState
+    if (initialState) resetToChapterInitialState(initialState)
   },
   { immediate: true },
 )
@@ -564,7 +575,7 @@ onBeforeUnmount(stopPlayback)
     :style="{ '--mlp-accent': props.accent }"
   >
     <header class="mlp-guided-toolbar">
-      <div class="mlp-run-controls" aria-label="MLP training controls">
+      <div class="mlp-run-controls" :aria-label="copy.runControls">
         <button type="button" class="mlp-icon-button" :title="copy.reset" :aria-label="copy.reset" @click="resetWith()">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4.5 8.5A8 8 0 1 1 4 15" />
@@ -604,7 +615,7 @@ onBeforeUnmount(stopPlayback)
         <em>{{ copy.testLoss }} {{ round(snapshot.testLoss, 3) }}</em>
       </div>
 
-      <div class="mlp-scenario-switch" :aria-label="copy.scenarios">
+      <div v-if="props.mode === 'explore'" class="mlp-scenario-switch" :aria-label="copy.scenarios">
         <button type="button" :class="{ 'is-active': activeDatasetKey === 'xor' }" @click="quickPreset('xor')">XOR</button>
         <button type="button" :class="{ 'is-active': activeDatasetKey === 'circle' }" @click="quickPreset('circle')">
           {{ copy.datasets.circle }}
@@ -615,7 +626,7 @@ onBeforeUnmount(stopPlayback)
       </div>
     </header>
 
-    <section v-if="guidedControls.size" class="mlp-guided-controls" aria-label="Guided controls">
+    <section v-if="props.mode === 'guided' && guidedControls.size" class="mlp-guided-controls" :aria-label="copy.guidedControls">
       <div v-if="showsGuidedControl('dataset')" class="mlp-guided-control mlp-guided-control--dataset">
         <span>{{ copy.data }}</span>
         <div class="mlp-dataset-list">
@@ -683,9 +694,9 @@ onBeforeUnmount(stopPlayback)
       </label>
     </section>
 
-    <p class="mlp-guided-evidence">
-      <span>{{ copy.evidence }}</span>
-      <strong>{{ localizedText(lessonFocus?.evidence) || focusText }}</strong>
+    <p class="mlp-guided-observation">
+      <span>{{ copy.observation }}</span>
+      <strong>{{ localizedText(lessonFocus?.observation) || focusText }}</strong>
     </p>
 
     <div class="mlp-guided-flow">

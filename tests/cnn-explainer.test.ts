@@ -1404,12 +1404,14 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
     algorithmViewSource,
     /<NeuralGuidedLesson\s+v-else-if="isCnnVisualizationPage"/,
   )
-  assert.match(algorithmViewSource, /<CnnExplainerLab :section="section" :mode="mode"/)
+  assert.match(algorithmViewSource, /<CnnExplainerLab :section="section" mode="guided"/)
   assert.match(algorithmViewSource, /route\.params\.lessonId/)
   assert.match(algorithmViewSource, /syncRouteChapterIntoView\(matchedChapter\.id\)/)
   assert.match(algorithmViewSource, /router\.replace\(`\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`\)/)
   assert.match(routerSource, /path: '\/learn\/cnn-visualization\/:chapterId'/)
   assert.match(routerSource, /name: 'cnn-visualization-chapter'/)
+  assert.match(routerSource, /path: '\/learn\/cnn-visualization\/explore'/)
+  assert.match(routerSource, /name: 'cnn-visualization-explorer'/)
 
   const cnnChapterIndex = routerSource.indexOf("path: '/learn/cnn-visualization/:chapterId'")
   const canonicalLessonIndex = routerSource.indexOf("path: '/learn/:moduleId/:lessonId'")
@@ -1435,7 +1437,9 @@ test('CNN guided focus config covers every chapter with bounded bilingual contro
 
   for (const config of cnnLessonFocusConfigs) {
     assert.ok(config.guidedControls.length <= 5)
-    assert.ok(config.evidence['zh-CN'])
-    assert.ok(config.evidence.en)
+    assert.equal(config.kind, 'cnn')
+    assert.ok(config.observation['zh-CN'])
+    assert.ok(config.observation.en)
+    assert.match(config.initialSampleId, /^sample-\d+$/)
   }
 })

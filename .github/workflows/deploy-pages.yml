@@ -43,12 +43,10 @@ jobs:
           ffprobe -version
 
       - name: Test
-        run: npm test
+        run: npm run test:ci
 
       - name: Build
-        run: npm run build
-        env:
-          VITE_BASE_PATH: /ML_tutorial_Site/
+        run: npm run build:pages
 
       - name: Add SPA fallbacks
         run: node scripts/create-pages-fallbacks.mjs

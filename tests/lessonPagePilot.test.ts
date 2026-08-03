@@ -70,7 +70,7 @@ test('AlgorithmView routes article pilots through LessonPage and MLP through its
   assert.match(algorithmViewSource, /<LessonPage\s+v-else-if="isLessonPagePilot"/)
   assert.match(algorithmViewSource, /activeLessonLab\?\.labId === 'ai-overview-task-lab'/)
   assert.match(algorithmViewSource, /activeLessonLab\?\.labId === 'gradient-chapter-lab'/)
-  assert.match(algorithmViewSource, /:mode="mode"/)
+  assert.match(algorithmViewSource, /mode="guided"/)
   assert.match(algorithmViewSource, /MlpPlaygroundCockpit/)
   assert.match(algorithmViewSource, /GradientChapterLab/)
   assert.match(algorithmViewSource, /AiOverviewLessonLab/)
