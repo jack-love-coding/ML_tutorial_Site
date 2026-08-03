@@ -56,7 +56,7 @@ const AiOverviewLessonLab = defineAsyncComponent(
 const AppliedWorkflowLessonLab = defineAsyncComponent(
   () => import('../components/AppliedWorkflowLessonLab.vue'),
 )
-const CnnExplainerLab = defineAsyncComponent(() => import('../components/CnnExplainerLab.vue'))
+const CnnGuidedLab = defineAsyncComponent(() => import('../components/cnn/CnnGuidedLab.vue'))
 const CnnShapeParameterChallengeLab = defineAsyncComponent(
   () => import('../components/CnnShapeParameterChallengeLab.vue'),
 )
@@ -537,7 +537,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       @change="onNeuralChapterChange"
     >
       <template #lab="{ section }">
-        <CnnExplainerLab :section="section" mode="guided" />
+        <CnnGuidedLab :section="section" />
         <CnnShapeParameterChallengeLab
           v-if="section.id === 'padding-stride-shape'"
           :accent="moduleDefinition.accent"

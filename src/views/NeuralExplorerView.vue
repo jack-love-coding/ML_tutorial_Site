@@ -8,7 +8,9 @@ import type { AlgorithmModuleDefinition, AppLocale, LocalizedCopy, ModuleSlug } 
 const MlpExplorerLab = defineAsyncComponent(
   () => import('../components/mlp/MlpExplorerLab.vue'),
 )
-const CnnExplainerLab = defineAsyncComponent(() => import('../components/CnnExplainerLab.vue'))
+const CnnExplorerLab = defineAsyncComponent(
+  () => import('../components/cnn/CnnExplorerLab.vue'),
+)
 
 const props = defineProps<{
   variant: Extract<ModuleSlug, 'mlp' | 'cnn-visualization'>
@@ -92,10 +94,9 @@ watch(
         :accent="moduleDefinition.accent"
         :section="activeSection"
       />
-      <CnnExplainerLab
+      <CnnExplorerLab
         v-else
         :section="activeSection"
-        mode="explore"
       />
     </section>
   </main>

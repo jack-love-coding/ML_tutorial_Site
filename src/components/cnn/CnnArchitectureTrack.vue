@@ -292,6 +292,7 @@ function stageParameterLabel(stage: SemanticStage) {
               <small>{{ stageParameterLabel(stage) }}</small>
             </div>
           </button>
+          <slot v-if="isSelected(stage)" name="mobile-detail" :stage="stage" />
           <i v-if="index < stages.length - 1" aria-hidden="true">→</i>
         </li>
       </ol>
