@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SCENE_FILE = ROOT / "scripts" / "manim" / "scenes" / "mlp_playground.py"
 PUBLIC_DIR = ROOT / "public" / "manim" / "mlp"
+PUBLISHED_MANIM_VERSION = "Manim Community v0.20.1"
 
 SCENES = {
     "AffineActivationScene": "affine-activation.mp4",
@@ -294,6 +295,12 @@ def manim_version() -> str:
 
 
 def write_metadata() -> None:
+    installed_version = manim_version()
+    if installed_version != PUBLISHED_MANIM_VERSION:
+        raise ValueError(
+            f"Rendering requires {PUBLISHED_MANIM_VERSION}; found {installed_version}"
+        )
+
     scenes = []
     for scene, filename in SCENES.items():
         asset = PUBLIC_DIR / filename
@@ -313,7 +320,7 @@ def write_metadata() -> None:
     metadata = {
         "metadataVersion": 2,
         "generatedBy": "scripts/manim/render_mlp.py",
-        "manimVersion": manim_version(),
+        "manimVersion": installed_version,
         "scenes": scenes,
     }
     (PUBLIC_DIR / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf8")
@@ -335,8 +342,10 @@ def check_assets() -> None:
         raise ValueError("MLP metadataVersion must be 2")
     if metadata.get("generatedBy") != "scripts/manim/render_mlp.py":
         raise ValueError("MLP metadata generatedBy drifted")
-    if metadata.get("manimVersion") != manim_version():
-        raise ValueError("Installed Manim version does not match published metadata")
+    if metadata.get("manimVersion") != PUBLISHED_MANIM_VERSION:
+        raise ValueError("Published Manim version drifted from the pinned renderer version")
+    if shutil.which("manim") and manim_version() != PUBLISHED_MANIM_VERSION:
+        raise ValueError("Installed Manim version does not match the pinned renderer version")
 
     published = {entry.get("scene"): entry for entry in metadata.get("scenes", [])}
     if set(published) != set(SCENES):

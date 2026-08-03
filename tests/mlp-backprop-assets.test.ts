@@ -59,6 +59,8 @@ test('Manim scene follows the reverse knowledge tree and selective publish rende
   assert.match(renderer, /--scene/)
   assert.match(renderer, /--quality/)
   assert.match(renderer, /--check/)
+  assert.match(renderer, /PUBLISHED_MANIM_VERSION = "Manim Community v0\.20\.1"/)
+  assert.match(renderer, /if shutil\.which\("manim"\)/)
   assert.match(renderer, /1920,1080/)
   assert.match(prompt, /Function composition → local derivative/)
   assert.equal(tree.visualContract.durationSeconds, 172.2)
