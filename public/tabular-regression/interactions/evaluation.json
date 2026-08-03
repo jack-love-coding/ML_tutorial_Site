@@ -1,0 +1,55 @@
+{
+  "baseline": {
+    "alpha": "none",
+    "mae": 0.5400288934706889,
+    "model": "LinearRegression",
+    "r2": 0.6002268720706481,
+    "rmse": 0.7313909507247379
+  },
+  "bestRidgeAlpha": 0.01,
+  "chapterId": "evaluation",
+  "kind": "ridge-selection",
+  "relativeImprovement": -7.232065761393108e-08,
+  "ridgePath": [
+    {
+      "alpha": 0.01,
+      "mae": 0.5400288739496428,
+      "model": "Ridge",
+      "r2": 0.6002268142469349,
+      "rmse": 0.7313910036194124
+    },
+    {
+      "alpha": 0.1,
+      "mae": 0.540028706623426,
+      "model": "Ridge",
+      "r2": 0.6002262928485729,
+      "rmse": 0.7313914805722955
+    },
+    {
+      "alpha": 1.0,
+      "mae": 0.5400273100741043,
+      "model": "Ridge",
+      "r2": 0.6002209815963793,
+      "rmse": 0.7313963390605274
+    },
+    {
+      "alpha": 10.0,
+      "mae": 0.5400228981914375,
+      "model": "Ridge",
+      "r2": 0.60015837793431,
+      "rmse": 0.7314536035675773
+    },
+    {
+      "alpha": 100.0,
+      "mae": 0.5406207587707783,
+      "model": "Ridge",
+      "r2": 0.5987783533401798,
+      "rmse": 0.7327147960223215
+    }
+  ],
+  "selectedAlpha": null,
+  "selectedModel": "LinearRegression",
+  "selectionThreshold": 0.01,
+  "sourceCellId": "ridge-validation-selection",
+  "testLocked": true
+}

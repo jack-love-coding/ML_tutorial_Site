@@ -112,6 +112,11 @@
 4. The project reports metrics, residual plots, named failure examples, formula-to-code connections, and limitations using page-visible reference results.
 5. The existing `housing-price-project` identity remains reachable while dataset, Notebook, outputs, and relevant figures are downloadable through base-safe local paths.
 
+**Plans:** 1/2 plans complete
+
+- [x] 28-01-PLAN.md — Frozen dataset, executed Notebooks, figures, interaction payloads, and numerical verification
+- [ ] 28-02-PLAN.md — Six-chapter paged teaching flow, real-result interactions, routing, and release validation
+
 ## Phase 29: Logistic Regression Rebuild
 
 **Goal:** Rebuild `logistic-regression` so learners can trace linear scores through sigmoid probabilities, likelihood, stable BCE, scratch gradients, library parity, calibration, and linear-boundary failure.
@@ -166,8 +171,8 @@
 | --- | --- | --- | --- |
 | 26. Loss Functions Rebuild | 7/7 | Complete    | 2026-07-28 |
 | 27. Linear Regression Rebuild | 12/12 | Complete    | 2026-07-30 |
-| 27A. Linear Regression Teaching Experience Redesign | v1.1 | 4 | In progress |
-| 28. Tabular Regression Project | v1.1 | 5 | Not started |
+| 27A. Linear Regression Teaching Experience Redesign | v1.1 | 4 | Complete — 2026-08-01 |
+| 28. Tabular Regression Project | v1.1 | 5 | In progress |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |
 | 31. Corridor Integration and Release | v1.1 | 5 | Not started |

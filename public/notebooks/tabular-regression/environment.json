@@ -1,0 +1,18 @@
+{
+  "contractVersion": "tabular-regression-california-v1",
+  "execution": {
+    "cleanKernel": true,
+    "finiteJsonOnly": true,
+    "networkAccess": false
+  },
+  "packages": {
+    "ipykernel": "7.3.0",
+    "matplotlib": "3.10.9",
+    "nbclient": "0.11.0",
+    "nbformat": "5.10.4",
+    "numpy": "2.4.6",
+    "pandas": "3.0.3",
+    "scikit-learn": "1.9.0"
+  },
+  "python": "3.12.13"
+}

@@ -1,0 +1,66 @@
+{
+  "contractVersion": "tabular-regression-california-v1",
+  "dataset": {
+    "features": [
+      "MedInc",
+      "HouseAge",
+      "AveRooms",
+      "AveBedrms",
+      "Population",
+      "AveOccup",
+      "Latitude",
+      "Longitude"
+    ],
+    "missingValues": 0,
+    "name": "California Housing",
+    "rowMeaning": "1990 California census block group",
+    "rows": 20640,
+    "target": "MedHouseVal",
+    "targetMeaning": "median block-group house value",
+    "targetUnit": "$100,000"
+  },
+  "file": {
+    "bytes": 1752407,
+    "columns": 11,
+    "publicPath": "/datasets/tabular-regression/california-housing.csv",
+    "rows": 20640,
+    "sha256": "4f1001946276d792fe9935184d13296c87392aa66be32f9d26b08e623a35f0d5"
+  },
+  "source": {
+    "archiveFile": "houses.zip/cadata.txt",
+    "archiveSha256": "8b18f0a01cf9c99a65174d18fa582aa31971dfe55a26ad794f3299937c3708d7",
+    "authors": "R. Kelley Pace and Ronald Barry",
+    "licenseScopeNote": "The scikit-learn loader code is BSD-3-Clause. That software license is not asserted as the dataset license; the data are derived from the 1990 U.S. Census and distributed by StatLib.",
+    "paper": "Sparse Spatial Autoregressions, Statistics and Probability Letters 33 (1997) 291-297",
+    "retrievedAt": "2026-08-04",
+    "url": "https://lib.stat.cmu.edu/datasets/houses.zip"
+  },
+  "split": {
+    "algorithm": "numpy.random.default_rng(42).permutation",
+    "counts": {
+      "test": 4128,
+      "train": 12384,
+      "validation": 4128
+    }
+  },
+  "transformation": {
+    "featureOrder": [
+      "MedInc",
+      "HouseAge",
+      "AveRooms",
+      "AveBedrms",
+      "Population",
+      "AveOccup",
+      "Latitude",
+      "Longitude"
+    ],
+    "missingValueImputation": false,
+    "outlierRemoval": false,
+    "ratioFeatures": {
+      "AveBedrms": "total bedrooms / households",
+      "AveOccup": "population / households",
+      "AveRooms": "total rooms / households"
+    },
+    "targetScale": "median house value / 100000"
+  }
+}

@@ -1,0 +1,3771 @@
+{
+  "chapterId": "eda-first-pass",
+  "kind": "training-eda",
+  "relations": {
+    "AveBedrms": [
+      {
+        "count": 688,
+        "x": 0.8986168148792151,
+        "y": 2.0778638662790696
+      },
+      {
+        "count": 688,
+        "x": 0.9582386921247092,
+        "y": 2.1318914098837207
+      },
+      {
+        "count": 689,
+        "x": 0.9791814106814224,
+        "y": 2.1626913933236573
+      },
+      {
+        "count": 712,
+        "x": 0.9948649077599718,
+        "y": 2.1946184269662923
+      },
+      {
+        "count": 663,
+        "x": 1.0066533468039216,
+        "y": 2.2430864253393668
+      },
+      {
+        "count": 688,
+        "x": 1.016422359752907,
+        "y": 2.1667272093023255
+      },
+      {
+        "count": 689,
+        "x": 1.0262062393817126,
+        "y": 2.203755123367199
+      },
+      {
+        "count": 687,
+        "x": 1.035663146874818,
+        "y": 2.2072391994177583
+      },
+      {
+        "count": 689,
+        "x": 1.044666570137881,
+        "y": 2.1289801886792454
+      },
+      {
+        "count": 687,
+        "x": 1.053793287790393,
+        "y": 2.1348897234352253
+      },
+      {
+        "count": 688,
+        "x": 1.0631142688255815,
+        "y": 2.0662199418604654
+      },
+      {
+        "count": 688,
+        "x": 1.074137191042151,
+        "y": 2.1063914244186046
+      },
+      {
+        "count": 688,
+        "x": 1.0861182320581395,
+        "y": 2.144403183139535
+      },
+      {
+        "count": 688,
+        "x": 1.1001744161293605,
+        "y": 1.995833226744186
+      },
+      {
+        "count": 688,
+        "x": 1.118876191949128,
+        "y": 1.9361021947674417
+      },
+      {
+        "count": 688,
+        "x": 1.1456535189956396,
+        "y": 1.7866457412790697
+      },
+      {
+        "count": 688,
+        "x": 1.1983148739665697,
+        "y": 1.8861576453488371
+      },
+      {
+        "count": 688,
+        "x": 1.946748278889535,
+        "y": 1.6438840116279068
+      }
+    ],
+    "AveOccup": [
+      {
+        "count": 688,
+        "x": 1.7005000136094477,
+        "y": 2.7142149273255813
+      },
+      {
+        "count": 688,
+        "x": 2.0188373143866283,
+        "y": 2.549278430232558
+      },
+      {
+        "count": 688,
+        "x": 2.2042846192790697,
+        "y": 2.363121191860465
+      },
+      {
+        "count": 688,
+        "x": 2.3332110922732556,
+        "y": 2.2687970494186045
+      },
+      {
+        "count": 688,
+        "x": 2.4370752835566862,
+        "y": 2.2616663372093027
+      },
+      {
+        "count": 688,
+        "x": 2.5287401249927326,
+        "y": 2.2385907412790695
+      },
+      {
+        "count": 688,
+        "x": 2.6182316116395348,
+        "y": 2.2132680523255814
+      },
+      {
+        "count": 688,
+        "x": 2.7028225416235467,
+        "y": 2.105065886627907
+      },
+      {
+        "count": 688,
+        "x": 2.7867757569418603,
+        "y": 2.134067398255814
+      },
+      {
+        "count": 688,
+        "x": 2.8701354349680233,
+        "y": 2.117432180232558
+      },
+      {
+        "count": 688,
+        "x": 2.9619509672049418,
+        "y": 2.0517925436046514
+      },
+      {
+        "count": 689,
+        "x": 3.0575827988142237,
+        "y": 2.0225547750362844
+      },
+      {
+        "count": 687,
+        "x": 3.162514384231441,
+        "y": 1.9318168558951965
+      },
+      {
+        "count": 688,
+        "x": 3.2898619827136626,
+        "y": 1.8906267005813953
+      },
+      {
+        "count": 688,
+        "x": 3.4553196938779074,
+        "y": 1.803107747093023
+      },
+      {
+        "count": 688,
+        "x": 3.681902466101744,
+        "y": 1.6061744912790699
+      },
+      {
+        "count": 688,
+        "x": 4.052136043835755,
+        "y": 1.4874971366279068
+      },
+      {
+        "count": 688,
+        "x": 7.467850096393896,
+        "y": 1.4563547529069767
+      }
+    ],
+    "AveRooms": [
+      {
+        "count": 688,
+        "x": 2.969971593969477,
+        "y": 1.87993625
+      },
+      {
+        "count": 688,
+        "x": 3.678325310101744,
+        "y": 1.8396512936046512
+      },
+      {
+        "count": 688,
+        "x": 3.980455785888082,
+        "y": 1.7956368313953488
+      },
+      {
+        "count": 688,
+        "x": 4.23510594585029,
+        "y": 1.8225713517441862
+      },
+      {
+        "count": 688,
+        "x": 4.444367368672965,
+        "y": 1.7251643604651163
+      },
+      {
+        "count": 688,
+        "x": 4.634246097776162,
+        "y": 1.7968897238372092
+      },
+      {
+        "count": 688,
+        "x": 4.814471706643896,
+        "y": 1.7816746656976743
+      },
+      {
+        "count": 688,
+        "x": 4.982509267694767,
+        "y": 1.7644885029069768
+      },
+      {
+        "count": 688,
+        "x": 5.143269040681686,
+        "y": 1.8002357122093022
+      },
+      {
+        "count": 688,
+        "x": 5.313154389280523,
+        "y": 1.8324899563953487
+      },
+      {
+        "count": 688,
+        "x": 5.474126303722384,
+        "y": 1.9009624709302326
+      },
+      {
+        "count": 688,
+        "x": 5.649555329402617,
+        "y": 1.9577269912790698
+      },
+      {
+        "count": 688,
+        "x": 5.837617737607558,
+        "y": 1.9698708720930234
+      },
+      {
+        "count": 688,
+        "x": 6.04837971344622,
+        "y": 2.1747009447674417
+      },
+      {
+        "count": 688,
+        "x": 6.288211666625,
+        "y": 2.3253491424418606
+      },
+      {
+        "count": 688,
+        "x": 6.618251399171513,
+        "y": 2.6292304941860465
+      },
+      {
+        "count": 688,
+        "x": 7.133605055247093,
+        "y": 3.0110349854651166
+      },
+      {
+        "count": 688,
+        "x": 10.311128763936047,
+        "y": 3.2079445348837208
+      }
+    ],
+    "HouseAge": [
+      {
+        "count": 775,
+        "x": 6.0929032258064515,
+        "y": 2.0359577161290323
+      },
+      {
+        "count": 645,
+        "x": 11.564341085271318,
+        "y": 1.8530126356589147
+      },
+      {
+        "count": 1006,
+        "x": 15.204771371769384,
+        "y": 1.927781491053678
+      },
+      {
+        "count": 404,
+        "x": 17.0,
+        "y": 1.938275
+      },
+      {
+        "count": 646,
+        "x": 18.470588235294116,
+        "y": 1.9917464396284832
+      },
+      {
+        "count": 794,
+        "x": 20.95969773299748,
+        "y": 2.0110797229219144
+      },
+      {
+        "count": 546,
+        "x": 23.525641025641026,
+        "y": 1.9830461721611723
+      },
+      {
+        "count": 703,
+        "x": 25.532005689900426,
+        "y": 2.189602105263158
+      },
+      {
+        "count": 861,
+        "x": 28.012775842044135,
+        "y": 2.0474360162601624
+      },
+      {
+        "count": 551,
+        "x": 30.500907441016334,
+        "y": 2.0014124319419238
+      },
+      {
+        "count": 720,
+        "x": 32.513888888888886,
+        "y": 1.990456
+      },
+      {
+        "count": 922,
+        "x": 34.544468546637745,
+        "y": 2.0919548698481565
+      },
+      {
+        "count": 508,
+        "x": 36.0,
+        "y": 2.0404197047244095
+      },
+      {
+        "count": 767,
+        "x": 37.898305084745765,
+        "y": 2.004772281616688
+      },
+      {
+        "count": 587,
+        "x": 41.07325383304941,
+        "y": 1.9992970357751279
+      },
+      {
+        "count": 612,
+        "x": 43.94444444444444,
+        "y": 2.1361949673202614
+      },
+      {
+        "count": 1337,
+        "x": 50.223635003739716,
+        "y": 2.4836727000747945
+      }
+    ],
+    "Latitude": [
+      {
+        "count": 693,
+        "x": 32.74349206349206,
+        "y": 1.7862787445887447
+      },
+      {
+        "count": 700,
+        "x": 33.3847,
+        "y": 2.533066428571429
+      },
+      {
+        "count": 750,
+        "x": 33.771946666666665,
+        "y": 2.300257853333333
+      },
+      {
+        "count": 669,
+        "x": 33.867174887892375,
+        "y": 2.2865399252615846
+      },
+      {
+        "count": 690,
+        "x": 33.94002898550725,
+        "y": 1.7331132173913042
+      },
+      {
+        "count": 753,
+        "x": 34.013094289508636,
+        "y": 2.0906471978751657
+      },
+      {
+        "count": 589,
+        "x": 34.064346349745335,
+        "y": 2.332391731748727
+      },
+      {
+        "count": 699,
+        "x": 34.117725321888415,
+        "y": 2.36475330472103
+      },
+      {
+        "count": 652,
+        "x": 34.19665644171779,
+        "y": 2.516166119631902
+      },
+      {
+        "count": 693,
+        "x": 34.604415584415584,
+        "y": 1.9908718181818181
+      },
+      {
+        "count": 684,
+        "x": 36.21133040935673,
+        "y": 1.0778055994152047
+      },
+      {
+        "count": 712,
+        "x": 37.09700842696629,
+        "y": 2.2033332443820224
+      },
+      {
+        "count": 675,
+        "x": 37.45672592592593,
+        "y": 2.943300696296296
+      },
+      {
+        "count": 725,
+        "x": 37.71173793103448,
+        "y": 2.289633255172414
+      },
+      {
+        "count": 637,
+        "x": 37.845007849293566,
+        "y": 2.6347907849293564
+      },
+      {
+        "count": 692,
+        "x": 38.10367052023122,
+        "y": 1.672291994219653
+      },
+      {
+        "count": 684,
+        "x": 38.58998538011696,
+        "y": 1.5095540935672516
+      },
+      {
+        "count": 687,
+        "x": 39.788122270742356,
+        "y": 1.0196360698689955
+      }
+    ],
+    "Longitude": [
+      {
+        "count": 709,
+        "x": -122.84767277856136,
+        "y": 2.294546389280677
+      },
+      {
+        "count": 693,
+        "x": -122.34797979797979,
+        "y": 2.5573587734487733
+      },
+      {
+        "count": 694,
+        "x": -122.1628818443804,
+        "y": 2.436683991354467
+      },
+      {
+        "count": 661,
+        "x": -121.9869288956127,
+        "y": 2.6509218154311647
+      },
+      {
+        "count": 692,
+        "x": -121.75819364161849,
+        "y": 1.9783253323699423
+      },
+      {
+        "count": 685,
+        "x": -121.35211678832117,
+        "y": 1.2732715328467155
+      },
+      {
+        "count": 682,
+        "x": -120.76803519061583,
+        "y": 1.397318181818182
+      },
+      {
+        "count": 688,
+        "x": -119.72498546511628,
+        "y": 1.2957225726744186
+      },
+      {
+        "count": 708,
+        "x": -118.86992937853108,
+        "y": 2.177027669491525
+      },
+      {
+        "count": 688,
+        "x": -118.4174273255814,
+        "y": 3.2338812209302326
+      },
+      {
+        "count": 671,
+        "x": -118.322086438152,
+        "y": 2.333232965722802
+      },
+      {
+        "count": 744,
+        "x": -118.23557795698925,
+        "y": 1.6981574193548388
+      },
+      {
+        "count": 644,
+        "x": -118.13576086956523,
+        "y": 2.178812391304348
+      },
+      {
+        "count": 674,
+        "x": -118.01213649851631,
+        "y": 2.2571603709198813
+      },
+      {
+        "count": 693,
+        "x": -117.86849927849927,
+        "y": 2.395498427128427
+      },
+      {
+        "count": 683,
+        "x": -117.52358711566617,
+        "y": 1.750574128843338
+      },
+      {
+        "count": 690,
+        "x": -117.19207246376811,
+        "y": 1.9131365652173913
+      },
+      {
+        "count": 685,
+        "x": -116.70271532846715,
+        "y": 1.431738700729927
+      }
+    ],
+    "MedInc": [
+      {
+        "count": 690,
+        "x": 1.3142066666666667,
+        "y": 1.075775391304348
+      },
+      {
+        "count": 690,
+        "x": 1.789801304347826,
+        "y": 1.1363478550724637
+      },
+      {
+        "count": 684,
+        "x": 2.09084649122807,
+        "y": 1.2373318859649123
+      },
+      {
+        "count": 688,
+        "x": 2.322637354651163,
+        "y": 1.3777674854651163
+      },
+      {
+        "count": 688,
+        "x": 2.557222819767442,
+        "y": 1.4682849273255814
+      },
+      {
+        "count": 688,
+        "x": 2.7644390988372094,
+        "y": 1.5833910319767441
+      },
+      {
+        "count": 688,
+        "x": 2.9960527616279067,
+        "y": 1.667681715116279
+      },
+      {
+        "count": 688,
+        "x": 3.1883787790697675,
+        "y": 1.8286643750000002
+      },
+      {
+        "count": 691,
+        "x": 3.4109764109985528,
+        "y": 1.8647251808972505
+      },
+      {
+        "count": 685,
+        "x": 3.633277226277372,
+        "y": 1.981170919708029
+      },
+      {
+        "count": 690,
+        "x": 3.8748944927536235,
+        "y": 2.040969768115942
+      },
+      {
+        "count": 686,
+        "x": 4.118996793002916,
+        "y": 2.202341413994169
+      },
+      {
+        "count": 688,
+        "x": 4.39272921511628,
+        "y": 2.3077473691860466
+      },
+      {
+        "count": 691,
+        "x": 4.736914616497829,
+        "y": 2.411469175108538
+      },
+      {
+        "count": 685,
+        "x": 5.142490802919708,
+        "y": 2.5951697372262776
+      },
+      {
+        "count": 688,
+        "x": 5.654925581395349,
+        "y": 2.827610872093023
+      },
+      {
+        "count": 688,
+        "x": 6.444775145348837,
+        "y": 3.3073397093023256
+      },
+      {
+        "count": 688,
+        "x": 9.056319186046512,
+        "y": 4.304311351744186
+      }
+    ],
+    "Population": [
+      {
+        "count": 689,
+        "x": 216.59361393323658,
+        "y": 1.9719919738751814
+      },
+      {
+        "count": 693,
+        "x": 462.2972582972583,
+        "y": 2.182683261183261
+      },
+      {
+        "count": 683,
+        "x": 598.376281112738,
+        "y": 2.224072606149341
+      },
+      {
+        "count": 695,
+        "x": 701.5395683453237,
+        "y": 2.1130553381294965
+      },
+      {
+        "count": 687,
+        "x": 788.4759825327511,
+        "y": 2.163390655021834
+      },
+      {
+        "count": 682,
+        "x": 867.6642228739003,
+        "y": 2.138088548387097
+      },
+      {
+        "count": 695,
+        "x": 952.8474820143884,
+        "y": 2.0858623741007194
+      },
+      {
+        "count": 681,
+        "x": 1038.747430249633,
+        "y": 2.078230954478708
+      },
+      {
+        "count": 690,
+        "x": 1128.7289855072463,
+        "y": 2.0915569855072467
+      },
+      {
+        "count": 690,
+        "x": 1222.131884057971,
+        "y": 2.040996072463768
+      },
+      {
+        "count": 687,
+        "x": 1327.9708879184861,
+        "y": 1.9956335662299856
+      },
+      {
+        "count": 689,
+        "x": 1445.4426705370101,
+        "y": 2.016660725689405
+      },
+      {
+        "count": 686,
+        "x": 1581.030612244898,
+        "y": 2.0556461953352767
+      },
+      {
+        "count": 688,
+        "x": 1745.7703488372092,
+        "y": 2.0118534156976744
+      },
+      {
+        "count": 685,
+        "x": 1946.8350364963503,
+        "y": 1.9724659562043794
+      },
+      {
+        "count": 688,
+        "x": 2242.8473837209303,
+        "y": 2.002721148255814
+      },
+      {
+        "count": 688,
+        "x": 2781.0072674418607,
+        "y": 2.0333709156976743
+      },
+      {
+        "count": 688,
+        "x": 4730.495639534884,
+        "y": 2.037459534883721
+      }
+    ]
+  },
+  "scatter": [
+    {
+      "Latitude": 37.97,
+      "Longitude": -122.04,
+      "MedHouseVal": 1.609,
+      "MedInc": 2.9861,
+      "row_id": "ca-01475"
+    },
+    {
+      "Latitude": 33.82,
+      "Longitude": -118.0,
+      "MedHouseVal": 2.047,
+      "MedInc": 3.2326,
+      "row_id": "ca-11159"
+    },
+    {
+      "Latitude": 37.42,
+      "Longitude": -122.09,
+      "MedHouseVal": 2.298,
+      "MedInc": 3.8003,
+      "row_id": "ca-18232"
+    },
+    {
+      "Latitude": 38.0,
+      "Longitude": -122.04,
+      "MedHouseVal": 0.911,
+      "MedInc": 3.2484,
+      "row_id": "ca-01417"
+    },
+    {
+      "Latitude": 34.04,
+      "Longitude": -118.36,
+      "MedHouseVal": 1.258,
+      "MedInc": 2.0538,
+      "row_id": "ca-04769"
+    },
+    {
+      "Latitude": 35.4,
+      "Longitude": -119.01,
+      "MedHouseVal": 0.446,
+      "MedInc": 1.7109,
+      "row_id": "ca-02831"
+    },
+    {
+      "Latitude": 37.92,
+      "Longitude": -122.53,
+      "MedHouseVal": 4.105,
+      "MedInc": 5.5379,
+      "row_id": "ca-09372"
+    },
+    {
+      "Latitude": 37.91,
+      "Longitude": -122.31,
+      "MedHouseVal": 2.181,
+      "MedInc": 2.7243,
+      "row_id": "ca-01833"
+    },
+    {
+      "Latitude": 33.78,
+      "Longitude": -118.05,
+      "MedHouseVal": 3.909,
+      "MedInc": 8.7015,
+      "row_id": "ca-11609"
+    },
+    {
+      "Latitude": 37.74,
+      "Longitude": -122.41,
+      "MedHouseVal": 2.552,
+      "MedInc": 4.7031,
+      "row_id": "ca-15902"
+    },
+    {
+      "Latitude": 38.61,
+      "Longitude": -120.66,
+      "MedHouseVal": 1.264,
+      "MedInc": 2.5042,
+      "row_id": "ca-01975"
+    },
+    {
+      "Latitude": 33.53,
+      "Longitude": -117.72,
+      "MedHouseVal": 2.513,
+      "MedInc": 5.1129,
+      "row_id": "ca-10470"
+    },
+    {
+      "Latitude": 34.26,
+      "Longitude": -119.25,
+      "MedHouseVal": 2.149,
+      "MedInc": 2.67,
+      "row_id": "ca-20244"
+    },
+    {
+      "Latitude": 34.15,
+      "Longitude": -118.04,
+      "MedHouseVal": 3.772,
+      "MedInc": 3.3621,
+      "row_id": "ca-06399"
+    },
+    {
+      "Latitude": 33.96,
+      "Longitude": -117.5,
+      "MedHouseVal": 1.392,
+      "MedInc": 4.2985,
+      "row_id": "ca-12023"
+    },
+    {
+      "Latitude": 32.97,
+      "Longitude": -116.67,
+      "MedHouseVal": 1.938,
+      "MedInc": 5.359,
+      "row_id": "ca-15590"
+    },
+    {
+      "Latitude": 38.62,
+      "Longitude": -121.32,
+      "MedHouseVal": 1.483,
+      "MedInc": 2.6897,
+      "row_id": "ca-12914"
+    },
+    {
+      "Latitude": 34.16,
+      "Longitude": -118.67,
+      "MedHouseVal": 5.00001,
+      "MedInc": 9.1228,
+      "row_id": "ca-09014"
+    },
+    {
+      "Latitude": 33.93,
+      "Longitude": -118.1,
+      "MedHouseVal": 1.668,
+      "MedInc": 3.1397,
+      "row_id": "ca-07683"
+    },
+    {
+      "Latitude": 33.88,
+      "Longitude": -118.01,
+      "MedHouseVal": 2.696,
+      "MedInc": 3.369,
+      "row_id": "ca-11686"
+    },
+    {
+      "Latitude": 33.75,
+      "Longitude": -117.31,
+      "MedHouseVal": 1.292,
+      "MedInc": 2.1484,
+      "row_id": "ca-12181"
+    },
+    {
+      "Latitude": 32.75,
+      "Longitude": -117.09,
+      "MedHouseVal": 1.177,
+      "MedInc": 1.6318,
+      "row_id": "ca-14143"
+    },
+    {
+      "Latitude": 33.93,
+      "Longitude": -118.34,
+      "MedHouseVal": 1.557,
+      "MedInc": 2.2976,
+      "row_id": "ca-08420"
+    },
+    {
+      "Latitude": 34.03,
+      "Longitude": -118.45,
+      "MedHouseVal": 3.539,
+      "MedInc": 4.0231,
+      "row_id": "ca-05409"
+    },
+    {
+      "Latitude": 33.06,
+      "Longitude": -116.6,
+      "MedHouseVal": 1.729,
+      "MedInc": 2.7813,
+      "row_id": "ca-15585"
+    },
+    {
+      "Latitude": 34.05,
+      "Longitude": -118.19,
+      "MedHouseVal": 1.192,
+      "MedInc": 1.9083,
+      "row_id": "ca-07174"
+    },
+    {
+      "Latitude": 33.92,
+      "Longitude": -117.97,
+      "MedHouseVal": 2.514,
+      "MedInc": 3.0,
+      "row_id": "ca-10104"
+    },
+    {
+      "Latitude": 32.74,
+      "Longitude": -117.14,
+      "MedHouseVal": 1.781,
+      "MedInc": 2.5553,
+      "row_id": "ca-14036"
+    },
+    {
+      "Latitude": 37.48,
+      "Longitude": -122.2,
+      "MedHouseVal": 2.7,
+      "MedInc": 1.9844,
+      "row_id": "ca-17077"
+    },
+    {
+      "Latitude": 33.73,
+      "Longitude": -116.22,
+      "MedHouseVal": 0.685,
+      "MedInc": 2.1217,
+      "row_id": "ca-12417"
+    },
+    {
+      "Latitude": 37.29,
+      "Longitude": -121.97,
+      "MedHouseVal": 3.003,
+      "MedInc": 5.3294,
+      "row_id": "ca-18009"
+    },
+    {
+      "Latitude": 36.84,
+      "Longitude": -121.37,
+      "MedHouseVal": 2.43,
+      "MedInc": 3.5714,
+      "row_id": "ca-13166"
+    },
+    {
+      "Latitude": 37.71,
+      "Longitude": -122.45,
+      "MedHouseVal": 2.337,
+      "MedInc": 4.5417,
+      "row_id": "ca-16744"
+    },
+    {
+      "Latitude": 34.11,
+      "Longitude": -117.81,
+      "MedHouseVal": 1.504,
+      "MedInc": 3.6201,
+      "row_id": "ca-05967"
+    },
+    {
+      "Latitude": 38.59,
+      "Longitude": -121.38,
+      "MedHouseVal": 1.894,
+      "MedInc": 4.5313,
+      "row_id": "ca-12724"
+    },
+    {
+      "Latitude": 37.38,
+      "Longitude": -122.08,
+      "MedHouseVal": 3.839,
+      "MedInc": 6.828,
+      "row_id": "ca-18261"
+    },
+    {
+      "Latitude": 34.09,
+      "Longitude": -118.27,
+      "MedHouseVal": 2.523,
+      "MedInc": 3.7847,
+      "row_id": "ca-04381"
+    },
+    {
+      "Latitude": 37.78,
+      "Longitude": -122.42,
+      "MedHouseVal": 0.725,
+      "MedInc": 1.8438,
+      "row_id": "ca-15739"
+    },
+    {
+      "Latitude": 33.96,
+      "Longitude": -118.41,
+      "MedHouseVal": 2.667,
+      "MedInc": 3.9792,
+      "row_id": "ca-05556"
+    },
+    {
+      "Latitude": 34.27,
+      "Longitude": -119.25,
+      "MedHouseVal": 2.19,
+      "MedInc": 4.7727,
+      "row_id": "ca-20245"
+    },
+    {
+      "Latitude": 37.33,
+      "Longitude": -120.74,
+      "MedHouseVal": 0.813,
+      "MedInc": 2.1484,
+      "row_id": "ca-09542"
+    },
+    {
+      "Latitude": 34.19,
+      "Longitude": -118.4,
+      "MedHouseVal": 1.813,
+      "MedInc": 3.625,
+      "row_id": "ca-03713"
+    },
+    {
+      "Latitude": 37.6,
+      "Longitude": -122.37,
+      "MedHouseVal": 3.5,
+      "MedInc": 5.048,
+      "row_id": "ca-16889"
+    },
+    {
+      "Latitude": 33.9,
+      "Longitude": -118.23,
+      "MedHouseVal": 0.888,
+      "MedInc": 2.4706,
+      "row_id": "ca-07589"
+    },
+    {
+      "Latitude": 37.94,
+      "Longitude": -121.28,
+      "MedHouseVal": 0.527,
+      "MedInc": 1.7039,
+      "row_id": "ca-16204"
+    },
+    {
+      "Latitude": 38.41,
+      "Longitude": -120.54,
+      "MedHouseVal": 0.774,
+      "MedInc": 2.5667,
+      "row_id": "ca-01228"
+    },
+    {
+      "Latitude": 34.42,
+      "Longitude": -119.72,
+      "MedHouseVal": 2.647,
+      "MedInc": 3.5905,
+      "row_id": "ca-17259"
+    },
+    {
+      "Latitude": 34.72,
+      "Longitude": -118.14,
+      "MedHouseVal": 1.181,
+      "MedInc": 4.625,
+      "row_id": "ca-09067"
+    },
+    {
+      "Latitude": 37.49,
+      "Longitude": -122.28,
+      "MedHouseVal": 4.572,
+      "MedInc": 6.912,
+      "row_id": "ca-17045"
+    },
+    {
+      "Latitude": 38.64,
+      "Longitude": -121.39,
+      "MedHouseVal": 0.993,
+      "MedInc": 3.6937,
+      "row_id": "ca-12881"
+    },
+    {
+      "Latitude": 32.74,
+      "Longitude": -116.98,
+      "MedHouseVal": 1.623,
+      "MedInc": 5.1098,
+      "row_id": "ca-14946"
+    },
+    {
+      "Latitude": 38.77,
+      "Longitude": -121.14,
+      "MedHouseVal": 2.878,
+      "MedInc": 6.4789,
+      "row_id": "ca-11746"
+    },
+    {
+      "Latitude": 35.63,
+      "Longitude": -120.67,
+      "MedHouseVal": 2.567,
+      "MedInc": 4.2841,
+      "row_id": "ca-16606"
+    },
+    {
+      "Latitude": 34.07,
+      "Longitude": -117.65,
+      "MedHouseVal": 1.132,
+      "MedInc": 1.4464,
+      "row_id": "ca-13314"
+    },
+    {
+      "Latitude": 37.3,
+      "Longitude": -121.81,
+      "MedHouseVal": 2.356,
+      "MedInc": 5.5248,
+      "row_id": "ca-17736"
+    },
+    {
+      "Latitude": 32.64,
+      "Longitude": -117.07,
+      "MedHouseVal": 1.504,
+      "MedInc": 4.6477,
+      "row_id": "ca-14879"
+    },
+    {
+      "Latitude": 37.32,
+      "Longitude": -121.8,
+      "MedHouseVal": 2.242,
+      "MedInc": 5.6817,
+      "row_id": "ca-17726"
+    },
+    {
+      "Latitude": 33.84,
+      "Longitude": -118.22,
+      "MedHouseVal": 1.683,
+      "MedInc": 4.0219,
+      "row_id": "ca-07660"
+    },
+    {
+      "Latitude": 34.05,
+      "Longitude": -118.28,
+      "MedHouseVal": 2.75,
+      "MedInc": 1.4615,
+      "row_id": "ca-04595"
+    },
+    {
+      "Latitude": 38.45,
+      "Longitude": -122.7,
+      "MedHouseVal": 2.333,
+      "MedInc": 1.125,
+      "row_id": "ca-19215"
+    },
+    {
+      "Latitude": 37.92,
+      "Longitude": -122.52,
+      "MedHouseVal": 3.178,
+      "MedInc": 5.8509,
+      "row_id": "ca-09375"
+    },
+    {
+      "Latitude": 38.35,
+      "Longitude": -122.7,
+      "MedHouseVal": 2.578,
+      "MedInc": 5.0366,
+      "row_id": "ca-19159"
+    },
+    {
+      "Latitude": 37.67,
+      "Longitude": -121.02,
+      "MedHouseVal": 1.115,
+      "MedInc": 2.6722,
+      "row_id": "ca-19500"
+    },
+    {
+      "Latitude": 34.18,
+      "Longitude": -118.23,
+      "MedHouseVal": 4.466,
+      "MedInc": 8.1132,
+      "row_id": "ca-05724"
+    },
+    {
+      "Latitude": 34.04,
+      "Longitude": -117.67,
+      "MedHouseVal": 1.943,
+      "MedInc": 5.2551,
+      "row_id": "ca-13336"
+    },
+    {
+      "Latitude": 34.04,
+      "Longitude": -117.94,
+      "MedHouseVal": 1.63,
+      "MedInc": 3.8409,
+      "row_id": "ca-06268"
+    },
+    {
+      "Latitude": 34.11,
+      "Longitude": -117.65,
+      "MedHouseVal": 2.335,
+      "MedInc": 5.3368,
+      "row_id": "ca-13258"
+    },
+    {
+      "Latitude": 33.88,
+      "Longitude": -118.17,
+      "MedHouseVal": 1.627,
+      "MedInc": 3.0893,
+      "row_id": "ca-07958"
+    },
+    {
+      "Latitude": 34.28,
+      "Longitude": -118.46,
+      "MedHouseVal": 2.176,
+      "MedInc": 5.5931,
+      "row_id": "ca-03491"
+    },
+    {
+      "Latitude": 37.28,
+      "Longitude": -121.98,
+      "MedHouseVal": 2.691,
+      "MedInc": 3.3922,
+      "row_id": "ca-18001"
+    },
+    {
+      "Latitude": 32.77,
+      "Longitude": -117.19,
+      "MedHouseVal": 1.438,
+      "MedInc": 3.8571,
+      "row_id": "ca-14648"
+    },
+    {
+      "Latitude": 34.39,
+      "Longitude": -119.51,
+      "MedHouseVal": 3.46,
+      "MedInc": 3.233,
+      "row_id": "ca-17302"
+    },
+    {
+      "Latitude": 34.04,
+      "Longitude": -118.35,
+      "MedHouseVal": 1.38,
+      "MedInc": 2.5625,
+      "row_id": "ca-04772"
+    },
+    {
+      "Latitude": 33.77,
+      "Longitude": -118.14,
+      "MedHouseVal": 5.0,
+      "MedInc": 5.8408,
+      "row_id": "ca-08300"
+    },
+    {
+      "Latitude": 38.84,
+      "Longitude": -121.81,
+      "MedHouseVal": 2.75,
+      "MedInc": 2.8542,
+      "row_id": "ca-20579"
+    },
+    {
+      "Latitude": 34.18,
+      "Longitude": -118.51,
+      "MedHouseVal": 2.953,
+      "MedInc": 4.8036,
+      "row_id": "ca-04021"
+    },
+    {
+      "Latitude": 37.27,
+      "Longitude": -121.86,
+      "MedHouseVal": 2.465,
+      "MedInc": 5.6876,
+      "row_id": "ca-18396"
+    },
+    {
+      "Latitude": 36.72,
+      "Longitude": -119.59,
+      "MedHouseVal": 1.306,
+      "MedInc": 4.5375,
+      "row_id": "ca-02365"
+    },
+    {
+      "Latitude": 33.79,
+      "Longitude": -118.26,
+      "MedHouseVal": 2.056,
+      "MedInc": 3.5488,
+      "row_id": "ca-05618"
+    },
+    {
+      "Latitude": 33.71,
+      "Longitude": -117.9,
+      "MedHouseVal": 2.605,
+      "MedInc": 6.1966,
+      "row_id": "ca-10880"
+    },
+    {
+      "Latitude": 37.39,
+      "Longitude": -122.07,
+      "MedHouseVal": 3.303,
+      "MedInc": 5.0131,
+      "row_id": "ca-18249"
+    },
+    {
+      "Latitude": 37.83,
+      "Longitude": -122.2,
+      "MedHouseVal": 3.512,
+      "MedInc": 8.401,
+      "row_id": "ca-00136"
+    },
+    {
+      "Latitude": 33.9,
+      "Longitude": -118.22,
+      "MedHouseVal": 1.056,
+      "MedInc": 1.4091,
+      "row_id": "ca-07545"
+    },
+    {
+      "Latitude": 38.55,
+      "Longitude": -121.76,
+      "MedHouseVal": 2.194,
+      "MedInc": 2.065,
+      "row_id": "ca-20545"
+    },
+    {
+      "Latitude": 39.52,
+      "Longitude": -121.49,
+      "MedHouseVal": 0.938,
+      "MedInc": 3.9028,
+      "row_id": "ca-01155"
+    },
+    {
+      "Latitude": 36.04,
+      "Longitude": -120.14,
+      "MedHouseVal": 0.609,
+      "MedInc": 2.9708,
+      "row_id": "ca-03253"
+    },
+    {
+      "Latitude": 33.92,
+      "Longitude": -118.37,
+      "MedHouseVal": 2.456,
+      "MedInc": 4.8611,
+      "row_id": "ca-08437"
+    },
+    {
+      "Latitude": 33.89,
+      "Longitude": -117.91,
+      "MedHouseVal": 3.519,
+      "MedInc": 7.875,
+      "row_id": "ca-10212"
+    },
+    {
+      "Latitude": 35.31,
+      "Longitude": -119.04,
+      "MedHouseVal": 0.927,
+      "MedInc": 4.1957,
+      "row_id": "ca-02997"
+    },
+    {
+      "Latitude": 33.67,
+      "Longitude": -117.38,
+      "MedHouseVal": 1.326,
+      "MedInc": 2.2423,
+      "row_id": "ca-12193"
+    },
+    {
+      "Latitude": 34.05,
+      "Longitude": -117.94,
+      "MedHouseVal": 1.612,
+      "MedInc": 3.3409,
+      "row_id": "ca-06269"
+    },
+    {
+      "Latitude": 34.21,
+      "Longitude": -118.38,
+      "MedHouseVal": 1.695,
+      "MedInc": 3.8,
+      "row_id": "ca-03694"
+    },
+    {
+      "Latitude": 38.5,
+      "Longitude": -122.97,
+      "MedHouseVal": 1.327,
+      "MedInc": 1.9265,
+      "row_id": "ca-19324"
+    },
+    {
+      "Latitude": 32.68,
+      "Longitude": -117.06,
+      "MedHouseVal": 1.258,
+      "MedInc": 2.85,
+      "row_id": "ca-14212"
+    },
+    {
+      "Latitude": 38.66,
+      "Longitude": -121.32,
+      "MedHouseVal": 1.634,
+      "MedInc": 5.078,
+      "row_id": "ca-12922"
+    },
+    {
+      "Latitude": 39.08,
+      "Longitude": -121.53,
+      "MedHouseVal": 0.551,
+      "MedInc": 2.0469,
+      "row_id": "ca-20617"
+    },
+    {
+      "Latitude": 37.38,
+      "Longitude": -122.02,
+      "MedHouseVal": 2.246,
+      "MedInc": 4.0911,
+      "row_id": "ca-18188"
+    },
+    {
+      "Latitude": 34.16,
+      "Longitude": -118.84,
+      "MedHouseVal": 3.994,
+      "MedInc": 5.22,
+      "row_id": "ca-20375"
+    },
+    {
+      "Latitude": 33.99,
+      "Longitude": -118.38,
+      "MedHouseVal": 2.283,
+      "MedInc": 4.6277,
+      "row_id": "ca-08987"
+    },
+    {
+      "Latitude": 34.1,
+      "Longitude": -118.28,
+      "MedHouseVal": 3.24,
+      "MedInc": 4.0602,
+      "row_id": "ca-04373"
+    },
+    {
+      "Latitude": 34.07,
+      "Longitude": -117.69,
+      "MedHouseVal": 1.31,
+      "MedInc": 3.7083,
+      "row_id": "ca-13193"
+    },
+    {
+      "Latitude": 38.31,
+      "Longitude": -121.93,
+      "MedHouseVal": 2.5,
+      "MedInc": 4.875,
+      "row_id": "ca-19006"
+    },
+    {
+      "Latitude": 40.59,
+      "Longitude": -122.39,
+      "MedHouseVal": 0.813,
+      "MedInc": 1.2404,
+      "row_id": "ca-18695"
+    },
+    {
+      "Latitude": 36.94,
+      "Longitude": -118.31,
+      "MedHouseVal": 0.806,
+      "MedInc": 2.325,
+      "row_id": "ca-02796"
+    },
+    {
+      "Latitude": 33.89,
+      "Longitude": -118.13,
+      "MedHouseVal": 2.258,
+      "MedInc": 5.0395,
+      "row_id": "ca-07860"
+    },
+    {
+      "Latitude": 34.11,
+      "Longitude": -118.11,
+      "MedHouseVal": 3.522,
+      "MedInc": 6.7099,
+      "row_id": "ca-06757"
+    },
+    {
+      "Latitude": 34.04,
+      "Longitude": -118.48,
+      "MedHouseVal": 5.00001,
+      "MedInc": 8.9616,
+      "row_id": "ca-08901"
+    },
+    {
+      "Latitude": 34.31,
+      "Longitude": -118.45,
+      "MedHouseVal": 1.825,
+      "MedInc": 4.0556,
+      "row_id": "ca-03461"
+    },
+    {
+      "Latitude": 34.18,
+      "Longitude": -119.2,
+      "MedHouseVal": 1.656,
+      "MedInc": 2.9832,
+      "row_id": "ca-20299"
+    },
+    {
+      "Latitude": 32.75,
+      "Longitude": -117.19,
+      "MedHouseVal": 4.116,
+      "MedInc": 6.1309,
+      "row_id": "ca-14010"
+    },
+    {
+      "Latitude": 37.8,
+      "Longitude": -122.39,
+      "MedHouseVal": 5.00001,
+      "MedInc": 4.5581,
+      "row_id": "ca-15654"
+    },
+    {
+      "Latitude": 33.8,
+      "Longitude": -118.12,
+      "MedHouseVal": 2.563,
+      "MedInc": 2.7092,
+      "row_id": "ca-08172"
+    },
+    {
+      "Latitude": 33.99,
+      "Longitude": -118.47,
+      "MedHouseVal": 2.675,
+      "MedInc": 3.4071,
+      "row_id": "ca-05470"
+    },
+    {
+      "Latitude": 33.71,
+      "Longitude": -117.94,
+      "MedHouseVal": 2.765,
+      "MedInc": 5.9449,
+      "row_id": "ca-11410"
+    },
+    {
+      "Latitude": 37.34,
+      "Longitude": -120.3,
+      "MedHouseVal": 1.036,
+      "MedInc": 2.4286,
+      "row_id": "ca-09622"
+    },
+    {
+      "Latitude": 37.2,
+      "Longitude": -121.7,
+      "MedHouseVal": 3.857,
+      "MedInc": 4.65,
+      "row_id": "ca-18464"
+    },
+    {
+      "Latitude": 33.98,
+      "Longitude": -118.41,
+      "MedHouseVal": 3.072,
+      "MedInc": 3.9727,
+      "row_id": "ca-05516"
+    },
+    {
+      "Latitude": 34.06,
+      "Longitude": -117.8,
+      "MedHouseVal": 1.085,
+      "MedInc": 3.6298,
+      "row_id": "ca-06020"
+    },
+    {
+      "Latitude": 34.0,
+      "Longitude": -117.41,
+      "MedHouseVal": 0.834,
+      "MedInc": 1.9052,
+      "row_id": "ca-11969"
+    },
+    {
+      "Latitude": 37.45,
+      "Longitude": -122.18,
+      "MedHouseVal": 4.602,
+      "MedInc": 4.4688,
+      "row_id": "ca-17143"
+    },
+    {
+      "Latitude": 39.21,
+      "Longitude": -122.01,
+      "MedHouseVal": 0.691,
+      "MedInc": 2.2679,
+      "row_id": "ca-01254"
+    },
+    {
+      "Latitude": 34.09,
+      "Longitude": -118.13,
+      "MedHouseVal": 2.19,
+      "MedInc": 2.2214,
+      "row_id": "ca-06803"
+    },
+    {
+      "Latitude": 34.14,
+      "Longitude": -118.11,
+      "MedHouseVal": 3.587,
+      "MedInc": 6.0948,
+      "row_id": "ca-06698"
+    },
+    {
+      "Latitude": 39.15,
+      "Longitude": -121.64,
+      "MedHouseVal": 1.249,
+      "MedInc": 5.234,
+      "row_id": "ca-19713"
+    },
+    {
+      "Latitude": 34.19,
+      "Longitude": -119.17,
+      "MedHouseVal": 1.75,
+      "MedInc": 1.6964,
+      "row_id": "ca-20313"
+    },
+    {
+      "Latitude": 39.13,
+      "Longitude": -121.63,
+      "MedHouseVal": 0.795,
+      "MedInc": 1.8208,
+      "row_id": "ca-19688"
+    },
+    {
+      "Latitude": 37.88,
+      "Longitude": -122.2,
+      "MedHouseVal": 3.781,
+      "MedInc": 7.7736,
+      "row_id": "ca-01636"
+    },
+    {
+      "Latitude": 34.04,
+      "Longitude": -118.21,
+      "MedHouseVal": 1.55,
+      "MedInc": 2.1923,
+      "row_id": "ca-04526"
+    },
+    {
+      "Latitude": 33.73,
+      "Longitude": -118.11,
+      "MedHouseVal": 5.00001,
+      "MedInc": 5.0476,
+      "row_id": "ca-11512"
+    },
+    {
+      "Latitude": 35.33,
+      "Longitude": -119.09,
+      "MedHouseVal": 1.429,
+      "MedInc": 4.997,
+      "row_id": "ca-02977"
+    },
+    {
+      "Latitude": 34.21,
+      "Longitude": -118.85,
+      "MedHouseVal": 2.414,
+      "MedInc": 4.9234,
+      "row_id": "ca-20401"
+    },
+    {
+      "Latitude": 37.67,
+      "Longitude": -122.09,
+      "MedHouseVal": 1.75,
+      "MedInc": 2.3357,
+      "row_id": "ca-00714"
+    },
+    {
+      "Latitude": 37.48,
+      "Longitude": -122.21,
+      "MedHouseVal": 2.472,
+      "MedInc": 2.8482,
+      "row_id": "ca-17063"
+    },
+    {
+      "Latitude": 33.73,
+      "Longitude": -117.81,
+      "MedHouseVal": 1.406,
+      "MedInc": 3.0305,
+      "row_id": "ca-10992"
+    },
+    {
+      "Latitude": 39.13,
+      "Longitude": -123.2,
+      "MedHouseVal": 0.844,
+      "MedInc": 1.375,
+      "row_id": "ca-09522"
+    },
+    {
+      "Latitude": 34.04,
+      "Longitude": -117.21,
+      "MedHouseVal": 2.247,
+      "MedInc": 6.2917,
+      "row_id": "ca-13738"
+    },
+    {
+      "Latitude": 37.25,
+      "Longitude": -122.03,
+      "MedHouseVal": 5.00001,
+      "MedInc": 7.8711,
+      "row_id": "ca-18065"
+    },
+    {
+      "Latitude": 39.2,
+      "Longitude": -121.2,
+      "MedHouseVal": 1.283,
+      "MedInc": 2.9688,
+      "row_id": "ca-10023"
+    },
+    {
+      "Latitude": 37.62,
+      "Longitude": -122.4,
+      "MedHouseVal": 2.242,
+      "MedInc": 4.0238,
+      "row_id": "ca-16865"
+    },
+    {
+      "Latitude": 35.4,
+      "Longitude": -118.97,
+      "MedHouseVal": 0.762,
+      "MedInc": 3.1906,
+      "row_id": "ca-02841"
+    },
+    {
+      "Latitude": 34.77,
+      "Longitude": -119.72,
+      "MedHouseVal": 0.621,
+      "MedInc": 2.4583,
+      "row_id": "ca-17313"
+    },
+    {
+      "Latitude": 38.0,
+      "Longitude": -121.86,
+      "MedHouseVal": 1.652,
+      "MedInc": 3.5857,
+      "row_id": "ca-01334"
+    },
+    {
+      "Latitude": 38.97,
+      "Longitude": -121.31,
+      "MedHouseVal": 0.821,
+      "MedInc": 2.7083,
+      "row_id": "ca-11798"
+    },
+    {
+      "Latitude": 33.84,
+      "Longitude": -118.08,
+      "MedHouseVal": 1.533,
+      "MedInc": 3.3438,
+      "row_id": "ca-07931"
+    },
+    {
+      "Latitude": 40.78,
+      "Longitude": -122.93,
+      "MedHouseVal": 0.912,
+      "MedInc": 2.3667,
+      "row_id": "ca-19784"
+    },
+    {
+      "Latitude": 32.77,
+      "Longitude": -117.01,
+      "MedHouseVal": 1.642,
+      "MedInc": 2.6678,
+      "row_id": "ca-15027"
+    },
+    {
+      "Latitude": 38.01,
+      "Longitude": -122.12,
+      "MedHouseVal": 1.724,
+      "MedInc": 4.1189,
+      "row_id": "ca-01377"
+    },
+    {
+      "Latitude": 37.37,
+      "Longitude": -121.81,
+      "MedHouseVal": 3.28,
+      "MedInc": 7.2861,
+      "row_id": "ca-17801"
+    },
+    {
+      "Latitude": 34.15,
+      "Longitude": -118.11,
+      "MedHouseVal": 1.841,
+      "MedInc": 3.6474,
+      "row_id": "ca-06674"
+    },
+    {
+      "Latitude": 39.17,
+      "Longitude": -123.54,
+      "MedHouseVal": 1.01,
+      "MedInc": 2.2946,
+      "row_id": "ca-09503"
+    },
+    {
+      "Latitude": 35.56,
+      "Longitude": -120.29,
+      "MedHouseVal": 1.421,
+      "MedInc": 2.811,
+      "row_id": "ca-16611"
+    },
+    {
+      "Latitude": 37.42,
+      "Longitude": -122.15,
+      "MedHouseVal": 4.048,
+      "MedInc": 3.9243,
+      "row_id": "ca-18345"
+    },
+    {
+      "Latitude": 36.81,
+      "Longitude": -121.72,
+      "MedHouseVal": 2.299,
+      "MedInc": 3.2969,
+      "row_id": "ca-09732"
+    },
+    {
+      "Latitude": 33.76,
+      "Longitude": -118.0,
+      "MedHouseVal": 1.942,
+      "MedInc": 3.0263,
+      "row_id": "ca-11575"
+    },
+    {
+      "Latitude": 38.61,
+      "Longitude": -121.48,
+      "MedHouseVal": 0.894,
+      "MedInc": 2.3438,
+      "row_id": "ca-12821"
+    },
+    {
+      "Latitude": 38.42,
+      "Longitude": -122.86,
+      "MedHouseVal": 2.444,
+      "MedInc": 3.6667,
+      "row_id": "ca-19292"
+    },
+    {
+      "Latitude": 34.25,
+      "Longitude": -118.43,
+      "MedHouseVal": 1.519,
+      "MedInc": 3.4514,
+      "row_id": "ca-03610"
+    },
+    {
+      "Latitude": 36.73,
+      "Longitude": -119.81,
+      "MedHouseVal": 0.496,
+      "MedInc": 1.372,
+      "row_id": "ca-01988"
+    },
+    {
+      "Latitude": 37.8,
+      "Longitude": -121.21,
+      "MedHouseVal": 0.942,
+      "MedInc": 2.7443,
+      "row_id": "ca-16518"
+    },
+    {
+      "Latitude": 33.97,
+      "Longitude": -114.49,
+      "MedHouseVal": 0.875,
+      "MedInc": 1.6154,
+      "row_id": "ca-12448"
+    },
+    {
+      "Latitude": 33.63,
+      "Longitude": -117.92,
+      "MedHouseVal": 2.364,
+      "MedInc": 3.5161,
+      "row_id": "ca-10790"
+    },
+    {
+      "Latitude": 33.74,
+      "Longitude": -116.88,
+      "MedHouseVal": 1.4,
+      "MedInc": 1.5982,
+      "row_id": "ca-12266"
+    },
+    {
+      "Latitude": 39.15,
+      "Longitude": -123.22,
+      "MedHouseVal": 1.221,
+      "MedInc": 3.5938,
+      "row_id": "ca-09512"
+    },
+    {
+      "Latitude": 37.71,
+      "Longitude": -121.94,
+      "MedHouseVal": 2.711,
+      "MedInc": 5.0143,
+      "row_id": "ca-00953"
+    },
+    {
+      "Latitude": 34.05,
+      "Longitude": -117.96,
+      "MedHouseVal": 1.631,
+      "MedInc": 4.6364,
+      "row_id": "ca-06258"
+    },
+    {
+      "Latitude": 37.99,
+      "Longitude": -121.96,
+      "MedHouseVal": 2.101,
+      "MedInc": 2.9591,
+      "row_id": "ca-01649"
+    },
+    {
+      "Latitude": 37.24,
+      "Longitude": -121.81,
+      "MedHouseVal": 2.344,
+      "MedInc": 4.5,
+      "row_id": "ca-18441"
+    },
+    {
+      "Latitude": 35.4,
+      "Longitude": -118.96,
+      "MedHouseVal": 0.891,
+      "MedInc": 3.5524,
+      "row_id": "ca-02849"
+    },
+    {
+      "Latitude": 37.66,
+      "Longitude": -121.88,
+      "MedHouseVal": 2.33,
+      "MedInc": 3.1127,
+      "row_id": "ca-00974"
+    },
+    {
+      "Latitude": 34.13,
+      "Longitude": -117.89,
+      "MedHouseVal": 1.474,
+      "MedInc": 4.1995,
+      "row_id": "ca-06111"
+    },
+    {
+      "Latitude": 33.91,
+      "Longitude": -117.93,
+      "MedHouseVal": 3.646,
+      "MedInc": 5.2017,
+      "row_id": "ca-10153"
+    },
+    {
+      "Latitude": 33.66,
+      "Longitude": -117.83,
+      "MedHouseVal": 2.728,
+      "MedInc": 6.5356,
+      "row_id": "ca-10658"
+    },
+    {
+      "Latitude": 39.47,
+      "Longitude": -123.8,
+      "MedHouseVal": 1.503,
+      "MedInc": 2.7857,
+      "row_id": "ca-09463"
+    },
+    {
+      "Latitude": 33.24,
+      "Longitude": -117.23,
+      "MedHouseVal": 2.401,
+      "MedInc": 4.3068,
+      "row_id": "ca-15404"
+    },
+    {
+      "Latitude": 38.73,
+      "Longitude": -120.81,
+      "MedHouseVal": 1.286,
+      "MedInc": 2.7273,
+      "row_id": "ca-01959"
+    },
+    {
+      "Latitude": 37.71,
+      "Longitude": -122.08,
+      "MedHouseVal": 2.27,
+      "MedInc": 5.0519,
+      "row_id": "ca-00595"
+    },
+    {
+      "Latitude": 37.85,
+      "Longitude": -119.93,
+      "MedHouseVal": 1.375,
+      "MedInc": 4.0833,
+      "row_id": "ca-20113"
+    },
+    {
+      "Latitude": 34.09,
+      "Longitude": -118.1,
+      "MedHouseVal": 2.58,
+      "MedInc": 4.2833,
+      "row_id": "ca-06808"
+    },
+    {
+      "Latitude": 33.8,
+      "Longitude": -118.07,
+      "MedHouseVal": 1.931,
+      "MedInc": 3.6442,
+      "row_id": "ca-11618"
+    },
+    {
+      "Latitude": 37.5,
+      "Longitude": -122.47,
+      "MedHouseVal": 3.346,
+      "MedInc": 4.875,
+      "row_id": "ca-17176"
+    },
+    {
+      "Latitude": 34.15,
+      "Longitude": -118.24,
+      "MedHouseVal": 2.098,
+      "MedInc": 3.052,
+      "row_id": "ca-05787"
+    },
+    {
+      "Latitude": 37.04,
+      "Longitude": -120.25,
+      "MedHouseVal": 0.917,
+      "MedInc": 3.2868,
+      "row_id": "ca-09214"
+    },
+    {
+      "Latitude": 34.03,
+      "Longitude": -118.2,
+      "MedHouseVal": 1.352,
+      "MedInc": 2.3472,
+      "row_id": "ca-04541"
+    },
+    {
+      "Latitude": 33.65,
+      "Longitude": -117.94,
+      "MedHouseVal": 2.221,
+      "MedInc": 5.6637,
+      "row_id": "ca-10807"
+    },
+    {
+      "Latitude": 38.0,
+      "Longitude": -122.32,
+      "MedHouseVal": 1.628,
+      "MedInc": 4.0437,
+      "row_id": "ca-01718"
+    },
+    {
+      "Latitude": 38.94,
+      "Longitude": -119.99,
+      "MedHouseVal": 1.185,
+      "MedInc": 3.0806,
+      "row_id": "ca-01884"
+    },
+    {
+      "Latitude": 34.13,
+      "Longitude": -117.29,
+      "MedHouseVal": 0.779,
+      "MedInc": 1.4815,
+      "row_id": "ca-13581"
+    },
+    {
+      "Latitude": 32.76,
+      "Longitude": -117.1,
+      "MedHouseVal": 2.708,
+      "MedInc": 4.2813,
+      "row_id": "ca-14086"
+    },
+    {
+      "Latitude": 37.12,
+      "Longitude": -122.0,
+      "MedHouseVal": 3.833,
+      "MedInc": 6.9772,
+      "row_id": "ca-18609"
+    },
+    {
+      "Latitude": 33.75,
+      "Longitude": -116.71,
+      "MedHouseVal": 1.505,
+      "MedInc": 3.0625,
+      "row_id": "ca-12306"
+    },
+    {
+      "Latitude": 32.73,
+      "Longitude": -117.25,
+      "MedHouseVal": 3.674,
+      "MedInc": 4.5938,
+      "row_id": "ca-14386"
+    },
+    {
+      "Latitude": 38.35,
+      "Longitude": -122.01,
+      "MedHouseVal": 1.897,
+      "MedInc": 3.8651,
+      "row_id": "ca-19013"
+    },
+    {
+      "Latitude": 34.01,
+      "Longitude": -118.35,
+      "MedHouseVal": 3.321,
+      "MedInc": 3.5486,
+      "row_id": "ca-05060"
+    },
+    {
+      "Latitude": 33.56,
+      "Longitude": -117.79,
+      "MedHouseVal": 5.00001,
+      "MedInc": 7.866,
+      "row_id": "ca-10644"
+    },
+    {
+      "Latitude": 33.97,
+      "Longitude": -118.0,
+      "MedHouseVal": 3.726,
+      "MedInc": 6.0663,
+      "row_id": "ca-06982"
+    },
+    {
+      "Latitude": 36.27,
+      "Longitude": -119.57,
+      "MedHouseVal": 0.974,
+      "MedInc": 2.625,
+      "row_id": "ca-03232"
+    },
+    {
+      "Latitude": 34.55,
+      "Longitude": -118.08,
+      "MedHouseVal": 1.418,
+      "MedInc": 4.5237,
+      "row_id": "ca-09134"
+    },
+    {
+      "Latitude": 34.23,
+      "Longitude": -118.54,
+      "MedHouseVal": 2.329,
+      "MedInc": 4.375,
+      "row_id": "ca-03580"
+    },
+    {
+      "Latitude": 36.58,
+      "Longitude": -119.63,
+      "MedHouseVal": 0.553,
+      "MedInc": 1.2647,
+      "row_id": "ca-02444"
+    },
+    {
+      "Latitude": 34.27,
+      "Longitude": -118.45,
+      "MedHouseVal": 1.858,
+      "MedInc": 3.705,
+      "row_id": "ca-03499"
+    },
+    {
+      "Latitude": 38.98,
+      "Longitude": -121.06,
+      "MedHouseVal": 2.128,
+      "MedInc": 4.7019,
+      "row_id": "ca-11817"
+    },
+    {
+      "Latitude": 36.97,
+      "Longitude": -122.03,
+      "MedHouseVal": 2.344,
+      "MedInc": 2.1964,
+      "row_id": "ca-18543"
+    },
+    {
+      "Latitude": 36.69,
+      "Longitude": -121.62,
+      "MedHouseVal": 1.357,
+      "MedInc": 2.5986,
+      "row_id": "ca-09749"
+    },
+    {
+      "Latitude": 34.32,
+      "Longitude": -118.52,
+      "MedHouseVal": 3.74,
+      "MedInc": 8.1248,
+      "row_id": "ca-03477"
+    },
+    {
+      "Latitude": 33.85,
+      "Longitude": -117.4,
+      "MedHouseVal": 2.236,
+      "MedInc": 5.4625,
+      "row_id": "ca-12095"
+    },
+    {
+      "Latitude": 37.8,
+      "Longitude": -122.22,
+      "MedHouseVal": 1.996,
+      "MedInc": 3.0298,
+      "row_id": "ca-00149"
+    },
+    {
+      "Latitude": 33.94,
+      "Longitude": -118.12,
+      "MedHouseVal": 3.238,
+      "MedInc": 5.2485,
+      "row_id": "ca-07716"
+    },
+    {
+      "Latitude": 38.58,
+      "Longitude": -121.34,
+      "MedHouseVal": 1.341,
+      "MedInc": 5.0917,
+      "row_id": "ca-13087"
+    },
+    {
+      "Latitude": 37.94,
+      "Longitude": -122.54,
+      "MedHouseVal": 4.352,
+      "MedInc": 4.4081,
+      "row_id": "ca-09365"
+    },
+    {
+      "Latitude": 37.64,
+      "Longitude": -122.06,
+      "MedHouseVal": 3.5,
+      "MedInc": 3.5541,
+      "row_id": "ca-00804"
+    },
+    {
+      "Latitude": 36.99,
+      "Longitude": -122.01,
+      "MedHouseVal": 2.631,
+      "MedInc": 4.9808,
+      "row_id": "ca-18509"
+    },
+    {
+      "Latitude": 33.68,
+      "Longitude": -117.95,
+      "MedHouseVal": 2.528,
+      "MedInc": 3.6364,
+      "row_id": "ca-11382"
+    },
+    {
+      "Latitude": 34.1,
+      "Longitude": -118.22,
+      "MedHouseVal": 2.521,
+      "MedInc": 4.1213,
+      "row_id": "ca-04172"
+    },
+    {
+      "Latitude": 37.8,
+      "Longitude": -122.25,
+      "MedHouseVal": 1.167,
+      "MedInc": 2.2303,
+      "row_id": "ca-00173"
+    },
+    {
+      "Latitude": 37.69,
+      "Longitude": -122.09,
+      "MedHouseVal": 1.883,
+      "MedInc": 4.8036,
+      "row_id": "ca-00611"
+    },
+    {
+      "Latitude": 33.84,
+      "Longitude": -118.11,
+      "MedHouseVal": 2.203,
+      "MedInc": 4.8594,
+      "row_id": "ca-08021"
+    },
+    {
+      "Latitude": 37.35,
+      "Longitude": -122.01,
+      "MedHouseVal": 3.236,
+      "MedInc": 4.5,
+      "row_id": "ca-18176"
+    },
+    {
+      "Latitude": 38.01,
+      "Longitude": -122.13,
+      "MedHouseVal": 1.448,
+      "MedInc": 1.8523,
+      "row_id": "ca-01367"
+    },
+    {
+      "Latitude": 37.66,
+      "Longitude": -121.89,
+      "MedHouseVal": 2.313,
+      "MedInc": 2.1187,
+      "row_id": "ca-00977"
+    },
+    {
+      "Latitude": 37.78,
+      "Longitude": -122.47,
+      "MedHouseVal": 3.071,
+      "MedInc": 2.7431,
+      "row_id": "ca-16124"
+    },
+    {
+      "Latitude": 37.36,
+      "Longitude": -121.88,
+      "MedHouseVal": 2.107,
+      "MedInc": 3.7396,
+      "row_id": "ca-17504"
+    },
+    {
+      "Latitude": 34.19,
+      "Longitude": -118.37,
+      "MedHouseVal": 1.851,
+      "MedInc": 2.6696,
+      "row_id": "ca-03705"
+    },
+    {
+      "Latitude": 33.92,
+      "Longitude": -117.8,
+      "MedHouseVal": 2.775,
+      "MedInc": 4.6315,
+      "row_id": "ca-10302"
+    },
+    {
+      "Latitude": 34.19,
+      "Longitude": -118.18,
+      "MedHouseVal": 5.00001,
+      "MedInc": 15.0001,
+      "row_id": "ca-06591"
+    },
+    {
+      "Latitude": 37.29,
+      "Longitude": -121.94,
+      "MedHouseVal": 2.141,
+      "MedInc": 4.0962,
+      "row_id": "ca-17989"
+    },
+    {
+      "Latitude": 34.3,
+      "Longitude": -119.15,
+      "MedHouseVal": 2.592,
+      "MedInc": 2.98,
+      "row_id": "ca-20176"
+    },
+    {
+      "Latitude": 33.77,
+      "Longitude": -117.83,
+      "MedHouseVal": 2.854,
+      "MedInc": 4.275,
+      "row_id": "ca-11014"
+    },
+    {
+      "Latitude": 37.49,
+      "Longitude": -122.25,
+      "MedHouseVal": 3.496,
+      "MedInc": 4.224,
+      "row_id": "ca-17038"
+    },
+    {
+      "Latitude": 35.65,
+      "Longitude": -119.77,
+      "MedHouseVal": 0.8,
+      "MedInc": 2.6066,
+      "row_id": "ca-03060"
+    },
+    {
+      "Latitude": 40.26,
+      "Longitude": -122.2,
+      "MedHouseVal": 1.379,
+      "MedInc": 3.1908,
+      "row_id": "ca-19744"
+    },
+    {
+      "Latitude": 33.83,
+      "Longitude": -118.26,
+      "MedHouseVal": 1.922,
+      "MedInc": 4.4539,
+      "row_id": "ca-07658"
+    },
+    {
+      "Latitude": 33.69,
+      "Longitude": -117.78,
+      "MedHouseVal": 2.955,
+      "MedInc": 6.0961,
+      "row_id": "ca-10593"
+    },
+    {
+      "Latitude": 38.69,
+      "Longitude": -121.37,
+      "MedHouseVal": 0.802,
+      "MedInc": 2.7009,
+      "row_id": "ca-12851"
+    },
+    {
+      "Latitude": 32.62,
+      "Longitude": -116.98,
+      "MedHouseVal": 1.843,
+      "MedInc": 4.7068,
+      "row_id": "ca-14923"
+    },
+    {
+      "Latitude": 33.84,
+      "Longitude": -117.81,
+      "MedHouseVal": 4.601,
+      "MedInc": 10.5981,
+      "row_id": "ca-10319"
+    },
+    {
+      "Latitude": 37.72,
+      "Longitude": -122.45,
+      "MedHouseVal": 2.289,
+      "MedInc": 2.9119,
+      "row_id": "ca-16045"
+    },
+    {
+      "Latitude": 37.27,
+      "Longitude": -121.92,
+      "MedHouseVal": 2.535,
+      "MedInc": 4.5625,
+      "row_id": "ca-17633"
+    },
+    {
+      "Latitude": 37.88,
+      "Longitude": -122.28,
+      "MedHouseVal": 2.596,
+      "MedInc": 4.1429,
+      "row_id": "ca-00429"
+    },
+    {
+      "Latitude": 37.51,
+      "Longitude": -122.0,
+      "MedHouseVal": 1.817,
+      "MedInc": 4.9867,
+      "row_id": "ca-00946"
+    },
+    {
+      "Latitude": 39.14,
+      "Longitude": -121.67,
+      "MedHouseVal": 1.123,
+      "MedInc": 3.6111,
+      "row_id": "ca-19709"
+    },
+    {
+      "Latitude": 34.17,
+      "Longitude": -118.75,
+      "MedHouseVal": 3.461,
+      "MedInc": 5.3749,
+      "row_id": "ca-09022"
+    },
+    {
+      "Latitude": 37.26,
+      "Longitude": -121.95,
+      "MedHouseVal": 2.647,
+      "MedInc": 5.5121,
+      "row_id": "ca-17626"
+    },
+    {
+      "Latitude": 34.02,
+      "Longitude": -118.2,
+      "MedHouseVal": 1.266,
+      "MedInc": 3.7543,
+      "row_id": "ca-04548"
+    },
+    {
+      "Latitude": 37.97,
+      "Longitude": -122.33,
+      "MedHouseVal": 1.588,
+      "MedInc": 3.3125,
+      "row_id": "ca-01738"
+    },
+    {
+      "Latitude": 37.4,
+      "Longitude": -122.12,
+      "MedHouseVal": 5.00001,
+      "MedInc": 10.3894,
+      "row_id": "ca-18299"
+    },
+    {
+      "Latitude": 38.23,
+      "Longitude": -122.64,
+      "MedHouseVal": 2.309,
+      "MedInc": 3.0769,
+      "row_id": "ca-19111"
+    },
+    {
+      "Latitude": 40.16,
+      "Longitude": -123.82,
+      "MedHouseVal": 0.768,
+      "MedInc": 1.2227,
+      "row_id": "ca-02662"
+    },
+    {
+      "Latitude": 34.2,
+      "Longitude": -118.11,
+      "MedHouseVal": 3.594,
+      "MedInc": 6.827,
+      "row_id": "ca-06559"
+    },
+    {
+      "Latitude": 37.27,
+      "Longitude": -121.9,
+      "MedHouseVal": 2.636,
+      "MedInc": 5.4609,
+      "row_id": "ca-17644"
+    },
+    {
+      "Latitude": 34.19,
+      "Longitude": -118.48,
+      "MedHouseVal": 2.104,
+      "MedInc": 3.8833,
+      "row_id": "ca-03823"
+    },
+    {
+      "Latitude": 34.25,
+      "Longitude": -118.3,
+      "MedHouseVal": 1.973,
+      "MedInc": 4.5833,
+      "row_id": "ca-03408"
+    },
+    {
+      "Latitude": 34.15,
+      "Longitude": -118.23,
+      "MedHouseVal": 2.583,
+      "MedInc": 3.0288,
+      "row_id": "ca-05795"
+    },
+    {
+      "Latitude": 33.89,
+      "Longitude": -118.1,
+      "MedHouseVal": 1.856,
+      "MedInc": 4.4934,
+      "row_id": "ca-07809"
+    },
+    {
+      "Latitude": 37.81,
+      "Longitude": -121.31,
+      "MedHouseVal": 1.792,
+      "MedInc": 3.1429,
+      "row_id": "ca-16556"
+    },
+    {
+      "Latitude": 34.05,
+      "Longitude": -118.39,
+      "MedHouseVal": 5.00001,
+      "MedInc": 5.222,
+      "row_id": "ca-05358"
+    },
+    {
+      "Latitude": 39.39,
+      "Longitude": -120.91,
+      "MedHouseVal": 0.795,
+      "MedInc": 1.6094,
+      "row_id": "ca-10064"
+    },
+    {
+      "Latitude": 33.97,
+      "Longitude": -118.32,
+      "MedHouseVal": 1.571,
+      "MedInc": 4.3919,
+      "row_id": "ca-08360"
+    },
+    {
+      "Latitude": 34.02,
+      "Longitude": -118.38,
+      "MedHouseVal": 1.406,
+      "MedInc": 4.3077,
+      "row_id": "ca-05050"
+    },
+    {
+      "Latitude": 34.03,
+      "Longitude": -117.1,
+      "MedHouseVal": 0.96,
+      "MedInc": 2.5172,
+      "row_id": "ca-13776"
+    },
+    {
+      "Latitude": 37.23,
+      "Longitude": -121.89,
+      "MedHouseVal": 3.559,
+      "MedInc": 8.1988,
+      "row_id": "ca-18388"
+    },
+    {
+      "Latitude": 37.95,
+      "Longitude": -122.05,
+      "MedHouseVal": 1.908,
+      "MedInc": 5.4482,
+      "row_id": "ca-01485"
+    },
+    {
+      "Latitude": 37.78,
+      "Longitude": -119.08,
+      "MedHouseVal": 1.3,
+      "MedInc": 2.7656,
+      "row_id": "ca-09673"
+    },
+    {
+      "Latitude": 39.21,
+      "Longitude": -121.05,
+      "MedHouseVal": 1.171,
+      "MedInc": 2.535,
+      "row_id": "ca-10043"
+    },
+    {
+      "Latitude": 34.02,
+      "Longitude": -118.31,
+      "MedHouseVal": 1.271,
+      "MedInc": 1.3187,
+      "row_id": "ca-04856"
+    },
+    {
+      "Latitude": 36.58,
+      "Longitude": -119.62,
+      "MedHouseVal": 0.624,
+      "MedInc": 2.6858,
+      "row_id": "ca-02435"
+    },
+    {
+      "Latitude": 34.35,
+      "Longitude": -119.08,
+      "MedHouseVal": 1.86,
+      "MedInc": 3.2757,
+      "row_id": "ca-20147"
+    },
+    {
+      "Latitude": 34.29,
+      "Longitude": -119.29,
+      "MedHouseVal": 3.239,
+      "MedInc": 3.5294,
+      "row_id": "ca-20223"
+    },
+    {
+      "Latitude": 33.61,
+      "Longitude": -117.91,
+      "MedHouseVal": 5.00001,
+      "MedInc": 11.216,
+      "row_id": "ca-10746"
+    },
+    {
+      "Latitude": 38.95,
+      "Longitude": -121.19,
+      "MedHouseVal": 1.963,
+      "MedInc": 4.5129,
+      "row_id": "ca-11814"
+    },
+    {
+      "Latitude": 36.24,
+      "Longitude": -121.02,
+      "MedHouseVal": 1.0,
+      "MedInc": 2.6801,
+      "row_id": "ca-09783"
+    },
+    {
+      "Latitude": 37.8,
+      "Longitude": -122.42,
+      "MedHouseVal": 4.2,
+      "MedInc": 3.3643,
+      "row_id": "ca-15643"
+    },
+    {
+      "Latitude": 34.17,
+      "Longitude": -118.54,
+      "MedHouseVal": 4.25,
+      "MedInc": 2.8528,
+      "row_id": "ca-04033"
+    },
+    {
+      "Latitude": 34.42,
+      "Longitude": -119.28,
+      "MedHouseVal": 3.13,
+      "MedInc": 4.8105,
+      "row_id": "ca-20169"
+    },
+    {
+      "Latitude": 39.9,
+      "Longitude": -120.74,
+      "MedHouseVal": 0.882,
+      "MedInc": 2.2656,
+      "row_id": "ca-11846"
+    },
+    {
+      "Latitude": 34.21,
+      "Longitude": -118.37,
+      "MedHouseVal": 1.757,
+      "MedInc": 3.7143,
+      "row_id": "ca-03687"
+    },
+    {
+      "Latitude": 34.04,
+      "Longitude": -117.93,
+      "MedHouseVal": 1.81,
+      "MedInc": 4.9342,
+      "row_id": "ca-06286"
+    },
+    {
+      "Latitude": 37.78,
+      "Longitude": -122.44,
+      "MedHouseVal": 3.462,
+      "MedInc": 2.4196,
+      "row_id": "ca-15734"
+    },
+    {
+      "Latitude": 36.79,
+      "Longitude": -119.89,
+      "MedHouseVal": 0.804,
+      "MedInc": 3.7821,
+      "row_id": "ca-02171"
+    },
+    {
+      "Latitude": 32.78,
+      "Longitude": -117.09,
+      "MedHouseVal": 1.653,
+      "MedInc": 2.9881,
+      "row_id": "ca-14700"
+    },
+    {
+      "Latitude": 33.94,
+      "Longitude": -118.04,
+      "MedHouseVal": 1.739,
+      "MedInc": 4.625,
+      "row_id": "ca-07046"
+    },
+    {
+      "Latitude": 33.9,
+      "Longitude": -117.88,
+      "MedHouseVal": 2.773,
+      "MedInc": 6.5945,
+      "row_id": "ca-10239"
+    },
+    {
+      "Latitude": 37.76,
+      "Longitude": -122.39,
+      "MedHouseVal": 2.083,
+      "MedInc": 4.0042,
+      "row_id": "ca-15858"
+    },
+    {
+      "Latitude": 37.78,
+      "Longitude": -122.17,
+      "MedHouseVal": 1.44,
+      "MedInc": 4.175,
+      "row_id": "ca-00290"
+    },
+    {
+      "Latitude": 34.84,
+      "Longitude": -114.61,
+      "MedHouseVal": 0.486,
+      "MedInc": 2.1571,
+      "row_id": "ca-13929"
+    },
+    {
+      "Latitude": 34.06,
+      "Longitude": -118.12,
+      "MedHouseVal": 2.147,
+      "MedInc": 3.1892,
+      "row_id": "ca-06868"
+    },
+    {
+      "Latitude": 34.09,
+      "Longitude": -118.13,
+      "MedHouseVal": 1.917,
+      "MedInc": 3.0078,
+      "row_id": "ca-06802"
+    },
+    {
+      "Latitude": 33.75,
+      "Longitude": -117.97,
+      "MedHouseVal": 1.904,
+      "MedInc": 3.75,
+      "row_id": "ca-11339"
+    },
+    {
+      "Latitude": 33.74,
+      "Longitude": -117.85,
+      "MedHouseVal": 1.598,
+      "MedInc": 2.7059,
+      "row_id": "ca-10907"
+    },
+    {
+      "Latitude": 33.79,
+      "Longitude": -118.22,
+      "MedHouseVal": 1.375,
+      "MedInc": 2.3,
+      "row_id": "ca-08105"
+    },
+    {
+      "Latitude": 34.14,
+      "Longitude": -118.25,
+      "MedHouseVal": 2.75,
+      "MedInc": 1.8235,
+      "row_id": "ca-05804"
+    },
+    {
+      "Latitude": 34.1,
+      "Longitude": -117.46,
+      "MedHouseVal": 0.935,
+      "MedInc": 2.5833,
+      "row_id": "ca-13405"
+    },
+    {
+      "Latitude": 38.34,
+      "Longitude": -122.69,
+      "MedHouseVal": 1.355,
+      "MedInc": 4.0071,
+      "row_id": "ca-19149"
+    },
+    {
+      "Latitude": 37.52,
+      "Longitude": -121.97,
+      "MedHouseVal": 2.309,
+      "MedInc": 5.0824,
+      "row_id": "ca-00918"
+    },
+    {
+      "Latitude": 33.92,
+      "Longitude": -118.31,
+      "MedHouseVal": 1.464,
+      "MedInc": 4.8456,
+      "row_id": "ca-08478"
+    },
+    {
+      "Latitude": 38.59,
+      "Longitude": -121.48,
+      "MedHouseVal": 0.705,
+      "MedInc": 1.6116,
+      "row_id": "ca-12479"
+    },
+    {
+      "Latitude": 33.99,
+      "Longitude": -118.31,
+      "MedHouseVal": 1.266,
+      "MedInc": 2.0915,
+      "row_id": "ca-04992"
+    },
+    {
+      "Latitude": 37.32,
+      "Longitude": -120.43,
+      "MedHouseVal": 1.253,
+      "MedInc": 5.2522,
+      "row_id": "ca-09591"
+    },
+    {
+      "Latitude": 33.98,
+      "Longitude": -117.9,
+      "MedHouseVal": 1.867,
+      "MedInc": 3.253,
+      "row_id": "ca-06341"
+    },
+    {
+      "Latitude": 38.03,
+      "Longitude": -118.98,
+      "MedHouseVal": 0.825,
+      "MedInc": 3.5469,
+      "row_id": "ca-09671"
+    },
+    {
+      "Latitude": 35.28,
+      "Longitude": -120.69,
+      "MedHouseVal": 2.47,
+      "MedInc": 2.2847,
+      "row_id": "ca-16663"
+    },
+    {
+      "Latitude": 34.17,
+      "Longitude": -118.36,
+      "MedHouseVal": 2.291,
+      "MedInc": 4.0742,
+      "row_id": "ca-05874"
+    },
+    {
+      "Latitude": 32.8,
+      "Longitude": -117.13,
+      "MedHouseVal": 1.753,
+      "MedInc": 4.5568,
+      "row_id": "ca-14663"
+    },
+    {
+      "Latitude": 33.9,
+      "Longitude": -118.22,
+      "MedHouseVal": 0.984,
+      "MedInc": 1.9423,
+      "row_id": "ca-07585"
+    },
+    {
+      "Latitude": 36.52,
+      "Longitude": -119.28,
+      "MedHouseVal": 0.532,
+      "MedInc": 2.25,
+      "row_id": "ca-19838"
+    },
+    {
+      "Latitude": 33.18,
+      "Longitude": -117.22,
+      "MedHouseVal": 1.839,
+      "MedInc": 3.3444,
+      "row_id": "ca-15466"
+    },
+    {
+      "Latitude": 38.35,
+      "Longitude": -122.72,
+      "MedHouseVal": 1.625,
+      "MedInc": 2.4117,
+      "row_id": "ca-19134"
+    },
+    {
+      "Latitude": 34.19,
+      "Longitude": -119.23,
+      "MedHouseVal": 5.00001,
+      "MedInc": 6.4522,
+      "row_id": "ca-20273"
+    },
+    {
+      "Latitude": 38.66,
+      "Longitude": -121.35,
+      "MedHouseVal": 1.307,
+      "MedInc": 2.7011,
+      "row_id": "ca-12886"
+    },
+    {
+      "Latitude": 34.43,
+      "Longitude": -119.7,
+      "MedHouseVal": 2.938,
+      "MedInc": 2.375,
+      "row_id": "ca-17248"
+    },
+    {
+      "Latitude": 33.96,
+      "Longitude": -118.3,
+      "MedHouseVal": 1.174,
+      "MedInc": 3.9722,
+      "row_id": "ca-05121"
+    },
+    {
+      "Latitude": 38.53,
+      "Longitude": -122.27,
+      "MedHouseVal": 1.425,
+      "MedInc": 4.4,
+      "row_id": "ca-09982"
+    },
+    {
+      "Latitude": 34.03,
+      "Longitude": -118.37,
+      "MedHouseVal": 1.884,
+      "MedInc": 3.9732,
+      "row_id": "ca-04812"
+    },
+    {
+      "Latitude": 34.21,
+      "Longitude": -117.12,
+      "MedHouseVal": 1.239,
+      "MedInc": 4.5972,
+      "row_id": "ca-13954"
+    },
+    {
+      "Latitude": 37.57,
+      "Longitude": -120.95,
+      "MedHouseVal": 1.548,
+      "MedInc": 3.1125,
+      "row_id": "ca-19601"
+    },
+    {
+      "Latitude": 33.47,
+      "Longitude": -117.69,
+      "MedHouseVal": 3.0,
+      "MedInc": 3.86,
+      "row_id": "ca-10501"
+    },
+    {
+      "Latitude": 37.27,
+      "Longitude": -121.99,
+      "MedHouseVal": 2.78,
+      "MedInc": 5.9658,
+      "row_id": "ca-18011"
+    },
+    {
+      "Latitude": 39.88,
+      "Longitude": -123.71,
+      "MedHouseVal": 0.698,
+      "MedInc": 1.4952,
+      "row_id": "ca-09457"
+    },
+    {
+      "Latitude": 37.57,
+      "Longitude": -122.33,
+      "MedHouseVal": 2.833,
+      "MedInc": 3.625,
+      "row_id": "ca-16934"
+    },
+    {
+      "Latitude": 33.93,
+      "Longitude": -118.05,
+      "MedHouseVal": 1.415,
+      "MedInc": 3.6771,
+      "row_id": "ca-07051"
+    },
+    {
+      "Latitude": 37.8,
+      "Longitude": -122.41,
+      "MedHouseVal": 2.25,
+      "MedInc": 1.9145,
+      "row_id": "ca-15651"
+    },
+    {
+      "Latitude": 37.63,
+      "Longitude": -118.99,
+      "MedHouseVal": 2.318,
+      "MedInc": 3.2917,
+      "row_id": "ca-09684"
+    },
+    {
+      "Latitude": 38.12,
+      "Longitude": -122.23,
+      "MedHouseVal": 1.458,
+      "MedInc": 4.2308,
+      "row_id": "ca-18891"
+    },
+    {
+      "Latitude": 38.54,
+      "Longitude": -121.44,
+      "MedHouseVal": 0.757,
+      "MedInc": 2.5389,
+      "row_id": "ca-12572"
+    },
+    {
+      "Latitude": 37.91,
+      "Longitude": -122.31,
+      "MedHouseVal": 1.678,
+      "MedInc": 2.7628,
+      "row_id": "ca-01814"
+    },
+    {
+      "Latitude": 33.66,
+      "Longitude": -117.8,
+      "MedHouseVal": 2.234,
+      "MedInc": 4.0,
+      "row_id": "ca-10661"
+    },
+    {
+      "Latitude": 34.26,
+      "Longitude": -118.62,
+      "MedHouseVal": 2.621,
+      "MedInc": 6.3249,
+      "row_id": "ca-03547"
+    },
+    {
+      "Latitude": 33.79,
+      "Longitude": -118.29,
+      "MedHouseVal": 1.542,
+      "MedInc": 3.3427,
+      "row_id": "ca-05607"
+    },
+    {
+      "Latitude": 37.42,
+      "Longitude": -121.89,
+      "MedHouseVal": 2.25,
+      "MedInc": 7.7197,
+      "row_id": "ca-17866"
+    },
+    {
+      "Latitude": 37.27,
+      "Longitude": -121.93,
+      "MedHouseVal": 2.81,
+      "MedInc": 4.1033,
+      "row_id": "ca-17635"
+    },
+    {
+      "Latitude": 37.27,
+      "Longitude": -121.94,
+      "MedHouseVal": 2.369,
+      "MedInc": 3.9265,
+      "row_id": "ca-17622"
+    },
+    {
+      "Latitude": 34.21,
+      "Longitude": -118.37,
+      "MedHouseVal": 1.766,
+      "MedInc": 4.2875,
+      "row_id": "ca-03686"
+    },
+    {
+      "Latitude": 33.92,
+      "Longitude": -117.95,
+      "MedHouseVal": 1.782,
+      "MedInc": 4.0,
+      "row_id": "ca-10108"
+    },
+    {
+      "Latitude": 34.54,
+      "Longitude": -117.18,
+      "MedHouseVal": 0.985,
+      "MedInc": 3.8194,
+      "row_id": "ca-13838"
+    },
+    {
+      "Latitude": 33.82,
+      "Longitude": -118.02,
+      "MedHouseVal": 2.583,
+      "MedInc": 4.7466,
+      "row_id": "ca-11634"
+    },
+    {
+      "Latitude": 33.91,
+      "Longitude": -118.34,
+      "MedHouseVal": 1.923,
+      "MedInc": 2.6689,
+      "row_id": "ca-08468"
+    },
+    {
+      "Latitude": 33.84,
+      "Longitude": -118.37,
+      "MedHouseVal": 3.39,
+      "MedInc": 6.7105,
+      "row_id": "ca-08728"
+    },
+    {
+      "Latitude": 32.8,
+      "Longitude": -115.56,
+      "MedHouseVal": 0.639,
+      "MedInc": 2.1979,
+      "row_id": "ca-02731"
+    },
+    {
+      "Latitude": 34.04,
+      "Longitude": -118.21,
+      "MedHouseVal": 1.525,
+      "MedInc": 1.9405,
+      "row_id": "ca-04532"
+    },
+    {
+      "Latitude": 32.78,
+      "Longitude": -117.15,
+      "MedHouseVal": 2.051,
+      "MedInc": 5.25,
+      "row_id": "ca-14658"
+    },
+    {
+      "Latitude": 34.14,
+      "Longitude": -118.43,
+      "MedHouseVal": 5.00001,
+      "MedInc": 10.9237,
+      "row_id": "ca-04075"
+    },
+    {
+      "Latitude": 34.27,
+      "Longitude": -118.43,
+      "MedHouseVal": 1.48,
+      "MedInc": 3.024,
+      "row_id": "ca-03428"
+    },
+    {
+      "Latitude": 38.62,
+      "Longitude": -121.32,
+      "MedHouseVal": 1.779,
+      "MedInc": 3.0864,
+      "row_id": "ca-12913"
+    },
+    {
+      "Latitude": 38.28,
+      "Longitude": -122.21,
+      "MedHouseVal": 2.693,
+      "MedInc": 4.4861,
+      "row_id": "ca-09938"
+    },
+    {
+      "Latitude": 36.92,
+      "Longitude": -121.74,
+      "MedHouseVal": 1.517,
+      "MedInc": 2.4461,
+      "row_id": "ca-18566"
+    },
+    {
+      "Latitude": 37.95,
+      "Longitude": -121.25,
+      "MedHouseVal": 0.553,
+      "MedInc": 2.0817,
+      "row_id": "ca-16263"
+    },
+    {
+      "Latitude": 38.44,
+      "Longitude": -122.68,
+      "MedHouseVal": 1.612,
+      "MedInc": 3.4545,
+      "row_id": "ca-19196"
+    },
+    {
+      "Latitude": 34.13,
+      "Longitude": -118.15,
+      "MedHouseVal": 3.147,
+      "MedInc": 4.7344,
+      "row_id": "ca-06718"
+    },
+    {
+      "Latitude": 32.88,
+      "Longitude": -116.98,
+      "MedHouseVal": 1.517,
+      "MedInc": 4.3952,
+      "row_id": "ca-15112"
+    },
+    {
+      "Latitude": 37.69,
+      "Longitude": -122.15,
+      "MedHouseVal": 1.846,
+      "MedInc": 3.6625,
+      "row_id": "ca-00668"
+    },
+    {
+      "Latitude": 34.09,
+      "Longitude": -118.33,
+      "MedHouseVal": 2.0,
+      "MedInc": 2.1403,
+      "row_id": "ca-04275"
+    },
+    {
+      "Latitude": 33.77,
+      "Longitude": -118.16,
+      "MedHouseVal": 3.063,
+      "MedInc": 3.8984,
+      "row_id": "ca-08270"
+    },
+    {
+      "Latitude": 37.99,
+      "Longitude": -120.3,
+      "MedHouseVal": 1.535,
+      "MedInc": 2.517,
+      "row_id": "ca-20087"
+    },
+    {
+      "Latitude": 33.86,
+      "Longitude": -117.76,
+      "MedHouseVal": 5.00001,
+      "MedInc": 10.1316,
+      "row_id": "ca-10333"
+    },
+    {
+      "Latitude": 37.36,
+      "Longitude": -122.1,
+      "MedHouseVal": 5.00001,
+      "MedInc": 9.3586,
+      "row_id": "ca-18358"
+    },
+    {
+      "Latitude": 39.13,
+      "Longitude": -121.61,
+      "MedHouseVal": 0.53,
+      "MedInc": 1.4727,
+      "row_id": "ca-19693"
+    },
+    {
+      "Latitude": 35.38,
+      "Longitude": -118.95,
+      "MedHouseVal": 0.952,
+      "MedInc": 3.5938,
+      "row_id": "ca-02852"
+    },
+    {
+      "Latitude": 37.77,
+      "Longitude": -122.45,
+      "MedHouseVal": 2.786,
+      "MedInc": 3.5435,
+      "row_id": "ca-15976"
+    },
+    {
+      "Latitude": 36.82,
+      "Longitude": -119.85,
+      "MedHouseVal": 0.889,
+      "MedInc": 5.5842,
+      "row_id": "ca-02205"
+    },
+    {
+      "Latitude": 33.94,
+      "Longitude": -118.0,
+      "MedHouseVal": 1.744,
+      "MedInc": 3.75,
+      "row_id": "ca-07090"
+    },
+    {
+      "Latitude": 34.07,
+      "Longitude": -118.45,
+      "MedHouseVal": 3.5,
+      "MedInc": 1.583,
+      "row_id": "ca-05301"
+    },
+    {
+      "Latitude": 39.09,
+      "Longitude": -120.06,
+      "MedHouseVal": 1.24,
+      "MedInc": 2.1987,
+      "row_id": "ca-11707"
+    },
+    {
+      "Latitude": 37.3,
+      "Longitude": -121.89,
+      "MedHouseVal": 2.848,
+      "MedInc": 4.2414,
+      "row_id": "ca-17599"
+    },
+    {
+      "Latitude": 36.6,
+      "Longitude": -121.88,
+      "MedHouseVal": 1.781,
+      "MedInc": 2.5164,
+      "row_id": "ca-09852"
+    },
+    {
+      "Latitude": 33.96,
+      "Longitude": -118.28,
+      "MedHouseVal": 0.991,
+      "MedInc": 1.8472,
+      "row_id": "ca-05160"
+    },
+    {
+      "Latitude": 40.54,
+      "Longitude": -122.35,
+      "MedHouseVal": 0.978,
+      "MedInc": 2.71,
+      "row_id": "ca-18740"
+    },
+    {
+      "Latitude": 37.84,
+      "Longitude": -121.23,
+      "MedHouseVal": 1.557,
+      "MedInc": 4.0208,
+      "row_id": "ca-16553"
+    },
+    {
+      "Latitude": 37.91,
+      "Longitude": -122.03,
+      "MedHouseVal": 2.753,
+      "MedInc": 5.0362,
+      "row_id": "ca-01513"
+    },
+    {
+      "Latitude": 38.27,
+      "Longitude": -122.57,
+      "MedHouseVal": 2.505,
+      "MedInc": 5.3707,
+      "row_id": "ca-19104"
+    },
+    {
+      "Latitude": 37.55,
+      "Longitude": -122.34,
+      "MedHouseVal": 5.00001,
+      "MedInc": 6.9533,
+      "row_id": "ca-16942"
+    },
+    {
+      "Latitude": 38.94,
+      "Longitude": -119.98,
+      "MedHouseVal": 1.097,
+      "MedInc": 1.9018,
+      "row_id": "ca-01881"
+    },
+    {
+      "Latitude": 33.8,
+      "Longitude": -117.99,
+      "MedHouseVal": 1.625,
+      "MedInc": 3.975,
+      "row_id": "ca-11250"
+    },
+    {
+      "Latitude": 34.02,
+      "Longitude": -118.49,
+      "MedHouseVal": 4.708,
+      "MedInc": 4.1365,
+      "row_id": "ca-08897"
+    },
+    {
+      "Latitude": 34.25,
+      "Longitude": -119.12,
+      "MedHouseVal": 1.941,
+      "MedInc": 3.5625,
+      "row_id": "ca-20325"
+    },
+    {
+      "Latitude": 33.01,
+      "Longitude": -117.05,
+      "MedHouseVal": 4.293,
+      "MedInc": 10.6186,
+      "row_id": "ca-15153"
+    },
+    {
+      "Latitude": 34.22,
+      "Longitude": -118.38,
+      "MedHouseVal": 1.777,
+      "MedInc": 2.375,
+      "row_id": "ca-03678"
+    },
+    {
+      "Latitude": 33.98,
+      "Longitude": -118.42,
+      "MedHouseVal": 4.5,
+      "MedInc": 3.6667,
+      "row_id": "ca-05507"
+    },
+    {
+      "Latitude": 36.64,
+      "Longitude": -121.79,
+      "MedHouseVal": 1.188,
+      "MedInc": 2.3087,
+      "row_id": "ca-09881"
+    },
+    {
+      "Latitude": 37.57,
+      "Longitude": -122.31,
+      "MedHouseVal": 2.926,
+      "MedInc": 3.7422,
+      "row_id": "ca-16932"
+    },
+    {
+      "Latitude": 32.86,
+      "Longitude": -116.92,
+      "MedHouseVal": 1.27,
+      "MedInc": 2.3693,
+      "row_id": "ca-15132"
+    },
+    {
+      "Latitude": 34.46,
+      "Longitude": -119.26,
+      "MedHouseVal": 4.347,
+      "MedInc": 4.0074,
+      "row_id": "ca-20153"
+    },
+    {
+      "Latitude": 33.83,
+      "Longitude": -118.43,
+      "MedHouseVal": 4.202,
+      "MedInc": 5.145,
+      "row_id": "ca-08667"
+    },
+    {
+      "Latitude": 33.93,
+      "Longitude": -118.35,
+      "MedHouseVal": 1.625,
+      "MedInc": 1.9766,
+      "row_id": "ca-08410"
+    },
+    {
+      "Latitude": 33.86,
+      "Longitude": -118.12,
+      "MedHouseVal": 2.136,
+      "MedInc": 4.8516,
+      "row_id": "ca-08011"
+    },
+    {
+      "Latitude": 33.89,
+      "Longitude": -117.23,
+      "MedHouseVal": 1.366,
+      "MedInc": 4.1953,
+      "row_id": "ca-12130"
+    },
+    {
+      "Latitude": 33.58,
+      "Longitude": -117.2,
+      "MedHouseVal": 1.743,
+      "MedInc": 4.5936,
+      "row_id": "ca-12202"
+    },
+    {
+      "Latitude": 41.73,
+      "Longitude": -122.64,
+      "MedHouseVal": 0.632,
+      "MedInc": 2.2206,
+      "row_id": "ca-18838"
+    },
+    {
+      "Latitude": 34.01,
+      "Longitude": -118.07,
+      "MedHouseVal": 1.71,
+      "MedInc": 3.7986,
+      "row_id": "ca-06925"
+    },
+    {
+      "Latitude": 38.91,
+      "Longitude": -119.92,
+      "MedHouseVal": 1.625,
+      "MedInc": 5.0718,
+      "row_id": "ca-01904"
+    },
+    {
+      "Latitude": 39.76,
+      "Longitude": -121.62,
+      "MedHouseVal": 0.858,
+      "MedInc": 1.7788,
+      "row_id": "ca-01133"
+    },
+    {
+      "Latitude": 37.33,
+      "Longitude": -121.01,
+      "MedHouseVal": 0.715,
+      "MedInc": 1.6214,
+      "row_id": "ca-19626"
+    },
+    {
+      "Latitude": 38.01,
+      "Longitude": -120.37,
+      "MedHouseVal": 1.232,
+      "MedInc": 2.5417,
+      "row_id": "ca-20070"
+    },
+    {
+      "Latitude": 34.01,
+      "Longitude": -118.25,
+      "MedHouseVal": 0.903,
+      "MedInc": 1.2396,
+      "row_id": "ca-04893"
+    },
+    {
+      "Latitude": 36.06,
+      "Longitude": -119.31,
+      "MedHouseVal": 0.487,
+      "MedInc": 1.8827,
+      "row_id": "ca-20000"
+    },
+    {
+      "Latitude": 37.8,
+      "Longitude": -122.21,
+      "MedHouseVal": 1.51,
+      "MedInc": 3.0757,
+      "row_id": "ca-00222"
+    },
+    {
+      "Latitude": 33.86,
+      "Longitude": -117.98,
+      "MedHouseVal": 2.058,
+      "MedInc": 4.1287,
+      "row_id": "ca-10174"
+    },
+    {
+      "Latitude": 33.99,
+      "Longitude": -118.45,
+      "MedHouseVal": 3.39,
+      "MedInc": 3.1607,
+      "row_id": "ca-05482"
+    },
+    {
+      "Latitude": 36.68,
+      "Longitude": -121.63,
+      "MedHouseVal": 1.085,
+      "MedInc": 2.1766,
+      "row_id": "ca-09695"
+    },
+    {
+      "Latitude": 38.53,
+      "Longitude": -121.43,
+      "MedHouseVal": 0.827,
+      "MedInc": 3.1208,
+      "row_id": "ca-12577"
+    },
+    {
+      "Latitude": 38.69,
+      "Longitude": -121.44,
+      "MedHouseVal": 0.949,
+      "MedInc": 3.1942,
+      "row_id": "ca-12835"
+    },
+    {
+      "Latitude": 37.86,
+      "Longitude": -122.28,
+      "MedHouseVal": 1.474,
+      "MedInc": 1.9798,
+      "row_id": "ca-00476"
+    },
+    {
+      "Latitude": 37.4,
+      "Longitude": -122.08,
+      "MedHouseVal": 2.77,
+      "MedInc": 4.1544,
+      "row_id": "ca-18222"
+    },
+    {
+      "Latitude": 37.53,
+      "Longitude": -121.97,
+      "MedHouseVal": 2.364,
+      "MedInc": 5.4299,
+      "row_id": "ca-00902"
+    },
+    {
+      "Latitude": 37.34,
+      "Longitude": -121.86,
+      "MedHouseVal": 1.773,
+      "MedInc": 2.5947,
+      "row_id": "ca-17552"
+    },
+    {
+      "Latitude": 41.54,
+      "Longitude": -122.38,
+      "MedHouseVal": 0.811,
+      "MedInc": 2.7468,
+      "row_id": "ca-18846"
+    },
+    {
+      "Latitude": 39.16,
+      "Longitude": -121.57,
+      "MedHouseVal": 0.847,
+      "MedInc": 3.725,
+      "row_id": "ca-20595"
+    },
+    {
+      "Latitude": 33.97,
+      "Longitude": -117.37,
+      "MedHouseVal": 0.848,
+      "MedInc": 1.95,
+      "row_id": "ca-11891"
+    },
+    {
+      "Latitude": 37.34,
+      "Longitude": -122.08,
+      "MedHouseVal": 5.00001,
+      "MedInc": 12.367,
+      "row_id": "ca-18283"
+    },
+    {
+      "Latitude": 33.91,
+      "Longitude": -117.47,
+      "MedHouseVal": 1.273,
+      "MedInc": 2.2241,
+      "row_id": "ca-12039"
+    },
+    {
+      "Latitude": 33.82,
+      "Longitude": -117.99,
+      "MedHouseVal": 1.896,
+      "MedInc": 2.8625,
+      "row_id": "ca-11252"
+    },
+    {
+      "Latitude": 33.8,
+      "Longitude": -118.36,
+      "MedHouseVal": 5.00001,
+      "MedInc": 6.9742,
+      "row_id": "ca-08790"
+    },
+    {
+      "Latitude": 34.17,
+      "Longitude": -118.36,
+      "MedHouseVal": 1.995,
+      "MedInc": 2.5234,
+      "row_id": "ca-03762"
+    },
+    {
+      "Latitude": 34.08,
+      "Longitude": -118.39,
+      "MedHouseVal": 5.00001,
+      "MedInc": 15.0001,
+      "row_id": "ca-08849"
+    },
+    {
+      "Latitude": 36.28,
+      "Longitude": -119.33,
+      "MedHouseVal": 1.042,
+      "MedInc": 2.125,
+      "row_id": "ca-19939"
+    },
+    {
+      "Latitude": 34.91,
+      "Longitude": -120.45,
+      "MedHouseVal": 1.5,
+      "MedInc": 2.56,
+      "row_id": "ca-17335"
+    },
+    {
+      "Latitude": 33.85,
+      "Longitude": -118.19,
+      "MedHouseVal": 1.519,
+      "MedInc": 2.2417,
+      "row_id": "ca-08057"
+    },
+    {
+      "Latitude": 37.62,
+      "Longitude": -120.99,
+      "MedHouseVal": 0.541,
+      "MedInc": 1.5515,
+      "row_id": "ca-19555"
+    },
+    {
+      "Latitude": 34.06,
+      "Longitude": -118.49,
+      "MedHouseVal": 5.00001,
+      "MedInc": 15.0001,
+      "row_id": "ca-05258"
+    },
+    {
+      "Latitude": 38.53,
+      "Longitude": -121.52,
+      "MedHouseVal": 1.603,
+      "MedInc": 4.2885,
+      "row_id": "ca-12612"
+    },
+    {
+      "Latitude": 33.93,
+      "Longitude": -118.25,
+      "MedHouseVal": 0.831,
+      "MedInc": 3.2917,
+      "row_id": "ca-07497"
+    },
+    {
+      "Latitude": 32.75,
+      "Longitude": -117.11,
+      "MedHouseVal": 1.011,
+      "MedInc": 2.0893,
+      "row_id": "ca-14109"
+    }
+  ],
+  "sourceCellId": "training-only-eda",
+  "targetCapCount": 586,
+  "trainingStats": [
+    {
+      "correlationWithTarget": 0.6903103963894449,
+      "feature": "MedInc",
+      "max": 15.0001,
+      "mean": 3.860183583656331,
+      "median": 3.5313,
+      "min": 0.4999,
+      "q25": 2.560225,
+      "q75": 4.7302,
+      "std": 1.8937485234154057
+    },
+    {
+      "correlationWithTarget": 0.10384250381128304,
+      "feature": "HouseAge",
+      "max": 52.0,
+      "mean": 28.69888565891473,
+      "median": 29.0,
+      "min": 1.0,
+      "q25": 18.0,
+      "q75": 37.0,
+      "std": 12.592321038864949
+    },
+    {
+      "correlationWithTarget": 0.15196529863659367,
+      "feature": "AveRooms",
+      "max": 132.5333333,
+      "mean": 5.419819581984335,
+      "median": 5.228469505,
+      "min": 1.130434783,
+      "q25": 4.44470732575,
+      "q75": 6.0477767267499996,
+      "std": 2.386675562051124
+    },
+    {
+      "correlationWithTarget": -0.054122008941973894,
+      "feature": "AveBedrms",
+      "max": 34.06666667,
+      "mean": 1.0970536434556928,
+      "median": 1.049382716,
+      "min": 0.3333333333,
+      "q25": 1.00659558125,
+      "q75": 1.1,
+      "std": 0.4788100273369299
+    },
+    {
+      "correlationWithTarget": -0.02198704165306666,
+      "feature": "Population",
+      "max": 35682.0,
+      "mean": 1431.6443798449613,
+      "median": 1174.0,
+      "min": 8.0,
+      "q25": 788.0,
+      "q75": 1743.25,
+      "std": 1147.7367616676747
+    },
+    {
+      "correlationWithTarget": -0.028371666965610953,
+      "feature": "AveOccup",
+      "max": 599.7142857,
+      "mean": 3.073865539422505,
+      "median": 2.8300373580000002,
+      "min": 0.6923076923,
+      "q25": 2.43745221725,
+      "q75": 3.2888416355,
+      "std": 7.420361745265482
+    },
+    {
+      "correlationWithTarget": -0.13656441472844844,
+      "feature": "Latitude",
+      "max": 41.95,
+      "mean": 35.6328569121447,
+      "median": 34.25,
+      "min": 32.55,
+      "q25": 33.93,
+      "q75": 37.71,
+      "std": 2.1299100843115335
+    },
+    {
+      "correlationWithTarget": -0.054909702540747486,
+      "feature": "Longitude",
+      "max": -114.47,
+      "mean": -119.57247093023256,
+      "median": -118.49,
+      "min": -124.35,
+      "q25": -121.8,
+      "q75": -118.01,
+      "std": 2.0007165461707355
+    }
+  ]
+}

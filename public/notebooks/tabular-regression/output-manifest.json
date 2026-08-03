@@ -1,0 +1,45 @@
+{
+  "contractVersion": "tabular-regression-california-v1",
+  "files": [
+    {
+      "bytes": 11873,
+      "path": "california-housing-project.en.ipynb",
+      "sha256": "5a1b8348d9ca143a9fb45ab38fdc53d61b25f631a97810b491c096ee1f219c19"
+    },
+    {
+      "bytes": 11874,
+      "path": "california-housing-project.zh-CN.ipynb",
+      "sha256": "218803768290506a3f7ef2d0bbaa649b25eb162c50457fba1ccf9d8a0ab7d2c0"
+    },
+    {
+      "bytes": 1848,
+      "path": "coefficient-path.csv",
+      "sha256": "505a06210b06790428f53412448416c2929a14c22d73a27a6560e1b7fb726c45"
+    },
+    {
+      "bytes": 385,
+      "path": "environment.json",
+      "sha256": "183dfad4edeeedb9da0621405ef9813d1d1140acfe87ed16e14587d0f2a22076"
+    },
+    {
+      "bytes": 568816,
+      "path": "final-test-residuals.csv",
+      "sha256": "1c63143b72d6c38a22d88437c7a6b34da6e5308e97bbdee1aa5bd442ce8bd2cb"
+    },
+    {
+      "bytes": 117,
+      "path": "requirements.txt",
+      "sha256": "9b5734e83c4aa18e9ffc08a5b570c1f4ef6448a7665a25fb9d2b9783a2949922"
+    },
+    {
+      "bytes": 1883,
+      "path": "tabular-regression-summary.json",
+      "sha256": "3bee1e004991010139f803b16d9b2ffd94fa40a99796d970a26de9d9cb5c7a04"
+    },
+    {
+      "bytes": 368,
+      "path": "validation-metrics.csv",
+      "sha256": "abb27158a1fdfe646d86c4d996aca35537f23241e8fa9d2e04217a5eac7ae800"
+    }
+  ]
+}

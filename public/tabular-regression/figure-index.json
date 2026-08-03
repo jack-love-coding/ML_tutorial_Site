@@ -1,0 +1,54 @@
+{
+  "contractVersion": "tabular-regression-california-v1",
+  "figures": [
+    {
+      "chapterId": "eda-first-pass",
+      "file": "figures/train-target-distribution.png",
+      "id": "train-target-distribution",
+      "publicPath": "/tabular-regression/figures/train-target-distribution.png",
+      "sourceCellId": "training-only-eda"
+    },
+    {
+      "chapterId": "eda-first-pass",
+      "file": "figures/train-income-target.png",
+      "id": "train-income-target",
+      "publicPath": "/tabular-regression/figures/train-income-target.png",
+      "sourceCellId": "training-only-eda"
+    },
+    {
+      "chapterId": "eda-first-pass",
+      "file": "figures/train-geography.png",
+      "id": "train-geography",
+      "publicPath": "/tabular-regression/figures/train-geography.png",
+      "sourceCellId": "training-only-eda"
+    },
+    {
+      "chapterId": "cleaning-splits",
+      "file": "figures/scaler-boundary.png",
+      "id": "scaler-boundary",
+      "publicPath": "/tabular-regression/figures/scaler-boundary.png",
+      "sourceCellId": "train-only-preprocessing"
+    },
+    {
+      "chapterId": "evaluation",
+      "file": "figures/validation-ridge-path.png",
+      "id": "validation-ridge-path",
+      "publicPath": "/tabular-regression/figures/validation-ridge-path.png",
+      "sourceCellId": "ridge-validation-selection"
+    },
+    {
+      "chapterId": "review-next-iteration",
+      "file": "figures/final-predicted-actual.png",
+      "id": "final-predicted-actual",
+      "publicPath": "/tabular-regression/figures/final-predicted-actual.png",
+      "sourceCellId": "final-test-review"
+    },
+    {
+      "chapterId": "review-next-iteration",
+      "file": "figures/final-residuals.png",
+      "id": "final-residuals",
+      "publicPath": "/tabular-regression/figures/final-residuals.png",
+      "sourceCellId": "final-test-review"
+    }
+  ]
+}

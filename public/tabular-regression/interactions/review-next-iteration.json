@@ -1,0 +1,3489 @@
+{
+  "chapterId": "review-next-iteration",
+  "groupMetrics": [
+    {
+      "count": 32,
+      "group": "high-occupancy",
+      "mae": 0.5870295960367915,
+      "meanResidual": -0.22535974167378486
+    },
+    {
+      "count": 42,
+      "group": "largest-error",
+      "mae": 2.9187682523638085,
+      "meanResidual": 2.459732178084121
+    },
+    {
+      "count": 3885,
+      "group": "ordinary",
+      "mae": 0.4739686603675828,
+      "meanResidual": -0.061574833833921636
+    },
+    {
+      "count": 169,
+      "group": "target-cap",
+      "mae": 1.2058994472769449,
+      "meanResidual": 0.8622551169550826
+    }
+  ],
+  "kind": "final-review",
+  "limitations": [
+    "1990-census-snapshot",
+    "block-group-not-individual-home",
+    "target-cap-near-500k",
+    "linear-geographic-boundary",
+    "association-not-causation"
+  ],
+  "namedFailures": [
+    {
+      "Latitude": 34.15,
+      "Longitude": -118.08,
+      "MedHouseVal": 5.00001,
+      "abs_error": 4.166764936541313,
+      "failure_group": "largest-error",
+      "prediction": 0.833245063458687,
+      "residual": 4.166764936541313,
+      "row_id": "ca-06689"
+    },
+    {
+      "Latitude": 34.06,
+      "Longitude": -118.22,
+      "MedHouseVal": 1.125,
+      "abs_error": 3.7381598438791173,
+      "failure_group": "largest-error",
+      "prediction": 4.863159843879117,
+      "residual": -3.7381598438791173,
+      "row_id": "ca-04493"
+    },
+    {
+      "Latitude": 34.08,
+      "Longitude": -117.08,
+      "MedHouseVal": 5.00001,
+      "abs_error": 3.630583205367219,
+      "failure_group": "largest-error",
+      "prediction": 1.3694267946327807,
+      "residual": 3.630583205367219,
+      "row_id": "ca-13767"
+    },
+    {
+      "Latitude": 33.48,
+      "Longitude": -117.66,
+      "MedHouseVal": 5.00001,
+      "abs_error": 3.488623758298089,
+      "failure_group": "largest-error",
+      "prediction": 1.5113862417019108,
+      "residual": 3.488623758298089,
+      "row_id": "ca-10455"
+    },
+    {
+      "Latitude": 37.87,
+      "Longitude": -122.25,
+      "MedHouseVal": 5.00001,
+      "abs_error": 3.4624793755587113,
+      "failure_group": "largest-error",
+      "prediction": 1.537530624441288,
+      "residual": 3.4624793755587113,
+      "row_id": "ca-00460"
+    },
+    {
+      "Latitude": 34.07,
+      "Longitude": -118.31,
+      "MedHouseVal": 5.00001,
+      "abs_error": 3.3235474144464674,
+      "failure_group": "largest-error",
+      "prediction": 1.6764625855535322,
+      "residual": 3.3235474144464674,
+      "row_id": "ca-04631"
+    },
+    {
+      "Latitude": 37.81,
+      "Longitude": -122.41,
+      "MedHouseVal": 5.00001,
+      "abs_error": 3.2379965324657523,
+      "failure_group": "largest-error",
+      "prediction": 1.7620134675342474,
+      "residual": 3.2379965324657523,
+      "row_id": "ca-15616"
+    },
+    {
+      "Latitude": 34.01,
+      "Longitude": -118.49,
+      "MedHouseVal": 5.00001,
+      "abs_error": 3.159850374457571,
+      "failure_group": "largest-error",
+      "prediction": 1.8401596255424286,
+      "residual": 3.159850374457571,
+      "row_id": "ca-08924"
+    }
+  ],
+  "residualSample": [
+    {
+      "MedHouseVal": 2.409,
+      "abs_error": 0.5025430387344683,
+      "failure_group": "ordinary",
+      "prediction": 2.911543038734468,
+      "residual": -0.5025430387344683,
+      "row_id": "ca-15225"
+    },
+    {
+      "MedHouseVal": 1.124,
+      "abs_error": 0.6707859307643198,
+      "failure_group": "ordinary",
+      "prediction": 1.79478593076432,
+      "residual": -0.6707859307643198,
+      "row_id": "ca-14848"
+    },
+    {
+      "MedHouseVal": 1.781,
+      "abs_error": 1.112407981852108,
+      "failure_group": "ordinary",
+      "prediction": 2.893407981852108,
+      "residual": -1.112407981852108,
+      "row_id": "ca-15458"
+    },
+    {
+      "MedHouseVal": 1.193,
+      "abs_error": 0.14199311211441445,
+      "failure_group": "ordinary",
+      "prediction": 1.3349931121144145,
+      "residual": -0.14199311211441445,
+      "row_id": "ca-04861"
+    },
+    {
+      "MedHouseVal": 3.458,
+      "abs_error": 0.0344363396684404,
+      "failure_group": "ordinary",
+      "prediction": 3.42356366033156,
+      "residual": 0.0344363396684404,
+      "row_id": "ca-01554"
+    },
+    {
+      "MedHouseVal": 0.816,
+      "abs_error": 0.37913642222976873,
+      "failure_group": "ordinary",
+      "prediction": 1.1951364222297687,
+      "residual": -0.37913642222976873,
+      "row_id": "ca-02525"
+    },
+    {
+      "MedHouseVal": 2.49,
+      "abs_error": 0.649924064777561,
+      "failure_group": "ordinary",
+      "prediction": 1.8400759352224392,
+      "residual": 0.649924064777561,
+      "row_id": "ca-15906"
+    },
+    {
+      "MedHouseVal": 3.311,
+      "abs_error": 0.0688147007880473,
+      "failure_group": "ordinary",
+      "prediction": 3.3798147007880472,
+      "residual": -0.0688147007880473,
+      "row_id": "ca-17181"
+    },
+    {
+      "MedHouseVal": 0.906,
+      "abs_error": 0.10553804458289961,
+      "failure_group": "ordinary",
+      "prediction": 1.0115380445828996,
+      "residual": -0.10553804458289961,
+      "row_id": "ca-13970"
+    },
+    {
+      "MedHouseVal": 1.618,
+      "abs_error": 0.8327852838674585,
+      "failure_group": "ordinary",
+      "prediction": 2.4507852838674586,
+      "residual": -0.8327852838674585,
+      "row_id": "ca-13215"
+    },
+    {
+      "MedHouseVal": 2.25,
+      "abs_error": 0.28379512847770294,
+      "failure_group": "ordinary",
+      "prediction": 1.966204871522297,
+      "residual": 0.28379512847770294,
+      "row_id": "ca-20182"
+    },
+    {
+      "MedHouseVal": 0.996,
+      "abs_error": 0.1637768552420249,
+      "failure_group": "ordinary",
+      "prediction": 1.159776855242025,
+      "residual": -0.1637768552420249,
+      "row_id": "ca-02617"
+    },
+    {
+      "MedHouseVal": 2.201,
+      "abs_error": 0.21276121676142856,
+      "failure_group": "ordinary",
+      "prediction": 1.9882387832385715,
+      "residual": 0.21276121676142856,
+      "row_id": "ca-07918"
+    },
+    {
+      "MedHouseVal": 0.981,
+      "abs_error": 0.21673232168780954,
+      "failure_group": "ordinary",
+      "prediction": 1.1977323216878095,
+      "residual": -0.21673232168780954,
+      "row_id": "ca-19051"
+    },
+    {
+      "MedHouseVal": 1.537,
+      "abs_error": 0.7245978286030308,
+      "failure_group": "ordinary",
+      "prediction": 2.2615978286030307,
+      "residual": -0.7245978286030308,
+      "row_id": "ca-07767"
+    },
+    {
+      "MedHouseVal": 4.5,
+      "abs_error": 1.827029954125868,
+      "failure_group": "ordinary",
+      "prediction": 2.672970045874132,
+      "residual": 1.827029954125868,
+      "row_id": "ca-09856"
+    },
+    {
+      "MedHouseVal": 1.344,
+      "abs_error": 0.7918184082580468,
+      "failure_group": "ordinary",
+      "prediction": 2.135818408258047,
+      "residual": -0.7918184082580468,
+      "row_id": "ca-14778"
+    },
+    {
+      "MedHouseVal": 1.015,
+      "abs_error": 0.4316292144799434,
+      "failure_group": "ordinary",
+      "prediction": 1.4466292144799433,
+      "residual": -0.4316292144799434,
+      "row_id": "ca-12565"
+    },
+    {
+      "MedHouseVal": 1.582,
+      "abs_error": 0.5450724082654579,
+      "failure_group": "ordinary",
+      "prediction": 2.127072408265458,
+      "residual": -0.5450724082654579,
+      "row_id": "ca-07667"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 0.33150548385140954,
+      "failure_group": "target-cap",
+      "prediction": 5.331515483851409,
+      "residual": -0.33150548385140954,
+      "row_id": "ca-18348"
+    },
+    {
+      "MedHouseVal": 2.639,
+      "abs_error": 0.6158245242058444,
+      "failure_group": "ordinary",
+      "prediction": 2.0231754757941554,
+      "residual": 0.6158245242058444,
+      "row_id": "ca-05712"
+    },
+    {
+      "MedHouseVal": 1.47,
+      "abs_error": 0.21352261990944732,
+      "failure_group": "ordinary",
+      "prediction": 1.6835226199094473,
+      "residual": -0.21352261990944732,
+      "row_id": "ca-14859"
+    },
+    {
+      "MedHouseVal": 1.794,
+      "abs_error": 0.3605889683701522,
+      "failure_group": "ordinary",
+      "prediction": 1.4334110316298478,
+      "residual": 0.3605889683701522,
+      "row_id": "ca-11766"
+    },
+    {
+      "MedHouseVal": 2.185,
+      "abs_error": 0.09654272982027434,
+      "failure_group": "ordinary",
+      "prediction": 2.2815427298202744,
+      "residual": -0.09654272982027434,
+      "row_id": "ca-15468"
+    },
+    {
+      "MedHouseVal": 1.896,
+      "abs_error": 0.2642450046631244,
+      "failure_group": "ordinary",
+      "prediction": 2.1602450046631243,
+      "residual": -0.2642450046631244,
+      "row_id": "ca-06180"
+    },
+    {
+      "MedHouseVal": 0.731,
+      "abs_error": 0.6075099369637372,
+      "failure_group": "ordinary",
+      "prediction": 1.3385099369637372,
+      "residual": -0.6075099369637372,
+      "row_id": "ca-20523"
+    },
+    {
+      "MedHouseVal": 0.695,
+      "abs_error": 0.05412766844224948,
+      "failure_group": "ordinary",
+      "prediction": 0.6408723315577505,
+      "residual": 0.05412766844224948,
+      "row_id": "ca-01859"
+    },
+    {
+      "MedHouseVal": 2.385,
+      "abs_error": 0.6012223306584805,
+      "failure_group": "ordinary",
+      "prediction": 1.7837776693415193,
+      "residual": 0.6012223306584805,
+      "row_id": "ca-00975"
+    },
+    {
+      "MedHouseVal": 1.016,
+      "abs_error": 0.08711209421134058,
+      "failure_group": "ordinary",
+      "prediction": 0.9288879057886594,
+      "residual": 0.08711209421134058,
+      "row_id": "ca-13073"
+    },
+    {
+      "MedHouseVal": 3.494,
+      "abs_error": 0.21981711478261,
+      "failure_group": "ordinary",
+      "prediction": 3.27418288521739,
+      "residual": 0.21981711478261,
+      "row_id": "ca-20420"
+    },
+    {
+      "MedHouseVal": 2.155,
+      "abs_error": 0.446566238835469,
+      "failure_group": "ordinary",
+      "prediction": 2.601566238835469,
+      "residual": -0.446566238835469,
+      "row_id": "ca-00999"
+    },
+    {
+      "MedHouseVal": 2.081,
+      "abs_error": 0.03409275353820451,
+      "failure_group": "ordinary",
+      "prediction": 2.1150927535382045,
+      "residual": -0.03409275353820451,
+      "row_id": "ca-07910"
+    },
+    {
+      "MedHouseVal": 0.739,
+      "abs_error": 0.2510004839969334,
+      "failure_group": "ordinary",
+      "prediction": 0.9900004839969334,
+      "residual": -0.2510004839969334,
+      "row_id": "ca-16290"
+    },
+    {
+      "MedHouseVal": 1.948,
+      "abs_error": 0.34090468060129586,
+      "failure_group": "ordinary",
+      "prediction": 2.288904680601296,
+      "residual": -0.34090468060129586,
+      "row_id": "ca-11347"
+    },
+    {
+      "MedHouseVal": 2.879,
+      "abs_error": 0.7455690768801548,
+      "failure_group": "ordinary",
+      "prediction": 2.133430923119845,
+      "residual": 0.7455690768801548,
+      "row_id": "ca-05829"
+    },
+    {
+      "MedHouseVal": 0.675,
+      "abs_error": 1.0495430519156606,
+      "failure_group": "ordinary",
+      "prediction": 1.7245430519156606,
+      "residual": -1.0495430519156606,
+      "row_id": "ca-14870"
+    },
+    {
+      "MedHouseVal": 0.94,
+      "abs_error": 0.4387354711504019,
+      "failure_group": "ordinary",
+      "prediction": 0.501264528849598,
+      "residual": 0.4387354711504019,
+      "row_id": "ca-19733"
+    },
+    {
+      "MedHouseVal": 0.946,
+      "abs_error": 0.28851963495535604,
+      "failure_group": "ordinary",
+      "prediction": 1.234519634955356,
+      "residual": -0.28851963495535604,
+      "row_id": "ca-18880"
+    },
+    {
+      "MedHouseVal": 2.248,
+      "abs_error": 0.7786971530015285,
+      "failure_group": "ordinary",
+      "prediction": 3.0266971530015288,
+      "residual": -0.7786971530015285,
+      "row_id": "ca-11373"
+    },
+    {
+      "MedHouseVal": 0.713,
+      "abs_error": 0.5578977093100367,
+      "failure_group": "ordinary",
+      "prediction": 1.2708977093100366,
+      "residual": -0.5578977093100367,
+      "row_id": "ca-02118"
+    },
+    {
+      "MedHouseVal": 1.464,
+      "abs_error": 0.5206434064859173,
+      "failure_group": "ordinary",
+      "prediction": 0.9433565935140826,
+      "residual": 0.5206434064859173,
+      "row_id": "ca-09081"
+    },
+    {
+      "MedHouseVal": 1.089,
+      "abs_error": 0.767853507876004,
+      "failure_group": "ordinary",
+      "prediction": 1.856853507876004,
+      "residual": -0.767853507876004,
+      "row_id": "ca-07479"
+    },
+    {
+      "MedHouseVal": 2.726,
+      "abs_error": 0.21765615543504513,
+      "failure_group": "ordinary",
+      "prediction": 2.508343844564955,
+      "residual": 0.21765615543504513,
+      "row_id": "ca-06461"
+    },
+    {
+      "MedHouseVal": 3.032,
+      "abs_error": 0.02194072433143024,
+      "failure_group": "ordinary",
+      "prediction": 3.0539407243314303,
+      "residual": -0.02194072433143024,
+      "row_id": "ca-20218"
+    },
+    {
+      "MedHouseVal": 1.564,
+      "abs_error": 0.5266821125391954,
+      "failure_group": "ordinary",
+      "prediction": 2.0906821125391954,
+      "residual": -0.5266821125391954,
+      "row_id": "ca-04156"
+    },
+    {
+      "MedHouseVal": 0.722,
+      "abs_error": 0.11198101491493762,
+      "failure_group": "ordinary",
+      "prediction": 0.8339810149149376,
+      "residual": -0.11198101491493762,
+      "row_id": "ca-02246"
+    },
+    {
+      "MedHouseVal": 1.293,
+      "abs_error": 1.0341174449320543,
+      "failure_group": "ordinary",
+      "prediction": 2.327117444932054,
+      "residual": -1.0341174449320543,
+      "row_id": "ca-17389"
+    },
+    {
+      "MedHouseVal": 2.528,
+      "abs_error": 0.013606958072633901,
+      "failure_group": "ordinary",
+      "prediction": 2.541606958072634,
+      "residual": -0.013606958072633901,
+      "row_id": "ca-18184"
+    },
+    {
+      "MedHouseVal": 1.569,
+      "abs_error": 0.03405275048593159,
+      "failure_group": "ordinary",
+      "prediction": 1.5349472495140684,
+      "residual": 0.03405275048593159,
+      "row_id": "ca-14654"
+    },
+    {
+      "MedHouseVal": 1.016,
+      "abs_error": 0.4345781388299077,
+      "failure_group": "ordinary",
+      "prediction": 1.4505781388299077,
+      "residual": -0.4345781388299077,
+      "row_id": "ca-12106"
+    },
+    {
+      "MedHouseVal": 2.277,
+      "abs_error": 0.45924999729367855,
+      "failure_group": "ordinary",
+      "prediction": 2.7362499972936787,
+      "residual": -0.45924999729367855,
+      "row_id": "ca-14940"
+    },
+    {
+      "MedHouseVal": 3.419,
+      "abs_error": 0.03722664072675874,
+      "failure_group": "ordinary",
+      "prediction": 3.3817733592732413,
+      "residual": 0.03722664072675874,
+      "row_id": "ca-18117"
+    },
+    {
+      "MedHouseVal": 1.661,
+      "abs_error": 0.34036040667406375,
+      "failure_group": "ordinary",
+      "prediction": 2.001360406674064,
+      "residual": -0.34036040667406375,
+      "row_id": "ca-07369"
+    },
+    {
+      "MedHouseVal": 1.438,
+      "abs_error": 0.45284998347786987,
+      "failure_group": "ordinary",
+      "prediction": 1.8908499834778698,
+      "residual": -0.45284998347786987,
+      "row_id": "ca-07844"
+    },
+    {
+      "MedHouseVal": 1.429,
+      "abs_error": 0.15738766790979564,
+      "failure_group": "ordinary",
+      "prediction": 1.5863876679097957,
+      "residual": -0.15738766790979564,
+      "row_id": "ca-07938"
+    },
+    {
+      "MedHouseVal": 2.028,
+      "abs_error": 0.24846156338648795,
+      "failure_group": "ordinary",
+      "prediction": 2.276461563386488,
+      "residual": -0.24846156338648795,
+      "row_id": "ca-19089"
+    },
+    {
+      "MedHouseVal": 0.977,
+      "abs_error": 0.5911176106027719,
+      "failure_group": "ordinary",
+      "prediction": 0.3858823893972281,
+      "residual": 0.5911176106027719,
+      "row_id": "ca-18788"
+    },
+    {
+      "MedHouseVal": 3.009,
+      "abs_error": 0.05004165832913543,
+      "failure_group": "ordinary",
+      "prediction": 2.9589583416708645,
+      "residual": 0.05004165832913543,
+      "row_id": "ca-06611"
+    },
+    {
+      "MedHouseVal": 1.804,
+      "abs_error": 0.36773128440549074,
+      "failure_group": "ordinary",
+      "prediction": 1.4362687155945093,
+      "residual": 0.36773128440549074,
+      "row_id": "ca-10930"
+    },
+    {
+      "MedHouseVal": 1.629,
+      "abs_error": 0.3409380639695372,
+      "failure_group": "ordinary",
+      "prediction": 1.9699380639695372,
+      "residual": -0.3409380639695372,
+      "row_id": "ca-06278"
+    },
+    {
+      "MedHouseVal": 2.697,
+      "abs_error": 0.18495594238371194,
+      "failure_group": "ordinary",
+      "prediction": 2.512044057616288,
+      "residual": 0.18495594238371194,
+      "row_id": "ca-08456"
+    },
+    {
+      "MedHouseVal": 1.287,
+      "abs_error": 0.10697177287067561,
+      "failure_group": "ordinary",
+      "prediction": 1.3939717728706755,
+      "residual": -0.10697177287067561,
+      "row_id": "ca-13005"
+    },
+    {
+      "MedHouseVal": 2.633,
+      "abs_error": 0.4822219262404168,
+      "failure_group": "ordinary",
+      "prediction": 3.115221926240417,
+      "residual": -0.4822219262404168,
+      "row_id": "ca-16793"
+    },
+    {
+      "MedHouseVal": 3.625,
+      "abs_error": 1.522609424054869,
+      "failure_group": "ordinary",
+      "prediction": 2.102390575945131,
+      "residual": 1.522609424054869,
+      "row_id": "ca-14425"
+    },
+    {
+      "MedHouseVal": 0.833,
+      "abs_error": 0.6784256921872556,
+      "failure_group": "ordinary",
+      "prediction": 1.5114256921872555,
+      "residual": -0.6784256921872556,
+      "row_id": "ca-14259"
+    },
+    {
+      "MedHouseVal": 1.313,
+      "abs_error": 0.42999791023914824,
+      "failure_group": "ordinary",
+      "prediction": 1.7429979102391482,
+      "residual": -0.42999791023914824,
+      "row_id": "ca-06501"
+    },
+    {
+      "MedHouseVal": 1.591,
+      "abs_error": 0.0044458173866932515,
+      "failure_group": "ordinary",
+      "prediction": 1.5954458173866932,
+      "residual": -0.0044458173866932515,
+      "row_id": "ca-12042"
+    },
+    {
+      "MedHouseVal": 0.875,
+      "abs_error": 0.7744260666904919,
+      "failure_group": "ordinary",
+      "prediction": 1.6494260666904919,
+      "residual": -0.7744260666904919,
+      "row_id": "ca-09654"
+    },
+    {
+      "MedHouseVal": 2.228,
+      "abs_error": 0.3983644416143144,
+      "failure_group": "ordinary",
+      "prediction": 2.6263644416143146,
+      "residual": -0.3983644416143144,
+      "row_id": "ca-20346"
+    },
+    {
+      "MedHouseVal": 1.464,
+      "abs_error": 0.4487538679206191,
+      "failure_group": "ordinary",
+      "prediction": 1.912753867920619,
+      "residual": -0.4487538679206191,
+      "row_id": "ca-06482"
+    },
+    {
+      "MedHouseVal": 1.487,
+      "abs_error": 0.4124734373636165,
+      "failure_group": "ordinary",
+      "prediction": 1.0745265626363836,
+      "residual": 0.4124734373636165,
+      "row_id": "ca-18714"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 0.9923472975013166,
+      "failure_group": "high-occupancy",
+      "prediction": 4.007662702498683,
+      "residual": 0.9923472975013166,
+      "row_id": "ca-09027"
+    },
+    {
+      "MedHouseVal": 4.333,
+      "abs_error": 1.8982788374501576,
+      "failure_group": "ordinary",
+      "prediction": 2.4347211625498426,
+      "residual": 1.8982788374501576,
+      "row_id": "ca-16086"
+    },
+    {
+      "MedHouseVal": 1.06,
+      "abs_error": 0.4744775598140585,
+      "failure_group": "ordinary",
+      "prediction": 1.5344775598140585,
+      "residual": -0.4744775598140585,
+      "row_id": "ca-19627"
+    },
+    {
+      "MedHouseVal": 1.567,
+      "abs_error": 0.1929442238003629,
+      "failure_group": "ordinary",
+      "prediction": 1.7599442238003629,
+      "residual": -0.1929442238003629,
+      "row_id": "ca-11125"
+    },
+    {
+      "MedHouseVal": 1.375,
+      "abs_error": 0.01761996285816525,
+      "failure_group": "ordinary",
+      "prediction": 1.3573800371418347,
+      "residual": 0.01761996285816525,
+      "row_id": "ca-04426"
+    },
+    {
+      "MedHouseVal": 0.94,
+      "abs_error": 0.4769123271427005,
+      "failure_group": "ordinary",
+      "prediction": 1.4169123271427004,
+      "residual": -0.4769123271427005,
+      "row_id": "ca-08325"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 0.7797605841733173,
+      "failure_group": "target-cap",
+      "prediction": 4.220249415826682,
+      "residual": 0.7797605841733173,
+      "row_id": "ca-06594"
+    },
+    {
+      "MedHouseVal": 0.672,
+      "abs_error": 0.675772715011009,
+      "failure_group": "ordinary",
+      "prediction": 1.347772715011009,
+      "residual": -0.675772715011009,
+      "row_id": "ca-02809"
+    },
+    {
+      "MedHouseVal": 1.125,
+      "abs_error": 0.0510244593039908,
+      "failure_group": "ordinary",
+      "prediction": 1.0739755406960092,
+      "residual": 0.0510244593039908,
+      "row_id": "ca-03331"
+    },
+    {
+      "MedHouseVal": 2.113,
+      "abs_error": 0.11682352239505445,
+      "failure_group": "ordinary",
+      "prediction": 1.9961764776049455,
+      "residual": 0.11682352239505445,
+      "row_id": "ca-06307"
+    },
+    {
+      "MedHouseVal": 2.662,
+      "abs_error": 0.3614837518596672,
+      "failure_group": "ordinary",
+      "prediction": 2.3005162481403327,
+      "residual": 0.3614837518596672,
+      "row_id": "ca-14959"
+    },
+    {
+      "MedHouseVal": 0.666,
+      "abs_error": 0.21611941935365986,
+      "failure_group": "ordinary",
+      "prediction": 0.8821194193536599,
+      "residual": -0.21611941935365986,
+      "row_id": "ca-13499"
+    },
+    {
+      "MedHouseVal": 2.271,
+      "abs_error": 0.1750024374818544,
+      "failure_group": "ordinary",
+      "prediction": 2.0959975625181455,
+      "residual": 0.1750024374818544,
+      "row_id": "ca-19160"
+    },
+    {
+      "MedHouseVal": 1.145,
+      "abs_error": 0.4473444302946288,
+      "failure_group": "ordinary",
+      "prediction": 1.5923444302946288,
+      "residual": -0.4473444302946288,
+      "row_id": "ca-12978"
+    },
+    {
+      "MedHouseVal": 1.535,
+      "abs_error": 0.8255509444493432,
+      "failure_group": "ordinary",
+      "prediction": 2.360550944449343,
+      "residual": -0.8255509444493432,
+      "row_id": "ca-07801"
+    },
+    {
+      "MedHouseVal": 3.753,
+      "abs_error": 0.11735652288412357,
+      "failure_group": "ordinary",
+      "prediction": 3.8703565228841237,
+      "residual": -0.11735652288412357,
+      "row_id": "ca-10613"
+    },
+    {
+      "MedHouseVal": 1.788,
+      "abs_error": 0.017180568794163298,
+      "failure_group": "ordinary",
+      "prediction": 1.8051805687941633,
+      "residual": -0.017180568794163298,
+      "row_id": "ca-06887"
+    },
+    {
+      "MedHouseVal": 1.791,
+      "abs_error": 0.6355959267556242,
+      "failure_group": "ordinary",
+      "prediction": 2.426595926755624,
+      "residual": -0.6355959267556242,
+      "row_id": "ca-00692"
+    },
+    {
+      "MedHouseVal": 2.004,
+      "abs_error": 0.3837048316767455,
+      "failure_group": "ordinary",
+      "prediction": 2.3877048316767455,
+      "residual": -0.3837048316767455,
+      "row_id": "ca-04460"
+    },
+    {
+      "MedHouseVal": 0.525,
+      "abs_error": 0.22253100456011932,
+      "failure_group": "ordinary",
+      "prediction": 0.7475310045601193,
+      "residual": -0.22253100456011932,
+      "row_id": "ca-12603"
+    },
+    {
+      "MedHouseVal": 1.75,
+      "abs_error": 0.3286024950989397,
+      "failure_group": "ordinary",
+      "prediction": 2.0786024950989397,
+      "residual": -0.3286024950989397,
+      "row_id": "ca-14410"
+    },
+    {
+      "MedHouseVal": 4.037,
+      "abs_error": 1.2592128852048265,
+      "failure_group": "ordinary",
+      "prediction": 2.7777871147951734,
+      "residual": 1.2592128852048265,
+      "row_id": "ca-06922"
+    },
+    {
+      "MedHouseVal": 3.333,
+      "abs_error": 0.983130937662144,
+      "failure_group": "ordinary",
+      "prediction": 2.349869062337856,
+      "residual": 0.983130937662144,
+      "row_id": "ca-19064"
+    },
+    {
+      "MedHouseVal": 1.731,
+      "abs_error": 0.2924516324947415,
+      "failure_group": "ordinary",
+      "prediction": 2.0234516324947416,
+      "residual": -0.2924516324947415,
+      "row_id": "ca-06160"
+    },
+    {
+      "MedHouseVal": 2.252,
+      "abs_error": 0.3580918658280621,
+      "failure_group": "ordinary",
+      "prediction": 2.610091865828062,
+      "residual": -0.3580918658280621,
+      "row_id": "ca-18876"
+    },
+    {
+      "MedHouseVal": 4.125,
+      "abs_error": 0.9670176608251957,
+      "failure_group": "ordinary",
+      "prediction": 3.1579823391748043,
+      "residual": 0.9670176608251957,
+      "row_id": "ca-00578"
+    },
+    {
+      "MedHouseVal": 0.529,
+      "abs_error": 0.3416316197671109,
+      "failure_group": "ordinary",
+      "prediction": 0.8706316197671109,
+      "residual": -0.3416316197671109,
+      "row_id": "ca-19857"
+    },
+    {
+      "MedHouseVal": 2.777,
+      "abs_error": 0.498474637171765,
+      "failure_group": "ordinary",
+      "prediction": 3.275474637171765,
+      "residual": -0.498474637171765,
+      "row_id": "ca-17190"
+    },
+    {
+      "MedHouseVal": 1.831,
+      "abs_error": 0.21909352738811338,
+      "failure_group": "ordinary",
+      "prediction": 1.6119064726118866,
+      "residual": 0.21909352738811338,
+      "row_id": "ca-09988"
+    },
+    {
+      "MedHouseVal": 2.67,
+      "abs_error": 0.15450040320380065,
+      "failure_group": "ordinary",
+      "prediction": 2.5154995967961993,
+      "residual": 0.15450040320380065,
+      "row_id": "ca-17212"
+    },
+    {
+      "MedHouseVal": 2.365,
+      "abs_error": 0.4529650743844831,
+      "failure_group": "ordinary",
+      "prediction": 1.9120349256155171,
+      "residual": 0.4529650743844831,
+      "row_id": "ca-07922"
+    },
+    {
+      "MedHouseVal": 2.174,
+      "abs_error": 0.3312705901065649,
+      "failure_group": "ordinary",
+      "prediction": 2.505270590106565,
+      "residual": -0.3312705901065649,
+      "row_id": "ca-08025"
+    },
+    {
+      "MedHouseVal": 0.633,
+      "abs_error": 0.6113724554920394,
+      "failure_group": "ordinary",
+      "prediction": 1.2443724554920395,
+      "residual": -0.6113724554920394,
+      "row_id": "ca-02954"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 3.3235474144464674,
+      "failure_group": "largest-error",
+      "prediction": 1.6764625855535322,
+      "residual": 3.3235474144464674,
+      "row_id": "ca-04631"
+    },
+    {
+      "MedHouseVal": 2.334,
+      "abs_error": 0.2840523359095717,
+      "failure_group": "ordinary",
+      "prediction": 2.6180523359095718,
+      "residual": -0.2840523359095717,
+      "row_id": "ca-14932"
+    },
+    {
+      "MedHouseVal": 0.508,
+      "abs_error": 1.3664681719887166,
+      "failure_group": "ordinary",
+      "prediction": 1.8744681719887166,
+      "residual": -1.3664681719887166,
+      "row_id": "ca-02594"
+    },
+    {
+      "MedHouseVal": 0.696,
+      "abs_error": 0.10703351417651019,
+      "failure_group": "ordinary",
+      "prediction": 0.8030335141765101,
+      "residual": -0.10703351417651019,
+      "row_id": "ca-13902"
+    },
+    {
+      "MedHouseVal": 1.914,
+      "abs_error": 0.7461427195946742,
+      "failure_group": "ordinary",
+      "prediction": 2.660142719594674,
+      "residual": -0.7461427195946742,
+      "row_id": "ca-10183"
+    },
+    {
+      "MedHouseVal": 1.25,
+      "abs_error": 0.083616775970341,
+      "failure_group": "ordinary",
+      "prediction": 1.333616775970341,
+      "residual": -0.083616775970341,
+      "row_id": "ca-14761"
+    },
+    {
+      "MedHouseVal": 1.991,
+      "abs_error": 0.26386327323069736,
+      "failure_group": "ordinary",
+      "prediction": 1.7271367267693027,
+      "residual": 0.26386327323069736,
+      "row_id": "ca-03839"
+    },
+    {
+      "MedHouseVal": 1.067,
+      "abs_error": 0.6147086426325259,
+      "failure_group": "ordinary",
+      "prediction": 1.6817086426325258,
+      "residual": -0.6147086426325259,
+      "row_id": "ca-09944"
+    },
+    {
+      "MedHouseVal": 1.688,
+      "abs_error": 0.6456679623466002,
+      "failure_group": "ordinary",
+      "prediction": 1.0423320376533998,
+      "residual": 0.6456679623466002,
+      "row_id": "ca-04843"
+    },
+    {
+      "MedHouseVal": 4.635,
+      "abs_error": 1.541805387850589,
+      "failure_group": "ordinary",
+      "prediction": 3.0931946121494107,
+      "residual": 1.541805387850589,
+      "row_id": "ca-08311"
+    },
+    {
+      "MedHouseVal": 2.167,
+      "abs_error": 0.3843587061030589,
+      "failure_group": "ordinary",
+      "prediction": 2.5513587061030587,
+      "residual": -0.3843587061030589,
+      "row_id": "ca-00398"
+    },
+    {
+      "MedHouseVal": 2.125,
+      "abs_error": 0.1890311585928912,
+      "failure_group": "ordinary",
+      "prediction": 2.314031158592891,
+      "residual": -0.1890311585928912,
+      "row_id": "ca-11223"
+    },
+    {
+      "MedHouseVal": 2.917,
+      "abs_error": 0.2967681574271621,
+      "failure_group": "ordinary",
+      "prediction": 2.6202318425728377,
+      "residual": 0.2967681574271621,
+      "row_id": "ca-08687"
+    },
+    {
+      "MedHouseVal": 0.989,
+      "abs_error": 0.5234659932556304,
+      "failure_group": "ordinary",
+      "prediction": 1.5124659932556304,
+      "residual": -0.5234659932556304,
+      "row_id": "ca-18951"
+    },
+    {
+      "MedHouseVal": 0.969,
+      "abs_error": 0.2273958821874199,
+      "failure_group": "ordinary",
+      "prediction": 1.1963958821874199,
+      "residual": -0.2273958821874199,
+      "row_id": "ca-09107"
+    },
+    {
+      "MedHouseVal": 2.835,
+      "abs_error": 0.11770742843013249,
+      "failure_group": "ordinary",
+      "prediction": 2.7172925715698675,
+      "residual": 0.11770742843013249,
+      "row_id": "ca-18663"
+    },
+    {
+      "MedHouseVal": 2.328,
+      "abs_error": 0.01398626039555051,
+      "failure_group": "ordinary",
+      "prediction": 2.3140137396044493,
+      "residual": 0.01398626039555051,
+      "row_id": "ca-01514"
+    },
+    {
+      "MedHouseVal": 2.396,
+      "abs_error": 0.1159062284958261,
+      "failure_group": "ordinary",
+      "prediction": 2.280093771504174,
+      "residual": 0.1159062284958261,
+      "row_id": "ca-01929"
+    },
+    {
+      "MedHouseVal": 2.4,
+      "abs_error": 0.18668696601315826,
+      "failure_group": "ordinary",
+      "prediction": 2.586686966013158,
+      "residual": -0.18668696601315826,
+      "row_id": "ca-08537"
+    },
+    {
+      "MedHouseVal": 1.32,
+      "abs_error": 0.5172124547350787,
+      "failure_group": "ordinary",
+      "prediction": 1.8372124547350788,
+      "residual": -0.5172124547350787,
+      "row_id": "ca-13306"
+    },
+    {
+      "MedHouseVal": 1.686,
+      "abs_error": 0.20190611668210856,
+      "failure_group": "ordinary",
+      "prediction": 1.8879061166821085,
+      "residual": -0.20190611668210856,
+      "row_id": "ca-11130"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 4.166764936541313,
+      "failure_group": "largest-error",
+      "prediction": 0.833245063458687,
+      "residual": 4.166764936541313,
+      "row_id": "ca-06689"
+    },
+    {
+      "MedHouseVal": 0.934,
+      "abs_error": 0.043193926177446884,
+      "failure_group": "ordinary",
+      "prediction": 0.8908060738225532,
+      "residual": 0.043193926177446884,
+      "row_id": "ca-12399"
+    },
+    {
+      "MedHouseVal": 0.983,
+      "abs_error": 0.7856494834813444,
+      "failure_group": "ordinary",
+      "prediction": 1.7686494834813444,
+      "residual": -0.7856494834813444,
+      "row_id": "ca-14916"
+    },
+    {
+      "MedHouseVal": 2.239,
+      "abs_error": 0.23261332944934,
+      "failure_group": "ordinary",
+      "prediction": 2.00638667055066,
+      "residual": 0.23261332944934,
+      "row_id": "ca-11103"
+    },
+    {
+      "MedHouseVal": 2.5,
+      "abs_error": 0.2979325950388838,
+      "failure_group": "ordinary",
+      "prediction": 2.202067404961116,
+      "residual": 0.2979325950388838,
+      "row_id": "ca-15797"
+    },
+    {
+      "MedHouseVal": 1.76,
+      "abs_error": 0.5623761226576114,
+      "failure_group": "ordinary",
+      "prediction": 2.3223761226576114,
+      "residual": -0.5623761226576114,
+      "row_id": "ca-00797"
+    },
+    {
+      "MedHouseVal": 3.743,
+      "abs_error": 1.6884155596535613,
+      "failure_group": "ordinary",
+      "prediction": 2.0545844403464386,
+      "residual": 1.6884155596535613,
+      "row_id": "ca-05738"
+    },
+    {
+      "MedHouseVal": 1.129,
+      "abs_error": 0.6611786272703117,
+      "failure_group": "ordinary",
+      "prediction": 1.7901786272703117,
+      "residual": -0.6611786272703117,
+      "row_id": "ca-09513"
+    },
+    {
+      "MedHouseVal": 1.892,
+      "abs_error": 0.09829902399348,
+      "failure_group": "ordinary",
+      "prediction": 1.99029902399348,
+      "residual": -0.09829902399348,
+      "row_id": "ca-15150"
+    },
+    {
+      "MedHouseVal": 1.74,
+      "abs_error": 0.4837115101434313,
+      "failure_group": "ordinary",
+      "prediction": 2.2237115101434313,
+      "residual": -0.4837115101434313,
+      "row_id": "ca-10894"
+    },
+    {
+      "MedHouseVal": 2.906,
+      "abs_error": 1.1828657786444183,
+      "failure_group": "ordinary",
+      "prediction": 1.7231342213555818,
+      "residual": 1.1828657786444183,
+      "row_id": "ca-14446"
+    },
+    {
+      "MedHouseVal": 0.721,
+      "abs_error": 0.41595503238307263,
+      "failure_group": "ordinary",
+      "prediction": 1.1369550323830726,
+      "residual": -0.41595503238307263,
+      "row_id": "ca-13589"
+    },
+    {
+      "MedHouseVal": 1.741,
+      "abs_error": 0.672656814107425,
+      "failure_group": "ordinary",
+      "prediction": 2.413656814107425,
+      "residual": -0.672656814107425,
+      "row_id": "ca-17864"
+    },
+    {
+      "MedHouseVal": 1.438,
+      "abs_error": 0.7319627341712038,
+      "failure_group": "ordinary",
+      "prediction": 0.7060372658287961,
+      "residual": 0.7319627341712038,
+      "row_id": "ca-11868"
+    },
+    {
+      "MedHouseVal": 1.736,
+      "abs_error": 0.9089848282146551,
+      "failure_group": "ordinary",
+      "prediction": 2.644984828214655,
+      "residual": -0.9089848282146551,
+      "row_id": "ca-00782"
+    },
+    {
+      "MedHouseVal": 3.335,
+      "abs_error": 0.6420467420917495,
+      "failure_group": "ordinary",
+      "prediction": 2.6929532579082505,
+      "residual": 0.6420467420917495,
+      "row_id": "ca-08973"
+    },
+    {
+      "MedHouseVal": 1.75,
+      "abs_error": 0.19612309608914025,
+      "failure_group": "ordinary",
+      "prediction": 1.9461230960891402,
+      "residual": -0.19612309608914025,
+      "row_id": "ca-12551"
+    },
+    {
+      "MedHouseVal": 1.235,
+      "abs_error": 0.17724052801215562,
+      "failure_group": "ordinary",
+      "prediction": 1.0577594719878445,
+      "residual": 0.17724052801215562,
+      "row_id": "ca-16426"
+    },
+    {
+      "MedHouseVal": 1.941,
+      "abs_error": 0.217764334422063,
+      "failure_group": "ordinary",
+      "prediction": 2.158764334422063,
+      "residual": -0.217764334422063,
+      "row_id": "ca-13858"
+    },
+    {
+      "MedHouseVal": 2.657,
+      "abs_error": 0.24049596557530517,
+      "failure_group": "ordinary",
+      "prediction": 2.897495965575305,
+      "residual": -0.24049596557530517,
+      "row_id": "ca-18431"
+    },
+    {
+      "MedHouseVal": 1.142,
+      "abs_error": 0.06933251713955046,
+      "failure_group": "ordinary",
+      "prediction": 1.0726674828604494,
+      "residual": 0.06933251713955046,
+      "row_id": "ca-19965"
+    },
+    {
+      "MedHouseVal": 1.241,
+      "abs_error": 0.5514665717661715,
+      "failure_group": "ordinary",
+      "prediction": 0.6895334282338286,
+      "residual": 0.5514665717661715,
+      "row_id": "ca-09200"
+    },
+    {
+      "MedHouseVal": 1.519,
+      "abs_error": 1.0847504948088134,
+      "failure_group": "ordinary",
+      "prediction": 2.6037504948088133,
+      "residual": -1.0847504948088134,
+      "row_id": "ca-16314"
+    },
+    {
+      "MedHouseVal": 1.775,
+      "abs_error": 0.8785122929497851,
+      "failure_group": "ordinary",
+      "prediction": 2.653512292949785,
+      "residual": -0.8785122929497851,
+      "row_id": "ca-01347"
+    },
+    {
+      "MedHouseVal": 3.624,
+      "abs_error": 0.6905618278430827,
+      "failure_group": "ordinary",
+      "prediction": 2.9334381721569174,
+      "residual": 0.6905618278430827,
+      "row_id": "ca-11599"
+    },
+    {
+      "MedHouseVal": 4.964,
+      "abs_error": 1.0848826779182623,
+      "failure_group": "ordinary",
+      "prediction": 3.879117322081738,
+      "residual": 1.0848826779182623,
+      "row_id": "ca-18055"
+    },
+    {
+      "MedHouseVal": 1.125,
+      "abs_error": 0.32530043163050726,
+      "failure_group": "ordinary",
+      "prediction": 1.4503004316305073,
+      "residual": -0.32530043163050726,
+      "row_id": "ca-07217"
+    },
+    {
+      "MedHouseVal": 1.434,
+      "abs_error": 1.2342852058416514,
+      "failure_group": "ordinary",
+      "prediction": 2.6682852058416513,
+      "residual": -1.2342852058416514,
+      "row_id": "ca-14921"
+    },
+    {
+      "MedHouseVal": 0.748,
+      "abs_error": 0.3320360191328149,
+      "failure_group": "ordinary",
+      "prediction": 0.4159639808671851,
+      "residual": 0.3320360191328149,
+      "row_id": "ca-18785"
+    },
+    {
+      "MedHouseVal": 0.57,
+      "abs_error": 0.4336702511545881,
+      "failure_group": "ordinary",
+      "prediction": 1.003670251154588,
+      "residual": -0.4336702511545881,
+      "row_id": "ca-09220"
+    },
+    {
+      "MedHouseVal": 3.76,
+      "abs_error": 0.49073845172763875,
+      "failure_group": "ordinary",
+      "prediction": 3.269261548272361,
+      "residual": 0.49073845172763875,
+      "row_id": "ca-17223"
+    },
+    {
+      "MedHouseVal": 2.108,
+      "abs_error": 0.616408979571379,
+      "failure_group": "ordinary",
+      "prediction": 2.724408979571379,
+      "residual": -0.616408979571379,
+      "row_id": "ca-08004"
+    },
+    {
+      "MedHouseVal": 0.964,
+      "abs_error": 0.7658342091352646,
+      "failure_group": "ordinary",
+      "prediction": 1.7298342091352645,
+      "residual": -0.7658342091352646,
+      "row_id": "ca-19383"
+    },
+    {
+      "MedHouseVal": 1.858,
+      "abs_error": 0.1541861154337818,
+      "failure_group": "ordinary",
+      "prediction": 2.012186115433782,
+      "residual": -0.1541861154337818,
+      "row_id": "ca-17686"
+    },
+    {
+      "MedHouseVal": 0.927,
+      "abs_error": 0.06047015699036806,
+      "failure_group": "ordinary",
+      "prediction": 0.9874701569903681,
+      "residual": -0.06047015699036806,
+      "row_id": "ca-19444"
+    },
+    {
+      "MedHouseVal": 0.953,
+      "abs_error": 0.01188930373992847,
+      "failure_group": "ordinary",
+      "prediction": 0.9648893037399284,
+      "residual": -0.01188930373992847,
+      "row_id": "ca-02535"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 0.8366393281164202,
+      "failure_group": "target-cap",
+      "prediction": 4.1633706718835795,
+      "residual": 0.8366393281164202,
+      "row_id": "ca-05256"
+    },
+    {
+      "MedHouseVal": 0.769,
+      "abs_error": 0.10888638825688635,
+      "failure_group": "ordinary",
+      "prediction": 0.6601136117431137,
+      "residual": 0.10888638825688635,
+      "row_id": "ca-12422"
+    },
+    {
+      "MedHouseVal": 1.745,
+      "abs_error": 0.6523087777402141,
+      "failure_group": "ordinary",
+      "prediction": 2.3973087777402142,
+      "residual": -0.6523087777402141,
+      "row_id": "ca-07682"
+    },
+    {
+      "MedHouseVal": 1.513,
+      "abs_error": 0.4500605274742633,
+      "failure_group": "ordinary",
+      "prediction": 1.9630605274742632,
+      "residual": -0.4500605274742633,
+      "row_id": "ca-19353"
+    },
+    {
+      "MedHouseVal": 1.539,
+      "abs_error": 0.014722878506351789,
+      "failure_group": "ordinary",
+      "prediction": 1.5537228785063517,
+      "residual": -0.014722878506351789,
+      "row_id": "ca-12469"
+    },
+    {
+      "MedHouseVal": 1.801,
+      "abs_error": 1.3414608649118203,
+      "failure_group": "ordinary",
+      "prediction": 3.14246086491182,
+      "residual": -1.3414608649118203,
+      "row_id": "ca-17448"
+    },
+    {
+      "MedHouseVal": 2.336,
+      "abs_error": 0.7971256104348243,
+      "failure_group": "ordinary",
+      "prediction": 3.133125610434824,
+      "residual": -0.7971256104348243,
+      "row_id": "ca-17078"
+    },
+    {
+      "MedHouseVal": 0.952,
+      "abs_error": 0.745928667768128,
+      "failure_group": "ordinary",
+      "prediction": 1.697928667768128,
+      "residual": -0.745928667768128,
+      "row_id": "ca-13631"
+    },
+    {
+      "MedHouseVal": 3.185,
+      "abs_error": 0.26342787776719323,
+      "failure_group": "ordinary",
+      "prediction": 2.921572122232807,
+      "residual": 0.26342787776719323,
+      "row_id": "ca-11633"
+    },
+    {
+      "MedHouseVal": 1.875,
+      "abs_error": 0.21376293825356418,
+      "failure_group": "ordinary",
+      "prediction": 1.6612370617464358,
+      "residual": 0.21376293825356418,
+      "row_id": "ca-07357"
+    },
+    {
+      "MedHouseVal": 2.726,
+      "abs_error": 0.43324799746193277,
+      "failure_group": "ordinary",
+      "prediction": 2.292752002538067,
+      "residual": 0.43324799746193277,
+      "row_id": "ca-06745"
+    },
+    {
+      "MedHouseVal": 2.537,
+      "abs_error": 0.21796569505764296,
+      "failure_group": "ordinary",
+      "prediction": 2.754965695057643,
+      "residual": -0.21796569505764296,
+      "row_id": "ca-09157"
+    },
+    {
+      "MedHouseVal": 0.647,
+      "abs_error": 0.018962592551934776,
+      "failure_group": "ordinary",
+      "prediction": 0.6280374074480652,
+      "residual": 0.018962592551934776,
+      "row_id": "ca-02120"
+    },
+    {
+      "MedHouseVal": 2.449,
+      "abs_error": 0.37779833363605153,
+      "failure_group": "ordinary",
+      "prediction": 2.0712016663639483,
+      "residual": 0.37779833363605153,
+      "row_id": "ca-11080"
+    },
+    {
+      "MedHouseVal": 2.378,
+      "abs_error": 0.07717210350530834,
+      "failure_group": "ordinary",
+      "prediction": 2.4551721035053085,
+      "residual": -0.07717210350530834,
+      "row_id": "ca-11482"
+    },
+    {
+      "MedHouseVal": 0.658,
+      "abs_error": 0.19446113932268483,
+      "failure_group": "ordinary",
+      "prediction": 0.8524611393226849,
+      "residual": -0.19446113932268483,
+      "row_id": "ca-02408"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 3.159850374457571,
+      "failure_group": "largest-error",
+      "prediction": 1.8401596255424286,
+      "residual": 3.159850374457571,
+      "row_id": "ca-08924"
+    },
+    {
+      "MedHouseVal": 4.135,
+      "abs_error": 0.7875546104174922,
+      "failure_group": "ordinary",
+      "prediction": 3.3474453895825076,
+      "residual": 0.7875546104174922,
+      "row_id": "ca-18020"
+    },
+    {
+      "MedHouseVal": 1.971,
+      "abs_error": 0.844822794767289,
+      "failure_group": "ordinary",
+      "prediction": 2.815822794767289,
+      "residual": -0.844822794767289,
+      "row_id": "ca-14586"
+    },
+    {
+      "MedHouseVal": 1.826,
+      "abs_error": 0.8291239192827315,
+      "failure_group": "ordinary",
+      "prediction": 0.9968760807172685,
+      "residual": 0.8291239192827315,
+      "row_id": "ca-20544"
+    },
+    {
+      "MedHouseVal": 1.739,
+      "abs_error": 0.07365674994466498,
+      "failure_group": "ordinary",
+      "prediction": 1.6653432500553351,
+      "residual": 0.07365674994466498,
+      "row_id": "ca-12225"
+    },
+    {
+      "MedHouseVal": 2.132,
+      "abs_error": 0.3054301952895393,
+      "failure_group": "ordinary",
+      "prediction": 1.8265698047104608,
+      "residual": 0.3054301952895393,
+      "row_id": "ca-03888"
+    },
+    {
+      "MedHouseVal": 2.322,
+      "abs_error": 0.3457016187636621,
+      "failure_group": "ordinary",
+      "prediction": 2.667701618763662,
+      "residual": -0.3457016187636621,
+      "row_id": "ca-20398"
+    },
+    {
+      "MedHouseVal": 3.016,
+      "abs_error": 0.03683970628987154,
+      "failure_group": "ordinary",
+      "prediction": 2.9791602937101285,
+      "residual": 0.03683970628987154,
+      "row_id": "ca-15037"
+    },
+    {
+      "MedHouseVal": 0.726,
+      "abs_error": 0.636167500943962,
+      "failure_group": "ordinary",
+      "prediction": 1.362167500943962,
+      "residual": -0.636167500943962,
+      "row_id": "ca-02561"
+    },
+    {
+      "MedHouseVal": 1.288,
+      "abs_error": 0.3476063310618196,
+      "failure_group": "ordinary",
+      "prediction": 1.6356063310618196,
+      "residual": -0.3476063310618196,
+      "row_id": "ca-00202"
+    },
+    {
+      "MedHouseVal": 0.688,
+      "abs_error": 0.31763370075492947,
+      "failure_group": "ordinary",
+      "prediction": 1.0056337007549294,
+      "residual": -0.31763370075492947,
+      "row_id": "ca-01253"
+    },
+    {
+      "MedHouseVal": 0.813,
+      "abs_error": 0.3628636486686798,
+      "failure_group": "ordinary",
+      "prediction": 1.1758636486686798,
+      "residual": -0.3628636486686798,
+      "row_id": "ca-02553"
+    },
+    {
+      "MedHouseVal": 2.393,
+      "abs_error": 0.6441757901191807,
+      "failure_group": "ordinary",
+      "prediction": 1.748824209880819,
+      "residual": 0.6441757901191807,
+      "row_id": "ca-05464"
+    },
+    {
+      "MedHouseVal": 1.441,
+      "abs_error": 0.818189902629842,
+      "failure_group": "ordinary",
+      "prediction": 2.259189902629842,
+      "residual": -0.818189902629842,
+      "row_id": "ca-01338"
+    },
+    {
+      "MedHouseVal": 0.988,
+      "abs_error": 0.1465330740879489,
+      "failure_group": "ordinary",
+      "prediction": 1.134533074087949,
+      "residual": -0.1465330740879489,
+      "row_id": "ca-06038"
+    },
+    {
+      "MedHouseVal": 2.625,
+      "abs_error": 0.4167847493547514,
+      "failure_group": "ordinary",
+      "prediction": 3.0417847493547514,
+      "residual": -0.4167847493547514,
+      "row_id": "ca-16832"
+    },
+    {
+      "MedHouseVal": 1.663,
+      "abs_error": 0.34598738474015645,
+      "failure_group": "ordinary",
+      "prediction": 2.0089873847401565,
+      "residual": -0.34598738474015645,
+      "row_id": "ca-06493"
+    },
+    {
+      "MedHouseVal": 1.43,
+      "abs_error": 0.1811042861822596,
+      "failure_group": "ordinary",
+      "prediction": 1.6111042861822595,
+      "residual": -0.1811042861822596,
+      "row_id": "ca-02580"
+    },
+    {
+      "MedHouseVal": 2.314,
+      "abs_error": 0.39705007617568366,
+      "failure_group": "ordinary",
+      "prediction": 2.7110500761756837,
+      "residual": -0.39705007617568366,
+      "row_id": "ca-10687"
+    },
+    {
+      "MedHouseVal": 3.3,
+      "abs_error": 0.011473014651725233,
+      "failure_group": "ordinary",
+      "prediction": 3.2885269853482746,
+      "residual": 0.011473014651725233,
+      "row_id": "ca-10483"
+    },
+    {
+      "MedHouseVal": 1.659,
+      "abs_error": 0.23867325878824852,
+      "failure_group": "ordinary",
+      "prediction": 1.4203267412117515,
+      "residual": 0.23867325878824852,
+      "row_id": "ca-06531"
+    },
+    {
+      "MedHouseVal": 2.52,
+      "abs_error": 0.12626497449658025,
+      "failure_group": "ordinary",
+      "prediction": 2.3937350255034198,
+      "residual": 0.12626497449658025,
+      "row_id": "ca-14644"
+    },
+    {
+      "MedHouseVal": 1.411,
+      "abs_error": 0.6245808858681205,
+      "failure_group": "ordinary",
+      "prediction": 2.0355808858681206,
+      "residual": -0.6245808858681205,
+      "row_id": "ca-07770"
+    },
+    {
+      "MedHouseVal": 2.083,
+      "abs_error": 0.17218155009679847,
+      "failure_group": "ordinary",
+      "prediction": 2.2551815500967987,
+      "residual": -0.17218155009679847,
+      "row_id": "ca-17895"
+    },
+    {
+      "MedHouseVal": 1.469,
+      "abs_error": 0.1952164143652524,
+      "failure_group": "ordinary",
+      "prediction": 1.6642164143652525,
+      "residual": -0.1952164143652524,
+      "row_id": "ca-19256"
+    },
+    {
+      "MedHouseVal": 3.935,
+      "abs_error": 1.3701156190737795,
+      "failure_group": "ordinary",
+      "prediction": 2.5648843809262205,
+      "residual": 1.3701156190737795,
+      "row_id": "ca-04239"
+    },
+    {
+      "MedHouseVal": 1.212,
+      "abs_error": 0.24889387379100825,
+      "failure_group": "ordinary",
+      "prediction": 1.4608938737910082,
+      "residual": -0.24889387379100825,
+      "row_id": "ca-13133"
+    },
+    {
+      "MedHouseVal": 2.0,
+      "abs_error": 1.1800632518549354,
+      "failure_group": "ordinary",
+      "prediction": 0.8199367481450646,
+      "residual": 1.1800632518549354,
+      "row_id": "ca-11709"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 2.683662910594769,
+      "failure_group": "largest-error",
+      "prediction": 2.3163470894052307,
+      "residual": 2.683662910594769,
+      "row_id": "ca-04116"
+    },
+    {
+      "MedHouseVal": 1.611,
+      "abs_error": 0.6673403874337336,
+      "failure_group": "ordinary",
+      "prediction": 2.2783403874337336,
+      "residual": -0.6673403874337336,
+      "row_id": "ca-11688"
+    },
+    {
+      "MedHouseVal": 4.5,
+      "abs_error": 2.7484487549518173,
+      "failure_group": "largest-error",
+      "prediction": 1.751551245048183,
+      "residual": 2.7484487549518173,
+      "row_id": "ca-05428"
+    },
+    {
+      "MedHouseVal": 1.688,
+      "abs_error": 0.2195784350674661,
+      "failure_group": "ordinary",
+      "prediction": 1.4684215649325338,
+      "residual": 0.2195784350674661,
+      "row_id": "ca-06658"
+    },
+    {
+      "MedHouseVal": 1.875,
+      "abs_error": 0.26399030044669214,
+      "failure_group": "ordinary",
+      "prediction": 2.138990300446692,
+      "residual": -0.26399030044669214,
+      "row_id": "ca-08130"
+    },
+    {
+      "MedHouseVal": 2.485,
+      "abs_error": 0.11429628495665778,
+      "failure_group": "ordinary",
+      "prediction": 2.5992962849566577,
+      "residual": -0.11429628495665778,
+      "row_id": "ca-00559"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 0.8570031424461346,
+      "failure_group": "target-cap",
+      "prediction": 5.857013142446134,
+      "residual": -0.8570031424461346,
+      "row_id": "ca-08795"
+    },
+    {
+      "MedHouseVal": 3.138,
+      "abs_error": 0.3871532684465411,
+      "failure_group": "ordinary",
+      "prediction": 2.750846731553459,
+      "residual": 0.3871532684465411,
+      "row_id": "ca-20372"
+    },
+    {
+      "MedHouseVal": 1.972,
+      "abs_error": 0.05035768137155894,
+      "failure_group": "ordinary",
+      "prediction": 1.921642318628441,
+      "residual": 0.05035768137155894,
+      "row_id": "ca-10363"
+    },
+    {
+      "MedHouseVal": 1.417,
+      "abs_error": 0.23303002676774343,
+      "failure_group": "ordinary",
+      "prediction": 1.6500300267677435,
+      "residual": -0.23303002676774343,
+      "row_id": "ca-07301"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 1.944577229971289,
+      "failure_group": "target-cap",
+      "prediction": 3.0554327700287107,
+      "residual": 1.944577229971289,
+      "row_id": "ca-16126"
+    },
+    {
+      "MedHouseVal": 0.762,
+      "abs_error": 0.40493828370851404,
+      "failure_group": "ordinary",
+      "prediction": 1.166938283708514,
+      "residual": -0.40493828370851404,
+      "row_id": "ca-11968"
+    },
+    {
+      "MedHouseVal": 0.636,
+      "abs_error": 0.1082274029239535,
+      "failure_group": "ordinary",
+      "prediction": 0.7442274029239535,
+      "residual": -0.1082274029239535,
+      "row_id": "ca-01185"
+    },
+    {
+      "MedHouseVal": 2.157,
+      "abs_error": 0.4592479350642278,
+      "failure_group": "ordinary",
+      "prediction": 2.616247935064228,
+      "residual": -0.4592479350642278,
+      "row_id": "ca-11289"
+    },
+    {
+      "MedHouseVal": 1.077,
+      "abs_error": 0.6487796358575881,
+      "failure_group": "ordinary",
+      "prediction": 0.4282203641424118,
+      "residual": 0.6487796358575881,
+      "row_id": "ca-01111"
+    },
+    {
+      "MedHouseVal": 2.205,
+      "abs_error": 0.3908511287956258,
+      "failure_group": "ordinary",
+      "prediction": 1.8141488712043743,
+      "residual": 0.3908511287956258,
+      "row_id": "ca-01489"
+    },
+    {
+      "MedHouseVal": 0.955,
+      "abs_error": 0.390328693161189,
+      "failure_group": "ordinary",
+      "prediction": 1.345328693161189,
+      "residual": -0.390328693161189,
+      "row_id": "ca-14130"
+    },
+    {
+      "MedHouseVal": 1.565,
+      "abs_error": 0.5911514509534053,
+      "failure_group": "ordinary",
+      "prediction": 2.156151450953405,
+      "residual": -0.5911514509534053,
+      "row_id": "ca-00221"
+    },
+    {
+      "MedHouseVal": 2.867,
+      "abs_error": 0.10494049245188375,
+      "failure_group": "ordinary",
+      "prediction": 2.7620595075481162,
+      "residual": 0.10494049245188375,
+      "row_id": "ca-11640"
+    },
+    {
+      "MedHouseVal": 2.07,
+      "abs_error": 0.2267195527182908,
+      "failure_group": "ordinary",
+      "prediction": 1.843280447281709,
+      "residual": 0.2267195527182908,
+      "row_id": "ca-06181"
+    },
+    {
+      "MedHouseVal": 0.89,
+      "abs_error": 0.6785835564767401,
+      "failure_group": "ordinary",
+      "prediction": 1.56858355647674,
+      "residual": -0.6785835564767401,
+      "row_id": "ca-13957"
+    },
+    {
+      "MedHouseVal": 3.595,
+      "abs_error": 0.47056382626846593,
+      "failure_group": "ordinary",
+      "prediction": 3.1244361737315343,
+      "residual": 0.47056382626846593,
+      "row_id": "ca-17725"
+    },
+    {
+      "MedHouseVal": 1.086,
+      "abs_error": 0.2872754201747807,
+      "failure_group": "ordinary",
+      "prediction": 0.7987245798252194,
+      "residual": 0.2872754201747807,
+      "row_id": "ca-12822"
+    },
+    {
+      "MedHouseVal": 0.865,
+      "abs_error": 0.7577503272304555,
+      "failure_group": "ordinary",
+      "prediction": 0.10724967276954445,
+      "residual": 0.7577503272304555,
+      "row_id": "ca-12457"
+    },
+    {
+      "MedHouseVal": 3.505,
+      "abs_error": 0.7124762977624166,
+      "failure_group": "ordinary",
+      "prediction": 2.7925237022375833,
+      "residual": 0.7124762977624166,
+      "row_id": "ca-10126"
+    },
+    {
+      "MedHouseVal": 1.41,
+      "abs_error": 0.34610325346019666,
+      "failure_group": "ordinary",
+      "prediction": 1.7561032534601966,
+      "residual": -0.34610325346019666,
+      "row_id": "ca-06130"
+    },
+    {
+      "MedHouseVal": 1.606,
+      "abs_error": 0.22400545988721765,
+      "failure_group": "ordinary",
+      "prediction": 1.8300054598872177,
+      "residual": -0.22400545988721765,
+      "row_id": "ca-06937"
+    },
+    {
+      "MedHouseVal": 2.667,
+      "abs_error": 1.020278207394108,
+      "failure_group": "ordinary",
+      "prediction": 1.646721792605892,
+      "residual": 1.020278207394108,
+      "row_id": "ca-04229"
+    },
+    {
+      "MedHouseVal": 2.75,
+      "abs_error": 0.33468522341687024,
+      "failure_group": "ordinary",
+      "prediction": 2.4153147765831298,
+      "residual": 0.33468522341687024,
+      "row_id": "ca-15781"
+    },
+    {
+      "MedHouseVal": 1.39,
+      "abs_error": 0.9057732162833501,
+      "failure_group": "ordinary",
+      "prediction": 2.29577321628335,
+      "residual": -0.9057732162833501,
+      "row_id": "ca-11118"
+    },
+    {
+      "MedHouseVal": 1.612,
+      "abs_error": 0.4805376434025841,
+      "failure_group": "ordinary",
+      "prediction": 2.092537643402584,
+      "residual": -0.4805376434025841,
+      "row_id": "ca-20162"
+    },
+    {
+      "MedHouseVal": 0.987,
+      "abs_error": 0.37398131108188537,
+      "failure_group": "ordinary",
+      "prediction": 0.6130186889181146,
+      "residual": 0.37398131108188537,
+      "row_id": "ca-18779"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 0.1975633557870342,
+      "failure_group": "target-cap",
+      "prediction": 4.802446644212965,
+      "residual": 0.1975633557870342,
+      "row_id": "ca-09011"
+    },
+    {
+      "MedHouseVal": 1.333,
+      "abs_error": 0.40177901303092,
+      "failure_group": "ordinary",
+      "prediction": 1.73477901303092,
+      "residual": -0.40177901303092,
+      "row_id": "ca-14038"
+    },
+    {
+      "MedHouseVal": 2.796,
+      "abs_error": 0.3145148965812674,
+      "failure_group": "ordinary",
+      "prediction": 3.1105148965812672,
+      "residual": -0.3145148965812674,
+      "row_id": "ca-10349"
+    },
+    {
+      "MedHouseVal": 1.435,
+      "abs_error": 0.49771604620446164,
+      "failure_group": "ordinary",
+      "prediction": 1.9327160462044617,
+      "residual": -0.49771604620446164,
+      "row_id": "ca-11270"
+    },
+    {
+      "MedHouseVal": 2.137,
+      "abs_error": 0.5887502898904189,
+      "failure_group": "ordinary",
+      "prediction": 2.725750289890419,
+      "residual": -0.5887502898904189,
+      "row_id": "ca-00849"
+    },
+    {
+      "MedHouseVal": 2.177,
+      "abs_error": 0.2238378507459,
+      "failure_group": "ordinary",
+      "prediction": 1.9531621492541,
+      "residual": 0.2238378507459,
+      "row_id": "ca-03931"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 2.3883193913893654,
+      "failure_group": "target-cap",
+      "prediction": 2.611690608610634,
+      "residual": 2.3883193913893654,
+      "row_id": "ca-05288"
+    },
+    {
+      "MedHouseVal": 3.944,
+      "abs_error": 0.7915789699772535,
+      "failure_group": "ordinary",
+      "prediction": 3.1524210300227464,
+      "residual": 0.7915789699772535,
+      "row_id": "ca-01604"
+    },
+    {
+      "MedHouseVal": 0.25,
+      "abs_error": 0.06539460347687198,
+      "failure_group": "ordinary",
+      "prediction": 0.18460539652312802,
+      "residual": 0.06539460347687198,
+      "row_id": "ca-02780"
+    },
+    {
+      "MedHouseVal": 1.369,
+      "abs_error": 0.6805642174401056,
+      "failure_group": "ordinary",
+      "prediction": 2.0495642174401056,
+      "residual": -0.6805642174401056,
+      "row_id": "ca-17375"
+    },
+    {
+      "MedHouseVal": 0.969,
+      "abs_error": 0.12008321823265422,
+      "failure_group": "ordinary",
+      "prediction": 1.0890832182326542,
+      "residual": -0.12008321823265422,
+      "row_id": "ca-19884"
+    },
+    {
+      "MedHouseVal": 1.26,
+      "abs_error": 0.22126942265054472,
+      "failure_group": "ordinary",
+      "prediction": 1.0387305773494553,
+      "residual": 0.22126942265054472,
+      "row_id": "ca-01912"
+    },
+    {
+      "MedHouseVal": 2.876,
+      "abs_error": 0.17018051386667876,
+      "failure_group": "ordinary",
+      "prediction": 2.705819486133321,
+      "residual": 0.17018051386667876,
+      "row_id": "ca-00912"
+    },
+    {
+      "MedHouseVal": 1.877,
+      "abs_error": 0.9223644071437682,
+      "failure_group": "ordinary",
+      "prediction": 2.799364407143768,
+      "residual": -0.9223644071437682,
+      "row_id": "ca-20460"
+    },
+    {
+      "MedHouseVal": 0.958,
+      "abs_error": 0.3884799506844032,
+      "failure_group": "ordinary",
+      "prediction": 1.3464799506844032,
+      "residual": -0.3884799506844032,
+      "row_id": "ca-04924"
+    },
+    {
+      "MedHouseVal": 1.847,
+      "abs_error": 0.5949530075382508,
+      "failure_group": "ordinary",
+      "prediction": 2.4419530075382507,
+      "residual": -0.5949530075382508,
+      "row_id": "ca-14530"
+    },
+    {
+      "MedHouseVal": 0.824,
+      "abs_error": 0.1308562843072577,
+      "failure_group": "ordinary",
+      "prediction": 0.9548562843072577,
+      "residual": -0.1308562843072577,
+      "row_id": "ca-12659"
+    },
+    {
+      "MedHouseVal": 4.123,
+      "abs_error": 0.3330458804734686,
+      "failure_group": "ordinary",
+      "prediction": 3.7899541195265316,
+      "residual": 0.3330458804734686,
+      "row_id": "ca-18126"
+    },
+    {
+      "MedHouseVal": 1.601,
+      "abs_error": 0.5738870313832902,
+      "failure_group": "ordinary",
+      "prediction": 2.17488703138329,
+      "residual": -0.5738870313832902,
+      "row_id": "ca-05627"
+    },
+    {
+      "MedHouseVal": 0.649,
+      "abs_error": 0.4783139382385775,
+      "failure_group": "ordinary",
+      "prediction": 1.1273139382385775,
+      "residual": -0.4783139382385775,
+      "row_id": "ca-13553"
+    },
+    {
+      "MedHouseVal": 2.227,
+      "abs_error": 0.8621438244196025,
+      "failure_group": "ordinary",
+      "prediction": 1.3648561755803974,
+      "residual": 0.8621438244196025,
+      "row_id": "ca-05850"
+    },
+    {
+      "MedHouseVal": 3.847,
+      "abs_error": 1.742801592388993,
+      "failure_group": "ordinary",
+      "prediction": 2.104198407611007,
+      "residual": 1.742801592388993,
+      "row_id": "ca-10679"
+    },
+    {
+      "MedHouseVal": 1.0,
+      "abs_error": 0.39649392678348994,
+      "failure_group": "ordinary",
+      "prediction": 1.39649392678349,
+      "residual": -0.39649392678348994,
+      "row_id": "ca-02458"
+    },
+    {
+      "MedHouseVal": 0.675,
+      "abs_error": 1.081505690359837,
+      "failure_group": "ordinary",
+      "prediction": 1.756505690359837,
+      "residual": -1.081505690359837,
+      "row_id": "ca-19544"
+    },
+    {
+      "MedHouseVal": 0.942,
+      "abs_error": 0.23361010259883552,
+      "failure_group": "ordinary",
+      "prediction": 1.1756101025988355,
+      "residual": -0.23361010259883552,
+      "row_id": "ca-14241"
+    },
+    {
+      "MedHouseVal": 0.675,
+      "abs_error": 0.7876868557518673,
+      "failure_group": "ordinary",
+      "prediction": 1.4626868557518673,
+      "residual": -0.7876868557518673,
+      "row_id": "ca-04277"
+    },
+    {
+      "MedHouseVal": 3.025,
+      "abs_error": 0.13751898625564296,
+      "failure_group": "ordinary",
+      "prediction": 3.162518986255643,
+      "residual": -0.13751898625564296,
+      "row_id": "ca-11479"
+    },
+    {
+      "MedHouseVal": 2.386,
+      "abs_error": 0.5081571174293278,
+      "failure_group": "ordinary",
+      "prediction": 2.894157117429328,
+      "residual": -0.5081571174293278,
+      "row_id": "ca-00585"
+    },
+    {
+      "MedHouseVal": 1.21,
+      "abs_error": 0.8300176301829145,
+      "failure_group": "ordinary",
+      "prediction": 2.0400176301829145,
+      "residual": -0.8300176301829145,
+      "row_id": "ca-03038"
+    },
+    {
+      "MedHouseVal": 1.222,
+      "abs_error": 0.5506986067663595,
+      "failure_group": "ordinary",
+      "prediction": 0.6713013932336405,
+      "residual": 0.5506986067663595,
+      "row_id": "ca-11739"
+    },
+    {
+      "MedHouseVal": 1.156,
+      "abs_error": 0.5843417814561263,
+      "failure_group": "ordinary",
+      "prediction": 1.7403417814561262,
+      "residual": -0.5843417814561263,
+      "row_id": "ca-04662"
+    },
+    {
+      "MedHouseVal": 3.337,
+      "abs_error": 0.15118052587198338,
+      "failure_group": "ordinary",
+      "prediction": 3.4881805258719836,
+      "residual": -0.15118052587198338,
+      "row_id": "ca-03554"
+    },
+    {
+      "MedHouseVal": 2.667,
+      "abs_error": 0.4495739996104202,
+      "failure_group": "ordinary",
+      "prediction": 3.11657399961042,
+      "residual": -0.4495739996104202,
+      "row_id": "ca-11099"
+    },
+    {
+      "MedHouseVal": 2.5,
+      "abs_error": 1.296296449982469,
+      "failure_group": "ordinary",
+      "prediction": 1.203703550017531,
+      "residual": 1.296296449982469,
+      "row_id": "ca-19634"
+    },
+    {
+      "MedHouseVal": 2.278,
+      "abs_error": 0.29828502020850345,
+      "failure_group": "ordinary",
+      "prediction": 1.9797149797914966,
+      "residual": 0.29828502020850345,
+      "row_id": "ca-11005"
+    },
+    {
+      "MedHouseVal": 1.938,
+      "abs_error": 0.16503984628054513,
+      "failure_group": "ordinary",
+      "prediction": 1.7729601537194548,
+      "residual": 0.16503984628054513,
+      "row_id": "ca-15891"
+    },
+    {
+      "MedHouseVal": 0.904,
+      "abs_error": 0.3956018890530649,
+      "failure_group": "ordinary",
+      "prediction": 1.299601889053065,
+      "residual": -0.3956018890530649,
+      "row_id": "ca-04923"
+    },
+    {
+      "MedHouseVal": 2.42,
+      "abs_error": 0.19162107445977838,
+      "failure_group": "ordinary",
+      "prediction": 2.6116210744597783,
+      "residual": -0.19162107445977838,
+      "row_id": "ca-08520"
+    },
+    {
+      "MedHouseVal": 2.815,
+      "abs_error": 0.4458112696156942,
+      "failure_group": "ordinary",
+      "prediction": 2.3691887303843058,
+      "residual": 0.4458112696156942,
+      "row_id": "ca-08702"
+    },
+    {
+      "MedHouseVal": 1.131,
+      "abs_error": 0.3034736820380437,
+      "failure_group": "ordinary",
+      "prediction": 0.8275263179619563,
+      "residual": 0.3034736820380437,
+      "row_id": "ca-12255"
+    },
+    {
+      "MedHouseVal": 2.0,
+      "abs_error": 0.3113508852997362,
+      "failure_group": "ordinary",
+      "prediction": 1.6886491147002638,
+      "residual": 0.3113508852997362,
+      "row_id": "ca-05710"
+    },
+    {
+      "MedHouseVal": 2.61,
+      "abs_error": 0.0992055022815923,
+      "failure_group": "ordinary",
+      "prediction": 2.709205502281592,
+      "residual": -0.0992055022815923,
+      "row_id": "ca-18200"
+    },
+    {
+      "MedHouseVal": 4.113,
+      "abs_error": 0.999148382643428,
+      "failure_group": "ordinary",
+      "prediction": 3.1138516173565725,
+      "residual": 0.999148382643428,
+      "row_id": "ca-17175"
+    },
+    {
+      "MedHouseVal": 2.5,
+      "abs_error": 0.8892450690659603,
+      "failure_group": "ordinary",
+      "prediction": 1.6107549309340397,
+      "residual": 0.8892450690659603,
+      "row_id": "ca-04281"
+    },
+    {
+      "MedHouseVal": 1.055,
+      "abs_error": 0.7929314495255759,
+      "failure_group": "ordinary",
+      "prediction": 1.8479314495255759,
+      "residual": -0.7929314495255759,
+      "row_id": "ca-00189"
+    },
+    {
+      "MedHouseVal": 4.13,
+      "abs_error": 1.7770754983496944,
+      "failure_group": "ordinary",
+      "prediction": 2.3529245016503055,
+      "residual": 1.7770754983496944,
+      "row_id": "ca-08946"
+    },
+    {
+      "MedHouseVal": 2.786,
+      "abs_error": 0.7398114967019835,
+      "failure_group": "ordinary",
+      "prediction": 2.0461885032980165,
+      "residual": 0.7398114967019835,
+      "row_id": "ca-06385"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 0.19087165489089752,
+      "failure_group": "target-cap",
+      "prediction": 5.190881654890897,
+      "residual": -0.19087165489089752,
+      "row_id": "ca-18354"
+    },
+    {
+      "MedHouseVal": 3.717,
+      "abs_error": 1.2352795442728493,
+      "failure_group": "ordinary",
+      "prediction": 2.481720455727151,
+      "residual": 1.2352795442728493,
+      "row_id": "ca-10281"
+    },
+    {
+      "MedHouseVal": 1.257,
+      "abs_error": 0.6513957008491411,
+      "failure_group": "ordinary",
+      "prediction": 1.908395700849141,
+      "residual": -0.6513957008491411,
+      "row_id": "ca-09043"
+    },
+    {
+      "MedHouseVal": 2.146,
+      "abs_error": 0.6010415470080568,
+      "failure_group": "ordinary",
+      "prediction": 1.5449584529919431,
+      "residual": 0.6010415470080568,
+      "row_id": "ca-04826"
+    },
+    {
+      "MedHouseVal": 3.018,
+      "abs_error": 0.29146242255356203,
+      "failure_group": "ordinary",
+      "prediction": 3.309462422553562,
+      "residual": -0.29146242255356203,
+      "row_id": "ca-11397"
+    },
+    {
+      "MedHouseVal": 0.638,
+      "abs_error": 0.6973605243495667,
+      "failure_group": "ordinary",
+      "prediction": 1.3353605243495668,
+      "residual": -0.6973605243495667,
+      "row_id": "ca-09223"
+    },
+    {
+      "MedHouseVal": 2.518,
+      "abs_error": 0.4398305808341063,
+      "failure_group": "ordinary",
+      "prediction": 2.957830580834106,
+      "residual": -0.4398305808341063,
+      "row_id": "ca-08185"
+    },
+    {
+      "MedHouseVal": 1.62,
+      "abs_error": 0.35126158738787105,
+      "failure_group": "ordinary",
+      "prediction": 1.9712615873878712,
+      "residual": -0.35126158738787105,
+      "row_id": "ca-19154"
+    },
+    {
+      "MedHouseVal": 1.399,
+      "abs_error": 0.6351968218726118,
+      "failure_group": "ordinary",
+      "prediction": 2.034196821872612,
+      "residual": -0.6351968218726118,
+      "row_id": "ca-14911"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 1.6729498879223534,
+      "failure_group": "target-cap",
+      "prediction": 6.672959887922353,
+      "residual": -1.6729498879223534,
+      "row_id": "ca-08851"
+    },
+    {
+      "MedHouseVal": 1.497,
+      "abs_error": 0.8437610307743506,
+      "failure_group": "ordinary",
+      "prediction": 2.3407610307743507,
+      "residual": -0.8437610307743506,
+      "row_id": "ca-00765"
+    },
+    {
+      "MedHouseVal": 0.952,
+      "abs_error": 1.0086621508248097,
+      "failure_group": "ordinary",
+      "prediction": 1.9606621508248097,
+      "residual": -1.0086621508248097,
+      "row_id": "ca-02916"
+    },
+    {
+      "MedHouseVal": 2.645,
+      "abs_error": 0.19625834756055438,
+      "failure_group": "ordinary",
+      "prediction": 2.8412583475605544,
+      "residual": -0.19625834756055438,
+      "row_id": "ca-17655"
+    },
+    {
+      "MedHouseVal": 1.2,
+      "abs_error": 0.8388257765550822,
+      "failure_group": "ordinary",
+      "prediction": 2.038825776555082,
+      "residual": -0.8388257765550822,
+      "row_id": "ca-05104"
+    },
+    {
+      "MedHouseVal": 1.64,
+      "abs_error": 1.143473928257325,
+      "failure_group": "ordinary",
+      "prediction": 0.49652607174267493,
+      "residual": 1.143473928257325,
+      "row_id": "ca-20118"
+    },
+    {
+      "MedHouseVal": 1.364,
+      "abs_error": 0.4641566968155926,
+      "failure_group": "ordinary",
+      "prediction": 1.8281566968155927,
+      "residual": -0.4641566968155926,
+      "row_id": "ca-15070"
+    },
+    {
+      "MedHouseVal": 1.875,
+      "abs_error": 0.17816106653459718,
+      "failure_group": "ordinary",
+      "prediction": 2.053161066534597,
+      "residual": -0.17816106653459718,
+      "row_id": "ca-06306"
+    },
+    {
+      "MedHouseVal": 1.711,
+      "abs_error": 1.005321975048872,
+      "failure_group": "ordinary",
+      "prediction": 2.716321975048872,
+      "residual": -1.005321975048872,
+      "row_id": "ca-07125"
+    },
+    {
+      "MedHouseVal": 1.175,
+      "abs_error": 0.5886401769022165,
+      "failure_group": "ordinary",
+      "prediction": 0.5863598230977836,
+      "residual": 0.5886401769022165,
+      "row_id": "ca-01968"
+    },
+    {
+      "MedHouseVal": 3.718,
+      "abs_error": 0.3645396867686337,
+      "failure_group": "ordinary",
+      "prediction": 3.3534603132313663,
+      "residual": 0.3645396867686337,
+      "row_id": "ca-10299"
+    },
+    {
+      "MedHouseVal": 1.455,
+      "abs_error": 0.2484726561318833,
+      "failure_group": "ordinary",
+      "prediction": 1.7034726561318834,
+      "residual": -0.2484726561318833,
+      "row_id": "ca-09129"
+    },
+    {
+      "MedHouseVal": 0.846,
+      "abs_error": 1.0344238153455136,
+      "failure_group": "ordinary",
+      "prediction": 1.8804238153455137,
+      "residual": -1.0344238153455136,
+      "row_id": "ca-02836"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 2.550546265297897,
+      "failure_group": "target-cap",
+      "prediction": 2.4494637347021024,
+      "residual": 2.550546265297897,
+      "row_id": "ca-15238"
+    },
+    {
+      "MedHouseVal": 1.695,
+      "abs_error": 0.43834724663002755,
+      "failure_group": "ordinary",
+      "prediction": 2.1333472466300276,
+      "residual": -0.43834724663002755,
+      "row_id": "ca-07018"
+    },
+    {
+      "MedHouseVal": 1.053,
+      "abs_error": 0.6605870676501275,
+      "failure_group": "ordinary",
+      "prediction": 1.7135870676501275,
+      "residual": -0.6605870676501275,
+      "row_id": "ca-07538"
+    },
+    {
+      "MedHouseVal": 0.572,
+      "abs_error": 0.7239426551961584,
+      "failure_group": "ordinary",
+      "prediction": 1.2959426551961584,
+      "residual": -0.7239426551961584,
+      "row_id": "ca-02494"
+    },
+    {
+      "MedHouseVal": 1.391,
+      "abs_error": 0.08569804816142312,
+      "failure_group": "ordinary",
+      "prediction": 1.4766980481614231,
+      "residual": -0.08569804816142312,
+      "row_id": "ca-08205"
+    },
+    {
+      "MedHouseVal": 2.713,
+      "abs_error": 0.076430772161026,
+      "failure_group": "ordinary",
+      "prediction": 2.789430772161026,
+      "residual": -0.076430772161026,
+      "row_id": "ca-15908"
+    },
+    {
+      "MedHouseVal": 2.043,
+      "abs_error": 0.023749806941082863,
+      "failure_group": "ordinary",
+      "prediction": 2.0192501930589173,
+      "residual": 0.023749806941082863,
+      "row_id": "ca-06856"
+    },
+    {
+      "MedHouseVal": 1.201,
+      "abs_error": 1.0971462902120268,
+      "failure_group": "ordinary",
+      "prediction": 2.298146290212027,
+      "residual": -1.0971462902120268,
+      "row_id": "ca-00309"
+    },
+    {
+      "MedHouseVal": 1.083,
+      "abs_error": 0.2961809864376226,
+      "failure_group": "ordinary",
+      "prediction": 1.3791809864376225,
+      "residual": -0.2961809864376226,
+      "row_id": "ca-16589"
+    },
+    {
+      "MedHouseVal": 1.525,
+      "abs_error": 0.6242372728311718,
+      "failure_group": "ordinary",
+      "prediction": 2.1492372728311717,
+      "residual": -0.6242372728311718,
+      "row_id": "ca-01276"
+    },
+    {
+      "MedHouseVal": 2.625,
+      "abs_error": 0.2808670046491333,
+      "failure_group": "ordinary",
+      "prediction": 2.9058670046491333,
+      "residual": -0.2808670046491333,
+      "row_id": "ca-18216"
+    },
+    {
+      "MedHouseVal": 1.788,
+      "abs_error": 0.3283786490602403,
+      "failure_group": "ordinary",
+      "prediction": 2.1163786490602403,
+      "residual": -0.3283786490602403,
+      "row_id": "ca-03650"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 0.9888949752790088,
+      "failure_group": "target-cap",
+      "prediction": 4.011115024720991,
+      "residual": 0.9888949752790088,
+      "row_id": "ca-09026"
+    },
+    {
+      "MedHouseVal": 1.891,
+      "abs_error": 0.06205963321023167,
+      "failure_group": "ordinary",
+      "prediction": 1.9530596332102317,
+      "residual": -0.06205963321023167,
+      "row_id": "ca-06506"
+    },
+    {
+      "MedHouseVal": 0.939,
+      "abs_error": 0.5911156770354903,
+      "failure_group": "ordinary",
+      "prediction": 1.5301156770354902,
+      "residual": -0.5911156770354903,
+      "row_id": "ca-16221"
+    },
+    {
+      "MedHouseVal": 1.5,
+      "abs_error": 0.5328185315156904,
+      "failure_group": "ordinary",
+      "prediction": 2.0328185315156904,
+      "residual": -0.5328185315156904,
+      "row_id": "ca-19667"
+    },
+    {
+      "MedHouseVal": 2.029,
+      "abs_error": 0.3426943166139691,
+      "failure_group": "ordinary",
+      "prediction": 2.371694316613969,
+      "residual": -0.3426943166139691,
+      "row_id": "ca-19219"
+    },
+    {
+      "MedHouseVal": 1.958,
+      "abs_error": 0.498039189845356,
+      "failure_group": "ordinary",
+      "prediction": 2.456039189845356,
+      "residual": -0.498039189845356,
+      "row_id": "ca-03384"
+    },
+    {
+      "MedHouseVal": 0.5,
+      "abs_error": 0.796114729780689,
+      "failure_group": "ordinary",
+      "prediction": -0.296114729780689,
+      "residual": 0.796114729780689,
+      "row_id": "ca-13923"
+    },
+    {
+      "MedHouseVal": 1.475,
+      "abs_error": 0.5296505018437574,
+      "failure_group": "high-occupancy",
+      "prediction": 2.0046505018437575,
+      "residual": -0.5296505018437574,
+      "row_id": "ca-03429"
+    },
+    {
+      "MedHouseVal": 4.15,
+      "abs_error": 1.8522319472786828,
+      "failure_group": "ordinary",
+      "prediction": 2.2977680527213176,
+      "residual": 1.8522319472786828,
+      "row_id": "ca-16938"
+    },
+    {
+      "MedHouseVal": 3.66,
+      "abs_error": 0.7032733597511376,
+      "failure_group": "ordinary",
+      "prediction": 2.9567266402488626,
+      "residual": 0.7032733597511376,
+      "row_id": "ca-06410"
+    },
+    {
+      "MedHouseVal": 1.192,
+      "abs_error": 0.2812619319125671,
+      "failure_group": "ordinary",
+      "prediction": 1.473261931912567,
+      "residual": -0.2812619319125671,
+      "row_id": "ca-14066"
+    },
+    {
+      "MedHouseVal": 2.432,
+      "abs_error": 0.3017765920614819,
+      "failure_group": "ordinary",
+      "prediction": 2.733776592061482,
+      "residual": -0.3017765920614819,
+      "row_id": "ca-18027"
+    },
+    {
+      "MedHouseVal": 2.161,
+      "abs_error": 0.6020181101007407,
+      "failure_group": "ordinary",
+      "prediction": 1.5589818898992593,
+      "residual": 0.6020181101007407,
+      "row_id": "ca-15324"
+    },
+    {
+      "MedHouseVal": 1.905,
+      "abs_error": 0.40765357731459617,
+      "failure_group": "ordinary",
+      "prediction": 2.312653577314596,
+      "residual": -0.40765357731459617,
+      "row_id": "ca-07749"
+    },
+    {
+      "MedHouseVal": 1.135,
+      "abs_error": 0.2672758859186344,
+      "failure_group": "ordinary",
+      "prediction": 1.4022758859186344,
+      "residual": -0.2672758859186344,
+      "row_id": "ca-12953"
+    },
+    {
+      "MedHouseVal": 0.66,
+      "abs_error": 0.17980004837600083,
+      "failure_group": "ordinary",
+      "prediction": 0.4801999516239992,
+      "residual": 0.17980004837600083,
+      "row_id": "ca-12331"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 1.1899376881132735,
+      "failure_group": "target-cap",
+      "prediction": 6.189947688113273,
+      "residual": -1.1899376881132735,
+      "row_id": "ca-05259"
+    },
+    {
+      "MedHouseVal": 1.125,
+      "abs_error": 1.45344868669675,
+      "failure_group": "ordinary",
+      "prediction": 2.57844868669675,
+      "residual": -1.45344868669675,
+      "row_id": "ca-17891"
+    },
+    {
+      "MedHouseVal": 1.437,
+      "abs_error": 0.5272534315215132,
+      "failure_group": "ordinary",
+      "prediction": 1.9642534315215132,
+      "residual": -0.5272534315215132,
+      "row_id": "ca-08419"
+    },
+    {
+      "MedHouseVal": 2.024,
+      "abs_error": 0.09069508182528141,
+      "failure_group": "ordinary",
+      "prediction": 2.1146950818252814,
+      "residual": -0.09069508182528141,
+      "row_id": "ca-07120"
+    },
+    {
+      "MedHouseVal": 0.586,
+      "abs_error": 0.10266586240298292,
+      "failure_group": "ordinary",
+      "prediction": 0.48333413759701704,
+      "residual": 0.10266586240298292,
+      "row_id": "ca-02678"
+    },
+    {
+      "MedHouseVal": 2.439,
+      "abs_error": 0.031024167185936147,
+      "failure_group": "ordinary",
+      "prediction": 2.407975832814064,
+      "residual": 0.031024167185936147,
+      "row_id": "ca-10292"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 1.4681784019459259,
+      "failure_group": "target-cap",
+      "prediction": 3.5318315980540738,
+      "residual": 1.4681784019459259,
+      "row_id": "ca-18321"
+    },
+    {
+      "MedHouseVal": 0.575,
+      "abs_error": 0.8226113073014121,
+      "failure_group": "ordinary",
+      "prediction": 1.397611307301412,
+      "residual": -0.8226113073014121,
+      "row_id": "ca-02777"
+    },
+    {
+      "MedHouseVal": 0.95,
+      "abs_error": 0.5405376801982344,
+      "failure_group": "ordinary",
+      "prediction": 1.4905376801982344,
+      "residual": -0.5405376801982344,
+      "row_id": "ca-05001"
+    },
+    {
+      "MedHouseVal": 2.893,
+      "abs_error": 0.14220249032113497,
+      "failure_group": "ordinary",
+      "prediction": 2.750797509678865,
+      "residual": 0.14220249032113497,
+      "row_id": "ca-18217"
+    },
+    {
+      "MedHouseVal": 0.544,
+      "abs_error": 0.6813889034818157,
+      "failure_group": "ordinary",
+      "prediction": -0.13738890348181565,
+      "residual": 0.6813889034818157,
+      "row_id": "ca-02790"
+    },
+    {
+      "MedHouseVal": 1.0,
+      "abs_error": 0.015173950874217246,
+      "failure_group": "ordinary",
+      "prediction": 1.0151739508742172,
+      "residual": -0.015173950874217246,
+      "row_id": "ca-16361"
+    },
+    {
+      "MedHouseVal": 0.677,
+      "abs_error": 0.13145325571484934,
+      "failure_group": "ordinary",
+      "prediction": 0.5455467442851507,
+      "residual": 0.13145325571484934,
+      "row_id": "ca-02761"
+    },
+    {
+      "MedHouseVal": 0.866,
+      "abs_error": 0.03549461978250246,
+      "failure_group": "ordinary",
+      "prediction": 0.8305053802174975,
+      "residual": 0.03549461978250246,
+      "row_id": "ca-01227"
+    },
+    {
+      "MedHouseVal": 2.25,
+      "abs_error": 0.88546137069043,
+      "failure_group": "ordinary",
+      "prediction": 1.36453862930957,
+      "residual": 0.88546137069043,
+      "row_id": "ca-10716"
+    },
+    {
+      "MedHouseVal": 1.938,
+      "abs_error": 0.5218749178196671,
+      "failure_group": "ordinary",
+      "prediction": 2.459874917819667,
+      "residual": -0.5218749178196671,
+      "row_id": "ca-05908"
+    },
+    {
+      "MedHouseVal": 1.113,
+      "abs_error": 0.5836247771318266,
+      "failure_group": "ordinary",
+      "prediction": 1.6966247771318266,
+      "residual": -0.5836247771318266,
+      "row_id": "ca-15430"
+    },
+    {
+      "MedHouseVal": 0.99,
+      "abs_error": 0.4764350710975538,
+      "failure_group": "ordinary",
+      "prediction": 1.4664350710975538,
+      "residual": -0.4764350710975538,
+      "row_id": "ca-05119"
+    },
+    {
+      "MedHouseVal": 4.85,
+      "abs_error": 2.727555504722428,
+      "failure_group": "largest-error",
+      "prediction": 2.1224444952775716,
+      "residual": 2.727555504722428,
+      "row_id": "ca-04699"
+    },
+    {
+      "MedHouseVal": 2.664,
+      "abs_error": 0.2258953933051453,
+      "failure_group": "ordinary",
+      "prediction": 2.438104606694855,
+      "residual": 0.2258953933051453,
+      "row_id": "ca-10862"
+    },
+    {
+      "MedHouseVal": 1.614,
+      "abs_error": 0.537896190178486,
+      "failure_group": "ordinary",
+      "prediction": 2.151896190178486,
+      "residual": -0.537896190178486,
+      "row_id": "ca-13394"
+    },
+    {
+      "MedHouseVal": 1.62,
+      "abs_error": 0.3564289617869998,
+      "failure_group": "ordinary",
+      "prediction": 1.976428961787,
+      "residual": -0.3564289617869998,
+      "row_id": "ca-18576"
+    },
+    {
+      "MedHouseVal": 1.182,
+      "abs_error": 0.6026969396730149,
+      "failure_group": "ordinary",
+      "prediction": 1.7846969396730148,
+      "residual": -0.6026969396730149,
+      "row_id": "ca-14852"
+    },
+    {
+      "MedHouseVal": 0.885,
+      "abs_error": 0.2874475713378246,
+      "failure_group": "ordinary",
+      "prediction": 1.1724475713378246,
+      "residual": -0.2874475713378246,
+      "row_id": "ca-13993"
+    },
+    {
+      "MedHouseVal": 0.817,
+      "abs_error": 0.020643993236066027,
+      "failure_group": "ordinary",
+      "prediction": 0.837643993236066,
+      "residual": -0.020643993236066027,
+      "row_id": "ca-12267"
+    },
+    {
+      "MedHouseVal": 2.213,
+      "abs_error": 0.66195487855643,
+      "failure_group": "ordinary",
+      "prediction": 2.87495487855643,
+      "residual": -0.66195487855643,
+      "row_id": "ca-09865"
+    },
+    {
+      "MedHouseVal": 0.847,
+      "abs_error": 0.19138341025357497,
+      "failure_group": "ordinary",
+      "prediction": 0.655616589746425,
+      "residual": 0.19138341025357497,
+      "row_id": "ca-12425"
+    },
+    {
+      "MedHouseVal": 1.052,
+      "abs_error": 0.8217640404440387,
+      "failure_group": "ordinary",
+      "prediction": 1.8737640404440388,
+      "residual": -0.8217640404440387,
+      "row_id": "ca-01778"
+    },
+    {
+      "MedHouseVal": 1.537,
+      "abs_error": 0.1683999228322306,
+      "failure_group": "ordinary",
+      "prediction": 1.7053999228322305,
+      "residual": -0.1683999228322306,
+      "row_id": "ca-13140"
+    },
+    {
+      "MedHouseVal": 0.558,
+      "abs_error": 0.3071344379811063,
+      "failure_group": "ordinary",
+      "prediction": 0.8651344379811063,
+      "residual": -0.3071344379811063,
+      "row_id": "ca-02379"
+    },
+    {
+      "MedHouseVal": 0.98,
+      "abs_error": 0.14599183635239088,
+      "failure_group": "ordinary",
+      "prediction": 1.1259918363523909,
+      "residual": -0.14599183635239088,
+      "row_id": "ca-13847"
+    },
+    {
+      "MedHouseVal": 0.761,
+      "abs_error": 0.380012366348636,
+      "failure_group": "ordinary",
+      "prediction": 0.380987633651364,
+      "residual": 0.380012366348636,
+      "row_id": "ca-18847"
+    },
+    {
+      "MedHouseVal": 1.943,
+      "abs_error": 0.47947585644074353,
+      "failure_group": "ordinary",
+      "prediction": 2.4224758564407436,
+      "residual": -0.47947585644074353,
+      "row_id": "ca-05004"
+    },
+    {
+      "MedHouseVal": 2.795,
+      "abs_error": 0.5777750575135125,
+      "failure_group": "ordinary",
+      "prediction": 2.2172249424864874,
+      "residual": 0.5777750575135125,
+      "row_id": "ca-17206"
+    },
+    {
+      "MedHouseVal": 1.772,
+      "abs_error": 0.9024133009378452,
+      "failure_group": "ordinary",
+      "prediction": 2.6744133009378452,
+      "residual": -0.9024133009378452,
+      "row_id": "ca-00879"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 0.6414917697818154,
+      "failure_group": "target-cap",
+      "prediction": 4.358518230218184,
+      "residual": 0.6414917697818154,
+      "row_id": "ca-10418"
+    },
+    {
+      "MedHouseVal": 1.625,
+      "abs_error": 0.9784463770009613,
+      "failure_group": "ordinary",
+      "prediction": 0.6465536229990387,
+      "residual": 0.9784463770009613,
+      "row_id": "ca-10000"
+    },
+    {
+      "MedHouseVal": 2.079,
+      "abs_error": 0.7322569199182007,
+      "failure_group": "ordinary",
+      "prediction": 2.811256919918201,
+      "residual": -0.7322569199182007,
+      "row_id": "ca-13342"
+    },
+    {
+      "MedHouseVal": 3.425,
+      "abs_error": 0.35490434686342454,
+      "failure_group": "ordinary",
+      "prediction": 3.0700956531365753,
+      "residual": 0.35490434686342454,
+      "row_id": "ca-17493"
+    },
+    {
+      "MedHouseVal": 1.733,
+      "abs_error": 0.8016745690172713,
+      "failure_group": "ordinary",
+      "prediction": 2.5346745690172714,
+      "residual": -0.8016745690172713,
+      "row_id": "ca-07784"
+    },
+    {
+      "MedHouseVal": 1.686,
+      "abs_error": 0.46961117549213327,
+      "failure_group": "ordinary",
+      "prediction": 2.155611175492133,
+      "residual": -0.46961117549213327,
+      "row_id": "ca-07627"
+    },
+    {
+      "MedHouseVal": 1.139,
+      "abs_error": 0.6005507109589412,
+      "failure_group": "ordinary",
+      "prediction": 1.7395507109589412,
+      "residual": -0.6005507109589412,
+      "row_id": "ca-10277"
+    },
+    {
+      "MedHouseVal": 2.882,
+      "abs_error": 0.9012048633051146,
+      "failure_group": "ordinary",
+      "prediction": 1.9807951366948855,
+      "residual": 0.9012048633051146,
+      "row_id": "ca-14381"
+    },
+    {
+      "MedHouseVal": 1.813,
+      "abs_error": 0.9434340218230437,
+      "failure_group": "ordinary",
+      "prediction": 0.8695659781769562,
+      "residual": 0.9434340218230437,
+      "row_id": "ca-19643"
+    },
+    {
+      "MedHouseVal": 1.347,
+      "abs_error": 0.7821940909744727,
+      "failure_group": "ordinary",
+      "prediction": 0.5648059090255273,
+      "residual": 0.7821940909744727,
+      "row_id": "ca-01903"
+    },
+    {
+      "MedHouseVal": 1.133,
+      "abs_error": 1.0464888669994585,
+      "failure_group": "ordinary",
+      "prediction": 2.1794888669994585,
+      "residual": -1.0464888669994585,
+      "row_id": "ca-17395"
+    },
+    {
+      "MedHouseVal": 1.557,
+      "abs_error": 1.5515944536659343,
+      "failure_group": "ordinary",
+      "prediction": 0.005405546334065647,
+      "residual": 1.5515944536659343,
+      "row_id": "ca-10071"
+    },
+    {
+      "MedHouseVal": 1.461,
+      "abs_error": 0.9151055292905907,
+      "failure_group": "ordinary",
+      "prediction": 2.376105529290591,
+      "residual": -0.9151055292905907,
+      "row_id": "ca-00806"
+    },
+    {
+      "MedHouseVal": 1.65,
+      "abs_error": 0.20183631811463432,
+      "failure_group": "ordinary",
+      "prediction": 1.4481636818853656,
+      "residual": 0.20183631811463432,
+      "row_id": "ca-09145"
+    },
+    {
+      "MedHouseVal": 1.161,
+      "abs_error": 0.9219584457459153,
+      "failure_group": "ordinary",
+      "prediction": 2.0829584457459154,
+      "residual": -0.9219584457459153,
+      "row_id": "ca-01372"
+    },
+    {
+      "MedHouseVal": 2.0,
+      "abs_error": 0.6023415595357406,
+      "failure_group": "ordinary",
+      "prediction": 1.3976584404642594,
+      "residual": 0.6023415595357406,
+      "row_id": "ca-04285"
+    },
+    {
+      "MedHouseVal": 2.346,
+      "abs_error": 0.09627398334972082,
+      "failure_group": "ordinary",
+      "prediction": 2.2497260166502793,
+      "residual": 0.09627398334972082,
+      "row_id": "ca-11461"
+    },
+    {
+      "MedHouseVal": 0.68,
+      "abs_error": 0.7275749828933905,
+      "failure_group": "ordinary",
+      "prediction": 1.4075749828933906,
+      "residual": -0.7275749828933905,
+      "row_id": "ca-19559"
+    },
+    {
+      "MedHouseVal": 3.26,
+      "abs_error": 0.1762273986689573,
+      "failure_group": "ordinary",
+      "prediction": 3.0837726013310425,
+      "residual": 0.1762273986689573,
+      "row_id": "ca-14476"
+    },
+    {
+      "MedHouseVal": 1.459,
+      "abs_error": 0.0521830233650693,
+      "failure_group": "ordinary",
+      "prediction": 1.5111830233650694,
+      "residual": -0.0521830233650693,
+      "row_id": "ca-06136"
+    },
+    {
+      "MedHouseVal": 1.652,
+      "abs_error": 0.5807776957655235,
+      "failure_group": "ordinary",
+      "prediction": 2.2327776957655234,
+      "residual": -0.5807776957655235,
+      "row_id": "ca-01298"
+    },
+    {
+      "MedHouseVal": 1.573,
+      "abs_error": 0.32758023475969655,
+      "failure_group": "ordinary",
+      "prediction": 1.9005802347596965,
+      "residual": -0.32758023475969655,
+      "row_id": "ca-19284"
+    },
+    {
+      "MedHouseVal": 0.366,
+      "abs_error": 0.3342062688963886,
+      "failure_group": "ordinary",
+      "prediction": 0.7002062688963886,
+      "residual": -0.3342062688963886,
+      "row_id": "ca-02949"
+    },
+    {
+      "MedHouseVal": 2.864,
+      "abs_error": 0.09976604816150436,
+      "failure_group": "ordinary",
+      "prediction": 2.7642339518384955,
+      "residual": 0.09976604816150436,
+      "row_id": "ca-08729"
+    },
+    {
+      "MedHouseVal": 0.738,
+      "abs_error": 0.19914173546239544,
+      "failure_group": "ordinary",
+      "prediction": 0.5388582645376045,
+      "residual": 0.19914173546239544,
+      "row_id": "ca-01160"
+    },
+    {
+      "MedHouseVal": 1.011,
+      "abs_error": 0.615243690837936,
+      "failure_group": "ordinary",
+      "prediction": 1.6262436908379359,
+      "residual": -0.615243690837936,
+      "row_id": "ca-04997"
+    },
+    {
+      "MedHouseVal": 5.00001,
+      "abs_error": 2.376199401593855,
+      "failure_group": "target-cap",
+      "prediction": 2.623810598406145,
+      "residual": 2.376199401593855,
+      "row_id": "ca-15615"
+    },
+    {
+      "MedHouseVal": 1.964,
+      "abs_error": 0.40510085188113854,
+      "failure_group": "ordinary",
+      "prediction": 2.3691008518811385,
+      "residual": -0.40510085188113854,
+      "row_id": "ca-19173"
+    },
+    {
+      "MedHouseVal": 2.304,
+      "abs_error": 0.1057396106102848,
+      "failure_group": "ordinary",
+      "prediction": 2.198260389389715,
+      "residual": 0.1057396106102848,
+      "row_id": "ca-08461"
+    },
+    {
+      "MedHouseVal": 3.37,
+      "abs_error": 1.0599422663083455,
+      "failure_group": "ordinary",
+      "prediction": 2.3100577336916546,
+      "residual": 1.0599422663083455,
+      "row_id": "ca-18179"
+    },
+    {
+      "MedHouseVal": 1.276,
+      "abs_error": 0.3899274130482262,
+      "failure_group": "ordinary",
+      "prediction": 0.8860725869517738,
+      "residual": 0.3899274130482262,
+      "row_id": "ca-01905"
+    },
+    {
+      "MedHouseVal": 0.526,
+      "abs_error": 0.5201038397483675,
+      "failure_group": "ordinary",
+      "prediction": 1.0461038397483675,
+      "residual": -0.5201038397483675,
+      "row_id": "ca-02811"
+    },
+    {
+      "MedHouseVal": 0.949,
+      "abs_error": 0.7576390001225496,
+      "failure_group": "ordinary",
+      "prediction": 1.7066390001225495,
+      "residual": -0.7576390001225496,
+      "row_id": "ca-09531"
+    },
+    {
+      "MedHouseVal": 0.946,
+      "abs_error": 0.9530669714257709,
+      "failure_group": "ordinary",
+      "prediction": 1.8990669714257709,
+      "residual": -0.9530669714257709,
+      "row_id": "ca-01327"
+    },
+    {
+      "MedHouseVal": 0.555,
+      "abs_error": 1.3273640567107368,
+      "failure_group": "ordinary",
+      "prediction": 1.8823640567107367,
+      "residual": -1.3273640567107368,
+      "row_id": "ca-02490"
+    },
+    {
+      "MedHouseVal": 2.587,
+      "abs_error": 0.6185541772636465,
+      "failure_group": "ordinary",
+      "prediction": 1.9684458227363537,
+      "residual": 0.6185541772636465,
+      "row_id": "ca-12941"
+    },
+    {
+      "MedHouseVal": 1.846,
+      "abs_error": 0.6085359513927058,
+      "failure_group": "ordinary",
+      "prediction": 2.454535951392706,
+      "residual": -0.6085359513927058,
+      "row_id": "ca-07814"
+    },
+    {
+      "MedHouseVal": 2.863,
+      "abs_error": 0.6671881982250683,
+      "failure_group": "ordinary",
+      "prediction": 2.1958118017749317,
+      "residual": 0.6671881982250683,
+      "row_id": "ca-16108"
+    },
+    {
+      "MedHouseVal": 1.927,
+      "abs_error": 0.47942530474057055,
+      "failure_group": "ordinary",
+      "prediction": 2.4064253047405706,
+      "residual": -0.47942530474057055,
+      "row_id": "ca-20228"
+    },
+    {
+      "MedHouseVal": 1.495,
+      "abs_error": 0.7016182538062354,
+      "failure_group": "ordinary",
+      "prediction": 0.7933817461937647,
+      "residual": 0.7016182538062354,
+      "row_id": "ca-10054"
+    },
+    {
+      "MedHouseVal": 1.703,
+      "abs_error": 0.18314763402269008,
+      "failure_group": "ordinary",
+      "prediction": 1.51985236597731,
+      "residual": 0.18314763402269008,
+      "row_id": "ca-04832"
+    },
+    {
+      "MedHouseVal": 2.713,
+      "abs_error": 0.4662652138366066,
+      "failure_group": "ordinary",
+      "prediction": 2.2467347861633935,
+      "residual": 0.4662652138366066,
+      "row_id": "ca-03997"
+    },
+    {
+      "MedHouseVal": 1.296,
+      "abs_error": 0.12446770052719347,
+      "failure_group": "ordinary",
+      "prediction": 1.1715322994728066,
+      "residual": 0.12446770052719347,
+      "row_id": "ca-12873"
+    },
+    {
+      "MedHouseVal": 2.298,
+      "abs_error": 0.17655055841008727,
+      "failure_group": "ordinary",
+      "prediction": 2.4745505584100873,
+      "residual": -0.17655055841008727,
+      "row_id": "ca-00567"
+    },
+    {
+      "MedHouseVal": 1.701,
+      "abs_error": 0.17613558011884178,
+      "failure_group": "ordinary",
+      "prediction": 1.8771355801188419,
+      "residual": -0.17613558011884178,
+      "row_id": "ca-12727"
+    },
+    {
+      "MedHouseVal": 1.876,
+      "abs_error": 0.2520882421361428,
+      "failure_group": "ordinary",
+      "prediction": 2.1280882421361427,
+      "residual": -0.2520882421361428,
+      "row_id": "ca-05963"
+    },
+    {
+      "MedHouseVal": 1.575,
+      "abs_error": 0.2890428358708146,
+      "failure_group": "ordinary",
+      "prediction": 1.8640428358708145,
+      "residual": -0.2890428358708146,
+      "row_id": "ca-04393"
+    },
+    {
+      "MedHouseVal": 2.064,
+      "abs_error": 0.8515242544431705,
+      "failure_group": "ordinary",
+      "prediction": 1.2124757455568296,
+      "residual": 0.8515242544431705,
+      "row_id": "ca-10003"
+    },
+    {
+      "MedHouseVal": 1.922,
+      "abs_error": 0.21015390094201858,
+      "failure_group": "ordinary",
+      "prediction": 2.1321539009420185,
+      "residual": -0.21015390094201858,
+      "row_id": "ca-14643"
+    },
+    {
+      "MedHouseVal": 1.649,
+      "abs_error": 0.7404785212257705,
+      "failure_group": "ordinary",
+      "prediction": 0.9085214787742295,
+      "residual": 0.7404785212257705,
+      "row_id": "ca-10049"
+    },
+    {
+      "MedHouseVal": 1.431,
+      "abs_error": 0.5143297693138105,
+      "failure_group": "ordinary",
+      "prediction": 1.9453297693138105,
+      "residual": -0.5143297693138105,
+      "row_id": "ca-01351"
+    }
+  ],
+  "selectedAlpha": null,
+  "selectedModel": "LinearRegression",
+  "sourceCellId": "final-test-review",
+  "testMetrics": {
+    "mae": 0.5296847058600581,
+    "r2": 0.610047983086448,
+    "rmse": 0.7245084534899455
+  }
+}

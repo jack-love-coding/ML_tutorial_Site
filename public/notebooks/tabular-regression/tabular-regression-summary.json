@@ -1,0 +1,84 @@
+{
+  "baselineValidation": {
+    "mae": 0.5400288934706889,
+    "r2": 0.6002268720706481,
+    "rmse": 0.7313909507247379
+  },
+  "bestRidgeValidation": {
+    "alpha": 0.01,
+    "mae": 0.5400288739496428,
+    "r2": 0.6002268142469349,
+    "rmse": 0.7313910036194124
+  },
+  "contractVersion": "tabular-regression-california-v1",
+  "dataset": {
+    "features": [
+      "MedInc",
+      "HouseAge",
+      "AveRooms",
+      "AveBedrms",
+      "Population",
+      "AveOccup",
+      "Latitude",
+      "Longitude"
+    ],
+    "missingValues": 0,
+    "rowMeaning": "1990 California census block group",
+    "rows": 20640,
+    "splitCounts": {
+      "test": 4128,
+      "train": 12384,
+      "validation": 4128
+    },
+    "splitSeed": 42,
+    "target": "MedHouseVal",
+    "targetUnit": "$100,000"
+  },
+  "finalRefitPartitions": [
+    "train",
+    "validation"
+  ],
+  "finalTestEvaluationCount": 1,
+  "finalTestMetrics": {
+    "mae": 0.5296847058600581,
+    "r2": 0.610047983086448,
+    "rmse": 0.7245084534899455
+  },
+  "namedFailureIds": [
+    "ca-06689",
+    "ca-04493",
+    "ca-13767",
+    "ca-10455",
+    "ca-00460",
+    "ca-04631",
+    "ca-15616",
+    "ca-08924"
+  ],
+  "preprocessing": {
+    "fitPartition": "train",
+    "scalerMean": [
+      3.860183583656331,
+      28.69888565891473,
+      5.419819581984335,
+      1.0970536434556928,
+      1431.6443798449613,
+      3.073865539422505,
+      35.6328569121447,
+      -119.57247093023256
+    ],
+    "scalerScale": [
+      1.8937485234154057,
+      12.592321038864949,
+      2.386675562051124,
+      0.4788100273369299,
+      1147.7367616676747,
+      7.420361745265482,
+      2.1299100843115335,
+      2.0007165461707355
+    ]
+  },
+  "ridgeRelativeRmseImprovement": -7.232065761393108e-08,
+  "selectedAlpha": null,
+  "selectedModel": "LinearRegression",
+  "selectionRule": "select Ridge only when validation RMSE improves by at least 1%"
+}

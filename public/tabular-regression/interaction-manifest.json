@@ -1,0 +1,41 @@
+{
+  "chapters": {
+    "cleaning-splits": {
+      "kind": "leakage-boundary",
+      "publicPath": "/tabular-regression/interactions/cleaning-splits.json",
+      "sha256": "e6f2d1b98e13acfb995110c688fcaca61a2c62f59c16a5173a1dae85b5d0c3fe",
+      "sourceCellId": "train-only-preprocessing"
+    },
+    "csv-to-frame": {
+      "kind": "data-contract",
+      "publicPath": "/tabular-regression/interactions/csv-to-frame.json",
+      "sha256": "9cc106ff88c74a51aebd62956ac607204f64d3acc98d343309cd0827b83288ed",
+      "sourceCellId": "load-and-contract"
+    },
+    "eda-first-pass": {
+      "kind": "training-eda",
+      "publicPath": "/tabular-regression/interactions/eda-first-pass.json",
+      "sha256": "e4ce3bf914830ec84c00d3bfa1474ec1f005d54f89c99028fa2892517f138c13",
+      "sourceCellId": "training-only-eda"
+    },
+    "evaluation": {
+      "kind": "ridge-selection",
+      "publicPath": "/tabular-regression/interactions/evaluation.json",
+      "sha256": "70ea03ac3c712a154aa8fddb6b961689644905a13c4a08a9c1b5816b9e819255",
+      "sourceCellId": "ridge-validation-selection"
+    },
+    "linear-baseline": {
+      "kind": "baseline-contributions",
+      "publicPath": "/tabular-regression/interactions/linear-baseline.json",
+      "sha256": "0d5c30628160d0ac9f966774dbe746b1e856daea8dc68410095cd65c0d5db4f8",
+      "sourceCellId": "linear-baseline"
+    },
+    "review-next-iteration": {
+      "kind": "final-review",
+      "publicPath": "/tabular-regression/interactions/review-next-iteration.json",
+      "sha256": "e3bd5aec0e6a0bc2f6a33ece527393281445b4aa02d8504470a059e3604213cb",
+      "sourceCellId": "final-test-review"
+    }
+  },
+  "contractVersion": "tabular-regression-california-v1"
+}

@@ -2,33 +2,33 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
-current_phase: 27
-current_phase_name: Linear Regression Teaching Experience Redesign
-status: completed
-stopped_at: Completed 27.1-01-PLAN.md; Phase 28 remains next
-last_updated: "2026-08-01T14:05:00+08:00"
-last_activity: 2026-08-01
-last_activity_desc: Phase 27A teaching redesign completed and release-verified
+current_phase: 28
+current_phase_name: Tabular Regression Project
+status: executing
+stopped_at: Completed 28-01-PLAN.md; executing 28-02-PLAN.md
+last_updated: "2026-08-04T02:22:32+08:00"
+last_activity: 2026-08-04
+last_activity_desc: Phase 28 execution started
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 20
-  completed_plans: 20
+  total_plans: 22
+  completed_plans: 21
   percent: 43
-current_plan: 1
+current_plan: 2
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
-**Updated:** 2026-07-28
-**Status:** Ready to plan
+**Updated:** 2026-08-04
+**Status:** Executing Phase 28
 
 ## Current Position
 
-Phase: 27A — Linear Regression Teaching Experience Redesign
-Plan: 01 — Data assets, typed lesson flow, page layout, and validation
-Status: Completed
-Last activity: 2026-08-01 — Phase 27A teaching redesign completed and release-verified
+Phase: 28 (Tabular Regression Project) — EXECUTING
+Plan: 2 of 2
+Status: Executing Phase 28
+Last activity: 2026-08-04 — Phase 28 execution started
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 27 — Linear Regression Teaching Experience Redesign (27A)
+**Current focus:** Phase 28 — Tabular Regression Project
 
 ## Baseline
 
