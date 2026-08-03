@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type {
   AppLocale,
@@ -7,27 +7,24 @@ import type {
   MlpActivationKind,
   MlpClassificationDataset,
   MlpFeatureKey,
-  MlpPlaygroundSnapshot,
   MlpPlaygroundState,
   MlpRegressionDataset,
   MlpRegularizationType,
   StorySection,
 } from '../types/ml'
-import {
-  DEFAULT_MLP_PLAYGROUND_STATE,
-  MLP_FEATURES,
-  createMlpPlaygroundSession,
-  normalizeMlpPlaygroundState,
-} from '../simulations/mlpPlayground'
+import { MLP_FEATURES } from '../simulations/mlpPlayground'
+import { useMlpPlaygroundController } from '../composables/useMlpPlaygroundController'
 import {
   mlpLessonFocusByChapter,
   type MlpGuidedControl,
+  type MlpResultReadout,
   type NeuralLabMode,
 } from '../lessons/neuralGuided'
 import { round } from '../utils/math'
 import MlpNetworkGraph from './MlpNetworkGraph.vue'
 import MlpOutputFitMap from './MlpOutputFitMap.vue'
 import MlpTrainingTimeline from './MlpTrainingTimeline.vue'
+import MlpSharedControlPanel from './mlp/MlpSharedControlPanel.vue'
 
 const props = defineProps<{
   accent: string
@@ -36,13 +33,19 @@ const props = defineProps<{
 }>()
 
 const { locale } = useI18n()
-const state = ref<MlpPlaygroundState>(normalizeMlpPlaygroundState(DEFAULT_MLP_PLAYGROUND_STATE))
-const session = shallowRef(createMlpPlaygroundSession(state.value))
-const snapshot = shallowRef<MlpPlaygroundSnapshot>(session.value.snapshot())
-const previousSnapshot = shallowRef<MlpPlaygroundSnapshot>()
-const contourHistory = shallowRef<MlpPlaygroundSnapshot[]>([snapshot.value])
-const isPlaying = ref(false)
-let timer: number | undefined
+const {
+  state,
+  snapshot,
+  previousSnapshot,
+  contourHistory,
+  isPlaying,
+  replaceInitialState,
+  resetWith,
+  updateWithoutReset,
+  step,
+  togglePlayback,
+  regenerateData,
+} = useMlpPlaygroundController()
 
 const classificationDatasets: MlpClassificationDataset[] = ['circle', 'xor', 'gauss', 'spiral']
 const regressionDatasets: MlpRegressionDataset[] = ['plane', 'gaussian']
@@ -207,67 +210,6 @@ const copy = computed(() =>
 function localizedText(value?: LocalizedCopy) {
   if (!value) return ''
   return value[locale.value as AppLocale]
-}
-
-function stopPlayback() {
-  if (timer) {
-    window.clearInterval(timer)
-    timer = undefined
-  }
-  isPlaying.value = false
-}
-
-function sync(nextSnapshot: MlpPlaygroundSnapshot, options: { clearHistory?: boolean } = {}) {
-  previousSnapshot.value = options.clearHistory ? undefined : snapshot.value
-  snapshot.value = nextSnapshot
-  state.value = nextSnapshot.state
-
-  if (options.clearHistory) {
-    contourHistory.value = [nextSnapshot]
-    return
-  }
-
-  const last = contourHistory.value.at(-1)
-  if (!last || last.iteration !== nextSnapshot.iteration) {
-    contourHistory.value = [...contourHistory.value, nextSnapshot].slice(-6)
-  } else {
-    contourHistory.value = [...contourHistory.value.slice(0, -1), nextSnapshot]
-  }
-}
-
-function resetWith(partial: Partial<MlpPlaygroundState> = {}) {
-  stopPlayback()
-  sync(session.value.reset({ ...state.value, ...partial }), { clearHistory: true })
-}
-
-function resetToChapterInitialState(partial: Partial<MlpPlaygroundState>) {
-  stopPlayback()
-  const nextState = normalizeMlpPlaygroundState({ ...DEFAULT_MLP_PLAYGROUND_STATE, ...partial })
-  session.value = createMlpPlaygroundSession(nextState)
-  sync(session.value.snapshot(), { clearHistory: true })
-}
-
-function updateWithoutReset(partial: Partial<MlpPlaygroundState>) {
-  sync(session.value.updateState({ ...state.value, ...partial }))
-}
-
-function step(count = 1) {
-  sync(session.value.step(count))
-}
-
-function togglePlayback() {
-  if (isPlaying.value) {
-    stopPlayback()
-    return
-  }
-
-  isPlaying.value = true
-  timer = window.setInterval(() => step(1), 90)
-}
-
-function regenerateData() {
-  stopPlayback()
-  sync(session.value.regenerateData(), { clearHistory: true })
 }
 
 function chooseDataset(dataset: MlpClassificationDataset | MlpRegressionDataset) {
@@ -541,6 +483,10 @@ const metricCards = computed(() => {
     { id: 'gradientNorm', label: copy.value.gradientNorm, value: round(current.gradientNorm, 4) },
   ]
 })
+const guidedMetricCards = computed(() => {
+  const readouts = new Set(lessonFocus.value?.resultReadouts ?? [])
+  return metricCards.value.filter((metric) => readouts.has(metric.id as MlpResultReadout))
+})
 
 const focusText = computed(() => copy.value.focus[props.section?.playgroundFocus ?? 'network'])
 const lessonFocus = computed(() => mlpLessonFocusByChapter.get(props.section?.id ?? 'linearLimits'))
@@ -559,13 +505,14 @@ function showsGuidedControl(control: MlpGuidedControl) {
 watch(
   () => props.section?.id,
   () => {
-    const initialState = lessonFocus.value?.initialState
-    if (initialState) resetToChapterInitialState(initialState)
+    const initialState = props.mode === 'explore'
+      ? lessonFocus.value?.explorePreset
+      : lessonFocus.value?.initialState
+    if (initialState) replaceInitialState(initialState)
   },
   { immediate: true },
 )
 
-onBeforeUnmount(stopPlayback)
 </script>
 
 <template>
@@ -574,57 +521,32 @@ onBeforeUnmount(stopPlayback)
     :class="`is-${props.mode}`"
     :style="{ '--mlp-accent': props.accent }"
   >
-    <header class="mlp-guided-toolbar">
-      <div class="mlp-run-controls" :aria-label="copy.runControls">
-        <button type="button" class="mlp-icon-button" :title="copy.reset" :aria-label="copy.reset" @click="resetWith()">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4.5 8.5A8 8 0 1 1 4 15" />
-            <path d="M4.5 4v4.5H9" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          class="mlp-icon-button mlp-icon-button--play"
-          :title="isPlaying ? copy.pause : copy.play"
-          :aria-label="isPlaying ? copy.pause : copy.play"
-          @click="togglePlayback"
-        >
-          <svg v-if="isPlaying" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8 5v14M16 5v14" />
-          </svg>
-          <svg v-else viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </button>
-        <button type="button" class="mlp-icon-button" :title="copy.step" :aria-label="copy.step" @click="step(1)">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 5v14l9-7z" />
-            <path d="M18 5v14" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="mlp-epoch-readout">
-        <span>{{ copy.iteration }}</span>
-        <strong>{{ epochDisplay }}</strong>
-      </div>
-
-      <div class="mlp-guided-toolbar__result">
-        <span>{{ copy.primaryResult }}</span>
-        <strong>{{ copy.trainLoss }} {{ round(snapshot.trainLoss, 3) }}</strong>
-        <em>{{ copy.testLoss }} {{ round(snapshot.testLoss, 3) }}</em>
-      </div>
-
-      <div v-if="props.mode === 'explore'" class="mlp-scenario-switch" :aria-label="copy.scenarios">
-        <button type="button" :class="{ 'is-active': activeDatasetKey === 'xor' }" @click="quickPreset('xor')">XOR</button>
-        <button type="button" :class="{ 'is-active': activeDatasetKey === 'circle' }" @click="quickPreset('circle')">
-          {{ copy.datasets.circle }}
-        </button>
-        <button type="button" :class="{ 'is-active': state.problemType === 'regression' }" @click="quickPreset('regression')">
-          {{ copy.regression }}
-        </button>
-      </div>
-    </header>
+    <MlpSharedControlPanel
+      :mode="props.mode"
+      :state="state"
+      :is-playing="isPlaying"
+      :epoch="epochDisplay"
+      :train-loss="round(snapshot.trainLoss, 3)"
+      :test-loss="round(snapshot.testLoss, 3)"
+      :labels="{
+        reset: copy.reset,
+        play: copy.play,
+        pause: copy.pause,
+        step: copy.step,
+        iteration: copy.iteration,
+        primaryResult: copy.primaryResult,
+        trainLoss: copy.trainLoss,
+        testLoss: copy.testLoss,
+        runControls: copy.runControls,
+        scenarios: copy.scenarios,
+        circle: copy.datasets.circle,
+        regression: copy.regression,
+      }"
+      @reset="resetWith()"
+      @toggle-play="togglePlayback()"
+      @step="step(1)"
+      @preset="quickPreset"
+    />
 
     <section v-if="props.mode === 'guided' && guidedControls.size" class="mlp-guided-controls" :aria-label="copy.guidedControls">
       <div v-if="showsGuidedControl('dataset')" class="mlp-guided-control mlp-guided-control--dataset">
@@ -698,6 +620,13 @@ onBeforeUnmount(stopPlayback)
       <span>{{ copy.observation }}</span>
       <strong>{{ localizedText(lessonFocus?.observation) || focusText }}</strong>
     </p>
+
+    <dl v-if="props.mode === 'guided' && guidedMetricCards.length" class="mlp-guided-readouts" aria-live="polite">
+      <div v-for="metric in guidedMetricCards" :key="metric.id">
+        <dt>{{ metric.label }}</dt>
+        <dd>{{ metric.value }}</dd>
+      </div>
+    </dl>
 
     <div class="mlp-guided-flow">
       <article class="mlp-guided-stage mlp-guided-stage--data">

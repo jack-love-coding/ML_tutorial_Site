@@ -60,8 +60,8 @@ const CnnExplainerLab = defineAsyncComponent(() => import('../components/CnnExpl
 const CnnShapeParameterChallengeLab = defineAsyncComponent(
   () => import('../components/CnnShapeParameterChallengeLab.vue'),
 )
-const MlpPlaygroundCockpit = defineAsyncComponent(
-  () => import('../components/MlpPlaygroundCockpit.vue'),
+const MlpGuidedLab = defineAsyncComponent(
+  () => import('../components/mlp/MlpGuidedLab.vue'),
 )
 const MlpBackpropBridgeLab = defineAsyncComponent(
   () => import('../components/MlpBackpropBridgeLab.vue'),
@@ -515,10 +515,9 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     >
       <template #lab="{ section }">
         <section class="mlp-playground-stage">
-          <MlpPlaygroundCockpit
+          <MlpGuidedLab
             :accent="moduleDefinition.accent"
             :section="section"
-            mode="guided"
           />
         </section>
 

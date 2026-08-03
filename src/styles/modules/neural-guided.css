@@ -575,6 +575,33 @@
   font-size: 0.86rem;
 }
 
+.mlp-guided-readouts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.mlp-guided-readouts > div {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--neural-line);
+  border-radius: 10px;
+  background: white;
+}
+
+.mlp-guided-readouts dt {
+  color: var(--neural-muted);
+  font-size: 0.72rem;
+}
+
+.mlp-guided-readouts dd {
+  margin: 0;
+  color: var(--neural-ink);
+  font-weight: 850;
+}
+
 .mlp-guided-flow {
   display: grid;
   grid-template-columns: 138px 22px minmax(500px, 1fr) 22px minmax(250px, 0.48fr);
@@ -897,6 +924,10 @@
   .mlp-guided-observation {
     align-items: start;
     flex-direction: column;
+  }
+
+  .mlp-guided-readouts {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .mlp-guided-stage {
