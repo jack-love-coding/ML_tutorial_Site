@@ -103,5 +103,5 @@ test('cnn shape parameter challenge is wired only into the padding and stride ch
   assert.match(algorithmViewSource, /const CnnShapeParameterChallengeLab = defineAsyncComponent/)
   assert.match(algorithmViewSource, /<CnnShapeParameterChallengeLab/)
   assert.match(algorithmViewSource, /section\.id === 'padding-stride-shape'/)
-  assert.match(algorithmViewSource, /<CnnExplainerLab/)
+  assert.match(algorithmViewSource, /<CnnGuidedLab/)
 })

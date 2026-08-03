@@ -35,6 +35,113 @@ const cnnSources: ModuleSourceReference[] = [
   },
 ]
 
+interface CnnLessonSupplement {
+  question: LocalizedCopy
+  variables: LocalizedCopy
+  visualGuide: LocalizedCopy
+  misconception: LocalizedCopy
+}
+
+const cnnLessonSupplements: Record<string, CnnLessonSupplement> = {
+  'image-volume': {
+    question: loc('浏览器中的 Tiny VGG 收到图片后，第一步实际读到了什么？', 'What does Tiny VGG actually read first when an image enters the browser model?'),
+    variables: loc(
+      String.raw`本课程的运行时输入固定为 $H=64$、$W=64$、$C=3$，所以张量 shape 是 $64\times64\times3$。像素 $p\in[0,255]$ 归一化为 $x=p/255\in[0,1]$；三个 channel 分别保存 R、G、B 强度。`,
+      String.raw`The runtime input is fixed at $H=64$, $W=64$, and $C=3$, so the tensor shape is $64\times64\times3$. A pixel $p\in[0,255]$ becomes $x=p/255\in[0,1]$, with separate R, G, and B channels.`,
+    ),
+    visualGuide: loc('先看输入预览，再沿结构轨道确认第一格确实标为 64 × 64 × 3。切换样本只改变数值，不改变 shape。', 'Read the input preview, then confirm that the first runtime stage is 64 × 64 × 3. Changing samples changes values, not shape.'),
+    misconception: loc('误区：模型直接读取“披萨”“瓢虫”等人类概念。前向传播只接收归一化数值；类别名称只在最后解释输出索引。', 'Misconception: the model directly reads human concepts such as pizza or ladybug. The forward pass receives normalized numbers; labels only interpret final output indices.'),
+  },
+  'kernel-convolution': {
+    question: loc('一个 3×3 kernel 怎样从局部窗口算出 feature map 中的一个格子？', 'How does one 3x3 kernel turn a local window into one feature-map cell?'),
+    variables: loc(
+      String.raw`对输出 channel $k$ 和位置 $(i,j)$，$z_{k,i,j}=\sum_c\sum_u\sum_v x_{c,i+u,j+v}K_{k,c,u,v}+b_k$。$c$ 遍历输入 channel，$(u,v)$ 遍历 kernel，ReLU 再计算 $a=\max(0,z)$。`,
+      String.raw`For output channel $k$ at $(i,j)$, $z_{k,i,j}=\sum_c\sum_u\sum_v x_{c,i+u,j+v}K_{k,c,u,v}+b_k$. Index $c$ spans input channels, $(u,v)$ spans the kernel, and ReLU computes $a=\max(0,z)$.`,
+    ),
+    visualGuide: loc('选择卷积块后，先对齐输入 patch 与 kernel 的同一位置，再读逐 channel 乘积、求和、bias 和 ReLU；不要直接跳到整张 feature map。', 'After selecting a convolution block, align the input patch and kernel first, then read per-channel products, sum, bias, and ReLU before interpreting the whole feature map.'),
+    misconception: loc('误区：一个 kernel 只计算一次，或天生就是边缘检测器。它在所有空间位置共享同一组可训练权重。', 'Misconception: a kernel is used once or is born as an edge detector. The same trainable weights are shared at every spatial position.'),
+  },
+  'padding-stride-shape': {
+    question: loc('只看输入、kernel、padding 和 stride，能否在运行模型前算出输出尺寸？', 'Can output size be computed from input, kernel, padding, and stride before running the model?'),
+    variables: loc(
+      String.raw`单个空间方向满足 $\mathrm{out}=\left\lfloor\frac{\mathrm{in}+2p-k}{s}\right\rfloor+1$。$p$ 是 padding，$k$ 是 kernel size，$s$ 是 stride；输出 channel 另由 filter 数决定。`,
+      String.raw`Along one spatial axis, $\mathrm{out}=\left\lfloor\frac{\mathrm{in}+2p-k}{s}\right\rfloor+1$. Here $p$ is padding, $k$ is kernel size, and $s$ is stride; output channels are set separately by filter count.`,
+    ),
+    visualGuide: loc('沿纵向轨道逐层核对 shape：卷积可能保持或缩小高宽，池化降低高宽，Flatten 把空间与 channel 展成向量。', 'Follow the stage track and verify each shape: convolution may preserve or shrink height and width, pooling downsamples them, and Flatten rewrites space and channels as a vector.'),
+    misconception: loc('误区：padding 是新增训练样本，或 stride 只影响计算速度。两者直接改变边缘参与方式与输出 shape。', 'Misconception: padding adds training samples or stride only changes speed. Both directly affect border participation and output shape.'),
+  },
+  'channels-feature-maps': {
+    question: loc('为什么卷积后 channel 会从 3 增加到多个 feature maps，而参数量仍不随图片面积增长？', 'Why can channels grow from 3 to many feature maps without parameter count scaling with image area?'),
+    variables: loc(
+      String.raw`若 kernel 为 $k_h\times k_w$、输入 channel 为 $C_{in}$、filter 数为 $C_{out}$，则参数量为 $k_hk_wC_{in}C_{out}+C_{out}$。Tiny VGG 的运行时输入仍是 $64\times64\times3$；空间尺寸与参数数量必须分开计算。`,
+      String.raw`For a $k_h\times k_w$ kernel with $C_{in}$ input channels and $C_{out}$ filters, parameter count is $k_hk_wC_{in}C_{out}+C_{out}$. Tiny VGG still receives $64\times64\times3$; spatial size and parameter count are separate calculations.`,
+    ),
+    visualGuide: loc('在同一卷积阶段横向比较多张真实激活图。每张图对应一个 filter；颜色表示数值范围，不能单独当作语义标签。', 'Compare several real activation maps within one convolution stage. Each map belongs to one filter; color encodes numeric range, not a guaranteed semantic label.'),
+    misconception: loc('误区：feature map 数量等于输入图片中的物体数量。它等于 filter 数，是模型学习到的一组中间响应。', 'Misconception: feature-map count equals the number of objects. It equals filter count and represents learned intermediate responses.'),
+  },
+  'pooling-classifier-head': {
+    question: loc('卷积主干得到 feature maps 后，pooling、Flatten 和 Softmax 怎样完成一次分类？', 'After the backbone creates feature maps, how do pooling, Flatten, and Softmax complete a prediction?'),
+    variables: loc(
+      String.raw`MaxPool 在窗口 $W_{i,j}$ 中取 $y_{i,j}=\max_{(u,v)\in W_{i,j}}x_{u,v}$。Flatten 只重排数值；Dense 计算 $\mathbf{z}=W\mathbf{v}+\mathbf{b}$，Softmax 用 $p_k=e^{z_k}/\sum_j e^{z_j}$ 得到和为 1 的概率。`,
+      String.raw`MaxPool uses $y_{i,j}=\max_{(u,v)\in W_{i,j}}x_{u,v}$. Flatten only reorders values; Dense computes $\mathbf{z}=W\mathbf{v}+\mathbf{b}$, and Softmax gives $p_k=e^{z_k}/\sum_j e^{z_j}$ with probabilities summing to one.`,
+    ),
+    visualGuide: loc('先看 pool 前后高宽变化，再选分类头，比较 logits 的相对差距和 Top-3 概率。最高概率是当前模型输出，不是可靠性保证。', 'Read spatial size before and after pooling, then select the head and compare relative logits with top-3 probabilities. The largest probability is a model output, not a reliability guarantee.'),
+    misconception: loc('误区：Softmax 产生新信息或证明预测正确。它只把同一组 logits 归一化为相对概率。', 'Misconception: Softmax creates new information or proves correctness. It only normalizes the same logits into relative probabilities.'),
+  },
+  'transfer-learning-review': {
+    question: loc('面对新视觉任务时，为什么常先冻结 backbone、替换 classifier head，而不是从零训练？', 'Why do new vision tasks often freeze the backbone and replace the classifier head instead of training from scratch?'),
+    variables: loc(
+      String.raw`把模型写成 $\hat{y}=h_{\phi}(f_{\theta}(x))$：$f_{\theta}$ 是 backbone，$h_{\phi}$ 是任务相关 head。冻结阶段固定 $\theta$、只更新 $\phi$；fine-tune 时再用更小学习率开放部分 $\theta$。`,
+      String.raw`Write the model as $\hat{y}=h_{\phi}(f_{\theta}(x))$: $f_{\theta}$ is the backbone and $h_{\phi}$ is the task-specific head. Freezing holds $\theta$ fixed while updating $\phi$; fine-tuning later opens part of $\theta$ with a smaller learning rate.`,
+    ),
+    visualGuide: loc('结构轨道把卷积阶段标为 backbone、最后阶段标为 classifier。先选 backbone 读通用表示，再选 head 读与当前十类绑定的输出。', 'The track marks convolution stages as the backbone and the final stage as the classifier. Inspect transferable features first, then the ten-class-specific head.'),
+    misconception: loc('误区：冻结 backbone 就不需要检查数据分布。若新数据与预训练数据差异很大，固定表示也可能不适用。', 'Misconception: freezing the backbone removes the need to inspect data distribution. A large domain shift can make fixed features unsuitable.'),
+  },
+}
+
+function parseMarkdown(source: string) {
+  const matches = [...source.matchAll(/^###\s+(.+)$/gm)]
+  const intro = source.slice(0, matches[0]?.index ?? source.length).trim()
+  const sections = matches.map((match, index) => {
+    const start = (match.index ?? 0) + match[0].length
+    const end = matches[index + 1]?.index ?? source.length
+    return { heading: match[1].trim(), body: source.slice(start, end).trim() }
+  })
+  return { intro, sections }
+}
+
+function structuredCnnLesson(
+  id: string,
+  markdown: LocalizedCopy,
+  experimentPrompt: LocalizedCopy,
+  conclusion: LocalizedCopy,
+): LocalizedCopy {
+  const supplement = cnnLessonSupplements[id]
+  if (!supplement) return markdown
+
+  const build = (locale: keyof LocalizedCopy) => {
+    const parsed = parseMarkdown(markdown[locale])
+    const labels = locale === 'zh-CN'
+      ? ['本章问题', '直觉', '变量与公式', '手算或代码例子', '读图提示', '常见误区', '实验任务', '本章结论']
+      : ['Chapter question', 'Intuition', 'Variables and formula', 'Worked or code example', 'How to read the visual', 'Common misconception', 'Lab task', 'Chapter conclusion']
+    const intuition = [parsed.intro, parsed.sections[0]?.body].filter(Boolean).join('\n\n')
+    const worked = parsed.sections.slice(1).map((section) => `**${section.heading}**\n\n${section.body}`).join('\n\n')
+    const blocks = [
+      supplement.question[locale],
+      intuition,
+      supplement.variables[locale],
+      worked,
+      supplement.visualGuide[locale],
+      supplement.misconception[locale],
+      experimentPrompt[locale],
+      conclusion[locale],
+    ]
+    return labels.map((label, index) => `### ${label}\n${blocks[index]}`).join('\n\n')
+  }
+
+  return { 'zh-CN': build('zh-CN'), en: build('en') }
+}
+
 function chapter(
   id: string,
   titleKey: string,
@@ -46,7 +153,7 @@ function chapter(
     id,
     eyebrowKey: 'common.chapter',
     titleKey,
-    markdown,
+    markdown: structuredCnnLesson(id, markdown, experimentPrompt, callout),
     callout,
     experimentPrompt,
     sources: cnnSources,
@@ -93,7 +200,7 @@ export const cnnVisualizationModule: AlgorithmModuleDefinition = {
         `CNN 的第一步不是“识别猫狗”，而是把图片看成一个三维数值体：高度、宽度和 channel。
 
 ### 图片在模型里是什么
-一张 RGB 图片可以写成 $H \\times W \\times C$。例如 $32 \\times 32 \\times 3$ 表示 32 像素高、32 像素宽、3 个颜色通道。
+一张 RGB 图片可以写成 $H \\times W \\times C$。本课程运行时固定使用 $64 \\times 64 \\times 3$，表示 64 像素高、64 像素宽、3 个颜色通道。
 
 普通全连接层会让每个输出神经元连接整张图片。CNN 则先做 local receptive field：一个 kernel 只看局部小窗口，但在整张图上共享同一组权重。
 
@@ -110,7 +217,7 @@ CNN 仍然是可微模型：卷积层和全连接层有可训练参数，ReLU �
         `The first step in a CNN is not "recognizing cats and dogs". It is reading an image as a 3D numeric volume: height, width, and channels.
 
 ### What is an image inside the model?
-An RGB image can be written as $H \\times W \\times C$. For example, $32 \\times 32 \\times 3$ means 32 pixels high, 32 pixels wide, and 3 color channels.
+An RGB image can be written as $H \\times W \\times C$. This course uses the actual runtime shape $64 \\times 64 \\times 3$: 64 pixels high, 64 pixels wide, and 3 color channels.
 
 A fully connected layer lets each output neuron connect to the whole image. A CNN first uses local receptive fields: one kernel sees a small local window, while the same weights are shared across the image.
 
@@ -279,9 +386,9 @@ Step through the Overview: valid convolution shrinks spatial size, MaxPool downs
         `一层 CNN 通常不只学一个 kernel，而是学很多个 filter。每个 filter 生成一张 feature map，堆起来就是输出 channel。
 
 ### channel 怎样变化
-如果输入是 $32 \\times 32 \\times 3$，第一层有 16 个 $3 \\times 3$ filter，padding=1，stride=1，那么输出是 $32 \\times 32 \\times 16$。
+如果输入是 $64 \\times 64 \\times 3$，第一层有 16 个 $3 \\times 3$ filter，padding=1，stride=1，那么输出是 $64 \\times 64 \\times 16$。
 
-参数数量不是 $32 \\times 32 \\times 3 \\times 16$，而是：
+参数数量不是 $64 \\times 64 \\times 3 \\times 16$，而是：
 
 $$3 \\times 3 \\times 3 \\times 16 + 16$$
 
@@ -297,9 +404,9 @@ $$3 \\times 3 \\times 3 \\times 16 + 16$$
         `A CNN layer usually learns many filters, not just one kernel. Each filter creates one feature map, and stacking them gives the output channels.
 
 ### How channels change
-If the input is $32 \\times 32 \\times 3$, the first layer has 16 filters of size $3 \\times 3$, padding=1, and stride=1, then the output is $32 \\times 32 \\times 16$.
+If the input is $64 \\times 64 \\times 3$, the first layer has 16 filters of size $3 \\times 3$, padding=1, and stride=1, then the output is $64 \\times 64 \\times 16$.
 
-The parameter count is not $32 \\times 32 \\times 3 \\times 16$, but:
+The parameter count is not $64 \\times 64 \\times 3 \\times 16$, but:
 
 $$3 \\times 3 \\times 3 \\times 16 + 16$$
 
@@ -456,8 +563,8 @@ Training a CNN from scratch needs more data and compute. Transfer learning start
   controls: [],
   presets: [],
   sourceNote: loc(
-    '统一资料入口：REF-CNN-EXPLAINER、REF-CS231N-CNN、REF-D2L-CNN、REF-PYTORCH-CV-TRANSFER、REF-CONV-ARITHMETIC。',
-    'Centralized references: REF-CNN-EXPLAINER, REF-CS231N-CNN, REF-D2L-CNN, REF-PYTORCH-CV-TRANSFER, REF-CONV-ARITHMETIC.',
+    '公开资料、资产来源与许可证统一列在课程最后。',
+    'Public references, asset provenance, and licenses are listed once at the end of the course.',
   ),
   createDefaultConfig: () => ({
     playbackMs: 900,

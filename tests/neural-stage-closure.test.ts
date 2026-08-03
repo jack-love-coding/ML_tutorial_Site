@@ -105,7 +105,7 @@ test('CNN course and contracts bind the guided task to the real 64x64x3 runtime'
 test('learner-facing neural UI uses observation language and localized accessible controls', () => {
   const sources = [
     read('src/components/MlpPlaygroundCockpit.vue'),
-    read('src/components/CnnExplainerLab.vue'),
+    read('src/components/cnn/CnnGuidedLab.vue'),
     read('src/lessons/NeuralGuidedLesson.vue'),
   ].join('\n')
   assert.doesNotMatch(sources, /观察证据|本章观察证据|Evidence to watch/)

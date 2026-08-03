@@ -1100,6 +1100,30 @@
   white-space: nowrap;
 }
 
+.cnn-guided-workbench__result {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 9px;
+  background: #eff6ff;
+  color: #334155;
+}
+
+.cnn-guided-workbench__result span {
+  color: #1d4ed8;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.cnn-guided-workbench__result strong {
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 .cnn-guided-workbench__flow {
   display: grid;
   min-width: 0;
@@ -1494,6 +1518,10 @@
   color: #94a3b8;
   font-size: 0.74rem;
   font-style: normal;
+}
+
+.cnn-guided-track__mobile-detail {
+  display: none;
 }
 
 .cnn-guided-output {
@@ -1930,6 +1958,101 @@
   .cnn-guided-output header,
   .cnn-guided-output > p {
     grid-column: auto;
+  }
+}
+
+@media (min-width: 390px) and (max-width: 767px) {
+  .cnn-guided-track__scroll {
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+    scroll-snap-type: none;
+  }
+
+  .cnn-guided-track ol {
+    display: grid;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .cnn-guided-track li {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+    flex: none;
+    gap: 6px;
+    scroll-snap-align: none;
+  }
+
+  .cnn-guided-track li > button {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) 90px;
+    grid-template-areas:
+      'heading visual'
+      'count visual'
+      'meta meta';
+    align-items: center;
+  }
+
+  .cnn-guided-track__stage-heading {
+    grid-area: heading;
+  }
+
+  .cnn-guided-track__feature-stack,
+  .cnn-guided-track__logits {
+    min-height: 72px;
+    grid-area: visual;
+    margin: 0;
+  }
+
+  .cnn-guided-track__feature-stack svg {
+    width: 54px;
+    height: 54px;
+  }
+
+  .cnn-guided-track__map-count {
+    grid-area: count;
+    text-align: left;
+  }
+
+  .cnn-guided-track__stage-meta {
+    grid-area: meta;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cnn-guided-track li > i {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+
+  .cnn-guided-track__mobile-detail {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0;
+    padding: 8px 10px;
+    border-left: 3px solid #2563eb;
+    border-radius: 6px;
+    background: #eff6ff;
+  }
+
+  .cnn-guided-track__mobile-detail div {
+    display: grid;
+    gap: 2px;
+  }
+
+  .cnn-guided-track__mobile-detail dt {
+    color: #64748b;
+    font-size: 0.58rem;
+    font-weight: 800;
+  }
+
+  .cnn-guided-track__mobile-detail dd {
+    margin: 0;
+    color: #1d4ed8;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 0.7rem;
+    font-weight: 850;
   }
 }
 
