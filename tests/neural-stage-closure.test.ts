@@ -33,6 +33,8 @@ test('CI uses a bounded test concurrency and the canonical Pages build', () => {
   assert.match(packageSource, /"test:ci": "node --test --test-concurrency=2 tests\/\*\.test\.\*"/)
   assert.match(workflow, /run: npm run test:ci/)
   assert.match(workflow, /run: npm run build:pages/)
+  assert.match(workflow, /pull_request:[\s\S]*branches:[\s\S]*- main/)
+  assert.match(workflow, /deploy:[\s\S]*if: github\.event_name != 'pull_request'/)
   assert.doesNotMatch(workflow, /run: npm test\s/)
 })
 
