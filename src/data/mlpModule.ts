@@ -56,6 +56,194 @@ const sources = {
   },
 } satisfies Record<string, ModuleSourceReference>
 
+interface MlpLessonSupplement {
+  variables: LocalizedCopy
+  workedExample: LocalizedCopy
+  visualGuide: LocalizedCopy
+  misconception: LocalizedCopy
+}
+
+const mlpLessonSupplements: Record<string, MlpLessonSupplement> = {
+  linearLimits: {
+    variables: loc(
+      String.raw`$x_1,x_2$ 是二维输入，$w_1,w_2$ 决定直线方向，$b$ 平移直线。预测类别由 $z$ 的符号决定，因此 $z=0$ 永远只是一条直线。`,
+      String.raw`$x_1,x_2$ are the two inputs, $w_1,w_2$ orient the line, and $b$ shifts it. The class is read from the sign of $z$, so $z=0$ is always a line.`,
+    ),
+    workedExample: loc(
+      String.raw`把四个 XOR 点代入 $z=w_1x_1+w_2x_2+b$。如果同号点都要求 $z>0$，异号点都要求 $z<0$，四个不等式相加会互相矛盾。这说明失败来自模型族，而不是训练次数不够。`,
+      String.raw`Substitute all four XOR points into $z=w_1x_1+w_2x_2+b$. Requiring both equal-sign points to have $z>0$ and both mixed-sign points to have $z<0$ produces contradictory inequalities. The model family is the limitation, not the epoch count.`,
+    ),
+    visualGuide: loc(
+      '先看散点的四个象限，再看白色零等值线。0 层时无论怎样训练都只能得到一条直线；加入隐藏层后，多个隐藏响应可以拼出折线边界。',
+      'Read the four quadrants first, then the white zero contour. With zero hidden layers it stays a line; hidden responses can combine into a bent boundary.',
+    ),
+    misconception: loc(
+      '误区：把 XOR 失败归因于学习率或随机初始化。若模型只能表示直线，再好的优化器也找不到不存在的弯曲边界。',
+      'Misconception: blaming learning rate or initialization. An optimizer cannot find a curved boundary that the model cannot represent.',
+    ),
+  },
+  neuronAffine: {
+    variables: loc(
+      String.raw`$\mathbf{x}$ 是输入向量，$\mathbf{w}_j$ 是第 $j$ 个神经元观察输入的方向，$b_j$ 是偏置，$a_j=\mathbf{w}_j^\top\mathbf{x}+b_j$ 是激活前分数。`,
+      String.raw`$\mathbf{x}$ is the input, $\mathbf{w}_j$ is neuron $j$'s reading direction, $b_j$ is its bias, and $a_j=\mathbf{w}_j^\top\mathbf{x}+b_j$ is the pre-activation score.`,
+    ),
+    workedExample: loc(
+      String.raw`对 $\mathbf{x}=[1,3]$、$\mathbf{w}=[2,-1]$、$b=0.5$，分数为 $2-3+0.5=-0.5$。把 $x_1$ 增加 0.1 会让分数增加 0.2，而把 $x_2$ 增加 0.1 会让分数减少 0.1。`,
+      String.raw`For $\mathbf{x}=[1,3]$, $\mathbf{w}=[2,-1]$, and $b=0.5$, the score is $2-3+0.5=-0.5$. Increasing $x_1$ by 0.1 adds 0.2 to the score; increasing $x_2$ by 0.1 subtracts 0.1.`,
+    ),
+    visualGuide: loc(
+      '权重线的颜色表示正负、粗细表示绝对值；节点热力图中的渐变方向应与权重方向一致。偏置变化会移动整片颜色，但不会旋转方向。',
+      'Link color shows sign and thickness shows magnitude. A node heatmap should vary along its weight direction; changing bias shifts the colors without rotating that direction.',
+    ),
+    misconception: loc(
+      '误区：把单个隐藏神经元当成一个完整类别检测器。单元只产生可被后续层组合的局部响应。',
+      'Misconception: treating one hidden neuron as a complete class detector. It only produces a local response for later layers to combine.',
+    ),
+  },
+  activations: {
+    variables: loc(
+      String.raw`隐藏输出写成 $h_j=\phi(a_j)$。tanh 输出在 $[-1,1]$，sigmoid 输出在 $[0,1]$，ReLU 为 $\max(0,a_j)$；linear 则令 $h_j=a_j$。`,
+      String.raw`A hidden output is $h_j=\phi(a_j)$. tanh lies in $[-1,1]$, sigmoid in $[0,1]$, ReLU is $\max(0,a_j)$, and linear leaves $h_j=a_j$.`,
+    ),
+    workedExample: loc(
+      String.raw`当 $a=-2,0,2$ 时，ReLU 给出 $0,0,2$；tanh 约为 $-0.964,0,0.964$。同一组仿射分数经过不同激活后，后续层看到的信号范围与梯度都不同。`,
+      String.raw`For $a=-2,0,2$, ReLU returns $0,0,2$, while tanh is about $-0.964,0,0.964$. The same affine scores produce different ranges and gradients after activation.`,
+    ),
+    visualGuide: loc(
+      '切换激活函数时不要同时改网络结构。观察节点热力图的截断或饱和区域，并把它与梯度强度和损失变化对应起来。',
+      'Change only the activation. Match clipped or saturated heatmap regions with gradient strength and loss movement.',
+    ),
+    misconception: loc(
+      '误区：认为非线性越强越好。饱和的 sigmoid/tanh 或大量关闭的 ReLU 都可能让梯度变弱。',
+      'Misconception: assuming stronger nonlinearity is always better. Saturated sigmoid/tanh units or many inactive ReLUs can weaken gradients.',
+    ),
+  },
+  hiddenRepresentation: {
+    variables: loc(
+      String.raw`第一层用 $\mathbf{h}=\phi(W_1\mathbf{x}+\mathbf{b}_1)$ 把原坐标映射到隐藏坐标，输出层再计算 $o=W_2\mathbf{h}+b_2$。`,
+      String.raw`The first layer maps input coordinates to hidden coordinates with $\mathbf{h}=\phi(W_1\mathbf{x}+\mathbf{b}_1)$; the output layer reads them with $o=W_2\mathbf{h}+b_2$.`,
+    ),
+    workedExample: loc(
+      String.raw`两个隐藏单元可以分别响应 $x_1+x_2>0$ 与 $x_1-x_2>0$。输出层组合这两个响应后，能区分原空间中单条直线无法同时处理的多个区域。`,
+      String.raw`Two hidden units can respond to $x_1+x_2>0$ and $x_1-x_2>0$. Combining them lets the output separate multiple regions that one line in input space cannot handle.`,
+    ),
+    visualGuide: loc(
+      '按输入节点、第一隐藏层、第二隐藏层、输出节点的顺序读小热力图。寻找哪些局部响应被输出层以正权重加入、以负权重扣除。',
+      'Read heatmaps from input to hidden layers to output. Identify which local responses the output adds with positive links and subtracts with negative links.',
+    ),
+    misconception: loc(
+      '误区：把隐藏层图案直接命名成“圆”“猫耳”等固定语义。这里能确认的是数值响应与组合关系，不是人类概念标签。',
+      'Misconception: assigning fixed human labels such as “circle detector” to every hidden pattern. The view proves numeric responses and combinations, not semantic names.',
+    ),
+  },
+  forwardOutput: {
+    variables: loc(
+      String.raw`每层依次计算 $\mathbf{a}^{(l)}=W^{(l)}\mathbf{h}^{(l-1)}+\mathbf{b}^{(l)}$ 与 $\mathbf{h}^{(l)}=\phi(\mathbf{a}^{(l)})$。最后输出在分类中读作分数，在回归中读作连续预测。`,
+      String.raw`Each layer computes $\mathbf{a}^{(l)}=W^{(l)}\mathbf{h}^{(l-1)}+\mathbf{b}^{(l)}$ and $\mathbf{h}^{(l)}=\phi(\mathbf{a}^{(l)})$. The final output is a class score or a continuous regression prediction.`,
+    ),
+    workedExample: loc(
+      String.raw`若 $\mathbf{h}=[0.8,-0.4]$、$\mathbf{v}=[1.2,-0.7]$、$c=0.1$，则 $o=1.34$。把第一条输出权重改为负数会立即翻转第一个隐藏响应的贡献方向。`,
+      String.raw`With $\mathbf{h}=[0.8,-0.4]$, $\mathbf{v}=[1.2,-0.7]$, and $c=0.1$, $o=1.34$. Making the first output weight negative immediately reverses that hidden unit's contribution.`,
+    ),
+    visualGuide: loc(
+      '从当前样本沿连接向右追踪。先读节点响应，再读连接正负与粗细，最后对照输出热力图和当前预测，避免跳过中间量。',
+      'Trace the current sample left to right: node responses, link signs and magnitudes, then the output heatmap and prediction.',
+    ),
+    misconception: loc(
+      '误区：把分类输出的原始分数直接当成概率。除非模型明确经过 sigmoid 或 softmax，否则它只是可比较的分数。',
+      'Misconception: treating a raw classification score as a probability. It is only a score unless sigmoid or softmax is explicitly applied.',
+    ),
+  },
+  backprop: {
+    variables: loc(
+      String.raw`梯度沿计算图连乘：$\frac{\partial L}{\partial w}=\frac{\partial L}{\partial o}\frac{\partial o}{\partial h}\frac{\partial h}{\partial a}\frac{\partial a}{\partial w}$。更新为 $w\leftarrow w-\eta\frac{\partial L}{\partial w}$。`,
+      String.raw`Gradients multiply along the graph: $\frac{\partial L}{\partial w}=\frac{\partial L}{\partial o}\frac{\partial o}{\partial h}\frac{\partial h}{\partial a}\frac{\partial a}{\partial w}$. Then $w\leftarrow w-\eta\frac{\partial L}{\partial w}$.`,
+    ),
+    workedExample: loc(
+      String.raw`若四个局部因子依次为 $0.6,1.5,0.25,2$，则梯度为 $0.45$。学习率 $\eta=0.1$ 时，权重减少 $0.045$。单步后应能在连接值和损失上看到同方向变化。`,
+      String.raw`If the four local factors are $0.6,1.5,0.25,2$, the gradient is $0.45$. With $\eta=0.1$, the weight decreases by $0.045$; one step should move the link and loss consistently.`,
+    ),
+    visualGuide: loc(
+      '先记录单步前的损失、梯度强度和一条连接，再执行一次单步。梯度不等于权重变化量；二者还差一个学习率和更新方向。',
+      'Record loss, gradient norm, and one link before a step. Gradient is not the weight change itself; learning rate and the minus sign still matter.',
+    ),
+    misconception: loc(
+      '误区：反向传播会倒着生成输入。它只复用前向传播保存的中间量来计算导数。',
+      'Misconception: backpropagation generates the input backward. It reuses forward-pass intermediates to compute derivatives.',
+    ),
+  },
+  trainingDynamics: {
+    variables: loc(
+      String.raw`$\eta$ 是学习率，$B$ 是批大小，$g_B$ 是该批样本估计的梯度。一次更新为 $W_{t+1}=W_t-\eta g_B$。`,
+      String.raw`$\eta$ is learning rate, $B$ is batch size, and $g_B$ is the batch gradient estimate. One update is $W_{t+1}=W_t-\eta g_B$.`,
+    ),
+    workedExample: loc(
+      String.raw`同一初始状态下分别用 $\eta=0.03$ 与 $0.3$ 单步 20 次。前者通常平滑下降；后者可能越过低损失区域并震荡。再增大 batch，可减少梯度噪声但不会修复过大的步长。`,
+      String.raw`From the same initial state, step 20 times with $\eta=0.03$ and $0.3$. The first is usually smooth; the second may overshoot and oscillate. A larger batch reduces noise but cannot fix an excessive step size.`,
+    ),
+    visualGuide: loc(
+      '同时读取 epoch、训练损失、测试损失和梯度强度。平滑下降、带噪下降、横盘和发散是不同状态，不能只用最终一次读数判断。',
+      'Read epoch, train loss, test loss, and gradient norm together. Smooth decline, noisy decline, plateau, and divergence are different states.',
+    ),
+    misconception: loc(
+      '误区：损失抖动就一定说明模型错了。小批量梯度本来就有噪声；关键是长期趋势、有限值和测试表现。',
+      'Misconception: any loss jitter means the model is wrong. Mini-batch gradients are noisy; inspect the long-run trend, finite values, and test behavior.',
+    ),
+  },
+  capacityGeneralization: {
+    variables: loc(
+      String.raw`总目标为 $L_{total}=L_{data}+\lambda R(W)$。L2 用 $R(W)=\frac12\sum w^2$ 平滑收缩权重，L1 用 $R(W)=\sum |w|$ 更容易把部分连接压到零。`,
+      String.raw`The total objective is $L_{total}=L_{data}+\lambda R(W)$. L2 uses $\frac12\sum w^2$ for smooth shrinkage; L1 uses $\sum |w|$ and more readily drives some links to zero.`,
+    ),
+    workedExample: loc(
+      String.raw`先用 2 个隐藏单元训练高噪声圆环，再改为 8-8-6。若训练损失下降而测试损失上升，容量增加主要记住了训练噪声。此时比较 $\lambda=0$ 与轻量 L2，而不是继续盲目加层。`,
+      String.raw`Train noisy circles with 2 hidden units, then 8-8-6. If train loss drops while test loss rises, added capacity is memorizing noise. Compare $\lambda=0$ with light L2 instead of blindly adding layers.`,
+    ),
+    visualGuide: loc(
+      '把边界弯曲程度、训练/测试损失差距、权重范数和有效连接数一起读。颜色只表示预测方向，不单独证明泛化。',
+      'Read boundary curvature, the train/test gap, weight norm, and active links together. Color shows prediction direction, not generalization by itself.',
+    ),
+    misconception: loc(
+      '误区：测试集表现不好就不断用测试结果调参。实验台用测试读数解释泛化；真实项目应另设验证集选择方案，并把测试集留到最后。',
+      'Misconception: repeatedly tuning on test results. The lab uses test readouts for intuition; a real project should select with validation data and reserve test data for the end.',
+    ),
+  },
+}
+
+function markdownSections(markdown: string) {
+  const sections = new Map<string, string>()
+  const matches = [...markdown.matchAll(/^### (.+)$/gm)]
+  for (let index = 0; index < matches.length; index += 1) {
+    const match = matches[index]
+    if (match.index === undefined) continue
+    const start = match.index + match[0].length
+    const end = matches[index + 1]?.index ?? markdown.length
+    sections.set(match[1].trim(), markdown.slice(start, end).trim())
+  }
+  return sections
+}
+
+function structuredMlpLesson(id: string, markdown: LocalizedCopy, conclusion: LocalizedCopy): LocalizedCopy {
+  const supplement = mlpLessonSupplements[id]
+  const build = (language: 'zh-CN' | 'en') => {
+    const sections = markdownSections(markdown[language])
+    const zh = language === 'zh-CN'
+    const take = (...names: string[]) => names.map((name) => sections.get(name)).find(Boolean) ?? ''
+    const parts = [
+      [zh ? '本章问题' : 'Chapter question', take(zh ? '核心问题' : 'Core Question')],
+      [zh ? '直觉' : 'Intuition', take(zh ? '直觉' : 'Concept')],
+      [zh ? '变量与公式' : 'Variables and formula', take(zh ? '公式' : 'Formula') || supplement.variables[language]],
+      [zh ? '手算或代码例子' : 'Worked or code example', take(zh ? '最小例子' : 'Minimal Example') || supplement.workedExample[language]],
+      [zh ? '读图提示' : 'How to read the visual', supplement.visualGuide[language]],
+      [zh ? '常见误区' : 'Common misconception', supplement.misconception[language]],
+      [zh ? '实验任务' : 'Lab task', take(zh ? '实验' : 'Experiment')],
+      [zh ? '本章结论' : 'Chapter conclusion', conclusion[language]],
+    ]
+    return parts.map(([heading, body]) => `### ${heading}\n${body}`).join('\n\n')
+  }
+  return { 'zh-CN': build('zh-CN'), en: build('en') }
+}
+
 function chapter(
   id: string,
   title: LocalizedCopy,
@@ -71,7 +259,7 @@ function chapter(
     eyebrowKey: 'common.chapter',
     titleKey: `modules.mlp.sections.${id}.title`,
     title,
-    markdown,
+    markdown: structuredMlpLesson(id, markdown, callout),
     callout,
     experimentPrompt,
     playgroundFocus,

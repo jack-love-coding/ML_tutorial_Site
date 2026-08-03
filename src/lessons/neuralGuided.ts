@@ -38,24 +38,36 @@ export type MlpGuidedControl =
   | 'noise'
   | 'regularization'
 
+export type MlpResultReadout =
+  | 'trainLoss'
+  | 'testLoss'
+  | 'trainAccuracy'
+  | 'testAccuracy'
+  | 'weightNorm'
+  | 'activeWeights'
+  | 'gradientNorm'
+
 export interface MlpGuidedChapterContract extends NeuralGuidedChapterContractBase {
   kind: 'mlp'
   chapterId: string
   focus: MlpPlaygroundFocus
   guidedControls: MlpGuidedControl[]
   initialState: Partial<MlpPlaygroundState>
+  resultReadouts: MlpResultReadout[]
+  explorePreset: Partial<MlpPlaygroundState>
 }
 
 function copy(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
 }
 
-export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = [
+const mlpLessonFocusSeeds: Array<Omit<MlpGuidedChapterContract, 'explorePreset'>> = [
   {
     kind: 'mlp',
     chapterId: 'linearLimits',
     focus: 'dataset',
     guidedControls: ['dataset', 'layers'],
+    resultReadouts: ['trainAccuracy', 'testAccuracy'],
     initialState: {
       problemType: 'classification',
       classificationDataset: 'xor',
@@ -74,6 +86,7 @@ export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = [
     chapterId: 'neuronAffine',
     focus: 'features',
     guidedControls: ['features', 'layers'],
+    resultReadouts: ['weightNorm', 'activeWeights'],
     initialState: {
       problemType: 'classification', classificationDataset: 'circle', featureKeys: ['x1', 'x2'],
       networkShape: [4], activation: 'tanh', learningRate: 0.03, noise: 0.08,
@@ -85,6 +98,7 @@ export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = [
     chapterId: 'activations',
     focus: 'activations',
     guidedControls: ['activation'],
+    resultReadouts: ['gradientNorm', 'testLoss'],
     initialState: {
       problemType: 'classification', classificationDataset: 'xor', featureKeys: ['x1', 'x2'],
       networkShape: [4, 2], activation: 'tanh', learningRate: 0.03, noise: 0.08,
@@ -96,6 +110,7 @@ export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = [
     chapterId: 'hiddenRepresentation',
     focus: 'network',
     guidedControls: ['features', 'layers'],
+    resultReadouts: ['activeWeights', 'testLoss'],
     initialState: {
       problemType: 'classification', classificationDataset: 'circle',
       featureKeys: ['x1', 'x2', 'x1Squared', 'x2Squared'], networkShape: [4, 2],
@@ -108,6 +123,7 @@ export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = [
     chapterId: 'forwardOutput',
     focus: 'network',
     guidedControls: ['dataset', 'layers'],
+    resultReadouts: ['trainLoss', 'testLoss'],
     initialState: {
       problemType: 'classification', classificationDataset: 'xor', featureKeys: ['x1', 'x2'],
       networkShape: [4, 2], activation: 'tanh', learningRate: 0.03, noise: 0.08,
@@ -119,6 +135,7 @@ export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = [
     chapterId: 'backprop',
     focus: 'loss',
     guidedControls: ['learningRate'],
+    resultReadouts: ['gradientNorm', 'trainLoss'],
     initialState: {
       problemType: 'classification', classificationDataset: 'xor', featureKeys: ['x1', 'x2'],
       networkShape: [4, 2], activation: 'tanh', learningRate: 0.03, noise: 0.08,
@@ -130,6 +147,7 @@ export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = [
     chapterId: 'trainingDynamics',
     focus: 'loss',
     guidedControls: ['learningRate', 'batchSize'],
+    resultReadouts: ['trainLoss', 'testLoss', 'gradientNorm'],
     initialState: {
       problemType: 'classification', classificationDataset: 'circle',
       featureKeys: ['x1', 'x2', 'x1Squared', 'x2Squared'], networkShape: [4, 2],
@@ -142,6 +160,7 @@ export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = [
     chapterId: 'capacityGeneralization',
     focus: 'generalization',
     guidedControls: ['layers', 'noise', 'regularization'],
+    resultReadouts: ['trainLoss', 'testLoss', 'weightNorm'],
     initialState: {
       problemType: 'classification', classificationDataset: 'circle', featureKeys: ['x1', 'x2'],
       networkShape: [2], activation: 'tanh', learningRate: 0.03, noise: 0.18,
@@ -150,6 +169,11 @@ export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = [
     observation: copy('增加容量和噪声，再用测试集判断是否过拟合。', 'Add capacity and noise, then use test data to detect overfitting.'),
   },
 ]
+
+export const mlpLessonFocusConfigs: MlpGuidedChapterContract[] = mlpLessonFocusSeeds.map((contract) => ({
+  ...contract,
+  explorePreset: { ...contract.initialState },
+}))
 
 export const mlpLessonFocusByChapter = new Map(
   mlpLessonFocusConfigs.map((config) => [config.chapterId, config]),

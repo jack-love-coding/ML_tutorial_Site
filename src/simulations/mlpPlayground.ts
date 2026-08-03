@@ -121,24 +121,45 @@ function constructInput(state: MlpPlaygroundState, x: number, y: number) {
 
 export function normalizeMlpPlaygroundState(partial: Partial<MlpPlaygroundState> = {}): MlpPlaygroundState {
   const merged = { ...DEFAULT_MLP_PLAYGROUND_STATE, ...partial }
-  const featureKeys = merged.featureKeys.filter((key, index, values) =>
+  const finiteNumber = (value: unknown, fallback: number) => {
+    const numeric = Number(value)
+    return Number.isFinite(numeric) ? numeric : fallback
+  }
+  const incomingFeatures = Array.isArray(merged.featureKeys) ? merged.featureKeys : DEFAULT_MLP_PLAYGROUND_STATE.featureKeys
+  const incomingShape = Array.isArray(merged.networkShape) ? merged.networkShape : DEFAULT_MLP_PLAYGROUND_STATE.networkShape
+  const featureKeys = incomingFeatures.filter((key, index, values) =>
     MLP_FEATURES.some((feature) => feature.key === key) && values.indexOf(key) === index,
   )
-  const networkShape = merged.networkShape
+  const networkShape = incomingShape
     .slice(0, 6)
-    .map((count) => clamp(Math.round(count), 1, 8))
+    .map((count) => clamp(Math.round(finiteNumber(count, 2)), 1, 8))
 
   return {
     ...merged,
+    problemType: merged.problemType === 'regression' ? 'regression' : 'classification',
+    classificationDataset: ['circle', 'xor', 'gauss', 'spiral'].includes(merged.classificationDataset)
+      ? merged.classificationDataset
+      : DEFAULT_MLP_PLAYGROUND_STATE.classificationDataset,
+    regressionDataset: ['plane', 'gaussian'].includes(merged.regressionDataset)
+      ? merged.regressionDataset
+      : DEFAULT_MLP_PLAYGROUND_STATE.regressionDataset,
     featureKeys: featureKeys.length ? featureKeys : ['x1', 'x2'],
     networkShape,
-    learningRate: clamp(Number(merged.learningRate), 0.00001, 10),
-    batchSize: clamp(Math.round(Number(merged.batchSize)), 1, 50),
-    regularizationRate: clamp(Number(merged.regularizationRate), 0, 10),
-    noise: clamp(Number(merged.noise), 0, 0.5),
-    trainRatio: clamp(Number(merged.trainRatio), 0.1, 0.9),
-    seed: Math.round(Number(merged.seed) || DEFAULT_MLP_PLAYGROUND_STATE.seed),
-    iteration: Math.max(0, Math.round(Number(merged.iteration) || 0)),
+    activation: ['tanh', 'relu', 'sigmoid', 'linear'].includes(merged.activation)
+      ? merged.activation
+      : DEFAULT_MLP_PLAYGROUND_STATE.activation,
+    learningRate: clamp(finiteNumber(merged.learningRate, DEFAULT_MLP_PLAYGROUND_STATE.learningRate), 0.00001, 10),
+    batchSize: clamp(Math.round(finiteNumber(merged.batchSize, DEFAULT_MLP_PLAYGROUND_STATE.batchSize)), 1, 50),
+    regularizationType: ['none', 'l1', 'l2'].includes(merged.regularizationType)
+      ? merged.regularizationType
+      : DEFAULT_MLP_PLAYGROUND_STATE.regularizationType,
+    regularizationRate: clamp(finiteNumber(merged.regularizationRate, DEFAULT_MLP_PLAYGROUND_STATE.regularizationRate), 0, 10),
+    noise: clamp(finiteNumber(merged.noise, DEFAULT_MLP_PLAYGROUND_STATE.noise), 0, 0.5),
+    trainRatio: clamp(finiteNumber(merged.trainRatio, DEFAULT_MLP_PLAYGROUND_STATE.trainRatio), 0.1, 0.9),
+    showTestData: typeof merged.showTestData === 'boolean' ? merged.showTestData : DEFAULT_MLP_PLAYGROUND_STATE.showTestData,
+    discretize: typeof merged.discretize === 'boolean' ? merged.discretize : DEFAULT_MLP_PLAYGROUND_STATE.discretize,
+    seed: Math.round(finiteNumber(merged.seed, DEFAULT_MLP_PLAYGROUND_STATE.seed)),
+    iteration: Math.max(0, Math.round(finiteNumber(merged.iteration, 0))),
   }
 }
 

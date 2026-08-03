@@ -58,7 +58,7 @@ test('MLP remains an independent guided module in the required-core order', () =
     assert.match(mlpModuleSource, new RegExp(`'${id}'`))
   }
 
-  assert.match(algorithmViewSource, /MlpPlaygroundCockpit/)
+  assert.match(algorithmViewSource, /MlpGuidedLab/)
   assert.match(algorithmViewSource, /slug\.value === 'mlp'/)
   assert.match(algorithmViewSource, /visualAssetsFor/)
   assert.match(algorithmViewSource, /mlp-playground-stage/)
@@ -114,11 +114,20 @@ test('professional lesson labs keep the shared workbench shell where it is still
   }
 
   const mlpCockpitSource = read('src/components/MlpPlaygroundCockpit.vue')
+  const controllerSource = read('src/composables/useMlpPlaygroundController.ts')
+  const guidedLabSource = read('src/components/mlp/MlpGuidedLab.vue')
+  const explorerLabSource = read('src/components/mlp/MlpExplorerLab.vue')
   const outputMapSource = read('src/components/MlpOutputFitMap.vue')
   const networkGraphSource = read('src/components/MlpNetworkGraph.vue')
   const timelineSource = read('src/components/MlpTrainingTimeline.vue')
 
-  assert.match(mlpCockpitSource, /createMlpPlaygroundSession/)
+  assert.match(mlpCockpitSource, /useMlpPlaygroundController/)
+  assert.match(mlpCockpitSource, /MlpSharedControlPanel/)
+  assert.match(controllerSource, /createMlpPlaygroundSession/)
+  assert.match(controllerSource, /onBeforeUnmount\(dispose\)/)
+  assert.match(controllerSource, /Number\.isFinite/)
+  assert.match(guidedLabSource, /mode="guided"/)
+  assert.match(explorerLabSource, /mode="explore"/)
   assert.match(mlpCockpitSource, /MlpOutputFitMap/)
   assert.match(mlpCockpitSource, /MlpNetworkGraph/)
   assert.match(mlpCockpitSource, /MlpTrainingTimeline/)

@@ -5,8 +5,8 @@ import { useRoute } from 'vue-router'
 import { loadAlgorithmModule } from '../data/moduleCatalog'
 import type { AlgorithmModuleDefinition, AppLocale, LocalizedCopy, ModuleSlug } from '../types/ml'
 
-const MlpPlaygroundCockpit = defineAsyncComponent(
-  () => import('../components/MlpPlaygroundCockpit.vue'),
+const MlpExplorerLab = defineAsyncComponent(
+  () => import('../components/mlp/MlpExplorerLab.vue'),
 )
 const CnnExplainerLab = defineAsyncComponent(() => import('../components/CnnExplainerLab.vue'))
 
@@ -87,11 +87,10 @@ watch(
     </header>
 
     <section class="neural-explorer-page__workbench">
-      <MlpPlaygroundCockpit
+      <MlpExplorerLab
         v-if="props.variant === 'mlp'"
         :accent="moduleDefinition.accent"
         :section="activeSection"
-        mode="explore"
       />
       <CnnExplainerLab
         v-else

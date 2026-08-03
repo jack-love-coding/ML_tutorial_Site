@@ -23,6 +23,7 @@ const {
   createMlpPlaygroundSession,
   generateMlpPlaygroundData,
   DEFAULT_MLP_PLAYGROUND_STATE,
+  normalizeMlpPlaygroundState,
 } = await import('../src/simulations/mlpPlayground.ts')
 
 test('MLP simulation exposes train, validation, hidden, and curve diagnostics', () => {
@@ -128,4 +129,29 @@ test('playground engine trains, exposes node heatmaps, and supports regularizati
     regularizationRate: 0.05,
   }).step(3)
   assert.ok(regularized.regularizationPenalty > 0)
+})
+
+test('playground state normalization rejects non-finite and out-of-range values', () => {
+  const state = normalizeMlpPlaygroundState({
+    ...DEFAULT_MLP_PLAYGROUND_STATE,
+    learningRate: Number.NaN,
+    batchSize: Number.POSITIVE_INFINITY,
+    noise: Number.NEGATIVE_INFINITY,
+    trainRatio: Number.NaN,
+    regularizationRate: Number.POSITIVE_INFINITY,
+    networkShape: [Number.NaN, Number.POSITIVE_INFINITY, -3, 99],
+  })
+
+  for (const value of [
+    state.learningRate,
+    state.batchSize,
+    state.noise,
+    state.trainRatio,
+    state.regularizationRate,
+    ...state.networkShape,
+  ]) {
+    assert.ok(Number.isFinite(value))
+  }
+  assert.ok(state.networkShape.every((width) => Number.isInteger(width) && width >= 1 && width <= 8))
+  assert.ok(state.trainRatio >= 0.3 && state.trainRatio <= 0.9)
 })
