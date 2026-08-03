@@ -44,6 +44,9 @@ const AlgorithmCheckpointQuiz = defineAsyncComponent(
 const LinearRegressionPagedLesson = defineAsyncComponent(
   () => import('../components/LinearRegressionPagedLesson.vue'),
 )
+const HousingProjectPagedLesson = defineAsyncComponent(
+  () => import('../components/HousingProjectPagedLesson.vue'),
+)
 const LogisticRegressionPagedLesson = defineAsyncComponent(
   () => import('../components/LogisticRegressionPagedLesson.vue'),
 )
@@ -92,6 +95,7 @@ const slug = computed(() => {
   if (route.path.startsWith('/learn/cnn-visualization')) return 'cnn-visualization' as ModuleSlug
   if (route.path.startsWith('/learn/logistic-regression')) return 'logistic-regression' as ModuleSlug
   if (route.path.startsWith('/learn/linear-regression')) return 'linear-regression' as ModuleSlug
+  if (route.path.startsWith('/learn/housing-price-project')) return 'housing-price-project' as ModuleSlug
   return 'linear-regression' as ModuleSlug
 })
 const requestedChapterId = computed(() => {
@@ -117,7 +121,6 @@ const isOptimizerComparisonPage = computed(() => slug.value === 'optimizer-compa
 const isLlmRagPage = computed(() => slug.value === 'llm-rag')
 const isWorkflowLessonPage = computed(
   () =>
-    isHousingProjectPage.value ||
     isClassificationProjectPage.value ||
     isModelSelectionPage.value ||
     isTreeForestPage.value ||
@@ -469,6 +472,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       'algorithm-view--loss': isLossFunctionsPage,
       'algorithm-view--ai-overview': isAiOverviewPage,
       'algorithm-view--workflow': isWorkflowLessonPage,
+      'algorithm-view--housing': isHousingProjectPage,
       'algorithm-view--linear': isLinearRegressionPage,
       'algorithm-view--logistic': isLogisticRegressionPage,
       'algorithm-view--classification': isClassificationPage,
@@ -581,6 +585,12 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
         />
       </template>
     </LessonPage>
+
+    <HousingProjectPagedLesson
+      v-else-if="isHousingProjectPage && activeSection"
+      :module-definition="moduleDefinition"
+      :section="activeSection"
+    />
 
     <section
       v-else-if="isWorkflowLessonPage"
@@ -834,7 +844,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     <LossFunctionsDownloads v-if="isLossFunctionsPage" />
 
     <section
-      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isWorkflowLessonPage && !isNeuralGuidedPage"
+      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isHousingProjectPage && !isWorkflowLessonPage && !isNeuralGuidedPage"
       class="results-grid"
       :class="{ 'results-grid--gradient': isGradientPage }"
     >

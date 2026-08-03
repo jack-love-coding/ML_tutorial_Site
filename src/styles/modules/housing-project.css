@@ -1,0 +1,240 @@
+.algorithm-view--housing {
+  --housing-accent: #d97706;
+}
+
+.housing-course-page {
+  display: grid;
+  gap: 18px;
+}
+
+.housing-course-page__mobile-toggle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: 14px 16px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--ink);
+  text-align: left;
+  box-shadow: 4px 4px 0 var(--pixel-line);
+}
+
+.housing-course-page__mobile-toggle span,
+.housing-course-page__sidebar header span,
+.housing-course-page__header > div span,
+.housing-course-page__pager a > span,
+.housing-course-page__pager > span > span,
+.housing-block__eyebrow,
+.housing-course-page__lab > header > span,
+.housing-course-page__references > span,
+.housing-course-page__downloads > span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.housing-course-page__mobile-toggle strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.housing-course-page__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.housing-course-page__sidebar {
+  display: none;
+  width: min(100%, 1040px);
+  margin: 0 auto;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 40, 0.09);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 5px 5px 0 var(--pixel-line);
+}
+
+.housing-course-page__sidebar.is-open { display: grid; gap: 14px; }
+.housing-course-page__sidebar header { display: flex; justify-content: space-between; gap: 12px; }
+.housing-course-page__sidebar nav { display: grid; gap: 8px; }
+.housing-course-page__sidebar nav a {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(15, 23, 40, 0.06);
+  border-radius: 8px;
+  background: rgba(248, 249, 252, 0.9);
+  color: var(--muted);
+}
+.housing-course-page__sidebar nav a > span:first-child {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 7px;
+  background: rgba(15, 23, 40, 0.06);
+  font-family: var(--font-display);
+}
+.housing-course-page__sidebar nav a > span:last-child { display: grid; gap: 4px; min-width: 0; }
+.housing-course-page__sidebar nav a strong { overflow: hidden; color: inherit; font-size: 0.91rem; line-height: 1.28; text-overflow: ellipsis; white-space: nowrap; }
+.housing-course-page__sidebar nav a small { font-size: 0.72rem; }
+.housing-course-page__sidebar nav a.is-active { border-color: color-mix(in srgb, var(--housing-accent) 45%, white); background: white; color: var(--ink); }
+.housing-course-page__sidebar nav a.is-active > span:first-child { background: var(--housing-accent); color: white; }
+
+.housing-course-page main { width: min(100%, 1040px); min-width: 0; margin: 0 auto; }
+.housing-course-page article,
+.housing-course-page__flow { display: grid; gap: 20px; min-width: 0; }
+.housing-course-page__header,
+.housing-block,
+.housing-course-page__lab,
+.housing-course-page__references,
+.housing-course-page__downloads {
+  min-width: 0;
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid rgba(15, 23, 40, 0.09);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 5px 5px 0 var(--pixel-line);
+}
+.housing-course-page__header {
+  display: grid;
+  gap: 16px;
+  border-left: 6px solid var(--housing-accent);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--housing-accent) 13%, white), transparent 46%), white;
+}
+.housing-course-page__header > div { display: flex; justify-content: space-between; gap: 12px; }
+.housing-course-page__header h2 { margin: 0; font-size: clamp(2rem, 5vw, 4.2rem); line-height: 0.98; }
+.housing-course-page__header p { max-width: 75ch; margin: 0; color: var(--muted); line-height: 1.7; }
+
+.housing-block { display: grid; gap: 14px; }
+.housing-block h3,
+.housing-course-page__lab h3,
+.housing-course-page__references h3,
+.housing-course-page__downloads h3 { margin: 0; font-size: clamp(1.2rem, 3vw, 1.65rem); }
+.housing-block--explanation.is-question { border-left: 6px solid var(--housing-accent); background: color-mix(in srgb, var(--housing-accent) 7%, white); }
+.housing-block--explanation.is-misconception { border-left: 6px solid #c2410c; background: #fff7ed; }
+.housing-block--explanation.is-leakage { border-left: 6px solid #b91c1c; background: #fff7f7; }
+.housing-block--explanation.is-conclusion { border-left: 6px solid #047857; background: #f0fdf4; }
+.housing-block--formula { background: linear-gradient(145deg, #f8fafc, #fff); }
+.housing-block__variables { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 0; }
+.housing-block__variables > div { padding: 12px; border-radius: 7px; background: rgba(15, 23, 40, 0.045); }
+.housing-block__variables dt { font-weight: 800; }
+.housing-block__variables dd { margin: 6px 0 0; color: var(--muted); }
+.housing-block--runtime { background: #111827; color: #f9fafb; }
+.housing-block--runtime .housing-block__eyebrow { color: #fbbf24; }
+.housing-block--runtime pre { max-width: 100%; margin: 0; overflow: auto; padding: 16px; border-radius: 7px; background: #050b16; color: #d1fae5; }
+.housing-block--runtime .markdown-math-content { color: #e5e7eb; }
+.housing-block__note { color: var(--muted); }
+.housing-block--figure header { display: flex; justify-content: space-between; gap: 16px; align-items: end; }
+.housing-block--figure header > div { display: grid; gap: 8px; }
+.housing-block--figure img { display: block; width: 100%; max-height: 680px; object-fit: contain; border-radius: 7px; background: #f8fafc; }
+.housing-block--figure figcaption { font-weight: 750; }
+.housing-block__reading-hint { margin: 0; padding: 12px 14px; border-radius: 7px; background: #fffbeb; }
+.housing-block__figure-fallback { padding: 18px; border: 1px dashed var(--housing-accent); border-radius: 7px; }
+.housing-block__table-scroll,
+.housing-scene details { max-width: 100%; overflow: auto; }
+.housing-block table,
+.housing-scene table { width: 100%; border-collapse: collapse; }
+.housing-block th,
+.housing-block td,
+.housing-scene th,
+.housing-scene td { padding: 9px 11px; border-bottom: 1px solid rgba(15, 23, 40, 0.1); text-align: left; }
+.housing-block th,
+.housing-scene th { background: rgba(15, 23, 40, 0.05); }
+
+.housing-course-page__lab { display: grid; gap: 18px; padding: clamp(18px, 3vw, 28px); background: linear-gradient(145deg, #fffbeb, #f8fafc 55%, #ecfdf5); }
+.housing-course-page__lab > header { display: grid; gap: 10px; }
+.housing-course-page__lab > header p { max-width: 74ch; margin: 0; }
+.housing-observation__state { padding: 22px; border-radius: 8px; background: white; text-align: center; }
+.housing-observation__state.is-error { border: 1px solid #dc2626; }
+.housing-scene { display: grid; gap: 16px; min-width: 0; }
+.housing-scene__controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
+.housing-scene__controls label,
+.housing-scene__controls fieldset { display: grid; gap: 7px; min-width: min(100%, 220px); margin: 0; padding: 0; border: 0; font-weight: 750; }
+.housing-scene__controls fieldset { display: flex; flex-wrap: wrap; align-items: center; }
+.housing-scene__controls legend { width: 100%; margin-bottom: 7px; }
+.housing-scene__controls select,
+.housing-scene__controls button,
+.housing-observation button { min-height: 42px; padding: 9px 12px; border: 1px solid rgba(15, 23, 40, 0.18); border-radius: 7px; background: white; color: var(--ink); }
+.housing-scene__controls button.is-active { border-color: var(--housing-accent); background: var(--housing-accent); color: white; }
+.housing-scene__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.housing-scene__stats article { display: grid; gap: 6px; min-width: 0; padding: 13px; border: 1px solid rgba(15, 23, 40, 0.08); border-radius: 7px; background: rgba(255, 255, 255, 0.88); }
+.housing-scene__stats span { color: var(--muted); font-size: 0.76rem; font-weight: 750; }
+.housing-scene__stats strong { overflow-wrap: anywhere; font-size: clamp(1rem, 2vw, 1.25rem); }
+.housing-scene__stats .is-locked { border-style: dashed; }
+.housing-scene svg { display: block; width: 100%; height: auto; border: 1px solid rgba(15, 23, 40, 0.08); border-radius: 8px; background: linear-gradient(rgba(15,23,40,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,40,.045) 1px, transparent 1px), white; background-size: 24px 24px; }
+.scene-panel { fill: #fff; stroke: #94a3b8; stroke-width: 2; }
+.scene-panel.is-active { fill: #fffbeb; stroke: var(--housing-accent); stroke-width: 3; }
+.scene-panel.is-train { fill: #ecfdf5; stroke: #059669; }
+.scene-label { fill: #334155; font-size: 15px; font-weight: 750; }
+.scene-value { fill: #0f172a; font-size: 20px; font-weight: 850; }
+.scene-small { fill: #475569; font-size: 13px; }
+.scene-axis { fill: none; stroke: #64748b; stroke-width: 2; }
+.scene-arrow { fill: none; stroke: #64748b; stroke-width: 2.5; }
+.scene-arrow + marker path,
+marker path { fill: #64748b; }
+.scene-blocked { fill: none; stroke: #b91c1c; stroke-width: 3; stroke-dasharray: 9 6; }
+.scene-line { fill: none; stroke: var(--housing-accent); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.scene-point { fill: #fff; stroke: var(--housing-accent); stroke-width: 3; }
+.scene-point.is-selected { fill: #fbbf24; stroke: #7c2d12; stroke-width: 4; }
+.scene-point.is-muted { fill: #fed7aa; stroke: #9a3412; stroke-width: 1.5; opacity: 0.6; }
+.scene-baseline { stroke: #047857; stroke-width: 2.5; stroke-dasharray: 8 5; }
+.scene-bar.is-positive { fill: #059669; }
+.scene-bar.is-negative { fill: #dc2626; }
+.housing-scene__watch { margin: 0; padding: 14px 16px; border-left: 5px solid var(--housing-accent); border-radius: 6px; background: white; line-height: 1.65; }
+.housing-scene__equation { overflow-x: auto; margin: 0; padding: 12px; border-radius: 7px; background: #111827; color: white; font-family: ui-monospace, monospace; white-space: nowrap; }
+.housing-scene__decision,
+.housing-scene__selected { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; padding: 14px; border: 1px solid #dc2626; border-radius: 7px; background: #fff7f7; }
+.housing-scene__decision.is-pass { border-color: #059669; background: #ecfdf5; }
+.housing-scene__selected { border-color: var(--housing-accent); background: white; }
+
+.housing-course-page__references,
+.housing-course-page__downloads { display: grid; gap: 12px; }
+.housing-course-page__references ol { display: grid; gap: 12px; padding-left: 24px; }
+.housing-course-page__references li { padding-left: 6px; }
+.housing-course-page__references li small { display: block; margin-top: 4px; color: var(--muted); }
+.housing-course-page__downloads > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.housing-course-page__downloads a { display: grid; gap: 5px; min-width: 0; padding: 13px; border: 1px solid rgba(15, 23, 40, 0.1); border-radius: 7px; background: #f8fafc; }
+.housing-course-page__downloads a small { color: var(--housing-accent); font-weight: 800; text-transform: uppercase; }
+.housing-course-page__downloads a strong { overflow-wrap: anywhere; }
+.housing-course-page__pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.housing-course-page__pager > a,
+.housing-course-page__pager > span { display: grid; gap: 5px; min-width: 0; padding: 15px; border: 1px solid rgba(15, 23, 40, 0.1); border-radius: 8px; background: white; }
+.housing-course-page__pager .is-next { text-align: right; }
+.housing-course-page__pager .is-disabled { opacity: 0.5; }
+
+@media (max-width: 767px) {
+  .housing-course-page__mobile-toggle { grid-template-columns: 1fr; }
+  .housing-scene__stats { grid-template-columns: 1fr; }
+  .housing-scene__controls { display: grid; grid-template-columns: 1fr; }
+  .housing-scene__controls label,
+  .housing-scene__controls fieldset { min-width: 0; width: 100%; }
+  .housing-course-page__downloads > div,
+  .housing-course-page__pager { grid-template-columns: 1fr; }
+  .housing-course-page__pager .is-next { text-align: left; }
+  .housing-block--figure header { display: grid; }
+  .housing-block,
+  .housing-course-page__lab { padding: 16px; }
+}
+
+@media (min-width: 1440px) {
+  .housing-course-page__mobile-toggle { display: none; }
+  .housing-course-page__grid { grid-template-columns: 260px minmax(0, 1040px); justify-content: center; }
+  .housing-course-page__sidebar { position: sticky; top: 92px; display: grid; gap: 14px; width: auto; margin: 0; }
+  .housing-course-page main { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .housing-course-page *, .housing-scene * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
+}

@@ -16,6 +16,7 @@
 @import './shared/primitives.css';
 @import './modules/mlp.css';
 @import './modules/linear-regression.css';
+@import './modules/housing-project.css';
 @import './animations.css';
 @import './modules/linear-regression-responsive.css';
 @import './modules/math-lab.css';

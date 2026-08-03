@@ -104,7 +104,7 @@ test('Python notebook locale metadata publishes the exact eight current section 
   }
 })
 
-test('Housing project module covers CSV to review workflow with centralized references', () => {
+test('Housing project module preserves the six project identities and delegates detailed lessons', () => {
   const modulePath = new URL('src/data/housingPriceProjectModule.ts', root)
   assert.ok(existsSync(modulePath), 'src/data/housingPriceProjectModule.ts should exist')
 
@@ -118,35 +118,11 @@ test('Housing project module covers CSV to review workflow with centralized refe
     assert.match(moduleSource, new RegExp(`chapter\\(\\s*'${id}'`))
   }
 
-  for (const requiredConcept of [
-    'CSV -> EDA -> 清洗 -> 线性回归 -> 评估 -> 复盘',
-    '房价预测',
-    'California housing',
-    'ColumnTransformer',
-    'Pipeline',
-    'fit_transform',
-    'transform',
-    '数据泄漏',
-    'LinearRegression',
-    'R²',
-    'MAE',
-    '复盘',
-    '老师会先问',
-    '想一想',
-  ]) {
-    assert.match(moduleSource, new RegExp(escaped(requiredConcept)))
-  }
-
-  for (const refId of [
-    'REF-INRIA-NUMERICAL-PIPELINE',
-    'REF-SKLEARN-CALIFORNIA-HOUSING',
-    'REF-SKLEARN-COLUMN-TRANSFORMER',
-    'REF-SKLEARN-COMMON-PITFALLS',
-    'REF-SKLEARN-LINEAR-MODELS',
-  ]) {
-    assert.match(moduleSource, new RegExp(refId))
-  }
-
+  assert.match(moduleSource, /tabular-regression-project/)
+  assert.match(moduleSource, /StandardScaler \+ LinearRegression/)
+  assert.match(moduleSource, /Ridge/)
+  assert.match(moduleSource, /运行结果/)
+  assert.doesNotMatch(moduleSource, /Ref ID|REF-/)
   assert.doesNotMatch(moduleSource, /https?:\/\//)
   assert.doesNotMatch(moduleSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
 })
