@@ -24,6 +24,10 @@ const sources = {
     href: 'https://d2l.ai/chapter_multilayer-perceptrons/backprop.html',
     license: 'CC BY-SA 4.0',
   },
+  pytorchAutograd: {
+    label: loc('PyTorch：自动微分机制', 'PyTorch: Autograd mechanics'),
+    href: 'https://docs.pytorch.org/docs/stable/notes/autograd.html',
+  },
   d2lGeneralization: {
     label: loc('D2L：深度学习中的泛化', 'D2L: Generalization in Deep Learning'),
     href: 'https://d2l.ai/chapter_multilayer-perceptrons/generalization-deep.html',
@@ -156,20 +160,20 @@ const mlpLessonSupplements: Record<string, MlpLessonSupplement> = {
   },
   backprop: {
     variables: loc(
-      String.raw`梯度沿计算图连乘：$\frac{\partial L}{\partial w}=\frac{\partial L}{\partial o}\frac{\partial o}{\partial h}\frac{\partial h}{\partial a}\frac{\partial a}{\partial w}$。更新为 $w\leftarrow w-\eta\frac{\partial L}{\partial w}$。`,
-      String.raw`Gradients multiply along the graph: $\frac{\partial L}{\partial w}=\frac{\partial L}{\partial o}\frac{\partial o}{\partial h}\frac{\partial h}{\partial a}\frac{\partial a}{\partial w}$. Then $w\leftarrow w-\eta\frac{\partial L}{\partial w}$.`,
+      String.raw`用伴随量 $\bar v=\partial L/\partial v$ 记录损失对中间量的敏感度。沿单路径有 $\bar u=\bar v\,\partial v/\partial u$；若 $u$ 流向多个下游节点，则必须把各分支贡献相加。参数更新仍是 $\theta\leftarrow\theta-\eta\nabla_\theta L$。`,
+      String.raw`Use the adjoint $\bar v=\partial L/\partial v$ for loss sensitivity to an intermediate value. Along one path, $\bar u=\bar v\,\partial v/\partial u$; if $u$ fans out, contributions from every child must be summed. Parameters update with $\theta\leftarrow\theta-\eta\nabla_\theta L$.`,
     ),
     workedExample: loc(
-      String.raw`若四个局部因子依次为 $0.6,1.5,0.25,2$，则梯度为 $0.45$。学习率 $\eta=0.1$ 时，权重减少 $0.045$。单步后应能在连接值和损失上看到同方向变化。`,
-      String.raw`If the four local factors are $0.6,1.5,0.25,2$, the gradient is $0.45$. With $\eta=0.1$, the weight decreases by $0.045$; one step should move the link and loss consistently.`,
+      String.raw`默认标量网络得到 $z^{(1)}=0.64$、$h=0.564900$、$\hat y=0.585893$ 与 $L=0.017278$。反向计算给出 $\partial L/\partial w^{(1)}=0.109724$；当 $\eta=0.1$ 时，$w^{(1)}$ 从 $0.7$ 更新为 $0.689028$，重新前向后的损失为 $0.013425$。`,
+      String.raw`The default scalar network gives $z^{(1)}=0.64$, $h=0.564900$, $\hat y=0.585893$, and $L=0.017278$. Backward computation gives $\partial L/\partial w^{(1)}=0.109724$; with $\eta=0.1$, $w^{(1)}$ changes from $0.7$ to $0.689028$, and a new forward pass gives loss $0.013425$.`,
     ),
     visualGuide: loc(
-      '先记录单步前的损失、梯度强度和一条连接，再执行一次单步。梯度不等于权重变化量；二者还差一个学习率和更新方向。',
-      'Record loss, gradient norm, and one link before a step. Gradient is not the weight change itself; learning rate and the minus sign still matter.',
+      '蓝色实线表示前向依赖，橙色虚线高亮当前反向步骤；节点下方的 bar 数值是伴随量。先读输出误差，再逐边查看“上游梯度 × 局部导数”，最后对照参数表中的梯度与 −ηg。',
+      'Blue solid links show forward dependencies; the orange dashed link marks the current backward step. The bar value below a node is its adjoint. Read the output error first, inspect upstream gradient times local derivative, then compare the gradient with −ηg in the parameter table.',
     ),
     misconception: loc(
-      '误区：反向传播会倒着生成输入。它只复用前向传播保存的中间量来计算导数。',
-      'Misconception: backpropagation generates the input backward. It reuses forward-pass intermediates to compute derivatives.',
+      '误区：反向传播会倒着生成输入，或每个节点只接收一条梯度。它实际复用前向缓存计算导数；当计算图发生分支时，同一变量的伴随量是所有下游贡献之和。',
+      'Misconception: backpropagation reconstructs the input, or every node receives only one gradient. It reuses forward caches to compute derivatives, and a branched variable accumulates contributions from every downstream path.',
     ),
   },
   trainingDynamics: {
@@ -268,6 +272,55 @@ function chapter(
   }
 }
 
+const backpropAnimationTranscript = loc(
+  String.raw`#### 0:00｜前向计算与缓存
+
+输入先经过仿射变换和 tanh。动画依次保存 $z^{(1)}$、$h$、$z^{(2)}$ 与 $\hat y$，因为反向传播需要复用这些中间量，而不是重新猜测它们。
+
+#### 0:24｜从损失得到输出误差
+
+平方损失先产生 $\partial L/\partial\hat y=\hat y-y$。输出 tanh 再提供局部导数 $1-\hat y^2$，两者相乘得到 $\delta^{(2)}$。
+
+#### 0:52｜沿单路径应用链式法则
+
+橙色信号沿计算图向左移动。每经过一条边，都把上游伴随量乘以当前局部导数，最终得到隐藏层权重与偏置的梯度。
+
+#### 1:28｜展开网络并累加分支
+
+当 $x_1$ 同时流向两个隐藏单元时，反向传播会沿两条路径产生贡献。$\bar x_1$ 是这些贡献的和，而不是任选其中一条。
+
+#### 2:00｜Reverse-mode 与 VJP
+
+自动微分记录前向操作形成 tape，再按逆拓扑顺序执行 vector–Jacobian product。框架的 backward 操作正是在系统化执行这些局部规则。
+
+#### 2:28｜参数更新与重新前向
+
+梯度本身不是更新量。学习率和负号将其变为 $\Delta\theta=-\eta\nabla_\theta L$。动画更新参数后重新前向，比较更新前后的预测与损失。`,
+  String.raw`#### 0:00 | Forward computation and cache
+
+The input passes through affine transforms and tanh. The animation stores $z^{(1)}$, $h$, $z^{(2)}$, and $\hat y$ because backpropagation reuses these intermediates instead of reconstructing them.
+
+#### 0:24 | From loss to output error
+
+Squared loss first gives $\partial L/\partial\hat y=\hat y-y$. Output tanh contributes the local derivative $1-\hat y^2$; multiplying them gives $\delta^{(2)}$.
+
+#### 0:52 | Chain rule along one path
+
+The orange signal moves left through the graph. At each edge, the upstream adjoint is multiplied by the local derivative, eventually producing gradients for hidden weights and biases.
+
+#### 1:28 | Expand the network and accumulate branches
+
+When $x_1$ feeds two hidden units, the reverse pass receives one contribution from each path. $\bar x_1$ is their sum, not a choice between them.
+
+#### 2:00 | Reverse mode and VJP
+
+Automatic differentiation records forward operations on a tape and then executes vector–Jacobian products in reverse topological order. A framework backward call systematically applies these local rules.
+
+#### 2:28 | Parameter update and another forward pass
+
+A gradient is not itself an update. The learning rate and minus sign produce $\Delta\theta=-\eta\nabla_\theta L$. After updating the parameters, the animation runs forward again and compares prediction and loss.`,
+)
+
 export const mlpVisuals: ModuleVisualAsset[] = [
   {
     id: 'affine-activation-map',
@@ -334,11 +387,24 @@ export const mlpVisuals: ModuleVisualAsset[] = [
   {
     id: 'mlp-backprop-video',
     type: 'manim-video',
-    title: loc('反向传播的责任分配', 'Backpropagation responsibility'),
+    title: loc('从前向缓存到参数更新', 'From forward cache to parameter update'),
     caption: loc(
-      '动画沿计算图回传梯度，强调每个局部导数如何进入最终更新。',
-      'The animation sends gradients backward through a computation graph and shows how local derivatives enter each update.',
+      '动画从标量链式法则展开到矩阵 VJP、分支累加与一次完整参数更新。公式与章节互动计算图使用同一套确定性数值。',
+      'The animation grows from a scalar chain rule into matrix VJPs, branch accumulation, and one complete parameter update using the same deterministic values as the chapter lab.',
     ),
+    alt: loc(
+      '反向传播计算图动画：前向值向右流动，梯度沿局部导数向左传播并更新参数。',
+      'Backpropagation computation graph animation: forward values flow right, gradients propagate left through local derivatives, and parameters update.',
+    ),
+    transcript: backpropAnimationTranscript,
+    chapterMarkers: [
+      { id: 'forward-cache', startSeconds: 0, title: loc('前向计算与缓存', 'Forward cache') },
+      { id: 'output-error', startSeconds: 24, title: loc('输出误差信号', 'Output error') },
+      { id: 'scalar-chain', startSeconds: 52, title: loc('标量链式法则', 'Scalar chain rule') },
+      { id: 'branch-sum', startSeconds: 88, title: loc('分支梯度累加', 'Branch accumulation') },
+      { id: 'reverse-vjp', startSeconds: 120, title: loc('Reverse-mode 与 VJP', 'Reverse mode and VJP') },
+      { id: 'parameter-update', startSeconds: 148, title: loc('参数更新', 'Parameter update') },
+    ],
     assetPath: '/manim/mlp/backprop-responsibility.mp4',
     posterPath: '/manim/mlp/backprop-responsibility.svg',
   },
@@ -590,44 +656,292 @@ Switch between classification and regression. Compare the output heatmap: classi
     ),
     chapter(
       'backprop',
-      loc('反向传播用链式法则给每条边分配责任', 'Backpropagation uses the chain rule to assign responsibility to every edge'),
+      loc('反向传播：从局部导数到完整参数更新', 'Backpropagation: from local derivatives to a complete update'),
       loc(
-        `### 核心问题
-前面的隐藏层怎么知道自己该往哪里改？
+        String.raw`### 核心问题
+损失只出现在网络末端，前面每一层的权重为什么仍能得到准确的修改方向？
 
 ### 直觉
-反向传播不是“倒着预测输入”，而是高效计算梯度。输出误差先告诉最后一层哪里错了，再通过每条连接的局部导数，把责任传回隐藏层的权重和偏置。
+一次预测是一串复合函数。前向传播从左到右计算并缓存中间量；反向传播从标量损失 $L$ 出发，沿计算图反向复用这些缓存。每经过一个运算节点，就把上游敏感度乘以该节点的局部导数。这个过程不是倒着生成输入，而是在高效计算所有参数对同一个损失的偏导数。
+
+把 $\bar v=\partial L/\partial v$ 称为变量 $v$ 的伴随量。若 $v=f(u)$，则 $\bar u=\bar v\,\partial v/\partial u$。若 $u$ 同时流向多个下游运算，$\bar u$ 必须把每条路径的贡献相加。这就是计算图中“连乘”和“分支求和”同时存在的原因。
+
+### 公式
+#### 1. 前向传播先保存什么
+
+本章使用与课程 MLP 训练器一致的 tanh 输出和单样本平方损失：
+
+$$
+z^{(1)}=w^{(1)}x+b^{(1)},\quad
+h=\tanh z^{(1)},\quad
+z^{(2)}=w^{(2)}h+b^{(2)}
+$$
+
+$$
+\hat y=\tanh z^{(2)},\qquad
+L=\frac12(\hat y-y)^2
+$$
+
+前向阶段缓存 $x,z^{(1)},h,z^{(2)},\hat y,y$。损失前面的 $1/2$ 会与平方求导产生的 $2$ 抵消。
+
+#### 2. 标量网络逐步反传
+
+先对预测求导，再通过输出 tanh：
+
+$$
+\frac{\partial L}{\partial\hat y}=\hat y-y,\qquad
+\delta^{(2)}=\frac{\partial L}{\partial z^{(2)}}=(\hat y-y)(1-\hat y^2)
+$$
+
+输出层参数的梯度为
+
+$$
+\frac{\partial L}{\partial w^{(2)}}=\delta^{(2)}h,\qquad
+\frac{\partial L}{\partial b^{(2)}}=\delta^{(2)}
+$$
+
+隐藏值先收到 $\bar h=w^{(2)}\delta^{(2)}$，再乘隐藏 tanh 的局部导数：
+
+$$
+\delta^{(1)}=\frac{\partial L}{\partial z^{(1)}}=w^{(2)}\delta^{(2)}(1-h^2)
+$$
+
+因此
+
+$$
+\frac{\partial L}{\partial w^{(1)}}=\delta^{(1)}x,\qquad
+\frac{\partial L}{\partial b^{(1)}}=\delta^{(1)}
+$$
+
+#### 3. 推广到 $2\to2\to1$ 矩阵网络
+
+令 $\mathbf{x}\in\mathbb{R}^{2\times1}$、$W^{(1)}\in\mathbb{R}^{2\times2}$、$\mathbf{b}^{(1)}\in\mathbb{R}^{2\times1}$、$W^{(2)}\in\mathbb{R}^{1\times2}$。前向为
+
+$$
+\mathbf{z}^{(1)}=W^{(1)}\mathbf{x}+\mathbf{b}^{(1)},\quad
+\mathbf{h}=\tanh\mathbf{z}^{(1)},\quad
+z^{(2)}=W^{(2)}\mathbf{h}+b^{(2)}
+$$
+
+反向时
+
+$$
+\nabla_{W^{(2)}}L=\delta^{(2)}\mathbf{h}^{\mathsf T},\qquad
+\boldsymbol{\delta}^{(1)}=\left((W^{(2)})^{\mathsf T}\delta^{(2)}\right)\odot(1-\mathbf{h}\odot\mathbf{h})
+$$
+
+$$
+\nabla_{W^{(1)}}L=\boldsymbol{\delta}^{(1)}\mathbf{x}^{\mathsf T},\qquad
+\nabla_{\mathbf{b}^{(1)}}L=\boldsymbol{\delta}^{(1)}
+$$
+
+矩阵转置不是记号装饰：它保证外积结果分别得到 $1\times2$ 和 $2\times2$ 的梯度矩阵。
+
+#### 4. Reverse-mode 自动微分在做什么
+
+自动微分把前向运算记录成 tape。损失节点从 $\bar L=1$ 开始，系统按逆拓扑顺序访问节点。每个节点只需执行一次 vector–Jacobian product：
+
+$$
+\bar{\mathbf{u}}\mathrel{+}=J_f(\mathbf{u})^{\mathsf T}\bar{\mathbf{v}},\qquad \mathbf{v}=f(\mathbf{u})
+$$
+
+符号 $\mathrel{+}=$ 很重要：它表示同一个变量可能从多个下游分支收到梯度。框架的 backward() 主要是在自动建立这个 tape、按逆序执行局部 VJP，并把结果累积到参数的 gradient 字段；它没有改变链式法则本身。
+
+#### 5. 梯度如何变成更新
+
+$$
+\theta_{\mathrm{new}}=\theta-\eta\frac{\partial L}{\partial\theta},\qquad
+\Delta\theta=-\eta\frac{\partial L}{\partial\theta}
+$$
+
+梯度、更新量和更新后的参数是三个不同数值。学习率太大时，即使梯度完全正确，一步更新后的损失仍可能上升。
 
 ### 最小例子
-若损失对输出的导数是 $\\partial L/\\partial o=0.6$，输出对某隐藏值的导数是权重 $v_j=1.5$，则该隐藏值接收到的误差信号是
+默认单路径使用 $x=1.2$、$y=0.4$、$w^{(1)}=0.7$、$b^{(1)}=-0.2$、$w^{(2)}=1.1$、$b^{(2)}=0.05$、$\eta=0.1$。下面的 NumPy 代码逐行复现前向、反向和参数更新：
 
-$$\\frac{\\partial L}{\\partial h_j}=0.6\\cdot1.5=0.9$$
+~~~python
+import numpy as np
 
-这个信号还会继续乘上激活函数导数，再更新更前面的权重。
+x, y = 1.2, 0.4
+w1, b1, w2, b2 = 0.7, -0.2, 1.1, 0.05
+eta = 0.1
+
+z1 = w1 * x + b1
+h = np.tanh(z1)
+z2 = w2 * h + b2
+y_hat = np.tanh(z2)
+loss = 0.5 * (y_hat - y) ** 2
+
+delta2 = (y_hat - y) * (1 - y_hat**2)
+dw2, db2 = delta2 * h, delta2
+delta1 = w2 * delta2 * (1 - h**2)
+dw1, db1 = delta1 * x, delta1
+
+w1_new = w1 - eta * dw1
+print(f"z1={z1:.6f}, h={h:.6f}, y_hat={y_hat:.6f}, loss={loss:.6f}")
+print(f"dw1={dw1:.6f}, w1_new={w1_new:.6f}")
+~~~
+
+~~~text
+z1=0.640000, h=0.564900, y_hat=0.585893, loss=0.017278
+dw1=0.109724, w1_new=0.689028
+~~~
+
+可用中心差分独立检查解析梯度：
+
+$$
+\frac{\partial L}{\partial\theta}\approx\frac{L(\theta+\varepsilon)-L(\theta-\varepsilon)}{2\varepsilon}
+$$
+
+实验台使用 $\varepsilon=10^{-5}$；默认场景中解析梯度与数值梯度的相对误差低于 $10^{-9}$。
 
 ### 实验
-用 Step 单步训练，观察 loss、权重线粗细、bias 色块和 output 等值线是否同步变化。`,
-        `### Core Question
-How do earlier hidden layers know how to change?
+先在“正常传播”中依次单步执行前向、反向和更新，点击 $W^{(1)}_{11}$ 对照局部导数、参数梯度与 $-\eta g$。再切换“tanh 饱和”，观察隐藏层前面的梯度如何变小。最后展开 $2\to2\to1$ 并选择“分支累加”，确认 $\bar x_1$ 等于两条反向贡献之和。`,
+        String.raw`### Core Question
+The loss appears only at the end of the network. Why can every earlier weight still receive an exact direction of change?
 
 ### Concept
-Backpropagation is not reverse prediction. It is efficient gradient computation. The output error first tells the final layer what went wrong, then each local derivative sends responsibility back through weights and biases.
+A prediction is a composition of functions. The forward pass evaluates them from left to right and caches intermediate values. Backpropagation starts from the scalar loss and reuses those caches in the opposite direction. At each operation, it multiplies the upstream sensitivity by the local derivative. It is not reconstructing the input; it is efficiently computing the partial derivative of one loss with respect to every parameter.
+
+Call $\bar v=\partial L/\partial v$ the adjoint of $v$. If $v=f(u)$, then $\bar u=\bar v\,\partial v/\partial u$. If $u$ feeds multiple downstream operations, $\bar u$ must sum the contribution from every path. Computation graphs therefore require both multiplication along paths and addition across branches.
+
+### Formula
+#### 1. What the forward pass caches
+
+This chapter uses the same tanh output and per-sample squared loss as the course MLP trainer:
+
+$$
+z^{(1)}=w^{(1)}x+b^{(1)},\quad
+h=\tanh z^{(1)},\quad
+z^{(2)}=w^{(2)}h+b^{(2)}
+$$
+
+$$
+\hat y=\tanh z^{(2)},\qquad
+L=\frac12(\hat y-y)^2
+$$
+
+The forward pass caches $x,z^{(1)},h,z^{(2)},\hat y,y$. The factor $1/2$ cancels the $2$ produced when the square is differentiated.
+
+#### 2. Backpropagate through a scalar network
+
+Differentiate the loss with respect to the prediction, then pass through output tanh:
+
+$$
+\frac{\partial L}{\partial\hat y}=\hat y-y,\qquad
+\delta^{(2)}=\frac{\partial L}{\partial z^{(2)}}=(\hat y-y)(1-\hat y^2)
+$$
+
+The output-layer gradients are
+
+$$
+\frac{\partial L}{\partial w^{(2)}}=\delta^{(2)}h,\qquad
+\frac{\partial L}{\partial b^{(2)}}=\delta^{(2)}
+$$
+
+The hidden value first receives $\bar h=w^{(2)}\delta^{(2)}$, then passes through the local tanh derivative:
+
+$$
+\delta^{(1)}=\frac{\partial L}{\partial z^{(1)}}=w^{(2)}\delta^{(2)}(1-h^2)
+$$
+
+Therefore
+
+$$
+\frac{\partial L}{\partial w^{(1)}}=\delta^{(1)}x,\qquad
+\frac{\partial L}{\partial b^{(1)}}=\delta^{(1)}
+$$
+
+#### 3. Extend to a $2\to2\to1$ matrix network
+
+Let $\mathbf{x}\in\mathbb{R}^{2\times1}$, $W^{(1)}\in\mathbb{R}^{2\times2}$, $\mathbf{b}^{(1)}\in\mathbb{R}^{2\times1}$, and $W^{(2)}\in\mathbb{R}^{1\times2}$. The forward pass is
+
+$$
+\mathbf{z}^{(1)}=W^{(1)}\mathbf{x}+\mathbf{b}^{(1)},\quad
+\mathbf{h}=\tanh\mathbf{z}^{(1)},\quad
+z^{(2)}=W^{(2)}\mathbf{h}+b^{(2)}
+$$
+
+The reverse pass gives
+
+$$
+\nabla_{W^{(2)}}L=\delta^{(2)}\mathbf{h}^{\mathsf T},\qquad
+\boldsymbol{\delta}^{(1)}=\left((W^{(2)})^{\mathsf T}\delta^{(2)}\right)\odot(1-\mathbf{h}\odot\mathbf{h})
+$$
+
+$$
+\nabla_{W^{(1)}}L=\boldsymbol{\delta}^{(1)}\mathbf{x}^{\mathsf T},\qquad
+\nabla_{\mathbf{b}^{(1)}}L=\boldsymbol{\delta}^{(1)}
+$$
+
+The transposes are not decorative notation: the outer products must produce gradient matrices with shapes $1\times2$ and $2\times2$.
+
+#### 4. What reverse-mode automatic differentiation does
+
+Automatic differentiation records forward operations on a tape. Starting from $\bar L=1$, the system visits operations in reverse topological order. Each operation only needs a vector–Jacobian product:
+
+$$
+\bar{\mathbf{u}}\mathrel{+}=J_f(\mathbf{u})^{\mathsf T}\bar{\mathbf{v}},\qquad \mathbf{v}=f(\mathbf{u})
+$$
+
+The $\mathrel{+}=$ matters because one variable may receive gradients from several downstream branches. A framework backward() call mainly builds or traverses this tape, executes the local VJPs in reverse order, and accumulates the results in parameter gradient fields. It does not replace the chain rule with different mathematics.
+
+#### 5. Turn gradients into updates
+
+$$
+\theta_{\mathrm{new}}=\theta-\eta\frac{\partial L}{\partial\theta},\qquad
+\Delta\theta=-\eta\frac{\partial L}{\partial\theta}
+$$
+
+The gradient, update amount, and updated parameter are three different values. With an excessive learning rate, the loss can rise after one step even when every gradient is correct.
 
 ### Minimal Example
-If $\\partial L/\\partial o=0.6$ and the output derivative with respect to hidden value $h_j$ is weight $v_j=1.5$, then the hidden value receives
+The default single path uses $x=1.2$, $y=0.4$, $w^{(1)}=0.7$, $b^{(1)}=-0.2$, $w^{(2)}=1.1$, $b^{(2)}=0.05$, and $\eta=0.1$. This NumPy code reproduces the forward pass, backward pass, and update line by line:
 
-$$\\frac{\\partial L}{\\partial h_j}=0.6\\cdot1.5=0.9$$
+~~~python
+import numpy as np
 
-That signal is multiplied by the activation derivative before earlier weights update.
+x, y = 1.2, 0.4
+w1, b1, w2, b2 = 0.7, -0.2, 1.1, 0.05
+eta = 0.1
+
+z1 = w1 * x + b1
+h = np.tanh(z1)
+z2 = w2 * h + b2
+y_hat = np.tanh(z2)
+loss = 0.5 * (y_hat - y) ** 2
+
+delta2 = (y_hat - y) * (1 - y_hat**2)
+dw2, db2 = delta2 * h, delta2
+delta1 = w2 * delta2 * (1 - h**2)
+dw1, db1 = delta1 * x, delta1
+
+w1_new = w1 - eta * dw1
+print(f"z1={z1:.6f}, h={h:.6f}, y_hat={y_hat:.6f}, loss={loss:.6f}")
+print(f"dw1={dw1:.6f}, w1_new={w1_new:.6f}")
+~~~
+
+~~~text
+z1=0.640000, h=0.564900, y_hat=0.585893, loss=0.017278
+dw1=0.109724, w1_new=0.689028
+~~~
+
+Independently check an analytic gradient with a central difference:
+
+$$
+\frac{\partial L}{\partial\theta}\approx\frac{L(\theta+\varepsilon)-L(\theta-\varepsilon)}{2\varepsilon}
+$$
+
+The lab uses $\varepsilon=10^{-5}$; in the default scenario, analytic and numerical gradients have relative error below $10^{-9}$.
 
 ### Experiment
-Use the Step button. Watch loss, link thickness, bias color, and output contour change together.`,
+In Normal flow, step through forward, backward, and update, then select $W^{(1)}_{11}$ and compare its local derivative, parameter gradient, and $-\eta g$. Switch to Saturated tanh and watch gradients before the hidden activation shrink. Finally expand to $2\to2\to1$, choose Branch accumulation, and verify that $\bar x_1$ equals the sum of two backward contributions.`,
       ),
-      loc('反向传播是高效算梯度，而不是神经网络的第二套预测过程。', 'Backpropagation is efficient gradient computation, not a second prediction process.'),
-      loc('连续单步训练，追踪误差信号如何体现在权重线和输出图上。', 'Step training and track how error signal appears in weights and output maps.'),
+      loc('反向传播把全局损失拆成可复用的局部 VJP；路径上连乘、分支处求和，梯度再经学习率变成参数更新。', 'Backpropagation decomposes one global loss into reusable local VJPs: multiply along paths, sum at branches, then use the learning rate to turn gradients into updates.'),
+      loc('先预测一个参数会怎样改变，再逐步执行前向、反向和更新，并用中心差分核对梯度。', 'Predict how one parameter will change, then step through forward, backward, and update and verify the gradient with a central difference.'),
       'loss',
-      ['backprop-responsibility', 'mlp-backprop-video'],
-      [sources.d2lBackprop, sources.openStax],
+      ['mlp-backprop-video'],
+      [sources.d2lBackprop, sources.pytorchAutograd, sources.openStax],
     ),
     chapter(
       'trainingDynamics',

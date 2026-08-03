@@ -1,0 +1,111 @@
+{
+  "coreConcept": "reverse-mode backpropagation through an MLP computation graph",
+  "domain": "machine learning / multivariable calculus / automatic differentiation",
+  "level": "intermediate",
+  "goal": "connect cached forward values, local derivatives, branch accumulation, VJPs, and a gradient-descent parameter update",
+  "topologicalOrder": [
+    "function composition",
+    "local derivative",
+    "forward cache",
+    "chain rule and adjoints",
+    "branch accumulation",
+    "matrix-vector products",
+    "reverse-mode VJP",
+    "parameter update"
+  ],
+  "root": {
+    "concept": "reverse-mode backpropagation",
+    "depth": 0,
+    "isFoundation": false,
+    "equations": [
+      "\\bar{u} \\mathrel{+}= J_f(u)^T \\bar{v}",
+      "\\nabla_{W^{(1)}}L = \\delta^{(1)}x^T",
+      "\\theta_{new}=\\theta-\\eta\\nabla_\\theta L"
+    ],
+    "prerequisites": [
+      {
+        "concept": "chain rule and local sensitivity",
+        "depth": 1,
+        "isFoundation": false,
+        "equations": [
+          "\\bar{u}=\\bar{v}\\frac{\\partial v}{\\partial u}",
+          "\\frac{\\partial L}{\\partial w}=\\frac{\\partial L}{\\partial \\hat y}\\frac{\\partial \\hat y}{\\partial z^{(2)}}\\frac{\\partial z^{(2)}}{\\partial h}\\frac{\\partial h}{\\partial z^{(1)}}\\frac{\\partial z^{(1)}}{\\partial w}"
+        ],
+        "prerequisites": [
+          {
+            "concept": "function composition",
+            "depth": 2,
+            "isFoundation": true,
+            "equations": ["L(f(g(x)))"]
+          },
+          {
+            "concept": "single-variable derivative",
+            "depth": 2,
+            "isFoundation": true,
+            "equations": ["\\frac{d}{dx}\\tanh(x)=1-\\tanh^2(x)"]
+          }
+        ]
+      },
+      {
+        "concept": "computation graph and forward cache",
+        "depth": 1,
+        "isFoundation": false,
+        "equations": [
+          "z^{(1)}=w^{(1)}x+b^{(1)}",
+          "h=\\tanh z^{(1)}",
+          "\\hat y=\\tanh(w^{(2)}h+b^{(2)})"
+        ],
+        "prerequisites": [
+          {
+            "concept": "directed graph",
+            "depth": 2,
+            "isFoundation": true,
+            "equations": []
+          }
+        ]
+      },
+      {
+        "concept": "branch gradient accumulation",
+        "depth": 1,
+        "isFoundation": false,
+        "equations": [
+          "\\bar{x}_1=\\delta^{(1)}_1W^{(1)}_{11}+\\delta^{(1)}_2W^{(1)}_{21}"
+        ],
+        "prerequisites": [
+          {
+            "concept": "addition of path contributions",
+            "depth": 2,
+            "isFoundation": true,
+            "equations": ["\\frac{\\partial(a+b)}{\\partial x}=\\frac{\\partial a}{\\partial x}+\\frac{\\partial b}{\\partial x}"]
+          }
+        ]
+      },
+      {
+        "concept": "matrix shapes and vector-Jacobian products",
+        "depth": 1,
+        "isFoundation": false,
+        "equations": [
+          "\\delta^{(1)}=((W^{(2)})^T\\delta^{(2)})\\odot(1-h\\odot h)",
+          "\\bar{u}\\mathrel{+}=J_f(u)^T\\bar{v}"
+        ],
+        "prerequisites": [
+          {
+            "concept": "matrix-vector multiplication and transpose",
+            "depth": 2,
+            "isFoundation": true,
+            "equations": ["y=Wx", "(ab^T)_{ij}=a_ib_j"]
+          }
+        ]
+      }
+    ]
+  },
+  "visualContract": {
+    "forward": "#256BD9 solid arrows",
+    "localDerivative": "#287C55 outlines",
+    "backwardAdjoint": "#C74E2D reverse arrows",
+    "parameter": "#7655B5 equations",
+    "background": "#F6F7F9",
+    "durationSeconds": 172.2,
+    "sections": [0, 24, 52, 88, 120, 148]
+  }
+}

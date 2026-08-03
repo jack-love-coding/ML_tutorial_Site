@@ -1,25 +1,81 @@
 {
+  "metadataVersion": 2,
   "generatedBy": "scripts/manim/render_mlp.py",
+  "manimVersion": "Manim Community v0.20.1",
   "scenes": [
     {
       "scene": "AffineActivationScene",
       "assetPath": "/manim/mlp/affine-activation.mp4",
-      "posterPath": "/manim/mlp/affine-activation.svg"
+      "posterPath": "/manim/mlp/affine-activation.svg",
+      "sha256": "f9262ce1311ac1222f1a80a8ff7ad27f9db664e9074cffbe9ec8bc050d800bc8",
+      "posterSha256": "2e3188c8dc68bd5ddee240dc5b720f754c1a4115de181e46e28844c5cdd09c91",
+      "durationSeconds": 3.667,
+      "width": 854,
+      "height": 480,
+      "fps": 15.0
     },
     {
       "scene": "HiddenRewriteScene",
       "assetPath": "/manim/mlp/hidden-rewrite.mp4",
-      "posterPath": "/manim/mlp/hidden-rewrite.svg"
+      "posterPath": "/manim/mlp/hidden-rewrite.svg",
+      "sha256": "b8e424a5927172cf1d4a646c65b84b31d05451b1e992c71ed3e6f209e58277b8",
+      "posterSha256": "32b38942bf35cf5bbbacba411af6b7ea0a7df583b551a3f323b717b8a03ce3be",
+      "durationSeconds": 3.667,
+      "width": 854,
+      "height": 480,
+      "fps": 15.0
     },
     {
       "scene": "BackpropResponsibilityScene",
       "assetPath": "/manim/mlp/backprop-responsibility.mp4",
-      "posterPath": "/manim/mlp/backprop-responsibility.svg"
+      "posterPath": "/manim/mlp/backprop-responsibility.svg",
+      "sha256": "c1717c6f211d3d8308f2131fd46538d8ed84668f7754275f91b13500e6582af0",
+      "posterSha256": "cf1db7f28a9230c63b3e05f357e156e3816bb0a2b50be2d3317b241560a689e9",
+      "durationSeconds": 172.2,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "prompt": "scripts/manim/mlp/backpropagation_prompt.md",
+      "knowledgeTree": "scripts/manim/mlp/backpropagation_tree.json",
+      "transcriptZhCN": "docs/curriculum-v3/mlp/manim/backpropagation-transcript.zh-CN.md",
+      "transcriptEn": "docs/curriculum-v3/mlp/manim/backpropagation-transcript.en.md",
+      "chapters": [
+        {
+          "id": "forward-cache",
+          "startSeconds": 0
+        },
+        {
+          "id": "output-error",
+          "startSeconds": 24
+        },
+        {
+          "id": "scalar-chain",
+          "startSeconds": 52
+        },
+        {
+          "id": "branch-sum",
+          "startSeconds": 88
+        },
+        {
+          "id": "reverse-vjp",
+          "startSeconds": 120
+        },
+        {
+          "id": "parameter-update",
+          "startSeconds": 148
+        }
+      ]
     },
     {
       "scene": "CapacityOverfittingScene",
       "assetPath": "/manim/mlp/capacity-overfitting.mp4",
-      "posterPath": "/manim/mlp/capacity-overfitting.svg"
+      "posterPath": "/manim/mlp/capacity-overfitting.svg",
+      "sha256": "c26e8e20a5eabd6c04397f9543a146402d7c13114806d8737229793efcf48e9d",
+      "posterSha256": "d11c4874d8248fbcb9f8fbcbfb078b0a8d8831f1698fb545deae7d434d0891c5",
+      "durationSeconds": 4.667,
+      "width": 854,
+      "height": 480,
+      "fps": 15.0
     }
   ]
 }

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 import subprocess
@@ -16,6 +17,22 @@ SCENES = {
     "HiddenRewriteScene": "hidden-rewrite.mp4",
     "BackpropResponsibilityScene": "backprop-responsibility.mp4",
     "CapacityOverfittingScene": "capacity-overfitting.mp4",
+}
+
+BACKPROP_CHAPTERS = [
+    {"id": "forward-cache", "startSeconds": 0},
+    {"id": "output-error", "startSeconds": 24},
+    {"id": "scalar-chain", "startSeconds": 52},
+    {"id": "branch-sum", "startSeconds": 88},
+    {"id": "reverse-vjp", "startSeconds": 120},
+    {"id": "parameter-update", "startSeconds": 148},
+]
+
+BACKPROP_SOURCES = {
+    "prompt": "scripts/manim/mlp/backpropagation_prompt.md",
+    "knowledgeTree": "scripts/manim/mlp/backpropagation_tree.json",
+    "transcriptZhCN": "docs/curriculum-v3/mlp/manim/backpropagation-transcript.zh-CN.md",
+    "transcriptEn": "docs/curriculum-v3/mlp/manim/backpropagation-transcript.en.md",
 }
 
 POSTER_SVGS = {
@@ -69,7 +86,7 @@ POSTER_SVGS = {
   <g fill="none" stroke="#e26d3d" stroke-width="9" stroke-linecap="round">
     <path d="M756 260C690 242 648 224 600 210"/><path d="M758 282C690 306 650 324 600 330"/><path d="M534 330C480 320 430 295 380 278"/><path d="M318 268C260 282 220 306 178 326"/>
   </g>
-  <text x="72" y="56" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Loss signal flows backward</text>
+  <text x="72" y="56" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Forward cache to parameter update</text>
 </svg>
 """,
     "CapacityOverfittingScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Capacity overfitting poster">
@@ -174,8 +191,8 @@ POSTER_SVGS = {
     <path d="M532 329C474 319 418 294 365 276" stroke-width="7" opacity=".7"/>
     <path d="M306 267C246 280 202 307 168 326" stroke-width="6" opacity=".58"/>
   </g>
-  <text x="84" y="62" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Loss signal flows backward</text>
-  <text x="84" y="486" fill="#667085" font-family="Arial, sans-serif" font-size="22">Gradients assign responsibility to links and biases across the graph.</text>
+  <text x="84" y="62" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Forward cache to parameter update</text>
+  <text x="84" y="486" fill="#667085" font-family="Arial, sans-serif" font-size="22">Local VJPs multiply along paths and sum at branches.</text>
 </svg>
 """,
     "CapacityOverfittingScene": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Capacity overfitting poster">
@@ -213,11 +230,12 @@ POSTER_SVGS = {
 }
 
 
-def render_scene(scene_name: str) -> Path:
+def render_scene(scene_name: str, quality: str) -> Path:
+    quality_args = ["-ql"] if quality == "preview" else ["-r", "1920,1080", "--fps", "30"]
     subprocess.run(
         [
             "manim",
-            "-ql",
+            *quality_args,
             "--format",
             "mp4",
             "--media_dir",
@@ -228,23 +246,75 @@ def render_scene(scene_name: str) -> Path:
         cwd=ROOT,
         check=True,
     )
-    media_path = ROOT / "media" / "videos" / "mlp_playground" / "480p15" / f"{scene_name}.mp4"
+    quality_dir = "480p15" if quality == "preview" else "1080p30"
+    media_path = ROOT / "media" / "videos" / "mlp_playground" / quality_dir / f"{scene_name}.mp4"
     if not media_path.exists():
         raise FileNotFoundError(f"Expected Manim output not found: {media_path}")
     return media_path
 
 
-def write_metadata() -> None:
-    metadata = {
-        "generatedBy": "scripts/manim/render_mlp.py",
-        "scenes": [
-            {
-                "scene": scene,
-                "assetPath": f"/manim/mlp/{filename}",
-                "posterPath": f"/manim/mlp/{filename.replace('.mp4', '.svg')}",
-            }
-            for scene, filename in SCENES.items()
+def sha256(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def probe_video(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    result = subprocess.run(
+        [
+            "ffprobe", "-v", "error", "-select_streams", "v:0",
+            "-show_entries", "stream=width,height,r_frame_rate:format=duration",
+            "-of", "json", str(path),
         ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    payload = json.loads(result.stdout)
+    stream = payload.get("streams", [{}])[0]
+    rate = stream.get("r_frame_rate", "0/1").split("/")
+    fps = float(rate[0]) / max(float(rate[1]), 1) if len(rate) == 2 else 0
+    return {
+        "durationSeconds": round(float(payload.get("format", {}).get("duration", 0)), 3),
+        "width": stream.get("width"),
+        "height": stream.get("height"),
+        "fps": round(fps, 3),
+    }
+
+
+def manim_version() -> str:
+    result = subprocess.run(["manim", "--version"], check=True, capture_output=True, text=True)
+    return result.stdout.strip()
+
+
+def write_metadata() -> None:
+    scenes = []
+    for scene, filename in SCENES.items():
+        asset = PUBLIC_DIR / filename
+        poster = PUBLIC_DIR / filename.replace(".mp4", ".svg")
+        entry = {
+            "scene": scene,
+            "assetPath": f"/manim/mlp/{filename}",
+            "posterPath": f"/manim/mlp/{filename.replace('.mp4', '.svg')}",
+            "sha256": sha256(asset),
+            "posterSha256": sha256(poster),
+            **probe_video(asset),
+        }
+        if scene == "BackpropResponsibilityScene":
+            entry.update({**BACKPROP_SOURCES, "chapters": BACKPROP_CHAPTERS})
+        scenes.append(entry)
+
+    metadata = {
+        "metadataVersion": 2,
+        "generatedBy": "scripts/manim/render_mlp.py",
+        "manimVersion": manim_version(),
+        "scenes": scenes,
     }
     (PUBLIC_DIR / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf8")
 
@@ -255,17 +325,70 @@ def write_static_posters() -> None:
         (PUBLIC_DIR / filename).write_text(svg, encoding="utf8")
 
 
+def check_assets() -> None:
+    metadata_path = PUBLIC_DIR / "metadata.json"
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Missing MLP metadata: {metadata_path}")
+
+    metadata = json.loads(metadata_path.read_text(encoding="utf8"))
+    if metadata.get("metadataVersion") != 2:
+        raise ValueError("MLP metadataVersion must be 2")
+    if metadata.get("generatedBy") != "scripts/manim/render_mlp.py":
+        raise ValueError("MLP metadata generatedBy drifted")
+    if metadata.get("manimVersion") != manim_version():
+        raise ValueError("Installed Manim version does not match published metadata")
+
+    published = {entry.get("scene"): entry for entry in metadata.get("scenes", [])}
+    if set(published) != set(SCENES):
+        raise ValueError("MLP metadata scene inventory drifted")
+
+    for scene_name, filename in SCENES.items():
+        entry = published[scene_name]
+        video = PUBLIC_DIR / filename
+        poster = PUBLIC_DIR / filename.replace(".mp4", ".svg")
+        if not video.is_file() or not poster.is_file():
+            raise FileNotFoundError(f"Missing published assets for {scene_name}")
+        if poster.read_text(encoding="utf8") != POSTER_SVGS[scene_name]:
+            raise ValueError(f"Poster drift detected for {scene_name}")
+        if entry.get("sha256") != sha256(video) or entry.get("posterSha256") != sha256(poster):
+            raise ValueError(f"Hash drift detected for {scene_name}")
+
+        probe = probe_video(video)
+        for field in ("durationSeconds", "width", "height", "fps"):
+            if entry.get(field) != probe.get(field):
+                raise ValueError(f"Video probe drift detected for {scene_name}: {field}")
+
+    backprop = published["BackpropResponsibilityScene"]
+    if backprop.get("chapters") != BACKPROP_CHAPTERS:
+        raise ValueError("Backpropagation chapter markers drifted")
+    for field, relative_path in BACKPROP_SOURCES.items():
+        if backprop.get(field) != relative_path or not (ROOT / relative_path).is_file():
+            raise ValueError(f"Backpropagation source drift detected: {field}")
+
+    print("MLP Manim assets match posters, probes, hashes, chapters, and source records.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Render MLP Playground Manim videos.")
     parser.add_argument("--skip-render", action="store_true", help="Only rewrite posters and metadata.")
+    parser.add_argument("--check", action="store_true", help="Validate published assets without rewriting files.")
+    parser.add_argument("--scene", choices=sorted(SCENES), help="Render only one scene.")
+    parser.add_argument("--quality", choices=["preview", "publish"], default="preview")
     args = parser.parse_args()
+
+    if args.check:
+        if args.skip_render or args.scene:
+            parser.error("--check cannot be combined with --skip-render or --scene")
+        check_assets()
+        return
 
     PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
     write_static_posters()
 
     if not args.skip_render:
-        for scene_name, filename in SCENES.items():
-            output = render_scene(scene_name)
+        selected = {args.scene: SCENES[args.scene]} if args.scene else SCENES
+        for scene_name, filename in selected.items():
+            output = render_scene(scene_name, args.quality)
             shutil.copyfile(output, PUBLIC_DIR / filename)
 
     write_metadata()
