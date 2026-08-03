@@ -1,0 +1,215 @@
+{
+  "chapterId": "csv-to-frame",
+  "featureCount": 8,
+  "kind": "data-contract",
+  "rowCount": 20640,
+  "sampleRows": [
+    {
+      "AveBedrms": 0.9609375,
+      "AveOccup": 3.68359375,
+      "AveRooms": 3.7265625,
+      "HouseAge": 52,
+      "Latitude": 34.12,
+      "Longitude": -117.27,
+      "MedHouseVal": 0.875,
+      "MedInc": 0.8658,
+      "Population": 943,
+      "row_id": "ca-13624"
+    },
+    {
+      "AveBedrms": 1.14379085,
+      "AveOccup": 2.444444444,
+      "AveRooms": 6.39869281,
+      "HouseAge": 52,
+      "Latitude": 37.89,
+      "Longitude": -122.29,
+      "MedHouseVal": 2.706,
+      "MedInc": 5.1675,
+      "Population": 374,
+      "row_id": "ca-00399"
+    },
+    {
+      "AveBedrms": 0.9773429454,
+      "AveOccup": 2.61277034,
+      "AveRooms": 5.123583934,
+      "HouseAge": 16,
+      "Latitude": 34.21,
+      "Longitude": -118.84,
+      "MedHouseVal": 2.247,
+      "MedInc": 5.2361,
+      "Population": 2537,
+      "row_id": "ca-20431"
+    },
+    {
+      "AveBedrms": 1.010443864,
+      "AveOccup": 3.323759791,
+      "AveRooms": 5.415143603,
+      "HouseAge": 25,
+      "Latitude": 37.36,
+      "Longitude": -122.02,
+      "MedHouseVal": 3.78,
+      "MedInc": 4.7609,
+      "Population": 1273,
+      "row_id": "ca-18171"
+    },
+    {
+      "AveBedrms": 1.042918455,
+      "AveOccup": 3.472103004,
+      "AveRooms": 4.184549356,
+      "HouseAge": 36,
+      "Latitude": 34.05,
+      "Longitude": -117.73,
+      "MedHouseVal": 1.181,
+      "MedInc": 2.8929,
+      "Population": 809,
+      "row_id": "ca-06041"
+    },
+    {
+      "AveBedrms": 1.088888889,
+      "AveOccup": 3.281481481,
+      "AveRooms": 5.466666667,
+      "HouseAge": 16,
+      "Latitude": 33.69,
+      "Longitude": -117.99,
+      "MedHouseVal": 2.164,
+      "MedInc": 5.3259,
+      "Population": 886,
+      "row_id": "ca-11493"
+    },
+    {
+      "AveBedrms": 1.012195122,
+      "AveOccup": 1.780487805,
+      "AveRooms": 4.768292683,
+      "HouseAge": 12,
+      "Latitude": 36.85,
+      "Longitude": -119.78,
+      "MedHouseVal": 0.795,
+      "MedInc": 2.8274,
+      "Population": 292,
+      "row_id": "ca-02233"
+    },
+    {
+      "AveBedrms": 1.058208955,
+      "AveOccup": 3.855223881,
+      "AveRooms": 4.343283582,
+      "HouseAge": 32,
+      "Latitude": 34.07,
+      "Longitude": -117.96,
+      "MedHouseVal": 1.584,
+      "MedInc": 3.7736,
+      "Population": 2583,
+      "row_id": "ca-06140"
+    },
+    {
+      "AveBedrms": 1.066773504,
+      "AveOccup": 2.293269231,
+      "AveRooms": 3.832264957,
+      "HouseAge": 13,
+      "Latitude": 34.18,
+      "Longitude": -118.3,
+      "MedHouseVal": 2.519,
+      "MedInc": 3.0973,
+      "Population": 4293,
+      "row_id": "ca-05846"
+    },
+    {
+      "AveBedrms": 1.083941606,
+      "AveOccup": 2.251824818,
+      "AveRooms": 7.386861314,
+      "HouseAge": 28,
+      "Latitude": 33.55,
+      "Longitude": -117.77,
+      "MedHouseVal": 4.991,
+      "MedInc": 6.7861,
+      "Population": 617,
+      "row_id": "ca-10653"
+    },
+    {
+      "AveBedrms": 0.9711075441,
+      "AveOccup": 2.121990369,
+      "AveRooms": 4.974317817,
+      "HouseAge": 36,
+      "Latitude": 38.61,
+      "Longitude": -121.41,
+      "MedHouseVal": 1.055,
+      "MedInc": 3.4784,
+      "Population": 1322,
+      "row_id": "ca-12701"
+    },
+    {
+      "AveBedrms": 0.9600886918,
+      "AveOccup": 2.323725055,
+      "AveRooms": 4.793791574,
+      "HouseAge": 36,
+      "Latitude": 37.31,
+      "Longitude": -120.5,
+      "MedHouseVal": 0.818,
+      "MedInc": 2.6797,
+      "Population": 1048,
+      "row_id": "ca-09600"
+    }
+  ],
+  "schema": [
+    {
+      "name": "row_id",
+      "role": "identifier",
+      "unit": "none"
+    },
+    {
+      "name": "MedInc",
+      "role": "feature",
+      "unit": "$10,000"
+    },
+    {
+      "name": "HouseAge",
+      "role": "feature",
+      "unit": "years"
+    },
+    {
+      "name": "AveRooms",
+      "role": "feature",
+      "unit": "rooms/household"
+    },
+    {
+      "name": "AveBedrms",
+      "role": "feature",
+      "unit": "bedrooms/household"
+    },
+    {
+      "name": "Population",
+      "role": "feature",
+      "unit": "people"
+    },
+    {
+      "name": "AveOccup",
+      "role": "feature",
+      "unit": "people/household"
+    },
+    {
+      "name": "Latitude",
+      "role": "feature",
+      "unit": "degrees"
+    },
+    {
+      "name": "Longitude",
+      "role": "feature",
+      "unit": "degrees"
+    },
+    {
+      "name": "MedHouseVal",
+      "role": "target",
+      "unit": "$100,000"
+    },
+    {
+      "name": "split",
+      "role": "partition",
+      "unit": "none"
+    }
+  ],
+  "sourceCellId": "load-and-contract",
+  "splitCounts": {
+    "test": 4128,
+    "train": 12384,
+    "validation": 4128
+  }
+}

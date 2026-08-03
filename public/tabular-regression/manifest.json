@@ -1,0 +1,80 @@
+{
+  "contractVersion": "tabular-regression-california-v1",
+  "files": [
+    {
+      "bytes": 1860,
+      "path": "figure-index.json",
+      "sha256": "a74edf20625151559c13bf8c5c8458e2a36403755dcb27ca963959161fada849"
+    },
+    {
+      "bytes": 200628,
+      "path": "figures/final-predicted-actual.png",
+      "sha256": "9e6e2d051ce9e50ac279ea984c5e975de52860812a36d72606bfc7a3235d95bf"
+    },
+    {
+      "bytes": 179116,
+      "path": "figures/final-residuals.png",
+      "sha256": "93b240a14fdb1ab2415d512d54866097c1fabcae05310ddf5d6fc95d6f6e58d4"
+    },
+    {
+      "bytes": 42664,
+      "path": "figures/scaler-boundary.png",
+      "sha256": "fa9998b927a9b77b77049759f01e2199d42a4c07185663734936afaba260897e"
+    },
+    {
+      "bytes": 137371,
+      "path": "figures/train-geography.png",
+      "sha256": "715d8870fed3baf25774a0828245a48a57c4ecac7b3e6d500be0c427ee13f5b0"
+    },
+    {
+      "bytes": 133376,
+      "path": "figures/train-income-target.png",
+      "sha256": "6075eccac483102b0abb8ac93772abc7046b15f4e1981797eb2a99b00e61dc02"
+    },
+    {
+      "bytes": 28512,
+      "path": "figures/train-target-distribution.png",
+      "sha256": "4034fbcd3913c52b4df7973e91e7dd87ebd029cfc541ed5b8e4420663fe017c6"
+    },
+    {
+      "bytes": 43354,
+      "path": "figures/validation-ridge-path.png",
+      "sha256": "0a7f28e14a31cda3739ebd6711462268d1197de6f7b66dfbe067ea006bcc9439"
+    },
+    {
+      "bytes": 1696,
+      "path": "interaction-manifest.json",
+      "sha256": "38788b535fc33d49b16e2ec70557a6fe2ccb5b290f20f643085bf04e4ce88700"
+    },
+    {
+      "bytes": 1931,
+      "path": "interactions/cleaning-splits.json",
+      "sha256": "e6f2d1b98e13acfb995110c688fcaca61a2c62f59c16a5173a1dae85b5d0c3fe"
+    },
+    {
+      "bytes": 4689,
+      "path": "interactions/csv-to-frame.json",
+      "sha256": "9cc106ff88c74a51aebd62956ac607204f64d3acc98d343309cd0827b83288ed"
+    },
+    {
+      "bytes": 78012,
+      "path": "interactions/eda-first-pass.json",
+      "sha256": "e4ce3bf914830ec84c00d3bfa1474ec1f005d54f89c99028fa2892517f138c13"
+    },
+    {
+      "bytes": 1264,
+      "path": "interactions/evaluation.json",
+      "sha256": "70ea03ac3c712a154aa8fddb6b961689644905a13c4a08a9c1b5816b9e819255"
+    },
+    {
+      "bytes": 6700,
+      "path": "interactions/linear-baseline.json",
+      "sha256": "0d5c30628160d0ac9f966774dbe746b1e856daea8dc68410095cd65c0d5db4f8"
+    },
+    {
+      "bytes": 96048,
+      "path": "interactions/review-next-iteration.json",
+      "sha256": "e3bd5aec0e6a0bc2f6a33ece527393281445b4aa02d8504470a059e3604213cb"
+    }
+  ]
+}

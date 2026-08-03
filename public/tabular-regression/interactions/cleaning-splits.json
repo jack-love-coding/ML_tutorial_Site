@@ -1,0 +1,69 @@
+{
+  "chapterId": "cleaning-splits",
+  "features": [
+    {
+      "feature": "MedInc",
+      "invalidFullMean": 3.8706710029069766,
+      "invalidFullScale": 1.8997756945748738,
+      "trainMean": 3.860183583656331,
+      "trainScale": 1.8937485234154057
+    },
+    {
+      "feature": "HouseAge",
+      "invalidFullMean": 28.639486434108527,
+      "invalidFullScale": 12.585252725724606,
+      "trainMean": 28.69888565891473,
+      "trainScale": 12.592321038864949
+    },
+    {
+      "feature": "AveRooms",
+      "invalidFullMean": 5.428999742193707,
+      "invalidFullScale": 2.4741132022552343,
+      "trainMean": 5.419819581984335,
+      "trainScale": 2.386675562051124
+    },
+    {
+      "feature": "AveBedrms",
+      "invalidFullMean": 1.096675149608905,
+      "invalidFullScale": 0.47389937627590795,
+      "trainMean": 1.0970536434556928,
+      "trainScale": 0.4788100273369299
+    },
+    {
+      "feature": "Population",
+      "invalidFullMean": 1425.4767441860465,
+      "invalidFullScale": 1132.4346877576147,
+      "trainMean": 1431.6443798449613,
+      "trainScale": 1147.7367616676747
+    },
+    {
+      "feature": "AveOccup",
+      "invalidFullMean": 3.070655159422364,
+      "invalidFullScale": 10.38579795725584,
+      "trainMean": 3.073865539422505,
+      "trainScale": 7.420361745265482
+    },
+    {
+      "feature": "Latitude",
+      "invalidFullMean": 35.63186143410852,
+      "invalidFullScale": 2.135900653797483,
+      "trainMean": 35.6328569121447,
+      "trainScale": 2.1299100843115335
+    },
+    {
+      "feature": "Longitude",
+      "invalidFullMean": -119.56970445736432,
+      "invalidFullScale": 2.003483187746976,
+      "trainMean": -119.57247093023256,
+      "trainScale": 2.0007165461707355
+    }
+  ],
+  "kind": "leakage-boundary",
+  "rules": [
+    "split-before-eda",
+    "fit-on-train",
+    "transform-validation-and-test",
+    "open-test-once"
+  ],
+  "sourceCellId": "train-only-preprocessing"
+}
