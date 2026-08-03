@@ -267,7 +267,7 @@ export const messages = {
         title: '第一个端到端项目：房价预测',
         kicker: 'First End-to-End Project',
         intro: '从 CSV 读入开始，走完 EDA、清洗、数据划分、线性回归、评估和复盘，让第一个真实项目有完整闭环。',
-        summary: '用 California housing 风格数据把 Data Lab、线性回归和 sklearn Pipeline 接起来，重点讲清数据泄漏、baseline、MAE、R² 和下一轮迭代。',
+        summary: '使用冻结在本地的完整 California Housing 数据，把训练集 EDA、防泄漏 Pipeline、线性 baseline、验证选择和残差复盘连成一个项目闭环。',
         sections: {
           csvToFrame: {
             title: 'CSV 到 DataFrame：先定义问题和目标列',
@@ -969,7 +969,7 @@ export const messages = {
         intro:
           'Start from CSV and complete EDA, cleaning, data split, linear regression, evaluation, and review so the first real project has a full loop.',
         summary:
-          'Use California-housing-style data to connect Data Lab, linear regression, and sklearn Pipeline, focusing on leakage, baseline, MAE, R², and iteration.',
+          'Use the full locally frozen California Housing dataset to connect training-only EDA, a leakage-safe Pipeline, a linear baseline, validation selection, and residual review.',
         sections: {
           csvToFrame: {
             title: 'CSV to DataFrame: define the problem and target column first',

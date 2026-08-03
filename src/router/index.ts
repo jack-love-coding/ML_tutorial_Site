@@ -148,6 +148,15 @@ export const router = createRouter({
       component: () => import('../views/AlgorithmView.vue'),
     },
     {
+      path: '/learn/housing-price-project',
+      redirect: '/learn/housing-price-project/csv-to-frame',
+    },
+    {
+      path: '/learn/housing-price-project/:chapterId',
+      name: 'housing-price-project-chapter',
+      component: () => import('../views/AlgorithmView.vue'),
+    },
+    {
       path: '/learn/logistic-regression',
       redirect: '/learn/logistic-regression/linear-score',
     },

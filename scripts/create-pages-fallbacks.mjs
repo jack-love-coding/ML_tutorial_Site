@@ -47,6 +47,17 @@ for (const file of walkFiles('src/data', '.ts')) {
   }
 }
 
+for (const chapterId of [
+  'csv-to-frame',
+  'eda-first-pass',
+  'cleaning-splits',
+  'linear-baseline',
+  'evaluation',
+  'review-next-iteration',
+]) {
+  addRoute(`/learn/housing-price-project/${chapterId}`)
+}
+
 const importedNotes = readText('src/modules/math-lab/data/importedMathNotes.generated.ts')
 for (const match of importedNotes.matchAll(/^    "id": "([^"]+)",/gm)) {
   addRoute(`/math-lab/modules/${match[1]}`)
