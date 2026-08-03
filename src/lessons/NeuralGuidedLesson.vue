@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MarkdownMathContent from '../components/MarkdownMathContent.vue'
 import type {
@@ -9,7 +9,6 @@ import type {
   ModuleSlug,
 } from '../types/ml'
 import { withPublicBase } from '../utils/publicPath'
-import type { NeuralLabMode } from './neuralGuided'
 
 const props = defineProps<{
   moduleDefinition: AlgorithmModuleDefinition
@@ -22,28 +21,29 @@ const emit = defineEmits<{
 }>()
 
 const { locale, t } = useI18n()
-const mode = ref<NeuralLabMode>('guided')
 
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
-        guided: '引导模式',
-        explore: '深入探索',
-        task: '本章动手任务',
-        takeaway: '理解目标',
-        details: '公式、例子与来源',
-        sources: '参考来源',
+        task: '实验前预测',
+        lesson: '完整讲解',
+        observation: '观察结果',
+        takeaway: '本章结论',
+        sources: '课程参考资料',
+        explore: '打开完整实验台',
+        exploreHint: '在独立页面自由调整全部参数，不影响课程进度。',
         previous: '上一章',
         next: '下一章',
         chapter: '章节',
       }
     : {
-        guided: 'Guided',
-        explore: 'Explore',
-        task: 'Try it now',
-        takeaway: 'Learning target',
-        details: 'Formula, examples, and sources',
-        sources: 'Sources',
+        task: 'Predict before the lab',
+        lesson: 'Full lesson',
+        observation: 'What changed',
+        takeaway: 'Chapter conclusion',
+        sources: 'Course references',
+        explore: 'Open the full playground',
+        exploreHint: 'Adjust every parameter on a separate page without changing course progress.',
         previous: 'Previous',
         next: 'Next',
         chapter: 'Chapter',
@@ -60,6 +60,16 @@ const nextSection = computed(() => props.moduleDefinition.chapters[activeIndex.v
 const activeVisuals = computed(() => {
   const visualIds = new Set(activeSection.value?.visualIds ?? [])
   return (props.moduleDefinition.visuals ?? []).filter((asset) => visualIds.has(asset.id)).slice(0, 1)
+})
+const explorerPath = computed(() => `/learn/${props.variant}/explore`)
+const isLastChapter = computed(() => activeIndex.value === props.moduleDefinition.chapters.length - 1)
+const courseSources = computed(() => {
+  const seen = new Set<string>()
+  return props.moduleDefinition.chapters.flatMap((section) => section.sources ?? []).filter((source) => {
+    if (seen.has(source.href)) return false
+    seen.add(source.href)
+    return true
+  })
 })
 
 function localizedText(value?: LocalizedCopy) {
@@ -90,24 +100,13 @@ function sectionTitle(section = activeSection.value) {
         </button>
       </nav>
 
-      <div class="neural-mode-switch" role="group" :aria-label="copy.explore">
-        <button
-          type="button"
-          :class="{ 'is-active': mode === 'guided' }"
-          :aria-pressed="mode === 'guided'"
-          @click="mode = 'guided'"
-        >
-          {{ copy.guided }}
-        </button>
-        <button
-          type="button"
-          :class="{ 'is-active': mode === 'explore' }"
-          :aria-pressed="mode === 'explore'"
-          @click="mode = 'explore'"
-        >
-          {{ copy.explore }}
-        </button>
-      </div>
+      <RouterLink
+        class="neural-explorer-link"
+        :to="{ path: explorerPath, query: { chapter: activeSection?.id } }"
+      >
+        <strong>{{ copy.explore }}</strong>
+        <span>{{ copy.exploreHint }}</span>
+      </RouterLink>
     </header>
 
     <article v-if="activeSection" :id="activeSection.id" class="neural-current-lesson">
@@ -115,25 +114,15 @@ function sectionTitle(section = activeSection.value) {
         <div>
           <span>{{ copy.chapter }} {{ activeIndex + 1 }} / {{ props.moduleDefinition.chapters.length }}</span>
           <h2>{{ sectionTitle() }}</h2>
-          <p>{{ localizedText(activeSection.callout) }}</p>
+          <p v-if="activeSection.pageSummary">{{ localizedText(activeSection.pageSummary) }}</p>
         </div>
-        <aside>
-          <span>{{ copy.task }}</span>
-          <strong>{{ localizedText(activeSection.experimentPrompt) }}</strong>
-        </aside>
       </header>
 
-      <slot name="lab" :section="activeSection" :mode="mode" />
-
-      <details class="neural-lesson-details">
-        <summary>
-          <span>{{ copy.details }}</span>
-          <strong>{{ copy.takeaway }}</strong>
-        </summary>
-        <div class="neural-lesson-details__body">
+      <section class="neural-lesson-content" :aria-label="copy.lesson">
+        <div class="neural-lesson-content__body">
           <MarkdownMathContent :source="localizedText(activeSection.markdown)" />
 
-          <figure v-for="asset in activeVisuals" :key="asset.id" class="neural-lesson-details__visual">
+          <figure v-for="asset in activeVisuals" :key="asset.id" class="neural-lesson-content__visual">
             <video
               v-if="asset.type === 'manim-video'"
               controls
@@ -154,18 +143,31 @@ function sectionTitle(section = activeSection.value) {
               <span>{{ localizedText(asset.caption) }}</span>
             </figcaption>
           </figure>
-
-          <section v-if="activeSection.sources?.length" class="neural-lesson-sources">
-            <strong>{{ copy.sources }}</strong>
-            <ul>
-              <li v-for="source in activeSection.sources" :key="source.href">
-                <a :href="source.href" target="_blank" rel="noreferrer">{{ localizedText(source.label) }}</a>
-                <small v-if="source.license">{{ source.license }}</small>
-              </li>
-            </ul>
-          </section>
         </div>
-      </details>
+      </section>
+
+      <aside v-if="activeSection.experimentPrompt" class="neural-experiment-prediction">
+        <span>{{ copy.task }}</span>
+        <strong>{{ localizedText(activeSection.experimentPrompt) }}</strong>
+      </aside>
+
+      <slot name="lab" :section="activeSection" />
+
+      <section class="neural-chapter-conclusion" aria-live="polite">
+        <span>{{ copy.observation }}</span>
+        <strong>{{ localizedText(activeSection.callout) }}</strong>
+        <small>{{ copy.takeaway }}</small>
+      </section>
+
+      <section v-if="isLastChapter && courseSources.length" class="neural-lesson-sources">
+        <strong>{{ copy.sources }}</strong>
+        <ul>
+          <li v-for="source in courseSources" :key="source.href">
+            <a :href="source.href" target="_blank" rel="noreferrer">{{ localizedText(source.label) }}</a>
+            <small v-if="source.license">{{ source.license }}</small>
+          </li>
+        </ul>
+      </section>
 
       <footer class="neural-current-lesson__navigation">
         <button

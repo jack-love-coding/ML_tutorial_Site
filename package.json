@@ -9,6 +9,7 @@
     "build:pages": "vue-tsc -b && vite build --mode github-pages",
     "preview": "vite preview",
     "test": "node --test tests/*.test.*",
+    "test:ci": "node --test --test-concurrency=2 tests/*.test.*",
     "test:release-assets": "ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS=1 node --test tests/loss-functions-dataset-contract.test.ts tests/loss-functions-notebook-assets.test.ts tests/linear-regression-notebook-assets.test.ts",
     "security:audit": "npm audit --audit-level=moderate --registry=https://registry.npmjs.org"
   },

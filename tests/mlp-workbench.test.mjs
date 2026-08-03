@@ -83,10 +83,16 @@ test('MLP guided focus config covers every chapter with a bounded control set', 
 
   assert.deepEqual(mlpLessonFocusConfigs.map((config) => config.chapterId), expectedIds)
   for (const config of mlpLessonFocusConfigs) {
-    assert.ok(config.guidedControls.length <= 5, `${config.chapterId} should expose at most five guided controls`)
-    assert.ok(config.evidence['zh-CN'].length > 0)
-    assert.ok(config.evidence.en.length > 0)
+    assert.ok(config.guidedControls.length <= 3, `${config.chapterId} should expose at most three guided controls`)
+    assert.equal(config.kind, 'mlp')
+    assert.ok(config.observation['zh-CN'].length > 0)
+    assert.ok(config.observation.en.length > 0)
+    assert.ok(config.initialState)
   }
+
+  const first = mlpLessonFocusConfigs[0]
+  assert.equal(first.initialState.classificationDataset, 'xor')
+  assert.deepEqual(first.initialState.networkShape, [])
 })
 
 test('professional lesson labs keep the shared workbench shell where it is still used', () => {
@@ -170,7 +176,7 @@ test('MLP visible source stays readable in Chinese', () => {
     'src/views/AlgorithmView.vue',
   ].map(read).join('\n')
 
-  for (const phrase of ['本章动手任务', '输出拟合图', '线性模型为什么会在 XOR 上失败', '深入探索']) {
+  for (const phrase of ['实验前预测', '输出拟合图', '线性模型为什么会在 XOR 上失败', '打开完整实验台']) {
     assert.match(visibleSources, new RegExp(phrase))
   }
 

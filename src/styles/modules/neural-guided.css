@@ -51,6 +51,74 @@
   scroll-margin-top: 86px;
 }
 
+.neural-explorer-page {
+  display: grid;
+  gap: 18px;
+  width: min(1440px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+}
+
+.neural-explorer-page__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+  gap: 24px;
+  align-items: end;
+  padding: 24px 28px;
+  border: 1px solid var(--neural-line);
+  border-radius: 18px;
+  background: var(--neural-surface);
+}
+
+.neural-explorer-page__header > div {
+  display: grid;
+  gap: 8px;
+}
+
+.neural-explorer-page__header span {
+  color: var(--neural-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.neural-explorer-page__header h1,
+.neural-explorer-page__header p {
+  margin: 0;
+}
+
+.neural-explorer-page__header h1 {
+  color: var(--neural-ink);
+  font-size: clamp(2rem, 4vw, 3.7rem);
+}
+
+.neural-explorer-page__header p {
+  max-width: 760px;
+  color: var(--neural-muted);
+  line-height: 1.6;
+}
+
+.neural-explorer-page__header > a {
+  display: grid;
+  gap: 5px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--module-accent) 30%, var(--neural-line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--module-accent) 7%, white);
+  color: var(--neural-ink);
+  text-decoration: none;
+}
+
+.neural-explorer-page__workbench {
+  min-width: 0;
+}
+
+.neural-explorer-page__workbench .cnn-explainer-lab,
+.neural-explorer-page__workbench .mlp-playground-cockpit {
+  margin: 0;
+}
+
 .neural-guided-lesson__header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -122,29 +190,27 @@
   color: white;
 }
 
-.neural-mode-switch {
+.neural-explorer-link {
   display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 4px;
-  padding: 4px;
-  border-radius: 11px;
-  background: var(--neural-soft);
-}
-
-.neural-mode-switch button {
-  min-height: 38px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--neural-muted);
-  font-weight: 800;
-}
-
-.neural-mode-switch button.is-active {
-  background: white;
+  gap: 2px;
+  width: min(250px, 28vw);
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--module-accent) 30%, var(--neural-line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--module-accent) 6%, white);
   color: var(--neural-ink);
-  box-shadow: 0 3px 12px rgba(26, 39, 61, 0.1);
+  text-decoration: none;
+}
+
+.neural-explorer-link strong {
+  font-size: 0.82rem;
+}
+
+.neural-explorer-link span {
+  color: var(--neural-muted);
+  font-size: 0.7rem;
+  line-height: 1.35;
 }
 
 .neural-current-lesson {
@@ -154,24 +220,21 @@
 }
 
 .neural-current-lesson__brief {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.45fr);
-  gap: 22px;
-  align-items: center;
+  display: block;
+  width: min(1040px, 100%);
+  margin: 0 auto;
   padding: 22px 24px;
   border: 1px solid var(--neural-line);
   border-radius: 16px;
   background: var(--neural-surface);
 }
 
-.neural-current-lesson__brief > div,
-.neural-current-lesson__brief aside {
+.neural-current-lesson__brief > div {
   display: grid;
   gap: 8px;
 }
 
-.neural-current-lesson__brief span,
-.neural-current-lesson__brief aside span {
+.neural-current-lesson__brief span {
   color: var(--neural-muted);
   font-size: 0.75rem;
   font-weight: 800;
@@ -191,91 +254,44 @@
   line-height: 1.55;
 }
 
-.neural-current-lesson__brief aside {
-  padding: 16px 18px;
-  border-left: 3px solid var(--module-accent);
-  border-radius: 0 12px 12px 0;
-  background: color-mix(in srgb, var(--module-accent) 6%, white);
-}
-
-.neural-current-lesson__brief aside strong {
-  color: var(--neural-ink);
-  line-height: 1.45;
-}
-
-.neural-lesson-details {
+.neural-lesson-content {
+  width: min(1040px, 100%);
+  margin: 0 auto;
   border: 1px solid var(--neural-line);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--neural-surface);
 }
 
-.neural-lesson-details summary {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 17px 20px;
-  color: var(--neural-ink);
-  cursor: pointer;
-  list-style: none;
-}
-
-.neural-lesson-details summary::-webkit-details-marker {
-  display: none;
-}
-
-.neural-lesson-details summary span::before {
-  content: '+';
-  display: inline-grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  margin-right: 9px;
-  border-radius: 50%;
-  background: var(--neural-soft);
-  color: var(--module-accent);
-}
-
-.neural-lesson-details[open] summary span::before {
-  content: '−';
-}
-
-.neural-lesson-details summary strong {
-  color: var(--neural-muted);
-  font-size: 0.82rem;
-}
-
-.neural-lesson-details__body {
+.neural-lesson-content__body {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
-  gap: 22px;
-  padding: 4px 20px 22px;
-  border-top: 1px solid var(--neural-line);
+  gap: 24px;
+  padding: clamp(22px, 4vw, 42px);
 }
 
-.neural-lesson-details__body > .markdown-math-content {
-  grid-row: span 2;
-  padding-top: 18px;
+.neural-lesson-content__body > .markdown-math {
+  min-width: 0;
 }
 
-.neural-lesson-details__visual {
+.neural-lesson-content__visual {
   display: grid;
   gap: 10px;
-  margin: 18px 0 0;
+  width: min(760px, 100%);
+  margin: 0 auto;
 }
 
-.neural-lesson-details__visual img,
-.neural-lesson-details__visual video {
+.neural-lesson-content__visual img,
+.neural-lesson-content__visual video {
   width: 100%;
   border-radius: 10px;
   background: #101828;
 }
 
-.neural-lesson-details__visual figcaption {
+.neural-lesson-content__visual figcaption {
   display: grid;
   gap: 4px;
 }
 
-.neural-lesson-details__visual figcaption span,
+.neural-lesson-content__visual figcaption span,
 .neural-lesson-sources small {
   color: var(--neural-muted);
   font-size: 0.8rem;
@@ -286,6 +302,12 @@
   display: grid;
   gap: 9px;
   align-content: start;
+  width: min(1040px, 100%);
+  margin: 0 auto;
+  padding: 20px 24px;
+  border: 1px solid var(--neural-line);
+  border-radius: 14px;
+  background: var(--neural-surface);
 }
 
 .neural-lesson-sources ul {
@@ -297,6 +319,38 @@
 
 .neural-lesson-sources li {
   color: var(--neural-muted);
+}
+
+.neural-experiment-prediction,
+.neural-chapter-conclusion {
+  display: grid;
+  gap: 7px;
+  width: min(1040px, 100%);
+  margin: 0 auto;
+  padding: 18px 22px;
+  border-left: 4px solid var(--module-accent);
+  border-radius: 0 14px 14px 0;
+  background: color-mix(in srgb, var(--module-accent) 7%, white);
+}
+
+.neural-experiment-prediction span,
+.neural-chapter-conclusion span,
+.neural-chapter-conclusion small {
+  color: var(--neural-muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.neural-experiment-prediction strong,
+.neural-chapter-conclusion strong {
+  color: var(--neural-ink);
+  line-height: 1.55;
+}
+
+.neural-chapter-conclusion small {
+  order: -1;
 }
 
 .neural-current-lesson__navigation {
@@ -397,7 +451,7 @@
 .algorithm-view--neural .mlp-epoch-readout span,
 .mlp-guided-toolbar__result span,
 .mlp-guided-control > span,
-.mlp-guided-evidence span,
+.mlp-guided-observation span,
 .mlp-guided-stage header span,
 .mlp-explore-panel article > header span {
   color: var(--neural-muted);
@@ -506,7 +560,7 @@
   padding: 4px 7px;
 }
 
-.mlp-guided-evidence {
+.mlp-guided-observation {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -516,7 +570,7 @@
   background: color-mix(in srgb, var(--mlp-accent) 6%, white);
 }
 
-.mlp-guided-evidence strong {
+.mlp-guided-observation strong {
   color: var(--neural-ink);
   font-size: 0.86rem;
 }
@@ -736,17 +790,22 @@
     display: none;
   }
 
+  .neural-explorer-page {
+    width: min(100% - 20px, 1440px);
+    padding-top: 10px;
+  }
+
+  .neural-explorer-page__header {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 20px;
+  }
+
   .neural-guided-lesson__header,
-  .neural-current-lesson__brief,
-  .neural-lesson-details__body {
+  .neural-current-lesson__brief {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .neural-mode-switch {
-    justify-self: stretch;
-  }
-
-  .neural-mode-switch button {
+  .neural-explorer-link {
     width: 100%;
   }
 
@@ -754,14 +813,8 @@
     padding: 18px;
   }
 
-  .neural-current-lesson__brief aside {
-    border-top: 3px solid var(--module-accent);
-    border-left: 0;
-    border-radius: 0 0 10px 10px;
-  }
-
-  .neural-lesson-details__body > .markdown-math-content {
-    grid-row: auto;
+  .neural-lesson-content__body {
+    padding: 20px;
   }
 
   .mlp-guided-toolbar {
@@ -841,7 +894,7 @@
     min-width: 0;
   }
 
-  .mlp-guided-evidence {
+  .mlp-guided-observation {
     align-items: start;
     flex-direction: column;
   }
@@ -858,7 +911,7 @@
 @media (prefers-reduced-motion: reduce) {
   .neural-guided-steps,
   .neural-guided-steps button,
-  .neural-mode-switch button {
+  .neural-explorer-link {
     scroll-behavior: auto;
     transition: none;
   }
@@ -994,7 +1047,7 @@
   opacity: 0.48;
 }
 
-.cnn-guided-workbench__evidence {
+.cnn-guided-workbench__observation {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1007,7 +1060,7 @@
   font-size: 0.78rem;
 }
 
-.cnn-guided-workbench__evidence span {
+.cnn-guided-workbench__observation span {
   color: #1d4ed8;
   font-size: 0.68rem;
   font-weight: 850;
@@ -1717,7 +1770,7 @@
     margin-right: auto;
   }
 
-  .cnn-guided-workbench__evidence {
+  .cnn-guided-workbench__observation {
     align-items: start;
     flex-direction: column;
     gap: 3px;

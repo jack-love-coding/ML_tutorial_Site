@@ -169,6 +169,18 @@ export const router = createRouter({
       component: () => import('../views/PythonDataToolsCourseView.vue'),
     },
     {
+      path: '/learn/mlp/explore',
+      name: 'mlp-explorer',
+      component: () => import('../views/NeuralExplorerView.vue'),
+      props: { variant: 'mlp' },
+    },
+    {
+      path: '/learn/cnn-visualization/explore',
+      name: 'cnn-visualization-explorer',
+      component: () => import('../views/NeuralExplorerView.vue'),
+      props: { variant: 'cnn-visualization' },
+    },
+    {
       path: '/learn/cnn-visualization/:chapterId',
       name: 'cnn-visualization-chapter',
       component: () => import('../views/AlgorithmView.vue'),

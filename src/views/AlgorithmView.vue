@@ -513,12 +513,12 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       variant="mlp"
       @change="onNeuralChapterChange"
     >
-      <template #lab="{ section, mode }">
+      <template #lab="{ section }">
         <section class="mlp-playground-stage">
           <MlpPlaygroundCockpit
             :accent="moduleDefinition.accent"
             :section="section"
-            :mode="mode"
+            mode="guided"
           />
         </section>
 
@@ -537,8 +537,8 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       variant="cnn-visualization"
       @change="onNeuralChapterChange"
     >
-      <template #lab="{ section, mode }">
-        <CnnExplainerLab :section="section" :mode="mode" />
+      <template #lab="{ section }">
+        <CnnExplainerLab :section="section" mode="guided" />
         <CnnShapeParameterChallengeLab
           v-if="section.id === 'padding-stride-shape'"
           :accent="moduleDefinition.accent"

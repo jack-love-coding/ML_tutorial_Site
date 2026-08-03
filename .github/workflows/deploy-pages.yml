@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -43,12 +46,10 @@ jobs:
           ffprobe -version
 
       - name: Test
-        run: npm test
+        run: npm run test:ci
 
       - name: Build
-        run: npm run build
-        env:
-          VITE_BASE_PATH: /ML_tutorial_Site/
+        run: npm run build:pages
 
       - name: Add SPA fallbacks
         run: node scripts/create-pages-fallbacks.mjs
@@ -62,6 +63,7 @@ jobs:
           path: dist
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
