@@ -1968,3 +1968,465 @@
 .chart-summary__item strong {
   font-size: 1.08rem;
 }
+
+.mlp-backprop-graph-lab {
+  --mlp-backprop-forward: #256bd9;
+  --mlp-backprop-local: #287c55;
+  --mlp-backprop-gradient: #c74e2d;
+  display: grid;
+  gap: 18px;
+  width: min(1080px, 100%);
+  min-width: 0;
+  margin: 0 auto;
+  padding: 24px;
+  border: 1px solid rgba(15, 23, 40, 0.11);
+  border-radius: 20px;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--mlp-backprop-accent) 7%, white), #fff 42%);
+  box-shadow: 0 18px 46px rgba(15, 23, 40, 0.08);
+}
+
+.mlp-backprop-graph-lab__header {
+  display: grid;
+  gap: 8px;
+}
+
+.mlp-backprop-graph-lab__header > span,
+.mlp-backprop-graph-lab__selection > span {
+  color: var(--mlp-backprop-accent);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.mlp-backprop-graph-lab__header h3,
+.mlp-backprop-graph-lab__header p,
+.mlp-backprop-graph-lab__branch p,
+.mlp-backprop-graph-lab__custom p {
+  margin: 0;
+}
+
+.mlp-backprop-graph-lab__header h3 {
+  font-size: clamp(1.3rem, 3vw, 2rem);
+}
+
+.mlp-backprop-graph-lab__header p,
+.mlp-backprop-graph-lab__branch p,
+.mlp-backprop-graph-lab__custom p {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.mlp-backprop-graph-lab__controls {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.7fr) minmax(250px, 1fr) minmax(320px, 1.35fr);
+  gap: 12px;
+}
+
+.mlp-backprop-graph-lab__controls > label,
+.mlp-backprop-graph-lab__controls fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 13px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 12px;
+  background: rgba(248, 250, 253, 0.9);
+}
+
+.mlp-backprop-graph-lab__controls > label {
+  display: grid;
+}
+
+.mlp-backprop-graph-lab__controls label > span,
+.mlp-backprop-graph-lab__controls legend {
+  width: 100%;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.mlp-backprop-graph-lab__controls select,
+.mlp-backprop-graph-lab__controls button,
+.mlp-backprop-graph-lab__custom input {
+  min-height: 40px;
+  border: 1px solid #b9c2d0;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.mlp-backprop-graph-lab__controls select {
+  width: 100%;
+  padding: 0 10px;
+}
+
+.mlp-backprop-graph-lab__controls button {
+  flex: 1 1 auto;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mlp-backprop-graph-lab__controls button.is-active {
+  border-color: var(--mlp-backprop-accent);
+  background: color-mix(in srgb, var(--mlp-backprop-accent) 12%, white);
+  box-shadow: inset 0 0 0 1px var(--mlp-backprop-accent);
+}
+
+.mlp-backprop-graph-lab__motion-note,
+.mlp-backprop-graph-lab__warning {
+  margin: 0;
+  padding: 10px 13px;
+  border-left: 4px solid #56677e;
+  background: #f4f7fa;
+  line-height: 1.55;
+}
+
+.mlp-backprop-graph-lab__warning {
+  border-left-color: var(--mlp-backprop-gradient);
+  background: #fff4ef;
+  color: #7c321f;
+}
+
+.mlp-backprop-graph-lab__workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.28fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.mlp-backprop-graph-lab__workspace figure,
+.mlp-backprop-graph-lab__selection {
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.mlp-backprop-graph-lab__workspace figure {
+  display: grid;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.mlp-backprop-graph-lab__workspace figcaption {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.mlp-backprop-graph-lab__graph {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 280px;
+}
+
+#mlp-forward-arrow path {
+  fill: var(--mlp-backprop-forward);
+}
+
+.mlp-backprop-edge {
+  outline: none;
+  cursor: pointer;
+}
+
+.mlp-backprop-edge__line {
+  stroke: var(--mlp-backprop-forward);
+  stroke-width: 2.5;
+  opacity: 0.68;
+}
+
+.mlp-backprop-edge__hit {
+  stroke: transparent;
+  stroke-width: 18;
+}
+
+.mlp-backprop-edge text {
+  fill: #4c586a;
+  font-size: 12px;
+  font-weight: 800;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 5px;
+}
+
+.mlp-backprop-edge.is-step-active .mlp-backprop-edge__line,
+.mlp-backprop-edge.is-selected .mlp-backprop-edge__line,
+.mlp-backprop-edge:focus .mlp-backprop-edge__line {
+  stroke: var(--mlp-backprop-gradient);
+  stroke-width: 6;
+  opacity: 1;
+  stroke-dasharray: 8 5;
+}
+
+.mlp-backprop-node {
+  outline: none;
+  cursor: pointer;
+}
+
+.mlp-backprop-node circle {
+  fill: #fff;
+  stroke: #526174;
+  stroke-width: 3;
+}
+
+.mlp-backprop-node.is-activation circle {
+  fill: #effbf4;
+  stroke: var(--mlp-backprop-local);
+}
+
+.mlp-backprop-node.is-loss circle {
+  fill: #fff1eb;
+  stroke: var(--mlp-backprop-gradient);
+}
+
+.mlp-backprop-node.is-target circle {
+  stroke-dasharray: 5 4;
+}
+
+.mlp-backprop-node.is-step-active circle,
+.mlp-backprop-node.is-selected circle,
+.mlp-backprop-node:focus circle {
+  stroke: var(--mlp-backprop-accent);
+  stroke-width: 6;
+  filter: drop-shadow(0 4px 7px rgba(15, 23, 40, 0.18));
+}
+
+.mlp-backprop-node text {
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.mlp-backprop-node__label {
+  fill: var(--ink);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.mlp-backprop-node__value {
+  fill: #445064;
+  font-size: 11px;
+}
+
+.mlp-backprop-node__adjoint {
+  fill: var(--mlp-backprop-gradient);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.mlp-backprop-graph-lab__selection {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  border-top: 5px solid var(--mlp-backprop-accent);
+}
+
+.mlp-backprop-graph-lab__selection strong {
+  font-size: 1.35rem;
+}
+
+.mlp-backprop-graph-lab__selection dl {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px 12px;
+  margin: 0;
+}
+
+.mlp-backprop-graph-lab__selection dt {
+  color: var(--muted);
+}
+
+.mlp-backprop-graph-lab__selection dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
+}
+
+.mlp-backprop-graph-lab__branch {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 15px;
+  border-left: 5px solid var(--mlp-backprop-gradient);
+  border-radius: 10px;
+  background: #fff7f3;
+}
+
+.mlp-backprop-graph-lab__branch > div {
+  display: grid;
+  gap: 4px;
+}
+
+.mlp-backprop-graph-lab__branch code {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 0.84rem;
+}
+
+.mlp-backprop-graph-lab__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mlp-backprop-graph-lab__metrics > div {
+  display: grid;
+  gap: 6px;
+  padding: 13px;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 10px;
+  background: #f7f9fc;
+}
+
+.mlp-backprop-graph-lab__metrics span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.mlp-backprop-graph-lab__metrics strong {
+  font-size: 1.08rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mlp-backprop-graph-lab__table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.mlp-backprop-graph-lab table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.mlp-backprop-graph-lab th,
+.mlp-backprop-graph-lab td {
+  padding: 9px 10px;
+  border: 1px solid #dbe1ea;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mlp-backprop-graph-lab th:first-child,
+.mlp-backprop-graph-lab td:first-child {
+  text-align: left;
+}
+
+.mlp-backprop-graph-lab tbody tr.is-selected,
+.mlp-backprop-graph-lab tbody tr.is-step-active {
+  background: color-mix(in srgb, var(--mlp-backprop-accent) 9%, white);
+}
+
+.mlp-backprop-graph-lab tbody button {
+  border: 0;
+  background: transparent;
+  color: var(--mlp-backprop-accent);
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.mlp-backprop-graph-lab__custom,
+.mlp-backprop-graph-lab__fallback {
+  padding: 13px;
+  border: 1px solid rgba(15, 23, 40, 0.1);
+  border-radius: 10px;
+  background: #fafbfd;
+}
+
+.mlp-backprop-graph-lab__custom summary,
+.mlp-backprop-graph-lab__fallback summary {
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.mlp-backprop-graph-lab__custom > div {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 9px;
+  margin-top: 12px;
+}
+
+.mlp-backprop-graph-lab__custom label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.mlp-backprop-graph-lab__custom input {
+  width: 100%;
+  min-width: 0;
+  padding: 0 8px;
+}
+
+.mlp-backprop-graph-lab__fallback .mlp-backprop-graph-lab__table-wrap {
+  margin-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .mlp-backprop-graph-lab__controls,
+  .mlp-backprop-graph-lab__workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mlp-backprop-graph-lab__controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mlp-backprop-graph-lab__controls fieldset:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .mlp-backprop-graph-lab {
+    gap: 14px;
+    padding: 15px;
+    border-radius: 14px;
+  }
+
+  .mlp-backprop-graph-lab__controls,
+  .mlp-backprop-graph-lab__metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mlp-backprop-graph-lab__controls fieldset:last-child {
+    grid-column: auto;
+  }
+
+  .mlp-backprop-graph-lab__graph {
+    min-height: 600px;
+  }
+
+  .mlp-backprop-graph-lab__branch {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mlp-backprop-graph-lab__branch code {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mlp-backprop-edge__line,
+  .mlp-backprop-node circle,
+  .mlp-backprop-node text {
+    transition: stroke 180ms ease, stroke-width 180ms ease, fill 180ms ease, opacity 180ms ease;
+  }
+}

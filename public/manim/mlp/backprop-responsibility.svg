@@ -17,6 +17,6 @@
     <path d="M532 329C474 319 418 294 365 276" stroke-width="7" opacity=".7"/>
     <path d="M306 267C246 280 202 307 168 326" stroke-width="6" opacity=".58"/>
   </g>
-  <text x="84" y="62" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Loss signal flows backward</text>
-  <text x="84" y="486" fill="#667085" font-family="Arial, sans-serif" font-size="22">Gradients assign responsibility to links and biases across the graph.</text>
+  <text x="84" y="62" fill="#101828" font-family="Arial, sans-serif" font-size="34" font-weight="700">Forward cache to parameter update</text>
+  <text x="84" y="486" fill="#667085" font-family="Arial, sans-serif" font-size="22">Local VJPs multiply along paths and sum at branches.</text>
 </svg>

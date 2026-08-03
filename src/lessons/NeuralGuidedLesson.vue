@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MarkdownMathContent from '../components/MarkdownMathContent.vue'
 import type {
@@ -35,6 +35,9 @@ const copy = computed(() =>
         previous: '上一章',
         next: '下一章',
         chapter: '章节',
+        transcript: '动画字幕与讲解',
+        chapters: '动画章节',
+        mediaFallback: '视频暂时不可用，显示静态教学图。',
       }
     : {
         task: 'Predict before the lab',
@@ -47,8 +50,14 @@ const copy = computed(() =>
         previous: 'Previous',
         next: 'Next',
         chapter: 'Chapter',
+        transcript: 'Animation transcript',
+        chapters: 'Animation chapters',
+        mediaFallback: 'The video is unavailable, so the static teaching visual is shown.',
       },
 )
+
+const activeVideo = ref<HTMLVideoElement>()
+const failedVideoAssetId = ref('')
 
 const activeIndex = computed(() => {
   const index = props.moduleDefinition.chapters.findIndex((section) => section.id === props.activeId)
@@ -61,6 +70,7 @@ const activeVisuals = computed(() => {
   const visualIds = new Set(activeSection.value?.visualIds ?? [])
   return (props.moduleDefinition.visuals ?? []).filter((asset) => visualIds.has(asset.id)).slice(0, 1)
 })
+const activeVisual = computed(() => activeVisuals.value[0])
 const explorerPath = computed(() => `/learn/${props.variant}/explore`)
 const isLastChapter = computed(() => activeIndex.value === props.moduleDefinition.chapters.length - 1)
 const courseSources = computed(() => {
@@ -81,6 +91,22 @@ function sectionTitle(section = activeSection.value) {
   if (!section) return ''
   return localizedText(section.title) || t(section.titleKey)
 }
+
+function seekVideo(startSeconds: number) {
+  if (!activeVideo.value || !Number.isFinite(startSeconds)) return
+  activeVideo.value.currentTime = Math.max(0, startSeconds)
+  activeVideo.value.focus()
+}
+
+function formatTimestamp(seconds: number) {
+  const safe = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0
+  return `${Math.floor(safe / 60)}:${String(safe % 60).padStart(2, '0')}`
+}
+
+watch(activeVisual, () => {
+  failedVideoAssetId.value = ''
+  activeVideo.value = undefined
+})
 </script>
 
 <template>
@@ -122,26 +148,52 @@ function sectionTitle(section = activeSection.value) {
         <div class="neural-lesson-content__body">
           <MarkdownMathContent :source="localizedText(activeSection.markdown)" />
 
-          <figure v-for="asset in activeVisuals" :key="asset.id" class="neural-lesson-content__visual">
+          <figure v-if="activeVisual" :key="activeVisual.id" class="neural-lesson-content__visual">
             <video
-              v-if="asset.type === 'manim-video'"
+              v-if="activeVisual.type === 'manim-video' && failedVideoAssetId !== activeVisual.id"
+              ref="activeVideo"
               controls
               preload="metadata"
               playsinline
-              :poster="withPublicBase(asset.posterPath)"
+              :poster="withPublicBase(activeVisual.posterPath)"
+              :aria-label="localizedText(activeVisual.alt ?? activeVisual.title)"
+              @error="failedVideoAssetId = activeVisual.id"
             >
-              <source :src="withPublicBase(asset.assetPath)" type="video/mp4" />
+              <source :src="withPublicBase(activeVisual.assetPath)" type="video/mp4" />
             </video>
             <img
               v-else
-              :src="withPublicBase(asset.assetPath)"
-              :alt="localizedText(asset.title)"
+              :src="withPublicBase(activeVisual.type === 'manim-video' ? activeVisual.posterPath : activeVisual.assetPath)"
+              :alt="localizedText(activeVisual.alt ?? activeVisual.title)"
               loading="lazy"
             />
             <figcaption>
-              <strong>{{ localizedText(asset.title) }}</strong>
-              <span>{{ localizedText(asset.caption) }}</span>
+              <strong>{{ localizedText(activeVisual.title) }}</strong>
+              <span>{{ localizedText(activeVisual.caption) }}</span>
+              <small v-if="failedVideoAssetId === activeVisual.id">{{ copy.mediaFallback }}</small>
             </figcaption>
+
+            <nav
+              v-if="activeVisual.type === 'manim-video' && activeVisual.chapterMarkers?.length"
+              class="neural-lesson-media-chapters"
+              :aria-label="copy.chapters"
+            >
+              <button
+                v-for="marker in activeVisual.chapterMarkers"
+                :key="marker.id"
+                type="button"
+                :disabled="failedVideoAssetId === activeVisual.id"
+                @click="seekVideo(marker.startSeconds)"
+              >
+                <span>{{ formatTimestamp(marker.startSeconds) }}</span>
+                <strong>{{ localizedText(marker.title) }}</strong>
+              </button>
+            </nav>
+
+            <details v-if="activeVisual.transcript" class="neural-lesson-media-transcript">
+              <summary>{{ copy.transcript }}</summary>
+              <MarkdownMathContent :source="localizedText(activeVisual.transcript)" />
+            </details>
           </figure>
         </div>
       </section>

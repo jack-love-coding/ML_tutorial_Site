@@ -70,6 +70,13 @@ export interface ModuleVisualAsset {
   type: 'image' | 'manim-video'
   title: LocalizedCopy
   caption: LocalizedCopy
+  alt?: LocalizedCopy
+  transcript?: LocalizedCopy
+  chapterMarkers?: Array<{
+    id: string
+    startSeconds: number
+    title: LocalizedCopy
+  }>
   assetPath: string
   posterPath?: string
 }

@@ -63,8 +63,8 @@ const CnnShapeParameterChallengeLab = defineAsyncComponent(
 const MlpGuidedLab = defineAsyncComponent(
   () => import('../components/mlp/MlpGuidedLab.vue'),
 )
-const MlpBackpropBridgeLab = defineAsyncComponent(
-  () => import('../components/MlpBackpropBridgeLab.vue'),
+const MlpBackpropGraphLab = defineAsyncComponent(
+  () => import('../components/mlp/MlpBackpropGraphLab.vue'),
 )
 const LessonPage = defineAsyncComponent(() => import('../lessons/LessonPage.vue'))
 const NeuralGuidedLesson = defineAsyncComponent(
@@ -514,18 +514,17 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       @change="onNeuralChapterChange"
     >
       <template #lab="{ section }">
-        <section class="mlp-playground-stage">
+        <MlpBackpropGraphLab
+          v-if="section.id === 'backprop'"
+          :accent="moduleDefinition.accent"
+        />
+
+        <section v-else class="mlp-playground-stage">
           <MlpGuidedLab
             :accent="moduleDefinition.accent"
             :section="section"
           />
         </section>
-
-        <MlpBackpropBridgeLab
-          v-if="section.id === 'backprop'"
-          :accent="moduleDefinition.accent"
-          class="mlp-guided-backprop"
-        />
       </template>
     </NeuralGuidedLesson>
 
