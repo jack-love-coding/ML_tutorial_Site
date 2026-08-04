@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="One exact gradient descent update from five samples">
+  <rect width="960" height="540" fill="#f7f8fa"/>
+  <g transform="translate(70 78)">
+    <path d="M30 340V20M30 340H420" stroke="#667085" stroke-width="3"/>
+    <g fill="#172033">
+      <circle cx="96" cy="278" r="8"/><circle cx="160" cy="229" r="8"/><circle cx="224" cy="187" r="8"/><circle cx="288" cy="138" r="8"/><circle cx="352" cy="96" r="8"/>
+    </g>
+    <path d="M82 284L368 86" stroke="#256BD9" stroke-width="7" stroke-linecap="round"/>
+    <g stroke="#E26D3D" stroke-width="4" stroke-dasharray="8 7">
+      <path d="M96 278V285"/><path d="M288 138V145"/><path d="M352 96V103"/>
+    </g>
+  </g>
+  <g transform="translate(545 90)">
+    <path d="M0 320H350M0 320V20" stroke="#667085" stroke-width="3"/>
+    <path d="M15 76C82 212 142 298 208 308C260 316 300 258 338 126" fill="none" stroke="#E26D3D" stroke-width="7"/>
+    <circle cx="191" cy="303" r="10" fill="#7C3AED"/>
+    <path d="M192 302L138 245" stroke="#7C3AED" stroke-width="8"/><path d="M138 245L149 272L165 256Z" fill="#7C3AED"/>
+    <path d="M196 307L244 325" stroke="#2F855A" stroke-width="8"/><path d="M244 325L218 328L227 307Z" fill="#2F855A"/>
+  </g>
+  <text x="76" y="46" font-family="Arial, sans-serif" font-size="31" font-weight="700" fill="#172033">ŷ = wx + b</text>
+  <text x="573" y="46" font-family="Arial, sans-serif" font-size="31" font-weight="700" fill="#172033">θ ← θ − η∇L</text>
+  <text x="574" y="486" font-family="Arial, sans-serif" font-size="26" fill="#E26D3D">0.600000</text>
+  <text x="755" y="486" font-family="Arial, sans-serif" font-size="26" fill="#2F855A">0.440192</text>
+</svg>

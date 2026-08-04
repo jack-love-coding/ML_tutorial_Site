@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "moduleId": "gradient-descent",
+  "dataset": {
+    "rows": 5,
+    "seed": 2801
+  },
+  "anchor": {
+    "weight": 6.0,
+    "bias": 47.0,
+    "predictions": [
+      53.0,
+      59.0,
+      65.0,
+      71.0,
+      77.0
+    ],
+    "residuals": [
+      -1.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "mse": 0.6,
+    "gradient": {
+      "weight": -3.2,
+      "bias": -0.4
+    },
+    "gradientNorm": 3.22490309931942
+  },
+  "oneUpdate": {
+    "learningRate": 0.02,
+    "parameters": {
+      "weight": 6.064,
+      "bias": 47.008
+    },
+    "evaluation": {
+      "weight": 6.064,
+      "bias": 47.008,
+      "predictions": [
+        53.072,
+        59.136,
+        65.2,
+        71.26400000000001,
+        77.328
+      ],
+      "residuals": [
+        -1.0720000000000027,
+        -0.13600000000000279,
+        -0.20000000000000284,
+        0.73599999999999,
+        0.671999999999997
+      ],
+      "mse": 0.4401919999999978,
+      "gradient": {
+        "weight": -1.7439999999999714,
+        "bias": 8.526512829121203e-15
+      },
+      "gradientNorm": 1.7439999999999714
+    }
+  },
+  "leastSquares": {
+    "weight": 6.5,
+    "bias": 45.7,
+    "predictions": [
+      52.2,
+      58.7,
+      65.2,
+      71.7,
+      78.2
+    ],
+    "residuals": [
+      -0.20000000000000284,
+      0.29999999999999716,
+      -0.20000000000000284,
+      0.29999999999999716,
+      -0.20000000000000284
+    ],
+    "mse": 0.06,
+    "gradient": {
+      "weight": 1.7053025658242407e-14,
+      "bias": 5.684341886080802e-15
+    },
+    "gradientNorm": 1.7975467359112713e-14
+  },
+  "batchContract": {
+    "seed": 2801,
+    "miniBatchSize": 2,
+    "finalMiniBatchSize": 1
+  }
+}

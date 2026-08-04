@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "scripts/gradient-descent/build-assets.py",
+  "publicPrefix": "/gradient-descent/v1",
+  "files": [
+    {
+      "path": "gradient-descent/v1/environment.json",
+      "sha256": "b70fc7155fd24f1c35dd7bf5f12adf67a2554854bbfa1c2b22f64de6f1bc343a",
+      "bytes": 219
+    },
+    {
+      "path": "gradient-descent/v1/gradient-descent-summary.json",
+      "sha256": "235b0ec02b18666f41e52f45f55fa81a49e683e5b2ea333559350b3ba131bc6f",
+      "bytes": 1684
+    },
+    {
+      "path": "gradient-descent/v1/interaction-manifest.json",
+      "sha256": "de3c19c9cea7fe6a6a55b2114e18d5b65842ca9f58c10c9844a7249e1e0bca6c",
+      "bytes": 1762
+    },
+    {
+      "path": "gradient-descent/v1/interactions/gradient-rule.json",
+      "sha256": "5737833ab376687d1d1ea37f082e4fb4cd4d44f042a00dc655293882abfa10c9",
+      "bytes": 1924
+    },
+    {
+      "path": "gradient-descent/v1/interactions/landscape.json",
+      "sha256": "43f10ada212a71a64cda45c4a991569082e21910fca1f47a031f7eb7b0071c29",
+      "bytes": 22826
+    },
+    {
+      "path": "gradient-descent/v1/interactions/learning-rate.json",
+      "sha256": "bffa92dad40b4462eeda0c398f03168547be342419d3f5d436bae62308119126",
+      "bytes": 291943
+    },
+    {
+      "path": "gradient-descent/v1/interactions/loss-function.json",
+      "sha256": "afa90bc583125f636b82ee1ce66ba2d11f3358ee43838d4f0bcb20b667cec849",
+      "bytes": 5956
+    },
+    {
+      "path": "gradient-descent/v1/interactions/noise-and-batch.json",
+      "sha256": "72ccbcd06c10e1a8856c776aa97633ef36af3a8f2793894618b4a36dc2dec59f",
+      "bytes": 250800
+    },
+    {
+      "path": "gradient-descent/v1/interactions/saddle-local-minima.json",
+      "sha256": "19183745315cf6601371fb7a96690d24c160b62de85f2425a3553a8027e9b54e",
+      "bytes": 64847
+    },
+    {
+      "path": "gradient-descent/v1/notebooks/gradient-descent-from-scratch.en.ipynb",
+      "sha256": "7f6fe4bfd3811c8de9c33b6bdc388bb31c169c3eaac3c08230e36495c5bbb970",
+      "bytes": 6741
+    },
+    {
+      "path": "gradient-descent/v1/notebooks/gradient-descent-from-scratch.zh-CN.ipynb",
+      "sha256": "8c972fae3b0e05da34f036df9caeb13619f23263af71cbc3c0104e32e1d90051",
+      "bytes": 6715
+    },
+    {
+      "path": "gradient-descent/v1/requirements.txt",
+      "sha256": "504d24ceef54d2f12b05d75ad2612fdb121078e81322ce2751297d8c9fc06491",
+      "bytes": 47
+    },
+    {
+      "path": "gradient-descent/v1/study-score.csv",
+      "sha256": "5213b72e45f6e1941f47061eabd8b2cd7e69c919fdc0714d0018b42f17adcb82",
+      "bytes": 68
+    }
+  ]
+}

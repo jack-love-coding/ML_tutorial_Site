@@ -1,0 +1,100 @@
+{
+  "scene": "gradient-rule",
+  "notebookCellId": "gd-one-update",
+  "anchor": {
+    "weight": 6.0,
+    "bias": 47.0,
+    "predictions": [
+      53.0,
+      59.0,
+      65.0,
+      71.0,
+      77.0
+    ],
+    "residuals": [
+      -1.0,
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "mse": 0.6,
+    "gradient": {
+      "weight": -3.2,
+      "bias": -0.4
+    },
+    "gradientNorm": 3.22490309931942
+  },
+  "rowContributions": [
+    {
+      "id": "s1",
+      "x": 1.0,
+      "y": 52.0,
+      "prediction": 53.0,
+      "residual": -1.0,
+      "weightGradientContribution": 0.4,
+      "biasGradientContribution": 0.4
+    },
+    {
+      "id": "s2",
+      "x": 2.0,
+      "y": 59.0,
+      "prediction": 59.0,
+      "residual": 0.0,
+      "weightGradientContribution": -0.0,
+      "biasGradientContribution": -0.0
+    },
+    {
+      "id": "s3",
+      "x": 3.0,
+      "y": 65.0,
+      "prediction": 65.0,
+      "residual": 0.0,
+      "weightGradientContribution": -0.0,
+      "biasGradientContribution": -0.0
+    },
+    {
+      "id": "s4",
+      "x": 4.0,
+      "y": 72.0,
+      "prediction": 71.0,
+      "residual": 1.0,
+      "weightGradientContribution": -1.6,
+      "biasGradientContribution": -0.4
+    },
+    {
+      "id": "s5",
+      "x": 5.0,
+      "y": 78.0,
+      "prediction": 77.0,
+      "residual": 1.0,
+      "weightGradientContribution": -2.0,
+      "biasGradientContribution": -0.4
+    }
+  ],
+  "learningRate": 0.02,
+  "updated": {
+    "weight": 6.064,
+    "bias": 47.008,
+    "predictions": [
+      53.072,
+      59.136,
+      65.2,
+      71.26400000000001,
+      77.328
+    ],
+    "residuals": [
+      -1.0720000000000027,
+      -0.13600000000000279,
+      -0.20000000000000284,
+      0.73599999999999,
+      0.671999999999997
+    ],
+    "mse": 0.4401919999999978,
+    "gradient": {
+      "weight": -1.7439999999999714,
+      "bias": 8.526512829121203e-15
+    },
+    "gradientNorm": 1.7439999999999714
+  }
+}

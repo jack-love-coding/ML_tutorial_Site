@@ -1,4 +1,5 @@
 import type { AiOverviewChapterId, Point2D, QLearningEnvironment, RegressionPreset } from '../types'
+import { STUDY_SCORE_CLEAR_TREND } from '../../../data/sharedRegressionTeachingData.ts'
 
 export const AI_OVERVIEW_CHAPTER_IDS: readonly AiOverviewChapterId[] = [
   'three-problems', 'ai-world-map', 'ml-common-language', 'supervised-linear-regression',
@@ -6,7 +7,7 @@ export const AI_OVERVIEW_CHAPTER_IDS: readonly AiOverviewChapterId[] = [
 ]
 export const AI_OVERVIEW_SEEDS = { kmeans: 3103, qLearning: 7107 } as const
 export const regressionPresets: Record<RegressionPreset['id'], RegressionPreset> = {
-  'clear-trend': { id: 'clear-trend', label: { 'zh-CN': '清晰趋势', en: 'Clear trend' }, samples: [{ id: 's1', x: 1, y: 52 }, { id: 's2', x: 2, y: 59 }, { id: 's3', x: 3, y: 65 }, { id: 's4', x: 4, y: 72 }, { id: 's5', x: 5, y: 78 }] },
+  'clear-trend': { id: 'clear-trend', label: { 'zh-CN': '清晰趋势', en: 'Clear trend' }, samples: STUDY_SCORE_CLEAR_TREND.map((sample) => ({ ...sample })) },
   'noisy-trend': { id: 'noisy-trend', label: { 'zh-CN': '带噪声', en: 'Noisy trend' }, samples: [{ id: 's1', x: 1, y: 50 }, { id: 's2', x: 2, y: 63 }, { id: 's3', x: 3, y: 61 }, { id: 's4', x: 4, y: 75 }, { id: 's5', x: 5, y: 76 }] },
   outlier: { id: 'outlier', label: { 'zh-CN': '含异常点', en: 'With outlier' }, samples: [{ id: 's1', x: 1, y: 52 }, { id: 's2', x: 2, y: 59 }, { id: 's3', x: 3, y: 65 }, { id: 's4', x: 4, y: 72 }, { id: 's5', x: 5, y: 98 }] },
 }

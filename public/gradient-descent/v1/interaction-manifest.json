@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "moduleId": "gradient-descent",
+  "chapters": [
+    {
+      "chapterId": "loss-function",
+      "scene": "loss-function",
+      "notebookCellId": "gd-loss-anchor",
+      "path": "/gradient-descent/v1/interactions/loss-function.json",
+      "sha256": "afa90bc583125f636b82ee1ce66ba2d11f3358ee43838d4f0bcb20b667cec849"
+    },
+    {
+      "chapterId": "landscape",
+      "scene": "landscape",
+      "notebookCellId": "gd-parameter-landscape",
+      "path": "/gradient-descent/v1/interactions/landscape.json",
+      "sha256": "43f10ada212a71a64cda45c4a991569082e21910fca1f47a031f7eb7b0071c29"
+    },
+    {
+      "chapterId": "gradient-rule",
+      "scene": "gradient-rule",
+      "notebookCellId": "gd-one-update",
+      "path": "/gradient-descent/v1/interactions/gradient-rule.json",
+      "sha256": "5737833ab376687d1d1ea37f082e4fb4cd4d44f042a00dc655293882abfa10c9"
+    },
+    {
+      "chapterId": "learning-rate",
+      "scene": "learning-rate",
+      "notebookCellId": "gd-learning-rate",
+      "path": "/gradient-descent/v1/interactions/learning-rate.json",
+      "sha256": "bffa92dad40b4462eeda0c398f03168547be342419d3f5d436bae62308119126"
+    },
+    {
+      "chapterId": "saddle-local-minima",
+      "scene": "saddle-local-minima",
+      "notebookCellId": "gd-advanced-terrain",
+      "path": "/gradient-descent/v1/interactions/saddle-local-minima.json",
+      "sha256": "19183745315cf6601371fb7a96690d24c160b62de85f2425a3553a8027e9b54e"
+    },
+    {
+      "chapterId": "noise-and-batch",
+      "scene": "noise-and-batch",
+      "notebookCellId": "gd-real-batches",
+      "path": "/gradient-descent/v1/interactions/noise-and-batch.json",
+      "sha256": "72ccbcd06c10e1a8856c776aa97633ef36af3a8f2793894618b4a36dc2dec59f"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "root": {
+    "concept": "one exact gradient-descent update",
+    "why": "A beginner can audit every number from five samples instead of treating the update rule as magic.",
+    "children": [
+      {
+        "concept": "data and model",
+        "why": "The line parameters must visibly generate each prediction before a loss exists.",
+        "children": [
+          { "concept": "five study-hour samples", "why": "The dataset is small enough to calculate by hand." },
+          { "concept": "y-hat equals w x plus b", "why": "The same symbols persist through residuals and gradients." }
+        ]
+      },
+      {
+        "concept": "loss as a parameter score",
+        "why": "The one-dimensional slice makes a parameter setting and its score a single point on a curve.",
+        "children": [
+          { "concept": "residual and squared residual", "why": "Every row visibly contributes to MSE." },
+          { "concept": "one-dimensional weight slice", "why": "A tangent can be introduced without requiring 3D perception." }
+        ]
+      },
+      {
+        "concept": "gradient and negative direction",
+        "why": "The gradient is uphill; the minus sign is the actual descent decision.",
+        "children": [
+          { "concept": "row-level contributions", "why": "The final gradient is an average, not an unexplained oracle." },
+          { "concept": "learning-rate scaling", "why": "Eta changes distance while preserving the chosen direction." }
+        ]
+      },
+      {
+        "concept": "parameter update and verification",
+        "why": "Recomputing predictions and MSE closes the learning loop.",
+        "children": [
+          { "concept": "w and b update", "why": "Both parameters move from the same gradient snapshot." },
+          { "concept": "new MSE", "why": "The visible result verifies what the update actually changed." }
+        ]
+      }
+    ]
+  },
+  "visualContract": {
+    "durationSeconds": 82,
+    "resolution": "1920x1080",
+    "fps": 30,
+    "palette": {
+      "prediction": "#256BD9",
+      "errorLoss": "#E26D3D",
+      "gradientUphill": "#7C3AED",
+      "negativeUpdate": "#2F855A"
+    },
+    "languageNeutral": true
+  }
+}
