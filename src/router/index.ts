@@ -148,6 +148,15 @@ export const router = createRouter({
       component: () => import('../views/AlgorithmView.vue'),
     },
     {
+      path: '/learn/gradient-descent',
+      redirect: '/learn/gradient-descent/loss-function',
+    },
+    {
+      path: '/learn/gradient-descent/:chapterId',
+      name: 'gradient-descent-chapter',
+      component: () => import('../views/AlgorithmView.vue'),
+    },
+    {
       path: '/learn/housing-price-project',
       redirect: '/learn/housing-price-project/csv-to-frame',
     },

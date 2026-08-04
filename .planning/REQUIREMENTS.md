@@ -37,9 +37,9 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 - [x] **GRAD-01**: Learners can calculate predictions, residuals, MSE, analytic gradients, and one parameter update on the shared five-row study-hours dataset.
 - [x] **GRAD-02**: Learners can connect one-dimensional loss slices, the two-parameter MSE landscape, contours, and the negative-gradient update direction.
 - [x] **GRAD-03**: Learners can reproduce the course anchors from bilingual executed NumPy Notebooks and a deterministic TypeScript engine.
-- [ ] **GRAD-04**: Learners can compare slow, stable, oscillating, and divergent learning-rate paths without hidden clamping, and explain the role of feature scaling.
-- [ ] **GRAD-05**: Learners can distinguish small gradients, saddle points, local minima, global minima, and true full/mini/SGD sample updates through accessible chapter-specific labs.
-- [ ] **GRAD-06**: Existing gradient-descent chapter IDs, routes, progress, checkpoint behavior, and Bike training assets remain compatible after the six-page rebuild.
+- [x] **GRAD-04**: Learners can compare slow, stable, oscillating, and divergent learning-rate paths without hidden clamping, and explain the role of feature scaling.
+- [x] **GRAD-05**: Learners can distinguish small gradients, saddle points, local minima, global minima, and true full/mini/SGD sample updates through accessible chapter-specific labs.
+- [x] **GRAD-06**: Existing gradient-descent chapter IDs, routes, progress, checkpoint behavior, and Bike training assets remain compatible after the six-page rebuild.
 
 ### Logistic Regression
 

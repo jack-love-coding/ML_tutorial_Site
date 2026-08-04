@@ -28,7 +28,6 @@ import {
   setLastVisitedAlgorithmModule,
 } from '../utils/algorithmProgress'
 
-const GradientChapterLab = defineAsyncComponent(() => import('../components/GradientChapterLab.vue'))
 const LossFunctionsLessonLab = defineAsyncComponent(
   () => import('../components/LossFunctionsLessonLab.vue'),
 )
@@ -43,6 +42,9 @@ const AlgorithmCheckpointQuiz = defineAsyncComponent(
 )
 const LinearRegressionPagedLesson = defineAsyncComponent(
   () => import('../components/LinearRegressionPagedLesson.vue'),
+)
+const GradientDescentPagedLesson = defineAsyncComponent(
+  () => import('../components/GradientDescentPagedLesson.vue'),
 )
 const HousingProjectPagedLesson = defineAsyncComponent(
   () => import('../components/HousingProjectPagedLesson.vue'),
@@ -95,6 +97,7 @@ const slug = computed(() => {
   if (route.path.startsWith('/learn/cnn-visualization')) return 'cnn-visualization' as ModuleSlug
   if (route.path.startsWith('/learn/logistic-regression')) return 'logistic-regression' as ModuleSlug
   if (route.path.startsWith('/learn/linear-regression')) return 'linear-regression' as ModuleSlug
+  if (route.path.startsWith('/learn/gradient-descent')) return 'gradient-descent' as ModuleSlug
   if (route.path.startsWith('/learn/housing-price-project')) return 'housing-price-project' as ModuleSlug
   return 'linear-regression' as ModuleSlug
 })
@@ -549,6 +552,12 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </template>
     </NeuralGuidedLesson>
 
+    <GradientDescentPagedLesson
+      v-else-if="isGradientPage && activeSection"
+      :module-definition="moduleDefinition"
+      :section="activeSection"
+    />
+
     <LessonPage
       v-else-if="isLessonPagePilot"
       :module-definition="moduleDefinition"
@@ -565,24 +574,6 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
           :section="section"
         />
 
-        <GradientChapterLab
-          v-else-if="activeLessonLab?.labId === 'gradient-chapter-lab'"
-          :config="experiment.config"
-          :snapshot="snapshot"
-          :is-playing="experiment.isPlaying"
-          :accent="moduleDefinition.accent"
-          :section="section"
-          :presets="moduleDefinition.presets"
-          :insights="gradientSectionInsights"
-          @update-config="(key, value) => experimentStore.updateConfig(slug, key, value)"
-          @patch-config="patchConfig"
-          @toggle-play="experimentStore.togglePlayback(slug)"
-          @step="experimentStore.advance(slug)"
-          @replay="experimentStore.replay(slug)"
-          @reset="experimentStore.reset(slug)"
-          @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
-          @update-start-point="updateGradientStartPoint"
-        />
       </template>
     </LessonPage>
 
@@ -834,7 +825,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     </section>
 
     <AlgorithmCheckpointQuiz
-      v-if="moduleDefinition.checkpoints.length && !isAiOverviewPage"
+      v-if="moduleDefinition.checkpoints.length && !isAiOverviewPage && (!isGradientPage || activeSection?.id === 'noise-and-batch')"
       :module-slug="moduleDefinition.slug"
       :module-route="moduleDefinition.route"
       :checkpoints="moduleDefinition.checkpoints"
@@ -844,7 +835,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     <LossFunctionsDownloads v-if="isLossFunctionsPage" />
 
     <section
-      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isHousingProjectPage && !isWorkflowLessonPage && !isNeuralGuidedPage"
+      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isHousingProjectPage && !isWorkflowLessonPage && !isNeuralGuidedPage && !isGradientPage"
       class="results-grid"
       :class="{ 'results-grid--gradient': isGradientPage }"
     >
