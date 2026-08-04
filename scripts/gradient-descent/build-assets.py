@@ -487,6 +487,53 @@ def tree_snapshot(root: Path) -> dict[str, str]:
     return {path.relative_to(root).as_posix(): sha256(path) for path in sorted(root.rglob("*")) if path.is_file()}
 
 
+def notebook_semantic_snapshot(path: Path) -> dict[str, Any]:
+    notebook = nbformat.read(path, as_version=4)
+    cells = []
+    for cell in notebook.cells:
+        cells.append({
+            "id": cell.get("id"),
+            "cell_type": cell.cell_type,
+            "cellId": cell.get("metadata", {}).get("cellId"),
+            "source": cell.source,
+            "outputs": [
+                {
+                    "output_type": output.get("output_type"),
+                    "name": output.get("name"),
+                    "text": output_text(output),
+                    "data": output.get("data"),
+                }
+                for output in cell.get("outputs", [])
+            ],
+        })
+    return {"course": notebook.metadata.get("course"), "cells": cells}
+
+
+def check_package(staging: Path, published: Path) -> list[str]:
+    differences: list[str] = []
+    ignored = {
+        "output-manifest.json",
+        "notebooks/gradient-descent-from-scratch.zh-CN.ipynb",
+        "notebooks/gradient-descent-from-scratch.en.ipynb",
+    }
+    staged_tree = tree_snapshot(staging)
+    published_tree = tree_snapshot(published)
+    for relative in sorted((set(staged_tree) | set(published_tree)) - ignored):
+        if staged_tree.get(relative) != published_tree.get(relative):
+            differences.append(relative)
+    for locale in ["zh-CN", "en"]:
+        relative = f"notebooks/gradient-descent-from-scratch.{locale}.ipynb"
+        if notebook_semantic_snapshot(staging / relative) != notebook_semantic_snapshot(published / relative):
+            differences.append(f"{relative} (semantic cells or outputs)")
+    manifest = json.loads((published / "output-manifest.json").read_text(encoding="utf-8"))
+    for member in manifest.get("files", []):
+        relative = member["path"].removeprefix("gradient-descent/v1/")
+        path = published / relative
+        if not path.is_file() or sha256(path) != member["sha256"] or path.stat().st_size != member["bytes"]:
+            differences.append(f"output-manifest.json -> {relative}")
+    return differences
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true")
@@ -495,8 +542,11 @@ def main() -> None:
         staging = Path(temp_dir) / "v1"
         build_package(staging)
         if args.check:
-            if not PUBLIC_ROOT.exists() or tree_snapshot(staging) != tree_snapshot(PUBLIC_ROOT):
-                raise SystemExit("Gradient-descent asset drift detected; rebuild the published package")
+            if not PUBLIC_ROOT.exists():
+                raise SystemExit("Gradient-descent asset package is missing")
+            differences = check_package(staging, PUBLIC_ROOT)
+            if differences:
+                raise SystemExit("Gradient-descent asset drift detected: " + ", ".join(differences))
             print("Gradient-descent assets match notebooks, interactions, hashes, and numerical anchors")
             return
         PUBLIC_ROOT.parent.mkdir(parents=True, exist_ok=True)
