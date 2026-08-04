@@ -18,6 +18,7 @@ from typing import Any, Iterable
 import nbclient
 import nbformat
 import numpy as np
+import jupyter_client
 from nbclient import NotebookClient
 from nbformat.v4 import new_code_cell, new_markdown_cell, new_notebook
 from jupyter_client.kernelspec import KernelSpecManager
@@ -426,12 +427,20 @@ def build_package(target: Path) -> None:
         f"numpy=={np.__version__}\n"
         f"nbformat=={nbformat.__version__}\n"
         f"nbclient=={nbclient.__version__}\n"
+        f"jupyter-client=={jupyter_client.__version__}\n"
+        "ipykernel==7.3.0\n"
     )
     (target / "requirements.txt").write_text(requirements, encoding="utf-8")
     write_json(target / "environment.json", {
         "python": platform.python_version(),
         "platform": platform.platform(),
-        "dependencies": {"numpy": np.__version__, "nbformat": nbformat.__version__, "nbclient": nbclient.__version__},
+        "dependencies": {
+            "numpy": np.__version__,
+            "nbformat": nbformat.__version__,
+            "nbclient": nbclient.__version__,
+            "jupyter-client": jupyter_client.__version__,
+            "ipykernel": "7.3.0",
+        },
         "cleanKernel": True,
         "timingStripped": True,
     })

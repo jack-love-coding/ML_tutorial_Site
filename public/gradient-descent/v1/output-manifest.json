@@ -5,8 +5,8 @@
   "files": [
     {
       "path": "gradient-descent/v1/environment.json",
-      "sha256": "b70fc7155fd24f1c35dd7bf5f12adf67a2554854bbfa1c2b22f64de6f1bc343a",
-      "bytes": 219
+      "sha256": "9d3976bbe3aec7bb6cfd0a3aa870d9500f3a7092d1b8e9c811103dc4a2dd4de7",
+      "bytes": 276
     },
     {
       "path": "gradient-descent/v1/gradient-descent-summary.json",
@@ -60,8 +60,8 @@
     },
     {
       "path": "gradient-descent/v1/requirements.txt",
-      "sha256": "504d24ceef54d2f12b05d75ad2612fdb121078e81322ce2751297d8c9fc06491",
-      "bytes": 47
+      "sha256": "5b402f0f018d5112fbb20383a461de9efc7e87c1289ca9da1f67954ea25605c1",
+      "bytes": 86
     },
     {
       "path": "gradient-descent/v1/study-score.csv",

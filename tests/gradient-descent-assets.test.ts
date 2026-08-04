@@ -80,6 +80,15 @@ test('both notebooks are executed, bilingual, and bind all six cell ids', () => 
   }
 })
 
+test('Pages installs the complete pinned Notebook drift-check environment', () => {
+  const requirements = readFileSync(resolve(packageRoot, 'requirements.txt'), 'utf8')
+  for (const dependency of ['numpy==', 'nbformat==', 'nbclient==', 'jupyter-client==', 'ipykernel==']) {
+    assert.match(requirements, new RegExp(`^${dependency.replace('-', '\\-')}`, 'm'))
+  }
+  const workflow = readFileSync(resolve(root, '.github/workflows/deploy-pages.yml'), 'utf8')
+  assert.match(workflow, /pip install --disable-pip-version-check -r public\/gradient-descent\/v1\/requirements\.txt/)
+})
+
 test('asset builder check mode reports no drift', () => {
   const result = spawnSync('python3', ['scripts/gradient-descent/build-assets.py', '--check'], {
     cwd: root,
