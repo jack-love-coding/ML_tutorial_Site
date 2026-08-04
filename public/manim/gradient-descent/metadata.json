@@ -1,0 +1,48 @@
+{
+  "metadataVersion": 1,
+  "generatedBy": "scripts/manim/render_gradient_descent.py",
+  "manimVersion": "Manim Community v0.20.1",
+  "scene": "GradientRuleDeepDiveScene",
+  "assetPath": "/manim/gradient-descent/gradient-rule.mp4",
+  "posterPath": "/manim/gradient-descent/gradient-rule.svg",
+  "sha256": "1eb97c16b9ac0bd3afd609e5373815d59346a6b74a61a921769117b238df607d",
+  "posterSha256": "c676d83ddbd032b9a0e53c8786fb92467fb9ae5c1639692087232303e1379c89",
+  "durationSeconds": 84.0,
+  "width": 1920,
+  "height": 1080,
+  "fps": 30.0,
+  "prompt": "scripts/manim/gradient-descent/gradient-rule-prompt.md",
+  "knowledgeTree": "scripts/manim/gradient-descent/gradient-rule-tree.json",
+  "transcriptZhCN": "docs/curriculum-v3/gradient-descent/manim/gradient-rule-transcript.zh-CN.md",
+  "transcriptEn": "docs/curriculum-v3/gradient-descent/manim/gradient-rule-transcript.en.md",
+  "chapters": [
+    {
+      "id": "data-model",
+      "startSeconds": 0
+    },
+    {
+      "id": "prediction-error",
+      "startSeconds": 12
+    },
+    {
+      "id": "loss-slice",
+      "startSeconds": 24
+    },
+    {
+      "id": "uphill-gradient",
+      "startSeconds": 36
+    },
+    {
+      "id": "negative-direction",
+      "startSeconds": 48
+    },
+    {
+      "id": "learning-rate",
+      "startSeconds": 60
+    },
+    {
+      "id": "update-verify",
+      "startSeconds": 72
+    }
+  ]
+}

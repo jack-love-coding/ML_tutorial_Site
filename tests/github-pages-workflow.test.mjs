@@ -20,7 +20,7 @@ test('GitHub Pages installs ffprobe before running media validation tests', () =
   assert.match(workflow, /ffprobe -version/)
 })
 
-test('GitHub Pages prepares the pinned NumPy smoke-test runtime before npm test', () => {
+test('GitHub Pages prepares the pinned Notebook smoke-test runtime before npm test', () => {
   const setupPythonIndex = workflow.indexOf('- name: Setup Python')
   const installNotebookDependenciesIndex = workflow.indexOf(
     '- name: Install Notebook smoke-test dependencies',
@@ -30,7 +30,7 @@ test('GitHub Pages prepares the pinned NumPy smoke-test runtime before npm test'
   assert.ok(setupPythonIndex >= 0, 'workflow must configure Python')
   assert.ok(
     installNotebookDependenciesIndex > setupPythonIndex,
-    'NumPy must be installed after Python is configured',
+    'Notebook dependencies must be installed after Python is configured',
   )
   assert.ok(
     testIndex > installNotebookDependenciesIndex,
@@ -41,7 +41,10 @@ test('GitHub Pages prepares the pinned NumPy smoke-test runtime before npm test'
     /actions\/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6\.1\.0/,
   )
   assert.match(workflow, /python-version: '3\.12'/)
-  assert.match(workflow, /python -m pip install --disable-pip-version-check "numpy==2\.4\.6"/)
+  assert.match(
+    workflow,
+    /python -m pip install --disable-pip-version-check -r public\/gradient-descent\/v1\/requirements\.txt/,
+  )
 })
 
 test('strict local release-asset verification remains an explicit opt-in command', () => {

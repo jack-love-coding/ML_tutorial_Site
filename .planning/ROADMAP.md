@@ -117,6 +117,27 @@
 - [x] 28-01-PLAN.md — Frozen dataset, executed Notebooks, figures, interaction payloads, and numerical verification
 - [x] 28-02-PLAN.md — Six-chapter paged teaching flow, real-result interactions, routing, and release validation
 
+## Phase 28A: Gradient Descent Beginner Teaching Rebuild
+
+**Goal:** Rebuild `gradient-descent` into six focused beginner pages that connect one transparent dataset to MSE, the parameter landscape, exact gradients, learning-rate behavior, advanced terrain, and true sample-based batching.
+
+**Depends on:** Phase 26 loss functions, Phase 27 linear regression, and the existing AI Overview regression dataset
+
+**Requirements:** GRAD-01, GRAD-02, GRAD-03, GRAD-04, GRAD-05, GRAD-06
+
+**Success Criteria:**
+
+1. The five-row study-hours dataset, formulas, TypeScript engine, executed NumPy Notebooks, and visible chapter outputs reproduce the same locked numerical anchors.
+2. Six existing chapter IDs become independent bilingual pages with one chapter-specific lazy lab, at most three control groups, mobile-safe layouts, and keyboard/reduced-motion fallbacks.
+3. Full, mini-batch, and SGD paths use actual deterministic sample subsets; unstable learning rates stop at the last finite state and are labeled without path clamping.
+4. A language-neutral 75–90 second 1080p30 Manim animation explains one exact update and is published with poster, transcripts, markers, source records, and hashes.
+5. Existing route identity, deep links, Progress stores, checkpoint behavior, Bike trace, downloads, tests, and Pages builds remain compatible.
+
+**Plans:** 1/2 plans complete
+
+- [x] 28.1-01-PLAN.md — Shared numerical engine, executed assets, and gradient-rule Manim package
+- [ ] 28.1-02-PLAN.md — Six paged lessons, dedicated labs, routing, accessibility, and release validation
+
 ## Phase 29: Logistic Regression Rebuild
 
 **Goal:** Rebuild `logistic-regression` so learners can trace linear scores through sigmoid probabilities, likelihood, stable BCE, scratch gradients, library parity, calibration, and linear-boundary failure.

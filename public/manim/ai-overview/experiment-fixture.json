@@ -3,7 +3,7 @@
   "checkedSources": {
     "experiments": {
       "path": "src/modules/ai-overview/data/experiments.ts",
-      "sha256": "f52a33ffb61d00900412a2e7ad0c4e360aabc4106b25220277c1f668c2dadacd"
+      "sha256": "a0f2d7f2f764a4f2f489ce1f7c5520f314f7b00b2c9fbf50a655806a4f23970a"
     },
     "kmeans": {
       "path": "src/modules/ai-overview/utils/kmeans.ts",
