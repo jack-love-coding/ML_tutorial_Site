@@ -69,10 +69,10 @@ test('AlgorithmView routes article pilots through LessonPage and neural courses 
   assert.match(algorithmViewSource, /<NeuralGuidedLesson\s+v-if="isMlpPage"/)
   assert.match(algorithmViewSource, /<LessonPage\s+v-else-if="isLessonPagePilot"/)
   assert.match(algorithmViewSource, /activeLessonLab\?\.labId === 'ai-overview-task-lab'/)
-  assert.match(algorithmViewSource, /activeLessonLab\?\.labId === 'gradient-chapter-lab'/)
+  assert.match(algorithmViewSource, /GradientDescentPagedLesson/)
   assert.match(algorithmViewSource, /CnnGuidedLab/)
   assert.match(algorithmViewSource, /MlpGuidedLab/)
-  assert.match(algorithmViewSource, /GradientChapterLab/)
+  assert.doesNotMatch(algorithmViewSource, /activeLessonLab\?\.labId === 'gradient-chapter-lab'/)
   assert.match(algorithmViewSource, /AiOverviewLessonLab/)
 
   assert.doesNotMatch(algorithmViewSource, /v-if="isAiOverviewPage"\s+class="algorithm-layout algorithm-layout--lesson-story/)

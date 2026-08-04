@@ -133,10 +133,10 @@
 4. A language-neutral 75–90 second 1080p30 Manim animation explains one exact update and is published with poster, transcripts, markers, source records, and hashes.
 5. Existing route identity, deep links, Progress stores, checkpoint behavior, Bike trace, downloads, tests, and Pages builds remain compatible.
 
-**Plans:** 1/2 plans complete
+**Plans:** 2/2 plans complete
 
 - [x] 28.1-01-PLAN.md — Shared numerical engine, executed assets, and gradient-rule Manim package
-- [ ] 28.1-02-PLAN.md — Six paged lessons, dedicated labs, routing, accessibility, and release validation
+- [x] 28.1-02-PLAN.md — Six paged lessons, dedicated labs, routing, accessibility, and release validation
 
 ## Phase 29: Logistic Regression Rebuild
 

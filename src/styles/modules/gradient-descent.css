@@ -12,6 +12,520 @@
   box-shadow: 0 24px 52px rgba(15, 23, 40, 0.08);
 }
 
+/* Phase 28A: single-chapter beginner course */
+.gradient-course {
+  --gd-accent: #e06b3f;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+}
+
+.gradient-course__toc-toggle {
+  display: grid;
+  width: 100%;
+  gap: 4px;
+  padding: 15px 18px;
+  margin-bottom: 16px;
+  text-align: left;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.gradient-course__toc-toggle span,
+.gradient-course__sidebar > span,
+.gradient-course__header div span,
+.gradient-lesson-block > span,
+.gradient-lesson-block__media-heading span,
+.gradient-course__lab > header > span,
+.gradient-course__resources > span,
+.gradient-lab-frame__header span,
+.gradient-lab-frame__readout span,
+.gd-batch-samples > span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.gradient-course__layout {
+  display: grid;
+  gap: 24px;
+}
+
+.gradient-course__sidebar {
+  display: none;
+  padding: 18px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.gradient-course__sidebar.is-open {
+  display: grid;
+  gap: 14px;
+}
+
+.gradient-course__sidebar nav {
+  display: grid;
+  gap: 8px;
+}
+
+.gradient-course__sidebar a {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 16px;
+}
+
+.gradient-course__sidebar a:hover,
+.gradient-course__sidebar a.is-active {
+  border-color: rgba(224, 107, 63, 0.24);
+  background: rgba(255, 246, 240, 0.92);
+}
+
+.gradient-course__sidebar a small {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(15, 23, 40, 0.06);
+  font-weight: 900;
+}
+
+.gradient-course__sidebar a.is-active small {
+  color: white;
+  background: var(--gd-accent);
+}
+
+.gradient-course__main,
+.gradient-course__main article,
+.gradient-course__flow {
+  min-width: 0;
+}
+
+.gradient-course__main article {
+  display: grid;
+  gap: 22px;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.gradient-course__header,
+.gradient-lesson-block,
+.gradient-course__lab,
+.gradient-course__resources {
+  padding: clamp(20px, 4vw, 38px);
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 20px 46px rgba(15, 23, 40, 0.055);
+}
+
+.gradient-course__header {
+  display: grid;
+  gap: 14px;
+  background:
+    radial-gradient(circle at top right, rgba(224, 107, 63, 0.14), transparent 35%),
+    rgba(255, 255, 255, 0.96);
+}
+
+.gradient-course__header > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.gradient-course__header h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 1.02;
+}
+
+.gradient-course__flow,
+.gradient-lesson-block,
+.gradient-course__lab,
+.gradient-course__resources {
+  display: grid;
+  gap: 16px;
+}
+
+.gradient-lesson-block h3,
+.gradient-course__lab h3,
+.gradient-course__resources h3,
+.gradient-lab-frame h4 {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.15;
+}
+
+.gradient-lesson-block.is-question,
+.gradient-lesson-block.is-prediction {
+  border-left: 5px solid var(--gd-accent);
+  background: linear-gradient(135deg, rgba(255, 248, 242, 0.98), rgba(255, 255, 255, 0.96));
+}
+
+.gradient-lesson-block.is-observation,
+.gradient-lesson-block.is-conclusion {
+  border-left: 5px solid #25856f;
+  background: linear-gradient(135deg, rgba(239, 250, 247, 0.96), rgba(255, 255, 255, 0.96));
+}
+
+.gradient-lesson-block.is-misconception {
+  border-left: 5px solid #c98a25;
+  background: linear-gradient(135deg, rgba(255, 249, 232, 0.96), rgba(255, 255, 255, 0.96));
+}
+
+.gradient-lesson-block--formula {
+  background: linear-gradient(145deg, #172139, #263451);
+  color: white;
+}
+
+.gradient-lesson-block--formula .markdown-math,
+.gradient-lesson-block--formula .markdown-math p {
+  color: inherit;
+}
+
+.gradient-lesson-block--runtime pre {
+  max-width: 100%;
+  overflow: auto;
+  padding: 18px;
+  color: #edf7ff;
+  border-radius: 18px;
+  background: #121a2b;
+}
+
+.gradient-lesson-block__media-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: end;
+}
+
+.gradient-lesson-block--media video,
+.gradient-lesson-block--media > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 20px;
+  background: #111827;
+}
+
+.gradient-lesson-block__markers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.gradient-lesson-block__markers button {
+  display: grid;
+  gap: 4px;
+  padding: 11px 12px;
+  text-align: left;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 14px;
+  background: #f7f8fa;
+}
+
+.gradient-course__lab {
+  padding: clamp(18px, 3vw, 30px);
+  background: linear-gradient(145deg, rgba(245, 249, 250, 0.98), rgba(255, 250, 245, 0.98));
+}
+
+.gradient-lab-frame {
+  display: grid;
+  gap: 16px;
+}
+
+.gradient-lab-frame__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.65fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.gradient-lab-frame__header > div:first-child {
+  display: grid;
+  gap: 8px;
+}
+
+.gradient-lab-frame__header p,
+.gd-batch-samples p,
+.gd-bike-transfer p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.gradient-lab-controls {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(15, 23, 40, 0.07);
+}
+
+.gradient-lab-controls label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 12px;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.gradient-lab-controls input,
+.gradient-lab-controls select {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.gradient-lab-actions,
+.gradient-lab-coordinate {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.gradient-lab-coordinate {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gradient-lab-actions button,
+.gradient-lab-controls > button {
+  min-height: 42px;
+  border: 1px solid rgba(15, 23, 40, 0.12);
+  border-radius: 12px;
+  background: white;
+  font-weight: 800;
+}
+
+.gradient-lab-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.gradient-lab-grid figure,
+.gd-terrain-map,
+.gd-batch-samples,
+.gd-bike-transfer {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+  margin: 0;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.gradient-lab-grid figcaption,
+.gd-terrain-map figcaption,
+.gd-bike-transfer figcaption {
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.gradient-lab-grid svg,
+.gd-terrain-map svg,
+.gd-bike-transfer svg,
+.gd-surface-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 250px;
+  border-radius: 14px;
+  background: #f7faf9;
+  touch-action: none;
+}
+
+.gradient-lab-frame__readout {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.gradient-lab-frame__readout article {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(15, 23, 40, 0.07);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.gradient-lab-frame__readout strong {
+  overflow-wrap: anywhere;
+}
+
+.gradient-lab-frame__fallback {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.gradient-table-scroll {
+  max-width: 100%;
+  overflow: auto;
+}
+
+.gradient-table-scroll table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gradient-table-scroll th,
+.gradient-table-scroll td {
+  padding: 9px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(15, 23, 40, 0.08);
+  white-space: nowrap;
+}
+
+.gd-axis { stroke: rgba(15, 23, 40, 0.3); stroke-width: 1.5; }
+.gd-fit { stroke: var(--gd-accent); stroke-width: 4; stroke-linecap: round; }
+.gd-residual { stroke: #cf5546; stroke-width: 3; stroke-dasharray: 6 5; }
+.gd-target { fill: #163d49; stroke: white; stroke-width: 2; }
+.gd-prediction { fill: var(--gd-accent); stroke: white; stroke-width: 2; }
+.gd-loss-path, .gd-batch-path { fill: none; stroke: #25856f; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.gd-current { fill: var(--gd-accent); stroke: white; stroke-width: 3; filter: drop-shadow(0 2px 5px rgba(0,0,0,.25)); }
+.gd-optimum { fill: #25856f; stroke: white; stroke-width: 3; }
+.gd-gradient-arrow { color: #7c4fc4; stroke: currentColor; stroke-width: 5; }
+.gd-update-arrow { color: #25856f; stroke: currentColor; stroke-width: 5; }
+.gd-terrain-path { fill: none; stroke: white; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 3px rgba(0,0,0,.55)); }
+
+.gd-rule-flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.gd-rule-flow article {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: white;
+}
+
+.gd-rule-flow article.is-active {
+  border-color: var(--gd-accent);
+  box-shadow: 0 10px 24px rgba(224, 107, 63, 0.16);
+}
+
+.gd-rule-flow article > span {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  color: white;
+  border-radius: 50%;
+  background: #25354c;
+}
+
+.gd-batch-samples div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.gd-batch-samples div strong {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 50%;
+  background: #163d49;
+  color: white;
+}
+
+.gradient-course__resources ol {
+  display: grid;
+  gap: 12px;
+  padding-left: 22px;
+}
+
+.gradient-course__resources li small {
+  display: block;
+  color: var(--muted);
+}
+
+.gradient-course__downloads {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.gradient-course__downloads a,
+.gradient-course__pager a {
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid rgba(15, 23, 40, 0.08);
+  border-radius: 16px;
+  background: #f8f9fa;
+}
+
+.gradient-course__pager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gradient-course__pager a:last-child { text-align: right; }
+
+@media (min-width: 1440px) {
+  .gradient-course__toc-toggle { display: none; }
+  .gradient-course__layout { grid-template-columns: 260px minmax(0, 1fr); align-items: start; }
+  .gradient-course__sidebar { display: grid; position: sticky; top: 88px; gap: 14px; }
+}
+
+@media (max-width: 820px) {
+  .gradient-lab-frame__header,
+  .gradient-lab-grid,
+  .gradient-lab-frame__readout,
+  .gd-rule-flow {
+    grid-template-columns: 1fr;
+  }
+  .gd-rule-flow > i { transform: rotate(90deg); justify-self: center; }
+}
+
+@media (max-width: 520px) {
+  .gradient-course__header,
+  .gradient-lesson-block,
+  .gradient-course__lab,
+  .gradient-course__resources { padding: 18px; border-radius: 22px; }
+  .gradient-course__pager,
+  .gradient-lab-actions,
+  .gradient-lab-coordinate { grid-template-columns: 1fr; }
+  .gradient-course__pager a:last-child { text-align: left; }
+  .gradient-lesson-block__media-heading { display: grid; align-items: start; }
+  .gradient-lab-grid svg,
+  .gd-terrain-map svg,
+  .gd-bike-transfer svg,
+  .gd-surface-canvas { min-height: 210px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-course *, .gradient-course *::before, .gradient-course *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 .gradient-chapter-lab__hero,
 .gradient-chapter-lab__terrain,
 .gradient-chapter-lab__workspace {

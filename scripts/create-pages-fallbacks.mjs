@@ -58,6 +58,17 @@ for (const chapterId of [
   addRoute(`/learn/housing-price-project/${chapterId}`)
 }
 
+for (const chapterId of [
+  'loss-function',
+  'landscape',
+  'gradient-rule',
+  'learning-rate',
+  'saddle-local-minima',
+  'noise-and-batch',
+]) {
+  addRoute(`/learn/gradient-descent/${chapterId}`)
+}
+
 const importedNotes = readText('src/modules/math-lab/data/importedMathNotes.generated.ts')
 for (const match of importedNotes.matchAll(/^    "id": "([^"]+)",/gm)) {
   addRoute(`/math-lab/modules/${match[1]}`)
