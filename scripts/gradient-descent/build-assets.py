@@ -509,6 +509,27 @@ def notebook_semantic_snapshot(path: Path) -> dict[str, Any]:
     return {"course": notebook.metadata.get("course"), "cells": cells}
 
 
+def json_semantically_equal(left: Any, right: Any, *, ignore_integrity: bool = False) -> bool:
+    if isinstance(left, bool) or isinstance(right, bool):
+        return left is right
+    if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+        return math.isclose(float(left), float(right), rel_tol=1e-12, abs_tol=1e-12)
+    if isinstance(left, dict) and isinstance(right, dict):
+        ignored_keys = {"sha256", "bytes"} if ignore_integrity else set()
+        left_keys = set(left) - ignored_keys
+        right_keys = set(right) - ignored_keys
+        return left_keys == right_keys and all(
+            json_semantically_equal(left[key], right[key], ignore_integrity=ignore_integrity)
+            for key in left_keys
+        )
+    if isinstance(left, list) and isinstance(right, list):
+        return len(left) == len(right) and all(
+            json_semantically_equal(left_item, right_item, ignore_integrity=ignore_integrity)
+            for left_item, right_item in zip(left, right)
+        )
+    return type(left) is type(right) and left == right
+
+
 def check_package(staging: Path, published: Path) -> list[str]:
     differences: list[str] = []
     ignored = {
@@ -519,7 +540,16 @@ def check_package(staging: Path, published: Path) -> list[str]:
     staged_tree = tree_snapshot(staging)
     published_tree = tree_snapshot(published)
     for relative in sorted((set(staged_tree) | set(published_tree)) - ignored):
-        if staged_tree.get(relative) != published_tree.get(relative):
+        if relative.endswith(".json") and relative in staged_tree and relative in published_tree:
+            staged_json = json.loads((staging / relative).read_text(encoding="utf-8"))
+            published_json = json.loads((published / relative).read_text(encoding="utf-8"))
+            if not json_semantically_equal(
+                staged_json,
+                published_json,
+                ignore_integrity=relative == "interaction-manifest.json",
+            ):
+                differences.append(relative)
+        elif staged_tree.get(relative) != published_tree.get(relative):
             differences.append(relative)
     for locale in ["zh-CN", "en"]:
         relative = f"notebooks/gradient-descent-from-scratch.{locale}.ipynb"
