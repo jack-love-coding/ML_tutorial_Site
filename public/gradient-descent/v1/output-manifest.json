@@ -5,8 +5,8 @@
   "files": [
     {
       "path": "gradient-descent/v1/environment.json",
-      "sha256": "9d3976bbe3aec7bb6cfd0a3aa870d9500f3a7092d1b8e9c811103dc4a2dd4de7",
-      "bytes": 276
+      "sha256": "8d9058907951b4713c9c6fba116d621f0eb5f110a2d387d7b69ebe2cb790f445",
+      "bytes": 277
     },
     {
       "path": "gradient-descent/v1/gradient-descent-summary.json",

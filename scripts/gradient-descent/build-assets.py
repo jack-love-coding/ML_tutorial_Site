@@ -433,7 +433,7 @@ def build_package(target: Path) -> None:
     (target / "requirements.txt").write_text(requirements, encoding="utf-8")
     write_json(target / "environment.json", {
         "python": platform.python_version(),
-        "platform": platform.platform(),
+        "platformContract": "portable-cpython-3.12",
         "dependencies": {
             "numpy": np.__version__,
             "nbformat": nbformat.__version__,

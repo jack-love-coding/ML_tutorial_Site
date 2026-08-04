@@ -1,6 +1,6 @@
 {
   "python": "3.12.13",
-  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "platformContract": "portable-cpython-3.12",
   "dependencies": {
     "numpy": "2.4.6",
     "nbformat": "5.10.4",
