@@ -1,0 +1,9 @@
+{
+  "root": {"concept": "Momentum optimizer state", "depth": 0, "isFoundation": false},
+  "nodes": [
+    {"concept": "gradient direction", "depth": 2, "isFoundation": true, "equations": ["g_t=\\nabla L(\\theta_t)"]},
+    {"concept": "accumulated velocity", "depth": 1, "isFoundation": false, "equations": ["v_t=0.9v_{t-1}+g_t"]},
+    {"concept": "Momentum update", "depth": 0, "isFoundation": false, "equations": ["\\theta_{t+1}=\\theta_t-\\eta v_t"]}
+  ],
+  "visualContract": {"durationSeconds": 36, "resolution": [1920, 1080], "fps": 30, "nonColorEncoding": "square marker, labelled velocity state, and position path"}
+}

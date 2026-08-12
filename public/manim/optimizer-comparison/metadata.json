@@ -1,0 +1,192 @@
+{
+  "metadataVersion": 1,
+  "generatedBy": "scripts/manim/render_optimizer_comparison.py",
+  "manimVersion": "Manim Community v0.20.1",
+  "sourceEngine": "/notebooks/optimizer-comparison/optimizer-comparison-trajectories.json",
+  "assets": [
+    {
+      "id": "sgd-state",
+      "kind": "sgd",
+      "scene": "SgdStateScene",
+      "assetPath": "/manim/optimizer-comparison/sgd-state.mp4",
+      "posterPath": "/manim/optimizer-comparison/sgd-state.svg",
+      "shape": "circle",
+      "markers": [
+        {
+          "id": "sgd-1",
+          "startSeconds": 0
+        },
+        {
+          "id": "sgd-2",
+          "startSeconds": 9
+        },
+        {
+          "id": "sgd-3",
+          "startSeconds": 18
+        },
+        {
+          "id": "sgd-4",
+          "startSeconds": 27
+        },
+        {
+          "id": "sgd-5",
+          "startSeconds": 35
+        }
+      ],
+      "numericAnchor": {
+        "comparison": "predeclared-practical",
+        "update": 1,
+        "updateNorm": 0.002141565511,
+        "trainLoss": 0.500860851472
+      },
+      "sha256": "a194494c42d6953e88ea6123e7ae035c69971a21b91f989e82819bdd22d0a02c",
+      "posterSha256": "ebe9fcf8ddea31cba5300dfe7200e4c985a174255e18736f28f1dea1976d6b96",
+      "durationSeconds": 40.0,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "prompt": "scripts/manim/optimizer_comparison/sgd-state-prompt.md",
+      "knowledgeTree": "scripts/manim/optimizer_comparison/sgd-state-tree.json",
+      "transcriptZhCN": "docs/curriculum-v3/optimizer-comparison/manim/sgd-state-transcript.zh-CN.md",
+      "transcriptEn": "docs/curriculum-v3/optimizer-comparison/manim/sgd-state-transcript.en.md"
+    },
+    {
+      "id": "momentum-state",
+      "kind": "momentum",
+      "scene": "MomentumStateScene",
+      "assetPath": "/manim/optimizer-comparison/momentum-state.mp4",
+      "posterPath": "/manim/optimizer-comparison/momentum-state.svg",
+      "shape": "square",
+      "markers": [
+        {
+          "id": "momentum-1",
+          "startSeconds": 0
+        },
+        {
+          "id": "momentum-2",
+          "startSeconds": 9
+        },
+        {
+          "id": "momentum-3",
+          "startSeconds": 18
+        },
+        {
+          "id": "momentum-4",
+          "startSeconds": 27
+        },
+        {
+          "id": "momentum-5",
+          "startSeconds": 35
+        }
+      ],
+      "numericAnchor": {
+        "comparison": "predeclared-practical",
+        "update": 1,
+        "updateNorm": 0.001338478444,
+        "trainLoss": 0.500902364184
+      },
+      "sha256": "e2171231cef982f9d3510146e718bde4002234ced77a4a9418c82bf9b93c6402",
+      "posterSha256": "e022eca39b59a0cd1756ced7d35f1c32473e6615cf168ca53cb8025bbcc8a230",
+      "durationSeconds": 40.0,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "prompt": "scripts/manim/optimizer_comparison/momentum-state-prompt.md",
+      "knowledgeTree": "scripts/manim/optimizer_comparison/momentum-state-tree.json",
+      "transcriptZhCN": "docs/curriculum-v3/optimizer-comparison/manim/momentum-state-transcript.zh-CN.md",
+      "transcriptEn": "docs/curriculum-v3/optimizer-comparison/manim/momentum-state-transcript.en.md"
+    },
+    {
+      "id": "rmsprop-state",
+      "kind": "rmsprop",
+      "scene": "RmspropStateScene",
+      "assetPath": "/manim/optimizer-comparison/rmsprop-state.mp4",
+      "posterPath": "/manim/optimizer-comparison/rmsprop-state.svg",
+      "shape": "triangle",
+      "markers": [
+        {
+          "id": "rmsprop-1",
+          "startSeconds": 0
+        },
+        {
+          "id": "rmsprop-2",
+          "startSeconds": 9
+        },
+        {
+          "id": "rmsprop-3",
+          "startSeconds": 18
+        },
+        {
+          "id": "rmsprop-4",
+          "startSeconds": 27
+        },
+        {
+          "id": "rmsprop-5",
+          "startSeconds": 35
+        }
+      ],
+      "numericAnchor": {
+        "comparison": "predeclared-practical",
+        "update": 1,
+        "updateNorm": 0.368756075173,
+        "trainLoss": 0.504203424339
+      },
+      "sha256": "622f9517d115a8c0704f58096024648ee3e79a40ba783fee478e61145a1adadc",
+      "posterSha256": "9dd7280c4ce29bfd298c1f98eb7bce5ec710252741faaeed785c35c71212e778",
+      "durationSeconds": 40.0,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "prompt": "scripts/manim/optimizer_comparison/rmsprop-state-prompt.md",
+      "knowledgeTree": "scripts/manim/optimizer_comparison/rmsprop-state-tree.json",
+      "transcriptZhCN": "docs/curriculum-v3/optimizer-comparison/manim/rmsprop-state-transcript.zh-CN.md",
+      "transcriptEn": "docs/curriculum-v3/optimizer-comparison/manim/rmsprop-state-transcript.en.md"
+    },
+    {
+      "id": "adam-state",
+      "kind": "adam",
+      "scene": "AdamStateScene",
+      "assetPath": "/manim/optimizer-comparison/adam-state.mp4",
+      "posterPath": "/manim/optimizer-comparison/adam-state.svg",
+      "shape": "diamond",
+      "markers": [
+        {
+          "id": "adam-1",
+          "startSeconds": 0
+        },
+        {
+          "id": "adam-2",
+          "startSeconds": 9
+        },
+        {
+          "id": "adam-3",
+          "startSeconds": 18
+        },
+        {
+          "id": "adam-4",
+          "startSeconds": 27
+        },
+        {
+          "id": "adam-5",
+          "startSeconds": 35
+        }
+      ],
+      "numericAnchor": {
+        "comparison": "predeclared-practical",
+        "update": 1,
+        "updateNorm": 0.082460827024,
+        "trainLoss": 0.499465264524
+      },
+      "sha256": "9d97e068b4877d8bcd15d5b72d4edbedda5df9a1bd98247c625b6e7e6f3580ef",
+      "posterSha256": "48a9f470b19fa27a0bc1870490aa2ed31f69929be5d8ce6372382591c2e566a5",
+      "durationSeconds": 40.0,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "prompt": "scripts/manim/optimizer_comparison/adam-state-prompt.md",
+      "knowledgeTree": "scripts/manim/optimizer_comparison/adam-state-tree.json",
+      "transcriptZhCN": "docs/curriculum-v3/optimizer-comparison/manim/adam-state-transcript.zh-CN.md",
+      "transcriptEn": "docs/curriculum-v3/optimizer-comparison/manim/adam-state-transcript.en.md"
+    }
+  ]
+}
