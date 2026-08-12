@@ -155,9 +155,9 @@
 3. The controlled circle `2→4→1 tanh` benchmark and Banknote transfer publish deterministic, hash-bound local outputs; fitting and selection use training/validation only and the fixed test partition is evaluated once after freeze.
 4. The existing six optimizer lesson IDs, routes, checkpoints, Progress stores, and Math Lab entry points remain available throughout the staged rebuild.
 
-**Plans:** 0/3 plans complete
+**Plans:** 1/3 plans complete
 
-- [ ] 28.2-01-PLAN.md — Planning reconciliation, shared numerical engine, MLP strategy seam, and executed benchmark authority
+- [x] 28.2-01-PLAN.md — Planning reconciliation, shared numerical engine, MLP strategy seam, and executed benchmark authority
 - [ ] 28.2-02-PLAN.md — Optimizer media packages and shared chaptered media player
 - [ ] 28.2-03-PLAN.md — Six paged lessons, lazy labs, route bridges, and release validation
 
@@ -218,7 +218,7 @@
 | 27A. Linear Regression Teaching Experience Redesign | v1.1 | 4 | Complete — 2026-08-01 |
 | 28. Tabular Regression Project | v1.1 | 5 | Complete — 2026-08-04 |
 | 28A. Gradient Descent Beginner Teaching Rebuild | v1.1 | 6 | Complete — 2026-08-11 |
-| 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | In progress — 0/3 plans complete |
+| 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | In progress — 1/3 plans complete |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |
 | 31. Corridor Integration and Release | v1.1 | 5 | Not started |
