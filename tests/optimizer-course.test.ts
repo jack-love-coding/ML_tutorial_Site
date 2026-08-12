@@ -25,6 +25,11 @@ test('only the final optimizer chapter exposes references and reproducible downl
   assert.ok(optimizerCourseDownloads.every((item) => item.path.startsWith('/')))
 })
 
+test('the course consumes every supplied optimizer animation', () => {
+  const media = optimizerCourseChapters.flatMap((chapter) => chapter.media ?? [])
+  assert.deepEqual(media.sort(), ['adam', 'momentum', 'rmsprop', 'sgd'])
+})
+
 test('learner-facing optimizer copy avoids internal evidence and Ref-ID terminology', () => {
   const visibleCopy = JSON.stringify(optimizerCourseChapters)
   assert.doesNotMatch(visibleCopy, /Ref ID|REF-|证据|Evidence/i)

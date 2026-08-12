@@ -24,7 +24,7 @@ export interface OptimizerCourseChapter {
   id: 'training-loop' | 'sgd-batch-noise' | 'momentum-rmsprop' | 'adam-weight-decay' | 'learning-rate-schedules' | 'curve-diagnosis'
   title: LocalizedCopy
   blocks: readonly OptimizerCourseBlock[]
-  media?: 'sgd' | 'momentum' | 'rmsprop' | 'adam'
+  media?: readonly ('sgd' | 'momentum' | 'rmsprop' | 'adam')[]
 }
 
 const loc = (zhCN: string, en: string): LocalizedCopy => ({ 'zh-CN': zhCN, en })
@@ -125,9 +125,9 @@ const diagnosis = [
 
 export const optimizerCourseChapters: readonly OptimizerCourseChapter[] = [
   { id: 'training-loop', title: loc('训练循环：先写梯度，再更新参数', 'Training loop: write gradients, then update'), blocks: trainingLoop },
-  { id: 'sgd-batch-noise', title: loc('SGD 与 batch 噪声', 'SGD and batch noise'), blocks: sgdBatchNoise, media: 'sgd' },
-  { id: 'momentum-rmsprop', title: loc('Momentum 与 RMSProp 状态', 'Momentum and RMSProp state'), blocks: momentumRmsprop, media: 'momentum' },
-  { id: 'adam-weight-decay', title: loc('Adam、L2 与 AdamW', 'Adam, L2, and AdamW'), blocks: adamWeightDecay, media: 'adam' },
+  { id: 'sgd-batch-noise', title: loc('SGD 与 batch 噪声', 'SGD and batch noise'), blocks: sgdBatchNoise, media: ['sgd'] },
+  { id: 'momentum-rmsprop', title: loc('Momentum 与 RMSProp 状态', 'Momentum and RMSProp state'), blocks: momentumRmsprop, media: ['momentum', 'rmsprop'] },
+  { id: 'adam-weight-decay', title: loc('Adam、L2 与 AdamW', 'Adam, L2, and AdamW'), blocks: adamWeightDecay, media: ['adam'] },
   { id: 'learning-rate-schedules', title: loc('学习率计划', 'Learning-rate schedules'), blocks: schedules },
   { id: 'curve-diagnosis', title: loc('曲线诊断与真实迁移', 'Curve diagnosis and real transfer'), blocks: diagnosis },
 ]
