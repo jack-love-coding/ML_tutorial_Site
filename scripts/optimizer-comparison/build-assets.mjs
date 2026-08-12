@@ -32,18 +32,43 @@ function update(kind, parameter, gradient, state) {
 
 function controlledMlpRows() {
   const rows = []
+  const circle = Array.from({ length: 80 }, (_, index) => {
+    const angle = index * 2.399963229728653
+    const radius = index % 2 === 0 ? 1.4 + (index % 5) * 0.08 : 3.8 + (index % 7) * 0.06
+    return { x: Math.cos(angle) * radius / 4, y: Math.sin(angle) * radius / 4, label: index % 2 === 0 ? 1 : -1 }
+  })
   for (const kind of ['sgd', 'momentum', 'rmsprop', 'adam']) {
-    let parameter = 0.72
-    let state = {}
+    let parameters = Array.from({ length: 17 }, (_, index) => Math.sin((index + 1) * 1.7) * 0.16)
+    let states = parameters.map(() => ({}))
     for (let updateIndex = 0; updateIndex <= 40; updateIndex += 1) {
-      // A locked one-dimensional projection of the fixed 2→4→1 tanh circle
-      // benchmark. The full architecture and fixed data order live in manifest.
-      const loss = (Math.tanh(parameter) - 0.8) ** 2
-      rows.push({ benchmark: 'circle-2-4-1-tanh', optimizer: kind, update: updateIndex, parameter: rounded(parameter), trainLoss: rounded(loss) })
-      const gradient = 2 * (Math.tanh(parameter) - 0.8) * (1 - Math.tanh(parameter) ** 2)
-      const next = update(kind, parameter, gradient, state)
-      parameter = next.parameter
-      state = next.state
+      const gradients = Array(17).fill(0)
+      let loss = 0
+      for (const point of circle) {
+        const hidden = Array.from({ length: 4 }, (_, unit) => Math.tanh(
+          parameters[unit * 2] * point.x + parameters[unit * 2 + 1] * point.y + parameters[8 + unit],
+        ))
+        const outputInput = hidden.reduce((sum, value, unit) => sum + value * parameters[12 + unit], parameters[16])
+        const output = Math.tanh(outputInput)
+        const outputError = (output - point.label) * (1 - output ** 2)
+        loss += 0.5 * (output - point.label) ** 2
+        for (let unit = 0; unit < 4; unit += 1) {
+          gradients[12 + unit] += outputError * hidden[unit]
+          const hiddenError = outputError * parameters[12 + unit] * (1 - hidden[unit] ** 2)
+          gradients[unit * 2] += hiddenError * point.x
+          gradients[unit * 2 + 1] += hiddenError * point.y
+          gradients[8 + unit] += hiddenError
+        }
+        gradients[16] += outputError
+      }
+      const parameterNorm = Math.sqrt(parameters.reduce((sum, value) => sum + value ** 2, 0))
+      rows.push({ benchmark: 'circle-2-4-1-tanh', optimizer: kind, update: updateIndex, parameter: rounded(parameterNorm), trainLoss: rounded(loss / circle.length) })
+      const nextStates = []
+      parameters = parameters.map((parameter, index) => {
+        const next = update(kind, parameter, gradients[index] / circle.length, states[index])
+        nextStates.push(next.state)
+        return next.parameter
+      })
+      states = nextStates
     }
   }
   return rows

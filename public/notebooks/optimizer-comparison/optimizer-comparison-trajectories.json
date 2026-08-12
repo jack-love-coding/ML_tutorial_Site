@@ -5,1149 +5,1149 @@
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 0,
-      "parameter": 0.72,
-      "trainLoss": 0.033522203373
+      "parameter": 0.471995225903,
+      "trainLoss": 0.500973074242
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 1,
-      "parameter": 0.729072845822,
-      "trainLoss": 0.031507031496
+      "parameter": 0.472049861352,
+      "trainLoss": 0.500860851472
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 2,
-      "parameter": 0.737770403857,
-      "trainLoss": 0.029654148006
+      "parameter": 0.472116230786,
+      "trainLoss": 0.500757955814
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 3,
-      "parameter": 0.746117079628,
-      "trainLoss": 0.027946898271
+      "parameter": 0.4721930144,
+      "trainLoss": 0.500663607547
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 4,
-      "parameter": 0.754135114521,
-      "trainLoss": 0.026370698271
+      "parameter": 0.472279016921,
+      "trainLoss": 0.500577090576
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 5,
-      "parameter": 0.761844824184,
-      "trainLoss": 0.024912734717
+      "parameter": 0.472373157069,
+      "trainLoss": 0.500497747482
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 6,
-      "parameter": 0.769264806078,
-      "trainLoss": 0.023561714334
+      "parameter": 0.472474457818,
+      "trainLoss": 0.500424974907
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 7,
-      "parameter": 0.776412120698,
-      "trainLoss": 0.022307653369
+      "parameter": 0.472582037391,
+      "trainLoss": 0.500358219283
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 8,
-      "parameter": 0.783302450249,
-      "trainLoss": 0.021141700174
+      "parameter": 0.472695100956,
+      "trainLoss": 0.500296972871
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 9,
-      "parameter": 0.78995023797,
-      "trainLoss": 0.020055985073
+      "parameter": 0.472812932982,
+      "trainLoss": 0.50024077008
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 10,
-      "parameter": 0.796368810791,
-      "trainLoss": 0.01904349288
+      "parameter": 0.472934890201,
+      "trainLoss": 0.500189184085
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 11,
-      "parameter": 0.802570487601,
-      "trainLoss": 0.018097954232
+      "parameter": 0.473060395141,
+      "trainLoss": 0.500141823677
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 12,
-      "parameter": 0.808566675045,
-      "trainLoss": 0.017213752661
+      "parameter": 0.473188930187,
+      "trainLoss": 0.500098330376
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 13,
-      "parameter": 0.814367952513,
-      "trainLoss": 0.016385844868
+      "parameter": 0.473320032139,
+      "trainLoss": 0.500058375749
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 14,
-      "parameter": 0.8199841477,
-      "trainLoss": 0.01560969209
+      "parameter": 0.473453287216,
+      "trainLoss": 0.500021658952
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 15,
-      "parameter": 0.825424403947,
-      "trainLoss": 0.014881200848
+      "parameter": 0.473588326491,
+      "trainLoss": 0.499987904458
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 16,
-      "parameter": 0.830697240385,
-      "trainLoss": 0.014196671645
+      "parameter": 0.473724821704,
+      "trainLoss": 0.499956859963
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 17,
-      "parameter": 0.835810605778,
-      "trainLoss": 0.013552754411
+      "parameter": 0.473862481444,
+      "trainLoss": 0.499928294467
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 18,
-      "parameter": 0.840771926802,
-      "trainLoss": 0.012946409713
+      "parameter": 0.474001047654,
+      "trainLoss": 0.4999019965
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 19,
-      "parameter": 0.84558815145,
-      "trainLoss": 0.012374874886
+      "parameter": 0.474140292446,
+      "trainLoss": 0.499877772497
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 20,
-      "parameter": 0.850265788108,
-      "trainLoss": 0.011835634392
+      "parameter": 0.474280015186,
+      "trainLoss": 0.499855445303
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 21,
-      "parameter": 0.854810940819,
-      "trainLoss": 0.011326393813
+      "parameter": 0.474420039849,
+      "trainLoss": 0.499834852802
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 22,
-      "parameter": 0.859229341144,
-      "trainLoss": 0.010845056977
+      "parameter": 0.474560212598,
+      "trainLoss": 0.499815846649
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 23,
-      "parameter": 0.863526377017,
-      "trainLoss": 0.010389705801
+      "parameter": 0.474700399585,
+      "trainLoss": 0.499798291121
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 24,
-      "parameter": 0.867707118923,
-      "trainLoss": 0.009958582472
+      "parameter": 0.47484048495,
+      "trainLoss": 0.499782062049
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 25,
-      "parameter": 0.871776343662,
-      "trainLoss": 0.009550073683
+      "parameter": 0.474980368998,
+      "trainLoss": 0.499767045846
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 26,
-      "parameter": 0.875738555994,
-      "trainLoss": 0.009162696644
+      "parameter": 0.475119966544,
+      "trainLoss": 0.499753138612
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 27,
-      "parameter": 0.879598008353,
-      "trainLoss": 0.008795086642
+      "parameter": 0.47525920541,
+      "trainLoss": 0.499740245317
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 28,
-      "parameter": 0.88335871884,
-      "trainLoss": 0.00844598597
+      "parameter": 0.475398025062,
+      "trainLoss": 0.499728279046
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 29,
-      "parameter": 0.887024487684,
-      "trainLoss": 0.00811423404
+      "parameter": 0.47553637537,
+      "trainLoss": 0.499717160318
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 30,
-      "parameter": 0.890598912293,
-      "trainLoss": 0.007798758551
+      "parameter": 0.475674215485,
+      "trainLoss": 0.499706816445
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 31,
-      "parameter": 0.894085401062,
-      "trainLoss": 0.007498567574
+      "parameter": 0.475811512826,
+      "trainLoss": 0.499697180963
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 32,
-      "parameter": 0.897487186045,
-      "trainLoss": 0.007212742456
+      "parameter": 0.475948242155,
+      "trainLoss": 0.499688193099
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 33,
-      "parameter": 0.9008073346,
-      "trainLoss": 0.006940431444
+      "parameter": 0.476084384745,
+      "trainLoss": 0.499679797287
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 34,
-      "parameter": 0.904048760106,
-      "trainLoss": 0.006680843943
+      "parameter": 0.476219927631,
+      "trainLoss": 0.499671942724
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 35,
-      "parameter": 0.90721423184,
-      "trainLoss": 0.006433245343
+      "parameter": 0.476354862926,
+      "trainLoss": 0.499664582963
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 36,
-      "parameter": 0.910306384085,
-      "trainLoss": 0.006196952351
+      "parameter": 0.476489187209,
+      "trainLoss": 0.499657675545
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 37,
-      "parameter": 0.913327724545,
-      "trainLoss": 0.005971328764
+      "parameter": 0.476622900972,
+      "trainLoss": 0.499651181652
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 38,
-      "parameter": 0.916280642122,
-      "trainLoss": 0.00575578165
+      "parameter": 0.476756008118,
+      "trainLoss": 0.499645065801
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 39,
-      "parameter": 0.919167414119,
-      "trainLoss": 0.005549757879
+      "parameter": 0.476888515519,
+      "trainLoss": 0.499639295556
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "sgd",
       "update": 40,
-      "parameter": 0.921990212914,
-      "trainLoss": 0.00535274098
+      "parameter": 0.477020432607,
+      "trainLoss": 0.499633841269
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 0,
-      "parameter": 0.72,
-      "trainLoss": 0.033522203373
+      "parameter": 0.471995225903,
+      "trainLoss": 0.500973074242
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 1,
-      "parameter": 0.725670528639,
-      "trainLoss": 0.032252756163
+      "parameter": 0.472028235188,
+      "trainLoss": 0.500902364184
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 2,
-      "parameter": 0.736297239863,
-      "trainLoss": 0.029962631018
+      "parameter": 0.472102226137,
+      "trainLoss": 0.500775012518
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 3,
-      "parameter": 0.751114717211,
-      "trainLoss": 0.02695720479
+      "parameter": 0.47223204944,
+      "trainLoss": 0.500608740964
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 4,
-      "parameter": 0.76934107965,
-      "trainLoss": 0.023548088196
+      "parameter": 0.472434695738,
+      "trainLoss": 0.500422394311
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 5,
-      "parameter": 0.790210145188,
-      "trainLoss": 0.020014308048
+      "parameter": 0.472725277533,
+      "trainLoss": 0.500233771126
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 6,
-      "parameter": 0.81299837048,
-      "trainLoss": 0.016578883102
+      "parameter": 0.473114038181,
+      "trainLoss": 0.500057960415
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 7,
-      "parameter": 0.837045012072,
-      "trainLoss": 0.013400208116
+      "parameter": 0.473604536378,
+      "trainLoss": 0.499906258235
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 8,
-      "parameter": 0.861765113064,
-      "trainLoss": 0.010574834379
+      "parameter": 0.474193005592,
+      "trainLoss": 0.499785670792
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 9,
-      "parameter": 0.88665583032,
-      "trainLoss": 0.008147219566
+      "parameter": 0.474868760784,
+      "trainLoss": 0.499698951732
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 10,
-      "parameter": 0.911297199315,
-      "trainLoss": 0.006122391703
+      "parameter": 0.47561543031,
+      "trainLoss": 0.499645075748
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 11,
-      "parameter": 0.935348693046,
-      "trainLoss": 0.004478567408
+      "parameter": 0.476412736106,
+      "trainLoss": 0.49962002169
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 12,
-      "parameter": 0.958542934833,
-      "trainLoss": 0.003178001325
+      "parameter": 0.477238531286,
+      "trainLoss": 0.499617727356
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 13,
-      "parameter": 0.980677762513,
-      "trainLoss": 0.002175368614
+      "parameter": 0.478070826437,
+      "trainLoss": 0.499631083895
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 14,
-      "parameter": 1.001607599109,
-      "trainLoss": 0.00142366759
+      "parameter": 0.478889585041,
+      "trainLoss": 0.499652857191
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 15,
-      "parameter": 1.021234826953,
-      "trainLoss": 0.00087799558
+      "parameter": 0.479678133304,
+      "trainLoss": 0.499676452006
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 16,
-      "parameter": 1.039501628689,
-      "trainLoss": 0.000497683078
+      "parameter": 0.480424098992,
+      "trainLoss": 0.499696467247
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 17,
-      "parameter": 1.056382568371,
-      "trainLoss": 0.000247262697
+      "parameter": 0.481119858641,
+      "trainLoss": 0.499709022821
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 18,
-      "parameter": 1.071878043296,
-      "trainLoss": 0.000096673587
+      "parameter": 0.481762526305,
+      "trainLoss": 0.499711866589
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 19,
-      "parameter": 1.086008637999,
-      "trainLoss": 0.000021006496
+      "parameter": 0.482353556539,
+      "trainLoss": 0.499704291647
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 20,
-      "parameter": 1.098810348057,
-      "trainLoss": 5.082e-9
+      "parameter": 0.482898058688,
+      "trainLoss": 0.4996869084
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 21,
-      "parameter": 1.110330604294,
-      "trainLoss": 0.00001746591
+      "parameter": 0.483403929659,
+      "trainLoss": 0.499661322717
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 22,
-      "parameter": 1.120625009806,
-      "trainLoss": 0.000060624997
+      "parameter": 0.483880910293,
+      "trainLoss": 0.49962977154
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 23,
-      "parameter": 1.129754696669,
-      "trainLoss": 0.000119580587
+      "parameter": 0.484339658837,
+      "trainLoss": 0.499594762053
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 24,
-      "parameter": 1.137784211438,
-      "trainLoss": 0.000186776621
+      "parameter": 0.484790916785,
+      "trainLoss": 0.49955875148
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 25,
-      "parameter": 1.144779845253,
-      "trainLoss": 0.0002565557
+      "parameter": 0.485244820391,
+      "trainLoss": 0.499523893295
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 26,
-      "parameter": 1.150808333197,
-      "trainLoss": 0.000324781103
+      "parameter": 0.485710388082,
+      "trainLoss": 0.499491863891
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 27,
-      "parameter": 1.155935857174,
-      "trainLoss": 0.000388522596
+      "parameter": 0.486195192289,
+      "trainLoss": 0.499463772601
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 28,
-      "parameter": 1.160227295892,
-      "trainLoss": 0.000445798537
+      "parameter": 0.486705205596,
+      "trainLoss": 0.499440148713
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 29,
-      "parameter": 1.163745674297,
-      "trainLoss": 0.000495366218
+      "parameter": 0.487244796963,
+      "trainLoss": 0.499420992201
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 30,
-      "parameter": 1.166551772589,
-      "trainLoss": 0.000536552691
+      "parameter": 0.487816844672,
+      "trainLoss": 0.499405870691
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 31,
-      "parameter": 1.168703861766,
-      "trainLoss": 0.00056911905
+      "parameter": 0.48842292869,
+      "trainLoss": 0.499394043667
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 32,
-      "parameter": 1.170257538509,
-      "trainLoss": 0.000593152061
+      "parameter": 0.489063565697,
+      "trainLoss": 0.499384595649
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 33,
-      "parameter": 1.171265637205,
-      "trainLoss": 0.000608977991
+      "parameter": 0.489738454268,
+      "trainLoss": 0.499376562646
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 34,
-      "parameter": 1.171778201043,
-      "trainLoss": 0.000617094306
+      "parameter": 0.490446704391,
+      "trainLoss": 0.499369039893
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 35,
-      "parameter": 1.171842497624,
-      "trainLoss": 0.000618115731
+      "parameter": 0.491187033469,
+      "trainLoss": 0.499361263135
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 36,
-      "parameter": 1.171503067381,
-      "trainLoss": 0.000612731809
+      "parameter": 0.491957919097,
+      "trainLoss": 0.49935265999
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 37,
-      "parameter": 1.170801795505,
-      "trainLoss": 0.000601673628
+      "parameter": 0.492757706211,
+      "trainLoss": 0.499342871697
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 38,
-      "parameter": 1.169777999975,
-      "trainLoss": 0.000585687896
+      "parameter": 0.493584672205,
+      "trainLoss": 0.499331748586
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 39,
-      "parameter": 1.168468529928,
-      "trainLoss": 0.000565516869
+      "parameter": 0.494437057753,
+      "trainLoss": 0.499319324718
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "momentum",
       "update": 40,
-      "parameter": 1.166907869878,
-      "trainLoss": 0.000541882964
+      "parameter": 0.495313073415,
+      "trainLoss": 0.499305778262
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 0,
-      "parameter": 0.72,
-      "trainLoss": 0.033522203373
+      "parameter": 0.471995225903,
+      "trainLoss": 0.500973074242
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 1,
-      "parameter": 0.809442701465,
-      "trainLoss": 0.017087009442
+      "parameter": 0.695406103745,
+      "trainLoss": 0.504203424339
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 2,
-      "parameter": 0.858337183747,
-      "trainLoss": 0.010941169303
+      "parameter": 0.740673301157,
+      "trainLoss": 0.499462862044
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 3,
-      "parameter": 0.892959968814,
-      "trainLoss": 0.007594662313
+      "parameter": 0.790768938003,
+      "trainLoss": 0.497061566597
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 4,
-      "parameter": 0.919843407923,
-      "trainLoss": 0.005502178824
+      "parameter": 0.874168535434,
+      "trainLoss": 0.495990577794
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 5,
-      "parameter": 0.941741948749,
-      "trainLoss": 0.004093240311
+      "parameter": 0.94650536238,
+      "trainLoss": 0.49460889532
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 6,
-      "parameter": 0.960109869979,
-      "trainLoss": 0.003099608632
+      "parameter": 1.037837032792,
+      "trainLoss": 0.492670486685
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 7,
-      "parameter": 0.975820853453,
-      "trainLoss": 0.00237645663
+      "parameter": 1.137569168417,
+      "trainLoss": 0.489941879657
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 8,
-      "parameter": 0.989446266302,
-      "trainLoss": 0.001838170285
+      "parameter": 1.246492513821,
+      "trainLoss": 0.486177945903
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 9,
-      "parameter": 1.001383054804,
-      "trainLoss": 0.001430776625
+      "parameter": 1.37039874807,
+      "trainLoss": 0.481152598597
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 10,
-      "parameter": 1.011919832505,
-      "trainLoss": 0.001118573997
+      "parameter": 1.499083891454,
+      "trainLoss": 0.474719391895
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 11,
-      "parameter": 1.021274075631,
-      "trainLoss": 0.000877050289
+      "parameter": 1.65293853655,
+      "trainLoss": 0.466918115462
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 12,
-      "parameter": 1.029614467899,
-      "trainLoss": 0.000688869841
+      "parameter": 1.776481382394,
+      "trainLoss": 0.457754912165
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 13,
-      "parameter": 1.037075033316,
-      "trainLoss": 0.000541474504
+      "parameter": 1.945576241797,
+      "trainLoss": 0.447814083981
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 14,
-      "parameter": 1.043764455566,
-      "trainLoss": 0.000425585939
+      "parameter": 2.051397508004,
+      "trainLoss": 0.437157433648
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 15,
-      "parameter": 1.04977243848,
-      "trainLoss": 0.000334236249
+      "parameter": 2.209614598128,
+      "trainLoss": 0.42607648895
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 16,
-      "parameter": 1.055174173934,
-      "trainLoss": 0.000262121137
+      "parameter": 2.317977479041,
+      "trainLoss": 0.415236008651
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 17,
-      "parameter": 1.060033557765,
-      "trainLoss": 0.000205156856
+      "parameter": 2.457406851567,
+      "trainLoss": 0.405087993554
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 18,
-      "parameter": 1.064405553116,
-      "trainLoss": 0.000160169791
+      "parameter": 2.550918387753,
+      "trainLoss": 0.397378909667
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 19,
-      "parameter": 1.068337958439,
-      "trainLoss": 0.000124674575
+      "parameter": 2.660723712561,
+      "trainLoss": 0.391958758106
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 20,
-      "parameter": 1.071872750446,
-      "trainLoss": 0.000096712688
+      "parameter": 2.73627412889,
+      "trainLoss": 0.386508368768
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 21,
-      "parameter": 1.075047117641,
-      "trainLoss": 0.000074733173
+      "parameter": 2.812162624418,
+      "trainLoss": 0.377720187002
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 22,
-      "parameter": 1.07789426468,
-      "trainLoss": 0.000057503239
+      "parameter": 2.890450430668,
+      "trainLoss": 0.369917315601
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 23,
-      "parameter": 1.080444044364,
-      "trainLoss": 0.000044040393
+      "parameter": 2.9552220169,
+      "trainLoss": 0.363437010403
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 24,
-      "parameter": 1.082723458273,
-      "trainLoss": 0.000033560335
+      "parameter": 3.027960595405,
+      "trainLoss": 0.357752275471
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 25,
-      "parameter": 1.084757056075,
-      "trainLoss": 0.000025436526
+      "parameter": 3.090701305877,
+      "trainLoss": 0.352569873053
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 26,
-      "parameter": 1.086567255958,
-      "trainLoss": 0.000019168534
+      "parameter": 3.158067190311,
+      "trainLoss": 0.347706859246
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 27,
-      "parameter": 1.088174603108,
-      "trainLoss": 0.00001435704
+      "parameter": 3.219116426608,
+      "trainLoss": 0.343074517183
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 28,
-      "parameter": 1.089597979284,
-      "trainLoss": 0.000010683971
+      "parameter": 3.282899986419,
+      "trainLoss": 0.338593456564
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 29,
-      "parameter": 1.09085477359,
-      "trainLoss": 0.000007896597
+      "parameter": 3.342668373399,
+      "trainLoss": 0.334176423151
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 30,
-      "parameter": 1.091961022442,
-      "trainLoss": 0.000005794753
+      "parameter": 3.404510619221,
+      "trainLoss": 0.32971252159
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 31,
-      "parameter": 1.092931525076,
-      "trainLoss": 0.000004220515
+      "parameter": 3.463835572077,
+      "trainLoss": 0.325048071285
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 32,
-      "parameter": 1.093779939712,
-      "trainLoss": 0.000003049855
+      "parameter": 3.525276687482,
+      "trainLoss": 0.319997158565
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 33,
-      "parameter": 1.094518864513,
-      "trainLoss": 0.000002185862
+      "parameter": 3.585025602057,
+      "trainLoss": 0.314306835173
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 34,
-      "parameter": 1.095159906729,
-      "trainLoss": 0.00000155325
+      "parameter": 3.647169121709,
+      "trainLoss": 0.30777093555
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 35,
-      "parameter": 1.095713742768,
-      "trainLoss": 0.000001093904
+      "parameter": 3.707948575541,
+      "trainLoss": 0.300105594496
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 36,
-      "parameter": 1.096190171447,
-      "trainLoss": 7.6327e-7
+      "parameter": 3.77199666556,
+      "trainLoss": 0.291326816602
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 37,
-      "parameter": 1.096598162252,
-      "trainLoss": 5.27446e-7
+      "parameter": 3.83463894282,
+      "trainLoss": 0.281319166666
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 38,
-      "parameter": 1.096945900048,
-      "trainLoss": 3.60841e-7
+      "parameter": 3.902138366794,
+      "trainLoss": 0.270546601174
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 39,
-      "parameter": 1.097240827401,
-      "trainLoss": 2.44301e-7
+      "parameter": 3.966117648503,
+      "trainLoss": 0.25912268754
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "rmsprop",
       "update": 40,
-      "parameter": 1.097489685376,
-      "trainLoss": 1.6362e-7
+      "parameter": 4.037184208363,
+      "trainLoss": 0.247945054455
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 0,
-      "parameter": 0.72,
-      "trainLoss": 0.033522203373
+      "parameter": 0.471995225903,
+      "trainLoss": 0.500973074242
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 1,
-      "parameter": 0.739999999118,
-      "trainLoss": 0.02919137605
+      "parameter": 0.507436695643,
+      "trainLoss": 0.499465264524
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 2,
-      "parameter": 0.759928973282,
-      "trainLoss": 0.025269832088
+      "parameter": 0.55181520672,
+      "trainLoss": 0.499079735919
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 3,
-      "parameter": 0.779736068923,
-      "trainLoss": 0.021739971908
+      "parameter": 0.591913762143,
+      "trainLoss": 0.499158083252
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 4,
-      "parameter": 0.799368533394,
-      "trainLoss": 0.018582161576
+      "parameter": 0.619646150626,
+      "trainLoss": 0.498913298579
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 5,
-      "parameter": 0.818772418747,
-      "trainLoss": 0.015775065525
+      "parameter": 0.640475443947,
+      "trainLoss": 0.498424702276
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 6,
-      "parameter": 0.837893362173,
-      "trainLoss": 0.013296018994
+      "parameter": 0.66097799988,
+      "trainLoss": 0.498008385078
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 7,
-      "parameter": 0.856677415024,
-      "trainLoss": 0.011121425635
+      "parameter": 0.683801384139,
+      "trainLoss": 0.497792316165
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 8,
-      "parameter": 0.875071887969,
-      "trainLoss": 0.009227164186
+      "parameter": 0.709133056401,
+      "trainLoss": 0.497643263616
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 9,
-      "parameter": 0.893026177843,
-      "trainLoss": 0.007588987851
+      "parameter": 0.736177568808,
+      "trainLoss": 0.497375954681
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 10,
-      "parameter": 0.910492542621,
-      "trainLoss": 0.006182901005
+      "parameter": 0.764860538761,
+      "trainLoss": 0.496936045013
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 11,
-      "parameter": 0.927426794415,
-      "trainLoss": 0.004985499993
+      "parameter": 0.795759773809,
+      "trainLoss": 0.496371396095
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 12,
-      "parameter": 0.943788886196,
-      "trainLoss": 0.003974267803
+      "parameter": 0.829450370773,
+      "trainLoss": 0.495746634387
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 13,
-      "parameter": 0.959543375173,
-      "trainLoss": 0.003127815936
+      "parameter": 0.866168157514,
+      "trainLoss": 0.49508358513
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 14,
-      "parameter": 0.974659753762,
-      "trainLoss": 0.002426070377
+      "parameter": 0.905795175636,
+      "trainLoss": 0.494345379563
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 15,
-      "parameter": 0.989112646886,
-      "trainLoss": 0.001850402027
+      "parameter": 0.948078842231,
+      "trainLoss": 0.493463915261
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 16,
-      "parameter": 1.002881881288,
-      "trainLoss": 0.001383704729
+      "parameter": 0.992900197146,
+      "trainLoss": 0.492382013386
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 17,
-      "parameter": 1.015952438144,
-      "trainLoss": 0.001010426244
+      "parameter": 1.040373183669,
+      "trainLoss": 0.491071529042
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 18,
-      "parameter": 1.028314304275,
-      "trainLoss": 0.000716558893
+      "parameter": 1.090735880561,
+      "trainLoss": 0.489523086938
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 19,
-      "parameter": 1.039962239551,
-      "trainLoss": 0.000489597274
+      "parameter": 1.144162197361,
+      "trainLoss": 0.487728841738
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 20,
-      "parameter": 1.050895478993,
-      "trainLoss": 0.000318470535
+      "parameter": 1.200635140883,
+      "trainLoss": 0.485673191791
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 21,
-      "parameter": 1.061117387617,
-      "trainLoss": 0.000193456273
+      "parameter": 1.25993035767,
+      "trainLoss": 0.483333024236
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 22,
-      "parameter": 1.070635084794,
-      "trainLoss": 0.000106082381
+      "parameter": 1.321658992218,
+      "trainLoss": 0.480682909758
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 23,
-      "parameter": 1.079459052939,
-      "trainLoss": 0.00004902228
+      "parameter": 1.385304103989,
+      "trainLoss": 0.477698984427
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 24,
-      "parameter": 1.087602743076,
-      "trainLoss": 0.000015987939
+      "parameter": 1.450313666218,
+      "trainLoss": 0.474358430922
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 25,
-      "parameter": 1.095082187461,
-      "trainLoss": 0.000001624172
+      "parameter": 1.516382843006,
+      "trainLoss": 0.470639845204
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 26,
-      "parameter": 1.101915627157,
-      "trainLoss": 0.000001406746
+      "parameter": 1.583607719992,
+      "trainLoss": 0.466528316168
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 27,
-      "parameter": 1.108123160346,
-      "trainLoss": 0.000011546114
+      "parameter": 1.652282262613,
+      "trainLoss": 0.462018249935
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 28,
-      "parameter": 1.113726415294,
-      "trainLoss": 0.000028897907
+      "parameter": 1.722705518428,
+      "trainLoss": 0.457112465587
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 29,
-      "parameter": 1.118748250341,
-      "trainLoss": 0.000050880789
+      "parameter": 1.79510794692,
+      "trainLoss": 0.451821161616
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 30,
-      "parameter": 1.123212481998,
-      "trainLoss": 0.000075401902
+      "parameter": 1.869633155055,
+      "trainLoss": 0.446164668235
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 31,
-      "parameter": 1.127143641196,
-      "trainLoss": 0.000100789803
+      "parameter": 1.946348732985,
+      "trainLoss": 0.440176694584
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 32,
-      "parameter": 1.130566757003,
-      "trainLoss": 0.000125734605
+      "parameter": 2.025214949259,
+      "trainLoss": 0.433898593329
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 33,
-      "parameter": 1.133507166498,
-      "trainLoss": 0.000149234873
+      "parameter": 2.106010259,
+      "trainLoss": 0.4273686323
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 34,
-      "parameter": 1.135990349159,
-      "trainLoss": 0.000170550779
+      "parameter": 2.188362794875,
+      "trainLoss": 0.420625532912
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 35,
-      "parameter": 1.138041783828,
-      "trainLoss": 0.000189162939
+      "parameter": 2.271877536824,
+      "trainLoss": 0.413720668319
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 36,
-      "parameter": 1.139686826187,
-      "trainLoss": 0.000204736376
+      "parameter": 2.356156675148,
+      "trainLoss": 0.406716713702
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 37,
-      "parameter": 1.140950604652,
-      "trainLoss": 0.000217089072
+      "parameter": 2.440835286467,
+      "trainLoss": 0.399680469342
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 38,
-      "parameter": 1.141857932562,
-      "trainLoss": 0.000226164569
+      "parameter": 2.525655453326,
+      "trainLoss": 0.3926738786
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 39,
-      "parameter": 1.142433234657,
-      "trainLoss": 0.000232008159
+      "parameter": 2.610455325415,
+      "trainLoss": 0.385737575921
     },
     {
       "benchmark": "circle-2-4-1-tanh",
       "optimizer": "adam",
       "update": 40,
-      "parameter": 1.142700485884,
-      "trainLoss": 0.000234746211
+      "parameter": 2.69512796688,
+      "trainLoss": 0.37889451703
     }
   ]
 }

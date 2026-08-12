@@ -24,10 +24,10 @@
   ],
   "files": {
     "/notebooks/optimizer-comparison/optimizer-comparison-trajectories.json": {
-      "sha256": "096e28cb5414117c1161a27e099e3ee1333ee83f82e6f7ea4f61b7198a46e239"
+      "sha256": "400fa687aa4e8b794edc7dd52812b3c6d0bab9d854864898cb10b6e662db8ac3"
     },
     "/notebooks/optimizer-comparison/optimizer-comparison-trajectories.csv": {
-      "sha256": "2b85a85c0499556ab79434c7c25fd0d62a6aa1079421438eaec7dab3509bb749"
+      "sha256": "adf96ce2861ecbc1df76c79a6c3d040059e7c443ee2ac2896fb1b8160dc2b975"
     },
     "/notebooks/optimizer-comparison/optimizer-comparison.zh-CN.ipynb": {
       "sha256": "856b914752598b8fae7e993f58dabd267a7aa590433012fcdff2a60441d02170"
