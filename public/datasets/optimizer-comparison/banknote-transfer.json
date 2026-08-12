@@ -22,14 +22,52 @@
       "entropy": 2.072658196015601
     }
   },
+  "version": "banknote-transfer-v1",
+  "model": {
+    "kind": "standardized-logistic-regression",
+    "parameterCount": 5,
+    "threshold": 0.5
+  },
   "frozenSelection": {
     "optimizer": "adamw",
     "learningRate": 0.01,
-    "reason": "predeclared practical setting; validation only before freeze"
+    "beta1": 0.9,
+    "beta2": 0.999,
+    "epsilon": 1e-8,
+    "weightDecay": 0.0001,
+    "batchSize": 64,
+    "epochs": 16,
+    "reason": "predeclared practical AdamW configuration; validation is recorded before the frozen test evaluation"
+  },
+  "training": {
+    "split": "train",
+    "updates": 240,
+    "batchOrder": "fixed-source-order",
+    "parametersAfterTraining": [
+      -1.629629968887,
+      -1.58132410742,
+      -1.208219250664,
+      -0.024667868774,
+      -0.243510031539
+    ]
+  },
+  "validationEvaluation": {
+    "evaluatedAfterTraining": true,
+    "metrics": {
+      "examples": 206,
+      "loss": 0.216948225661,
+      "accuracy": 0.95145631068
+    }
   },
   "finalTestEvaluation": {
     "permittedAfterSelectionFreeze": true,
-    "evaluatedInPr1": false,
-    "reason": "course UI owns the final displayed evaluation in Plan 03"
+    "evaluationCount": 1,
+    "selectionUsedTest": false,
+    "timing": "after predeclared configuration freeze and validation recording",
+    "metrics": {
+      "examples": 206,
+      "loss": 0.210549557052,
+      "accuracy": 0.97572815534
+    }
   }
 }

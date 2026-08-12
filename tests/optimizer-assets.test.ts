@@ -36,7 +36,7 @@ test('optimizer assets are deterministic, hash-bound, and Pages-safe', () => {
   for (const path of Object.keys(manifest.files)) assert.match(withPublicBase(path, '/ML_tutorial_Site/')!, /^\/ML_tutorial_Site\//)
 })
 
-test('published trajectory CSV and JSON agree, while Banknote selection stays train/validation-only', () => {
+test('published trajectory CSV and JSON agree, while Banknote evaluation is frozen and test is recorded exactly once', () => {
   const payload = JSON.parse(readFileSync(resolve(publicRoot, 'notebooks/optimizer-comparison/optimizer-comparison-trajectories.json'), 'utf8'))
   const csv = readFileSync(resolve(publicRoot, 'notebooks/optimizer-comparison/optimizer-comparison-trajectories.csv'), 'utf8').trim().split('\n')
   const banknote = JSON.parse(readFileSync(resolve(publicRoot, 'datasets/optimizer-comparison/banknote-transfer.json'), 'utf8'))
@@ -45,7 +45,10 @@ test('published trajectory CSV and JSON agree, while Banknote selection stays tr
   assert.equal(payload.rows.filter((row: { update: number }) => row.update === 40).length, 8)
   assert.deepEqual(banknote.splitCounts, { train: 960, validation: 206, test: 206 })
   assert.equal(banknote.preprocessing.fitSplit, 'train')
-  assert.equal(banknote.finalTestEvaluation.evaluatedInPr1, false)
+  assert.equal(banknote.validationEvaluation.metrics.examples, 206)
+  assert.equal(banknote.finalTestEvaluation.metrics.examples, 206)
+  assert.equal(banknote.finalTestEvaluation.evaluationCount, 1)
+  assert.equal(banknote.finalTestEvaluation.selectionUsedTest, false)
 })
 
 test('asset check rejects a Banknote source fixture whose hash, split contract, and train statistics drift', () => {
