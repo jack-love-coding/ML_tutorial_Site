@@ -10,6 +10,7 @@
 @import './modules/cnn-explainer.css';
 @import './modules/loss-functions.css';
 @import './modules/gradient-descent.css';
+@import './modules/optimizer-comparison.css';
 @import './modules/loss-functions-visuals.css';
 @import './modules/gradient-visuals.css';
 @import './shared/markdown-math.css';
