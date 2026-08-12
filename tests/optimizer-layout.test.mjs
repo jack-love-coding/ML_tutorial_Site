@@ -13,21 +13,27 @@ const scenes = [
   ['CurveDiagnosisScene', 'curve-diagnosis'],
 ]
 
-test('optimizer course owns six lazy, chapter-specific scene entry points', () => {
+test('optimizer course owns six lazy, chapter-specific scene entry points with semantic fallbacks', () => {
   const shell = read('src/modules/optimizer-comparison/OptimizerPagedLesson.vue')
   for (const [name, id] of scenes) {
     assert.match(shell, new RegExp(`defineAsyncComponent\\(\\(\\) => import\\('./labs/${name}\\.vue'\\)\\)`))
-    assert.match(read(`src/modules/optimizer-comparison/labs/${name}.vue`), new RegExp(`scene="${id}"`))
+    const scene = read(`src/modules/optimizer-comparison/labs/${name}.vue`)
+    assert.match(scene, /<table|<ol/, `${id} must retain a semantic table or ordered-log fallback`)
+    assert.doesNotMatch(scene, /OptimizerInteractionScene/, `${id} must not delegate to a generic scene`)
   }
   assert.match(shell, /AlgorithmCheckpointQuiz v-if="chapter\.id === 'curve-diagnosis'"/)
   assert.match(shell, /withPublicBase\(item\.path\)/)
 })
 
-test('interaction shell has keyboard, finite engine, reduced-motion, and textual fallback contracts', () => {
-  const source = read('src/modules/optimizer-comparison/labs/OptimizerInteractionScene.vue')
-  for (const token of ['stepOptimizer', 'learningRateForStep', 'Number.isFinite', "prefers-reduced-motion: reduce", "event.key === 'ArrowRight'", "event.key.toLowerCase() === 'r'", 'copy.fallback', 'play', 'pause', 'reset']) assert.match(source, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
-  assert.match(source, /Train\/validation\/test is 960\/206\/206/)
-  assert.match(source, /do not name a universal winner/)
+test('scene keyboard handlers are container-only and the final scene loads both published asset boundaries', () => {
+  for (const [name] of scenes) {
+    const source = read(`src/modules/optimizer-comparison/labs/${name}.vue`)
+    assert.match(source, /@keydown\.self/, `${name} must not hijack descendant form controls`)
+  }
+  const curve = read('src/modules/optimizer-comparison/labs/CurveDiagnosisScene.vue')
+  assert.match(curve, /optimizer-comparison-trajectories\.json/)
+  assert.match(curve, /banknote-transfer\.json/)
+  assert.match(curve, /no metric is substituted/)
 })
 
 test('optimizer CSS prevents the main lesson and scene grids from overflowing at mobile widths', () => {
