@@ -159,7 +159,7 @@
 
 - [x] 28.2-01-PLAN.md — Planning reconciliation, shared numerical engine, MLP strategy seam, and executed benchmark authority
 - [x] 28.2-02-PLAN.md — Optimizer media packages and shared chaptered media player
-- [ ] 28.2-03-PLAN.md — Six paged lessons, lazy labs, route bridges, and release validation
+- [x] 28.2-03-PLAN.md — Six paged lessons, lazy labs, route bridges, and release validation
 
 ## Phase 29: Logistic Regression Rebuild
 
