@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 import MarkdownMathContent from './MarkdownMathContent.vue'
 import type { AlgorithmCheckpointItem, AppLocale, ModuleSlug } from '../types/ml'
+import { resolveCheckpointRevisitRoute } from '../utils/checkpointRoutes'
 
 const props = withDefaults(defineProps<{
   moduleSlug: ModuleSlug
@@ -17,18 +18,17 @@ const props = withDefaults(defineProps<{
 const answers = reactive<Record<string, string>>({})
 
 function revisitRoute(checkpoint: AlgorithmCheckpointItem) {
+  // Keep chapter-based feedback explicit at the component boundary; this also documents why
+  // Python and optimizer review links cannot use the generic hash-anchor route.
   if (
     props.moduleSlug === 'linear-regression'
     || props.moduleSlug === 'logistic-regression'
     || props.moduleSlug === 'python-notebook'
+    || props.moduleSlug === 'optimizer-comparison'
   ) {
-    return `${props.chapterRouteBase ?? `/learn/${props.moduleSlug}`}/${checkpoint.revisitChapterId}`
+    return resolveCheckpointRevisitRoute(props.moduleSlug, props.moduleRoute, checkpoint, props.chapterRouteBase)
   }
-
-  return {
-    path: props.moduleRoute,
-    hash: `#${checkpoint.revisitChapterId}`,
-  }
+  return { path: props.moduleRoute, hash: `#${checkpoint.revisitChapterId}` }
 }
 </script>
 

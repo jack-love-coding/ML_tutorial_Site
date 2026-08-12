@@ -2,33 +2,33 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
-current_phase: 28B
+current_phase: 28
 current_phase_name: Optimizer Principles, State, and MLP Transfer
-status: executing
-stopped_at: Completed 28.2-03-PLAN.md
-last_updated: "2026-08-12T14:45:39.840Z"
+status: verifying
+stopped_at: Review-03 fixes and release verification
+last_updated: "2026-08-12T15:05:00.000Z"
 last_activity: 2026-08-12
-last_activity_desc: "Phase 28B Plan 03 completed: optimizer course pages, lazy labs, bridges, and release validation"
+last_activity_desc: "Phase 28B review fixes: frozen Banknote evaluation, six engine-backed scene models, and checkpoint route repair"
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 27
   completed_plans: 27
   percent: 100
-current_plan: 2
+current_plan: 3
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-08-12
-**Status:** Phase 28B Plan 01 complete; Plans 02–03 remain
+**Status:** Phase 28B implementation complete; final review fixes are under verification
 
 ## Current Position
 
 Phase: 28B (Optimizer Principles, State, and MLP Transfer) — IN PROGRESS
 Plan: 3 of 3
-Status: Optimizer course UI and release validation complete; phase verification pending
-Last activity: 2026-08-12 — Phase 28B Plan 03 completed; all three plans are recorded
+Status: Review-03 fixes complete; release verification is being recorded
+Last activity: 2026-08-12 — Published a frozen Banknote evaluation and replaced generic optimizer lab wrappers with dedicated engine-backed scenes
 
 ## Deferred Items
 

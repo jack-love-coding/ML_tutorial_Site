@@ -155,7 +155,7 @@
 3. The controlled circle `2→4→1 tanh` benchmark and Banknote transfer publish deterministic, hash-bound local outputs; fitting and selection use training/validation only and the fixed test partition is evaluated once after freeze.
 4. The existing six optimizer lesson IDs, routes, checkpoints, Progress stores, and Math Lab entry points remain available throughout the staged rebuild.
 
-**Plans:** 1/3 plans complete
+**Plans:** 3/3 plans complete
 
 - [x] 28.2-01-PLAN.md — Planning reconciliation, shared numerical engine, MLP strategy seam, and executed benchmark authority
 - [x] 28.2-02-PLAN.md — Optimizer media packages and shared chaptered media player

@@ -141,4 +141,5 @@ export const optimizerCourseDownloads = [
   { path: '/notebooks/optimizer-comparison/optimizer-comparison.zh-CN.ipynb', label: loc('已执行 NumPy Notebook（中文）', 'Executed NumPy notebook (Chinese)'), kind: 'notebook' },
   { path: '/notebooks/optimizer-comparison/optimizer-comparison-trajectories.json', label: loc('受控 MLP 轨迹', 'Controlled MLP trajectories'), kind: 'json' },
   { path: '/datasets/optimizer-comparison/benchmark-manifest.json', label: loc('比较配置清单', 'Comparison manifest'), kind: 'json' },
+  { path: '/datasets/optimizer-comparison/banknote-transfer.json', label: loc('冻结的 Banknote 评估', 'Frozen Banknote evaluation'), kind: 'json' },
 ] as const
