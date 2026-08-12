@@ -157,6 +157,11 @@ test('canonical learn route resolver preserves current runtime destinations', ()
   )
 
   assert.equal(resolveCanonicalLearnRoute('gradient-descent'), '/learn/gradient-descent')
+  assert.equal(resolveCanonicalLearnRoute('optimizer-comparison'), '/learn/optimizer-comparison')
+  assert.equal(
+    resolveCanonicalLearnRoute('optimizer-comparison', 'adam-weight-decay'),
+    '/learn/optimizer-comparison/adam-weight-decay',
+  )
   assert.equal(
     resolveCanonicalLearnRoute('gradient-descent', 'loss-function'),
     '/learn/gradient-descent/loss-function',
@@ -193,6 +198,24 @@ test('canonical learn route resolver preserves current runtime destinations', ()
     },
   )
   assert.equal(resolveCanonicalLearnRoute('missing-module'), undefined)
+})
+
+test('optimizer route keeps legacy IDs in a dedicated course shell and exposes safe learning bridges', () => {
+  const algorithmView = read('src/views/AlgorithmView.vue')
+  const optimizerShell = read('src/modules/optimizer-comparison/OptimizerPagedLesson.vue')
+  const gradientCourse = read('src/components/GradientDescentPagedLesson.vue')
+  const neuralCourse = read('src/lessons/NeuralGuidedLesson.vue')
+  const optimizerRace = read('src/modules/math-lab/labs/OptimizerRaceLab.vue')
+
+  assert.match(algorithmView, /const OptimizerPagedLesson = defineAsyncComponent/)
+  assert.match(algorithmView, /v-else-if="isOptimizerComparisonPage && activeSection"/)
+  assert.match(algorithmView, /!isOptimizerComparisonPage/)
+  assert.match(optimizerShell, /data-testid="optimizer-current-chapter"/)
+  assert.match(optimizerShell, /:data-section-id="chapter.id"/)
+  assert.match(optimizerShell, /to="\/learn\/cnn-visualization\/channels-feature-maps"/)
+  assert.match(gradientCourse, /to="\/learn\/optimizer-comparison\/training-loop"/)
+  assert.match(neuralCourse, /activeSection.id === 'backprop'/)
+  assert.match(optimizerRace, /to="\/learn\/optimizer-comparison\/training-loop"/)
 })
 
 test('router wires canonical routes while preserving legacy deep links', () => {

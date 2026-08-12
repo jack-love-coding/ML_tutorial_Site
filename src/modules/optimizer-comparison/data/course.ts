@@ -41,7 +41,7 @@ const block = (kind: OptimizerCourseBlockKind, zhCN: string, en: string, code?: 
 
 const trainingLoop = [
   block('question', '一次参数更新里，模型先做什么，优化器又在什么时候读取梯度？', 'In one parameter update, what happens first, and when does the optimizer read gradients?'),
-  block('intuition', '把训练想成一张收据：预测是商品，损失是总价，反向传播写下每个参数应承担的变化，最后一步才真正付款。', 'Treat training as a receipt: prediction is the item, loss is the total, backprop records each parameter’s change, and only the final step pays.'),
+  block('intuition', '把训练想成一张收据：预测是商品，损失是总价，反向传播写下每个参数应承担的变化，最后一步才真正付款。在 PyTorch 写法中，这一段是 `loss.backward()`，付款是 `optimizer.step()`。', 'Treat training as a receipt: prediction is the item, loss is the total, backprop records each parameter’s change, and only the final step pays. In PyTorch notation, that recording is `loss.backward()` and payment is `optimizer.step()`.'),
   block('math-state', '$$\\theta_{t+1}=\\theta_t-\\eta\\nabla_\\theta L(\\theta_t)$$\\n状态起点是参数 $\\theta_t$；没有 `zero_grad()`，上一轮梯度会留在收据上。', '$$\\theta_{t+1}=\\theta_t-\\eta\\nabla_\\theta L(\\theta_t)$$\\nThe state begins with parameters $\\theta_t$; without `zero_grad()`, last round’s gradient remains on the receipt.'),
   block('numpy-code', '下面的 NumPy 版本只做一个标量更新，变量名与状态公式一致。', 'This NumPy version makes one scalar update with names matching the state equation.', "theta = 0.50\ngrad = 0.12\nlr = 0.05\ntheta = theta - lr * grad\nprint(round(theta, 3))"),
   block('real-output', '已发布轨迹的第 0 次更新从训练损失 `0.500973` 开始；40 次更新均由共享引擎产生。', 'The published trajectory begins at training loss `0.500973` at update 0; all 40 updates come from the shared engine.'),
@@ -97,14 +97,14 @@ const adamWeightDecay = [
 
 const schedules = [
   block('question', '为什么训练前期和后期常常不应使用同一个学习率？', 'Why should early and late training often avoid the same learning rate?'),
-  block('intuition', '前期需要跨过较大的地形，后期需要在较小区域精细调整；schedule 是时间表，不是新优化器。', 'Early training needs to cross broader terrain, while late training needs fine adjustment; a schedule is a timetable, not a new optimizer.'),
+  block('intuition', '前期需要跨过较大的地形，后期需要在较小区域精细调整；learning rate schedule 是时间表，不是新优化器。', 'Early training needs to cross broader terrain, while late training needs fine adjustment; a learning rate schedule is a timetable, not a new optimizer.'),
   block('math-state', 'constant：$\\eta_t=\\eta$；step：$\\eta_t=\\eta\\gamma^{\\lfloor t/k\\rfloor}$；warmup + cosine 先线性升高再平滑降低。调度器读取更新次数。', 'constant: $\\eta_t=\\eta$; step: $\\eta_t=\\eta\\gamma^{\\lfloor t/k\\rfloor}$; warmup + cosine rises linearly then decays smoothly. The scheduler reads update count.'),
   block('numpy-code', '先应用优化器更新，再推进调度器。', 'Apply the optimizer update before advancing the scheduler.', "for update in range(total_updates):\n    params = step(params, grad, lr)\n    lr = schedule(update + 1)\nprint(round(lr, 6))"),
   block('real-output', '共享引擎发布 constant、step、warmup-cosine 三种有限值守卫的计划；无效步长或非有限参数会明确停止。', 'The shared engine publishes constant, step, and warmup-cosine schedules with finite-value guards; invalid steps or non-finite parameters stop explicitly.'),
   block('prediction', '预测：若 Step decay 的 `gamma=0.5` 且到达边界，下一次学习率会是原来的多少？', 'Predict: with Step decay `gamma=0.5`, what fraction of the old learning rate follows a boundary?'),
   block('animation', '没有自动播放的替代文字：从 warmup 的小步开始，到余弦尾部的细调结束。', 'A non-autoplay text alternative: start with warmup’s small steps and finish with cosine’s fine adjustments.'),
   block('interaction', '选择三个计划之一，再用播放、暂停、单步与重置检查每一步学习率。', 'Choose one of three plans, then use play, pause, step, and reset to inspect each learning rate.'),
-  block('observation', '曲线平台不自动证明需要某个 schedule；它提示你提出一次只改学习率计划的验证。', 'A plateau does not automatically prove one schedule is needed; it suggests a test changing only the learning-rate plan.'),
+  block('observation', 'loss 曲线平台不自动证明需要某个 schedule；它提示你提出一次只改学习率计划的验证。', 'A loss curve plateau does not automatically prove one schedule is needed; it suggests a test changing only the learning-rate plan.'),
   block('misconception', 'scheduler.step() 放错相对位置会让时间表偏一格；教程固定为 optimizer step 之后。', 'Putting `scheduler.step()` in the wrong relative position shifts the timetable; this course fixes it after optimizer step.'),
   block('conclusion', '现在可以读懂曲线里的时间信号；最后一章把受控比较与真实迁移放在一起。', 'You can now read time signals in curves; the final chapter brings controlled comparison and real transfer together.'),
 ] as const

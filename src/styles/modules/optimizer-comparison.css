@@ -9,3 +9,20 @@
 @media (min-width:1440px) { .optimizer-course__toc-toggle { display:none; }.optimizer-course__layout { grid-template-columns:260px minmax(0,1fr); align-items:start; }.optimizer-course__sidebar { display:grid; position:sticky; top:88px; } }
 @media (max-width:520px) { .optimizer-course__header,.optimizer-course__block,.optimizer-course__lab,.optimizer-course__resources { padding:18px; border-radius:20px; }.optimizer-course__block--code header,.optimizer-scene__header,.optimizer-scene__canvas { display:grid; grid-template-columns:1fr; }.optimizer-course__pager { grid-template-columns:1fr; }.optimizer-course__pager a:last-child { text-align:left; } }
 @media (prefers-reduced-motion:reduce) { .optimizer-course *, .optimizer-course *::before, .optimizer-course *::after { scroll-behavior:auto!important; transition-duration:.01ms!important; animation-duration:.01ms!important; animation-iteration-count:1!important; } }
+
+.gradient-course__bridge,
+.neural-optimizer-bridge {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  color: var(--ink);
+  border: 1px solid rgba(216, 93, 42, .28);
+  border-radius: 18px;
+  background: #fff6f1;
+  text-decoration: none;
+}
+
+.gradient-course__bridge span,
+.neural-optimizer-bridge span,
+.gradient-course__bridge small,
+.neural-optimizer-bridge small { color: var(--muted); }

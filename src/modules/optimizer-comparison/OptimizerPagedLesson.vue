@@ -31,6 +31,7 @@ const labs = { 'training-loop': TrainingLedgerScene, 'sgd-batch-noise': BatchNoi
 const media = {
   sgd: { assetPath: '/manim/optimizer-comparison/sgd-state.mp4', posterPath: '/manim/optimizer-comparison/sgd-state.svg', title: { 'zh-CN': 'SGD 状态动画', en: 'SGD state animation' } },
   momentum: { assetPath: '/manim/optimizer-comparison/momentum-state.mp4', posterPath: '/manim/optimizer-comparison/momentum-state.svg', title: { 'zh-CN': 'Momentum 状态动画', en: 'Momentum state animation' } },
+  rmsprop: { assetPath: '/manim/optimizer-comparison/rmsprop-state.mp4', posterPath: '/manim/optimizer-comparison/rmsprop-state.svg', title: { 'zh-CN': 'RMSProp 状态动画', en: 'RMSProp state animation' } },
   adam: { assetPath: '/manim/optimizer-comparison/adam-state.mp4', posterPath: '/manim/optimizer-comparison/adam-state.svg', title: { 'zh-CN': 'Adam 状态动画', en: 'Adam state animation' } },
 } as const
 const mediaConfig = computed(() => chapter.value.media ? media[chapter.value.media] : undefined)

@@ -293,6 +293,22 @@ test('deep learning extension modules cover required learning loops and referenc
     const moduleSource = read(`src/data/${expectation.file}.ts`)
     assert.match(moduleSource, new RegExp(`slug: '${expectation.slug}'`))
     assert.match(moduleSource, new RegExp(`route: '${expectation.route}'`))
+
+    if (expectation.slug === 'optimizer-comparison') {
+      const courseSource = read('src/modules/optimizer-comparison/data/course.ts')
+      assert.match(moduleSource, /optimizerCourseChapters\.map/)
+      for (const chapterId of expectation.chapters) {
+        assert.match(courseSource, new RegExp(`id: '${chapterId}'`))
+      }
+      for (const requiredConcept of expectation.concepts.filter((token) => token !== '老师会先问')) {
+        assert.match(courseSource, new RegExp(escaped(requiredConcept)))
+      }
+      assert.match(courseSource, /optimizerCourseReferences/)
+      assert.match(courseSource, /optimizerCourseDownloads/)
+      assert.doesNotMatch(courseSource, /Ref ID|REF-|证据|Evidence/i)
+      continue
+    }
+
     assert.equal([...moduleSource.matchAll(/chapter\(\s*'/g)].length, expectation.chapters.length)
 
     for (const chapterId of expectation.chapters) {

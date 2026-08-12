@@ -46,6 +46,9 @@ const LinearRegressionPagedLesson = defineAsyncComponent(
 const GradientDescentPagedLesson = defineAsyncComponent(
   () => import('../components/GradientDescentPagedLesson.vue'),
 )
+const OptimizerPagedLesson = defineAsyncComponent(
+  () => import('../modules/optimizer-comparison/OptimizerPagedLesson.vue'),
+)
 const HousingProjectPagedLesson = defineAsyncComponent(
   () => import('../components/HousingProjectPagedLesson.vue'),
 )
@@ -129,7 +132,6 @@ const isWorkflowLessonPage = computed(
     isTreeForestPage.value ||
     isSequenceEmbeddingBridgePage.value ||
     isAttentionTransformerPage.value ||
-    isOptimizerComparisonPage.value ||
     isLlmRagPage.value,
 )
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
@@ -558,6 +560,12 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       :section="activeSection"
     />
 
+    <OptimizerPagedLesson
+      v-else-if="isOptimizerComparisonPage && activeSection"
+      :module-definition="moduleDefinition"
+      :section="activeSection"
+    />
+
     <LessonPage
       v-else-if="isLessonPagePilot"
       :module-definition="moduleDefinition"
@@ -825,7 +833,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     </section>
 
     <AlgorithmCheckpointQuiz
-      v-if="moduleDefinition.checkpoints.length && !isAiOverviewPage && (!isGradientPage || activeSection?.id === 'noise-and-batch')"
+      v-if="moduleDefinition.checkpoints.length && !isAiOverviewPage && !isOptimizerComparisonPage && (!isGradientPage || activeSection?.id === 'noise-and-batch')"
       :module-slug="moduleDefinition.slug"
       :module-route="moduleDefinition.route"
       :checkpoints="moduleDefinition.checkpoints"
@@ -835,7 +843,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     <LossFunctionsDownloads v-if="isLossFunctionsPage" />
 
     <section
-      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isHousingProjectPage && !isWorkflowLessonPage && !isNeuralGuidedPage && !isGradientPage"
+      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isHousingProjectPage && !isWorkflowLessonPage && !isNeuralGuidedPage && !isGradientPage && !isOptimizerComparisonPage"
       class="results-grid"
       :class="{ 'results-grid--gradient': isGradientPage }"
     >

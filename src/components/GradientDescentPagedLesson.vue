@@ -89,6 +89,12 @@ watch(() => props.section.id, () => { menuOpen.value = false })
             <div class="gradient-course__downloads"><a v-for="item in lesson.downloads" :key="item.publicPath" :href="withPublicBase(item.publicPath)" download><small>{{ item.kind }}</small><strong>{{ localized(item.label) }}</strong></a></div>
           </section>
 
+          <router-link v-if="currentIndex === moduleDefinition.chapters.length - 1" class="gradient-course__bridge" to="/learn/optimizer-comparison/training-loop">
+            <span>{{ zh ? '下一段学习' : 'Next learning bridge' }}</span>
+            <strong>{{ zh ? '从梯度下降进入优化器状态' : 'Move from gradient descent into optimizer state' }}</strong>
+            <small>{{ zh ? '保留下降方向，再比较批量噪声、历史状态与学习率计划。' : 'Keep the descent direction, then compare batch noise, history, and learning-rate plans.' }}</small>
+          </router-link>
+
           <nav class="gradient-course__pager">
             <router-link v-if="previous" :to="routeFor(previous)"><span>{{ zh ? '上一章' : 'Previous' }}</span><strong>{{ title(previous) }}</strong></router-link><span v-else />
             <router-link v-if="next" :to="routeFor(next)"><span>{{ zh ? '下一章' : 'Next' }}</span><strong>{{ title(next) }}</strong></router-link>
