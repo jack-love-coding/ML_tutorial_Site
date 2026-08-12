@@ -5,17 +5,17 @@ milestone_name: Classical Supervised Learning
 current_phase: 28
 current_phase_name: Optimizer Principles, State, and MLP Transfer
 status: executing
-stopped_at: Completed 28.2-01-PLAN.md
-last_updated: "2026-08-12T13:15:15.856Z"
+stopped_at: Completed 28.2-02-PLAN.md
+last_updated: "2026-08-12T13:57:28.587Z"
 last_activity: 2026-08-12
-last_activity_desc: "Phase 28B Plan 01 completed: planning reconciliation and optimizer numerical authority"
+last_activity_desc: "Phase 28B Plan 02 completed: optimizer media packages and shared chaptered media player"
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 27
-  completed_plans: 25
-  percent: 93
-current_plan: 1
+  completed_plans: 26
+  percent: 96
+current_plan: 2
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
@@ -26,9 +26,9 @@ current_plan: 1
 ## Current Position
 
 Phase: 28B (Optimizer Principles, State, and MLP Transfer) — IN PROGRESS
-Plan: 1 of 3
-Status: Shared numerical authority and planning reconciliation complete
-Last activity: 2026-08-12 — Phase 28B Plan 01 completed; media and course UI remain in Plans 02–03
+Plan: 2 of 3
+Status: Shared numerical authority and media package complete
+Last activity: 2026-08-12 — Phase 28B Plan 02 completed; course UI remains in Plan 03
 
 ## Deferred Items
 
@@ -770,9 +770,9 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 
 ## Session
 
-**Last session:** 2026-08-12T13:15:15.847Z
-**Stopped at:** Completed 28.2-01-PLAN.md
-**Resume file:** 28.2-02-PLAN.md
+**Last session:** 2026-08-12T13:57:28.578Z
+**Stopped at:** Completed 28.2-02-PLAN.md
+**Resume file:** None
 
 ## Performance Metrics
 
@@ -810,6 +810,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 28.2 P01 | 0m | 3 tasks | 18 files |
+| Phase 28.2 P02 | 12m | 2 tasks | 33 files |
 
 ## Decisions
 
@@ -896,6 +897,8 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 - [Phase 27]: Place one consolidated download surface after the unchanged checkpoint and keep chapter-local code reproduction beside each workbench.
 - [Phase 28B]: Keep historical MLP SGD default; explicit optimizer choices use the shared pure engine.
 - [Phase 28B]: Keep existing Banknote split and train-only standardization; defer final test display to Plan 03.
+- [Phase 28B]: Keep optimizer media anchors sourced from the PR1 trajectory JSON instead of copied constants.
+- [Phase 28B]: Use poster-first reduced-motion media with an explicit user-controlled video option.
 
 ## Operator Next Steps
 

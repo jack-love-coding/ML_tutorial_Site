@@ -51,10 +51,10 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 ### Optimizer Principles, State, and MLP Transfer
 
 - [ ] **OPT-01**: Learners can follow the training loop and compare full-batch, mini-batch, and stochastic SGD updates on a shared deterministic case.
-- [ ] **OPT-02**: Learners can trace Momentum and RMSProp state and explain their distinct update behavior on the same loss landscape.
-- [ ] **OPT-03**: Learners can inspect Adam's raw and bias-corrected moments and distinguish coupled L2 regularization from decoupled AdamW weight decay.
-- [ ] **OPT-04**: Learners can apply constant, step-decay, and warmup-cosine schedules in the documented optimizer-then-scheduler cadence.
-- [ ] **OPT-05**: Learners can compare four optimizers on an identical fixed `2→4→1 tanh` circle benchmark without treating a result as a universal winner.
+- [x] **OPT-02**: Learners can trace Momentum and RMSProp state and explain their distinct update behavior on the same loss landscape.
+- [x] **OPT-03**: Learners can inspect Adam's raw and bias-corrected moments and distinguish coupled L2 regularization from decoupled AdamW weight decay.
+- [x] **OPT-04**: Learners can apply constant, step-decay, and warmup-cosine schedules in the documented optimizer-then-scheduler cadence.
+- [x] **OPT-05**: Learners can compare four optimizers on an identical fixed `2→4→1 tanh` circle benchmark without treating a result as a universal winner.
 - [ ] **OPT-06**: Learners can reproduce a Banknote transfer that uses the existing fixed split and train-only standardization, with the test split evaluated only after selection is frozen.
 
 ### Classification Decisions
@@ -126,10 +126,10 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 | GRAD-05 | Phase 28A | Complete |
 | GRAD-06 | Phase 28A | Complete |
 | OPT-01 | Phase 28B | Pending |
-| OPT-02 | Phase 28B | Pending |
-| OPT-03 | Phase 28B | Pending |
-| OPT-04 | Phase 28B | Pending |
-| OPT-05 | Phase 28B | Pending |
+| OPT-02 | Phase 28B | Complete |
+| OPT-03 | Phase 28B | Complete |
+| OPT-04 | Phase 28B | Complete |
+| OPT-05 | Phase 28B | Complete |
 | OPT-06 | Phase 28B | Pending |
 | LOGR-01 | Phase 29 | Pending |
 | LOGR-02 | Phase 29 | Pending |
