@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="rmsprop optimizer state poster">
   <rect width="960" height="540" fill="#f7f9fc"/>
   <g fill="none" stroke="#b4c2d5" stroke-width="3"><ellipse cx="334" cy="292" rx="250" ry="144"/><ellipse cx="334" cy="292" rx="200" ry="112"/><ellipse cx="334" cy="292" rx="146" ry="82"/><ellipse cx="334" cy="292" rx="92" ry="52"/></g>
-  <path d="M122 178L270 270L370 286" fill="none" stroke="#253858" stroke-width="8" stroke-linecap="round"/>
+  <path d="M122 178L270 270L370 286" fill="none" stroke="#253858" stroke-width="8" stroke-linecap="round"/><polygon id="parameter-marker" points="122,160 105,190 139,190" fill="#6a4c93"/>
   <circle cx="370" cy="286" r="13" fill="#2e7d4f"/><path d="M370 262V310M346 286H394" stroke="#2e7d4f" stroke-width="5"/>
   <rect x="565" y="142" width="330" height="232" rx="18" fill="#fff" stroke="#d3dce9" stroke-width="3"/>
-  <text x="80" y="76" fill="#142033" font-family="Arial, sans-serif" font-size="45" font-weight="700">Rmsprop</text>
-  <text x="592" y="204" fill="#50617c" font-family="Arial, sans-serif" font-size="23" font-weight="700">SHARED-ENGINE ANCHOR</text>
-  <text x="592" y="258" fill="#142033" font-family="Arial, sans-serif" font-size="27">step 1 update norm 0.368756</text>
-  <text x="592" y="305" fill="#142033" font-family="Arial, sans-serif" font-size="27">loss 0.504203</text>
-  <text x="80" y="480" fill="#50617c" font-family="Arial, sans-serif" font-size="25">triangle marker + labelled state preserve meaning without color alone</text>
+  <text x="80" y="76" fill="#285c9e" font-family="serif" font-size="45">sₜ = 0.95sₜ₋₁ + 0.05gₜ²</text>
+  <text x="592" y="204" fill="#50617c" font-family="serif" font-size="31">sₜ</text>
+  <text x="592" y="258" fill="#142033" font-family="serif" font-size="27">‖Δθ₁‖ = 0.368756</text>
+  <text x="592" y="305" fill="#142033" font-family="serif" font-size="27">L(θ₁) = 0.504203</text>
+  <text x="80" y="480" fill="#50617c" font-family="serif" font-size="31">θₜ → θₜ₊₁</text>
 </svg>

@@ -5,5 +5,5 @@
     {"concept": "gradient direction", "depth": 1, "isFoundation": false, "equations": ["g_t=\\nabla L(\\theta_t)"]},
     {"concept": "SGD update", "depth": 0, "isFoundation": false, "equations": ["\\theta_{t+1}=\\theta_t-\\eta g_t"]}
   ],
-  "visualContract": {"durationSeconds": 36, "resolution": [1920, 1080], "fps": 30, "nonColorEncoding": "circle marker, labelled gradient state, and position path"}
+  "visualContract": {"durationSeconds": 40, "resolution": [1920, 1080], "fps": 30, "nonColorEncoding": "circle marker, labelled gradient state, and position path"}
 }

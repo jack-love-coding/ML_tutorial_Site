@@ -40,7 +40,7 @@
         "trainLoss": 0.500860851472
       },
       "sha256": "18fdb539cbd95b94f2c154d091dd763981555b5b3d6e711a341dbd55701a29ea",
-      "posterSha256": "ebe9fcf8ddea31cba5300dfe7200e4c985a174255e18736f28f1dea1976d6b96",
+      "posterSha256": "c1962db01ca6363e750c9f9e8abd91ebfb61464c1c41c8610bf69867b5a9b239",
       "durationSeconds": 40.0,
       "width": 1920,
       "height": 1080,
@@ -86,7 +86,7 @@
         "trainLoss": 0.500902364184
       },
       "sha256": "3191058c40615263c36adf8c3800e5e20c8dbb91d5b7c97143d3161506e70003",
-      "posterSha256": "e022eca39b59a0cd1756ced7d35f1c32473e6615cf168ca53cb8025bbcc8a230",
+      "posterSha256": "a9acfa3e7dd2b7afa28cbf55c68ecc096bc8c915a0a455d832d14542e90a9f8f",
       "durationSeconds": 40.0,
       "width": 1920,
       "height": 1080,
@@ -132,7 +132,7 @@
         "trainLoss": 0.504203424339
       },
       "sha256": "e43bba76514e442ab015f17e6d31b08652887d3add85c1bc3d6ebdaac7f27b01",
-      "posterSha256": "9dd7280c4ce29bfd298c1f98eb7bce5ec710252741faaeed785c35c71212e778",
+      "posterSha256": "73924e6eb0b75182d7340f762137d7f98a8a7bf5b27880c709d9d5c9b9fa0fd6",
       "durationSeconds": 40.0,
       "width": 1920,
       "height": 1080,
@@ -178,7 +178,7 @@
         "trainLoss": 0.499465264524
       },
       "sha256": "3d5c74cf91855a0ce77ca6638be4c2fb0cf8dc53f3c51d2e533c0e892ae95b32",
-      "posterSha256": "48a9f470b19fa27a0bc1870490aa2ed31f69929be5d8ce6372382591c2e566a5",
+      "posterSha256": "5f6bb1f942b7a34696cdb93ba0f8ff13117a4fa28d2d5b84d6754a816d2786df",
       "durationSeconds": 40.0,
       "width": 1920,
       "height": 1080,

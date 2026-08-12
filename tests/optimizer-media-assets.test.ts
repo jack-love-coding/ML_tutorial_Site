@@ -10,6 +10,12 @@ const metadataPath = resolve(root, 'public/manim/optimizer-comparison/metadata.j
 const metadata = JSON.parse(readFileSync(metadataPath, 'utf8'))
 const expectedKinds = ['sgd', 'momentum', 'rmsprop', 'adam']
 const expectedShapes = { sgd: 'circle', momentum: 'square', rmsprop: 'triangle', adam: 'diamond' }
+const expectedMarkerGeometry = {
+  sgd: /<circle id="parameter-marker"[^>]*\bcx="122"/,
+  momentum: /<rect id="parameter-marker"[^>]*\bwidth="28"/,
+  rmsprop: /<polygon id="parameter-marker"[^>]*\bpoints="122,160 105,190 139,190"/,
+  adam: /<rect id="parameter-marker"[^>]*\btransform="rotate\(45 122 178\)"/,
+}
 const sha256 = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex')
 
 test('optimizer media packages publish all source artifacts and deterministic numeric anchors', () => {
@@ -26,10 +32,16 @@ test('optimizer media packages publish all source artifacts and deterministic nu
     assert.equal(sha256(video), asset.sha256)
     assert.equal(sha256(poster), asset.posterSha256)
     assert.equal(asset.shape, expectedShapes[asset.kind as keyof typeof expectedShapes])
+    const posterSource = readFileSync(poster, 'utf8')
+    assert.match(posterSource, expectedMarkerGeometry[asset.kind as keyof typeof expectedMarkerGeometry])
+    assert.match(posterSource, new RegExp(`data-shape="${asset.shape}"|id="parameter-marker"`))
     assert.equal(asset.numericAnchor.comparison, 'predeclared-practical')
     assert.equal(asset.numericAnchor.update, 1)
     assert.equal(asset.markers.length, 5)
     assert.ok(asset.markers.every((marker: { startSeconds: number }) => marker.startSeconds >= 0 && marker.startSeconds < asset.durationSeconds))
+    assert.equal(asset.durationSeconds, 40)
+    assert.match(readFileSync(resolve(root, asset.prompt), 'utf8'), /40-second/)
+    assert.equal(JSON.parse(readFileSync(resolve(root, asset.knowledgeTree), 'utf8')).visualContract.durationSeconds, 40)
     for (const source of [asset.prompt, asset.knowledgeTree, asset.transcriptZhCN, asset.transcriptEn]) {
       assert.equal(existsSync(resolve(root, source)), true, `${source} should exist`)
       assert.notEqual(readFileSync(resolve(root, source), 'utf8').trim(), '')
@@ -56,6 +68,8 @@ test('renderer has selective preview, publish, and read-only integrity paths', (
   assert.match(renderer, /--scene/)
   assert.match(renderer, /--quality/)
   assert.match(renderer, /--check/)
+  assert.match(renderer, /source_durations/)
+  assert.match(renderer, /Source duration drift/)
   assert.match(renderer, /numericAnchor/)
   assert.match(renderer, /Marker bounds failed/)
   assert.match(scene, /TRAJECTORIES/)
@@ -64,10 +78,18 @@ test('renderer has selective preview, publish, and read-only integrity paths', (
   assert.match(scene, /SHAPE = "square"/)
   assert.match(scene, /SHAPE = "triangle"/)
   assert.match(scene, /SHAPE = "diamond"/)
+  assert.doesNotMatch(scene, /Text\(/)
+  assert.doesNotMatch(scene, /shared-engine anchor|step 1 update norm|loss after step 1|parameter position|state changes the next step/)
 })
 
 test('published optimizer package drift check passes without writing assets', () => {
   const result = spawnSync('python3', ['scripts/manim/render_optimizer_comparison.py', '--check'], { cwd: root, encoding: 'utf8' })
   assert.equal(result.status, 0, result.stderr)
-  assert.match(result.stdout, /ffprobe, marker, transcript, source, numeric-anchor, and hash contracts/)
+  assert.match(result.stdout, /ffprobe, source-duration, marker, transcript, numeric-anchor, and hash contracts/)
+})
+
+test('published optimizer package supports focused read-only checks', () => {
+  const result = spawnSync('python3', ['scripts/manim/render_optimizer_comparison.py', '--check', '--scene', 'sgd'], { cwd: root, encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /sgd assets match ffprobe, source-duration/)
 })

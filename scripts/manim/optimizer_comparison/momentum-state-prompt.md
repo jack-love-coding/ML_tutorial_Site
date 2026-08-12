@@ -2,7 +2,7 @@
 
 ## Overview
 
-Create a language-neutral, 36-second, 1920×1080, 30fps beginner animation. Progress from the gradient direction to accumulated velocity and then the Momentum update `v_t=0.9v_{t-1}+g_t; \theta_{t+1}=\theta_t-\eta v_t`. The numeric card must be read from the shared PR1 practical trace. The web player contributes bilingual narration, so do not claim that a visible language is the only explanation.
+Create a language-neutral, 40-second, 1920×1080, 30fps beginner animation. Progress from the gradient direction to accumulated velocity and then the Momentum update `v_t=0.9v_{t-1}+g_t; \theta_{t+1}=\theta_t-\eta v_t`. The numeric card must be read from the shared PR1 practical trace. The web player contributes bilingual narration, so do not claim that a visible language is the only explanation.
 
 ## Visual contract
 
@@ -16,4 +16,4 @@ Use the same terrain geometry as SGD but a **square** parameter marker. Pair the
 
 0:18–0:27: Animate the square through the turning valley path. Indicate `v_t` while it moves, so the learner sees that the state remembers direction rather than merely changing a color.
 
-0:27–0:36: Settle at the labelled minimum, retain the formula, and hold the conclusion that state changes the next step. Use raw Manim LaTeX and exact controlled timings.
+0:27–0:40: Settle at the marked minimum, retain the formula, and hold `\theta_t \rightarrow \theta_{t+1}`. Use raw Manim LaTeX and exact controlled timings.

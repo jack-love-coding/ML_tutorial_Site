@@ -5,5 +5,5 @@
     {"concept": "squared-gradient history", "depth": 1, "isFoundation": false, "equations": ["s_t=0.95s_{t-1}+0.05g_t^2"]},
     {"concept": "RMSProp update", "depth": 0, "isFoundation": false, "equations": ["\\theta_{t+1}=\\theta_t-\\eta g_t/(\\sqrt{s_t}+\\epsilon)"]}
   ],
-  "visualContract": {"durationSeconds": 36, "resolution": [1920, 1080], "fps": 30, "nonColorEncoding": "triangle marker, labelled squared-history state, and position path"}
+  "visualContract": {"durationSeconds": 40, "resolution": [1920, 1080], "fps": 30, "nonColorEncoding": "triangle marker, labelled squared-history state, and position path"}
 }
