@@ -39,7 +39,7 @@
         "updateNorm": 0.002141565511,
         "trainLoss": 0.500860851472
       },
-      "sha256": "a194494c42d6953e88ea6123e7ae035c69971a21b91f989e82819bdd22d0a02c",
+      "sha256": "18fdb539cbd95b94f2c154d091dd763981555b5b3d6e711a341dbd55701a29ea",
       "posterSha256": "ebe9fcf8ddea31cba5300dfe7200e4c985a174255e18736f28f1dea1976d6b96",
       "durationSeconds": 40.0,
       "width": 1920,
@@ -85,7 +85,7 @@
         "updateNorm": 0.001338478444,
         "trainLoss": 0.500902364184
       },
-      "sha256": "e2171231cef982f9d3510146e718bde4002234ced77a4a9418c82bf9b93c6402",
+      "sha256": "3191058c40615263c36adf8c3800e5e20c8dbb91d5b7c97143d3161506e70003",
       "posterSha256": "e022eca39b59a0cd1756ced7d35f1c32473e6615cf168ca53cb8025bbcc8a230",
       "durationSeconds": 40.0,
       "width": 1920,
@@ -131,7 +131,7 @@
         "updateNorm": 0.368756075173,
         "trainLoss": 0.504203424339
       },
-      "sha256": "622f9517d115a8c0704f58096024648ee3e79a40ba783fee478e61145a1adadc",
+      "sha256": "e43bba76514e442ab015f17e6d31b08652887d3add85c1bc3d6ebdaac7f27b01",
       "posterSha256": "9dd7280c4ce29bfd298c1f98eb7bce5ec710252741faaeed785c35c71212e778",
       "durationSeconds": 40.0,
       "width": 1920,
@@ -177,7 +177,7 @@
         "updateNorm": 0.082460827024,
         "trainLoss": 0.499465264524
       },
-      "sha256": "9d97e068b4877d8bcd15d5b72d4edbedda5df9a1bd98247c625b6e7e6f3580ef",
+      "sha256": "3d5c74cf91855a0ce77ca6638be4c2fb0cf8dc53f3c51d2e533c0e892ae95b32",
       "posterSha256": "48a9f470b19fa27a0bc1870490aa2ed31f69929be5d8ce6372382591c2e566a5",
       "durationSeconds": 40.0,
       "width": 1920,

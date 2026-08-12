@@ -31,8 +31,7 @@ class OptimizerStateScene(Scene):
     def construct(self):
         anchor = numeric_anchor(self.KIND)
         self.camera.background_color = "#f7f9fc"
-        title = Text(self.DISPLAY, font_size=64, color="#142033", weight=BOLD).to_edge(UP, buff=0.42)
-        formula = MathTex(self.EQUATION, font_size=43, color="#285c9e").next_to(title, DOWN, buff=0.18)
+        formula = MathTex(self.EQUATION, font_size=43, color="#285c9e").to_edge(UP, buff=0.45)
         terrain = self.terrain()
         axes = terrain[0]
         marker = self.marker().move_to(axes.c2p(-2.45, 2.2))
@@ -43,14 +42,14 @@ class OptimizerStateScene(Scene):
         state = self.state_card(anchor)
         legend = self.legend()
 
-        self.play(FadeIn(title), Write(formula), Create(terrain), FadeIn(legend), run_time=3)
+        self.play(Write(formula), Create(terrain), FadeIn(legend), run_time=3)
         self.play(FadeIn(marker), Create(path), run_time=4)
         self.play(FadeIn(state, shift=UP * 0.2), run_time=2)
         self.wait(4)
         self.play(marker.animate.move_to(middle), Indicate(state, color="#c47b13"), run_time=4)
         self.wait(4)
         self.play(marker.animate.move_to(target), Flash(target, color="#2e7d4f", flash_radius=0.5), run_time=4)
-        insight = Text("state changes the next step", font_size=31, color="#142033").to_edge(DOWN, buff=0.4)
+        insight = MathTex(r"\theta_t\;\longrightarrow\;\theta_{t+1}", font_size=38, color="#142033").to_edge(DOWN, buff=0.4)
         self.play(FadeIn(insight), run_time=2)
         self.wait(13)
 
@@ -80,19 +79,18 @@ class OptimizerStateScene(Scene):
     def state_card(self, anchor):
         update = f"{anchor['updateNorm']:.6f}"
         loss = f"{anchor['trainLoss']:.6f}"
-        heading = Text("shared-engine anchor", font_size=25, color="#50617c", weight=BOLD)
         rows = VGroup(
             MathTex(self.STATE_LABEL, font_size=35, color="#142033"),
-            Text(f"step 1 update norm  {update}", font_size=25, color="#142033"),
-            Text(f"loss after step 1  {loss}", font_size=25, color="#142033"),
+            MathTex(rf"\left\lVert\Delta\theta_1\right\rVert={update}", font_size=29, color="#142033"),
+            MathTex(rf"L(\theta_1)={loss}", font_size=29, color="#142033"),
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.17)
-        card = VGroup(heading, rows).arrange(DOWN, aligned_edge=LEFT, buff=0.25)
+        card = rows
         card.add_background_rectangle(color=WHITE, opacity=0.98, buff=0.3).to_edge(RIGHT, buff=0.55).shift(DOWN * 0.45)
         return card
 
     def legend(self):
         dot = self.marker().scale(0.72)
-        label = Text("parameter position", font_size=22, color="#384861")
+        label = MathTex(r"\theta_t", font_size=31, color="#384861")
         return VGroup(dot, label).arrange(RIGHT, buff=0.15).to_corner(UL, buff=0.42)
 
 
