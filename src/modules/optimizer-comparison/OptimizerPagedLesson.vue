@@ -19,6 +19,7 @@ const props = defineProps<{ moduleDefinition: AlgorithmModuleDefinition; section
 const { locale } = useI18n()
 const menuOpen = ref(false)
 const copied = ref(false)
+const copyFailed = ref(false)
 const activeLocale = computed(() => locale.value as AppLocale)
 const zh = computed(() => activeLocale.value === 'zh-CN')
 const chapter = computed(() => optimizerCourseChapters.find((item) => item.id === props.section.id) ?? optimizerCourseChapters[0]!)
@@ -36,11 +37,19 @@ const media = {
 } as const
 const mediaConfigs = computed(() => (chapter.value.media ?? []).map((kind) => media[kind]))
 
-function copyCode(value?: string) {
-  if (!value || !navigator.clipboard) return
-  void navigator.clipboard.writeText(value).then(() => { copied.value = true; window.setTimeout(() => { copied.value = false }, 1600) })
+async function copyCode(value?: string) {
+  copied.value = false
+  copyFailed.value = false
+  if (!value || !navigator.clipboard?.writeText) { copyFailed.value = true; return }
+  try {
+    await navigator.clipboard.writeText(value)
+    copied.value = true
+    window.setTimeout(() => { copied.value = false }, 1600)
+  } catch {
+    copyFailed.value = true
+  }
 }
-watch(() => props.section.id, () => { menuOpen.value = false; copied.value = false })
+watch(() => props.section.id, () => { menuOpen.value = false; copied.value = false; copyFailed.value = false })
 </script>
 
 <template>
@@ -49,7 +58,7 @@ watch(() => props.section.id, () => { menuOpen.value = false; copied.value = fal
     <div class="optimizer-course__layout">
       <aside id="optimizer-course-toc" class="optimizer-course__sidebar" :class="{ 'is-open': menuOpen }"><span>{{ zh ? '六章优化器路线' : 'Six-chapter optimizer path' }}</span><nav :aria-label="zh ? '优化器课程目录' : 'Optimizer course contents'"><router-link v-for="(item, chapterIndex) in optimizerCourseChapters" :key="item.id" :to="routeFor(item.id)" :class="{ 'is-active': item.id === chapter.id }" @click="menuOpen = false"><small>{{ String(chapterIndex + 1).padStart(2, '0') }}</small><span>{{ localized(item.title) }}</span></router-link></nav></aside>
       <main class="optimizer-course__main"><article data-testid="optimizer-current-chapter" :data-section-id="chapter.id"><header class="optimizer-course__header"><div><span>{{ zh ? '章节' : 'Chapter' }} {{ index + 1 }}/6</span><strong>{{ Math.round(((index + 1) / 6) * 100) }}%</strong></div><h2>{{ localized(chapter.title) }}</h2><p>{{ zh ? '从更新顺序走到受控迁移：每一步都可以暂停、预测和复查。' : 'From update order to controlled transfer: pause, predict, and review every step.' }}</p></header>
-        <div class="optimizer-course__flow" data-testid="optimizer-lesson-flow"><template v-for="item in chapter.blocks" :key="item.kind"><section v-if="item.kind === 'interaction'" class="optimizer-course__lab"><header><span>{{ localized(item.title) }}</span><MarkdownMathContent :source="localized(item.body)" /></header><component :is="labs[chapter.id]" /></section><section v-else-if="item.kind === 'animation' && mediaConfigs.length" class="optimizer-course__block optimizer-course__block--media"><header><span>{{ localized(item.title) }}</span><MarkdownMathContent :source="localized(item.body)" /></header><ChapteredMediaPlayer v-for="mediaConfig in mediaConfigs" :key="mediaConfig.assetPath" v-bind="mediaConfig" /></section><section v-else-if="item.kind === 'numpy-code'" class="optimizer-course__block optimizer-course__block--code"><header><div><span>{{ localized(item.title) }}</span><MarkdownMathContent :source="localized(item.body)" /></div><button type="button" :aria-label="zh ? '复制 NumPy 代码' : 'Copy NumPy code'" @click="copyCode(item.code)">{{ copied ? (zh ? '已复制' : 'Copied') : (zh ? '复制代码' : 'Copy code') }}</button></header><pre><code>{{ item.code }}</code></pre></section><section v-else class="optimizer-course__block" :class="`optimizer-course__block--${item.kind}`"><span>{{ localized(item.title) }}</span><MarkdownMathContent :source="localized(item.body)" /></section></template></div>
+        <div class="optimizer-course__flow" data-testid="optimizer-lesson-flow"><template v-for="item in chapter.blocks" :key="item.kind"><section v-if="item.kind === 'interaction'" class="optimizer-course__lab"><header><span>{{ localized(item.title) }}</span><MarkdownMathContent :source="localized(item.body)" /></header><component :is="labs[chapter.id]" /></section><section v-else-if="item.kind === 'animation' && mediaConfigs.length" class="optimizer-course__block optimizer-course__block--media"><header><span>{{ localized(item.title) }}</span><MarkdownMathContent :source="localized(item.body)" /></header><ChapteredMediaPlayer v-for="mediaConfig in mediaConfigs" :key="mediaConfig.assetPath" v-bind="mediaConfig" /></section><section v-else-if="item.kind === 'numpy-code'" class="optimizer-course__block optimizer-course__block--code"><header><div><span>{{ localized(item.title) }}</span><MarkdownMathContent :source="localized(item.body)" /></div><button type="button" :aria-label="zh ? '复制 NumPy 代码' : 'Copy NumPy code'" @click="copyCode(item.code)">{{ copied ? (zh ? '已复制' : 'Copied') : (zh ? '复制代码' : 'Copy code') }}</button></header><p v-if="copyFailed" class="optimizer-course__copy-status" role="status">{{ zh ? '无法写入剪贴板。请选中下面的代码后手动复制。' : 'Clipboard copy failed. Select the code below and copy it manually.' }}</p><pre><code>{{ item.code }}</code></pre></section><section v-else class="optimizer-course__block" :class="`optimizer-course__block--${item.kind}`"><span>{{ localized(item.title) }}</span><MarkdownMathContent :source="localized(item.body)" /></section></template></div>
         <section v-if="chapter.id === 'curve-diagnosis'" class="optimizer-course__resources"><span>{{ zh ? '继续深入' : 'Continue learning' }}</span><h3>{{ zh ? '参考与复现下载' : 'References and reproducible downloads' }}</h3><ol><li v-for="item in optimizerCourseReferences" :key="item.href"><a :href="item.href" target="_blank" rel="noopener noreferrer">{{ localized(item.label) }}</a></li></ol><div class="optimizer-course__downloads"><a v-for="item in optimizerCourseDownloads" :key="item.path" :href="withPublicBase(item.path)" download><small>{{ item.kind }}</small><strong>{{ localized(item.label) }}</strong></a></div></section>
         <AlgorithmCheckpointQuiz v-if="chapter.id === 'curve-diagnosis'" module-slug="optimizer-comparison" module-route="/learn/optimizer-comparison" chapter-route-base="/learn/optimizer-comparison" :checkpoints="moduleDefinition.checkpoints" :locale="activeLocale" />
         <nav class="optimizer-course__pager"><router-link v-if="previous" :to="routeFor(previous.id)"><span>{{ zh ? '上一章' : 'Previous' }}</span><strong>{{ localized(previous.title) }}</strong></router-link><span v-else /><router-link v-if="next" :to="routeFor(next.id)"><span>{{ zh ? '下一章' : 'Next' }}</span><strong>{{ localized(next.title) }}</strong></router-link><router-link v-else to="/learn/cnn-visualization/channels-feature-maps"><span>{{ zh ? '下一步' : 'Next' }}</span><strong>{{ zh ? '进入 CNN 形状与参数' : 'Enter CNN shapes and parameters' }}</strong></router-link></nav>

@@ -33,7 +33,8 @@ test('scene keyboard handlers are container-only and the final scene loads both 
   const curve = read('src/modules/optimizer-comparison/labs/CurveDiagnosisScene.vue')
   assert.match(curve, /optimizer-comparison-trajectories\.json/)
   assert.match(curve, /banknote-transfer\.json/)
-  assert.match(curve, /no metric is substituted/)
+  assert.match(curve, /publishedOptimizerSnapshot/)
+  assert.match(curve, /hash-bound published snapshot/)
 })
 
 test('optimizer CSS prevents the main lesson and scene grids from overflowing at mobile widths', () => {

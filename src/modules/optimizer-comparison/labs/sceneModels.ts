@@ -13,21 +13,34 @@ const vector = (values: readonly number[]) => values.map(round).join(', ')
 const norm = (values: readonly number[]) => Math.sqrt(values.reduce((sum, value) => sum + value * value, 0))
 
 const baseParameters = [1, -0.5]
-const baseGradient = [0.6, -0.25]
+
+/** One explicit scalar-regression example shared by forward, loss, backward, and update. */
+export const trainingLedgerExample = {
+  parameters: [...baseParameters],
+  features: [0.5, -0.25],
+  label: 1,
+  learningRate: 0.1,
+} as const
 
 export function trainingLedgerModel(stage: number) {
   const bounded = Math.max(0, Math.min(4, stage))
-  const config: OptimizerConfig = { kind: 'sgd', learningRate: 0.1 }
-  const trace = stepOptimizer(baseParameters, baseGradient, config, createOptimizerState(config, 2))
+  const { parameters, features, label, learningRate } = trainingLedgerExample
+  const prediction = parameters.reduce((sum, parameter, index) => sum + parameter * features[index]!, 0)
+  const error = prediction - label
+  const loss = 0.5 * error ** 2
+  const gradient = features.map((feature) => error * feature)
+  const config: OptimizerConfig = { kind: 'sgd', learningRate }
+  const trace = stepOptimizer(parameters, gradient, config, createOptimizerState(config, parameters.length))
   const operations = [
-    { operation: 'forward', detail: 'ŷ = θ₀x₀ + θ₁x₁', value: round(0.625) },
-    { operation: 'loss', detail: '½(ŷ − y)², y = 1', value: round(0.0703125) },
+    { operation: 'forward', detail: 'ŷ = θ₀x₀ + θ₁x₁', value: round(prediction) },
+    { operation: 'loss', detail: `½(ŷ − y)², y = ${label}`, value: round(loss) },
     { operation: 'zero_grad', detail: '∇θ ← [0, 0]', value: '[0, 0]' },
-    { operation: 'backward', detail: '∇θ loss', value: vector(baseGradient) },
+    { operation: 'backward', detail: '∇θ loss = (ŷ − y)x', value: vector(gradient) },
     { operation: 'optimizer.step', detail: 'θ ← θ − η∇θ', value: vector(trace.parametersAfter) },
   ]
   return {
     stage: bounded,
+    example: { features: [...features], label, prediction: round(prediction), loss: round(loss), gradient: gradient.map(round) },
     operations: operations.map((operation, index) => ({ ...operation, status: index < bounded ? 'complete' : index === bounded ? 'current' : 'pending' })),
     trace,
   }

@@ -3,13 +3,14 @@ import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createOptimizerState, stepOptimizer } from '../../src/simulations/optimizers/index.ts'
+import { computeBanknoteTransfer } from './banknote-transfer.ts'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const publicRoot = join(root, 'public')
 const outputRoot = join(publicRoot, 'notebooks/optimizer-comparison')
 const datasetRoot = join(publicRoot, 'datasets/optimizer-comparison')
 const canonicalBanknotePath = join(publicRoot, 'datasets/numerical-methods/banknote-authentication.csv')
+const snapshotPath = join(root, 'src/modules/optimizer-comparison/labs/publishedSnapshot.ts')
 const write = (path, value) => { mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, value) }
 const stableJson = (value) => `${JSON.stringify(value, null, 2)}\n`
 const sha256 = (value) => createHash('sha256').update(value).digest('hex')
@@ -25,101 +26,15 @@ function sourceOverride() {
   return argument ? resolve(root, argument.slice('--banknote-source='.length)) : canonicalBanknotePath
 }
 
-function banknoteContract(sourcePath = canonicalBanknotePath) {
-  const sourceText = readFileSync(sourcePath, 'utf8')
-  const source = sourceText.trim().split('\n')
-  const header = source.shift()?.split(',') ?? []
-  const rows = source.map((line) => Object.fromEntries(header.map((key, index) => [key, line.split(',')[index]])))
-  const features = ['variance', 'skewness', 'curtosis', 'entropy']
-  const train = rows.filter((row) => row.split === 'train')
-  const validation = rows.filter((row) => row.split === 'validation')
-  const test = rows.filter((row) => row.split === 'test')
-  const means = Object.fromEntries(features.map((feature) => [feature, train.reduce((sum, row) => sum + Number(row[feature]), 0) / train.length]))
-  const scales = Object.fromEntries(features.map((feature) => [feature, Math.sqrt(train.reduce((sum, row) => sum + (Number(row[feature]) - means[feature]) ** 2, 0) / train.length)]))
-  return {
-    sourceDataset: '/datasets/numerical-methods/banknote-authentication.csv',
-    sourceSha256: sha256(sourceText),
-    splitCounts: { train: train.length, validation: validation.length, test: test.length },
-    preprocessing: { fitSplit: 'train', ddof: 0, means, scales },
-  }
+function banknoteTransfer(sourcePath = canonicalBanknotePath) { return computeBanknoteTransfer(readFileSync(sourcePath, 'utf8')) }
+function artifactOverride() {
+  const argument = process.argv.find((value) => value.startsWith('--banknote-artifact='))
+  return argument ? resolve(root, argument.slice('--banknote-artifact='.length)) : join(datasetRoot, 'banknote-transfer.json')
 }
-
-function metricSummary(rows, parameters) {
-  let correct = 0
-  let loss = 0
-  for (const row of rows) {
-    const logit = parameters.slice(0, 4).reduce((sum, weight, index) => sum + weight * row.features[index], parameters[4])
-    const probability = 1 / (1 + Math.exp(-logit))
-    loss -= row.label * Math.log(Math.max(probability, 1e-12)) + (1 - row.label) * Math.log(Math.max(1 - probability, 1e-12))
-    correct += Number((probability >= 0.5 ? 1 : 0) === row.label)
-  }
-  return { examples: rows.length, loss: rounded(loss / rows.length), accuracy: rounded(correct / rows.length) }
-}
-
-/** Authoring-only deterministic logistic evaluation. It uses the shared TS optimizer engine,
- * freezes a predeclared config before validation, then calls metricSummary(test) exactly once. */
-function banknoteTransfer(sourcePath = canonicalBanknotePath) {
-  const contract = banknoteContract(sourcePath)
-  const source = readFileSync(sourcePath, 'utf8').trim().split('\n')
-  const header = source.shift().split(',')
-  const features = ['variance', 'skewness', 'curtosis', 'entropy']
-  const bySplit = Object.fromEntries(['train', 'validation', 'test'].map((split) => [split, source
-    .map((line) => Object.fromEntries(header.map((key, index) => [key, line.split(',')[index]])))
-    .filter((row) => row.split === split)
-    .map((row) => ({
-      features: features.map((feature) => (Number(row[feature]) - contract.preprocessing.means[feature]) / contract.preprocessing.scales[feature]),
-      label: Number(row.class),
-    }))]))
-  const frozenSelection = {
-    optimizer: 'adamw',
-    learningRate: 0.01,
-    beta1: 0.9,
-    beta2: 0.999,
-    epsilon: 1e-8,
-    weightDecay: 0.0001,
-    batchSize: 64,
-    epochs: 16,
-    reason: 'predeclared practical AdamW configuration; validation is recorded before the frozen test evaluation',
-  }
-  const config = { kind: 'adam', learningRate: frozenSelection.learningRate, beta1: frozenSelection.beta1, beta2: frozenSelection.beta2, epsilon: frozenSelection.epsilon, weightDecay: { kind: 'adamw', coefficient: frozenSelection.weightDecay } }
-  let parameters = [0, 0, 0, 0, 0]
-  let state = createOptimizerState(config, parameters.length)
-  let updates = 0
-  for (let epoch = 0; epoch < frozenSelection.epochs; epoch += 1) {
-    for (let offset = 0; offset < bySplit.train.length; offset += frozenSelection.batchSize) {
-      const subset = bySplit.train.slice(offset, offset + frozenSelection.batchSize)
-      const gradients = Array(5).fill(0)
-      for (const row of subset) {
-        const logit = parameters.slice(0, 4).reduce((sum, weight, index) => sum + weight * row.features[index], parameters[4])
-        const error = 1 / (1 + Math.exp(-logit)) - row.label
-        row.features.forEach((value, index) => { gradients[index] += error * value })
-        gradients[4] += error
-      }
-      const trace = stepOptimizer(parameters, gradients.map((value) => value / subset.length), config, state)
-      parameters = trace.parametersAfter
-      state = trace.state
-      updates += 1
-    }
-  }
-  const validation = metricSummary(bySplit.validation, parameters)
-  // This is deliberately the single authoring call that reads test labels. `--check` verifies
-  // provenance and hashes without invoking this evaluator, so validation/release does not reselect.
-  const test = metricSummary(bySplit.test, parameters)
-  return {
-    ...contract,
-    version: 'banknote-transfer-v1',
-    model: { kind: 'standardized-logistic-regression', parameterCount: 5, threshold: 0.5 },
-    frozenSelection,
-    training: { split: 'train', updates, batchOrder: 'fixed-source-order', parametersAfterTraining: parameters.map(rounded) },
-    validationEvaluation: { evaluatedAfterTraining: true, metrics: validation },
-    finalTestEvaluation: {
-      permittedAfterSelectionFreeze: true,
-      evaluationCount: 1,
-      selectionUsedTest: false,
-      timing: 'after predeclared configuration freeze and validation recording',
-      metrics: test,
-    },
-  }
+function snapshotModule(rows, banknote) {
+  const snapshot = { version: 'optimizer-published-snapshot-v1', trajectories: rows, banknote }
+  const hash = sha256(stableJson(snapshot))
+  return `// Generated by scripts/optimizer-comparison/build-assets.mjs. Do not hand-edit.\nexport const publishedOptimizerSnapshotHash = '${hash}'\nexport const publishedOptimizerSnapshot = Object.freeze(${stableJson(snapshot)})\n`
 }
 
 function notebook() {
@@ -202,6 +117,7 @@ function build() {
   write(join(outputRoot, 'optimizer-comparison-trajectories.json'), trajectories)
   write(join(outputRoot, 'optimizer-comparison-trajectories.csv'), csv)
   write(join(datasetRoot, 'banknote-transfer.json'), banknote)
+  write(snapshotPath, snapshotModule(rows, banknoteObject))
   write(join(outputRoot, 'optimizer-comparison.zh-CN.ipynb'), stableJson(notebook()))
   executeNotebook(true)
   const notebookSource = readFileSync(join(outputRoot, 'optimizer-comparison.zh-CN.ipynb'), 'utf8')
@@ -239,10 +155,10 @@ function check() {
   for (const [publicPath, detail] of Object.entries(manifest.files)) {
     if (sha256(readFileSync(join(publicRoot, publicPath))) !== detail.sha256) throw new Error(`asset drift: ${publicPath}`)
   }
-  const storedTransfer = JSON.parse(readFileSync(join(datasetRoot, 'banknote-transfer.json'), 'utf8'))
-  const actualTransfer = banknoteContract(sourceOverride())
-  if (JSON.stringify({ sourceDataset: storedTransfer.sourceDataset, sourceSha256: storedTransfer.sourceSha256, splitCounts: storedTransfer.splitCounts, preprocessing: storedTransfer.preprocessing }) !== JSON.stringify(actualTransfer)) throw new Error('Banknote source, fixed split, or train-only preprocessing drift')
-  if (storedTransfer.finalTestEvaluation?.evaluationCount !== 1 || storedTransfer.finalTestEvaluation?.selectionUsedTest !== false || !storedTransfer.validationEvaluation?.metrics || !storedTransfer.finalTestEvaluation?.metrics) throw new Error('Banknote frozen evaluation artifact is incomplete')
+  const storedTransfer = JSON.parse(readFileSync(artifactOverride(), 'utf8'))
+  const actualTransfer = banknoteTransfer(sourceOverride())
+  if (JSON.stringify(storedTransfer) !== JSON.stringify(actualTransfer)) throw new Error('Banknote evaluation artifact drift: configuration, standardization, parameters, validation, or final test metrics differ from the canonical CSV run')
+  if (readFileSync(snapshotPath, 'utf8') !== snapshotModule(JSON.parse(readFileSync(join(outputRoot, 'optimizer-comparison-trajectories.json'), 'utf8')).rows, actualTransfer)) throw new Error('published fallback snapshot drift')
   if (JSON.stringify({
     sourceDataset: manifest.dataset.banknote.sourceDataset,
     sourceSha256: manifest.dataset.banknote.sourceSha256,

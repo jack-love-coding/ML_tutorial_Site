@@ -58,5 +58,22 @@ test('asset check rejects a Banknote source fixture whose hash, split contract, 
     'scripts/optimizer-comparison/build-assets.mjs',
     '--check',
     `--banknote-source=${fixture}`,
-  ], { cwd: root, stdio: 'pipe' }), /Banknote source, fixed split, or train-only preprocessing drift/)
+  ], { cwd: root, stdio: 'pipe' }), /Banknote evaluation artifact drift/)
+})
+
+test('asset check rejects even hash-masked Banknote metric and parameter drift', () => {
+  const original = JSON.parse(readFileSync(resolve(publicRoot, 'datasets/optimizer-comparison/banknote-transfer.json'), 'utf8'))
+  const directory = mkdtempSync(resolve(tmpdir(), 'optimizer-banknote-artifact-'))
+  for (const [name, mutate] of Object.entries({
+    metric: (value: typeof original) => { value.validationEvaluation.metrics.accuracy -= 0.01 },
+    parameters: (value: typeof original) => { value.training.parametersAfterTraining[0] += 0.01 },
+  })) {
+    const fixture = resolve(directory, `${name}.json`)
+    const mutated = structuredClone(original)
+    mutate(mutated)
+    writeFileSync(fixture, `${JSON.stringify(mutated, null, 2)}\n`)
+    assert.throws(() => execFileSync(process.execPath, [
+      'scripts/optimizer-comparison/build-assets.mjs', '--check', `--banknote-artifact=${fixture}`,
+    ], { cwd: root, stdio: 'pipe' }), /Banknote evaluation artifact drift/)
+  }
 })

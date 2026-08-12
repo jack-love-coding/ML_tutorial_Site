@@ -7,6 +7,7 @@ import {
   batchNoiseModel,
   momentumRmspropModel,
   scheduleModel,
+  trainingLedgerExample,
   trainingLedgerModel,
 } from '../src/modules/optimizer-comparison/labs/sceneModels.ts'
 import { algorithmCheckpointsBySlug } from '../src/data/algorithmCheckpoints.ts'
@@ -15,8 +16,14 @@ import { resolveCheckpointRevisitRoute } from '../src/utils/checkpointRoutes.ts'
 test('six optimizer learning surfaces derive distinct numerical models rather than a shared decorative trace', () => {
   const ledger = trainingLedgerModel(4)
   assert.deepEqual(ledger.operations.map((entry) => entry.operation), ['forward', 'loss', 'zero_grad', 'backward', 'optimizer.step'])
-  assert.deepEqual(ledger.trace.gradients, [0.6, -0.25])
-  assert.deepEqual(ledger.trace.parametersAfter.map((value) => Number(value.toFixed(3))), [0.94, -0.475])
+  const prediction = trainingLedgerExample.parameters.reduce((sum, parameter, index) => sum + parameter * trainingLedgerExample.features[index]!, 0)
+  const error = prediction - trainingLedgerExample.label
+  const gradient = trainingLedgerExample.features.map((feature) => error * feature)
+  assert.equal(ledger.example.prediction, prediction)
+  assert.equal(ledger.example.loss, Number((0.5 * error ** 2).toFixed(6)))
+  assert.deepEqual(ledger.example.gradient, gradient.map((value) => Number(value.toFixed(6))))
+  assert.deepEqual(ledger.trace.gradients, gradient)
+  assert.deepEqual(ledger.trace.parametersAfter, trainingLedgerExample.parameters.map((parameter, index) => parameter - trainingLedgerExample.learningRate * gradient[index]!))
 
   const full = batchNoiseModel(960, 2)
   const mini = batchNoiseModel(64, 2)
