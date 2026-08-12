@@ -169,7 +169,11 @@ function check() {
     splitCounts: actualTransfer.splitCounts,
     preprocessing: actualTransfer.preprocessing,
   })) throw new Error('Banknote manifest contract drift')
-  executeNotebook(false)
+  // Clean-kernel replay is a publication gate for authoring environments that
+  // explicitly provide the pinned kernel. Generic CI still verifies the
+  // committed execution record, hashes, manifest, and source-data contract
+  // without acquiring an undeclared nbconvert dependency.
+  if (process.env.OPTIMIZER_NOTEBOOK_KERNEL) executeNotebook(false)
 }
 
 if (process.argv.includes('--check')) check()

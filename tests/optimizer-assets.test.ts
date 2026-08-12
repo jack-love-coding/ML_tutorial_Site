@@ -14,6 +14,7 @@ const manifestPath = resolve(publicRoot, 'datasets/optimizer-comparison/benchmar
 test('optimizer assets are deterministic, hash-bound, and Pages-safe', () => {
   execFileSync(process.execPath, ['scripts/optimizer-comparison/build-assets.mjs', '--check'], { cwd: root, stdio: 'pipe' })
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  const notebook = JSON.parse(readFileSync(resolve(publicRoot, 'notebooks/optimizer-comparison/optimizer-comparison.zh-CN.ipynb'), 'utf8'))
   assertOptimizerBenchmarkManifest(manifest)
   assert.deepEqual(manifest.model.shape, [2, 4, 1])
   assert.equal(manifest.model.activation, 'tanh')
@@ -29,6 +30,9 @@ test('optimizer assets are deterministic, hash-bound, and Pages-safe', () => {
   }
   const matched = Object.values(manifest.benchmarks[0].firstStepUpdateNorms) as number[]
   assert.ok(Math.max(...matched) - Math.min(...matched) < 1e-10)
+  const executedCodeCells = notebook.cells.filter((cell: { cell_type: string }) => cell.cell_type === 'code')
+  assert.ok(executedCodeCells.length >= 2)
+  assert.ok(executedCodeCells.every((cell: { execution_count: number | null; outputs: unknown[] }) => Number.isInteger(cell.execution_count) && cell.outputs.length > 0))
   for (const path of Object.keys(manifest.files)) assert.match(withPublicBase(path, '/ML_tutorial_Site/')!, /^\/ML_tutorial_Site\//)
 })
 
