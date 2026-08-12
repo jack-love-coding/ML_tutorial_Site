@@ -4,6 +4,23 @@ import {
   type Vector2,
 } from './math.ts'
 
+// The course engine is exposed here too so the existing Optimizer Race route can
+// migrate without breaking its historical import path or public contracts.
+export {
+  assertOptimizerConfig,
+  createOptimizerState,
+  learningRateForStep,
+  stepOptimizer,
+} from '../../../simulations/optimizers/index.ts'
+export type {
+  LearningRateSchedule,
+  OptimizerBenchmarkManifest,
+  OptimizerConfig as SharedOptimizerConfig,
+  OptimizerState as SharedOptimizerState,
+  OptimizerStepTrace,
+  WeightDecayStrategy,
+} from '../../../simulations/optimizers/index.ts'
+
 export type OptimizerKind = 'sgd' | 'momentum' | 'rmsprop' | 'adam'
 export type OptimizerPresetId = 'narrow-ravine' | 'tilted-bowl' | 'steep-valley'
 

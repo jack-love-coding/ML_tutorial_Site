@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 Curriculum Foundation** — 31 recorded phase entries; canonical Phase 25 archive includes 13/13 plans (shipped 2026-07-26 with accepted gaps). See [archived roadmap](milestones/v1.0-ROADMAP.md).
-- 🚧 **v1.1 Classical Supervised Learning** — Phases 26–31 (Phase 26 planned; ready to execute).
+- 🚧 **v1.1 Classical Supervised Learning** — Phases 26–31, including the 28A Gradient Descent and 28B Optimizer Principles rebuilds.
 
 ## Phases
 
@@ -138,6 +138,29 @@
 - [x] 28.1-01-PLAN.md — Shared numerical engine, executed assets, and gradient-rule Manim package
 - [x] 28.1-02-PLAN.md — Six paged lessons, dedicated labs, routing, accessibility, and release validation
 
+## Phase 28B: Optimizer Principles, State, and MLP Transfer
+
+**Internal phase number:** 28.2
+
+**Goal:** Rebuild `optimizer-comparison` from deterministic optimizer state machines through a controlled `2→4→1 tanh` MLP comparison and a leakage-safe Banknote transfer, while preserving existing course identity and Math Lab entry points.
+
+**Depends on:** Phase 28A, the existing MLP Playground, and the existing local Banknote fixed split
+
+**Requirements:** OPT-01, OPT-02, OPT-03, OPT-04, OPT-05, OPT-06
+
+**Success Criteria:**
+
+1. One pure TypeScript engine reproduces documented PyTorch-compatible SGD, Momentum, RMSProp, Adam, L2, AdamW, and scheduler state transitions with finite guards.
+2. Existing Math Lab Optimizer Race imports and default MLP Playground SGD snapshots remain numerically compatible.
+3. The controlled circle `2→4→1 tanh` benchmark and Banknote transfer publish deterministic, hash-bound local outputs; fitting and selection use training/validation only and the fixed test partition is evaluated once after freeze.
+4. The existing six optimizer lesson IDs, routes, checkpoints, Progress stores, and Math Lab entry points remain available throughout the staged rebuild.
+
+**Plans:** 1/3 plans complete
+
+- [x] 28.2-01-PLAN.md — Planning reconciliation, shared numerical engine, MLP strategy seam, and executed benchmark authority
+- [ ] 28.2-02-PLAN.md — Optimizer media packages and shared chaptered media player
+- [ ] 28.2-03-PLAN.md — Six paged lessons, lazy labs, route bridges, and release validation
+
 ## Phase 29: Logistic Regression Rebuild
 
 **Goal:** Rebuild `logistic-regression` so learners can trace linear scores through sigmoid probabilities, likelihood, stable BCE, scratch gradients, library parity, calibration, and linear-boundary failure.
@@ -190,10 +213,12 @@
 
 | Phase | Milestone | Requirements | Status |
 | --- | --- | --- | --- |
-| 26. Loss Functions Rebuild | 7/7 | Complete    | 2026-07-28 |
-| 27. Linear Regression Rebuild | 12/12 | Complete    | 2026-07-30 |
+| 26. Loss Functions Rebuild | v1.1 | 3 | Complete — 2026-07-28 |
+| 27. Linear Regression Rebuild | v1.1 | 4 | Complete — 2026-07-30 |
 | 27A. Linear Regression Teaching Experience Redesign | v1.1 | 4 | Complete — 2026-08-01 |
 | 28. Tabular Regression Project | v1.1 | 5 | Complete — 2026-08-04 |
+| 28A. Gradient Descent Beginner Teaching Rebuild | v1.1 | 6 | Complete — 2026-08-11 |
+| 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | In progress — 1/3 plans complete |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |
 | 31. Corridor Integration and Release | v1.1 | 5 | Not started |

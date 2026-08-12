@@ -106,6 +106,8 @@ export interface MlpPlaygroundState {
   batchSize: number
   regularizationType: MlpRegularizationType
   regularizationRate: number
+  /** Omitted means the historical SGD update path, preserving existing snapshots. */
+  optimizer?: import('./optimizer.ts').OptimizerConfig
   noise: number
   trainRatio: number
   showTestData: boolean

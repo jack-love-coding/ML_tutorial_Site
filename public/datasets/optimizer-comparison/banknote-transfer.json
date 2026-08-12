@@ -1,0 +1,35 @@
+{
+  "sourceDataset": "/datasets/numerical-methods/banknote-authentication.csv",
+  "sourceSha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+  "splitCounts": {
+    "train": 960,
+    "validation": 206,
+    "test": 206
+  },
+  "preprocessing": {
+    "fitSplit": "train",
+    "ddof": 0,
+    "means": {
+      "variance": 0.4688630778125017,
+      "skewness": 1.9775978456250025,
+      "curtosis": 1.320239686656251,
+      "entropy": -1.1418097847916675
+    },
+    "scales": {
+      "variance": 2.804970522771281,
+      "skewness": 5.814008056534749,
+      "curtosis": 4.23492440403221,
+      "entropy": 2.072658196015601
+    }
+  },
+  "frozenSelection": {
+    "optimizer": "adamw",
+    "learningRate": 0.01,
+    "reason": "predeclared practical setting; validation only before freeze"
+  },
+  "finalTestEvaluation": {
+    "permittedAfterSelectionFreeze": true,
+    "evaluatedInPr1": false,
+    "reason": "course UI owns the final displayed evaluation in Plan 03"
+  }
+}

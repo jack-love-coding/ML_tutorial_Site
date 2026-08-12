@@ -26,11 +26,11 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 
 ### Tabular Regression Project
 
-- [ ] **TPRJ-01**: Learners can download a local tabular dataset with provenance, checksum, schema, target definition, and fixed train/validation/test split.
-- [ ] **TPRJ-02**: Learners can build a leakage-safe pipeline whose preprocessing rules are fitted on training data only.
-- [ ] **TPRJ-03**: Learners can establish an honest linear baseline and compare one controlled improvement against it.
-- [ ] **TPRJ-04**: Learners can report metrics, residual plots, named failure examples, formula-to-code connections, and project limitations.
-- [ ] **TPRJ-05**: Learners can download the dataset, clean-kernel Notebook, and locked outputs that reproduce the reference results shown on the teaching page.
+- [x] **TPRJ-01**: Learners can download a local tabular dataset with provenance, checksum, schema, target definition, and fixed train/validation/test split.
+- [x] **TPRJ-02**: Learners can build a leakage-safe pipeline whose preprocessing rules are fitted on training data only.
+- [x] **TPRJ-03**: Learners can establish an honest linear baseline and compare one controlled improvement against it.
+- [x] **TPRJ-04**: Learners can report metrics, residual plots, named failure examples, formula-to-code connections, and project limitations.
+- [x] **TPRJ-05**: Learners can download the dataset, clean-kernel Notebook, and locked outputs that reproduce the reference results shown on the teaching page.
 
 ### Gradient Descent Beginner Teaching
 
@@ -47,6 +47,15 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 - [ ] **LOGR-02**: Learners can implement stable binary cross-entropy, logistic gradients, deterministic training, and finite-difference checks in NumPy.
 - [ ] **LOGR-03**: Learners can compare scratch coefficients and probabilities with scikit-learn under aligned preprocessing and regularization settings.
 - [ ] **LOGR-04**: Learners can inspect probability calibration and use a nonlinear example to explain the limit of a linear decision boundary.
+
+### Optimizer Principles, State, and MLP Transfer
+
+- [ ] **OPT-01**: Learners can follow the training loop and compare full-batch, mini-batch, and stochastic SGD updates on a shared deterministic case.
+- [ ] **OPT-02**: Learners can trace Momentum and RMSProp state and explain their distinct update behavior on the same loss landscape.
+- [ ] **OPT-03**: Learners can inspect Adam's raw and bias-corrected moments and distinguish coupled L2 regularization from decoupled AdamW weight decay.
+- [ ] **OPT-04**: Learners can apply constant, step-decay, and warmup-cosine schedules in the documented optimizer-then-scheduler cadence.
+- [ ] **OPT-05**: Learners can compare four optimizers on an identical fixed `2→4→1 tanh` circle benchmark without treating a result as a universal winner.
+- [ ] **OPT-06**: Learners can reproduce a Banknote transfer that uses the existing fixed split and train-only standardization, with the test split evaluated only after selection is frozen.
 
 ### Classification Decisions
 
@@ -105,11 +114,23 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 | LINR-06 | Phase 27A | Complete |
 | LINR-07 | Phase 27A | Complete |
 | LINR-08 | Phase 27A | Complete |
-| TPRJ-01 | Phase 28 | Pending |
-| TPRJ-02 | Phase 28 | Pending |
-| TPRJ-03 | Phase 28 | Pending |
-| TPRJ-04 | Phase 28 | Pending |
-| TPRJ-05 | Phase 28 | Pending |
+| TPRJ-01 | Phase 28 | Complete |
+| TPRJ-02 | Phase 28 | Complete |
+| TPRJ-03 | Phase 28 | Complete |
+| TPRJ-04 | Phase 28 | Complete |
+| TPRJ-05 | Phase 28 | Complete |
+| GRAD-01 | Phase 28A | Complete |
+| GRAD-02 | Phase 28A | Complete |
+| GRAD-03 | Phase 28A | Complete |
+| GRAD-04 | Phase 28A | Complete |
+| GRAD-05 | Phase 28A | Complete |
+| GRAD-06 | Phase 28A | Complete |
+| OPT-01 | Phase 28B | Pending |
+| OPT-02 | Phase 28B | Pending |
+| OPT-03 | Phase 28B | Pending |
+| OPT-04 | Phase 28B | Pending |
+| OPT-05 | Phase 28B | Pending |
+| OPT-06 | Phase 28B | Pending |
 | LOGR-01 | Phase 29 | Pending |
 | LOGR-02 | Phase 29 | Pending |
 | LOGR-03 | Phase 29 | Pending |
@@ -128,10 +149,10 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 
 **Coverage:**
 
-- v1.1 requirements: 31 total
-- Mapped to phases: 31
+- v1.1 requirements: 43 total
+- Mapped to phases: 43
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-27*
-*Last updated: 2026-07-27 after v1.1 roadmap approval*
+*Last updated: 2026-08-12 after Phase 28/28A reconciliation and Phase 28B registration*
