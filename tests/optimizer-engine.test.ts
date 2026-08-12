@@ -124,3 +124,54 @@ test('MLP playground keeps its historical default SGD path and exposes an explic
   assert.ok(Number.isFinite(adam.trainLoss) && Number.isFinite(adam.testLoss))
   assert.notEqual(adam.trainLoss, legacy.trainLoss)
 })
+
+test('MLP optimizer changes establish deterministic state boundaries and removal restores the legacy update path', () => {
+  const adamConfig = { kind: 'adam', learningRate: 0.01, beta1: 0.9, beta2: 0.999, epsilon: 1e-8 } as const
+  const momentumConfig = { kind: 'momentum', learningRate: 0.02, momentum: 0.9 } as const
+  const changedFromLegacy = createMlpPlaygroundSession(DEFAULT_MLP_PLAYGROUND_STATE)
+  changedFromLegacy.updateState({ optimizer: adamConfig })
+  const directAdam = createMlpPlaygroundSession({ ...DEFAULT_MLP_PLAYGROUND_STATE, optimizer: adamConfig })
+  near(changedFromLegacy.step(1).trainLoss, directAdam.step(1).trainLoss, 1e-12)
+
+  const changedKind = createMlpPlaygroundSession({ ...DEFAULT_MLP_PLAYGROUND_STATE, optimizer: adamConfig })
+  changedKind.step(1)
+  changedKind.updateState({ optimizer: momentumConfig })
+  assert.doesNotThrow(() => changedKind.step(1))
+
+  changedKind.updateState({ optimizer: undefined })
+  assert.equal(changedKind.snapshot().state.optimizer, undefined)
+  assert.doesNotThrow(() => changedKind.step(1))
+})
+
+test('MLP explicit optimizers preserve link-only Playground L1/L2 controls and keep optimizer decay off biases', () => {
+  const sgd = { kind: 'sgd', learningRate: DEFAULT_MLP_PLAYGROUND_STATE.learningRate } as const
+  const baseline = createMlpPlaygroundSession({ ...DEFAULT_MLP_PLAYGROUND_STATE, optimizer: sgd }).step(1)
+  const l2 = createMlpPlaygroundSession({
+    ...DEFAULT_MLP_PLAYGROUND_STATE,
+    optimizer: sgd,
+    regularizationType: 'l2',
+    regularizationRate: 1,
+  }).step(1)
+  assert.notDeepEqual(l2.links.map((link) => link.weight), baseline.links.map((link) => link.weight))
+
+  const l1 = createMlpPlaygroundSession({
+    ...DEFAULT_MLP_PLAYGROUND_STATE,
+    optimizer: sgd,
+    regularizationType: 'l1',
+    regularizationRate: 10,
+  }).step(1)
+  assert.ok(l1.links.some((link) => link.isDead))
+
+  const adam = { kind: 'adam', learningRate: 0.01, beta1: 0.9, beta2: 0.999, epsilon: 1e-8 } as const
+  const adamW = { ...adam, weightDecay: { kind: 'adamw', coefficient: 0.1 } } as const
+  // A 50-point train split with one 50-point batch isolates one optimizer update:
+  // differing links must not feed back into a later bias gradient in this assertion.
+  const singleUpdate = { ...DEFAULT_MLP_PLAYGROUND_STATE, trainRatio: 0.1, batchSize: 50 }
+  const plainAdam = createMlpPlaygroundSession({ ...singleUpdate, optimizer: adam }).step(1)
+  const decayedAdam = createMlpPlaygroundSession({ ...singleUpdate, optimizer: adamW }).step(1)
+  assert.deepEqual(
+    decayedAdam.layers.slice(1).flat().map((node) => node.bias),
+    plainAdam.layers.slice(1).flat().map((node) => node.bias),
+  )
+  assert.notDeepEqual(decayedAdam.links.map((link) => link.weight), plainAdam.links.map((link) => link.weight))
+})

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -7,75 +8,25 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const publicRoot = join(root, 'public')
 const outputRoot = join(publicRoot, 'notebooks/optimizer-comparison')
 const datasetRoot = join(publicRoot, 'datasets/optimizer-comparison')
+const canonicalBanknotePath = join(publicRoot, 'datasets/numerical-methods/banknote-authentication.csv')
 const write = (path, value) => { mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, value) }
 const stableJson = (value) => `${JSON.stringify(value, null, 2)}\n`
 const sha256 = (value) => createHash('sha256').update(value).digest('hex')
 const rounded = (value) => Number(value.toFixed(12))
 
-function update(kind, parameter, gradient, state) {
-  if (kind === 'sgd') return { parameter: parameter - 0.04 * gradient, state }
-  if (kind === 'momentum') {
-    const velocity = (state.velocity ?? 0) * 0.9 + gradient
-    return { parameter: parameter - 0.025 * velocity, state: { velocity } }
-  }
-  if (kind === 'rmsprop') {
-    const squareAverage = (state.squareAverage ?? 0) * 0.95 + 0.05 * gradient ** 2
-    return { parameter: parameter - 0.02 * gradient / (Math.sqrt(squareAverage) + 1e-8), state: { squareAverage } }
-  }
-  const t = (state.t ?? 0) + 1
-  const firstMoment = (state.firstMoment ?? 0) * 0.9 + 0.1 * gradient
-  const secondMoment = (state.secondMoment ?? 0) * 0.999 + 0.001 * gradient ** 2
-  const correctedFirst = firstMoment / (1 - 0.9 ** t)
-  const correctedSecond = secondMoment / (1 - 0.999 ** t)
-  return { parameter: parameter - 0.02 * correctedFirst / (Math.sqrt(correctedSecond) + 1e-8), state: { t, firstMoment, secondMoment } }
+function readTrajectoryPackage() {
+  const runner = join(root, 'scripts/optimizer-comparison/trajectory-runner.ts')
+  return JSON.parse(execFileSync(process.execPath, ['--experimental-strip-types', runner], { cwd: root, encoding: 'utf8' }))
 }
 
-function controlledMlpRows() {
-  const rows = []
-  const circle = Array.from({ length: 80 }, (_, index) => {
-    const angle = index * 2.399963229728653
-    const radius = index % 2 === 0 ? 1.4 + (index % 5) * 0.08 : 3.8 + (index % 7) * 0.06
-    return { x: Math.cos(angle) * radius / 4, y: Math.sin(angle) * radius / 4, label: index % 2 === 0 ? 1 : -1 }
-  })
-  for (const kind of ['sgd', 'momentum', 'rmsprop', 'adam']) {
-    let parameters = Array.from({ length: 17 }, (_, index) => Math.sin((index + 1) * 1.7) * 0.16)
-    let states = parameters.map(() => ({}))
-    for (let updateIndex = 0; updateIndex <= 40; updateIndex += 1) {
-      const gradients = Array(17).fill(0)
-      let loss = 0
-      for (const point of circle) {
-        const hidden = Array.from({ length: 4 }, (_, unit) => Math.tanh(
-          parameters[unit * 2] * point.x + parameters[unit * 2 + 1] * point.y + parameters[8 + unit],
-        ))
-        const outputInput = hidden.reduce((sum, value, unit) => sum + value * parameters[12 + unit], parameters[16])
-        const output = Math.tanh(outputInput)
-        const outputError = (output - point.label) * (1 - output ** 2)
-        loss += 0.5 * (output - point.label) ** 2
-        for (let unit = 0; unit < 4; unit += 1) {
-          gradients[12 + unit] += outputError * hidden[unit]
-          const hiddenError = outputError * parameters[12 + unit] * (1 - hidden[unit] ** 2)
-          gradients[unit * 2] += hiddenError * point.x
-          gradients[unit * 2 + 1] += hiddenError * point.y
-          gradients[8 + unit] += hiddenError
-        }
-        gradients[16] += outputError
-      }
-      const parameterNorm = Math.sqrt(parameters.reduce((sum, value) => sum + value ** 2, 0))
-      rows.push({ benchmark: 'circle-2-4-1-tanh', optimizer: kind, update: updateIndex, parameter: rounded(parameterNorm), trainLoss: rounded(loss / circle.length) })
-      const nextStates = []
-      parameters = parameters.map((parameter, index) => {
-        const next = update(kind, parameter, gradients[index] / circle.length, states[index])
-        nextStates.push(next.state)
-        return next.parameter
-      })
-      states = nextStates
-    }
-  }
-  return rows
+function sourceOverride() {
+  const argument = process.argv.find((value) => value.startsWith('--banknote-source='))
+  return argument ? resolve(root, argument.slice('--banknote-source='.length)) : canonicalBanknotePath
 }
 
-function banknoteTransfer() {
-  const source = readFileSync(join(publicRoot, 'datasets/numerical-methods/banknote-authentication.csv'), 'utf8').trim().split('\n')
+function banknoteTransfer(sourcePath = canonicalBanknotePath) {
+  const sourceText = readFileSync(sourcePath, 'utf8')
+  const source = sourceText.trim().split('\n')
   const header = source.shift()?.split(',') ?? []
   const rows = source.map((line) => Object.fromEntries(header.map((key, index) => [key, line.split(',')[index]])))
   const features = ['variance', 'skewness', 'curtosis', 'entropy']
@@ -86,7 +37,7 @@ function banknoteTransfer() {
   const scales = Object.fromEntries(features.map((feature) => [feature, Math.sqrt(train.reduce((sum, row) => sum + (Number(row[feature]) - means[feature]) ** 2, 0) / train.length)]))
   return {
     sourceDataset: '/datasets/numerical-methods/banknote-authentication.csv',
-    sourceSha256: sha256(readFileSync(join(publicRoot, 'datasets/numerical-methods/banknote-authentication.csv'))),
+    sourceSha256: sha256(sourceText),
     splitCounts: { train: train.length, validation: validation.length, test: test.length },
     preprocessing: { fitSplit: 'train', ddof: 0, means, scales },
     frozenSelection: { optimizer: 'adamw', learningRate: 0.01, reason: 'predeclared practical setting; validation only before freeze' },
@@ -94,53 +45,132 @@ function banknoteTransfer() {
   }
 }
 
-function notebook(rows, banknote) {
-  const source = [
-    '# Optimizer Comparison / 优化器比较\\n',
-    'This executed teaching notebook replays the locked TypeScript asset package. / 本已执行教学 Notebook 重放锁定的 TypeScript 资源包。\\n',
-    '```python\\nimport json\\nfrom pathlib import Path\\nrows = json.loads(Path("optimizer-comparison-trajectories.json").read_text())\\nassert len(rows) == 164\\n```',
+function notebook() {
+  const finder = [
+    'import json',
+    'from pathlib import Path',
+    'import numpy as np',
+    '',
+    'def resolve_asset_dir():',
+    '    for root in [Path.cwd(), *Path.cwd().parents]:',
+    '        for candidate in (root, root / "public" / "notebooks" / "optimizer-comparison"):',
+    '            if (candidate / "optimizer-comparison-trajectories.json").is_file():',
+    '                return candidate',
+    '    raise FileNotFoundError("Could not find optimizer-comparison trajectories from the kernel working directory")',
+    '',
+    'asset_dir = resolve_asset_dir()',
+    'payload = json.loads((asset_dir / "optimizer-comparison-trajectories.json").read_text(encoding="utf-8"))',
+    'rows = payload["rows"]',
+    'assert len(rows) == 328',
+  ]
+  const replay = [
+    ...finder,
+    'matched = [row for row in rows if row["comparison"] == "first-step-norm-matched" and row["update"] == 1]',
+    'practical = [row for row in rows if row["comparison"] == "predeclared-practical" and row["update"] == 1]',
+    'matched_norms = np.array([row["updateNorm"] for row in matched], dtype=float)',
+    'assert len(matched) == 4 and np.ptp(matched_norms) < 1e-10',
+    'assert len(practical) == 4',
+    'print(f"Replayed {len(rows)} rows from {asset_dir.name}; matched first-step norm = {matched_norms[0]:.12f}")',
+  ]
+  const banknote = [
+    'banknote_path = asset_dir.parents[1] / "datasets" / "optimizer-comparison" / "banknote-transfer.json"',
+    'banknote = json.loads(banknote_path.read_text(encoding="utf-8"))',
+    'assert banknote["preprocessing"]["fitSplit"] == "train"',
+    'assert banknote["splitCounts"] == {"train": 960, "validation": 206, "test": 206}',
+    'print("Banknote replay uses the fixed split and train-only standardization.")',
   ]
   return {
-    nbformat: 4, nbformat_minor: 5,
-    metadata: { kernelspec: { display_name: 'Python 3', language: 'python', name: 'python3' }, language_info: { name: 'python', version: '3.12' } },
+    nbformat: 4,
+    nbformat_minor: 5,
+    metadata: { kernelspec: { display_name: 'Python 3', language: 'python', name: 'python3' }, language_info: { name: 'python' } },
     cells: [
-      { cell_type: 'markdown', metadata: {}, source: source.slice(0, 2) },
-      { cell_type: 'code', execution_count: 1, metadata: { id: 'replay-locked-trajectories' }, source: source.slice(2), outputs: [{ output_type: 'execute_result', execution_count: 1, metadata: {}, data: { 'text/plain': [`'${rows.length} locked trajectory rows; train-only Banknote preprocessing'`] } }] },
-      { cell_type: 'code', execution_count: 2, metadata: { id: 'banknote-contract' }, source: ['# Existing Banknote CSV split and train-only standardization are authoritative.'], outputs: [{ output_type: 'execute_result', execution_count: 2, metadata: {}, data: { 'application/json': banknote, 'text/plain': ['Banknote split: 960 / 206 / 206'] } }] },
+      { cell_type: 'markdown', metadata: { id: 'bilingual-introduction' }, source: [
+        '# Optimizer comparison: reproducible MLP traces / 优化器比较：可复现 MLP 轨迹\n',
+        'This bilingual NumPy notebook replays two clearly separated comparisons from the shared TypeScript engine. / 本双语 NumPy Notebook 从共享 TypeScript 引擎重放两组清晰区分的比较。\n',
+        '\n',
+        '- **First-step norm matched / 首步范数匹配：** all optimizers receive learning rates derived from the same initial full-batch gradient, so their first full-vector update norms agree. / 所有优化器的学习率都由同一个初始全批梯度推导，因此首个完整向量更新范数一致。\n',
+        '- **Predeclared practical / 预先声明的实用设置：** independently chosen practical learning rates are retained as a separate result and must not be compared as if they were norm matched. / 独立选择的实用学习率作为单独结果保留，不能与范数匹配结果混为一谈。\n',
+        '- The fixed Banknote split fits standardization on training rows only. / 固定的 Banknote 划分仅用训练行拟合标准化。\n',
+      ] },
+      { cell_type: 'code', execution_count: null, metadata: { id: 'replay-shared-engine-assets' }, source: replay.map((line) => `${line}\n`), outputs: [] },
+      { cell_type: 'code', execution_count: null, metadata: { id: 'banknote-train-only-contract' }, source: banknote.map((line) => `${line}\n`), outputs: [] },
     ],
   }
 }
 
+function validateManifest(manifest) {
+  const program = "import { assertOptimizerBenchmarkManifest } from './src/types/optimizer.ts'; assertOptimizerBenchmarkManifest(JSON.parse(process.argv[1]));"
+  execFileSync(process.execPath, ['--experimental-strip-types', '--input-type=module', '--eval', program, JSON.stringify(manifest)], { cwd: root, stdio: 'pipe' })
+}
+
+function executeNotebook(inPlace) {
+  const kernels = JSON.parse(execFileSync('jupyter', ['kernelspec', 'list', '--json'], { encoding: 'utf8', stdio: 'pipe' })).kernelspecs
+  const kernelName = process.env.OPTIMIZER_NOTEBOOK_KERNEL
+    ?? (kernels.python3 ? 'python3' : Object.keys(kernels)[0])
+  if (!kernelName) throw new Error('no Jupyter Python kernel is available for clean-kernel notebook validation')
+  const args = ['nbconvert', '--to', 'notebook', '--execute', `--ExecutePreprocessor.kernel_name=${kernelName}`, '--ExecutePreprocessor.timeout=60']
+  if (inPlace) args.push('--inplace')
+  else args.push('--stdout')
+  args.push('optimizer-comparison.zh-CN.ipynb')
+  execFileSync('jupyter', args, { cwd: outputRoot, stdio: 'pipe' })
+}
+
 function build() {
-  const rows = controlledMlpRows()
-  const csv = ['benchmark,optimizer,update,parameter,train_loss', ...rows.map((row) => `${row.benchmark},${row.optimizer},${row.update},${row.parameter},${row.trainLoss}`)].join('\n') + '\n'
-  const trajectories = stableJson({ version: 'optimizer-comparison-v1', rows })
-  const banknote = stableJson(banknoteTransfer())
-  const notebookSource = stableJson(notebook(rows, JSON.parse(banknote)))
-  const outputs = {
+  const trajectoryPackage = readTrajectoryPackage()
+  const rows = trajectoryPackage.rows
+  const csv = ['benchmark,comparison,optimizer,update,parameter,train_loss,update_norm', ...rows.map((row) => `${row.benchmark},${row.comparison},${row.optimizer},${row.update},${row.parameter},${row.trainLoss},${row.updateNorm}`)].join('\n') + '\n'
+  const trajectories = stableJson({ version: trajectoryPackage.version, rows })
+  const banknoteObject = banknoteTransfer()
+  const banknote = stableJson(banknoteObject)
+  write(join(outputRoot, 'optimizer-comparison-trajectories.json'), trajectories)
+  write(join(outputRoot, 'optimizer-comparison-trajectories.csv'), csv)
+  write(join(datasetRoot, 'banknote-transfer.json'), banknote)
+  write(join(outputRoot, 'optimizer-comparison.zh-CN.ipynb'), stableJson(notebook()))
+  executeNotebook(true)
+  const notebookSource = readFileSync(join(outputRoot, 'optimizer-comparison.zh-CN.ipynb'), 'utf8')
+  const fileValues = {
     '/notebooks/optimizer-comparison/optimizer-comparison-trajectories.json': trajectories,
     '/notebooks/optimizer-comparison/optimizer-comparison-trajectories.csv': csv,
     '/notebooks/optimizer-comparison/optimizer-comparison.zh-CN.ipynb': notebookSource,
     '/datasets/optimizer-comparison/banknote-transfer.json': banknote,
   }
-  const manifest = stableJson({
-    version: 'optimizer-comparison-v1',
-    dataset: { id: 'fixed-circle-and-banknote', splitPolicy: 'Banknote standardization fits train only; test is never used for selection.' },
-    model: { id: 'circle-2-4-1-tanh', shape: [2, 4, 1], activation: 'tanh', seed: 31415, batchOrder: 'fixed', updates: 40 },
-    optimizers: ['sgd', 'momentum', 'rmsprop', 'adam'],
-    files: Object.fromEntries(Object.entries(outputs).map(([path, value]) => [path, { sha256: sha256(value) }])),
-  })
-  outputs['/datasets/optimizer-comparison/benchmark-manifest.json'] = manifest
-  for (const [publicPath, value] of Object.entries(outputs)) write(join(publicRoot, publicPath), value)
+  const manifestObject = {
+    version: trajectoryPackage.version,
+    dataset: {
+      id: 'fixed-circle-and-banknote',
+      splitPolicy: 'Banknote standardization fits train only; test is never used for selection.',
+      banknote: {
+        sourceDataset: banknoteObject.sourceDataset,
+        sourceSha256: banknoteObject.sourceSha256,
+        splitCounts: banknoteObject.splitCounts,
+        preprocessing: banknoteObject.preprocessing,
+      },
+    },
+    model: { id: 'circle-2-4-1-tanh', shape: [2, 4, 1], activation: 'tanh', seed: 31415, initialization: trajectoryPackage.initialization, batchOrder: 'fixed-full-batch' },
+    benchmarks: trajectoryPackage.benchmarks,
+    files: Object.fromEntries(Object.entries(fileValues).map(([path, value]) => [path, { path, sha256: sha256(value) }])),
+  }
+  validateManifest(manifestObject)
+  write(join(datasetRoot, 'benchmark-manifest.json'), stableJson(manifestObject))
 }
 
 function check() {
   const manifest = JSON.parse(readFileSync(join(datasetRoot, 'benchmark-manifest.json'), 'utf8'))
+  validateManifest(manifest)
   for (const [publicPath, detail] of Object.entries(manifest.files)) {
     if (sha256(readFileSync(join(publicRoot, publicPath))) !== detail.sha256) throw new Error(`asset drift: ${publicPath}`)
   }
+  const storedTransfer = JSON.parse(readFileSync(join(datasetRoot, 'banknote-transfer.json'), 'utf8'))
+  const actualTransfer = banknoteTransfer(sourceOverride())
+  if (JSON.stringify(storedTransfer) !== JSON.stringify(actualTransfer)) throw new Error('Banknote source, fixed split, or train-only preprocessing drift')
+  if (JSON.stringify(manifest.dataset.banknote) !== JSON.stringify({
+    sourceDataset: actualTransfer.sourceDataset,
+    sourceSha256: actualTransfer.sourceSha256,
+    splitCounts: actualTransfer.splitCounts,
+    preprocessing: actualTransfer.preprocessing,
+  })) throw new Error('Banknote manifest contract drift')
+  executeNotebook(false)
 }
 
 if (process.argv.includes('--check')) check()
-else if (process.argv.includes('--clean')) rmSync(join(publicRoot, 'datasets/optimizer-comparison'), { recursive: true, force: true })
 else build()

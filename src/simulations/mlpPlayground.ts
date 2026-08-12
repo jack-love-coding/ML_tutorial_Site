@@ -17,7 +17,7 @@ import {
   createOptimizerState,
   stepOptimizer,
 } from './optimizers/index.ts'
-import type { OptimizerState } from '../types/optimizer.ts'
+import type { OptimizerConfig, OptimizerState } from '../types/optimizer.ts'
 
 type RuntimeLayerKind = 'input' | 'hidden' | 'output'
 
@@ -115,6 +115,23 @@ function regularizationPenalty(type: MlpRegularizationType, weights: number[]) {
   if (type === 'l1') return weights.reduce((sum, weight) => sum + Math.abs(weight), 0)
   if (type === 'l2') return weights.reduce((sum, weight) => sum + 0.5 * weight * weight, 0)
   return 0
+}
+
+function sameOptimizerConfig(left: OptimizerConfig | undefined, right: OptimizerConfig | undefined) {
+  if (!left || !right) return left === right
+  if (left.kind !== right.kind || left.learningRate !== right.learningRate) return false
+  const leftDecay = left.weightDecay ?? { kind: 'none' as const }
+  const rightDecay = right.weightDecay ?? { kind: 'none' as const }
+  if (leftDecay.kind !== rightDecay.kind || (leftDecay.coefficient ?? 0) !== (rightDecay.coefficient ?? 0)) return false
+  if (left.kind === 'momentum' && right.kind === 'momentum') return left.momentum === right.momentum && (left.dampening ?? 0) === (right.dampening ?? 0)
+  if (left.kind === 'rmsprop' && right.kind === 'rmsprop') return left.alpha === right.alpha && left.epsilon === right.epsilon
+  if (left.kind === 'adam' && right.kind === 'adam') return left.beta1 === right.beta1 && left.beta2 === right.beta2 && left.epsilon === right.epsilon
+  return true
+}
+
+function optimizerConfigWithoutDecay(config: OptimizerConfig): OptimizerConfig {
+  const { weightDecay: _weightDecay, ...withoutDecay } = config
+  return withoutDecay as OptimizerConfig
 }
 
 function featureDefinition(key: MlpFeatureKey) {
@@ -439,17 +456,50 @@ function updateWeights(
   const biasNodes = network.layers.slice(1).flat()
   const activeLinks = network.links.filter((link) => !link.isDead)
   const biasGradients = biasNodes.map((node) => (accumBias.get(node.id) ?? 0) / divisor)
-  const linkGradients = activeLinks.map((link) => link.accDer / divisor)
+  const dataLinkGradients = activeLinks.map((link) => link.accDer / divisor)
 
   if (state.optimizer && optimizerState) {
-    const parameters = [...biasNodes.map((node) => node.bias), ...activeLinks.map((link) => link.weight)]
-    const trace = stepOptimizer(parameters, [...biasGradients, ...linkGradients], state.optimizer, optimizerState)
+    const optimizerDecay = state.optimizer.weightDecay
+    const optimizerL2 = optimizerDecay?.kind === 'l2' ? optimizerDecay.coefficient ?? 0 : 0
+    const playgroundL2 = state.regularizationType === 'l2' ? state.regularizationRate : 0
+    // The shared engine intentionally works on flat parameters. The Playground's
+    // contract is narrower: all decay strategies apply to links, never biases.
+    // Couple L2 into link gradients, and pre-decay links for AdamW so its update
+    // remains decoupled from Adam moments while biases stay untouched.
+    const linkParameters = activeLinks.map((link) => optimizerDecay?.kind === 'adamw'
+      ? link.weight * (1 - state.optimizer!.learningRate * (optimizerDecay.coefficient ?? 0))
+      : link.weight)
+    const linkGradients = dataLinkGradients.map((gradient, index) =>
+      gradient + (playgroundL2 + optimizerL2) * activeLinks[index]!.weight,
+    )
+    const parameters = [...biasNodes.map((node) => node.bias), ...linkParameters]
+    const trace = stepOptimizer(parameters, [...biasGradients, ...linkGradients], optimizerConfigWithoutDecay(state.optimizer), optimizerState)
     biasNodes.forEach((node, index) => { node.bias = trace.parametersAfter[index]! })
-    activeLinks.forEach((link, index) => { link.weight = trace.parametersAfter[biasNodes.length + index]! })
-    for (const gradient of [...biasGradients, ...linkGradients]) gradientNorm += gradient * gradient
+    let prunedLink = false
+    activeLinks.forEach((link, index) => {
+      let nextWeight = trace.parametersAfter[biasNodes.length + index]!
+      if (state.regularizationType === 'l1') {
+        nextWeight -= state.optimizer!.learningRate * state.regularizationRate * regularizationDerivative('l1', link.weight)
+        if (link.weight * nextWeight < 0) {
+          nextWeight = 0
+          link.isDead = true
+          prunedLink = true
+        }
+      }
+      link.weight = nextWeight
+    })
+    for (const gradient of [...biasGradients, ...dataLinkGradients]) gradientNorm += gradient * gradient
     for (const link of network.links) link.accDer = 0
     accumBias.clear()
-    return { gradientNorm: Math.sqrt(gradientNorm), optimizerState: trace.state }
+    return {
+      gradientNorm: Math.sqrt(gradientNorm),
+      // Removing an L1-pruned link changes the flat vector shape, so deliberately
+      // start a fresh state for the remaining topology rather than reusing a
+      // mismatched moment vector.
+      optimizerState: prunedLink
+        ? createOptimizerState(state.optimizer, biasNodes.length + network.links.filter((link) => !link.isDead).length)
+        : trace.state,
+    }
   }
 
   for (const node of biasNodes) {
@@ -601,7 +651,13 @@ export function createMlpPlaygroundSession(initialState: Partial<MlpPlaygroundSt
   }
 
   function updateState(partial: Partial<MlpPlaygroundState>) {
+    const previousOptimizer = state.optimizer
     state = normalizeMlpPlaygroundState({ ...state, ...partial })
+    if (!sameOptimizerConfig(previousOptimizer, state.optimizer)) {
+      optimizerState = state.optimizer
+        ? createOptimizerState(state.optimizer, network.layers.slice(1).flat().length + network.links.filter((link) => !link.isDead).length)
+        : undefined
+    }
     return snapshot()
   }
 

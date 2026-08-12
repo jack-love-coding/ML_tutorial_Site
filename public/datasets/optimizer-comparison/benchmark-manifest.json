@@ -1,8 +1,33 @@
 {
-  "version": "optimizer-comparison-v1",
+  "version": "optimizer-comparison-v2",
   "dataset": {
     "id": "fixed-circle-and-banknote",
-    "splitPolicy": "Banknote standardization fits train only; test is never used for selection."
+    "splitPolicy": "Banknote standardization fits train only; test is never used for selection.",
+    "banknote": {
+      "sourceDataset": "/datasets/numerical-methods/banknote-authentication.csv",
+      "sourceSha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+      "splitCounts": {
+        "train": 960,
+        "validation": 206,
+        "test": 206
+      },
+      "preprocessing": {
+        "fitSplit": "train",
+        "ddof": 0,
+        "means": {
+          "variance": 0.4688630778125017,
+          "skewness": 1.9775978456250025,
+          "curtosis": 1.320239686656251,
+          "entropy": -1.1418097847916675
+        },
+        "scales": {
+          "variance": 2.804970522771281,
+          "skewness": 5.814008056534749,
+          "curtosis": 4.23492440403221,
+          "entropy": 2.072658196015601
+        }
+      }
+    }
   },
   "model": {
     "id": "circle-2-4-1-tanh",
@@ -13,26 +38,101 @@
     ],
     "activation": "tanh",
     "seed": 31415,
-    "batchOrder": "fixed",
-    "updates": 40
+    "initialization": {
+      "algorithm": "fixed-sine-v1: sin((index + 1) * 1.7) * 0.16; seed is intentionally not used",
+      "sha256": "0cf24a448afc66b89d122d5ca8afeb8d7591e0fbf332d3e67d0a1674882eba91"
+    },
+    "batchOrder": "fixed-full-batch"
   },
-  "optimizers": [
-    "sgd",
-    "momentum",
-    "rmsprop",
-    "adam"
+  "benchmarks": [
+    {
+      "id": "circle-2-4-1-tanh-first-step-norm-matched",
+      "label": "First-step update-norm-matched comparison",
+      "updates": 40,
+      "selectionPolicy": "Learning rates are derived from the common initial full-batch gradient so every optimizer has the same first full-vector update norm.",
+      "optimizers": [
+        {
+          "kind": "sgd",
+          "learningRate": 0.03999999999999987
+        },
+        {
+          "kind": "momentum",
+          "learningRate": 0.03999999999999987,
+          "momentum": 0.9
+        },
+        {
+          "kind": "rmsprop",
+          "learningRate": 0.00011615079207427931,
+          "alpha": 0.95,
+          "epsilon": 1e-8
+        },
+        {
+          "kind": "adam",
+          "learningRate": 0.0005194140267502699,
+          "beta1": 0.9,
+          "beta2": 0.999,
+          "epsilon": 1e-8
+        }
+      ],
+      "firstStepUpdateNorms": {
+        "sgd": 0.002141565511,
+        "momentum": 0.002141565511,
+        "rmsprop": 0.002141565511,
+        "adam": 0.002141565511
+      }
+    },
+    {
+      "id": "circle-2-4-1-tanh-predeclared-practical",
+      "label": "Predeclared practical settings comparison",
+      "updates": 40,
+      "selectionPolicy": "Practical learning rates were predeclared before training; this result is intentionally separate from the matched comparison.",
+      "optimizers": [
+        {
+          "kind": "sgd",
+          "learningRate": 0.04
+        },
+        {
+          "kind": "momentum",
+          "learningRate": 0.025,
+          "momentum": 0.9
+        },
+        {
+          "kind": "rmsprop",
+          "learningRate": 0.02,
+          "alpha": 0.95,
+          "epsilon": 1e-8
+        },
+        {
+          "kind": "adam",
+          "learningRate": 0.02,
+          "beta1": 0.9,
+          "beta2": 0.999,
+          "epsilon": 1e-8
+        }
+      ],
+      "firstStepUpdateNorms": {
+        "sgd": 0.002141565511,
+        "momentum": 0.001338478444,
+        "rmsprop": 0.368756075173,
+        "adam": 0.082460827024
+      }
+    }
   ],
   "files": {
     "/notebooks/optimizer-comparison/optimizer-comparison-trajectories.json": {
-      "sha256": "400fa687aa4e8b794edc7dd52812b3c6d0bab9d854864898cb10b6e662db8ac3"
+      "path": "/notebooks/optimizer-comparison/optimizer-comparison-trajectories.json",
+      "sha256": "fb504f71f935aa2bb48234b13f29e15f7815360397520f0f32186be0713a240b"
     },
     "/notebooks/optimizer-comparison/optimizer-comparison-trajectories.csv": {
-      "sha256": "adf96ce2861ecbc1df76c79a6c3d040059e7c443ee2ac2896fb1b8160dc2b975"
+      "path": "/notebooks/optimizer-comparison/optimizer-comparison-trajectories.csv",
+      "sha256": "fcb5e1be0985d76cc512746525ccefeeb54e50ae1946bd1e877eda451bb7f855"
     },
     "/notebooks/optimizer-comparison/optimizer-comparison.zh-CN.ipynb": {
-      "sha256": "856b914752598b8fae7e993f58dabd267a7aa590433012fcdff2a60441d02170"
+      "path": "/notebooks/optimizer-comparison/optimizer-comparison.zh-CN.ipynb",
+      "sha256": "0aa67bd34c3b66797239fab4bd6661312d027cc308341978ace38bf01c9147b1"
     },
     "/datasets/optimizer-comparison/banknote-transfer.json": {
+      "path": "/datasets/optimizer-comparison/banknote-transfer.json",
       "sha256": "ff0ccada80a8294496fe0af9ea7e5e695ac5ea4d90db2892be1e357c82017e8c"
     }
   }
