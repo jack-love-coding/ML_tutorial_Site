@@ -2,33 +2,33 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
-current_phase: 28
-current_phase_name: Optimizer Principles, State, and MLP Transfer
-status: verifying
-stopped_at: Review-03 fixes and release verification
-last_updated: "2026-08-12T15:05:00.000Z"
+current_phase: 29
+current_phase_name: Logistic Regression Rebuild
+status: planning
+stopped_at: Phase 28B verification passed
+last_updated: "2026-08-12T16:16:27.000Z"
 last_activity: 2026-08-12
-last_activity_desc: "Phase 28B review fixes: frozen Banknote evaluation, six engine-backed scene models, and checkpoint route repair"
+last_activity_desc: "Phase 28B passed release verification, including reduced-motion, real MP4 failure, and runtime KaTeX browser checks"
 progress:
   total_phases: 9
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 27
   completed_plans: 27
   percent: 100
-current_plan: 3
+current_plan: null
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-08-12
-**Status:** Phase 28B implementation complete; final review fixes are under verification
+**Status:** Phase 28B complete; Phase 29 is ready for discussion and planning
 
 ## Current Position
 
-Phase: 28B (Optimizer Principles, State, and MLP Transfer) — IN PROGRESS
-Plan: 3 of 3
-Status: Review-03 fixes complete; release verification is being recorded
-Last activity: 2026-08-12 — Published a frozen Banknote evaluation and replaced generic optimizer lab wrappers with dedicated engine-backed scenes
+Phase: 29 (Logistic Regression Rebuild) — READY
+Plan: Not started
+Status: Phase 28B passed all automated and browser release checks
+Last activity: 2026-08-12 — Completed Phase 28B with six bilingual chapters, deterministic assets, four Manim packages, dedicated labs, and production fallback verification
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 28 — Optimizer Principles, State, and MLP Transfer (28B)
+**Current focus:** Phase 29 — Logistic Regression Rebuild
 
 ## Baseline
 
@@ -760,7 +760,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
+Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before planning.
 
 ## Accumulated Context
 
@@ -771,7 +771,7 @@ Run `$gsd-execute-phase 26` to execute the seven approved Phase 26 plans.
 ## Session
 
 **Last session:** 2026-08-12T14:45:39.830Z
-**Stopped at:** Completed 28.2-03-PLAN.md
+**Stopped at:** Phase 28B verified and ready to ship
 **Resume file:** None
 
 ## Performance Metrics

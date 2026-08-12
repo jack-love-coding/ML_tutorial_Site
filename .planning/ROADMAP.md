@@ -218,7 +218,7 @@
 | 27A. Linear Regression Teaching Experience Redesign | v1.1 | 4 | Complete — 2026-08-01 |
 | 28. Tabular Regression Project | v1.1 | 5 | Complete — 2026-08-04 |
 | 28A. Gradient Descent Beginner Teaching Rebuild | v1.1 | 6 | Complete — 2026-08-11 |
-| 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | In progress — 1/3 plans complete |
+| 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | Complete — 2026-08-13 |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |
 | 31. Corridor Integration and Release | v1.1 | 5 | Not started |

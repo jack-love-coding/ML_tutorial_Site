@@ -80,7 +80,7 @@ onBeforeUnmount(() => {
       :aria-label="localized(alt ?? title)"
       @error="failed = true"
     >
-      <source :src="withPublicBase(assetPath)" type="video/mp4" />
+      <source :src="withPublicBase(assetPath)" type="video/mp4" @error="failed = true" />
     </video>
     <img
       v-else

@@ -33,4 +33,10 @@ test('the course consumes every supplied optimizer animation', () => {
 test('learner-facing optimizer copy avoids internal evidence and Ref-ID terminology', () => {
   const visibleCopy = JSON.stringify(optimizerCourseChapters)
   assert.doesNotMatch(visibleCopy, /Ref ID|REF-|证据|Evidence/i)
+  for (const chapter of optimizerCourseChapters) {
+    for (const block of chapter.blocks) {
+      assert.doesNotMatch(block.body['zh-CN'], /\\n(?![A-Za-z])/, `${chapter.id} zh-CN must not expose escaped newline tokens`)
+      assert.doesNotMatch(block.body.en, /\\n(?![A-Za-z])/, `${chapter.id} en must not expose escaped newline tokens`)
+    }
+  }
 })
