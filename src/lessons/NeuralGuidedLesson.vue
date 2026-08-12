@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MarkdownMathContent from '../components/MarkdownMathContent.vue'
 import ChapteredMediaPlayer from '../components/ChapteredMediaPlayer.vue'
+import { withPublicBase } from '../utils/publicPath'
 import type {
   AlgorithmModuleDefinition,
   AppLocale,
@@ -134,7 +135,12 @@ function sectionTitle(section = activeSection.value) {
               :transcript="activeVisual.transcript"
               :chapter-markers="activeVisual.chapterMarkers"
             />
-            <img v-else :src="activeVisual.assetPath" :alt="localizedText(activeVisual.alt ?? activeVisual.title)" loading="lazy" />
+            <img
+              v-else
+              :src="withPublicBase(activeVisual.assetPath)"
+              :alt="localizedText(activeVisual.alt ?? activeVisual.title)"
+              loading="lazy"
+            />
             <figcaption>
               <strong>{{ localizedText(activeVisual.title) }}</strong>
               <span>{{ localizedText(activeVisual.caption) }}</span>
