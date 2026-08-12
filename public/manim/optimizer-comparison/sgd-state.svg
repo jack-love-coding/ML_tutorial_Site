@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="sgd optimizer state poster">
+  <rect width="960" height="540" fill="#f7f9fc"/>
+  <g fill="none" stroke="#b4c2d5" stroke-width="3"><ellipse cx="334" cy="292" rx="250" ry="144"/><ellipse cx="334" cy="292" rx="200" ry="112"/><ellipse cx="334" cy="292" rx="146" ry="82"/><ellipse cx="334" cy="292" rx="92" ry="52"/></g>
+  <path d="M122 178L270 270L370 286" fill="none" stroke="#253858" stroke-width="8" stroke-linecap="round"/><circle id="parameter-marker" cx="122" cy="178" r="14" fill="#285c9e"/>
+  <circle cx="370" cy="286" r="13" fill="#2e7d4f"/><path d="M370 262V310M346 286H394" stroke="#2e7d4f" stroke-width="5"/>
+  <rect x="565" y="142" width="330" height="232" rx="18" fill="#fff" stroke="#d3dce9" stroke-width="3"/>
+  <text x="80" y="76" fill="#285c9e" font-family="serif" font-size="45">θₜ₊₁ = θₜ − η·gₜ</text>
+  <text x="592" y="204" fill="#50617c" font-family="serif" font-size="31">gₜ</text>
+  <text x="592" y="258" fill="#142033" font-family="serif" font-size="27">‖Δθ₁‖ = 0.002142</text>
+  <text x="592" y="305" fill="#142033" font-family="serif" font-size="27">L(θ₁) = 0.500861</text>
+  <text x="80" y="480" fill="#50617c" font-family="serif" font-size="31">θₜ → θₜ₊₁</text>
+</svg>

@@ -1,25 +1,18 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { AppLocale } from '../../types/ml'
 import type { GradientDescentLessonBlock } from '../../types/gradientDescentLesson'
-import { withPublicBase } from '../../utils/publicPath'
 import CodeLab from '../../modules/math-lab/components/CodeLab.vue'
+import ChapteredMediaPlayer from '../ChapteredMediaPlayer.vue'
 import MarkdownMathContent from '../MarkdownMathContent.vue'
 
 const props = defineProps<{ block: Exclude<GradientDescentLessonBlock, { kind: 'observation-lab' }> }>()
 const { locale } = useI18n()
-const video = ref<HTMLVideoElement>()
-const videoFailed = ref(false)
 const activeLocale = computed(() => locale.value as AppLocale)
 const zh = computed(() => activeLocale.value === 'zh-CN')
 const localized = (copy: { 'zh-CN': string; en: string }) => copy[activeLocale.value]
 
-function seek(seconds: number) {
-  if (!video.value) return
-  video.value.currentTime = seconds
-  video.value.focus()
-}
 </script>
 
 <template>
@@ -82,37 +75,12 @@ function seek(seconds: number) {
       </div>
       <small>84 s · 1080p · 30 fps</small>
     </div>
-    <video
-      v-if="!videoFailed"
-      ref="video"
-      controls
-      playsinline
-      preload="metadata"
-      :poster="withPublicBase(block.posterPath)"
-      @error="videoFailed = true"
-    >
-      <source :src="withPublicBase(block.assetPath)" type="video/mp4" />
-    </video>
-    <img
-      v-else
-      :src="withPublicBase(block.posterPath)"
-      :alt="localized(block.title)"
-      loading="lazy"
+    <ChapteredMediaPlayer
+      :asset-path="block.assetPath"
+      :poster-path="block.posterPath"
+      :title="block.title"
+      :transcript="block.transcript"
+      :chapter-markers="block.chapterMarkers"
     />
-    <nav class="gradient-lesson-block__markers" :aria-label="zh ? '动画章节' : 'Animation chapters'">
-      <button
-        v-for="marker in block.chapterMarkers"
-        :key="marker.id"
-        type="button"
-        @click="seek(marker.startSeconds)"
-      >
-        <small>{{ Math.floor(marker.startSeconds / 60) }}:{{ String(marker.startSeconds % 60).padStart(2, '0') }}</small>
-        <span>{{ localized(marker.title) }}</span>
-      </button>
-    </nav>
-    <details>
-      <summary>{{ zh ? '展开字幕稿' : 'Open transcript' }}</summary>
-      <MarkdownMathContent :source="localized(block.transcript)" />
-    </details>
   </figure>
 </template>

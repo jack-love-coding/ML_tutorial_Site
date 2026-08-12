@@ -1,0 +1,9 @@
+{
+  "root": {"concept": "Adam bias-corrected optimizer state", "depth": 0, "isFoundation": false},
+  "nodes": [
+    {"concept": "gradient and magnitude", "depth": 2, "isFoundation": true, "equations": ["g_t", "g_t^2"]},
+    {"concept": "first and second moments", "depth": 1, "isFoundation": false, "equations": ["m_t", "v_t", "\\hat m_t", "\\hat v_t"]},
+    {"concept": "Adam update", "depth": 0, "isFoundation": false, "equations": ["\\theta_{t+1}=\\theta_t-\\eta\\hat m_t/(\\sqrt{\\hat v_t}+\\epsilon)"]}
+  ],
+  "visualContract": {"durationSeconds": 40, "resolution": [1920, 1080], "fps": 30, "nonColorEncoding": "diamond marker, labelled moment/time state, and position path"}
+}
