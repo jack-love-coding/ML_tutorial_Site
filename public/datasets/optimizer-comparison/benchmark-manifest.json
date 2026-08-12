@@ -1,0 +1,39 @@
+{
+  "version": "optimizer-comparison-v1",
+  "dataset": {
+    "id": "fixed-circle-and-banknote",
+    "splitPolicy": "Banknote standardization fits train only; test is never used for selection."
+  },
+  "model": {
+    "id": "circle-2-4-1-tanh",
+    "shape": [
+      2,
+      4,
+      1
+    ],
+    "activation": "tanh",
+    "seed": 31415,
+    "batchOrder": "fixed",
+    "updates": 40
+  },
+  "optimizers": [
+    "sgd",
+    "momentum",
+    "rmsprop",
+    "adam"
+  ],
+  "files": {
+    "/notebooks/optimizer-comparison/optimizer-comparison-trajectories.json": {
+      "sha256": "096e28cb5414117c1161a27e099e3ee1333ee83f82e6f7ea4f61b7198a46e239"
+    },
+    "/notebooks/optimizer-comparison/optimizer-comparison-trajectories.csv": {
+      "sha256": "2b85a85c0499556ab79434c7c25fd0d62a6aa1079421438eaec7dab3509bb749"
+    },
+    "/notebooks/optimizer-comparison/optimizer-comparison.zh-CN.ipynb": {
+      "sha256": "856b914752598b8fae7e993f58dabd267a7aa590433012fcdff2a60441d02170"
+    },
+    "/datasets/optimizer-comparison/banknote-transfer.json": {
+      "sha256": "ff0ccada80a8294496fe0af9ea7e5e695ac5ea4d90db2892be1e357c82017e8c"
+    }
+  }
+}

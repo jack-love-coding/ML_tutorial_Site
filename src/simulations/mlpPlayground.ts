@@ -12,6 +12,12 @@ import type {
 } from '../types/ml'
 import { clamp } from '../utils/math'
 import { createSeededRandom, randomBetween, randomNormal } from '../utils/rng'
+import {
+  assertOptimizerConfig,
+  createOptimizerState,
+  stepOptimizer,
+} from './optimizers/index.ts'
+import type { OptimizerState } from '../types/optimizer.ts'
 
 type RuntimeLayerKind = 'input' | 'hidden' | 'output'
 
@@ -134,6 +140,16 @@ export function normalizeMlpPlaygroundState(partial: Partial<MlpPlaygroundState>
     .slice(0, 6)
     .map((count) => clamp(Math.round(finiteNumber(count, 2)), 1, 8))
 
+  const optimizer = (() => {
+    if (!merged.optimizer) return undefined
+    try {
+      assertOptimizerConfig(merged.optimizer)
+      return { ...merged.optimizer, weightDecay: merged.optimizer.weightDecay ? { ...merged.optimizer.weightDecay } : undefined }
+    } catch {
+      return undefined
+    }
+  })()
+
   return {
     ...merged,
     problemType: merged.problemType === 'regression' ? 'regression' : 'classification',
@@ -154,6 +170,7 @@ export function normalizeMlpPlaygroundState(partial: Partial<MlpPlaygroundState>
       ? merged.regularizationType
       : DEFAULT_MLP_PLAYGROUND_STATE.regularizationType,
     regularizationRate: clamp(finiteNumber(merged.regularizationRate, DEFAULT_MLP_PLAYGROUND_STATE.regularizationRate), 0, 10),
+    optimizer,
     noise: clamp(finiteNumber(merged.noise, DEFAULT_MLP_PLAYGROUND_STATE.noise), 0, 0.5),
     trainRatio: clamp(finiteNumber(merged.trainRatio, DEFAULT_MLP_PLAYGROUND_STATE.trainRatio), 0.1, 0.9),
     showTestData: typeof merged.showTestData === 'boolean' ? merged.showTestData : DEFAULT_MLP_PLAYGROUND_STATE.showTestData,
@@ -414,20 +431,34 @@ function updateWeights(
   state: MlpPlaygroundState,
   accumBias: Map<string, number>,
   batchLength: number,
+  optimizerState?: OptimizerState,
 ) {
   let gradientNorm = 0
   const divisor = Math.max(batchLength, 1)
 
-  for (const layer of network.layers.slice(1)) {
-    for (const node of layer) {
-      const biasGradient = (accumBias.get(node.id) ?? 0) / divisor
-      node.bias -= state.learningRate * biasGradient
-      gradientNorm += biasGradient * biasGradient
-    }
+  const biasNodes = network.layers.slice(1).flat()
+  const activeLinks = network.links.filter((link) => !link.isDead)
+  const biasGradients = biasNodes.map((node) => (accumBias.get(node.id) ?? 0) / divisor)
+  const linkGradients = activeLinks.map((link) => link.accDer / divisor)
+
+  if (state.optimizer && optimizerState) {
+    const parameters = [...biasNodes.map((node) => node.bias), ...activeLinks.map((link) => link.weight)]
+    const trace = stepOptimizer(parameters, [...biasGradients, ...linkGradients], state.optimizer, optimizerState)
+    biasNodes.forEach((node, index) => { node.bias = trace.parametersAfter[index]! })
+    activeLinks.forEach((link, index) => { link.weight = trace.parametersAfter[biasNodes.length + index]! })
+    for (const gradient of [...biasGradients, ...linkGradients]) gradientNorm += gradient * gradient
+    for (const link of network.links) link.accDer = 0
+    accumBias.clear()
+    return { gradientNorm: Math.sqrt(gradientNorm), optimizerState: trace.state }
   }
 
-  for (const link of network.links) {
-    if (link.isDead) continue
+  for (const node of biasNodes) {
+    const biasGradient = (accumBias.get(node.id) ?? 0) / divisor
+    node.bias -= state.learningRate * biasGradient
+    gradientNorm += biasGradient * biasGradient
+  }
+
+  for (const link of activeLinks) {
     const dataGradient = link.accDer / divisor
     const regularizationGradient = regularizationDerivative(state.regularizationType, link.weight)
     const nextWeight =
@@ -445,7 +476,7 @@ function updateWeights(
   }
 
   accumBias.clear()
-  return Math.sqrt(gradientNorm)
+  return { gradientNorm: Math.sqrt(gradientNorm), optimizerState }
 }
 
 function snapshotNetwork(
@@ -551,6 +582,9 @@ export function createMlpPlaygroundSession(initialState: Partial<MlpPlaygroundSt
   let network = buildNetwork(state)
   let lossHistory: Array<{ iteration: number; trainLoss: number; testLoss: number }> = []
   let lastGradientNorm = 0
+  let optimizerState = state.optimizer
+    ? createOptimizerState(state.optimizer, network.layers.slice(1).flat().length + network.links.filter((link) => !link.isDead).length)
+    : undefined
 
   function reset(nextState: Partial<MlpPlaygroundState> = {}) {
     state = normalizeMlpPlaygroundState({ ...state, ...nextState, iteration: 0 })
@@ -558,6 +592,9 @@ export function createMlpPlaygroundSession(initialState: Partial<MlpPlaygroundSt
     trainData = data.filter((point) => point.split === 'train')
     testData = data.filter((point) => point.split === 'test')
     network = buildNetwork(state)
+    optimizerState = state.optimizer
+      ? createOptimizerState(state.optimizer, network.layers.slice(1).flat().length + network.links.filter((link) => !link.isDead).length)
+      : undefined
     lossHistory = []
     lastGradientNorm = 0
     return snapshot()
@@ -585,14 +622,18 @@ export function createMlpPlaygroundSession(initialState: Partial<MlpPlaygroundSt
         batchLength += 1
 
         if (batchLength >= state.batchSize) {
-          gradientAccumulator += updateWeights(network, state, accumBias, batchLength)
+          const update = updateWeights(network, state, accumBias, batchLength, optimizerState)
+          gradientAccumulator += update.gradientNorm
+          optimizerState = update.optimizerState
           updates += 1
           batchLength = 0
         }
       }
 
       if (batchLength > 0) {
-        gradientAccumulator += updateWeights(network, state, accumBias, batchLength)
+        const update = updateWeights(network, state, accumBias, batchLength, optimizerState)
+        gradientAccumulator += update.gradientNorm
+        optimizerState = update.optimizerState
         updates += 1
       }
 

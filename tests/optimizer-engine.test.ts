@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { registerHooks } from 'node:module'
 import {
   createOptimizerState,
   learningRateForStep,
@@ -9,6 +10,21 @@ import {
   evaluateOptimizerRace,
   optimizerGradient,
 } from '../src/modules/math-lab/utils/optimizers.ts'
+
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    try {
+      return nextResolve(specifier, context)
+    } catch (error) {
+      if ((specifier.startsWith('.') || specifier.startsWith('/')) && !/\.[cm]?[jt]sx?$/.test(specifier)) {
+        return nextResolve(`${specifier}.ts`, context)
+      }
+      throw error
+    }
+  },
+})
+
+const { createMlpPlaygroundSession, DEFAULT_MLP_PLAYGROUND_STATE } = await import('../src/simulations/mlpPlayground.ts')
 
 const near = (actual: number, expected: number, tolerance = 1e-10) => {
   assert.ok(Math.abs(actual - expected) <= tolerance, `expected ${actual} to be within ${tolerance} of ${expected}`)
@@ -91,4 +107,20 @@ test('legacy Math Lab optimizer paths match the shared engine recurrences', () =
     near(parameters[0]!, expected.x)
     near(parameters[1]!, expected.y)
   }
+})
+
+test('MLP playground keeps its historical default SGD path and exposes an explicit optimizer seam', () => {
+  const legacy = createMlpPlaygroundSession(DEFAULT_MLP_PLAYGROUND_STATE).step(2)
+  const explicitSgd = createMlpPlaygroundSession({
+    ...DEFAULT_MLP_PLAYGROUND_STATE,
+    optimizer: { kind: 'sgd', learningRate: DEFAULT_MLP_PLAYGROUND_STATE.learningRate },
+  }).step(2)
+  const adam = createMlpPlaygroundSession({
+    ...DEFAULT_MLP_PLAYGROUND_STATE,
+    optimizer: { kind: 'adam', learningRate: 0.01, beta1: 0.9, beta2: 0.999, epsilon: 1e-8 },
+  }).step(2)
+
+  near(legacy.trainLoss, explicitSgd.trainLoss, 1e-12)
+  assert.ok(Number.isFinite(adam.trainLoss) && Number.isFinite(adam.testLoss))
+  assert.notEqual(adam.trainLoss, legacy.trainLoss)
 })

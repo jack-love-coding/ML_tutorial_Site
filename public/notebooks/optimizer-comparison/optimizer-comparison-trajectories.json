@@ -1,0 +1,1153 @@
+{
+  "version": "optimizer-comparison-v1",
+  "rows": [
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 0,
+      "parameter": 0.72,
+      "trainLoss": 0.033522203373
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 1,
+      "parameter": 0.729072845822,
+      "trainLoss": 0.031507031496
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 2,
+      "parameter": 0.737770403857,
+      "trainLoss": 0.029654148006
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 3,
+      "parameter": 0.746117079628,
+      "trainLoss": 0.027946898271
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 4,
+      "parameter": 0.754135114521,
+      "trainLoss": 0.026370698271
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 5,
+      "parameter": 0.761844824184,
+      "trainLoss": 0.024912734717
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 6,
+      "parameter": 0.769264806078,
+      "trainLoss": 0.023561714334
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 7,
+      "parameter": 0.776412120698,
+      "trainLoss": 0.022307653369
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 8,
+      "parameter": 0.783302450249,
+      "trainLoss": 0.021141700174
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 9,
+      "parameter": 0.78995023797,
+      "trainLoss": 0.020055985073
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 10,
+      "parameter": 0.796368810791,
+      "trainLoss": 0.01904349288
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 11,
+      "parameter": 0.802570487601,
+      "trainLoss": 0.018097954232
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 12,
+      "parameter": 0.808566675045,
+      "trainLoss": 0.017213752661
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 13,
+      "parameter": 0.814367952513,
+      "trainLoss": 0.016385844868
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 14,
+      "parameter": 0.8199841477,
+      "trainLoss": 0.01560969209
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 15,
+      "parameter": 0.825424403947,
+      "trainLoss": 0.014881200848
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 16,
+      "parameter": 0.830697240385,
+      "trainLoss": 0.014196671645
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 17,
+      "parameter": 0.835810605778,
+      "trainLoss": 0.013552754411
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 18,
+      "parameter": 0.840771926802,
+      "trainLoss": 0.012946409713
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 19,
+      "parameter": 0.84558815145,
+      "trainLoss": 0.012374874886
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 20,
+      "parameter": 0.850265788108,
+      "trainLoss": 0.011835634392
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 21,
+      "parameter": 0.854810940819,
+      "trainLoss": 0.011326393813
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 22,
+      "parameter": 0.859229341144,
+      "trainLoss": 0.010845056977
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 23,
+      "parameter": 0.863526377017,
+      "trainLoss": 0.010389705801
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 24,
+      "parameter": 0.867707118923,
+      "trainLoss": 0.009958582472
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 25,
+      "parameter": 0.871776343662,
+      "trainLoss": 0.009550073683
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 26,
+      "parameter": 0.875738555994,
+      "trainLoss": 0.009162696644
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 27,
+      "parameter": 0.879598008353,
+      "trainLoss": 0.008795086642
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 28,
+      "parameter": 0.88335871884,
+      "trainLoss": 0.00844598597
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 29,
+      "parameter": 0.887024487684,
+      "trainLoss": 0.00811423404
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 30,
+      "parameter": 0.890598912293,
+      "trainLoss": 0.007798758551
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 31,
+      "parameter": 0.894085401062,
+      "trainLoss": 0.007498567574
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 32,
+      "parameter": 0.897487186045,
+      "trainLoss": 0.007212742456
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 33,
+      "parameter": 0.9008073346,
+      "trainLoss": 0.006940431444
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 34,
+      "parameter": 0.904048760106,
+      "trainLoss": 0.006680843943
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 35,
+      "parameter": 0.90721423184,
+      "trainLoss": 0.006433245343
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 36,
+      "parameter": 0.910306384085,
+      "trainLoss": 0.006196952351
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 37,
+      "parameter": 0.913327724545,
+      "trainLoss": 0.005971328764
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 38,
+      "parameter": 0.916280642122,
+      "trainLoss": 0.00575578165
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 39,
+      "parameter": 0.919167414119,
+      "trainLoss": 0.005549757879
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "sgd",
+      "update": 40,
+      "parameter": 0.921990212914,
+      "trainLoss": 0.00535274098
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 0,
+      "parameter": 0.72,
+      "trainLoss": 0.033522203373
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 1,
+      "parameter": 0.725670528639,
+      "trainLoss": 0.032252756163
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 2,
+      "parameter": 0.736297239863,
+      "trainLoss": 0.029962631018
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 3,
+      "parameter": 0.751114717211,
+      "trainLoss": 0.02695720479
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 4,
+      "parameter": 0.76934107965,
+      "trainLoss": 0.023548088196
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 5,
+      "parameter": 0.790210145188,
+      "trainLoss": 0.020014308048
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 6,
+      "parameter": 0.81299837048,
+      "trainLoss": 0.016578883102
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 7,
+      "parameter": 0.837045012072,
+      "trainLoss": 0.013400208116
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 8,
+      "parameter": 0.861765113064,
+      "trainLoss": 0.010574834379
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 9,
+      "parameter": 0.88665583032,
+      "trainLoss": 0.008147219566
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 10,
+      "parameter": 0.911297199315,
+      "trainLoss": 0.006122391703
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 11,
+      "parameter": 0.935348693046,
+      "trainLoss": 0.004478567408
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 12,
+      "parameter": 0.958542934833,
+      "trainLoss": 0.003178001325
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 13,
+      "parameter": 0.980677762513,
+      "trainLoss": 0.002175368614
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 14,
+      "parameter": 1.001607599109,
+      "trainLoss": 0.00142366759
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 15,
+      "parameter": 1.021234826953,
+      "trainLoss": 0.00087799558
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 16,
+      "parameter": 1.039501628689,
+      "trainLoss": 0.000497683078
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 17,
+      "parameter": 1.056382568371,
+      "trainLoss": 0.000247262697
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 18,
+      "parameter": 1.071878043296,
+      "trainLoss": 0.000096673587
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 19,
+      "parameter": 1.086008637999,
+      "trainLoss": 0.000021006496
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 20,
+      "parameter": 1.098810348057,
+      "trainLoss": 5.082e-9
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 21,
+      "parameter": 1.110330604294,
+      "trainLoss": 0.00001746591
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 22,
+      "parameter": 1.120625009806,
+      "trainLoss": 0.000060624997
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 23,
+      "parameter": 1.129754696669,
+      "trainLoss": 0.000119580587
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 24,
+      "parameter": 1.137784211438,
+      "trainLoss": 0.000186776621
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 25,
+      "parameter": 1.144779845253,
+      "trainLoss": 0.0002565557
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 26,
+      "parameter": 1.150808333197,
+      "trainLoss": 0.000324781103
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 27,
+      "parameter": 1.155935857174,
+      "trainLoss": 0.000388522596
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 28,
+      "parameter": 1.160227295892,
+      "trainLoss": 0.000445798537
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 29,
+      "parameter": 1.163745674297,
+      "trainLoss": 0.000495366218
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 30,
+      "parameter": 1.166551772589,
+      "trainLoss": 0.000536552691
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 31,
+      "parameter": 1.168703861766,
+      "trainLoss": 0.00056911905
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 32,
+      "parameter": 1.170257538509,
+      "trainLoss": 0.000593152061
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 33,
+      "parameter": 1.171265637205,
+      "trainLoss": 0.000608977991
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 34,
+      "parameter": 1.171778201043,
+      "trainLoss": 0.000617094306
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 35,
+      "parameter": 1.171842497624,
+      "trainLoss": 0.000618115731
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 36,
+      "parameter": 1.171503067381,
+      "trainLoss": 0.000612731809
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 37,
+      "parameter": 1.170801795505,
+      "trainLoss": 0.000601673628
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 38,
+      "parameter": 1.169777999975,
+      "trainLoss": 0.000585687896
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 39,
+      "parameter": 1.168468529928,
+      "trainLoss": 0.000565516869
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "momentum",
+      "update": 40,
+      "parameter": 1.166907869878,
+      "trainLoss": 0.000541882964
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 0,
+      "parameter": 0.72,
+      "trainLoss": 0.033522203373
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 1,
+      "parameter": 0.809442701465,
+      "trainLoss": 0.017087009442
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 2,
+      "parameter": 0.858337183747,
+      "trainLoss": 0.010941169303
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 3,
+      "parameter": 0.892959968814,
+      "trainLoss": 0.007594662313
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 4,
+      "parameter": 0.919843407923,
+      "trainLoss": 0.005502178824
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 5,
+      "parameter": 0.941741948749,
+      "trainLoss": 0.004093240311
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 6,
+      "parameter": 0.960109869979,
+      "trainLoss": 0.003099608632
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 7,
+      "parameter": 0.975820853453,
+      "trainLoss": 0.00237645663
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 8,
+      "parameter": 0.989446266302,
+      "trainLoss": 0.001838170285
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 9,
+      "parameter": 1.001383054804,
+      "trainLoss": 0.001430776625
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 10,
+      "parameter": 1.011919832505,
+      "trainLoss": 0.001118573997
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 11,
+      "parameter": 1.021274075631,
+      "trainLoss": 0.000877050289
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 12,
+      "parameter": 1.029614467899,
+      "trainLoss": 0.000688869841
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 13,
+      "parameter": 1.037075033316,
+      "trainLoss": 0.000541474504
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 14,
+      "parameter": 1.043764455566,
+      "trainLoss": 0.000425585939
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 15,
+      "parameter": 1.04977243848,
+      "trainLoss": 0.000334236249
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 16,
+      "parameter": 1.055174173934,
+      "trainLoss": 0.000262121137
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 17,
+      "parameter": 1.060033557765,
+      "trainLoss": 0.000205156856
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 18,
+      "parameter": 1.064405553116,
+      "trainLoss": 0.000160169791
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 19,
+      "parameter": 1.068337958439,
+      "trainLoss": 0.000124674575
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 20,
+      "parameter": 1.071872750446,
+      "trainLoss": 0.000096712688
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 21,
+      "parameter": 1.075047117641,
+      "trainLoss": 0.000074733173
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 22,
+      "parameter": 1.07789426468,
+      "trainLoss": 0.000057503239
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 23,
+      "parameter": 1.080444044364,
+      "trainLoss": 0.000044040393
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 24,
+      "parameter": 1.082723458273,
+      "trainLoss": 0.000033560335
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 25,
+      "parameter": 1.084757056075,
+      "trainLoss": 0.000025436526
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 26,
+      "parameter": 1.086567255958,
+      "trainLoss": 0.000019168534
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 27,
+      "parameter": 1.088174603108,
+      "trainLoss": 0.00001435704
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 28,
+      "parameter": 1.089597979284,
+      "trainLoss": 0.000010683971
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 29,
+      "parameter": 1.09085477359,
+      "trainLoss": 0.000007896597
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 30,
+      "parameter": 1.091961022442,
+      "trainLoss": 0.000005794753
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 31,
+      "parameter": 1.092931525076,
+      "trainLoss": 0.000004220515
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 32,
+      "parameter": 1.093779939712,
+      "trainLoss": 0.000003049855
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 33,
+      "parameter": 1.094518864513,
+      "trainLoss": 0.000002185862
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 34,
+      "parameter": 1.095159906729,
+      "trainLoss": 0.00000155325
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 35,
+      "parameter": 1.095713742768,
+      "trainLoss": 0.000001093904
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 36,
+      "parameter": 1.096190171447,
+      "trainLoss": 7.6327e-7
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 37,
+      "parameter": 1.096598162252,
+      "trainLoss": 5.27446e-7
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 38,
+      "parameter": 1.096945900048,
+      "trainLoss": 3.60841e-7
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 39,
+      "parameter": 1.097240827401,
+      "trainLoss": 2.44301e-7
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "rmsprop",
+      "update": 40,
+      "parameter": 1.097489685376,
+      "trainLoss": 1.6362e-7
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 0,
+      "parameter": 0.72,
+      "trainLoss": 0.033522203373
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 1,
+      "parameter": 0.739999999118,
+      "trainLoss": 0.02919137605
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 2,
+      "parameter": 0.759928973282,
+      "trainLoss": 0.025269832088
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 3,
+      "parameter": 0.779736068923,
+      "trainLoss": 0.021739971908
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 4,
+      "parameter": 0.799368533394,
+      "trainLoss": 0.018582161576
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 5,
+      "parameter": 0.818772418747,
+      "trainLoss": 0.015775065525
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 6,
+      "parameter": 0.837893362173,
+      "trainLoss": 0.013296018994
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 7,
+      "parameter": 0.856677415024,
+      "trainLoss": 0.011121425635
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 8,
+      "parameter": 0.875071887969,
+      "trainLoss": 0.009227164186
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 9,
+      "parameter": 0.893026177843,
+      "trainLoss": 0.007588987851
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 10,
+      "parameter": 0.910492542621,
+      "trainLoss": 0.006182901005
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 11,
+      "parameter": 0.927426794415,
+      "trainLoss": 0.004985499993
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 12,
+      "parameter": 0.943788886196,
+      "trainLoss": 0.003974267803
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 13,
+      "parameter": 0.959543375173,
+      "trainLoss": 0.003127815936
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 14,
+      "parameter": 0.974659753762,
+      "trainLoss": 0.002426070377
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 15,
+      "parameter": 0.989112646886,
+      "trainLoss": 0.001850402027
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 16,
+      "parameter": 1.002881881288,
+      "trainLoss": 0.001383704729
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 17,
+      "parameter": 1.015952438144,
+      "trainLoss": 0.001010426244
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 18,
+      "parameter": 1.028314304275,
+      "trainLoss": 0.000716558893
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 19,
+      "parameter": 1.039962239551,
+      "trainLoss": 0.000489597274
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 20,
+      "parameter": 1.050895478993,
+      "trainLoss": 0.000318470535
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 21,
+      "parameter": 1.061117387617,
+      "trainLoss": 0.000193456273
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 22,
+      "parameter": 1.070635084794,
+      "trainLoss": 0.000106082381
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 23,
+      "parameter": 1.079459052939,
+      "trainLoss": 0.00004902228
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 24,
+      "parameter": 1.087602743076,
+      "trainLoss": 0.000015987939
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 25,
+      "parameter": 1.095082187461,
+      "trainLoss": 0.000001624172
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 26,
+      "parameter": 1.101915627157,
+      "trainLoss": 0.000001406746
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 27,
+      "parameter": 1.108123160346,
+      "trainLoss": 0.000011546114
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 28,
+      "parameter": 1.113726415294,
+      "trainLoss": 0.000028897907
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 29,
+      "parameter": 1.118748250341,
+      "trainLoss": 0.000050880789
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 30,
+      "parameter": 1.123212481998,
+      "trainLoss": 0.000075401902
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 31,
+      "parameter": 1.127143641196,
+      "trainLoss": 0.000100789803
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 32,
+      "parameter": 1.130566757003,
+      "trainLoss": 0.000125734605
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 33,
+      "parameter": 1.133507166498,
+      "trainLoss": 0.000149234873
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 34,
+      "parameter": 1.135990349159,
+      "trainLoss": 0.000170550779
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 35,
+      "parameter": 1.138041783828,
+      "trainLoss": 0.000189162939
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 36,
+      "parameter": 1.139686826187,
+      "trainLoss": 0.000204736376
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 37,
+      "parameter": 1.140950604652,
+      "trainLoss": 0.000217089072
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 38,
+      "parameter": 1.141857932562,
+      "trainLoss": 0.000226164569
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 39,
+      "parameter": 1.142433234657,
+      "trainLoss": 0.000232008159
+    },
+    {
+      "benchmark": "circle-2-4-1-tanh",
+      "optimizer": "adam",
+      "update": 40,
+      "parameter": 1.142700485884,
+      "trainLoss": 0.000234746211
+    }
+  ]
+}

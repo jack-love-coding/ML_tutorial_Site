@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
-current_phase: 28.2
+current_phase: 28
 current_phase_name: Optimizer Principles, State, and MLP Transfer
-status: in_progress
+status: executing
 stopped_at: Executing 28.2-01-PLAN.md
 last_updated: "2026-08-12T00:00:00+08:00"
 last_activity: 2026-08-12
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 28B — Optimizer Principles, State, and MLP Transfer
+**Current focus:** Phase 28 — Optimizer Principles, State, and MLP Transfer (28B)
 
 ## Baseline
 
