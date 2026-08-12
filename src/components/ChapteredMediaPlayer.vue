@@ -13,7 +13,7 @@ const props = defineProps<{
   title: LocalizedCopy
   alt?: LocalizedCopy
   transcript?: LocalizedCopy
-  chapterMarkers?: ChapterMarker[]
+  chapterMarkers?: readonly ChapterMarker[]
 }>()
 
 const { locale } = useI18n()

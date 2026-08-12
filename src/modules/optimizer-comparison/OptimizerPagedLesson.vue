@@ -7,6 +7,7 @@ import MarkdownMathContent from '../../components/MarkdownMathContent.vue'
 import type { AlgorithmModuleDefinition, AppLocale, StorySection } from '../../types/ml'
 import { withPublicBase } from '../../utils/publicPath'
 import { optimizerCourseChapters, optimizerCourseDownloads, optimizerCourseReferences } from './data/course'
+import { optimizerMediaRegistry } from './data/media'
 
 const TrainingLedgerScene = defineAsyncComponent(() => import('./labs/TrainingLedgerScene.vue'))
 const BatchNoiseScene = defineAsyncComponent(() => import('./labs/BatchNoiseScene.vue'))
@@ -29,13 +30,7 @@ const next = computed(() => optimizerCourseChapters[index.value + 1])
 const localized = (value: { 'zh-CN': string; en: string }) => value[activeLocale.value]
 const routeFor = (id: string) => `/learn/optimizer-comparison/${id}`
 const labs = { 'training-loop': TrainingLedgerScene, 'sgd-batch-noise': BatchNoiseScene, 'momentum-rmsprop': MomentumRmspropScene, 'adam-weight-decay': AdamDecayScene, 'learning-rate-schedules': ScheduleCadenceScene, 'curve-diagnosis': CurveDiagnosisScene } as const
-const media = {
-  sgd: { assetPath: '/manim/optimizer-comparison/sgd-state.mp4', posterPath: '/manim/optimizer-comparison/sgd-state.svg', title: { 'zh-CN': 'SGD 状态动画', en: 'SGD state animation' } },
-  momentum: { assetPath: '/manim/optimizer-comparison/momentum-state.mp4', posterPath: '/manim/optimizer-comparison/momentum-state.svg', title: { 'zh-CN': 'Momentum 状态动画', en: 'Momentum state animation' } },
-  rmsprop: { assetPath: '/manim/optimizer-comparison/rmsprop-state.mp4', posterPath: '/manim/optimizer-comparison/rmsprop-state.svg', title: { 'zh-CN': 'RMSProp 状态动画', en: 'RMSProp state animation' } },
-  adam: { assetPath: '/manim/optimizer-comparison/adam-state.mp4', posterPath: '/manim/optimizer-comparison/adam-state.svg', title: { 'zh-CN': 'Adam 状态动画', en: 'Adam state animation' } },
-} as const
-const mediaConfigs = computed(() => (chapter.value.media ?? []).map((kind) => media[kind]))
+const mediaConfigs = computed(() => (chapter.value.media ?? []).map((kind) => optimizerMediaRegistry[kind]))
 
 async function copyCode(value?: string) {
   copied.value = false
