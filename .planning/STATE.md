@@ -2,33 +2,33 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
-current_phase: 28
-current_phase_name: Tabular Regression Project
-status: completed
-stopped_at: Completed 28-02-PLAN.md; Phase 28 release-verified
-last_updated: "2026-08-04T02:52:00+08:00"
-last_activity: 2026-08-04
-last_activity_desc: Phase 28 tabular regression project completed and release-verified
+current_phase: 28.2
+current_phase_name: Optimizer Principles, State, and MLP Transfer
+status: in_progress
+stopped_at: Executing 28.2-01-PLAN.md
+last_updated: "2026-08-12T00:00:00+08:00"
+last_activity: 2026-08-12
+last_activity_desc: Phase 28 and 28A reconciled; Phase 28B Plan 01 started
 progress:
-  total_phases: 7
-  completed_phases: 4
-  total_plans: 22
-  completed_plans: 22
-  percent: 57
-current_plan: 2
+  total_phases: 9
+  completed_phases: 5
+  total_plans: 27
+  completed_plans: 24
+  percent: 89
+current_plan: 1
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
-**Updated:** 2026-08-04
-**Status:** Phase 28 complete
+**Updated:** 2026-08-12
+**Status:** Phase 28B Plan 01 in progress
 
 ## Current Position
 
-Phase: 28 (Tabular Regression Project) — COMPLETE
-Plan: 2 of 2
-Status: Completed and release-verified
-Last activity: 2026-08-04 — Phase 28 tabular regression project completed and release-verified
+Phase: 28B (Optimizer Principles, State, and MLP Transfer) — IN PROGRESS
+Plan: 1 of 3
+Status: Shared numerical authority and planning reconciliation
+Last activity: 2026-08-12 — Phase 28 and 28A reconciliation; Phase 28B Plan 01 started
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 28 — Tabular Regression Project
+**Current focus:** Phase 28B — Optimizer Principles, State, and MLP Transfer
 
 ## Baseline
 
