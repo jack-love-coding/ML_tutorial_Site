@@ -308,6 +308,9 @@ watch(
       </div>
 
       <p class="math-lab-note">{{ copy.note }}</p>
+      <router-link class="optimizer-race-lab__course-link" to="/learn/optimizer-comparison/training-loop">
+        {{ currentLocale === 'zh-CN' ? '进入完整优化器课程：训练循环、状态与真实迁移' : 'Open the full optimizer course: loop, state, and real transfer' }}
+      </router-link>
     </div>
   </section>
 </template>
@@ -389,6 +392,17 @@ watch(
 .optimizer-race-lab__charts polyline {
   fill: none;
   stroke-width: 3;
+}
+
+.optimizer-race-lab__course-link {
+  display: block;
+  padding: 12px;
+  color: #8b3f1f;
+  border: 1px solid rgba(216, 93, 42, 0.32);
+  border-radius: 8px;
+  background: #fff7f2;
+  font-weight: 800;
+  text-decoration: none;
 }
 
 @media (max-width: 720px) {

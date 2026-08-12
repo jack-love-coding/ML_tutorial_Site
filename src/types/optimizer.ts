@@ -93,6 +93,8 @@ export interface OptimizerBenchmarkManifest {
       sourceSha256: string
       splitCounts: { train: number; validation: number; test: number }
       preprocessing: { fitSplit: 'train'; ddof: 0; means: Record<string, number>; scales: Record<string, number> }
+      evaluationArtifact: string
+      finalTestEvaluationCount: 1
     }
   }
   model: {
@@ -127,6 +129,9 @@ export function assertOptimizerBenchmarkManifest(value: unknown): asserts value 
   if (!banknote.splitCounts || !Object.values(banknote.splitCounts).every((count) => Number.isInteger(count) && count > 0)) throw new RangeError('benchmark manifest split counts are invalid')
   if (banknote.preprocessing?.fitSplit !== 'train' || banknote.preprocessing.ddof !== 0 || !isFiniteRecord(banknote.preprocessing.means) || !isFiniteRecord(banknote.preprocessing.scales)) {
     throw new RangeError('benchmark manifest preprocessing contract is invalid')
+  }
+  if (banknote.evaluationArtifact !== '/datasets/optimizer-comparison/banknote-transfer.json' || banknote.finalTestEvaluationCount !== 1) {
+    throw new RangeError('benchmark manifest Banknote evaluation contract is invalid')
   }
   if (!Array.isArray(manifest.model.shape) || manifest.model.shape.join(',') !== '2,4,1' || manifest.model.activation !== 'tanh' || !Number.isInteger(manifest.model.seed) || !manifest.model.initialization) {
     throw new RangeError('benchmark manifest model contract is invalid')

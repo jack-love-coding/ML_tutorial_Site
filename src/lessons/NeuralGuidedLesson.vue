@@ -156,6 +156,12 @@ function sectionTitle(section = activeSection.value) {
 
       <slot name="lab" :section="activeSection" />
 
+      <RouterLink v-if="props.variant === 'mlp' && activeSection.id === 'backprop'" class="neural-optimizer-bridge" to="/learn/optimizer-comparison/training-loop">
+        <span>{{ locale === 'zh-CN' ? '机制桥接' : 'Mechanism bridge' }}</span>
+        <strong>{{ locale === 'zh-CN' ? '把反向传播写出的梯度交给优化器' : 'Hand backpropagation’s gradients to an optimizer' }}</strong>
+        <small>{{ locale === 'zh-CN' ? '下一课比较 batch、动量、自适应状态和学习率计划。' : 'Next compare batches, momentum, adaptive state, and learning-rate plans.' }}</small>
+      </RouterLink>
+
       <section class="neural-chapter-conclusion" aria-live="polite">
         <span>{{ copy.observation }}</span>
         <strong>{{ localizedText(activeSection.callout) }}</strong>

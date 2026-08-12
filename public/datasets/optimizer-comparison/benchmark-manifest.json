@@ -26,7 +26,9 @@
           "curtosis": 4.23492440403221,
           "entropy": 2.072658196015601
         }
-      }
+      },
+      "evaluationArtifact": "/datasets/optimizer-comparison/banknote-transfer.json",
+      "finalTestEvaluationCount": 1
     }
   },
   "model": {
@@ -129,11 +131,11 @@
     },
     "/notebooks/optimizer-comparison/optimizer-comparison.zh-CN.ipynb": {
       "path": "/notebooks/optimizer-comparison/optimizer-comparison.zh-CN.ipynb",
-      "sha256": "0aa67bd34c3b66797239fab4bd6661312d027cc308341978ace38bf01c9147b1"
+      "sha256": "73fd4940b73c762b3e9245fa55c8b5033ba9b5ef78fffe1e5f22aa1fba0d10bf"
     },
     "/datasets/optimizer-comparison/banknote-transfer.json": {
       "path": "/datasets/optimizer-comparison/banknote-transfer.json",
-      "sha256": "ff0ccada80a8294496fe0af9ea7e5e695ac5ea4d90db2892be1e357c82017e8c"
+      "sha256": "d39d7e37cfe127748f4da16bbcfcb6297be35231c467c9346ca3791e4dae5633"
     }
   }
 }
