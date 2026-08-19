@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
 
 const calibrationPath = new URL('../src/modules/logistic-regression/engine.ts', import.meta.url)
 
@@ -25,4 +26,22 @@ test('Phase 29 calibration fixes bin edges, empty-bin behaviour, and full-precis
   assert.equal(LOGISTIC_CALIBRATION_CONTRACT.eceStorage, 'full-precision')
   assert.equal(LOGISTIC_CALIBRATION_CONTRACT.syntheticDiagnostics, 'isolated-xor-and-circles')
   assert.equal(LOGISTIC_CALIBRATION_CONTRACT.syntheticUsedForBanknoteFit, false)
+})
+
+test('Phase 29 analysis preserves ranking and default labels across controlled temperatures', () => {
+  const result = spawnSync('python3', [
+    '-c',
+    [
+      'from pathlib import Path',
+      'import sys',
+      "sys.path.insert(0, str(Path('scripts/logistic-regression').resolve()))",
+      'from phase29_analysis import load_banknote_source, train_scratch_logistic, build_temperature_calibration',
+      'source = load_banknote_source()',
+      'calibration = build_temperature_calibration(source, train_scratch_logistic(source))',
+      "assert calibration['orderingPreserved'] is True",
+      "assert calibration['defaultLabelsInvariant'] is True",
+      "assert len({entry['expectedCalibrationError'] for entry in calibration['modes']}) > 1",
+    ].join('; '),
+  ], { encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr)
 })
