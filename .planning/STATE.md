@@ -5,15 +5,15 @@ milestone_name: Classical Supervised Learning
 current_phase: 29
 current_phase_name: logistic-regression-rebuild
 status: executing
-stopped_at: Completed 29-00-PLAN.md
-last_updated: "2026-08-19T15:40:43.074Z"
+stopped_at: Completed 29-01-PLAN.md
+last_updated: "2026-08-19T15:53:00.532Z"
 last_activity: 2026-08-19
 last_activity_desc: Phase 29 execution started
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 29
-  completed_plans: 21
+  completed_plans: 23
   percent: 33
 current_plan: null
 ---
@@ -26,7 +26,7 @@ current_plan: null
 ## Current Position
 
 Phase: 29 (logistic-regression-rebuild) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-08-19 — Phase 29 execution started
 
@@ -770,8 +770,8 @@ Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before pla
 
 ## Session
 
-**Last session:** 2026-08-19T15:40:43.064Z
-**Stopped at:** Completed 29-00-PLAN.md
+**Last session:** 2026-08-19T15:53:00.517Z
+**Stopped at:** Completed 29-01-PLAN.md
 **Resume file:** None
 
 ## Performance Metrics
@@ -813,6 +813,7 @@ Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before pla
 | Phase 28.2 P02 | 12m | 2 tasks | 33 files |
 | Phase 28.2 P03 | 20min | 3 tasks | 20 files |
 | Phase 29 P00 | 27m | 3 tasks | 10 files |
+| Phase 29-logistic-regression-rebuild P01 | 36m | 2 tasks | 7 files |
 
 ## Decisions
 
@@ -904,6 +905,7 @@ Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before pla
 - [Phase 28B]: Keep existing optimizer routes while rendering detailed typed course content in a targeted shell.
 - [Phase 28B]: Use shared optimizer trajectories and supplied media instead of duplicating numerical fitting.
 - [Phase ?]: Phase 29 Wave 0 locks fail-first numerical, asset, media, course, lab, compatibility, and release contracts before production work.
+- [Phase ?]: Phase 29 linear-score uses one source-audited standardized Banknote row with a pure stable logistics engine.
 
 ## Operator Next Steps
 
