@@ -107,6 +107,7 @@ test('Phase 29 runtime asset boundary validates, freezes, hashes, and resolves o
   assert.equal(parsedInteraction.sceneId, 'linear-score')
   assert.equal(Object.isFrozen(parsedInteraction), true)
   assert.equal(Object.isFrozen(parsedInteraction.data), true)
+  assert.equal('predictionHandoff' in (parsedManifest as object), false)
   assert.throws(() => assets.parseLogisticInteractionAsset({ ...interaction, sceneId: 'log-loss' }, 'linear-score'))
   assert.throws(() => assets.parseLogisticManifest({ ...manifest, contractVersion: 'unexpected' }))
   const fetchCalls: string[] = []
@@ -123,6 +124,13 @@ test('Phase 29 runtime asset boundary validates, freezes, hashes, and resolves o
   assert.equal(loaded.sceneId, 'linear-score')
   assert.ok(fetchCalls.includes('/ML_tutorial_Site/logistic-regression/phase-29/manifest.json'))
   assert.ok(fetchCalls.includes('/ML_tutorial_Site/logistic-regression/phase-29/interactions/linear-score.json'))
+  await assets.loadLogisticManifest({ baseUrl: '/', fetch: async (input) => {
+    fetchCalls.push(String(input)); return responseFor(manifest)
+  } })
+  assert.ok(fetchCalls.includes('/logistic-regression/phase-29/manifest.json'))
+  const controller = new AbortController()
+  controller.abort()
+  await assert.rejects(() => assets.loadLogisticManifest({ signal: controller.signal, fetch: async () => responseFor(manifest) }), /cancelled/i)
   const corrupted = structuredClone(manifest)
   corrupted.assets[0].sha256 = '0'.repeat(64)
   await assert.rejects(() => assets.loadLogisticInteraction('linear-score', { manifest: corrupted, fetch: async () => new Response(rawInteraction, { status: 200 }) }), /integrity/i)

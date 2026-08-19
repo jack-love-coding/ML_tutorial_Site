@@ -110,6 +110,14 @@ export interface LogisticAssetManifest {
   predictionHandoff: LogisticPredictionHandoff
 }
 
+/** The only manifest shape that lesson code may receive.  The Phase 30 handoff
+ * is validated in the raw package but deliberately omitted here. */
+export interface LogisticLearnerAssetManifest {
+  contractVersion: 'logistic-regression-phase-29-v1'
+  locales: readonly ['zh-CN', 'en']
+  assets: readonly LogisticInteractionAsset[]
+}
+
 export type LogisticAssetLoadFailureCode = 'aborted' | 'http-error' | 'schema-error' | 'integrity-error'
 
 export class LogisticAssetLoadError extends Error {

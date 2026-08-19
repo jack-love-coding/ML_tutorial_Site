@@ -3,7 +3,7 @@ import {
   LOGISTIC_CHAPTER_IDS,
   LogisticAssetLoadError,
   type LogisticAssetLoadOptions,
-  type LogisticAssetManifest,
+  type LogisticLearnerAssetManifest,
   type LogisticInteractionAsset,
   type LogisticInteractionControl,
   type LogisticObservationSceneId,
@@ -117,7 +117,7 @@ function parsePredictionHandoff(value: unknown): LogisticPredictionHandoff {
   return value as unknown as LogisticPredictionHandoff
 }
 
-export function parseLogisticManifest(value: unknown): LogisticAssetManifest {
+export function parseLogisticManifest(value: unknown): LogisticLearnerAssetManifest {
   if (!isRecord(value) || value.contractVersion !== CONTRACT_VERSION) throw new TypeError('Logistic manifest contract version mismatch.')
   const received = Object.keys(value)
   if (received.length !== MANIFEST_KEYS.size || received.some((key) => !MANIFEST_KEYS.has(key))) throw new TypeError('Logistic manifest has unknown or missing fields.')
@@ -140,9 +140,13 @@ export function parseLogisticManifest(value: unknown): LogisticAssetManifest {
   if (!isRecord(value.fileHashes) || Object.values(value.fileHashes).some((hash) => typeof hash !== 'string' || !SHA256.test(hash))) throw new TypeError('Logistic manifest file hashes are invalid.')
   parsePredictionHandoff(value.predictionHandoff)
   assertFiniteTree(value.analysis, '$.analysis')
-  // Retain the validated manifest tree so a caller may pass this authority to a
-  // later scene request without losing the complete-inventory integrity checks.
-  return deepFreeze(clone(value as unknown as LogisticAssetManifest))
+  // Validate the Phase 30 handoff in the raw package, but do not hand its path
+  // or records to a Phase 29 lesson loader.
+  return deepFreeze(clone({
+    contractVersion: CONTRACT_VERSION,
+    locales: ['zh-CN', 'en'],
+    assets: value.assets,
+  } as LogisticLearnerAssetManifest))
 }
 
 export function parseLogisticInteractionAsset(value: unknown, expectedSceneId: LogisticObservationSceneId): LogisticPublishedInteractionAsset {
@@ -189,7 +193,7 @@ async function fetchText(path: string, options: LogisticAssetLoadOptions): Promi
   }
 }
 
-export async function loadLogisticManifest(options: LogisticAssetLoadOptions = {}): Promise<LogisticAssetManifest> {
+export async function loadLogisticManifest(options: LogisticAssetLoadOptions = {}): Promise<LogisticLearnerAssetManifest> {
   const text = await fetchText(MANIFEST_PATH, options)
   try { return parseLogisticManifest(JSON.parse(text) as unknown) } catch (error) {
     throw new LogisticAssetLoadError('schema-error', error instanceof Error ? error.message : 'Logistic manifest is malformed.')
@@ -198,10 +202,10 @@ export async function loadLogisticManifest(options: LogisticAssetLoadOptions = {
 
 export async function loadLogisticInteraction(
   sceneId: LogisticObservationSceneId,
-  options: LogisticAssetLoadOptions & { manifest?: LogisticAssetManifest } = {},
+  options: LogisticAssetLoadOptions & { manifest?: LogisticLearnerAssetManifest } = {},
 ): Promise<LogisticPublishedInteractionAsset> {
   assertSceneId(sceneId, 'Requested scene')
-  const manifest = options.manifest ? parseLogisticManifest(options.manifest) : await loadLogisticManifest(options)
+  const manifest = options.manifest ? deepFreeze(clone(options.manifest)) : await loadLogisticManifest(options)
   const asset = manifest.assets.find((entry) => entry.sceneId === sceneId)
   if (!asset) throw new LogisticAssetLoadError('schema-error', 'Requested logistic scene is not in the approved manifest inventory.')
   const text = await fetchText(`${ASSET_ROOT}/${asset.path}`, options)
