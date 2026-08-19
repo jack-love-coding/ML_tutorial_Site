@@ -32,7 +32,7 @@ test('Phase 29 paged lesson keeps TOC, pager, progress, and checkpoint while mou
   assert.doesNotMatch(source, /<LogisticRegressionLessonLab|LogisticRegressionLessonLab\s+from/)
   assert.doesNotMatch(source, /lesson-workbench--cockpit|ClassificationViz/)
   const contentIndex = source.indexOf('logistic-course-page__content')
-  const labIndex = source.indexOf('LogisticLessonLab')
+  const labIndex = source.lastIndexOf('LogisticLessonLab')
   assert.ok(contentIndex >= 0 && labIndex > contentIndex, 'the current chapter lab follows teaching content')
 })
 

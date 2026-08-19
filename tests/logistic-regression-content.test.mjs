@@ -41,6 +41,11 @@ test('Phase 29 learner copy keeps references and downloads in the final chapter 
     assert.doesNotMatch(visible, /https?:\/\/|Ref ID|Evidence|证据/)
     assert.doesNotMatch(visible, /\bprecision\b|\brecall\b|\bF1\b|\bROC\b|\bAUC\b|confusion matrix/i)
   }
+  const pagedSource = await import('node:fs').then(({ readFileSync }) => readFileSync(new URL('../src/components/LogisticRegressionPagedLesson.vue', import.meta.url), 'utf8'))
+  assert.match(pagedSource, /logisticCourseReferences/)
+  assert.match(pagedSource, /logisticCourseDownloads/)
+  assert.match(pagedSource, /chapter\.id === 'linear-limits'/)
+  assert.doesNotMatch(pagedSource, /frozen-predictions/)
 })
 
 test('Phase 29 content marks capacity diagnostics synthetic and avoids reserved test disclosure', async () => {
