@@ -161,15 +161,18 @@ class ConfidentMistakeScene(Scene):
         data = anchors["log-loss"]["data"]
         acceptance = data["finiteDifference"]["acceptance"]
         h, error = float(acceptance["h"]), float(acceptance["observed"])
-        objective = float(data["finiteDifference"]["objective"])
+        example = data["confidentMistake"]
+        logit, target, loss = float(example["logit"]), int(example["label"]), float(example["bce"])
+        if target not in (0, 1) or not math.isclose(math.log1p(math.exp(logit)) - target * logit, loss, rel_tol=0.0, abs_tol=1e-12):
+            raise RuntimeError("Confident-mistake anchor must be the published y=1 high-loss row.")
 
         axes = Axes(x_range=[-7, 7, 2], y_range=[0, 7, 1], x_length=9.6, y_length=4.0, tips=False, axis_config={"stroke_color": WHITE, "stroke_opacity": 0.55}).shift(DOWN * 0.55)
-        loss_curve = axes.plot(lambda z: math.log1p(math.exp(min(30, max(-30, z)))), x_range=[-7, 7], color=PALETTE["loss"], stroke_width=6)
+        loss_curve = axes.plot(lambda z: math.log1p(math.exp(min(30, max(-30, z)))) - target * z, x_range=[-7, 7], color=PALETTE["loss"], stroke_width=6)
         formula = _equation(r"\ell(z,y)=\operatorname{softplus}(z)-yz", PALETTE["loss"], 0.78).to_edge(UP)
-        stable = _equation(rf"L(\theta)={objective:.4f}", PALETTE["loss"], 0.62).next_to(formula, DOWN, buff=0.2)
+        stable = _equation(rf"y={target},\;z={logit:.4f},\;\ell={loss:.4f}", PALETTE["loss"], 0.62).next_to(formula, DOWN, buff=0.2)
         check = _equation(rf"\frac{{L(\theta+h e_j)-L(\theta-h e_j)}}{{2h}}\approx\frac{{\partial L}}{{\partial\theta_j}}\quad h={h:.0e},\;|\Delta|={error:.2e}", PALETTE["gradient"], 0.48).to_edge(DOWN)
-        marker = Dot(axes.c2p(4.5, math.log1p(math.exp(4.5))), color=PALETTE["loss"], radius=0.1)
-        marker_line = DashedLine(axes.c2p(4.5, 0), marker.get_center(), color=PALETTE["loss"], dash_length=0.12)
+        marker = Dot(axes.c2p(logit, loss), color=PALETTE["loss"], radius=0.1)
+        marker_line = DashedLine(axes.c2p(logit, 0), marker.get_center(), color=PALETTE["loss"], dash_length=0.12)
 
         self.play(Write(formula), FadeIn(stable), FadeIn(axes), Create(loss_curve))
         self.play(FadeIn(marker), Create(marker_line), Write(check))

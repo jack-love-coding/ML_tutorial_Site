@@ -6,8 +6,8 @@
     "manifest": "public/logistic-regression/phase-29/manifest.json",
     "sourceCells": ["phase29-linear-score", "phase29-log-loss"],
     "interactionHashes": {
-      "linear-score": "b80c758427eeedddbcf2659afa28b2c17d7bdb981d5d29dbfae24bf5d21a9042",
-      "log-loss": "c2cf0ddd7a8a5e1e1a853c7f5538e977ea5b967d2e17c279255631223a7c912a"
+      "linear-score": "3fabbf8ebb6a1923cf987e6bdaa81dd4741ecc4527639bdb861c8b012399d494",
+      "log-loss": "ba1644ba4a635c14630181845fbd5cb1a64c7322550269c565f801a7385bab82"
     },
     "highLossRow": {
       "rowId": 919,

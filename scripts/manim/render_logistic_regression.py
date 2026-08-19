@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import math
 import re
 import shutil
 import subprocess
@@ -99,6 +100,11 @@ def validate_sources(scene_id: str | None = None) -> None:
             raise SystemExit(f"Phase 29 anchor contract failed for {selected}: {error}") from error
         if not anchors:
             raise SystemExit(f"Empty anchor contract for {selected}")
+        if selected == "log-loss-confident-mistake":
+            example = anchors["log-loss"]["data"].get("confidentMistake", {})
+            logit, target, loss = example.get("logit"), example.get("label"), example.get("bce")
+            if target != 1 or not all(isinstance(value, (int, float)) and math.isfinite(float(value)) for value in (logit, loss)) or not math.isclose(math.log1p(math.exp(float(logit))) - float(target) * float(logit), float(loss), rel_tol=0.0, abs_tol=1e-12):
+                raise SystemExit("Confident-mistake media anchor must match the published high-loss y=1 row.")
     print(f"Validated {len(scene_ids)} logistic scenes against Phase 29 manifest identities, source cells, hashes, and numeric anchors.")
 
 
