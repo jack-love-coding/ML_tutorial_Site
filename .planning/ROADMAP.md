@@ -177,6 +177,16 @@
 4. Calibration bins distinguish probability quality from class accuracy, while a nonlinear example shows the limit of one linear decision boundary.
 5. The existing route, checkpoint, lab behavior, downloadable Notebook/output package, focused tests, and both builds remain valid.
 
+**Plans:** 7 plans
+
+- [ ] 29-01-PLAN.md — One-row tracer, phase-local contracts, and pure stable logistic engine
+- [ ] 29-02-PLAN.md — Executed Banknote analysis, atomic asset package, strict loader, and Phase 30 handoff
+- [ ] 29-03-PLAN.md — Shared Manim source contract plus score/sigmoid and likelihood/BCE/gradient teaching packages
+- [ ] 29-04-PLAN.md — Two diagnostic teaching packages plus production rendering, publication, hashes, and shared-player fallbacks
+- [ ] 29-05-PLAN.md — Six route-lazy guided SVG labs with pure scene models and accessible fallbacks
+- [ ] 29-06-PLAN.md — Complete bilingual six-chapter course, final resources, checkpoint, and responsive integration
+- [ ] 29-07-PLAN.md — Real-browser matrix, full release gate, source audit, and Nyquist validation closure
+
 ## Phase 30: Classification Decisions Rebuild
 
 **Goal:** Rebuild `classification` around held-out probability scores so learners can calculate metrics, interpret ranking, select a cost-aware threshold, and inspect subgroup and example-level errors.
@@ -219,7 +229,7 @@
 | 28. Tabular Regression Project | v1.1 | 5 | Complete — 2026-08-04 |
 | 28A. Gradient Descent Beginner Teaching Rebuild | v1.1 | 6 | Complete — 2026-08-11 |
 | 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | Complete — 2026-08-13 |
-| 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
+| 29. Logistic Regression Rebuild | v1.1 | 4 | Planned — 7 plans |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |
 | 31. Corridor Integration and Release | v1.1 | 5 | Not started |
 
