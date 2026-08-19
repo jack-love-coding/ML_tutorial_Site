@@ -33,6 +33,10 @@ function assertExactKeys(value: Record<string, unknown>, keys: readonly string[]
   }
 }
 
+function allowsNullableCalibrationRate(path: string): boolean {
+  return /^\$\.data\.calibration\.modes\[\d+\]\.bins\[\d+\]\.(meanProbability|observedRate)$/.test(path)
+}
+
 function assertFiniteTree(value: unknown, path = '$', depth = 0): void {
   if (depth > 20) throw new TypeError(`${path} exceeds the asset nesting limit.`)
   if (typeof value === 'number') {
@@ -49,6 +53,7 @@ function assertFiniteTree(value: unknown, path = '$', depth = 0): void {
     Object.entries(value).forEach(([key, entry]) => assertFiniteTree(entry, `${path}.${key}`, depth + 1))
     return
   }
+  if (value === null && allowsNullableCalibrationRate(path)) return
   throw new TypeError(`${path} cannot be null or undefined.`)
 }
 
