@@ -68,3 +68,18 @@ test('score, sigmoid, and likelihood scenes provide a bounded keyboard-accessibl
     assert.match(source, /aria-label|<title>/i, `${name} labels its visual`)
   }
 })
+
+test('gradient, parity, and calibration scenes preserve replay and synthetic-data boundaries', () => {
+  for (const name of sceneNames.slice(3)) {
+    const path = new URL(`../src/modules/logistic-regression/labs/${name}.vue`, import.meta.url)
+    assert.ok(existsSync(path), `missing ${name}`)
+    const source = readFileSync(path, 'utf8')
+    assert.match(source, /build[A-Za-z]+SceneModel|published|replay/i, `${name} uses a pure model or frozen replay`)
+    assert.match(source, /@keydown|keydown|tabindex/i, `${name} supports keyboard interaction`)
+    assert.match(source, /table|fallback/i, `${name} has a semantic table fallback`)
+    if (name !== 'LogLossGradientScene') assert.match(source, /reducedMotion|reduced motion|合成|synthetic/i, `${name} provides motion or provenance text`)
+  }
+  const finalSource = readFileSync(new URL('../src/modules/logistic-regression/labs/CalibrationLimitsScene.vue', import.meta.url), 'utf8')
+  assert.match(finalSource, /synthetic.*never used|未用于 Banknote/i)
+  assert.doesNotMatch(finalSource, /loadLogisticInteraction\(|fit\(|sklearn\.fit/i)
+})

@@ -1,8 +1,6 @@
 import {
-  bernoulliLogLikelihood,
   oneRowLogisticTerms,
   sigmoidOddsTerms,
-  temperatureProbability,
 } from '../engine.ts'
 import type { LogisticPublishedInteractionAsset } from '../types.ts'
 
@@ -89,7 +87,9 @@ export function buildLinearScoreSceneModel(asset: LinearAsset, rowId = 'canonica
   const standardized = numberList(row.standardized)
   const base = oneRow({ oneRow: { ...record(data.oneRow), standardizedFeatures: standardized, label: row.label, logit: row.logit, probability: row.probability, bce: row.bce } })
   const featureNames = ['variance', 'skewness', 'curtosis', 'entropy']
-  const contributions = base.contributions.length ? base.contributions : standardized.map((value, index) => value * finite(base.features[index]))
+  const contributions = base.contributions.length
+    ? base.contributions.map((entry) => typeof entry === 'number' ? entry : finite(entry.value))
+    : standardized.map((value, index) => value * finite(base.features[index]))
   const extent = Math.max(1, ...contributions.map((value) => Math.abs(value)), Math.abs(base.intercept))
   const terms = contributions.map((value, index) => ({
     label: featureNames[index]!, value, x: 36 + index * 66, y: scaleCoordinate(value, -extent, extent, 166, 26),
