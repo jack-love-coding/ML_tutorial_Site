@@ -96,3 +96,34 @@ test('Phase 29 publishes bounded replay traces while recording the complete acce
   assert.ok(regularization.data.scratch.traceSampling.acceptedStates > regularization.data.scratch.trace.length)
   assert.ok(csvRows.length <= 801)
 })
+
+test('Phase 29 runtime asset boundary validates, freezes, hashes, and resolves only Pages-safe registry paths', async () => {
+  const assets = await import(new URL('../src/modules/logistic-regression/assets.ts', import.meta.url).href) as typeof import('../src/modules/logistic-regression/assets.ts')
+  const manifest = JSON.parse(readFileSync(resolve(packageRoot, 'manifest.json'), 'utf8'))
+  const interaction = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/linear-score.json'), 'utf8'))
+  const parsedManifest = assets.parseLogisticManifest(manifest)
+  const parsedInteraction = assets.parseLogisticInteractionAsset(interaction, 'linear-score')
+  assert.equal(parsedManifest.assets.length, 6)
+  assert.equal(parsedInteraction.sceneId, 'linear-score')
+  assert.equal(Object.isFrozen(parsedInteraction), true)
+  assert.equal(Object.isFrozen(parsedInteraction.data), true)
+  assert.throws(() => assets.parseLogisticInteractionAsset({ ...interaction, sceneId: 'log-loss' }, 'linear-score'))
+  assert.throws(() => assets.parseLogisticManifest({ ...manifest, contractVersion: 'unexpected' }))
+  const fetchCalls: string[] = []
+  const responseFor = (payload: unknown) => new Response(JSON.stringify(payload), { status: 200 })
+  const rawInteraction = readFileSync(resolve(packageRoot, 'interactions/linear-score.json'), 'utf8')
+  const fetchedManifest = await assets.loadLogisticManifest({ baseUrl: '/ML_tutorial_Site/', fetch: async (input) => {
+    fetchCalls.push(String(input)); return responseFor(manifest)
+  } })
+  const loaded = await assets.loadLogisticInteraction('linear-score', {
+    manifest: fetchedManifest,
+    baseUrl: '/ML_tutorial_Site/',
+    fetch: async (input) => { fetchCalls.push(String(input)); return new Response(rawInteraction, { status: 200 }) },
+  })
+  assert.equal(loaded.sceneId, 'linear-score')
+  assert.ok(fetchCalls.includes('/ML_tutorial_Site/logistic-regression/phase-29/manifest.json'))
+  assert.ok(fetchCalls.includes('/ML_tutorial_Site/logistic-regression/phase-29/interactions/linear-score.json'))
+  const corrupted = structuredClone(manifest)
+  corrupted.assets[0].sha256 = '0'.repeat(64)
+  await assert.rejects(() => assets.loadLogisticInteraction('linear-score', { manifest: corrupted, fetch: async () => new Response(rawInteraction, { status: 200 }) }), /integrity/i)
+})
