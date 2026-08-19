@@ -59,8 +59,8 @@
 ### the agent's Discretion
 
 - Select the canonical and three comparison row IDs from frozen train/validation outputs, provided each label is mathematically accurate and non-semantic class wording is preserved.
-- Choose the controlled sharpening/softening transforms, calibration-bin count, error summary, and finite-difference step sweep after validating that the comparison keeps the intended class predictions fixed.
-- Choose learning rate, maximum iterations, stopping rule, L2 strength, solver, coefficient/probability tolerances, plot ranges, and exact animation durations from reproducible execution results.
+- Validate the planned controlled sharpening/softening transforms and calibration-bin summary against the frozen validation logits before publication; record the accepted temperatures and bin contract in the manifest.
+- Choose only the separate L2 teaching strength, plot ranges, and exact animation durations from reproducible outputs. The unregularized scratch/sklearn configuration, stopping rules, parity tolerances, and finite-difference sweep are fixed under `Open Questions (RESOLVED)` below and cannot be changed during execution.
 - Choose whether the XOR diagnostic uses four exact points before a jittered view and whether the circle view reuses an existing deterministic generator, provided both are clearly separated from the Banknote authority.
 
 ### Deferred Ideas (OUT OF SCOPE)
@@ -403,25 +403,27 @@ Use only fixed, validated temperature values in the published calibration asset 
 |---|---|---|---|
 | A1 | `src/modules/logistic-regression/` and `public/logistic-regression/phase-29/` are the best new local paths. | Recommended Project Structure | Low: planner may choose equivalent phase-local paths, but must preserve public-path/manifest contracts. |
 | A2 | A positive logit-temperature transform will be the selected sharpen/soften implementation. | Code Examples | Medium: it must be verified against frozen validation outputs and label/order assertions before becoming a content fact. |
-| A3 | Phase 29 will add a dedicated asset builder rather than extend the older Batch 4 generator. | Architecture | Medium: the planner needs select after inspecting source ownership and avoiding mutation of prior published contracts. |
+| A3 | Phase 29 adds a dedicated bilingual executed Notebook and asset builder under `public/logistic-regression/phase-29/`; it does not extend the older Batch 4 Notebook because that authority contains final-test reporting. | Architecture | Resolved: the separate package is mandatory to preserve the Phase 29/30 disclosure boundary. |
 | A4 | No runtime service/OS state exists outside repository config. | Runtime State Inventory | Low: static Pages architecture and repository audit indicate none, but deployment settings outside GitHub are not inspectable here. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Which scratch optimization path should establish the parity model?**
-   - What we know: the existing engine supports fixed and Armijo procedures with L2 and validation stopping; the existing Batch 4 sklearn baseline uses `lbfgs`, `fit_intercept: true`, `tol: 1e-12`, and `max_iter: 5000`. [VERIFIED: `src/modules/math-lab/utils/banknoteLogistic.ts:172-220`, `tests/numerical-methods-batch-4.test.ts:486-500`]
-   - What's unclear: exact unregularized solver/iteration/tolerance settings that achieve a readable, genuinely aligned scratch endpoint under the Phase 29 objective.
-   - Recommendation: choose by executed convergence data, persist both objectives/configs in the manifest, and set tolerances only after the generated comparison is reproducible.
+1. **Which scratch optimization path establishes the aligned unregularized parity model?**
+   - Use the train-only, `ddof=0` standardized four-feature matrix with an explicit intercept and no penalty.
+   - The scikit-learn 1.9 authority is exactly `LogisticRegression(C=np.inf, l1_ratio=0.0, solver='lbfgs', fit_intercept=True, tol=1e-12, max_iter=5000)`. Persist `n_iter_`, capture all warning categories/messages, fail publication on any `ConvergenceWarning`, and record the warnings policy plus the remaining captured-warning list in the manifest.
+   - The scratch authority starts from zeros and minimizes full-batch stable logit-domain mean BCE with `l2=0`. Use Armijo gradient descent with initial step `32`, `c=1e-4`, `rho=0.5`, `max_backtracks=30`, `minimum_step=1e-12`, and `max_iterations=100000`.
+   - Stop when gradient norm is `<= 1e-8`, or when both relative objective change is `<= 1e-14` and parameter-step norm is `<= 1e-10`. Persist the actual terminal reason and accepted iteration count.
+   - Fixed parity acceptance is maximum absolute coefficient/intercept delta `<= 2e-4` and maximum validation probability delta `<= 1e-6`. Local verification on the committed Banknote snapshot observed approximately `1.67e-4` and `9.25e-7`; generation must fail instead of relaxing either tolerance.
 
-2. **Should the existing Batch 4 Notebook be extended or should a Phase 29 Notebook be new?**
-   - What we know: Batch 4 includes a final-test report that Phase 29 must not surface. [VERIFIED: `tests/numerical-methods-batch-4.test.ts:473-505`]
-   - What's unclear: whether a narrowly scoped extension can provably avoid carrying old test-output references into learner-facing assets.
-   - Recommendation: create a Phase 29-specific executed notebook/output package, while importing/reusing only pure data/engine helpers; this minimizes accidental boundary leakage. [ASSUMED]
+2. **Which Notebook owns Phase 29 outputs?**
+   - Create a Phase-29-specific bilingual executed Notebook/package at `public/logistic-regression/phase-29/`.
+   - Do not extend or republish the Batch 4 Notebook because it contains final-test reporting. Reuse only pure source/data helpers that do not carry its learner-visible test results.
 
-3. **What finite-difference step sweep best teaches accuracy without cancellation?**
-   - What we know: current tests validate `h = 1e-6` with maximum analytic-vs-centered error `<= 2e-9` for one fixed parameter vector. [VERIFIED: `tests/numerical-methods-batch-4.test.ts:650-682`]
-   - What's unclear: learner-facing sequence of step sizes that demonstrates both truncation and rounding effects using the Phase 29 selected parameters.
-   - Recommendation: generate several steps from the same published analytic gradient, reject non-finite values, and choose a small readable subset only after execution.
+3. **What is the finite-difference teaching contract?**
+   - Use the canonical standardized training batch, parameter vector `[0.2, -0.1, 0.05, 0.15, -0.3]`, and unregularized stable mean BCE.
+   - Compute centered differences for every parameter at `h = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8]`.
+   - Persist full-precision analytic/numerical gradients and component errors, show every step in the learner table, round only in rendering, and make no monotonic-error claim.
+   - At `h = 1e-6`, the maximum component error must be `<= 2e-9`; generation fails if this fixed check is not met.
 
 ## Environment Availability
 
