@@ -1,7 +1,8 @@
 async (page) => {
   // This evaluator is intentionally self-contained: playwright-cli loads it with
   // `run-code --filename`, so it cannot rely on a Node-side test helper.
-  const origin = 'http://127.0.0.1:4173'
+  // Run against the GitHub Pages base path, not a root-only development URL.
+  const origin = 'http://127.0.0.1:4173/ML_tutorial_Site'
   const rootPath = '/learn/logistic-regression'
   const chapterIds = [
     'linear-score',
@@ -113,7 +114,7 @@ async (page) => {
         safeFormulaPresent: !/katex-error|\\\\\(|\\\\\[|\$\$/.test(document.body.textContent ?? ''),
         finalResources: document.querySelectorAll('[data-testid="logistic-course-resources"]').length,
         finalCheckpoint: document.querySelectorAll('.algorithm-checkpoint').length,
-        phase30Link: [...document.querySelectorAll('a')].some((anchor) => anchor.getAttribute('href') === '/learn/classification'),
+        phase30Link: [...document.querySelectorAll('a')].some((anchor) => anchor.getAttribute('href') === '/ML_tutorial_Site/learn/classification'),
         finalChapter,
         overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
         deadFragments,

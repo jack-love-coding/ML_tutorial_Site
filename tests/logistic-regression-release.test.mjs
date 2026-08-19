@@ -47,6 +47,16 @@ test('Phase 29 release matrix requires all scene interactions and complete failu
   assert.match(source, /copy-failure/)
 })
 
+test('Phase 29 runs the real Pages browser matrix as an executable CI gate', () => {
+  const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+  const workflow = readFileSync(new URL('../.github/workflows/deploy-pages.yml', import.meta.url), 'utf8')
+  const runner = readFileSync(new URL('../scripts/qa/run-logistic-regression-browser-matrix.mjs', import.meta.url), 'utf8')
+  assert.match(packageJson.scripts['test:phase29:browser'], /build:pages.*run-logistic-regression-browser-matrix/)
+  assert.match(workflow, /Phase 29 browser release matrix/)
+  assert.match(runner, /--strictPort/)
+  assert.match(runner, /run-code.*logisticRegressionBrowserMatrix/)
+})
+
 test('Phase 29 release scope keeps Phase 30 metrics and evaluation disclosure out of learner contracts', () => {
   const component = readFileSync(new URL('../src/components/LogisticRegressionPagedLesson.vue', import.meta.url), 'utf8')
   assert.doesNotMatch(component, /precision|recall|F1|ROC|AUC|confusion matrix/i)

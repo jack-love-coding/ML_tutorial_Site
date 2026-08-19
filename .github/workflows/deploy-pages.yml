@@ -51,6 +51,9 @@ jobs:
       - name: Build
         run: npm run build:pages
 
+      - name: Phase 29 browser release matrix
+        run: node scripts/qa/run-logistic-regression-browser-matrix.mjs
+
       - name: Add SPA fallbacks
         run: node scripts/create-pages-fallbacks.mjs
 
