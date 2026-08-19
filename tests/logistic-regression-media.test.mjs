@@ -46,8 +46,35 @@ test('Phase 29 source renderer maps exactly four manifest-bound scene IDs and re
   )
 })
 
-test('published binary checks stay deferred until Plan 29-04 publishes a metadata package', () => {
-  assert.equal(existsSync(metadataPath), false, 'Plan 29-03 authors sources without replacing the existing binaries')
+test('published release binds all four MP4/poster/transcript packages to metadata and the typed registry', async () => {
+  const { logisticMediaRegistry, logisticMediaMetadataSha256 } = await import(registryUrl.href)
+  assert.ok(existsSync(metadataPath), 'the published metadata package exists')
+  assert.equal(sha256(metadataPath), logisticMediaMetadataSha256, 'runtime registry pins the complete metadata bytes')
+  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8'))
+  assert.deepEqual(metadata.assets.map((asset) => asset.id), expectedStems)
+  for (const stem of expectedStems) {
+    const asset = metadata.assets.find((entry) => entry.id === stem)
+    const runtime = logisticMediaRegistry[stem]
+    assert.ok(asset && runtime, `${stem} is present in metadata and registry`)
+    assert.equal(runtime.assetPath, asset.assetPath)
+    assert.equal(runtime.posterPath, asset.posterPath)
+    assert.equal(runtime.package.sha256, asset.sha256)
+    assert.equal(runtime.package.posterSha256, asset.posterSha256)
+    assert.equal(runtime.package.sourceManifestSha256, asset.sourceManifestSha256)
+    assert.deepEqual(runtime.chapterMarkers.map(({ id, startSeconds }) => ({ id, startSeconds })), asset.markers)
+    for (const source of [asset.prompt, asset.knowledgeTree, asset.transcriptZhCN, asset.transcriptEn]) {
+      assert.ok(existsSync(resolve(root, source)), `${stem} retains ${source}`)
+    }
+    for (const [locale, transcript] of [['zh-CN', asset.transcriptZhCN], ['en', asset.transcriptEn]]) {
+      assert.equal(runtime.transcript[locale].trim(), readFileSync(resolve(root, transcript), 'utf8').trim())
+    }
+    const probe = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,r_frame_rate,codec_name:format=duration', '-of', 'json', resolve(root, asset.assetPath.slice(1))], { encoding: 'utf8' }))
+    assert.equal(probe.streams[0].codec_name, 'h264')
+    assert.equal(probe.streams[0].width, 1920)
+    assert.equal(probe.streams[0].height, 1080)
+    assert.equal(probe.streams[0].r_frame_rate, '30/1')
+    assert.ok(asset.durationSeconds > 0 && asset.markers.every((marker) => marker.startSeconds >= 0 && marker.startSeconds < asset.durationSeconds), `${stem} has duration-bounded markers`)
+  }
 })
 
 test('Phase 29 media player contract preserves user-start, seeking, failures, reduced motion, base paths, and cleanup', () => {
