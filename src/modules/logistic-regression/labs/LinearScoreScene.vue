@@ -8,9 +8,9 @@ const props = defineProps<{ asset: LogisticPublishedInteractionAsset; locale: Ap
 const row = ref('canonical')
 const model = computed(() => buildLinearScoreSceneModel(props.asset as LogisticPublishedInteractionAsset & { sceneId: 'linear-score' }, row.value))
 const copy = computed(() => props.locale === 'zh-CN' ? {
-  title: '一行数据如何累加成线性分数', row: '比较样本', details: '展开数值明细', table: '分数累加表', read: '每一根竖线同时写明正负方向；最终分数来自特征贡献和截距的相加。', reset: '重置', target: '真实类别', predicted: '默认类别',
+  title: '一行数据如何累加成线性分数', row: '比较样本', table: '分数累加表', read: '每一根竖线同时写明正负方向；最终分数来自特征贡献和截距的相加。', reset: '重置', target: '真实类别', predicted: '默认类别',
 } : {
-  title: 'How one row accumulates into a linear score', row: 'Comparison row', details: 'Show numeric detail', table: 'Score accumulation table', read: 'Each vertical mark labels its sign; the final score adds feature contributions and the intercept.', reset: 'Reset', target: 'Target class', predicted: 'Default class',
+  title: 'How one row accumulates into a linear score', row: 'Comparison row', table: 'Score accumulation table', read: 'Each vertical mark labels its sign; the final score adds feature contributions and the intercept.', reset: 'Reset', target: 'Target class', predicted: 'Default class',
 })
 const options = computed(() => props.asset.controls[0]?.options ?? [])
 function reset() { row.value = 'canonical' }

@@ -26,7 +26,7 @@ test('Phase 29 pins the exact scratch Armijo and sklearn 1.9 parity configuratio
   assert.equal(LOGISTIC_PARITY_CONTRACT.armijoShrinkFactor, 0.5)
   assert.equal(LOGISTIC_PARITY_CONTRACT.maxBacktracks, 30)
   assert.equal(LOGISTIC_PARITY_CONTRACT.minimumStep, 1e-12)
-  assert.equal(LOGISTIC_PARITY_CONTRACT.warningPolicy, 'fail-on-warning')
+  assert.equal(LOGISTIC_PARITY_CONTRACT.warningPolicy, 'fail-on-every-captured-warning')
   assert.deepEqual(LOGISTIC_PARITY_CONTRACT.requiredTerminalFields, [
     'iterations', 'loss', 'gradientNorm', 'converged', 'stopReason',
   ])

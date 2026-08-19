@@ -36,7 +36,7 @@ export const LOGISTIC_PARITY_CONTRACT = Object.freeze({
   armijoShrinkFactor: 0.5,
   maxBacktracks: 30,
   minimumStep: 1e-12,
-  warningPolicy: 'fail-on-warning',
+  warningPolicy: 'fail-on-every-captured-warning',
   requiredTerminalFields: Object.freeze(['iterations', 'loss', 'gradientNorm', 'converged', 'stopReason']),
   coefficientTolerance: 2e-4,
   interceptTolerance: 2e-4,

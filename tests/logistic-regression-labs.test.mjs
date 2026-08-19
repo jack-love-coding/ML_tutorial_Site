@@ -83,3 +83,18 @@ test('gradient, parity, and calibration scenes preserve replay and synthetic-dat
   assert.match(finalSource, /synthetic.*never used|未用于 Banknote/i)
   assert.doesNotMatch(finalSource, /loadLogisticInteraction\(|fit\(|sklearn\.fit/i)
 })
+
+test('Phase 29 keeps complete data tables visible instead of exposing fake detail toggles', () => {
+  for (const name of sceneNames) {
+    const source = readFileSync(new URL(`../src/modules/logistic-regression/labs/${name}.vue`, import.meta.url), 'utf8')
+    assert.match(source, /<table/, `${name} keeps its semantic fallback visible`)
+    assert.doesNotMatch(source, /detailsOpen|aria-expanded=.*details|Show numeric detail|展开数值明细/, `${name} does not advertise a non-functional disclosure`)
+  }
+})
+
+test('changing away from scratch playback clears its active interval before resetting the replay', () => {
+  const source = readFileSync(new URL('../src/modules/logistic-regression/labs/TrainingParityScene.vue', import.meta.url), 'utf8')
+  assert.match(source, /function stop\(\)\{if\(timer\)clearInterval\(timer\);timer=undefined\}/)
+  assert.match(source, /function changeMode\(\)\{stop\(\);traceIndex\.value=0\}/)
+  assert.match(source, /@change="changeMode"/)
+})

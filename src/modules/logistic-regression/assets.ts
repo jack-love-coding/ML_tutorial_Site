@@ -82,7 +82,7 @@ function expectedDataKeys(sceneId: LogisticObservationSceneId): readonly string[
     case 'linear-score': return ['teachingRows', 'oneRow']
     case 'sigmoid-probability': return ['oneRow', 'terms', 'extremeScores']
     case 'threshold-decisions': return ['likelihoodRows', 'probabilityProduct', 'logLikelihood']
-    case 'log-loss': return ['oneRow', 'batch', 'finiteDifference']
+    case 'log-loss': return ['oneRow', 'confidentMistake', 'batch', 'finiteDifference']
     case 'regularization': return ['scratch', 'sklearn', 'l2']
     case 'linear-limits': return ['calibration', 'xor', 'circles']
   }
