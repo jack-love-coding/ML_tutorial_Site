@@ -178,14 +178,30 @@
 5. The existing route, checkpoint, lab behavior, downloadable Notebook/output package, focused tests, and both builds remain valid.
 
 **Plans:** 8 plans
+**Wave 1**
 
 - [ ] 29-00-PLAN.md — Wave 0 fail-first contracts for every numerical, asset, content, lab, media, compatibility, and release surface
 - [ ] 29-01-PLAN.md — One-row tracer, phase-local contracts, and pure stable logistic engine
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 29-02-PLAN.md — Executed Banknote analysis, atomic asset package, strict loader, and Phase 30 handoff
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 29-03-PLAN.md — Shared Manim source contract plus score/sigmoid and likelihood/BCE/gradient teaching packages
-- [ ] 29-04-PLAN.md — Two diagnostic teaching packages plus production rendering, publication, hashes, and shared-player fallbacks
 - [ ] 29-05-PLAN.md — Six route-lazy guided SVG labs with pure scene models and accessible fallbacks
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 29-04-PLAN.md — Two diagnostic teaching packages plus production rendering, publication, hashes, and shared-player fallbacks
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 29-06-PLAN.md — Complete bilingual six-chapter course, final resources, checkpoint, and responsive integration
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 29-07-PLAN.md — Real-browser matrix, full release gate, source audit, and Nyquist validation closure
 
 ## Phase 30: Classification Decisions Rebuild
