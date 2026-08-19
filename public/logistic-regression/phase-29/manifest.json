@@ -269,7 +269,7 @@
         },
         "nIter": 30,
         "warnings": [],
-        "warningsPolicy": "fail-on-ConvergenceWarning; persist all captured warnings"
+        "warningsPolicy": "fail-on-every-captured-warning"
       }
     },
     "source": {
@@ -337,7 +337,7 @@
       "id": "linear-score",
       "path": "interactions/linear-score.json",
       "sceneId": "linear-score",
-      "sha256": "b80c758427eeedddbcf2659afa28b2c17d7bdb981d5d29dbfae24bf5d21a9042",
+      "sha256": "3fabbf8ebb6a1923cf987e6bdaa81dd4741ecc4527639bdb861c8b012399d494",
       "sourceCellId": "phase29-linear-score"
     },
     {
@@ -452,7 +452,7 @@
       "id": "log-loss",
       "path": "interactions/log-loss.json",
       "sceneId": "log-loss",
-      "sha256": "c2cf0ddd7a8a5e1e1a853c7f5538e977ea5b967d2e17c279255631223a7c912a",
+      "sha256": "ba1644ba4a635c14630181845fbd5cb1a64c7322550269c565f801a7385bab82",
       "sourceCellId": "phase29-log-loss"
     },
     {
@@ -492,7 +492,7 @@
       "id": "regularization",
       "path": "interactions/regularization.json",
       "sceneId": "regularization",
-      "sha256": "ae27a1c6987f733bc4456b431e64fc89c7c0f1341752eb8927437b01e4f799ef",
+      "sha256": "3c4f3b7c4a628fcceb9e9e69d414e8a98ebb20f2996cf0454a603d3a73d31651",
       "sourceCellId": "phase29-regularization"
     },
     {
@@ -532,7 +532,7 @@
       "id": "linear-limits",
       "path": "interactions/linear-limits.json",
       "sceneId": "linear-limits",
-      "sha256": "a34b6d347ab4cfd9753a73f4192631038b5d3e8a076a6a7809396ba2a2c06278",
+      "sha256": "dceecc1d2d7e7f10303dcbd510a396e058fdae9be7d6e5e38e61f1630b0660fa",
       "sourceCellId": "phase29-linear-limits"
     }
   ],
@@ -576,15 +576,15 @@
     "figures/training-trace.png": "aa767869984a9d10cb3178bb22e6eb0dadcdd5be3df3774ea5364d8b4a4c9525",
     "frozen-predictions.csv": "17c26cb80b1edfc83d53f50436d4d38175f4669df1f131ee4385511564bb6466",
     "frozen-predictions.json": "5c0b5e983ab023eeeb18ef08fffab4d1f2ef524aec07d7e73774b6c8af6bdc3e",
-    "interactions/linear-limits.json": "a34b6d347ab4cfd9753a73f4192631038b5d3e8a076a6a7809396ba2a2c06278",
-    "interactions/linear-score.json": "b80c758427eeedddbcf2659afa28b2c17d7bdb981d5d29dbfae24bf5d21a9042",
-    "interactions/log-loss.json": "c2cf0ddd7a8a5e1e1a853c7f5538e977ea5b967d2e17c279255631223a7c912a",
-    "interactions/regularization.json": "ae27a1c6987f733bc4456b431e64fc89c7c0f1341752eb8927437b01e4f799ef",
+    "interactions/linear-limits.json": "dceecc1d2d7e7f10303dcbd510a396e058fdae9be7d6e5e38e61f1630b0660fa",
+    "interactions/linear-score.json": "3fabbf8ebb6a1923cf987e6bdaa81dd4741ecc4527639bdb861c8b012399d494",
+    "interactions/log-loss.json": "ba1644ba4a635c14630181845fbd5cb1a64c7322550269c565f801a7385bab82",
+    "interactions/regularization.json": "3c4f3b7c4a628fcceb9e9e69d414e8a98ebb20f2996cf0454a603d3a73d31651",
     "interactions/sigmoid-probability.json": "312e3b74758ed85a2c0c8f5a4f54414edf71e41431fc1c5d86b7ecd24dcd2bd4",
     "interactions/threshold-decisions.json": "443fb489a7c83055d4f98288adffc8f7bf997408e4ae504e7ca0936792dcb1a1",
-    "outputs/calibration.json": "fb70fd12f9cc9c16df21f662f7b5ebcc8091436eb51ba57bd558848592281a33",
+    "outputs/calibration.json": "3996a0cbef1a072de426879f9c2ab7f2db5f81c9c3497d947ead573995af648b",
     "outputs/gradient-check.json": "f26ddafdde087b3592996cf3b51c397e40f8c5eeff7585f57e419927cf4620cd",
-    "outputs/parity.json": "c090cd92ec537d8f13725fa95da7cfa3b2a5283aab321bae889aadad0959430f",
+    "outputs/parity.json": "14841b43afdd46854a0f6bbadf3cc1dde4c44b5559cc5a56dea27508c7634167",
     "outputs/training-trace.csv": "17d16d3a95afdd3b3e59ffe1d7ea0a7ac590ad1ed79b47396d0104878e92e6f1"
   },
   "learnerFacingTestRecords": false,

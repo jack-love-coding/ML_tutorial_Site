@@ -1,5 +1,5 @@
 {
-  "binRule": "ten equal-width bins; lower-inclusive/upper-exclusive except final upper-inclusive; omit empty bins",
+  "binRule": "ten equal-width bins; lower-inclusive/upper-exclusive except final upper-inclusive; retain empty bins with null rates",
   "defaultLabelsInvariant": true,
   "logits": [
     -33.45999779014904,
@@ -221,6 +221,20 @@
           "upper": 0.1
         },
         {
+          "count": 0,
+          "lower": 0.1,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.2
+        },
+        {
+          "count": 0,
+          "lower": 0.2,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.3
+        },
+        {
           "count": 2,
           "lower": 0.3,
           "meanProbability": 0.36514743403823713,
@@ -228,11 +242,39 @@
           "upper": 0.4
         },
         {
+          "count": 0,
+          "lower": 0.4,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.5
+        },
+        {
           "count": 1,
           "lower": 0.5,
           "meanProbability": 0.5657134289585163,
           "observedRate": 1.0,
           "upper": 0.6
+        },
+        {
+          "count": 0,
+          "lower": 0.6,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.7
+        },
+        {
+          "count": 0,
+          "lower": 0.7,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.8
+        },
+        {
+          "count": 0,
+          "lower": 0.8,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.9
         },
         {
           "count": 88,
@@ -465,6 +507,27 @@
           "upper": 0.1
         },
         {
+          "count": 0,
+          "lower": 0.1,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.2
+        },
+        {
+          "count": 0,
+          "lower": 0.2,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.3
+        },
+        {
+          "count": 0,
+          "lower": 0.3,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.4
+        },
+        {
           "count": 2,
           "lower": 0.4,
           "meanProbability": 0.4110782990050616,
@@ -477,6 +540,20 @@
           "meanProbability": 0.5428568221696655,
           "observedRate": 1.0,
           "upper": 0.6
+        },
+        {
+          "count": 0,
+          "lower": 0.6,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.7
+        },
+        {
+          "count": 0,
+          "lower": 0.7,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.8
         },
         {
           "count": 2,
@@ -730,6 +807,13 @@
           "upper": 0.3
         },
         {
+          "count": 0,
+          "lower": 0.3,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.4
+        },
+        {
           "count": 2,
           "lower": 0.4,
           "meanProbability": 0.4488213601964431,
@@ -742,6 +826,13 @@
           "meanProbability": 0.5245301429977806,
           "observedRate": 1.0,
           "upper": 0.6
+        },
+        {
+          "count": 0,
+          "lower": 0.6,
+          "meanProbability": null,
+          "observedRate": null,
+          "upper": 0.7
         },
         {
           "count": 2,

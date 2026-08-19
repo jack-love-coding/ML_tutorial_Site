@@ -84,8 +84,11 @@ export function buildLinearScoreSceneModel(asset: LinearAsset, rowId = 'canonica
   const selected = record(rows[rowId])
   const fallback = record(rows.canonical)
   const row = Object.keys(selected).length ? selected : fallback
-  const standardized = numberList(row.standardized)
-  const base = oneRow({ oneRow: { ...record(data.oneRow), standardizedFeatures: standardized, label: row.label, logit: row.logit, probability: row.probability, bce: row.bce } })
+  // Every selectable row carries an executed trace from the same fixed parameter
+  // vector.  Never reuse the canonical row's contribution terms for another row.
+  const trace = record(row.trace)
+  const standardized = numberList(trace.standardizedFeatures ?? row.standardized)
+  const base = oneRow({ oneRow: { ...trace, standardizedFeatures: standardized, label: trace.label ?? row.label } })
   const featureNames = ['variance', 'skewness', 'curtosis', 'entropy']
   const contributions = base.contributions.length
     ? base.contributions.map((entry) => typeof entry === 'number' ? entry : finite(entry.value))
@@ -94,15 +97,16 @@ export function buildLinearScoreSceneModel(asset: LinearAsset, rowId = 'canonica
   const terms = contributions.map((value, index) => ({
     label: featureNames[index]!, value, x: 36 + index * 66, y: scaleCoordinate(value, -extent, extent, 166, 26),
   }))
-  const total = finite(row.logit, contributions.reduce((sum, value) => sum + value, base.intercept))
+  const total = finite(trace.logit, contributions.reduce((sum, value) => sum + value, base.intercept))
+  const probability = finite(trace.probability, base.probability)
   return {
-    rowId: Number(row.row_id ?? 0), split: text(row.split), rowName: text(row.name, rowId), target: finite(row.label) === 1 ? 1 : 0,
-    terms, intercept: base.intercept, total, probability: finite(row.probability), defaultClass: finite(row.probability) >= 0.5 ? 1 : 0,
+    rowId: Number(row.row_id ?? 0), split: text(row.split), rowName: text(row.name, rowId), target: finite(trace.label ?? row.label) === 1 ? 1 : 0,
+    terms, intercept: base.intercept, total, probability, defaultClass: probability >= 0.5 ? 1 : 0,
     table: [
       ...terms.map((term) => ({ label: `${term.label} contribution`, value: sceneNumber(term.value, 6) })),
       { label: 'intercept', value: sceneNumber(base.intercept, 6) },
       { label: 'logit z', value: sceneNumber(total, 6) },
-      { label: 'probability σ(z)', value: sceneNumber(finite(row.probability), 8) },
+      { label: 'probability σ(z)', value: sceneNumber(probability, 8) },
     ] satisfies SemanticRow[],
   }
 }
@@ -190,8 +194,11 @@ export function buildTrainingParitySceneModel(asset: TrainingAsset, requested: u
   const trace = Array.isArray(scratch.trace) ? scratch.trace.map(record) : []
   const boundedIndex = Math.max(0, Math.min(trace.length - 1, Number.isFinite(traceIndex) ? Math.round(traceIndex) : 0))
   const activeTrace = trace[boundedIndex] ?? {}
-  const parameters = numberList(selected.parameters)
-  const objective = finite(selected.objectiveValue, finite(activeTrace.objective))
+  // Scratch replay states are inseparable parameter/objective pairs.  Library
+  // and L2 rows publish their own terminal objective, never a scratch value.
+  const active = mode === 'scratch' ? activeTrace : selected
+  const parameters = numberList(active.parameters)
+  const objective = finite(active.objective ?? active.objectiveValue)
   const title = mode === 'l2' ? 'L2 changes the objective' : mode === 'sklearn' ? 'precomputed sklearn parity' : 'scratch Armijo trace'
   return {
     mode, lastValid: mode, traceIndex: boundedIndex, traceLength: trace.length,
@@ -215,7 +222,7 @@ export function buildCalibrationLimitsSceneModel(asset: LimitsAsset, requestedMo
   const selected = modes.find((item) => item.id === mode) ?? modes.find((item) => item.id === lastValid) ?? modes[0] ?? {}
   const bins = Array.isArray(selected.bins) ? selected.bins.map(record).slice(0, 12) : []
   const source = requestedView === 'xor' ? record(data.xor) : requestedView === 'circles' ? record(data.circles) : undefined
-  const points = source && Array.isArray(source.points) ? source.points.map(record).slice(0, 96).map((point, index) => ({ x: finite(point.x), y: finite(point.y), label: `synthetic point ${index + 1}, class ${finite(point.label)}`, kind: finite(point.label) === 1 ? 'class-1' : 'class-0' })) : []
+  const points = source && Array.isArray(source.points) ? source.points.map(record).slice(0, 96).map((point, index) => ({ x: finite(point.x), y: finite(point.y), label: `synthetic point ${index + 1}, class ${finite(point.label)}`, kind: finite(point.label) === 1 ? 'class-one' : 'class-zero' })) : []
   const expectedCalibrationError = finite(selected.expectedCalibrationError)
   const accuracy = finite(selected.fixedThresholdAccuracy)
   return {
@@ -223,7 +230,7 @@ export function buildCalibrationLimitsSceneModel(asset: LimitsAsset, requestedMo
     expectedCalibrationError, accuracy, points,
     dataKind: source ? 'synthetic diagnostic — never used for Banknote fitting' : 'frozen Banknote validation logits',
     table: source
-      ? [{ label: 'data provenance', value: 'synthetic diagnostic only; it cannot alter Banknote rows or calibration', emphasis: 'warning' }, { label: 'geometry', value: text(source.kind) }, { label: 'points', value: `${points.length}` }]
+      ? [{ label: 'data provenance', value: 'synthetic diagnostic only; it cannot alter Banknote rows or calibration', emphasis: 'warning' }, { label: 'geometry', value: text(source.kind) }, { label: 'points', value: `${points.length}` }, ...points.map((point) => ({ label: point.label, value: point.kind === 'class-one' ? 'solid marker / class 1' : 'striped marker / class 0' }))]
       : [{ label: 'data provenance', value: 'frozen Banknote validation logits' }, { label: 'mode', value: mode }, { label: 'expected calibration error', value: sceneNumber(expectedCalibrationError, 8) }, { label: 'fixed 0.5 validation accuracy', value: scenePercent(accuracy) }],
   }
 }

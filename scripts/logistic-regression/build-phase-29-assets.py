@@ -143,6 +143,7 @@ def _controls(scene: str) -> list[dict[str, Any]]:
 def _interaction_payloads(analysis: dict[str, Any]) -> dict[str, dict[str, Any]]:
     rows = analysis["rows"]
     canonical_trace = build_one_row_trace(rows["canonical"], analysis["scratch"]["parameters"])
+    teaching_rows = {key: {**row, "trace": build_one_row_trace(row, analysis["scratch"]["parameters"])} for key, row in rows.items()}
     batch_trace = build_batch_trace(analysis["source"], analysis["scratch"]["parameters"], "train")
     replay_trace, trace_sampling = sampled_replay_trace(analysis["scratch"]["trace"])
     probability_terms = {
@@ -166,10 +167,10 @@ def _interaction_payloads(analysis: dict[str, Any]) -> dict[str, dict[str, Any]]
         "linear-limits": "phase29-linear-limits",
     }
     data = {
-        "linear-score": {"teachingRows": rows, "oneRow": canonical_trace},
+        "linear-score": {"teachingRows": teaching_rows, "oneRow": canonical_trace},
         "sigmoid-probability": {"oneRow": canonical_trace, "terms": probability_terms, "extremeScores": [-20.0, -8.0, 0.0, 8.0, 20.0]},
         "threshold-decisions": {"likelihoodRows": likelihood_rows, "probabilityProduct": product, "logLikelihood": sum(item["logTerm"] for item in likelihood_rows)},
-        "log-loss": {"oneRow": canonical_trace, "batch": {"meanBce": batch_trace["meanBce"], "gradient": batch_trace["gradient"]}, "finiteDifference": analysis["finiteDifference"]},
+        "log-loss": {"oneRow": canonical_trace, "confidentMistake": teaching_rows["highLoss"]["trace"], "batch": {"meanBce": batch_trace["meanBce"], "gradient": batch_trace["gradient"]}, "finiteDifference": analysis["finiteDifference"]},
         "regularization": {"scratch": {"parameters": analysis["scratch"]["parameters"], "terminal": analysis["scratch"]["terminal"], "trace": replay_trace, "traceSampling": trace_sampling, "validation": analysis["scratch"]["validation"]}, "sklearn": analysis["parity"], "l2": analysis["l2"]},
         "linear-limits": {"calibration": analysis["calibration"], "xor": analysis["xor"], "circles": analysis["circles"]},
     }
@@ -211,7 +212,8 @@ def write_figures(root: Path, analysis: dict[str, Any]) -> dict[str, str]:
     paths["parity-probabilities.png"] = "figures/parity-probabilities.png"; _save_figure(figures / "parity-probabilities.png")
     plt.figure(figsize=(6.8, 4.5))
     for mode in analysis["calibration"]["modes"]:
-        bins = mode["bins"]; plt.plot([item["meanProbability"] for item in bins], [item["observedRate"] for item in bins], marker="o", label=mode["id"])
+        bins = [item for item in mode["bins"] if item["count"] > 0]
+        plt.plot([item["meanProbability"] for item in bins], [item["observedRate"] for item in bins], marker="o", label=mode["id"])
     plt.plot([0, 1], [0, 1], "--", color="#64748b"); plt.xlabel("mean probability"); plt.ylabel("observed class 1 rate"); plt.title("Validation reliability / 验证集可靠性"); plt.legend()
     paths["calibration-reliability.png"] = "figures/calibration-reliability.png"; _save_figure(figures / "calibration-reliability.png")
     circles = analysis["circles"]["points"]

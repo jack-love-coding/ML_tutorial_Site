@@ -18,7 +18,6 @@ import warnings
 from typing import Any, Iterable, Literal
 
 import numpy as np
-from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import LogisticRegression
 
 
@@ -261,10 +260,12 @@ def compare_unregularized_sklearn(source: BanknoteSource, scratch: dict[str, Any
         warnings.simplefilter("always")
         model = LogisticRegression(**SKLEARN_CONFIG).fit(matrix, labels)
     warning_rows = [{"category": warning.category.__name__, "message": str(warning.message)} for warning in captured]
-    if any(issubclass(warning.category, ConvergenceWarning) for warning in captured):
-        raise RuntimeError("scikit-learn emitted ConvergenceWarning under the fixed Phase 29 contract.")
+    if captured:
+        detail = "; ".join(f"{warning.category.__name__}: {warning.message}" for warning in captured)
+        raise RuntimeError(f"scikit-learn emitted a warning under the fixed Phase 29 contract: {detail}")
     validation_matrix, _, _ = source.matrix("validation")
     sklearn_parameters = np.concatenate((model.coef_[0], model.intercept_))
+    sklearn_objective, _, _ = _mean_bce_and_gradient(matrix, labels, sklearn_parameters)
     scratch_parameters = np.asarray(scratch["parameters"], dtype=float)
     coefficient_delta = float(np.max(np.abs(sklearn_parameters - scratch_parameters)))
     probability_delta = float(np.max(np.abs(model.predict_proba(validation_matrix)[:, 1] - np.asarray(scratch["validation"]["probabilities"], dtype=float))))
@@ -278,9 +279,10 @@ def compare_unregularized_sklearn(source: BanknoteSource, scratch: dict[str, Any
     return {
         "config": {**SKLEARN_CONFIG, "C": "infinity"},
         "nIter": int(model.n_iter_[0]),
-        "warningsPolicy": "fail-on-ConvergenceWarning; persist all captured warnings",
+        "warningsPolicy": "fail-on-every-captured-warning",
         "warnings": warning_rows,
         "parameters": _as_serializable_vector(sklearn_parameters),
+        "objectiveValue": sklearn_objective,
         "validationProbabilities": _as_serializable_vector(model.predict_proba(validation_matrix)[:, 1]),
         "observed": {
             "maxCoefficientAndInterceptDelta": coefficient_delta,
@@ -335,11 +337,12 @@ def _calibration_bins(probabilities: np.ndarray, labels: np.ndarray) -> tuple[li
         lower = index / 10.0
         upper = (index + 1) / 10.0
         mask = (probabilities >= lower) & (probabilities <= upper if index == 9 else probabilities < upper)
-        if not np.any(mask):
+        count = int(np.sum(mask))
+        if count == 0:
+            bins.append({"lower": lower, "upper": upper, "count": 0, "meanProbability": None, "observedRate": None})
             continue
         average_probability = float(np.mean(probabilities[mask]))
         observed_rate = float(np.mean(labels[mask]))
-        count = int(np.sum(mask))
         ece += count / total * abs(average_probability - observed_rate)
         bins.append({"lower": lower, "upper": upper, "count": count, "meanProbability": average_probability, "observedRate": observed_rate})
     return bins, float(ece)
@@ -376,7 +379,7 @@ def build_temperature_calibration(source: BanknoteSource, scratch: dict[str, Any
         "modeRule": "positive logit temperatures 0.65, 1.0, and 1.75",
         "orderingPreserved": True,
         "defaultLabelsInvariant": True,
-        "binRule": "ten equal-width bins; lower-inclusive/upper-exclusive except final upper-inclusive; omit empty bins",
+        "binRule": "ten equal-width bins; lower-inclusive/upper-exclusive except final upper-inclusive; retain empty bins with null rates",
         "modes": summaries,
     }
 

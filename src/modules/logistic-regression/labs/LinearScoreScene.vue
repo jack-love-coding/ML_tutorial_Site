@@ -6,7 +6,6 @@ import { buildLinearScoreSceneModel, sceneNumber } from './sceneModels.ts'
 
 const props = defineProps<{ asset: LogisticPublishedInteractionAsset; locale: AppLocale }>()
 const row = ref('canonical')
-const detailsOpen = ref(false)
 const model = computed(() => buildLinearScoreSceneModel(props.asset as LogisticPublishedInteractionAsset & { sceneId: 'linear-score' }, row.value))
 const copy = computed(() => props.locale === 'zh-CN' ? {
   title: '一行数据如何累加成线性分数', row: '比较样本', details: '展开数值明细', table: '分数累加表', read: '每一根竖线同时写明正负方向；最终分数来自特征贡献和截距的相加。', reset: '重置', target: '真实类别', predicted: '默认类别',
@@ -14,7 +13,7 @@ const copy = computed(() => props.locale === 'zh-CN' ? {
   title: 'How one row accumulates into a linear score', row: 'Comparison row', details: 'Show numeric detail', table: 'Score accumulation table', read: 'Each vertical mark labels its sign; the final score adds feature contributions and the intercept.', reset: 'Reset', target: 'Target class', predicted: 'Default class',
 })
 const options = computed(() => props.asset.controls[0]?.options ?? [])
-function reset() { row.value = 'canonical'; detailsOpen.value = false }
+function reset() { row.value = 'canonical' }
 function onKey(event: KeyboardEvent) { if (event.key === 'r') reset() }
 </script>
 
@@ -35,7 +34,6 @@ function onKey(event: KeyboardEvent) { if (event.key === 'r') reset() }
       <line x1="276" y1="166" x2="276" :y2="model.intercept >= 0 ? 110 : 190" class="intercept" stroke-dasharray="4 3" /><text x="276" y="24" text-anchor="middle">z = {{ sceneNumber(model.total, 3) }}</text>
     </svg>
     <p class="logistic-scene__result"><strong>{{ copy.target }}: class {{ model.target }}</strong> · {{ copy.predicted }}: class {{ model.defaultClass }} · σ(z) = {{ sceneNumber(model.probability, 8) }}</p>
-    <button type="button" :aria-expanded="detailsOpen" @click="detailsOpen = !detailsOpen">{{ copy.details }}</button>
     <table class="logistic-scene__table"><caption>{{ copy.table }}</caption><thead><tr><th scope="col">Term</th><th scope="col">Value</th></tr></thead><tbody><tr v-for="item in model.table" :key="item.label"><th scope="row">{{ item.label }}</th><td>{{ item.value }}</td></tr></tbody></table>
   </section>
 </template>

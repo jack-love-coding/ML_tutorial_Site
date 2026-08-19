@@ -97,6 +97,32 @@ test('Phase 29 publishes bounded replay traces while recording the complete acce
   assert.ok(csvRows.length <= 801)
 })
 
+test('Phase 29 publishes row-local score traces and paired replay/library objectives', () => {
+  const linear = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/linear-score.json'), 'utf8')) as { data: { teachingRows: Record<string, { trace: { contributions: number[]; intercept: number; logit: number; probability: number } }> } }
+  for (const row of Object.values(linear.data.teachingRows)) {
+    const trace = row.trace
+    const total = trace.contributions.reduce((sum, value) => sum + value, trace.intercept)
+    assert.ok(Math.abs(total - trace.logit) < 1e-10)
+    assert.ok(Math.abs(1 / (1 + Math.exp(-trace.logit)) - trace.probability) < 1e-12)
+  }
+  const training = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/regularization.json'), 'utf8')) as { data: { scratch: { trace: { parameters: number[]; objective: number }[] }; sklearn: { parameters: number[]; objectiveValue: number }; l2: { parameters: number[]; objectiveValue: number } } }
+  for (const state of training.data.scratch.trace) assert.equal(state.parameters.length, 5)
+  assert.ok(Number.isFinite(training.data.sklearn.objectiveValue))
+  assert.ok(Number.isFinite(training.data.l2.objectiveValue))
+})
+
+test('Phase 29 retains all ten calibration bins and binds the Manim high-loss anchor', () => {
+  const limits = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/linear-limits.json'), 'utf8')) as { data: { calibration: { modes: { bins: { lower: number; upper: number; count: number; meanProbability: number | null; observedRate: number | null }[] }[] } } }
+  for (const mode of limits.data.calibration.modes) {
+    assert.equal(mode.bins.length, 10)
+    for (const bin of mode.bins) if (bin.count === 0) assert.deepEqual([bin.meanProbability, bin.observedRate], [null, null])
+  }
+  const loss = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/log-loss.json'), 'utf8')) as { data: { confidentMistake: { label: number; logit: number; bce: number } } }
+  const row = loss.data.confidentMistake
+  assert.equal(row.label, 1)
+  assert.ok(Math.abs(Math.log1p(Math.exp(row.logit)) - row.label * row.logit - row.bce) < 1e-12)
+})
+
 test('Phase 29 runtime asset boundary validates, freezes, hashes, and resolves only Pages-safe registry paths', async () => {
   const assets = await import(new URL('../src/modules/logistic-regression/assets.ts', import.meta.url).href) as typeof import('../src/modules/logistic-regression/assets.ts')
   const manifest = JSON.parse(readFileSync(resolve(packageRoot, 'manifest.json'), 'utf8'))
