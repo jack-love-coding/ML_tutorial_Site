@@ -568,3 +568,173 @@
     min-height: 300px;
   }
 }
+
+/* Phase 29 content-first course shell. The lesson is deliberately a reading
+ * column; the route-lazy scene is a full-width step in that flow, never a
+ * competing side-by-side cockpit. */
+.logistic-course-page {
+  --logistic-course-accent: #187c68;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+}
+
+.logistic-course-page__toc-toggle,
+.logistic-course-page__sidebar,
+.logistic-course-page__header,
+.logistic-course-page__block,
+.logistic-course-page__resources {
+  border: 1px solid rgba(15, 23, 40, .1);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 16px 36px rgba(15, 23, 40, .055);
+}
+
+.logistic-course-page__toc-toggle {
+  display: grid;
+  width: 100%;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 14px 17px;
+  color: var(--ink);
+  text-align: left;
+}
+
+.logistic-course-page__toc-toggle span,
+.logistic-course-page__sidebar > span,
+.logistic-course-page__header > div span,
+.logistic-course-page__block > header > span,
+.logistic-course-page__resources > span,
+.logistic-course-page__downloads small {
+  color: var(--muted);
+  font-size: .74rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.logistic-course-page__layout,
+.logistic-course-page__main article,
+.logistic-course-page__content,
+.logistic-course-page__sidebar,
+.logistic-course-page__block,
+.logistic-course-page__resources {
+  display: grid;
+  min-width: 0;
+  gap: 17px;
+}
+
+.logistic-course-page__sidebar {
+  display: none;
+  height: fit-content;
+  padding: 17px;
+}
+
+.logistic-course-page__sidebar.is-open { display: grid; }
+.logistic-course-page__sidebar nav { display: grid; gap: 7px; }
+.logistic-course-page__sidebar a {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 11px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.logistic-course-page__sidebar a:hover,
+.logistic-course-page__sidebar a.is-active { border-color: color-mix(in srgb, var(--logistic-course-accent) 34%, transparent); background: #eef9f6; }
+.logistic-course-page__sidebar small { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 50%; background: #edf1f5; font-weight: 900; }
+.logistic-course-page__sidebar a.is-active small { color: #fff; background: var(--logistic-course-accent); }
+.logistic-course-page__sidebar a span { display: grid; gap: 3px; min-width: 0; }
+.logistic-course-page__sidebar a strong { overflow-wrap: anywhere; font-size: .88rem; line-height: 1.35; }
+.logistic-course-page__sidebar a em { color: var(--muted); font-size: .74rem; font-style: normal; }
+
+.logistic-course-page__main article { width: min(100%, 1040px); margin: 0 auto; }
+.logistic-course-page__header,
+.logistic-course-page__block,
+.logistic-course-page__resources { padding: clamp(18px, 3.6vw, 34px); }
+.logistic-course-page__header { background: radial-gradient(circle at top right, rgba(24, 124, 104, .15), transparent 38%), rgba(255, 255, 255, .97); }
+.logistic-course-page__header > div { display: flex; justify-content: space-between; gap: 12px; }
+.logistic-course-page__header h2 { margin: 0; color: var(--ink); font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.55rem); line-height: 1.05; }
+.logistic-course-page__header p { max-width: 65ch; margin: 0; color: var(--muted); line-height: 1.65; }
+.logistic-course-page__content { gap: 18px; }
+.logistic-course-page__block { overflow: clip; }
+.logistic-course-page__block header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.logistic-course-page__block--question,
+.logistic-course-page__block--prediction { border-left: 5px solid var(--logistic-course-accent); }
+.logistic-course-page__block--observation,
+.logistic-course-page__block--conclusion { border-left: 5px solid #25856f; }
+.logistic-course-page__block--misconception { border-left: 5px solid #b87518; background: #fffaf0; }
+.logistic-course-page__block--formula { background: #172139; color: #eff8ff; }
+.logistic-course-page__block--formula .markdown-math,
+.logistic-course-page__block--formula .markdown-math p,
+.logistic-course-page__block--formula .markdown-math li { color: inherit; }
+.logistic-course-page__block--formula .katex { color: #fff; }
+.logistic-course-page__code header > div { display: grid; gap: 8px; min-width: 0; }
+.logistic-course-page__code button,
+.logistic-course-page__toc-toggle,
+.logistic-course-page__downloads a,
+.logistic-course-page__bridge,
+.logistic-course-page__pager a { font: inherit; }
+.logistic-course-page__code button { flex: 0 0 auto; min-height: 42px; padding: 9px 12px; border: 1px solid #aebccd; border-radius: 10px; background: #f4f7fb; color: #142033; font-weight: 800; cursor: pointer; }
+.logistic-course-page__code pre { max-width: 100%; margin: 0; padding: 17px; overflow: auto; border-radius: 14px; background: #101827; color: #edf7ff; tab-size: 2; }
+.logistic-course-page__code code { overflow-wrap: normal; }
+.logistic-course-page__copy-status { margin: 0; padding: 10px 12px; border-left: 4px solid #b87518; background: #fff6dc; line-height: 1.5; }
+.logistic-course-page__lab { padding: clamp(18px, 3vw, 29px); background: #f6fcfa; }
+.logistic-course-page__media .chaptered-media-player { min-width: 0; }
+.logistic-course-page__resources ol { display: grid; gap: 8px; margin: 0; padding-left: 21px; }
+.logistic-course-page__resources a { color: var(--ink); font-weight: 750; }
+.logistic-course-page__downloads { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.logistic-course-page__downloads a,
+.logistic-course-page__bridge,
+.logistic-course-page__pager a,
+.logistic-course-page__pager > span { display: grid; gap: 5px; min-width: 0; padding: 14px; border: 1px solid rgba(15, 23, 40, .12); border-radius: 14px; background: #f8fafc; color: var(--ink); text-decoration: none; }
+.logistic-course-page__downloads strong,
+.logistic-course-page__pager strong { overflow-wrap: anywhere; }
+.logistic-course-page__bridge { border-color: color-mix(in srgb, var(--logistic-course-accent) 35%, transparent); background: #edf9f5; }
+.logistic-course-page__bridge p { margin: 0; color: var(--muted); line-height: 1.5; }
+.logistic-course-page__pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.logistic-course-page__pager a:last-child { text-align: right; }
+.logistic-course-page__pager .is-disabled { opacity: .66; }
+
+.logistic-course-page a:focus-visible,
+.logistic-course-page button:focus-visible,
+.logistic-course-page :is(input, select, summary):focus-visible {
+  outline: 3px solid #d3871f;
+  outline-offset: 3px;
+}
+
+@media (min-width: 1440px) {
+  .logistic-course-page__toc-toggle { display: none; }
+  .logistic-course-page__layout { grid-template-columns: 260px minmax(0, 1fr); align-items: start; }
+  .logistic-course-page__sidebar { display: grid; position: sticky; top: 88px; }
+}
+
+@media (max-width: 1439px) {
+  .logistic-course-page__sidebar { position: static; }
+}
+
+@media (max-width: 767px) {
+  .logistic-course-page__header,
+  .logistic-course-page__block,
+  .logistic-course-page__resources { padding: 18px; border-radius: 17px; }
+  .logistic-course-page__block header { display: grid; grid-template-columns: 1fr; }
+  .logistic-course-page__code button { justify-self: start; }
+  .logistic-course-page__pager { grid-template-columns: 1fr; }
+  .logistic-course-page__pager a:last-child { text-align: left; }
+  .logistic-course-page__downloads { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 390px) {
+  .logistic-course-page__toc-toggle { padding: 13px; }
+  .logistic-course-page__header h2 { font-size: 2rem; }
+  .logistic-course-page__code pre { padding: 13px; font-size: .82rem; }
+  .logistic-course-page__code button { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logistic-course-page *,
+  .logistic-course-page *::before,
+  .logistic-course-page *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
