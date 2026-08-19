@@ -20,10 +20,10 @@ status: clean
 
 ## Summary
 
-The prior numerical and media fixes remain valid. The three release-quality warnings from this re-review are now resolved at commit `b68e4b4` and were verified on the same Phase 29 worktree HEAD.
+The prior numerical and media fixes remain valid. The three release-quality warnings from this re-review are now resolved at commits `b68e4b4` and `2f8be7f` and were verified on the same Phase 29 worktree HEAD.
 
 - **WR-01 — reproducible browser CLI:** `@playwright/cli` is now the exact dev dependency `0.1.18`, recorded in `package-lock.json`. The required matrix invokes the local binary through `npm exec --no -- playwright-cli`; it no longer downloads a floating `npx --package` executable.
-- **WR-02 — bounded browser processes:** preview readiness and each Playwright command have finite time limits. The runner captures stderr, handles spawn and child errors, terminates detached POSIX process groups (with a child fallback), escalates to `SIGKILL`, and performs bounded preview cleanup in `finally`. Deterministic tests cover spawn error, child error, timeout, hard cleanup, and preview readiness failure without long waits.
+- **WR-02 — bounded browser processes:** preview readiness and each Playwright command have finite time limits. The runner captures stderr, handles spawn and child errors, terminates detached POSIX process groups (with a child fallback), escalates to `SIGKILL`, explicitly closes the Playwright session, and performs bounded preview cleanup in `finally`. Deterministic tests cover spawn error, child error, timeout, hard cleanup, and preview readiness failure without long waits.
 - **WR-03 — bilingual synthetic fallback:** the calibration scene passes `AppLocale` to its typed model. XOR and circles now provide localized accessible point labels, table marker descriptions, provenance, geometry, legend text, and table headings for both Chinese and English. Structural/model assertions cover both locales and both synthetic datasets.
 
 ## Same-HEAD Verification
