@@ -177,7 +177,7 @@
 4. Calibration bins distinguish probability quality from class accuracy, while a nonlinear example shows the limit of one linear decision boundary.
 5. The existing route, checkpoint, lab behavior, downloadable Notebook/output package, focused tests, and both builds remain valid.
 
-**Plans:** 6/8 plans executed
+**Plans:** 7/8 plans executed
 **Wave 1**
 
 - [x] 29-00-PLAN.md — Wave 0 fail-first contracts for every numerical, asset, content, lab, media, compatibility, and release surface
@@ -198,7 +198,7 @@
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 29-06-PLAN.md — Complete bilingual six-chapter course, final resources, checkpoint, and responsive integration
+- [x] 29-06-PLAN.md — Complete bilingual six-chapter course, final resources, checkpoint, and responsive integration
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
