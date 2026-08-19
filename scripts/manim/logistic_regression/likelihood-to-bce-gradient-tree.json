@@ -1,0 +1,57 @@
+{
+  "treeVersion": 1,
+  "target": "likelihood to stable BCE and batch gradient",
+  "maxDepth": 3,
+  "sourceAnchors": {
+    "manifest": "public/logistic-regression/phase-29/manifest.json",
+    "sourceCells": ["phase29-threshold-decisions", "phase29-log-loss"],
+    "likelihood": { "probabilityProduct": 0.008289470886818511, "logLikelihood": -4.79276913734611 },
+    "gradientCheck": { "objective": 0.7455450279170539, "h": 1e-06, "firstGradient": 0.40722679415570556 }
+  },
+  "visualContract": {
+    "durationSeconds": 48,
+    "languageNeutral": true,
+    "palette": { "probability": "#2e7d4f", "logSum": "#285c9e", "loss": "#b13a3a", "gradient": "#c05931" },
+    "nonColorCues": ["four indexed q terms", "product symbol versus summation symbol", "solid descent arrow", "equation labels"],
+    "posterFrame": "Bernoulli formula, probability terms, product/log-sum pair, stable loss, and negative-gradient update"
+  },
+  "nodes": [
+    {
+      "id": "bernoulli-outcome", "depth": 3, "foundation": true, "prerequisites": [],
+      "equations": ["P(y\\mid p)=p^y(1-p)^{1-y}", "y\\in\\{0,1\\}"],
+      "definitions": { "y": "observed class label", "p": "model probability for class 1" },
+      "visual": "one indexed probability contribution q_i"
+    },
+    {
+      "id": "independent-product", "depth": 2, "foundation": false, "prerequisites": ["bernoulli-outcome"],
+      "equations": ["\\mathcal{L}=\\prod_i q_i", "\\mathcal{L}=0.008289470886818511"],
+      "definitions": { "q_i": "probability assigned to the observed outcome on row i" },
+      "visual": "four indexed terms join under a product symbol"
+    },
+    {
+      "id": "log-sum", "depth": 2, "foundation": false, "prerequisites": ["independent-product"],
+      "equations": ["\\log\\mathcal{L}=\\sum_i\\log q_i", "\\log\\mathcal{L}=-4.79276913734611"],
+      "definitions": { "log": "turns a product into a sum" },
+      "visual": "product changes to a summation; labels make the numerical-stability reason explicit"
+    },
+    {
+      "id": "negative-log-loss", "depth": 1, "foundation": false, "prerequisites": ["log-sum"],
+      "equations": ["\\ell(z,y)=\\operatorname{softplus}(z)-yz", "L(\\theta)=0.7455450279170539"],
+      "definitions": { "z": "logit", "softplus": "stable logit-domain computation" },
+      "visual": "red loss formula remains distinct from green probability terms"
+    },
+    {
+      "id": "row-and-batch-gradient", "depth": 1, "foundation": false, "prerequisites": ["negative-log-loss"],
+      "equations": ["\\nabla_{w}\\ell_i=(p_i-y_i)x_i", "\\nabla_wL=X^\\top(p-y)/n", "\\theta\\leftarrow\\theta-\\eta\\nabla L"],
+      "definitions": { "p-y": "residual", "eta": "positive learning rate" },
+      "visual": "solid orange arrow indicates the negative-gradient update direction"
+    },
+    {
+      "id": "target", "depth": 0, "foundation": false, "prerequisites": ["row-and-batch-gradient"],
+      "equations": ["g_1=0.40722679415570556", "h=10^{-6}"],
+      "definitions": { "g_1": "first analytic gradient component for the fixed check" },
+      "visual": "poster retains the full likelihood-to-update chain"
+    }
+  ],
+  "topologicalOrder": ["bernoulli-outcome", "independent-product", "log-sum", "negative-log-loss", "row-and-batch-gradient", "target"]
+}

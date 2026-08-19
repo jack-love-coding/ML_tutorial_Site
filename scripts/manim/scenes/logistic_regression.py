@@ -140,13 +140,15 @@ class LikelihoodBceGradientScene(Scene):
         log_formula = _equation(rf"\sum_i\log q_i={log_sum:.4f}", PALETTE["score"], 0.7).shift(DOWN * 0.5)
         bce_formula = _equation(rf"\mathrm{{BCE}}=\operatorname{{softplus}}(z)-yz={bce:.4f}", PALETTE["loss"], 0.58).shift(DOWN * 1.42)
         arrow = Line(LEFT * 4.5 + DOWN * 2.35, RIGHT * 4.5 + DOWN * 2.35, color=PALETTE["gradient"], stroke_width=6)
+        row_gradient = _equation(r"\nabla_w\ell_i=(p_i-y_i)x_i", PALETTE["gradient"], 0.56).next_to(arrow, UP, buff=0.18)
         gradient_label = _equation(rf"\nabla L=\frac{{X^\top(p-y)}}{{n}}\quad g_1={float(sample_gradient[0]):.4f}", PALETTE["gradient"], 0.58).next_to(arrow, UP, buff=0.18)
         descent = _equation(r"\theta\leftarrow\theta-\eta\nabla L", PALETTE["gradient"], 0.74).next_to(arrow, DOWN, buff=0.18)
 
         self.play(Write(bernoulli), FadeIn(terms))
         self.play(Write(product_formula), Write(log_formula))
         self.play(Write(bce_formula))
-        self.play(Create(arrow), FadeIn(gradient_label), Write(descent))
+        self.play(Create(arrow), FadeIn(row_gradient), Write(descent))
+        self.play(Transform(row_gradient, gradient_label))
         self.wait(1)
 
 
