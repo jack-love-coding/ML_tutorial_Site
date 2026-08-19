@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
@@ -28,22 +29,25 @@ test('Phase 29 registers four typed language-neutral media packages before attac
   }
 })
 
-test('Phase 29 media metadata binds every MP4, poster, source, prompt, tree, transcript, marker, and hash', () => {
-  assert.ok(existsSync(metadataPath), 'missing Phase 29 logistic media metadata')
-  const metadata = JSON.parse(readFileSync(metadataPath, 'utf8'))
-  assert.deepEqual(metadata.assets.map((asset) => asset.id), expectedStems)
-  for (const asset of metadata.assets) {
-    const required = [asset.assetPath, asset.posterPath, asset.source, asset.prompt, asset.knowledgeTree, asset.transcriptZhCN, asset.transcriptEn]
-    for (const path of required) assert.ok(existsSync(resolve(root, path.startsWith('/') ? `public${path}` : path)), `${asset.id} ${path} exists`)
-    assert.match(asset.sha256, /^[a-f0-9]{64}$/)
-    assert.match(asset.posterSha256, /^[a-f0-9]{64}$/)
-    assert.equal(sha256(resolve(root, `public${asset.assetPath}`)), asset.sha256)
-    assert.equal(sha256(resolve(root, `public${asset.posterPath}`)), asset.posterSha256)
-    assert.equal(asset.width, 1920)
-    assert.equal(asset.height, 1080)
-    assert.equal(asset.frameRate, 30)
-    assert.ok(asset.markers.every((marker) => marker.startSeconds >= 0 && marker.startSeconds < asset.durationSeconds))
+test('Phase 29 source renderer maps exactly four manifest-bound scene IDs and rejects unknown selections before Manim', () => {
+  const renderer = resolve(root, 'scripts/manim/render_logistic_regression.py')
+  const sceneSource = resolve(root, 'scripts/manim/scenes/logistic_regression.py')
+  assert.ok(existsSync(renderer), 'logistic renderer exists')
+  assert.ok(existsSync(sceneSource), 'logistic scene source exists')
+  const source = readFileSync(sceneSource, 'utf8')
+  for (const className of ['LinearScoreToSigmoidScene', 'LikelihoodBceGradientScene', 'ConfidentMistakeScene', 'RegularizationConfidenceScene']) {
+    assert.match(source, new RegExp(`class ${className}`), `${className} is declared`)
   }
+  const validation = execFileSync('python3', [renderer, '--validate-sources'], { cwd: root, encoding: 'utf8' })
+  assert.match(validation, /four logistic scenes/i)
+  assert.throws(
+    () => execFileSync('python3', [renderer, '--scene', 'unknown-scene', '--quality', 'preview'], { cwd: root, encoding: 'utf8', stdio: 'pipe' }),
+    /invalid choice|unknown/i,
+  )
+})
+
+test('published binary checks stay deferred until Plan 29-04 publishes a metadata package', () => {
+  assert.equal(existsSync(metadataPath), false, 'Plan 29-03 authors sources without replacing the existing binaries')
 })
 
 test('Phase 29 media player contract preserves user-start, seeking, failures, reduced motion, base paths, and cleanup', () => {
