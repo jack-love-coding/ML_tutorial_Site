@@ -177,7 +177,7 @@
 4. Calibration bins distinguish probability quality from class accuracy, while a nonlinear example shows the limit of one linear decision boundary.
 5. The existing route, checkpoint, lab behavior, downloadable Notebook/output package, focused tests, and both builds remain valid.
 
-**Plans:** 3/8 plans executed
+**Plans:** 5/8 plans executed
 **Wave 1**
 
 - [x] 29-00-PLAN.md — Wave 0 fail-first contracts for every numerical, asset, content, lab, media, compatibility, and release surface
@@ -189,8 +189,8 @@
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 29-03-PLAN.md — Shared Manim source contract plus score/sigmoid and likelihood/BCE/gradient teaching packages
-- [ ] 29-05-PLAN.md — Six route-lazy guided SVG labs with pure scene models and accessible fallbacks
+- [x] 29-03-PLAN.md — Shared Manim source contract plus score/sigmoid and likelihood/BCE/gradient teaching packages
+- [x] 29-05-PLAN.md — Six route-lazy guided SVG labs with pure scene models and accessible fallbacks
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
