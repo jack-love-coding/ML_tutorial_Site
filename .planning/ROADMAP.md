@@ -177,10 +177,10 @@
 4. Calibration bins distinguish probability quality from class accuracy, while a nonlinear example shows the limit of one linear decision boundary.
 5. The existing route, checkpoint, lab behavior, downloadable Notebook/output package, focused tests, and both builds remain valid.
 
-**Plans:** 8 plans
+**Plans:** 1/8 plans executed
 **Wave 1**
 
-- [ ] 29-00-PLAN.md — Wave 0 fail-first contracts for every numerical, asset, content, lab, media, compatibility, and release surface
+- [x] 29-00-PLAN.md — Wave 0 fail-first contracts for every numerical, asset, content, lab, media, compatibility, and release surface
 - [ ] 29-01-PLAN.md — One-row tracer, phase-local contracts, and pure stable logistic engine
 
 **Wave 2** *(blocked on Wave 1 completion)*
@@ -246,7 +246,7 @@
 | 28. Tabular Regression Project | v1.1 | 5 | Complete — 2026-08-04 |
 | 28A. Gradient Descent Beginner Teaching Rebuild | v1.1 | 6 | Complete — 2026-08-11 |
 | 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | Complete — 2026-08-13 |
-| 29. Logistic Regression Rebuild | v1.1 | 4 | Planned — 8 plans |
+| 29. Logistic Regression Rebuild | v1.1 | 4 | In Progress|
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |
 | 31. Corridor Integration and Release | v1.1 | 5 | Not started |
 

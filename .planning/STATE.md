@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
 current_phase: 29
-current_phase_name: Logistic Regression Rebuild
-status: planning
-stopped_at: Phase 29 context gathered
-last_updated: "2026-08-19T15:28:33.084Z"
-last_activity: 2026-08-12
-last_activity_desc: Phase 28B passed release verification, including reduced-motion, real MP4 failure, and runtime KaTeX browser checks
+current_phase_name: logistic-regression-rebuild
+status: executing
+stopped_at: Completed 29-00-PLAN.md
+last_updated: "2026-08-19T15:40:43.074Z"
+last_activity: 2026-08-19
+last_activity_desc: Phase 29 execution started
 progress:
   total_phases: 9
   completed_phases: 3
@@ -21,14 +21,14 @@ current_plan: null
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-08-12
-**Status:** Phase 28B complete; Phase 29 is ready for discussion and planning
+**Status:** Ready to execute
 
 ## Current Position
 
-Phase: 29 (Logistic Regression Rebuild) — READY
-Plan: Not started
-Status: Phase 28B passed all automated and browser release checks
-Last activity: 2026-08-12 — Completed Phase 28B with six bilingual chapters, deterministic assets, four Manim packages, dedicated labs, and production fallback verification
+Phase: 29 (logistic-regression-rebuild) — EXECUTING
+Plan: 2 of 8
+Status: Ready to execute
+Last activity: 2026-08-19 — Phase 29 execution started
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 29 — Logistic Regression Rebuild
+**Current focus:** Phase 29 — logistic-regression-rebuild
 
 ## Baseline
 
@@ -770,9 +770,9 @@ Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before pla
 
 ## Session
 
-**Last session:** 2026-08-19T14:41:06.505Z
-**Stopped at:** Phase 29 context gathered
-**Resume file:** .planning/phases/29-logistic-regression-rebuild/29-CONTEXT.md
+**Last session:** 2026-08-19T15:40:43.064Z
+**Stopped at:** Completed 29-00-PLAN.md
+**Resume file:** None
 
 ## Performance Metrics
 
@@ -812,6 +812,7 @@ Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before pla
 | Phase 28.2 P01 | 0m | 3 tasks | 18 files |
 | Phase 28.2 P02 | 12m | 2 tasks | 33 files |
 | Phase 28.2 P03 | 20min | 3 tasks | 20 files |
+| Phase 29 P00 | 27m | 3 tasks | 10 files |
 
 ## Decisions
 
@@ -902,6 +903,7 @@ Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before pla
 - [Phase 28B]: Use poster-first reduced-motion media with an explicit user-controlled video option.
 - [Phase 28B]: Keep existing optimizer routes while rendering detailed typed course content in a targeted shell.
 - [Phase 28B]: Use shared optimizer trajectories and supplied media instead of duplicating numerical fitting.
+- [Phase ?]: Phase 29 Wave 0 locks fail-first numerical, asset, media, course, lab, compatibility, and release contracts before production work.
 
 ## Operator Next Steps
 
