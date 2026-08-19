@@ -68,6 +68,24 @@ export interface LogisticInteractionAsset {
   sha256: string
 }
 
+export type LogisticInteractionData =
+  | { teachingRows: Record<string, unknown>; oneRow: Record<string, unknown> }
+  | { oneRow: Record<string, unknown>; terms: Record<string, unknown>; extremeScores: readonly number[] }
+  | { likelihoodRows: readonly Record<string, unknown>[]; probabilityProduct: number; logLikelihood: number }
+  | { oneRow: Record<string, unknown>; batch: Record<string, unknown>; finiteDifference: Record<string, unknown> }
+  | { scratch: Record<string, unknown>; sklearn: Record<string, unknown>; l2: Record<string, unknown> }
+  | { calibration: Record<string, unknown>; xor: Record<string, unknown>; circles: Record<string, unknown> }
+
+export interface LogisticPublishedInteractionAsset {
+  contractVersion: 'logistic-regression-phase-29-v1'
+  id: LogisticObservationSceneId
+  chapterId: LogisticChapterId
+  sceneId: LogisticObservationSceneId
+  controls: readonly LogisticInteractionControl[]
+  sourceCellId: string
+  data: LogisticInteractionData
+}
+
 export interface LogisticPredictionHandoff {
   csv: string
   json: string
@@ -82,6 +100,7 @@ export interface LogisticPredictionHandoff {
     'model_hash',
     'config_hash',
   ]
+  reservedFor?: 'phase-30'
 }
 
 export interface LogisticAssetManifest {
@@ -89,6 +108,24 @@ export interface LogisticAssetManifest {
   locales: readonly ['zh-CN', 'en']
   assets: readonly LogisticInteractionAsset[]
   predictionHandoff: LogisticPredictionHandoff
+}
+
+export type LogisticAssetLoadFailureCode = 'aborted' | 'http-error' | 'schema-error' | 'integrity-error'
+
+export class LogisticAssetLoadError extends Error {
+  readonly code: LogisticAssetLoadFailureCode
+
+  constructor(code: LogisticAssetLoadFailureCode, message: string) {
+    super(message)
+    this.name = 'LogisticAssetLoadError'
+    this.code = code
+  }
+}
+
+export interface LogisticAssetLoadOptions {
+  fetch?: typeof fetch
+  baseUrl?: string
+  signal?: AbortSignal
 }
 
 export interface LogisticMediaAsset {
