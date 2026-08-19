@@ -117,3 +117,14 @@ test('Phase 29 likelihood, calibration, temperatures, and synthetic diagnostics 
   assert.throws(() => temperature(1, 0), /positive/i)
   assert.ok(circles().every((point) => Number.isFinite(point.x) && Number.isFinite(point.y) && (point.target === 0 || point.target === 1)))
 })
+
+test('Phase 29 calibration and row engine fail closed on invalid teaching inputs', async () => {
+  const math = await loadMath()
+  const bins = math.buildCalibrationBins as (probabilities: readonly number[], labels: readonly number[], edges?: readonly number[]) => unknown
+  const row = math.oneRowLogisticTerms as (input: { features: readonly number[]; parameters: readonly number[]; target: number }) => unknown
+  assert.throws(() => bins([0.5], [1], [0, 0.5, 0.5, 1]), /increase/i)
+  assert.throws(() => bins([Number.NaN], [1]), /finite/i)
+  assert.throws(() => bins([0.5], [Infinity]), /class|label/i)
+  assert.throws(() => row({ features: [1, 2, 3], parameters: [0, 0, 0, 0, 0], target: 1 }), /dimension/i)
+  assert.throws(() => row({ features: [1, 2, 3, 4], parameters: [0, 0, 0, 0, Infinity], target: 1 }), /finite/i)
+})
