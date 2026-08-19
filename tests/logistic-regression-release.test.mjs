@@ -25,6 +25,9 @@ test('Phase 29 release matrix locks exactly thirty locale, route, and viewport r
   assert.match(source, /results/)
   assert.match(source, /interactions/)
   assert.match(source, /failureInjections/)
+  assert.match(source, /expectedCaseKeys/)
+  assert.match(source, /exactCases/)
+  assert.match(source, /new Set\(resultKeys\)/)
 })
 
 test('Phase 29 release matrix requires all scene interactions and complete failure fallbacks', () => {
@@ -36,6 +39,12 @@ test('Phase 29 release matrix requires all scene interactions and complete failu
   assert.match(source, /same-origin|origin/i)
   assert.match(source, /lazy|current chapter/i)
   assert.match(source, /reserved test|test records|test labels/i)
+  assert.match(source, /exactInteractions/)
+  assert.match(source, /exactFailures/)
+  assert.match(source, /asset-http-failure/)
+  assert.match(source, /asset-corruption/)
+  assert.match(source, /mp4-failure/)
+  assert.match(source, /copy-failure/)
 })
 
 test('Phase 29 release scope keeps Phase 30 metrics and evaluation disclosure out of learner contracts', () => {

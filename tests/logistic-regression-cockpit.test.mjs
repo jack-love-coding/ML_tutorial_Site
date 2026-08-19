@@ -39,6 +39,12 @@ test('Phase 29 paged lesson keeps TOC, pager, progress, and checkpoint while mou
   assert.ok(contentIndex >= 0 && labIndex > contentIndex, 'the current chapter lab follows teaching content')
 })
 
+test('Phase 29 keeps the logistic checkpoint and legacy results outside the generic AlgorithmView shell', () => {
+  const source = readFileSync(new URL('../src/views/AlgorithmView.vue', import.meta.url), 'utf8')
+  assert.match(source, /!isLogisticRegressionPage/)
+  assert.match(source, /!isLogisticRegressionPage && !isHousingProjectPage/)
+})
+
 test('Phase 29 lesson is single-column while retaining responsive TOC fallbacks', () => {
   const source = readFileSync(pagedPath, 'utf8')
   const css = readStyleSource()
