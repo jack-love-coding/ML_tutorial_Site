@@ -28,6 +28,7 @@
     "vue-router": "^5.0.4"
   },
   "devDependencies": {
+    "@playwright/cli": "0.1.18",
     "@types/d3": "^7.4.3",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^24.12.0",

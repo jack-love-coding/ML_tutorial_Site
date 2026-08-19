@@ -84,6 +84,25 @@ test('gradient, parity, and calibration scenes preserve replay and synthetic-dat
   assert.doesNotMatch(finalSource, /loadLogisticInteraction\(|fit\(|sklearn\.fit/i)
 })
 
+test('calibration synthetic fallbacks localize point labels, marker semantics, and legends for XOR and circles', async () => {
+  const { buildCalibrationLimitsSceneModel } = await import(new URL('../src/modules/logistic-regression/labs/sceneModels.ts', import.meta.url).href)
+  const limits = JSON.parse(readFileSync(new URL('../public/logistic-regression/phase-29/interactions/linear-limits.json', import.meta.url), 'utf8'))
+  for (const view of ['xor', 'circles']) {
+    const zh = buildCalibrationLimitsSceneModel(limits, 'original', 'original', view, 'zh-CN')
+    const en = buildCalibrationLimitsSceneModel(limits, 'original', 'original', view, 'en')
+    assert.match(zh.legend, /实心圆.*类别 1.*条纹圆.*类别 0/)
+    assert.match(zh.points[0].label, /合成点 1，类别 [01]/)
+    assert.ok(zh.table.some((row) => /实心标记|条纹标记/.test(row.value)), `${view} localizes marker rows`)
+    assert.match(en.legend, /solid circle.*class 1.*striped circle.*class 0/)
+    assert.match(en.points[0].label, /synthetic point 1, class [01]/)
+    assert.ok(en.table.some((row) => /solid marker|striped marker/.test(row.value)), `${view} retains English marker rows`)
+  }
+  const component = readFileSync(new URL('../src/modules/logistic-regression/labs/CalibrationLimitsScene.vue', import.meta.url), 'utf8')
+  assert.match(component, /view\.value,props\.locale/)
+  assert.match(component, /\{\{ model\.legend \}\}/)
+  assert.match(component, /\{\{ copy\.field \}\}.*\{\{ copy\.value \}\}/)
+})
+
 test('Phase 29 keeps complete data tables visible instead of exposing fake detail toggles', () => {
   for (const name of sceneNames) {
     const source = readFileSync(new URL(`../src/modules/logistic-regression/labs/${name}.vue`, import.meta.url), 'utf8')

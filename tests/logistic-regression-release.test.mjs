@@ -55,6 +55,11 @@ test('Phase 29 runs the real Pages browser matrix as an executable CI gate', () 
   assert.match(workflow, /Phase 29 browser release matrix/)
   assert.match(runner, /--strictPort/)
   assert.match(runner, /run-code.*logisticRegressionBrowserMatrix/)
+  assert.equal(packageJson.devDependencies['@playwright/cli'], '0.1.18', 'the mandatory browser CLI is an exact audited dependency')
+  assert.match(runner, /npm.*exec.*--no.*playwright-cli/)
+  assert.doesNotMatch(runner, /--package', '@playwright\/cli'/)
+  assert.match(runner, /BROWSER_COMMAND_TIMEOUT_MS/)
+  assert.match(runner, /terminateProcess/)
 })
 
 test('Phase 29 release scope keeps Phase 30 metrics and evaluation disclosure out of learner contracts', () => {

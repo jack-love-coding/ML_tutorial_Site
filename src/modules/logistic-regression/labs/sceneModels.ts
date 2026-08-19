@@ -2,6 +2,7 @@ import {
   oneRowLogisticTerms,
   sigmoidOddsTerms,
 } from '../engine.ts'
+import type { AppLocale } from '../../../types/ml.ts'
 import type { LogisticPublishedInteractionAsset } from '../types.ts'
 
 export interface SemanticRow {
@@ -214,7 +215,26 @@ export function buildTrainingParitySceneModel(asset: TrainingAsset, requested: u
 
 export const trainingParityModel = buildTrainingParitySceneModel
 
-export function buildCalibrationLimitsSceneModel(asset: LimitsAsset, requestedMode: unknown, lastValid: 'original' | 'sharpened' | 'softened' = 'original', requestedView: 'banknote' | 'xor' | 'circles' = 'banknote') {
+const calibrationCopy = (locale: AppLocale) => locale === 'zh-CN'
+  ? {
+      point: (index: number, label: number) => `合成点 ${index}，类别 ${label}`,
+      solid: '实心标记／类别 1', striped: '条纹标记／类别 0',
+      legend: '实心圆 = 类别 1；条纹圆 = 类别 0',
+      syntheticData: '合成诊断数据：不会改变 Banknote 行或校准结果',
+      banknoteData: '冻结的 Banknote 验证集 logit', provenance: '数据来源', geometry: '几何形状', points: '点数量',
+      xor: 'XOR 交叉模式', circles: '同心圆模式', mode: '概率模式', expectedCalibrationError: '期望校准误差', accuracy: '固定 0.5 阈值准确率',
+    }
+  : {
+      point: (index: number, label: number) => `synthetic point ${index}, class ${label}`,
+      solid: 'solid marker / class 1', striped: 'striped marker / class 0',
+      legend: 'solid circle = class 1 · striped circle = class 0',
+      syntheticData: 'synthetic diagnostic only; it cannot alter Banknote rows or calibration',
+      banknoteData: 'frozen Banknote validation logits', provenance: 'data provenance', geometry: 'geometry', points: 'points',
+      xor: 'XOR crossing pattern', circles: 'concentric circles pattern', mode: 'probability mode', expectedCalibrationError: 'expected calibration error', accuracy: 'fixed 0.5 validation accuracy',
+    }
+
+export function buildCalibrationLimitsSceneModel(asset: LimitsAsset, requestedMode: unknown, lastValid: 'original' | 'sharpened' | 'softened' = 'original', requestedView: 'banknote' | 'xor' | 'circles' = 'banknote', locale: AppLocale = 'en') {
+  const copy = calibrationCopy(locale)
   const data = record(asset.data)
   const calibration = record(data.calibration)
   const modes = Array.isArray(calibration.modes) ? calibration.modes.map(record) : []
@@ -222,16 +242,19 @@ export function buildCalibrationLimitsSceneModel(asset: LimitsAsset, requestedMo
   const selected = modes.find((item) => item.id === mode) ?? modes.find((item) => item.id === lastValid) ?? modes[0] ?? {}
   const bins = Array.isArray(selected.bins) ? selected.bins.map(record).slice(0, 12) : []
   const source = requestedView === 'xor' ? record(data.xor) : requestedView === 'circles' ? record(data.circles) : undefined
-  const points = source && Array.isArray(source.points) ? source.points.map(record).slice(0, 96).map((point, index) => ({ x: finite(point.x), y: finite(point.y), label: `synthetic point ${index + 1}, class ${finite(point.label)}`, kind: finite(point.label) === 1 ? 'class-one' : 'class-zero' })) : []
+  const points = source && Array.isArray(source.points) ? source.points.map(record).slice(0, 96).map((point, index) => {
+    const label = finite(point.label) === 1 ? 1 : 0
+    return { x: finite(point.x), y: finite(point.y), label: copy.point(index + 1, label), kind: label === 1 ? 'class-one' : 'class-zero' }
+  }) : []
   const expectedCalibrationError = finite(selected.expectedCalibrationError)
   const accuracy = finite(selected.fixedThresholdAccuracy)
   return {
     mode, lastValid: mode, view: requestedView, bins: bins.map((bin) => ({ lower: finite(bin.lower), upper: finite(bin.upper), count: finite(bin.count), meanProbability: typeof bin.meanProbability === 'number' ? bin.meanProbability : null, observedRate: typeof bin.observedRate === 'number' ? bin.observedRate : null })),
-    expectedCalibrationError, accuracy, points,
-    dataKind: source ? 'synthetic diagnostic — never used for Banknote fitting' : 'frozen Banknote validation logits',
+    expectedCalibrationError, accuracy, points, legend: copy.legend,
+    dataKind: source ? copy.syntheticData : copy.banknoteData,
     table: source
-      ? [{ label: 'data provenance', value: 'synthetic diagnostic only; it cannot alter Banknote rows or calibration', emphasis: 'warning' }, { label: 'geometry', value: text(source.kind) }, { label: 'points', value: `${points.length}` }, ...points.map((point) => ({ label: point.label, value: point.kind === 'class-one' ? 'solid marker / class 1' : 'striped marker / class 0' }))]
-      : [{ label: 'data provenance', value: 'frozen Banknote validation logits' }, { label: 'mode', value: mode }, { label: 'expected calibration error', value: sceneNumber(expectedCalibrationError, 8) }, { label: 'fixed 0.5 validation accuracy', value: scenePercent(accuracy) }],
+      ? [{ label: copy.provenance, value: copy.syntheticData, emphasis: 'warning' }, { label: copy.geometry, value: text(source.kind) === 'xor' ? copy.xor : copy.circles }, { label: copy.points, value: `${points.length}` }, ...points.map((point) => ({ label: point.label, value: point.kind === 'class-one' ? copy.solid : copy.striped }))]
+      : [{ label: copy.provenance, value: copy.banknoteData }, { label: copy.mode, value: mode }, { label: copy.expectedCalibrationError, value: sceneNumber(expectedCalibrationError, 8) }, { label: copy.accuracy, value: scenePercent(accuracy) }],
   }
 }
 
