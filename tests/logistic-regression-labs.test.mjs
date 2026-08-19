@@ -56,3 +56,15 @@ test('Phase 29 shell keeps a static fallback and does not mount the legacy cockp
   assert.match(source, /loadLogisticInteraction/)
   assert.doesNotMatch(source, /import .*LogisticRegressionLessonLab/)
 })
+
+test('score, sigmoid, and likelihood scenes provide a bounded keyboard-accessible semantic fallback', () => {
+  for (const name of sceneNames.slice(0, 3)) {
+    const path = new URL(`../src/modules/logistic-regression/labs/${name}.vue`, import.meta.url)
+    assert.ok(existsSync(path), `missing ${name}`)
+    const source = readFileSync(path, 'utf8')
+    assert.match(source, /min=|max=|bounded|Math\.min|build[A-Za-z]+SceneModel/i, `${name} bounds controls`)
+    assert.match(source, /@keydown|keydown|tabindex/i, `${name} supports keyboard interaction`)
+    assert.match(source, /table|fallback/i, `${name} has a semantic table fallback`)
+    assert.match(source, /aria-label|<title>/i, `${name} labels its visual`)
+  }
+})
