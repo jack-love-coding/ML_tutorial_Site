@@ -111,6 +111,17 @@ def _asset_path(relative_path: str) -> str:
     return f"{PUBLIC_PREFIX}/{relative_path}"
 
 
+def sampled_replay_trace(trace: list[dict[str, Any]], maximum_states: int = 800) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Bound browser payloads without changing the recorded scratch terminal state."""
+    if maximum_states < 2:
+        raise ValueError("Replay trace capacity must retain the first and final state.")
+    if len(trace) <= maximum_states:
+        return trace, {"acceptedStates": len(trace), "publishedStates": len(trace)}
+    stride = math.ceil((len(trace) - 1) / (maximum_states - 1))
+    selected = [state for index, state in enumerate(trace) if index % stride == 0 or index == len(trace) - 1]
+    return selected, {"acceptedStates": len(trace), "publishedStates": len(selected)}
+
+
 def _controls(scene: str) -> list[dict[str, Any]]:
     labels = {
         "linear-score": ("比较样本", "Comparison row", ["canonical", "nearBoundary", "correctConfident", "highLoss"]),
@@ -133,6 +144,7 @@ def _interaction_payloads(analysis: dict[str, Any]) -> dict[str, dict[str, Any]]
     rows = analysis["rows"]
     canonical_trace = build_one_row_trace(rows["canonical"], analysis["scratch"]["parameters"])
     batch_trace = build_batch_trace(analysis["source"], analysis["scratch"]["parameters"], "train")
+    replay_trace, trace_sampling = sampled_replay_trace(analysis["scratch"]["trace"])
     probability_terms = {
         "logit": canonical_trace["logit"],
         "probability": canonical_trace["probability"],
@@ -158,7 +170,7 @@ def _interaction_payloads(analysis: dict[str, Any]) -> dict[str, dict[str, Any]]
         "sigmoid-probability": {"oneRow": canonical_trace, "terms": probability_terms, "extremeScores": [-20.0, -8.0, 0.0, 8.0, 20.0]},
         "threshold-decisions": {"likelihoodRows": likelihood_rows, "probabilityProduct": product, "logLikelihood": sum(item["logTerm"] for item in likelihood_rows)},
         "log-loss": {"oneRow": canonical_trace, "batch": {"meanBce": batch_trace["meanBce"], "gradient": batch_trace["gradient"]}, "finiteDifference": analysis["finiteDifference"]},
-        "regularization": {"scratch": {key: analysis["scratch"][key] for key in ("parameters", "terminal", "trace", "validation")}, "sklearn": analysis["parity"], "l2": analysis["l2"]},
+        "regularization": {"scratch": {"parameters": analysis["scratch"]["parameters"], "terminal": analysis["scratch"]["terminal"], "trace": replay_trace, "traceSampling": trace_sampling, "validation": analysis["scratch"]["validation"]}, "sklearn": analysis["parity"], "l2": analysis["l2"]},
         "linear-limits": {"calibration": analysis["calibration"], "xor": analysis["xor"], "circles": analysis["circles"]},
     }
     return {
@@ -285,7 +297,8 @@ def _prediction_records(source: Any, parameters: Iterable[float]) -> list[dict[s
 def write_outputs(root: Path, analysis: dict[str, Any]) -> dict[str, str]:
     output = root / "outputs"; output.mkdir(parents=True, exist_ok=True)
     trace_rows = []
-    for state in analysis["scratch"]["trace"]:
+    replay_trace, _ = sampled_replay_trace(analysis["scratch"]["trace"])
+    for state in replay_trace:
         trace_rows.append({"iteration": state["iteration"], "objective": state["objective"], "gradient_norm": state["gradientNorm"], "parameter_step_norm": state["parameterStepNorm"], "accepted_step": state["acceptedStep"], "backtracks": state["backtracks"], **{f"parameter_{index}": value for index, value in enumerate(state["parameters"])}})
     pd.DataFrame(trace_rows).to_csv(output / "training-trace.csv", index=False, lineterminator="\n")
     write_json(output / "parity.json", analysis["parity"])

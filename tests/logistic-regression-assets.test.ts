@@ -85,3 +85,14 @@ test('Phase 29 bilingual notebooks retain identical code-cell ordering while loc
   assert.deepEqual(code(zh), code(en))
   assert.notDeepEqual(zh.cells[0]?.source, en.cells[0]?.source)
 })
+
+test('Phase 29 publishes bounded replay traces while recording the complete accepted-state count', () => {
+  const regularization = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/regularization.json'), 'utf8')) as {
+    data: { scratch: { trace: readonly unknown[]; traceSampling: { acceptedStates: number; publishedStates: number } } }
+  }
+  const csvRows = readFileSync(resolve(packageRoot, 'outputs/training-trace.csv'), 'utf8').trim().split('\n')
+  assert.ok(regularization.data.scratch.trace.length <= 800)
+  assert.equal(regularization.data.scratch.trace.length, regularization.data.scratch.traceSampling.publishedStates)
+  assert.ok(regularization.data.scratch.traceSampling.acceptedStates > regularization.data.scratch.trace.length)
+  assert.ok(csvRows.length <= 801)
+})
