@@ -68,7 +68,7 @@ test('published release binds all four MP4/poster/transcript packages to metadat
     for (const [locale, transcript] of [['zh-CN', asset.transcriptZhCN], ['en', asset.transcriptEn]]) {
       assert.equal(runtime.transcript[locale].trim(), readFileSync(resolve(root, transcript), 'utf8').trim())
     }
-    const probe = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,r_frame_rate,codec_name:format=duration', '-of', 'json', resolve(root, asset.assetPath.slice(1))], { encoding: 'utf8' }))
+    const probe = JSON.parse(execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height,r_frame_rate,codec_name:format=duration', '-of', 'json', resolve(root, 'public', asset.assetPath.slice(1))], { encoding: 'utf8' }))
     assert.equal(probe.streams[0].codec_name, 'h264')
     assert.equal(probe.streams[0].width, 1920)
     assert.equal(probe.streams[0].height, 1080)

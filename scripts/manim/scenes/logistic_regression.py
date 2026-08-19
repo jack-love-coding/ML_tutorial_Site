@@ -120,7 +120,8 @@ class LinearScoreToSigmoidScene(Scene):
         self.play(FadeOut(number_line), FadeOut(zero_tick), FadeOut(score_dot), FadeOut(score_label), FadeOut(dashed))
         self.play(FadeIn(axes), Create(curve), Create(half), FadeIn(neutral), FadeIn(neutral_label))
         self.play(FadeIn(clipped_dot))
-        self.wait(1)
+        # Keep the completed visual as the learner-controlled poster frame.
+        self.wait(36.067)
 
 
 class LikelihoodBceGradientScene(Scene):
@@ -149,7 +150,7 @@ class LikelihoodBceGradientScene(Scene):
         self.play(Write(bce_formula))
         self.play(Create(arrow), FadeIn(row_gradient), Write(descent))
         self.play(Transform(row_gradient, gradient_label))
-        self.wait(1)
+        self.wait(40)
 
 
 class ConfidentMistakeScene(Scene):
@@ -172,7 +173,7 @@ class ConfidentMistakeScene(Scene):
 
         self.play(Write(formula), FadeIn(stable), FadeIn(axes), Create(loss_curve))
         self.play(FadeIn(marker), Create(marker_line), Write(check))
-        self.wait(1)
+        self.wait(33.333)
 
 
 class RegularizationConfidenceScene(Scene):
@@ -197,4 +198,4 @@ class RegularizationConfidenceScene(Scene):
         self.play(Write(objective), Create(left), Create(right), FadeIn(dots))
         self.play(Create(left_line), Create(right_line), FadeIn(left_label), FadeIn(right_label))
         self.play(Write(distinction))
-        self.wait(1)
+        self.wait(34.333)

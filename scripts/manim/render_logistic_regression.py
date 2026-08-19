@@ -15,6 +15,7 @@ import json
 import re
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -105,7 +106,7 @@ def manim_version() -> str:
     return subprocess.run(["manim", "--version"], check=True, capture_output=True, text=True).stdout.strip()
 
 
-def render(scene_id: str, quality: str) -> None:
+def render(scene_id: str, quality: str) -> Path:
     validate_sources(scene_id)
     if shutil.which("manim") is None:
         raise RuntimeError("manim is required to render logistic-regression scenes")
@@ -123,9 +124,7 @@ def render(scene_id: str, quality: str) -> None:
     output = media_dir / "videos" / "logistic_regression" / quality_dir / f"{scene['className']}.mp4"
     if not output.is_file():
         raise FileNotFoundError(output)
-    if quality == "publish":
-        PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(output, PUBLIC_DIR / scene["video"])
+    return output
 
 
 def poster(scene_id: str) -> str:
@@ -170,11 +169,12 @@ def _source_duration(path: Path) -> float:
     return float(match.group(1))
 
 
-def metadata_payload() -> dict[str, Any]:
+def metadata_payload(output_dir: Path) -> dict[str, Any]:
+    source_manifest = ROOT / "public" / "logistic-regression" / "phase-29" / "manifest.json"
     assets = []
     for scene_id, scene in SCENES.items():
-        video = PUBLIC_DIR / scene["video"]
-        poster_path = PUBLIC_DIR / scene["video"].replace(".mp4", ".svg")
+        video = output_dir / scene["video"]
+        poster_path = output_dir / scene["video"].replace(".mp4", ".svg")
         source = SOURCES[scene_id]
         assets.append({
             "id": scene_id,
@@ -185,21 +185,27 @@ def metadata_payload() -> dict[str, Any]:
             "markers": [{"id": f"{scene_id}-{index + 1}", "startSeconds": seconds} for index, seconds in enumerate(scene["markers"])],
             "sha256": sha256(video),
             "posterSha256": sha256(poster_path),
+            "sourceManifestSha256": sha256(source_manifest),
+            "sourceSha256": sha256(ROOT / SCENE_FILE.relative_to(ROOT)),
+            "promptSha256": sha256(ROOT / source["prompt"]),
+            "knowledgeTreeSha256": sha256(ROOT / source["knowledgeTree"]),
+            "transcriptZhCNSha256": sha256(ROOT / source["transcriptZhCN"]),
+            "transcriptEnSha256": sha256(ROOT / source["transcriptEn"]),
             **probe(video),
             **source,
         })
     return {"metadataVersion": 1, "generatedBy": "scripts/manim/render_logistic_regression.py", "manimVersion": PUBLISHED_MANIM_VERSION, "assets": assets}
 
 
-def publish_posters() -> None:
-    PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
+def publish_posters(output_dir: Path) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
     for scene_id, scene in SCENES.items():
-        (PUBLIC_DIR / scene["video"].replace(".mp4", ".svg")).write_text(poster(scene_id), encoding="utf-8")
+        (output_dir / scene["video"].replace(".mp4", ".svg")).write_text(poster(scene_id), encoding="utf-8")
 
 
-def check(scene_id: str | None = None) -> None:
+def check(scene_id: str | None = None, output_dir: Path = PUBLIC_DIR) -> None:
     validate_sources(scene_id)
-    metadata_path = PUBLIC_DIR / "metadata.json"
+    metadata_path = output_dir / "metadata.json"
     if not metadata_path.is_file():
         raise SystemExit("Published logistic media metadata is not available yet")
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
@@ -212,11 +218,14 @@ def check(scene_id: str | None = None) -> None:
         raise SystemExit("Logistic media inventory drifted")
     for selected in ([scene_id] if scene_id else list(SCENES)):
         scene, record = SCENES[selected], records[selected]
-        video, poster_path = PUBLIC_DIR / scene["video"], PUBLIC_DIR / scene["video"].replace(".mp4", ".svg")
+        video, poster_path = output_dir / scene["video"], output_dir / scene["video"].replace(".mp4", ".svg")
         if not video.is_file() or not poster_path.is_file() or poster_path.read_text(encoding="utf-8") != poster(selected):
             raise SystemExit(f"Missing or drifted published asset for {selected}")
         if record.get("sha256") != sha256(video) or record.get("posterSha256") != sha256(poster_path):
             raise SystemExit(f"Published hash drift for {selected}")
+        source_manifest = ROOT / "public" / "logistic-regression" / "phase-29" / "manifest.json"
+        if record.get("sourceManifestSha256") != sha256(source_manifest):
+            raise SystemExit(f"Source manifest hash drift for {selected}")
         info = probe(video)
         if any(record.get(field) != info[field] for field in info) or info["width"] != 1920 or info["height"] != 1080 or info["frameRate"] != 30 or info["codec"] != "h264":
             raise SystemExit(f"ffprobe contract failed for {selected}: {info}")
@@ -224,13 +233,53 @@ def check(scene_id: str | None = None) -> None:
             raise SystemExit(f"Duration drift for {selected}")
         if [marker.get("startSeconds") for marker in record.get("markers", [])] != scene["markers"] or any(seconds < 0 or seconds >= info["durationSeconds"] for seconds in scene["markers"]):
             raise SystemExit(f"Marker contract failed for {selected}")
-        for source_path in SOURCES[selected].values():
+        hash_fields = {
+            "source": "sourceSha256", "prompt": "promptSha256", "knowledgeTree": "knowledgeTreeSha256",
+            "transcriptZhCN": "transcriptZhCNSha256", "transcriptEn": "transcriptEnSha256",
+        }
+        for source_key, source_path in SOURCES[selected].items():
             path = ROOT / source_path
             if not path.is_file() or not path.read_text(encoding="utf-8").strip():
                 raise SystemExit(f"Missing source package member for {selected}: {source_path}")
+            if record.get(hash_fields[source_key]) != sha256(path):
+                raise SystemExit(f"Source hash drift for {selected}: {source_key}")
         if abs(_source_duration(ROOT / SOURCES[selected]["prompt"]) - float(info["durationSeconds"])) > 1.5:
             raise SystemExit(f"Prompt duration drift for {selected}")
     print("Published logistic media package matches ffprobe, source, marker, hash, and manifest-anchor contracts.")
+
+
+def publish(inject_failure: bool = False) -> None:
+    """Render into a sibling staging directory and swap only after validation."""
+    PUBLIC_DIR.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".logistic-regression-stage-", dir=PUBLIC_DIR.parent))
+    backup = PUBLIC_DIR.parent / ".logistic-regression-backup"
+    if backup.exists():
+        raise RuntimeError(f"Refusing to overwrite an existing release backup: {backup}")
+    published = False
+    try:
+        for scene_id in SCENES:
+            shutil.copy2(render(scene_id, "publish"), staging / SCENES[scene_id]["video"])
+        publish_posters(staging)
+        (staging / "metadata.json").write_text(json.dumps(metadata_payload(staging), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        check(output_dir=staging)
+        if PUBLIC_DIR.exists():
+            PUBLIC_DIR.replace(backup)
+        staging.replace(PUBLIC_DIR)
+        published = True
+        if inject_failure:
+            raise RuntimeError("Injected failure after atomic swap")
+        check()
+        if backup.exists():
+            shutil.rmtree(backup)
+    except Exception:
+        if published and PUBLIC_DIR.exists():
+            shutil.rmtree(PUBLIC_DIR)
+        if backup.exists():
+            backup.replace(PUBLIC_DIR)
+        raise
+    finally:
+        if staging.exists():
+            shutil.rmtree(staging)
 
 
 def main() -> None:
@@ -239,6 +288,7 @@ def main() -> None:
     parser.add_argument("--quality", choices=["preview", "publish"], default="preview")
     parser.add_argument("--validate-sources", action="store_true", help="Read-only numerical/source-contract validation.")
     parser.add_argument("--check", action="store_true", help="Read-only published package validation.")
+    parser.add_argument("--inject-failure", action="store_true", help="Exercise post-swap rollback; valid only with --quality publish.")
     args = parser.parse_args()
     if args.validate_sources and args.check:
         parser.error("--validate-sources and --check are mutually exclusive")
@@ -248,13 +298,15 @@ def main() -> None:
     if args.check:
         check(args.scene)
         return
-    selected = [args.scene] if args.scene else list(SCENES)
-    for scene_id in selected:
-        render(scene_id, args.quality)
     if args.quality == "publish":
-        publish_posters()
-        if all((PUBLIC_DIR / scene["video"]).is_file() for scene in SCENES.values()) and all((ROOT / source_path).is_file() for source in SOURCES.values() for source_path in source.values()):
-            (PUBLIC_DIR / "metadata.json").write_text(json.dumps(metadata_payload(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        if args.scene:
+            parser.error("publication is an atomic four-scene release; omit --scene")
+        publish(args.inject_failure)
+        return
+    if args.inject_failure:
+        parser.error("--inject-failure requires --quality publish")
+    for scene_id in ([args.scene] if args.scene else list(SCENES)):
+        render(scene_id, args.quality)
 
 
 if __name__ == "__main__":
