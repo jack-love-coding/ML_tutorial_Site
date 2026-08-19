@@ -51,7 +51,7 @@
       "visual": "solid high-loss point, dashed guide, and row/value card"
     },
     {
-      "id": "residual-signal", "depth": 1, "foundation": false, "prerequisites": ["confident-wrong-row"],
+      "id": "residual-signal", "depth": 1, "foundation": false, "prerequisites": ["stable-softplus"],
       "equations": ["\\frac{\\partial\\ell}{\\partial z}=p-y", "\\nabla_w\\ell=(p-y)x"],
       "definitions": { "p-y": "signed residual signal", "x": "standardized feature vector", "nabla_w ell": "one-row coefficient-gradient contribution" },
       "visual": "arrowed residual signal multiplied by the feature vector"
@@ -63,7 +63,7 @@
       "visual": "paired finite-difference bars ending at a numeric agreement card"
     },
     {
-      "id": "target", "depth": 0, "foundation": false, "prerequisites": ["residual-signal", "checked-gradient"],
+      "id": "target", "depth": 0, "foundation": false, "prerequisites": ["confident-wrong-row", "residual-signal", "checked-gradient"],
       "equations": ["\\text{wrong and confident}\\Rightarrow\\text{large finite loss and corrective gradient}"],
       "definitions": { "corrective": "the update moves opposite the accumulated gradient" },
       "visual": "poster-complete synthesis of formula, high-loss marker, dashed guide, arrow, and check card"
