@@ -91,7 +91,7 @@ export const logisticRegressionModule: AlgorithmModuleDefinition = {
       id: 'linear-score',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.logisticRegression.sections.linearScore.title',
-      title: loc('线性打分：先得到证据，再谈分类', 'Linear score: evidence before classification'),
+      title: loc('线性分数：从一条真实记录开始', 'Linear score: start with one real record'),
       pageSummary: loc(
         '逻辑回归不是直接输出 0 或 1。它先用一组线性参数给样本打分，分数为 0 的位置就是当前阈值下的分界线。',
         'Logistic regression does not emit 0 or 1 directly. It first scores the example with linear parameters, and the zero-score set is the default boundary.',
@@ -165,7 +165,7 @@ Do not read logistic regression as linear regression with a classification if-st
       id: 'sigmoid-probability',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.logisticRegression.sections.sigmoidProbability.title',
-      title: loc('Sigmoid：把任意分数压成概率', 'Sigmoid: compress any score into probability'),
+      title: loc('Sigmoid：把分数变成概率', 'Sigmoid: turn scores into probability'),
       pageSummary: loc(
         '线性分数可以无限大或无限小，但类别概率必须落在 0 到 1。sigmoid 保留顺序，同时把尺度变成概率。',
         'The score can be unbounded, but probability must stay between 0 and 1. Sigmoid preserves order while changing the scale.',
@@ -227,7 +227,7 @@ A probability near 1 does not mean objective certainty. It means the model is ve
       id: 'threshold-decisions',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.logisticRegression.sections.thresholdDecisions.title',
-      title: loc('阈值：把概率翻译成业务决策', 'Thresholds: translate probability into decisions'),
+      title: loc('似然：让已观察标签更可能', 'Likelihood: make observed labels more likely'),
       pageSummary: loc(
         '0.5 只是默认阈值。真实任务会根据误报、漏报和类别比例调整阈值。',
         '0.5 is only the default threshold. Real tasks adjust thresholds around false positives, false negatives, and class balance.',
@@ -294,7 +294,7 @@ Do not treat accuracy as the only target. Fraud detection, screening, and spam f
       id: 'log-loss',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.logisticRegression.sections.logLoss.title',
-      title: loc('Log loss：错得越自信，惩罚越重', 'Log loss: confident mistakes cost more'),
+      title: loc('Log loss：稳定损失与梯度', 'Log loss: stable loss and gradients'),
       pageSummary: loc(
         '训练时不只数对错，还会看模型给真实类别分配了多少概率。真实类别概率越低，损失越大。',
         'Training does not merely count right and wrong. It checks how much probability the model assigns to the true class.',
@@ -354,7 +354,7 @@ Cross-entropy is not classification-flavored MSE. It is negative log-likelihood 
       id: 'regularization',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.logisticRegression.sections.regularization.title',
-      title: loc('正则化：限制过度自信的权重', 'Regularization: restrain overconfident weights'),
+      title: loc('训练与 L2：对齐后再改变目标', 'Training and L2: align before changing the objective'),
       pageSummary: loc(
         '线性可分数据上，逻辑回归可能继续放大权重，让概率背景过度尖锐。L2 正则给大权重加成本。',
         'On nearly separable data, logistic regression may keep growing weights and sharpen the probability field. L2 regularization adds a cost to large weights.',
@@ -422,7 +422,7 @@ Regularization does not stop learning. It discourages using oversized weights to
       id: 'linear-limits',
       eyebrowKey: 'common.chapter',
       titleKey: 'modules.logisticRegression.sections.linearLimits.title',
-      title: loc('线性限制：有些边界一条线画不出来', 'Linear limits: one line cannot draw every boundary'),
+      title: loc('概率校准与线性边界的限制', 'Calibration and the limits of a linear boundary'),
       pageSummary: loc(
         'XOR 结构需要弯曲或分块边界。继续训练只能在错误模型族中找折中。',
         'XOR-style structure needs curved or piecewise boundaries. More training only finds a compromise inside the wrong model family.',
