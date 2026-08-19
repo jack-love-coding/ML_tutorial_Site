@@ -59,7 +59,7 @@ created: 2026-08-19
 | 29-06-02 | 06 | 5 | 29-06-01 | LOGR-01..04 | T-29-06-02..04 | Paged route preserves IDs/progress/checkpoint and mounts one current lazy lab/media package | `npm test -- tests/logistic-regression-cockpit.test.mjs tests/logistic-regression-content.test.mjs tests/logistic-regression-media.test.mjs tests/logistic-regression-labs.test.mjs` | 29-00 | ✅ green |
 | 29-06-03 | 06 | 5 | 29-06-02 | LOGR-01..04 | T-29-06-01,04 | Single-column responsive layout has safe overflow, focus, fallback, and Pages paths | `npm test -- tests/logistic-regression-cockpit.test.mjs tests/logistic-regression-rendering.test.ts && npm run build && npm run build:pages` | 29-00 | ✅ green |
 | 29-07-01 | 07 | 6 | 29-06 | LOGR-01..04 | T-29-07-01,03,04 | Exact browser matrix returns strict local, responsive, accessible, failure-injected records | `node --check scripts/qa/logisticRegressionBrowserMatrix.js && npm test -- tests/logistic-regression-release.test.mjs tests/logistic-regression-cockpit.test.mjs tests/logistic-regression-labs.test.mjs` | 29-00 | ✅ green |
-| 29-07-02 | 07 | 6 | 29-07-01 | LOGR-01..04 | T-29-07-02,03,05 | Same-HEAD drift/tests/builds/security/browser gates seal only Phase 29-owned files | `python3 scripts/logistic-regression/build-phase-29-assets.py --check && python3 scripts/manim/render_logistic_regression.py --check && npm run test:ci && npm run build && npm run build:pages && npm run security:audit` | 29-00 plus all production plans | ✅ green |
+| 29-07-02 | 07 | 6 | 29-07-01 | LOGR-01..04 | T-29-07-02,03,05 | Same-HEAD drift/tests/builds/security/browser gates seal only Phase 29-owned files | `python3 scripts/logistic-regression/build-phase-29-assets.py --check && python3 scripts/manim/render_logistic_regression.py --check && npm run test:ci && npm run build && npm run build:pages && npm run test:phase29:browser && npm run security:audit` | 29-00 plus all production plans | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -101,8 +101,8 @@ created: 2026-08-19
 
 - ✅ 44 Phase 29 math, asset, parity, calibration, content, rendering, lab, media, cockpit, and release tests.
 - ✅ `python3 scripts/logistic-regression/build-phase-29-assets.py --check` and `python3 scripts/manim/render_logistic_regression.py --check`.
-- ✅ `npm run test:ci`: 1,079 passed, 28 skipped, 0 failed; `npm run build`; and `npm run build:pages`.
-- ✅ Real-browser Playwright matrix at `http://127.0.0.1:4173`: 30 exact route/locale/viewport records, six scene interactions, and four injected failure fallbacks; no overflow, browser errors, cross-origin assets, eager unrelated interaction requests, or learner-visible reserved test records.
+- ✅ `npm run test:ci`: 1,084 passed, 28 skipped, 0 failed; `npm run build`; and `npm run build:pages`.
+- ✅ `npm run test:phase29:browser` now builds the Pages artifact and is required by the Pages workflow. Its real-browser Playwright matrix returned 30 exact route/locale/viewport records, six scene interactions, and four injected failure fallbacks; no overflow, browser errors, cross-origin assets, eager unrelated interaction requests, or learner-visible reserved test records.
 - ⚠️ `npm run security:audit` completed while reporting the pre-existing `nanoid <3.3.18` advisory (GHSA-2v37-7h3g-55p8). This phase changed no dependencies and deliberately does not mask it with an unrelated upgrade.
 
 **Approval:** automated release gate complete; representative visual pacing remains available for optional human PR review.
