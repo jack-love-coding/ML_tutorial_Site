@@ -1,3 +1,9 @@
+@media (max-width: 1439px) {
+  .logistic-course-page__sidebar {
+    position: static;
+  }
+}
+
 @media (max-width: 1080px) {
   .site-main {
     width: min(100vw - 28px, 1240px);

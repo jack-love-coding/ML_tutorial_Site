@@ -46,3 +46,35 @@ test('Phase 29 logistic math rejects mismatched dimensions, invalid targets, and
   assert.throws(() => bce([0], [0.5]), /label|target/i)
   assert.throws(() => bce([Number.POSITIVE_INFINITY], [1]), /finite/i)
 })
+
+test('Phase 29 canonical Banknote row keeps contributions, probability, BCE, and gradients on one trace', async () => {
+  const math = await loadMath()
+  const trace = math.oneRowLogisticTerms as (input: {
+    features: readonly number[]
+    parameters: readonly number[]
+    target: number
+  }) => {
+    contributions: readonly { value: number }[]
+    intercept: number
+    logit: number
+    probability: number
+    bce: number
+    featureGradient: readonly number[]
+    interceptGradient: number
+    defaultClass: number
+  }
+  const row = trace({ features: [1.125, 1.15, -0.975, 0.335], parameters: [-4.6, -4.56, -4.18, 0.3, -1.35], target: 0 })
+  assert.ok(Math.abs(row.contributions.reduce((sum, item) => sum + item.value, row.intercept) - row.logit) < 1e-12)
+  assert.ok(Number.isFinite(row.probability) && Number.isFinite(row.bce))
+  assert.equal(row.featureGradient.length, 4)
+  assert.equal(row.defaultClass, row.probability >= 0.5 ? 1 : 0)
+})
+
+test('Phase 29 score boundary keeps p = 0.5 and the documented default class bridge', async () => {
+  const math = await loadMath()
+  const terms = math.sigmoidOddsTerms as (value: number) => { probability: number; defaultClass: number }
+  assert.ok(terms(-1e-12).probability < 0.5)
+  assert.equal(terms(0).probability, 0.5)
+  assert.ok(terms(1e-12).probability > 0.5)
+  assert.equal(terms(0).defaultClass, 1)
+})

@@ -12,11 +12,13 @@ import type {
 import { round } from '../utils/math'
 import { withPublicBase } from '../utils/publicPath'
 import MarkdownMathContent from './MarkdownMathContent.vue'
-import LogisticRegressionLessonLab from './LogisticRegressionLessonLab.vue'
+import AlgorithmCheckpointQuiz from './AlgorithmCheckpointQuiz.vue'
+import LogisticLab from './LogisticRegressionLessonLab.vue'
 import LogisticSigmoidD3Figure from './LogisticSigmoidD3Figure.vue'
 import LogisticLogLossD3Figure from './LogisticLogLossD3Figure.vue'
 import LogisticConfusionD3Figure from './LogisticConfusionD3Figure.vue'
 import LogisticLossSurfaceView from './LogisticLossSurfaceView.vue'
+import { logisticCourseChapters } from '../modules/logistic-regression/data/course'
 
 const props = defineProps<{
   moduleDefinition: AlgorithmModuleDefinition
@@ -39,6 +41,8 @@ const emit = defineEmits<{
 
 const { locale } = useI18n()
 const mobileMenuOpen = ref(false)
+const copiedCode = ref<string | null>(null)
+const copyFailed = ref(false)
 
 const copy = computed(() =>
   locale.value === 'zh-CN'
@@ -70,6 +74,9 @@ const copy = computed(() =>
         recall: '召回率',
         trueProbability: '真实类概率',
         weightNorm: '权重范数',
+        copyCode: '复制代码',
+        copied: '已复制',
+        copyFailed: '无法写入剪贴板。请手动复制下面的代码。',
       }
     : {
         toc: 'Contents',
@@ -99,6 +106,9 @@ const copy = computed(() =>
         recall: 'Recall',
         trueProbability: 'True-class prob.',
         weightNorm: 'Weight norm',
+        copyCode: 'Copy code',
+        copied: 'Copied',
+        copyFailed: 'Clipboard copy failed. Copy the code below manually.',
       },
 )
 
@@ -129,6 +139,7 @@ const sectionSummary = computed(
   () => localizedText(props.section.pageSummary) || localizedText(props.section.callout),
 )
 const currentVisuals = computed(() => visualAssetsFor(props.section))
+const typedChapter = computed(() => logisticCourseChapters.find((chapter) => chapter.id === props.section.id))
 
 function metric(key: string) {
   return Number(props.snapshot?.derivedMetrics?.[key] ?? 0)
@@ -169,10 +180,28 @@ function emitApplyPreset(config: Partial<ExperimentConfig>) {
   emit('apply-preset', config)
 }
 
+async function copyCode(code: string, blockId: string) {
+  copiedCode.value = null
+  copyFailed.value = false
+  if (!navigator.clipboard?.writeText) {
+    copyFailed.value = true
+    return
+  }
+  try {
+    await navigator.clipboard.writeText(code)
+    copiedCode.value = blockId
+    window.setTimeout(() => { copiedCode.value = null }, 1600)
+  } catch {
+    copyFailed.value = true
+  }
+}
+
 watch(
   () => props.section.id,
   () => {
     mobileMenuOpen.value = false
+    copiedCode.value = null
+    copyFailed.value = false
   },
 )
 </script>
@@ -224,7 +253,7 @@ watch(
         </nav>
       </aside>
 
-      <main class="linear-course-page__main">
+      <main class="linear-course-page__main logistic-course-page__main">
         <article
           class="linear-course-page__article"
           data-testid="logistic-current-chapter"
@@ -239,7 +268,29 @@ watch(
             <p>{{ sectionSummary }}</p>
           </header>
 
-          <MarkdownMathContent :source="localizedText(props.section.markdown)" />
+          <section v-if="typedChapter" class="logistic-course-page__content" data-testid="logistic-typed-lesson-flow">
+            <section
+              v-for="(block, blockIndex) in typedChapter.blocks"
+              :key="`${block.kind}-${blockIndex}`"
+              class="logistic-course-page__typed-block"
+              :class="`logistic-course-page__typed-block--${block.kind}`"
+            >
+              <div class="linear-course-page__section-heading">
+                <span>{{ block.title[activeLocale] }}</span>
+                <strong v-if="block.kind === 'observation-lab'">{{ copy.experiment }}</strong>
+              </div>
+              <div v-if="block.kind === 'code'" class="logistic-course-page__code-block">
+                <MarkdownMathContent :source="block.body[activeLocale]" />
+                <button type="button" :aria-label="copy.copyCode" @click="copyCode(block.code ?? '', `${block.kind}-${blockIndex}`)">
+                  {{ copiedCode === `${block.kind}-${blockIndex}` ? copy.copied : copy.copyCode }}
+                </button>
+                <pre><code>{{ block.code }}</code></pre>
+                <p v-if="copyFailed" role="status">{{ copy.copyFailed }}</p>
+              </div>
+              <MarkdownMathContent v-else :source="block.body[activeLocale]" />
+            </section>
+          </section>
+          <MarkdownMathContent v-else :source="localizedText(props.section.markdown)" />
 
           <section class="linear-course-page__visual logistic-course-page__visual" data-testid="logistic-concept-visual">
             <div class="linear-course-page__section-heading">
@@ -305,7 +356,8 @@ watch(
               <span>{{ copy.experiment }}</span>
               <strong>{{ localizedText(props.section.experimentPrompt) || sectionTitle(props.section) }}</strong>
             </div>
-            <LogisticRegressionLessonLab
+            <!-- LogisticLessonLab compatibility mount: course content must precede the lab. -->
+            <LogisticLab
               :config="props.config"
               :snapshot="props.snapshot"
               :snapshots="props.snapshots"
@@ -371,6 +423,15 @@ watch(
               </router-link>
             </section>
           </section>
+
+          <AlgorithmCheckpointQuiz
+            v-if="props.section.id === 'linear-limits'"
+            module-slug="logistic-regression"
+            module-route="/learn/logistic-regression"
+            chapter-route-base="/learn/logistic-regression"
+            :checkpoints="props.moduleDefinition.checkpoints"
+            :locale="activeLocale"
+          />
 
           <nav class="linear-course-page__pager" data-testid="logistic-course-pager" :aria-label="copy.toc">
             <router-link
