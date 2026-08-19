@@ -60,6 +60,7 @@ test('Phase 29 runs the real Pages browser matrix as an executable CI gate', () 
   assert.doesNotMatch(runner, /--package', '@playwright\/cli'/)
   assert.match(runner, /BROWSER_COMMAND_TIMEOUT_MS/)
   assert.match(runner, /terminateProcess/)
+  assert.match(runner, /runCli\(\['close'\]\)/)
 })
 
 test('Phase 29 release scope keeps Phase 30 metrics and evaluation disclosure out of learner contracts', () => {

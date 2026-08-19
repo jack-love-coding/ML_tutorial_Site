@@ -156,6 +156,9 @@ function localPlaywrightCommand(args) {
 
 export async function main() {
   let server
+  let runCli
+  let browserOpened = false
+  let completed = false
   try {
     server = spawn('npm', ['exec', '--', 'vite', 'preview', '--base', '/ML_tutorial_Site/', '--host', '127.0.0.1', '--port', '4173', '--strictPort'], {
       cwd: root,
@@ -163,14 +166,24 @@ export async function main() {
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     await waitForPreviewReady(server)
-    const runCli = async (args) => {
+    runCli = async (args) => {
       const cli = localPlaywrightCommand(args)
       await runBoundedProcess({ ...cli, cwd: root, label: `playwright-cli ${args[0]}` })
     }
     await runCli(['open', 'http://127.0.0.1:4173/ML_tutorial_Site/learn/logistic-regression'])
+    browserOpened = true
     await runCli(['run-code', '--filename', 'scripts/qa/logisticRegressionBrowserMatrix.js'])
+    completed = true
   } finally {
+    let cleanupError
+    if (browserOpened && runCli) {
+      try { await runCli(['close']) }
+      catch (error) { cleanupError = error }
+    }
     await stopProcess(server)
+    // A successful matrix is not a release proof if its own browser session
+    // cannot be closed. Preserve the original failure when one already exists.
+    if (completed && cleanupError) throw cleanupError
   }
 }
 
