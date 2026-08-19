@@ -177,7 +177,7 @@
 4. Calibration bins distinguish probability quality from class accuracy, while a nonlinear example shows the limit of one linear decision boundary.
 5. The existing route, checkpoint, lab behavior, downloadable Notebook/output package, focused tests, and both builds remain valid.
 
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans executed
 **Wave 1**
 
 - [x] 29-00-PLAN.md — Wave 0 fail-first contracts for every numerical, asset, content, lab, media, compatibility, and release surface
@@ -202,7 +202,7 @@
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 29-07-PLAN.md — Real-browser matrix, full release gate, source audit, and Nyquist validation closure
+- [x] 29-07-PLAN.md — Real-browser matrix, full release gate, source audit, and Nyquist validation closure
 
 ## Phase 30: Classification Decisions Rebuild
 
