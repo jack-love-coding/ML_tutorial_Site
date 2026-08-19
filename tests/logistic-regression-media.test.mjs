@@ -39,7 +39,7 @@ test('Phase 29 source renderer maps exactly four manifest-bound scene IDs and re
     assert.match(source, new RegExp(`class ${className}`), `${className} is declared`)
   }
   const validation = execFileSync('python3', [renderer, '--validate-sources'], { cwd: root, encoding: 'utf8' })
-  assert.match(validation, /four logistic scenes/i)
+  assert.match(validation, /4 logistic scenes/i)
   assert.throws(
     () => execFileSync('python3', [renderer, '--scene', 'unknown-scene', '--quality', 'preview'], { cwd: root, encoding: 'utf8', stdio: 'pipe' }),
     /invalid choice|unknown/i,
