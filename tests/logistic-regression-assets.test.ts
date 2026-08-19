@@ -52,3 +52,36 @@ test('Phase 29 learner assets exclude reserved test records and retain a clean-k
   assert.equal(manifest.testLabelsDisclosed, false)
   assert.equal(manifest.testMetricsDisclosed, false)
 })
+
+test('Phase 29 manifest fixes the numerical contract and does not leak the held-out partition into scenes', () => {
+  const manifest = JSON.parse(readFileSync(resolve(packageRoot, 'manifest.json'), 'utf8')) as {
+    assets: readonly { path: string; sceneId: string }[]
+    analysis: { parity: { scratch: Record<string, unknown>; sklearn: { constructor: Record<string, unknown> }; acceptance: Record<string, number> }; finiteDifference: { acceptance: { observed: number; maxComponentErrorLimit: number } } }
+    fileHashes: Record<string, string>
+  }
+  assert.equal(manifest.analysis.parity.scratch.initialStep, 32)
+  assert.equal(manifest.analysis.parity.scratch.maxIterations, 100000)
+  assert.equal(manifest.analysis.parity.sklearn.constructor.C, 'infinity')
+  assert.equal(manifest.analysis.parity.sklearn.constructor.tol, 1e-12)
+  assert.equal(manifest.analysis.parity.acceptance.coefficientAndInterceptLimit, 2e-4)
+  assert.equal(manifest.analysis.parity.acceptance.validationProbabilityLimit, 1e-6)
+  assert.equal(manifest.analysis.finiteDifference.acceptance.maxComponentErrorLimit, 2e-9)
+  assert.ok(manifest.analysis.finiteDifference.acceptance.observed <= 2e-9)
+  for (const [relativePath, hash] of Object.entries(manifest.fileHashes)) {
+    assert.equal(sha256(resolve(packageRoot, relativePath)), hash, `${relativePath} package hash`)
+  }
+  for (const asset of manifest.assets) {
+    const payload = readFileSync(resolve(packageRoot, asset.path), 'utf8')
+    assert.doesNotMatch(payload, /"split":\s*"test"/)
+    assert.match(payload, new RegExp(`"sceneId":\\s*"${asset.sceneId}"`))
+  }
+})
+
+test('Phase 29 bilingual notebooks retain identical code-cell ordering while localizing prose', () => {
+  const readNotebook = (locale: string) => JSON.parse(readFileSync(resolve(packageRoot, `banknote-logistic-regression.${locale}.ipynb`), 'utf8')) as { cells: { cell_type: string; source: string | string[] }[] }
+  const zh = readNotebook('zh-CN')
+  const en = readNotebook('en')
+  const code = (notebook: typeof zh) => notebook.cells.filter((cell) => cell.cell_type === 'code').map((cell) => Array.isArray(cell.source) ? cell.source.join('') : cell.source)
+  assert.deepEqual(code(zh), code(en))
+  assert.notDeepEqual(zh.cells[0]?.source, en.cells[0]?.source)
+})

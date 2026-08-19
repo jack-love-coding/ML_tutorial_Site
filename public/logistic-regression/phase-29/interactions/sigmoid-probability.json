@@ -1,0 +1,62 @@
+{
+  "chapterId": "sigmoid-probability",
+  "contractVersion": "logistic-regression-phase-29-v1",
+  "controls": [
+    {
+      "id": "sigmoid-probability-control",
+      "label": {
+        "en": "Logit",
+        "zh-CN": "分数"
+      },
+      "maximum": 20,
+      "minimum": -20,
+      "step": 0.1
+    }
+  ],
+  "data": {
+    "extremeScores": [
+      -20.0,
+      -8.0,
+      0.0,
+      8.0,
+      20.0
+    ],
+    "oneRow": {
+      "bce": 2.520036312527197e-24,
+      "contributions": [
+        -32.89563228980568,
+        -35.260789104042786,
+        28.09572898855711,
+        -0.2335484996735468
+      ],
+      "gradient": [
+        2.8324759434220864e-24,
+        2.8990789385812133e-24,
+        -2.45613590690479e-24,
+        8.447949071889103e-25,
+        2.520036312527197e-24
+      ],
+      "intercept": -14.043528015739662,
+      "label": 0,
+      "logit": -54.33776892070457,
+      "probability": 2.520036312527197e-24,
+      "rowId": 1,
+      "split": "train",
+      "standardizedFeatures": [
+        1.1239821939635315,
+        1.1504115731070148,
+        -0.9746430615682975,
+        0.3352312436885939
+      ]
+    },
+    "terms": {
+      "logOdds": -54.33776892070457,
+      "logit": -54.33776892070457,
+      "odds": 2.520036312527197e-24,
+      "probability": 2.520036312527197e-24
+    }
+  },
+  "id": "sigmoid-probability",
+  "sceneId": "sigmoid-probability",
+  "sourceCellId": "phase29-sigmoid-probability"
+}

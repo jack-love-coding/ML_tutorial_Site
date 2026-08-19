@@ -1,0 +1,635 @@
+{
+  "analysis": {
+    "calibrationRule": "positive logit temperatures 0.65, 1.0, and 1.75",
+    "finiteDifference": {
+      "acceptance": {
+        "h": 1e-06,
+        "maxComponentErrorLimit": 2e-09,
+        "observed": 7.450942640652158e-11,
+        "passed": true
+      },
+      "batch": {
+        "ddof": 0,
+        "rows": 960,
+        "split": "train",
+        "standardized": true
+      },
+      "claimsMonotonicError": false,
+      "objective": 0.7455450279170539,
+      "parameterOrder": [
+        "variance",
+        "skewness",
+        "curtosis",
+        "entropy",
+        "intercept"
+      ],
+      "parameters": [
+        0.2,
+        -0.1,
+        0.05,
+        0.15,
+        -0.3
+      ],
+      "renderingOnlyRounding": true,
+      "steps": [
+        {
+          "analyticGradient": [
+            0.40722679415570556,
+            0.19395863427530757,
+            -0.05967056201510579,
+            0.06843099805377242,
+            -0.017102312285601447
+          ],
+          "centeredGradient": [
+            0.40714567118662504,
+            0.19398227410699853,
+            -0.05963390543645919,
+            0.06823795259746746,
+            -0.017048071052135905
+          ],
+          "componentErrors": [
+            8.112296908052707e-05,
+            2.363983169095807e-05,
+            3.665657864659888e-05,
+            0.00019304545630496883,
+            5.424123346554205e-05
+          ],
+          "h": 0.1,
+          "maxComponentError": 0.00019304545630496883
+        },
+        {
+          "analyticGradient": [
+            0.40722679415570556,
+            0.19395863427530757,
+            -0.05967056201510579,
+            0.06843099805377242,
+            -0.017102312285601447
+          ],
+          "centeredGradient": [
+            0.40722598094747875,
+            0.19395886995897116,
+            -0.0596701899070573,
+            0.06842905984897896,
+            -0.01710176940942776
+          ],
+          "componentErrors": [
+            8.13208226813078e-07,
+            2.3568366358528436e-07,
+            3.72108048485309e-07,
+            1.9382047934668467e-06,
+            5.428761736883669e-07
+          ],
+          "h": 0.01,
+          "maxComponentError": 1.9382047934668467e-06
+        },
+        {
+          "analyticGradient": [
+            0.40722679415570556,
+            0.19395863427530757,
+            -0.05967056201510579,
+            0.06843099805377242,
+            -0.017102312285601447
+          ],
+          "centeredGradient": [
+            0.4072267860234513,
+            0.1939586366321855,
+            -0.05967055829347867,
+            0.0684309786709858,
+            -0.017102306856808802
+          ],
+          "componentErrors": [
+            8.132254258885752e-09,
+            2.3568779150551222e-09,
+            3.7216271175921634e-09,
+            1.9382786625721238e-08,
+            5.428792644590619e-09
+          ],
+          "h": 0.001,
+          "maxComponentError": 1.9382786625721238e-08
+        },
+        {
+          "analyticGradient": [
+            0.40722679415570556,
+            0.19395863427530757,
+            -0.05967056201510579,
+            0.06843099805377242,
+            -0.017102312285601447
+          ],
+          "centeredGradient": [
+            0.40722679407467766,
+            0.19395863429916282,
+            -0.059670561977642755,
+            0.0684309978588038,
+            -0.017102312231953576
+          ],
+          "componentErrors": [
+            8.102790660657888e-11,
+            2.3855251107818276e-11,
+            3.7463032676043895e-11,
+            1.9496862457835107e-10,
+            5.364787086792333e-11
+          ],
+          "h": 0.0001,
+          "maxComponentError": 1.9496862457835107e-10
+        },
+        {
+          "analyticGradient": [
+            0.40722679415570556,
+            0.19395863427530757,
+            -0.05967056201510579,
+            0.06843099805377242,
+            -0.017102312285601447
+          ],
+          "centeredGradient": [
+            0.4072267941523932,
+            0.19395863428139923,
+            -0.059670562013725,
+            0.0684309980514275,
+            -0.017102312283023835
+          ],
+          "componentErrors": [
+            3.3123503939691545e-12,
+            6.091654958240156e-12,
+            1.380791314620211e-12,
+            2.3449298058864088e-12,
+            2.57761173516613e-12
+          ],
+          "h": 1e-05,
+          "maxComponentError": 6.091654958240156e-12
+        },
+        {
+          "analyticGradient": [
+            0.40722679415570556,
+            0.19395863427530757,
+            -0.05967056201510579,
+            0.06843099805377242,
+            -0.017102312285601447
+          ],
+          "centeredGradient": [
+            0.4072267942301089,
+            0.1939586342647459,
+            -0.059670562047031694,
+            0.068430997979263,
+            -0.0171023122330638
+          ],
+          "componentErrors": [
+            7.440331684094303e-11,
+            1.0561662655561577e-11,
+            3.192590636302839e-11,
+            7.450942640652158e-11,
+            5.2537647843298174e-11
+          ],
+          "h": 1e-06,
+          "maxComponentError": 7.450942640652158e-11
+        },
+        {
+          "analyticGradient": [
+            0.40722679415570556,
+            0.19395863427530757,
+            -0.05967056201510579,
+            0.06843099805377242,
+            -0.017102312285601447
+          ],
+          "centeredGradient": [
+            0.4072267939525531,
+            0.1939586335986121,
+            -0.0596705623800986,
+            0.06843099864539681,
+            -0.01710231178897459
+          ],
+          "componentErrors": [
+            2.031524393153461e-10,
+            6.766954774306555e-10,
+            3.6499281375057535e-10,
+            5.916243883685723e-10,
+            4.966268576933608e-10
+          ],
+          "h": 1e-07,
+          "maxComponentError": 6.766954774306555e-10
+        },
+        {
+          "analyticGradient": [
+            0.40722679415570556,
+            0.19395863427530757,
+            -0.05967056201510579,
+            0.06843099805377242,
+            -0.017102312285601447
+          ],
+          "centeredGradient": [
+            0.40722679117699556,
+            0.1939586380395042,
+            -0.059670562935210114,
+            0.06843099975561984,
+            -0.01710231400942064
+          ],
+          "componentErrors": [
+            2.9787100008782375e-09,
+            3.764196621069971e-09,
+            9.201043260631536e-10,
+            1.7018474129937289e-09,
+            1.7238191915569523e-09
+          ],
+          "h": 1e-08,
+          "maxComponentError": 3.764196621069971e-09
+        }
+      ]
+    },
+    "parity": {
+      "acceptance": {
+        "coefficientAndInterceptLimit": 0.0002,
+        "maxCoefficientAndInterceptDelta": 0.00015996734427758952,
+        "maxValidationProbabilityDelta": 8.860994619164231e-07,
+        "validationProbabilityLimit": 1e-06
+      },
+      "scratch": {
+        "armijoC": 0.0001,
+        "armijoRho": 0.5,
+        "gradientNormTolerance": 1e-08,
+        "initialStep": 32.0,
+        "initialization": "zeros",
+        "maxBacktracks": 30,
+        "maxIterations": 100000,
+        "minimumStep": 1e-12,
+        "objective": "mean stable logit-domain BCE (l2=0)",
+        "parameterStepNormTolerance": 1e-10,
+        "relativeObjectiveTolerance": 1e-14,
+        "terminal": {
+          "iteration": 90542,
+          "reason": "gradient-norm"
+        }
+      },
+      "sklearn": {
+        "constructor": {
+          "C": "infinity",
+          "fit_intercept": true,
+          "l1_ratio": 0.0,
+          "max_iter": 5000,
+          "solver": "lbfgs",
+          "tol": 1e-12
+        },
+        "nIter": 30,
+        "warnings": [],
+        "warningsPolicy": "fail-on-ConvergenceWarning; persist all captured warnings"
+      }
+    },
+    "source": {
+      "contractVersion": "numerical-methods-batch-4-v1",
+      "featureOrder": [
+        "variance",
+        "skewness",
+        "curtosis",
+        "entropy"
+      ],
+      "preprocessing": {
+        "ddof": 0,
+        "fitSplit": "train"
+      },
+      "sha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+      "splitCounts": {
+        "test": 206,
+        "train": 960,
+        "validation": 206
+      }
+    }
+  },
+  "assets": [
+    {
+      "chapterId": "linear-score",
+      "controls": [
+        {
+          "id": "linear-score-control",
+          "label": {
+            "en": "Comparison row",
+            "zh-CN": "比较样本"
+          },
+          "options": [
+            {
+              "label": {
+                "en": "canonical",
+                "zh-CN": "canonical"
+              },
+              "value": "canonical"
+            },
+            {
+              "label": {
+                "en": "nearBoundary",
+                "zh-CN": "nearBoundary"
+              },
+              "value": "nearBoundary"
+            },
+            {
+              "label": {
+                "en": "correctConfident",
+                "zh-CN": "correctConfident"
+              },
+              "value": "correctConfident"
+            },
+            {
+              "label": {
+                "en": "highLoss",
+                "zh-CN": "highLoss"
+              },
+              "value": "highLoss"
+            }
+          ]
+        }
+      ],
+      "id": "linear-score",
+      "path": "interactions/linear-score.json",
+      "sceneId": "linear-score",
+      "sha256": "b80c758427eeedddbcf2659afa28b2c17d7bdb981d5d29dbfae24bf5d21a9042",
+      "sourceCellId": "phase29-linear-score"
+    },
+    {
+      "chapterId": "sigmoid-probability",
+      "controls": [
+        {
+          "id": "sigmoid-probability-control",
+          "label": {
+            "en": "Logit",
+            "zh-CN": "分数"
+          },
+          "maximum": 20,
+          "minimum": -20,
+          "step": 0.1
+        }
+      ],
+      "id": "sigmoid-probability",
+      "path": "interactions/sigmoid-probability.json",
+      "sceneId": "sigmoid-probability",
+      "sha256": "312e3b74758ed85a2c0c8f5a4f54414edf71e41431fc1c5d86b7ecd24dcd2bd4",
+      "sourceCellId": "phase29-sigmoid-probability"
+    },
+    {
+      "chapterId": "threshold-decisions",
+      "controls": [
+        {
+          "id": "threshold-decisions-control",
+          "label": {
+            "en": "Rows accumulated",
+            "zh-CN": "累积行数"
+          },
+          "maximum": 20,
+          "minimum": -20,
+          "step": 0.1
+        }
+      ],
+      "id": "threshold-decisions",
+      "path": "interactions/threshold-decisions.json",
+      "sceneId": "threshold-decisions",
+      "sha256": "443fb489a7c83055d4f98288adffc8f7bf997408e4ae504e7ca0936792dcb1a1",
+      "sourceCellId": "phase29-threshold-decisions"
+    },
+    {
+      "chapterId": "log-loss",
+      "controls": [
+        {
+          "id": "log-loss-control",
+          "label": {
+            "en": "Finite-difference step",
+            "zh-CN": "差分步长"
+          },
+          "options": [
+            {
+              "label": {
+                "en": "0.1",
+                "zh-CN": "0.1"
+              },
+              "value": 0.1
+            },
+            {
+              "label": {
+                "en": "0.01",
+                "zh-CN": "0.01"
+              },
+              "value": 0.01
+            },
+            {
+              "label": {
+                "en": "0.001",
+                "zh-CN": "0.001"
+              },
+              "value": 0.001
+            },
+            {
+              "label": {
+                "en": "0.0001",
+                "zh-CN": "0.0001"
+              },
+              "value": 0.0001
+            },
+            {
+              "label": {
+                "en": "1e-05",
+                "zh-CN": "1e-05"
+              },
+              "value": 1e-05
+            },
+            {
+              "label": {
+                "en": "1e-06",
+                "zh-CN": "1e-06"
+              },
+              "value": 1e-06
+            },
+            {
+              "label": {
+                "en": "1e-07",
+                "zh-CN": "1e-07"
+              },
+              "value": 1e-07
+            },
+            {
+              "label": {
+                "en": "1e-08",
+                "zh-CN": "1e-08"
+              },
+              "value": 1e-08
+            }
+          ]
+        }
+      ],
+      "id": "log-loss",
+      "path": "interactions/log-loss.json",
+      "sceneId": "log-loss",
+      "sha256": "c2cf0ddd7a8a5e1e1a853c7f5538e977ea5b967d2e17c279255631223a7c912a",
+      "sourceCellId": "phase29-log-loss"
+    },
+    {
+      "chapterId": "regularization",
+      "controls": [
+        {
+          "id": "regularization-control",
+          "label": {
+            "en": "Objective comparison",
+            "zh-CN": "对照目标"
+          },
+          "options": [
+            {
+              "label": {
+                "en": "scratch",
+                "zh-CN": "scratch"
+              },
+              "value": "scratch"
+            },
+            {
+              "label": {
+                "en": "sklearn",
+                "zh-CN": "sklearn"
+              },
+              "value": "sklearn"
+            },
+            {
+              "label": {
+                "en": "l2",
+                "zh-CN": "l2"
+              },
+              "value": "l2"
+            }
+          ]
+        }
+      ],
+      "id": "regularization",
+      "path": "interactions/regularization.json",
+      "sceneId": "regularization",
+      "sha256": "19dfdda6b82c4aad13f1b8c9e5729cad603eace9e7f9c1e19b795dde110292d6",
+      "sourceCellId": "phase29-regularization"
+    },
+    {
+      "chapterId": "linear-limits",
+      "controls": [
+        {
+          "id": "linear-limits-control",
+          "label": {
+            "en": "Probability mode",
+            "zh-CN": "概率模式"
+          },
+          "options": [
+            {
+              "label": {
+                "en": "sharpened",
+                "zh-CN": "sharpened"
+              },
+              "value": "sharpened"
+            },
+            {
+              "label": {
+                "en": "original",
+                "zh-CN": "original"
+              },
+              "value": "original"
+            },
+            {
+              "label": {
+                "en": "softened",
+                "zh-CN": "softened"
+              },
+              "value": "softened"
+            }
+          ]
+        }
+      ],
+      "id": "linear-limits",
+      "path": "interactions/linear-limits.json",
+      "sceneId": "linear-limits",
+      "sha256": "a34b6d347ab4cfd9753a73f4192631038b5d3e8a076a6a7809396ba2a2c06278",
+      "sourceCellId": "phase29-linear-limits"
+    }
+  ],
+  "atomicPublication": true,
+  "cleanKernelVerified": true,
+  "contractVersion": "logistic-regression-phase-29-v1",
+  "figures": [
+    {
+      "path": "/logistic-regression/phase-29/figures/banknote-projection.png",
+      "sha256": "9d094d2c726680eefc533acee605df42aefd15cc700d4c0014be9187ce9821da",
+      "sourceCellId": "phase29-linear-score"
+    },
+    {
+      "path": "/logistic-regression/phase-29/figures/training-trace.png",
+      "sha256": "aa767869984a9d10cb3178bb22e6eb0dadcdd5be3df3774ea5364d8b4a4c9525",
+      "sourceCellId": "phase29-regularization"
+    },
+    {
+      "path": "/logistic-regression/phase-29/figures/parity-probabilities.png",
+      "sha256": "9818db0c430cbe1b617c2db89af14a760e376796e50b96721eedb553270ed6dc",
+      "sourceCellId": "phase29-linear-score"
+    },
+    {
+      "path": "/logistic-regression/phase-29/figures/calibration-reliability.png",
+      "sha256": "6ec7591750fa7642558619530ae970394544a4a3672b62a4961744a6b3a73cfb",
+      "sourceCellId": "phase29-linear-limits"
+    },
+    {
+      "path": "/logistic-regression/phase-29/figures/linear-boundary-limits.png",
+      "sha256": "2214f37d5bda77be555bb11c3a7bdf665aa026a01c1b0841fd959774b2215a39",
+      "sourceCellId": "phase29-linear-limits"
+    }
+  ],
+  "fileHashes": {
+    "banknote-logistic-regression.en.ipynb": "c540f12111afb4f4856ee3e0968ea4c25e273584fd8bcaccca9dfa8d2f8c7d8d",
+    "banknote-logistic-regression.zh-CN.ipynb": "f1ab9d2fe8f05fb89147b20e27cea256d4f02a34f13827a1a5df6e94c41d5923",
+    "figures/banknote-projection.png": "9d094d2c726680eefc533acee605df42aefd15cc700d4c0014be9187ce9821da",
+    "figures/calibration-reliability.png": "6ec7591750fa7642558619530ae970394544a4a3672b62a4961744a6b3a73cfb",
+    "figures/linear-boundary-limits.png": "2214f37d5bda77be555bb11c3a7bdf665aa026a01c1b0841fd959774b2215a39",
+    "figures/parity-probabilities.png": "9818db0c430cbe1b617c2db89af14a760e376796e50b96721eedb553270ed6dc",
+    "figures/training-trace.png": "aa767869984a9d10cb3178bb22e6eb0dadcdd5be3df3774ea5364d8b4a4c9525",
+    "frozen-predictions.csv": "17c26cb80b1edfc83d53f50436d4d38175f4669df1f131ee4385511564bb6466",
+    "frozen-predictions.json": "5c0b5e983ab023eeeb18ef08fffab4d1f2ef524aec07d7e73774b6c8af6bdc3e",
+    "interactions/linear-limits.json": "a34b6d347ab4cfd9753a73f4192631038b5d3e8a076a6a7809396ba2a2c06278",
+    "interactions/linear-score.json": "b80c758427eeedddbcf2659afa28b2c17d7bdb981d5d29dbfae24bf5d21a9042",
+    "interactions/log-loss.json": "c2cf0ddd7a8a5e1e1a853c7f5538e977ea5b967d2e17c279255631223a7c912a",
+    "interactions/regularization.json": "19dfdda6b82c4aad13f1b8c9e5729cad603eace9e7f9c1e19b795dde110292d6",
+    "interactions/sigmoid-probability.json": "312e3b74758ed85a2c0c8f5a4f54414edf71e41431fc1c5d86b7ecd24dcd2bd4",
+    "interactions/threshold-decisions.json": "443fb489a7c83055d4f98288adffc8f7bf997408e4ae504e7ca0936792dcb1a1",
+    "outputs/calibration.json": "fb70fd12f9cc9c16df21f662f7b5ebcc8091436eb51ba57bd558848592281a33",
+    "outputs/gradient-check.json": "f26ddafdde087b3592996cf3b51c397e40f8c5eeff7585f57e419927cf4620cd",
+    "outputs/parity.json": "c090cd92ec537d8f13725fa95da7cfa3b2a5283aab321bae889aadad0959430f",
+    "outputs/training-trace.csv": "30966a41d1d507e6d7b39b62c784c459fdccb2c7ad63eee963671fedbaf1f813"
+  },
+  "learnerFacingTestRecords": false,
+  "locales": [
+    "zh-CN",
+    "en"
+  ],
+  "notebookPath": "/logistic-regression/phase-29/banknote-logistic-regression.en.ipynb",
+  "notebooks": {
+    "en": {
+      "path": "/logistic-regression/phase-29/banknote-logistic-regression.en.ipynb",
+      "sha256": "c540f12111afb4f4856ee3e0968ea4c25e273584fd8bcaccca9dfa8d2f8c7d8d"
+    },
+    "zh-CN": {
+      "path": "/logistic-regression/phase-29/banknote-logistic-regression.zh-CN.ipynb",
+      "sha256": "f1ab9d2fe8f05fb89147b20e27cea256d4f02a34f13827a1a5df6e94c41d5923"
+    }
+  },
+  "outputs": {
+    "calibration": "/logistic-regression/phase-29/outputs/calibration.json",
+    "gradientCheck": "/logistic-regression/phase-29/outputs/gradient-check.json",
+    "parity": "/logistic-regression/phase-29/outputs/parity.json",
+    "trainingTrace": "/logistic-regression/phase-29/outputs/training-trace.csv"
+  },
+  "predictionHandoff": {
+    "csv": "/logistic-regression/phase-29/frozen-predictions.csv",
+    "fields": [
+      "row_id",
+      "split",
+      "label",
+      "logit",
+      "probability",
+      "feature_contract_version",
+      "model_hash",
+      "config_hash"
+    ],
+    "json": "/logistic-regression/phase-29/frozen-predictions.json",
+    "reservedFor": "phase-30",
+    "sha256": {
+      "csv": "17c26cb80b1edfc83d53f50436d4d38175f4669df1f131ee4385511564bb6466",
+      "json": "5c0b5e983ab023eeeb18ef08fffab4d1f2ef524aec07d7e73774b6c8af6bdc3e"
+    }
+  },
+  "rejectAssetDrift": true,
+  "rollbackOnFailure": true,
+  "testLabelsDisclosed": false,
+  "testMetricsDisclosed": false
+}

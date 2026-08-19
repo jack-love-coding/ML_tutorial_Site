@@ -1,0 +1,154 @@
+{
+  "chapterId": "linear-score",
+  "contractVersion": "logistic-regression-phase-29-v1",
+  "controls": [
+    {
+      "id": "linear-score-control",
+      "label": {
+        "en": "Comparison row",
+        "zh-CN": "比较样本"
+      },
+      "options": [
+        {
+          "label": {
+            "en": "canonical",
+            "zh-CN": "canonical"
+          },
+          "value": "canonical"
+        },
+        {
+          "label": {
+            "en": "nearBoundary",
+            "zh-CN": "nearBoundary"
+          },
+          "value": "nearBoundary"
+        },
+        {
+          "label": {
+            "en": "correctConfident",
+            "zh-CN": "correctConfident"
+          },
+          "value": "correctConfident"
+        },
+        {
+          "label": {
+            "en": "highLoss",
+            "zh-CN": "highLoss"
+          },
+          "value": "highLoss"
+        }
+      ]
+    }
+  ],
+  "data": {
+    "oneRow": {
+      "bce": 2.520036312527197e-24,
+      "contributions": [
+        -32.89563228980568,
+        -35.260789104042786,
+        28.09572898855711,
+        -0.2335484996735468
+      ],
+      "gradient": [
+        2.8324759434220864e-24,
+        2.8990789385812133e-24,
+        -2.45613590690479e-24,
+        8.447949071889103e-25,
+        2.520036312527197e-24
+      ],
+      "intercept": -14.043528015739662,
+      "label": 0,
+      "logit": -54.33776892070457,
+      "probability": 2.520036312527197e-24,
+      "rowId": 1,
+      "split": "train",
+      "standardizedFeatures": [
+        1.1239821939635315,
+        1.1504115731070148,
+        -0.9746430615682975,
+        0.3352312436885939
+      ]
+    },
+    "teachingRows": {
+      "canonical": {
+        "bce": 2.520036312527197e-24,
+        "curtosis": -2.8073,
+        "entropy": -0.44699,
+        "label": 0,
+        "logit": -54.33776892070457,
+        "name": "canonical-row",
+        "probability": 2.520036312527197e-24,
+        "row_id": 1,
+        "skewness": 8.6661,
+        "split": "train",
+        "standardized": [
+          1.1239821939635315,
+          1.1504115731070148,
+          -0.9746430615682975,
+          0.3352312436885939
+        ],
+        "variance": 3.6216
+      },
+      "correctConfident": {
+        "bce": 3.7999752468687684e-35,
+        "curtosis": -4.4113,
+        "entropy": -3.2258,
+        "label": 0,
+        "logit": -79.25548370206238,
+        "name": "correct-and-confident",
+        "probability": 3.7999752468687684e-35,
+        "row_id": 29,
+        "skewness": 9.8187,
+        "split": "train",
+        "standardized": [
+          2.1727276178882122,
+          1.3486569124309802,
+          -1.3533983466621187,
+          -1.005467384450806
+        ],
+        "variance": 6.5633
+      },
+      "highLoss": {
+        "bce": 4.181859464282873,
+        "curtosis": -4.9888,
+        "entropy": -2.8987,
+        "label": 1,
+        "logit": -4.166471588903541,
+        "name": "high-loss",
+        "probability": 0.01527008697005507,
+        "row_id": 919,
+        "skewness": 4.5565,
+        "split": "validation",
+        "standardized": [
+          0.68551056297296,
+          0.4435670073550033,
+          -1.4897644171993267,
+          -0.8476507214675874
+        ],
+        "variance": 2.3917
+      },
+      "nearBoundary": {
+        "bce": 0.6109096730632376,
+        "curtosis": -4.0129,
+        "entropy": -1.7207,
+        "label": 1,
+        "logit": 0.1718489646827841,
+        "name": "near-boundary",
+        "probability": 0.5428568221696655,
+        "row_id": 926,
+        "skewness": 3.6833,
+        "split": "validation",
+        "standardized": [
+          0.4540642804791968,
+          0.2933780169874113,
+          -1.2593234678707357,
+          -0.2792984469514408
+        ],
+        "variance": 1.7425
+      }
+    }
+  },
+  "id": "linear-score",
+  "sceneId": "linear-score",
+  "sourceCellId": "phase29-linear-score"
+}
