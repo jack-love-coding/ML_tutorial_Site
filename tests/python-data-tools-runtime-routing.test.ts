@@ -206,7 +206,7 @@ test('short Python routes remain visible in navigation, homepage, and Pages fall
   const courseViewSource = readFileSync(new URL('../src/views/PythonDataToolsCourseView.vue', import.meta.url), 'utf8')
 
   assert.match(navigationSource, /id: 'python-data-tools'[\s\S]*?route: '\/python'/)
-  assert.match(homeSource, /to="\/python"/)
+  assert.match(homeSource, /route: '\/python'/)
   assert.match(fallbackSource, /'\/python'/)
   assert.match(courseViewSource, /route\.path\.startsWith\('\/python\/'\)/)
   assert.match(courseViewSource, /:route-base="courseRouteBase"/)
