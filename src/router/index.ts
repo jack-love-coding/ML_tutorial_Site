@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { isCurriculumLibraryDomain } from '../curriculum/library.ts'
 import { resolveCanonicalLearnRedirect, resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
+import { resolveCourseOverview, resolveCourseUnit } from '../curriculum/courses/routes.ts'
 import { resolvePythonDataToolsChapter } from '../utils/pythonDataToolsRoutes.ts'
 
 export const routeNavigating = ref(false)
@@ -63,6 +64,21 @@ function redirectShortPythonDataToolsChapter(to: RouteLocationNormalized) {
   return resolvePythonDataToolsRoute(to, '/python')
 }
 
+function resolveCourseOverviewRoute(to: RouteLocationNormalized) {
+  const resolution = resolveCourseOverview(routeParamValue(to.params.courseId))
+  if (resolution.kind === 'current') return true
+  return { path: resolution.path, query: resolution.query, hash: resolution.hash, replace: true }
+}
+
+function resolveCourseUnitRoute(to: RouteLocationNormalized) {
+  const resolution = resolveCourseUnit(
+    routeParamValue(to.params.courseId),
+    routeParamValue(to.params.unitId),
+  )
+  if (resolution.kind === 'current') return true
+  return { path: resolution.path, query: resolution.query, hash: resolution.hash, replace: true }
+}
+
 export const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   scrollBehavior(to, _from, savedPosition) {
@@ -105,6 +121,18 @@ export const router = createRouter({
       path: '/spine',
       name: 'curriculum-spine',
       component: () => import('../views/CurriculumSpineView.vue'),
+    },
+    {
+      path: '/courses/:courseId',
+      name: 'course-overview',
+      beforeEnter: resolveCourseOverviewRoute,
+      component: () => import('../views/CourseOverviewView.vue'),
+    },
+    {
+      path: '/courses/:courseId/units/:unitId',
+      name: 'course-unit',
+      beforeEnter: resolveCourseUnitRoute,
+      component: () => import('../views/CourseUnitView.vue'),
     },
     {
       path: '/tracks/:trackId',
