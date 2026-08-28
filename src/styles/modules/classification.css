@@ -92,6 +92,22 @@
   min-width: 0;
 }
 
+.classification-data-status {
+  margin: 0;
+  padding: 9px 11px;
+  border: 2px solid rgba(15, 159, 143, 0.22);
+  border-radius: 7px;
+  background: rgba(15, 159, 143, 0.08);
+  color: var(--ink);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.classification-data-status--error {
+  border-color: rgba(249, 115, 82, 0.28);
+  background: rgba(249, 115, 82, 0.09);
+}
+
 .classification-panel {
   display: grid;
   align-content: start;
@@ -253,6 +269,12 @@
   stroke-width: 3;
 }
 
+.classification-policy-note {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
 .classification-lab__controls {
   display: grid;
   gap: 10px;
@@ -296,9 +318,95 @@
 }
 
 .classification-panel--calibration,
-.classification-panel--near {
+.classification-panel--near,
+.classification-panel--cost,
+.classification-panel--subgroups,
+.classification-panel--errors {
   grid-column: 1 / -1;
   box-shadow: none;
+}
+
+.classification-evidence-grid,
+.classification-subgroup-grid,
+.classification-error-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.classification-evidence-grid article,
+.classification-subgroup-grid article,
+.classification-error-list article,
+.classification-decision-table article {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 9px;
+  border: 2px solid rgba(15, 23, 40, 0.09);
+  border-radius: 6px;
+  background: rgba(248, 251, 255, 0.72);
+}
+
+.classification-evidence-grid span,
+.classification-subgroup-grid span,
+.classification-error-list span,
+.classification-decision-table > article > span:first-child {
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.classification-evidence-grid strong,
+.classification-subgroup-grid strong,
+.classification-error-list strong {
+  color: var(--ink);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.classification-evidence-grid small,
+.classification-subgroup-grid small,
+.classification-error-list small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.classification-decision-table {
+  display: grid;
+  gap: 7px;
+  overflow-x: auto;
+}
+
+.classification-decision-table article {
+  grid-template-columns: minmax(72px, 0.6fr) repeat(5, minmax(110px, 1fr));
+  align-items: center;
+  min-width: 720px;
+}
+
+.classification-decision-table article span {
+  display: grid;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.classification-decision-table article strong {
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.classification-panel--subgroups .classification-lab__heading strong {
+  max-width: 760px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.classification-panel--errors .classification-lab__heading a {
+  color: var(--classification-accent);
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .classification-calibration-list,
@@ -502,6 +610,9 @@
 
   .classification-lab__control-grid,
   .classification-lab__metrics,
+  .classification-evidence-grid,
+  .classification-subgroup-grid,
+  .classification-error-list,
   .classification-near-list,
   .classification-story-visuals,
   .classification-softmax-grid,

@@ -631,8 +631,8 @@ export const messages = {
       classification: {
         title: '分类评估',
         kicker: 'Classification Metrics',
-        intro: '把分类模型从“输出概率”一直讲到阈值、混淆矩阵、Precision/Recall、ROC/AUC、偏差校准和多分类。',
-        summary: '独立补全分类教学：学生可以拖动阈值、改变类别比例和错误成本，并观察指标、ROC 曲线、校准分箱和 softmax 单纯形如何同步变化。',
+        intro: '沿用固定留出概率，把模型分数、概率、阈值、预测类别和真实标签连接到可审计的分类决策。',
+        summary: '在固定 Banknote validation 分数上复算混淆矩阵、Precision/Recall/F1、ROC/AUC、成本阈值与折间波动，再查看具名错误并只汇总一次锁定 test；softmax 作为多分类延伸保留。',
         sections: {
           scores: {
             title: '分类先输出分数，再做决策',
@@ -653,7 +653,7 @@ export const messages = {
             title: 'ROC/AUC 衡量跨阈值排序能力',
           },
           biasCalibration: {
-            title: 'Prediction bias 和校准检查概率是否可信',
+            title: '子组与具名错误让汇总指标落到样本',
           },
           multiclass: {
             title: '多分类把一个概率扩展成一组概率预算',
@@ -1352,8 +1352,8 @@ export const messages = {
       classification: {
         title: 'Classification',
         kicker: 'Classification Metrics',
-        intro: 'Teach classification from probability outputs through thresholds, confusion matrices, precision/recall, ROC/AUC, prediction bias, calibration, and multiclass softmax.',
-        summary: 'A complete classification module where students drag thresholds, change prevalence and error costs, and watch metrics, ROC, calibration bins, and the softmax simplex update together.',
+        intro: 'Reuse fixed holdout probabilities to connect model score, probability, threshold, predicted class, and actual label in an auditable decision workflow.',
+        summary: 'Recompute confusion metrics, ROC/AUC, a cost-aware threshold, and fold variation from frozen Banknote validation scores; inspect named errors, summarize locked test once, and retain softmax as a multiclass extension.',
         sections: {
           scores: {
             title: 'Classification outputs scores before decisions',
@@ -1374,7 +1374,7 @@ export const messages = {
             title: 'ROC/AUC measures ranking across thresholds',
           },
           biasCalibration: {
-            title: 'Prediction bias and calibration check probability trustworthiness',
+            title: 'Subgroups and named errors ground aggregate metrics in examples',
           },
           multiclass: {
             title: 'Multiclass extends one probability into a probability budget',

@@ -2,33 +2,33 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
-current_phase: 30
-current_phase_name: classification-decisions-rebuild
-status: planning
-stopped_at: Phase 29 automated verification and three-item user UAT passed
-last_updated: "2026-08-29T01:23:38+08:00"
+current_phase: 31
+current_phase_name: corridor-integration-and-release
+status: ready_to_execute
+stopped_at: Phase 30 implementation and release verification passed
+last_updated: "2026-08-29T02:09:26+08:00"
 last_activity: 2026-08-29
-last_activity_desc: Phase 29 closed after mainline integration, full release gates, and explicit user UAT approval
+last_activity_desc: Phase 30 closed after fixed-data decision workflow, full release gates, and browser verification
 progress:
   total_phases: 9
-  completed_phases: 7
-  total_plans: 35
-  completed_plans: 35
-  percent: 78
+  completed_phases: 8
+  total_plans: 36
+  completed_plans: 36
+  percent: 89
 current_plan: null
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-08-29
-**Status:** Phase 29 complete; Phase 30 is ready for discussion and planning
+**Status:** Phase 30 complete; AI Foundations B-stage completion precedes Phase 31 corridor integration
 
 ## Current Position
 
-Phase: 30 (classification-decisions-rebuild) — READY
+Phase: 31 (corridor-integration-and-release) — READY AFTER B-STAGE PUBLICATION
 Plan: Not started
-Status: Ready for discussion and planning
-Last activity: 2026-08-29 — Phase 29 passed all automated release gates and three-item user UAT
+Status: Phase 30 complete; next work is the AI Foundations B-stage teaching closure
+Last activity: 2026-08-29 — Phase 30 passed numerical, asset, full-suite, build, security, and real-browser gates
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 30 — classification-decisions-rebuild
+**Current focus:** Phase 31 — publish AI Foundations B units 07–14 before corridor integration
 
 ## Baseline
 
@@ -760,7 +760,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Run `$gsd-discuss-phase 30` to refine the Classification Decisions rebuild before planning.
+Complete and publish AI Foundations B units 07–14 as one teaching-closed stage, then run Phase 31 corridor integration and release verification.
 
 ## Accumulated Context
 
@@ -770,8 +770,8 @@ Run `$gsd-discuss-phase 30` to refine the Classification Decisions rebuild befor
 
 ## Session
 
-**Last session:** 2026-08-29T01:23:38+08:00
-**Stopped at:** Phase 29 automated verification and user UAT passed
+**Last session:** 2026-08-29T02:09:26+08:00
+**Stopped at:** Phase 30 implementation and release verification passed
 **Resume file:** None
 
 ## Performance Metrics

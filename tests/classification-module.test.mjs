@@ -66,6 +66,7 @@ test('classification module declares the full lesson structure and public source
     'developers.google.com/machine-learning/crash-course/classification/multiclass',
     'scikit-learn.org/stable/modules/model_evaluation.html',
     'd2l.ai/chapter_linear-classification/softmax-regression.html',
+    'archive.ics.uci.edu/dataset/267/banknote\\+authentication',
   ]) {
     assert.match(moduleSource, new RegExp(url.replaceAll('.', '\\.')))
   }
@@ -87,7 +88,7 @@ test('classification module declares the full lesson structure and public source
   }
 })
 
-test('classification lesson lab wires D3, Three.js, controls, and source notes', () => {
+test('classification lesson lab wires frozen evidence, D3, Three.js, controls, and source notes', () => {
   const componentSource = read('src/components/ClassificationLessonLab.vue')
   const styleSource = read('src/styles/modules/classification.css')
   const indexStyleSource = read('src/styles/index.css')
@@ -100,14 +101,16 @@ test('classification lesson lab wires D3, Three.js, controls, and source notes',
   assert.match(componentSource, /classification-roc-svg/)
   assert.match(componentSource, /simplexCanvasRef/)
   assert.match(componentSource, /classification-source-list/)
+  assert.match(componentSource, /loadClassificationStudyPackage/)
+  assert.match(componentSource, /classification-decision-table/)
+  assert.match(componentSource, /classification-subgroup-grid/)
+  assert.match(componentSource, /classification-error-list/)
+  assert.match(componentSource, /noReselection/)
 
   for (const control of [
     'threshold',
-    'prevalence',
-    'separability',
     'falsePositiveCost',
     'falseNegativeCost',
-    'calibrationShift',
     'temperature',
     'logitA',
     'logitB',
@@ -117,6 +120,8 @@ test('classification lesson lab wires D3, Three.js, controls, and source notes',
   }
 
   assert.match(styleSource, /\.classification-lab__visual-grid/)
+  assert.match(styleSource, /\.classification-decision-table/)
+  assert.match(styleSource, /\.classification-subgroup-grid/)
   assert.match(styleSource, /\.classification-simplex-canvas/)
   assert.match(indexStyleSource, /classification\.css/)
 })

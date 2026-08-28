@@ -1,0 +1,53 @@
+{
+  "contractVersion": "classification-phase-30-v1",
+  "locales": [
+    "zh-CN",
+    "en"
+  ],
+  "notebooks": {
+    "en": {
+      "path": "/classification/phase-30/notebooks/classification-decisions.en.ipynb",
+      "sha256": "80014cfefe9bf13337847e39baa68dc60566272f8450fc5443528b7e361835d9"
+    },
+    "zh-CN": {
+      "path": "/classification/phase-30/notebooks/classification-decisions.zh-CN.ipynb",
+      "sha256": "1b226d566d33822dddae6feee63337e34ff03adfe3f8020fbf3250ce41f0e146"
+    }
+  },
+  "outputs": {
+    "costSelection": {
+      "path": "/classification/phase-30/outputs/cost-selection.json",
+      "sha256": "91dc0c1e506089fc4348fcfc6e81804d82847c6fcc1d3c28b65d36c9c40599c3"
+    },
+    "predictions": {
+      "path": "/classification/phase-30/outputs/validation-predictions.json",
+      "sha256": "56b83d6e6e719f2309cf94b282ab8150dddd67382fa0a3a1f0189f54820de878"
+    },
+    "roc": {
+      "path": "/classification/phase-30/outputs/roc.json",
+      "sha256": "24c3aa0fad086292db937973e70b3dfef02c856816d82a1da11dcddb7b0f55cb"
+    },
+    "subgroupErrors": {
+      "path": "/classification/phase-30/outputs/subgroup-errors.json",
+      "sha256": "44658fd3cbcc4d7e3d69faeae04178c508c67e3176643dc2a0854272f2258891"
+    },
+    "thresholdSweep": {
+      "path": "/classification/phase-30/outputs/threshold-sweep.json",
+      "sha256": "5cdebd6164122f96175d305ecd1fcb014d369a029da7fd2cc803df4f4b9f0c9f"
+    }
+  },
+  "policy": {
+    "finalEvaluationSplit": "test",
+    "selectionSplit": "validation",
+    "subgroupSplit": "validation",
+    "testEvaluations": 1,
+    "testReselectionAllowed": false
+  },
+  "source": {
+    "datasetPath": "/datasets/numerical-methods/banknote-authentication.csv",
+    "datasetSha256": "04c25b8d1ffaada3c392682185a94b089b7fd214ac82eabeb07faaa3d9a1efaf",
+    "handoffContractVersion": "logistic-regression-phase-29-v1",
+    "handoffPath": "/logistic-regression/phase-29/frozen-predictions.json",
+    "handoffSha256": "5c0b5e983ab023eeeb18ef08fffab4d1f2ef524aec07d7e73774b6c8af6bdc3e"
+  }
+}
