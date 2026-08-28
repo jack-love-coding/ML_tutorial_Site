@@ -68,11 +68,11 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 
 ### Content and Quality
 
-- [ ] **QLTY-01**: Learners receive complete Chinese and English teaching for all five milestone modules with consistent formulas, variable names, code, and run outputs.
-- [ ] **QLTY-02**: Each module presents a core question, concept explanation, worked example, formula, code, run output, misconception feedback, and next-step connection.
-- [ ] **QLTY-03**: Exercises remain selective, formative, and non-blocking so detailed teaching remains the primary page content.
-- [ ] **QLTY-04**: Existing module IDs, routes, checkpoints, and Progress V1/V2 behavior remain compatible throughout the rebuild.
-- [ ] **QLTY-05**: Core computations remain outside Vue components with automated tests, and every phase passes standard build, Pages build, and bilingual desktop/mobile checks.
+- [x] **QLTY-01**: Learners receive complete Chinese and English teaching for all five milestone modules with consistent formulas, variable names, code, and run outputs.
+- [x] **QLTY-02**: Each module presents a core question, concept explanation, worked example, formula, code, run output, misconception feedback, and next-step connection.
+- [x] **QLTY-03**: Exercises remain selective, formative, and non-blocking so detailed teaching remains the primary page content.
+- [x] **QLTY-04**: Existing module IDs, routes, checkpoints, and Progress V1/V2 behavior remain compatible throughout the rebuild.
+- [x] **QLTY-05**: Core computations remain outside Vue components with automated tests, and every phase passes standard build, Pages build, and bilingual desktop/mobile checks.
 
 ## Future Requirements
 
@@ -141,11 +141,11 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 | CLAS-04 | Phase 30 | Complete |
 | CLAS-05 | Phase 30 | Complete |
 | CLAS-06 | Phase 30 | Complete |
-| QLTY-01 | Phase 31 | Pending |
-| QLTY-02 | Phase 31 | Pending |
-| QLTY-03 | Phase 31 | Pending |
-| QLTY-04 | Phase 31 | Pending |
-| QLTY-05 | Phase 31 | Pending |
+| QLTY-01 | Phase 31 | Complete |
+| QLTY-02 | Phase 31 | Complete |
+| QLTY-03 | Phase 31 | Complete |
+| QLTY-04 | Phase 31 | Complete |
+| QLTY-05 | Phase 31 | Complete |
 
 **Coverage:**
 
@@ -155,4 +155,4 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 
 ---
 *Requirements defined: 2026-07-27*
-*Last updated: 2026-08-12 after Phase 28/28A reconciliation and Phase 28B registration*
+*Last updated: 2026-08-29 after Phase 31 corridor release verification*
