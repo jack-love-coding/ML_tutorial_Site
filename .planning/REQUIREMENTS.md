@@ -59,12 +59,12 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 
 ### Classification Decisions
 
-- [ ] **CLAS-01**: Learners can distinguish model scores, probabilities, thresholds, and final class decisions.
-- [ ] **CLAS-02**: Learners can calculate a confusion matrix, precision, recall, and F1 from fixed held-out predictions.
-- [ ] **CLAS-03**: Learners can explain that ROC/AUC summarizes ranking across thresholds rather than directly selecting an operating threshold.
-- [ ] **CLAS-04**: Learners can choose and justify a validation threshold using false-positive and false-negative costs while reporting result variation.
-- [ ] **CLAS-05**: Learners can inspect subgroup errors and named misclassified examples rather than relying on one aggregate score.
-- [ ] **CLAS-06**: Learners can still access the existing multiclass and softmax material as supporting content without turning it into the milestone's primary project.
+- [x] **CLAS-01**: Learners can distinguish model scores, probabilities, thresholds, and final class decisions.
+- [x] **CLAS-02**: Learners can calculate a confusion matrix, precision, recall, and F1 from fixed held-out predictions.
+- [x] **CLAS-03**: Learners can explain that ROC/AUC summarizes ranking across thresholds rather than directly selecting an operating threshold.
+- [x] **CLAS-04**: Learners can choose and justify a validation threshold using false-positive and false-negative costs while reporting result variation.
+- [x] **CLAS-05**: Learners can inspect subgroup errors and named misclassified examples rather than relying on one aggregate score.
+- [x] **CLAS-06**: Learners can still access the existing multiclass and softmax material as supporting content without turning it into the milestone's primary project.
 
 ### Content and Quality
 
@@ -135,12 +135,12 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 | LOGR-02 | Phase 29 | Complete |
 | LOGR-03 | Phase 29 | Complete |
 | LOGR-04 | Phase 29 | Complete |
-| CLAS-01 | Phase 30 | Pending |
-| CLAS-02 | Phase 30 | Pending |
-| CLAS-03 | Phase 30 | Pending |
-| CLAS-04 | Phase 30 | Pending |
-| CLAS-05 | Phase 30 | Pending |
-| CLAS-06 | Phase 30 | Pending |
+| CLAS-01 | Phase 30 | Complete |
+| CLAS-02 | Phase 30 | Complete |
+| CLAS-03 | Phase 30 | Complete |
+| CLAS-04 | Phase 30 | Complete |
+| CLAS-05 | Phase 30 | Complete |
+| CLAS-06 | Phase 30 | Complete |
 | QLTY-01 | Phase 31 | Pending |
 | QLTY-02 | Phase 31 | Pending |
 | QLTY-03 | Phase 31 | Pending |

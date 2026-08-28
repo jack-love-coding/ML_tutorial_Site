@@ -221,6 +221,11 @@
 4. A validation threshold is justified from false-positive/false-negative costs with interval or fold variation, then applied once to the locked test set.
 5. Subgroup and named misclassification analysis remains visible, while existing multiclass/softmax content stays available as a supporting chapter.
 
+**Plans:** 1/1 plan executed
+**Status:** Complete — deterministic assets, full release gates, and browser matrix passed 2026-08-29
+
+- [x] 30-PLAN.md — Frozen held-out metrics, cost-aware threshold selection, one-time test reveal, error analysis, bilingual Notebooks, and release verification
+
 ## Phase 31: Corridor Integration and Release
 
 **Goal:** Verify that all five rebuilt modules form one bilingual, content-first, reproducible learning corridor without route, Progress, asset, rendering, or release regressions.
@@ -248,7 +253,7 @@
 | 28A. Gradient Descent Beginner Teaching Rebuild | v1.1 | 6 | Complete — 2026-08-11 |
 | 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | Complete — 2026-08-13 |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Complete — 2026-08-29 |
-| 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |
+| 30. Classification Decisions Rebuild | v1.1 | 6 | Complete — 2026-08-29 |
 | 31. Corridor Integration and Release | v1.1 | 5 | Not started |
 
 ---
