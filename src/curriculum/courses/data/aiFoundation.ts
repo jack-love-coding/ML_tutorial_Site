@@ -45,7 +45,7 @@ function criterion(unitId: string, value: LocalizedCopy, index: number): CourseA
 }
 
 function createUnit(seed: UnitSeed): CourseUnit {
-  const publicationStatus: CoursePublicationStatus = seed.order <= 6 ? 'published' : 'planned'
+  const publicationStatus: CoursePublicationStatus = seed.order <= 14 ? 'published' : 'planned'
   const acceptanceCriteria = seed.criteria.map((value, index) => criterion(seed.id, value, index))
   const resourceStep = seed.resources?.length
     ? [{
@@ -175,6 +175,12 @@ interface PlannedUnitSeed {
   deliverables: LocalizedCopy
   code: string
   resources?: CourseResourceRef[]
+  notebookRefs?: CourseResourceRef[]
+  teachingFocus?: LocalizedCopy
+  misconception?: LocalizedCopy
+  criteria?: LocalizedCopy[]
+  checkpoint?: UnitSeed['checkpoint']
+  referenceLinks?: string[]
 }
 
 function createPlannedUnit(seed: PlannedUnitSeed): CourseUnit {
@@ -182,20 +188,20 @@ function createPlannedUnit(seed: PlannedUnitSeed): CourseUnit {
     ...seed,
     difficulty: seed.order < 15 ? 'intermediate' : 'advanced',
     prerequisites: [String(seed.order - 1).padStart(2, '0') + '-' + plannedPrerequisiteSlugs[seed.order - 1]],
-    teachingFocus: copy(
+    teachingFocus: seed.teachingFocus ?? copy(
       '先定义任务、数据边界和评价协议，再比较方法；所有结论都要能回到可复算的验证证据。',
       'Define the task, data boundary, and evaluation protocol before comparing methods; every claim must trace to reproducible validation evidence.',
     ),
-    misconception: copy(
+    misconception: seed.misconception ?? copy(
       '更复杂或更新的模型不必然更好；如果划分、指标或基线不一致，分数差异不能支持方法结论。',
       'A newer or more complex model is not automatically better; score differences cannot support a method claim when splits, metrics, or baselines differ.',
     ),
-    criteria: [
+    criteria: seed.criteria ?? [
       copy('能从干净环境复现基线、主要结果和评价指标。', 'Can reproduce the baseline, main result, and metric from a clean environment.'),
       copy('能用实验或数值证据解释至少一个成功条件和一个失败模式。', 'Can explain at least one success condition and one failure mode using experimental or numerical evidence.'),
       copy('成果包含数据边界、验证协议、限制与下一步。', 'The artifact states its data boundary, validation protocol, limitations, and next step.'),
     ],
-    checkpoint: {
+    checkpoint: seed.checkpoint ?? {
       question: copy('哪一种证据最能支持本单元的方法结论？', 'Which evidence best supports a method claim in this unit?'),
       correct: copy('在相同数据划分和指标下复现的对照实验，并记录限制', 'A reproduced controlled comparison on the same split and metric, with limitations recorded'),
       distractors: [
@@ -207,7 +213,7 @@ function createPlannedUnit(seed: PlannedUnitSeed): CourseUnit {
         'A fixed comparison protocol makes attribution possible, while reproduction records and limitations make the claim auditable.',
       ),
     },
-    referenceLinks: [],
+    referenceLinks: seed.referenceLinks ?? [],
   })
 }
 
@@ -277,7 +283,7 @@ const stages: CourseStage[] = [
       '13-gradient-boosting',
       '14-tabular-pipeline',
     ],
-    publicationStatus: 'planned',
+    publicationStatus: 'published',
   },
   {
     id: 'deep-learning-cv-nlp',
@@ -454,88 +460,213 @@ const units: CourseUnit[] = [
     id: '07-ml-experiment-design', order: 7, stageId: 'ml-core',
     title: copy('任务定义、验证设计、指标与数据泄漏', 'Task Definition, Validation Design, Metrics, and Leakage'),
     coreQuestion: copy('怎样设计一个不会把测试信息泄漏给模型的可信实验？', 'How do you design a trustworthy experiment that does not leak test information to the model?'),
-    knowledgeAndMethods: copy('监督学习流程；训练、验证、测试划分；交叉验证；指标选择；数据泄漏；偏差—方差；可复现实验日志。', 'Supervised-learning workflow; train, validation, and test splits; cross-validation; metric choice; leakage; bias–variance; reproducible experiment logs.'),
+    knowledgeAndMethods: copy(
+      `监督学习实验先固定任务单位、标签可用时点和评价对象，再把数据分为 train、validation、test。train 负责拟合，validation 负责选择特征、模型和阈值，test 只在方案锁定后使用一次。随机划分适合近似独立同分布样本；时间、用户或设备相关数据必须按时间或 group 划分。任何从 validation/test 学到的填补值、词表、标准化参数或特征选择都会造成泄漏。交叉验证报告均值与离散程度，不能把每一折当成独立的最终测试。实验卡至少记录数据版本、split ID、随机种子、Pipeline、指标方向、配置和失败说明。`,
+      `A supervised experiment first fixes the unit of observation, label-availability time, and evaluation target, then separates train, validation, and test. Train fits parameters; validation selects features, models, and thresholds; test is used once after the policy is frozen. Random splits suit approximately IID rows, while time-, user-, or device-linked data needs temporal or grouped splits. Imputation values, vocabularies, scaling statistics, or feature selection learned from validation/test are leakage. Cross-validation reports center and variation; its folds are not independent final tests. An experiment card records the data version, split IDs, seed, pipeline, metric direction, configuration, and failures.`,
+    ),
     practice: copy('为分类和回归各设计一个验证协议，制造一次泄漏并比较虚高分数，最后提交实验卡。', 'Design one classification and one regression protocol, induce one leakage case, compare the inflated score, and submit an experiment card.'),
     datasets: copy('Titanic 与 California Housing 小样本', 'Small Titanic and California Housing samples'), tools: copy('scikit-learn、pandas', 'scikit-learn and pandas'),
     deliverables: copy('数据划分图、指标理由、泄漏对照和实验日志模板。', 'A split diagram, metric rationale, leakage comparison, and experiment-log template.'),
-    resources: [{ kind: 'curriculum', moduleId: 'splits-generalization', label: copy('数据划分与泛化', 'Splits and Generalization') }, { kind: 'curriculum', moduleId: 'model-selection', label: copy('模型选择', 'Model Selection') }],
+    resources: [
+      { kind: 'curriculum', moduleId: 'splits-generalization', lessonId: 'split-contract', label: copy('先写数据划分契约', 'Write the split contract first') },
+      { kind: 'curriculum', moduleId: 'splits-generalization', lessonId: 'fit-transform-rule', label: copy('只在训练集 fit', 'Fit preprocessing on train only') },
+      { kind: 'curriculum', moduleId: 'model-selection', lessonId: 'pipeline-leakage', label: copy('Pipeline 泄漏检查', 'Pipeline leakage check') },
+    ],
+    notebookRefs: [
+      { kind: 'asset', path: '/notebooks/tabular-regression/california-housing-project.zh-CN.ipynb', label: copy('下载中文表格实验 Notebook', 'Download the Chinese tabular experiment notebook'), download: true },
+      { kind: 'asset', path: '/notebooks/tabular-regression/california-housing-project.en.ipynb', label: copy('下载英文表格实验 Notebook', 'Download the English tabular experiment notebook'), download: true },
+    ],
+    teachingFocus: copy('先画数据边界与信息时间线，再写代码；预处理必须位于 Pipeline 内并在每一折训练部分重新 fit。比较结果同时报告中心、波动和失败折。', 'Draw the data boundary and information timeline before coding; preprocessing stays inside the pipeline and is refit on each training fold. Report center, variation, and failed folds together.'),
+    misconception: copy('“删除标签列”不能自动消除泄漏。未来信息、同一实体跨集合、全数据预处理和选择后反复查看 test 都会让分数失真。', 'Dropping the target column does not automatically remove leakage. Future information, the same entity crossing splits, all-data preprocessing, and repeated test inspection all distort scores.'),
+    criteria: [copy('实验卡写明任务单位、标签时点、划分理由和一次性 test 规则。', 'The experiment card states the observation unit, label timing, split rationale, and one-time test rule.'), copy('安全 Pipeline 与故意泄漏版本在同一划分和指标下可复算。', 'The safe pipeline and induced-leakage version are reproducible on the same split and metric.'), copy('交叉验证同时报告均值、离散程度和失败折，不只报最高分。', 'Cross-validation reports mean, variation, and failed folds rather than only the best score.')],
+    checkpoint: { question: copy('标准化器应该在什么时候计算均值和方差？', 'When should the scaler compute its mean and variance?'), correct: copy('在每一折的训练部分 fit，再只 transform 该折 validation', 'Fit on each fold’s training partition, then only transform that fold’s validation partition'), distractors: [copy('先对全部数据标准化再做交叉验证', 'Scale all rows before cross-validation'), copy('用 test 统计量让部署输入更稳定', 'Use test statistics to stabilize deployment inputs')], feedback: copy('把预处理放入 Pipeline，交叉验证会在每折训练数据上重新 fit，从结构上阻断这类泄漏。', 'Putting preprocessing inside the pipeline refits it on each fold’s training data and structurally blocks this leakage.') },
+    referenceLinks: ['https://scikit-learn.org/stable/modules/cross_validation.html', 'https://scikit-learn.org/stable/common_pitfalls.html'],
     code: `from sklearn.model_selection import train_test_split\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, random_state=42, stratify=y\n)\nassert set(X_train.index).isdisjoint(X_test.index)`,
   }),
   createPlannedUnit({
     id: '08-linear-regression-optimization', order: 8, stageId: 'ml-core',
     title: copy('线性回归与梯度下降', 'Linear Regression and Gradient Descent'),
     coreQuestion: copy('损失曲面、梯度和学习率怎样共同决定线性模型的训练轨迹？', 'How do the loss surface, gradient, and learning rate jointly determine a linear model’s training trajectory?'),
-    knowledgeAndMethods: copy('线性函数、残差、MSE、最小二乘；梯度推导；批量梯度下降；标准化；学习率和收敛诊断。', 'Linear functions, residuals, MSE, least squares; gradient derivation; batch gradient descent; standardization; learning-rate and convergence diagnostics.'),
+    knowledgeAndMethods: copy(
+      String.raw`线性回归用 $\hat y=Xw+b$ 表示特征的加权和，残差固定为 $r=\hat y-y$，均方误差为 $L=\frac{1}{n}\sum r_i^2$。因此 $\nabla_wL=\frac{2}{n}X^Tr$，更新规则是 $w\leftarrow w-\eta\nabla_wL$。解析最小二乘、批量梯度下降与 sklearn 只有在特征顺序、截距、标准化和正则化设置一致时才能比较。学习率太小表现为缓慢下降，过大表现为震荡或发散；先用中心差分校验梯度，再诊断轨迹。模型结论来自验证/测试残差，不来自训练 loss 最低。`,
+      String.raw`Linear regression writes a weighted feature sum as $\hat y=Xw+b$, fixes the residual sign as $r=\hat y-y$, and uses $L=\frac{1}{n}\sum r_i^2$. Thus $\nabla_wL=\frac{2}{n}X^Tr$ and $w\leftarrow w-\eta\nabla_wL$. Least squares, batch gradient descent, and sklearn are comparable only when feature order, intercept, scaling, and regularization agree. A tiny learning rate descends slowly; an oversized one oscillates or diverges. Check the gradient with central differences before diagnosing the trajectory. Model conclusions come from validation/test residuals, not the lowest training loss.`,
+    ),
     practice: copy('用 NumPy 实现线性回归梯度下降，与解析解和 sklearn 对照，并解释三种学习率曲线。', 'Implement linear-regression gradient descent in NumPy, compare it with the closed form and sklearn, and explain three learning-rate curves.'),
     datasets: copy('合成直线与 California Housing', 'Synthetic lines and California Housing'), tools: copy('NumPy、scikit-learn、Matplotlib', 'NumPy, scikit-learn, and Matplotlib'),
     deliverables: copy('梯度校验、训练曲线、参数对照与误差分析。', 'A gradient check, training curves, parameter comparison, and error analysis.'),
-    resources: [{ kind: 'curriculum', moduleId: 'linear-regression', label: copy('线性回归', 'Linear Regression') }, { kind: 'curriculum', moduleId: 'gradient-descent', label: copy('梯度下降', 'Gradient Descent') }, { kind: 'curriculum', moduleId: 'loss-functions', label: copy('损失函数', 'Loss Functions') }],
+    resources: [
+      { kind: 'curriculum', moduleId: 'linear-regression', lessonId: 'residual-loss', label: copy('残差与损失', 'Residuals and loss') },
+      { kind: 'curriculum', moduleId: 'gradient-descent', lessonId: 'gradient-rule', label: copy('梯度更新规则', 'Gradient update rule') },
+      { kind: 'curriculum', moduleId: 'gradient-descent', lessonId: 'learning-rate', label: copy('学习率诊断', 'Learning-rate diagnosis') },
+      { kind: 'curriculum', moduleId: 'loss-functions', lessonId: 'regression-losses', label: copy('回归损失选择', 'Regression loss choices') },
+    ],
+    notebookRefs: [
+      { kind: 'asset', path: '/linear-regression/phase-27a/bike-linear-regression-course.zh-CN.ipynb', label: copy('下载中文线性回归 Notebook', 'Download the Chinese linear-regression notebook'), download: true },
+      { kind: 'asset', path: '/linear-regression/phase-27a/bike-linear-regression-course.en.ipynb', label: copy('下载英文线性回归 Notebook', 'Download the English linear-regression notebook'), download: true },
+    ],
+    teachingFocus: copy('始终保持 feature order、残差符号和 MSE 分母一致；先校验单步数值，再比较完整训练。训练、验证和最终测试的职责不得混用。', 'Keep feature order, residual sign, and the MSE divisor consistent. Verify one numerical step before comparing full training, and do not mix train, validation, and final-test roles.'),
+    misconception: copy('loss 下降只说明优化器在当前目标上移动，不说明模型已经泛化；GD 与 sklearn 参数不同也可能来自预处理、截距或正则化契约不同。', 'A falling loss only shows movement on the current objective; it does not prove generalization. GD and sklearn coefficients may differ because preprocessing, intercept, or regularization contracts differ.'),
+    criteria: [copy('中心差分与解析梯度在预先声明的容差内一致。', 'Central differences and analytic gradients agree within a declared tolerance.'), copy('解析解、GD 与 sklearn 使用同一特征顺序、截距和预处理契约。', 'Least squares, GD, and sklearn share one feature order, intercept, and preprocessing contract.'), copy('能用训练曲线区分缓慢、稳定、震荡和发散，并用留出残差说明泛化限制。', 'Can distinguish slow, stable, oscillating, and divergent curves and use held-out residuals to state generalization limits.')],
+    checkpoint: { question: copy('梯度下降 loss 稳定下降后，下一条最有价值的证据是什么？', 'After gradient-descent loss falls steadily, what is the most useful next evidence?'), correct: copy('在未参与拟合的样本上复算残差和指标，并与对齐契约的基线比较', 'Recompute residuals and metrics on unseen rows and compare with a contract-aligned baseline'), distractors: [copy('继续训练直到训练 loss 完全为零', 'Keep training until train loss is exactly zero'), copy('只看最后一组权重比第一组更大', 'Only check that final weights are larger than initial weights')], feedback: copy('优化收敛和泛化是两层问题；留出残差与对齐基线把二者分开。', 'Optimization convergence and generalization are separate questions; held-out residuals and an aligned baseline distinguish them.') },
+    referenceLinks: ['https://scikit-learn.org/stable/modules/linear_model.html#ordinary-least-squares'],
     code: `prediction = X @ weights + bias\nerror = prediction - y\ngrad_w = (2 / len(X)) * X.T @ error\nweights -= learning_rate * grad_w`,
   }),
   createPlannedUnit({
     id: '09-logistic-regression-thresholds', order: 9, stageId: 'ml-core',
     title: copy('逻辑回归、交叉熵与分类阈值', 'Logistic Regression, Cross-Entropy, and Thresholds'),
     coreQuestion: copy('概率模型的排序质量和最终决策阈值为什么是两件事？', 'Why are a probabilistic model’s ranking quality and its final decision threshold different concerns?'),
-    knowledgeAndMethods: copy('sigmoid、logit、二元交叉熵；概率与类别；混淆矩阵；precision、recall、F1、ROC-AUC；阈值和类别不平衡。', 'Sigmoid, logits, binary cross-entropy; probabilities versus classes; confusion matrices; precision, recall, F1, ROC-AUC; thresholds and imbalance.'),
+    knowledgeAndMethods: copy(
+      String.raw`逻辑回归先计算 score $z=w^Tx+b$，再用 $p=\sigma(z)$ 映射为概率；BCE 惩罚自信但错误的概率。模型输出的概率不会自动成为类别，操作阈值 $t$ 决定 $\hat y=\mathbf{1}[p\ge t]$，因此阈值改变 confusion matrix、precision、recall、F1 和成本，却不改变概率排序与 ROC-AUC。本单元复用 Phase 29 的固定 Banknote validation 概率：FP 成本 1、FN 成本 5 时，validation 选择 $t=0.09$，五个确定性折的选择范围是 0.01–0.50；策略锁定后只汇总一次 test，绝不依据 test 重选阈值。`,
+      String.raw`Logistic regression computes a score $z=w^Tx+b$ and maps it to probability with $p=\sigma(z)$; BCE penalizes confident wrong probabilities. A probability does not automatically become a class: the operating threshold $t$ defines $\hat y=\mathbf{1}[p\ge t]$. Changing it alters the confusion matrix, precision, recall, F1, and cost without changing probability ranking or ROC-AUC. This unit reuses Phase 29's frozen Banknote validation probabilities. With FP cost 1 and FN cost 5, validation selects $t=0.09$; five deterministic folds select across 0.01–0.50. After the policy is frozen, test is summarized once and never used for reselection.`,
+    ),
     practice: copy('沿用固定 Banknote 概率，绘制 validation 阈值—指标曲线，按 FP/FN 成本锁定阈值，检查折间波动后只汇总一次 test。', 'Reuse frozen Banknote probabilities, plot validation threshold–metric curves, freeze a threshold from FP/FN cost, inspect fold variation, then summarize test once.'),
     datasets: copy('UCI Banknote Authentication 固定划分', 'A fixed UCI Banknote Authentication split'), tools: copy('scikit-learn、NumPy、Matplotlib', 'scikit-learn, NumPy, and Matplotlib'),
     deliverables: copy('概率分布、混淆矩阵、阈值选择备忘录、折间波动和具名 validation 失败样本表。', 'Probability distributions, a confusion matrix, a threshold memo, fold variation, and a table of named validation failures.'),
-    resources: [{ kind: 'curriculum', moduleId: 'logistic-regression', label: copy('逻辑回归', 'Logistic Regression') }, { kind: 'curriculum', moduleId: 'classification', label: copy('分类指标与阈值', 'Classification Metrics and Thresholds') }],
+    resources: [
+      { kind: 'curriculum', moduleId: 'logistic-regression', lessonId: 'linear-score', label: copy('Phase 29：分数与 sigmoid', 'Phase 29: score and sigmoid') },
+      { kind: 'curriculum', moduleId: 'logistic-regression', lessonId: 'log-loss', label: copy('Phase 29：BCE 与梯度', 'Phase 29: BCE and gradients') },
+      { kind: 'curriculum', moduleId: 'classification', lessonId: 'scores', label: copy('Phase 30：固定分数决策链', 'Phase 30: frozen-score decision chain') },
+      { kind: 'curriculum', moduleId: 'classification', lessonId: 'costTradeoff', label: copy('Phase 30：成本阈值选择', 'Phase 30: cost-aware threshold selection') },
+      { kind: 'curriculum', moduleId: 'classification', lessonId: 'biasCalibration', label: copy('Phase 30：子组与具名错例', 'Phase 30: slices and named errors') },
+    ],
+    notebookRefs: [
+      { kind: 'asset', path: '/logistic-regression/phase-29/banknote-logistic-regression.zh-CN.ipynb', label: copy('下载中文逻辑回归 Notebook', 'Download the Chinese logistic-regression notebook'), download: true },
+      { kind: 'asset', path: '/classification/phase-30/notebooks/classification-decisions.zh-CN.ipynb', label: copy('下载中文分类决策 Notebook', 'Download the Chinese classification-decisions notebook'), download: true },
+      { kind: 'asset', path: '/classification/phase-30/notebooks/classification-decisions.en.ipynb', label: copy('下载英文分类决策 Notebook', 'Download the English classification-decisions notebook'), download: true },
+    ],
+    teachingFocus: copy('把 score、probability、threshold、predicted class 和 actual label 逐列分开；所有阈值比较只看 validation，ROC-AUC 只评价排序，锁定 test 面板永不随交互变化。', 'Keep score, probability, threshold, predicted class, and actual label in separate columns. All threshold comparisons use validation; ROC-AUC evaluates ranking only, and the locked-test panel never changes with interaction.'),
+    misconception: copy('AUC 高不等于自动得到最佳阈值；在 test 上尝试多个阈值再挑最高结果，会把 test 变成 validation 并夸大泛化表现。', 'High AUC does not automatically provide the best threshold. Trying several test thresholds and keeping the best turns test into validation and inflates generalization evidence.'),
+    criteria: [copy('能从固定 validation 行复算任一阈值的 TP、FP、TN、FN 与 precision/recall/F1。', 'Can recompute TP, FP, TN, FN, and precision/recall/F1 at any threshold from frozen validation rows.'), copy('阈值备忘录写明 FP/FN 成本、tie-break、折间波动和选择局限。', 'The threshold memo states FP/FN costs, tie-break, fold variation, and selection limitations.'), copy('test 只出现一次汇总，页面和成果都不包含 test 行级记录或重选。', 'Test appears as one aggregate summary only, with no test-row disclosure or reselection in the page or artifact.')],
+    checkpoint: { question: copy('validation 选好阈值后看到 test 漏报偏多，下一步应该怎么做？', 'After validation selects a threshold, test shows more false negatives than hoped. What should happen next?'), correct: copy('保留这次 test 结果作为最终证据；下一轮先定义新假设和新的未使用评估数据', 'Keep this test result as final evidence; a new iteration needs a new hypothesis and untouched evaluation data'), distractors: [copy('继续在同一 test 上降低阈值直到满意', 'Keep lowering the threshold on the same test until satisfied'), copy('只删除 test 中的漏报样本再汇报', 'Delete false negatives from test before reporting')], feedback: copy('一次性 test 的价值来自“未参与选择”；看到结果后再调参会破坏这个边界。', 'The one-time test is valuable because it did not participate in selection; tuning after inspection breaks that boundary.') },
+    referenceLinks: ['https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics'],
     code: `probability = model.predict_proba(X_valid)[:, 1]\nprediction = (probability >= threshold).astype(int)\nassert prediction.shape == y_valid.shape`,
   }),
   createPlannedUnit({
     id: '10-classic-classifiers', order: 10, stageId: 'ml-core',
     title: copy('KNN、朴素贝叶斯与 SVM 的归纳偏置', 'Inductive Biases of KNN, Naive Bayes, and SVM'),
     coreQuestion: copy('同一份数据为什么会让距离、概率和最大间隔方法产生不同边界？', 'Why does the same data produce different boundaries for distance, probability, and maximum-margin methods?'),
-    knowledgeAndMethods: copy('KNN 距离与 k；Gaussian/Multinomial Naive Bayes；线性与核 SVM；特征尺度；超参数和计算代价。', 'KNN distance and k; Gaussian/Multinomial Naive Bayes; linear and kernel SVM; feature scaling; hyperparameters and computational cost.'),
+    knowledgeAndMethods: copy(
+      String.raw`KNN 不拟合显式边界，而是按距离让邻居投票；$k$ 小时容易追随噪声，$k$ 大时边界更平滑。朴素贝叶斯比较 $P(y)\prod_jP(x_j\mid y)$，条件独立假设虽然简化，但在稀疏文本中常是强基线。线性 SVM 最大化间隔，RBF SVM 通过核相似度形成非线性边界。距离和间隔方法对尺度敏感，StandardScaler 必须位于 Pipeline 内；树方法不共享这个需求。公平比较固定 split、metric 和搜索预算，并同时记录 fit/predict 时间、内存、概率需求与失败区域。`,
+      String.raw`KNN fits no explicit boundary; neighbors vote by distance. Small $k$ follows noise while large $k$ smooths the boundary. Naive Bayes compares $P(y)\prod_jP(x_j\mid y)$; its conditional-independence assumption is simplifying yet often provides a strong sparse-text baseline. A linear SVM maximizes margin, while an RBF SVM uses kernel similarity for nonlinear boundaries. Distance- and margin-based methods are scale-sensitive, so StandardScaler belongs inside the pipeline; trees do not share that requirement. A fair comparison fixes split, metric, and search budget and records fit/predict time, memory, probability needs, and failure regions.`,
+    ),
     practice: copy('在固定划分上比较 KNN、NB、线性 SVM 和 RBF SVM，绘制边界并分析缩放影响。', 'Compare KNN, NB, linear SVM, and RBF SVM on a fixed split, plot boundaries, and analyze scaling effects.'),
     datasets: copy('Iris、Moons 与短文本子集', 'Iris, Moons, and a short-text subset'), tools: copy('scikit-learn', 'scikit-learn'),
     deliverables: copy('四模型对照表、决策边界图和归纳偏置说明。', 'A four-model comparison, decision-boundary plots, and an inductive-bias note.'),
-    resources: [{ kind: 'curriculum', moduleId: 'classification-project', label: copy('分类项目工作流', 'Classification Project Workflow') }],
+    resources: [
+      { kind: 'curriculum', moduleId: 'linear-algebra-distance-similarity', lessonId: 'distance-norm-ruler', label: copy('距离与尺度', 'Distance and scale') },
+      { kind: 'curriculum', moduleId: 'beginner-probability-distributions', lessonId: 'beginner-probability-bayes', label: copy('Bayes 规则基础', 'Bayes-rule foundation') },
+      { kind: 'curriculum', moduleId: 'classification-project', lessonId: 'pipeline-baseline', label: copy('统一分类 Pipeline', 'Shared classification pipeline') },
+      { kind: 'curriculum', moduleId: 'classification-project', lessonId: 'error-review', label: copy('模型错误复盘', 'Model error review') },
+    ],
+    teachingFocus: copy('方法比较必须解释归纳偏置：KNN 的局部相似、NB 的分布假设、SVM 的间隔与核。缩放只能在训练折 fit，概率输出也不能假定所有分类器原生可比。', 'Explain inductive bias in every comparison: local similarity for KNN, distributional assumptions for NB, and margin/kernel geometry for SVM. Fit scaling on training folds only, and do not assume every classifier emits comparable native probabilities.'),
+    misconception: copy('把所有模型套同一超参数网格并不公平；不同方法的容量旋钮、计算成本和概率语义不同。边界图也只是二维教学切片，不代表高维真实决策面。', 'One shared hyperparameter grid is not automatically fair: capacity controls, computational cost, and probability semantics differ by method. A boundary plot is also a two-dimensional teaching slice, not the full high-dimensional decision surface.'),
+    criteria: [copy('四个模型使用同一 split、metric、预处理边界和声明的搜索预算。', 'All four models use the same split, metric, preprocessing boundary, and declared search budget.'), copy('对每个模型说明一个归纳偏置、一个适用条件和一个失败模式。', 'States one inductive bias, one suitable condition, and one failure mode for each model.'), copy('对照表同时包含质量、训练/推理成本和是否需要概率校准。', 'The comparison includes quality, train/inference cost, and whether probability calibration is needed.')],
+    checkpoint: { question: copy('为什么 KNN 和 RBF SVM 通常需要在 Pipeline 内标准化？', 'Why do KNN and RBF SVM usually need scaling inside the pipeline?'), correct: copy('特征尺度直接改变距离或核相似度；在 Pipeline 内 fit 可避免 validation 泄漏', 'Feature scale directly changes distances or kernel similarity, and fitting inside the pipeline prevents validation leakage'), distractors: [copy('标准化会让所有分类器自动变成线性模型', 'Scaling makes every classifier linear'), copy('因为标准化能保证 validation 分数一定提高', 'Because scaling guarantees a higher validation score')], feedback: copy('尺度是距离几何的一部分；Pipeline 同时固定几何和数据边界。', 'Scale is part of distance geometry; the pipeline fixes both geometry and the data boundary.') },
+    referenceLinks: ['https://scikit-learn.org/stable/supervised_learning.html'],
     code: `from sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.svm import SVC\nmodel = make_pipeline(StandardScaler(), SVC(kernel="rbf"))\nmodel.fit(X_train, y_train)`,
   }),
   createPlannedUnit({
     id: '11-decision-trees', order: 11, stageId: 'ml-core',
     title: copy('决策树、非线性规则与过拟合', 'Decision Trees, Nonlinear Rules, and Overfitting'),
     coreQuestion: copy('一棵树如何选择切分，又为什么容易记住训练噪声？', 'How does a tree choose splits, and why can it memorize training noise?'),
-    knowledgeAndMethods: copy('递归切分；Gini、entropy 与信息增益；深度、叶节点样本数、剪枝；非线性与特征重要性局限。', 'Recursive splitting; Gini, entropy, and information gain; depth, minimum leaf size, pruning; nonlinearity and limits of feature importance.'),
+    knowledgeAndMethods: copy(
+      `决策树在每个节点枚举特征与阈值，用 impurity decrease 选择切分。二分类 Gini 为 $1-p^2-(1-p)^2$；加权子节点 impurity 越低，切分越能分离标签。递归分裂能表达非线性和交互，却也会把小样本噪声记成规则。max_depth、min_samples_leaf 与 cost-complexity pruning 控制容量；应画 train/validation 曲线而不是凭树图挑深度。单棵树的 impurity importance 偏爱高基数或多候选切分特征，解释时要结合 permutation importance、决策路径和失败样本。`,
+      `A decision tree enumerates features and thresholds at each node and chooses an impurity decrease. Binary Gini is $1-p^2-(1-p)^2$; lower weighted child impurity means stronger label separation. Recursive splits express nonlinearities and interactions but can memorize small-sample noise. max_depth, min_samples_leaf, and cost-complexity pruning control capacity; choose them from train/validation curves rather than the appearance of a tree diagram. A single tree's impurity importance favors high-cardinality features or those with many candidate splits, so interpretation needs permutation importance, decision paths, and failure examples.`,
+    ),
     practice: copy('手算一次候选切分，训练不同深度的树并对照训练/验证曲线和决策路径。', 'Compute one split by hand, train trees at several depths, and compare train/validation curves and decision paths.'),
     datasets: copy('Moons 与 Titanic', 'Moons and Titanic'), tools: copy('scikit-learn、Graphviz 可选', 'scikit-learn, optionally Graphviz'),
     deliverables: copy('切分计算、复杂度曲线、树图和过拟合诊断。', 'A split calculation, complexity curve, tree diagram, and overfitting diagnosis.'),
-    resources: [{ kind: 'curriculum', moduleId: 'tree-forest', label: copy('树模型与森林', 'Trees and Forests') }, { kind: 'curriculum', moduleId: 'complexity-regularization', label: copy('复杂度与正则化', 'Complexity and Regularization') }],
+    resources: [
+      { kind: 'curriculum', moduleId: 'tree-forest', lessonId: 'split-criteria', label: copy('切分准则手算', 'Compute split criteria') },
+      { kind: 'curriculum', moduleId: 'tree-forest', lessonId: 'depth-overfitting', label: copy('深度与过拟合', 'Depth and overfitting') },
+      { kind: 'curriculum', moduleId: 'tree-forest', lessonId: 'feature-importance', label: copy('重要性解释边界', 'Feature-importance limits') },
+      { kind: 'curriculum', moduleId: 'complexity-regularization', lessonId: 'overfit-underfit-curves', label: copy('训练/验证复杂度曲线', 'Train/validation complexity curves') },
+    ],
+    teachingFocus: copy('先手算一个节点的候选切分，再让库训练完整树；容量选择只看训练/验证证据。每条解释都应能落到具体决策路径和样本，而不是把重要性当因果。', 'Compute one candidate split by hand before fitting a full library tree. Select capacity from train/validation evidence, and ground explanations in decision paths and examples rather than treating importance as causal.'),
+    misconception: copy('一棵树可视化清楚，不代表它稳定或真实揭示数据生成机制。相近样本、随机扰动或新的时间段都可能改变上层切分。', 'A readable tree is not necessarily stable and does not reveal the data-generating mechanism. Nearby samples, random perturbations, or a new period can change upper-level splits.'),
+    criteria: [copy('能复算至少两个候选切分的父/子 impurity 和加权下降。', 'Can recompute parent/child impurity and weighted decrease for at least two candidate splits.'), copy('深度或叶节点曲线同时显示 train 与 validation，并据此选择容量。', 'A depth or leaf-size curve shows both train and validation and supports the capacity choice.'), copy('解释包含一条真实决策路径、一个错例和对 feature importance 的限制说明。', 'Interpretation includes one actual decision path, one error, and a limitation of feature importance.')],
+    checkpoint: { question: copy('深树训练分数继续上升、validation 分数开始下降，最合理的解释是什么？', 'A deeper tree keeps improving train score while validation declines. What is the best explanation?'), correct: copy('树开始用更细的叶节点记忆训练噪声，方差上升', 'The tree is using finer leaves to memorize training noise, increasing variance'), distractors: [copy('说明 Gini 公式计算错误', 'The Gini formula must be wrong'), copy('说明 validation 应该并入训练集', 'Validation should be merged into training')], feedback: copy('训练/验证分叉是容量过高的直接诊断；剪枝或更大叶节点可以控制方差。', 'Diverging train and validation curves directly diagnose excess capacity; pruning or larger leaves can control variance.') },
+    referenceLinks: ['https://scikit-learn.org/stable/modules/tree.html'],
     code: `from sklearn.tree import DecisionTreeClassifier\ntree = DecisionTreeClassifier(max_depth=4, min_samples_leaf=12, random_state=42)\ntree.fit(X_train, y_train)`,
   }),
   createPlannedUnit({
     id: '12-bagging-random-forests', order: 12, stageId: 'ml-core',
     title: copy('Bagging、随机森林与 Extra Trees', 'Bagging, Random Forests, and Extra Trees'),
     coreQuestion: copy('多个有差异的树为什么能比一棵深树更稳定？', 'Why can a diverse collection of trees be more stable than one deep tree?'),
-    knowledgeAndMethods: copy('Bootstrap、方差降低、特征子采样、OOB；随机森林与 Extra Trees；排列重要性；并行与复现。', 'Bootstrap sampling, variance reduction, feature subsampling, OOB; random forests and Extra Trees; permutation importance; parallelism and reproducibility.'),
+    knowledgeAndMethods: copy(
+      `Bagging 对训练集做 bootstrap，训练多棵高方差树并平均预测；只要树的错误不完全相关，平均就能降低方差。随机森林再对每个节点随机抽取候选特征，主动降低树间相关性；Extra Trees 进一步随机化切分阈值，通常用更多偏差换更低方差和速度。OOB 样本可提供训练期内部诊断，但不能替代最终留出集。比较单树、Bagging、Random Forest、Extra Trees 时固定折与预算，报告折间波动、训练/推理耗时、OOB 与 validation 的差异。排列重要性必须在未参与拟合的数据上计算，并检查相关特征分摊重要性的现象。`,
+      `Bagging bootstraps the training rows, fits many high-variance trees, and averages predictions. When tree errors are not perfectly correlated, averaging reduces variance. Random forests also sample candidate features at each node to reduce correlation; Extra Trees further randomizes split thresholds, often trading extra bias for lower variance and speed. Out-of-bag rows provide an internal training-time diagnostic but do not replace a final holdout. Compare a single tree, Bagging, Random Forest, and Extra Trees on fixed folds and budget, reporting fold variation, train/inference time, and OOB-versus-validation differences. Compute permutation importance on unseen data and inspect how correlated features share importance.`,
+    ),
     practice: copy('比较单树、Bagging、随机森林和 Extra Trees 的验证分数、波动、时间与重要性。', 'Compare a single tree, Bagging, random forest, and Extra Trees on validation score, variance, runtime, and importance.'),
     datasets: copy('Adult Income 或 Porto Seguro 小样本', 'Adult Income or a small Porto Seguro sample'), tools: copy('scikit-learn', 'scikit-learn'),
     deliverables: copy('集成对照表、稳定性图和特征重要性审计。', 'An ensemble comparison table, stability plot, and feature-importance audit.'),
-    resources: [{ kind: 'curriculum', moduleId: 'tree-forest', label: copy('随机森林交互讲解', 'Interactive Random Forest Lesson') }],
+    resources: [
+      { kind: 'curriculum', moduleId: 'tree-forest', lessonId: 'random-forest', label: copy('随机森林机制', 'Random-forest mechanism') },
+      { kind: 'curriculum', moduleId: 'tree-forest', lessonId: 'feature-importance', label: copy('重要性与稳定性', 'Importance and stability') },
+      { kind: 'curriculum', moduleId: 'model-selection', lessonId: 'cross-validation', label: copy('折间波动', 'Fold variation') },
+    ],
+    teachingFocus: copy('每次只改变一个集成机制：先 bootstrap，再 feature subsampling，再随机阈值。比较应同时看中心分数、折间波动、耗时和重要性稳定性。', 'Change one ensemble mechanism at a time: bootstrap, then feature subsampling, then randomized thresholds. Compare center score, fold variation, runtime, and importance stability together.'),
+    misconception: copy('树越多只会让当前集成估计趋于稳定，不会自动修复泄漏、错误标签、分布偏移或系统性偏差；OOB 也不是额外的秘密 test。', 'More trees only stabilize the current ensemble estimate; they do not repair leakage, bad labels, distribution shift, or systematic bias. OOB is not a secret extra test set.'),
+    criteria: [copy('单树、Bagging、随机森林和 Extra Trees 在同一 folds 与预算下完成对照。', 'Single tree, Bagging, Random Forest, and Extra Trees are compared on identical folds and budget.'), copy('报告均值、标准差、fit/predict 时间，并解释树间差异怎样影响方差。', 'Reports mean, standard deviation, fit/predict time, and explains how tree diversity affects variance.'), copy('至少用 validation permutation importance 复核一次 impurity importance，并记录相关特征限制。', 'Checks impurity importance once with validation permutation importance and records the correlated-feature limitation.')],
+    checkpoint: { question: copy('随机森林为什么通常比一棵完全生长的树稳定？', 'Why is a random forest often more stable than one fully grown tree?'), correct: copy('Bootstrap 与特征子采样制造不完全相关的树，平均后降低方差', 'Bootstrap and feature subsampling create imperfectly correlated trees whose average has lower variance'), distractors: [copy('每棵树都使用完全相同的数据和特征', 'Every tree uses exactly the same rows and features'), copy('因为森林保证消除所有偏差', 'Because a forest guarantees removal of all bias')], feedback: copy('关键不是“树多”，而是“有差异的误差被平均”；高度相关的树带来的方差降低有限。', 'The key is not merely many trees but averaging diverse errors; highly correlated trees provide limited variance reduction.') },
+    referenceLinks: ['https://scikit-learn.org/stable/modules/ensemble.html#forest'],
     code: `from sklearn.ensemble import RandomForestClassifier\nforest = RandomForestClassifier(\n    n_estimators=400, max_features="sqrt", oob_score=True, random_state=42, n_jobs=-1\n)\nforest.fit(X_train, y_train)`,
   }),
   createPlannedUnit({
     id: '13-gradient-boosting', order: 13, stageId: 'ml-core',
     title: copy('Gradient Boosting、XGBoost、LightGBM 与 CatBoost', 'Gradient Boosting, XGBoost, LightGBM, and CatBoost'),
     coreQuestion: copy('逐轮拟合残差为什么有效，学习率与树数量如何协同？', 'Why does stage-wise residual fitting work, and how do learning rate and tree count interact?'),
-    knowledgeAndMethods: copy('Boosting 加法模型；弱学习器；learning rate、estimators、depth；early stopping；XGBoost、LightGBM、CatBoost 和 sklearn HistGradientBoosting。', 'Boosting as an additive model; weak learners; learning rate, estimators, and depth; early stopping; XGBoost, LightGBM, CatBoost, and sklearn HistGradientBoosting.'),
+    knowledgeAndMethods: copy(
+      String.raw`Gradient Boosting 构造加法模型 $F_m(x)=F_{m-1}(x)+\eta h_m(x)$，每一轮让浅树拟合当前损失的负梯度，而不是并行平均独立树。learning rate、树数与叶子复杂度共同决定容量：更小的 $\eta$ 通常需要更多轮。early stopping 只能观察 validation，不能观察 test。sklearn HistGradientBoosting 提供稳定基线；XGBoost、LightGBM、CatBoost 在正则化、直方图、叶生长、类别特征与缺失值处理上各有契约。四库比较必须固定数据划分、指标、线程/时间预算和类别特征策略；原生类别支持与 one-hot 不能被当成同一输入。`,
+      String.raw`Gradient Boosting builds an additive model $F_m(x)=F_{m-1}(x)+\eta h_m(x)$, with each shallow tree fitting the current loss's negative gradient rather than averaging independent trees in parallel. Learning rate, tree count, and leaf complexity jointly determine capacity; smaller $\eta$ usually needs more rounds. Early stopping may observe validation, never test. sklearn HistGradientBoosting provides a stable baseline, while XGBoost, LightGBM, and CatBoost differ in regularization, histograms, leaf growth, categorical features, and missing-value contracts. A four-library comparison fixes split, metric, thread/time budget, and categorical strategy; native categories and one-hot inputs are not the same experiment.`,
+    ),
     practice: copy('用统一划分、指标和预算比较四个 Boosting 实现，记录类别特征、缺失值、速度与性能。', 'Compare four boosting implementations under one split, metric, and budget, recording categorical handling, missing values, speed, and quality.'),
     datasets: copy('House Prices 或 Adult Income', 'House Prices or Adult Income'), tools: copy('scikit-learn、XGBoost、LightGBM、CatBoost', 'scikit-learn, XGBoost, LightGBM, and CatBoost'),
     deliverables: copy('四库实验矩阵、早停曲线和选型说明。', 'A four-library experiment matrix, early-stopping curves, and a model-choice memo.'),
-    resources: [{ kind: 'curriculum', moduleId: 'housing-price-project', label: copy('房价回归项目', 'Housing Regression Project') }],
+    resources: [
+      { kind: 'curriculum', moduleId: 'housing-price-project', lessonId: 'cleaning-splits', label: copy('表格数据与划分边界', 'Tabular data and split boundary') },
+      { kind: 'curriculum', moduleId: 'housing-price-project', lessonId: 'evaluation', label: copy('固定评价与错误样本', 'Frozen evaluation and error examples') },
+      { kind: 'curriculum', moduleId: 'tree-forest', lessonId: 'depth-overfitting', label: copy('树容量前置', 'Tree-capacity prerequisite') },
+      { kind: 'curriculum', moduleId: 'model-selection', lessonId: 'final-refit', label: copy('选择后重训与 test 边界', 'Post-selection refit and test boundary') },
+    ],
+    notebookRefs: [
+      { kind: 'asset', path: '/notebooks/tabular-regression/california-housing-project.zh-CN.ipynb', label: copy('下载中文表格基线 Notebook', 'Download the Chinese tabular-baseline notebook'), download: true },
+      { kind: 'asset', path: '/notebooks/tabular-regression/california-housing-project.en.ipynb', label: copy('下载英文表格基线 Notebook', 'Download the English tabular-baseline notebook'), download: true },
+    ],
+    teachingFocus: copy('先用 sklearn HistGradientBoosting 建立可复现下界，再在完全相同的 folds、指标和预算下接入三种外部库。保存 best_iteration、validation 曲线和实际耗时。', 'Establish a reproducible lower bound with sklearn HistGradientBoosting, then add the three external libraries under identical folds, metric, and budget. Save best_iteration, validation curves, and wall-clock time.'),
+    misconception: copy('四个库的默认值、类别处理、缺失值方向和 early-stopping 语义不同；直接运行默认配置并比较单个最高分，不能说明算法优劣。', 'The four libraries differ in defaults, categorical handling, missing-value direction, and early-stopping semantics. Comparing one best default score does not establish algorithm superiority.'),
+    criteria: [copy('四库实验矩阵明确记录版本、输入编码、folds、metric、种子、线程和时间预算。', 'The four-library matrix records versions, input encoding, folds, metric, seed, threads, and time budget.'), copy('每个模型保存 validation 曲线、best iteration、均值/波动和实际耗时。', 'Each model saves its validation curve, best iteration, mean/variation, and elapsed time.'), copy('选型说明分别讨论质量、速度、缺失值/类别支持、部署体积与失败样本。', 'The choice memo separately discusses quality, speed, missing/categorical support, deployment size, and failure examples.')],
+    checkpoint: { question: copy('为什么不能让 early stopping 直接观察最终 test？', 'Why must early stopping not observe the final test set?'), correct: copy('停止轮数本身是模型选择；观察 test 会把最终评估信息反馈进训练', 'The stopping round is a model-selection decision, so observing test feeds final-evaluation information into training'), distractors: [copy('因为 test 数据永远不能计算 loss', 'Because loss can never be computed on test data'), copy('因为 early stopping 只适用于随机森林', 'Because early stopping only applies to random forests')], feedback: copy('任何依据某集合做出的配置决定都会消耗该集合的评估独立性。', 'Any configuration decision based on a dataset consumes that dataset’s evaluation independence.') },
+    referenceLinks: ['https://scikit-learn.org/stable/modules/ensemble.html#histogram-based-gradient-boosting'],
     code: `from sklearn.ensemble import HistGradientBoostingRegressor\nmodel = HistGradientBoostingRegressor(\n    learning_rate=0.05, max_iter=500, early_stopping=True, random_state=42\n)\nmodel.fit(X_train, y_train)`,
   }),
   createPlannedUnit({
     id: '14-tabular-pipeline', order: 14, stageId: 'ml-core',
     title: copy('特征工程、Pipeline、交叉验证、调参与解释', 'Feature Engineering, Pipelines, Cross-Validation, Tuning, and Interpretation'),
     coreQuestion: copy('怎样把清洗、特征工程、交叉验证、调参和解释组合成无泄漏系统？', 'How do you combine cleaning, feature engineering, cross-validation, tuning, and explanation into a leakage-safe system?'),
-    knowledgeAndMethods: copy('ColumnTransformer、Pipeline；缺失与编码；特征工程；交叉验证与随机搜索；OOF；解释、序列化与推理契约。', 'ColumnTransformer and Pipeline; missingness and encoding; feature engineering; cross-validation and randomized search; OOF; explanation, serialization, and inference contracts.'),
+    knowledgeAndMethods: copy(
+      `端到端表格系统把 schema 检查、数值/类别预处理、模型和输出契约封装为一个 Pipeline。ColumnTransformer 让 imputer、scaler、encoder 只在训练折 fit；交叉验证或 RandomizedSearchCV 必须包住整条 Pipeline。OOF 预测为每个训练样本提供一次“未由该样本参与拟合”的预测，可用于误差分析和融合，但不能代替真正 test。特征工程先写可用时点与推理可得性，禁止用未来聚合或目标统计穿越边界。选择后在 train+validation 重训一次，再对锁定 test 评估；同时保存模型、schema、版本、输入样例、指标、错误切片和回退说明。`,
+      `An end-to-end tabular system packages schema checks, numeric/categorical preprocessing, the estimator, and the output contract into one pipeline. ColumnTransformer keeps imputers, scalers, and encoders fitted on training folds only; cross-validation or RandomizedSearchCV must wrap the entire pipeline. OOF predictions give every training row one prediction from a model that did not fit that row, which supports error analysis and blending but does not replace a true test set. Feature engineering records availability time and inference feasibility, forbidding future aggregates or target statistics across boundaries. After selection, refit once on train plus validation and evaluate the locked test. Save the model, schema, versions, input example, metrics, error slices, and fallback notes.`,
+    ),
     practice: copy('完成一个表格项目：建立基线、Pipeline、调参、误差分析、模型卡和可复现推理。', 'Complete a tabular project with a baseline, pipeline, tuning, error analysis, model card, and reproducible inference.'),
     datasets: copy('House Prices、Titanic 或 Home Credit 子集', 'House Prices, Titanic, or a Home Credit subset'), tools: copy('pandas、scikit-learn、joblib', 'pandas, scikit-learn, and joblib'),
     deliverables: copy('可运行 Pipeline、OOF 结果、模型卡、README 和预测文件。', 'A runnable pipeline, OOF results, model card, README, and prediction file.'),
-    resources: [{ kind: 'curriculum', moduleId: 'housing-price-project', label: copy('房价项目', 'Housing Project') }, { kind: 'curriculum', moduleId: 'classification-project', label: copy('分类项目', 'Classification Project') }],
+    resources: [
+      { kind: 'curriculum', moduleId: 'housing-price-project', lessonId: 'csv-to-frame', label: copy('项目数据契约', 'Project data contract') },
+      { kind: 'curriculum', moduleId: 'housing-price-project', lessonId: 'review-next-iteration', label: copy('回归项目复盘', 'Regression project review') },
+      { kind: 'curriculum', moduleId: 'classification-project', lessonId: 'pipeline-baseline', label: copy('分类 Pipeline 基线', 'Classification pipeline baseline') },
+      { kind: 'curriculum', moduleId: 'classification-project', lessonId: 'error-review', label: copy('分类错误复盘', 'Classification error review') },
+      { kind: 'curriculum', moduleId: 'model-selection', lessonId: 'grid-search', label: copy('调参与 Pipeline 边界', 'Search and pipeline boundary') },
+    ],
+    notebookRefs: [
+      { kind: 'asset', path: '/notebooks/tabular-regression/california-housing-project.zh-CN.ipynb', label: copy('下载中文结业 Pipeline Notebook', 'Download the Chinese capstone pipeline notebook'), download: true },
+      { kind: 'asset', path: '/notebooks/tabular-regression/california-housing-project.en.ipynb', label: copy('下载英文结业 Pipeline Notebook', 'Download the English capstone pipeline notebook'), download: true },
+    ],
+    teachingFocus: copy('先冻结 schema、split 与 metric，再把所有可学习预处理放入 Pipeline。成果必须能在干净环境 load 后对一条原始输入推理，并对缺列、未知类别和非法数值安全失败。', 'Freeze schema, split, and metric first, then put every learned preprocessing step inside the pipeline. A clean environment must load the artifact and infer on one raw row, failing safely on missing columns, unknown categories, and invalid numbers.'),
+    misconception: copy('“交叉验证分数很高”不是可交付系统。若预处理在 Pipeline 外、OOF 行错位、特征部署时不可得或序列化后 schema 漂移，离线分数不能支持上线。', 'A high cross-validation score is not a deliverable system. If preprocessing sits outside the pipeline, OOF rows are misaligned, features are unavailable at inference, or serialization drifts from the schema, offline scores do not support deployment.'),
+    criteria: [copy('从原始表到预测的完整 Pipeline 可在干净环境重载并复现固定样例。', 'The full raw-table-to-prediction pipeline reloads in a clean environment and reproduces a fixed example.'), copy('OOF 行与原始 ID 一一对应，调参只使用训练/验证证据，test 只评估一次。', 'OOF rows align one-to-one with source IDs; tuning uses train/validation evidence and test is evaluated once.'), copy('模型卡包含 schema、数据边界、指标、错误切片、依赖版本、限制和安全失败行为。', 'The model card contains schema, data boundary, metrics, error slices, dependency versions, limitations, and safe-failure behavior.')],
+    checkpoint: { question: copy('为什么 cross_validate 应该接收整条 Pipeline，而不是预处理后的全数据矩阵？', 'Why should cross_validate receive the whole pipeline rather than a matrix preprocessed on all rows?'), correct: copy('这样每一折的 imputer、encoder 和 scaler 只从该折训练部分学习', 'So each fold’s imputer, encoder, and scaler learn only from that fold’s training partition'), distractors: [copy('这样模型一定比所有单算法更准确', 'So the model is guaranteed to beat every standalone algorithm'), copy('这样可以让 test 参与选择但不显示出来', 'So test may participate in selection without being shown')], feedback: copy('Pipeline 不只是代码整洁，它把可学习转换的 fit 边界交给交叉验证正确管理。', 'A pipeline is not merely code organization; it lets cross-validation manage the fit boundary of every learned transform.') },
+    referenceLinks: ['https://scikit-learn.org/stable/modules/compose.html', 'https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html'],
     code: `pipeline = Pipeline([\n    ("prepare", preprocessor),\n    ("model", estimator),\n])\nscores = cross_validate(pipeline, X, y, cv=folds, scoring=metric)`,
   }),
   createPlannedUnit({

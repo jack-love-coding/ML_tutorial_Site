@@ -67,10 +67,10 @@ test('AI foundations contract preserves the authoritative 4-stage, 25-unit, 50-h
   assert.equal(aiFoundationCourse.units.reduce((total, unit) => total + unit.estimatedHours, 0), 50)
   assert.deepEqual(aiFoundationCourse.units.map((unit) => unit.id), expectedUnitIds)
   assert.deepEqual(aiFoundationCourse.stages.map((stage) => stage.unitIds.length), [6, 8, 7, 4])
-  assert.deepEqual(aiFoundationCourse.stages.map((stage) => stage.publicationStatus), ['published', 'planned', 'planned', 'planned'])
+  assert.deepEqual(aiFoundationCourse.stages.map((stage) => stage.publicationStatus), ['published', 'published', 'planned', 'planned'])
   assert.deepEqual(aiFoundationCourse.units.map((unit) => unit.publicationStatus), [
-    ...Array(6).fill('published'),
-    ...Array(19).fill('planned'),
+    ...Array(14).fill('published'),
+    ...Array(11).fill('planned'),
   ])
   assert.deepEqual(validateCourseDefinition(aiFoundationCourse), [])
 })
@@ -110,6 +110,30 @@ test('every published asset exists locally and every public path stays base-safe
   assert.match(unitViewSource, /withPublicBase\(resource\.path\)/)
 })
 
+test('Part B publishes eight specific teaching loops and canonical Phase 29/30 evidence', () => {
+  const partB = aiFoundationCourse.units.slice(6, 14)
+  assert.deepEqual(partB.map((unit) => unit.order), [7, 8, 9, 10, 11, 12, 13, 14])
+  assert.ok(partB.every((unit) => unit.publicationStatus === 'published'))
+  assert.ok(partB.every((unit) => unit.knowledgeAndMethods['zh-CN'].length > 180 && unit.knowledgeAndMethods.en.length > 240))
+  assert.ok(partB.every((unit) => unit.referenceLinks.length > 0))
+  assert.equal(new Set(partB.map((unit) => unit.steps.find((step) => step.kind === 'checkpoint')?.checkpoint?.question.en)).size, 8)
+
+  const logistic = partB.find((unit) => unit.id === '09-logistic-regression-thresholds')!
+  const logisticResources = logistic.steps.flatMap((step) => step.resourceRefs ?? [])
+  assert.ok(logisticResources.some((resource) => resource.kind === 'curriculum' && resource.moduleId === 'logistic-regression' && resource.lessonId === 'linear-score'))
+  assert.ok(logisticResources.some((resource) => resource.kind === 'curriculum' && resource.moduleId === 'classification' && resource.lessonId === 'costTradeoff'))
+  assert.ok(logisticResources.some((resource) => resource.kind === 'asset' && resource.path.includes('/classification/phase-30/notebooks/')))
+  assert.match(logistic.knowledgeAndMethods.en, /validation selects \$t=0\.09\$/)
+  assert.match(logistic.steps.find((step) => step.kind === 'misconception')!.description.en, /test into validation/)
+
+  const classic = partB.find((unit) => unit.id === '10-classic-classifiers')!
+  assert.match(classic.knowledgeAndMethods.en, /KNN.*Naive Bayes.*RBF SVM/s)
+  const boosting = partB.find((unit) => unit.id === '13-gradient-boosting')!
+  assert.match(boosting.knowledgeAndMethods.en, /XGBoost.*LightGBM.*CatBoost/s)
+  const pipeline = partB.find((unit) => unit.id === '14-tabular-pipeline')!
+  assert.match(pipeline.knowledgeAndMethods.en, /ColumnTransformer.*OOF.*locked test/s)
+})
+
 test('checked-in CSV remains the audit source for sequence, topics, hours, and cumulative hours', () => {
   const csvUrl = new URL('../docs/curriculum/ai-foundation/AI基础前置课_50小时_25节.csv', import.meta.url)
   assert.ok(existsSync(csvUrl))
@@ -135,12 +159,14 @@ test('course routing publishes only complete units and redirects unknown or plan
     query: { notice: 'unknown-course' },
   })
   assert.equal(resolveCourseUnit('ai-foundation', '01-ai-map-python').kind, 'current')
-  assert.deepEqual(resolveCourseUnit('ai-foundation', '07-ml-experiment-design'), {
+  assert.equal(resolveCourseUnit('ai-foundation', '07-ml-experiment-design').kind, 'current')
+  assert.equal(resolveCourseUnit('ai-foundation', '14-tabular-pipeline').kind, 'current')
+  assert.deepEqual(resolveCourseUnit('ai-foundation', '15-mlp-backpropagation'), {
     kind: 'redirect',
     course: aiFoundationCourse,
-    unit: aiFoundationCourse.units[6],
+    unit: aiFoundationCourse.units[14],
     path: '/courses/ai-foundation',
-    hash: '#stage-ml-core',
+    hash: '#stage-deep-learning-cv-nlp',
     query: { notice: 'planned-unit' },
   })
   assert.equal(resolveCourseUnit('ai-foundation', 'missing-unit').query?.notice, 'unknown-unit')
