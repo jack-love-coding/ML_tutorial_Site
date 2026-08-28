@@ -11,6 +11,7 @@ export const TERMINATION_GRACE_MS = 2_000
 
 const defaultSchedule = (callback, delay) => setTimeout(callback, delay)
 const defaultClear = (timer) => clearTimeout(timer)
+const stripAnsi = (value) => value.replace(/\u001B\[[0-?]*[ -/]*[@-~]/g, '')
 const processOutput = (stream, collector) => {
   if (!stream?.on) return
   stream.on('data', (chunk) => collector(String(chunk)))
@@ -127,7 +128,7 @@ export function waitForPreviewReady(server, { timeoutMs = PREVIEW_READY_TIMEOUT_
     let settled = false
     const collect = (chunk) => {
       output += String(chunk)
-      if (/127\.0\.0\.1:4173/.test(output)) finish()
+      if (/127\.0\.0\.1:4173/.test(stripAnsi(output))) finish()
     }
     processOutput(server.stdout, collect)
     processOutput(server.stderr, collect)

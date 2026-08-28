@@ -60,3 +60,10 @@ test('Phase 29 browser runner bounds preview startup and reports preview spawn e
   failedPreview.emit('error', new Error('listen failed'))
   await assert.rejects(ready, /could not start: listen failed[\s\S]*EADDRINUSE/)
 })
+
+test('Phase 29 browser runner recognizes Vite readiness through ANSI-decorated CI output', async () => {
+  const preview = fakeChild()
+  const ready = runner.waitForPreviewReady(preview, { timeoutMs: 100 })
+  preview.stderr.emit('data', '\u001b[32m➜\u001b[39m Local: http://127.0.0.1:\u001b[1m4173\u001b[22m/ML_tutorial_Site/')
+  assert.match(await ready, /127\.0\.0\.1/)
+})
