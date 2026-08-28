@@ -2,33 +2,33 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
-current_phase: 29
-current_phase_name: Logistic Regression Rebuild
+current_phase: 30
+current_phase_name: classification-decisions-rebuild
 status: planning
-stopped_at: Phase 28B verification passed
-last_updated: "2026-08-12T16:16:27.000Z"
-last_activity: 2026-08-12
-last_activity_desc: "Phase 28B passed release verification, including reduced-motion, real MP4 failure, and runtime KaTeX browser checks"
+stopped_at: Phase 29 automated verification and three-item user UAT passed
+last_updated: "2026-08-29T01:23:38+08:00"
+last_activity: 2026-08-29
+last_activity_desc: Phase 29 closed after mainline integration, full release gates, and explicit user UAT approval
 progress:
   total_phases: 9
-  completed_phases: 6
-  total_plans: 27
-  completed_plans: 27
-  percent: 100
+  completed_phases: 7
+  total_plans: 35
+  completed_plans: 35
+  percent: 78
 current_plan: null
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
-**Updated:** 2026-08-12
-**Status:** Phase 28B complete; Phase 29 is ready for discussion and planning
+**Updated:** 2026-08-29
+**Status:** Phase 29 complete; Phase 30 is ready for discussion and planning
 
 ## Current Position
 
-Phase: 29 (Logistic Regression Rebuild) — READY
+Phase: 30 (classification-decisions-rebuild) — READY
 Plan: Not started
-Status: Phase 28B passed all automated and browser release checks
-Last activity: 2026-08-12 — Completed Phase 28B with six bilingual chapters, deterministic assets, four Manim packages, dedicated labs, and production fallback verification
+Status: Ready for discussion and planning
+Last activity: 2026-08-29 — Phase 29 passed all automated release gates and three-item user UAT
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 29 — Logistic Regression Rebuild
+**Current focus:** Phase 30 — classification-decisions-rebuild
 
 ## Baseline
 
@@ -760,7 +760,7 @@ See `.planning/codebase/`:
 
 ## Next Recommended Command
 
-Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before planning.
+Run `$gsd-discuss-phase 30` to refine the Classification Decisions rebuild before planning.
 
 ## Accumulated Context
 
@@ -770,8 +770,8 @@ Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before pla
 
 ## Session
 
-**Last session:** 2026-08-12T14:45:39.830Z
-**Stopped at:** Phase 28B verified and ready to ship
+**Last session:** 2026-08-29T01:23:38+08:00
+**Stopped at:** Phase 29 automated verification and user UAT passed
 **Resume file:** None
 
 ## Performance Metrics
@@ -812,6 +812,9 @@ Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before pla
 | Phase 28.2 P01 | 0m | 3 tasks | 18 files |
 | Phase 28.2 P02 | 12m | 2 tasks | 33 files |
 | Phase 28.2 P03 | 20min | 3 tasks | 20 files |
+| Phase 29 P00 | 27m | 3 tasks | 10 files |
+| Phase 29-logistic-regression-rebuild P01 | 36m | 2 tasks | 7 files |
+| Phase 29 P02 | 2h | 3 tasks | 26 files |
 
 ## Decisions
 
@@ -902,6 +905,9 @@ Run `$gsd-discuss-phase 29` to refine the Logistic Regression rebuild before pla
 - [Phase 28B]: Use poster-first reduced-motion media with an explicit user-controlled video option.
 - [Phase 28B]: Keep existing optimizer routes while rendering detailed typed course content in a targeted shell.
 - [Phase 28B]: Use shared optimizer trajectories and supplied media instead of duplicating numerical fitting.
+- [Phase ?]: Phase 29 Wave 0 locks fail-first numerical, asset, media, course, lab, compatibility, and release contracts before production work.
+- [Phase ?]: Phase 29 linear-score uses one source-audited standardized Banknote row with a pure stable logistics engine.
+- [Phase ?]: Phase 29 assets use one deterministic Banknote authority with strict scratch/sklearn parity and a redacted Phase 30 handoff.
 
 ## Operator Next Steps
 

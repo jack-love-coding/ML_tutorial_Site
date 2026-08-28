@@ -177,6 +177,34 @@
 4. Calibration bins distinguish probability quality from class accuracy, while a nonlinear example shows the limit of one linear decision boundary.
 5. The existing route, checkpoint, lab behavior, downloadable Notebook/output package, focused tests, and both builds remain valid.
 
+**Plans:** 8/8 plans executed
+**Status:** Complete — automated release gates and user UAT passed 2026-08-29
+**Wave 1**
+
+- [x] 29-00-PLAN.md — Wave 0 fail-first contracts for every numerical, asset, content, lab, media, compatibility, and release surface
+- [x] 29-01-PLAN.md — One-row tracer, phase-local contracts, and pure stable logistic engine
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 29-02-PLAN.md — Executed Banknote analysis, atomic asset package, strict loader, and Phase 30 handoff
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 29-03-PLAN.md — Shared Manim source contract plus score/sigmoid and likelihood/BCE/gradient teaching packages
+- [x] 29-05-PLAN.md — Six route-lazy guided SVG labs with pure scene models and accessible fallbacks
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 29-04-PLAN.md — Two diagnostic teaching packages plus production rendering, publication, hashes, and shared-player fallbacks
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [x] 29-06-PLAN.md — Complete bilingual six-chapter course, final resources, checkpoint, and responsive integration
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [x] 29-07-PLAN.md — Real-browser matrix, full release gate, source audit, and Nyquist validation closure
+
 ## Phase 30: Classification Decisions Rebuild
 
 **Goal:** Rebuild `classification` around held-out probability scores so learners can calculate metrics, interpret ranking, select a cost-aware threshold, and inspect subgroup and example-level errors.
@@ -219,7 +247,7 @@
 | 28. Tabular Regression Project | v1.1 | 5 | Complete — 2026-08-04 |
 | 28A. Gradient Descent Beginner Teaching Rebuild | v1.1 | 6 | Complete — 2026-08-11 |
 | 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | Complete — 2026-08-13 |
-| 29. Logistic Regression Rebuild | v1.1 | 4 | Not started |
+| 29. Logistic Regression Rebuild | v1.1 | 4 | Complete — 2026-08-29 |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |
 | 31. Corridor Integration and Release | v1.1 | 5 | Not started |
 

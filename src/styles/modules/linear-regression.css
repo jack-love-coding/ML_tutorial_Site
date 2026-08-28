@@ -52,6 +52,11 @@
   box-shadow: 6px 6px 0 var(--pixel-line, rgba(15, 23, 40, 0.12));
 }
 
+.logistic-course-page__sidebar {
+  position: sticky;
+  top: 92px;
+}
+
 .linear-course-page--phase27a .linear-course-page__grid {
   grid-template-columns: minmax(0, 1fr);
 }

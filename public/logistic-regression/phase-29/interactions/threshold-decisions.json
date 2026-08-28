@@ -1,0 +1,53 @@
+{
+  "chapterId": "threshold-decisions",
+  "contractVersion": "logistic-regression-phase-29-v1",
+  "controls": [
+    {
+      "id": "threshold-decisions-control",
+      "label": {
+        "en": "Rows accumulated",
+        "zh-CN": "累积行数"
+      },
+      "maximum": 20,
+      "minimum": -20,
+      "step": 0.1
+    }
+  ],
+  "data": {
+    "likelihoodRows": [
+      {
+        "label": 0,
+        "logTerm": 0.0,
+        "probabilityTerm": 1.0,
+        "rowId": 1,
+        "split": "train"
+      },
+      {
+        "label": 1,
+        "logTerm": -0.6109096730632376,
+        "probabilityTerm": 0.5428568221696655,
+        "rowId": 926,
+        "split": "validation"
+      },
+      {
+        "label": 0,
+        "logTerm": 0.0,
+        "probabilityTerm": 1.0,
+        "rowId": 29,
+        "split": "train"
+      },
+      {
+        "label": 1,
+        "logTerm": -4.181859464282873,
+        "probabilityTerm": 0.01527008697005507,
+        "rowId": 919,
+        "split": "validation"
+      }
+    ],
+    "logLikelihood": -4.79276913734611,
+    "probabilityProduct": 0.008289470886818511
+  },
+  "id": "threshold-decisions",
+  "sceneId": "threshold-decisions",
+  "sourceCellId": "phase29-threshold-decisions"
+}

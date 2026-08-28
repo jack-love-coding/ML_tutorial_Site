@@ -1,0 +1,165 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { existsSync, readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { resolve } from 'node:path'
+
+const root = resolve(new URL('..', import.meta.url).pathname)
+const packageRoot = resolve(root, 'public/logistic-regression/phase-29')
+const batch4Notebook = resolve(root, 'public/notebooks/numerical-methods/batch-4-banknote.ipynb')
+
+function sha256(path: string): string {
+  return createHash('sha256').update(readFileSync(path)).digest('hex')
+}
+
+test('Phase 29 publishes an independent bilingual Banknote package rather than Batch 4 learner outputs', () => {
+  assert.ok(existsSync(packageRoot), 'missing Phase 29 public asset package')
+  const manifestPath = resolve(packageRoot, 'manifest.json')
+  assert.ok(existsSync(manifestPath), 'missing Phase 29 manifest')
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>
+  assert.equal(manifest.contractVersion, 'logistic-regression-phase-29-v1')
+  assert.deepEqual(manifest.locales, ['zh-CN', 'en'])
+  assert.notEqual(manifest.notebookPath, batch4Notebook, 'Batch 4 final-test Notebook cannot become learner output')
+  assert.equal(manifest.atomicPublication, true)
+  assert.equal(manifest.rollbackOnFailure, true)
+  assert.equal(manifest.rejectAssetDrift, true)
+})
+
+test('Phase 29 asset manifest binds hashes and source cells for notebook, figures, and the frozen handoff', () => {
+  const manifestPath = resolve(packageRoot, 'manifest.json')
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
+    assets: readonly { path: string; sha256: string; sourceCellId: string }[]
+    predictionHandoff: { csv: string; json: string; sha256: Record<string, string>; fields: readonly string[] }
+  }
+  assert.ok(manifest.assets.length > 0)
+  for (const asset of manifest.assets) {
+    const absolutePath = resolve(packageRoot, asset.path)
+    assert.match(asset.sha256, /^[a-f0-9]{64}$/)
+    assert.match(asset.sourceCellId, /^phase29-/)
+    assert.equal(sha256(absolutePath), asset.sha256, `${asset.path} hash`)
+  }
+  assert.deepEqual(manifest.predictionHandoff.fields, [
+    'row_id', 'split', 'label', 'logit', 'probability', 'feature_contract_version', 'model_hash', 'config_hash',
+  ])
+  assert.ok(manifest.predictionHandoff.csv.startsWith('/logistic-regression/phase-29/'))
+  assert.ok(manifest.predictionHandoff.json.startsWith('/logistic-regression/phase-29/'))
+})
+
+test('Phase 29 learner assets exclude reserved test records and retain a clean-kernel output declaration', () => {
+  const manifest = JSON.parse(readFileSync(resolve(packageRoot, 'manifest.json'), 'utf8')) as Record<string, unknown>
+  assert.equal(manifest.cleanKernelVerified, true)
+  assert.equal(manifest.learnerFacingTestRecords, false)
+  assert.equal(manifest.testLabelsDisclosed, false)
+  assert.equal(manifest.testMetricsDisclosed, false)
+})
+
+test('Phase 29 manifest fixes the numerical contract and does not leak the held-out partition into scenes', () => {
+  const manifest = JSON.parse(readFileSync(resolve(packageRoot, 'manifest.json'), 'utf8')) as {
+    assets: readonly { path: string; sceneId: string }[]
+    analysis: { parity: { scratch: Record<string, unknown>; sklearn: { constructor: Record<string, unknown> }; acceptance: Record<string, number> }; finiteDifference: { acceptance: { observed: number; maxComponentErrorLimit: number } } }
+    fileHashes: Record<string, string>
+  }
+  assert.equal(manifest.analysis.parity.scratch.initialStep, 32)
+  assert.equal(manifest.analysis.parity.scratch.maxIterations, 100000)
+  assert.equal(manifest.analysis.parity.sklearn.constructor.C, 'infinity')
+  assert.equal(manifest.analysis.parity.sklearn.constructor.tol, 1e-12)
+  assert.equal(manifest.analysis.parity.acceptance.coefficientAndInterceptLimit, 2e-4)
+  assert.equal(manifest.analysis.parity.acceptance.validationProbabilityLimit, 1e-6)
+  assert.equal(manifest.analysis.finiteDifference.acceptance.maxComponentErrorLimit, 2e-9)
+  assert.ok(manifest.analysis.finiteDifference.acceptance.observed <= 2e-9)
+  for (const [relativePath, hash] of Object.entries(manifest.fileHashes)) {
+    assert.equal(sha256(resolve(packageRoot, relativePath)), hash, `${relativePath} package hash`)
+  }
+  for (const asset of manifest.assets) {
+    const payload = readFileSync(resolve(packageRoot, asset.path), 'utf8')
+    assert.doesNotMatch(payload, /"split":\s*"test"/)
+    assert.match(payload, new RegExp(`"sceneId":\\s*"${asset.sceneId}"`))
+  }
+})
+
+test('Phase 29 bilingual notebooks retain identical code-cell ordering while localizing prose', () => {
+  const readNotebook = (locale: string) => JSON.parse(readFileSync(resolve(packageRoot, `banknote-logistic-regression.${locale}.ipynb`), 'utf8')) as { cells: { cell_type: string; source: string | string[] }[] }
+  const zh = readNotebook('zh-CN')
+  const en = readNotebook('en')
+  const code = (notebook: typeof zh) => notebook.cells.filter((cell) => cell.cell_type === 'code').map((cell) => Array.isArray(cell.source) ? cell.source.join('') : cell.source)
+  assert.deepEqual(code(zh), code(en))
+  assert.notDeepEqual(zh.cells[0]?.source, en.cells[0]?.source)
+})
+
+test('Phase 29 publishes bounded replay traces while recording the complete accepted-state count', () => {
+  const regularization = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/regularization.json'), 'utf8')) as {
+    data: { scratch: { trace: readonly unknown[]; traceSampling: { acceptedStates: number; publishedStates: number } } }
+  }
+  const csvRows = readFileSync(resolve(packageRoot, 'outputs/training-trace.csv'), 'utf8').trim().split('\n')
+  assert.ok(regularization.data.scratch.trace.length <= 800)
+  assert.equal(regularization.data.scratch.trace.length, regularization.data.scratch.traceSampling.publishedStates)
+  assert.ok(regularization.data.scratch.traceSampling.acceptedStates > regularization.data.scratch.trace.length)
+  assert.ok(csvRows.length <= 801)
+})
+
+test('Phase 29 publishes row-local score traces and paired replay/library objectives', () => {
+  const linear = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/linear-score.json'), 'utf8')) as { data: { teachingRows: Record<string, { trace: { contributions: number[]; intercept: number; logit: number; probability: number } }> } }
+  for (const row of Object.values(linear.data.teachingRows)) {
+    const trace = row.trace
+    const total = trace.contributions.reduce((sum, value) => sum + value, trace.intercept)
+    assert.ok(Math.abs(total - trace.logit) < 1e-10)
+    assert.ok(Math.abs(1 / (1 + Math.exp(-trace.logit)) - trace.probability) < 1e-12)
+  }
+  const training = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/regularization.json'), 'utf8')) as { data: { scratch: { trace: { parameters: number[]; objective: number }[] }; sklearn: { parameters: number[]; objectiveValue: number }; l2: { parameters: number[]; objectiveValue: number } } }
+  for (const state of training.data.scratch.trace) assert.equal(state.parameters.length, 5)
+  assert.ok(Number.isFinite(training.data.sklearn.objectiveValue))
+  assert.ok(Number.isFinite(training.data.l2.objectiveValue))
+})
+
+test('Phase 29 retains all ten calibration bins and binds the Manim high-loss anchor', () => {
+  const limits = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/linear-limits.json'), 'utf8')) as { data: { calibration: { modes: { bins: { lower: number; upper: number; count: number; meanProbability: number | null; observedRate: number | null }[] }[] } } }
+  for (const mode of limits.data.calibration.modes) {
+    assert.equal(mode.bins.length, 10)
+    for (const bin of mode.bins) if (bin.count === 0) assert.deepEqual([bin.meanProbability, bin.observedRate], [null, null])
+  }
+  const loss = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/log-loss.json'), 'utf8')) as { data: { confidentMistake: { label: number; logit: number; bce: number } } }
+  const row = loss.data.confidentMistake
+  assert.equal(row.label, 1)
+  assert.ok(Math.abs(Math.log1p(Math.exp(row.logit)) - row.label * row.logit - row.bce) < 1e-12)
+})
+
+test('Phase 29 runtime asset boundary validates, freezes, hashes, and resolves only Pages-safe registry paths', async () => {
+  const assets = await import(new URL('../src/modules/logistic-regression/assets.ts', import.meta.url).href) as typeof import('../src/modules/logistic-regression/assets.ts')
+  const manifest = JSON.parse(readFileSync(resolve(packageRoot, 'manifest.json'), 'utf8'))
+  const interaction = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/linear-score.json'), 'utf8'))
+  const limitsInteraction = JSON.parse(readFileSync(resolve(packageRoot, 'interactions/linear-limits.json'), 'utf8'))
+  const parsedManifest = assets.parseLogisticManifest(manifest)
+  const parsedInteraction = assets.parseLogisticInteractionAsset(interaction, 'linear-score')
+  assert.equal(parsedManifest.assets.length, 6)
+  assert.equal(parsedInteraction.sceneId, 'linear-score')
+  assert.equal(assets.parseLogisticInteractionAsset(limitsInteraction, 'linear-limits').sceneId, 'linear-limits')
+  assert.equal(Object.isFrozen(parsedInteraction), true)
+  assert.equal(Object.isFrozen(parsedInteraction.data), true)
+  assert.equal('predictionHandoff' in (parsedManifest as object), false)
+  assert.throws(() => assets.parseLogisticInteractionAsset({ ...interaction, sceneId: 'log-loss' }, 'linear-score'))
+  assert.throws(() => assets.parseLogisticManifest({ ...manifest, contractVersion: 'unexpected' }))
+  const fetchCalls: string[] = []
+  const responseFor = (payload: unknown) => new Response(JSON.stringify(payload), { status: 200 })
+  const rawInteraction = readFileSync(resolve(packageRoot, 'interactions/linear-score.json'), 'utf8')
+  const fetchedManifest = await assets.loadLogisticManifest({ baseUrl: '/ML_tutorial_Site/', fetch: async (input) => {
+    fetchCalls.push(String(input)); return responseFor(manifest)
+  } })
+  const loaded = await assets.loadLogisticInteraction('linear-score', {
+    manifest: fetchedManifest,
+    baseUrl: '/ML_tutorial_Site/',
+    fetch: async (input) => { fetchCalls.push(String(input)); return new Response(rawInteraction, { status: 200 }) },
+  })
+  assert.equal(loaded.sceneId, 'linear-score')
+  assert.ok(fetchCalls.includes('/ML_tutorial_Site/logistic-regression/phase-29/manifest.json'))
+  assert.ok(fetchCalls.includes('/ML_tutorial_Site/logistic-regression/phase-29/interactions/linear-score.json'))
+  await assets.loadLogisticManifest({ baseUrl: '/', fetch: async (input) => {
+    fetchCalls.push(String(input)); return responseFor(manifest)
+  } })
+  assert.ok(fetchCalls.includes('/logistic-regression/phase-29/manifest.json'))
+  const controller = new AbortController()
+  controller.abort()
+  await assert.rejects(() => assets.loadLogisticManifest({ signal: controller.signal, fetch: async () => responseFor(manifest) }), /cancelled/i)
+  const corrupted = structuredClone(manifest)
+  corrupted.assets[0].sha256 = '0'.repeat(64)
+  await assert.rejects(() => assets.loadLogisticInteraction('linear-score', { manifest: corrupted, fetch: async () => new Response(rawInteraction, { status: 200 }) }), /integrity/i)
+})

@@ -37,7 +37,9 @@ jobs:
         run: npm ci
 
       - name: Install Notebook smoke-test dependencies
-        run: python -m pip install --disable-pip-version-check -r public/gradient-descent/v1/requirements.txt
+        run: |
+          python -m pip install --disable-pip-version-check -r public/gradient-descent/v1/requirements.txt
+          python -m pip install --disable-pip-version-check -r public/notebooks/numerical-methods/requirements.txt
 
       - name: Install media validation tools
         run: |
@@ -50,6 +52,9 @@ jobs:
 
       - name: Build
         run: npm run build:pages
+
+      - name: Phase 29 browser release matrix
+        run: node scripts/qa/run-logistic-regression-browser-matrix.mjs
 
       - name: Add SPA fallbacks
         run: node scripts/create-pages-fallbacks.mjs

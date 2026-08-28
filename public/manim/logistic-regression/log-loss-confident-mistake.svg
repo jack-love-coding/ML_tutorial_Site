@@ -1,8 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Log loss poster">
-  <rect width="960" height="540" fill="#f7fbfa"/>
-  <path d="M110 430H850M110 90V430" stroke="#72817f" stroke-width="4"/>
-  <path d="M120 92C180 112 246 150 318 210C420 296 544 368 838 414" fill="none" stroke="#1ea67a" stroke-width="12" stroke-linecap="round"/>
-  <circle cx="772" cy="404" r="17" fill="#1ea67a" stroke="#fff" stroke-width="6"/>
-  <circle cx="206" cy="132" r="20" fill="#e35f45" stroke="#fff" stroke-width="6"/>
-  <text x="88" y="70" fill="#0f1728" font-family="Arial, sans-serif" font-size="34" font-weight="700">Confident mistakes become expensive</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="log-loss-confident-mistake mathematical teaching poster">
+  <rect width="960" height="540" fill="#f7f9fc"/>
+  <rect x="70" y="94" width="820" height="352" rx="26" fill="#ffffff" stroke="#c8d2e1" stroke-width="4"/>
+  <path d="M124 388 C260 368 334 138 478 250 S722 310 832 144" fill="none" stroke="#b13a3a" stroke-width="12" stroke-linecap="round"/>
+  <path d="M116 350 H848 M480 126 V414" stroke="#8392a8" stroke-width="3" stroke-dasharray="12 12"/>
+  <circle cx="480" cy="250" r="18" fill="#c05931" stroke="#ffffff" stroke-width="6"/>
+  <path d="M576 308 L724 220" stroke="#c05931" stroke-width="10" stroke-linecap="round"/>
+  <path d="M704 202 L738 214 L716 240" fill="none" stroke="#c05931" stroke-width="10" stroke-linecap="round"/>
+  <text x="104" y="72" fill="#142033" font-family="serif" font-size="38">ℓ(z,y)=softplus(z)−yz</text>
+  <text x="532" y="398" fill="#142033" font-family="serif" font-size="34">∂L/∂θ</text>
 </svg>

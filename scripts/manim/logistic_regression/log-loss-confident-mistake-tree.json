@@ -1,0 +1,73 @@
+{
+  "treeVersion": 1,
+  "target": "why a confident wrong logistic-regression prediction produces a large finite loss and gradient signal",
+  "maxDepth": 3,
+  "sourceAnchors": {
+    "manifest": "public/logistic-regression/phase-29/manifest.json",
+    "sourceCells": ["phase29-linear-score", "phase29-log-loss"],
+    "interactionHashes": {
+      "linear-score": "3fabbf8ebb6a1923cf987e6bdaa81dd4741ecc4527639bdb861c8b012399d494",
+      "log-loss": "ba1644ba4a635c14630181845fbd5cb1a64c7322550269c565f801a7385bab82"
+    },
+    "highLossRow": {
+      "rowId": 919,
+      "split": "validation",
+      "label": 1,
+      "logit": -4.166471588903541,
+      "probability": 0.01527008697005507,
+      "bce": 4.181859464282873
+    },
+    "gradientCheck": {
+      "objective": 0.7455450279170539,
+      "h": 1e-06,
+      "maximumError": 7.450942640652158e-11,
+      "firstAnalyticGradient": 0.40722679415570556
+    }
+  },
+  "visualContract": {
+    "durationSeconds": 38,
+    "languageNeutral": true,
+    "palette": { "score": "#285c9e", "probability": "#2e7d4f", "loss": "#b13a3a", "gradient": "#c05931", "structure": "#ffffff" },
+    "nonColorCues": ["solid point for the evaluated logit", "dashed vertical error guide", "solid loss curve", "arrowed gradient contribution", "numeric equation labels"],
+    "posterFrame": "stable BCE formula, high-loss point with dashed guide, residual-to-gradient arrow, and finite-difference agreement card"
+  },
+  "nodes": [
+    {
+      "id": "binary-label", "depth": 3, "foundation": true, "prerequisites": [],
+      "equations": ["y\\in\\{0,1\\}", "p=\\sigma(z)"],
+      "definitions": { "y": "observed numeric class label", "p": "model probability for class 1", "z": "unbounded logit" },
+      "visual": "two labeled outcome boxes and a solid point on a score axis"
+    },
+    {
+      "id": "stable-softplus", "depth": 2, "foundation": false, "prerequisites": ["binary-label"],
+      "equations": ["\\ell(z,y)=\\operatorname{softplus}(z)-yz", "\\operatorname{softplus}(z)=\\log(1+e^z)"],
+      "definitions": { "ell": "negative log-likelihood for one row", "softplus": "finite logit-domain evaluation" },
+      "visual": "solid loss curve and formula card; no probability clipping"
+    },
+    {
+      "id": "confident-wrong-row", "depth": 1, "foundation": false, "prerequisites": ["binary-label", "stable-softplus"],
+      "equations": ["z=-4.166471588903541", "p=0.01527008697005507", "\\ell=4.181859464282873"],
+      "definitions": { "row 919": "frozen validation row with y=1", "high loss": "small predicted probability assigned to the observed class" },
+      "visual": "solid high-loss point, dashed guide, and row/value card"
+    },
+    {
+      "id": "residual-signal", "depth": 1, "foundation": false, "prerequisites": ["stable-softplus"],
+      "equations": ["\\frac{\\partial\\ell}{\\partial z}=p-y", "\\nabla_w\\ell=(p-y)x"],
+      "definitions": { "p-y": "signed residual signal", "x": "standardized feature vector", "nabla_w ell": "one-row coefficient-gradient contribution" },
+      "visual": "arrowed residual signal multiplied by the feature vector"
+    },
+    {
+      "id": "checked-gradient", "depth": 1, "foundation": false, "prerequisites": ["stable-softplus"],
+      "equations": ["\\frac{L(\\theta+h e_j)-L(\\theta-h e_j)}{2h}\\approx\\frac{\\partial L}{\\partial\\theta_j}", "h=10^{-6}", "|\\Delta|=7.450942640652158\\times10^{-11}"],
+      "definitions": { "h": "central-difference step", "Delta": "analytic-versus-numeric component error" },
+      "visual": "paired finite-difference bars ending at a numeric agreement card"
+    },
+    {
+      "id": "target", "depth": 0, "foundation": false, "prerequisites": ["confident-wrong-row", "residual-signal", "checked-gradient"],
+      "equations": ["\\text{wrong and confident}\\Rightarrow\\text{large finite loss and corrective gradient}"],
+      "definitions": { "corrective": "the update moves opposite the accumulated gradient" },
+      "visual": "poster-complete synthesis of formula, high-loss marker, dashed guide, arrow, and check card"
+    }
+  ],
+  "topologicalOrder": ["binary-label", "stable-softplus", "confident-wrong-row", "residual-signal", "checked-gradient", "target"]
+}

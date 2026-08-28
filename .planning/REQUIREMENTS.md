@@ -43,10 +43,10 @@ Requirements for the Classical Supervised Learning milestone. Each requirement m
 
 ### Logistic Regression
 
-- [ ] **LOGR-01**: Learners can connect linear scores, sigmoid probabilities, log-odds, maximum likelihood, and binary cross-entropy.
-- [ ] **LOGR-02**: Learners can implement stable binary cross-entropy, logistic gradients, deterministic training, and finite-difference checks in NumPy.
-- [ ] **LOGR-03**: Learners can compare scratch coefficients and probabilities with scikit-learn under aligned preprocessing and regularization settings.
-- [ ] **LOGR-04**: Learners can inspect probability calibration and use a nonlinear example to explain the limit of a linear decision boundary.
+- [x] **LOGR-01**: Learners can connect linear scores, sigmoid probabilities, log-odds, maximum likelihood, and binary cross-entropy.
+- [x] **LOGR-02**: Learners can implement stable binary cross-entropy, logistic gradients, deterministic training, and finite-difference checks in NumPy.
+- [x] **LOGR-03**: Learners can compare scratch coefficients and probabilities with scikit-learn under aligned preprocessing and regularization settings.
+- [x] **LOGR-04**: Learners can inspect probability calibration and use a nonlinear example to explain the limit of a linear decision boundary.
 
 ### Optimizer Principles, State, and MLP Transfer
 
@@ -131,10 +131,10 @@ Roadmap phase assignments are canonical in the approved v1.1 roadmap.
 | OPT-04 | Phase 28B | Complete |
 | OPT-05 | Phase 28B | Complete |
 | OPT-06 | Phase 28B | Complete |
-| LOGR-01 | Phase 29 | Pending |
-| LOGR-02 | Phase 29 | Pending |
-| LOGR-03 | Phase 29 | Pending |
-| LOGR-04 | Phase 29 | Pending |
+| LOGR-01 | Phase 29 | Complete |
+| LOGR-02 | Phase 29 | Complete |
+| LOGR-03 | Phase 29 | Complete |
+| LOGR-04 | Phase 29 | Complete |
 | CLAS-01 | Phase 30 | Pending |
 | CLAS-02 | Phase 30 | Pending |
 | CLAS-03 | Phase 30 | Pending |

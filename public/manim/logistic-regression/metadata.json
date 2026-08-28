@@ -1,0 +1,175 @@
+{
+  "metadataVersion": 1,
+  "generatedBy": "scripts/manim/render_logistic_regression.py",
+  "manimVersion": "Manim Community v0.20.1",
+  "assets": [
+    {
+      "id": "linear-score-to-sigmoid",
+      "scene": "LinearScoreToSigmoidScene",
+      "assetPath": "/manim/logistic-regression/linear-score-to-sigmoid.mp4",
+      "posterPath": "/manim/logistic-regression/linear-score-to-sigmoid.svg",
+      "source": "scripts/manim/scenes/logistic_regression.py",
+      "markers": [
+        {
+          "id": "linear-score-to-sigmoid-1",
+          "startSeconds": 0
+        },
+        {
+          "id": "linear-score-to-sigmoid-2",
+          "startSeconds": 10
+        },
+        {
+          "id": "linear-score-to-sigmoid-3",
+          "startSeconds": 21
+        },
+        {
+          "id": "linear-score-to-sigmoid-4",
+          "startSeconds": 32
+        }
+      ],
+      "sha256": "2e8bb6d0176ce53370306cd5a35769c09e29f61b22347aae8d6ecf71ea440bf4",
+      "posterSha256": "39958b14ef8f9d0b1192fa0d4beb4ceaebcc8dfab1f433b6f4224957b87ddaf4",
+      "sourceManifestSha256": "bd9ebb5315c18640c532f75eb4c1f12e4a990955dff18c121335d473ee4cc619",
+      "sourceSha256": "97a64720bb349f1d324c2885bf75c47fa3fba28541bdcbe6e817b46fba5fe75e",
+      "promptSha256": "38f3ec7964b5584c92df51b8868586d8cdbc83d49ab518cd202ccd897e18efcc",
+      "knowledgeTreeSha256": "e313b21653edc500a94a68088c70066454963fea5b461273b899070b50629192",
+      "transcriptZhCNSha256": "47026cce6ee5c0d1c2be80fc813a79e4788866f0cb3c437de97c49a6c016fc0d",
+      "transcriptEnSha256": "2621ac251c69c01f274f5d7693c62863a78f1bd6dde4afaa4b6c63b45a0f785e",
+      "durationSeconds": 42.067,
+      "width": 1920,
+      "height": 1080,
+      "frameRate": 30.0,
+      "codec": "h264",
+      "prompt": "scripts/manim/logistic_regression/linear-score-to-sigmoid-prompt.md",
+      "knowledgeTree": "scripts/manim/logistic_regression/linear-score-to-sigmoid-tree.json",
+      "transcriptZhCN": "docs/curriculum-v3/logistic-regression/manim/linear-score-to-sigmoid-transcript.zh-CN.md",
+      "transcriptEn": "docs/curriculum-v3/logistic-regression/manim/linear-score-to-sigmoid-transcript.en.md"
+    },
+    {
+      "id": "likelihood-to-bce-gradient",
+      "scene": "LikelihoodBceGradientScene",
+      "assetPath": "/manim/logistic-regression/likelihood-to-bce-gradient.mp4",
+      "posterPath": "/manim/logistic-regression/likelihood-to-bce-gradient.svg",
+      "source": "scripts/manim/scenes/logistic_regression.py",
+      "markers": [
+        {
+          "id": "likelihood-to-bce-gradient-1",
+          "startSeconds": 0
+        },
+        {
+          "id": "likelihood-to-bce-gradient-2",
+          "startSeconds": 12
+        },
+        {
+          "id": "likelihood-to-bce-gradient-3",
+          "startSeconds": 24
+        },
+        {
+          "id": "likelihood-to-bce-gradient-4",
+          "startSeconds": 36
+        }
+      ],
+      "sha256": "26a33f671820ab7a9bf4e8596edab8ddc43ebf89ee7e3eee3d92c69f7e57d8c3",
+      "posterSha256": "6b72f5b36a8864db9611b08e0dffe88fa58a51786adf4eb5a89cd1d7f14f9eae",
+      "sourceManifestSha256": "bd9ebb5315c18640c532f75eb4c1f12e4a990955dff18c121335d473ee4cc619",
+      "sourceSha256": "97a64720bb349f1d324c2885bf75c47fa3fba28541bdcbe6e817b46fba5fe75e",
+      "promptSha256": "ea63428f78b59c5072166f3b3a40cb8320f7923f45ea423570a10e2f40612d85",
+      "knowledgeTreeSha256": "ef8f24e5ce96a4846cd2f67981690329bbacf7768823f08e58a90dd6b9d720d2",
+      "transcriptZhCNSha256": "680db0eb628bf6e7bbd37b685790f66765e86014edccbc210349d32e201bf086",
+      "transcriptEnSha256": "33fb3c85d4f231f6e09246cb4dc8b44f3b0d5e04d2374fbb0f97dc85c0d8eaed",
+      "durationSeconds": 48.0,
+      "width": 1920,
+      "height": 1080,
+      "frameRate": 30.0,
+      "codec": "h264",
+      "prompt": "scripts/manim/logistic_regression/likelihood-to-bce-gradient-prompt.md",
+      "knowledgeTree": "scripts/manim/logistic_regression/likelihood-to-bce-gradient-tree.json",
+      "transcriptZhCN": "docs/curriculum-v3/logistic-regression/manim/likelihood-to-bce-gradient-transcript.zh-CN.md",
+      "transcriptEn": "docs/curriculum-v3/logistic-regression/manim/likelihood-to-bce-gradient-transcript.en.md"
+    },
+    {
+      "id": "log-loss-confident-mistake",
+      "scene": "ConfidentMistakeScene",
+      "assetPath": "/manim/logistic-regression/log-loss-confident-mistake.mp4",
+      "posterPath": "/manim/logistic-regression/log-loss-confident-mistake.svg",
+      "source": "scripts/manim/scenes/logistic_regression.py",
+      "markers": [
+        {
+          "id": "log-loss-confident-mistake-1",
+          "startSeconds": 0
+        },
+        {
+          "id": "log-loss-confident-mistake-2",
+          "startSeconds": 10
+        },
+        {
+          "id": "log-loss-confident-mistake-3",
+          "startSeconds": 20
+        },
+        {
+          "id": "log-loss-confident-mistake-4",
+          "startSeconds": 29
+        }
+      ],
+      "sha256": "0005f5522fadca3fedb22fcdfa314460913308831a2afc32f9d59f9bf911b9e8",
+      "posterSha256": "997459d06b9606928cfaffa78623dbc4d2d1708b42053ed3b535138142fc6c70",
+      "sourceManifestSha256": "bd9ebb5315c18640c532f75eb4c1f12e4a990955dff18c121335d473ee4cc619",
+      "sourceSha256": "97a64720bb349f1d324c2885bf75c47fa3fba28541bdcbe6e817b46fba5fe75e",
+      "promptSha256": "430bb60ff6e3093373eec81940f0e87854a310be2dffc30fc3d964e970eafd41",
+      "knowledgeTreeSha256": "e44007dd891f8032b2f599478c760d52de3a39246b02caaeb3513fbb155d5729",
+      "transcriptZhCNSha256": "2ff3f3bc588456b3a4129f9f0f6dbdef64745a02ee3d0ca7bcdb031dc4127277",
+      "transcriptEnSha256": "a722222142ed935559745c928e2931886abde62e082ba9863d382b4c0d5f5815",
+      "durationSeconds": 37.3,
+      "width": 1920,
+      "height": 1080,
+      "frameRate": 30.0,
+      "codec": "h264",
+      "prompt": "scripts/manim/logistic_regression/log-loss-confident-mistake-prompt.md",
+      "knowledgeTree": "scripts/manim/logistic_regression/log-loss-confident-mistake-tree.json",
+      "transcriptZhCN": "docs/curriculum-v3/logistic-regression/manim/log-loss-confident-mistake-transcript.zh-CN.md",
+      "transcriptEn": "docs/curriculum-v3/logistic-regression/manim/log-loss-confident-mistake-transcript.en.md"
+    },
+    {
+      "id": "regularization-confidence-field",
+      "scene": "RegularizationConfidenceScene",
+      "assetPath": "/manim/logistic-regression/regularization-confidence-field.mp4",
+      "posterPath": "/manim/logistic-regression/regularization-confidence-field.svg",
+      "source": "scripts/manim/scenes/logistic_regression.py",
+      "markers": [
+        {
+          "id": "regularization-confidence-field-1",
+          "startSeconds": 0
+        },
+        {
+          "id": "regularization-confidence-field-2",
+          "startSeconds": 10
+        },
+        {
+          "id": "regularization-confidence-field-3",
+          "startSeconds": 20
+        },
+        {
+          "id": "regularization-confidence-field-4",
+          "startSeconds": 29
+        }
+      ],
+      "sha256": "84557fbb15486d8568aa7e028afbdef68c13977073678d4d3f8c76653bb27946",
+      "posterSha256": "08f0e34f25fd5cc3f64dd776c0e7759bc4192e25b18ae91c28dce5961dc5d0a9",
+      "sourceManifestSha256": "bd9ebb5315c18640c532f75eb4c1f12e4a990955dff18c121335d473ee4cc619",
+      "sourceSha256": "97a64720bb349f1d324c2885bf75c47fa3fba28541bdcbe6e817b46fba5fe75e",
+      "promptSha256": "444647032232ae7fd3fcb2ffdc2db7811699faea3e21be0c32ed7c0238484d73",
+      "knowledgeTreeSha256": "797e6422c53f4f4e02028cb2cd7d90fb092433d3be0ef381f4e44475ac347f52",
+      "transcriptZhCNSha256": "777953afb0cb9419b9effdd2ce3621173886abed5b41b1ee748a6332092af20e",
+      "transcriptEnSha256": "b3bf545b6b67a384583150b22d47b3861539e7328f7a523b83520f05eec06baa",
+      "durationSeconds": 39.3,
+      "width": 1920,
+      "height": 1080,
+      "frameRate": 30.0,
+      "codec": "h264",
+      "prompt": "scripts/manim/logistic_regression/regularization-confidence-field-prompt.md",
+      "knowledgeTree": "scripts/manim/logistic_regression/regularization-confidence-field-tree.json",
+      "transcriptZhCN": "docs/curriculum-v3/logistic-regression/manim/regularization-confidence-field-transcript.zh-CN.md",
+      "transcriptEn": "docs/curriculum-v3/logistic-regression/manim/regularization-confidence-field-transcript.en.md"
+    }
+  ]
+}

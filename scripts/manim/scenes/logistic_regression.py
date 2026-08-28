@@ -1,155 +1,204 @@
+"""Manifest-bound, language-neutral Manim scenes for Phase 29 logistic regression.
+
+Each scene reads its numerical labels from the published Banknote package at
+construction time. This prevents a copied number in an animation from quietly
+drifting away from the reproducible Notebook and interaction assets.
+"""
+
 from __future__ import annotations
 
-import numpy as np
+import hashlib
+import json
+import math
+from pathlib import Path
+from typing import Any
 
 from manim import (
-    BLUE,
-    GREEN,
-    ORANGE,
-    RED,
-    WHITE,
-    Axes,
-    Create,
-    Dot,
-    FadeIn,
-    FadeOut,
-    Line,
-    Scene,
-    Text,
-    Transform,
-    VGroup,
+    BLUE, GREEN, ORANGE, RED, WHITE,
+    Axes, Create, DashedLine, Dot, FadeIn, FadeOut, Line, MathTex,
+    Rectangle, Scene, Transform, UP, DOWN, LEFT, RIGHT, VGroup, Write,
 )
 
 
-def sigmoid(value: float) -> float:
-    return 1 / (1 + np.exp(-value))
+ROOT = Path(__file__).resolve().parents[3]
+PHASE_DIR = ROOT / "public" / "logistic-regression" / "phase-29"
+MANIFEST_PATH = PHASE_DIR / "manifest.json"
+CONTRACT_VERSION = "logistic-regression-phase-29-v1"
+
+# Color roles are repeated in every scene. Shape and line-style changes also
+# communicate state, so color is never the sole teaching signal.
+PALETTE = {"score": BLUE, "probability": GREEN, "loss": RED, "gradient": ORANGE, "structure": WHITE}
+
+SCENE_ANCHORS = {
+    "linear-score-to-sigmoid": {
+        "linear-score": "phase29-linear-score",
+        "sigmoid-probability": "phase29-sigmoid-probability",
+    },
+    "likelihood-to-bce-gradient": {
+        "threshold-decisions": "phase29-threshold-decisions",
+        "log-loss": "phase29-log-loss",
+    },
+    "log-loss-confident-mistake": {"log-loss": "phase29-log-loss"},
+    "regularization-confidence-field": {"regularization": "phase29-regularization"},
+}
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load_phase29_anchors(scene_id: str) -> dict[str, Any]:
+    """Load verified JSON anchors for one scene without importing browser code."""
+    if scene_id not in SCENE_ANCHORS:
+        raise ValueError(f"Unknown logistic media scene: {scene_id}")
+    if not MANIFEST_PATH.is_file():
+        raise RuntimeError(f"Missing Phase 29 manifest: {MANIFEST_PATH}")
+    manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+    if manifest.get("contractVersion") != CONTRACT_VERSION:
+        raise RuntimeError("Phase 29 manifest contract version drifted")
+    records = {record.get("id"): record for record in manifest.get("assets", [])}
+    anchors: dict[str, Any] = {}
+    for asset_id, expected_cell in SCENE_ANCHORS[scene_id].items():
+        record = records.get(asset_id)
+        if not isinstance(record, dict):
+            raise RuntimeError(f"Missing manifest asset for {asset_id}")
+        if record.get("sourceCellId") != expected_cell:
+            raise RuntimeError(f"Source cell drift for {asset_id}")
+        relative_path = record.get("path")
+        if not isinstance(relative_path, str) or relative_path.startswith("/") or ".." in Path(relative_path).parts:
+            raise RuntimeError(f"Unsafe manifest path for {asset_id}")
+        path = PHASE_DIR / relative_path
+        if not path.is_file() or record.get("sha256") != _sha256(path):
+            raise RuntimeError(f"Interaction hash drift for {asset_id}")
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload.get("id") != asset_id or payload.get("sceneId") != asset_id or payload.get("sourceCellId") != expected_cell:
+            raise RuntimeError(f"Interaction identity drift for {asset_id}")
+        anchors[asset_id] = payload
+    return anchors
+
+
+def _fmt(value: float, digits: int = 4) -> str:
+    if not math.isfinite(value):
+        raise ValueError("Media anchors must be finite")
+    return f"{value:.{digits}f}"
+
+
+def _equation(tex: str, color=WHITE, scale: float = 0.9) -> MathTex:
+    return MathTex(tex, color=color).scale(scale)
 
 
 class LinearScoreToSigmoidScene(Scene):
-    def construct(self):
-        axes = Axes(
-            x_range=[-6, 6, 2],
-            y_range=[0, 1.05, 0.25],
-            x_length=10,
-            y_length=4.8,
-            tips=False,
-            axis_config={"stroke_color": WHITE, "stroke_opacity": 0.42},
-        ).shift(0.35 * np.array([0, -0.18, 0]))
-        title = Text("Linear score -> sigmoid probability", font_size=34).to_edge(np.array([0, 1, 0]))
-        subtitle = Text("z can be unbounded; probability cannot", font_size=24, color=WHITE).next_to(
-            title, np.array([0, -1, 0]), buff=0.18
-        )
-        curve = axes.plot(lambda x: sigmoid(x), x_range=[-6, 6], color=GREEN, stroke_width=7)
-        half_line = Line(
-            axes.c2p(-6, 0.5),
-            axes.c2p(6, 0.5),
-            color=WHITE,
-            stroke_opacity=0.28,
-        )
-        zero_line = Line(
-            axes.c2p(0, 0),
-            axes.c2p(0, 1),
-            color=WHITE,
-            stroke_opacity=0.28,
-        )
-        dot = Dot(axes.c2p(-3.2, sigmoid(-3.2)), color=BLUE, radius=0.08)
-        label = Text("negative evidence", font_size=28, color=BLUE).to_edge(np.array([0, -1, 0]))
+    """Weighted score, log-odds, and bounded probability for the canonical row."""
 
-        self.play(FadeIn(axes), FadeIn(title), FadeIn(subtitle), Create(curve), FadeIn(half_line), FadeIn(zero_line))
-        self.play(FadeIn(dot), FadeIn(label))
-        self.wait(0.5)
+    def construct(self) -> None:
+        anchors = load_phase29_anchors("linear-score-to-sigmoid")
+        row = anchors["linear-score"]["data"]["oneRow"]
+        probability, logit = float(row["probability"]), float(row["logit"])
 
-        mid_dot = Dot(axes.c2p(0, 0.5), color=WHITE, radius=0.09)
-        mid_label = Text("z = 0 maps to p = 0.5", font_size=28, color=WHITE).to_edge(np.array([0, -1, 0]))
-        self.play(Transform(dot, mid_dot), Transform(label, mid_label))
-        self.wait(0.6)
+        formula = _equation(r"z=\mathbf{w}^{\top}\mathbf{x}+b", PALETTE["score"]).to_edge(UP)
+        log_odds = _equation(r"z=\log\frac{p}{1-p}", PALETTE["score"], 0.72).next_to(formula, DOWN, buff=0.22)
+        number_line = Line(LEFT * 5.7 + DOWN * 1.55, RIGHT * 5.7 + DOWN * 1.55, color=WHITE, stroke_width=4)
+        zero_tick = Line(DOWN * 1.78, DOWN * 1.3, color=WHITE, stroke_width=4)
+        score_dot = Dot(number_line.get_left(), color=PALETTE["score"], radius=0.12)
+        score_label = _equation(rf"z={_fmt(logit, 2)}", PALETTE["score"], 0.65).next_to(score_dot, UP, buff=0.18)
+        dashed = DashedLine(score_dot.get_center(), number_line.get_center(), color=PALETTE["score"], dash_length=0.12)
+        score_card = VGroup(
+            Rectangle(width=3.5, height=1.1, color=PALETTE["score"], stroke_width=3),
+            _equation(rf"\sigma({_fmt(logit, 2)})={probability:.2e}", PALETTE["probability"], 0.52),
+        ).arrange(DOWN, buff=0).to_edge(DOWN)
 
-        high_dot = Dot(axes.c2p(3.2, sigmoid(3.2)), color=ORANGE, radius=0.08)
-        high_label = Text("positive evidence", font_size=28, color=ORANGE).to_edge(np.array([0, -1, 0]))
-        self.play(Transform(dot, high_dot), Transform(label, high_label))
-        self.wait(0.9)
-        self.play(FadeOut(dot), FadeOut(label))
+        axes = Axes(x_range=[-8, 8, 2], y_range=[0, 1, 0.25], x_length=9.2, y_length=3.2, tips=False, axis_config={"stroke_color": WHITE, "stroke_opacity": 0.55}).shift(RIGHT * 1.2)
+        curve = axes.plot(lambda z: 1 / (1 + math.exp(-z)), x_range=[-8, 8], color=PALETTE["probability"], stroke_width=6)
+        half = DashedLine(axes.c2p(-8, 0.5), axes.c2p(8, 0.5), color=WHITE, dash_length=0.12)
+        neutral = Dot(axes.c2p(0, 0.5), color=WHITE, radius=0.09)
+        neutral_label = _equation(r"z=0\;\Longleftrightarrow\;p=0.5", WHITE, 0.56).next_to(neutral, UP, buff=0.15)
+        clipped_dot = Dot(axes.c2p(-8, 1 / (1 + math.exp(8))), color=PALETTE["score"], radius=0.09)
+
+        self.play(Write(formula), FadeIn(log_odds), Create(number_line), FadeIn(zero_tick))
+        self.play(FadeIn(score_dot), FadeIn(score_label), Create(dashed), FadeIn(score_card))
+        self.wait(1)
+        self.play(FadeOut(number_line), FadeOut(zero_tick), FadeOut(score_dot), FadeOut(score_label), FadeOut(dashed))
+        self.play(FadeIn(axes), Create(curve), Create(half), FadeIn(neutral), FadeIn(neutral_label))
+        self.play(FadeIn(clipped_dot))
+        # Keep the completed visual as the learner-controlled poster frame.
+        self.wait(36.067)
 
 
-class LogLossConfidentMistakeScene(Scene):
-    def construct(self):
-        axes = Axes(
-            x_range=[0.01, 1.0, 0.2],
-            y_range=[0, 4.8, 1],
-            x_length=10,
-            y_length=4.8,
-            tips=False,
-            axis_config={"stroke_color": WHITE, "stroke_opacity": 0.42},
-        ).shift(0.35 * np.array([0, -0.2, 0]))
-        title = Text("Log loss punishes confident mistakes", font_size=34).to_edge(np.array([0, 1, 0]))
-        subtitle = Text("true-class probability near zero makes loss explode", font_size=23, color=WHITE).next_to(
-            title, np.array([0, -1, 0]), buff=0.18
-        )
-        positive_curve = axes.plot(lambda p: -np.log(max(p, 0.01)), x_range=[0.01, 0.99], color=GREEN, stroke_width=7)
-        dot_good = Dot(axes.c2p(0.9, -np.log(0.9)), color=GREEN, radius=0.08)
-        dot_bad = Dot(axes.c2p(0.1, -np.log(0.1)), color=RED, radius=0.1)
-        label = Text("p(true class)=0.9: small loss", font_size=28, color=GREEN).to_edge(np.array([0, -1, 0]))
+class LikelihoodBceGradientScene(Scene):
+    """Bernoulli product → log-sum → stable BCE → batch gradient direction."""
 
-        self.play(FadeIn(axes), FadeIn(title), FadeIn(subtitle), Create(positive_curve))
-        self.play(FadeIn(dot_good), FadeIn(label))
-        self.wait(0.7)
-        bad_label = Text("p(true class)=0.1: much larger loss", font_size=28, color=RED).to_edge(np.array([0, -1, 0]))
-        self.play(Transform(dot_good, dot_bad), Transform(label, bad_label))
-        self.wait(1.0)
-        self.play(FadeOut(dot_good), FadeOut(label))
+    def construct(self) -> None:
+        anchors = load_phase29_anchors("likelihood-to-bce-gradient")
+        likelihood, gradient = anchors["threshold-decisions"]["data"], anchors["log-loss"]["data"]
+        rows = likelihood["likelihoodRows"]
+        product, log_sum = float(likelihood["probabilityProduct"]), float(likelihood["logLikelihood"])
+        bce = float(gradient["finiteDifference"]["objective"])
+        sample_gradient = gradient["finiteDifference"]["steps"][5]["analyticGradient"]
+
+        bernoulli = _equation(r"P(y\mid p)=p^y(1-p)^{1-y}", PALETTE["probability"], 0.78).to_edge(UP)
+        terms = VGroup(*[_equation(rf"q_{{{i + 1}}}={float(row['probabilityTerm']):.4f}", PALETTE["probability"], 0.54) for i, row in enumerate(rows)]).arrange(RIGHT, buff=0.34).shift(UP * 1.35)
+        product_formula = _equation(rf"\prod_i q_i={product:.6f}", PALETTE["loss"], 0.7).shift(UP * 0.32)
+        log_formula = _equation(rf"\sum_i\log q_i={log_sum:.4f}", PALETTE["score"], 0.7).shift(DOWN * 0.5)
+        bce_formula = _equation(rf"\mathrm{{BCE}}=\operatorname{{softplus}}(z)-yz={bce:.4f}", PALETTE["loss"], 0.58).shift(DOWN * 1.42)
+        arrow = Line(LEFT * 4.5 + DOWN * 2.35, RIGHT * 4.5 + DOWN * 2.35, color=PALETTE["gradient"], stroke_width=6)
+        row_gradient = _equation(r"\nabla_w\ell_i=(p_i-y_i)x_i", PALETTE["gradient"], 0.56).next_to(arrow, UP, buff=0.18)
+        gradient_label = _equation(rf"\nabla L=\frac{{X^\top(p-y)}}{{n}}\quad g_1={float(sample_gradient[0]):.4f}", PALETTE["gradient"], 0.58).next_to(arrow, UP, buff=0.18)
+        descent = _equation(r"\theta\leftarrow\theta-\eta\nabla L", PALETTE["gradient"], 0.74).next_to(arrow, DOWN, buff=0.18)
+
+        self.play(Write(bernoulli), FadeIn(terms))
+        self.play(Write(product_formula), Write(log_formula))
+        self.play(Write(bce_formula))
+        self.play(Create(arrow), FadeIn(row_gradient), Write(descent))
+        self.play(Transform(row_gradient, gradient_label))
+        self.wait(40)
 
 
-class RegularizationConfidenceFieldScene(Scene):
-    def construct(self):
-        title = Text("Regularization restrains confidence", font_size=34).to_edge(np.array([0, 1, 0]))
-        subtitle = Text("similar boundary, smaller weights, smoother probability field", font_size=23, color=WHITE).next_to(
-            title, np.array([0, -1, 0]), buff=0.18
-        )
-        left_label = Text("large weights", font_size=28, color=ORANGE).shift(np.array([-3.2, -2.7, 0]))
-        right_label = Text("regularized", font_size=28, color=GREEN).shift(np.array([3.2, -2.7, 0]))
+class ConfidentMistakeScene(Scene):
+    """Stable logit-domain loss, finite differences, and a high-loss cue."""
 
-        left_points = VGroup()
-        right_points = VGroup()
-        for x, y, color in [
-            (-4.6, -0.9, BLUE),
-            (-4.1, -1.2, BLUE),
-            (-3.5, -0.7, BLUE),
-            (-2.8, -1.1, BLUE),
-            (-2.4, -0.55, BLUE),
-            (-3.5, 0.7, ORANGE),
-            (-2.9, 1.0, ORANGE),
-            (-2.2, 0.65, ORANGE),
-            (-1.8, 1.15, ORANGE),
-            (-3.0, 0.1, ORANGE),
-        ]:
-            left_points.add(Dot(np.array([x, y, 0]), radius=0.06, color=color))
-        for x, y, color in [
-            (1.5, -0.9, BLUE),
-            (2.0, -1.2, BLUE),
-            (2.7, -0.7, BLUE),
-            (3.4, -1.1, BLUE),
-            (3.8, -0.55, BLUE),
-            (2.3, 0.7, ORANGE),
-            (2.9, 1.0, ORANGE),
-            (3.6, 0.65, ORANGE),
-            (4.1, 1.15, ORANGE),
-            (3.0, 0.1, ORANGE),
-        ]:
-            right_points.add(Dot(np.array([x, y, 0]), radius=0.06, color=color))
+    def construct(self) -> None:
+        anchors = load_phase29_anchors("log-loss-confident-mistake")
+        data = anchors["log-loss"]["data"]
+        acceptance = data["finiteDifference"]["acceptance"]
+        h, error = float(acceptance["h"]), float(acceptance["observed"])
+        example = data["confidentMistake"]
+        logit, target, loss = float(example["logit"]), int(example["label"]), float(example["bce"])
+        if target not in (0, 1) or not math.isclose(math.log1p(math.exp(logit)) - target * logit, loss, rel_tol=0.0, abs_tol=1e-12):
+            raise RuntimeError("Confident-mistake anchor must be the published y=1 high-loss row.")
 
-        sharp_boundary = Line(np.array([-3.9, -2.05, 0]), np.array([-2.0, 2.0, 0]), color=ORANGE, stroke_width=8)
-        smooth_boundary = Line(np.array([2.0, -1.8, 0]), np.array([4.0, 1.8, 0]), color=GREEN, stroke_width=8)
-        sharp_bg = VGroup(
-            Line(np.array([-5.0, -1.8, 0]), np.array([-2.1, 1.8, 0]), color=BLUE, stroke_opacity=0.25, stroke_width=22),
-            Line(np.array([-4.5, -1.9, 0]), np.array([-1.6, 1.7, 0]), color=ORANGE, stroke_opacity=0.28, stroke_width=22),
-        )
-        smooth_bg = VGroup(
-            Line(np.array([1.1, -1.8, 0]), np.array([4.5, 1.8, 0]), color=BLUE, stroke_opacity=0.12, stroke_width=32),
-            Line(np.array([1.6, -1.9, 0]), np.array([5.0, 1.7, 0]), color=ORANGE, stroke_opacity=0.14, stroke_width=32),
-        )
+        axes = Axes(x_range=[-7, 7, 2], y_range=[0, 7, 1], x_length=9.6, y_length=4.0, tips=False, axis_config={"stroke_color": WHITE, "stroke_opacity": 0.55}).shift(DOWN * 0.55)
+        loss_curve = axes.plot(lambda z: math.log1p(math.exp(min(30, max(-30, z)))) - target * z, x_range=[-7, 7], color=PALETTE["loss"], stroke_width=6)
+        formula = _equation(r"\ell(z,y)=\operatorname{softplus}(z)-yz", PALETTE["loss"], 0.78).to_edge(UP)
+        stable = _equation(rf"y={target},\;z={logit:.4f},\;\ell={loss:.4f}", PALETTE["loss"], 0.62).next_to(formula, DOWN, buff=0.2)
+        check = _equation(rf"\frac{{L(\theta+h e_j)-L(\theta-h e_j)}}{{2h}}\approx\frac{{\partial L}}{{\partial\theta_j}}\quad h={h:.0e},\;|\Delta|={error:.2e}", PALETTE["gradient"], 0.48).to_edge(DOWN)
+        marker = Dot(axes.c2p(logit, loss), color=PALETTE["loss"], radius=0.1)
+        marker_line = DashedLine(axes.c2p(logit, 0), marker.get_center(), color=PALETTE["loss"], dash_length=0.12)
 
-        self.play(FadeIn(title), FadeIn(subtitle))
-        self.play(FadeIn(sharp_bg), FadeIn(left_points), Create(sharp_boundary), FadeIn(left_label))
-        self.wait(0.7)
-        self.play(FadeIn(smooth_bg), FadeIn(right_points), Create(smooth_boundary), FadeIn(right_label))
-        self.wait(1.0)
+        self.play(Write(formula), FadeIn(stable), FadeIn(axes), Create(loss_curve))
+        self.play(FadeIn(marker), Create(marker_line), Write(check))
+        self.wait(33.333)
+
+
+class RegularizationConfidenceScene(Scene):
+    """Show L2 as a changed objective with separately labeled parameter states."""
+
+    def construct(self) -> None:
+        anchors = load_phase29_anchors("regularization-confidence-field")
+        l2, scratch = anchors["regularization"]["data"]["l2"], anchors["regularization"]["data"]["scratch"]
+        l2_strength, l2_loss = float(l2["l2"]), float(l2["objectiveValue"])
+        scratch_loss = float(scratch["trace"][-1]["objective"])
+
+        objective = _equation(rf"L_{{L2}}=\mathrm{{BCE}}+\frac{{{l2_strength:.2f}}}{{2}}\lVert\mathbf{{w}}\rVert_2^2", PALETTE["gradient"], 0.76).to_edge(UP)
+        left = Rectangle(width=4.6, height=4.3, color=PALETTE["score"], stroke_width=3).shift(LEFT * 2.7 + DOWN * 0.65)
+        right = Rectangle(width=4.6, height=4.3, color=PALETTE["gradient"], stroke_width=3).shift(RIGHT * 2.7 + DOWN * 0.65)
+        left_line = Line(left.get_bottom() + RIGHT * 0.6, left.get_top() + LEFT * 0.6, color=PALETTE["score"], stroke_width=7)
+        right_line = DashedLine(right.get_bottom() + RIGHT * 0.6, right.get_top() + LEFT * 0.6, color=PALETTE["gradient"], stroke_width=7, dash_length=0.15)
+        left_label = _equation(rf"\mathrm{{BCE}}={scratch_loss:.4f}", PALETTE["score"], 0.55).next_to(left, DOWN, buff=0.15)
+        right_label = _equation(rf"L_{{L2}}={l2_loss:.4f}", PALETTE["gradient"], 0.55).next_to(right, DOWN, buff=0.15)
+        dots = VGroup(*[Dot(point, radius=0.07, color=PALETTE["probability"]) for point in [left.get_center()+LEFT+DOWN*.65, left.get_center()+RIGHT*.5+UP*.85, right.get_center()+LEFT+DOWN*.65, right.get_center()+RIGHT*.5+UP*.85]])
+        distinction = _equation(r"\text{same data}\;\not\Rightarrow\;\text{same objective}", WHITE, 0.54).to_edge(DOWN)
+
+        self.play(Write(objective), Create(left), Create(right), FadeIn(dots))
+        self.play(Create(left_line), Create(right_line), FadeIn(left_label), FadeIn(right_label))
+        self.play(Write(distinction))
+        self.wait(34.333)

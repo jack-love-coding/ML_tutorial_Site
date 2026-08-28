@@ -45,6 +45,11 @@ test('GitHub Pages prepares the pinned Notebook smoke-test runtime before npm te
     workflow,
     /python -m pip install --disable-pip-version-check -r public\/gradient-descent\/v1\/requirements\.txt/,
   )
+  assert.match(
+    workflow,
+    /-r public\/notebooks\/numerical-methods\/requirements\.txt/,
+    'Phase 29 parity tests must receive the existing pinned scikit-learn runtime',
+  )
 })
 
 test('strict local release-asset verification remains an explicit opt-in command', () => {

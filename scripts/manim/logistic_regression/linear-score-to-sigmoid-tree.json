@@ -1,0 +1,50 @@
+{
+  "treeVersion": 1,
+  "target": "linear score to sigmoid probability",
+  "maxDepth": 3,
+  "sourceAnchors": {
+    "manifest": "public/logistic-regression/phase-29/manifest.json",
+    "sourceCells": ["phase29-linear-score", "phase29-sigmoid-probability"],
+    "canonicalRow": { "rowId": 1, "split": "train", "label": 0, "logit": -54.33776892070457, "probability": 2.520036312527197e-24 }
+  },
+  "visualContract": {
+    "durationSeconds": 42,
+    "languageNeutral": true,
+    "palette": { "score": "#285c9e", "probability": "#2e7d4f", "structure": "#ffffff" },
+    "nonColorCues": ["solid score dot", "dashed zero guide", "sigmoid curve", "equation labels"],
+    "posterFrame": "sigmoid curve, zero-score guide, canonical-row score card"
+  },
+  "nodes": [
+    {
+      "id": "real-numbers", "depth": 3, "foundation": true, "prerequisites": [],
+      "equations": ["z\\in\\mathbb{R}"],
+      "definitions": { "z": "an unbounded real-valued score" },
+      "visual": "horizontal number line with a labeled zero tick"
+    },
+    {
+      "id": "weighted-sum", "depth": 2, "foundation": true, "prerequisites": ["real-numbers"],
+      "equations": ["z=\\mathbf{w}^{\\top}\\mathbf{x}+b", "z=\\sum_j w_jx_j+b"],
+      "definitions": { "x_j": "standardized feature", "w_j": "feature coefficient", "b": "intercept" },
+      "visual": "solid blue score dot and a dashed guide to zero"
+    },
+    {
+      "id": "odds", "depth": 2, "foundation": true, "prerequisites": ["real-numbers"],
+      "equations": ["\\mathrm{odds}=p/(1-p)", "z=\\log\\frac{p}{1-p}"],
+      "definitions": { "p": "class 1 probability", "z": "log-odds" },
+      "visual": "score equation remains while the probability relationship appears beneath it"
+    },
+    {
+      "id": "sigmoid", "depth": 1, "foundation": false, "prerequisites": ["weighted-sum", "odds"],
+      "equations": ["\\sigma(z)=1/(1+e^{-z})", "\\sigma(0)=0.5"],
+      "definitions": { "sigma": "monotone squashing function" },
+      "visual": "green sigmoid curve with dashed p=0.5 guide and an explicit zero-score point"
+    },
+    {
+      "id": "target", "depth": 0, "foundation": false, "prerequisites": ["sigmoid"],
+      "equations": ["z=-54.33776892070457", "\\sigma(z)=2.520036312527197e-24"],
+      "definitions": { "row 1": "canonical train row with class 0 label" },
+      "visual": "canonical value card and clipped extreme-score point, both labeled numerically"
+    }
+  ],
+  "topologicalOrder": ["real-numbers", "weighted-sum", "odds", "sigmoid", "target"]
+}

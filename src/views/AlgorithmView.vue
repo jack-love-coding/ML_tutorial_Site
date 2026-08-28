@@ -833,7 +833,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     </section>
 
     <AlgorithmCheckpointQuiz
-      v-if="moduleDefinition.checkpoints.length && !isAiOverviewPage && !isOptimizerComparisonPage && (!isGradientPage || activeSection?.id === 'noise-and-batch')"
+      v-if="moduleDefinition.checkpoints.length && !isLogisticRegressionPage && !isAiOverviewPage && !isOptimizerComparisonPage && (!isGradientPage || activeSection?.id === 'noise-and-batch')"
       :module-slug="moduleDefinition.slug"
       :module-route="moduleDefinition.route"
       :checkpoints="moduleDefinition.checkpoints"
@@ -843,7 +843,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     <LossFunctionsDownloads v-if="isLossFunctionsPage" />
 
     <section
-      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isHousingProjectPage && !isWorkflowLessonPage && !isNeuralGuidedPage && !isGradientPage && !isOptimizerComparisonPage"
+      v-if="!isLossFunctionsPage && !isLinearRegressionPage && !isLogisticRegressionPage && !isHousingProjectPage && !isWorkflowLessonPage && !isNeuralGuidedPage && !isGradientPage && !isOptimizerComparisonPage"
       class="results-grid"
       :class="{ 'results-grid--gradient': isGradientPage }"
     >
