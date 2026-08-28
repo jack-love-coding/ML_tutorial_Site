@@ -3,8 +3,7 @@ import { curriculumLibraryDomains } from '../curriculum/library.ts'
 import type { LocalizedCopy, ModuleSlug } from '../types/ml'
 
 export type SiteNavigationMenuId =
-  | 'learning-path'
-  | 'python-data-tools'
+  | 'courses'
   | 'topic-library'
   | 'projects'
   | 'progress'
@@ -222,17 +221,10 @@ export const dataLabNavigationGroups: Array<NavigationGroup<DataLabModuleId>> = 
 
 export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
   {
-    id: 'learning-path',
-    label: copy('默认学习主线', 'Default Spine'),
-    route: '/spine',
-    activePrefixes: ['/spine', '/tracks/core-learning-path', '/learn'],
-    groups: [],
-  },
-  {
-    id: 'python-data-tools',
-    label: copy('Python 数据工具', 'Python Data Tools'),
-    route: '/python',
-    activePrefixes: ['/python', '/learn/python-notebook'],
+    id: 'courses',
+    label: copy('AI 基础课程', 'AI Foundations'),
+    route: '/courses/ai-foundation',
+    activePrefixes: ['/courses'],
     groups: [],
   },
   {
@@ -245,8 +237,20 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
       '/library/deep-learning',
       '/math-lab',
       '/data-lab',
+      '/spine',
+      '/tracks/core-learning-path',
+      '/python',
+      '/learn',
     ],
     groups: [
+      {
+        id: 'legacy-learning-map',
+        label: copy('旧版入口与工具', 'Legacy map and tools'),
+        items: [
+          { id: 'legacy-spine', route: '/spine', label: copy('旧知识地图', 'Legacy Knowledge Map') },
+          { id: 'python-data-tools', route: '/python', label: copy('Python 数据工具', 'Python Data Tools') },
+        ],
+      },
       {
         id: 'topic-domains',
         label: copy('按专题浏览', 'Browse by topic'),

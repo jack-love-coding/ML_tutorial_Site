@@ -82,6 +82,9 @@ test('both notebooks are executed, bilingual, and bind all six cell ids', () => 
 
 test('Pages installs the complete pinned Notebook drift-check environment', () => {
   const requirements = readFileSync(resolve(packageRoot, 'requirements.txt'), 'utf8')
+  const environment = readJson('environment.json')
+  assert.equal(environment.python, '3.12')
+  assert.equal(environment.platformContract, 'portable-cpython-3.12')
   for (const dependency of ['numpy==', 'nbformat==', 'nbclient==', 'jupyter-client==', 'ipykernel==']) {
     assert.match(requirements, new RegExp(`^${dependency.replace('-', '\\-')}`, 'm'))
   }

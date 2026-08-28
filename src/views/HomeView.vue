@@ -1,74 +1,33 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { curriculumRouteManifestById } from '../curriculum/routeManifest.ts'
+import { aiFoundationCourse } from '../curriculum/courses/data/aiFoundation.ts'
+import {
+  courseProgressV1StorageKey,
+  createDefaultCourseProgress,
+  loadCourseProgress,
+  selectCourseContinueTarget,
+  summarizeCourseCompletion,
+} from '../curriculum/courses/progress.ts'
+import { courseOverviewRoute, courseUnitRoute } from '../curriculum/courses/routes.ts'
 import {
   createDefaultLearningProgressV2,
   learningProgressV2MigrationKey,
   learningProgressV2StorageKey,
   migrateLearningProgressV2,
-  selectContinueLearning,
-  type LearningProgressV2,
 } from '../curriculum/progress.ts'
-import { curriculumSpineStages } from '../curriculum/spine.ts'
-import { curriculumNavigationMenus, type SiteNavigationMenuId } from '../data/navigationMenus'
-import { dataLabProgressStorageKey } from '../modules/data-lab/utils/progress'
-import { linearAlgebraRouteModuleIds } from '../modules/math-lab/data/mathCourseOrder.ts'
-import { mathLabProgressStorageKey } from '../modules/math-lab/utils/progress'
-import type { LocalizedCopy } from '../types/ml'
-import { algorithmProgressStorageKey } from '../utils/algorithmProgress'
+import { dataLabProgressStorageKey } from '../modules/data-lab/utils/progress.ts'
+import { mathLabProgressStorageKey } from '../modules/math-lab/utils/progress.ts'
+import type { AppLocale, LocalizedCopy } from '../types/ml.ts'
+import { algorithmProgressStorageKey } from '../utils/algorithmProgress.ts'
 
-const { t, locale } = useI18n()
-
-interface BeginnerRoadmapStage {
-  id: string
-  route: string
-  duration: string
-  title: string
-  summary: string
-  focus: string
-  practice: string
-  outcome: string
-  concepts: string[]
-  action: string
-}
-
-interface ReadinessCheck {
-  title: LocalizedCopy
-  description: LocalizedCopy
-}
-
-interface HomeDecisionCardSource {
-  id: string
-  route: string
-  menuId?: SiteNavigationMenuId
-  title: LocalizedCopy
-  body: LocalizedCopy
-  meta: LocalizedCopy
-  action: LocalizedCopy
-}
-
-function loc(zhCN: string, en: string): LocalizedCopy {
-  return { 'zh-CN': zhCN, en }
-}
-
-function localizedText(value: LocalizedCopy) {
-  return locale.value === 'zh-CN' ? value['zh-CN'] : value.en
-}
-
-function stageNumber(index: number) {
-  return String(index + 1).padStart(2, '0')
-}
-
-function scrollToRoadmap(event: MouseEvent) {
-  event.preventDefault()
-  document.getElementById('beginner-roadmap')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  history.replaceState(null, '', '#beginner-roadmap')
-}
-
-const startRoute = '/learn/ai-overview'
-const learningProgress = ref<LearningProgressV2>(createDefaultLearningProgressV2())
-const progressStorageKeys = new Set([
+const { locale } = useI18n()
+const currentLocale = computed(() => locale.value as AppLocale)
+const course = aiFoundationCourse
+const courseProgress = ref(createDefaultCourseProgress())
+const legacyProgress = ref(createDefaultLearningProgressV2())
+const watchedKeys = new Set([
+  courseProgressV1StorageKey,
   learningProgressV2StorageKey,
   learningProgressV2MigrationKey,
   algorithmProgressStorageKey,
@@ -76,544 +35,137 @@ const progressStorageKeys = new Set([
   dataLabProgressStorageKey,
 ])
 
-function refreshLearningProgress() {
-  learningProgress.value = migrateLearningProgressV2()
+function localizedText(value: LocalizedCopy) {
+  return value[currentLocale.value]
 }
 
-function handleProgressVisibilityChange() {
-  if (document.visibilityState === 'visible') refreshLearningProgress()
+function refreshProgress() {
+  courseProgress.value = loadCourseProgress()
+  legacyProgress.value = migrateLearningProgressV2()
 }
 
-function handleProgressStorageEvent(event: StorageEvent) {
-  if (event.key && !progressStorageKeys.has(event.key)) return
-  refreshLearningProgress()
+function handleVisibility() {
+  if (document.visibilityState === 'visible') refreshProgress()
+}
+
+function handleStorage(event: StorageEvent) {
+  if (!event.key || watchedKeys.has(event.key)) refreshProgress()
 }
 
 onMounted(() => {
-  refreshLearningProgress()
-  window.addEventListener('focus', refreshLearningProgress)
-  document.addEventListener('visibilitychange', handleProgressVisibilityChange)
-  window.addEventListener('storage', handleProgressStorageEvent)
+  refreshProgress()
+  window.addEventListener('focus', refreshProgress)
+  window.addEventListener('storage', handleStorage)
+  document.addEventListener('visibilitychange', handleVisibility)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('focus', refreshLearningProgress)
-  document.removeEventListener('visibilitychange', handleProgressVisibilityChange)
-  window.removeEventListener('storage', handleProgressStorageEvent)
+  window.removeEventListener('focus', refreshProgress)
+  window.removeEventListener('storage', handleStorage)
+  document.removeEventListener('visibilitychange', handleVisibility)
 })
 
-const progressLabels = computed(() =>
-  locale.value === 'zh-CN'
-    ? {
-        continueEyebrow: '继续学习',
-        startTitle: '从 AI 入门总览开始',
-        lastVisitedBody: '回到你上次停下的位置，继续把概念、实验和讲解串起来。',
-        firstIncompleteBody: '下一步推荐沿核心路线继续阅读。',
-        noProgressBody: '还没有学习记录时，先用 AI 总览建立地图，再进入数学、数据和模型实验。',
-        visited: '浏览过的模块',
-        records: '实验记录',
-        routes: '主线阶段',
-        continueAction: '继续学习',
-        startAction: '开始学习',
-      }
-    : {
-        continueEyebrow: 'Continue learning',
-        startTitle: 'Start with AI Overview',
-        lastVisitedBody: 'Return to the place you last touched and keep connecting concepts, labs, and explanations.',
-        firstIncompleteBody: 'Continue reading along the core path.',
-        noProgressBody: 'With no saved progress yet, begin with AI Overview before moving into math, data, and model labs.',
-        visited: 'Modules visited',
-        records: 'Lab records',
-        routes: 'Spine stages',
-        continueAction: 'Continue learning',
-        startAction: 'Start learning',
-      },
-)
+const completion = computed(() => summarizeCourseCompletion(course, courseProgress.value, legacyProgress.value))
+const continueTarget = computed(() => selectCourseContinueTarget(courseProgress.value, legacyProgress.value, course.id))
+const continueUnit = computed(() => course.units.find((unit) => unit.id === continueTarget.value?.unitId))
+const publishedStage = computed(() => course.stages.find((stage) => stage.publicationStatus === 'published')!)
+const publishedUnits = computed(() => publishedStage.value.unitIds.map((unitId) => course.units.find((unit) => unit.id === unitId)!))
 
-const continueTarget = computed(() => selectContinueLearning(learningProgress.value))
-const continueRoute = computed(() => continueTarget.value?.route ?? startRoute)
-const continueModuleTitle = computed(() => {
-  const moduleId = continueTarget.value?.moduleId
-  if (!moduleId) return progressLabels.value.startTitle
-  return localizedText(curriculumRouteManifestById.get(moduleId)?.title ?? loc(moduleId, moduleId))
-})
-const continueBody = computed(() => {
-  if (!continueTarget.value) return progressLabels.value.noProgressBody
-  return continueTarget.value.reason === 'last-visited'
-    ? progressLabels.value.lastVisitedBody
-    : progressLabels.value.firstIncompleteBody
-})
-const continueActionLabel = computed(() =>
-  continueTarget.value ? progressLabels.value.continueAction : progressLabels.value.startAction,
-)
-const visitedModuleCount = computed(() =>
-  Object.values(learningProgress.value.modules).filter((moduleProgress) => moduleProgress.lastVisitedAt).length,
-)
-const savedLabRecordCount = computed(() => learningProgress.value.labEvidence.length)
-const progressMetrics = computed(() => [
-  {
-    label: progressLabels.value.visited,
-    value: String(visitedModuleCount.value),
-  },
-  {
-    label: progressLabels.value.records,
-    value: String(savedLabRecordCount.value),
-  },
-  {
-    label: progressLabels.value.routes,
-    value: String(curriculumSpineStages.length),
-  },
-])
-
-const navigationMenuLabels = computed(
-  () => new Map(curriculumNavigationMenus.map((menuDefinition) => [menuDefinition.id, localizedText(menuDefinition.label)])),
-)
-const pythonDataToolsActionLabel = computed(() =>
-  locale.value === 'zh-CN' ? '进入 Python 数据工具' : 'Open Python Data Tools',
-)
-
-const homeDecisionCardSource: HomeDecisionCardSource[] = [
-  {
-    id: 'core-learning-path',
-    route: '/spine',
-    menuId: 'learning-path',
-    title: loc('默认学习主线', 'Default Spine'),
-    body: loc(
-      '按 data first 主线推进：AI 总览、Python、原始数据、特征、损失、训练、泛化、神经网络、CNN 和 Transformer 入门。',
-      'Follow the data-first spine through AI Overview, Python, raw data, features, loss, training, generalization, neural networks, CNNs, and Transformer basics.',
-    ),
-    meta: loc('第一入口', 'First entry'),
-    action: loc('打开主线', 'Open spine'),
-  },
-  {
-    id: 'topic-library',
-    route: '/library/math',
-    menuId: 'topic-library',
-    title: loc('辅助内容', 'Supporting Topics'),
-    body: loc(
-      '按 Math Lab、Data Lab、ML Models 和 Deep Learning Lens 查找概念、实验与复盘材料；它们服务主线，不再抢起点。',
-      'Browse Math Lab, Data Lab, ML Models, and Deep Learning Lens as support material for the spine instead of parallel starting points.',
-    ),
-    meta: loc('按主题补课', 'Review by topic'),
-    action: loc('打开主题库', 'Open library'),
-  },
-  {
-    id: 'project-practice',
-    route: '/tracks/project-practice',
-    menuId: 'projects',
-    title: loc('项目实战', 'Project practice'),
-    body: loc(
-      '把数据清洗、特征、模型选择和指标复盘放进房价预测、分类筛查等可复现实验。',
-      'Put cleaning, features, model selection, and metric review into reproducible housing and classification projects.',
-    ),
-    meta: loc('从任务倒推概念', 'Learn from tasks'),
-    action: loc('进入项目', 'Open projects'),
-  },
-  {
-    id: 'progress',
-    route: '/progress',
-    menuId: 'progress',
-    title: loc('学习进度', 'Learning progress'),
-    body: loc(
-      '查看最近浏览位置、实验记录和下一步建议，避免在多个实验室之间迷路。',
-      'Review recent locations, lab notes, and the next recommendation across every lab.',
-    ),
-    meta: loc('复盘与下一步', 'Review and next step'),
-    action: loc('查看进度', 'Open progress'),
-  },
-]
-
-const homeDecisionCards = computed(() =>
-  homeDecisionCardSource.map((card) => ({
-    id: card.id,
-    route: card.route,
-    title: card.menuId ? navigationMenuLabels.value.get(card.menuId) ?? localizedText(card.title) : localizedText(card.title),
-    body: localizedText(card.body),
-    meta: localizedText(card.meta),
-    action: localizedText(card.action),
-  })),
-)
-
-const beginnerRoadmapIntro = {
-  eyebrow: loc('默认学习主线', 'Default Spine'),
-  title: loc('Data First：从原始数据走到 Transformer 入门', 'Data First: From Raw Data to Transformer Basics'),
-  body: loc(
-    '这条主线把 Math Lab 和 Data Lab 放回合适的位置：先让学习者看懂表格、特征和反馈信号，再逐步进入线性模型、训练动态、泛化、非线性模型、CNN 和 Attention。',
-    'This spine puts Math Lab and Data Lab back into the right places: learners first understand tables, features, and feedback signals, then move through linear models, training dynamics, generalization, nonlinear models, CNNs, and Attention.',
-  ),
-  note: loc(
-    '首页只预览前四个阶段，完整阶段地图、辅助内容和项目实践放在主线页里继续展开。',
-    'The homepage previews the first four stages only; the full stage map, supporting topics, and project practice continue on the spine page.',
-  ),
-  action: loc('查看完整阶段地图', 'View full stage map'),
-}
-
-const roadmapLabels = computed(() =>
-  locale.value === 'zh-CN'
-    ? {
-        concepts: '关键概念',
-        focus: '必修模块',
-        practice: '辅助内容',
-        outcome: '完成标准',
-        required: '必修',
-        support: '支持',
-        project: '项目验证',
-        noSupport: '直接阅读本阶段模块，并用实验对照讲解。',
-        checksTitle: '进入下一轮前的自检',
-        checksBody: '每学完一个阶段，先确认自己能把公式、图像、代码和模型行为对应起来，再继续推进。',
-      }
-    : {
-        concepts: 'Key concepts',
-        focus: 'Required modules',
-        practice: 'Support lenses',
-        outcome: 'Completion standard',
-        required: 'Required',
-        support: 'Support',
-        project: 'Project validation',
-        noSupport: 'Read this stage’s modules and compare the labs with their explanations.',
-        checksTitle: 'Readiness checks before the next pass',
-        checksBody: 'After each stage, verify that formulas, visuals, code, and model behavior point to the same idea before moving on.',
-      },
-)
-
-function moduleTitle(moduleId: string) {
-  return localizedText(curriculumRouteManifestById.get(moduleId)?.title ?? loc(moduleId, moduleId))
-}
-
-function moduleRoute(moduleId: string) {
-  return curriculumRouteManifestById.get(moduleId)?.route ?? `/learn/${moduleId}`
-}
-
-function joinedModuleTitles(moduleIds: string[]) {
-  return moduleIds.map(moduleTitle).join(locale.value === 'zh-CN' ? '、' : ', ')
-}
-
-function stageDuration(index: number) {
-  return locale.value === 'zh-CN' ? `第 ${index} 阶段` : `Stage ${index}`
-}
-
-function stagePracticeText(supportModuleIds: string[], projectModuleIds: string[]) {
-  const parts: string[] = []
-
-  if (supportModuleIds.length > 0) {
-    parts.push(`${roadmapLabels.value.support}: ${joinedModuleTitles(supportModuleIds)}`)
-  }
-  if (projectModuleIds.length > 0) {
-    parts.push(`${roadmapLabels.value.project}: ${joinedModuleTitles(projectModuleIds)}`)
-  }
-
-  return parts.length > 0 ? parts.join(locale.value === 'zh-CN' ? '；' : '; ') : roadmapLabels.value.noSupport
-}
-
-function spineStageActionText(firstModuleId: string) {
-  const title = moduleTitle(firstModuleId)
-  return locale.value === 'zh-CN' ? `进入 ${title}` : `Open ${title}`
-}
-
-const spinePreviewRoadmap = computed<BeginnerRoadmapStage[]>(() =>
-  curriculumSpineStages.slice(0, 4).map((spineStage, index) => {
-    const projectModuleIds = spineStage.projectModuleIds ?? []
-    const conceptModuleIds = [
-      ...spineStage.requiredModuleIds,
-      ...spineStage.supportModuleIds,
-      ...projectModuleIds,
-    ]
-    const firstModuleId = spineStage.requiredModuleIds[0]
-
-    return {
-      id: spineStage.id,
-      route: moduleRoute(firstModuleId),
-      duration: stageDuration(index),
-      title: localizedText(spineStage.title),
-      summary: localizedText(spineStage.learnerQuestion),
-      focus: `${roadmapLabels.value.required}: ${joinedModuleTitles(spineStage.requiredModuleIds)}`,
-      practice: stagePracticeText(spineStage.supportModuleIds, projectModuleIds),
-      outcome: localizedText(spineStage.outcomes[0] ?? loc(spineStage.id, spineStage.id)),
-      concepts: conceptModuleIds.map(moduleTitle),
-      action: spineStageActionText(firstModuleId),
+const labels = computed(() => currentLocale.value === 'zh-CN'
+  ? {
+      eyebrow: 'ML Atlas · 教学大纲配套学习工具',
+      title: '沿一条完整路径，建立可复现的 AI 基础',
+      body: '25 个大纲主题被组织为四编参考教材。每个已开放单元都连接核心问题、代码、现有实验、Notebook、误区反馈和成果验收；参考学时用于规划，不强迫固定节奏。',
+      start: '从第一单元开始', continue: '继续学习', catalog: '查看完整课程目录', stageOpen: 'A 编已开放', stagePlanned: '整编建设中',
+      stageBody: 'A 编六个单元已形成完整学习闭环；B—D 编先展示目标，不提供未完成页面链接。',
+      stages: '四编课程路径', units: '大纲单元', hours: '参考学时', completed: '已完成',
+      supportEyebrow: '深入阅读与实验', supportTitle: '主课程负责路径，实验室负责把概念看见',
+      supportBody: '旧知识地图、Math Lab、Data Lab、算法讲解和项目仍全部保留，并作为课程单元里的深入资源使用。',
+      python: 'Python 数据工具', math: '数学专题实验', data: '数据处理实验', topics: '专题资源库', projects: '项目实战', progress: '查看三层学习记录', legacy: '旧知识地图（兼容入口）',
+      openUnit: '进入单元', plannedBody: '达到整编教学闭环后开放', courseArchitecture: '课程架构',
     }
-  }),
-)
+  : {
+      eyebrow: 'ML Atlas · Syllabus companion',
+      title: 'Build reproducible AI foundations along one coherent path',
+      body: 'The 25 syllabus topics form a four-part reference course. Every published unit connects a core question, code, existing labs, notebooks, misconception feedback, and artifact checks. Reference hours guide planning without forcing a fixed pace.',
+      start: 'Start with unit one', continue: 'Continue learning', catalog: 'Open the full course catalog', stageOpen: 'Part A published', stagePlanned: 'Stage in development',
+      stageBody: 'All six Part A units now form a complete learning loop. Parts B–D show goals without linking to unfinished pages.',
+      stages: 'Course parts', units: 'Syllabus units', hours: 'Reference hours', completed: 'Completed',
+      supportEyebrow: 'Deep dives and labs', supportTitle: 'The course owns the path; labs make the ideas visible',
+      supportBody: 'The legacy map, Math Lab, Data Lab, algorithm lessons, and projects remain available and now serve as deep-dive resources inside course units.',
+      python: 'Python Data Tools', math: 'Math topic labs', data: 'Data workflow labs', topics: 'Topic library', projects: 'Project practice', progress: 'Review three evidence layers', legacy: 'Legacy knowledge map',
+      openUnit: 'Open unit', plannedBody: 'Opens after the full stage has a complete learning loop', courseArchitecture: 'Course architecture',
+    })
 
-const beginnerRoadmap = computed(() => spinePreviewRoadmap.value)
-
-const roadmapIntro = computed(() => ({
-  eyebrow: localizedText(beginnerRoadmapIntro.eyebrow),
-  title: localizedText(beginnerRoadmapIntro.title),
-  body: localizedText(beginnerRoadmapIntro.body),
-  note: localizedText(beginnerRoadmapIntro.note),
-  action: localizedText(beginnerRoadmapIntro.action),
-}))
-
-const linearAlgebraRouteCopy = computed(() =>
-  locale.value === 'zh-CN'
-    ? {
-        eyebrow: '数学专题路线',
-        title: '线性代数：从样本表示走到 PCA',
-        body:
-          '这条 8 章路线沿同一组数据连接向量、距离、矩阵、rank、最小二乘、特征方向、SVD 和 PCA。每章都保留详细讲解、可视化实验以及可复制的 NumPy 代码。',
-        start: '从第 1 章开始',
-        overview: '查看路线总览',
-        chapterLabel: '章',
-      }
-    : {
-        eyebrow: 'Math focus route',
-        title: 'Linear Algebra: From Sample Representations to PCA',
-        body:
-          'This eight-chapter route follows one data story through vectors, distance, matrices, rank, least squares, eigendirections, SVD, and PCA. Every chapter keeps detailed explanations, visual labs, and copyable NumPy code.',
-        start: 'Start chapter 1',
-        overview: 'View route overview',
-        chapterLabel: 'chapters',
-      },
-)
-
-const homeLinearAlgebraRoute = computed(() =>
-  linearAlgebraRouteModuleIds.map((moduleId, index) => ({
-    id: moduleId,
-    index: index + 1,
-    title: moduleTitle(moduleId),
-    route: `${moduleRoute(moduleId)}?route=linear-algebra-route`,
-  })),
-)
-
-const linearAlgebraStartRoute = computed(() => homeLinearAlgebraRoute.value[0]?.route ?? '/math-lab')
-
-const readinessCheckSource: ReadinessCheck[] = [
-  {
-    title: loc('符号一致', 'Symbol consistency'),
-    description: loc(
-      '看到 x、w、b、ŷ、loss 时，能说出它们在公式、代码、图像和实验控件中的对应位置。',
-      'When you see x, w, b, ŷ, and loss, you can point to the matching formula, code, visual, and control.',
-    ),
-  },
-  {
-    title: loc('实验可复现', 'Reproducible lab work'),
-    description: loc(
-      '能从默认 preset 开始，改变一个变量，记录结果，并通过重置再次得到同类现象。',
-      'You can start from a preset, change one variable, record the result, and reproduce the same kind of behavior after reset.',
-    ),
-  },
-  {
-    title: loc('指标能解释', 'Metric explanation'),
-    description: loc(
-      'accuracy、precision、recall、loss 或 validation gap 变化时，能说清楚是数据、阈值还是模型能力导致。',
-      'When accuracy, precision, recall, loss, or validation gap changes, you can explain whether data, threshold, or capacity caused it.',
-    ),
-  },
-  {
-    title: loc('双语能对齐', 'Bilingual alignment'),
-    description: loc(
-      '切换中英文后，仍能把同一个概念、变量和误区反馈对应起来，而不是重新背一套术语。',
-      'After switching languages, you can still connect the same concept, variable, and misconception feedback instead of memorizing a second vocabulary.',
-    ),
-  },
-]
-
-const readinessChecks = computed(() =>
-  readinessCheckSource.map((check) => ({
-    title: localizedText(check.title),
-    description: localizedText(check.description),
-  })),
-)
-
-const footerText = computed(() =>
-  locale.value === 'zh-CN'
-    ? '从默认学习主线开始，再按需要接入数学、数据和模型实验等辅助内容。'
-    : 'Start with the Default Spine, then add supporting math, data, and model labs when needed.',
-)
+const supportLinks = computed(() => [
+  { route: '/python', label: labels.value.python, description: currentLocale.value === 'zh-CN' ? 'Notebook、NumPy、Pandas 与解释型 EDA。' : 'Notebooks, NumPy, pandas, and explanatory EDA.' },
+  { route: '/math-lab', label: labels.value.math, description: currentLocale.value === 'zh-CN' ? '向量、微积分、概率、优化与深度结构数学。' : 'Vectors, calculus, probability, optimization, and deep-architecture mathematics.' },
+  { route: '/data-lab', label: labels.value.data, description: currentLocale.value === 'zh-CN' ? '数据语义、质量、划分、泛化和正则化。' : 'Data semantics, quality, splits, generalization, and regularization.' },
+  { route: '/library/model', label: labels.value.topics, description: currentLocale.value === 'zh-CN' ? '按主题查找算法讲解和交互实验。' : 'Find algorithm explanations and interactive labs by topic.' },
+  { route: '/tracks/project-practice', label: labels.value.projects, description: currentLocale.value === 'zh-CN' ? '用端到端任务复查数据、模型和评价。' : 'Revisit data, models, and evaluation through end-to-end tasks.' },
+  { route: '/progress', label: labels.value.progress, description: currentLocale.value === 'zh-CN' ? '课程步骤、验收自检和既有实验记录。' : 'Course steps, acceptance checks, and existing lab records.' },
+  { route: '/spine', label: labels.value.legacy, description: currentLocale.value === 'zh-CN' ? '保留全部旧深链和原有知识地图。' : 'Preserves every legacy deep link and the original knowledge map.' },
+])
 </script>
 
 <template>
-  <div class="home-view">
-    <section class="hero home-hero">
-      <div class="hero__copy">
-        <span class="eyebrow">{{ t('home.eyebrow') }}</span>
-        <h1>{{ t('home.title') }}</h1>
-        <p>{{ t('home.subtitle') }}</p>
-        <div class="hero__actions">
-          <router-link class="action-button action-button--primary" :to="continueRoute">
-            {{ continueActionLabel }}
+  <div class="course-page home-course-page">
+    <section class="course-hero home-course-hero">
+      <div class="course-hero__copy">
+        <span class="eyebrow">{{ labels.eyebrow }}</span>
+        <h1>{{ labels.title }}</h1>
+        <p class="course-hero__subtitle">{{ labels.body }}</p>
+        <div class="course-hero__actions">
+          <router-link class="course-primary-action" :to="continueTarget?.route ?? courseUnitRoute(course.id, publishedUnits[0].id)">
+            {{ continueUnit && completion.completed > 0 ? labels.continue : labels.start }}
+            <span v-if="continueUnit">· {{ localizedText(continueUnit.title) }}</span>
           </router-link>
-          <a class="action-button" href="#beginner-roadmap" @click="scrollToRoadmap">
-            {{ t('home.ctaSecondary') }}
-          </a>
-          <router-link class="action-button" to="/python">
-            {{ pythonDataToolsActionLabel }}
-          </router-link>
+          <router-link class="course-secondary-action" :to="courseOverviewRoute(course.id)">{{ labels.catalog }}</router-link>
         </div>
       </div>
-
-      <div class="hero__visual">
-        <aside class="home-progress-panel" aria-labelledby="home-progress-title">
-          <span class="eyebrow">{{ progressLabels.continueEyebrow }}</span>
-          <h2 id="home-progress-title">{{ continueModuleTitle }}</h2>
-          <p>{{ continueBody }}</p>
-
-          <router-link class="action-button action-button--primary" :to="continueRoute">
-            {{ continueActionLabel }}
-          </router-link>
-
-          <div class="home-progress-panel__metrics">
-            <div v-for="metric in progressMetrics" :key="metric.label" class="home-progress-metric">
-              <strong>{{ metric.value }}</strong>
-              <span>{{ metric.label }}</span>
-            </div>
-          </div>
-        </aside>
-
-        <router-link
-          v-for="card in homeDecisionCards.slice(0, 2)"
-          :key="`hero-${card.id}`"
-          class="home-route-chip"
-          :to="card.route"
-        >
-          <span>{{ card.meta }}</span>
-          <strong>{{ card.title }}</strong>
-        </router-link>
-      </div>
+      <dl class="course-hero__metrics">
+        <div><dt>{{ labels.stages }}</dt><dd>{{ course.stages.length }}</dd></div>
+        <div><dt>{{ labels.units }}</dt><dd>{{ course.totalUnits }}</dd></div>
+        <div><dt>{{ labels.hours }}</dt><dd>{{ course.totalHours }}</dd></div>
+        <div><dt>{{ labels.completed }}</dt><dd>{{ completion.completed }}/{{ completion.published }}</dd></div>
+      </dl>
     </section>
 
-    <section class="home-decision-section" aria-labelledby="home-decision-title">
-      <header class="section-header">
-        <span class="eyebrow">{{ locale === 'zh-CN' ? '路线入口' : 'Route entries' }}</span>
-        <h2 id="home-decision-title">
-          {{ locale === 'zh-CN' ? '先决定怎么学，再进入具体章节' : 'Choose how to learn before opening chapters' }}
-        </h2>
-        <p>
-          {{
-            locale === 'zh-CN'
-              ? '默认主线、辅助内容、项目和进度页分别承担不同任务：首页只保留决策入口，完整目录交给专门页面。'
-              : 'The default spine, supporting topics, projects, and progress pages each have a separate job. The homepage keeps the decision entry points and leaves full catalogs to dedicated pages.'
-          }}
-        </p>
+    <section class="home-published-stage">
+      <header>
+        <div><span class="eyebrow">{{ labels.stageOpen }}</span><h2>{{ localizedText(publishedStage.title) }}</h2></div>
+        <p>{{ labels.stageBody }}</p>
       </header>
-
-      <div class="home-decision-grid">
-        <router-link v-for="card in homeDecisionCards" :key="card.id" class="home-decision-card" :to="card.route">
-          <span>{{ card.meta }}</span>
-          <strong>{{ card.title }}</strong>
-          <p>{{ card.body }}</p>
-          <small>{{ card.action }}</small>
-        </router-link>
-      </div>
+      <ol class="home-unit-grid">
+        <li v-for="unit in publishedUnits" :key="unit.id">
+          <router-link :to="courseUnitRoute(course.id, unit.id)">
+            <span>{{ String(unit.order).padStart(2, '0') }}</span>
+            <strong>{{ localizedText(unit.title) }}</strong>
+            <small>{{ localizedText(unit.coreQuestion) }}</small>
+            <em>{{ labels.openUnit }} →</em>
+          </router-link>
+        </li>
+      </ol>
     </section>
 
-    <section
-      id="beginner-roadmap"
-      class="beginner-roadmap home-spine-roadmap"
-      aria-labelledby="beginner-roadmap-title"
-    >
-      <div class="beginner-roadmap__intro">
-        <header class="section-header">
-          <span class="eyebrow">{{ roadmapIntro.eyebrow }}</span>
-          <h2 id="beginner-roadmap-title">{{ roadmapIntro.title }}</h2>
-          <p>{{ roadmapIntro.body }}</p>
-        </header>
-        <div class="beginner-roadmap__aside">
-          <p class="beginner-roadmap__note">{{ roadmapIntro.note }}</p>
-          <router-link class="action-button" to="/spine">
-            {{ roadmapIntro.action }}
-          </router-link>
-        </div>
-      </div>
-
-      <div class="roadmap-timeline">
-        <article
-          v-for="(roadmapStage, index) in beginnerRoadmap"
-          :key="roadmapStage.id"
-          class="roadmap-stage"
-        >
-          <div class="roadmap-stage__marker" aria-hidden="true">
-            <span>{{ stageNumber(index) }}</span>
-          </div>
-
-          <div class="roadmap-stage__body">
-            <div class="roadmap-stage__heading">
-              <span>{{ roadmapStage.duration }}</span>
-              <h3>{{ roadmapStage.title }}</h3>
-              <p>{{ roadmapStage.summary }}</p>
-            </div>
-
-            <ul class="roadmap-stage__concepts" :aria-label="roadmapLabels.concepts">
-              <li v-for="concept in roadmapStage.concepts" :key="concept">
-                {{ concept }}
-              </li>
-            </ul>
-
-            <dl class="roadmap-stage__details">
-              <div>
-                <dt>{{ roadmapLabels.focus }}</dt>
-                <dd>{{ roadmapStage.focus }}</dd>
-              </div>
-              <div>
-                <dt>{{ roadmapLabels.practice }}</dt>
-                <dd>{{ roadmapStage.practice }}</dd>
-              </div>
-              <div>
-                <dt>{{ roadmapLabels.outcome }}</dt>
-                <dd>{{ roadmapStage.outcome }}</dd>
-              </div>
-            </dl>
-
-            <router-link class="roadmap-stage__link" :to="roadmapStage.route">
-              {{ roadmapStage.action }}
-            </router-link>
-          </div>
+    <section class="home-stage-map">
+      <header><span class="eyebrow">{{ labels.courseArchitecture }}</span><h2>{{ labels.stages }}</h2></header>
+      <div class="home-stage-map__grid">
+        <article v-for="stage in course.stages" :key="stage.id" :class="`is-${stage.publicationStatus}`">
+          <span>{{ stage.code }}</span>
+          <h3>{{ localizedText(stage.title) }}</h3>
+          <p>{{ localizedText(stage.description) }}</p>
+          <strong>{{ stage.unitIds.length }} {{ labels.units }}</strong>
+          <small>{{ stage.publicationStatus === 'published' ? labels.stageOpen : `${labels.stagePlanned} · ${labels.plannedBody}` }}</small>
         </article>
       </div>
-
-      <section class="home-focus-route" aria-labelledby="home-linear-algebra-route-title">
-        <header class="home-focus-route__header">
-          <div>
-            <span class="eyebrow">{{ linearAlgebraRouteCopy.eyebrow }}</span>
-            <h3 id="home-linear-algebra-route-title">{{ linearAlgebraRouteCopy.title }}</h3>
-            <p>{{ linearAlgebraRouteCopy.body }}</p>
-          </div>
-          <strong class="home-focus-route__count">
-            {{ homeLinearAlgebraRoute.length }} {{ linearAlgebraRouteCopy.chapterLabel }}
-          </strong>
-        </header>
-
-        <ol class="home-focus-route__chapters">
-          <li v-for="chapter in homeLinearAlgebraRoute" :key="chapter.id">
-            <router-link :to="chapter.route">
-              <span>{{ String(chapter.index).padStart(2, '0') }}</span>
-              <strong>{{ chapter.title }}</strong>
-            </router-link>
-          </li>
-        </ol>
-
-        <div class="home-focus-route__actions">
-          <router-link class="action-button action-button--primary" :to="linearAlgebraStartRoute">
-            {{ linearAlgebraRouteCopy.start }}
-          </router-link>
-          <router-link class="action-button" to="/math-lab#linear-algebra-route">
-            {{ linearAlgebraRouteCopy.overview }}
-          </router-link>
-        </div>
-      </section>
-
-      <aside class="roadmap-checklist" aria-labelledby="roadmap-checklist-title">
-        <div>
-          <span class="eyebrow">{{ roadmapLabels.outcome }}</span>
-          <h3 id="roadmap-checklist-title">{{ roadmapLabels.checksTitle }}</h3>
-          <p>{{ roadmapLabels.checksBody }}</p>
-        </div>
-
-        <div class="roadmap-checklist__list">
-          <article v-for="check in readinessChecks" :key="check.title" class="roadmap-check">
-            <strong>{{ check.title }}</strong>
-            <p>{{ check.description }}</p>
-          </article>
-        </div>
-      </aside>
     </section>
 
-    <footer class="home-footer">
-      <p>{{ footerText }}</p>
-      <router-link class="action-button" :to="continueRoute">
-        {{ continueActionLabel }}
-      </router-link>
-    </footer>
+    <section class="home-support-resources">
+      <header><span class="eyebrow">{{ labels.supportEyebrow }}</span><h2>{{ labels.supportTitle }}</h2><p>{{ labels.supportBody }}</p></header>
+      <div class="home-support-grid">
+        <router-link v-for="link in supportLinks" :key="link.route" :to="link.route"><strong>{{ link.label }}</strong><span>{{ link.description }}</span><em>→</em></router-link>
+      </div>
+    </section>
   </div>
 </template>

@@ -2,6 +2,14 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { curriculumMetadataById } from '../curriculum/catalogMetadata.ts'
+import { aiFoundationCourse } from '../curriculum/courses/data/aiFoundation.ts'
+import {
+  createDefaultCourseProgress,
+  loadCourseProgress,
+  selectCourseContinueTarget,
+  summarizeCourseCompletion,
+  summarizeCourseUnitProgress,
+} from '../curriculum/courses/progress.ts'
 import {
   createDefaultLearningProgressV2,
   migrateLearningProgressV2,
@@ -14,6 +22,7 @@ import type { AppLocale, LocalizedCopy } from '../types/ml'
 const { locale } = useI18n()
 const currentLocale = computed(() => locale.value as AppLocale)
 const progress = ref<LearningProgressV2>(createDefaultLearningProgressV2())
+const courseProgress = ref(createDefaultCourseProgress())
 
 function copy(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
@@ -25,7 +34,15 @@ function localizedText(value: LocalizedCopy) {
 
 onMounted(() => {
   progress.value = migrateLearningProgressV2()
+  courseProgress.value = loadCourseProgress()
 })
+
+const courseContinueTarget = computed(() => selectCourseContinueTarget(courseProgress.value, progress.value, aiFoundationCourse.id))
+const courseContinueUnit = computed(() => aiFoundationCourse.units.find((unit) => unit.id === courseContinueTarget.value?.unitId))
+const courseCompletion = computed(() => summarizeCourseCompletion(aiFoundationCourse, courseProgress.value, progress.value))
+const currentCourseSummary = computed(() => courseContinueUnit.value
+  ? summarizeCourseUnitProgress(courseContinueUnit.value, courseProgress.value, progress.value, aiFoundationCourse.id)
+  : undefined)
 
 const continueTarget = computed(() => selectContinueLearning(progress.value))
 const continueModule = computed(() =>
@@ -59,6 +76,19 @@ const pageCopy = computed(() =>
         observationRecorded: '实验结果已记录',
         explanationComplete: '已保存预测或解释',
         needsExplanation: '可选：补充预测或解释',
+        courseEyebrow: '主课程进度',
+        courseTitle: 'AI 基础参考教材',
+        courseBody: '先看四编、当前单元和三类学习记录，再按需回到旧专题模块与实验记录。',
+        courseCompleted: '已完成单元',
+        coursePublished: '已开放单元',
+        courseContinue: '继续当前单元',
+        courseCatalog: '课程目录',
+        courseStages: '课程阶段',
+        courseSteps: '单元步骤',
+        courseChecks: '验收自检',
+        legacyModules: '旧模块完成记录',
+        correctChecks: '正确 checkpoint',
+        labEvidence: '实验记录',
       }
     : {
         eyebrow: 'Progress',
@@ -76,6 +106,19 @@ const pageCopy = computed(() =>
         observationRecorded: 'Experiment results recorded',
         explanationComplete: 'Prediction or explanation saved',
         needsExplanation: 'Optional: add a prediction or explanation',
+        courseEyebrow: 'Main course progress',
+        courseTitle: 'AI Foundations Reference Course',
+        courseBody: 'Review the four parts, current unit, and three evidence layers before returning to legacy topic modules and lab records as needed.',
+        courseCompleted: 'Units completed',
+        coursePublished: 'Units published',
+        courseContinue: 'Continue current unit',
+        courseCatalog: 'Course catalog',
+        courseStages: 'Course stages',
+        courseSteps: 'Unit steps',
+        courseChecks: 'Acceptance checks',
+        legacyModules: 'Legacy module evidence',
+        correctChecks: 'Correct checkpoints',
+        labEvidence: 'Lab records',
       },
 )
 
@@ -128,6 +171,39 @@ function formattedEvidenceTime(capturedAt: string) {
 
 <template>
   <div class="curriculum-page">
+    <section class="course-hero curriculum-progress-course">
+      <div class="course-hero__copy">
+        <span class="eyebrow">{{ pageCopy.courseEyebrow }}</span>
+        <h1>{{ pageCopy.courseTitle }}</h1>
+        <p>{{ pageCopy.courseBody }}</p>
+        <div class="course-hero__actions">
+          <router-link v-if="courseContinueTarget" class="course-primary-action" :to="courseContinueTarget.route">
+            {{ pageCopy.courseContinue }}<span v-if="courseContinueUnit">· {{ localizedText(courseContinueUnit.title) }}</span>
+          </router-link>
+          <router-link class="course-secondary-action" to="/courses/ai-foundation">{{ pageCopy.courseCatalog }}</router-link>
+        </div>
+      </div>
+      <dl class="course-hero__metrics">
+        <div><dt>{{ pageCopy.courseStages }}</dt><dd>4</dd></div>
+        <div><dt>{{ pageCopy.courseCompleted }}</dt><dd>{{ courseCompletion.completed }}</dd></div>
+        <div><dt>{{ pageCopy.coursePublished }}</dt><dd>{{ courseCompletion.published }}</dd></div>
+        <div><dt>{{ pageCopy.total }}</dt><dd>25</dd></div>
+      </dl>
+    </section>
+
+    <section v-if="currentCourseSummary" class="course-evidence-summary">
+      <div>
+        <span class="eyebrow">{{ pageCopy.courseContinue }}</span>
+        <h2>{{ courseContinueUnit ? localizedText(courseContinueUnit.title) : pageCopy.courseTitle }}</h2>
+        <p>{{ pageCopy.courseSteps }}: {{ currentCourseSummary.completedStepCount }}/{{ currentCourseSummary.requiredStepCount }} · {{ pageCopy.courseChecks }}: {{ currentCourseSummary.confirmedCriterionCount }}/{{ currentCourseSummary.criterionCount }}</p>
+      </div>
+      <dl>
+        <div><dt>{{ pageCopy.legacyModules }}</dt><dd>{{ currentCourseSummary.legacyModuleCount }}</dd></div>
+        <div><dt>{{ pageCopy.correctChecks }}</dt><dd>{{ currentCourseSummary.correctCheckpointCount }}</dd></div>
+        <div><dt>{{ pageCopy.labEvidence }}</dt><dd>{{ currentCourseSummary.labEvidenceCount }}</dd></div>
+      </dl>
+    </section>
+
     <section class="curriculum-hero">
       <div>
         <span class="eyebrow">{{ pageCopy.eyebrow }}</span>

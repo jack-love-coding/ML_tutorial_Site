@@ -2,12 +2,15 @@
 
 ML Atlas 是一个基于 Vue 3、TypeScript、Vite 的机器学习教学站点。项目面向零基础或基础薄弱的学生，用图文教程、互动实验、可视化和 checkpoint 帮助学生把数学、数据处理、模型训练行为连成一条可复习的学习路径。
 
-## 学习地图
+## AI 基础主课程
 
-- Default Spine：默认从 AI 总览、Python notebook、原始数据、特征、损失、训练动态、泛化、表格模型、MLP、CNN 和序列/Embedding 桥接走到 Attention/Transformer 入门。
-- Support Lenses：Math Lab、Data Lab、ML Models 和 Deep Learning Lens 作为按需补课入口，服务主线阶段，不再和默认路线并列抢起点。
-- Projects：房价预测和分类筛查项目作为推荐验证，帮助学习者把清洗、特征、模型选择和指标复盘串起来。
-- Progress：当前进度页保留本地进度与继续学习入口；学习闭环、账号和数据库能力等后端配套会在后续阶段再扩展。
+- 规范入口：`/courses/ai-foundation`。
+- 课程架构：A 数据与编程基础、B 机器学习核心、C 深度学习/CV/NLP、D Transformer/LLM，共 25 个大纲单元、50 个参考学时。
+- 当前发布：A 编六个单元已形成“核心问题—代码—现有资源—实践—误区—checkpoint—成果自检”学习闭环；B—D 编只展示阶段目标和建设状态。
+- Support Lenses：Math Lab、Data Lab、算法讲解和项目实战作为按需深入资源，服务主课程，不与主课程争夺默认起点。
+- Progress：课程步骤和成果自检写入新的本地进度层；原有算法、Math Lab、Data Lab 和 Learning Progress V2 数据保持兼容。
+
+旧 `/spine`、`/learn/*`、Math Lab 和 Data Lab 深链全部保留。Default Spine 继续作为旧知识地图和兼容入口，不再承担首页默认学习路径。
 
 ## 开发命令
 

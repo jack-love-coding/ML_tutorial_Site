@@ -14,6 +14,7 @@ const routes = new Set([
   '/math-lab/diagnostic',
   '/python',
   '/spine',
+  '/courses/ai-foundation',
 ])
 
 function addRoute(route) {
@@ -87,6 +88,11 @@ for (const match of dataLabModules.matchAll(/moduleDefinition\(\{\s*id:\s*['"]([
 const curriculumTracks = readText('src/curriculum/tracks.ts')
 for (const match of curriculumTracks.matchAll(/^\s*id:\s*['"]([^'"]+)['"],/gm)) {
   addRoute(`/tracks/${match[1]}`)
+}
+
+const aiFoundationCourse = readText('src/curriculum/courses/data/aiFoundation.ts')
+for (const match of aiFoundationCourse.matchAll(/id:\s*'(0[1-6]-[^']+)'/g)) {
+  addRoute(`/courses/ai-foundation/units/${match[1]}`)
 }
 
 copyFileSync(indexPath, join(distDir, '404.html'))

@@ -41,14 +41,13 @@ function read(path: string) {
 test('curriculum navigation exposes direct primary destinations and one category menu', () => {
   assert.deepEqual(
     curriculumNavigationMenus.map((menu) => menu.id),
-    ['learning-path', 'python-data-tools', 'topic-library', 'projects', 'progress'],
+    ['courses', 'topic-library', 'projects', 'progress'],
   )
 
   const byId = new Map(curriculumNavigationMenus.map((item) => [item.id, item]))
-  assert.equal(byId.get('learning-path')?.route, '/spine')
-  assert.equal(byId.get('python-data-tools')?.route, '/python')
-  assert.equal(byId.get('python-data-tools')?.label['zh-CN'], 'Python 数据工具')
-  assert.equal(byId.get('python-data-tools')?.label.en, 'Python Data Tools')
+  assert.equal(byId.get('courses')?.route, '/courses/ai-foundation')
+  assert.equal(byId.get('courses')?.label['zh-CN'], 'AI 基础课程')
+  assert.equal(byId.get('courses')?.label.en, 'AI Foundations')
   assert.equal(byId.get('projects')?.route, '/tracks/project-practice')
   assert.equal(byId.get('progress')?.route, '/progress')
   assert.equal(byId.get('topic-library')?.label['zh-CN'], '专题学习')
@@ -56,7 +55,7 @@ test('curriculum navigation exposes direct primary destinations and one category
   const topicItems = byId.get('topic-library')?.groups.flatMap((group) => group.items) ?? []
   assert.deepEqual(
     topicItems.map((item) => item.route),
-    ['/library/math', '/library/data', '/library/model', '/library/deep-learning'],
+    ['/spine', '/python', '/library/math', '/library/data', '/library/model', '/library/deep-learning'],
   )
   assert.equal(topicItems.some((item) => item.route.startsWith('/learn/')), false)
   assert.equal(topicItems.some((item) => item.route.startsWith('/math-lab/modules/')), false)
@@ -68,12 +67,14 @@ test('curriculum navigation exposes direct primary destinations and one category
 })
 
 test('each curriculum route has one navigation owner without changing canonical or legacy coverage', () => {
+  assert.equal(resolveActiveSiteNavigationMenuId('/courses/ai-foundation'), 'courses')
+  assert.equal(resolveActiveSiteNavigationMenuId('/courses/ai-foundation/units/01-ai-map-python'), 'courses')
   assert.equal(resolveActiveSiteNavigationMenuId('/library/project'), 'projects')
   assert.equal(resolveActiveSiteNavigationMenuId('/library/math'), 'topic-library')
-  assert.equal(resolveActiveSiteNavigationMenuId('/learn/gradient-descent'), 'learning-path')
-  assert.equal(resolveActiveSiteNavigationMenuId('/learn/python-notebook/numpy-foundations'), 'python-data-tools')
-  assert.equal(resolveActiveSiteNavigationMenuId('/python/pandas-analysis'), 'python-data-tools')
-  assert.equal(resolveActiveSiteNavigationMenuId('/tracks/core-learning-path'), 'learning-path')
+  assert.equal(resolveActiveSiteNavigationMenuId('/learn/gradient-descent'), 'topic-library')
+  assert.equal(resolveActiveSiteNavigationMenuId('/learn/python-notebook/numpy-foundations'), 'topic-library')
+  assert.equal(resolveActiveSiteNavigationMenuId('/python/pandas-analysis'), 'topic-library')
+  assert.equal(resolveActiveSiteNavigationMenuId('/tracks/core-learning-path'), 'topic-library')
   assert.equal(resolveActiveSiteNavigationMenuId('/math-lab/modules/beginner-linear-algebra'), 'topic-library')
 })
 
@@ -228,6 +229,8 @@ test('router wires canonical routes while preserving legacy deep links', () => {
   assert.match(routerSource, /path: '\/tracks\/:trackId'/)
   assert.match(routerSource, /path: '\/library\/:domain'/)
   assert.match(routerSource, /path: '\/progress'/)
+  assert.match(routerSource, /path: '\/courses\/:courseId'/)
+  assert.match(routerSource, /path: '\/courses\/:courseId\/units\/:unitId'/)
   assert.match(routerSource, /path: '\/python'/)
   assert.match(routerSource, /path: '\/python\/:chapterId'/)
   assert.match(routerSource, /query: to\.query/)
