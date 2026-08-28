@@ -643,7 +643,7 @@ Use the Three.js probability simplex and adjust logits plus temperature. Watch t
 ### Source References
 Rewritten from Google MLCC Multiclass and D2L Softmax Regression.`,
       ),
-      loc('多分类的关键是共享概率预算，而不是多复制几个二分类器。', 'The key is a shared probability budget, not copying several binary classifiers.'),
+      loc('多分类的关键是共享概率预算，而不是多复制几个二分类器。到这里，损失 → 回归 → 项目 → 概率 → 决策的走廊已经闭合；请回到 AI 基础单元 09 完成成果自检。', 'The key is a shared probability budget, not copying several binary classifiers. This closes the loss → regression → project → probability → decision corridor; return to AI Foundations unit 09 for artifact self-checks.'),
       loc('降低 temperature，观察概率分布如何变得更尖锐。', 'Lower temperature and watch the probability distribution become sharper.'),
       ['classification-softmax-video'],
       [sources.mlccMulticlass, sources.d2lSoftmax],

@@ -78,6 +78,7 @@ const algorithmManifests: AlgorithmModuleManifest[] = [
     summaryKey: 'modules.housingPriceProject.summary',
     domain: 'project',
     level: 'beginner',
+    prerequisites: ['linear-regression'],
     lessons: [
       { id: 'csv-to-frame' },
       { id: 'eda-first-pass' },
@@ -287,7 +288,7 @@ const algorithmManifests: AlgorithmModuleManifest[] = [
       { id: 'regularization' },
       { id: 'linear-limits' },
     ],
-    prerequisites: ['loss-functions'],
+    prerequisites: ['loss-functions', 'linear-regression', 'housing-price-project'],
   },
   {
     slug: 'classification',
