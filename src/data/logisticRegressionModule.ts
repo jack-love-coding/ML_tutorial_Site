@@ -477,8 +477,8 @@ $$\\mathbf{w}^\\top\\mathbf{x}+b=0 \\Rightarrow \\text{one straight split}$$
 Do not blame XOR failure on not training long enough. If the model family lacks the right shape, more training only finds a compromise.`,
       ),
       callout: loc(
-        '把“训练不够”和“模型族不够”区分开，是进入 MLP 的关键。',
-        'Separating insufficient training from insufficient model capacity is the bridge into MLP.',
+        '先把“训练不够”和“模型族不够”区分开；下一站分类决策会固定这些概率，再单独选择阈值、成本与评价指标。MLP 作为后续非线性模型继续保留。',
+        'First separate insufficient training from insufficient model capacity. The next stop, Classification Decisions, freezes these probabilities before choosing thresholds, costs, and metrics. MLP remains the later nonlinear-model continuation.',
       ),
       experimentPrompt: loc(
         '切到 XOR 预设并播放到最后，观察准确率和 loss 是否进入平台期。',

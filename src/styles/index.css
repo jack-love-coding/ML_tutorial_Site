@@ -16,6 +16,7 @@
 @import './modules/gradient-visuals.css';
 @import './shared/markdown-math.css';
 @import './shared/primitives.css';
+@import './shared/corridor-navigator.css';
 @import './modules/mlp.css';
 @import './modules/linear-regression.css';
 @import './modules/housing-project.css';

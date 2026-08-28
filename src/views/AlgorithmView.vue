@@ -20,7 +20,12 @@ import TeachingDashboard from '../components/TeachingDashboard.vue'
 import LineChart from '../components/LineChart.vue'
 import PlaybackDock from '../components/PlaybackDock.vue'
 import MarkdownMathContent from '../components/MarkdownMathContent.vue'
+import CorridorNavigator from '../components/CorridorNavigator.vue'
 import { isLessonPagePilotSlug, lessonLabRegistry } from '../lessons/labRegistry'
+import {
+  isClassicalSupervisedCorridorModule,
+  type ClassicalSupervisedCorridorModuleId,
+} from '../curriculum/milestones/classicalSupervisedCorridor.ts'
 import { withPublicBase } from '../utils/publicPath'
 import {
   loadAlgorithmProgress,
@@ -137,6 +142,9 @@ const isWorkflowLessonPage = computed(
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
 const isClassificationPage = computed(() => slug.value === 'classification')
+const corridorModuleId = computed<ClassicalSupervisedCorridorModuleId | undefined>(() =>
+  isClassicalSupervisedCorridorModule(slug.value) ? slug.value : undefined,
+)
 const isMlpPage = computed(() => slug.value === 'mlp')
 const isNeuralGuidedPage = computed(() => isMlpPage.value || isCnnVisualizationPage.value)
 const isLessonPagePilot = computed(() => isLessonPagePilotSlug(slug.value))
@@ -514,6 +522,8 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
         </div>
       </div>
     </section>
+
+    <CorridorNavigator v-if="corridorModuleId" :module-id="corridorModuleId" />
 
     <NeuralGuidedLesson
       v-if="isMlpPage"

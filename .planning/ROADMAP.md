@@ -242,6 +242,11 @@
 4. Existing module IDs, legacy/canonical routes, checkpoints, Progress V1/V2 storage, safe Markdown rendering, and GitHub Pages base paths remain compatible.
 5. Full tests, standard build, Pages build, security audit, and bilingual desktop plus 390px browser checks pass with accessible static/reduced-motion fallbacks.
 
+**Plans:** 1/1 plan executed
+**Status:** Complete — typed corridor, AI Foundations mappings, full release gates, and 20-case browser matrix passed 2026-08-29
+
+- [x] 31-PLAN.md — Typed five-step corridor, shared navigator, catalog handoffs, AI Foundations mappings, compatibility checks, and release verification
+
 ## Progress
 
 | Phase | Milestone | Requirements | Status |
@@ -254,7 +259,7 @@
 | 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | Complete — 2026-08-13 |
 | 29. Logistic Regression Rebuild | v1.1 | 4 | Complete — 2026-08-29 |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Complete — 2026-08-29 |
-| 31. Corridor Integration and Release | v1.1 | 5 | Not started |
+| 31. Corridor Integration and Release | v1.1 | 5 | Complete — 2026-08-29 |
 
 ---
 *Roadmap approved: 2026-07-27*

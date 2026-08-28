@@ -79,7 +79,9 @@ export const curriculumCatalogMetadata = [
     },
     "route": "/learn/housing-price-project",
     "estimatedMinutes": 72,
-    "prerequisiteIds": [],
+    "prerequisiteIds": [
+      "linear-regression"
+    ],
     "outcomeIds": [
       "housing-project-leakage",
       "housing-project-evaluation"
@@ -407,7 +409,9 @@ export const curriculumCatalogMetadata = [
     "route": "/learn/logistic-regression",
     "estimatedMinutes": 72,
     "prerequisiteIds": [
-      "loss-functions"
+      "loss-functions",
+      "linear-regression",
+      "housing-price-project"
     ],
     "outcomeIds": [
       "logistic-score-sigmoid",
