@@ -1,10 +1,12 @@
 ---
 phase: 29-logistic-regression-rebuild
-verified: 2026-08-19T18:50:04Z
-status: human_needed
+verified: 2026-08-29T01:23:38+08:00
+status: passed
 score: 34/34 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
+human_verification_completed: 2026-08-29T01:23:38+08:00
+human_verification_result: passed
 human_verification:
   - test: "Read all six Chinese chapters at 1200px, then linear-score, likelihood, log-loss, and linear-limits in both languages at 1440px, 768px, and 390px. Use each lab by keyboard and touch where available."
     expected: "The content-first order is easy to follow, controls remain touch-comfortable, the SVG/table fallbacks are understandable, and no important teaching relationship relies on colour or motion alone."
@@ -20,9 +22,9 @@ human_verification:
 # Phase 29: Logistic Regression Rebuild Verification Report
 
 **Phase Goal:** Rebuild `logistic-regression` so learners can trace linear scores through sigmoid probabilities, likelihood, stable BCE, scratch gradients, library parity, calibration, and linear-boundary failure.
-**Verified:** 2026-08-19T18:50:04Z
-**Status:** human_needed
-**Re-verification:** No — initial verification
+**Verified:** 2026-08-29T01:23:38+08:00
+**Status:** passed
+**Re-verification:** Yes — final user UAT closure after rebasing onto the AI Foundations mainline
 
 ## Goal Achievement
 
@@ -128,9 +130,9 @@ I treated the summaries and prior reviews as pointers only. This report rechecke
 
 | Plan boundary | Automated evidence | Status |
 | --- | --- | --- |
-| Do not assign unsupported real-world meanings to class 0/1. | Typed course copy calls the targets only `class 0`/`class 1`; content/browser contracts reject alternate target semantics. | ⚠️ Human semantic approval requested |
+| Do not assign unsupported real-world meanings to class 0/1. | Typed course copy calls the targets only `class 0`/`class 1`; content/browser contracts reject alternate target semantics. | ✓ USER VERIFIED |
 | Do not disclose test labels, test metrics, test calibration bins, or test-driven choices in Phase 29 learner flow. | Learner manifest projection strips handoff fields; course downloads omit frozen predictions; browser matrix observes no handoff request or reserved-test copy. | ✓ VERIFIED |
-| Do not present synthetic XOR/circles as Banknote data, fitting inputs, selection results, or a way to bend a line. | Data types, course wording, localized table/provenance labels, lab tests, and browser matrix keep sources separate. | ⚠️ Human semantic approval requested |
+| Do not present synthetic XOR/circles as Banknote data, fitting inputs, selection results, or a way to bend a line. | Data types, course wording, localized table/provenance labels, lab tests, and browser matrix keep sources separate. | ✓ USER VERIFIED |
 
 ### Anti-Patterns Found
 
@@ -138,7 +140,7 @@ I treated the summaries and prior reviews as pointers only. This report rechecke
 | --- | --- | --- | --- |
 | `scripts/manim/render_logistic_regression.py` | “not available yet” in a missing-media error | ℹ️ Info | Genuine fail-closed error path, not a placeholder implementation. |
 | `package-lock.json` | `XXX` substring inside integrity hashes | ℹ️ Info | Hash bytes, not a debt marker. |
-| `package-lock.json` / audit | `nanoid@3.3.16` is below advisory-fixed `<3.3.18` threshold | ⚠️ Pre-existing | `npm run security:audit` reports one high advisory. Phase 29 did not change nanoid; its only dependency addition pins `@playwright/cli@0.1.18`. This is not counted as a Phase 29 gap. |
+| `package-lock.json` / audit | `nanoid@3.3.18` and `@playwright/cli@0.1.18` coexist after mainline integration | ✓ Resolved | The AI Foundations security patch and Phase 29 browser dependency are both retained; `npm run security:audit` reports zero vulnerabilities. |
 
 ### Disconfirmation Pass
 
@@ -146,7 +148,7 @@ I treated the summaries and prior reviews as pointers only. This report rechecke
 - **Potentially misleading test checked:** `tests/logistic-regression-release.test.mjs` has source-inspection assertions that alone would not prove a browser flow. The real `test:phase29:browser` run independently exercised its 30 cases, six lab mutations/resets, copy failure, corrupt/HTTP asset failures, and MP4 failure.
 - **Potential uncovered error path checked:** browser runner timeout/cleanup could otherwise leave processes. The runner has bounded process and preview APIs with tests for spawn/child/timeout/SIGKILL paths; this verification's matrix also ended with no matching preview or Playwright process.
 
-### Human Verification Required
+### Human Verification Completed
 
 ### 1. Bilingual instructional reading and interaction quality
 
@@ -154,7 +156,7 @@ I treated the summaries and prior reviews as pointers only. This report rechecke
 
 **Expected:** The content-first lesson progression, responsive TOC, controls, SVG descriptions, and tables remain genuinely comfortable and comprehensible.
 
-**Why human:** Browser automation can detect overflow/DOM/focus outcomes, not teaching clarity or touch ergonomics.
+**Result:** Passed by the user on 2026-08-29 after reviewing the bilingual course and interactions.
 
 ### 2. Media clarity and fallback equivalence
 
@@ -162,13 +164,21 @@ I treated the summaries and prior reviews as pointers only. This report rechecke
 
 **Expected:** A learner can follow the same mathematical point from video, poster, and transcript.
 
-**Why human:** Asset validity and fallback visibility are automated; visual explanation quality is perceptual.
+**Result:** Passed by the user on 2026-08-29 after reviewing the four media packages and fallbacks.
+
+### 3. Class semantics and synthetic-data boundary
+
+**Test:** Review class 0/class 1 wording and the XOR/circles explanations in both locales.
+
+**Expected:** The target classes remain intentionally uninterpreted and synthetic diagnostics remain separate from Banknote evidence.
+
+**Result:** Passed by the user on 2026-08-29.
 
 ### Gaps Summary
 
-No Phase 29-owned implementation gap was found. Automated goal evidence is complete; the status is `human_needed` solely because the validation plan correctly reserves visual/instructional quality for human review. The `nanoid` audit advisory predates this phase and remains visible rather than being suppressed or silently upgraded.
+No Phase 29-owned implementation or acceptance gap remains. The rebased branch passed 1,101 executed tests with 28 skips, both builds, the 30-case browser matrix, and a zero-vulnerability audit; the user then approved all three human UAT items.
 
 ---
 
-_Verified: 2026-08-19T18:50:04Z_  
-_Verifier: the agent (gsd-verifier)_
+_Verified: 2026-08-29T01:23:38+08:00_
+_Verifier: automated verification plus explicit user UAT approval_

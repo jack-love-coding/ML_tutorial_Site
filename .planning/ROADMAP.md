@@ -178,6 +178,7 @@
 5. The existing route, checkpoint, lab behavior, downloadable Notebook/output package, focused tests, and both builds remain valid.
 
 **Plans:** 8/8 plans executed
+**Status:** Complete — automated release gates and user UAT passed 2026-08-29
 **Wave 1**
 
 - [x] 29-00-PLAN.md — Wave 0 fail-first contracts for every numerical, asset, content, lab, media, compatibility, and release surface
@@ -246,7 +247,7 @@
 | 28. Tabular Regression Project | v1.1 | 5 | Complete — 2026-08-04 |
 | 28A. Gradient Descent Beginner Teaching Rebuild | v1.1 | 6 | Complete — 2026-08-11 |
 | 28B. Optimizer Principles, State, and MLP Transfer | v1.1 | 6 | Complete — 2026-08-13 |
-| 29. Logistic Regression Rebuild | v1.1 | 4 | In Progress|
+| 29. Logistic Regression Rebuild | v1.1 | 4 | Complete — 2026-08-29 |
 | 30. Classification Decisions Rebuild | v1.1 | 6 | Not started |
 | 31. Corridor Integration and Release | v1.1 | 5 | Not started |
 
