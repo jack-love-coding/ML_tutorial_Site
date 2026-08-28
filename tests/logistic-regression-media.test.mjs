@@ -38,7 +38,7 @@ test('Phase 29 source renderer maps exactly four manifest-bound scene IDs and re
   for (const className of ['LinearScoreToSigmoidScene', 'LikelihoodBceGradientScene', 'ConfidentMistakeScene', 'RegularizationConfidenceScene']) {
     assert.match(source, new RegExp(`class ${className}`), `${className} is declared`)
   }
-  const validation = execFileSync('python3', [renderer, '--validate-sources'], { cwd: root, encoding: 'utf8' })
+  const validation = execFileSync('python3', ['-S', renderer, '--validate-sources'], { cwd: root, encoding: 'utf8' })
   assert.match(validation, /4 logistic scenes/i)
   assert.throws(
     () => execFileSync('python3', [renderer, '--scene', 'unknown-scene', '--quality', 'preview'], { cwd: root, encoding: 'utf8', stdio: 'pipe' }),

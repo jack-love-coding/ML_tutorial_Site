@@ -9,8 +9,8 @@ release gate once Plan 29-04 has published all four binary packages.
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
-import importlib.util
 import json
 import math
 import re
@@ -75,27 +75,70 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _load_scene_module() -> Any:
-    spec = importlib.util.spec_from_file_location("phase29_logistic_scenes", SCENE_FILE)
-    if spec is None or spec.loader is None:
-        raise RuntimeError("Could not load logistic Manim scene source")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+def _load_scene_contract() -> tuple[set[str], str, dict[str, dict[str, str]]]:
+    """Read the declarative scene contract without importing Manim."""
+    tree = ast.parse(SCENE_FILE.read_text(encoding="utf-8"), filename=str(SCENE_FILE))
+    class_names = {node.name for node in tree.body if isinstance(node, ast.ClassDef)}
+    declarations: dict[str, Any] = {}
+    for node in tree.body:
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1 or not isinstance(node.targets[0], ast.Name):
+            continue
+        name = node.targets[0].id
+        if name in {"CONTRACT_VERSION", "SCENE_ANCHORS"}:
+            declarations[name] = ast.literal_eval(node.value)
+    contract_version = declarations.get("CONTRACT_VERSION")
+    scene_anchors = declarations.get("SCENE_ANCHORS")
+    if not isinstance(contract_version, str) or not isinstance(scene_anchors, dict):
+        raise RuntimeError("Logistic scene contract declarations are missing or invalid")
+    return class_names, contract_version, scene_anchors
+
+
+def _load_phase29_anchors(
+    scene_id: str,
+    contract_version: str,
+    scene_anchors: dict[str, dict[str, str]],
+) -> dict[str, Any]:
+    """Verify the same manifest-bound anchors used by the render-time scenes."""
+    phase_dir = ROOT / "public" / "logistic-regression" / "phase-29"
+    manifest_path = phase_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("contractVersion") != contract_version:
+        raise RuntimeError("Phase 29 manifest contract version drifted")
+    records = {record.get("id"): record for record in manifest.get("assets", [])}
+    anchors: dict[str, Any] = {}
+    for asset_id, expected_cell in scene_anchors[scene_id].items():
+        record = records.get(asset_id)
+        if not isinstance(record, dict):
+            raise RuntimeError(f"Missing manifest asset for {asset_id}")
+        if record.get("sourceCellId") != expected_cell:
+            raise RuntimeError(f"Source cell drift for {asset_id}")
+        relative_path = record.get("path")
+        if not isinstance(relative_path, str) or relative_path.startswith("/") or ".." in Path(relative_path).parts:
+            raise RuntimeError(f"Unsafe manifest path for {asset_id}")
+        path = phase_dir / relative_path
+        if not path.is_file() or record.get("sha256") != sha256(path):
+            raise RuntimeError(f"Interaction hash drift for {asset_id}")
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload.get("id") != asset_id or payload.get("sceneId") != asset_id or payload.get("sourceCellId") != expected_cell:
+            raise RuntimeError(f"Interaction identity drift for {asset_id}")
+        anchors[asset_id] = payload
+    return anchors
 
 
 def validate_sources(scene_id: str | None = None) -> None:
     """Verify identity, source-cell, hash, and finite-value contracts pre-render."""
     if not SCENE_FILE.is_file():
         raise SystemExit(f"Missing scene source: {SCENE_FILE}")
-    module = _load_scene_module()
+    class_names, contract_version, scene_anchors = _load_scene_contract()
     scene_ids = [scene_id] if scene_id else list(SCENES)
     for selected in scene_ids:
         spec = SCENES[selected]
-        if not isinstance(getattr(module, spec["className"], None), type):
+        if spec["className"] not in class_names:
             raise SystemExit(f"Scene class missing: {spec['className']}")
+        if selected not in scene_anchors:
+            raise SystemExit(f"Scene anchor mapping missing: {selected}")
         try:
-            anchors = module.load_phase29_anchors(selected)
+            anchors = _load_phase29_anchors(selected, contract_version, scene_anchors)
         except (OSError, ValueError, RuntimeError, json.JSONDecodeError) as error:
             raise SystemExit(f"Phase 29 anchor contract failed for {selected}: {error}") from error
         if not anchors:

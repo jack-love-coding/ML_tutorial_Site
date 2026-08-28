@@ -147,6 +147,7 @@ I treated the summaries and prior reviews as pointers only. This report rechecke
 - **Potential partial requirement checked:** the raw reproducibility manifest necessarily mentions a Phase 30 handoff. I traced the learner data flow rather than accepting the flag: the runtime parser strips the handoff, the lesson never links frozen predictions, and the live browser found neither a request nor learner-visible labels/results. The manifest download contains integrity metadata, not the records themselves.
 - **Potentially misleading test checked:** `tests/logistic-regression-release.test.mjs` has source-inspection assertions that alone would not prove a browser flow. The real `test:phase29:browser` run independently exercised its 30 cases, six lab mutations/resets, copy failure, corrupt/HTTP asset failures, and MP4 failure.
 - **Potential uncovered error path checked:** browser runner timeout/cleanup could otherwise leave processes. The runner has bounded process and preview APIs with tests for spawn/child/timeout/SIGKILL paths; this verification's matrix also ended with no matching preview or Playwright process.
+- **Fresh-run CI environment checked:** the Pages workflow installs the existing pinned scikit-learn 1.9 runtime used by parity tests, while `--validate-sources` now succeeds under `python3 -S` and therefore does not require Manim merely to inspect source and manifest contracts.
 
 ### Human Verification Completed
 
