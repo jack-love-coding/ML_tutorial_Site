@@ -1,5 +1,5 @@
 {
-  "python": "3.12.13",
+  "python": "3.12",
   "platformContract": "portable-cpython-3.12",
   "dependencies": {
     "numpy": "2.4.6",
