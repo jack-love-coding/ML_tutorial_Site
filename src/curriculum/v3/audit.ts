@@ -106,8 +106,8 @@ const auditEvidence: Record<string, AuditEvidence> = {
     contractGaps: ['Needs a scratch gradient implementation matched to a library model, calibrated probability checks, and a nonlinearly separable failure example.'],
   },
   classification: {
-    strengths: ['Lets learners change thresholds, prevalence, and error costs while confusion metrics, precision/recall, ROC/AUC, calibration bins, and the softmax simplex update together.'],
-    contractGaps: ['Needs a held-out threshold decision with confidence intervals or fold variation, explicit cost justification, and saved misclassification evidence across subgroups.'],
+    strengths: ['Uses fixed held-out probabilities to connect threshold sweeps, confusion metrics, ROC/AUC ranking, explicit error cost, fold variation, a one-time locked test summary, feature slices, named validation errors, and the boundary between ranking and probability calibration; multiclass softmax remains available as supporting content.'],
+    contractGaps: ['Production deployment still needs calibration-drift monitoring and protected-attribute fairness evidence beyond the pedagogical feature slices.'],
   },
   mlp: {
     strengths: ['Connects affine neurons and activations to hidden representations, forward output, backpropagation, training dynamics, capacity, and generalization.'],

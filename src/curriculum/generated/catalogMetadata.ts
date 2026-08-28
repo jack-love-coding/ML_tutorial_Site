@@ -429,8 +429,8 @@ export const curriculumCatalogMetadata = [
       "en": "Classification"
     },
     "summary": {
-      "zh-CN": "独立补全分类教学：学生可以拖动阈值、改变类别比例和错误成本，并观察指标、ROC 曲线、校准分箱和 softmax 单纯形如何同步变化。",
-      "en": "A complete classification module where students drag thresholds, change prevalence and error costs, and watch metrics, ROC, calibration bins, and the softmax simplex update together."
+      "zh-CN": "在固定 Banknote validation 分数上复算混淆矩阵、Precision/Recall/F1、ROC/AUC、成本阈值与折间波动，再查看具名错误并只汇总一次锁定 test；softmax 作为多分类延伸保留。",
+      "en": "Recompute confusion metrics, ROC/AUC, a cost-aware threshold, and fold variation from frozen Banknote validation scores; inspect named errors, summarize locked test once, and retain softmax as a multiclass extension."
     },
     "route": "/learn/classification",
     "estimatedMinutes": 96,

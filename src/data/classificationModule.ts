@@ -47,6 +47,11 @@ const sources = {
     href: 'https://d2l.ai/chapter_linear-classification/softmax-regression.html',
     license: 'CC BY-SA 4.0',
   },
+  uciBanknote: {
+    label: loc('UCI：Banknote Authentication 数据集', 'UCI: Banknote Authentication dataset'),
+    href: 'https://archive.ics.uci.edu/dataset/267/banknote+authentication',
+    license: 'CC BY 4.0',
+  },
 } satisfies Record<string, ModuleSourceReference>
 
 function chapter(
@@ -160,8 +165,8 @@ export const classificationModule: AlgorithmModuleDefinition = {
   visuals: classificationVisuals,
   checkpoints: algorithmCheckpointsBySlug.classification,
   sourceNote: loc(
-    '本模块改写并重组自 Google Machine Learning Crash Course 的 Classification 系列，补充 scikit-learn 指标定义和 D2L softmax 结构。Google 内容按 CC BY 4.0 署名使用，D2L 按 CC BY-SA 4.0 署名使用。',
-    'This module rewrites and reorganizes Google Machine Learning Crash Course classification lessons, with supplemental metric framing from scikit-learn and softmax structure from D2L. Google content is attributed under CC BY 4.0; D2L is attributed under CC BY-SA 4.0.',
+    '本模块使用 Phase 29 冻结的 UCI Banknote validation 概率作为二分类证据，test 仅在阈值锁定后汇总一次；讲解改写自 Google MLCC，指标定义参考 scikit-learn，多分类结构参考 D2L。',
+    'This module uses frozen Phase 29 UCI Banknote validation probabilities as binary evidence and summarizes test once only after threshold freeze; teaching is adapted from Google MLCC, metric definitions from scikit-learn, and multiclass structure from D2L.',
   ),
   chapters: [
     chapter(
@@ -328,7 +333,7 @@ Move the threshold and watch the four cells change. Notice how raising the thres
 Rewritten from Google MLCC confusion-matrix and accuracy material, with metric naming aligned to scikit-learn.`,
       ),
       loc('先读四个格子，再读任何派生指标。', 'Read the four cells before any derived metric.'),
-      loc('把类别比例调到低正例场景，观察 accuracy 为什么可能误导。', 'Set a low positive prevalence and observe why accuracy can mislead.'),
+      loc('在固定 validation 样本上移动阈值，先读四格数量，再解释 accuracy 的变化。', 'Move the threshold on frozen validation rows; read the four cells before explaining accuracy.'),
       ['confusion-matrix-outcomes', 'classification-confusion-video'],
       [sources.mlccMetrics, sources.sklearnEvaluation],
       ['accuracy'],
@@ -404,7 +409,7 @@ Rewritten from Google MLCC Accuracy, Precision, Recall, with definitions aligned
 如果两个模型 accuracy 相同，怎样选更合适的？
 
 ### 概念直觉
-分类器最终服务行动。误报会触发不必要的行动，漏报会错过应该采取的行动。只要两种错误成本不一样，单看 accuracy 就会丢失关键信息。把成本写进实验，学生才能看到“同一个混淆矩阵为什么在不同任务里价值不同”。
+分类器最终服务行动。误报会触发不必要的行动，漏报会错过应该采取的行动。本页固定 Phase 29 模型分数，只在 validation 的 99 个候选阈值上计算成本，再按“最低成本、离 0.5 最近、仍并列则取更低阈值”的规则锁定阈值。
 
 ### 手算例子
 模型 A 有 $FP=6,FN=1$；模型 B 有 $FP=2,FN=4$。若 $FP$ 成本为 1、$FN$ 成本为 5，则：
@@ -419,10 +424,10 @@ $$C_B=2\\times1+4\\times5=22$$
 $$\\text{expected cost}=\\frac{c_{FP}FP+c_{FN}FN}{N}$$
 
 ### 常见误解
-不要把指标选择当成纯技术问题。指标是任务价值观的编码。
+不要在 test 上反复试阈值。这里 validation 选出 0.09，五个确定性切片给出 0.01–0.50 的宽范围，说明阈值稳定性有限；锁定后仍只在 test 汇总一次，不用结果回头重选。
 
 ### 交互实验设计
-调高 false-negative cost，再扫描阈值。观察 expected cost 曲线最低点如何改变。
+调高 false-negative cost，再扫描同一批固定 validation 概率。推荐阈值可以变化，但锁定 test 证据始终绑定已发布的 1:5 成本策略。
 
 ### 来源参考
 改写自 Google MLCC 阈值和错误取舍内容，结合实际评估指标的成本解释。`,
@@ -430,7 +435,7 @@ $$\\text{expected cost}=\\frac{c_{FP}FP+c_{FN}FN}{N}$$
 If two models have the same accuracy, how do we choose?
 
 ### Concept
-Classifiers serve actions. False positives trigger unnecessary action; false negatives miss action that should have happened. If those two errors have different costs, accuracy drops key information. Writing cost into the lab lets students see why the same confusion matrix can mean different things in different tasks.
+Classifiers serve actions. False positives trigger unnecessary action; false negatives miss action that should have happened. This page freezes the Phase 29 model scores, evaluates 99 candidate thresholds on validation only, then uses a deterministic lowest-cost tie break to freeze the operating threshold.
 
 ### Worked Example
 Model A has $FP=6,FN=1$; model B has $FP=2,FN=4$. If false positives cost 1 and false negatives cost 5:
@@ -445,10 +450,10 @@ Even though B has fewer false positives, A may be the better operational choice.
 $$\\text{expected cost}=\\frac{c_{FP}FP+c_{FN}FN}{N}$$
 
 ### Common Mistake
-Metric choice is not purely technical. It encodes task values.
+Do not retry thresholds on test. Validation selects 0.09, while five deterministic slices span 0.01–0.50 and expose instability; after freezing, test is summarized once and cannot trigger reselection.
 
 ### Interaction Design
-Raise false-negative cost, then scan thresholds. Watch where expected cost is minimized.
+Raise false-negative cost, then scan the same frozen validation probabilities. The recommendation can move, while locked test evidence remains bound to the published 1:5 cost policy.
 
 ### Source References
 Rewritten from Google MLCC thresholding and error-tradeoff material.`,
@@ -456,7 +461,7 @@ Rewritten from Google MLCC thresholding and error-tradeoff material.`,
       loc('成本让指标从“看起来好”变成“对任务有用”。', 'Cost turns metrics from looking good into being useful for the task.'),
       loc('把漏报成本设为误报的 5 倍，观察最佳阈值倾向。', 'Set false-negative cost to five times false-positive cost and inspect the threshold preference.'),
       ['threshold-score-ruler'],
-      [sources.mlccThresholding, sources.sklearnEvaluation],
+      [sources.mlccThresholding, sources.sklearnEvaluation, sources.uciBanknote],
       ['expectedCost'],
     ),
     chapter(
@@ -481,7 +486,7 @@ $$AUC=\\int_0^1 TPR(FPR)\\,dFPR$$
 AUC 高不自动给出最终阈值。它衡量排序质量，阈值仍要结合成本、产能和业务目标。
 
 ### 交互实验设计
-拖动阈值时，观察 ROC 图上的当前点如何移动；改变 separability，观察整条曲线如何贴近或远离左上角。
+拖动阈值时，观察固定 validation ROC 图上的当前点如何移动。整条曲线和 AUC 不会因为选择操作阈值而改变；这正是“排序评价”和“行动决策”的边界。
 
 ### 来源参考
 改写自 Google MLCC ROC and AUC，并参考 scikit-learn roc_auc_score 的评估语境。`,
@@ -503,79 +508,79 @@ $$AUC=\\int_0^1 TPR(FPR)\\,dFPR$$
 High AUC does not automatically choose a final threshold. It measures ranking quality; threshold still needs cost, capacity, and task goals.
 
 ### Interaction Design
-Move the threshold and watch the current point travel on the ROC chart. Change separability and watch the whole curve move toward or away from the upper-left.
+Move the threshold and watch the current point travel on the frozen validation ROC chart. The curve and AUC do not change when the operating threshold changes; that is the boundary between ranking evaluation and action policy.
 
 ### Source References
 Rewritten from Google MLCC ROC and AUC, with evaluation context aligned to scikit-learn roc_auc_score.`,
       ),
       loc('ROC 评价的是“跨阈值排序”，不是某一个行动点。', 'ROC evaluates ranking across thresholds, not one action point.'),
-      loc('降低 separability，观察 AUC 如何接近随机基线。', 'Lower separability and watch AUC move toward the random baseline.'),
+      loc('移动阈值只会改变 ROC 上的操作点；不要把 AUC 当成阈值选择器。', 'Move the operating point on ROC; do not use AUC as a threshold selector.'),
       ['roc-auc-ranking', 'classification-roc-video'],
       [sources.mlccRoc, sources.sklearnEvaluation],
       ['auc'],
     ),
     chapter(
       'biasCalibration',
-      loc('Prediction bias 和校准检查概率是否可信', 'Prediction bias and calibration check probability trustworthiness'),
+      loc('子组与具名错误让汇总指标落到样本', 'Subgroups and named errors ground aggregate metrics in examples'),
       loc(
         `### 核心问题
-模型 accuracy 不差时，为什么还要看 prediction bias 和校准？
+汇总指标很好时，为什么仍要查看子组和具体错例？
 
 ### 概念直觉
-如果模型预测为正的比例长期高于真实正例比例，可能存在 prediction bias；如果模型给出 0.8 概率的一组样本中，真实正例只有 50%，说明概率没有校准好。前者关注总体比例偏移，后者关注概率值是否能当作频率解释。
+一个总 F1 会把所有样本压成一个数字，可能掩盖某些输入区域的错误集中。本页只在 validation 上按 variance 与 entropy 的正负做教学切片，再列出带 row ID、logit、概率、预测、真实标签与特征值的具名 FP/FN，帮助追问错误发生在哪里。
 
 ### 手算例子
-100 个样本里真实正例是 30 个，但模型预测正例 45 个，则：
+若总体 $F1=0.98$，但 variance < 0 切片的 recall 明显低于 variance >= 0，下一步应检查该切片的 FN，而不是只庆祝总体数字：
 
-$$\\text{prediction bias}=0.45-0.30=0.15$$
+$$P_g=\\frac{TP_g}{TP_g+FP_g},\\qquad R_g=\\frac{TP_g}{TP_g+FN_g}$$
 
-这不直接说明模型一定坏，但提示需要检查数据分布、阈值、标注或校准。
+具名行可以从 $s\\rightarrow p\\rightarrow t\\rightarrow\\hat y\\rightarrow y$ 复核整条决策链。
 
 ### 公式
-$$\\text{prediction bias}=\\frac{\\#\\hat{y}=1}{N}-\\frac{\\#y=1}{N}$$
+$$F1_g=\\frac{2P_gR_g}{P_g+R_g}$$
 
-校准则比较分箱内平均预测概率和真实正例比例。
+其中 $g$ 只是由本数据集输入特征定义的教学切片。
 
 ### 常见误解
-不要只在分类结果上讨论概率。若概率要用于排序、定价、风险控制或资源分配，就必须关注校准。
+这些切片不是人口属性，不能被称为完整的公平性审计；样本量小的切片也不能支持强结论。它们的作用是训练“从总体指标下钻到样本”的诊断习惯。
 
 ### 交互实验设计
-调节 calibration shift，观察校准曲线如何偏离对角线；再移动阈值，区分“概率偏差”和“行动阈值”两件事。
+比较四个 validation 特征切片的 precision、recall 和 F1，再逐条读取具名 FP/FN 的 logit、概率、阈值、预测与真实标签。
 
 ### 来源参考
-改写自 Google MLCC 对 prediction bias 的讲解，并结合概率校准的常用评估方式。`,
+指标定义参考 scikit-learn；数据来自 UCI Banknote，错误分析只使用固定 validation。`,
         `### Core Question
-Why inspect prediction bias and calibration even when accuracy looks acceptable?
+Why inspect subgroups and specific errors when aggregate metrics look strong?
 
 ### Concept
-If the predicted-positive rate persistently exceeds the true positive rate, prediction bias may be present. If examples scored around 0.8 are positive only 50% of the time, probabilities are poorly calibrated. The first checks aggregate rate shift; the second checks whether probability values can be interpreted as frequencies.
+One total F1 compresses every example into one number and can hide concentrated errors in parts of the input space. This page creates pedagogical validation slices from the signs of variance and entropy, then lists named FP/FN rows with row ID, logit, probability, prediction, actual label, and feature values.
 
 ### Worked Example
-Among 100 examples, suppose 30 are truly positive but the model predicts 45 positives:
+If total $F1=0.98$ but recall for variance < 0 is lower than for variance >= 0, inspect false negatives in that slice instead of stopping at the aggregate:
 
-$$\\text{prediction bias}=0.45-0.30=0.15$$
+$$P_g=\\frac{TP_g}{TP_g+FP_g},\\qquad R_g=\\frac{TP_g}{TP_g+FN_g}$$
 
-That does not prove the model is broken, but it points to data distribution, threshold, labeling, or calibration checks.
+A named row lets you replay $s\\rightarrow p\\rightarrow t\\rightarrow\\hat y\\rightarrow y$.
 
 ### Formula
-$$\\text{prediction bias}=\\frac{\\#\\hat{y}=1}{N}-\\frac{\\#y=1}{N}$$
+$$F1_g=\\frac{2P_gR_g}{P_g+R_g}$$
 
-Calibration compares mean predicted probability with observed positive rate inside each bin.
+Here $g$ is only a pedagogical slice defined from this dataset's input features.
 
 ### Common Mistake
-Do not discuss probabilities only after classification. If probabilities drive ranking, pricing, risk, or resource allocation, calibration matters.
+These slices are not demographic attributes and must not be described as a complete fairness audit. Small slices also do not justify strong conclusions; they teach the habit of drilling down from aggregate metrics to examples.
 
 ### Interaction Design
-Adjust calibration shift and watch the calibration curve drift from the diagonal. Then move threshold and separate probability bias from action threshold.
+Compare precision, recall, and F1 across the four validation feature slices, then inspect each named FP/FN through logit, probability, threshold, prediction, and actual label.
 
 ### Source References
-Rewritten from Google MLCC prediction-bias material with common probability-calibration evaluation framing.`,
+Metric definitions follow scikit-learn; data comes from UCI Banknote and error analysis remains validation-only.`,
       ),
-      loc('概率要能被信任，不能只看最终判对没有。', 'If probabilities will be used, final correctness is not enough.'),
-      loc('增大 calibration shift，观察 prediction bias 与校准分箱如何变化。', 'Increase calibration shift and watch prediction bias plus calibration bins change.'),
-      ['prediction-bias-calibration'],
-      [sources.mlccClassification, sources.sklearnEvaluation],
-      ['predictionBias'],
+      loc('总体指标是入口，具名错误才是诊断落点。', 'Aggregate metrics are the entry point; named errors are the diagnostic landing point.'),
+      loc('先比较 validation 特征切片，再沿决策链复核具名 FP/FN。', 'Compare validation feature slices, then replay named FP/FN rows through the decision chain.'),
+      ['confusion-matrix-outcomes'],
+      [sources.sklearnEvaluation, sources.uciBanknote],
+      ['precision', 'recall', 'f1'],
     ),
     chapter(
       'multiclass',
@@ -647,32 +652,29 @@ Rewritten from Google MLCC Multiclass and D2L Softmax Regression.`,
   ],
   controls: [
     { key: 'threshold', type: 'range', labelKey: 'controls.threshold', category: 'data', min: 0.05, max: 0.95, step: 0.01, format: 'number' },
-    { key: 'prevalence', type: 'range', labelKey: 'controls.prevalence', category: 'data', min: 0.08, max: 0.72, step: 0.01, format: 'percent' },
-    { key: 'separability', type: 'range', labelKey: 'controls.separability', category: 'data', min: 0.35, max: 2.4, step: 0.05, format: 'number' },
     { key: 'falsePositiveCost', type: 'range', labelKey: 'controls.falsePositiveCost', category: 'data', min: 0.5, max: 8, step: 0.5, format: 'number' },
     { key: 'falseNegativeCost', type: 'range', labelKey: 'controls.falseNegativeCost', category: 'data', min: 0.5, max: 12, step: 0.5, format: 'number' },
-    { key: 'calibrationShift', type: 'range', labelKey: 'controls.calibrationShift', category: 'data', min: -1.4, max: 1.4, step: 0.05, format: 'number' },
     { key: 'temperature', type: 'range', labelKey: 'controls.temperature', category: 'architecture', min: 0.35, max: 2.2, step: 0.05, format: 'number' },
     { key: 'playbackMs', type: 'range', labelKey: 'controls.animationSpeed', category: 'playback', min: 70, max: 300, step: 10, format: 'speed' },
   ],
   presets: [
     {
       id: 'balanced-screening',
-      label: loc('平衡筛查', 'Balanced screening'),
-      description: loc('中等正例比例和中等可分性，适合观察四格矩阵和 F1。', 'Moderate prevalence and separability for reading the four cells plus F1.'),
-      config: { threshold: 0.5, prevalence: 0.36, separability: 1.35, falsePositiveCost: 1, falseNegativeCost: 4, calibrationShift: 0 },
+      label: loc('发布策略 1:5', 'Published 1:5 policy'),
+      description: loc('在 validation 按 FP=1、FN=5 选择并锁定 t=0.09。', 'Select and freeze t=0.09 on validation with FP=1 and FN=5.'),
+      config: { threshold: 0.09, falsePositiveCost: 1, falseNegativeCost: 5 },
     },
     {
-      id: 'rare-positive',
-      label: loc('稀有正例', 'Rare positives'),
-      description: loc('正例很少时 accuracy 容易虚高，precision/recall 更关键。', 'When positives are rare, accuracy can look inflated and precision/recall matter more.'),
-      config: { threshold: 0.34, prevalence: 0.13, separability: 1.45, falsePositiveCost: 1, falseNegativeCost: 8, calibrationShift: -0.15 },
+      id: 'default-threshold',
+      label: loc('默认阈值对照', 'Default-threshold comparison'),
+      description: loc('保持固定分数，切到 0.5 对照 validation 混淆矩阵。', 'Keep scores frozen and compare the validation confusion matrix at 0.5.'),
+      config: { threshold: 0.5, falsePositiveCost: 1, falseNegativeCost: 5 },
     },
     {
-      id: 'noisy-ranking',
-      label: loc('排序变差', 'Noisy ranking'),
-      description: loc('降低可分性，观察 ROC 曲线如何靠近随机基线。', 'Lower separability and watch ROC move toward the random baseline.'),
-      config: { threshold: 0.52, prevalence: 0.42, separability: 0.55, falsePositiveCost: 1, falseNegativeCost: 3, calibrationShift: 0.2 },
+      id: 'miss-costly',
+      label: loc('漏报更昂贵', 'Misses cost more'),
+      description: loc('只改变 validation 成本权重，观察推荐阈值如何变化。', 'Change validation error cost only and watch the recommended threshold move.'),
+      config: { threshold: 0.09, falsePositiveCost: 1, falseNegativeCost: 8 },
     },
     {
       id: 'sharp-softmax',
@@ -682,11 +684,11 @@ Rewritten from Google MLCC Multiclass and D2L Softmax Regression.`,
     },
   ],
   createDefaultConfig: () => ({
-    threshold: 0.5,
+    threshold: 0.09,
     prevalence: 0.36,
     separability: 1.35,
     falsePositiveCost: 1,
-    falseNegativeCost: 4,
+    falseNegativeCost: 5,
     calibrationShift: 0,
     noise: 0.72,
     sampleCount: 92,
