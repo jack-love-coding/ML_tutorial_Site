@@ -29,6 +29,7 @@ behavior_unverified: 0
 - Catalog prerequisite chain: Linear requires Loss; Housing requires Linear; Logistic requires Loss, Linear, and Housing; Classification requires Logistic.
 - AI Foundations mapping: Loss/Linear → unit 08, Housing → unit 14, Logistic/Classification → unit 09.
 - All 20 browser cases rendered five step links, one current step, valid previous/next actions, a base-safe course link, zero KaTeX errors, and zero horizontal overflow.
+- The Phase 29 release matrix also passed after its mobile contents-toggle scroll, with no link hidden beneath the sticky site header. Phones use the compact progress plus previous/next controls; tablets use a horizontally scrollable five-step overview; desktop keeps the five-column overview.
 - Keyboard traversal from Loss reached the preserved Linear deep route `/learn/linear-regression/fit-line`.
 - No new localStorage key or progress schema was introduced.
 
@@ -40,6 +41,7 @@ behavior_unverified: 0
 | `npm run build` | PASS — production build; existing large-chunk advisory only |
 | `npm run build:pages` | PASS — GitHub Pages build; existing large-chunk advisory only |
 | `npm run test:phase31:browser` | PASS — 20 locale/module/viewport cases plus keyboard and storage checks |
+| `npm run test:phase29:browser` | PASS — 30 release cases, six interactions, four failure fallbacks, and zero mobile overlaps |
 | `npm run security:audit` | PASS — 0 vulnerabilities |
 
 The first full-suite run encountered the known transient Math-to-Code file-worker failure. The affected file passed 11/11 in isolation, and the next complete run passed with no related code change. This matches the previously recorded concurrent test-worker behavior and is not a corridor regression.

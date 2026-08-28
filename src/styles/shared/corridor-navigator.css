@@ -1,5 +1,6 @@
 .corridor-nav {
   width: min(1480px, calc(100% - 48px));
+  min-width: 0;
   margin: 18px auto 8px;
   padding: 20px;
   border: 1px solid color-mix(in srgb, var(--border-color, #cbd5e1) 76%, transparent);
@@ -119,17 +120,28 @@
 
 @media (max-width: 900px) {
   .corridor-nav__steps {
-    grid-template-columns: 1fr;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 0 0 10px;
+    scroll-padding-inline: 2px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+
+  .corridor-nav__steps li {
+    flex: 0 0 min(260px, calc(100vw - 80px));
+    scroll-snap-align: start;
   }
 
   .corridor-nav__steps a {
-    min-height: 0;
+    min-height: 94px;
   }
 }
 
 @media (max-width: 640px) {
   .corridor-nav {
-    width: min(100% - 24px, 1480px);
+    width: calc(100% - 24px);
     padding: 16px;
     border-radius: 18px;
   }
@@ -138,6 +150,10 @@
   .corridor-nav__actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .corridor-nav__steps {
+    display: none;
   }
 
   .corridor-nav__action--next,

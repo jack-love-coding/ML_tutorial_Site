@@ -94,7 +94,8 @@ async (page) => {
   const nextLink = page.locator('.corridor-nav__action--next')
   await nextLink.focus()
   await page.keyboard.press('Enter')
-  await page.locator('.corridor-nav__steps .is-current a[href$="/learn/linear-regression"]').waitFor()
+  await page.locator('.corridor-nav__steps .is-current a[href$="/learn/linear-regression"]')
+    .waitFor({ state: 'attached' })
   if (!page.url().includes('/learn/linear-regression')) throw new Error(`Keyboard traversal failed: ${page.url()}`)
 
   const preserved = await page.evaluate(({ sentinels }) => Object.fromEntries(
