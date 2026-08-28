@@ -1,0 +1,184 @@
+{
+  "groups": [
+    {
+      "confusion": {
+        "fn": 0,
+        "fp": 2,
+        "tn": 11,
+        "tp": 73
+      },
+      "count": 86,
+      "definition": {
+        "en": "Banknote wavelet variance feature is negative",
+        "zh-CN": "纸币图像小波 variance 特征为负"
+      },
+      "id": "variance-negative",
+      "label": {
+        "en": "variance < 0",
+        "zh-CN": "variance < 0"
+      },
+      "metrics": {
+        "accuracy": 0.9767441860465116,
+        "actualPositiveRate": 0.8488372093023255,
+        "f1": 0.9864864864864865,
+        "fpr": 0.15384615384615385,
+        "precision": 0.9733333333333334,
+        "predictedPositiveRate": 0.872093023255814,
+        "recall": 1.0,
+        "specificity": 0.8461538461538461,
+        "tpr": 1.0
+      },
+      "positives": 73
+    },
+    {
+      "confusion": {
+        "fn": 1,
+        "fp": 0,
+        "tn": 102,
+        "tp": 17
+      },
+      "count": 120,
+      "definition": {
+        "en": "Banknote wavelet variance feature is non-negative",
+        "zh-CN": "纸币图像小波 variance 特征非负"
+      },
+      "id": "variance-nonnegative",
+      "label": {
+        "en": "variance ≥ 0",
+        "zh-CN": "variance ≥ 0"
+      },
+      "metrics": {
+        "accuracy": 0.9916666666666667,
+        "actualPositiveRate": 0.15,
+        "f1": 0.9714285714285714,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "predictedPositiveRate": 0.14166666666666666,
+        "recall": 0.9444444444444444,
+        "specificity": 1.0,
+        "tpr": 0.9444444444444444
+      },
+      "positives": 18
+    },
+    {
+      "confusion": {
+        "fn": 1,
+        "fp": 2,
+        "tn": 70,
+        "tp": 66
+      },
+      "count": 139,
+      "definition": {
+        "en": "Banknote image entropy feature is negative",
+        "zh-CN": "纸币图像 entropy 特征为负"
+      },
+      "id": "entropy-negative",
+      "label": {
+        "en": "entropy < 0",
+        "zh-CN": "entropy < 0"
+      },
+      "metrics": {
+        "accuracy": 0.9784172661870504,
+        "actualPositiveRate": 0.48201438848920863,
+        "f1": 0.9777777777777777,
+        "fpr": 0.027777777777777776,
+        "precision": 0.9705882352941176,
+        "predictedPositiveRate": 0.4892086330935252,
+        "recall": 0.9850746268656716,
+        "specificity": 0.9722222222222222,
+        "tpr": 0.9850746268656716
+      },
+      "positives": 67
+    },
+    {
+      "confusion": {
+        "fn": 0,
+        "fp": 0,
+        "tn": 43,
+        "tp": 24
+      },
+      "count": 67,
+      "definition": {
+        "en": "Banknote image entropy feature is non-negative",
+        "zh-CN": "纸币图像 entropy 特征非负"
+      },
+      "id": "entropy-nonnegative",
+      "label": {
+        "en": "entropy ≥ 0",
+        "zh-CN": "entropy ≥ 0"
+      },
+      "metrics": {
+        "accuracy": 1.0,
+        "actualPositiveRate": 0.3582089552238806,
+        "f1": 1.0,
+        "fpr": 0.0,
+        "precision": 1.0,
+        "predictedPositiveRate": 0.3582089552238806,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "tpr": 1.0
+      },
+      "positives": 24
+    }
+  ],
+  "limitation": {
+    "en": "These are pedagogical input-feature slices, not demographic attributes, and they do not replace a fairness audit.",
+    "zh-CN": "这些只是按输入特征切分的教学诊断，不是人口属性，也不能替代公平性审计。"
+  },
+  "namedErrors": [
+    {
+      "distanceFromThreshold": 0.07472991302994493,
+      "features": {
+        "curtosis": -4.9888,
+        "entropy": -2.8987,
+        "skewness": 4.5565,
+        "variance": 2.3917
+      },
+      "label": 1,
+      "logit": -4.166471588903541,
+      "outcome": "fn",
+      "predicted": 0,
+      "probability": 0.015270086970055068,
+      "rowId": 919,
+      "split": "validation",
+      "threshold": 0.09
+    },
+    {
+      "distanceFromThreshold": 0.3210782990050617,
+      "features": {
+        "curtosis": -1.6643,
+        "entropy": -1.8384,
+        "skewness": 7.886,
+        "variance": -1.8584
+      },
+      "label": 0,
+      "logit": -0.35950953444249656,
+      "outcome": "fp",
+      "predicted": 1,
+      "probability": 0.41107829900506165,
+      "rowId": 108,
+      "split": "validation",
+      "threshold": 0.09
+    },
+    {
+      "distanceFromThreshold": 0.3210782990050617,
+      "features": {
+        "curtosis": -1.6643,
+        "entropy": -1.8384,
+        "skewness": 7.886,
+        "variance": -1.8584
+      },
+      "label": 0,
+      "logit": -0.35950953444249656,
+      "outcome": "fp",
+      "predicted": 1,
+      "probability": 0.41107829900506165,
+      "rowId": 346,
+      "split": "validation",
+      "threshold": 0.09
+    }
+  ],
+  "protectedAttributeAnalysis": false,
+  "split": "validation",
+  "threshold": 0.09
+}

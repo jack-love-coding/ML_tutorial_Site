@@ -1,0 +1,95 @@
+{
+  "falseNegativeCost": 5.0,
+  "falsePositiveCost": 1.0,
+  "finalEvaluationSplit": "test",
+  "foldRule": "row-id-modulo-5",
+  "folds": [
+    {
+      "fold": 0,
+      "minimumCost": 0.0,
+      "rowCount": 41,
+      "selectedThreshold": 0.5
+    },
+    {
+      "fold": 1,
+      "minimumCost": 0.0,
+      "rowCount": 33,
+      "selectedThreshold": 0.5
+    },
+    {
+      "fold": 2,
+      "minimumCost": 0.0,
+      "rowCount": 40,
+      "selectedThreshold": 0.09
+    },
+    {
+      "fold": 3,
+      "minimumCost": 0.0,
+      "rowCount": 47,
+      "selectedThreshold": 0.5
+    },
+    {
+      "fold": 4,
+      "minimumCost": 1.0,
+      "rowCount": 45,
+      "selectedThreshold": 0.01
+    }
+  ],
+  "interpretation": {
+    "en": "Validation cost alone selects the threshold. Wide fold variation signals instability; after freezing, test is reported once without reselection.",
+    "zh-CN": "阈值只由 validation 成本决定。折间阈值波动很大，说明策略不稳定；锁定后仍只在 test 上报告一次，不回头重选。"
+  },
+  "lockedTest": {
+    "confusion": {
+      "fn": 1,
+      "fp": 4,
+      "tn": 110,
+      "tp": 91
+    },
+    "costPerExample": 0.043689320388349516,
+    "metrics": {
+      "accuracy": 0.9757281553398058,
+      "actualPositiveRate": 0.44660194174757284,
+      "f1": 0.9732620320855614,
+      "fpr": 0.03508771929824561,
+      "precision": 0.9578947368421052,
+      "predictedPositiveRate": 0.46116504854368934,
+      "recall": 0.9891304347826086,
+      "specificity": 0.9649122807017544,
+      "tpr": 0.9891304347826086
+    },
+    "threshold": 0.09,
+    "totalCost": 9.0
+  },
+  "reselectionAllowed": false,
+  "selectedThreshold": 0.09,
+  "selectionSplit": "validation",
+  "testEvaluations": 1,
+  "tieBreak": "closest-to-0.5-then-lower",
+  "validation": {
+    "confusion": {
+      "fn": 1,
+      "fp": 2,
+      "tn": 113,
+      "tp": 90
+    },
+    "costPerExample": 0.03398058252427184,
+    "metrics": {
+      "accuracy": 0.9854368932038835,
+      "actualPositiveRate": 0.441747572815534,
+      "f1": 0.9836065573770493,
+      "fpr": 0.017391304347826087,
+      "precision": 0.9782608695652174,
+      "predictedPositiveRate": 0.44660194174757284,
+      "recall": 0.989010989010989,
+      "specificity": 0.9826086956521739,
+      "tpr": 0.989010989010989
+    },
+    "threshold": 0.09,
+    "totalCost": 7.0
+  },
+  "variation": {
+    "maximum": 0.5,
+    "minimum": 0.01
+  }
+}
