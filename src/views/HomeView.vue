@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { aiFoundationCourse } from '../curriculum/courses/data/aiFoundation.ts'
+import { publishedCourseUnits } from '../curriculum/courses/catalog.ts'
 import {
   courseProgressV1StorageKey,
   createDefaultCourseProgress,
@@ -68,16 +69,18 @@ onBeforeUnmount(() => {
 const completion = computed(() => summarizeCourseCompletion(course, courseProgress.value, legacyProgress.value))
 const continueTarget = computed(() => selectCourseContinueTarget(courseProgress.value, legacyProgress.value, course.id))
 const continueUnit = computed(() => course.units.find((unit) => unit.id === continueTarget.value?.unitId))
-const publishedStage = computed(() => course.stages.find((stage) => stage.publicationStatus === 'published')!)
-const publishedUnits = computed(() => publishedStage.value.unitIds.map((unitId) => course.units.find((unit) => unit.id === unitId)!))
+const publishedStages = computed(() => course.stages.filter((stage) => stage.publicationStatus === 'published'))
+const featuredStage = computed(() => publishedStages.value.at(-1)!)
+const featuredUnits = computed(() => featuredStage.value.unitIds.map((unitId) => course.units.find((unit) => unit.id === unitId)!))
+const allPublishedUnits = computed(() => publishedCourseUnits(course))
 
 const labels = computed(() => currentLocale.value === 'zh-CN'
   ? {
       eyebrow: 'ML Atlas · 教学大纲配套学习工具',
       title: '沿一条完整路径，建立可复现的 AI 基础',
       body: '25 个大纲主题被组织为四编参考教材。每个已开放单元都连接核心问题、代码、现有实验、Notebook、误区反馈和成果验收；参考学时用于规划，不强迫固定节奏。',
-      start: '从第一单元开始', continue: '继续学习', catalog: '查看完整课程目录', stageOpen: 'A 编已开放', stagePlanned: '整编建设中',
-      stageBody: 'A 编六个单元已形成完整学习闭环；B—D 编先展示目标，不提供未完成页面链接。',
+      start: '从第一单元开始', continue: '继续学习', catalog: '查看完整课程目录', stageOpen: 'A—B 编已开放', stagePlanned: '整编建设中',
+      stageBody: 'A 编与 B 编共 14 个单元已连续开放；这里突出机器学习核心，课程目录保留完整的 01—14 学习路径。C—D 编仍只展示目标。',
       stages: '四编课程路径', units: '大纲单元', hours: '参考学时', completed: '已完成',
       supportEyebrow: '深入阅读与实验', supportTitle: '主课程负责路径，实验室负责把概念看见',
       supportBody: '旧知识地图、Math Lab、Data Lab、算法讲解和项目仍全部保留，并作为课程单元里的深入资源使用。',
@@ -88,8 +91,8 @@ const labels = computed(() => currentLocale.value === 'zh-CN'
       eyebrow: 'ML Atlas · Syllabus companion',
       title: 'Build reproducible AI foundations along one coherent path',
       body: 'The 25 syllabus topics form a four-part reference course. Every published unit connects a core question, code, existing labs, notebooks, misconception feedback, and artifact checks. Reference hours guide planning without forcing a fixed pace.',
-      start: 'Start with unit one', continue: 'Continue learning', catalog: 'Open the full course catalog', stageOpen: 'Part A published', stagePlanned: 'Stage in development',
-      stageBody: 'All six Part A units now form a complete learning loop. Parts B–D show goals without linking to unfinished pages.',
+      start: 'Start with unit one', continue: 'Continue learning', catalog: 'Open the full course catalog', stageOpen: 'Parts A–B published', stagePlanned: 'Stage in development',
+      stageBody: 'Fourteen units across Parts A and B now form one continuous path. This section highlights Machine Learning Core; the catalog preserves the complete 01–14 sequence. Parts C–D still show goals only.',
       stages: 'Course parts', units: 'Syllabus units', hours: 'Reference hours', completed: 'Completed',
       supportEyebrow: 'Deep dives and labs', supportTitle: 'The course owns the path; labs make the ideas visible',
       supportBody: 'The legacy map, Math Lab, Data Lab, algorithm lessons, and projects remain available and now serve as deep-dive resources inside course units.',
@@ -116,7 +119,7 @@ const supportLinks = computed(() => [
         <h1>{{ labels.title }}</h1>
         <p class="course-hero__subtitle">{{ labels.body }}</p>
         <div class="course-hero__actions">
-          <router-link class="course-primary-action" :to="continueTarget?.route ?? courseUnitRoute(course.id, publishedUnits[0].id)">
+          <router-link class="course-primary-action" :to="continueTarget?.route ?? courseUnitRoute(course.id, allPublishedUnits[0].id)">
             {{ continueUnit && completion.completed > 0 ? labels.continue : labels.start }}
             <span v-if="continueUnit">· {{ localizedText(continueUnit.title) }}</span>
           </router-link>
@@ -133,11 +136,11 @@ const supportLinks = computed(() => [
 
     <section class="home-published-stage">
       <header>
-        <div><span class="eyebrow">{{ labels.stageOpen }}</span><h2>{{ localizedText(publishedStage.title) }}</h2></div>
+        <div><span class="eyebrow">{{ labels.stageOpen }}</span><h2>{{ localizedText(featuredStage.title) }}</h2></div>
         <p>{{ labels.stageBody }}</p>
       </header>
       <ol class="home-unit-grid">
-        <li v-for="unit in publishedUnits" :key="unit.id">
+        <li v-for="unit in featuredUnits" :key="unit.id">
           <router-link :to="courseUnitRoute(course.id, unit.id)">
             <span>{{ String(unit.order).padStart(2, '0') }}</span>
             <strong>{{ localizedText(unit.title) }}</strong>

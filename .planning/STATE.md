@@ -5,10 +5,10 @@ milestone_name: Classical Supervised Learning
 current_phase: 31
 current_phase_name: corridor-integration-and-release
 status: ready_to_execute
-stopped_at: Phase 30 implementation and release verification passed
-last_updated: "2026-08-29T02:09:26+08:00"
+stopped_at: AI Foundations B units 07-14 passed publication gates
+last_updated: "2026-08-29T02:45:00+08:00"
 last_activity: 2026-08-29
-last_activity_desc: Phase 30 closed after fixed-data decision workflow, full release gates, and browser verification
+last_activity_desc: AI Foundations B published eight complete bilingual learning loops after full browser and release verification
 progress:
   total_phases: 9
   completed_phases: 8
@@ -21,14 +21,14 @@ current_plan: null
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
 **Updated:** 2026-08-29
-**Status:** Phase 30 complete; AI Foundations B-stage completion precedes Phase 31 corridor integration
+**Status:** AI Foundations B-stage complete; Phase 31 corridor integration is next
 
 ## Current Position
 
-Phase: 31 (corridor-integration-and-release) — READY AFTER B-STAGE PUBLICATION
+Phase: 31 (corridor-integration-and-release) — READY TO EXECUTE
 Plan: Not started
-Status: Phase 30 complete; next work is the AI Foundations B-stage teaching closure
-Last activity: 2026-08-29 — Phase 30 passed numerical, asset, full-suite, build, security, and real-browser gates
+Status: AI Foundations A–B now publish a continuous 14-unit route; next work is the cross-course corridor release
+Last activity: 2026-08-29 — B units 07–14 passed content, compatibility, full-suite, build, security, and 48-case real-browser gates
 
 ## Deferred Items
 
@@ -49,11 +49,11 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 See: `.planning/PROJECT.md` (updated 2026-07-26)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 31 — publish AI Foundations B units 07–14 before corridor integration
+**Current focus:** Phase 31 — verify the loss → linear → housing → logistic → classification corridor and its AI Foundations resource mappings
 
 ## Baseline
 
-- `npm test`: pass, 756 tests after the canonical Math/Data deep-link fix.
+- `npm test`: pass, 1142 tests (1114 pass, 28 skip) after AI Foundations B publication.
 - `npm run build`: pass with existing Vite large-chunk warning.
 - `npm run build:pages`: pass with existing Vite large-chunk warning.
 - `npm run security:audit`: pass, 0 vulnerabilities.
@@ -911,8 +911,8 @@ Complete and publish AI Foundations B units 07–14 as one teaching-closed stage
 
 ## Operator Next Steps
 
-- Execute Phase 26 with `/gsd-execute-phase 26`.
-- Review the approved plan set under `.planning/phases/26-loss-functions-rebuild/`.
+- Execute Phase 31 corridor integration and release from the updated `main`.
+- Keep C and D stages planned until each whole-stage teaching loop passes its own publication gates.
 
 ### Blockers
 

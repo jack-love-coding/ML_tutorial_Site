@@ -6,7 +6,7 @@ ML Atlas 是一个基于 Vue 3、TypeScript、Vite 的机器学习教学站点�
 
 - 规范入口：`/courses/ai-foundation`。
 - 课程架构：A 数据与编程基础、B 机器学习核心、C 深度学习/CV/NLP、D Transformer/LLM，共 25 个大纲单元、50 个参考学时。
-- 当前发布：A 编六个单元已形成“核心问题—代码—现有资源—实践—误区—checkpoint—成果自检”学习闭环；B—D 编只展示阶段目标和建设状态。
+- 当前发布：A—B 编共 14 个单元已形成连续的“核心问题—代码—现有资源—实践—误区—checkpoint—成果自检”学习闭环；C—D 编只展示阶段目标和建设状态。
 - Support Lenses：Math Lab、Data Lab、算法讲解和项目实战作为按需深入资源，服务主课程，不与主课程争夺默认起点。
 - Progress：课程步骤和成果自检写入新的本地进度层；原有算法、Math Lab、Data Lab 和 Learning Progress V2 数据保持兼容。
 
