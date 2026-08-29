@@ -31,7 +31,12 @@ from typing import Any, Iterator
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-PHASE_DIR = REPO_ROOT / ".planning/phases/26-loss-functions-rebuild"
+ACTIVE_PHASE_DIR = REPO_ROOT / ".planning/phases/26-loss-functions-rebuild"
+ARCHIVED_PHASE_DIR = REPO_ROOT / ".planning/milestones/v1.1-phases/26-loss-functions-rebuild"
+PHASE_DIR = next(
+    (candidate for candidate in (ACTIVE_PHASE_DIR, ARCHIVED_PHASE_DIR) if candidate.is_dir()),
+    ACTIVE_PHASE_DIR,
+)
 RESEARCH_PATH = PHASE_DIR / "26-RESEARCH.md"
 CONTRACT_PATH = REPO_ROOT / "docs/curriculum-v3/loss-functions/phase-26-data-contract.md"
 REQUIREMENTS_PATH = REPO_ROOT / "scripts/loss-functions/requirements.txt"

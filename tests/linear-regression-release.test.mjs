@@ -24,6 +24,7 @@ const protectedStatusLines = new Set([
 
 const phasePathPatterns = [
   /^\.planning\/phases\/27-linear-regression-rebuild\//,
+  /^\.planning\/milestones\/v1\.1-phases\/27-linear-regression-rebuild\//,
   /^\.gitignore$/,
   /^scripts\/linear-regression\//,
   /^scripts\/qa\/linearRegressionBrowserMatrix\.js$/,
@@ -51,6 +52,16 @@ const forbiddenPathPatterns = [
 
 function source(relativePath) {
   return readFileSync(resolve(root, relativePath), 'utf8')
+}
+
+function phasePlanningSource(phaseDirectory, fileName) {
+  const candidates = [
+    `.planning/phases/${phaseDirectory}/${fileName}`,
+    `.planning/milestones/v1.1-phases/${phaseDirectory}/${fileName}`,
+  ]
+  const match = candidates.find((candidate) => existsSync(resolve(root, candidate)))
+  assert.ok(match, `${fileName} should exist in the active or v1.1 archived phase directory`)
+  return source(match)
 }
 
 function scriptBlock(componentSource) {
@@ -395,7 +406,7 @@ test('Task 27-08-02 production styles preserve focus mobile non-color and reduce
 })
 
 test('Task 27-08-03 release command and protected scope ownership remain explicit', () => {
-  const plan = source('.planning/phases/27-linear-regression-rebuild/27-08-PLAN.md')
+  const plan = phasePlanningSource('27-linear-regression-rebuild', '27-08-PLAN.md')
 
   assert.match(plan, /build-phase-27-assets\.py --check --offline/)
   assert.match(plan, /npm test/)
