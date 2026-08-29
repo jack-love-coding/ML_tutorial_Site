@@ -2,33 +2,33 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Classical Supervised Learning
-current_phase: 31
-current_phase_name: corridor-integration-and-release
 status: completed
-stopped_at: Phase 31 corridor integration and release verification passed
-last_updated: "2026-08-29T02:45:41+08:00"
-last_activity: 2026-08-29
-last_activity_desc: Phase 31 closed the five-module loss-to-decision corridor after full release and browser verification
+stopped_at: v1.1 milestone archived after verified closeout
+last_updated: "2026-08-30T01:20:29+08:00"
+last_activity: 2026-08-30
+last_activity_desc: Milestone v1.1 completed and archived
 progress:
   total_phases: 9
   completed_phases: 9
   total_plans: 37
   completed_plans: 37
   percent: 100
+current_phase: null
+current_phase_name: null
 current_plan: null
 ---
 
 # GSD State: ML Atlas Curriculum V3 Content Delivery
 
-**Updated:** 2026-08-29
-**Status:** Phase 31 complete; v1.1 is ready for milestone audit and closeout
+**Updated:** 2026-08-30
+**Status:** v1.1 milestone complete
 
 ## Current Position
 
-Phase: 31 (corridor-integration-and-release) — COMPLETE
-Plan: 31-PLAN.md complete
-Status: The five classical supervised modules and AI Foundations B-stage now form one verified route
-Last activity: 2026-08-29 — Phase 31 passed typed-contract, compatibility, full-suite, build, security, and 20-case real-browser gates
+Phase: Milestone v1.1 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-08-30 — Milestone v1.1 completed and archived
 
 ## Deferred Items
 
@@ -46,10 +46,10 @@ Items acknowledged and deferred at the v1.0 override closeout on 2026-07-26:
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-07-26)
+See: `.planning/PROJECT.md` (updated 2026-08-30)
 
 **Core value:** Students should always know where they are in the learning path, why the current lesson matters, and what evidence shows they are ready for the next step.
-**Current focus:** Phase 31 — complete; audit and close the v1.1 milestone while keeping AI Foundations C and D planned until their stage-level teaching gates pass
+**Current focus:** Plan the AI Foundations Part C milestone for deep learning, computer vision, and NLP units 15–21
 
 ## Baseline
 
@@ -911,8 +911,7 @@ Complete and publish AI Foundations B units 07–14 as one teaching-closed stage
 
 ## Operator Next Steps
 
-- Run the v1.1 milestone audit, then close the milestone if no cross-phase gap is found.
-- Keep C and D stages planned until each whole-stage teaching loop passes its own publication gates.
+- Start the next milestone with /gsd-new-milestone
 
 ### Blockers
 

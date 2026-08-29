@@ -119,12 +119,17 @@ test('planning state records shipped Python Data Tools stages and completed nume
   const staleState = 'V3.1 Minimum Mathematical Foundation is next and not started'
   const currentPhaseMatch = state.match(/^current_phase: (\d+)$/m)
   const currentFocusMatch = state.match(/^\*\*Current focus:\*\* Phase (\d+) — .+$/m)
+  const betweenMilestones = /^current_phase: null$/m.test(state)
+    && /^status: completed$/m.test(state)
+    && /^\*\*Current focus:\*\* Plan the AI Foundations Part C milestone/m.test(state)
 
   assert.doesNotMatch(state, new RegExp(staleState.replaceAll('.', '\\.'), 'g'))
-  assert.ok(currentPhaseMatch, 'planning state should expose the current phase')
-  assert.ok(currentFocusMatch, 'planning state should expose the current curriculum focus')
-  assert.ok(Number(currentPhaseMatch[1]) >= 25, 'planning state must not regress before the completed Batch 4 phase')
-  assert.equal(currentFocusMatch[1], currentPhaseMatch[1])
+  assert.ok(currentPhaseMatch || betweenMilestones, 'planning state should expose an active phase or a completed milestone boundary')
+  if (currentPhaseMatch) {
+    assert.ok(currentFocusMatch, 'active planning state should expose the current curriculum focus')
+    assert.ok(Number(currentPhaseMatch[1]) >= 25, 'planning state must not regress before the completed Batch 4 phase')
+    assert.equal(currentFocusMatch[1], currentPhaseMatch[1])
+  }
   assert.match(state, /^status: (?:planning|ready_to_execute|executing|verifying|completed)$/m)
   assert.match(state, /AI Overview rebuild[^\n]*completed/i)
   assert.match(state, /Math-to-Code pilot[^\n]*completed/i)
