@@ -1,7 +1,7 @@
 ---
 phase: 26
 slug: loss-functions-rebuild
-status: complete
+status: validated
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-07-28
@@ -119,6 +119,16 @@ The bilingual desktop/390px browser matrix is automated in Task 26-07-03 and is 
 - [x] Task-local feedback targets under 60 seconds; longer bootstrap/kernel/full/browser work is declared as blocking integration sampling.
 - [x] Root browser validation precedes Pages build; Pages base validation occurs after Pages output exists.
 - [x] `nyquist_compliant: true` is set because the complete task/requirement/threat/command/ownership and resolved authorization contract is present.
-- [ ] `wave_0_complete: true` — pending execution-created test files.
+- [x] `wave_0_complete: true` — execution-created tests and release gates are complete.
 
 **Approval:** approved 2026-07-28
+
+## Validation Audit 2026-08-29
+
+| Metric | Count |
+| --- | ---: |
+| Requirements audited | 3 |
+| Covered | 3 |
+| Gaps found | 0 |
+
+Current repository evidence supersedes the historical pending wording: all Phase 26 tests exist, the milestone full suite passes, and `npm run security:audit` now reports zero vulnerabilities.
