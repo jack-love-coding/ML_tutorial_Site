@@ -1,6 +1,6 @@
 ---
 phase: 30-classification-decisions-rebuild
-verified: 2026-08-29T02:09:26+08:00
+verified: 2026-08-29T18:32:23+08:00
 status: passed
 score: 6/6 requirements verified
 behavior_unverified: 0
@@ -59,3 +59,12 @@ behavior_unverified: 0
 - The root MLP worktree's `.planning/config.json` and `docs/gpt_advice.md` were not touched.
 
 No Phase 30-owned implementation or acceptance gap remains. Production deployment would still require calibration-drift monitoring and protected-attribute fairness evidence beyond these pedagogical feature slices; that future concern is recorded in the V3 audit and is not part of this teaching-phase acceptance contract.
+
+## Freshness revalidation — 2026-08-29
+
+The milestone closeout added only Phase 30 summary and validation provenance after
+the original verification report; no Phase 30 implementation, test, asset, or
+runtime contract changed. The Pages build and the complete Phase 30 browser matrix
+were rerun from `cacf301`: all six bilingual responsive cases, keyboard threshold
+interaction, locked-test invariance, and the localized asset-failure fallback
+passed. This refresh supersedes the planning-only freshness warning.

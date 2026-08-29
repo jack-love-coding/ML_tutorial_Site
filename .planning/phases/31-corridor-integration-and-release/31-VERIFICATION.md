@@ -1,6 +1,6 @@
 ---
 phase: 31-corridor-integration-and-release
-verified: 2026-08-29T02:45:41+08:00
+verified: 2026-08-29T18:32:23+08:00
 status: passed
 score: 5/5 requirements verified
 behavior_unverified: 0
@@ -54,3 +54,12 @@ The first full-suite run encountered the known transient Math-to-Code file-worke
 - The root MLP worktree's `.planning/config.json` and `docs/gpt_advice.md` were not touched.
 
 No Phase 31-owned gap remains. The v1.1 milestone is ready for milestone-level audit and closeout; that lifecycle action is intentionally separate from this implementation PR.
+
+## Freshness revalidation — 2026-08-29
+
+The milestone closeout added only Phase 31 summary and validation provenance after
+the original verification report; no corridor implementation, test, asset, route,
+or progress contract changed. The Pages build and the complete Phase 31 browser
+matrix were rerun from `cacf301`: all 20 bilingual desktop/mobile corridor cases,
+keyboard traversal, base-safe assets, and exact legacy-store byte preservation
+passed. This refresh supersedes the planning-only freshness warning.
