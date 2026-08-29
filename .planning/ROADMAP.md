@@ -74,7 +74,7 @@
 4. Held-out residual and coefficient-stability views expose nonlinearity, heteroscedasticity, or collinearity as model limitations rather than optimization failures.
 5. The existing route, checkpoint, interactive lab, downloadable assets, tests, and both production builds remain valid.
 
-## Phase 27A: Linear Regression Teaching Experience Redesign
+## Phase 27.1: Linear Regression Teaching Experience Redesign
 
 **Internal phase number:** 27.1
 
@@ -100,7 +100,7 @@
 
 **Goal:** Rebuild the existing housing-price project into the `project-tabular-regression` capability loop with a frozen local dataset, leakage-safe pipeline, honest baseline, controlled improvement, and reviewable limitations.
 
-**Depends on:** Phase 27A and the existing data-pipeline lessons
+**Depends on:** Phase 27.1 and the existing data-pipeline lessons
 
 **Requirements:** TPRJ-01, TPRJ-02, TPRJ-03, TPRJ-04, TPRJ-05
 
@@ -117,7 +117,7 @@
 - [x] 28-01-PLAN.md — Frozen dataset, executed Notebooks, figures, interaction payloads, and numerical verification
 - [x] 28-02-PLAN.md — Six-chapter paged teaching flow, real-result interactions, routing, and release validation
 
-## Phase 28A: Gradient Descent Beginner Teaching Rebuild
+## Phase 28.1: Gradient Descent Beginner Teaching Rebuild
 
 **Goal:** Rebuild `gradient-descent` into six focused beginner pages that connect one transparent dataset to MSE, the parameter landscape, exact gradients, learning-rate behavior, advanced terrain, and true sample-based batching.
 
@@ -138,13 +138,13 @@
 - [x] 28.1-01-PLAN.md — Shared numerical engine, executed assets, and gradient-rule Manim package
 - [x] 28.1-02-PLAN.md — Six paged lessons, dedicated labs, routing, accessibility, and release validation
 
-## Phase 28B: Optimizer Principles, State, and MLP Transfer
+## Phase 28.2: Optimizer Principles, State, and MLP Transfer
 
 **Internal phase number:** 28.2
 
 **Goal:** Rebuild `optimizer-comparison` from deterministic optimizer state machines through a controlled `2→4→1 tanh` MLP comparison and a leakage-safe Banknote transfer, while preserving existing course identity and Math Lab entry points.
 
-**Depends on:** Phase 28A, the existing MLP Playground, and the existing local Banknote fixed split
+**Depends on:** Phase 28.1, the existing MLP Playground, and the existing local Banknote fixed split
 
 **Requirements:** OPT-01, OPT-02, OPT-03, OPT-04, OPT-05, OPT-06
 

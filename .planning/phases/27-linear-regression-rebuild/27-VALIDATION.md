@@ -1,9 +1,9 @@
 ---
 phase: 27
 slug: linear-regression-rebuild
-status: approved
+status: validated
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-07-29
 ---
 
@@ -104,6 +104,16 @@ approval.
 - [x] `nyquist_compliant: true` records that all four phase requirements, compatibility behavior, security classes, and missing-test owners have a validation path.
 - [x] Final plan synchronization is complete for 27-01 through 27-08.
 - [x] Research open questions are explicitly RESOLVED: deterministic row/case IDs are frozen and no new Manim/Three.js asset is in the Phase 27 critical path.
-- [ ] `wave_0_complete: true` — pending execution-created/rewritten tests and their RED → GREEN records.
+- [x] `wave_0_complete: true` — execution-created and rewritten tests are present and green.
 
-**Approval:** plan/task synchronization approved 2026-07-29; execution and Wave 0 completion pending
+**Approval:** validated 2026-08-29
+
+## Validation Audit 2026-08-29
+
+| Metric | Count |
+| --- | ---: |
+| Requirements audited | 4 |
+| Covered | 4 |
+| Gaps found | 0 |
+
+The passed Phase 27 verification, current linear-regression test inventory, full-suite retry, both builds, and zero-vulnerability audit close the former execution-time pending state.

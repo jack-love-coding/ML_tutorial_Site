@@ -899,12 +899,12 @@ Complete and publish AI Foundations B units 07–14 as one teaching-closed stage
 - [Phase 27]: Keep the typed nine-file asset registry as the sole authority for chapter outputs and downloads.
 - [Phase 27]: Treat malformed or unavailable summary data as a quiet fail-closed state backed by labeled bilingual teaching fixtures.
 - [Phase 27]: Place one consolidated download surface after the unchanged checkpoint and keep chapter-local code reproduction beside each workbench.
-- [Phase 28B]: Keep historical MLP SGD default; explicit optimizer choices use the shared pure engine.
-- [Phase 28B]: Keep existing Banknote split and train-only standardization; defer final test display to Plan 03.
-- [Phase 28B]: Keep optimizer media anchors sourced from the PR1 trajectory JSON instead of copied constants.
-- [Phase 28B]: Use poster-first reduced-motion media with an explicit user-controlled video option.
-- [Phase 28B]: Keep existing optimizer routes while rendering detailed typed course content in a targeted shell.
-- [Phase 28B]: Use shared optimizer trajectories and supplied media instead of duplicating numerical fitting.
+- [Phase 28.2]: Keep historical MLP SGD default; explicit optimizer choices use the shared pure engine.
+- [Phase 28.2]: Keep existing Banknote split and train-only standardization; defer final test display to Plan 03.
+- [Phase 28.2]: Keep optimizer media anchors sourced from the PR1 trajectory JSON instead of copied constants.
+- [Phase 28.2]: Use poster-first reduced-motion media with an explicit user-controlled video option.
+- [Phase 28.2]: Keep existing optimizer routes while rendering detailed typed course content in a targeted shell.
+- [Phase 28.2]: Use shared optimizer trajectories and supplied media instead of duplicating numerical fitting.
 - [Phase ?]: Phase 29 Wave 0 locks fail-first numerical, asset, media, course, lab, compatibility, and release contracts before production work.
 - [Phase ?]: Phase 29 linear-score uses one source-audited standardized Banknote row with a pure stable logistics engine.
 - [Phase ?]: Phase 29 assets use one deterministic Banknote authority with strict scratch/sklearn parity and a redacted Phase 30 handoff.
