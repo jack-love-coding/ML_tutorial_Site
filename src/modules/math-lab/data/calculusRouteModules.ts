@@ -152,14 +152,6 @@ const sources = {
       'Reference for machine-learning explanations of gradient descent, stochastic gradients, and optimization algorithms.',
     ),
   },
-  pytorchOptimization: {
-    label: copy('PyTorch Optimizing Model Parameters', 'PyTorch Optimizing Model Parameters'),
-    href: 'https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html',
-    usage: copy(
-      '参考训练循环中 zero_grad、loss.backward 和 optimizer.step 的代码顺序。',
-      'Reference for the code order of zero_grad, loss.backward, and optimizer.step in a training loop.',
-    ),
-  },
   mml: {
     label: copy('Mathematics for Machine Learning', 'Mathematics for Machine Learning'),
     href: 'https://mml-book.github.io/',
@@ -228,26 +220,6 @@ const batchGradientNoiseLab = lab(
       'Use the full-data gradient, batch gradient, and direction angle to explain why batch size changes stability.',
     ),
   },
-)
-
-const trainingDiagnosticsLab = lab(
-  'calculus-training-diagnostics-lab',
-  copy('训练代码和曲线诊断实验', 'Training Code and Curve Diagnostics Lab'),
-  'TrainingDiagnosticsLab',
-  [
-    copy('能把训练循环三行核心代码和参数更新时机对应起来。', 'Match the three core training-loop calls to parameter-update timing.'),
-    copy('能根据 loss、validation loss 和 gradient norm 做初步诊断。', 'Make a first diagnosis from loss, validation loss, and gradient norm.'),
-  ],
-)
-
-const backpropBridgeLab = lab(
-  'calculus-backprop-bridge-lab',
-  copy('backward 计算图桥接实验', 'Backward Computation Graph Bridge Lab'),
-  'BackpropBlockLab',
-  [
-    copy('能把 loss.backward 连接到计算图上的局部导数传递。', 'Connect loss.backward to local derivative flow through a computation graph.'),
-    copy('能区分计算梯度和更新参数这两个动作。', 'Separate gradient computation from parameter updates.'),
-  ],
 )
 
 const firstChapter = moduleDefinition({
@@ -508,51 +480,9 @@ const fifthChapter = moduleDefinition({
   sourceReferences: [sources.d2lOptimization, sources.mml],
 })
 
-const seventhChapter = moduleDefinition({
-  id: 'calculus-training-code-diagnostics',
-  enhancementTier: 'interactive',
-  title: copy('训练代码和曲线诊断', 'Training Code and Curve Diagnostics'),
-  subtitle: copy('把梯度公式落到训练循环代码，再用曲线诊断训练状态。', 'Connect gradient formulas to training-loop code, then diagnose training state with curves.'),
-  difficulty: 'foundation',
-  estimatedMinutes: 42,
-  prerequisites: ['calculus-optimizer-comparison'],
-  aiModelConnections: [copy('loss、validation loss 和 gradient norm 是训练更新的外显信号。', 'Loss, validation loss, and gradient norm are visible signals of training updates.')],
-  learningObjectives: [
-    copy('说明 zero_grad、loss.backward 和 optimizer.step 的顺序。', 'Explain the order of zero_grad, loss.backward, and optimizer.step.'),
-    copy('把 backward 理解为计算图上的梯度计算。', 'Understand backward as gradient computation through the computation graph.'),
-    copy('用曲线诊断 overfitting、exploding gradients 和 vanishing gradients。', 'Use curves to diagnose overfitting, exploding gradients, and vanishing gradients.'),
-  ],
-  concepts: [
-    concept('training-loop-gradient-step', copy('训练循环梯度步', 'Training Loop Gradient Step'), '\\texttt{zero\\_grad()}\\rightarrow\\texttt{loss.backward()}\\rightarrow\\texttt{optimizer.step()}', [variable('zero\\_grad()', '清空旧梯度。', 'Clear old gradients.'), variable('loss.backward()', '沿计算图计算梯度。', 'Compute gradients through the graph.'), variable('optimizer.step()', '按优化器规则更新参数。', 'Update parameters by the optimizer rule.')], copy('先清梯度，再计算梯度，最后更新参数。', 'Clear gradients, compute gradients, then update parameters.'), copy('像擦黑板、算坡度、再迈步。', 'Like clearing the board, computing slope, then stepping.'), copy('忘记 zero_grad 会累积旧梯度；忘记 step 参数不会更新。', 'Forgetting zero_grad accumulates old gradients; forgetting step leaves parameters unchanged.'), copy('代码、自动微分和曲线诊断围绕这三步闭环。', 'Code, autodiff, and curve diagnostics revolve around this three-step loop.'), md`optimizer.zero_grad()
-loss = criterion(model(x), y)
-loss.backward()
-optimizer.step()`),
-  ],
-  sections: [
-    section('training-loop-order', copy('训练循环顺序', 'Training Loop Order'), copy(md`标准训练步先 zero_grad，再计算 loss，然后 loss.backward，最后 optimizer.step。旧梯度没清会累积；只 backward 不 step，参数不会更新。`, md`A standard training step calls zero_grad, computes loss, calls loss.backward, and then calls optimizer.step. The order matters. If old gradients are not cleared, they accumulate into the next step. If backward is called without step, parameters do not update. If step is called before current gradients exist, the optimizer cannot use the current loss signal. The code order is the practical face of the calculus update.`), { labIds: ['calculus-training-diagnostics-lab'] }),
-    section('training-backward-meaning', copy('backward：计算图上的梯度计算', 'Backward: Gradient Computation Through the Computation Graph'), copy(md`loss.backward 不是直接更新参数。它做 gradient computation through computation graph，把上游梯度乘过局部导数，写入参数的 grad。optimizer.step 才真正改变参数。`, md`loss.backward is not the call that directly updates parameters. It performs gradient computation through computation graph: starting at loss, upstream gradients are multiplied through local derivatives until each parameter receives a gradient value. The call that actually changes parameter values is optimizer.step. This distinction explains many silent bugs in training code, especially loops that compute gradients but never step.`), { labIds: ['calculus-backprop-bridge-lab'] }),
-    section('training-curves-diagnostics', copy('曲线诊断', 'Curve Diagnostics'), copy(md`gradient norm、validation loss、overfitting、exploding gradients、vanishing gradients 都是训练曲线里的诊断词。train loss 降而 validation loss 升，常见于过拟合；loss 和 gradient norm 暴涨，可能是梯度爆炸。`, md`gradient norm, validation loss, overfitting, exploding gradients, and vanishing gradients are diagnostic words for training curves. If train loss falls while validation loss rises, overfitting is likely. If loss and gradient norm rise sharply together, exploding gradients or an oversized learning rate should be checked. If loss remains high while gradient norm becomes tiny, vanishing gradients, saturation, or poor initialization may be involved. Curves point to the next test rather than acting as decoration.`)),
-    section('training-code-review', copy('复盘：代码和证据', 'Review: Code and Evidence'), copy(md`复习时把代码和曲线对应：zero_grad 清旧账，loss.backward 算梯度，optimizer.step 更新参数。再用 loss、validation loss 和 gradient norm 判断问题。`, md`Review Questions: Which line clears old gradients? Which line computes gradients through the computation graph? Which line updates parameters? If train loss falls while validation loss rises, what diagnosis fits? If gradient norm explodes with loss, what should be checked? If gradients vanish while loss remains high, why might training longer not fix the problem? The goal is to connect calculus, code order, and curve evidence in one loop.`)),
-  ],
-  visuals: [],
-  labs: [trainingDiagnosticsLab, backpropBridgeLab],
-  quizzes: [
-    quiz('training-loop-order', copy('哪一行真正更新参数？', 'Which line actually updates parameters?'), 'step', copy('optimizer.step()。', 'optimizer.step().'), copy('loss.backward()。', 'loss.backward().'), copy('backward 计算梯度，step 更新参数。', 'backward computes gradients; step updates parameters.'), 'backward-updates-parameters'),
-    quiz('training-curve-diagnosis', copy('train loss 降、validation loss 升，像什么？', 'Train loss falls while validation loss rises. What does this resemble?'), 'overfit', copy('overfitting。', 'Overfitting.'), copy('只要训练更久。', 'Just train longer.'), copy('训练集变好但验证集变差，说明泛化没有跟上。', 'Training improves while validation worsens, so generalization is not keeping up.'), 'train-longer-fixes-all'),
-  ],
-  misconceptions: [
-    misconception('backward-updates-parameters', copy('backward 会直接更新参数。', 'backward directly updates parameters.'), copy('backward 计算梯度，optimizer.step 更新参数。', 'backward computes gradients; optimizer.step updates parameters.'), copy('只 backward 不 step，优化器不会迈步。', 'Calling backward without step does not make the optimizer step.')),
-    misconception('train-longer-fixes-all', copy('所有问题训练更久就能解决。', 'Training longer fixes every problem.'), copy('过拟合、梯度爆炸和梯度消失通常要改变设置。', 'Overfitting, exploding gradients, and vanishing gradients usually require changing settings.'), copy('validation loss 已升时，训练更久可能更差。', 'If validation loss is rising, training longer can be worse.')),
-  ],
-  accent: '#334155',
-  theme: '#f8fafc',
-  sourceReferences: [sources.pytorchOptimization, sources.d2lOptimization, sources.mml],
-})
-
 export const calculusRouteModules: MathLabModule[] = [
   firstChapter,
   secondChapter,
   thirdChapter,
   fifthChapter,
-  seventhChapter,
 ]

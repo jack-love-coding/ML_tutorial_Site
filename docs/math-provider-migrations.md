@@ -28,3 +28,9 @@
 唯一正文改为 `calculusOptimizerComparisonModule.ts`，删除旧基础正文、optimizerRaceLab 配置副本与 optimize 相关覆盖常量/函数。八节内容、代码结果、例题与实验配置保持一致，完整内容 SHA-256 仍为 `6f76a77f6150c331902f27af90636c34a2a309017dbf9c6f4d4815e885a2921f`。
 
 验证：`npm test` 1136 通过、28 项离线检查跳过；普通/Pages 构建、目录漂移检查通过；24 个数学与 Notebook 浏览器场景通过。可回退到上一课已验证提交 `b324be5`。
+
+## 6c：训练代码和曲线诊断
+
+唯一正文改为 `calculusTrainingCodeDiagnosticsModule.ts`，删除旧基础正文、两份专用 lab 配置副本、训练增强器及不再使用的旧来源条目。八节正文、训练循环顺序、反向传播解释、曲线诊断、代码结果与两个实验配置保持一致。完整内容 SHA-256 仍为 `100ea3ecc74c72a2133c4b28c180db7a517379e66936b455fe6cf6abffac4982`。
+
+验证：`npm test` 1136 通过、28 项离线检查跳过；普通/Pages 构建、目录和展示数据漂移检查、发布资源与哈希检查通过；安全审计 0 漏洞。最终完整浏览器 smoke 157 个场景和 650 个静态入口全部通过，其中数学/Notebook 24 个场景。可回退到上一课已验证提交 `3baf9c3`。
