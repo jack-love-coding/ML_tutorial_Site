@@ -22,3 +22,9 @@
 扩展浏览器检查发现有限差分与非线性方程两处原有公式字符串把 LaTeX 的反斜线解释成 JavaScript 转义字符。`numericalBatch3Modules.ts` 中两处字符串改用已有 `String.raw` 模式，新增 KaTeX 与控制字符检查。三门试点课的内容指纹不受此修复影响，计算方法和数值结果未变。
 
 6a 验证：`npm test` 1136 通过、28 项离线检查跳过；普通构建、Pages 构建与目录漂移检查通过。`math-providers` 浏览器矩阵通过 24 个场景（三课 + 九组 Notebook，中文桌面/英文 390px），并实际请求下载文件。迁移基线与全部数值测试通过。
+
+## 6b：优化器比较
+
+唯一正文改为 `calculusOptimizerComparisonModule.ts`，删除旧基础正文、optimizerRaceLab 配置副本与 optimize 相关覆盖常量/函数。八节内容、代码结果、例题与实验配置保持一致，完整内容 SHA-256 仍为 `6f76a77f6150c331902f27af90636c34a2a309017dbf9c6f4d4815e885a2921f`。
+
+验证：`npm test` 1136 通过、28 项离线检查跳过；普通/Pages 构建、目录漂移检查通过；24 个数学与 Notebook 浏览器场景通过。可回退到上一课已验证提交 `b324be5`。

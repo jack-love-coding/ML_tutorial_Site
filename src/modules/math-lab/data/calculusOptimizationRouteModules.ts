@@ -104,43 +104,6 @@ const batchOutput = `sample_0 grad_w = [4.0, 6.0] grad_b = 2.0
 sample_1 grad_w = [-4.0, -16.0] grad_b = -4.0
 full_batch = [0.0, -5.0, -1.0]`
 
-const optimizerCode = md`import math
-
-def loss(parameter):
-    return 12.5 * parameter ** 2 + 20 * parameter + 10
-
-def gradient(parameter):
-    return 25 * parameter + 20
-
-def run(name, steps=40, learning_rate=0.02):
-    parameter, first_moment, second_moment = -1.5, 0.0, 0.0
-    for step in range(1, steps + 1):
-        grad = gradient(parameter)
-        if name == "sgd":
-            parameter -= learning_rate * grad
-        elif name == "momentum":
-            first_moment = 0.9 * first_moment + grad
-            parameter -= learning_rate * first_moment
-        elif name == "rmsprop":
-            second_moment = 0.9 * second_moment + 0.1 * grad ** 2
-            parameter -= learning_rate * grad / (math.sqrt(second_moment) + 1e-8)
-        elif name == "adam":
-            first_moment = 0.9 * first_moment + 0.1 * grad
-            second_moment = 0.999 * second_moment + 0.001 * grad ** 2
-            m_hat = first_moment / (1 - 0.9 ** step)
-            v_hat = second_moment / (1 - 0.999 ** step)
-            parameter -= learning_rate * m_hat / (math.sqrt(v_hat) + 1e-8)
-    return parameter, loss(parameter)
-
-for optimizer_name in ("sgd", "momentum", "rmsprop", "adam"):
-    parameter, final_loss = run(optimizer_name)
-    print(optimizer_name, round(parameter, 6), round(final_loss, 6))`
-
-const optimizerOutput = `sgd -0.8 2.0
-momentum -0.808317 2.000865
-rmsprop -0.834905 2.01523
-adam -0.857982 2.042024`
-
 const trainingCode = md`import numpy as np
 
 X = np.array([[2.0, 3.0], [1.0, 4.0]])
@@ -284,68 +247,6 @@ Review Questions: Why do the two sample gradients disagree? Along which axis mus
 The next chapter keeps noisy gradients and asks whether an optimizer needs history. Momentum remembers direction, RMSProp remembers squared-gradient scale, and Adam combines both kinds of state. These states change how a gradient becomes an update; they do not change the model's forward function or supervised objective.`,
 )
 
-const optimizerSharedSection = section(
-  'v3-optimizer-shared-slice',
-  '共同损失切片：先固定问题，再比较更新状态',
-  'Shared Loss Slice: Fix the Problem Before Comparing Optimizer State',
-  md`为了让四种更新可手算，本章固定 \(w_1=4,b=5\)，只改变 \(w_2\)。共同损失切片是 \(L(w_2)=12.5w_2^2+20w_2+10\)，梯度是 \(25w_2+20\)，最低点位于 \(w_2=-0.8\)、\(L=2\)。所有优化器从 -1.5 出发，读取完全相同的梯度函数。
-
-这个切片故意简单。它用于观察状态，而不是制造排行榜：SGD 只用当前梯度；Momentum 维护方向累计；RMSProp 维护平方梯度移动平均；Adam 同时维护一阶与二阶矩并做偏差修正。相同任务和相同步数是比较基础，但超参数仍会改变轨迹。`,
-  md`To keep all four updates hand-checkable, fix \(w_1=4,b=5\) and vary only \(w_2\). The shared slice is \(L(w_2)=12.5w_2^2+20w_2+10\), its gradient is \(25w_2+20\), and its minimum is \(w_2=-0.8,L=2\). Every optimizer starts at -1.5 and reads the same gradient function.
-
-The slice is intentionally simple. It exposes state rather than creating a leaderboard. SGD uses only the current gradient. Momentum accumulates direction. RMSProp tracks a moving average of squared gradients. Adam tracks first and second moments with bias correction. A shared task and step count make comparison possible, while hyperparameters still change the paths.`,
-)
-
-const optimizerStateSection = section(
-  'v3-optimizer-state-ledger',
-  '状态账本：每种优化器到底保存了什么',
-  'State Ledger: What Each Optimizer Actually Stores',
-  md`plain SGD 的更新是 \(\theta\leftarrow\theta-\eta g_t\)，没有跨步状态。Momentum 用 \(v_t=\beta v_{t-1}+g_t\) 累积方向，在狭长谷地中让持续方向叠加、反复翻转方向抵消。RMSProp 用 \(s_t=\rho s_{t-1}+(1-\rho)g_t^2\) 估计每个参数方向的近期尺度，再用 \(g_t/(\sqrt{s_t}+\epsilon)\) 调整步长。
-
-Adam 同时保存一阶矩 \(m_t\) 和二阶矩 \(v_t\)，早期还要用 \(1-\beta_1^t\)、\(1-\beta_2^t\) 修正从零初始化带来的偏差。代码里 optimizer state 的 shape 通常与参数相同；模型 checkpoint 若只保存权重而不保存这些状态，恢复训练时的后续轨迹可能改变。`,
-  md`Plain SGD updates \(\theta\leftarrow\theta-\eta g_t\) with no cross-step state. Momentum uses \(v_t=\beta v_{t-1}+g_t\) to accumulate direction, reinforcing persistent motion in a ravine while canceling directions that repeatedly flip. RMSProp uses \(s_t=\rho s_{t-1}+(1-\rho)g_t^2\) to estimate recent scale per parameter, then adjusts the step with \(g_t/(\sqrt{s_t}+\epsilon)\).
-
-Adam stores both first moment \(m_t\) and second moment \(v_t\), with early-step corrections using \(1-\beta_1^t\) and \(1-\beta_2^t\) for zero initialization. Optimizer-state shapes usually match parameter shapes. A training checkpoint that stores only weights and omits these states may follow a different path after resuming.`,
-)
-
-const optimizerOutputSection = section(
-  'v3-optimizer-python-output',
-  'Python 运行结果：同一终点附近，不同中间轨迹',
-  'Python Output: Similar Neighborhood, Different Intermediate Paths',
-  md`四种方法使用同一个起点、40 步和学习率 0.02。输出显示它们都接近最低点 -0.8，但距离并不相同。这个结果不支持“SGD 永远最快”或“Adam 永远最好”：当前二次函数和学习率恰好对 SGD 很友好，换成不同尺度、噪声或学习率后排序可能改变。
-
-运行时应同时保存 trajectory、final loss 和 state，而不只看最后一个参数。两个方法可能到达相近终点，却在中途有不同震荡、步长和梯度尺度。实验页面中的路径图负责展示这些差异，文本输出提供可复制的数值锚点。`,
-  md`All methods use the same starting point, 40 steps, and learning rate 0.02. They all approach the minimum at -0.8, but not by equal distances. This result does not establish that SGD is always fastest or Adam is always best. This quadratic and learning rate happen to favor SGD; different scales, noise, or learning rates can change the order.
-
-Retain trajectory, final loss, and state rather than only the final parameter. Two methods can reach similar endpoints while showing different oscillation, step sizes, and gradient scales along the way. The interactive path visual shows those differences, while text output supplies reproducible numeric anchors.`,
-)
-
-const optimizerBoundariesSection = section(
-  'v3-optimizer-boundaries',
-  '应用边界：学习率、weight decay 与验证表现仍然要单独判断',
-  'Application Boundaries: Learning Rate, Weight Decay, and Validation Still Need Separate Decisions',
-  md`自适应优化器没有取消学习率，只是为不同参数方向重新缩放当前更新。Adam 的 **epsilon** 防止分母过小，betas 控制状态记忆长度；这些默认值常能工作，却不是数学保证。若训练不稳定，应先核对 loss、梯度、数据尺度和学习率，再决定是否更换优化器。
-
-weight decay 也不能简单等同于“把 L2 梯度塞进任何 Adam 实现”。AdamW 把参数衰减与自适应梯度更新解耦，行为与传统 L2 正则在 Adam 中并不完全相同。最终选择还要看 validation loss、泛化、吞吐和恢复训练需求，而不是只比较 training loss 前几步下降速度。`,
-  md`Adaptive optimizers do not remove the learning rate. They rescale updates across parameter directions. Adam epsilon prevents an overly small denominator, while betas control state memory. Common defaults often work but are not mathematical guarantees. When training is unstable, inspect loss, gradients, data scale, and learning rate before assuming that changing optimizer is the repair.
-
-Weight decay is also not identical to inserting an L2 gradient into every Adam implementation. AdamW decouples parameter decay from adaptive gradient updates, so its behavior differs from traditional L2 regularization under Adam. Final choice must include validation loss, generalization, throughput, and resume-training needs, not only early training-loss speed.`,
-)
-
-const optimizerSummarySection = section(
-  'v3-optimizer-summary',
-  '本章小结：优化器管理更新状态，不替代诊断',
-  'Summary: Optimizers Manage Update State; They Do Not Replace Diagnosis',
-  md`四种优化器读取同一个梯度，却用不同状态产生实际更新。你现在应能指出每种方法保存什么、它针对哪类轨迹问题，以及为什么不能从单个 toy task 得出通用排名。
-
-下一章把这些更新放进训练循环。重点不再是手写四种公式，而是看代码顺序是否正确、梯度是否有限、参数是否真的改变，以及 training loss、validation loss 和 gradient norm 如何共同描述训练状态。`,
-  md`The four optimizers read the same gradient but use different states to produce actual updates. You should now be able to name the state each method stores, the path problem it addresses, and why one toy task cannot produce a universal ranking.
-
-Review Questions: Which state does each optimizer retain? Why does Adam still need a learning rate? Why can one quadratic slice not rank optimizers universally?
-
-The next chapter places these updates inside a training loop. The focus shifts from writing four formulas to checking code order, finite gradients, actual parameter changes, and the combined story told by training loss, validation loss, and gradient norm.`,
-)
-
 const trainingSharedSection = section(
   'v3-training-shared-loop',
   '把共同批次放进六步训练循环',
@@ -443,24 +344,6 @@ function enhanceBatch(moduleDefinition: MathLabModule): MathLabModule {
   })
 }
 
-function enhanceOptimizer(moduleDefinition: MathLabModule): MathLabModule {
-  return withToc({
-    ...moduleDefinition,
-    estimatedMinutes: 65,
-    concepts: withConceptCode(moduleDefinition.concepts, 'optimizer-problem-map', optimizerCode, optimizerOutput),
-    sections: [
-      moduleDefinition.sections[0]!,
-      optimizerSharedSection,
-      moduleDefinition.sections[1]!,
-      optimizerStateSection,
-      moduleDefinition.sections[2]!,
-      optimizerOutputSection,
-      optimizerBoundariesSection,
-      optimizerSummarySection,
-    ],
-  })
-}
-
 function enhanceTraining(moduleDefinition: MathLabModule): MathLabModule {
   return withToc({
     ...moduleDefinition,
@@ -482,7 +365,6 @@ function enhanceTraining(moduleDefinition: MathLabModule): MathLabModule {
 const routeEnhancers: Readonly<Record<string, (moduleDefinition: MathLabModule) => MathLabModule>> = {
   'calculus-partial-derivatives-gradients': enhanceGradient,
   'calculus-sgd-batch-noise': enhanceBatch,
-  'calculus-optimizer-comparison': enhanceOptimizer,
   'calculus-training-code-diagnostics': enhanceTraining,
 }
 

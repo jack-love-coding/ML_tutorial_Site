@@ -230,26 +230,6 @@ const batchGradientNoiseLab = lab(
   },
 )
 
-const optimizerRaceLab = lab(
-  'calculus-optimizer-race-lab',
-  copy('优化器赛道实验', 'Optimizer Race Lab'),
-  'OptimizerRaceLab',
-  [
-    copy('能比较 SGD、Momentum、RMSProp 和 Adam 的路径差异。', 'Compare the trajectory differences among SGD, Momentum, RMSProp, and Adam.'),
-    copy('能解释每个优化器状态如何改变更新方向。', 'Explain how each optimizer state changes the update direction.'),
-  ],
-  {
-    predictionPrompt: copy(
-      '先预测：在狭长谷底里，哪条优化器路径会最稳？为什么？',
-      'Predict first: in a narrow valley, which optimizer path should be most stable, and why?',
-    ),
-    reflectionPrompt: copy(
-      '比较最终 loss 和内部状态，解释 Adam 为什么不只是学习率更大的 SGD。',
-      'Compare final loss and internal state to explain why Adam is not just SGD with a larger learning rate.',
-    ),
-  },
-)
-
 const trainingDiagnosticsLab = lab(
   'calculus-training-diagnostics-lab',
   copy('训练代码和曲线诊断实验', 'Training Code and Curve Diagnostics Lab'),
@@ -528,44 +508,6 @@ const fifthChapter = moduleDefinition({
   sourceReferences: [sources.d2lOptimization, sources.mml],
 })
 
-const sixthChapter = moduleDefinition({
-  id: 'calculus-optimizer-comparison',
-  enhancementTier: 'interactive',
-  title: copy('优化器比较', 'Optimizer Comparison'),
-  subtitle: copy('比较 plain SGD、Momentum、RMSProp 和 Adam 各自解决的问题。', 'Compare the problem addressed by plain SGD, Momentum, RMSProp, and Adam.'),
-  difficulty: 'foundation',
-  estimatedMinutes: 40,
-  prerequisites: ['calculus-sgd-batch-noise'],
-  aiModelConnections: [copy('优化器把梯度、状态和学习率合成实际更新。', 'Optimizers combine gradients, state, and learning rate into actual updates.')],
-  learningObjectives: [
-    copy('用 plain SGD 作为基准。', 'Use plain SGD as the baseline.'),
-    copy('解释 Momentum 的 direction memory。', 'Explain Momentum direction memory.'),
-    copy('解释 RMSProp 和 Adam 的 squared-gradient history 与 scale adaptation。', 'Explain squared-gradient history and scale adaptation in RMSProp and Adam.'),
-  ],
-  concepts: [
-    concept('optimizer-problem-map', copy('优化器更新模板', 'Optimizer Update Template'), '\\theta_{t+1}=\\theta_t-\\eta\\,\\operatorname{update}(g_t,\\text{state}_t)', [variable('g_t', '当前梯度。', 'Current gradient.'), variable('\\text{state}_t', '优化器历史状态。', 'Optimizer history state.'), variable('\\operatorname{update}', '把梯度和状态变成更新的规则。', 'Rule that turns gradient and state into an update.')], copy('优化器改变梯度如何变成下一步。', 'An optimizer changes how a gradient becomes the next step.'), copy('像同一地形上的不同走路策略。', 'Like different walking strategies on the same landscape.'), copy('Momentum 用方向历史，Adam 还用平方梯度历史。', 'Momentum uses direction history, and Adam also uses squared-gradient history.'), copy('选择优化器要看地形、噪声和验证表现。', 'Optimizer choice depends on landscape, noise, and validation behavior.')),
-  ],
-  sections: [
-    section('optimizer-baseline-sgd', copy('Plain SGD baseline', 'Plain SGD Baseline'), copy(md`plain SGD baseline 直接使用当前梯度乘学习率，然后沿负方向更新。它状态少、行为透明，是比较 Momentum、RMSProp 和 Adam 的基准。`, md`The plain SGD baseline uses the current gradient, multiplies by learning rate, and steps in the negative direction. It has little state and transparent behavior, so it is the reference point for optimizer comparison. If plain SGD is already descending smoothly, a more complex optimizer is not automatically better. If it bounces through a narrow valley or reacts badly to scale differences, other optimizer states may help.`), { labIds: ['calculus-optimizer-race-lab'] }),
-    section('optimizer-momentum-ravine', copy('Momentum：ravine 里的 direction memory', 'Momentum: Direction Memory in a Ravine'), copy(md`Momentum 在狭长 ravine 中使用 direction memory。横向梯度可能来回反转，而沿谷底方向持续出现，动量会累积持续方向，减少低效摆动。`, md`Momentum uses direction memory in a narrow ravine. Sideways gradients may reverse from step to step, while the useful direction along the valley persists. Momentum accumulates directions that keep appearing and reduces directions that repeatedly flip. The result can be smoother progress through a ravine, not magic speed in every problem. The model still needs a learning rate and validation checks.`)),
-    section('optimizer-rmsprop-adam', copy('RMSProp 和 Adam：squared-gradient history', 'RMSProp and Adam: Squared-Gradient History'), copy(md`RMSProp 维护 squared-gradient history，用历史平方梯度估计不同方向尺度，做 scale adaptation。Adam 结合 Momentum 式方向记忆和 RMSProp 式尺度自适应。`, md`RMSProp maintains squared-gradient history, using past squared gradients to estimate scale in each parameter direction and adapt the update. Adam combines Momentum-like direction memory with RMSProp-like scale adaptation. These methods can stabilize early training and reduce sensitivity to uneven parameter scales, but they do not remove the need for learning-rate choices, regularization, and validation-loss monitoring.`)),
-    section('optimizer-review', copy('复盘：优化器解决具体问题', 'Review: Optimizers Solve Specific Problems'), copy(md`复习时问当前问题是什么：SGD 是否足够，是否有 ravine，是否有尺度差异，Adam 是否真的改善验证表现。`, md`Review Questions: What does plain SGD do without extra state? What ravine problem motivates Momentum? What does squared-gradient history help RMSProp estimate? How does Adam combine Momentum and scale adaptation? Why does an adaptive optimizer not remove the learning rate? Why is Adam not always best? The review maps optimizer choice to evidence rather than a memorized ranking.`)),
-  ],
-  visuals: [],
-  labs: [optimizerRaceLab],
-  quizzes: [
-    quiz('optimizer-momentum-problem', copy('Momentum 主要缓解什么？', 'What does Momentum mainly address?'), 'ravine', copy('ravine 中来回摆动但有持续方向的轨迹。', 'A ravine path with bouncing but a persistent direction.'), copy('取消学习率。', 'Removing learning rate.'), copy('Momentum 使用方向记忆，但仍需要学习率。', 'Momentum uses direction memory but still needs learning rate.'), 'optimizer-removes-learning-rate'),
-    quiz('optimizer-adam-combines', copy('Adam 结合什么？', 'What does Adam combine?'), 'both', copy('方向记忆和 squared-gradient history 的尺度自适应。', 'Direction memory and scale adaptation from squared-gradient history.'), copy('只用当前梯度，不保存状态。', 'Only current gradient with no state.'), copy('Adam 结合一阶和二阶历史，但不保证永远最好。', 'Adam combines first- and second-history estimates, but is not always best.'), 'adam-always-best'),
-  ],
-  misconceptions: [
-    misconception('optimizer-removes-learning-rate', copy('优化器能取消学习率。', 'Optimizers remove the learning rate.'), copy('学习率仍控制全局步长尺度。', 'Learning rate still controls the global step-size scale.'), copy('Adam 通常也要调学习率。', 'Adam often still needs learning-rate tuning.')),
-    misconception('adam-always-best', copy('Adam 永远最好。', 'Adam is always best.'), copy('Adam 常好用，但任务、泛化和地形会改变选择。', 'Adam is often useful, but task, generalization, and landscape affect the choice.'), copy('有些流程会比较 Adam 和 SGD with Momentum。', 'Some workflows compare Adam with SGD with Momentum.')),
-  ],
-  accent: '#2563eb',
-  theme: '#eff6ff',
-  sourceReferences: [sources.d2lOptimization, sources.pytorchOptimization, sources.mml],
-})
-
 const seventhChapter = moduleDefinition({
   id: 'calculus-training-code-diagnostics',
   enhancementTier: 'interactive',
@@ -612,6 +554,5 @@ export const calculusRouteModules: MathLabModule[] = [
   secondChapter,
   thirdChapter,
   fifthChapter,
-  sixthChapter,
   seventhChapter,
 ]
