@@ -161,7 +161,7 @@ test('loss lab styles preserve tables focus and teaching meaning at 390px and re
 
 test('loss page keeps lazy story composition while placing chapter results beside each lab and downloads once at the end', () => {
   const view = source('src/views/AlgorithmView.vue')
-  const lossBranchStart = view.indexOf('v-else-if="isLossFunctionsPage"')
+  const lossBranchStart = view.indexOf("v-else-if=\"teaching.renderer === 'loss'\"")
   const checkpointStart = view.indexOf('<AlgorithmCheckpointQuiz')
   const downloadsStart = view.indexOf('<LossFunctionsDownloads')
 

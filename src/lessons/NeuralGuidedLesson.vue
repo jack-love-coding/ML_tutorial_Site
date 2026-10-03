@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { algorithmTeaching } from './algorithmTeaching'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MarkdownMathContent from '../components/MarkdownMathContent.vue'
@@ -32,7 +33,7 @@ const copy = computed(() =>
         takeaway: '本章结论',
         sources: '课程参考资料',
         explore: '打开完整实验台',
-        exploreHint: '在独立页面自由调整全部参数，不影响课程进度。',
+        exploreHint: '在独立页面自由调整全部参数，观察模型行为。',
         previous: '上一章',
         next: '下一章',
         chapter: '章节',
@@ -44,7 +45,7 @@ const copy = computed(() =>
         takeaway: 'Chapter conclusion',
         sources: 'Course references',
         explore: 'Open the full playground',
-        exploreHint: 'Adjust every parameter on a separate page without changing course progress.',
+        exploreHint: 'Adjust every parameter on a separate page and observe the model.',
         previous: 'Previous',
         next: 'Next',
         chapter: 'Chapter',
@@ -63,7 +64,7 @@ const activeVisuals = computed(() => {
   return (props.moduleDefinition.visuals ?? []).filter((asset) => visualIds.has(asset.id)).slice(0, 1)
 })
 const activeVisual = computed(() => activeVisuals.value[0])
-const explorerPath = computed(() => `/learn/${props.variant}/explore`)
+const explorerPath = computed(() => algorithmTeaching(props.variant).explorationRoute!)
 const isLastChapter = computed(() => activeIndex.value === props.moduleDefinition.chapters.length - 1)
 const courseSources = computed(() => {
   const seen = new Set<string>()

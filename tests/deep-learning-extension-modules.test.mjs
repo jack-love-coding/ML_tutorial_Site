@@ -1,3 +1,4 @@
+import { algorithmTeachingRegistry } from '../src/lessons/algorithmTeaching.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
@@ -280,7 +281,8 @@ test('deep learning extension modules follow the required-core spine order', () 
   for (const expectation of moduleExpectations) {
     assert.match(typesSource, new RegExp(`\\| '${expectation.slug}'`))
     assert.match(catalogSource, new RegExp(`import\\('\\./${expectation.file}'\\)`))
-    assert.match(algorithmViewSource, new RegExp(`slug\\.value === '${expectation.slug}'`))
+    assert.ok(algorithmTeachingRegistry[expectation.slug], `${expectation.slug} has a renderer`)
+    assert.match(algorithmViewSource, /algorithmTeaching\(slug.value\)/)
     assert.match(messagesSource, new RegExp(`${expectation.messageKey}: \\{`))
   }
 })

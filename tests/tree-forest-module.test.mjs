@@ -1,3 +1,4 @@
+import { algorithmTeaching } from '../src/lessons/algorithmTeaching.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
@@ -33,8 +34,8 @@ test('tree forest module is registered after generalization foundations', () => 
   assert.ok(treeForestIndex > modelSelectionIndex, 'tree-forest should follow model-selection')
   assert.ok(treeForestIndex > lossIndex, 'tree-forest should follow foundation loss modules')
 
-  assert.match(algorithmViewSource, /slug\.value === 'tree-forest'/)
-  assert.match(algorithmViewSource, /isTreeForestPage/)
+  assert.equal(algorithmTeaching('tree-forest').renderer, 'workflow')
+  assert.match(algorithmViewSource, /isWorkflowLessonPage/)
   assert.match(messagesSource, /treeForest: \{/)
 })
 

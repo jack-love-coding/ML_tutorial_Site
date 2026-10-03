@@ -1,32 +1,27 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import { computed, defineAsyncComponent, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { loadAlgorithmModule } from '../data/moduleCatalog'
 import type {
-  AlgorithmModuleDefinition,
   AppLocale,
   ExperimentConfig,
-  ModuleSlug,
   StorySection,
 } from '../types/ml'
-import { registerExperimentModule, useExperimentStore } from '../stores/experiments'
-import { getTeachingInsights } from '../utils/insights'
+import { useExperimentStore } from '../stores/experiments'
 import StoryScroller from '../components/StoryScroller.vue'
-import GradientDescentViz from '../components/GradientDescentViz.vue'
-import ClassificationViz from '../components/ClassificationViz.vue'
-import TeachingDashboard from '../components/TeachingDashboard.vue'
 import LineChart from '../components/LineChart.vue'
-import PlaybackDock from '../components/PlaybackDock.vue'
 import MarkdownMathContent from '../components/MarkdownMathContent.vue'
 import CorridorNavigator from '../components/CorridorNavigator.vue'
-import { isLessonPagePilotSlug, lessonLabRegistry } from '../lessons/labRegistry'
+import { algorithmTeaching } from '../lessons/algorithmTeaching'
+import { sectionCompanionCopy, lessonBridgeFor } from '../lessons/lossReadingNotes'
+import { pagedAlgorithmRenderers } from '../lessons/algorithmRenderers'
+import { useAlgorithmCourse } from '../composables/useAlgorithmCourse'
+import { useAlgorithmChapterNavigation } from '../composables/useAlgorithmChapterNavigation'
 import {
   isClassicalSupervisedCorridorModule,
   type ClassicalSupervisedCorridorModuleId,
 } from '../curriculum/milestones/classicalSupervisedCorridor.ts'
-import { selectedReadingLessonIds } from '../curriculum/reading.ts'
 import { withPublicBase } from '../utils/publicPath'
 
 const LossFunctionsLessonLab = defineAsyncComponent(
@@ -40,21 +35,6 @@ const LossFunctionsDownloads = defineAsyncComponent(
 )
 const AlgorithmCheckpointQuiz = defineAsyncComponent(
   () => import('../components/AlgorithmCheckpointQuiz.vue'),
-)
-const LinearRegressionPagedLesson = defineAsyncComponent(
-  () => import('../components/LinearRegressionPagedLesson.vue'),
-)
-const GradientDescentPagedLesson = defineAsyncComponent(
-  () => import('../components/GradientDescentPagedLesson.vue'),
-)
-const OptimizerPagedLesson = defineAsyncComponent(
-  () => import('../modules/optimizer-comparison/OptimizerPagedLesson.vue'),
-)
-const HousingProjectPagedLesson = defineAsyncComponent(
-  () => import('../components/HousingProjectPagedLesson.vue'),
-)
-const LogisticRegressionPagedLesson = defineAsyncComponent(
-  () => import('../components/LogisticRegressionPagedLesson.vue'),
 )
 const ClassificationLessonLab = defineAsyncComponent(
   () => import('../components/ClassificationLessonLab.vue'),
@@ -87,52 +67,23 @@ const experimentStore = useExperimentStore()
 const { experiments } = storeToRefs(experimentStore)
 
 const activeChapter = ref('')
-const moduleDefinition = shallowRef<AlgorithmModuleDefinition>()
-const routeChapterLock = ref('')
-let routeChapterScrollFrame = 0
-let routeChapterUnlockTimer: number | undefined
-
-const slug = computed(() => {
-  const routeSlug = route.params.slug
-  const routeModuleId = route.params.moduleId
-  if (typeof routeSlug === 'string') return routeSlug as ModuleSlug
-  if (typeof routeModuleId === 'string') return routeModuleId as ModuleSlug
-  if (route.path.startsWith('/learn/cnn-visualization')) return 'cnn-visualization' as ModuleSlug
-  if (route.path.startsWith('/learn/logistic-regression')) return 'logistic-regression' as ModuleSlug
-  if (route.path.startsWith('/learn/linear-regression')) return 'linear-regression' as ModuleSlug
-  if (route.path.startsWith('/learn/gradient-descent')) return 'gradient-descent' as ModuleSlug
-  if (route.path.startsWith('/learn/housing-price-project')) return 'housing-price-project' as ModuleSlug
-  return 'linear-regression' as ModuleSlug
+const { moduleDefinition, slug, loadFailed, retry } = useAlgorithmCourse(route, router, experimentStore, (chapterId, explicit) => {
+  activeChapter.value = chapterId
+  if (explicit) {
+    syncChapterPreset(chapterId)
+    syncRouteChapterIntoView(chapterId)
+  }
 })
-const requestedChapterId = computed(() => {
-  const routeChapterId = route.params.chapterId
-  const routeLessonId = route.params.lessonId
-
-  if (typeof routeChapterId === 'string') return routeChapterId
-  return typeof routeLessonId === 'string' ? routeLessonId : ''
-})
+const teaching = computed(() => algorithmTeaching(slug.value))
+const pagedRenderer = computed(() => pagedAlgorithmRenderers[teaching.value.renderer])
 const currentLocale = computed(() => locale.value as AppLocale)
 const isGradientPage = computed(() => slug.value === 'gradient-descent')
 const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
 const isAiOverviewPage = computed(() => slug.value === 'ai-overview')
 const isHousingProjectPage = computed(() => slug.value === 'housing-price-project')
-const isClassificationProjectPage = computed(() => slug.value === 'classification-project')
-const isModelSelectionPage = computed(() => slug.value === 'model-selection')
-const isTreeForestPage = computed(() => slug.value === 'tree-forest')
 const isCnnVisualizationPage = computed(() => slug.value === 'cnn-visualization')
-const isSequenceEmbeddingBridgePage = computed(() => slug.value === 'sequence-embedding-bridge')
-const isAttentionTransformerPage = computed(() => slug.value === 'attention-transformer')
 const isOptimizerComparisonPage = computed(() => slug.value === 'optimizer-comparison')
-const isLlmRagPage = computed(() => slug.value === 'llm-rag')
-const isWorkflowLessonPage = computed(
-  () =>
-    isClassificationProjectPage.value ||
-    isModelSelectionPage.value ||
-    isTreeForestPage.value ||
-    isSequenceEmbeddingBridgePage.value ||
-    isAttentionTransformerPage.value ||
-    isLlmRagPage.value,
-)
+const isWorkflowLessonPage = computed(() => teaching.value.renderer === 'workflow')
 const isLinearRegressionPage = computed(() => slug.value === 'linear-regression')
 const isLogisticRegressionPage = computed(() => slug.value === 'logistic-regression')
 const isClassificationPage = computed(() => slug.value === 'classification')
@@ -140,49 +91,11 @@ const corridorModuleId = computed<ClassicalSupervisedCorridorModuleId | undefine
   isClassicalSupervisedCorridorModule(slug.value) ? slug.value : undefined,
 )
 const isMlpPage = computed(() => slug.value === 'mlp')
-const isNeuralGuidedPage = computed(() => isMlpPage.value || isCnnVisualizationPage.value)
-const isLessonPagePilot = computed(() => isLessonPagePilotSlug(slug.value))
-const activeLessonLab = computed(() =>
-  isLessonPagePilotSlug(slug.value) ? lessonLabRegistry[slug.value] : undefined,
-)
-
-let moduleLoadRequest = 0
-watch(
-  () => [slug.value, requestedChapterId.value, route.query.route] as const,
-  async ([nextSlug, nextChapterId]) => {
-    const requestId = ++moduleLoadRequest
-    moduleDefinition.value = undefined
-    const nextModuleDefinition = await loadAlgorithmModule(nextSlug)
-    if (requestId !== moduleLoadRequest) return
-
-    if (!nextModuleDefinition) {
-      router.replace('/')
-      return
-    }
-
-    const lessonIds = selectedReadingLessonIds(route.query.route, nextSlug, nextChapterId)
-    moduleDefinition.value = lessonIds ? { ...nextModuleDefinition, chapters: nextModuleDefinition.chapters.filter(chapter => lessonIds.includes(chapter.id)) } : nextModuleDefinition
-    registerExperimentModule(nextModuleDefinition)
-    experimentStore.ensureExperiment(nextSlug)
-    const firstChapterId = nextModuleDefinition.chapters[0]?.id ?? ''
-    if (nextChapterId) {
-      const matchedChapter = nextModuleDefinition.chapters.find((chapter) => chapter.id === nextChapterId)
-
-      if (!matchedChapter) {
-        router.replace({ path: `/learn/${nextSlug}/${firstChapterId}`, query: route.query })
-        return
-      }
-
-      activeChapter.value = matchedChapter.id
-      syncChapterPreset(matchedChapter.id)
-      syncRouteChapterIntoView(matchedChapter.id)
-      return
-    }
-
-    activeChapter.value = firstChapterId
-  },
-  { immediate: true },
-)
+const isNeuralGuidedPage = computed(() => teaching.value.mode === 'guided')
+const isBlockLesson = computed(() => teaching.value.renderer === 'blocks')
+const { syncRouteChapterIntoView, onChapterChange, onNeuralChapterChange } = useAlgorithmChapterNavigation({
+  route, router, slug, isNeuralGuidedPage, activeChapter, syncChapterPreset,
+})
 
 const experiment = computed(() => experiments.value[slug.value])
 const snapshot = computed(() => {
@@ -195,13 +108,6 @@ const activeSection = computed(
     moduleDefinition.value?.chapters.find((chapter) => chapter.id === activeChapter.value) ??
     moduleDefinition.value?.chapters[0],
 )
-
-const teachingInsights = computed(() =>
-  getTeachingInsights(slug.value, snapshot.value, experiment.value?.config),
-)
-
-const emphasizedMetrics = computed(() => activeSection.value?.metricEmphasis ?? [])
-const focusTarget = computed(() => activeSection.value?.focusTarget)
 
 const heroStatItems = computed(() => [
   {
@@ -220,20 +126,6 @@ const heroStatItems = computed(() => [
 const moduleStatusLabel = computed(() =>
   locale.value === 'zh-CN' ? '教学模块' : 'Learning module',
 )
-
-const gradientSectionInsights = computed(() => {
-  if (!isGradientPage.value) return teachingInsights.value
-
-  const linkedIds = activeSection.value?.linkedInsightIds ?? []
-  if (!linkedIds.length) return teachingInsights.value
-
-  const priority = new Set(linkedIds)
-  return [...teachingInsights.value].sort(
-    (left, right) => Number(priority.has(right.id)) - Number(priority.has(left.id)),
-  )
-})
-
-const gradientFeaturedInsights = computed(() => gradientSectionInsights.value.slice(0, 2))
 
 function localizedText(copy?: { 'zh-CN': string; en: string }) {
   if (!copy) return ''
@@ -255,110 +147,6 @@ function visualAssetsFor(section?: StorySection) {
   return moduleDefinition.value?.visuals?.filter((asset) => visualIds.has(asset.id)) ?? []
 }
 
-function sectionCompanionCopy(section?: StorySection) {
-  if (!section || !isLossFunctionsPage.value) return undefined
-
-  if (locale.value === 'zh-CN') {
-    const sectionNotes: Record<string, { title: string; body: string }> = {
-      'why-loss': {
-        title: '这一章要建立的直觉',
-        body: '先把“误差”和“损失”分开。误差只是差距，损失是我们主动选择的评分规则；规则一变，后面的优化目标也会跟着变。',
-      },
-      'regression-losses': {
-        title: '这一章要看的重点',
-        body: '离群点是最好的放大镜。它会立刻暴露 MSE 和 MAE 在真实数据上会形成怎样不同的拟合偏好。',
-      },
-      'classification-losses': {
-        title: '这一章要看的重点',
-        body: '不要只盯着 0 和 1。交叉熵真正惩罚的是“错误时有多自信”，以及“正确时是否足够自信”。',
-      },
-      'likelihood-intuition': {
-        title: '这一章要建立的直觉',
-        body: '似然是在比较“哪个参数更能解释这批数据”。它不是在问参数本身有多可能，而是在给候选参数做解释力排名。',
-      },
-      'negative-log': {
-        title: '这一章要看的重点',
-        body: '把很多个小概率连乘之后，数字会迅速变得很小；取对数再加负号，是把这个概率比较问题翻译成稳定、可优化的损失。',
-      },
-      'mle-bridge': {
-        title: '这一章要建立的桥梁',
-        body: '把 loss 看成 negative log-likelihood 之后，损失函数就不再是凭经验挑的公式，而是有概率来源的建模假设。',
-      },
-    }
-
-    return sectionNotes[section.id]
-  }
-
-  const sectionNotes: Record<string, { title: string; body: string }> = {
-    'why-loss': {
-      title: 'The intuition to build here',
-      body: 'Separate error from loss. Error is the gap; loss is the scoring rule we choose for that gap, and the rule changes the objective.',
-    },
-    'regression-losses': {
-      title: 'What to focus on here',
-      body: 'Outliers are the fastest way to see the difference. They immediately expose how MSE and MAE prefer different fits on real data.',
-    },
-    'classification-losses': {
-      title: 'What to focus on here',
-      body: 'Do not stop at right versus wrong. Cross-entropy is really about how confident the model is when it is right or disastrously wrong.',
-    },
-    'likelihood-intuition': {
-      title: 'The intuition to build here',
-      body: 'Likelihood ranks parameter candidates by explanatory power. It is not asking how likely the parameter is by itself.',
-    },
-    'negative-log': {
-      title: 'What to focus on here',
-      body: 'Products of many small probabilities shrink quickly. Logs and the minus sign rewrite that comparison as a stable optimization objective.',
-    },
-    'mle-bridge': {
-      title: 'The bridge to build here',
-      body: 'Once loss becomes negative log-likelihood, the formula stops feeling arbitrary and starts feeling like a modeling choice.',
-    },
-  }
-
-  return sectionNotes[section.id]
-}
-
-function lessonBridgeFor(section?: StorySection) {
-  if (!isLossFunctionsPage.value || !section) return undefined
-  if (section.id === 'likelihood-intuition' || section.id === 'negative-log') return undefined
-
-  const isOptimizationBridge =
-    section.id === 'why-loss' || section.id === 'regression-losses'
-
-  return locale.value === 'zh-CN'
-    ? isOptimizationBridge
-      ? {
-          route: '/learn/gradient-descent',
-          eyebrow: '下一课',
-          title: '把损失函数放进梯度下降的地形里',
-          body: '当你已经知道误差如何被写成目标函数，下一步就是观察优化器怎样沿着这张地形往下走。',
-          cta: '进入梯度下降',
-        }
-      : {
-          route: '/learn/logistic-regression',
-          eyebrow: '应用桥接',
-          title: '在逻辑回归里看见交叉熵真正工作',
-          body: '把这里的概率惩罚直觉带进分类模型，你会更容易理解为什么边界会这样移动。',
-          cta: '进入逻辑回归',
-        }
-    : isOptimizationBridge
-      ? {
-          route: '/learn/gradient-descent',
-          eyebrow: 'Next lesson',
-          title: 'See loss functions become optimization landscapes',
-          body: 'Once loss is concrete, the next step is watching an optimizer move across that surface.',
-          cta: 'Open Gradient Descent',
-        }
-      : {
-          route: '/learn/logistic-regression',
-          eyebrow: 'Application bridge',
-          title: 'Watch cross-entropy drive a real classifier',
-          body: 'Carry this probability-penalty intuition into logistic regression and the boundary story becomes much clearer.',
-          cta: 'Open Logistic Regression',
-        }
-}
-
 let timer: number | undefined
 
 function stopTimer() {
@@ -366,45 +154,6 @@ function stopTimer() {
     window.clearInterval(timer)
     timer = undefined
   }
-}
-
-function stopRouteChapterSync() {
-  if (routeChapterScrollFrame) {
-    window.cancelAnimationFrame(routeChapterScrollFrame)
-    routeChapterScrollFrame = 0
-  }
-  if (routeChapterUnlockTimer) {
-    window.clearTimeout(routeChapterUnlockTimer)
-    routeChapterUnlockTimer = undefined
-  }
-}
-
-function syncRouteChapterIntoView(chapterId: string) {
-  routeChapterLock.value = chapterId
-  stopRouteChapterSync()
-  const chapterTarget = () =>
-    isNeuralGuidedPage.value
-      ? document.querySelector<HTMLElement>('.neural-guided-lesson')
-      : document.getElementById(chapterId)
-  nextTick(() => {
-    routeChapterScrollFrame = window.requestAnimationFrame(() => {
-      activeChapter.value = chapterId
-      chapterTarget()?.scrollIntoView({ behavior: 'auto', block: 'start' })
-      routeChapterScrollFrame = window.requestAnimationFrame(() => {
-        routeChapterScrollFrame = 0
-        activeChapter.value = chapterId
-        chapterTarget()?.scrollIntoView({ behavior: 'auto', block: 'start' })
-        routeChapterUnlockTimer = window.setTimeout(() => {
-          if (routeChapterLock.value === chapterId) {
-            activeChapter.value = chapterId
-            chapterTarget()?.scrollIntoView({ behavior: 'auto', block: 'start' })
-            routeChapterLock.value = ''
-          }
-          routeChapterUnlockTimer = undefined
-        }, 1200)
-      })
-    })
-  })
 }
 
 watch(
@@ -422,7 +171,6 @@ watch(
 
 onBeforeUnmount(() => {
   stopTimer()
-  stopRouteChapterSync()
 })
 
 function syncChapterPreset(nextChapter: string) {
@@ -438,32 +186,8 @@ function syncChapterPreset(nextChapter: string) {
   }
 }
 
-function onChapterChange(nextChapter: string) {
-  if (routeChapterLock.value && nextChapter !== routeChapterLock.value) return
-  activeChapter.value = nextChapter
-  if (routeChapterLock.value === nextChapter) {
-    routeChapterLock.value = ''
-  }
-  syncChapterPreset(nextChapter)
-}
-
-function onNeuralChapterChange(nextChapter: string) {
-  if (nextChapter === activeChapter.value) return
-  activeChapter.value = nextChapter
-  syncChapterPreset(nextChapter)
-  const targetPath = `/learn/${slug.value}/${nextChapter}`
-  if (route.path !== targetPath) {
-    void router.push(targetPath)
-  }
-}
-
 function patchConfig(partialConfig: Partial<ExperimentConfig>) {
   experimentStore.patchConfig(slug.value, partialConfig)
-}
-
-function updateGradientStartPoint(point: { startX: number; startY: number }) {
-  experimentStore.pause(slug.value)
-  experimentStore.patchConfig(slug.value, point)
 }
 
 </script>
@@ -472,6 +196,8 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
   <div
     v-if="moduleDefinition && experiment && snapshot"
     class="algorithm-view"
+    :data-teaching-mode="teaching.mode"
+    :data-renderer="teaching.renderer"
     :class="{
       'algorithm-view--gradient': isGradientPage,
       'algorithm-view--loss': isLossFunctionsPage,
@@ -515,7 +241,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     <CorridorNavigator v-if="corridorModuleId" :module-id="corridorModuleId" />
 
     <NeuralGuidedLesson
-      v-if="isMlpPage"
+      v-if="teaching.renderer === 'neural' && isMlpPage"
       :module-definition="moduleDefinition"
       :active-id="activeChapter"
       variant="mlp"
@@ -537,7 +263,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     </NeuralGuidedLesson>
 
     <NeuralGuidedLesson
-      v-else-if="isCnnVisualizationPage"
+      v-else-if="teaching.renderer === 'neural' && isCnnVisualizationPage"
       :module-definition="moduleDefinition"
       :active-id="activeChapter"
       variant="cnn-visualization"
@@ -553,42 +279,35 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </template>
     </NeuralGuidedLesson>
 
-    <GradientDescentPagedLesson
-      v-else-if="isGradientPage && activeSection"
+    <component
+      :is="pagedRenderer"
+      v-else-if="pagedRenderer && activeSection"
       :module-definition="moduleDefinition"
       :section="activeSection"
-    />
-
-    <OptimizerPagedLesson
-      v-else-if="isOptimizerComparisonPage && activeSection"
-      :module-definition="moduleDefinition"
-      :section="activeSection"
+      v-bind="teaching.experimentPager ? { config: experiment.config, snapshot, snapshots: experiment.snapshots, currentStep: experiment.currentStep, isPlaying: experiment.isPlaying } : {}"
+      @patch-config="patchConfig"
+      @toggle-play="experimentStore.togglePlayback(slug)"
+      @step="experimentStore.advance(slug)"
+      @replay="experimentStore.replay(slug)"
+      @reset="experimentStore.reset(slug)"
+      @apply-preset="(config: Partial<ExperimentConfig>) => experimentStore.applyPreset(slug, config)"
     />
 
     <LessonPage
-      v-else-if="isLessonPagePilot"
+      v-else-if="isBlockLesson"
       :module-definition="moduleDefinition"
       :active-id="activeChapter"
       :variant="slug"
-      :render-mode="activeLessonLab?.renderMode"
-      :show-visuals="activeLessonLab?.showVisuals"
-      :show-sources="activeLessonLab?.showSources"
       @change="onChapterChange"
     >
       <template #lab="{ section }">
         <AiOverviewLessonLab
-          v-if="activeLessonLab?.labId === 'ai-overview-task-lab'"
+          v-if="teaching.labId === 'ai-overview-task-lab'"
           :section="section"
         />
 
       </template>
     </LessonPage>
-
-    <HousingProjectPagedLesson
-      v-else-if="isHousingProjectPage && activeSection"
-      :module-definition="moduleDefinition"
-      :section="activeSection"
-    />
 
     <section
       v-else-if="isWorkflowLessonPage"
@@ -621,7 +340,7 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
     </section>
 
     <section
-      v-else-if="isLossFunctionsPage"
+      v-else-if="teaching.renderer === 'loss'"
       class="algorithm-layout algorithm-layout--lesson-story"
     >
       <StoryScroller
@@ -661,64 +380,30 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
             </section>
 
             <section
-              v-if="sectionCompanionCopy(section)"
+              v-if="sectionCompanionCopy(currentLocale, section)"
               class="story-companion__panel story-companion__panel--meta"
             >
-              <span>{{ sectionCompanionCopy(section)?.title }}</span>
-              <p>{{ sectionCompanionCopy(section)?.body }}</p>
+              <span>{{ sectionCompanionCopy(currentLocale, section)?.title }}</span>
+              <p>{{ sectionCompanionCopy(currentLocale, section)?.body }}</p>
             </section>
 
             <router-link
-              v-if="lessonBridgeFor(section)"
+              v-if="lessonBridgeFor(currentLocale, section)"
               class="story-companion__panel story-companion__panel--meta story-companion__link"
-              :to="lessonBridgeFor(section)?.route || '/'"
+              :to="lessonBridgeFor(currentLocale, section)?.route || '/'"
             >
-              <span>{{ lessonBridgeFor(section)?.eyebrow }}</span>
-              <strong>{{ lessonBridgeFor(section)?.title }}</strong>
-              <p>{{ lessonBridgeFor(section)?.body }}</p>
-              <span class="action-button">{{ lessonBridgeFor(section)?.cta }}</span>
+              <span>{{ lessonBridgeFor(currentLocale, section)?.eyebrow }}</span>
+              <strong>{{ lessonBridgeFor(currentLocale, section)?.title }}</strong>
+              <p>{{ lessonBridgeFor(currentLocale, section)?.body }}</p>
+              <span class="action-button">{{ lessonBridgeFor(currentLocale, section)?.cta }}</span>
             </router-link>
           </div>
         </template>
       </StoryScroller>
     </section>
 
-    <LinearRegressionPagedLesson
-      v-else-if="isLinearRegressionPage && activeSection"
-      :module-definition="moduleDefinition"
-      :section="activeSection"
-      :config="experiment.config"
-      :snapshot="snapshot"
-      :snapshots="experiment.snapshots"
-      :current-step="experiment.currentStep"
-      :is-playing="experiment.isPlaying"
-      @patch-config="patchConfig"
-      @toggle-play="experimentStore.togglePlayback(slug)"
-      @step="experimentStore.advance(slug)"
-      @replay="experimentStore.replay(slug)"
-      @reset="experimentStore.reset(slug)"
-      @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
-    />
-
-    <LogisticRegressionPagedLesson
-      v-else-if="isLogisticRegressionPage && activeSection"
-      :module-definition="moduleDefinition"
-      :section="activeSection"
-      :config="experiment.config"
-      :snapshot="snapshot"
-      :snapshots="experiment.snapshots"
-      :current-step="experiment.currentStep"
-      :is-playing="experiment.isPlaying"
-      @patch-config="patchConfig"
-      @toggle-play="experimentStore.togglePlayback(slug)"
-      @step="experimentStore.advance(slug)"
-      @replay="experimentStore.replay(slug)"
-      @reset="experimentStore.reset(slug)"
-      @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
-    />
-
     <section
-      v-else-if="isClassificationPage"
+      v-else-if="teaching.renderer === 'classification'"
       class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--classification-story"
     >
       <StoryScroller
@@ -774,63 +459,6 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
       </StoryScroller>
     </section>
 
-    <section v-else class="algorithm-layout">
-      <StoryScroller
-        :sections="moduleDefinition.chapters"
-        :active-id="activeChapter"
-        @change="onChapterChange"
-      />
-
-      <aside class="lab-column">
-        <div class="lab-column__sticky">
-          <GradientDescentViz
-            v-if="slug === 'gradient-descent'"
-            :snapshot="snapshot"
-            :config="experiment.config"
-            :accent="moduleDefinition.accent"
-            :focus-target="focusTarget"
-            @update-start-point="updateGradientStartPoint"
-          />
-          <ClassificationViz
-            v-else
-            :slug="slug"
-            :snapshot="snapshot"
-            :accent="moduleDefinition.accent"
-            :focus-target="focusTarget"
-          />
-
-          <PlaybackDock
-            :slug="slug"
-            :snapshot="snapshot"
-            :is-playing="experiment.isPlaying"
-            @toggle-play="experimentStore.togglePlayback(slug)"
-            @step="experimentStore.advance(slug)"
-            @replay="experimentStore.replay(slug)"
-            @reset="experimentStore.reset(slug)"
-          />
-
-          <TeachingDashboard
-            :slug="slug"
-            :module-definition="moduleDefinition"
-            :config="experiment.config"
-            :snapshot="snapshot"
-            :is-playing="experiment.isPlaying"
-            :active-section="activeSection"
-            :insights="teachingInsights"
-            :emphasized-metrics="emphasizedMetrics"
-            :key="activeSection?.id"
-            @update-config="(key, value) => experimentStore.updateConfig(slug, key, value)"
-            @patch-config="patchConfig"
-            @toggle-play="experimentStore.togglePlayback(slug)"
-            @step="experimentStore.advance(slug)"
-            @replay="experimentStore.replay(slug)"
-            @reset="experimentStore.reset(slug)"
-            @apply-preset="(config) => experimentStore.applyPreset(slug, config)"
-          />
-        </div>
-      </aside>
-    </section>
-
     <AlgorithmCheckpointQuiz
       v-if="moduleDefinition.checkpoints.length && !isLogisticRegressionPage && !isAiOverviewPage && !isOptimizerComparisonPage && (!isGradientPage || activeSection?.id === 'noise-and-batch')"
       :module-slug="moduleDefinition.slug"
@@ -858,18 +486,11 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
           {{ localizedText(activeSection?.experimentPrompt) }}
         </div>
 
-        <div v-if="isGradientPage && gradientFeaturedInsights.length" class="lesson-panel__signals">
-          <article
-            v-for="insight in gradientFeaturedInsights"
-            :key="insight.id"
-            class="insight-card"
-            :class="`insight-card--${insight.tone}`"
-          >
-            <span>{{ t(insight.titleKey) }}</span>
-            <p>{{ t(insight.bodyKey) }}</p>
-          </article>
-        </div>
       </section>
     </section>
   </div>
+  <section v-else-if="loadFailed" class="panel" role="alert">
+    <p>{{ currentLocale === 'zh-CN' ? '课程暂时无法加载，请重试。' : 'The lesson could not load. Please retry.' }}</p>
+    <button class="action-button" type="button" @click="retry">{{ currentLocale === 'zh-CN' ? '重试' : 'Retry' }}</button>
+  </section>
 </template>

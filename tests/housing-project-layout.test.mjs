@@ -33,8 +33,8 @@ test('bespoke routes precede generic routes and Pages emits all deep fallbacks',
 
 test('AlgorithmView mounts the housing page outside the legacy workflow renderer', () => {
   const view = read('src/views/AlgorithmView.vue')
-  assert.match(view, /HousingProjectPagedLesson/)
-  assert.match(view, /isHousingProjectPage && activeSection/)
+  assert.match(read('src/lessons/algorithmRenderers.ts'), /housing: defineAsyncComponent.*HousingProjectPagedLesson/)
+  assert.match(view, /pagedRenderer && activeSection/)
   const workflowContract = view.match(/const isWorkflowLessonPage = computed\([\s\S]*?\n\)/)?.[0] ?? ''
   assert.doesNotMatch(workflowContract, /isHousingProjectPage/)
 })

@@ -33,11 +33,12 @@ test('algorithm view has a dedicated linear regression lesson branch', () => {
     'utf8',
   )
 
-  assert.match(algorithmViewSource, /LinearRegressionPagedLesson/)
-  assert.match(algorithmViewSource, /requestedChapterId/)
-  assert.match(algorithmViewSource, /route\.params\.moduleId/)
-  assert.match(algorithmViewSource, /route\.params\.lessonId/)
-  assert.match(algorithmViewSource, /router\.replace\(\{ path: `\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`, query: route\.query \}\)/)
+  assert.match(readFileSync(new URL('../src/lessons/algorithmRenderers.ts', import.meta.url), 'utf8'), /linear: defineAsyncComponent.*LinearRegressionPagedLesson/)
+  const loader = readFileSync(new URL('../src/composables/useAlgorithmCourse.ts', import.meta.url), 'utf8')
+  assert.match(loader, /requestedChapterId/)
+  assert.match(loader, /route\.params\.moduleId/)
+  assert.match(loader, /route\.params\.lessonId/)
+  assert.match(loader, /router\.replace\(\{ path: `\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`, query: route\.query \}\)/)
   assert.match(algorithmViewSource, /slug\.value === 'linear-regression'/)
   assert.doesNotMatch(algorithmViewSource, /showLegacyLinearRegressionStory/)
   assert.doesNotMatch(algorithmViewSource, /LinearRegressionResults = defineAsyncComponent/)

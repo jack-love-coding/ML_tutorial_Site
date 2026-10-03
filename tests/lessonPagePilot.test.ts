@@ -38,44 +38,26 @@ test('LessonPage pilot files define the shared skeleton and block renderer', () 
   assert.match(blockRendererSource, /slot name="lab"/)
 })
 
-test('lesson lab registry declares the Phase 5 pilot modules and placements', () => {
-  const registrySource = read('src/lessons/labRegistry.ts')
-
-  for (const token of [
-    "'ai-overview'",
-    "'gradient-descent'",
-    "'mlp'",
-    "labId: 'ai-overview-task-lab'",
-    "labId: 'gradient-chapter-lab'",
-    "labId: 'mlp-playground-cockpit'",
-    "placement: 'section'",
-    "placement: 'top'",
-    "renderMode: 'gradient'",
-    'isLessonPagePilotSlug',
-  ]) {
-    assert.match(registrySource, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
-  }
+test('pilot compatibility metadata follows the current rendering registry', () => {
+  const registry = read('src/lessons/labRegistry.ts')
+  assert.match(registry, /algorithmTeaching\(moduleSlug\)/)
+  assert.match(registry, /renderer: teaching.renderer/)
+  assert.doesNotMatch(registry, /placement: 'top'|mlp-playground-cockpit/)
 })
 
-test('AlgorithmView routes article pilots through LessonPage and neural courses through guided shells', () => {
-  const algorithmViewSource = read('src/views/AlgorithmView.vue')
-
-  assert.match(algorithmViewSource, /const LessonPage = defineAsyncComponent\(\(\) => import\('\.\.\/lessons\/LessonPage\.vue'\)\)/)
-  assert.match(algorithmViewSource, /const NeuralGuidedLesson = defineAsyncComponent/)
-  assert.match(algorithmViewSource, /isLessonPagePilotSlug/)
-  assert.match(algorithmViewSource, /lessonLabRegistry/)
-  assert.match(algorithmViewSource, /const isLessonPagePilot = computed/)
-  assert.match(algorithmViewSource, /const activeLessonLab = computed/)
-  assert.match(algorithmViewSource, /<NeuralGuidedLesson\s+v-if="isMlpPage"/)
-  assert.match(algorithmViewSource, /<LessonPage\s+v-else-if="isLessonPagePilot"/)
-  assert.match(algorithmViewSource, /activeLessonLab\?\.labId === 'ai-overview-task-lab'/)
-  assert.match(algorithmViewSource, /GradientDescentPagedLesson/)
-  assert.match(algorithmViewSource, /CnnGuidedLab/)
-  assert.match(algorithmViewSource, /MlpGuidedLab/)
-  assert.doesNotMatch(algorithmViewSource, /activeLessonLab\?\.labId === 'gradient-chapter-lab'/)
-  assert.match(algorithmViewSource, /AiOverviewLessonLab/)
-
-  assert.doesNotMatch(algorithmViewSource, /v-if="isAiOverviewPage"\s+class="algorithm-layout algorithm-layout--lesson-story/)
-  assert.doesNotMatch(algorithmViewSource, /v-else-if="isGradientPage"\s+class="algorithm-layout algorithm-layout--gradient-story/)
-  assert.doesNotMatch(algorithmViewSource, /v-else-if="isMlpPage"\s+class="algorithm-layout algorithm-layout--lesson-story algorithm-layout--mlp-story/)
+test('AlgorithmView selects actual teaching modes and keeps specialized labs lazy', () => {
+  const page = read('src/views/AlgorithmView.vue')
+  const renderers = read('src/lessons/algorithmRenderers.ts')
+  assert.match(page, /algorithmTeaching\(slug.value\)/)
+  assert.match(page, /pagedAlgorithmRenderers\[teaching.value.renderer\]/)
+  assert.match(page, /v-else-if="pagedRenderer && activeSection"/)
+  assert.match(page, /teaching.renderer === 'neural'/)
+  assert.match(page, /<LessonPage\s+v-else-if="isBlockLesson"/)
+  for (const component of ['AiOverviewLessonLab', 'CnnGuidedLab', 'MlpGuidedLab']) {
+    assert.match(page, new RegExp(`const ${component} = defineAsyncComponent`))
+  }
+  for (const component of ['GradientDescentPagedLesson', 'LinearRegressionPagedLesson', 'LogisticRegressionPagedLesson']) {
+    assert.match(renderers, new RegExp(`defineAsyncComponent.*${component}`))
+  }
+  assert.doesNotMatch(page, /isLessonPagePilotSlug|lessonLabRegistry/)
 })

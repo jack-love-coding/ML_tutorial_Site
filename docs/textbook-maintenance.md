@@ -6,6 +6,7 @@
 
 - 算法正文、章节和路由：`src/data/moduleCatalog.ts` 的 lazy loaders 指向的实际课程定义。
 - 算法领域、难度和先修关系：`src/curriculum/algorithmMetadata.ts`。
+- 算法教学模式：`src/lessons/algorithmTeaching.ts`；分页组件的 lazy import 位于 `algorithmRenderers.ts`。历史 pilot 清单仅供交互协议兼容，不决定页面分发。
 - Math/Data 正文：各模块原有 typed providers，继续通过 adapters 接入。
 - `src/curriculum/generated/`：构建期投影，不手工编辑；`npm run curriculum:generate` 更新，`npm run curriculum:check` 验证。
 - V3 blueprint 和旧阶段文档记录历史或未来设想，不用于判定当前页面已发布。
@@ -48,3 +49,11 @@
 ## 阶段 4 验证记录
 
 2026-10-03：统一目录生成 650 个 Pages 静态入口，按章节生成损失函数展示数据，发布资源与浏览器 smoke 接入 CI。单元 1—2 标为 pilot。`npm test` 1129 通过、28 项离线检查跳过；两种构建、111 个浏览器场景与全部静态入口检查通过，安全审计 0 个漏洞。完整范围、限制和回退提交见 [本批发布记录](releases/textbook-pilot-2026-10-03.md)。
+
+## 阶段 5 验证记录
+
+2026-10-03：AlgorithmView 从 875 行缩至 496 行。`useAlgorithmCourse` 管理懒加载、选读与失效请求；`useAlgorithmChapterNavigation` 管理章节锁、滚动与清理；`algorithmTeaching.ts` 是 17 门算法课程的教学模式来源，分页组件由 lazy registry 分发。MLP 改为如实登记逐节指导实验，并保留独立探索入口。损失课提示文案移入 `lossReadingNotes.ts`。
+
+样式继续由 `src/styles/views/algorithm-shell.css` 负责页面壳、各 `src/styles/modules/` 课程文件负责实验布局；本阶段不新增全局覆盖规则。数值模拟和课程公式未修改。
+
+`npm test` 1132 通过、28 项离线检查跳过；两种构建与目录漂移检查通过。浏览器原有 111 个场景与 650 个静态入口通过，另有 22 个教学模式场景通过，覆盖分页、滚动、指导实验、MLP/CNN 独立探索、调参/重置、双语/390px 与公式渲染。新增生命周期测试验证旧请求不覆盖新课程，卸载会取消未执行的滚动回调。可通过 `node scripts/qa/run-textbook-smoke.mjs algorithm-modes` 单独复查教学模式。

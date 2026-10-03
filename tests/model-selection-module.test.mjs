@@ -1,3 +1,4 @@
+import { algorithmTeaching } from '../src/lessons/algorithmTeaching.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
@@ -33,8 +34,8 @@ test('model selection module is registered after classification validation', () 
   assert.ok(modelSelectionIndex > classificationProjectIndex, 'model-selection should follow classification-project')
   assert.ok(modelSelectionIndex > lossIndex, 'model-selection should follow foundation loss modules')
 
-  assert.match(algorithmViewSource, /slug\.value === 'model-selection'/)
-  assert.match(algorithmViewSource, /isModelSelectionPage/)
+  assert.equal(algorithmTeaching('model-selection').renderer, 'workflow')
+  assert.match(algorithmViewSource, /isWorkflowLessonPage/)
   assert.match(messagesSource, /modelSelection: \{/)
 })
 

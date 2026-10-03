@@ -1,3 +1,4 @@
+import { algorithmTeaching } from '../src/lessons/algorithmTeaching.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
@@ -33,8 +34,8 @@ test('classification project module is registered after its required foundations
   assert.ok(classificationProjectIndex > housingIndex, 'classification-project should follow housing-price-project')
   assert.ok(classificationProjectIndex > classificationIndex, 'classification-project should follow classification')
 
-  assert.match(algorithmViewSource, /slug\.value === 'classification-project'/)
-  assert.match(algorithmViewSource, /isClassificationProjectPage/)
+  assert.equal(algorithmTeaching('classification-project').renderer, 'workflow')
+  assert.match(algorithmViewSource, /isWorkflowLessonPage/)
   assert.match(messagesSource, /classificationProject: \{/)
 })
 
