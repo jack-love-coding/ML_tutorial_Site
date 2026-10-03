@@ -61,6 +61,7 @@ test('math lab module assembly applies only the four declared provider overrides
       'beginnerFoundationModules',
       'linearAlgebraRouteModules',
       'calculusRouteModules',
+      'calculusGradientDescentModule',
       'mathToCodeModules',
       'importedFoundationModules',
       'aiBridgeModules',

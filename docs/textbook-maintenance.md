@@ -57,3 +57,7 @@
 样式继续由 `src/styles/views/algorithm-shell.css` 负责页面壳、各 `src/styles/modules/` 课程文件负责实验布局；本阶段不新增全局覆盖规则。数值模拟和课程公式未修改。
 
 `npm test` 1132 通过、28 项离线检查跳过；两种构建与目录漂移检查通过。浏览器原有 111 个场景与 650 个静态入口通过，另有 22 个教学模式场景通过，覆盖分页、滚动、指导实验、MLP/CNN 独立探索、调参/重置、双语/390px 与公式渲染。新增生命周期测试验证旧请求不覆盖新课程，卸载会取消未执行的滚动回调。可通过 `node scripts/qa/run-textbook-smoke.mjs algorithm-modes` 单独复查教学模式。
+
+## 阶段 6a 验证记录
+
+梯度下降最终正文改为独立 provider，九组 Notebook 关联进入课程元数据。1136 项测试通过、28 项离线检查跳过，两种构建与目录检查通过，24 个数学浏览器场景通过。内容一致性指纹、维护方式和两处历史公式转义修复见 [数学 provider 迁移记录](math-provider-migrations.md)。

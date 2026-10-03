@@ -190,11 +190,6 @@ const localChangeLab = lab('calculus-local-change-lab', copy('局部变化故事
   copy('能解释观察窗口变小时读数为什么更局部。', 'Explain why a shrinking observation window gives a more local reading.'),
 ])
 
-const gradientPathLab = lab('calculus-gradient-path-lab', copy('梯度路径实验', 'Gradient Path Lab'), 'MathGradientLab', [
-  copy('能指出梯度、负梯度和更新方向。', 'Identify gradient, negative gradient, and update direction.'),
-  copy('能比较学习率过小、合适和过大的轨迹。', 'Compare paths for too-small, suitable, and too-large learning rates.'),
-])
-
 const partialDerivativeLab = lab(
   'calculus-partial-derivative-lab',
   copy('偏导数与梯度等高线实验', 'Partial Derivative and Gradient Contour Lab'),
@@ -495,47 +490,6 @@ const thirdChapter = moduleDefinition({
   sourceReferences: [sources.essenceCalculus, sources.mml],
 })
 
-const fourthChapter = moduleDefinition({
-  id: 'calculus-gradient-descent',
-  enhancementTier: 'interactive',
-  title: copy('梯度下降', 'Gradient Descent'),
-  subtitle: copy('沿负梯度方向走，用学习率控制每一步长度。', 'Walk along the negative gradient and use learning rate to control step length.'),
-  difficulty: 'foundation',
-  estimatedMinutes: 38,
-  prerequisites: ['calculus-partial-derivatives-gradients'],
-  aiModelConnections: [copy('训练的核心更新就是让参数沿负梯度降低 loss。', 'The core training update moves parameters along the negative gradient to reduce loss.')],
-  learningObjectives: [
-    copy('解释负梯度为什么用于下降。', 'Explain why the negative gradient is used for descent.'),
-    copy('区分方向和学习率步长。', 'Separate direction from learning-rate step size.'),
-    copy('识别震荡和发散。', 'Recognize oscillation and divergence.'),
-  ],
-  concepts: [
-    concept('negative-gradient-step', copy('负梯度步', 'Negative-Gradient Step'), '\\theta_{new}=\\theta-\\eta\\nabla L(\\theta)', [variable('\\theta', '当前参数。', 'Current parameters.'), variable('\\eta', '学习率。', 'Learning rate.'), variable('\\nabla L', 'loss 梯度。', 'Loss gradient.')], copy('从参数中减去学习率乘梯度。', 'Subtract learning rate times gradient from parameters.'), copy('像沿 loss 山谷的下坡方向迈步。', 'Like stepping downhill in a loss valley.'), copy('梯度 \\([3,-2]\\)、学习率 0.1，更新为 \\([-0.3,0.2]\\)。', 'Gradient \\([3,-2]\\) with learning rate 0.1 gives update \\([-0.3,0.2]\\).'), copy('优化器围绕方向和步长组织更新。', 'Optimizers organize updates around direction and step size.')),
-  ],
-  sections: [
-    section('descent-loss-valley-case', copy('案例：loss valley 和负梯度', 'Case: Loss Valley and Negative Gradient'), copy(md`把 loss 想成山谷。梯度指向上坡最快，负梯度指向局部下坡方向。训练不是一跳到底，而是在 loss valley 中根据当前局部地图迈步。`, md`Imagine loss as a valley landscape. The gradient points toward fastest uphill increase, while the negative gradient points locally downhill. Training does not jump to the bottom in one move. It reads the local map at the current parameter position and takes one update step. This case links the derivative sign, the gradient vector, and visible training behavior in the same story.`), { visualIds: ['learning-rate-image', 'learning-rate-video'], labIds: ['calculus-gradient-path-lab'] }),
-    section('descent-minus-sign', copy('减号：subtract 不等于参数都变小', 'Minus Sign: Subtract Does Not Mean Every Parameter Gets Smaller'), copy(md`公式里的 subtract 是减去梯度方向，不表示 not every parameter gets smaller。若梯度分量为负，减去它会让对应参数变大。真正目标是 loss 下降。`, md`The subtract operation removes the uphill gradient direction, but it does not mean every parameter gets smaller. If a gradient component is negative, subtracting it increases that parameter. The correct object to watch is loss, not whether every parameter value decreased. This distinction matters when reading optimizer logs, because healthy training can include some parameters increasing while the objective falls.`)),
-    section('descent-learning-rate', copy('学习率：震荡和发散', 'Learning Rate: Oscillation and Divergence'), copy(md`学习率决定沿负梯度走多远。学习率太小会慢，合适会下降，过大可能跨过谷底造成震荡，严重时 divergence。中文锚点是学习率、震荡和发散。`, md`The learning rate decides how far to move along the negative gradient. Too small can be stable but slow. A suitable value descends gradually. Too large can overshoot the valley, produce oscillation, or cause divergence. The loss curve is the evidence: if updates repeatedly cross the valley or grow worse, the step size no longer matches the local landscape.`)),
-    section('descent-review', copy('复盘：方向、步长和曲线', 'Review: Direction, Step Size, and Curve'), copy(md`复习时先问梯度和负梯度方向，再问学习率步长，最后看 loss 是下降、震荡还是发散。`, md`Review Questions: Which way does the gradient point? Which way does the negative gradient point? What does the learning rate multiply? Why can a parameter increase even when we subtract the gradient? What does oscillation look like in a loss valley? What curve behavior suggests divergence? These questions keep direction, step size, and training evidence separate.`)),
-  ],
-  visuals: [
-    imageAsset('learning-rate-image', '/math-lab/generated/beginner-learning-rate-behavior-longform.png', copy('学习率行为图', 'Learning-Rate Behavior Image'), copy('三条轨迹对比小、合适和过大学习率。', 'Three paths compare small, suitable, and too-large learning rates.')),
-    manimAsset('learning-rate-video', '/manim/math-lab/beginner-learning-rate-behavior.mp4', '/manim/math-lab/beginner-learning-rate-behavior.svg', copy('学习率行为动画', 'Learning-Rate Behavior Video'), copy('动画对比稳定下降、震荡和发散。', 'The animation compares stable descent, oscillation, and divergence.')),
-  ],
-  labs: [gradientPathLab],
-  quizzes: [
-    quiz('descent-subtract-gradient', copy('为什么要减去梯度？', 'Why subtract the gradient?'), 'downhill', copy('梯度指向上坡，负梯度更可能降低 loss。', 'The gradient points uphill, so the negative gradient is more likely to reduce loss.'), copy('保证所有参数变小。', 'It guarantees every parameter gets smaller.'), copy('减号选择方向，不保证每个参数都变小。', 'The minus sign chooses direction; it does not guarantee every parameter shrinks.'), 'minus-means-parameters-smaller', 'learning-rate-video'),
-    quiz('descent-large-learning-rate', copy('学习率过大常导致什么？', 'What can a too-large learning rate cause?'), 'oscillation', copy('oscillation 或 divergence。', 'Oscillation or divergence.'), copy('一定更快收敛。', 'Always faster convergence.'), copy('过大步长会跨过谷底，破坏局部下降假设。', 'Oversized steps can cross the valley and break the local descent assumption.'), 'learning-rate-is-speed-only', 'learning-rate-image'),
-  ],
-  misconceptions: [
-    misconception('minus-means-parameters-smaller', copy('减号表示所有参数变小。', 'The minus sign means all parameters get smaller.'), copy('负梯度目标是让 loss 降低，参数可大可小。', 'The negative gradient aims to reduce loss; parameters can increase or decrease.'), copy('梯度为负时减去它会让参数变大。', 'If the gradient is negative, subtracting it increases the parameter.')),
-    misconception('learning-rate-is-speed-only', copy('学习率只是速度，越大越好。', 'Learning rate is only speed, so larger is better.'), copy('学习率是步长，过大可能震荡或发散。', 'Learning rate is step size; too large can oscillate or diverge.'), copy('一步跨过谷底后可能来回跳。', 'A step can overshoot the valley and bounce back.')),
-  ],
-  accent: '#ea580c',
-  theme: '#fff7ed',
-  sourceReferences: [sources.essenceCalculus, sources.d2lOptimization, sources.mml],
-})
-
 const fifthChapter = moduleDefinition({
   id: 'calculus-sgd-batch-noise',
   enhancementTier: 'interactive',
@@ -657,7 +611,6 @@ export const calculusRouteModules: MathLabModule[] = [
   firstChapter,
   secondChapter,
   thirdChapter,
-  fourthChapter,
   fifthChapter,
   sixthChapter,
   seventhChapter,

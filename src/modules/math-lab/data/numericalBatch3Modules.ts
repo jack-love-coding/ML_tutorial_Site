@@ -115,7 +115,7 @@ const rootFindingAnimation: VisualAsset = {
 const finiteDifferenceConcept: MathConcept = {
   id: 'logit-calibration-finite-difference-contract',
   name: copy('偏置残差的有限差分合同', 'Finite-difference contract for bias residual'),
-  formulaLatex: "F'(b)\approx\frac{F(b+h)-F(b-h)}{2h}",
+  formulaLatex: md`F'(b)\approx\frac{F(b+h)-F(b-h)}{2h}`,
   variables: [
     { symbol: 'b', description: copy('加到全部固定 logit 上的标量偏置。', 'Scalar bias added to every fixed logit.') },
     { symbol: 'F(b)', description: copy('平均 sigmoid 概率减去目标 0.62。', 'Mean sigmoid probability minus target 0.62.') },
@@ -144,7 +144,7 @@ const finiteDifferenceConcept: MathConcept = {
 const rootFindingConcept: MathConcept = {
   id: 'logit-calibration-root-contract',
   name: copy('把平均概率目标改写成零点', 'Rewrite a mean-probability target as a zero'),
-  formulaLatex: 'F(b)=\frac{1}{12}\sum_{i=1}^{12}\sigma(z_i+b)-0.62=0',
+  formulaLatex: md`F(b)=\frac{1}{12}\sum_{i=1}^{12}\sigma(z_i+b)-0.62=0`,
   variables: [
     { symbol: 'z_i', description: copy('第 i 个固定模型 logit。', 'The i-th fixed model logit.') },
     { symbol: 'b', description: copy('待求的全局加性偏置。', 'Unknown global additive bias.') },

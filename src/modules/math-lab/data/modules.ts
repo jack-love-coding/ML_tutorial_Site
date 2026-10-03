@@ -3,10 +3,12 @@ import { aiBridgeModules } from './aiBridgeModules.ts'
 import { enhanceAmesNumericalMethodsModule } from './amesNumericalMethodsModules.ts'
 import { buildConditionNumbersModule } from './conditionNumbersModule.ts'
 import { calculusOptimizationRouteModules } from './calculusOptimizationRouteModules.ts'
+import { calculusLessonProviders, standaloneCalculusModuleIds } from './calculusLessonProviders.ts'
 import { buildEigenvaluesModule } from './eigenvaluesModule.ts'
 import { buildFiniteDifferenceModule } from './finiteDifferenceModule.ts'
 import { buildLeastSquaresModule } from './leastSquaresModule.ts'
 import { aiMathPathModuleIds } from './mathCourseOrder.ts'
+import { mathNotebookCompanionForModule } from './mathNotebookCompanions.ts'
 import { buildLuDecompositionModule } from './luDecompositionModule.ts'
 import { buildMarkovChainsModule } from './markovChainsModule.ts'
 import { mathFoundationsModules } from './mathFoundationsModules.ts'
@@ -31,6 +33,7 @@ import {
 import type { MathLabModule, MathLabModuleId } from '../types/mathLab'
 
 export type MathLabModuleProviderName =
+  | (typeof calculusLessonProviders)[number]['name']
   | 'beginnerFoundationModules'
   | 'linearAlgebraRouteModules'
   | 'calculusRouteModules'
@@ -184,7 +187,8 @@ const importedFoundationModules: MathLabModule[] = importedMathNotes.map((module
 export const mathLabModuleProviders: readonly MathLabModuleProvider[] = [
   { name: 'beginnerFoundationModules', modules: minimumFoundationBeginnerModules },
   { name: 'linearAlgebraRouteModules', modules: vectorMatrixLanguageRouteModules },
-  { name: 'calculusRouteModules', modules: calculusOptimizationRouteModules },
+  { name: 'calculusRouteModules', modules: calculusOptimizationRouteModules.filter(module => !standaloneCalculusModuleIds.has(module.id)) },
+  ...calculusLessonProviders,
   { name: 'mathToCodeModules', modules: vectorMatrixLanguageMathToCodeModules },
   { name: 'importedFoundationModules', modules: importedFoundationModules },
   { name: 'aiBridgeModules', modules: aiBridgeModules },
@@ -204,7 +208,7 @@ const aiMathPathModules: MathLabModule[] = aiMathPathModuleIds.map((moduleId, in
     throw new Error(`Missing math lab module: ${moduleId}`)
   }
 
-  const moduleDefinition = enhanceNumericalBatch4Module(
+  const moduleDefinition = standaloneCalculusModuleIds.has(moduleId) ? sourceModuleDefinition : enhanceNumericalBatch4Module(
     enhanceNumericalBatch3Module(
       enhanceAmesNumericalMethodsModule(
         enhanceNumericalBatch2Module(
@@ -217,6 +221,7 @@ const aiMathPathModules: MathLabModule[] = aiMathPathModuleIds.map((moduleId, in
   return {
     ...moduleDefinition,
     order: index + 1,
+    notebookCompanion: mathNotebookCompanionForModule(moduleId),
     nextModuleIds: aiMathPathModuleIds[index + 1] ? [aiMathPathModuleIds[index + 1]!] : [],
   }
 })
