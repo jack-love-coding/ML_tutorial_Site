@@ -8,14 +8,16 @@
     "build": "vue-tsc -b && vite build",
     "build:pages": "vue-tsc -b && vite build --mode github-pages",
     "preview": "vite preview",
-    "test": "node --test tests/*.test.*",
+    "test": "node --test --test-concurrency=2 tests/*.test.*",
     "test:ci": "node --test --test-concurrency=2 tests/*.test.*",
     "test:phase29:browser": "npm run build:pages && node scripts/qa/run-logistic-regression-browser-matrix.mjs",
     "test:phase30:browser": "npm run build:pages && node scripts/qa/run-classification-browser-matrix.mjs",
     "test:course-b:browser": "npm run build:pages && node scripts/qa/run-ai-foundation-stage-b-browser-matrix.mjs",
     "test:phase31:browser": "npm run build:pages && node scripts/qa/run-phase31-corridor-browser-matrix.mjs",
     "test:release-assets": "ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS=1 node --test tests/loss-functions-dataset-contract.test.ts tests/loss-functions-notebook-assets.test.ts tests/linear-regression-notebook-assets.test.ts",
-    "security:audit": "npm audit --audit-level=moderate --registry=https://registry.npmjs.org"
+    "security:audit": "npm audit --audit-level=moderate --registry=https://registry.npmjs.org",
+    "curriculum:generate": "node scripts/generateCurriculumCatalogMetadata.ts",
+    "curriculum:check": "node scripts/generateCurriculumCatalogMetadata.ts --check"
   },
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",

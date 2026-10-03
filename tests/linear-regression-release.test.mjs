@@ -1,3 +1,5 @@
+import { curriculumRouteManifestById } from '../src/curriculum/routeManifest.ts'
+import { curriculumModuleById } from '../src/curriculum/catalog.ts'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, extname, resolve } from 'node:path'
@@ -218,8 +220,8 @@ test('Phase 28 bridge names the exact housing project route and bilingual handof
 
   assert.match(housing, /slug:\s*'housing-price-project'/)
   assert.match(housing, /route:\s*'\/learn\/housing-price-project'/)
-  assert.match(routeManifest, /id:\s*'housing-price-project'[\s\S]*route:\s*'\/learn\/housing-price-project'/)
-  assert.match(adapter, /slug:\s*'housing-price-project'[\s\S]*route:\s*'\/learn\/housing-price-project'/)
+  assert.equal(curriculumRouteManifestById.get('housing-price-project').route, '/learn/housing-price-project')
+  assert.equal(curriculumModuleById.get('housing-price-project').route, '/learn/housing-price-project')
   assert.match(v3Audit, /'housing-price-project':\s*\['project-tabular-regression'\]/)
   assert.match(matrix, /const phase28BridgeText\s*=\s*await phase28Bridge\.textContent\(\)/)
   assert.doesNotMatch(matrix, /const phase28BridgeText\s*=\s*await phase28Bridge\.innerText\(\)/)

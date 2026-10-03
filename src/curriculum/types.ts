@@ -44,6 +44,13 @@ export interface CurriculumModule {
 
 export type CurriculumModuleMetadata = Omit<CurriculumModule, 'lessons'>
 
+export interface CurriculumLessonDirectoryEntry {
+  id: string
+  source: CurriculumSourceNamespace
+  route: string
+  lessons: Pick<CurriculumLesson, 'id' | 'title'>[]
+}
+
 export interface CurriculumTrack {
   id: string
   title: LocalizedCopy

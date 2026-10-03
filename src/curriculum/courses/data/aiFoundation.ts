@@ -339,7 +339,7 @@ const units: CourseUnit[] = [
     deliverables: copy('可从头运行的 Notebook、短练习答案和 AI 任务结构说明卡。', 'A restartable notebook, short-exercise answers, and an AI-task structure card.'),
     criteria: [copy('重启环境后可一次运行。', 'Runs once from a restarted environment.'), copy('基础练习正确率不少于 80%。', 'At least 80% of the foundation exercises are correct.'), copy('能区分分类、回归与生成任务。', 'Can distinguish classification, regression, and generation.')],
     resources: [
-      { kind: 'curriculum', moduleId: 'ai-overview', lessonId: 'what-is-ml', label: copy('AI 入门总览', 'AI Overview') },
+      { kind: 'curriculum', moduleId: 'ai-overview', lessonId: 'ml-common-language', label: copy('AI 入门总览', 'AI Overview') },
       { kind: 'route', route: '/python/notebook-workflow', label: copy('Notebook 可复现执行', 'Reproducible Notebook Workflow') },
     ],
     notebookRefs: [pythonNotebook(copy('下载 Python 数据工具 Notebook', 'Download the Python Data Tools notebook'))],

@@ -1,3 +1,4 @@
+import { curriculumModuleById } from '../src/curriculum/catalog.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
@@ -387,23 +388,13 @@ test('all linear-regression component learner copy uses plain result terminology
   assert.deepEqual(violations, [], violations.join('\n'))
 })
 
-test('adapter order uses the same eight literal IDs and title keys without aliases', () => {
-  const manifestStart = adapterSource.indexOf("slug: 'linear-regression'")
-  const manifestEnd = adapterSource.indexOf("\n  {\n    slug: 'logistic-regression'", manifestStart)
-  const manifestSource = adapterSource.slice(manifestStart, manifestEnd)
-
-  assert.deepEqual(chapterIdsIn(manifestSource), expectedChapterIds)
-  assert.equal(new Set(chapterIdsIn(manifestSource)).size, expectedChapterIds.length)
-  for (const key of [
-    'fitLine',
-    'multivariate',
-    'residualLoss',
-    'trainingMotion',
-    'polynomial',
-    'modelLimits',
-    'overfitting',
-    'regularization',
-  ]) {
-    assert.match(manifestSource, new RegExp(`modules\\.linearRegression\\.sections\\.${key}\\.title`))
+test('adapter order and bilingual titles match the current runtime chapters', () => {
+  const lessons = curriculumModuleById.get('linear-regression').lessons
+  assert.deepEqual(lessons.map(({ id }) => id), expectedChapterIds)
+  assert.equal(new Set(lessons.map(({ id }) => id)).size, expectedChapterIds.length)
+  for (const lesson of lessons) {
+    assert.ok(lesson.title['zh-CN'].length > 0)
+    assert.ok(lesson.title.en.length > 0)
+    assert.equal(lesson.route, `/learn/linear-regression/${lesson.id}`)
   }
 })

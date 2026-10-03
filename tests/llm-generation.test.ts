@@ -1,3 +1,4 @@
+import { curriculumModuleById } from '../src/curriculum/catalog.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -54,5 +55,5 @@ test('LLM course wires causal training and decoding into the existing lesson lab
   assert.ok(moduleSource.indexOf("'decoding-generation'") < moduleSource.indexOf("'tokenization-context'"))
   assert.match(labSource, /LlmGenerationLab/)
   assert.match(labSource, /temperature/)
-  assert.match(catalogSource, /prerequisites: \['attention-transformer'\]/)
+  assert.deepEqual(curriculumModuleById.get('llm-rag')?.prerequisiteIds, ['attention-transformer'])
 })

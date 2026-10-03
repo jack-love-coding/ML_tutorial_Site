@@ -46,7 +46,7 @@
 - `math-lab` 内容遵循 `src/modules/math-lab/types/mathLab.ts` 中的 `MathLabModule`、`MathConcept`、`VisualAsset`、`LabConfig`、`QuizItem` 和 `Misconception`。
 - `data-lab` 内容遵循 `src/modules/data-lab/types/dataLab.ts` 中的 `DataLabModule`、`DataConcept`、`DataVisualAsset`、`DataLabConfig`、`DataQuizItem` 和 `DataMisconception`。
 - 顶层算法课程遵循 `src/types/ml.ts` 中的 `AlgorithmModuleDefinition`、`StorySection`、`ExperimentControl`、`ExperimentPreset` 和 `TrainingSnapshot`。
-- 每个教学模块都应形成学习闭环：核心问题、数学/数据概念、可视化或实验、数值/代码连接、误区反馈、checkpoint、下一步路径。
+- 每个教学模块都应形成学习闭环：核心问题、数学/数据概念、可视化或实验、数值/代码连接、误区讲解、参考例题、下一步路径。
 - 公式、变量解释、代码示例和交互实验中的变量名称必须保持一致。
 - 测验反馈不能只给“正确/错误”，应说明原因、关联误区，并指向可复看的视觉或章节。
 - 引用外部资料或迁移内容时，在 `docs/` 中保留来源记录，静态资源优先迁入 `public/` 并使用本地路径。
@@ -137,6 +137,14 @@
 - 在 Progress V2 迁移测试通过前，不得删除三个现有 localStorage 数据源。
 - Curriculum Catalog 必须先通过 adapter 接入现有内容，不在同一阶段搬迁全部课程正文。
 - Lesson Block Renderer 第一轮只迁移 AI Overview、Gradient Descent 和 MLP。
-- 每个阶段必须保持现有课程可访问、双语可用、checkpoint 可提交。
+- 每个阶段必须保持现有课程可访问、双语可用、交互实验可操作；测验改为直接可读的例题讲解。
 - 每个阶段单独验证、单独提交、单独 PR；禁止积累为一个大型重构 PR。
 - 没有明确验收条件的阶段不得进入 execute。
+
+## 辅助教材重构（当前交付约定）
+
+- 当前面向基础薄弱学生自主阅读，主线覆盖基础到传统机器学习；深入数学与深度学习保留为专题资源。
+- 学生界面不提供测验、诊断、完成判定、学习报告或学习进度；不自动记录访问、实验或答题行为。
+- 保留实时实验和语言设置。现有学习存储数据保持原样，旧工具仅作兼容用途；禁止清空或迁移历史数据来退役功能。
+- 课程章节与路由来自实际 runtime definitions。修改章节后运行 `npm run curriculum:generate`；提交前运行 `npm run curriculum:check`。
+- 新导航与发布单位按 `docs/textbook-maintenance.md` 执行；历史规划中的考核和进度要求已由本约定取代。
