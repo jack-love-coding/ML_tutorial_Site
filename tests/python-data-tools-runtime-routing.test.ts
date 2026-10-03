@@ -202,7 +202,7 @@ test('dedicated Python routes canonicalize before the generic lesson route can m
 test('short Python routes remain visible in navigation, homepage, and Pages fallbacks', () => {
   const navigationSource = readFileSync(new URL('../src/data/navigationMenus.ts', import.meta.url), 'utf8')
   const homeSource = readFileSync(new URL('../src/views/HomeView.vue', import.meta.url), 'utf8')
-  const fallbackSource = readFileSync(new URL('../scripts/create-pages-fallbacks.mjs', import.meta.url), 'utf8')
+  const fallbackSource = readFileSync(new URL('../scripts/pages-entrypoints.mjs', import.meta.url), 'utf8')
   const courseViewSource = readFileSync(new URL('../src/views/PythonDataToolsCourseView.vue', import.meta.url), 'utf8')
 
   assert.match(navigationSource, /route: '\/spine'/)

@@ -1,3 +1,4 @@
+import { pagesEntrypoints } from '../scripts/pages-entrypoints.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -20,13 +21,13 @@ test('housing project uses one current chapter, responsive TOC, and full-width l
 
 test('bespoke routes precede generic routes and Pages emits all deep fallbacks', () => {
   const router = read('src/router/index.ts')
-  const fallbacks = read('scripts/create-pages-fallbacks.mjs')
+  const fallbacks = pagesEntrypoints()
   const chapterIndex = router.indexOf("path: '/learn/housing-price-project/:chapterId'")
   const genericIndex = router.indexOf("path: '/learn/:moduleId/:lessonId'")
   assert.ok(chapterIndex >= 0 && chapterIndex < genericIndex)
   assert.match(router, /redirect: '\/learn\/housing-price-project\/csv-to-frame'/)
   for (const id of ['csv-to-frame', 'eda-first-pass', 'cleaning-splits', 'linear-baseline', 'evaluation', 'review-next-iteration']) {
-    assert.match(fallbacks, new RegExp(id))
+    assert.ok(fallbacks.includes(`/learn/housing-price-project/${id}`))
   }
 })
 

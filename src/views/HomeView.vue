@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { teachingUnits } from '../curriculum/reading.ts'
 import { useI18n } from 'vue-i18n'
 const { locale } = useI18n()
+const recommendedUnits = computed(() => teachingUnits.filter(unit => unit.publicationStatus !== 'preview'))
 const zh = computed(() => locale.value === 'zh-CN')
 </script>
 
@@ -12,6 +14,7 @@ const zh = computed(() => locale.value === 'zh-CN')
         <span class="eyebrow">ML Atlas</span>
         <h1>{{ zh ? '从看懂数据，到理解模型怎样学习' : 'From understanding data to seeing how models learn' }}</h1>
         <p class="course-hero__subtitle">{{ zh ? '面向初学者的 AI 辅助教材：双语讲解、可操作的实验，以及可复现的代码与结果。' : 'An AI companion for beginners: bilingual explanations, interactive experiments, and reproducible code and results.' }}</p>
+        <p v-if="recommendedUnits.length">{{ zh ? '本批开放：' : 'Available in this release: ' }}{{ recommendedUnits.map(unit => unit.title[zh ? 'zh-CN' : 'en']).join(' · ') }}</p>
         <div class="hero__actions">
           <router-link class="course-primary-action" :to="{ path: '/learn/ai-overview', query: { route: 'core-learning-path' } }">{{ zh ? '开始学习' : 'Start reading' }}</router-link>
           <router-link class="action-button" to="/spine">{{ zh ? '查看学习路线' : 'View the learning route' }}</router-link>

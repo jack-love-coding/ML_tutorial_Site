@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Notebook smoke-test dependencies
+      - name: Install numerical test dependencies
         run: |
           python -m pip install --disable-pip-version-check -r public/gradient-descent/v1/requirements.txt
           python -m pip install --disable-pip-version-check -r public/notebooks/numerical-methods/requirements.txt
@@ -56,8 +56,15 @@ jobs:
       - name: Phase 29 browser release matrix
         run: node scripts/qa/run-logistic-regression-browser-matrix.mjs
 
-      - name: Add SPA fallbacks
-        run: node scripts/create-pages-fallbacks.mjs
+      - name: Textbook browser smoke
+        run: node scripts/qa/run-textbook-smoke.mjs
+
+      - name: Verify published assets and generated catalog
+        run: |
+          npm run test:published-assets
+          npm run curriculum:check
+          npm run loss:display:check
+          npm run security:audit
 
       - name: Configure Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0

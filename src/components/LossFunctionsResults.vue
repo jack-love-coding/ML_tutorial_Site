@@ -1,17 +1,8 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed } from 'vue'
+import { useLossDisplay } from '../composables/useLossDisplay.ts'
 import { useI18n } from 'vue-i18n'
-import {
-  lossFunctionsAssetById,
-  lossFunctionsChapterBindings,
-  lossFunctionsChapterIds,
-  lossFunctionsTopics,
-  parseLossFunctionsOutput,
-  type BceGradientSummary,
-  type LossFunctionsChapterId,
-  type LossFunctionsSummaryOutputId,
-  type RegressionLossSummary,
-} from '../data/lossFunctionsAssets'
+import { lossFunctionsTopics } from '../data/lossFunctionsAssets'
 import type { AppLocale, ExperimentConfig, StorySection, TrainingSnapshot } from '../types/ml'
 import { round } from '../utils/math'
 import { withPublicBase } from '../utils/publicPath'
@@ -37,78 +28,8 @@ const sectionSummary = computed(() =>
   localizedText(props.activeSection?.callout ?? { 'zh-CN': '', en: '' }),
 )
 
-const regressionSummary = ref<RegressionLossSummary>()
-const bceSummary = ref<BceGradientSummary>()
-const summaryLoading = ref(false)
-const summaryError = ref(false)
-let resultController: AbortController | undefined
+const { regressionSummary, bceSummary, summaryLoading, summaryError } = useLossDisplay(activeSectionId)
 
-function isKnownChapter(value: string): value is LossFunctionsChapterId {
-  return lossFunctionsChapterIds.includes(value as LossFunctionsChapterId)
-}
-
-function summaryIdsForChapter(chapterId: LossFunctionsChapterId) {
-  return lossFunctionsChapterBindings[chapterId].assetIds.filter(
-    (assetId): assetId is LossFunctionsSummaryOutputId =>
-      assetId === 'regression-loss-summary' || assetId === 'bce-gradient-summary',
-  )
-}
-
-async function loadLockedResults(chapterId: string) {
-  resultController?.abort()
-  const requestController = new AbortController()
-  resultController = requestController
-  regressionSummary.value = undefined
-  bceSummary.value = undefined
-  summaryError.value = false
-
-  if (!isKnownChapter(chapterId)) {
-    summaryLoading.value = false
-    return
-  }
-
-  const outputIds = summaryIdsForChapter(chapterId)
-  summaryLoading.value = outputIds.length > 0
-
-  try {
-    const loaded = await Promise.all(
-      outputIds.map(async (outputId) => {
-        const asset = lossFunctionsAssetById.get(outputId)
-        if (!asset || asset.kind !== 'locked-summary') {
-          throw new TypeError(`Missing locked summary descriptor: ${outputId}`)
-        }
-        const response = await fetch(withPublicBase(asset.publicPath), {
-          signal: requestController.signal,
-          headers: { Accept: 'application/json' },
-        })
-        if (!response.ok) {
-          throw new Error(`Unable to load ${outputId}: ${response.status}`)
-        }
-        return [outputId, parseLossFunctionsOutput(outputId, await response.json())] as const
-      }),
-    )
-
-    if (requestController.signal.aborted) return
-    for (const [outputId, output] of loaded) {
-      if (outputId === 'regression-loss-summary') {
-        regressionSummary.value = output as RegressionLossSummary
-      } else {
-        bceSummary.value = output as BceGradientSummary
-      }
-    }
-  } catch (error) {
-    if (error instanceof DOMException && error.name === 'AbortError') return
-    if (!requestController.signal.aborted) summaryError.value = true
-  } finally {
-    if (!requestController.signal.aborted) summaryLoading.value = false
-  }
-}
-
-watch(activeSectionId, loadLockedResults, { immediate: true })
-
-onBeforeUnmount(() => {
-  resultController?.abort()
-})
 
 const resultCopy = computed(() => {
   const zh = locale.value === 'zh-CN'
