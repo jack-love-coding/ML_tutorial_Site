@@ -58,7 +58,7 @@ test('sequence bridge workflow uses the dedicated shape lab component', () => {
   assert.match(componentSource, /token_ids \[B,T\]/)
   assert.match(componentSource, /hidden states \[B,T,H\]/)
   assert.match(componentSource, /Q\/K\/V/)
-  assert.match(componentSource, /Predict first/)
+  assert.match(componentSource, /Observe shapes/)
   assert.match(workflowSource, /const SequenceBridgeShapeLab = defineAsyncComponent/)
   assert.match(workflowSource, /<SequenceBridgeShapeLab/)
   assert.match(styleSource, /sequence-shape-lab/)

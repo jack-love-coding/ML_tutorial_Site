@@ -1,0 +1,13 @@
+.reference-examples {
+  display: grid;
+  gap: 1.25rem;
+  margin-block: 1.5rem;
+}
+.reference-example {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--color-border, #b8c3d2);
+  border-radius: .5rem;
+  overflow-wrap: anywhere;
+}
+.reference-example > strong { display: block; margin-top: 1rem; }

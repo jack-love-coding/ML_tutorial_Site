@@ -83,7 +83,7 @@ test('attention qkv challenge normalizes invalid inputs without throwing', () =>
   closeTo(snapshot.evidence.rowWeightSum, 1)
 })
 
-test('attention qkv challenge component gates evidence behind a check action', () => {
+test('attention qkv challenge component shows scenario evidence without answer gates', () => {
   const componentSource = read('src/components/AttentionQkvChallengeLab.vue')
   assert.match(componentSource, /attention-qkv-challenge/)
   assert.match(componentSource, /evaluateAttentionQkvChallenge/)
@@ -91,9 +91,9 @@ test('attention qkv challenge component gates evidence behind a check action', (
   assert.match(componentSource, /causal-mask/)
   assert.match(componentSource, /padding-mask/)
   assert.match(componentSource, /value-mixture/)
-  assert.match(componentSource, /hasChecked/)
-  assert.match(componentSource, /revealEvidence/)
-  assert.match(componentSource, /v-if="hasChecked"/)
+  assert.doesNotMatch(componentSource, /hasChecked/)
+  assert.doesNotMatch(componentSource, /revealEvidence/)
+  assert.doesNotMatch(componentSource, /v-if="hasChecked"/)
   assert.match(componentSource, /maskChangesTopKey/)
   assert.match(componentSource, /weightedValue/)
 

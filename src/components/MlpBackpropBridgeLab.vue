@@ -108,11 +108,6 @@ const parameterOptions: Array<{ id: MlpBackpropBridgeParameter; label: string; d
   { id: 'b2', label: 'b2', detail: loc('输出偏置', 'Output bias') },
 ]
 
-const directionOptions: Array<{ id: MlpBackpropBridgeDirection; label: LocalizedCopy }> = [
-  { id: 'increase', label: loc('增加', 'Increase') },
-  { id: 'decrease', label: loc('减少', 'Decrease') },
-  { id: 'flat', label: loc('几乎不变', 'Nearly flat') },
-]
 
 const selectedScenarioId = ref(scenarios[0].id)
 const inspectedParameter = ref<MlpBackpropBridgeParameter>(scenarios[0].defaultParameter)
@@ -129,7 +124,7 @@ const copy = computed(() =>
         reset: '重置场景',
         forward: '前向数值',
         backward: '局部导数链',
-        feedback: '预测反馈',
+        feedback: '更新解释',
         correct: '方向判断正确',
         incorrect: '方向判断需要修正',
         predicted: '预测方向',
@@ -152,7 +147,7 @@ const copy = computed(() =>
         reset: 'Reset scenario',
         forward: 'Forward values',
         backward: 'Local derivative chain',
-        feedback: 'Prediction feedback',
+        feedback: 'Update explained',
         correct: 'Direction prediction is correct',
         incorrect: 'Direction prediction needs revision',
         predicted: 'Predicted direction',
@@ -337,19 +332,7 @@ function resetScenario() {
         </label>
       </fieldset>
 
-      <fieldset>
-        <legend>{{ copy.prediction }}</legend>
-        <label
-          v-for="option in directionOptions"
-          :key="option.id"
-          :class="{ 'is-active': predictedDirection === option.id }"
-        >
-          <input v-model="predictedDirection" type="radio" name="mlp-backprop-direction" :value="option.id">
-          <span>
-            <strong>{{ localized(option.label) }}</strong>
-          </span>
-        </label>
-      </fieldset>
+
     </div>
 
     <section class="mlp-backprop-bridge__cards" :aria-label="copy.forward">
@@ -371,18 +354,14 @@ function resetScenario() {
 
     <section
       class="mlp-backprop-bridge__feedback"
-      :class="{ 'is-correct': snapshot.inspected.correct }"
       :aria-label="copy.feedback"
     >
       <div>
-        <span>{{ snapshot.inspected.correct ? copy.correct : copy.incorrect }}</span>
+        <span>{{ copy.feedback }}</span>
         <strong>{{ inspectedParameter }}</strong>
       </div>
       <dl>
-        <div>
-          <dt>{{ copy.predicted }}</dt>
-          <dd>{{ directionLabels[predictedDirection] }}</dd>
-        </div>
+
         <div>
           <dt>{{ copy.actual }}</dt>
           <dd>{{ directionLabels[actualDirection] }}</dd>

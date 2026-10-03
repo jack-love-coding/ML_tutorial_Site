@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LearningRouteDashboard from '../components/LearningRouteDashboard.vue'
 import LearningPathMap from '../components/LearningPathMap.vue'
-import SkillRadarChart from '../components/SkillRadarChart.vue'
 import { learningRouteById } from '../data/learningRoutes'
 import { aiMathPathModuleIds, mathLabModules } from '../data/modules'
-import type { MathLabLocale, MathLabProgress } from '../types/mathLab'
-import { continueMathLabModuleId } from '../utils/continueRoute'
-import { loadMathLabProgress } from '../utils/progress'
+import type { MathLabLocale } from '../types/mathLab'
 import { withPublicBase } from '../../../utils/publicPath.ts'
 
 const { locale } = useI18n()
-const progress = ref<MathLabProgress>(loadMathLabProgress())
 const currentLocale = computed(() => locale.value as MathLabLocale)
 const minimumFoundationRoute = computed(() => learningRouteById['minimum-foundation'])
 const linearAlgebraRoute = computed(() => learningRouteById['linear-algebra-route'])
@@ -53,7 +49,6 @@ const copy = computed(() =>
       },
 )
 
-const continueRoute = computed(() => `/math-lab/modules/${continueMathLabModuleId(progress.value)}`)
 
 const beginnerBridgeCopy = computed(() =>
   currentLocale.value === 'zh-CN'
@@ -152,12 +147,7 @@ const beginnerCards = computed(() =>
         <h1>{{ copy.title }}</h1>
         <p>{{ copy.subtitle }}</p>
         <div class="hero__actions">
-          <router-link class="action-button action-button--primary" to="/math-lab/diagnostic">
-            {{ copy.diagnostic }}
-          </router-link>
-          <router-link class="action-button" :to="continueRoute">
-            {{ copy.continue }}
-          </router-link>
+          <router-link class="action-button action-button--primary" to="/spine">{{ currentLocale === 'zh-CN' ? '学习路线' : 'Learning route' }}</router-link>
         </div>
       </div>
 
@@ -194,46 +184,36 @@ const beginnerCards = computed(() =>
     <LearningRouteDashboard
       :route="minimumFoundationRoute"
       :modules="mathLabModules"
-      :progress="progress"
       :locale="currentLocale"
-      :show-reports="false"
     />
 
     <LearningRouteDashboard
       :route="linearAlgebraRoute"
       :modules="mathLabModules"
-      :progress="progress"
       :locale="currentLocale"
     />
 
     <LearningRouteDashboard
       :route="calculusRoute"
       :modules="mathLabModules"
-      :progress="progress"
       :locale="currentLocale"
-      :show-reports="false"
     />
 
     <LearningRouteDashboard
       :route="probabilityRoute"
       :modules="mathLabModules"
-      :progress="progress"
       :locale="currentLocale"
-      :show-reports="false"
     />
 
     <LearningRouteDashboard
       :route="numericalDeepeningRoute"
       :modules="mathLabModules"
-      :progress="progress"
       :locale="currentLocale"
-      :show-reports="false"
     />
 
     <LearningRouteDashboard
       :route="mathToCodePilotRoute"
       :modules="mathLabModules"
-      :progress="progress"
       :locale="currentLocale"
     />
 
@@ -246,19 +226,11 @@ const beginnerCards = computed(() =>
         </header>
         <LearningPathMap
           :modules="aiMathPathModules"
-          :completed-module-ids="progress.completedModuleIds"
           :locale="currentLocale"
         />
       </article>
 
-      <article class="math-lab-panel math-lab-panel--radar">
-        <header>
-          <span>{{ currentLocale === 'zh-CN' ? '诊断结果' : 'Diagnostic result' }}</span>
-          <strong>{{ copy.radarTitle }}</strong>
-        </header>
-        <SkillRadarChart :result="progress.diagnosticResult" :locale="currentLocale" />
-        <p v-if="!progress.diagnosticResult">{{ copy.radarEmpty }}</p>
-      </article>
+
     </section>
   </div>
 </template>

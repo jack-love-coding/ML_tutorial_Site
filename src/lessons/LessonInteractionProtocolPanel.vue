@@ -13,24 +13,24 @@ const { locale } = useI18n()
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
-        badge: '实验任务',
+        badge: '实验说明',
         learningGoal: '目标',
-        predictionPrompt: '先预测',
+        predictionPrompt: '观察问题',
         manipulableVariables: '可操作变量',
         observableMetrics: '观察指标',
         successCriteria: '观察建议',
-        evidence: '结果记录',
+        evidence: '可观察结果',
         reflectionPrompt: '解释与反思',
         level: `L${props.protocol.level}`,
       }
     : {
-        badge: 'Lab task',
+        badge: 'Lab guide',
         learningGoal: 'Goal',
-        predictionPrompt: 'Predict first',
+        predictionPrompt: 'Observation question',
         manipulableVariables: 'Manipulable variables',
         observableMetrics: 'Observable metrics',
         successCriteria: 'Observation prompts',
-        evidence: 'Results to record',
+        evidence: 'Observable results',
         reflectionPrompt: 'Explain and reflect',
         level: `L${props.protocol.level}`,
       },

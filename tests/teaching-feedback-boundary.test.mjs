@@ -12,8 +12,8 @@ test('frontend reviews explain choices without scoring or completion thresholds'
     'src/modules/data-lab/components/DataCheckpointQuiz.vue',
   ]) {
     const source = read(path)
-    assert.match(source, /不计分|Not graded/)
-    assert.match(source, /参考思路|Reference explanation/)
+    assert.match(source, /ReferenceExample/)
+    assert.doesNotMatch(source, /v-model/)
     assert.doesNotMatch(source, /defineEmits|function submit|答对|提交检测|is-correct/)
   }
 

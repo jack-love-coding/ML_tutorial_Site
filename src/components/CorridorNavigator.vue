@@ -30,7 +30,7 @@ const labels = computed(() => currentLocale.value === 'zh-CN'
       previous: '回到上一模块',
       next: '进入下一模块',
       course: '回到 AI 基础大纲单元',
-      complete: '走廊终点：完成分类决策后，可回到大纲进行成果自检。',
+      complete: '本路线终点：可回到大纲查阅相关案例。',
     }
   : {
       eyebrow: 'v1.1 · Classical supervised corridor',
@@ -39,7 +39,7 @@ const labels = computed(() => currentLocale.value === 'zh-CN'
       previous: 'Previous module',
       next: 'Next module',
       course: 'Return to the AI Foundations unit',
-      complete: 'Corridor endpoint: return to the syllabus unit for artifact self-checks.',
+      complete: 'Route endpoint: return to the syllabus for related examples.',
     })
 </script>
 

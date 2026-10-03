@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref, watch, type Component } from 'vue'
+import { computed, defineAsyncComponent, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
 import CheckpointQuiz from '../components/CheckpointQuiz.vue'
-import CheckpointReportCard from '../components/CheckpointReportCard.vue'
 import CodeLab from '../components/CodeLab.vue'
-import LabTaskCard from '../components/LabTaskCard.vue'
 import ManimPlayer from '../components/ManimPlayer.vue'
 import MathLabNotebookCompanion from '../components/MathLabNotebookCompanion.vue'
 import MisconceptionCard from '../components/MisconceptionCard.vue'
@@ -16,11 +14,10 @@ import { amesNumericalNotebookForModule } from '../data/amesNumericalNotebook.ts
 import { numericalBatch2NotebookForModule } from '../data/numericalBatch2Notebook.ts'
 import { numericalBatch3NotebookForModule } from '../data/numericalBatch3Notebook.ts'
 import { numericalBatch4NotebookForModule } from '../data/numericalBatch4Notebook.ts'
-import { checkpointReportForModule, observationPromptForModule } from '../data/checkpointReports'
+import { observationPromptForModule } from '../data/checkpointReports'
 import { routeNavigationForModule } from '../data/learningRoutes'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
 import type {
-  ExperimentEvidence,
   LabConfig,
   MathLabComponentName,
   MathLabLocale,
@@ -29,25 +26,11 @@ import type {
   VisualAsset,
 } from '../types/mathLab'
 import { withPublicBase } from '../../../utils/publicPath.ts'
-import {
-  migrateLearningProgressV2,
-  recordLearningProgressLabEvidence,
-  type LearningProgressLabEvidence,
-  type LearningProgressLabTaskInput,
-} from '../../../curriculum/progress.ts'
 import { resolveMathLabModuleId } from '../utils/continueRoute'
-import {
-  loadMathLabProgress,
-  saveMathLabProgress,
-  setLastVisitedModule,
-} from '../utils/progress'
 
 const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
-const progress = ref(loadMathLabProgress())
-const learningProgress = ref(migrateLearningProgressV2())
-const latestEvidence = ref<Record<string, ExperimentEvidence>>({})
 const labComponentRegistry = {
   ArchitectureMathLab: defineAsyncComponent(() => import('../labs/ArchitectureMathLab.vue')),
   AutodiffGraphLab: defineAsyncComponent(() => import('../labs/AutodiffGraphLab.vue')),
@@ -155,13 +138,7 @@ const remainingLabs = computed(() =>
   moduleDefinition.value?.labs.filter((lab) => !inlineLabIds.value.has(lab.id)) ?? [],
 )
 const hasSupplements = computed(() => remainingDisplayAssets.value.length > 0 || remainingLabs.value.length > 0)
-const checkpointReportPrompt = computed(() => checkpointReportForModule(moduleDefinition.value?.id ?? moduleId.value))
 const observationPrompt = computed(() => observationPromptForModule(moduleDefinition.value?.id ?? moduleId.value))
-const activeReportEvidence = computed(() => {
-  const prompt = checkpointReportPrompt.value
-  if (!prompt) return undefined
-  return latestEvidence.value[prompt.moduleId]
-})
 
 watch(
   moduleId,
@@ -175,65 +152,9 @@ watch(
       router.replace(`/math-lab/modules/${resolvedModuleId}`)
       return
     }
-    progress.value = saveMathLabProgress(setLastVisitedModule(loadMathLabProgress(), resolvedModuleId))
-    learningProgress.value = migrateLearningProgressV2()
   },
   { immediate: true },
 )
-
-function onExperimentEvidence(evidence: ExperimentEvidence | undefined) {
-  const nextEvidence = {
-    ...latestEvidence.value,
-  }
-
-  if (!evidence) {
-    const prompt = checkpointReportPrompt.value
-    if (prompt) {
-      delete nextEvidence[prompt.moduleId]
-    }
-    latestEvidence.value = nextEvidence
-    return
-  }
-
-  nextEvidence[evidence.moduleId] = evidence
-  latestEvidence.value = nextEvidence
-  learningProgress.value = recordLearningProgressLabEvidence(migrateLearningProgressV2(), evidence)
-}
-
-function latestEvidenceForLab(lab: LabConfig) {
-  if (!lab.task) return undefined
-  return latestEvidence.value[moduleDefinition.value?.id ?? moduleId.value]
-}
-
-function savedLabEvidenceFor(lab: LabConfig): LearningProgressLabEvidence | undefined {
-  if (!lab.task) return undefined
-
-  const activeModuleId = moduleDefinition.value?.id ?? moduleId.value
-  const liveEvidence = latestEvidenceForLab(lab)
-  return learningProgress.value.labEvidence.find((evidence) =>
-    evidence.moduleId === activeModuleId &&
-    (!liveEvidence || evidence.sourceId === liveEvidence.sourceId),
-  ) ?? learningProgress.value.labEvidence.find((evidence) => evidence.moduleId === activeModuleId)
-}
-
-function onLabTaskSave(payload: {
-  lab: LabConfig
-  evidence: ExperimentEvidence
-  task: LearningProgressLabTaskInput
-}) {
-  const nextEvidence = {
-    ...latestEvidence.value,
-    [payload.evidence.moduleId]: payload.evidence,
-  }
-  latestEvidence.value = nextEvidence
-  learningProgress.value = recordLearningProgressLabEvidence(
-    migrateLearningProgressV2(),
-    {
-      ...payload.evidence,
-      task: payload.task,
-    },
-  )
-}
 
 function manimAssetsForSection(section: MathLabSection) {
   if (!section.visualIds?.length) return []
@@ -444,15 +365,6 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
                 <component
                   :is="labComponentFor(lab.componentName)"
                   v-bind="labPropsFor(lab)"
-                  @evidence-change="onExperimentEvidence"
-                />
-                <LabTaskCard
-                  v-if="lab.task"
-                  :lab="lab"
-                  :locale="currentLocale"
-                  :evidence="latestEvidenceForLab(lab)"
-                  :saved-evidence="savedLabEvidenceFor(lab)"
-                  @task-save="onLabTaskSave"
                 />
               </div>
             </section>
@@ -496,15 +408,6 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
               <component
                 :is="labComponentFor(lab.componentName)"
                 v-bind="labPropsFor(lab)"
-                @evidence-change="onExperimentEvidence"
-              />
-              <LabTaskCard
-                v-if="lab.task"
-                :lab="lab"
-                :locale="currentLocale"
-                :evidence="latestEvidenceForLab(lab)"
-                :saved-evidence="savedLabEvidenceFor(lab)"
-                @task-save="onLabTaskSave"
               />
             </div>
           </section>
@@ -523,15 +426,6 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           v-if="observationPrompt"
           :key="observationPrompt.id"
           :prompt="observationPrompt"
-          :locale="currentLocale"
-        />
-
-        <CheckpointReportCard
-          v-if="checkpointReportPrompt"
-          :key="checkpointReportPrompt.id"
-          :prompt="checkpointReportPrompt"
-          :evidence="activeReportEvidence"
-          :modules="mathLabModules"
           :locale="currentLocale"
         />
 

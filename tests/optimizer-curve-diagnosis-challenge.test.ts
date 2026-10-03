@@ -77,7 +77,7 @@ test('optimizer curve diagnosis normalizes invalid predictions', () => {
   assert.equal(snapshot.result.allCorrect, false)
 })
 
-test('optimizer curve challenge component gates evidence behind a check action', () => {
+test('optimizer curve challenge component shows scenario evidence without answer gates', () => {
   const componentSource = read('src/components/OptimizerCurveDiagnosisChallengeLab.vue')
   assert.match(componentSource, /optimizer-curve-challenge/)
   assert.match(componentSource, /evaluateOptimizerCurveDiagnosisChallenge/)
@@ -85,9 +85,9 @@ test('optimizer curve challenge component gates evidence behind a check action',
   assert.match(componentSource, /batch-noise-too-high/)
   assert.match(componentSource, /momentum-or-adaptive-needed/)
   assert.match(componentSource, /schedule-needed/)
-  assert.match(componentSource, /hasChecked/)
-  assert.match(componentSource, /revealEvidence/)
-  assert.match(componentSource, /v-if="hasChecked"/)
+  assert.doesNotMatch(componentSource, /hasChecked/)
+  assert.doesNotMatch(componentSource, /revealEvidence/)
+  assert.doesNotMatch(componentSource, /v-if="hasChecked"/)
   assert.match(componentSource, /setupNote/)
   assert.doesNotMatch(componentSource, /activeScenario\.note/)
 

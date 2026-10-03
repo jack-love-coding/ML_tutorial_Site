@@ -27,11 +27,6 @@ import {
   type ClassicalSupervisedCorridorModuleId,
 } from '../curriculum/milestones/classicalSupervisedCorridor.ts'
 import { withPublicBase } from '../utils/publicPath'
-import {
-  loadAlgorithmProgress,
-  saveAlgorithmProgress,
-  setLastVisitedAlgorithmModule,
-} from '../utils/algorithmProgress'
 
 const LossFunctionsLessonLab = defineAsyncComponent(
   () => import('../components/LossFunctionsLessonLab.vue'),
@@ -91,7 +86,6 @@ const experimentStore = useExperimentStore()
 const { experiments } = storeToRefs(experimentStore)
 
 const activeChapter = ref('')
-const progress = ref(loadAlgorithmProgress())
 const moduleDefinition = shallowRef<AlgorithmModuleDefinition>()
 const routeChapterLock = ref('')
 let routeChapterScrollFrame = 0
@@ -117,7 +111,6 @@ const requestedChapterId = computed(() => {
   return typeof routeLessonId === 'string' ? routeLessonId : ''
 })
 const currentLocale = computed(() => locale.value as AppLocale)
-const lastVisitedModuleSlug = computed(() => progress.value.lastVisitedModuleSlug)
 const isGradientPage = computed(() => slug.value === 'gradient-descent')
 const isLossFunctionsPage = computed(() => slug.value === 'loss-functions')
 const isAiOverviewPage = computed(() => slug.value === 'ai-overview')
@@ -169,9 +162,6 @@ watch(
     moduleDefinition.value = nextModuleDefinition
     registerExperimentModule(nextModuleDefinition)
     experimentStore.ensureExperiment(nextSlug)
-    progress.value = saveAlgorithmProgress(
-      setLastVisitedAlgorithmModule(loadAlgorithmProgress(), nextSlug),
-    )
     const firstChapterId = nextModuleDefinition.chapters[0]?.id ?? ''
     if (nextChapterId) {
       const matchedChapter = nextModuleDefinition.chapters.find((chapter) => chapter.id === nextChapterId)
@@ -510,9 +500,6 @@ function updateGradientStartPoint(point: { startX: number; startY: number }) {
           class="algorithm-hero__status"
         >
           <span>{{ moduleStatusLabel }}</span>
-          <small v-if="lastVisitedModuleSlug === moduleDefinition.slug">
-            {{ currentLocale === 'zh-CN' ? '最近学习' : 'Last visited' }}
-          </small>
         </div>
         <div class="algorithm-hero__stats">
           <article v-for="item in heroStatItems" :key="item.id" class="algorithm-hero__stat">

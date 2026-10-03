@@ -5,8 +5,6 @@ import type { AppLocale, LocalizedCopy } from '../types/ml'
 import {
   evaluateOptimizerCurveDiagnosisChallenge,
   optimizerCurveDiagnosisScenarios,
-  type OptimizerCurveExperiment,
-  type OptimizerCurveIssue,
   type OptimizerCurvePrediction,
   type OptimizerCurveScenarioId,
 } from '../simulations/optimizerCurveDiagnosisChallenge'
@@ -78,76 +76,18 @@ const scenarioCopy: ScenarioCopy[] = [
   },
 ]
 
-const issueOptions: Array<{ id: OptimizerCurveIssue; label: LocalizedCopy; detail: LocalizedCopy }> = [
-  {
-    id: 'learning-rate-too-high',
-    label: loc('学习率过高', 'Learning rate too high'),
-    detail: loc('步长太大，loss 可能震荡、上冲或 NaN。', 'The step is too large, so loss can oscillate, spike, or become NaN.'),
-  },
-  {
-    id: 'batch-noise-too-high',
-    label: loc('batch 噪声过高', 'Batch noise too high'),
-    detail: loc('小 batch 让单步梯度很吵，但平滑趋势可能仍下降。', 'Small batches make steps noisy, even when the smoothed trend falls.'),
-  },
-  {
-    id: 'momentum-or-adaptive-needed',
-    label: loc('需要动量/自适应', 'Momentum/adaptive needed'),
-    detail: loc('狭长曲面里，历史状态能减少来回摆动。', 'In a ravine, update history can reduce zig-zagging.'),
-  },
-  {
-    id: 'schedule-needed',
-    label: loc('需要学习率计划', 'Schedule needed'),
-    detail: loc('平台期常需要随时间改变步长，而不是换模型。', 'A plateau often needs time-varying step size, not a different model.'),
-  },
-]
-
-const experimentOptions: Array<{ id: OptimizerCurveExperiment; label: LocalizedCopy; detail: LocalizedCopy }> = [
-  {
-    id: 'lower-learning-rate',
-    label: loc('只降低 lr', 'Lower only lr'),
-    detail: loc('保持 optimizer、batch 和 seed 不变。', 'Keep optimizer, batch, and seed fixed.'),
-  },
-  {
-    id: 'increase-batch-size',
-    label: loc('只增大 batch', 'Increase only batch'),
-    detail: loc('或用梯度累积比较噪声。', 'Or compare gradient accumulation for noise.'),
-  },
-  {
-    id: 'add-momentum-or-adam',
-    label: loc('只加动量/Adam', 'Add only momentum/Adam'),
-    detail: loc('比较更新历史，不同时改学习率计划。', 'Compare update history without also changing the schedule.'),
-  },
-  {
-    id: 'add-or-move-lr-decay',
-    label: loc('只加/提前衰减', 'Add/move lr decay'),
-    detail: loc('同一 optimizer 下调整步长时间表。', 'Adjust the step-size timeline under the same optimizer.'),
-  },
-]
-
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
-        eyebrow: 'Optimizer curve 挑战',
+        eyebrow: 'Optimizer curve 场景',
         title: '先诊断曲线，再选择下一步实验',
-        reset: '重置预测',
+        reset: '重置场景',
         scenario: '曲线场景',
         setup: '实验设置',
         train: 'train loss',
         validation: 'validation loss',
         learningRate: 'lr',
-        prediction: '你的诊断',
-        issue: '最可能的问题',
-        experiment: '下一步单变量实验',
         evidence: '观察指标',
-        checkEvidence: '查看指标结果',
-        beforeEvidence: '先选原因和下一步实验，再查看计算结果和反馈。',
-        feedback: '反馈',
-        correct: '诊断和实验都正确',
-        partial: '还有判断需要修正',
-        issueCheck: '原因判断',
-        experimentCheck: '实验判断',
-        yes: '正确',
-        no: '待修正',
         present: '有',
         absent: '无',
         finalTrainLoss: '最终 train loss',
@@ -160,27 +100,15 @@ const copy = computed(() =>
         why: '一次只改一个旋钮，才能把曲线现象和原因连起来；否则 optimizer、batch、lr schedule 的影响会混在一起。',
       }
     : {
-        eyebrow: 'Optimizer curve challenge',
+        eyebrow: 'Optimizer curve scenarios',
         title: 'Diagnose the curve before choosing the next experiment',
-        reset: 'Reset prediction',
+        reset: 'Reset scenario',
         scenario: 'Curve scenario',
         setup: 'Experiment setup',
         train: 'train loss',
         validation: 'validation loss',
         learningRate: 'lr',
-        prediction: 'Your diagnosis',
-        issue: 'Most likely issue',
-        experiment: 'Next one-variable experiment',
         evidence: 'Evidence metrics',
-        checkEvidence: 'Check evidence',
-        beforeEvidence: 'Choose the issue and next experiment before checking computed evidence and feedback.',
-        feedback: 'Feedback',
-        correct: 'Diagnosis and experiment are both correct',
-        partial: 'Some checks still need revision',
-        issueCheck: 'Issue check',
-        experimentCheck: 'Experiment check',
-        yes: 'Correct',
-        no: 'Revise',
         present: 'yes',
         absent: 'no',
         finalTrainLoss: 'Final train loss',
@@ -196,7 +124,6 @@ const copy = computed(() =>
 
 const selectedScenarioId = ref<OptimizerCurveScenarioId>('lr-divergence')
 const prediction = ref<OptimizerCurvePrediction>({ ...scenarioCopy[0].defaultPrediction })
-const hasChecked = ref(false)
 
 const activeScenario = computed(
   () =>
@@ -278,25 +205,16 @@ const evidenceCards = computed(() => [
   { id: 'lr-changes', label: copy.value.lrChanges, value: String(snapshot.value.evidence.learningRateChanges) },
 ])
 
-const resultRows = computed(() => [
-  { id: 'issue', label: copy.value.issueCheck, correct: snapshot.value.result.issueCorrect },
-  { id: 'experiment', label: copy.value.experimentCheck, correct: snapshot.value.result.experimentCorrect },
-])
-
 function chooseScenario(scenario: ScenarioCopy) {
   selectedScenarioId.value = scenario.id
   prediction.value = { ...scenario.defaultPrediction }
-  hasChecked.value = false
 }
 
 function resetPrediction() {
+  selectedScenarioId.value = 'lr-divergence'
   prediction.value = { ...activeScenarioCopy.value.defaultPrediction }
-  hasChecked.value = false
 }
 
-function revealEvidence() {
-  hasChecked.value = true
-}
 </script>
 
 <template>
@@ -355,68 +273,15 @@ function revealEvidence() {
         </div>
       </article>
 
-      <article class="optimizer-curve-challenge__prediction">
-        <span>{{ copy.prediction }}</span>
-        <fieldset>
-          <legend>{{ copy.issue }}</legend>
-          <label v-for="option in issueOptions" :key="option.id">
-            <input v-model="prediction.issue" type="radio" name="optimizer-curve-issue" :value="option.id" />
-            <span>
-              <strong>{{ localized(option.label) }}</strong>
-              <small>{{ localized(option.detail) }}</small>
-            </span>
-          </label>
-        </fieldset>
-
-        <fieldset>
-          <legend>{{ copy.experiment }}</legend>
-          <label v-for="option in experimentOptions" :key="option.id">
-            <input
-              v-model="prediction.nextExperiment"
-              type="radio"
-              name="optimizer-curve-experiment"
-              :value="option.id"
-            />
-            <span>
-              <strong>{{ localized(option.label) }}</strong>
-              <small>{{ localized(option.detail) }}</small>
-            </span>
-          </label>
-        </fieldset>
-      </article>
     </section>
 
-    <section v-if="!hasChecked" class="optimizer-curve-challenge__gate">
-      <span>{{ copy.beforeEvidence }}</span>
-      <button type="button" class="optimizer-curve-challenge__reset" @click="revealEvidence">
-        {{ copy.checkEvidence }}
-      </button>
-    </section>
-
-    <section v-if="hasChecked" class="optimizer-curve-challenge__evidence" :aria-label="copy.evidence">
+    <section class="optimizer-curve-challenge__evidence" :aria-label="copy.evidence">
       <article v-for="card in evidenceCards" :key="card.id">
         <span>{{ card.label }}</span>
         <strong>{{ card.value }}</strong>
       </article>
     </section>
 
-    <section
-      v-if="hasChecked"
-      class="optimizer-curve-challenge__feedback"
-      :class="{ 'is-correct': snapshot.result.allCorrect }"
-      :aria-label="copy.feedback"
-    >
-      <div>
-        <span>{{ copy.feedback }}</span>
-        <strong>{{ snapshot.result.allCorrect ? copy.correct : copy.partial }}</strong>
-      </div>
-      <dl>
-        <div v-for="row in resultRows" :key="row.id">
-          <dt>{{ row.label }}</dt>
-          <dd>{{ row.correct ? copy.yes : copy.no }}</dd>
-        </div>
-      </dl>
-      <p>{{ copy.why }}</p>
-    </section>
+    <p>{{ copy.why }}</p>
   </section>
 </template>

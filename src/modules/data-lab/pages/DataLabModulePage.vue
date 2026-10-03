@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
@@ -13,11 +13,6 @@ import type {
   DataLabModuleId,
   DataLabSection,
 } from '../types/dataLab'
-import {
-  loadDataLabProgress,
-  saveDataLabProgress,
-  setLastVisitedDataLabModule,
-} from '../utils/progress'
 
 const labComponentRegistry = {
   ColumnTypeLab: defineAsyncComponent(() => import('../labs/ColumnTypeLab.vue')),
@@ -33,7 +28,6 @@ const labComponentRegistry = {
 const route = useRoute()
 const router = useRouter()
 const { locale } = useI18n()
-const progress = ref(loadDataLabProgress())
 
 const currentLocale = computed(() => locale.value as DataLabLocale)
 const moduleId = computed(() => route.params.moduleId as DataLabModuleId)
@@ -65,7 +59,6 @@ watch(
       router.replace('/data-lab')
       return
     }
-    progress.value = saveDataLabProgress(setLastVisitedDataLabModule(loadDataLabProgress(), nextModuleId))
   },
   { immediate: true },
 )
@@ -274,15 +267,7 @@ function labComponentFor(componentName: DataLabConfig['componentName']) {
           </div>
           <div class="data-article-meta">
             <strong>
-              {{
-                progress.completedModuleIds.includes(moduleDefinition.id)
-                  ? currentLocale === 'zh-CN'
-                    ? '已完成'
-                    : 'Completed'
-                  : currentLocale === 'zh-CN'
-                    ? '学习中'
-                    : 'In progress'
-              }}
+              {{ currentLocale === 'zh-CN' ? '教学内容' : 'Lesson' }}
             </strong>
             <span>{{ currentLocale === 'zh-CN' ? '预计' : 'Estimated' }} {{ moduleDefinition.estimatedMinutes }} min</span>
           </div>

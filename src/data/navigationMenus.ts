@@ -267,13 +267,6 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
     activePrefixes: ['/tracks/project-practice', '/projects', '/library/project'],
     groups: [],
   },
-  {
-    id: 'progress',
-    label: copy('我的进度', 'Progress'),
-    route: '/progress',
-    activePrefixes: ['/progress'],
-    groups: [],
-  },
 ]
 
 function pathMatchesPrefix(path: string, prefix: string) {

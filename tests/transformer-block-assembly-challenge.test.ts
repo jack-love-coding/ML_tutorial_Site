@@ -62,7 +62,7 @@ test('transformer block challenge normalizes invalid inputs without throwing', (
   assert.equal(snapshot.result.allCorrect, false)
 })
 
-test('transformer block challenge component gates evidence behind a check action', () => {
+test('transformer block challenge component shows scenario evidence without answer gates', () => {
   const componentSource = read('src/components/TransformerBlockAssemblyChallengeLab.vue')
   assert.match(componentSource, /transformer-block-challenge/)
   assert.match(componentSource, /evaluateTransformerBlockAssemblyChallenge/)
@@ -70,9 +70,9 @@ test('transformer block challenge component gates evidence behind a check action
   assert.match(componentSource, /missing-layernorm/)
   assert.match(componentSource, /missing-ffn/)
   assert.match(componentSource, /attention-only/)
-  assert.match(componentSource, /hasChecked/)
-  assert.match(componentSource, /revealEvidence/)
-  assert.match(componentSource, /v-if="hasChecked"/)
+  assert.doesNotMatch(componentSource, /hasChecked/)
+  assert.doesNotMatch(componentSource, /revealEvidence/)
+  assert.doesNotMatch(componentSource, /v-if="hasChecked"/)
 
   const workflowSource = read('src/components/AppliedWorkflowLessonLab.vue')
   assert.match(workflowSource, /TransformerBlockAssemblyChallengeLab/)

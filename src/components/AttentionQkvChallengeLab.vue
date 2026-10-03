@@ -83,9 +83,9 @@ const scenarioCopy: ScenarioCopy[] = [
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
-        eyebrow: 'Attention Q/K/V 挑战',
-        title: '先预测一行 attention，再看 softmax 结果',
-        reset: '重置预测',
+        eyebrow: 'Attention Q/K/V 场景',
+        title: '选择 attention 场景，观察 softmax 结果',
+        reset: '重置场景',
         scenario: 'Q/K/V 场景',
         query: '当前 query',
         table: 'token 行',
@@ -93,32 +93,18 @@ const copy = computed(() =>
         q: 'Q',
         k: 'K',
         v: 'V',
-        prediction: '你的预测',
-        topKey: 'softmax 后权重最大的 key',
-        maskEffect: 'mask 是否改变 top key',
-        maskYes: '会改变',
-        maskNo: '不会改变',
         evidence: 'Q/K → mask → softmax 计算结果',
-        beforeEvidence: '先选 top key 和 mask 影响，再查看 score、权重和 weighted value。',
-        checkEvidence: '查看计算结果',
         rawScore: 'raw score',
         maskedScore: 'masked score',
         weight: 'softmax weight',
         weightedValue: 'weighted value',
         contribution: 'V contribution',
-        feedback: '反馈',
-        correct: '两个判断都正确',
-        partial: '还有判断需要修正',
-        topKeyCheck: 'top key',
-        maskCheck: 'mask 影响',
-        yes: '正确',
-        no: '待修正',
         why: 'Q/K 点积只产生权重；mask 先改写 score 行，softmax 再归一化，最后被加权相加的是 V。',
       }
     : {
-        eyebrow: 'Attention Q/K/V challenge',
+        eyebrow: 'Attention Q/K/V scenarios',
         title: 'Predict one attention row before reading softmax evidence',
-        reset: 'Reset prediction',
+        reset: 'Reset scenario',
         scenario: 'Q/K/V scenario',
         query: 'Current query',
         table: 'Token rows',
@@ -126,26 +112,12 @@ const copy = computed(() =>
         q: 'Q',
         k: 'K',
         v: 'V',
-        prediction: 'Your prediction',
-        topKey: 'Top key after softmax',
-        maskEffect: 'Does the mask change the top key?',
-        maskYes: 'Changes it',
-        maskNo: 'Does not change it',
         evidence: 'Q/K -> mask -> softmax evidence',
-        beforeEvidence: 'Choose the top key and mask effect before checking scores, weights, and weighted value.',
-        checkEvidence: 'Check evidence',
         rawScore: 'raw score',
         maskedScore: 'masked score',
         weight: 'softmax weight',
         weightedValue: 'weighted value',
         contribution: 'V contribution',
-        feedback: 'Feedback',
-        correct: 'Both judgments are correct',
-        partial: 'Some checks still need revision',
-        topKeyCheck: 'top key',
-        maskCheck: 'mask effect',
-        yes: 'Correct',
-        no: 'Revise',
         why: 'Q/K dot products only create weights; the mask edits the score row before softmax, and V is what gets weighted and summed.',
       },
 )
@@ -155,7 +127,6 @@ const prediction = ref<AttentionQkvPrediction>({
   topKeyId: 'beta',
   maskChangesTopKey: true,
 })
-const hasChecked = ref(false)
 
 const activeScenario = computed(
   () => attentionQkvScenarios.find((scenario) => scenario.id === selectedScenarioId.value) ?? attentionQkvScenarios[0],
@@ -195,25 +166,16 @@ const scoreRows = computed(() =>
   }),
 )
 
-const resultRows = computed(() => [
-  { id: 'top-key', label: copy.value.topKeyCheck, correct: snapshot.value.result.topKeyCorrect },
-  { id: 'mask-effect', label: copy.value.maskCheck, correct: snapshot.value.result.maskEffectCorrect },
-])
-
 function chooseScenario(scenario: ScenarioCopy) {
   selectedScenarioId.value = scenario.id
   prediction.value = { ...scenario.defaultPrediction }
-  hasChecked.value = false
 }
 
 function resetPrediction() {
+  selectedScenarioId.value = 'matching-key'
   prediction.value = { ...activeScenarioCopy.value.defaultPrediction }
-  hasChecked.value = false
 }
 
-function revealEvidence() {
-  hasChecked.value = true
-}
 </script>
 
 <template>
@@ -269,38 +231,9 @@ function revealEvidence() {
         </table>
       </article>
 
-      <article class="attention-qkv-challenge__prediction">
-        <span>{{ copy.prediction }}</span>
-        <fieldset>
-          <legend>{{ copy.topKey }}</legend>
-          <label v-for="token in activeScenario.tokens" :key="token.id">
-            <input v-model="prediction.topKeyId" type="radio" name="attention-qkv-top-key" :value="token.id" />
-            <span>{{ token.label }}</span>
-          </label>
-        </fieldset>
-
-        <fieldset>
-          <legend>{{ copy.maskEffect }}</legend>
-          <label>
-            <input v-model="prediction.maskChangesTopKey" type="radio" name="attention-qkv-mask-effect" :value="true" />
-            <span>{{ copy.maskYes }}</span>
-          </label>
-          <label>
-            <input v-model="prediction.maskChangesTopKey" type="radio" name="attention-qkv-mask-effect" :value="false" />
-            <span>{{ copy.maskNo }}</span>
-          </label>
-        </fieldset>
-      </article>
     </section>
 
-    <section v-if="!hasChecked" class="attention-qkv-challenge__gate">
-      <span>{{ copy.beforeEvidence }}</span>
-      <button type="button" class="attention-qkv-challenge__reset" @click="revealEvidence">
-        {{ copy.checkEvidence }}
-      </button>
-    </section>
-
-    <section v-if="hasChecked" class="attention-qkv-challenge__evidence" :aria-label="copy.evidence">
+    <section class="attention-qkv-challenge__evidence" :aria-label="copy.evidence">
       <article class="attention-qkv-challenge__scores">
         <span>{{ copy.evidence }}</span>
         <table>
@@ -335,23 +268,6 @@ function revealEvidence() {
       </article>
     </section>
 
-    <section
-      v-if="hasChecked"
-      class="attention-qkv-challenge__feedback"
-      :class="{ 'is-correct': snapshot.result.allCorrect }"
-      :aria-label="copy.feedback"
-    >
-      <div>
-        <span>{{ copy.feedback }}</span>
-        <strong>{{ snapshot.result.allCorrect ? copy.correct : copy.partial }}</strong>
-      </div>
-      <dl>
-        <div v-for="row in resultRows" :key="row.id">
-          <dt>{{ row.label }}</dt>
-          <dd>{{ row.correct ? copy.yes : copy.no }}</dd>
-        </div>
-      </dl>
-      <p>{{ copy.why }}</p>
-    </section>
+    <p>{{ copy.why }}</p>
   </section>
 </template>

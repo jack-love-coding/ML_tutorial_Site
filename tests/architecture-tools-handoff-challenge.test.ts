@@ -70,7 +70,7 @@ test('architecture tools handoff challenge normalizes invalid inputs without thr
   assert.equal(snapshot.result.allCorrect, false)
 })
 
-test('architecture tools handoff challenge component gates evidence behind a check action', () => {
+test('architecture tools handoff challenge component shows scenario evidence without answer gates', () => {
   const componentSource = read('src/components/ArchitectureToolsHandoffChallengeLab.vue')
   assert.match(componentSource, /architecture-tools-challenge/)
   assert.match(componentSource, /evaluateArchitectureToolsHandoffChallenge/)
@@ -78,9 +78,9 @@ test('architecture tools handoff challenge component gates evidence behind a che
   assert.match(componentSource, /mask-visibility/)
   assert.match(componentSource, /block-hidden-state/)
   assert.match(componentSource, /logits-ranking/)
-  assert.match(componentSource, /hasChecked/)
-  assert.match(componentSource, /revealEvidence/)
-  assert.match(componentSource, /v-if="hasChecked"/)
+  assert.doesNotMatch(componentSource, /hasChecked/)
+  assert.doesNotMatch(componentSource, /revealEvidence/)
+  assert.doesNotMatch(componentSource, /v-if="hasChecked"/)
   assert.match(componentSource, /toolPart/)
   assert.match(componentSource, /concept/)
 
