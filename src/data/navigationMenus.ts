@@ -60,13 +60,7 @@ export const mathLabOverviewLink: NavigationLink<'math-lab-overview'> = {
   label: copy('实验室总览', 'Lab Overview'),
 }
 
-export const mathLabUtilityLinks: Array<NavigationLink<'math-lab-diagnostic'>> = [
-  {
-    id: 'math-lab-diagnostic',
-    route: '/math-lab/diagnostic',
-    label: copy('学习诊断', 'Learning Diagnostic'),
-  },
-]
+export const mathLabUtilityLinks: Array<NavigationLink<'math-lab-diagnostic'>> = []
 
 export const dataLabOverviewLink: NavigationLink<'data-lab-overview'> = {
   id: 'data-lab-overview',
@@ -82,7 +76,7 @@ export const coreExperimentNavigationGroups: CoreExperimentNavigationGroup[] = [
   },
   {
     id: 'projects',
-    label: copy('项目实战', 'Projects'),
+    label: copy('项目案例', 'Project examples'),
     moduleSlugs: ['housing-price-project', 'classification-project'],
   },
   {
@@ -222,14 +216,14 @@ export const dataLabNavigationGroups: Array<NavigationGroup<DataLabModuleId>> = 
 export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
   {
     id: 'courses',
-    label: copy('AI 基础课程', 'AI Foundations'),
-    route: '/courses/ai-foundation',
-    activePrefixes: ['/courses'],
+    label: copy('学习路线', 'Learning route'),
+    route: '/spine',
+    activePrefixes: ['/spine', '/tracks/core-learning-path'],
     groups: [],
   },
   {
     id: 'topic-library',
-    label: copy('专题学习', 'Topic Library'),
+    label: copy('专题资源', 'Topic resources'),
     activePrefixes: [
       '/library/math',
       '/library/data',
@@ -237,19 +231,15 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
       '/library/deep-learning',
       '/math-lab',
       '/data-lab',
-      '/spine',
-      '/tracks/core-learning-path',
+      '/courses',
       '/python',
       '/learn',
     ],
     groups: [
       {
-        id: 'legacy-learning-map',
-        label: copy('旧版入口与工具', 'Legacy map and tools'),
-        items: [
-          { id: 'legacy-spine', route: '/spine', label: copy('旧知识地图', 'Legacy Knowledge Map') },
-          { id: 'python-data-tools', route: '/python', label: copy('Python 数据工具', 'Python Data Tools') },
-        ],
+        id: 'reference-syllabus',
+        label: copy('课程参考', 'Course reference'),
+        items: [{ id: 'reference-syllabus', route: '/courses/ai-foundation', label: copy('扩展教学大纲', 'Extended teaching syllabus') }],
       },
       {
         id: 'topic-domains',
@@ -262,7 +252,7 @@ export const curriculumNavigationMenus: CurriculumNavigationMenu[] = [
   },
   {
     id: 'projects',
-    label: copy('项目实战', 'Projects'),
+    label: copy('项目案例', 'Project examples'),
     route: '/tracks/project-practice',
     activePrefixes: ['/tracks/project-practice', '/projects', '/library/project'],
     groups: [],

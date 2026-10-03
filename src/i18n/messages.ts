@@ -2,7 +2,7 @@ export const messages = {
   'zh-CN': {
     nav: {
       brand: 'ML Atlas',
-      home: '课程首页',
+      home: '首页',
       mathLab: '数学直觉实验室',
       dataLab: '数据实验室',
       modules: '核心实验',

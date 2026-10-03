@@ -1,4 +1,6 @@
 async (page) => {
+  page.setDefaultTimeout(15000)
+  page.setDefaultNavigationTimeout(20000)
   const base = 'http://127.0.0.1:4173/ML_tutorial_Site'
   const paths = ['/', '/learn/ai-overview', '/python', '/learn/loss-functions/why-loss', '/learn/gradient-descent', '/learn/mlp', '/learn/attention-transformer/softmax-weighted-sum', '/learn/attention-transformer/transformer-block', '/learn/attention-transformer/architecture-to-tools', '/learn/cnn-visualization/padding-stride-shape', '/learn/optimizer-comparison/curve-diagnosis', '/math-lab', '/math-lab/modules/calculus-gradient-descent', '/math-lab/modules/beginner-linear-algebra', '/data-lab', '/data-lab/modules/splits-generalization', '/courses/ai-foundation', '/courses/ai-foundation/units/01-ai-map-python', '/progress', '/math-lab/diagnostic']
   const keys = ['ml-atlas:algorithm-progress:v1', 'ml-atlas:math-lab-progress:v1', 'ml-atlas:data-lab-progress:v1', 'ml-atlas:learning-progress:v2', 'ml-atlas:learning-progress:v2:migration', 'ml-atlas:course-progress:v1', 'ml-atlas:checkpoint-report:calculus-gradient-descent']
@@ -35,5 +37,5 @@ async (page) => {
     }
   }
   if (errors.length) throw new Error(errors.join('\n'))
-  console.log(JSON.stringify({ passed: results.length, storage: 'byte-for-byte unchanged', results }))
+  return { passed: results.length, storage: 'byte-for-byte unchanged' }
 }

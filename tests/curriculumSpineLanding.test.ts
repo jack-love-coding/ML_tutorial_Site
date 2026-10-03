@@ -20,7 +20,7 @@ test('spine landing route is a dedicated stage view while preserving the flat co
   assert.match(routerSource, /CurriculumSpineView\.vue/)
   assert.match(routerSource, /path: '\/tracks\/:trackId'/)
   assert.match(navigationSource, /route: '\/spine'/)
-  assert.match(navigationSource, /id: 'legacy-learning-map'/)
+  assert.match(navigationSource, /id: 'reference-syllabus'/)
   assert.match(navigationSource, /'\/spine'/)
   assert.match(navigationSource, /'\/tracks\/core-learning-path'/)
   assert.match(navigationSource, /'\/learn'/)
@@ -29,42 +29,15 @@ test('spine landing route is a dedicated stage view while preserving the flat co
   assert.match(progressSource, /route: '\/tracks\/core-learning-path'/)
 })
 
-test('spine landing source renders stages, support lenses, project validation, and known gaps', () => {
-  const spineSource = read('src/views/CurriculumSpineView.vue')
-  const stylesSource = read('src/styles/views/curriculum.css')
-
-  assert.match(spineSource, /curriculumSpineStages/)
-  assert.match(spineSource, /requiredModuleIds/)
-  assert.match(spineSource, /supportModuleIds/)
-  assert.match(spineSource, /projectModuleIds/)
-  assert.match(spineSource, /knownGaps/)
-  assert.match(spineSource, /localizedText\(stage\.bridge\)/)
-  assert.match(spineSource, /function localizedSupportNote/)
-  assert.match(spineSource, /localizedText\(stage\.supportNote\)/)
-  assert.match(spineSource, /resolveCanonicalLearnRoute/)
-  assert.match(spineSource, /function stageLabel\(index: number\)/)
-  assert.match(spineSource, /\/tracks\/core-learning-path/)
-  assert.match(spineSource, /spine-stage-card/)
-  assert.match(spineSource, /spine-stage-card__bridge/)
-  assert.match(spineSource, /spine-stage-card__support-note/)
-  assert.match(spineSource, /spine-stage-card__modules/)
-  assert.match(spineSource, /spine-stage-card__gap/)
-  assert.match(spineSource, /spine-stage-nav/)
-  assert.match(spineSource, /why it comes next/)
-  assert.doesNotMatch(spineSource, /known coverage gaps/)
-  assert.doesNotMatch(spineSource, /labels\.stages }} {{ stage\.index/)
-  assert.doesNotMatch(spineSource, /migrateLearningProgressV2|localStorage|learningProgress/)
-
-  assert.match(stylesSource, /\.spine-stage-nav/)
-  assert.match(stylesSource, /\.spine-stage-card/)
-  assert.match(stylesSource, /\.spine-stage-card__bridge/)
-  assert.match(stylesSource, /\.spine-stage-card__support-note/)
-  assert.match(stylesSource, /\.spine-stage-card__modules/)
-  assert.match(stylesSource, /\.spine-stage-card__gap/)
+test('spine landing renders selectable units and chapter links from the reading sequence', () => {
+  const source = read('src/views/CurriculumSpineView.vue')
+  for (const token of ['teachingUnits', 'expandReadingStep', 'readingLocation', 'legacySpineUnitIds', 'activeUnitId', 'publicationStatus', 'unit.optional']) assert.ok(source.includes(token))
+  assert.doesNotMatch(source, /localStorage|learningProgress/)
 })
 
+
 test('spine landing stage references resolve to current catalog modules', () => {
-  assert.equal(curriculumSpineStages.length, 12)
+  assert.equal(curriculumSpineStages.length, 6)
 
   for (const stage of curriculumSpineStages) {
     const allModuleIds = [
@@ -84,7 +57,7 @@ test('spine landing stage references resolve to current catalog modules', () => 
     'stage landing should expose recommended project validation capstones',
   )
   assert.ok(
-    curriculumSpineStages.some((stage) => stage.requiredModuleIds.includes('sequence-embedding-bridge')),
+    curriculumSpineStages.some((stage) => stage.requiredModuleIds.includes('splits-generalization')),
     'stage landing should expose the filled sequence/embedding bridge as a required module',
   )
   assert.equal(

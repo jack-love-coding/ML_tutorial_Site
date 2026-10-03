@@ -1,3 +1,4 @@
+import { teachingUnits } from './reading.ts'
 import { curriculumCatalogMetadata } from './catalogMetadata.ts'
 import { curriculumLessonDirectory } from './generated/lessonDirectory.ts'
 import type { LocalizedCopy } from '../types/ml.ts'
@@ -12,33 +13,7 @@ export interface CurriculumRouteManifestEntry {
   firstLessonId?: string
 }
 
-export const coreLearningPathModuleIds = [
-  'ai-overview',
-  'python-notebook',
-  'numerical-data',
-  'categorical-data',
-  'dataset-quality',
-  'beginner-linear-algebra',
-  'linear-algebra-feature-space',
-  'loss-functions',
-  'linear-regression',
-  'gradient-descent',
-  'logistic-regression',
-  'beginner-probability-distributions',
-  'probability-likelihood-entropy',
-  'classification',
-  'splits-generalization',
-  'model-selection',
-  'complexity-regularization',
-  'tree-forest',
-  'mlp',
-  'optimizer-comparison',
-  'tensor-shapes-vectorization',
-  'cnn-visualization',
-  'sequence-embedding-bridge',
-  'attention-transformer',
-  'llm-rag',
-]
+export const coreLearningPathModuleIds = [...new Set(teachingUnits.flatMap(unit => unit.readings.map(step => step.moduleId)))]
 
 export const projectPracticeModuleIds = ['housing-price-project', 'classification-project']
 

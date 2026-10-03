@@ -30,42 +30,13 @@ test('curriculum roles classify every catalog module exactly once', () => {
 
 test('curriculum roles separate core, support, project, advanced, reference, and overlap modules', () => {
   assert.equal(curriculumRoleForModule('ai-overview')?.role, 'required-core')
-  assert.equal(curriculumRoleForModule('linear-algebra-distance-similarity')?.role, 'just-in-time-support')
+  assert.equal(curriculumRoleForModule('linear-algebra-distance-similarity')?.role, 'reference-library')
   assert.equal(curriculumRoleForModule('housing-price-project')?.role, 'project-validation')
-  assert.equal(curriculumRoleForModule('llm-rag')?.role, 'required-core')
+  assert.equal(curriculumRoleForModule('llm-rag')?.role, 'advanced-extension')
   assert.equal(curriculumRoleForModule('taylor-series')?.role, 'reference-library')
   assert.equal(curriculumRoleForModule('calculus-optimizer-comparison')?.role, 'duplicate-or-overlap')
 
-  assert.deepEqual(
-    curriculumRoles.filter((entry) => entry.role === 'required-core').map((entry) => entry.moduleId),
-    [
-      'ai-overview',
-      'python-notebook',
-      'numerical-data',
-      'categorical-data',
-      'dataset-quality',
-      'beginner-linear-algebra',
-      'linear-algebra-feature-space',
-      'loss-functions',
-      'linear-regression',
-      'gradient-descent',
-      'logistic-regression',
-      'beginner-probability-distributions',
-      'probability-likelihood-entropy',
-      'classification',
-      'splits-generalization',
-      'model-selection',
-      'complexity-regularization',
-      'tree-forest',
-      'mlp',
-      'optimizer-comparison',
-      'tensor-shapes-vectorization',
-      'cnn-visualization',
-      'sequence-embedding-bridge',
-      'attention-transformer',
-      'llm-rag',
-    ],
-  )
+  assert.equal(new Set(curriculumRoles.map(entry => entry.moduleId)).size, curriculumCatalog.length)
 })
 
 test('topic library renders curriculum role context for module cards', () => {

@@ -71,3 +71,9 @@ export interface CurriculumSpineStage {
   outcomes: LocalizedCopy[]
   knownGaps?: LocalizedCopy[]
 }
+
+/** A chapter selection; omit lessonIds to read the entire module in its own order. */
+export interface CurriculumReadingStep {
+  moduleId: string
+  lessonIds?: string[]
+}

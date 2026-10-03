@@ -37,7 +37,7 @@ test('algorithm view has a dedicated linear regression lesson branch', () => {
   assert.match(algorithmViewSource, /requestedChapterId/)
   assert.match(algorithmViewSource, /route\.params\.moduleId/)
   assert.match(algorithmViewSource, /route\.params\.lessonId/)
-  assert.match(algorithmViewSource, /router\.replace\(`\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`\)/)
+  assert.match(algorithmViewSource, /router\.replace\(\{ path: `\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`, query: route\.query \}\)/)
   assert.match(algorithmViewSource, /slug\.value === 'linear-regression'/)
   assert.doesNotMatch(algorithmViewSource, /showLegacyLinearRegressionStory/)
   assert.doesNotMatch(algorithmViewSource, /LinearRegressionResults = defineAsyncComponent/)

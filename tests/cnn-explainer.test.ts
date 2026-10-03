@@ -1417,7 +1417,7 @@ test('CNN explainer lab is browser-local, lazy, and wired only into the CNN rout
   assert.match(algorithmViewSource, /<CnnGuidedLab :section="section"/)
   assert.match(algorithmViewSource, /route\.params\.lessonId/)
   assert.match(algorithmViewSource, /syncRouteChapterIntoView\(matchedChapter\.id\)/)
-  assert.match(algorithmViewSource, /router\.replace\(`\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`\)/)
+  assert.match(algorithmViewSource, /router\.replace\(\{ path: `\/learn\/\$\{nextSlug\}\/\$\{firstChapterId\}`, query: route\.query \}\)/)
   assert.match(routerSource, /path: '\/learn\/cnn-visualization\/:chapterId'/)
   assert.match(routerSource, /name: 'cnn-visualization-chapter'/)
   assert.match(routerSource, /path: '\/learn\/cnn-visualization\/explore'/)

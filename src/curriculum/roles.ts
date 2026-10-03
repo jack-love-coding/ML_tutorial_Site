@@ -22,8 +22,8 @@ const copy = (zhCN: string, en: string): LocalizedCopy => ({ 'zh-CN': zhCN, en }
 
 const roleCopy: Record<CurriculumRole, { label: LocalizedCopy; description: LocalizedCopy }> = {
   'required-core': {
-    label: copy('必修主线', 'Required core'),
-    description: copy('默认学习主线中的必修模块。', 'Required in the default learning spine.'),
+    label: copy('主线阅读', 'Main-route reading'),
+    description: copy('学习主线引用本模块的全部或部分章节。', 'The learning route selects all or part of this module.'),
   },
   'just-in-time-support': {
     label: copy('即时支持', 'Just-in-time support'),
@@ -62,6 +62,7 @@ const roleCopy: Record<CurriculumRole, { label: LocalizedCopy; description: Loca
 const duplicateOrOverlapIds = new Set(['calculus-optimizer-comparison'])
 
 const advancedExtensionIds = new Set([
+  'mlp', 'cnn-visualization', 'attention-transformer', 'llm-rag', 'sequence-embedding-bridge', 'optimizer-comparison',
   'svd',
   'pca',
   'lu-decomposition',
@@ -89,8 +90,8 @@ for (const stage of curriculumSpineStages) {
 }
 
 function primaryRoleForModule(moduleId: string): CurriculumRole {
-  if (requiredModuleIdSet.has(moduleId)) return 'required-core'
   if (projectStageIdsByModule.has(moduleId)) return 'project-validation'
+  if (requiredModuleIdSet.has(moduleId)) return 'required-core'
   if (supportStageIdsByModule.has(moduleId)) return 'just-in-time-support'
   if (duplicateOrOverlapIds.has(moduleId)) return 'duplicate-or-overlap'
   if (advancedExtensionIds.has(moduleId)) return 'advanced-extension'

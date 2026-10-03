@@ -45,17 +45,17 @@ test('curriculum navigation exposes direct primary destinations and one category
   )
 
   const byId = new Map(curriculumNavigationMenus.map((item) => [item.id, item]))
-  assert.equal(byId.get('courses')?.route, '/courses/ai-foundation')
-  assert.equal(byId.get('courses')?.label['zh-CN'], 'AI 基础课程')
-  assert.equal(byId.get('courses')?.label.en, 'AI Foundations')
+  assert.equal(byId.get('courses')?.route, '/spine')
+  assert.equal(byId.get('courses')?.label['zh-CN'], '学习路线')
+  assert.equal(byId.get('courses')?.label.en, 'Learning route')
   assert.equal(byId.get('projects')?.route, '/tracks/project-practice')
   assert.equal(byId.has('progress'), false)
-  assert.equal(byId.get('topic-library')?.label['zh-CN'], '专题学习')
-  assert.equal(byId.get('topic-library')?.label.en, 'Topic Library')
+  assert.equal(byId.get('topic-library')?.label['zh-CN'], '专题资源')
+  assert.equal(byId.get('topic-library')?.label.en, 'Topic resources')
   const topicItems = byId.get('topic-library')?.groups.flatMap((group) => group.items) ?? []
   assert.deepEqual(
     topicItems.map((item) => item.route),
-    ['/spine', '/python', '/library/math', '/library/data', '/library/model', '/library/deep-learning'],
+    ['/courses/ai-foundation', '/library/math', '/library/data', '/library/model', '/library/deep-learning'],
   )
   assert.equal(topicItems.some((item) => item.route.startsWith('/learn/')), false)
   assert.equal(topicItems.some((item) => item.route.startsWith('/math-lab/modules/')), false)
@@ -67,14 +67,14 @@ test('curriculum navigation exposes direct primary destinations and one category
 })
 
 test('each curriculum route has one navigation owner without changing canonical or legacy coverage', () => {
-  assert.equal(resolveActiveSiteNavigationMenuId('/courses/ai-foundation'), 'courses')
-  assert.equal(resolveActiveSiteNavigationMenuId('/courses/ai-foundation/units/01-ai-map-python'), 'courses')
+  assert.equal(resolveActiveSiteNavigationMenuId('/courses/ai-foundation'), 'topic-library')
+  assert.equal(resolveActiveSiteNavigationMenuId('/courses/ai-foundation/units/01-ai-map-python'), 'topic-library')
   assert.equal(resolveActiveSiteNavigationMenuId('/library/project'), 'projects')
   assert.equal(resolveActiveSiteNavigationMenuId('/library/math'), 'topic-library')
   assert.equal(resolveActiveSiteNavigationMenuId('/learn/gradient-descent'), 'topic-library')
   assert.equal(resolveActiveSiteNavigationMenuId('/learn/python-notebook/numpy-foundations'), 'topic-library')
   assert.equal(resolveActiveSiteNavigationMenuId('/python/pandas-analysis'), 'topic-library')
-  assert.equal(resolveActiveSiteNavigationMenuId('/tracks/core-learning-path'), 'topic-library')
+  assert.equal(resolveActiveSiteNavigationMenuId('/tracks/core-learning-path'), 'courses')
   assert.equal(resolveActiveSiteNavigationMenuId('/math-lab/modules/beginner-linear-algebra'), 'topic-library')
 })
 
@@ -113,17 +113,13 @@ test('default learning path mirrors the approved Curriculum Spine V1 order', () 
   assert.deepEqual(spineRequiredIds.slice(0, 5), [
     'ai-overview',
     'python-notebook',
-    'numerical-data',
-    'categorical-data',
+    'splits-generalization',
     'dataset-quality',
+    'numerical-data',
   ])
-  assert.ok(spineRequiredIds.includes('optimizer-comparison'))
-  assert.ok(spineRequiredIds.indexOf('sequence-embedding-bridge') > spineRequiredIds.indexOf('cnn-visualization'))
-  assert.ok(spineRequiredIds.indexOf('sequence-embedding-bridge') < spineRequiredIds.indexOf('attention-transformer'))
-  assert.ok(spineRequiredIds.indexOf('attention-transformer') < spineRequiredIds.indexOf('llm-rag'))
-  assert.equal(spineRequiredIds.at(-1), 'llm-rag')
-  assert.ok(!spineRequiredIds.includes('housing-price-project'))
-  assert.ok(!spineRequiredIds.includes('classification-project'))
+  assert.ok(!spineRequiredIds.includes('mlp'))
+  assert.equal(spineRequiredIds.at(-1), 'classification-project')
+  assert.ok(spineRequiredIds.includes('housing-price-project'))
 })
 
 test('legacy navigation groups remain exported during Phase 2', () => {
