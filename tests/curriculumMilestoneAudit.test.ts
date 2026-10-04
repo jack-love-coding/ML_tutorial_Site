@@ -312,7 +312,10 @@ test('milestone audit documents every completed phase and the current refactor s
   assert.match(roadmapSource, /real tokenizer integration/)
   assert.match(roadmapSource, /V3\.1 Minimum Mathematical Foundation/)
 
-  const stateSource = read('.planning/STATE.md')
+  const currentState = read('.planning/STATE.md')
+  assert.match(currentState, /docs\/textbook-next-steps\.md/)
+  assert.match(currentState, /取消考核和学习行为记录/)
+  const stateSource = read('.planning/milestones/pre-textbook-2026-10-04/STATE.md')
   const currentPhaseMatch = stateSource.match(/^current_phase: (\d+)$/m)
   const currentFocusMatch = stateSource.match(/^\*\*Current focus:\*\* Phase (\d+) — .+$/m)
   const betweenMilestones = /^current_phase: null$/m.test(stateSource)

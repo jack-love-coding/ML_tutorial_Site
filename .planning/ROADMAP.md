@@ -1,43 +1,7 @@
-# Roadmap: ML Atlas Curriculum V3 Content Delivery
+# ML Atlas 当前路线图
 
-## Milestones
+当前交付是六单元辅助教材的渐进整理与开放。优先级、独立 PR 边界和验收条件统一维护在 [后续重构清单](../docs/textbook-next-steps.md)，本文件不再维护第二套任务清单。
 
-- ✅ **v1.0 Curriculum Foundation** — compatibility-first curriculum foundation and the first Curriculum V3 content waves (shipped 2026-07-26). See [archived roadmap](milestones/v1.0-ROADMAP.md).
-- ✅ **v1.1 Classical Supervised Learning** — verified loss-to-decision teaching corridor across Phases 26–31 (shipped 2026-08-30). See [archived roadmap](milestones/v1.1-ROADMAP.md).
+先修复并合并教材重构依赖链，再修正主线教学表述、扩展发布验证、按课程加载数学正文。单元 3、4、5、6 分别通过验收后开放，不因代码合并自动改变发布状态。
 
-## Phases
-
-<details>
-<summary>✅ v1.0 Curriculum Foundation — SHIPPED 2026-07-26</summary>
-
-- Historical roadmap records Phases 1–24A remain preserved in the v1.0 archive and project state.
-- Canonical Phase 25 is archived with 13 plans, 13 summaries, and its verification evidence.
-- The accepted closeout gaps remain documented in `MILESTONES.md` and the v1.0 audit.
-
-</details>
-
-<details>
-<summary>✅ v1.1 Classical Supervised Learning (Phases 26–31) — SHIPPED 2026-08-30</summary>
-
-- [x] Phase 26: Loss Functions Rebuild — 7/7 plans
-- [x] Phase 27: Linear Regression Rebuild — 12/12 plans
-- [x] Phase 27.1: Linear Regression Teaching Experience Redesign — 1/1 plan
-- [x] Phase 28: Tabular Regression Project — 2/2 plans
-- [x] Phase 28.1: Gradient Descent Beginner Teaching Rebuild — 2/2 plans
-- [x] Phase 28.2: Optimizer Principles, State, and MLP Transfer — 3/3 plans
-- [x] Phase 29: Logistic Regression Rebuild — 8/8 plans
-- [x] Phase 30: Classification Decisions Rebuild — 1/1 plan
-- [x] Phase 31: Corridor Integration and Release — 1/1 plan
-
-All 43 milestone requirements, nine phase verifications, five integration checks,
-and four end-to-end flows passed without a closeout override. Detailed plans,
-summaries, UAT, validation, security, and verification records are preserved under
-`milestones/v1.1-phases/`.
-
-</details>
-
-## Next Milestone
-
-Planning has not started. The approved product direction is AI Foundations Part C:
-deep learning, computer vision, and NLP units 15–21. Start the next milestone with
-`$gsd-new-milestone` so its scope, requirements, and roadmap are created fresh.
+旧 v1.0/v1.1 里程碑、Phase 28—31 的项目与分类成果继续复用。深度学习/CV/NLP 扩展不属于当前实施范围。旧路线图见 [历史记录](milestones/pre-textbook-2026-10-04/ROADMAP.md)。

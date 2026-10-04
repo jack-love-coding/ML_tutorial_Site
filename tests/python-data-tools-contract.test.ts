@@ -109,9 +109,9 @@ const lockedEnvironmentProvenance = {
   generatedOn: 'darwin-arm64',
 }
 
-test('planning state records shipped Python Data Tools stages and completed numerical-methods batches', async () => {
+test('archived planning preserves shipped Python Data Tools stages and numerical-methods batches', async () => {
   const [state, currentRoadmap, archivedRoadmap] = await Promise.all([
-    readFile(new URL('../.planning/STATE.md', import.meta.url), 'utf8'),
+    readFile(new URL('../.planning/milestones/pre-textbook-2026-10-04/STATE.md', import.meta.url), 'utf8'),
     readFile(new URL('../.planning/ROADMAP.md', import.meta.url), 'utf8'),
     readFile(new URL('../.planning/milestones/v1.0-ROADMAP.md', import.meta.url), 'utf8'),
   ])

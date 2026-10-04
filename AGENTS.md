@@ -48,7 +48,7 @@
 - 顶层算法课程遵循 `src/types/ml.ts` 中的 `AlgorithmModuleDefinition`、`StorySection`、`ExperimentControl`、`ExperimentPreset` 和 `TrainingSnapshot`。
 - 每个教学模块都应形成学习闭环：核心问题、数学/数据概念、可视化或实验、数值/代码连接、误区讲解、参考例题、下一步路径。
 - 公式、变量解释、代码示例和交互实验中的变量名称必须保持一致。
-- 测验反馈不能只给“正确/错误”，应说明原因、关联误区，并指向可复看的视觉或章节。
+- 例题应直接显示参考结论和解释，关联误区，并指向可复看的视觉或章节；不要求学生提交答案。
 - 引用外部资料或迁移内容时，在 `docs/` 中保留来源记录，静态资源优先迁入 `public/` 并使用本地路径。
 
 ## 组件与状态规则
@@ -107,7 +107,7 @@
 - 修改路由、模块注册、资源路径或页面结构时，应更新布局/结构类测试。
 - 修改 Markdown/公式渲染、安全 sanitizer 或 public path 时，应覆盖恶意 HTML、公式分隔符和 GitHub Pages base path 场景。
 - 修改 Three.js lab 时，应验证 `dispose()` 生命周期，并检查移动端或 fallback 行为。
-- 修改课程内容时，应至少检查中英文文案完整、公式渲染、资源存在、quiz answer 可由内容推导。
+- 修改课程内容时，应至少检查中英文文案完整、公式渲染、资源存在、参考结论可由内容推导。
 - 文档-only 改动不需要运行完整构建，但必须检查文件存在、无未完成内容、路径和命令与当前仓库一致。
 
 ## 工作区与 Git 规则
@@ -148,3 +148,4 @@
 - 保留实时实验和语言设置。现有学习存储数据保持原样，旧工具仅作兼容用途；禁止清空或迁移历史数据来退役功能。
 - 课程章节与路由来自实际 runtime definitions。修改章节后运行 `npm run curriculum:generate`；提交前运行 `npm run curriculum:check`。
 - 新导航与发布单位按 `docs/textbook-maintenance.md` 执行；历史规划中的考核和进度要求已由本约定取代。
+- 当前执行优先级见 `docs/textbook-next-steps.md`；`.planning/milestones/pre-textbook-2026-10-04/` 只作历史资料，不作为新工作的指令来源。
