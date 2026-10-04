@@ -222,93 +222,6 @@ const batchGradientNoiseLab = lab(
   },
 )
 
-const firstChapter = moduleDefinition({
-  id: 'calculus-functions-rate-change',
-  enhancementTier: 'interactive',
-  title: copy('函数和变化率', 'Functions and Rate of Change'),
-  subtitle: copy('从买菜和小车案例理解函数、输入输出和平均变化率。', 'Use grocery and car cases to understand functions, input-output, and average rate of change.'),
-  difficulty: 'foundation',
-  estimatedMinutes: 32,
-  prerequisites: ['tensor-shapes-vectorization'],
-  aiModelConnections: [copy('loss 可以看成 parameter 的函数。', 'Loss can be treated as a function of a parameter.')],
-  learningObjectives: [
-    copy('把生活案例拆成输入、函数规则和输出。', 'Decompose a daily case into input, function rule, and output.'),
-    copy('用两个点解释平均变化率。', 'Explain average rate of change using two points.'),
-    copy('把变化率语言迁移到 loss 和 parameter。', 'Transfer rate-of-change language to loss and parameter.'),
-  ],
-  concepts: [
-    concept(
-      'function-average-rate',
-      copy('平均变化率', 'Average Rate of Change'),
-      '\\frac{f(x+h)-f(x)}{h}',
-      [
-        variable('x', '输入起点。', 'Starting input.'),
-        variable('h', '输入改变的距离。', 'Distance of input change.'),
-        variable('f(x+h)-f(x)', '输出改变。', 'Output change.'),
-      ],
-      copy('输出变化除以输入变化。', 'Output change divided by input change.'),
-      copy('图像上是两点之间的割线斜率。', 'On a graph it is the secant slope between two points.'),
-      copy('2 斤菜 12 元、5 斤菜 27 元，平均变化率是 5 元/斤。', 'If 2 jin cost 12 and 5 jin cost 27, the average rate is 5 per jin.'),
-      copy('训练中先比较两个 parameter 值之间的 loss 变化。', 'In training, first compare loss change between two parameter values.'),
-    ),
-  ],
-  sections: [
-    section(
-      'function-machine-case',
-      copy('案例：买菜、小车和函数机器', 'Case: Groceries, a Car, and a Function Machine'),
-      copy(
-        md`买菜时，输入可以是重量，输出是总价；小车运动时，输入可以是时间，输出是位置。函数不是只存在于公式里，而是把输入送进规则后得到输出的关系。先找 input-output，再问 function 规则怎样连接它们。`,
-        md`In a grocery case, the input can be weight and the output can be total price. For a moving car, the input can be time and the output can be position. A function is not only a written formula; it is an input-output relationship where a rule turns one value into another. This section asks the learner to name the input, name the output, and then describe the function rule that connects them. That simple loop prepares the same thinking for model loss, where the input may be a parameter and the output is a loss value.`,
-      ),
-      { visualIds: ['calculus-route-story'], labIds: ['calculus-local-change-lab'] },
-    ),
-    section(
-      'average-rate-secant',
-      copy('平均变化率：一段区间的割线', 'Average Rate of Change: A Secant over One Interval'),
-      copy(
-        md`平均变化率比较两个输入点之间的输出改变。中文锚点是“平均变化率”，图像锚点是连接两点的 secant。它回答这一段区间里，输入每多一点，输出平均改变多少。`,
-        md`Average rate of change compares output change between two input points. The graph anchor is a secant line connecting those points. It answers an interval question: over this span, how much does the output change per unit of input on average? The word average matters because the function may curve inside the interval. We are not yet asking for the exact current-point behavior; we are learning to measure a whole window before shrinking it.`,
-      ),
-    ),
-    section(
-      'loss-as-function-preview',
-      copy('预告：loss 也是函数', 'Preview: Loss Is Also a Function'),
-      copy(
-        md`在机器学习中，固定数据后，loss 可以看成 parameter 的函数。parameter 改一点，预测可能改一点，loss 也会改一点。平均变化率先给粗读数，后面导数会给当前点附近的读数。`,
-        md`In machine learning, once the data are fixed, loss can be read as a function of a parameter. Change the parameter, predictions may change, and loss changes as a result. This is the bridge from everyday functions to training behavior. Average rate of change gives a coarse interval reading between two parameter settings. Later, derivatives and gradients shrink that reading to the current parameter position so an optimizer can choose a direction.`,
-      ),
-    ),
-    section(
-      'function-rate-review',
-      copy('复盘：输入、输出和区间', 'Review: Input, Output, and Interval'),
-      copy(
-        md`复习时先说输入是什么、输出是什么、两个输入点相距多远。再用公式解释这段区间的输出变化。这样公式、图像和机器学习里的 loss 都能接在一起。`,
-        md`Review Questions: What is the input? What is the output? Which two input points define the interval? What output change occurs between them? Can you explain why a secant slope is an interval reading rather than a current-point reading? Finally, can you map the same language to loss and parameter, where changing a parameter produces a changed loss?`,
-      ),
-    ),
-  ],
-  visuals: [
-    imageAsset(
-      'calculus-route-story',
-      '/math-lab/generated/beginner-calculus-story.png',
-      copy('微积分路线故事图', 'Calculus Route Story'),
-      copy('小车轨迹、切线和梯度路径把函数、变化率和训练联系起来。', 'A car path, tangent, and gradient path connect functions, rates of change, and training.'),
-    ),
-  ],
-  labs: [localChangeLab],
-  quizzes: [
-    quiz('function-rate-interval', copy('平均变化率读什么？', 'What does average rate of change read?'), 'interval', copy('一段区间的平均输出变化。', 'Average output change over an interval.'), copy('当前点的瞬时读数。', 'The instantaneous reading at one point.'), copy('它用两个点，所以读区间，不是当前点。', 'It uses two points, so it reads an interval, not one current point.'), 'average-is-current-point', 'calculus-route-story'),
-    quiz('function-input-output', copy('小车位置函数最自然的输入和输出是什么？', 'What are natural input and output choices for car position as a function?'), 'time-position', copy('输入是时间，输出是位置。', 'Input is time, output is position.'), copy('输入输出必须完全一样。', 'Input and output must be identical.'), copy('函数的核心是 input-output 关系。', 'The core of a function is an input-output relationship.'), 'function-is-only-formula'),
-  ],
-  misconceptions: [
-    misconception('function-is-only-formula', copy('函数只有公式一种形式。', 'A function only exists as a formula.'), copy('函数可以由表格、图像、代码或公式表达。', 'A function can be expressed by a table, graph, code, or formula.'), copy('小车时间到位置的记录也能表示函数。', 'A table from car time to position can represent a function.')),
-    misconception('average-is-current-point', copy('平均变化率就是当前点读数。', 'Average rate of change is the current-point reading.'), copy('平均变化率读区间；导数读当前点附近。', 'Average rate reads an interval; derivative reads near the current point.'), copy('整段平均车速不等于这一刻仪表盘速度。', 'Trip average speed is not the speedometer reading at this moment.')),
-  ],
-  accent: '#d65a31',
-  theme: '#fff1e8',
-  sourceReferences: [sources.essenceCalculus, sources.mml],
-})
-
 const secondChapter = moduleDefinition({
   id: 'calculus-derivatives-local-change',
   enhancementTier: 'interactive',
@@ -481,7 +394,6 @@ const fifthChapter = moduleDefinition({
 })
 
 export const calculusRouteModules: MathLabModule[] = [
-  firstChapter,
   secondChapter,
   thirdChapter,
   fifthChapter,

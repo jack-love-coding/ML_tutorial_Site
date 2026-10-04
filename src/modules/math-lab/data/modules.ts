@@ -60,10 +60,6 @@ export const mathLabModuleOverridePolicy = {
     from: 'linearAlgebraRouteModules',
     to: 'mathToCodeModules',
   },
-  'calculus-functions-rate-change': {
-    from: 'calculusRouteModules',
-    to: 'mathToCodeModules',
-  },
   'calculus-derivatives-local-change': {
     from: 'calculusRouteModules',
     to: 'mathToCodeModules',
@@ -189,7 +185,7 @@ export const mathLabModuleProviders: readonly MathLabModuleProvider[] = [
   { name: 'linearAlgebraRouteModules', modules: vectorMatrixLanguageRouteModules },
   { name: 'calculusRouteModules', modules: calculusOptimizationRouteModules.filter(module => !standaloneCalculusModuleIds.has(module.id)) },
   ...calculusLessonProviders,
-  { name: 'mathToCodeModules', modules: vectorMatrixLanguageMathToCodeModules },
+  { name: 'mathToCodeModules', modules: vectorMatrixLanguageMathToCodeModules.filter(module => !standaloneCalculusModuleIds.has(module.id)) },
   { name: 'importedFoundationModules', modules: importedFoundationModules },
   { name: 'aiBridgeModules', modules: aiBridgeModules },
 ]

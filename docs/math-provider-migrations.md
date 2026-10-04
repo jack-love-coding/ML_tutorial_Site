@@ -1,12 +1,20 @@
 # 数学课程 provider 迁移记录
 
-本轮只迁移梯度下降、优化器比较、训练代码和曲线诊断三课，每课独立提交和 PR。基线为实际运行时定义（`c1cb70a`），而不是某一层尚未增强的旧正文。
+按课迁移最终正文，每课独立提交和 PR。最初三课基线为实际运行时定义（`c1cb70a`），函数/导数桥接以各自迁移前的最终运行对象为基线；不以尚未增强的旧正文为基线。
 
 ## 内容维护方式
 
 最终正文放在 `src/modules/math-lab/data/calculus*Module.ts`，由 `calculusLessonProviders.ts` 显式登记。总目录根据该登记绕过历史增强器。章节 TOC 由当前 sections 派生，导航顺序仍来自 `mathCourseOrder.ts`；不用重复维护章节清单或下一课关系。
 
 `calculusOptimizationRouteModules.ts` 仅保留尚未迁移课程的增强逻辑，以及完整七课路线的兼容集合。迁移一课后删除它的旧基础正文、专用 lab 配置副本、增强正文和 enhancer 分发项。实验组件与计算函数不随正文迁移改写。
+
+## 函数桥接
+
+`calculusFunctionsModule.ts` 直接提供最终 11 节正文及两个视觉资源、预测映射实验、概念代码输出和例题解释。删除旧 calculus 基础正文、Math-to-Code 内联正文及 minimum-foundation 的函数 enhancer；旧内部 Math-to-Code 集合引用同一个 provider，不再维护另一份正文。完整运行对象 SHA-256 为 `106ba59402424e5450162986b3a5e7ee6fd0893a08c82f4c855311fb910c439b`，迁移前后不变；33 课生成文件逐字节无漂移。
+
+已退出学生页面的旧分层习题双语正文移入 `docs/curriculum/v3/math-to-code/archive/`，保留历史资料。相应测试改为检查当前运行时的概念代码与图片，以及历史练习的归档完整性；没有把旧练习重新放回学生课程。
+
+验证：1147 项测试通过、28 项离线检查跳过；两种构建及生成目录检查通过；26 个 provider/Notebook 浏览器场景和 8 个选读场景通过。
 
 ## 6a：梯度下降
 

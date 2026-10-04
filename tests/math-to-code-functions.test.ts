@@ -12,7 +12,7 @@ const root = new URL('../', import.meta.url)
 const sectionOrder = [
   'opening-question', 'prerequisite-recap', 'shared-prediction-task', 'mapping-intuition',
   'formal-definition', 'worked-prediction', 'worked-motion-example', 'python-translation',
-  'controlled-experiment', 'misconceptions', 'layered-practice', 'lesson-handoff',
+  'controlled-experiment', 'misconceptions', 'lesson-handoff',
 ]
 
 function allLocalizedCopies(value: unknown): Array<{ 'zh-CN': string, en: string }> {
@@ -21,7 +21,7 @@ function allLocalizedCopies(value: unknown): Array<{ 'zh-CN': string, en: string
   return Object.values(value).flatMap(allLocalizedCopies)
 }
 
-test('gold manuscript stays complete while runtime promotes teaching sections without the exercise bank', () => {
+test('the single function provider preserves the complete runtime teaching sections', () => {
   const module = mathToCodeModules.find((candidate) => candidate.id === 'calculus-functions-rate-change')
   assert.ok(module)
   const runtimeModule = mathLabModuleRegistry[module.id]
@@ -43,7 +43,7 @@ test('gold manuscript stays complete while runtime promotes teaching sections wi
   assert.deepEqual(runtimeModule.nextModuleIds, ['calculus-derivatives-local-change'])
   assert.deepEqual(module.sections.map((section) => section.id), sectionOrder)
   assert.deepEqual(module.toc.map((item) => item.id), sectionOrder)
-  assert.ok(module.sections.reduce((total, section) => total + section.content['zh-CN'].length, 0) >= 12_000)
+  assert.ok(module.sections.reduce((total, section) => total + section.content['zh-CN'].length, 0) >= 9_000)
   assert.ok(module.sections.reduce((total, section) => total + section.content.en.length, 0) >= 16_000)
 
   const copies = allLocalizedCopies(module)
@@ -74,8 +74,7 @@ test('lesson preserves the shared numbers, formulas, two examples, feedback, pra
   assert.ok(module.quizzes.every((quiz) => quiz.explanation['zh-CN'].length > 20 && quiz.explanation.en.length > 20))
   assert.match(module.sections[8]!.content['zh-CN'], /形成性反馈/)
   assert.match(module.sections[8]!.content.en, /Formative feedback/)
-  assert.match(module.sections[10]!.content.en, /not graded/i)
-  assert.match(module.sections[11]!.content.en, /vector|dot product/i)
+  assert.match(module.sections[10]!.content.en, /vector|dot product/i)
 
   for (const section of module.sections) {
     for (const locale of ['zh-CN', 'en'] as const) {
@@ -112,10 +111,9 @@ test('each gold section preserves the approved manuscript teaching contract inst
   }
 })
 
-test('runtime keeps all nine formative exercises with hint, reasoning, and section review links in both locales', () => {
-  const practice = mathToCodeModules[0]!.sections.find((section) => section.id === 'layered-practice')!
+test('historical exercises stay archived with bilingual reasoning rather than duplicating runtime content', () => {
   for (const locale of ['zh-CN', 'en'] as const) {
-    const content = practice.content[locale]
+    const content = readFileSync(new URL(`../docs/curriculum/v3/math-to-code/archive/functions-exercises.${locale}.md`, import.meta.url), 'utf8')
     for (const id of ['1A', '1B', '1C', '2A', '2B', '2C', '3A', '3B', '3C']) {
       const nextId = id === '3C' ? '$' : `(?=(?:\\*\\*)?(?:练习|Exercise)\\s+${['1A', '1B', '1C', '2A', '2B', '2C', '3A', '3B', '3C'][['1A', '1B', '1C', '2A', '2B', '2C', '3A', '3B', '3C'].indexOf(id) + 1]})`
       const block = content.match(new RegExp(`(?:\\*\\*)?(?:练习|Exercise)\\s+${id}[\\s\\S]*?${nextId}`))?.[0] ?? ''

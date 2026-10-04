@@ -73,25 +73,6 @@ function pickQuiz(quizzes: readonly QuizItem[], ids: readonly string[]): QuizIte
   return ids.map((id) => quizById.get(id)).filter((quiz): quiz is QuizItem => Boolean(quiz))
 }
 
-const functionVisuals = [
-  image(
-    'minimum-function-machine',
-    'beginner-function-machine-longform.png',
-    '函数是一台有输入合同的机器',
-    'A Function Is a Machine with an Input Contract',
-    '同一个输入只能沿确定规则得到一个输出；参数改变规则，目标只在输出之后提供比较。',
-    'One input follows a deterministic rule to one output; parameters change the rule, while the target is used only after the output for comparison.',
-  ),
-  image(
-    'minimum-average-rate',
-    'beginner-average-to-derivative-longform.png',
-    '从区间平均变化率走向局部变化',
-    'From Average Rate over an Interval to Local Change',
-    '两个输入点给出区间平均变化率；把观察窗口缩小，便为下一章的局部导数建立直觉。',
-    'Two input points give an average rate over an interval; shrinking the observation window prepares the local-derivative intuition used later.',
-  ),
-]
-
 const derivativeVisuals = [
   image(
     'minimum-derivative-tangent',
@@ -235,43 +216,6 @@ const probabilitySummarySection = section(
 
 Conditional probability, Bayes updates, expectation and variance, softmax, cross entropy, and calibration appear here as application previews and are expanded later in the probability route. At this point, the learner should be able to validate one discrete distribution, separate a sample from long-run frequency, and explain why a model probability is not an absolute fact.`,
 )
-
-function enhanceFunctions(moduleDefinition: MathLabModule): MathLabModule {
-  const sections = moduleDefinition.sections
-    .filter(({ id }) => id !== 'layered-practice')
-    .map((item) => {
-      if (item.id === 'mapping-intuition') return { ...item, visualIds: ['minimum-function-machine'] }
-      if (item.id === 'worked-motion-example') return { ...item, visualIds: ['minimum-average-rate'] }
-      return item
-    })
-  const concepts = withConceptOutput(
-    moduleDefinition.concepts,
-    'function-prediction-mapping',
-    `features = [2, 3]
-weights = [4, -1]
-bias = 5
-target = 9
-
-contributions = [
-    feature * weight
-    for feature, weight in zip(features, weights)
-]
-prediction = sum(contributions) + bias
-residual = prediction - target
-
-print("contributions =", contributions)
-print("prediction =", prediction)
-print("residual =", residual)`,
-    'contributions = [8, -3]\nprediction = 10\nresidual = 1',
-  )
-  return withToc({
-    ...moduleDefinition,
-    estimatedMinutes: 60,
-    concepts,
-    sections,
-    visuals: [...functionVisuals, ...moduleDefinition.visuals],
-  })
-}
 
 function enhanceLinearAlgebra(moduleDefinition: MathLabModule): MathLabModule {
   const originalSections = moduleDefinition.sections.filter(({ id }) => id !== 'beginner-linear-checkpoint')
@@ -424,7 +368,6 @@ print("empirical_frequency =", round(float(samples.mean()), 3))`,
 }
 
 const mathToCodeEnhancers: Readonly<Record<string, (moduleDefinition: MathLabModule) => MathLabModule>> = {
-  'calculus-functions-rate-change': enhanceFunctions,
   'calculus-derivatives-local-change': enhanceDerivatives,
 }
 
