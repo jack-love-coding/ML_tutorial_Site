@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { readingContext, textbookRouteId, identifyReadingLocation } from '../curriculum/reading.ts'
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { isCurriculumLibraryDomain } from '../curriculum/library.ts'
 import { resolveCanonicalLearnRedirect, resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
@@ -246,7 +247,18 @@ export const router = createRouter({
   ],
 })
 
-router.beforeEach((to) => {
+router.beforeEach((to, from) => {
+  // beforeEnter alone does not run when only params change on the same route record.
+  if (to.name === 'canonical-lesson' || to.name === 'algorithm') {
+    const canonical = redirectCanonicalLearnRoute(to)
+    if (canonical !== true) return canonical
+  }
+  // Keep context on a lesson's own links; explicit exits and unsupported chapters use standalone order.
+  if (to.query.route === undefined && from.query.route === textbookRouteId) {
+    const previous = identifyReadingLocation(from.path, from.hash)
+    const next = readingContext(textbookRouteId, to.path, to.hash)
+    if (next && previous?.moduleId === next.lesson.moduleId) return { path: to.path, hash: to.hash, query: { ...to.query, route: textbookRouteId } }
+  }
   pendingRoutePath.value = to.path
   routeNavigating.value = true
   if (navigationTimer) {

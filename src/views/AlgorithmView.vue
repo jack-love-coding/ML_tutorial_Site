@@ -26,6 +26,7 @@ import {
   isClassicalSupervisedCorridorModule,
   type ClassicalSupervisedCorridorModuleId,
 } from '../curriculum/milestones/classicalSupervisedCorridor.ts'
+import { selectedReadingLessonIds } from '../curriculum/reading.ts'
 import { withPublicBase } from '../utils/publicPath'
 
 const LossFunctionsLessonLab = defineAsyncComponent(
@@ -147,7 +148,7 @@ const activeLessonLab = computed(() =>
 
 let moduleLoadRequest = 0
 watch(
-  () => [slug.value, requestedChapterId.value] as const,
+  () => [slug.value, requestedChapterId.value, route.query.route] as const,
   async ([nextSlug, nextChapterId]) => {
     const requestId = ++moduleLoadRequest
     moduleDefinition.value = undefined
@@ -159,7 +160,8 @@ watch(
       return
     }
 
-    moduleDefinition.value = nextModuleDefinition
+    const lessonIds = selectedReadingLessonIds(route.query.route, nextSlug, nextChapterId)
+    moduleDefinition.value = lessonIds ? { ...nextModuleDefinition, chapters: nextModuleDefinition.chapters.filter(chapter => lessonIds.includes(chapter.id)) } : nextModuleDefinition
     registerExperimentModule(nextModuleDefinition)
     experimentStore.ensureExperiment(nextSlug)
     const firstChapterId = nextModuleDefinition.chapters[0]?.id ?? ''
@@ -167,7 +169,7 @@ watch(
       const matchedChapter = nextModuleDefinition.chapters.find((chapter) => chapter.id === nextChapterId)
 
       if (!matchedChapter) {
-        router.replace(`/learn/${nextSlug}/${firstChapterId}`)
+        router.replace({ path: `/learn/${nextSlug}/${firstChapterId}`, query: route.query })
         return
       }
 

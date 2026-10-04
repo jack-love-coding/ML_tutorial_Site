@@ -217,22 +217,19 @@ test('milestone audit keeps bilingual catalog validation and pilot protocols com
 
 test('milestone audit keeps the approved Curriculum Spine V1 contract valid', () => {
   assert.deepEqual(curriculumSpineValidationIssues(), [])
-  assert.equal(curriculumSpineStages.at(0)?.id, 'orientation')
+  assert.equal(curriculumSpineStages.at(0)?.id, 'unit-1')
 
   const requiredIds = curriculumSpineRequiredModuleIds()
   assert.deepEqual(requiredIds.slice(0, 5), [
     'ai-overview',
     'python-notebook',
-    'numerical-data',
-    'categorical-data',
+    'splits-generalization',
     'dataset-quality',
+    'numerical-data',
   ])
-  assert.ok(requiredIds.includes('optimizer-comparison'))
-  assert.ok(requiredIds.indexOf('optimizer-comparison') < requiredIds.indexOf('cnn-visualization'))
-  assert.equal(requiredIds.at(-1), 'llm-rag')
-  assert.ok(requiredIds.indexOf('attention-transformer') < requiredIds.indexOf('llm-rag'))
-  assert.ok(!requiredIds.includes('housing-price-project'))
-  assert.ok(!requiredIds.includes('classification-project'))
+  assert.ok(!requiredIds.includes('mlp'))
+  assert.equal(requiredIds.at(-1), 'classification-project')
+  assert.ok(requiredIds.includes('housing-price-project'))
 })
 
 test('milestone audit documents every completed phase and the current refactor state', () => {

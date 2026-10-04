@@ -1,0 +1,18 @@
+.textbook-unit-tabs { display: flex; flex-wrap: wrap; gap: .65rem; margin-block: 1.5rem; }
+.textbook-unit-tabs a { padding: .75rem 1rem; border: 1px solid var(--border-color, #ccd4dc); border-radius: .6rem; overflow-wrap: anywhere; }
+.textbook-unit-tabs a[aria-current] { background: #e9f1fc; color: #173d70; border-color: #527dad; }
+.textbook-unit { max-width: 960px; padding: clamp(1rem, 3vw, 2rem); background: var(--surface, #fff); border-radius: 1rem; }
+.textbook-guide { display: grid; gap: 1rem; margin-block: 1.5rem; }
+.textbook-guide dt { font-weight: 700; margin-bottom: .35rem; }
+.textbook-guide dd { margin: 0; line-height: 1.7; }
+.textbook-reading-list { padding-inline-start: 1.5rem; display: grid; gap: 1.5rem; }
+.textbook-reading-list li { line-height: 1.8; overflow-wrap: anywhere; }
+.textbook-reading-list a { display: inline-block; padding-block: .25rem; }
+.textbook-status { font-size: .85rem; color: #35527a; }
+.reading-navigation { margin-block: 1rem; padding: 1rem; border: 1px solid #ced8e4; border-radius: .7rem; background: #f5f8fc; display: grid; gap: .6rem; overflow-wrap: anywhere; }
+.reading-navigation__links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.reading-navigation__links a { max-width: 100%; padding-block: .4rem; }
+/* In the textbook, one sequence owns chapter handoffs. Standalone lessons retain their own navigation. */
+[data-reading-context] :is(.gradient-course__pager, .gradient-course__bridge, .linear-course-page__pager, .linear-course-page__bridge, .housing-course-page__pager, .logistic-course-page__pager, .logistic-course-page__bridge, .python-data-tools-page__pager, .corridor-nav, .math-article-nav__actions, .data-article-actions, .lesson-bridge-card) { display: none; }
+@media (max-width: 620px) { .textbook-unit-tabs { display: grid; } .reading-navigation__links { display: grid; } }
+@media (prefers-reduced-motion: reduce) { .textbook-route * { scroll-behavior: auto; } }

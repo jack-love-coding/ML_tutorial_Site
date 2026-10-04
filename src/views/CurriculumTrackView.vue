@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { curriculumMetadataById } from '../curriculum/catalogMetadata.ts'
 import { resolveCanonicalLearnRoute } from '../curriculum/routes.ts'
+import { textbookReadings, readingLocation } from '../curriculum/reading.ts'
 import { curriculumTracks } from '../curriculum/tracks.ts'
 import type { AppLocale, LocalizedCopy } from '../types/ml'
 import type { CurriculumDomain, CurriculumModuleMetadata } from '../curriculum/types.ts'
@@ -89,7 +90,8 @@ const labels = computed(() =>
       </div>
     </section>
 
-    <section class="curriculum-list" :aria-label="localizedText(track.title)">
+    <ol v-if="track.id === 'core-learning-path'" class="textbook-reading-list"><li v-for="lesson in textbookReadings" :key="`${lesson.unitId}/${lesson.moduleId}/${lesson.lessonId}`"><router-link :to="readingLocation(lesson)">{{ lesson.title[currentLocale] }}</router-link></li></ol>
+    <section v-else class="curriculum-list" :aria-label="localizedText(track.title)">
       <article
         v-for="(moduleDefinition, index) in trackModules"
         :key="moduleDefinition.id"

@@ -13,7 +13,7 @@ const zh = computed(() => locale.value === 'zh-CN')
         <h1>{{ zh ? '从看懂数据，到理解模型怎样学习' : 'From understanding data to seeing how models learn' }}</h1>
         <p class="course-hero__subtitle">{{ zh ? '面向初学者的 AI 辅助教材：双语讲解、可操作的实验，以及可复现的代码与结果。' : 'An AI companion for beginners: bilingual explanations, interactive experiments, and reproducible code and results.' }}</p>
         <div class="hero__actions">
-          <router-link class="course-primary-action" to="/learn/ai-overview">{{ zh ? '开始学习' : 'Start reading' }}</router-link>
+          <router-link class="course-primary-action" :to="{ path: '/learn/ai-overview', query: { route: 'core-learning-path' } }">{{ zh ? '开始学习' : 'Start reading' }}</router-link>
           <router-link class="action-button" to="/spine">{{ zh ? '查看学习路线' : 'View the learning route' }}</router-link>
         </div>
       </div>

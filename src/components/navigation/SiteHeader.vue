@@ -8,6 +8,7 @@ import {
   type SiteNavigationMenuId,
 } from '../../data/navigationMenus.ts'
 import type { AppLocale, LocalizedCopy } from '../../types/ml.ts'
+import { readingContext } from '../../curriculum/reading.ts'
 import LanguageToggle from '../LanguageToggle.vue'
 import SiteNavigation from './SiteNavigation.vue'
 import type { RenderedNavigationItem, RenderedNavigationLink } from './types.ts'
@@ -18,7 +19,7 @@ const isMenuOpen = ref(false)
 const openItemId = ref<SiteNavigationMenuId | null>(null)
 const mobileMenuTrigger = ref<HTMLButtonElement | null>(null)
 const currentLocale = computed(() => locale.value as AppLocale)
-const activeItemId = computed(() => resolveActiveSiteNavigationMenuId(route.path))
+const activeItemId = computed(() => readingContext(route.query.route, route.path, route.hash) ? 'courses' : resolveActiveSiteNavigationMenuId(route.path))
 
 function localizedText(copy: LocalizedCopy) {
   return copy[currentLocale.value]

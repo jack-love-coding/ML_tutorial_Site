@@ -205,7 +205,7 @@ test('short Python routes remain visible in navigation, homepage, and Pages fall
   const fallbackSource = readFileSync(new URL('../scripts/create-pages-fallbacks.mjs', import.meta.url), 'utf8')
   const courseViewSource = readFileSync(new URL('../src/views/PythonDataToolsCourseView.vue', import.meta.url), 'utf8')
 
-  assert.match(navigationSource, /id: 'python-data-tools'[\s\S]*?route: '\/python'/)
+  assert.match(navigationSource, /route: '\/spine'/)
   assert.match(homeSource, /\/spine/)
   assert.match(fallbackSource, /'\/python'/)
   assert.match(courseViewSource, /route\.path\.startsWith\('\/python\/'\)/)

@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { selectedReadingLessonIds } from '../curriculum/reading.ts'
 import { usePythonDataToolsOutputSession } from '../composables/usePythonDataToolsOutputSession.ts'
 import { pythonDataToolsRuntimeChapters } from '../data/generated/pythonDataToolsRuntime.generated.ts'
 import { pythonDataToolsContract, type PythonDataToolsOutputId } from '../data/pythonNotebookContract.ts'
@@ -10,6 +12,7 @@ import {
   type PythonDataToolsJsonOutputViewModel,
 } from '../utils/pythonDataToolsOutputs.ts'
 import { withPublicBase } from '../utils/publicPath.ts'
+import PythonSyntaxBridge from './PythonSyntaxBridge.vue'
 import MarkdownMathContent from './MarkdownMathContent.vue'
 import PythonDataToolsNotebookOutput from './PythonDataToolsNotebookOutput.vue'
 import PythonDataToolsResultBlock from './PythonDataToolsResultBlock.vue'
@@ -21,6 +24,11 @@ const props = defineProps<{
   routeBase: string
 }>()
 
+const route = useRoute()
+const readingChapters = computed(() => {
+  const ids = selectedReadingLessonIds(route.query.route, 'python-notebook', props.chapter.id)
+  return ids ? pythonDataToolsRuntimeChapters.filter(chapter => ids.includes(chapter.id)) : pythonDataToolsRuntimeChapters
+})
 const mobileMenuOpen = ref(false)
 const codeCopyFeedback = ref<{ blockId: string; status: 'copied' | 'failed' } | null>(null)
 const chapterOutputIds = props.chapter.blocks.flatMap((block) => (
@@ -77,11 +85,11 @@ const copy = computed(() => props.locale === 'zh-CN'
     })
 
 const currentIndex = computed(() => {
-  const index = pythonDataToolsRuntimeChapters.findIndex(({ id }) => id === props.chapter.id)
+  const index = readingChapters.value.findIndex(({ id }) => id === props.chapter.id)
   return index >= 0 ? index : 0
 })
-const previousChapter = computed(() => pythonDataToolsRuntimeChapters[currentIndex.value - 1])
-const nextChapter = computed(() => pythonDataToolsRuntimeChapters[currentIndex.value + 1])
+const previousChapter = computed(() => readingChapters.value[currentIndex.value - 1])
+const nextChapter = computed(() => readingChapters.value[currentIndex.value + 1])
 const notebookDownloadUrl = computed(() => {
   const manifest = outputSession.manifest.value
   return manifest ? withPublicBase(manifest.notebook.publicPath) : undefined
@@ -167,7 +175,7 @@ watch(() => props.chapter.id, () => {
         </header>
         <nav class="python-data-tools-page__nav" :aria-label="copy.toc">
           <router-link
-            v-for="(chapterEntry, index) in pythonDataToolsRuntimeChapters"
+            v-for="(chapterEntry, index) in readingChapters"
             :key="chapterEntry.id"
             class="python-data-tools-page__nav-item"
             :class="{ 'is-active': chapterEntry.id === chapter.id }"
@@ -189,7 +197,7 @@ watch(() => props.chapter.id, () => {
         >
           <header class="python-data-tools-page__header">
             <div class="python-data-tools-page__location">
-              {{ locale === 'zh-CN' ? `第 ${currentIndex + 1} / ${pythonDataToolsRuntimeChapters.length} 章` : `Chapter ${currentIndex + 1} / ${pythonDataToolsRuntimeChapters.length}` }}
+              {{ locale === 'zh-CN' ? `第 ${currentIndex + 1} / ${readingChapters.length} 章` : `Chapter ${currentIndex + 1} / ${readingChapters.length}` }}
             </div>
             <h2>{{ chapter.title[locale] }}</h2>
             <div class="python-data-tools-page__question">
@@ -242,6 +250,7 @@ watch(() => props.chapter.id, () => {
           </section>
 
           <div class="python-data-tools-page__blocks">
+            <PythonSyntaxBridge v-if="chapter.id === 'notebook-workflow'" :locale="locale" />
             <template v-for="block in chapter.blocks" :key="block.id">
               <MarkdownMathContent
                 v-if="block.kind === 'markdown'"

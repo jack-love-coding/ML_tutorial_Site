@@ -264,7 +264,7 @@ test('app shell exposes a math lab navigation menu without importing full course
   assert.match(navigationSource, /mathLabNavigationGroups/)
   assert.match(navigationSource, /mathLabUtilityLinks/)
   assert.match(navigationSource, /route: '\/math-lab'/)
-  assert.match(navigationSource, /\/math-lab\/diagnostic/)
+  assert.doesNotMatch(navigationSource, /\/math-lab\/diagnostic/)
   assert.match(navigationSource, /mathModule\('beginner-linear-algebra'/)
 })
 

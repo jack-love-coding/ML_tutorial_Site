@@ -498,9 +498,9 @@ test('continue-learning falls back to the first incomplete core path module', ()
 
   const next = selectContinueLearning(progress)
 
-  assert.equal(next?.moduleId, 'beginner-linear-algebra')
+  assert.equal(next?.moduleId, 'splits-generalization')
   assert.equal(next?.lessonId, undefined)
-  assert.equal(next?.route, '/math-lab/modules/beginner-linear-algebra')
+  assert.equal(next?.route, '/data-lab/modules/splits-generalization')
   assert.equal(next?.reason, 'first-incomplete')
 })
 
