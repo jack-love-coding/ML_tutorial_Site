@@ -35,7 +35,7 @@ export const teachingUnits: TeachingUnit[] = [
     readings: ['splits-generalization', 'dataset-quality', 'numerical-data', 'categorical-data'].map(moduleId => ({ moduleId })),
   },
   {
-    id: 'unit-3', title: copy('第一个可解释模型', 'Your first interpretable model'), publicationStatus: 'preview',
+    id: 'unit-3', title: copy('第一个可解释模型', 'Your first interpretable model'), publicationStatus: 'pilot',
     question: copy('模型、目标函数和参数更新分别负责什么？', 'What are the separate roles of the model, objective, and parameter update?'),
     prerequisites: copy('理解特征、标签和训练集边界。', 'Understand features, labels, and the training-data boundary.'),
     instructions: copy('用短篇数学桥接读懂公式；在损失课比较目标，在梯度下降课改变更新步长，在回归课解释权重。', 'Use the short math bridges; compare objectives in loss, step sizes in gradient descent, and weights in regression.'),
