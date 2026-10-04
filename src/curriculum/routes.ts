@@ -7,6 +7,14 @@ export interface CanonicalLearnRedirect {
 
 const canonicalLessonIdPattern = /^[A-Za-z][A-Za-z0-9_-]*$/
 
+export const legacyAiOverviewLessons: Record<string, string> = {
+  'what-is-ml': 'ml-common-language',
+  'learning-types': 'learning-paradigms',
+  'deep-learning': 'ai-world-map',
+  'generative-ai': 'choose-learning-approach',
+  'training-flow': 'supervised-linear-regression',
+}
+
 function canonicalLessonHash(lessonId?: string) {
   return lessonId && canonicalLessonIdPattern.test(lessonId)
     ? `#${lessonId}`
@@ -33,7 +41,10 @@ export function resolveCanonicalLearnRedirect(
   const moduleDefinition = curriculumRouteManifestById.get(moduleId)
   if (!moduleDefinition) return { path: '/' }
 
-  if (moduleDefinition.source === 'algorithm') return undefined
+  if (moduleDefinition.source === 'algorithm') {
+    const currentLesson = moduleId === 'ai-overview' && lessonId ? legacyAiOverviewLessons[lessonId] : undefined
+    return currentLesson ? { path: `/learn/ai-overview/${currentLesson}` } : undefined
+  }
 
   const hash = canonicalLessonHash(lessonId)
   return {

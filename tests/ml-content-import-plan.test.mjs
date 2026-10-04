@@ -6,7 +6,7 @@ const docsSource = readFileSync(
   new URL('../docs/ml-content-import-plan.md', import.meta.url),
   'utf8',
 )
-const modulesSource = readFileSync(new URL('../src/data/modules.ts', import.meta.url), 'utf8')
+const modulesSource = readFileSync(new URL('../src/data/logisticRegressionModule.ts', import.meta.url), 'utf8')
 const mlpModuleSource = readFileSync(new URL('../src/data/mlpModule.ts', import.meta.url), 'utf8')
 const messagesSource = readFileSync(new URL('../src/i18n/messages.ts', import.meta.url), 'utf8')
 
@@ -42,11 +42,11 @@ test('ML content import plan documents source priorities and reusable chapter te
 })
 
 test('logistic regression and MLP modules now follow the expanded teaching plan', () => {
-  assert.equal(countChapterObjects(modulesSource, 'logistic-regression'), 5)
+  assert.equal(countChapterObjects(modulesSource, 'logistic-regression'), 6)
   assert.equal([...mlpModuleSource.matchAll(/\bchapter\(\s*'/g)].length, 8)
 
   for (const id of [
-    "id: 'sigmoid'",
+    "id: 'sigmoid-probability'",
     "id: 'regularization'",
   ]) {
     assert.match(modulesSource, new RegExp(id))

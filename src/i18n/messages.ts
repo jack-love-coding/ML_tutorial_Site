@@ -525,6 +525,9 @@ export const messages = {
           mleBridge: {
             title: '最大似然估计如何解释常见损失函数',
           },
+          gradientVerification: {
+            title: '梯度校验：让公式、代码与数值结果一致',
+          },
         },
       },
       gradientDescent: {
@@ -1243,6 +1246,9 @@ export const messages = {
           },
           mleBridge: {
             title: 'How maximum likelihood explains familiar losses',
+          },
+          gradientVerification: {
+            title: 'Gradient verification: align formulas, code, and numerical results',
           },
         },
       },

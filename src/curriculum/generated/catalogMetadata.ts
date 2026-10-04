@@ -20,7 +20,7 @@ export const curriculumCatalogMetadata = [
       "en": "Use house prices, spam detection, user grouping, and RAG QA to show beginners what AI is doing on behalf of people."
     },
     "route": "/learn/ai-overview",
-    "estimatedMinutes": 60,
+    "estimatedMinutes": 135,
     "prerequisiteIds": [],
     "outcomeIds": [
       "ai-overview-training-loop-order",
@@ -52,7 +52,7 @@ export const curriculumCatalogMetadata = [
       "en": "Eight chapters connect arrays, tables, grouped summaries, static charts, interactive exploration, and an analysis report into one complete data-analysis path."
     },
     "route": "/learn/python-notebook",
-    "estimatedMinutes": 60,
+    "estimatedMinutes": 96,
     "prerequisiteIds": [],
     "outcomeIds": [
       "python-data-tools-grouped-analysis-interpretation",
@@ -78,7 +78,7 @@ export const curriculumCatalogMetadata = [
       "en": "Use the full locally frozen California Housing dataset to connect training-only EDA, a leakage-safe Pipeline, a linear baseline, validation selection, and residual review."
     },
     "route": "/learn/housing-price-project",
-    "estimatedMinutes": 72,
+    "estimatedMinutes": 128,
     "prerequisiteIds": [
       "linear-regression"
     ],
@@ -325,7 +325,7 @@ export const curriculumCatalogMetadata = [
       "en": "Move from error and objectives to regression losses, classification losses, likelihood, negative log-likelihood, and finally the MLE view behind familiar losses."
     },
     "route": "/learn/loss-functions",
-    "estimatedMinutes": 72,
+    "estimatedMinutes": 84,
     "prerequisiteIds": [],
     "outcomeIds": [
       "loss-error-rule",
@@ -379,7 +379,7 @@ export const curriculumCatalogMetadata = [
       "en": "Eight chapters share a chronological 60/20/20 split and reproducible assets, joining detailed explanations, Python code, actual outputs, and Matplotlib figures into one teaching flow."
     },
     "route": "/learn/linear-regression",
-    "estimatedMinutes": 96,
+    "estimatedMinutes": 84,
     "prerequisiteIds": [
       "loss-functions"
     ],
@@ -407,7 +407,7 @@ export const curriculumCatalogMetadata = [
       "en": "After learning loss functions, revisit how cross-entropy actually moves a linear boundary and where linear models hit their limit."
     },
     "route": "/learn/logistic-regression",
-    "estimatedMinutes": 72,
+    "estimatedMinutes": 48,
     "prerequisiteIds": [
       "loss-functions",
       "linear-regression",

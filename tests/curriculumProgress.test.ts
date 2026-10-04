@@ -1,3 +1,4 @@
+import { curriculumModuleById } from '../src/curriculum/catalog.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -174,11 +175,7 @@ test('linear regression progress preservation keeps raw V1 bytes and merges both
 })
 
 test('linear regression progress reorder retains every preserved deep link without mutating V1', () => {
-  const adapterSource = read('src/curriculum/adapters/algorithmAdapter.ts')
-  const start = adapterSource.indexOf("slug: 'linear-regression'")
-  const end = adapterSource.indexOf("\n  {\n    slug: 'logistic-regression'", start)
-  const manifestSource = adapterSource.slice(start, end)
-  const lessonIds = [...manifestSource.matchAll(/\{ id: '([^']+)'/g)].map((match) => match[1])
+  const lessonIds = curriculumModuleById.get('linear-regression')!.lessons.map((lesson) => lesson.id)
 
   assert.deepEqual(lessonIds, [
     'fit-line',

@@ -1,5 +1,7 @@
 # ML Atlas
 
+当前重构约定、课程权威来源和验证流程见 [辅助教材维护入口](docs/textbook-maintenance.md)。
+
 ML Atlas 是一个基于 Vue 3、TypeScript、Vite 的机器学习教学站点。项目面向零基础或基础薄弱的学生，用图文教程、互动实验、可视化和 checkpoint 帮助学生把数学、数据处理、模型训练行为连成一条可复习的学习路径。
 
 ## AI 基础主课程
