@@ -16,6 +16,12 @@
 
 验证：1147 项测试通过、28 项离线检查跳过；两种构建及生成目录检查通过；26 个 provider/Notebook 浏览器场景和 8 个选读场景通过。
 
+## 导数桥接
+
+`calculusDerivativesModule.ts` 直接提供最终 12 节、局部近似解释、两个视觉资源与数值敏感度代码输出。删除旧 calculus 正文、局部变化 lab 配置副本、Math-to-Code 的生成入口及 minimum-foundation 导数 enhancer。完整运行对象 SHA-256 为 `e949d531a6c08f893abadf1fa72ceacad061e5e114ffd02b22ff86caa1cdadee`，迁移前后不变；33 课生成数据无漂移。旧中英文稿保留为历史来源，退出运行时生成链；相关测试分别验证当前正文和历史练习。
+
+验证：1147 项测试通过、28 项离线检查跳过；两种构建、课程及旧 Math-to-Code 生成检查通过；28 个 provider/Notebook 浏览器场景和 8 个选读场景通过。
+
 ## 6a：梯度下降
 
 - 唯一正文：`calculusGradientDescentModule.ts`。

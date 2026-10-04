@@ -17,10 +17,11 @@ function stable(value: unknown): unknown {
   return value
 }
 
-// Original three baselines: c1cb70a. Function baseline: cdadfea before its migration.
+// Original three: c1cb70a. Functions: cdadfea. Derivatives: 84eea70 before migration.
 // These are migration parity checks, not another copy of the lesson bodies.
 const contentHashes = {
   'calculus-functions-rate-change': '106ba59402424e5450162986b3a5e7ee6fd0893a08c82f4c855311fb910c439b',
+  'calculus-derivatives-local-change': 'e949d531a6c08f893abadf1fa72ceacad061e5e114ffd02b22ff86caa1cdadee',
   'calculus-gradient-descent': 'd61a000aca097eb260854e7e8918c3f49643f01083e9b3fd84bb92ceffcfe704',
   'calculus-optimizer-comparison': '6f76a77f6150c331902f27af90636c34a2a309017dbf9c6f4d4815e885a2921f',
   'calculus-training-code-diagnostics': '100ea3ecc74c72a2133c4b28c180db7a517379e66936b455fe6cf6abffac4982',

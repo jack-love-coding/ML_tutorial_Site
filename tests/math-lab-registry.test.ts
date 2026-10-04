@@ -1,7 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
-import { calculusRouteModules } from '../src/modules/math-lab/data/calculusRouteModules.ts'
 import { linearAlgebraRouteModules } from '../src/modules/math-lab/data/linearAlgebraRouteModules.ts'
 import { mathToCodeModules } from '../src/modules/math-lab/data/mathToCode/modules.ts'
 import {
@@ -44,10 +43,6 @@ test('math lab module assembly applies only the remaining declared provider over
       from: 'linearAlgebraRouteModules',
       to: 'mathToCodeModules',
     },
-    'calculus-derivatives-local-change': {
-      from: 'calculusRouteModules',
-      to: 'mathToCodeModules',
-    },
   }
 
   assert.deepEqual(mathLabModuleOverridePolicy, expectedOverrides)
@@ -58,6 +53,7 @@ test('math lab module assembly applies only the remaining declared provider over
       'linearAlgebraRouteModules',
       'calculusRouteModules',
       'calculusFunctionsModule',
+      'calculusDerivativesModule',
       'calculusGradientDescentModule',
       'calculusOptimizerComparisonModule',
       'calculusTrainingCodeDiagnosticsModule',
@@ -85,7 +81,7 @@ test('math lab module assembly applies only the remaining declared provider over
   assert.ok(linearAlgebraRouteModules.some(({ id }) => id === 'linear-algebra-feature-space'))
   assert.ok(linearAlgebraRouteModules.some(({ id }) => id === 'linear-algebra-matrix-transformations'))
   assert.equal(mathLabModuleProviderById['calculus-functions-rate-change'], 'calculusFunctionsModule')
-  assert.ok(calculusRouteModules.some(({ id }) => id === 'calculus-derivatives-local-change'))
+  assert.equal(mathLabModuleProviderById['calculus-derivatives-local-change'], 'calculusDerivativesModule')
 })
 
 test('math lab module assembly rejects unexpected or reversed duplicates', () => {

@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { mathToCodeModules } from '../src/modules/math-lab/data/mathToCode/modules.ts'
+import { manuscriptSection } from './support/mathManuscripts.ts'
 
 const byId = Object.fromEntries(mathToCodeModules.map((module) => [module.id, module]))
 
@@ -63,7 +64,7 @@ const perSectionEnglishContracts: Record<string, Record<string, string[]>> = {
     'derivatives-code': ['def central_difference', 'candidate_w = w.copy()', 'gradient_b'],
     'derivatives-experiment': ['1, 0.1, 0.01, 1e-4', 'floating-point noise', 'only h changed'],
     'derivatives-misconceptions': ['negative derivative', 'global optimum', 'local', 'chooses no update'],
-    'derivatives-practice': ['Exercise 1A', 'Exercise 3C'],
+    'minimum-derivative-local-approximation': ['local approximation', '2.45125', '-5'],
     'derivatives-handoff': ['MSE 2.5', 'w=[0,-5]', 'b=-1', 'not introduce a learning-rate update'],
   },
   'numpy-mathematics-implementation': {
@@ -207,7 +208,9 @@ function exerciseBlock(content: string, id: string): string {
 test('all 36 English exercises preserve the approved task, hint, reasoning, numbers, and backlink semantics', () => {
   for (const [moduleId, contracts] of Object.entries(practiceContracts)) {
     const module = byId[moduleId]!
-    const content = module.sections.find(({ id }) => id.endsWith('-practice'))!.content.en
+    const content = moduleId === 'calculus-derivatives-local-change'
+      ? manuscriptSection('04-derivatives-error.en.md', 'derivatives-practice')
+      : module.sections.find(({ id }) => id.endsWith('-practice'))!.content.en
     for (const [exerciseId, tokens] of Object.entries(contracts)) {
       const block = exerciseBlock(content, exerciseId)
       assert.ok(block, `${moduleId}/${exerciseId}`)

@@ -9,6 +9,7 @@ import type {
 } from '../../types/mathLab.ts'
 import { runtimeLessonContent, type RuntimeLessonSection } from './runtimeLessonContent.generated.ts'
 import { calculusFunctionsModule as functionsAndMappingsModule } from '../calculusFunctionsModule.ts'
+import { calculusDerivativesModule as derivativesModule } from '../calculusDerivativesModule.ts'
 
 const copy = (zh: string, en: string): LocalizedCopy => ({ 'zh-CN': zh, en })
 const variable = (symbol: string, zh: string, en: string) => ({ symbol, description: copy(zh, en) })
@@ -170,40 +171,6 @@ const matricesModule = promotedModule({
     formativeQuiz('matrix-axis-check', 'X 的 axis 0 表示什么？', 'What does axis 0 of X represent?', 'samples', '样本', 'Samples', '特征', 'Features', '行沿样本轴排列；回看 shape 账本。', 'Rows lie along the sample axis; revisit the shape ledger.', 'matrix-transpose-same', 'matrices-shared-task'),
     formativeQuiz('matrix-broadcast-check', '(n,1)-(n,) 的主要风险？', 'What is the main risk of (n,1)-(n,)?', 'pairwise', '广播成 (n,n) 成对差值', 'Broadcasting to an (n,n) pairwise matrix', '自动得到正确残差', 'Automatically obtaining aligned residuals', 'NumPy 不理解监督配对。', 'NumPy does not understand supervisory alignment.', 'matrix-broadcast-safe', 'matrices-code'),
     formativeQuiz('matrix-row-check', '交换样本行时还需交换什么？', 'What must move when sample rows are reordered?', 'targets', '对应 targets', 'The corresponding targets', 'w 的特征顺序', 'The feature order in w', '目标随同一样本移动。', 'Targets move with their samples.', 'matrix-row-target-independent', 'matrices-experiment'),
-  ],
-})
-
-const derivativesModule = promotedModule({
-  id: 'calculus-derivatives-local-change', key: 'derivatives',
-  zhTitle: '导数与误差敏感度：当前参数附近怎样变化', enTitle: 'Derivatives and Error Sensitivity: Change Near the Current Parameters',
-  zhSubtitle: '用解析结果与中央差分核对局部损失敏感度，并严格区分估计与更新。', enSubtitle: 'Check local loss sensitivity with analytic results and central difference while separating estimation from updating.',
-  prerequisites: ['calculus-functions-rate-change'], next: 'calculus-partial-derivatives-gradients', sourceNoteFile: 'math-lab-calculus-route-sources.md', accent: '#c2410c', theme: '#fff7ed',
-  objectives: [
-    ['从平均变化率解释导数的局部含义。', 'Explain the local meaning of a derivative from average change.'],
-    ['用中央差分核对 w1、w2、b 的 MSE 敏感度。', 'Use central difference to check MSE sensitivities for w1, w2, and b.'],
-    ['通过 h sweep 诊断截断误差与浮点消去。', 'Diagnose broad-window error and floating cancellation with an h sweep.'],
-    ['明确中央差分只估计导数，不执行梯度下降。', 'State that central difference estimates a derivative and does not perform gradient descent.'],
-  ],
-  connections: [
-    ['导数把当前参数与 loss 的局部变化连接起来。', 'Derivatives connect current parameters to local loss change.'],
-    ['梯度检查用独立数值估计核对解析或自动微分。', 'Gradient checking uses an independent numerical estimate to verify analytic or automatic differentiation.'],
-  ],
-  concepts: [
-    simpleConcept('central-difference-sensitivity', '中央差分敏感度', 'Central-Difference Sensitivity', '\\frac{L(\\theta+h)-L(\\theta-h)}{2h}', [['theta', '被单独探测的当前参数。', 'The current parameter probed in isolation.'], ['h', '正且有限的对称观察半宽。', 'A positive finite symmetric half-window.']], '对称地比较参数两侧的 loss，估计当前局部斜率。', 'Compare loss symmetrically on both sides to estimate the current local slope.', '窗口缩小让割线靠近局部切线，但过小会受浮点误差影响。', 'Shrinking the window approaches a local tangent, but an overly small window suffers floating error.', '当前批量敏感度约为 [0,-5,-1]。', 'Current batch sensitivities are approximately [0,-5,-1].', '这是 gradient checking 的数值基线，不是参数更新。', 'This is a numerical baseline for gradient checking, not a parameter update.', `from math import isfinite\ndef central_difference(fn, value, h=1e-4):\n    if not isfinite(value) or not isfinite(h) or h <= 0:\n        raise ValueError("value and positive h must be finite")\n    plus, minus = fn(value + h), fn(value - h)\n    result = (plus - minus) / (2 * h)\n    if not all(map(isfinite, (plus, minus, result))):\n        raise ValueError("difference must be finite")\n    return result`),
-    simpleConcept('motion-local-slope', '运动的局部斜率', 'Local Motion Slope', "s'(t)=2t", [['t', '时间输入，单位秒。', 'Time input in seconds.'], ['s', '位置输出，单位米。', 'Position output in meters.']], '位置对时间的导数是局部速度。', 'The derivative of position with respect to time is local velocity.', '对称窗口比较 t 两侧的位置，得到当前局部斜率。', 'A symmetric window compares positions on both sides of t to obtain the current local slope.', 's(t)=t^2 在 t=3、h=0.1 时中央差分为 6 米/秒。', 'For s(t)=t^2 at t=3 with h=0.1, central difference is 6 meters/second.', '同样的局部率思想用于解释 loss 对参数的敏感度。', 'The same local-rate idea explains loss sensitivity to a parameter.'),
-  ],
-  misconceptions: [
-    misconception('derivative-is-update', '中央差分就是梯度下降。', 'Central difference is gradient descent.', '中央差分估计斜率；更新还需要学习率与参数赋值。', 'Central difference estimates slope; an update also needs a learning rate and assignment.', '本课返回 -5，不执行 w2 <- w2-eta*(-5)。', 'This lesson returns -5 and does not execute w2 <- w2-eta*(-5).'),
-    misconception('derivative-is-global', '当前导数决定整条曲线的方向。', 'The current derivative determines the whole curve.', '导数只描述当前点附近。', 'A derivative describes only the current neighborhood.', '远离当前点后曲线可能转向。', 'The curve may turn away from the current point.'),
-    misconception('derivative-smallest-h', 'h 越小结果必然越准确。', 'A smaller h is always more accurate.', '过小 h 会让相近浮点数相减丢失有效位。', 'An overly small h loses significant digits when close floats are subtracted.', '应寻找稳定区间并与解析例核对。', 'Seek a stable range and compare with an analytic case.'),
-    misconception('derivative-mutate-shared', '可以在同一个 w 上依次做 plus/minus 扰动。', 'The same w can be mutated for plus and minus probes.', '两侧计算必须从同一基线的独立副本开始。', 'Both sides must begin from independent copies of one baseline.', '否则 minus 侧继承 plus 状态，破坏对称。', 'Otherwise the minus side inherits the plus state and breaks symmetry.'),
-    misconception('derivative-sign-is-parameter-sign', '导数为负表示参数本身必须为负。', 'A negative derivative means the parameter itself must be negative.', '导数符号描述当前点附近参数向右小移时 loss 的局部变化方向，不描述参数值的符号。', 'The derivative sign describes the local loss direction when the parameter moves slightly right; it does not describe the parameter value sign.', 'w2=-1 的导数是 -5，而正参数 b=5 的导数也是 -1；两者都只说明局部增加参数会使 loss 倾向下降。', 'w2=-1 has derivative -5, while positive parameter b=5 has derivative -1; both signs only say that a small local increase tends to lower loss.'),
-  ],
-  quizzes: [
-    formativeQuiz('derivative-role-check', '中央差分输出是什么？', 'What does central difference output?', 'slope', '局部斜率估计', 'A local slope estimate', '更新后的参数', 'An updated parameter', '估计与更新必须分离。', 'Estimation and updating must remain separate.', 'derivative-is-update', 'derivatives-formal'),
-    formativeQuiz('derivative-w2-check', '当前 dL/dw2 约为多少？', 'What is the current approximate dL/dw2?', 'minus-five', '-5', '-5', '+5', '+5', '残差与第二特征列配对得到 -5；负号描述当前局部 loss 方向，不是参数符号。', 'Pairing residuals with the second feature column gives -5; its sign describes the current local loss direction, not the parameter sign.', 'derivative-sign-is-parameter-sign', 'derivatives-worked-shared'),
-    formativeQuiz('derivative-h-check', '为什么不总选最小 h？', 'Why not always choose the smallest h?', 'roundoff', '浮点消去可能主导', 'Floating cancellation may dominate', '因为中央差分要求 h=1', 'Because central difference requires h=1', 'h sweep 用于寻找稳定范围。', 'The h sweep seeks a stable range.', 'derivative-smallest-h', 'derivatives-experiment'),
-    formativeQuiz('derivative-copy-check', 'plus/minus 探测应如何创建参数？', 'How should plus/minus probe parameters be created?', 'copies', '从同一基线各自复制', 'Copy each independently from one baseline', '依次修改同一数组', 'Mutate one array sequentially', '独立副本保护对称比较。', 'Independent copies protect the symmetric comparison.', 'derivative-mutate-shared', 'derivatives-code'),
   ],
 })
 

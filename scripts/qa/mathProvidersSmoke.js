@@ -1,7 +1,7 @@
 async (page) => {
   page.setDefaultTimeout(15000)
   const base = 'http://127.0.0.1:4173/ML_tutorial_Site'
-  const lessons = ['calculus-functions-rate-change', 'calculus-gradient-descent', 'calculus-optimizer-comparison', 'calculus-training-code-diagnostics']
+  const lessons = ['calculus-functions-rate-change', 'calculus-derivatives-local-change', 'calculus-gradient-descent', 'calculus-optimizer-comparison', 'calculus-training-code-diagnostics']
   const notebooks = ['least-squares-fitting', 'lu-decomposition', 'condition-numbers', 'sparse-matrices', 'pca', 'finite-difference-methods', 'nonlinear-equations', 'optimization', 'training-diagnostics']
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
