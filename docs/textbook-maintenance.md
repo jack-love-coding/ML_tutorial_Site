@@ -2,7 +2,7 @@
 
 本轮将网站整理为基础薄弱学生可自主阅读的双语教材。当前交付路线为 AI 与代码入门、数据输入、线性模型、回归案例、分类决策、模型比较。深入数学和深度学习保持可查阅。
 
-后续任务的优先级与独立 PR 边界见 [后续重构清单](textbook-next-steps.md)。当前 `.planning` 入口已同步此目标；原 Part C 方向与学习记录决策保留在历史快照中。
+本轮交付和后续优先级见 [交付与后续清单](textbook-next-steps.md)，当前部署、验收证据与回退版本见 [六单元发布记录](releases/textbook-refactor-release.md)。当前 `.planning` 入口已同步此目标；原 Part C 方向与学习记录决策保留在历史快照中。
 
 发布检查按单元的 `pilot/published` 状态收集三类实际课程、分页正文与资源。算法产物关联维护在 `src/curriculum/releaseAssets.ts`，数学 Notebook 的 manifest 归 companion 元数据。Pages 构建输出 `textbook-readings.json`，浏览器验收由同一单元序列驱动；候选批次可运行 `TEXTBOOK_SMOKE_UNITS=unit-3,unit-4 node scripts/qa/run-textbook-smoke.mjs textbook-route`，不会改变学生发布状态。
 
@@ -15,7 +15,7 @@
 - `src/curriculum/generated/`：构建期投影，不手工编辑；`npm run curriculum:generate` 更新，`npm run curriculum:check` 验证。
 - V3 blueprint 和旧阶段文档记录历史或未来设想，不用于判定当前页面已发布。
 
-## 当前实施顺序
+## 已完成的重构阶段
 
 | 阶段 | 内容 | 验收 |
 | --- | --- | --- |
@@ -26,7 +26,7 @@
 | 5 | 算法页面分工 | 加载、导航和教学模式独立，保留 lazy boundaries |
 | 6 | 数学 provider | 每门试点课只有一个正文入口，内容与计算一致 |
 
-每阶段独立提交和 PR。未通过验收的阶段不进入后续阶段。PR 可按依赖堆叠，合并仍按顺序；公开部署沿用 main 的 GitHub Pages workflow。
+上述阶段已分别验收并交付；后续改动仍保持独立提交和 PR，未通过验收不进入依赖阶段。PR 可按依赖堆叠，合并仍按顺序；公开部署沿用 main 的 GitHub Pages workflow。
 
 ## 学生界面与数据边界
 
@@ -44,23 +44,27 @@
 
 固定浏览器安装、严格离线预检与 `release.json` 部署核验见 [可复现验证](reproducible-validation.md)。
 
-首批试用入门与数据单元，其余按课程内容和工程验收逐批标记。发布记录必须包含 commit、课程范围、已执行检查、已知限制及上一可回退版本。阶段完成不自动视为公开上线。
+六个单元已分别通过内容和工程验收进入小班试用；当前状态以单元元数据和最新发布记录为准。发布记录必须包含 commit、课程范围、已执行检查、已知限制及上一可回退版本。阶段完成不自动视为公开上线。
 
-## 阶段 2 验证记录
+## 历史阶段验收记录
+
+以下保留 2026-10-03 分阶段开发时的测试数量、试用范围和合并状态，仅说明当时的验收结果。后续合并、部署和严格离线补验以本页顶部的最新发布记录为准。
+
+### 阶段 2
 
 2026-10-03：移除学生运行时的进度、报告和自动记录调用，例题直接显示参考结论。历史存储工具仅供兼容测试。`npm test` 1122 通过、28 个离线资源检查跳过；另增参考结论测试 1 项通过。两种生产构建通过。Pages 浏览器覆盖 20 个入口 × 空/已有存储（桌面中文、390px 英文），刷新、语言切换、键盘调参后历史存储逐字节不变，无溢出或控制台错误。静态产物不包含学习存储 keys。大包警告留待阶段 4 拆分。
 
-## 阶段 3 验证记录
+### 阶段 3
 
 2026-10-03：`src/curriculum/reading.ts` 维护六单元及章节选读；路线页、平铺章节和前后导航均从同一序列生成。首两个单元暂标 preview，阶段 4 通过发布检查后标 pilot。Python 首章的网页语法桥接位于 `src/data/pythonSyntaxBridge.ts`，不改变已执行 Notebook 的分析单元或八章 ID。
 
 `npm test` 1125 通过、28 项离线检查跳过；两种生产构建与专项路由测试通过。Pages 浏览器连续点击 33 节 × 中文桌面/英文 390px，共 66 个场景，验证选读边界、刷新、旧锚点、无溢出及控制台错误。所有章节的上一节/下一节还经过 canonical 转换 round-trip 测试。
 
-## 阶段 4 验证记录
+### 阶段 4
 
 2026-10-03：统一目录生成 650 个 Pages 静态入口，按章节生成损失函数展示数据，发布资源与浏览器 smoke 接入 CI。单元 1—2 标为 pilot。`npm test` 1129 通过、28 项离线检查跳过；两种构建、111 个浏览器场景与全部静态入口检查通过，安全审计 0 个漏洞。完整范围、限制和回退提交见 [本批发布记录](releases/textbook-pilot-2026-10-03.md)。
 
-## 阶段 5 验证记录
+### 阶段 5
 
 2026-10-03：AlgorithmView 从 875 行缩至 496 行。`useAlgorithmCourse` 管理懒加载、选读与失效请求；`useAlgorithmChapterNavigation` 管理章节锁、滚动与清理；`algorithmTeaching.ts` 是 17 门算法课程的教学模式来源，分页组件由 lazy registry 分发。MLP 改为如实登记逐节指导实验，并保留独立探索入口。损失课提示文案移入 `lossReadingNotes.ts`。
 
@@ -68,7 +72,7 @@
 
 `npm test` 1132 通过、28 项离线检查跳过；两种构建与目录漂移检查通过。浏览器原有 111 个场景与 650 个静态入口通过，另有 22 个教学模式场景通过，覆盖分页、滚动、指导实验、MLP/CNN 独立探索、调参/重置、双语/390px 与公式渲染。新增生命周期测试验证旧请求不覆盖新课程，卸载会取消未执行的滚动回调。可通过 `node scripts/qa/run-textbook-smoke.mjs algorithm-modes` 单独复查教学模式。
 
-## 阶段 6a 验证记录
+### 阶段 6a
 
 梯度下降最终正文改为独立 provider，九组 Notebook 关联进入课程元数据。1136 项测试通过、28 项离线检查跳过，两种构建与目录检查通过，24 个数学浏览器场景通过。内容一致性指纹、维护方式和两处历史公式转义修复见 [数学 provider 迁移记录](math-provider-migrations.md)。
 
