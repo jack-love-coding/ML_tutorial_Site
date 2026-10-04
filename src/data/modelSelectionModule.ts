@@ -58,27 +58,34 @@ export const modelSelectionModule: AlgorithmModuleDefinition = {
       'one-split-risk',
       'modules.modelSelection.sections.oneSplitRisk.title',
       loc(
-        `模型选择的第一条规则：不要把一次 train/test split 当成最终真理。
+        `模型选择的第一条规则：不要把一次训练/验证切分的分数当成最终真理。
 
-同一个模型、同一批数据，只要随机切分不同，测试分数就可能上下波动。数据少、类别不平衡、异常值集中或样本顺序有结构时，这种波动会更明显。
+同一个模型、同一批开发数据，只要随机切分不同，验证分数就可能上下波动。数据少、类别不平衡、异常值集中或样本顺序有结构时，这种波动会更明显。
 
 ### 为什么一次 split 会骗你
-假设房价数据里有少量特别贵的区域。如果这批样本刚好更多进入 test set，MAE 会变大；如果它们更多进入 train set，模型可能更容易学到这些区域，测试分数又会变好。模型没有突然变聪明，评价样本变了。
+假设房价开发数据里有少量特别贵的区域。如果这批样本刚好更多进入 validation，MAE 会变大；如果它们更多进入 train，模型可能更容易学到这些区域，验证分数又会变好。模型没有突然变聪明，评价样本变了。
+
+下面假设 X、y 是已整理的数值特征与回归目标。先固定最终 test，再只在 dev 内比较切分波动；test 不进入循环，也不从五个分数中挑一个最好看的作为最终报告。完整数据、可执行代码和参考结果将在本单元的分类项目中串起来。
 
 ~~~python
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_absolute_error
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
+X_dev, X_test, y_dev, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 scores = []
 for seed in range(5):
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=seed
+    X_train, X_valid, y_train, y_valid = train_test_split(
+        X_dev, y_dev, test_size=0.25, random_state=seed
     )
-    model = Ridge(alpha=1.0)
+    model = make_pipeline(StandardScaler(), Ridge(alpha=1.0))
     model.fit(X_train, y_train)
-    pred = model.predict(X_test)
-    scores.append(mean_absolute_error(y_test, pred))
+    pred = model.predict(X_valid)
+    scores.append(mean_absolute_error(y_valid, pred))
 
 scores
 ~~~
@@ -88,27 +95,34 @@ scores
 
 ### Ref ID
 REF-SKLEARN-CV、REF-INRIA-SKLEARN-MOOC`,
-        `The first rule of model selection: do not treat one train/test split as final truth.
+        `The first rule of model selection: do not treat one train/validation split as final truth.
 
-With the same model and the same dataset, test scores can move when the random split changes. The movement becomes larger when the dataset is small, classes are imbalanced, outliers cluster, or sample order has structure.
+With the same model and the same development data, validation scores can move when the random split changes. The movement becomes larger when the dataset is small, classes are imbalanced, outliers cluster, or sample order has structure.
 
 ### Why one split can mislead
-Suppose a housing dataset contains a small number of very expensive regions. If more of those rows land in the test set, MAE rises; if more land in training, the model may learn them and test score improves. The model did not suddenly become smarter. The evaluation sample changed.
+Suppose housing development data contains a few very expensive regions. If more land in validation, MAE rises; if more land in training, the model may learn them and validation improves. The model did not suddenly become smarter. The evaluation sample changed.
+
+Assume X and y are prepared numeric features and a regression target. Freeze final test first, then vary splits inside dev only. Test never enters the loop; the best of five scores is not a final report. The classification project later in this unit combines complete data, runnable code and reference results.
 
 ~~~python
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_absolute_error
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
+X_dev, X_test, y_dev, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
 scores = []
 for seed in range(5):
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=seed
+    X_train, X_valid, y_train, y_valid = train_test_split(
+        X_dev, y_dev, test_size=0.25, random_state=seed
     )
-    model = Ridge(alpha=1.0)
+    model = make_pipeline(StandardScaler(), Ridge(alpha=1.0))
     model.fit(X_train, y_train)
-    pred = model.predict(X_test)
-    scores.append(mean_absolute_error(y_test, pred))
+    pred = model.predict(X_valid)
+    scores.append(mean_absolute_error(y_valid, pred))
 
 scores
 ~~~

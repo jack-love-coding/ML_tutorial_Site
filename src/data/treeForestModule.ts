@@ -60,6 +60,8 @@ export const treeForestModule: AlgorithmModuleDefinition = {
       loc(
         `到这里你已经看过 loss landscape、梯度下降和线性边界。决策树故意换一条路：它不靠梯度一步步移动参数，而是用一串 if-then split 把数据空间切开。
 
+本课代码片段假设已有数值训练特征 X_train、标签 y_train，以及独立验证特征 X_valid。比较深度和模型时只看验证数据，最终 test 继续保留；下一课学习交叉验证，随后在短信项目中运行完整流程。
+
 ### 树在问什么问题
 一棵分类树会反复问很具体的问题：
 
@@ -78,6 +80,8 @@ export const treeForestModule: AlgorithmModuleDefinition = {
 ### Ref ID
 REF-SKLEARN-TREES、REF-ISLR`,
         `By now you have seen loss landscapes, gradient descent, and linear boundaries. A decision tree deliberately takes another path: it does not move parameters by gradients. It cuts the data space with a sequence of if-then splits.
+
+These snippets assume numeric training features X_train, labels y_train and separate validation features X_valid. Compare depths and models on validation while preserving final test. Next comes cross-validation, followed by a complete runnable SMS project.
 
 ### What questions does a tree ask?
 A classification tree repeatedly asks concrete questions:
@@ -125,7 +129,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 tree = DecisionTreeClassifier(max_depth=3, random_state=42)
 tree.fit(X_train, y_train)
-pred = tree.predict(X_test)
+pred = tree.predict(X_valid)
 ~~~
 
 ### 为什么边界像阶梯
@@ -151,7 +155,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 tree = DecisionTreeClassifier(max_depth=3, random_state=42)
 tree.fit(X_train, y_train)
-pred = tree.predict(X_test)
+pred = tree.predict(X_valid)
 ~~~
 
 ### Why the boundary looks like stairs
@@ -322,8 +326,8 @@ forest = RandomForestClassifier(
     random_state=42,
 )
 forest.fit(X_train, y_train)
-pred = forest.predict(X_test)
-proba = forest.predict_proba(X_test)
+pred = forest.predict(X_valid)
+proba = forest.predict_proba(X_valid)
 ~~~
 
 ### 为什么平均能降方差
@@ -347,8 +351,8 @@ forest = RandomForestClassifier(
     random_state=42,
 )
 forest.fit(X_train, y_train)
-pred = forest.predict(X_test)
-proba = forest.predict_proba(X_test)
+pred = forest.predict(X_valid)
+proba = forest.predict_proba(X_valid)
 ~~~
 
 ### Why averaging reduces variance

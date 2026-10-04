@@ -62,7 +62,7 @@ test('model selection module covers split variance, CV, leakage, grid search, an
 
   for (const requiredConcept of [
     '模型选择',
-    'train/test split',
+    'train/validation split',
     'validation',
     'cross_val_score',
     'K-fold CV',

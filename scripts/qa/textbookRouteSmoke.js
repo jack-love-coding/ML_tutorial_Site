@@ -40,6 +40,17 @@ async (page) => {
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)
       if (overflow) throw new Error('Horizontal overflow: ' + page.url())
       if (page.url().includes('/python-notebook/notebook-workflow')) await page.locator('.python-syntax-bridge').waitFor()
+      if (['tree-forest', 'model-selection', 'classification-project'].includes(reading.moduleId)) {
+        const moduleReadings = allReadings.filter(lesson => lesson.moduleId === reading.moduleId)
+        const sectionIndex = moduleReadings.findIndex(lesson => lesson.lessonId === reading.lessonId)
+        const stages = page.locator(`[data-section-id="${reading.lessonId}"] .workflow-lab__stage-list button`)
+        if (await stages.count() !== moduleReadings.length || await stages.nth(sectionIndex).getAttribute('aria-pressed') !== 'true') throw new Error('Wrong workflow scene: ' + reading.lessonId)
+        const other = stages.nth((sectionIndex + 1) % moduleReadings.length)
+        await other.focus()
+        await page.keyboard.press('Enter')
+        if (await other.getAttribute('aria-pressed') !== 'true') throw new Error('Workflow keyboard control failed')
+        await stages.nth(sectionIndex).click()
+      }
       visited.push({ url: page.url(), locale, width })
       const next = nav.locator('[data-testid="reading-next"]')
       if (!(await next.count())) {

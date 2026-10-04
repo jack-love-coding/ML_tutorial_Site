@@ -66,11 +66,11 @@ export const teachingUnits: TeachingUnit[] = [
     readings: [{ moduleId: 'beginner-probability-distributions' }, { moduleId: 'logistic-regression' }, { moduleId: 'loss-functions', lessonIds: ['classification-losses', 'likelihood-intuition', 'negative-log', 'mle-bridge'] }, { moduleId: 'classification' }],
   },
   {
-    id: 'unit-6', title: copy('比较模型与分类案例', 'Model comparison and a classification project'), publicationStatus: 'preview',
+    id: 'unit-6', title: copy('比较模型与分类案例', 'Model comparison and a classification project'), publicationStatus: 'pilot',
     question: copy('如何在相同评估协议下比较不同模型？', 'How can different models be compared under the same evaluation protocol?'),
     prerequisites: copy('理解概率、分类指标、阈值与错误成本。', 'Understand probabilities, metrics, thresholds, and error costs.'),
     instructions: copy('观察树与森林，再固定交叉验证协议，复现分类案例及其参考结果。', 'Explore trees and forests, fix the cross-validation protocol, and reproduce the classification project.'),
-    explanation: copy('用验证结果选择模型；独立冻结测试数据只用于最终评估。', 'Use validation results to select models and independently frozen test data for final evaluation.'),
+    explanation: copy('比较模型时使用训练内交叉验证和验证集；短信项目单独冻结划分，锁定模型与阈值后才读测试汇总。', 'Compare models with training-fold CV and validation. The SMS project freezes its own split and reports test only after the model and threshold are locked.'),
     readings: [{ moduleId: 'tree-forest' }, { moduleId: 'model-selection' }, { moduleId: 'classification-project' }],
   },
 ]
