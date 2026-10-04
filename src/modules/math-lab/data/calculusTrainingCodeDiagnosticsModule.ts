@@ -1,0 +1,261 @@
+import type { LocalizedCopy, MathLabModule, MathLabSection, VisualAsset } from '../types/mathLab.ts'
+
+const copy = (zhCN: string, en: string): LocalizedCopy => ({ 'zh-CN': zhCN, en })
+
+// Final lesson body. Maintain this provider directly; no historical enhancer applies to it.
+const sections: MathLabSection[] = [
+  {
+    id: "training-loop-order",
+    level: 2,
+    title: copy("训练循环顺序", "Training Loop Order"),
+    content: copy("标准训练步先 zero_grad，再计算 loss，然后 loss.backward，最后 optimizer.step。旧梯度没清会累积；只 backward 不 step，参数不会更新。", "A standard training step calls zero_grad, computes loss, calls loss.backward, and then calls optimizer.step. The order matters. If old gradients are not cleared, they accumulate into the next step. If backward is called without step, parameters do not update. If step is called before current gradients exist, the optimizer cannot use the current loss signal. The code order is the practical face of the calculus update."),
+    labIds: ["calculus-training-diagnostics-lab"],
+  },
+  {
+    id: "v3-training-shared-loop",
+    level: 2,
+    title: copy("把共同批次放进六步训练循环", "Place the Shared Batch Inside a Six-Step Training Loop"),
+    content: copy(`代码继续使用同一个 \\(X,targets,w,b\\)，学习率设为 0.02。每一步依次计算 predictions、residuals、MSE、grad_w、grad_b 和 gradient norm，确认有限后再更新参数。前六个 loss 为 **2.5, 2.1194, 2.004564, 1.929655, 1.862445, 1.798275**，说明当前设置下训练稳定下降。
+
+gradient norm 从 5.09902 降到 1.766463，但没有立刻接近零。这不矛盾：参数正在靠近较低区域，两个参数方向的斜率缩小速度不同。记录 loss 和 gradient norm 能区分“损失仍高但没有梯度”与“损失高且梯度很大”这两类完全不同的问题。`, `The code keeps the same X, targets, w, and b with learning rate 0.02. Each step calculates predictions, residuals, MSE, grad_w, grad_b, and gradient norm, checks finite status, then updates parameters. The first six losses are 2.5, 2.1194, 2.004564, 1.929655, 1.862445, and 1.798275, showing stable descent under this setup.
+
+Gradient norm falls from 5.09902 to 1.766463 but does not immediately approach zero. That is consistent: parameters are moving toward a lower region while different directions flatten at different rates. Recording loss and gradient norm separates “loss remains high with almost no gradient” from “loss is high and gradients are very large,” which require different diagnoses.`),
+  },
+  {
+    id: "training-backward-meaning",
+    level: 2,
+    title: copy("backward：计算图上的梯度计算", "Backward: Gradient Computation Through the Computation Graph"),
+    content: copy("loss.backward 不是直接更新参数。它做 gradient computation through computation graph，把上游梯度乘过局部导数，写入参数的 grad。optimizer.step 才真正改变参数。", "loss.backward is not the call that directly updates parameters. It performs gradient computation through computation graph: starting at loss, upstream gradients are multiplied through local derivatives until each parameter receives a gradient value. The call that actually changes parameter values is optimizer.step. This distinction explains many silent bugs in training code, especially loops that compute gradients but never step."),
+    labIds: ["calculus-backprop-bridge-lab"],
+  },
+  {
+    id: "v3-training-code-order",
+    level: 2,
+    title: copy("逐行读 PyTorch：清空、前向、反向、更新各自只做一件事", "Read PyTorch Line by Line: Clear, Forward, Backward, and Update Have Separate Jobs"),
+    content: copy(`典型 PyTorch 顺序是 **optimizer.zero_grad()**、前向得到 predictions、计算 loss、**loss.backward()**、**optimizer.step()**。**zero_grad** 清除参数对象上上一步留下的 grad；**backward** 沿计算图应用链式法则并把结果写入 grad；**step** 才读取这些 grad 与 optimizer state 改变参数。
+
+忘记 **zero_grad** 会在默认行为下累加旧梯度；忘记 **backward** 会让当前 loss 没有产生新梯度；忘记 **step** 会让参数保持不变。调试时不要只问“代码是否执行”，应在一个小 batch 上比较更新前后参数、grad shape、grad norm 和 loss。`, `A typical PyTorch order is optimizer.zero_grad(), forward predictions, loss calculation, loss.backward(), and optimizer.step(). zero_grad clears gradients left on parameter objects by the previous step. backward applies the chain rule through the computation graph and writes results into grad. step is the call that reads gradients and optimizer state to change parameters.
+
+Omitting zero_grad accumulates old gradients under the default behavior. Omitting backward leaves no current-loss gradient. Omitting step leaves parameters unchanged. Debugging should go beyond asking whether code executed: on one small batch, compare parameters before and after, gradient shapes, gradient norm, and loss.`),
+  },
+  {
+    id: "training-curves-diagnostics",
+    level: 2,
+    title: copy("曲线诊断", "Curve Diagnostics"),
+    content: copy("gradient norm、validation loss、overfitting、exploding gradients、vanishing gradients 都是训练曲线里的诊断词。train loss 降而 validation loss 升，常见于过拟合；loss 和 gradient norm 暴涨，可能是梯度爆炸。", "gradient norm, validation loss, overfitting, exploding gradients, and vanishing gradients are diagnostic words for training curves. If train loss falls while validation loss rises, overfitting is likely. If loss and gradient norm rise sharply together, exploding gradients or an oversized learning rate should be checked. If loss remains high while gradient norm becomes tiny, vanishing gradients, saturation, or poor initialization may be involved. Curves point to the next test rather than acting as decoration."),
+  },
+  {
+    id: "v3-training-signal-table",
+    level: 2,
+    title: copy("三条曲线怎样一起读：training、validation 与 gradient norm", "Read Three Signals Together: Training, Validation, and Gradient Norm"),
+    content: copy(`training loss 下降而 validation loss 先降后升，常见解释是模型继续拟合训练集但泛化变差；应检查 early stopping、正则化、数据划分和泄漏，而不是只训练更久。training 与 validation loss 同时很高且几乎不动，要再看 gradient norm：很小可能指向饱和、初始化或计算图断开，很大且伴随数值暴涨则可能是学习率过高、梯度爆炸或异常 batch。
+
+曲线只提供下一步检查方向，不会单独给出唯一原因。比如 validation loss 抖动也可能来自验证集太小；gradient norm 很大也可能只是损失缩放方式改变。诊断应回到可复现设置：数据版本、随机种子、batch size、学习率、optimizer state 和具体异常 step。`, `When training loss falls while validation loss first falls and then rises, the common interpretation is continued training fit with worsening generalization. Check early stopping, regularization, data splits, and leakage rather than simply training longer. If both losses stay high, inspect gradient norm. A tiny norm may indicate saturation, initialization, or a detached computation graph; a rapidly growing norm with numeric blow-up may indicate excessive learning rate, exploding gradients, or an anomalous batch.
+
+Curves point to the next check rather than proving one unique cause. Validation noise may come from a small validation set, and a large gradient norm may reflect a changed loss reduction. Return to a reproducible run containing data version, seed, batch size, learning rate, optimizer state, and the exact anomalous step.`),
+  },
+  {
+    id: "v3-training-numpy-output",
+    level: 2,
+    title: copy("运行结果账本：每一步都保留 loss 与 gradient norm", "Runtime Ledger: Retain Loss and Gradient Norm at Every Step"),
+    content: copy(`页面中的 NumPy 循环不是要替代 PyTorch，而是提供透明基线：所有梯度公式和参数赋值都集中在一段较短、可逐行检查的代码中。输出锁定六步数值与最终参数 **[3.85485,-0.775054]**、**b=5.015959**，以后若修改公式、缩放或 reduction，可立即看见哪一步开始偏离。
+
+安全边界是 loss 与 gradient norm 必须有限。一旦出现 NaN 或 Infinity，应停止当前更新并检查最早异常层，而不是继续训练让错误扩散。真实框架还可以启用异常检测、梯度裁剪或混合精度缩放，但这些工具不能替代对输入、损失和学习率的原因检查。`, `The NumPy loop is not a replacement for PyTorch. It is a transparent baseline whose gradient formulas and assignments fit in a short readable block. The output locks six numeric steps plus final parameters [3.85485,-0.775054] and b=5.015959. Future changes to formulas, scaling, or reduction will reveal the first step that diverges.
+
+The safety boundary is that loss and gradient norm must remain finite. Stop the current update at the first NaN or Infinity and inspect the earliest anomalous layer instead of allowing the failure to spread. Framework anomaly detection, gradient clipping, and mixed-precision scaling can help, but none replaces checking inputs, loss definition, and learning rate.`),
+  },
+  {
+    id: "v3-training-summary",
+    level: 2,
+    title: copy("本章小结：公式、代码和曲线形成同一个训练闭环", "Summary: Formulas, Code, and Curves Form One Training Loop"),
+    content: copy(`七章路线现在闭合：函数产生预测，导数读取局部敏感度，梯度对齐全部参数，学习率把负梯度变成有限更新，mini-batch 提供带方差的估计，优化器加入跨步状态，训练代码再把这些动作按顺序执行并记录结果。
+
+接下来可以进入矩阵微积分与自动微分。那里会解释多层计算图怎样用链式法则传播梯度，以及为什么 **loss.backward()** 能为大量参数同时得到 grad。本章已经建立必要接口：每个参数有同 shape 梯度，**backward** 只计算梯度，**step** 才更新参数。`, `The seven-chapter route is now closed. Functions produce predictions, derivatives read local sensitivity, gradients align every parameter, learning rate converts the negative gradient into a finite update, mini-batches provide estimates with variance, optimizers add cross-step state, and training code executes those actions in order while retaining results.
+
+Review Questions: Which call clears gradients, which computes them, and which updates parameters? How do training loss, validation loss, and gradient norm narrow the next diagnostic check?
+
+The next step can be matrix calculus and automatic differentiation. It explains how chain rules propagate through multilayer computation graphs and why loss.backward() can produce gradients for many parameters at once. This chapter has established the required interface: every parameter has a same-shape gradient, backward computes gradients, and step updates parameters.`),
+  },
+]
+
+const visuals: VisualAsset[] = []
+
+export const calculusTrainingCodeDiagnosticsModule: MathLabModule = {
+  id: "calculus-training-code-diagnostics",
+  enhancementTier: "interactive",
+  title: copy("训练代码和曲线诊断", "Training Code and Curve Diagnostics"),
+  subtitle: copy("把梯度公式落到训练循环代码，再用曲线诊断训练状态。", "Connect gradient formulas to training-loop code, then diagnose training state with curves."),
+  difficulty: "foundation",
+  estimatedMinutes: 65,
+  prerequisites: ["calculus-optimizer-comparison"],
+  aiModelConnections: [
+    copy("loss、validation loss 和 gradient norm 是训练更新的外显信号。", "Loss, validation loss, and gradient norm are visible signals of training updates."),
+  ],
+  learningObjectives: [
+    copy("说明 zero_grad、loss.backward 和 optimizer.step 的顺序。", "Explain the order of zero_grad, loss.backward, and optimizer.step."),
+    copy("把 backward 理解为计算图上的梯度计算。", "Understand backward as gradient computation through the computation graph."),
+    copy("用曲线诊断 overfitting、exploding gradients 和 vanishing gradients。", "Use curves to diagnose overfitting, exploding gradients, and vanishing gradients."),
+  ],
+  concepts: [
+    {
+      id: "training-loop-gradient-step",
+      name: copy("训练循环梯度步", "Training Loop Gradient Step"),
+      formulaLatex: "\\texttt{zero\\_grad()}\\rightarrow\\texttt{loss.backward()}\\rightarrow\\texttt{optimizer.step()}",
+      variables: [
+        {
+          symbol: "zero\\_grad()",
+          description: copy("清空旧梯度。", "Clear old gradients."),
+        },
+        {
+          symbol: "loss.backward()",
+          description: copy("沿计算图计算梯度。", "Compute gradients through the graph."),
+        },
+        {
+          symbol: "optimizer.step()",
+          description: copy("按优化器规则更新参数。", "Update parameters by the optimizer rule."),
+        },
+      ],
+      plainExplanation: copy("先清梯度，再计算梯度，最后更新参数。", "Clear gradients, compute gradients, then update parameters."),
+      geometricIntuition: copy("像擦黑板、算坡度、再迈步。", "Like clearing the board, computing slope, then stepping."),
+      numericalExample: copy("忘记 zero_grad 会累积旧梯度；忘记 step 参数不会更新。", "Forgetting zero_grad accumulates old gradients; forgetting step leaves parameters unchanged."),
+      modelConnection: copy("代码、自动微分和曲线诊断围绕这三步闭环。", "Code, autodiff, and curve diagnostics revolve around this three-step loop."),
+      codeExample: `import numpy as np
+
+X = np.array([[2.0, 3.0], [1.0, 4.0]])
+targets = np.array([9.0, 7.0])
+w = np.array([4.0, -1.0])
+b = 5.0
+learning_rate = 0.02
+
+for step in range(6):
+    predictions = X @ w + b
+    residuals = predictions - targets
+    loss = float(np.mean(residuals ** 2))
+    grad_w = (2 / X.shape[0]) * X.T @ residuals
+    grad_b = float(2 * residuals.mean())
+    grad_norm = float(np.sqrt(grad_w @ grad_w + grad_b ** 2))
+    if not np.isfinite(loss) or not np.isfinite(grad_norm):
+        raise FloatingPointError("loss and gradient norm must stay finite")
+    print(step, round(loss, 6), round(grad_norm, 6))
+    w -= learning_rate * grad_w
+    b -= learning_rate * grad_b
+
+print("params =", [round(value, 6) for value in w], round(b, 6))`,
+      codeOutput: copy(`0 2.5 5.09902
+1 2.1194 2.600154
+2 2.004564 1.978928
+3 1.929655 1.846495
+4 1.862445 1.799814
+5 1.798275 1.766463
+params = [3.85485, -0.775054] 5.015959`, `0 2.5 5.09902
+1 2.1194 2.600154
+2 2.004564 1.978928
+3 1.929655 1.846495
+4 1.862445 1.799814
+5 1.798275 1.766463
+params = [3.85485, -0.775054] 5.015959`),
+    },
+  ],
+  labs: [
+    {
+      id: "calculus-training-diagnostics-lab",
+      title: copy("训练代码和曲线诊断实验", "Training Code and Curve Diagnostics Lab"),
+      type: "interactive-visual",
+      componentName: "TrainingDiagnosticsLab",
+      successCriteria: [
+        copy("能把训练循环三行核心代码和参数更新时机对应起来。", "Match the three core training-loop calls to parameter-update timing."),
+        copy("能根据 loss、validation loss 和 gradient norm 做初步诊断。", "Make a first diagnosis from loss, validation loss, and gradient norm."),
+      ],
+    },
+    {
+      id: "calculus-backprop-bridge-lab",
+      title: copy("backward 计算图桥接实验", "Backward Computation Graph Bridge Lab"),
+      type: "interactive-visual",
+      componentName: "BackpropBlockLab",
+      successCriteria: [
+        copy("能把 loss.backward 连接到计算图上的局部导数传递。", "Connect loss.backward to local derivative flow through a computation graph."),
+        copy("能区分计算梯度和更新参数这两个动作。", "Separate gradient computation from parameter updates."),
+      ],
+    },
+  ],
+  quizzes: [
+    {
+      id: "training-loop-order",
+      type: "single-choice",
+      prompt: copy("哪一行真正更新参数？", "Which line actually updates parameters?"),
+      choices: [
+        {
+          id: "step",
+          label: copy("optimizer.step()。", "optimizer.step()."),
+        },
+        {
+          id: "distractor",
+          label: copy("loss.backward()。", "loss.backward()."),
+        },
+      ],
+      answer: "step",
+      explanation: copy("backward 计算梯度，step 更新参数。", "backward computes gradients; step updates parameters."),
+      misconceptionTags: ["backward-updates-parameters"],
+    },
+    {
+      id: "training-curve-diagnosis",
+      type: "single-choice",
+      prompt: copy("train loss 降、validation loss 升，像什么？", "Train loss falls while validation loss rises. What does this resemble?"),
+      choices: [
+        {
+          id: "overfit",
+          label: copy("overfitting。", "Overfitting."),
+        },
+        {
+          id: "distractor",
+          label: copy("只要训练更久。", "Just train longer."),
+        },
+      ],
+      answer: "overfit",
+      explanation: copy("训练集变好但验证集变差，说明泛化没有跟上。", "Training improves while validation worsens, so generalization is not keeping up."),
+      misconceptionTags: ["train-longer-fixes-all"],
+    },
+  ],
+  misconceptions: [
+    {
+      id: "backward-updates-parameters",
+      statement: copy("backward 会直接更新参数。", "backward directly updates parameters."),
+      correction: copy("backward 计算梯度，optimizer.step 更新参数。", "backward computes gradients; optimizer.step updates parameters."),
+      example: copy("只 backward 不 step，优化器不会迈步。", "Calling backward without step does not make the optimizer step."),
+    },
+    {
+      id: "train-longer-fixes-all",
+      statement: copy("所有问题训练更久就能解决。", "Training longer fixes every problem."),
+      correction: copy("过拟合、梯度爆炸和梯度消失通常要改变设置。", "Overfitting, exploding gradients, and vanishing gradients usually require changing settings."),
+      example: copy("validation loss 已升时，训练更久可能更差。", "If validation loss is rising, training longer can be worse."),
+    },
+  ],
+  accent: "#334155",
+  theme: "#f8fafc",
+  sourceReferences: [
+    {
+      label: copy("PyTorch Optimizing Model Parameters", "PyTorch Optimizing Model Parameters"),
+      href: "https://docs.pytorch.org/tutorials/beginner/basics/optimization_tutorial.html",
+      usage: copy("参考训练循环中 zero_grad、loss.backward 和 optimizer.step 的代码顺序。", "Reference for the code order of zero_grad, loss.backward, and optimizer.step in a training loop."),
+    },
+    {
+      label: copy("Dive into Deep Learning Optimization Algorithms", "Dive into Deep Learning Optimization Algorithms"),
+      href: "https://d2l.ai/chapter_optimization/index.html",
+      license: "CC BY-SA 4.0",
+      usage: copy("参考梯度下降、随机梯度和优化算法的机器学习表述。", "Reference for machine-learning explanations of gradient descent, stochastic gradients, and optimization algorithms."),
+    },
+    {
+      label: copy("Mathematics for Machine Learning", "Mathematics for Machine Learning"),
+      href: "https://mml-book.github.io/",
+      usage: copy("参考微积分、梯度和优化与机器学习参数学习之间的关系。", "Reference for relationships between calculus, gradients, optimization, and machine-learning parameter learning."),
+    },
+  ],
+  sourceNoteFile: "math-lab-calculus-route-sources.md",
+  sections,
+  visuals,
+  toc: sections.map(({ id, level, title }) => ({ id, level, title })),
+  importedAssetPaths: visuals.flatMap(visual => [visual.assetPath, visual.posterPath]).filter((path): path is string => Boolean(path)),
+  // The shared course order supplies these navigation fields during assembly.
+  order: 0,
+  nextModuleIds: [],
+}
