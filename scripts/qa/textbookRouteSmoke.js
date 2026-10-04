@@ -29,7 +29,7 @@ async (page) => {
       const chapterTestId = { 'python-notebook': 'python-data-tools-current-chapter', 'linear-regression': 'linear-current-chapter', 'housing-price-project': 'housing-current-chapter', 'gradient-descent': 'gradient-current-chapter', 'logistic-regression': 'logistic-current-chapter' }[reading.moduleId]
       if (chapterTestId) await page.locator(`[data-testid="${chapterTestId}"][data-section-id="${reading.lessonId}"]`).waitFor()
       else if (reading.hash) await page.locator(reading.hash).waitFor()
-      else await page.locator('.algorithm-view').waitFor()
+      else await page.locator(`[data-section-id="${reading.lessonId}"]`).first().waitFor()
       await page.waitForLoadState('networkidle')
       const nav = page.locator('[data-testid="reading-navigation"]').first()
       await nav.waitFor()
