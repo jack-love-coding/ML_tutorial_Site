@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 
 import { curriculumCatalog } from '../src/curriculum/catalog.ts'
 import type { CurriculumModuleMetadata } from '../src/curriculum/types.ts'
@@ -30,6 +30,7 @@ export async function generateCurriculumFiles() {
     lessons: lessons.map(({ id: lessonId, title }) => ({ id: lessonId, title })),
   }))
   return new Map([
+    ...mathLabModules.map(module => [`mathCourses/${module.id}.json`, `${JSON.stringify(module)}\n`] as [string, string]),
     ['mathSummaries.ts', `// Generated from final math course definitions. Do not edit by hand.\nimport type { MathLabModuleSummary } from '../../modules/math-lab/types/mathLab.ts'\nexport const mathLabModuleSummaries = ${JSON.stringify(mathLabModules.map(summarizeMathModule), null, 2)} satisfies MathLabModuleSummary[]\n`],
     ['algorithmCatalog.ts', `// Generated from runtime algorithm definitions. Do not edit by hand.\nimport type { CurriculumModule } from '../types.ts'\nexport const algorithmCatalog = ${JSON.stringify(algorithms, null, 2)} satisfies CurriculumModule[]\n`],
     ['catalogMetadata.ts', renderCurriculumCatalogMetadata(catalog)],
@@ -41,8 +42,9 @@ if (import.meta.main) {
   for (const [name, source] of await generateCurriculumFiles()) {
     const url = new URL(`../src/curriculum/generated/${name}`, import.meta.url)
     if (process.argv.includes('--check')) {
-      if (readFileSync(url, 'utf8') !== source) throw new Error(`Stale curriculum projection: ${name}. Run npm run curriculum:generate.`)
+      if (!existsSync(url) || readFileSync(url, 'utf8') !== source) throw new Error(`Stale curriculum projection: ${name}. Run npm run curriculum:generate.`)
     } else {
+      mkdirSync(new URL('.', url), { recursive: true })
       writeFileSync(url, source)
     }
   }

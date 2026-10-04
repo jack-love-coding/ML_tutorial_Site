@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, watch, type Component } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onBeforeUnmount, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
@@ -12,7 +12,9 @@ import ObservationPrompt from '../components/ObservationPrompt.vue'
 import { conceptIllustrationFor, type ConceptIllustration } from '../data/conceptIllustrations'
 import { observationPromptForModule } from '../data/checkpointReports'
 import { routeNavigationForModule } from '../data/learningRoutes'
-import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
+import { mathLabModuleSummaries as mathLabModules } from '../../../curriculum/generated/mathSummaries.ts'
+import { loadMathLabModule } from '../data/moduleLoader.ts'
+import { createMathCourseRequest } from '../utils/courseRequest.ts'
 import type {
   LabConfig,
   MathLabComponentName,
@@ -65,11 +67,14 @@ const labComponentRegistry = {
 } satisfies Record<MathLabComponentName, Component>
 
 const currentLocale = computed(() => locale.value as MathLabLocale)
+const mathLabModuleRegistry = Object.fromEntries(mathLabModules.map(module => [module.id, module]))
+const { module: loadedModule, failed: loadFailed, request: requestCourse, dispose } = createMathCourseRequest(loadMathLabModule)
+onBeforeUnmount(dispose)
 const moduleId = computed(() => route.params.moduleId as MathLabModuleId)
 const readingSelection = computed(() => selectedReadingStep(route.query.route, moduleId.value, route.hash.slice(1)))
 const isSelectedReading = computed(() => Boolean(readingSelection.value?.lessonIds))
 const moduleDefinition = computed(() => {
-  const module = mathLabModuleRegistry[moduleId.value]
+  const module = loadedModule.value
   return module ? projectMathReading(module, readingSelection.value) : undefined
 })
 const notebookCompanion = computed(() => moduleDefinition.value?.notebookCompanion)
@@ -140,19 +145,33 @@ const observationPrompt = computed(() => observationPromptForModule(moduleDefini
 
 watch(
   moduleId,
-  (nextModuleId) => {
+  async (nextModuleId) => {
     const resolvedModuleId = resolveMathLabModuleId(nextModuleId)
     if (!resolvedModuleId) {
+      dispose()
       router.replace('/math-lab')
       return
     }
     if (resolvedModuleId !== nextModuleId) {
-      router.replace(`/math-lab/modules/${resolvedModuleId}`)
+      dispose()
+      router.replace({ path: `/math-lab/modules/${resolvedModuleId}`, query: route.query, hash: route.hash })
       return
     }
+    await requestCourse(resolvedModuleId)
   },
   { immediate: true },
 )
+
+watch([moduleDefinition, () => route.hash], async () => {
+  await nextTick()
+  if (!moduleDefinition.value || !route.hash) return
+  // The section appears after the asynchronous body request, after router scrolling.
+  let sectionId = route.hash.slice(1)
+  try { sectionId = decodeURIComponent(sectionId) } catch { /* A malformed shared hash has no matching section. */ }
+  document.getElementById(sectionId)?.scrollIntoView({ behavior: 'auto', block: 'start' })
+}, { flush: 'post' })
+
+function retry() { return requestCourse(moduleId.value) }
 
 function manimAssetsForSection(section: MathLabSection) {
   if (!section.visualIds?.length) return []
@@ -475,4 +494,11 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
       </aside>
     </section>
   </div>
+  <section v-else-if="loadFailed" class="math-lab-panel" role="alert" data-testid="math-course-error">
+    <p>{{ currentLocale === 'zh-CN' ? '课程暂时无法加载，请重试。' : 'The lesson could not load. Please retry.' }}</p>
+    <button class="action-button" type="button" @click="retry">{{ currentLocale === 'zh-CN' ? '重试' : 'Retry' }}</button>
+  </section>
+  <section v-else class="math-lab-panel" role="status" aria-live="polite" data-testid="math-course-loading">
+    {{ currentLocale === 'zh-CN' ? '正在加载课程…' : 'Loading the lesson…' }}
+  </section>
 </template>

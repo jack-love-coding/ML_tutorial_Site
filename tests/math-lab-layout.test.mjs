@@ -538,7 +538,7 @@ test('math lab components and labs exist with expected contracts', () => {
   assert.match(homeSource, /withPublicBase/)
 })
 
-test('math module page SSR gives every inline image and Manim visual one unique review anchor', async () => {
+test('math module page renders an accessible loading state before requesting its body', async () => {
   const renderModulePage = (moduleId) => renderSfcWithVite(
     '/src/modules/math-lab/pages/MathLabModulePage.vue',
     {},
@@ -556,15 +556,10 @@ test('math module page SSR gives every inline image and Manim visual one unique 
 
   const html = await renderModulePage('calculus-derivatives-local-change')
 
-  for (const sectionId of ['derivatives-opening', 'derivatives-formal', 'derivatives-experiment']) {
-    assert.equal([...html.matchAll(new RegExp(`id="${sectionId}"`, 'g'))].length, 1, `${sectionId} needs one DOM anchor`)
-  }
-  assert.doesNotMatch(html, /id="derivative-window-(?:image|video)"/)
-  const repeatedReferenceHtml = await renderModulePage('beginner-probability-distributions')
-  assert.equal([...repeatedReferenceHtml.matchAll(/id="beginner-probability-story"/g)].length, 1)
-  assert.equal([...repeatedReferenceHtml.matchAll(/id="beginner-probability-story--beginner-probability-sample-space"/g)].length, 1)
-  const visualIds = [...repeatedReferenceHtml.matchAll(/id="(beginner-probability-story[^\"]*)"/g)].map((match) => match[1])
-  assert.equal(new Set(visualIds).size, visualIds.length)
+  assert.match(html, /role="status"/)
+  assert.match(html, /aria-live="polite"/)
+  assert.match(html, /data-testid="math-course-loading"/)
+  assert.doesNotMatch(html, /class="math-article-section/)
 })
 
 test('learning route summary renders progress, next module, and action link', async () => {
