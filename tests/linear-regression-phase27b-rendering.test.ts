@@ -23,6 +23,23 @@ const chapterIds: LinearRegressionObservationSceneId[] = [
 ]
 const locales: AppLocale[] = ['zh-CN', 'en']
 
+test('direct regression readers see the reused-data boundary and the two regularization scales', () => {
+  for (const [chapterId, blockId] of [['fit-line', 'fit-reference-case'], ['regularization', 'reg-reference-boundary']] as const) {
+    const block = linearRegressionLessons[chapterId].blocks.find(block => block.id === blockId)
+    assert.ok(block?.kind === 'explanation')
+    for (const locale of locales) {
+      assert.match(block.body[locale], /Bike Sharing/)
+      assert.match(block.body[locale], /\/learn\/housing-price-project/)
+      assert.match(renderMarkdownWithMath(block.body[locale]), /<a href=/)
+    }
+  }
+  for (const [id, scale] of [['reg-formula', 'λ = alpha / n'], ['reg-lasso-formula', 'λ = 2 × alpha']]) {
+    const block = linearRegressionLessons.regularization.blocks.find(block => block.id === id)
+    assert.ok(block?.kind === 'formula')
+    for (const locale of locales) assert.ok(block.explanation[locale].includes(scale), `${id}/${locale}`)
+  }
+})
+
 function source(relativePath: string) {
   return readFileSync(resolve(root, relativePath), 'utf8')
 }
@@ -47,7 +64,8 @@ test('Phase 27B preserves every TeX command at runtime and renders formulas thro
     ['training-gradient-formula', String.raw`$$\nabla_{\mathbf w}\mathrm{MSE}=\frac{2}{n}X^\top(X\mathbf w+b\mathbf1-\mathbf y)$$`],
     ['poly-formula', String.raw`$$\hat y=b+w_1x+w_2x^2+w_3\sin(2\pi h/24)+w_4\cos(2\pi h/24)$$`],
     ['coef-formula', String.raw`$$w_j^{raw}=w_j^{scaled}/s_j,\quad b^{raw}=b^{scaled}-\sum_jw_j^{scaled}\mu_j/s_j$$`],
-    ['reg-formula', String.raw`$$\min_{w,b}\frac1n\lVert Xw+b\mathbf1-y\rVert_2^2+\lambda\lVert w\rVert_q$$`],
+    ['reg-formula', String.raw`$$\min_{w,b}\frac1n\lVert Xw+b\mathbf1-y\rVert_2^2+\lambda\lVert w\rVert_2^2$$`],
+    ['reg-lasso-formula', String.raw`$$\min_{w,b}\frac1n\lVert Xw+b\mathbf1-y\rVert_2^2+\lambda\lVert w\rVert_1$$`],
   ])
 
   const formulas = chapterIds.flatMap((chapterId) =>
