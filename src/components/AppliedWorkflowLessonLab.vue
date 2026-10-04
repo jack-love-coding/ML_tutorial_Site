@@ -43,6 +43,15 @@ const classificationStageBySection: Readonly<Record<string, string>> = {
   'error-review': 'review',
 }
 
+const modelSelectionStageBySection: Readonly<Record<string, string>> = {
+  'one-split-risk': 'split', 'validation-role': 'valid', 'cross-validation': 'cv',
+  'pipeline-leakage': 'leak', 'grid-search': 'grid', 'final-refit': 'final',
+}
+const treeForestStageBySection: Readonly<Record<string, string>> = {
+  'non-gradient-model': 'tree', 'rectangular-splits': 'split', 'split-criteria': 'criterion',
+  'depth-overfitting': 'depth', 'random-forest': 'forest', 'feature-importance': 'importance',
+}
+
 const ragStageBySection: Readonly<Record<string, string>> = {
   'causal-language-modeling': 'causal',
   'decoding-generation': 'decode',
@@ -59,6 +68,8 @@ watch(
   (sectionId) => {
     if (props.moduleSlug === 'llm-rag') selectedRagStage.value = ragStageBySection[sectionId] ?? 'causal'
     if (props.moduleSlug === 'classification-project') selectedClassificationStage.value = classificationStageBySection[sectionId] ?? 'text'
+    if (props.moduleSlug === 'model-selection') selectedModelSelectionStage.value = modelSelectionStageBySection[sectionId] ?? 'split'
+    if (props.moduleSlug === 'tree-forest') selectedTreeForestStage.value = treeForestStageBySection[sectionId] ?? 'tree'
   },
   { immediate: true },
 )
@@ -553,6 +564,7 @@ const sectionHint = computed(() => {
           type="button"
           class="workflow-lab__stage"
           :class="{ 'is-active': selectedModelSelectionStage === stage.id }"
+          :aria-pressed="selectedModelSelectionStage === stage.id"
           @click="selectedModelSelectionStage = stage.id"
         >
           <span>{{ stage.label }}</span>
@@ -575,6 +587,7 @@ const sectionHint = computed(() => {
           type="button"
           class="workflow-lab__stage"
           :class="{ 'is-active': selectedTreeForestStage === stage.id }"
+          :aria-pressed="selectedTreeForestStage === stage.id"
           @click="selectedTreeForestStage = stage.id"
         >
           <span>{{ stage.label }}</span>
