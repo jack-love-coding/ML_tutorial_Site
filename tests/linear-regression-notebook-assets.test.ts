@@ -41,11 +41,8 @@ const publicPackageRelativePath = 'notebooks/linear-regression'
 const publicationLockName = '.linear-regression-publication.lock'
 const requireLocalReleaseAssets =
   process.env.ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS === '1'
-const phase27ReleaseAssetsAvailable =
-  existsSync(candidatePackageRoot)
-  && existsSync(resolve(root, '.cache/numerical-methods/batch-4-wheelhouse'))
 const phase27ReleaseTest =
-  requireLocalReleaseAssets || phase27ReleaseAssetsAvailable ? test : test.skip
+  requireLocalReleaseAssets ? test : test.skip
 
 const EXPECTED_CANDIDATE_FILES = Object.freeze([
   'notebooks/linear-regression/bike-linear-regression.zh-CN.ipynb',

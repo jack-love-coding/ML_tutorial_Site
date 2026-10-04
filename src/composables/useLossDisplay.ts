@@ -19,7 +19,7 @@ export function useLossDisplay(chapter: Ref<string>) {
     if (!lossFunctionsChapterIds.includes(chapterId as LossFunctionsChapterId)) return
     summaryLoading.value = true
     try {
-      const response = await fetch(withPublicBase(`/notebooks/loss-functions/display/${chapterId}.json`), { signal: request.signal, headers: { Accept: 'application/json' } })
+      const response = await fetch(withPublicBase(`/loss-functions/display/${chapterId}.json`), { signal: request.signal, headers: { Accept: 'application/json' } })
       if (!response.ok) throw new Error(`Display data unavailable: ${response.status}`)
       const data = await response.json()
       if (data?.schemaVersion !== 1 || data.chapterId !== chapterId || !data.summaries || typeof data.summaries !== 'object') throw new TypeError('Invalid loss display data')

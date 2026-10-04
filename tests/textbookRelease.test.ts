@@ -23,6 +23,7 @@ test('Pages entries cover every module, chapter, short URL, and compatibility re
 })
 test('loss display data preserves every shown value and aggregate from the downloadable results', () => {
   for (const [path, expected] of lossDisplayFiles()) {
+    assert.ok(path.startsWith('public/loss-functions/display/'), 'derived display data must stay outside the indivisible frozen Notebook package')
     assert.equal(readFileSync(path, 'utf8'), expected, `${path}: regenerate display data`)
     assert.ok(Buffer.byteLength(expected) < 25000, path)
     const data = JSON.parse(expected)

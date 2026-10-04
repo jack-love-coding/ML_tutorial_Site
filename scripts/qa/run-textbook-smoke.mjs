@@ -23,11 +23,19 @@ try {
   for (const name of requested) if (!matrices.some(([session]) => session === name)) throw new Error(`Unknown matrix: ${name}`)
   for (const [session, file] of matrices.filter(([session]) => !requested.size || requested.has(session))) {
     try {
-      await cli(session, ['open', 'http://127.0.0.1:4173/ML_tutorial_Site/'])
-      if (session === 'textbook-route' && process.env.TEXTBOOK_SMOKE_UNITS) {
-        const unitIds = process.env.TEXTBOOK_SMOKE_UNITS.split(',').map(id => id.trim()).filter(Boolean)
-        const code = readFileSync(resolve(cwd, 'scripts/qa', file), 'utf8').replace('/* candidate-unit-ids */ []', JSON.stringify(unitIds))
-        await cli(session, ['run-code', code])
+      await cli(session, ['open', '--config', 'scripts/qa/browser.config.json', 'http://127.0.0.1:4173/ML_tutorial_Site/'])
+      if (session === 'textbook-route') {
+        const manifest = JSON.parse(readFileSync(resolve(cwd, 'dist/textbook-readings.json'), 'utf8'))
+        const requestedIds = process.env.TEXTBOOK_SMOKE_UNITS?.split(',').map(id => id.trim()).filter(Boolean)
+        const unitIds = requestedIds ?? manifest.units.filter(unit => unit.publicationStatus !== 'preview').map(unit => unit.id)
+        if (!unitIds.length) throw new Error('No units selected for browser verification')
+        for (const id of unitIds) if (!manifest.units.some(unit => unit.id === id)) throw new Error('Unknown candidate unit: ' + id)
+        // Bound each invocation by one unit as the released reading sequence grows.
+        // The probe still clicks and verifies its final cross-unit handoff.
+        for (const unitId of unitIds) {
+          const code = readFileSync(resolve(cwd, 'scripts/qa', file), 'utf8').replace('/* candidate-unit-ids */ []', JSON.stringify([unitId]))
+          await cli(session, ['run-code', code])
+        }
       } else await cli(session, ['run-code', '--filename', `scripts/qa/${file}`])
     } finally { await cli(session, ['close']) }
   }

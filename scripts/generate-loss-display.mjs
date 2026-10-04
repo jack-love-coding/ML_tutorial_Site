@@ -19,12 +19,12 @@ export function lossDisplayFiles() {
       summaries[id] = { ...full, rows: full.rows.slice(0, 3), highContributionRows: full.highContributionRows.slice(0, 5) }
       sources.push({ id, publicPath, sha256: createHash('sha256').update(raw).digest('hex') })
     }
-    files.set(`public/notebooks/loss-functions/display/${chapterId}.json`, JSON.stringify({ schemaVersion: 1, chapterId, sources, summaries }) + '\n')
+    files.set(`public/loss-functions/display/${chapterId}.json`, JSON.stringify({ schemaVersion: 1, chapterId, sources, summaries }) + '\n')
   }
   return files
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  mkdirSync('public/notebooks/loss-functions/display', { recursive: true })
+  if (!process.argv.includes('--check')) mkdirSync('public/loss-functions/display', { recursive: true })
   for (const [path, text] of lossDisplayFiles()) {
     if (process.argv.includes('--check')) {
       if (readFileSync(path, 'utf8') !== text) throw new Error(`Display data drift: ${path}`)

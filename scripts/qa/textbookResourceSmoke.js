@@ -32,13 +32,13 @@ async (page) => {
   await page.goto(base + '/learn/loss-functions/why-loss?route=core-learning-path')
   await page.waitForLoadState('networkidle')
   if (requests.some(url => /outputs\/(regression-loss-summary|bce-gradient-summary)\.json/.test(url))) throw new Error('Full loss summary fetched at runtime')
-  const response = await page.request.get(base + '/notebooks/loss-functions/display/why-loss.json')
+  const response = await page.request.get(base + '/loss-functions/display/why-loss.json')
   if (!response.ok() || (await response.body()).length >= 25000) throw new Error('Loss display budget exceeded')
-  await page.route('**/notebooks/loss-functions/display/*.json', route => route.fulfill({ status: 200, contentType: 'application/json', body: '{}' }))
+  await page.route('**/loss-functions/display/*.json', route => route.fulfill({ status: 200, contentType: 'application/json', body: '{}' }))
   await page.reload()
   await page.waitForLoadState('networkidle')
   if (!await page.getByText(/本地运行结果暂时无法读取|Local run results are unavailable/).count()) throw new Error('Missing loss resource-failure explanation')
-  await page.unroute('**/notebooks/loss-functions/display/*.json')
+  await page.unroute('**/loss-functions/display/*.json')
   if (errors.length) throw new Error(errors.join('\n'))
   return { passed: 5, staticEntrypoints: routes.length, homepage: 'lightweight', lossDisplay: 'under 25 KB per chapter', failureFallback: 'visible' }
 }

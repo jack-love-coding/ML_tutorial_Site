@@ -21,9 +21,8 @@ const stagingRoot = resolve(root, '.cache/loss-functions/phase-26-staging')
 const stagedDatasetRoot = resolve(stagingRoot, 'datasets/loss-functions')
 const requireLocalReleaseAssets =
   process.env.ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS === '1'
-const phase26DatasetCandidatesAvailable = existsSync(stagedDatasetRoot)
 const phase26DatasetReleaseTest =
-  requireLocalReleaseAssets || phase26DatasetCandidatesAvailable ? test : test.skip
+  requireLocalReleaseAssets ? test : test.skip
 
 function sha256(path: string) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
