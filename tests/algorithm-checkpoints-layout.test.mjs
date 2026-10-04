@@ -8,29 +8,16 @@ function read(path) {
   return readFileSync(new URL(path, root), 'utf8')
 }
 
-test('algorithm modules keep checkpoints as ungraded teaching review', () => {
-  const algorithmViewSource = read('src/views/AlgorithmView.vue')
-  const componentSource = read('src/components/AlgorithmCheckpointQuiz.vue')
-
-  assert.match(algorithmViewSource, /AlgorithmCheckpointQuiz/)
-  assert.match(algorithmViewSource, /moduleDefinition\.checkpoints/)
-  assert.match(algorithmViewSource, /loadAlgorithmProgress/)
-  assert.match(algorithmViewSource, /setLastVisitedAlgorithmModule/)
-  assert.doesNotMatch(
-    algorithmViewSource,
-    /appendAlgorithmQuizAttempt|markAlgorithmModuleComplete|shouldCompleteAlgorithmModule|onAlgorithmQuizSubmit|mode="scored"/,
-  )
-
-  assert.match(componentSource, /理解回顾 · 不计分|Concept review · Not graded/)
-  assert.match(componentSource, /answers\[checkpoint\.id\]/)
-  assert.match(componentSource, /参考思路|Reference explanation/)
-  assert.match(componentSource, /router-link/)
-  assert.match(componentSource, /checkpoint\.misconceptionTags/)
-  assert.doesNotMatch(
-    componentSource,
-    /evaluateAlgorithmCheckpointAnswer|buildAlgorithmQuizAttempt|defineEmits|function submit|答对|提交检测|is-correct/,
-  )
+test('algorithm modules expose reference examples with no learner state', () => {
+  const page = read('src/views/AlgorithmView.vue')
+  const examples = read('src/components/AlgorithmCheckpointQuiz.vue')
+  assert.match(page, /AlgorithmCheckpointQuiz/)
+  assert.match(examples, /ReferenceExample/)
+  assert.match(examples, /revisitRoute/)
+  assert.doesNotMatch(page, /loadAlgorithmProgress|setLastVisitedAlgorithmModule/)
+  assert.doesNotMatch(examples, /v-model|defineEmits|is-correct/)
 })
+
 
 test('AI Overview and Python review use the same immediate explanation behavior', () => {
   const chapterLabSource = read('src/modules/ai-overview/labs/AiOverviewChapterLab.vue')

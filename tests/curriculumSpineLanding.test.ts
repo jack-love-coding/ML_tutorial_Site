@@ -24,7 +24,7 @@ test('spine landing route is a dedicated stage view while preserving the flat co
   assert.match(navigationSource, /'\/spine'/)
   assert.match(navigationSource, /'\/tracks\/core-learning-path'/)
   assert.match(navigationSource, /'\/learn'/)
-  assert.match(homeSource, /route: '\/spine'/)
+  assert.match(homeSource, /\/spine/)
   assert.match(progressSource, /route: '\/spine'/)
   assert.match(progressSource, /route: '\/tracks\/core-learning-path'/)
 })

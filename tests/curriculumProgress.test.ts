@@ -210,31 +210,11 @@ test('progress v2 migration is idempotent when v1 input does not change', () => 
   assert.equal(storage.getItem(learningProgressV2StorageKey), firstStored)
 })
 
-test('direct math lab module bootstrap migrates v1-only progress before lab state access', () => {
-  const modulePageSource = read('src/modules/math-lab/pages/MathLabModulePage.vue')
-  const storage = new MemoryStorage({
-    [mathLabProgressStorageKey]: json({
-      completedModuleIds: ['beginner-linear-algebra'],
-      lastVisitedModuleId: 'beginner-linear-algebra',
-      weakConceptTags: ['vector-geometry'],
-      quizAttempts: [],
-      mastery: [],
-      updatedAt: '2026-06-24T09:00:00.000Z',
-    }),
-  })
-
-  assert.match(modulePageSource, /const learningProgress = ref\(migrateLearningProgressV2\(\)\)/)
-  assert.doesNotMatch(modulePageSource, /loadLearningProgressV2/)
-
-  const bootstrapped = migrateLearningProgressV2(storage, '2026-06-25T00:00:00.000Z')
-  const persisted = loadLearningProgressV2(storage, '2026-06-25T00:00:00.000Z')
-
-  assert.equal(bootstrapped.modules['beginner-linear-algebra']?.completed, true)
-  assert.equal(bootstrapped.lastVisited?.moduleId, 'beginner-linear-algebra')
-  assert.deepEqual(bootstrapped.weakConceptTags, ['vector-geometry'])
-  assert.deepEqual(persisted, bootstrapped)
-  assert.ok(storage.getItem(learningProgressV2MigrationKey))
+test('direct math lab visits never bootstrap or migrate learning storage', () => {
+  const source = read('src/modules/math-lab/pages/MathLabModulePage.vue')
+  assert.doesNotMatch(source, /migrateLearningProgressV2|loadLearningProgressV2|saveMathLabProgress|recordLearningProgress/)
 })
+
 
 test('progress v2 migration tolerates corrupted v1 json and preserves raw data', () => {
   const storage = new MemoryStorage({

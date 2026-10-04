@@ -5,7 +5,6 @@ import type { AppLocale, LocalizedCopy } from '../types/ml'
 import {
   cnnShapeParameterScenarios,
   evaluateCnnShapeParameterChallenge,
-  type CnnParameterComparison,
   type CnnShapeParameterPrediction,
   type CnnShapeParameterScenario,
   type CnnShapeParameterScenarioId,
@@ -90,93 +89,40 @@ const scenarioCopy: ScenarioCopy[] = [
   },
 ]
 
-const comparisonOptions: Array<{ id: CnnParameterComparison; label: LocalizedCopy; detail: LocalizedCopy }> = [
-  {
-    id: 'conv-fewer',
-    label: loc('卷积更少', 'Conv fewer'),
-    detail: loc('局部连接和共享权重胜出。', 'Local connectivity and shared weights win.'),
-  },
-  {
-    id: 'dense-fewer',
-    label: loc('全连接更少', 'Dense fewer'),
-    detail: loc('整图连接反而更省参数。', 'Whole-image connections use fewer parameters.'),
-  },
-  {
-    id: 'same',
-    label: loc('一样多', 'Same'),
-    detail: loc('两种层参数量相同。', 'The two layers use the same number of parameters.'),
-  },
-]
-
 const copy = computed(() =>
   locale.value === 'zh-CN'
     ? {
-        eyebrow: 'CNN shape 挑战',
-        title: '先预测 Conv2d 的输出和参数量',
-        reset: '重置预测',
+        eyebrow: 'CNN shape 场景',
+        title: '观察 Conv2d 的输出和参数量',
+        reset: '重置场景',
         scenario: '场景',
         code: '代码线索',
         inputTensor: '输入 tensor',
-        prediction: '你的预测',
-        outputHeight: '输出高',
-        outputWidth: '输出宽',
-        outputChannels: '输出 channel',
-        convParameterCount: 'Conv 参数量',
-        comparison: '谁的参数更少？',
         evidence: '公式计算结果',
-        checkEvidence: '查看计算结果',
-        beforeEvidence: '先完成预测，再查看公式计算结果和反馈。',
-        feedback: '反馈',
-        correct: '全部关键判断正确',
-        partial: '还有判断需要修正',
         shape: '输出 shape',
         convParams: '卷积参数',
         denseParams: 'dense 对比',
         ratio: 'dense / conv',
-        resultShape: 'shape 判断',
-        resultChannels: 'channel 判断',
-        resultParams: '参数量判断',
-        resultComparison: '对比判断',
-        yes: '正确',
-        no: '待修正',
         why: '卷积参数只跟 kernel、输入 channel 和 filter 数有关；dense 要把每个输入像素连到每个输出位置。',
       }
     : {
-        eyebrow: 'CNN shape challenge',
+        eyebrow: 'CNN shape scenarios',
         title: 'Predict Conv2d output and parameters first',
-        reset: 'Reset prediction',
+        reset: 'Reset scenario',
         scenario: 'Scenario',
         code: 'Code clue',
         inputTensor: 'Input tensor',
-        prediction: 'Your prediction',
-        outputHeight: 'Output height',
-        outputWidth: 'Output width',
-        outputChannels: 'Output channels',
-        convParameterCount: 'Conv parameters',
-        comparison: 'Which has fewer parameters?',
         evidence: 'Formula evidence',
-        checkEvidence: 'Check evidence',
-        beforeEvidence: 'Finish your prediction first, then check formula evidence and feedback.',
-        feedback: 'Feedback',
-        correct: 'All key checks are correct',
-        partial: 'Some checks still need revision',
         shape: 'Output shape',
         convParams: 'Convolution params',
         denseParams: 'Dense comparison',
         ratio: 'dense / conv',
-        resultShape: 'Shape check',
-        resultChannels: 'Channel check',
-        resultParams: 'Parameter check',
-        resultComparison: 'Comparison check',
-        yes: 'Correct',
-        no: 'Revise',
         why: 'Convolution parameters depend on kernel size, input channels, and filters; dense connects every input pixel to every output position.',
       },
 )
 
 const selectedScenarioId = ref<CnnShapeParameterScenarioId>('same-padding-rgb')
 const prediction = ref<CnnShapeParameterPrediction>({ ...scenarioCopy[0].defaultPrediction })
-const hasChecked = ref(false)
 
 const activeScenario = computed<CnnShapeParameterScenario>(
   () => cnnShapeParameterScenarios.find((scenario) => scenario.id === selectedScenarioId.value) ?? cnnShapeParameterScenarios[0],
@@ -192,13 +138,6 @@ const snapshot = computed(() =>
     prediction: prediction.value,
   }),
 )
-
-const predictionFields = computed(() => [
-  { id: 'outputHeight', label: copy.value.outputHeight, value: 'outputHeight' as const },
-  { id: 'outputWidth', label: copy.value.outputWidth, value: 'outputWidth' as const },
-  { id: 'outputChannels', label: copy.value.outputChannels, value: 'outputChannels' as const },
-  { id: 'convParameterCount', label: copy.value.convParameterCount, value: 'convParameterCount' as const },
-])
 
 const evidenceCards = computed(() => [
   {
@@ -236,27 +175,16 @@ const evidenceCards = computed(() => [
   },
 ])
 
-const resultRows = computed(() => [
-  { id: 'shape', label: copy.value.resultShape, correct: snapshot.value.result.outputShapeCorrect },
-  { id: 'channels', label: copy.value.resultChannels, correct: snapshot.value.result.outputChannelsCorrect },
-  { id: 'params', label: copy.value.resultParams, correct: snapshot.value.result.convParameterCountCorrect },
-  { id: 'comparison', label: copy.value.resultComparison, correct: snapshot.value.result.comparisonCorrect },
-])
-
 function chooseScenario(scenario: ScenarioCopy) {
   selectedScenarioId.value = scenario.id
   prediction.value = { ...scenario.defaultPrediction }
-  hasChecked.value = false
 }
 
 function resetPrediction() {
+  selectedScenarioId.value = 'same-padding-rgb'
   prediction.value = { ...activeScenarioCopy.value.defaultPrediction }
-  hasChecked.value = false
 }
 
-function revealEvidence() {
-  hasChecked.value = true
-}
 </script>
 
 <template>
@@ -295,42 +223,7 @@ function revealEvidence() {
       <code>{{ activeScenario.code }}</code>
     </section>
 
-    <section class="cnn-shape-challenge__prediction" :aria-label="copy.prediction">
-      <label v-for="field in predictionFields" :key="field.id">
-        <span>{{ field.label }}</span>
-        <input
-          v-model.number="prediction[field.value]"
-          type="number"
-          min="0"
-          step="1"
-          inputmode="numeric"
-        >
-      </label>
-    </section>
-
-    <fieldset class="cnn-shape-challenge__comparison">
-      <legend>{{ copy.comparison }}</legend>
-      <label
-        v-for="option in comparisonOptions"
-        :key="option.id"
-        :class="{ 'is-active': prediction.comparison === option.id }"
-      >
-        <input v-model="prediction.comparison" type="radio" name="cnn-parameter-comparison" :value="option.id">
-        <span>
-          <strong>{{ localized(option.label) }}</strong>
-          <small>{{ localized(option.detail) }}</small>
-        </span>
-      </label>
-    </fieldset>
-
-    <section v-if="!hasChecked" class="cnn-shape-challenge__gate">
-      <span>{{ copy.beforeEvidence }}</span>
-      <button type="button" class="cnn-shape-challenge__reset" @click="revealEvidence">
-        {{ copy.checkEvidence }}
-      </button>
-    </section>
-
-    <section v-if="hasChecked" class="cnn-shape-challenge__evidence" :aria-label="copy.evidence">
+    <section class="cnn-shape-challenge__evidence" :aria-label="copy.evidence">
       <article v-for="card in evidenceCards" :key="card.id">
         <span>{{ card.label }}</span>
         <strong>{{ card.value }}</strong>
@@ -339,23 +232,6 @@ function revealEvidence() {
       </article>
     </section>
 
-    <section
-      v-if="hasChecked"
-      class="cnn-shape-challenge__feedback"
-      :class="{ 'is-correct': snapshot.result.allCorrect }"
-      :aria-label="copy.feedback"
-    >
-      <div>
-        <span>{{ snapshot.result.allCorrect ? copy.correct : copy.partial }}</span>
-        <strong>{{ snapshot.expected.outputHeight }} x {{ snapshot.expected.outputWidth }} x {{ snapshot.expected.outputChannels }}</strong>
-      </div>
-      <dl>
-        <div v-for="row in resultRows" :key="row.id">
-          <dt>{{ row.label }}</dt>
-          <dd>{{ row.correct ? copy.yes : copy.no }}</dd>
-        </div>
-      </dl>
-      <p>{{ copy.why }}</p>
-    </section>
+    <p>{{ copy.why }}</p>
   </section>
 </template>

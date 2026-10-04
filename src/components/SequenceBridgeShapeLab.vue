@@ -32,8 +32,8 @@ const copy = computed(() =>
     ? {
         badge: 'Shape 任务实验',
         title: '从 token ids 追踪到 attention 输入',
-        intro: '先预测形状，再改变序列长度、padding、mask 和 query 位置，观察 [B,T] 怎样变成 [B,T,H] 并交给 Q/K/V。',
-        predict: '先预测',
+        intro: '改变序列长度、padding、mask 和 query 位置，观察 [B,T] 怎样变成 [B,T,H] 并交给 Q/K/V。',
+        predict: '观察形状',
         predictBody: '如果 T 增大但 H 不变，embedding table、hidden states 和 attention score 哪一个维度会改变？',
         controls: '可操作变量',
         reset: '重置',
@@ -54,8 +54,8 @@ const copy = computed(() =>
     : {
         badge: 'Shape task lab',
         title: 'Trace token ids into attention input',
-        intro: 'Predict first, then change sequence length, padding, mask, and query position to watch [B,T] become [B,T,H] before Q/K/V.',
-        predict: 'Predict first',
+        intro: 'Observe shapes, then change sequence length, padding, mask, and query position to watch [B,T] become [B,T,H] before Q/K/V.',
+        predict: 'Observe shapes',
         predictBody: 'If T grows while H stays fixed, which dimension changes in the embedding table, hidden states, and attention scores?',
         controls: 'Manipulable variables',
         reset: 'Reset',

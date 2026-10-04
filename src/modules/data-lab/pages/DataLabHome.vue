@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { dataLabModules } from '../data/modules'
-import type { DataLabLocale, DataLabProgress } from '../types/dataLab'
-import { loadDataLabProgress } from '../utils/progress'
+import type { DataLabLocale } from '../types/dataLab'
 
 const { locale } = useI18n()
-const progress = ref<DataLabProgress>(loadDataLabProgress())
 const currentLocale = computed(() => locale.value as DataLabLocale)
 
 const copy = computed(() =>
@@ -45,10 +43,6 @@ const copy = computed(() =>
       },
 )
 
-const continueRoute = computed(() => {
-  const preferred = progress.value.lastVisitedModuleId ?? dataLabModules[0]?.id ?? 'numerical-data'
-  return `/data-lab/modules/${preferred}`
-})
 </script>
 
 <template>
@@ -61,9 +55,6 @@ const continueRoute = computed(() => {
         <div class="hero__actions">
           <router-link class="action-button action-button--primary" to="/data-lab/modules/numerical-data">
             {{ copy.start }}
-          </router-link>
-          <router-link class="action-button" :to="continueRoute">
-            {{ copy.continue }}
           </router-link>
           <router-link class="action-button" to="/math-lab">
             Math Lab
@@ -91,7 +82,6 @@ const continueRoute = computed(() => {
             v-for="moduleDefinition in dataLabModules"
             :key="moduleDefinition.id"
             class="data-lab-path__node"
-            :class="{ 'is-complete': progress.completedModuleIds.includes(moduleDefinition.id) }"
             :to="`/data-lab/modules/${moduleDefinition.id}`"
             :style="{ '--data-accent': moduleDefinition.accent, '--data-theme': moduleDefinition.theme }"
           >
@@ -99,15 +89,7 @@ const continueRoute = computed(() => {
             <strong>{{ moduleDefinition.title[currentLocale] }}</strong>
             <p>{{ moduleDefinition.subtitle[currentLocale] }}</p>
             <small>
-              {{
-                progress.completedModuleIds.includes(moduleDefinition.id)
-                  ? currentLocale === 'zh-CN'
-                    ? '已完成'
-                    : 'Completed'
-                  : currentLocale === 'zh-CN'
-                    ? '打开章节'
-                    : 'Open chapter'
-              }}
+              {{ currentLocale === 'zh-CN' ? '打开章节' : 'Open chapter' }}
             </small>
           </router-link>
         </div>

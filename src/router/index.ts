@@ -100,7 +100,7 @@ export const router = createRouter({
     {
       path: '/math-lab/diagnostic',
       name: 'math-lab-diagnostic',
-      component: () => import('../modules/math-lab/pages/DiagnosticPage.vue'),
+      redirect: '/library/math',
     },
     {
       path: '/math-lab/modules/:moduleId',
@@ -152,7 +152,7 @@ export const router = createRouter({
     {
       path: '/progress',
       name: 'curriculum-progress',
-      component: () => import('../views/CurriculumProgressView.vue'),
+      redirect: '/spine',
     },
     {
       path: '/python',

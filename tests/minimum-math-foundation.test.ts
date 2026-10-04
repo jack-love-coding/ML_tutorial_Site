@@ -93,7 +93,7 @@ test('four-chapter entry, copy control, output panel, and local teaching images 
   const codeLab = readFileSync(new URL('../src/modules/math-lab/components/CodeLab.vue', import.meta.url), 'utf8')
 
   for (const id of expectedIds) assert.match(home, new RegExp(`${id}\\?route=minimum-foundation`))
-  assert.match(home, /:show-reports="false"/)
+  assert.doesNotMatch(home, /CheckpointReportCard/)
   assert.match(page, /:output="concept\.codeOutput\?\.\[currentLocale\]"/)
   assert.match(page, /:copy-label="currentLocale === 'zh-CN' \? '复制代码' : 'Copy code'"/)
   assert.match(codeLab, /navigator\.clipboard\.writeText/)

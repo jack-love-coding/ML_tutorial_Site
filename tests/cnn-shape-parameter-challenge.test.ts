@@ -82,15 +82,15 @@ test('cnn shape parameter challenge normalizes invalid learner predictions', () 
   assert.equal(snapshot.result.comparisonCorrect, false)
 })
 
-test('cnn shape parameter challenge component renders prediction and evidence controls', () => {
+test('cnn shape parameter challenge component renders scenario and evidence controls', () => {
   assert.ok(existsSync(new URL('src/components/CnnShapeParameterChallengeLab.vue', root)))
   const source = read('src/components/CnnShapeParameterChallengeLab.vue')
 
   assert.match(source, /evaluateCnnShapeParameterChallenge/)
   assert.match(source, /cnnShapeParameterScenarios/)
-  assert.match(source, /hasChecked/)
-  assert.match(source, /revealEvidence/)
-  assert.match(source, /v-if="hasChecked"/)
+  assert.doesNotMatch(source, /hasChecked/)
+  assert.doesNotMatch(source, /revealEvidence/)
+  assert.doesNotMatch(source, /v-if="hasChecked"/)
   assert.match(source, /convParameterCount/)
   assert.match(source, /denseParameterCount/)
   assert.match(source, /outputHeight/)

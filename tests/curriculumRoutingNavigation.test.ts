@@ -41,7 +41,7 @@ function read(path: string) {
 test('curriculum navigation exposes direct primary destinations and one category menu', () => {
   assert.deepEqual(
     curriculumNavigationMenus.map((menu) => menu.id),
-    ['courses', 'topic-library', 'projects', 'progress'],
+    ['courses', 'topic-library', 'projects'],
   )
 
   const byId = new Map(curriculumNavigationMenus.map((item) => [item.id, item]))
@@ -49,7 +49,7 @@ test('curriculum navigation exposes direct primary destinations and one category
   assert.equal(byId.get('courses')?.label['zh-CN'], 'AI 基础课程')
   assert.equal(byId.get('courses')?.label.en, 'AI Foundations')
   assert.equal(byId.get('projects')?.route, '/tracks/project-practice')
-  assert.equal(byId.get('progress')?.route, '/progress')
+  assert.equal(byId.has('progress'), false)
   assert.equal(byId.get('topic-library')?.label['zh-CN'], '专题学习')
   assert.equal(byId.get('topic-library')?.label.en, 'Topic Library')
   const topicItems = byId.get('topic-library')?.groups.flatMap((group) => group.items) ?? []
