@@ -1,25 +1,33 @@
-# 辅助教材后续重构清单
+# 辅助教材交付与后续优先级
 
-更新：2026-10-04。当前目标与边界见 [维护说明](textbook-maintenance.md)。单元发布状态只在 `src/curriculum/reading.ts` 维护。
+更新：2026-10-04。本轮 P0—P3 已分别通过验收、合并并部署，六个单元进入小班试用。当前边界见 [维护说明](textbook-maintenance.md)，每个 PR 的合并 SHA、部署证据和回退版本见 [发布记录](releases/textbook-refactor-release.md)。单元发布状态只在 `src/curriculum/reading.ts` 维护，不因工程任务完成而自动升级为 published。
 
-| 顺序 | 独立交付 | 验收门槛 | 状态 |
-| --- | --- | --- | --- |
-| P0 | 数学选读范围修复；依次合并 #64—70 | 选读正文/目录/资源一致；每个 PR CI 与部署成功 | 修复已验证，合并中 |
-| P1-1 | 统一当前维护入口 | 新入口不再指向 Part C 或学习记录；历史规划可查 | 已整理 |
-| P1-2 | 回归目标函数与参考案例说明 | Ridge/Lasso 公式及 λ/α 尺度正确；冻结数值不变 | 已修正，待发布 |
-| P1-3 | 发布检查跟随单元状态 | Algorithm/Math/Data 与关联 manifest 均覆盖；阅读序列由单元派生 | 已实现，待发布 |
-| P1-4a | 数学资源首页只读摘要 | 资源卡片/路线不变；首页不请求完整数学正文 | 已实现，待发布 |
-| P1-4b | 数学正文按课程加载 | 33 课逐字段一致；加载失败、切课与卸载安全 | 已实现，待发布 |
-| P1-5a | 单元 3 试用 | 28 节连续阅读、数学桥接与模型解释验收通过 | 已验收，待发布 |
-| P1-5b | 单元 4 试用 | 11 节连续阅读及回归→复杂度→房价案例验收通过 | 已验收，待发布 |
-| P2-1 | 函数桥接最终 provider | 双语正文、公式、资源和结果指纹一致 | 已验证，待发布 |
-| P2-2 | 导数桥接最终 provider | 同上，每课独立 PR | 已验证，待发布 |
-| P2-3 | 浏览器及严格离线验证环境 | 浏览器版本明确；严格环境/缓存缺失即失败 | 已验证，待发布；离线 67 项通过、0 跳过 |
-| P3-1 | 删除无入口考核界面 | 旧路由兼容，存储工具/兼容测试保留 | 已验证，待发布 |
-| P3-2 | 单元 5 试用 | 概率→逻辑回归→分类损失→指标与阈值连续验收 | 已验收，待发布 |
-| P3-3a | 补齐现有分类项目参考包 | 标签类型一致；独立冻结 train/validation/test；仅验证集选阈值；双语 Notebook 独立重运行及结果/hash 一致 | 已验证，待发布 |
-| P3-3b | 单元 6 试用 | 树/森林→交叉验证→分类案例 18 节连续验收；参考包通过后单独改为 pilot | 已验收，待发布 |
+## 本轮已交付
 
-每个运行时 PR 运行 `npm test`、`npm run build`、`npm run build:pages` 及受影响的专项检查。浏览器检查覆盖双语、390px、键盘、reduced motion、错误提示、旧链接与刷新；存储检查覆盖空存储和预置历史数据逐字节不变。
+| 顺序 | 独立交付 | 合并 PR |
+| --- | --- | --- |
+| P0 | 数学选读及必要实验；顺序合并原依赖链 | [#64](https://github.com/jack-love-coding/ML_tutorial_Site/pull/64)—[#70](https://github.com/jack-love-coding/ML_tutorial_Site/pull/70) |
+| P1-1 | 统一当前维护入口，保留历史规划 | [#71](https://github.com/jack-love-coding/ML_tutorial_Site/pull/71) |
+| P1-2 | Ridge/Lasso 公式、参数尺度与参考案例说明 | [#72](https://github.com/jack-love-coding/ML_tutorial_Site/pull/72) |
+| P1-3 | 发布资源与浏览器阅读检查由单元状态派生 | [#73](https://github.com/jack-love-coding/ML_tutorial_Site/pull/73) |
+| P1-4 | 数学首页摘要、33 门课程分别异步加载 | [#74](https://github.com/jack-love-coding/ML_tutorial_Site/pull/74)、[#75](https://github.com/jack-love-coding/ML_tutorial_Site/pull/75) |
+| P1-5 | 单元 3 的 28 节、单元 4 的 11 节分别验收开放 | [#76](https://github.com/jack-love-coding/ML_tutorial_Site/pull/76)、[#77](https://github.com/jack-love-coding/ML_tutorial_Site/pull/77) |
+| P2 | 函数与导数最终 provider，内容和结果保持一致 | [#78](https://github.com/jack-love-coding/ML_tutorial_Site/pull/78)、[#79](https://github.com/jack-love-coding/ML_tutorial_Site/pull/79) |
+| P2 | 固定浏览器、严格离线预检与部署元数据 | [#80](https://github.com/jack-love-coding/ML_tutorial_Site/pull/80) |
+| P3 | 删除退役考核界面，保留兼容存储工具与旧链接 | [#81](https://github.com/jack-love-coding/ML_tutorial_Site/pull/81) |
+| P3 | 单元 5 的 30 节分别验收开放 | [#82](https://github.com/jack-love-coding/ML_tutorial_Site/pull/82) |
+| P3 | 补齐既有分类项目参考包，再开放单元 6 的 18 节 | [#83](https://github.com/jack-love-coding/ML_tutorial_Site/pull/83)、[#84](https://github.com/jack-love-coding/ML_tutorial_Site/pull/84) |
 
-普通 CI 验证冻结公开产物、引用和 hash；重新生成资源时必须使用匹配合同的严格离线环境。普通套件中的 28 项条件跳过已在 2026-10-04 的独立严格套件中验证：67 项通过、0 跳过，详见 [验证记录](reproducible-validation.md)。后续冻结产物或生成器变更仍须重跑。
+普通测试保留的 28 项条件跳过已通过独立严格套件补齐：67 项通过、0 跳过，原六份及新增两份 SMS Notebook 均离线重运行。完整环境和验证范围见 [可复现验证](reproducible-validation.md)。修改生成器、合同或冻结数据时必须重跑，不能沿用旧结果。
+
+## 后续优先级
+
+| 优先级 | 触发条件与工作 | 完成标准 |
+| --- | --- | --- |
+| P0 | 小班试用发现阅读中断、错误公式或结果、失效资源、移动端无法操作 | 最小复现、针对性修复与回归检查；涉及正文的中英文同步；保留旧链接和历史数据 |
+| P1 | 根据课堂反馈修正前置知识、步骤说明、实验解释及单元衔接 | 学生能依教材独立复现；每个单元单独内容验收后再决定是否 published，不以考核或行为统计替代 |
+| P2 | 需要实质修改某门数学课时，继续收敛该课的历史 enhancer；有可复现性能问题时再拆分相应资源 | 每课独立 provider/PR，双语正文、资源和数值对比通过；用网络或运行指标证明性能改善 |
+
+继续使用现有 Vue、三套 schema、Catalog adapters、按需加载与 GitHub Pages。不新增账号、后台、云端学习记录，不恢复评分和进度功能，不扩展深度学习主线。后续重构以课堂反馈和具体维护问题为依据，避免再建立平行课程或第二套目录。
+
+每个运行时 PR 运行 `npm test`、`npm run build`、`npm run build:pages` 及相关专项检查。浏览器覆盖双语、390px、键盘、reduced motion、资源失败、旧链接和刷新；存储覆盖空存储及预置历史数据逐字节不变。新开放单元由发布元数据自动加入资源和阅读验收。

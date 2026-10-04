@@ -18,7 +18,7 @@
 
 恢复已有缓存时复制到隔离工作区，保留原件；不要把缓存、临时虚拟环境或 Notebook 临时输出提交到 Git。现有生成器在临时 venv 中使用 `pip --no-index --find-links` 安装已核验依赖并限制网络；不要求宿主 Python 全局安装 Jupyter。`python3 scripts/check-offline-environment.py --cache-root /path/to/cache` 可只读核查外部缓存，不会下载或修改缓存。
 
-章节展示数据放在 `public/loss-functions/display`，由 `npm run loss:display:generate` 从冻结结果生成，并由 `npm run loss:display:check` 验证。它们不属于 `public/notebooks/loss-functions` 的 16 个冻结包成员，不能放入该目录，否则严格的完整清单校验会拒绝额外文件。迁移路径不会改变展示数值、完整下载产物或 Notebook 输出。严格套件还检查整个仓库文件的 bytes 与 mtime；执行期间不要编辑源码、切换分支或提交。
+章节展示数据放在 `public/loss-functions/display`，由 `npm run loss:display:generate` 从冻结结果生成，并由 `npm run loss:display:check` 验证。它们不属于 `public/notebooks/loss-functions` 的 16 个冻结包成员，不能放入该目录，否则严格的完整清单校验会拒绝额外文件。迁移路径不会改变展示数值、完整下载产物或 Notebook 输出。严格套件还检查 Git 可见文件（已跟踪及未忽略的未跟踪文件）的 bytes 与 mtime；执行期间不要编辑源码、切换分支或提交。
 
 ## 部署核验
 
@@ -26,8 +26,8 @@ Pages 构建输出 `release.json`，记录本次 `GITHUB_SHA`、push 前的 `pre
 
 ## 2026-10-04 本地严格验收
 
-在上述匹配环境及隔离缓存副本中，`npm run test:offline-notebooks` 67 项全部通过，0 跳过。包含四份损失函数 Notebook、两份回归 Notebook 的独立离线重运行、冻结数值与双语输出一致性，以及发布事务的失败回滚检查。整个检查期间仓库文件的 bytes、size 和 mtime 不变，完整下载产物未重新冻结。
+在上述匹配环境及隔离缓存副本中，`npm run test:offline-notebooks` 67 项全部通过，0 跳过。包含四份损失函数 Notebook、两份回归 Notebook 的独立离线重运行、冻结数值与双语输出一致性，以及发布事务的失败回滚检查。整个检查期间 Git 可见文件的 bytes、size 和 mtime 不变，完整下载产物未重新冻结。
 
 普通 `npm test` 仍保留 28 项条件跳过；本次由独立严格套件补齐验证，不改变普通 CI 的冻结产物检查范围。未来修改生成器、环境合同或冻结数据时必须重跑严格套件，本记录不能代替后续验证。
 
-分类项目参考包补齐后，再次运行完整命令：原严格套件 67 项通过、0 跳过，随后 SMS 参考代码及两份双语 Notebook 在独立内核中离线重运行通过。全部新产物与冻结包逐字节一致，仓库 bytes/mtime 不变。本次共验证原六份 Notebook 与新增两份 SMS Notebook。
+分类项目参考包补齐后，再次运行完整命令：原严格套件 67 项通过、0 跳过，随后 SMS 参考代码及两份双语 Notebook 在独立内核中离线重运行通过。全部新产物与冻结包逐字节一致，Git 可见文件的 bytes/mtime 不变。本次共验证原六份 Notebook 与新增两份 SMS Notebook。
