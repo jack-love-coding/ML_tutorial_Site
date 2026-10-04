@@ -185,6 +185,7 @@ export interface MathCourseDownload {
 
 export interface MathNotebookCompanion {
   id: string
+  manifestPath?: string
   moduleId: MathLabModuleId
   title: LocalizedCopy
   description: LocalizedCopy

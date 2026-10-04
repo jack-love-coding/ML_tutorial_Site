@@ -4,6 +4,8 @@
 
 后续任务的优先级与独立 PR 边界见 [后续重构清单](textbook-next-steps.md)。当前 `.planning` 入口已同步此目标；原 Part C 方向与学习记录决策保留在历史快照中。
 
+发布检查按单元的 `pilot/published` 状态收集三类实际课程、分页正文与资源。算法产物关联维护在 `src/curriculum/releaseAssets.ts`，数学 Notebook 的 manifest 归 companion 元数据。Pages 构建输出 `textbook-readings.json`，浏览器验收由同一单元序列驱动；候选批次可运行 `TEXTBOOK_SMOKE_UNITS=unit-3,unit-4 node scripts/qa/run-textbook-smoke.mjs textbook-route`，不会改变学生发布状态。
+
 ## 内容与运行时的权威来源
 
 - 算法正文、章节和路由：`src/data/moduleCatalog.ts` 的 lazy loaders 指向的实际课程定义。

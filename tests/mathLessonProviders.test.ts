@@ -57,7 +57,10 @@ test('all nine historical Notebook associations are preserved as typed course me
   for (const companion of expected) {
     assert.ok(companion)
     const actual = mathLabModuleRegistry[companion.moduleId].notebookCompanion
-    assert.deepEqual(actual, companion)
+    assert.ok(actual?.manifestPath)
+    const { manifestPath, ...preserved } = actual
+    assert.deepEqual(preserved, companion)
+    assert.ok(existsSync(new URL(`public${manifestPath}`, root)))
     for (const asset of [companion.notebook, companion.dataset, companion.requirements, ...('supportingDownloads' in companion ? companion.supportingDownloads : [])]) {
       assert.ok(existsSync(new URL(`public${asset.publicPath}`, root)), asset.publicPath)
       assert.ok(asset.label['zh-CN'] && asset.label.en)
