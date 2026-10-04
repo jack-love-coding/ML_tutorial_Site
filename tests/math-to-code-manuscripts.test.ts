@@ -409,16 +409,17 @@ test('lessons 02 through 05 project exact English masters into runtime sections'
       content: source.slice(heading.index + heading[0].length, headings[index + 1]?.index ?? source.length).trim(),
     }))
     const module = mathToCodeModules.find(({ id }) => id === moduleId)!
-    assert.deepEqual(module.sections.map((section) => ({
+    assert.deepEqual(module.sections.filter(section => !section.id.startsWith('minimum-')).map((section) => ({
       id: section.id,
       title: section.title.en,
       content: section.content.en,
-    })), expected)
+    })), expected.filter(section => section.id !== 'derivatives-practice'))
   }
 
   const generator = readFileSync(new URL('../scripts/generateMathToCodeRuntimeContent.mjs', import.meta.url), 'utf8')
   assert.doesNotMatch(generator, /const generatedEnglishTitles|\benglish:\s*\[/)
-  for (const file of contracts.map(([file]) => file)) assert.ok(generator.includes(`englishFile: '${file}'`))
+  for (const file of contracts.map(([file]) => file).filter(file => file !== '04-derivatives-error.en.md')) assert.ok(generator.includes(`englishFile: '${file}'`))
+  assert.ok(!generator.includes("key: 'derivatives'"), 'the final derivative provider is no longer regenerated from historical masters')
 })
 
 test('NumPy manuscript contract agrees with the executable Task 1 implementation', () => {

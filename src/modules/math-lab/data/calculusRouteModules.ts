@@ -71,23 +71,6 @@ function imageAsset(id: string, assetPath: string, title: LocalizedCopy, transcr
   }
 }
 
-function manimAsset(id: string, assetPath: string, posterPath: string, title: LocalizedCopy, transcript: LocalizedCopy): VisualAsset {
-  return {
-    id,
-    type: 'manim-video',
-    title,
-    assetPath,
-    posterPath,
-    transcript,
-    alt: transcript,
-    caption: transcript,
-    learningPurpose: copy(
-      '复用既有 Manim 动画展示连续变化过程。',
-      'Reuse an existing Manim animation to show a continuous-change process.',
-    ),
-  }
-}
-
 function lab(
   id: string,
   title: LocalizedCopy,
@@ -177,11 +160,6 @@ function moduleDefinition(
   }
 }
 
-const localChangeLab = lab('calculus-local-change-lab', copy('局部变化故事实验', 'Local Change Story Lab'), 'LocalChangeStoryLab', [
-  copy('能把平均变化率读成一段区间的斜率。', 'Read average rate of change as the slope over an interval.'),
-  copy('能解释观察窗口变小时读数为什么更局部。', 'Explain why a shrinking observation window gives a more local reading.'),
-])
-
 const partialDerivativeLab = lab(
   'calculus-partial-derivative-lab',
   copy('偏导数与梯度等高线实验', 'Partial Derivative and Gradient Contour Lab'),
@@ -221,88 +199,6 @@ const batchGradientNoiseLab = lab(
     ),
   },
 )
-
-const secondChapter = moduleDefinition({
-  id: 'calculus-derivatives-local-change',
-  enhancementTier: 'interactive',
-  title: copy('导数：当前点附近的变化', 'Derivatives as Local Change'),
-  subtitle: copy('把平均变化率窗口缩小，得到当前点附近的局部变化率。', 'Shrink the average-rate window to get local change near the current point.'),
-  difficulty: 'foundation',
-  estimatedMinutes: 34,
-  prerequisites: ['calculus-functions-rate-change'],
-  aiModelConnections: [copy('导数说明当前 parameter 附近 loss 的局部变化。', 'A derivative describes local loss change near the current parameter.')],
-  learningObjectives: [
-    copy('解释导数来自缩小的观察窗口。', 'Explain that a derivative comes from a shrinking observation window.'),
-    copy('区分割线和切线。', 'Distinguish secant and tangent.'),
-    copy('用导数符号读局部上升、下降和平坦。', 'Use derivative sign to read local rising, falling, and flat behavior.'),
-  ],
-  concepts: [
-    concept(
-      'derivative-local-change',
-      copy('导数', 'Derivative'),
-      "f'(x)=\\lim_{h\\to0}\\frac{f(x+h)-f(x)}{h}",
-      [
-        variable("f'(x)", '当前点附近的局部变化率。', 'Local rate of change near the current point.'),
-        variable('h\\to0', '观察窗口逐渐缩小。', 'The observation window shrinks toward zero.'),
-      ],
-      copy('导数是平均变化率在窗口缩小时的极限读数。', 'A derivative is the limiting reading of average rate as the window shrinks.'),
-      copy('图像上对应当前点附近的切线斜率。', 'On a graph it corresponds to tangent slope near the current point.'),
-      copy('小车在 3 秒附近每秒约走 8 米，导数可读作这一刻速度约 8 米/秒。', 'If a car moves about 8 meters per second near 3 seconds, the derivative reads speed near this moment as about 8 m/s.'),
-      copy('优化器用这种局部读数决定参数试探方向。', 'Optimizers use this local reading to choose a parameter probing direction.'),
-    ),
-  ],
-  sections: [
-    section(
-      'derivative-speedometer-case',
-      copy('案例：这一刻的 speedometer', 'Case: The Speedometer at This Moment'),
-      copy(
-        md`整段旅程有平均速度，但仪表盘读的是“这一刻”附近。导数也是这样，它不总结全程，而是问当前点附近输入动一点，输出怎样动。`,
-        md`A whole trip has an average speed, but a speedometer reads speed near this moment. A derivative works the same way: it does not summarize the whole curve, it asks how output changes when the input moves a tiny amount near the current point. This is the bridge from average rate of change to instantaneous change. The car may speed up, slow down, or flatten its motion, so different points on the same function can have different derivative values.`,
-      ),
-      { visualIds: ['derivative-window-image', 'derivative-window-video'], labIds: ['calculus-local-change-lab'] },
-    ),
-    section(
-      'derivative-window-shrinks',
-      copy('观察窗口：h=2,1,0.5,0.1', 'Observation Window: h=2,1,0.5,0.1'),
-      copy(
-        md`从 \(h=2,1,0.5,0.1\) 逐步缩小观察窗口。每一步仍是割线，但 secant 的两点越来越靠近当前点。窗口很小时，割线斜率靠近 tangent 斜率。`,
-        md`Shrink the observation window through \(h=2,1,0.5,0.1\). Each reading is still a secant because two points are involved, but the points move closer to the current point. When the window becomes very small, the secant slope approaches the tangent slope. The derivative is therefore not a separate memorized trick; it is the stable local reading produced by shrinking an average-rate window.`,
-      ),
-    ),
-    section(
-      'derivative-signs-local',
-      copy('导数符号：局部行为', 'Derivative Signs: Local Behavior'),
-      copy(
-        md`positive slope 表示附近往右走输出上升，negative slope 表示附近下降，flat neighborhood 表示附近变平。它们都是局部判断，不是整条曲线的全局判断。`,
-        md`A positive slope means the output rises locally as input moves right. A negative slope means the output falls locally. A flat neighborhood means the derivative is near zero and the curve is locally level. These are local statements, not global promises. A curve can rise at one point and fall later. A flat point can be a minimum, a maximum, or a saddle-like pause depending on the surrounding shape.`,
-      ),
-    ),
-    section(
-      'derivative-review',
-      copy('复盘：导数是局部读数', 'Review: Derivative Is a Local Reading'),
-      copy(
-        md`复盘时把大窗口平均变化率、小窗口割线和当前点切线连起来。再把正、负、零斜率翻译成局部上升、下降和平坦。`,
-        md`Review Questions: Which two points define the secant? What happens as the observation window shrinks? Why does the tangent describe local change rather than a global average? What does a positive slope mean nearby? What does a negative slope mean nearby? What does a flat neighborhood say, and what does it not guarantee about the whole curve?`,
-      ),
-    ),
-  ],
-  visuals: [
-    imageAsset('derivative-window-image', '/math-lab/generated/beginner-derivative-window-longform.png', copy('导数观察窗口', 'Derivative Observation Window'), copy('观察窗口逐步缩小，平均变化率靠近当前点导数。', 'The observation window shrinks so average rate approaches the derivative at the current point.')),
-    manimAsset('derivative-window-video', '/manim/math-lab/beginner-derivative-window.mp4', '/manim/math-lab/beginner-derivative-window.svg', copy('导数窗口动画', 'Derivative Window Video'), copy('动画展示割线斜率怎样靠近切线斜率。', 'The animation shows secant slope approaching tangent slope.')),
-  ],
-  labs: [localChangeLab],
-  quizzes: [
-    quiz('derivative-not-global-average', copy('导数读什么？', 'What does a derivative read?'), 'local', copy('当前点附近的局部变化率。', 'The local rate of change near the current point.'), copy('整条曲线的平均高度。', 'The average height of the whole curve.'), copy('导数来自缩小窗口，所以是局部读数。', 'A derivative comes from a shrinking window, so it is local.'), 'derivative-global-average', 'derivative-window-video'),
-    quiz('derivative-sign-reading', copy('导数为负表示什么？', 'What does a negative derivative mean?'), 'falling', copy('附近往右走时函数下降。', 'The function falls nearby as input moves right.'), copy('整条曲线永远下降。', 'The whole curve decreases forever.'), copy('导数符号描述局部斜率，不描述全局命运。', 'Derivative sign describes local slope, not the global fate of the curve.'), 'tangent-is-whole-curve'),
-  ],
-  misconceptions: [
-    misconception('derivative-global-average', copy('导数是全局平均。', 'A derivative is a global average.'), copy('导数是当前点附近的局部变化率。', 'A derivative is local change near the current point.'), copy('仪表盘速度不是整段旅程平均速度。', 'Speedometer speed is not whole-trip average speed.')),
-    misconception('tangent-is-whole-curve', copy('切线代表整条曲线。', 'A tangent represents the whole curve.'), copy('切线只近似当前点附近。', 'A tangent only approximates the curve near the current point.'), copy('脚下道路近似直线，远处仍会转弯。', 'A road can look straight under your feet and bend later.')),
-  ],
-  accent: '#c2410c',
-  theme: '#fff7ed',
-  sourceReferences: [sources.essenceCalculus, sources.mml],
-})
 
 const thirdChapter = moduleDefinition({
   id: 'calculus-partial-derivatives-gradients',
@@ -394,7 +290,6 @@ const fifthChapter = moduleDefinition({
 })
 
 export const calculusRouteModules: MathLabModule[] = [
-  secondChapter,
   thirdChapter,
   fifthChapter,
 ]

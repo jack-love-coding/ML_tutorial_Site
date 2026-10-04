@@ -4,7 +4,6 @@ import type {
   MathLabModule,
   MathLabSection,
   QuizItem,
-  VisualAsset,
 } from '../types/mathLab'
 import { beginnerFoundationModules } from './beginnerFoundationModules.ts'
 import { mathToCodeModules } from './mathToCode/modules.ts'
@@ -25,27 +24,6 @@ function section(
     title: copy(zhTitle, enTitle),
     content: copy(zhContent, enContent),
     ...(visualIds.length ? { visualIds } : {}),
-  }
-}
-
-function image(
-  id: string,
-  filename: string,
-  zhTitle: string,
-  enTitle: string,
-  zhDescription: string,
-  enDescription: string,
-): VisualAsset {
-  const description = copy(zhDescription, enDescription)
-  return {
-    id,
-    type: 'image',
-    title: copy(zhTitle, enTitle),
-    assetPath: `/math-lab/generated/${filename}`,
-    transcript: description,
-    learningPurpose: description,
-    alt: description,
-    caption: description,
   }
 }
 
@@ -72,25 +50,6 @@ function pickQuiz(quizzes: readonly QuizItem[], ids: readonly string[]): QuizIte
   const quizById = new Map(quizzes.map((quiz) => [quiz.id, quiz]))
   return ids.map((id) => quizById.get(id)).filter((quiz): quiz is QuizItem => Boolean(quiz))
 }
-
-const derivativeVisuals = [
-  image(
-    'minimum-derivative-tangent',
-    'beginner-derivative-tangent-longform.png',
-    '割线怎样靠近切线',
-    'How Secants Approach a Tangent',
-    '对称观察点逐渐靠近当前输入时，区间斜率逐步变成只描述当前邻域的局部斜率。',
-    'As symmetric observation points approach the current input, the interval slope becomes a local slope that describes only the current neighborhood.',
-  ),
-  image(
-    'minimum-derivative-window',
-    'beginner-derivative-window-longform.png',
-    '有限差分观察窗口',
-    'The Finite-Difference Observation Window',
-    '窗口过宽会混入远处曲率，窗口过窄会放大浮点消去；稳定区间比盲目追求最小 h 更重要。',
-    'A wide window mixes in distant curvature, while an excessively narrow window amplifies floating cancellation; a stable range matters more than the smallest h.',
-  ),
-]
 
 const linearShapeSection = section(
   'minimum-linear-shape-ledger',
@@ -144,31 +103,6 @@ const linearSummarySection = section(
   String.raw`Four objects are now distinct: a scalar is one value; a vector binds the ordered features of one example; a matrix stacks examples with the same schema by row; and shape records axis lengths while the data contract still supplies axis meaning.
 
 The next chapter fixes \(X=[[2,3],[1,4]]\), \(w=[4,-1]\), \(b=5\), and targets \([9,7]\). Predictions are \([10,5]\), residuals are \([1,-2]\), and MSE is \(2.5\). The derivative lesson changes one parameter at a time and asks how this loss changes near the current point.`,
-)
-
-const derivativeApproximationSection = section(
-  'minimum-derivative-local-approximation',
-  '用导数估计一个足够小的变化',
-  'Use a Derivative to Estimate a Small Change',
-  String.raw`在当前参数处，批量 MSE 对 \(w_2\) 的导数是 \(-5\)。这句话不是说“把 \(w_2\) 增加 1，损失必然减少 5”，而是给出局部近似：
-
-$$
-L(w_2+\Delta w_2)\approx L(w_2)+\frac{\partial L}{\partial w_2}\Delta w_2.
-$$
-
-若 \(\Delta w_2=0.01\)，则 \(L\) 的预测变化约为 \(-5\times0.01=-0.05\)，从 2.5 降到约 2.45。直接代入实际二次损失会得到约 2.45125；两者很接近，但并不完全相等，因为切线只保留一阶局部信息。
-
-同一批次还给出 \(\partial L/\partial w_1=0\) 和 \(\partial L/\partial b=-1\)。零导数只表示当前一阶切片平坦，不能证明参数永远无用；负导数只描述向右小移时损失先下降，也不等于参数本身为负。`,
-  String.raw`At the current parameters, the derivative of batch MSE with respect to \(w_2\) is \(-5\). This does not mean that increasing \(w_2\) by 1 must reduce loss by exactly 5. It gives a local approximation:
-
-$$
-L(w_2+\Delta w_2)\approx L(w_2)+\frac{\partial L}{\partial w_2}\Delta w_2.
-$$
-
-For \(\Delta w_2=0.01\), the predicted loss change is approximately \(-5\times0.01=-0.05\), from 2.5 to about 2.45. Direct evaluation of the quadratic loss gives about 2.45125. The values are close but not identical because a tangent keeps only first-order local information.
-
-The same batch gives \(\partial L/\partial w_1=0\) and \(\partial L/\partial b=-1\). A zero derivative means only that the current first-order slice is flat; it does not prove a parameter is permanently useless. A negative derivative describes the initial loss direction for a small move to the right; it is not the sign of the parameter itself.`,
-  ['minimum-derivative-tangent'],
 )
 
 const probabilitySharedSection = section(
@@ -268,54 +202,6 @@ print("predictions.shape =", predictions.shape)`,
   })
 }
 
-function enhanceDerivatives(moduleDefinition: MathLabModule): MathLabModule {
-  const sections = moduleDefinition.sections
-    .filter(({ id }) => id !== 'derivatives-practice')
-    .flatMap((item) => {
-      if (item.id === 'derivatives-intuition') {
-        return [{ ...item, visualIds: ['minimum-derivative-tangent'] }]
-      }
-      if (item.id === 'derivatives-experiment') {
-        return [{ ...item, visualIds: ['minimum-derivative-window'] }, derivativeApproximationSection]
-      }
-      return [item]
-    })
-  const concepts = withConceptOutput(
-    moduleDefinition.concepts,
-    'central-difference-sensitivity',
-    `import numpy as np
-
-X = np.array([[2.0, 3.0], [1.0, 4.0]])
-targets = np.array([9.0, 7.0])
-w = np.array([4.0, -1.0])
-bias = 5.0
-
-def mse_for_w2(candidate_w2: float) -> float:
-    candidate_w = w.copy()
-    candidate_w[1] = candidate_w2
-    predictions = X @ candidate_w + bias
-    return float(np.mean((predictions - targets) ** 2))
-
-def central_difference(fn, value: float, h: float = 1e-4) -> float:
-    if not np.isfinite(value) or not np.isfinite(h) or h <= 0:
-        raise ValueError("value and positive h must be finite")
-    return (fn(value + h) - fn(value - h)) / (2 * h)
-
-slope = central_difference(mse_for_w2, w[1])
-print("baseline_mse =", mse_for_w2(w[1]))
-print("dL_dw2 =", round(slope, 6))
-print("actual_mse_at_w2_plus_0.01 =", round(mse_for_w2(w[1] + 0.01), 6))`,
-    'baseline_mse = 2.5\ndL_dw2 = -5.0\nactual_mse_at_w2_plus_0.01 = 2.45125',
-  )
-  return withToc({
-    ...moduleDefinition,
-    estimatedMinutes: 65,
-    concepts,
-    sections,
-    visuals: [...derivativeVisuals, ...moduleDefinition.visuals],
-  })
-}
-
 function enhanceProbability(moduleDefinition: MathLabModule): MathLabModule {
   const originalSections = moduleDefinition.sections.filter(({ id }) => id !== 'beginner-probability-checkpoint')
   const concepts = withConceptOutput(
@@ -367,18 +253,12 @@ print("empirical_frequency =", round(float(samples.mean()), 3))`,
   })
 }
 
-const mathToCodeEnhancers: Readonly<Record<string, (moduleDefinition: MathLabModule) => MathLabModule>> = {
-  'calculus-derivatives-local-change': enhanceDerivatives,
-}
-
 const beginnerEnhancers: Readonly<Record<string, (moduleDefinition: MathLabModule) => MathLabModule>> = {
   'beginner-linear-algebra': enhanceLinearAlgebra,
   'beginner-probability-distributions': enhanceProbability,
 }
 
-export const minimumFoundationMathToCodeModules: MathLabModule[] = mathToCodeModules.map((moduleDefinition) =>
-  mathToCodeEnhancers[moduleDefinition.id]?.(moduleDefinition) ?? moduleDefinition,
-)
+export const minimumFoundationMathToCodeModules: MathLabModule[] = mathToCodeModules
 
 export const minimumFoundationBeginnerModules: MathLabModule[] = beginnerFoundationModules.map((moduleDefinition) =>
   beginnerEnhancers[moduleDefinition.id]?.(moduleDefinition) ?? moduleDefinition,

@@ -105,7 +105,7 @@ const teachingContracts: Record<string, TeachingContract> = {
       {
         id: 'central-difference-sensitivity',
         formula: '\\frac{L(\\theta+h)-L(\\theta-h)}{2h}',
-        codeIncludes: ['plus, minus = fn(value + h), fn(value - h)', 'result = (plus - minus) / (2 * h)', 'h <= 0', 'isfinite'],
+        codeIncludes: ['(fn(value + h) - fn(value - h)) / (2 * h)', 'h <= 0', 'isfinite', 'candidate_w = w.copy()', 'baseline_mse ='],
         examplePatterns: [/\[0,-5,-1\]/],
       },
       {
@@ -413,7 +413,11 @@ test('pilot asset records are explicit and any declared public file exists after
     return new URL(`../public/${withoutBase}`, import.meta.url)
   }
   for (const module of mathToCodeModules) {
-    assert.deepEqual(module.visuals.map(visual => visual.id), module.id === 'calculus-functions-rate-change' ? ['minimum-function-machine', 'minimum-average-rate'] : [])
+    const expectedVisuals: Record<string, string[]> = {
+      'calculus-functions-rate-change': ['minimum-function-machine', 'minimum-average-rate'],
+      'calculus-derivatives-local-change': ['minimum-derivative-tangent', 'minimum-derivative-window'],
+    }
+    assert.deepEqual(module.visuals.map(visual => visual.id), expectedVisuals[module.id] ?? [])
     assert.equal(module.importedAssetPaths?.length ?? 0, 0, `${module.id} unexpectedly gained an imported asset; add explicit asset assertions`)
     for (const asset of module.visuals) {
       for (const path of [asset.assetPath, asset.posterPath].filter((value): value is string => Boolean(value))) {

@@ -4,7 +4,6 @@ import { resolve } from 'node:path'
 const lessons = [
   { key: 'vectors', chineseFile: '02-vectors-samples.zh-CN.md', englishFile: '02-vectors-samples.en.md', expectedSections: 12 },
   { key: 'matrices', chineseFile: '03-matrices-batches.zh-CN.md', englishFile: '03-matrices-batches.en.md', expectedSections: 12 },
-  { key: 'derivatives', chineseFile: '04-derivatives-error.zh-CN.md', englishFile: '04-derivatives-error.en.md', expectedSections: 12 },
   { key: 'numpy', chineseFile: '05-numpy-implementation.zh-CN.md', englishFile: '05-numpy-implementation.en.md', expectedSections: 12 },
   { key: 'studio', chineseFile: '06-guided-studio.zh-CN.md', englishFile: '06-guided-studio.en.md', expectedSections: 9 },
 ]

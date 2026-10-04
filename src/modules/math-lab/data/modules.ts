@@ -60,10 +60,6 @@ export const mathLabModuleOverridePolicy = {
     from: 'linearAlgebraRouteModules',
     to: 'mathToCodeModules',
   },
-  'calculus-derivatives-local-change': {
-    from: 'calculusRouteModules',
-    to: 'mathToCodeModules',
-  },
 } as const satisfies Readonly<Record<MathLabModuleId, MathLabModuleOverride>>
 
 export function assembleMathLabModules(
