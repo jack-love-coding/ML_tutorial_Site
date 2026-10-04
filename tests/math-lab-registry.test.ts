@@ -34,7 +34,7 @@ test('math lab component contract covers every lazy lab without a fallback', () 
   assert.doesNotMatch(pageSource, /fallbackLabComponent|isRegisteredLabComponent/)
 })
 
-test('math lab module assembly applies only the four declared provider overrides', () => {
+test('math lab module assembly applies only the remaining declared provider overrides', () => {
   const expectedOverrides = {
     'linear-algebra-feature-space': {
       from: 'linearAlgebraRouteModules',
@@ -42,10 +42,6 @@ test('math lab module assembly applies only the four declared provider overrides
     },
     'linear-algebra-matrix-transformations': {
       from: 'linearAlgebraRouteModules',
-      to: 'mathToCodeModules',
-    },
-    'calculus-functions-rate-change': {
-      from: 'calculusRouteModules',
       to: 'mathToCodeModules',
     },
     'calculus-derivatives-local-change': {
@@ -61,6 +57,7 @@ test('math lab module assembly applies only the four declared provider overrides
       'beginnerFoundationModules',
       'linearAlgebraRouteModules',
       'calculusRouteModules',
+      'calculusFunctionsModule',
       'calculusGradientDescentModule',
       'calculusOptimizerComparisonModule',
       'calculusTrainingCodeDiagnosticsModule',
@@ -87,7 +84,7 @@ test('math lab module assembly applies only the four declared provider overrides
 
   assert.ok(linearAlgebraRouteModules.some(({ id }) => id === 'linear-algebra-feature-space'))
   assert.ok(linearAlgebraRouteModules.some(({ id }) => id === 'linear-algebra-matrix-transformations'))
-  assert.ok(calculusRouteModules.some(({ id }) => id === 'calculus-functions-rate-change'))
+  assert.equal(mathLabModuleProviderById['calculus-functions-rate-change'], 'calculusFunctionsModule')
   assert.ok(calculusRouteModules.some(({ id }) => id === 'calculus-derivatives-local-change'))
 })
 

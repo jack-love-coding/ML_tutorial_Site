@@ -45,7 +45,7 @@ const teachingContracts: Record<string, TeachingContract> = {
       {
         id: 'function-prediction-mapping',
         formula: '\\hat y=w_1x_1+w_2x_2+b',
-        codeIncludes: ['features = [2, 3]', 'weights = [4, -1]', 'prediction = weights[0] * features[0] + weights[1] * features[1] + bias', '# 10'],
+        codeIncludes: ['features = [2, 3]', 'weights = [4, -1]', 'prediction = sum(contributions) + bias', 'residual = prediction - target'],
         examplePatterns: [/prediction\s*=\s*10/],
       },
       {
@@ -347,7 +347,7 @@ test('exact teaching contracts reject changed worked outputs, MSE, and concept c
 
   const functions = structuredClone(mathToCodeModules.find(({ id }) => id === 'calculus-functions-rate-change')!)
   const functionConcept = functions.concepts.find(({ id }) => id === 'function-prediction-mapping')!
-  functionConcept.codeExample = functionConcept.codeExample!.replace('# 10', '# 99')
+  functionConcept.codeExample = functionConcept.codeExample!.replace('sum(contributions) + bias', 'sum(contributions) - bias')
   assert.ok(teachingContractIssues(functions).some((issue) => issue.includes('function-prediction-mapping: code')))
 })
 
@@ -413,7 +413,7 @@ test('pilot asset records are explicit and any declared public file exists after
     return new URL(`../public/${withoutBase}`, import.meta.url)
   }
   for (const module of mathToCodeModules) {
-    assert.equal(module.visuals.length, 0, `${module.id} unexpectedly gained a visual; add explicit asset assertions`)
+    assert.deepEqual(module.visuals.map(visual => visual.id), module.id === 'calculus-functions-rate-change' ? ['minimum-function-machine', 'minimum-average-rate'] : [])
     assert.equal(module.importedAssetPaths?.length ?? 0, 0, `${module.id} unexpectedly gained an imported asset; add explicit asset assertions`)
     for (const asset of module.visuals) {
       for (const path of [asset.assetPath, asset.posterPath].filter((value): value is string => Boolean(value))) {
@@ -432,8 +432,7 @@ test('pilot asset records are explicit and any declared public file exists after
       assert.match(reference.href, /^https:\/\//, `${module.id} source reference is not deployable`)
     }
   }
-  // The pilot intentionally declares no runtime visual assets. The repository's
-  // public-path utility behavior and real Math Lab asset existence are covered in math-lab-core.test.ts.
+  // Migrated providers include their final visual metadata; anchors remain base-independent.
   assert.equal(withPublicBase('#shared-prediction-task', '/ML_tutorial_Site/'), '#shared-prediction-task')
 })
 
