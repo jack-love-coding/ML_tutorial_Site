@@ -107,7 +107,7 @@ export function runBoundedProcess({
     }
     const onExit = (code, signal) => {
       if (code === 0) finish()
-      else finish(formatProcessFailure(label, `failed with ${signal ?? `exit code ${code}`}`, stderr))
+      else finish(formatProcessFailure(label, `failed with ${signal ?? `exit code ${code}`}`, [stderr, stdout].filter(Boolean).join('\n')))
     }
     const onError = (error) => finish(formatProcessFailure(label, `could not run: ${error instanceof Error ? error.message : String(error)}`, stderr))
     const timer = schedule(() => {

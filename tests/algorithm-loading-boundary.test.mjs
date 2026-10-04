@@ -10,15 +10,16 @@ function read(path) {
 
 test('algorithm definitions and specialized lesson components stay behind async boundaries', () => {
   const catalogSource = read('src/data/moduleCatalog.ts')
-  const viewSource = read('src/views/AlgorithmView.vue')
+  const viewSource = read('src/views/AlgorithmView.vue') + read('src/lessons/algorithmRenderers.ts')
+  const loader = read('src/composables/useAlgorithmCourse.ts')
   const storeSource = read('src/stores/experiments.ts')
 
   assert.match(catalogSource, /loadAlgorithmModule/)
   assert.equal([...catalogSource.matchAll(/await import\('\.\//g)].length, 17)
   assert.doesNotMatch(catalogSource, /import \{ \w+Module \} from/)
 
-  assert.match(viewSource, /await loadAlgorithmModule\(nextSlug\)/)
-  assert.match(viewSource, /registerExperimentModule\(nextModuleDefinition\)/)
+  assert.match(loader, /await loadAlgorithmModule\(nextSlug\)/)
+  assert.match(loader, /registerExperimentModule\(nextModuleDefinition\)/)
   assert.match(viewSource, /defineAsyncComponent/)
   assert.doesNotMatch(viewSource, /import LinearRegressionPagedLesson from/)
   assert.doesNotMatch(viewSource, /import CnnExplainerLab from/)

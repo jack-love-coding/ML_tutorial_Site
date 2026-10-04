@@ -218,7 +218,7 @@ export const lessonInteractionProtocols: readonly TeachingInteractionProtocol[] 
   {
     id: 'mlp:xor-capacity',
     moduleSlug: 'mlp',
-    labId: 'mlp-playground-cockpit',
+    labId: 'mlp-guided-lab',
     sectionIds: ['linearLimits'],
     level: 5,
     learningGoal: loc(

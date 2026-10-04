@@ -204,8 +204,8 @@ test('optimizer route keeps legacy IDs in a dedicated course shell and exposes s
   const neuralCourse = read('src/lessons/NeuralGuidedLesson.vue')
   const optimizerRace = read('src/modules/math-lab/labs/OptimizerRaceLab.vue')
 
-  assert.match(algorithmView, /const OptimizerPagedLesson = defineAsyncComponent/)
-  assert.match(algorithmView, /v-else-if="isOptimizerComparisonPage && activeSection"/)
+  assert.match(read('src/lessons/algorithmRenderers.ts'), /optimizer: defineAsyncComponent.*OptimizerPagedLesson/)
+  assert.match(algorithmView, /v-else-if="pagedRenderer && activeSection"/)
   assert.match(algorithmView, /!isOptimizerComparisonPage/)
   assert.match(optimizerShell, /data-testid="optimizer-current-chapter"/)
   assert.match(optimizerShell, /:data-section-id="chapter.id"/)

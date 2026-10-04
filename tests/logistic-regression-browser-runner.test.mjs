@@ -32,6 +32,14 @@ test('Phase 29 browser runner preserves stderr on child errors', async () => {
   await assert.rejects(run, /socket closed[\s\S]*stderr:[\s\S]*browser protocol failed/)
 })
 
+test('browser assertion failures printed to stdout survive a nonzero CLI exit', async () => {
+  const child = fakeChild()
+  const run = runner.runBoundedProcess({ command: 'playwright-cli', spawnProcess: () => child, schedule: immediateSchedule, clear: noOpClear, forwardOutput: false })
+  child.stdout.emit('data', '### Error\nIncorrect chapter handoff')
+  child.emit('exit', 1, null)
+  await assert.rejects(run, /exit code 1[\s\S]*Incorrect chapter handoff/)
+})
+
 test('Phase 29 browser runner bounds stuck commands and terminates their process group', async () => {
   const child = fakeChild()
   await assert.rejects(
