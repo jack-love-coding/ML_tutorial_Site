@@ -290,9 +290,9 @@ export const messages = {
         },
       },
       classificationProject: {
-        title: '分类项目：垃圾邮件筛查',
+        title: '分类项目：垃圾短信筛查',
         kicker: 'Classification Project',
-        intro: '把文本邮件变成稀疏特征，用 Pipeline 训练二分类 baseline，再用阈值、混淆矩阵和错误成本完成复盘。',
+        intro: '把短信变成稀疏特征，在训练集内选择 Pipeline 模型、用验证集选择阈值，锁定后报告测试结果。',
         summary: '用 spam/ham 项目连接文本向量化、LogisticRegression、precision、recall、ROC/AUC 和 false positive / false negative 取舍。',
         sections: {
           problemAndCosts: {
@@ -995,10 +995,10 @@ export const messages = {
         },
       },
       classificationProject: {
-        title: 'Classification Project: Spam Screening',
+        title: 'Classification Project: SMS Spam Screening',
         kicker: 'Classification Project',
         intro:
-          'Turn email text into sparse features, train a binary baseline with Pipeline, then review thresholds, confusion matrix, and error cost.',
+          'Represent SMS with sparse features, select a Pipeline inside train and a threshold on validation, then report test results after locking both.',
         summary:
           'Use a spam/ham project to connect text vectorization, LogisticRegression, precision, recall, ROC/AUC, and false positive / false negative tradeoffs.',
         sections: {

@@ -9,4 +9,5 @@ export const algorithmReleaseManifests: Partial<Record<ModuleSlug, readonly stri
   'housing-price-project': ['/notebooks/tabular-regression/output-manifest.json', '/tabular-regression/manifest.json', '/tabular-regression/interaction-manifest.json'],
   'logistic-regression': ['/logistic-regression/phase-29/manifest.json'],
   classification: ['/classification/phase-30/manifest.json'],
+  'classification-project': ['/classification-project/v1/manifest.json'],
 }

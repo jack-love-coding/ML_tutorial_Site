@@ -12,7 +12,7 @@
 
 普通 `npm test` / CI 检查公开冻结产物、资源引用和 manifest；28 项需要本地候选数据与离线环境的检查仅在显式设置 `ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS=1` 时运行。缓存存在不会悄悄改变普通测试的范围。
 
-重生成或检查候选包时运行 `npm run test:offline-notebooks`。它先执行只读预检，随后启用严格套件；环境/缓存缺失或不匹配时失败，不将跳过当作验证成功。预检复用现有生成器的合同校验，核对 Python、平台、精确依赖表、wheel 清单及全部文件的 bytes/SHA-256，再检查候选目录存在。Notebook 输出、数据边界、发布事务与回滚由严格套件检查。
+重生成或检查候选包时运行 `npm run test:offline-notebooks`。它先执行只读预检，随后启用严格套件，最后重生成并比较分类项目参考包的两份 Notebook；环境/缓存缺失或不匹配时失败，不将跳过当作验证成功。预检复用现有生成器的合同校验，核对 Python、平台、精确依赖表、wheel 清单及全部文件的 bytes/SHA-256，再检查候选目录存在。Notebook 输出、数据边界、发布事务与回滚由严格套件检查。分类项目的独立冻结协议与生成入口见 [参考包说明](classification-project-reference.md)。
 
 当前合同要求 CPython `3.12.13`、Darwin `arm64`、`macosx-11.0-arm64`。wheel 清单位于 `.cache/numerical-methods/batch-4-wheelhouse/batch-4-wheel-cache-manifest.json`，99 个 wheel，清单 SHA-256 为 `95ca3095110658363933ecfa7c64dc5935e03c09119a612603c38fec30bc78e1`。原始数据缓存为 `.cache/loss-functions/phase-26-sources`，预检同时核对其 hash、bytes、内容与来源清单。候选目录为 `.cache/loss-functions/phase-26-staging` 与 `.cache/linear-regression/phase-27-staging`。不要用 Ubuntu 或不同 Python 的通过结果代替该合同；更换重生成环境需另立合同并重新冻结产物。
 
@@ -29,3 +29,5 @@ Pages 构建输出 `release.json`，记录本次 `GITHUB_SHA`、push 前的 `pre
 在上述匹配环境及隔离缓存副本中，`npm run test:offline-notebooks` 67 项全部通过，0 跳过。包含四份损失函数 Notebook、两份回归 Notebook 的独立离线重运行、冻结数值与双语输出一致性，以及发布事务的失败回滚检查。整个检查期间仓库文件的 bytes、size 和 mtime 不变，完整下载产物未重新冻结。
 
 普通 `npm test` 仍保留 28 项条件跳过；本次由独立严格套件补齐验证，不改变普通 CI 的冻结产物检查范围。未来修改生成器、环境合同或冻结数据时必须重跑严格套件，本记录不能代替后续验证。
+
+分类项目参考包补齐后，再次运行完整命令：原严格套件 67 项通过、0 跳过，随后 SMS 参考代码及两份双语 Notebook 在独立内核中离线重运行通过。全部新产物与冻结包逐字节一致，仓库 bytes/mtime 不变。本次共验证原六份 Notebook 与新增两份 SMS Notebook。

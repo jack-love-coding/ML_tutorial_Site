@@ -410,8 +410,8 @@ export const algorithmCatalog = [
     "domain": "project",
     "level": "intermediate",
     "title": {
-      "zh-CN": "分类项目：垃圾邮件筛查",
-      "en": "Classification Project: Spam Screening"
+      "zh-CN": "分类项目：垃圾短信筛查",
+      "en": "Classification Project: SMS Spam Screening"
     },
     "summary": {
       "zh-CN": "用 spam/ham 项目连接文本向量化、LogisticRegression、precision、recall、ROC/AUC 和 false positive / false negative 取舍。",

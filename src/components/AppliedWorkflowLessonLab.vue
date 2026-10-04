@@ -34,6 +34,15 @@ const selectedAttentionStage = ref('token')
 const selectedOptimizerStage = ref('loop')
 const selectedRagStage = ref('causal')
 
+const classificationStageBySection: Readonly<Record<string, string>> = {
+  'problem-and-costs': 'text',
+  'text-to-features': 'vector',
+  'pipeline-baseline': 'pipeline',
+  'scores-thresholds': 'score',
+  'metrics-tradeoffs': 'metric',
+  'error-review': 'review',
+}
+
 const ragStageBySection: Readonly<Record<string, string>> = {
   'causal-language-modeling': 'causal',
   'decoding-generation': 'decode',
@@ -49,6 +58,7 @@ watch(
   () => props.section.id,
   (sectionId) => {
     if (props.moduleSlug === 'llm-rag') selectedRagStage.value = ragStageBySection[sectionId] ?? 'causal'
+    if (props.moduleSlug === 'classification-project') selectedClassificationStage.value = classificationStageBySection[sectionId] ?? 'text'
   },
   { immediate: true },
 )
@@ -123,19 +133,19 @@ const classificationStages = computed(() =>
     loc(
       [
         { id: 'text', label: '文本', title: '定义正类和错误成本', body: '先明确 spam 是正类，false positive 和 false negative 分别会造成什么后果。' },
-        { id: 'vector', label: '向量', title: '把文本变成 sparse features', body: '用 token、词表和 TF-IDF 把邮件文本变成模型能读的数值矩阵。' },
-        { id: 'pipeline', label: 'Pipeline', title: '向量化和分类器绑在一起', body: 'train_test_split 先发生，TfidfVectorizer 和 LogisticRegression 都在 Pipeline 内部 fit。' },
-        { id: 'score', label: 'score', title: '先读概率，再做决策', body: 'predict_proba 给出正类分数，阈值把同一批分数改写成 spam 或 ham。' },
-        { id: 'metric', label: '指标', title: 'precision / recall / AUC', body: '混淆矩阵解释错误类型，precision 和 recall 连接业务成本。' },
-        { id: 'review', label: '复盘', title: '检查误拦和漏拦样本', body: '把 false positives 和 false negatives 拆开看，再决定下一轮改阈值、特征还是模型。' },
+        { id: 'vector', label: '向量', title: '把短信变成 sparse features', body: '用 token、词表和 TF-IDF 表示短信；每个交叉验证训练折独立学习词表。' },
+        { id: 'pipeline', label: 'Pipeline', title: '只在训练集内选择模型', body: '冻结 train/validation/test 后，在 train 内用三折交叉验证比较 C。TfidfVectorizer 和 LogisticRegression 一起按折 fit。' },
+        { id: 'score', label: 'score', title: '只在验证集选阈值', body: 'predict_proba 给出 spam 分数；验证集以 5 × FP + FN 选择阈值，预测标签始终为 spam/ham。' },
+        { id: 'metric', label: '指标', title: '锁定后再读测试结果', body: '模型和阈值固定后，才汇总 test 的 precision、recall、AUC 和成本；不据此重新调参。' },
+        { id: 'review', label: '复盘', title: '解释验证集错误', body: '分别查看 validation 的误拦和漏拦样本。为下一轮提出假设，当前冻结的 test 汇总保持原样。' },
       ],
       [
         { id: 'text', label: 'Text', title: 'Define positive class and costs', body: 'Name spam as the positive class and state the cost of false positives and false negatives.' },
-        { id: 'vector', label: 'Vector', title: 'Turn text into sparse features', body: 'Use tokens, vocabulary, and TF-IDF to turn email text into a numeric matrix.' },
-        { id: 'pipeline', label: 'Pipeline', title: 'Bind vectorizer and classifier', body: 'train_test_split happens first; TfidfVectorizer and LogisticRegression fit inside the Pipeline.' },
-        { id: 'score', label: 'Score', title: 'Read probability before decision', body: 'predict_proba gives positive-class scores, and the threshold rewrites the same scores as spam or ham.' },
-        { id: 'metric', label: 'Metrics', title: 'precision / recall / AUC', body: 'The confusion matrix explains error types, while precision and recall connect to business cost.' },
-        { id: 'review', label: 'Review', title: 'Inspect blocked and missed examples', body: 'Separate false positives and false negatives, then decide whether to adjust threshold, features, or model.' },
+        { id: 'vector', label: 'Vector', title: 'Turn SMS into sparse features', body: 'Represent SMS with tokens and TF-IDF; each CV training fold learns its own vocabulary.' },
+        { id: 'pipeline', label: 'Pipeline', title: 'Choose the model inside train', body: 'Freeze train/validation/test, then compare C with three-fold CV inside train. Fit TfidfVectorizer and LogisticRegression together within each fold.' },
+        { id: 'score', label: 'Score', title: 'Choose thresholds on validation', body: 'predict_proba gives spam scores. Validation selects the threshold by 5 × FP + FN; predictions remain spam/ham strings.' },
+        { id: 'metric', label: 'Metrics', title: 'Read test after locking choices', body: 'Fix the model and threshold before reporting test precision, recall, AUC and cost; do not retune from these results.' },
+        { id: 'review', label: 'Review', title: 'Explain validation errors', body: 'Inspect false positives and false negatives on validation. Form hypotheses for a future protocol and keep the frozen test aggregate unchanged.' },
       ],
     ),
   ),
@@ -346,9 +356,9 @@ const sectionHint = computed(() => {
       'problem-and-costs': loc('先定义正类和错误成本。', 'Define positive class and error costs first.'),
       'text-to-features': loc('重点检查词表是否只从训练集学习。', 'Check whether vocabulary is learned from training data only.'),
       'pipeline-baseline': loc('Pipeline 是防泄漏的项目骨架。', 'Pipeline is the leakage-safe project skeleton.'),
-      'scores-thresholds': loc('阈值改变决策，不改变分数。', 'Threshold changes decisions, not scores.'),
-      'metrics-tradeoffs': loc('指标要接到错误成本。', 'Connect metrics to error costs.'),
-      'error-review': loc('复盘必须看错误样本。', 'Review must inspect error examples.'),
+      'scores-thresholds': loc('只在 validation 选阈值；阈值改变决策，不改变分数。', 'Select thresholds on validation only; thresholds change decisions, not scores.'),
+      'metrics-tradeoffs': loc('固定模型和阈值后才汇总 test。', 'Summarize test only after fixing the model and threshold.'),
+      'error-review': loc('复盘 validation 的错误，不用 test 重新挑方案。', 'Review validation errors; do not reselect using test.'),
     }
     return localized(hints[props.section.id] ?? loc('把分类指标接回业务后果。', 'Connect classification metrics back to business consequences.'))
   }
@@ -520,6 +530,7 @@ const sectionHint = computed(() => {
           type="button"
           class="workflow-lab__stage"
           :class="{ 'is-active': selectedClassificationStage === stage.id }"
+          :aria-pressed="selectedClassificationStage === stage.id"
           @click="selectedClassificationStage = stage.id"
         >
           <span>{{ stage.label }}</span>

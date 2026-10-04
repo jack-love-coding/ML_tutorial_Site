@@ -84,6 +84,17 @@ test('math Notebook manifests come from course metadata when a math course is re
   for (const manifest of resources.manifests) assert.ok(verifyReleaseManifest(manifest) > 0)
 })
 
+test('a unit-six candidate verifies the existing classification project reference package', async () => {
+  const candidates = teachingUnits.map(unit => ({ ...unit,
+    publicationStatus: unit.id === 'unit-6' ? 'pilot' as const : 'preview' as const,
+  }))
+  const resources = await verifyReleased(candidates)
+  assert.deepEqual(resources.moduleIds, ['tree-forest', 'model-selection', 'classification-project'])
+  assert.deepEqual(resources.manifests, ['/classification-project/v1/manifest.json'])
+  assert.ok(resources.assets.includes('/classification-project/v1/classification-project.en.ipynb'))
+  assert.ok(resources.assets.includes('/datasets/numerical-methods/sms-spam.csv'))
+})
+
 test('browser reading manifests preserve unit order, selected chapters and publication labels', () => {
   const manifest = textbookReadingManifest()
   assert.equal(manifest.units.length, teachingUnits.length)
