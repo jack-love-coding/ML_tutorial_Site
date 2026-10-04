@@ -1,0 +1,64 @@
+{
+  "contractVersion": "classification-project-sms-v1",
+  "members": [
+    {
+      "bytes": 17635,
+      "path": "/classification-project/v1/classification-project.en.ipynb",
+      "sha256": "c84a64c48db7f7ae93bf690a7881bb2beea1abd57afb0ce57d1cd6c04efe6d24"
+    },
+    {
+      "bytes": 17595,
+      "path": "/classification-project/v1/classification-project.zh-CN.ipynb",
+      "sha256": "be55062b63294c4c1015a96cc054f688e0e80c36002b77133e557bd8b57b4194"
+    },
+    {
+      "bytes": 6901,
+      "path": "/classification-project/v1/reference-summary.json",
+      "sha256": "6261949c408b42e4ac96331cfc0bafd66c4286bc13252942e645b55e3f289a6b"
+    },
+    {
+      "bytes": 6391,
+      "path": "/classification-project/v1/reference.py",
+      "sha256": "e3f116352001c84d9b9ab032ca8368aee37ba569aa7c31956e2ecd6b0797160b"
+    },
+    {
+      "bytes": 130,
+      "path": "/classification-project/v1/requirements.txt",
+      "sha256": "6aa97ceaa992923a5543e778113fb12bb87144f1e082d9a38457a5f55c1c1530"
+    },
+    {
+      "bytes": 61426,
+      "path": "/classification-project/v1/split.json",
+      "sha256": "cf8f58228fffe96811f1571ee55c8248b4792feb17575e8024607ecd9bef486a"
+    },
+    {
+      "bytes": 79260,
+      "path": "/classification-project/v1/validation-predictions.json",
+      "sha256": "fba2610b84d2ae69042f8853aabcf165f75447a8fd30ed226b11c4b6073a8aa0"
+    },
+    {
+      "bytes": 507860,
+      "path": "/datasets/numerical-methods/sms-spam.csv",
+      "sha256": "d43a9b9fe1530f4cc58a1e01ad23ee466283c9abce4a83be17b199899bd584f8"
+    }
+  ],
+  "notebookExecutions": {
+    "count": 2,
+    "freshKernelEach": true,
+    "network": false
+  },
+  "policy": {
+    "modelSelectionSplit": "train-cv",
+    "testEvaluations": 1,
+    "testReselectionAllowed": false,
+    "thresholdSelectionSplit": "validation"
+  },
+  "source": {
+    "creators": [
+      "Tiago Almeida",
+      "José María Gómez Hidalgo"
+    ],
+    "datasetManifest": "/datasets/numerical-methods/sms-spam-manifest.json",
+    "license": "CC BY 4.0"
+  }
+}

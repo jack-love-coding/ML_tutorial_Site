@@ -1,5 +1,17 @@
 import type { AlgorithmModuleDefinition, LocalizedCopy, ModuleSimulation, StorySection } from '../types/ml'
 import { algorithmCheckpointsBySlug } from './algorithmCheckpoints'
+import { classificationProjectCode, classificationProjectReference as reference } from './generated/classificationProjectRuntime'
+
+function code(id: keyof typeof classificationProjectCode, locale: keyof LocalizedCopy) {
+  return `<details><summary>${locale === 'zh-CN' ? '查看本步 Python 代码' : 'Read the Python code for this step'}</summary>\n\n~~~python\n${classificationProjectCode[id]}~~~\n\n</details>`
+}
+
+function metricsTable(split: 'validation' | 'lockedTest', locale: keyof LocalizedCopy) {
+  const report = reference[split]
+  const count = report.confusion
+  const heading = locale === 'zh-CN' ? '| 指标 | 参考结果 |' : '| Metric | Reference result |'
+  return `${heading}\n| --- | ---: |\n| TP / FP / TN / FN | ${count.TP} / ${count.FP} / ${count.TN} / ${count.FN} |\n| Precision | ${report.precision.toFixed(4)} |\n| Recall | ${report.recall.toFixed(4)} |\n| F1 | ${report.f1.toFixed(4)} |\n| ROC/AUC | ${report.auc.toFixed(4)} |\n| Accuracy | ${report.accuracy.toFixed(4)} |\n| 5 × FP + FN | ${report.cost} |`
+}
 
 function loc(zhCN: string, en: string): LocalizedCopy {
   return { 'zh-CN': zhCN, en }
@@ -55,392 +67,184 @@ export const classificationProjectModule: AlgorithmModuleDefinition = {
   checkpoints: algorithmCheckpointsBySlug['classification-project'],
   chapters: [
     chapter(
-      'problem-and-costs',
-      'modules.classificationProject.sections.problemAndCosts.title',
+      'problem-and-costs', 'modules.classificationProject.sections.problemAndCosts.title',
       loc(
-        `分类项目的第一步不是选模型，而是先说清楚：正类是什么？错判的代价是什么？
+        `### 本节问题：正类是什么，误拦和漏拦各意味着什么？
+用垃圾邮件过滤的思路理解短信分类：输入是短信文本，正类是 spam，负类是 ham。误拦（false positive）把 ham 判成 spam，漏拦（false negative）把 spam 判成 ham。本案例预先约定一次误拦的成本为 5，一次漏拦为 1；这个教学约定不代表所有业务。
 
-这一章用垃圾邮件过滤做主线。每一行数据可以是一封邮件，特征来自邮件文本，标签是 \`spam\` 或 \`ham\`。模型最后输出一个分数或概率，再由阈值决定是否拦截。
+### 准备和操作
+先读完分类指标与模型选择。下载 [原始 CSV](/datasets/numerical-methods/sms-spam.csv)、[冻结划分](/classification-project/v1/split.json)、[中文 Notebook](/classification-project/v1/classification-project.zh-CN.ipynb) 和 [依赖表](/classification-project/v1/requirements.txt)，放在同一目录，按顺序运行六步。[英文 Notebook](/classification-project/v1/classification-project.en.ipynb)、[完整参考代码](/classification-project/v1/reference.py)、[参考结果](/classification-project/v1/reference-summary.json) 和 [文件清单](/classification-project/v1/manifest.json) 也可下载。
 
-### 先定义业务问题
-- **输入**：邮件主题、正文、发件人等可在预测时获得的信息。
-- **标签**：历史上人工或规则确认的 \`spam\` / \`ham\`。
-- **正类**：这里把 \`spam\` 当作正类，因为拦截动作围绕它发生。
-- **错误成本**：误拦正常邮件是假阳性，放过垃圾邮件是假阴性。两者都不好，但业务代价不同。
+原始语料是已有的 UCI SMS Spam Collection（Tiago Almeida、José María Gómez Hidalgo，CC BY 4.0；[来源记录](/datasets/numerical-methods/sms-spam-manifest.json)），共 ${reference.sourceRows} 行。它也用于稀疏矩阵专题；这里重新建立独立的项目划分，不能沿用全语料词表。大小写和空白规范化后，重复消息只保留第一条，得到 ${reference.uniqueMessages} 条；排除的 ${reference.excludedDuplicateRows} 行不再跨集合重复出现。训练 ${reference.counts.train}、验证 ${reference.counts.validation}、测试 ${reference.counts.test} 条，编号已冻结。
 
-### baseline 要先出现
-如果 12% 的邮件是 spam，一个永远预测 ham 的 dummy baseline 也有 88% accuracy。这个分数看起来高，却完全没有拦截能力。所以分类项目不能只看 accuracy。
+总预测 ham 的验证集 accuracy 为 ${(reference.majorityValidationAccuracy * 100).toFixed(2)}%，却抓不到 spam。后面要比较正类指标和错误成本，而不是只看 accuracy。这是公开参考基准，不能当作真实邮件流的未来表现保证。
+${code('setup', 'zh-CN')}
 
-### 如果换成疾病筛查
-疾病筛查仍是二分类，但 false negative 往往更危险：漏掉真正需要复查的人，代价可能高于让健康人多做一次检查。这个区别会直接影响阈值选择。
+**老师会先问：** 当前正在读取哪一个集合？下一步先搭建只在训练数据上拟合的文本流水线。`,
+        `### Question: what is positive, and what do false blocks and missed spam mean?
+Use the idea of spam filtering for SMS classification: text is the input, spam is positive, and ham is negative. A false positive labels ham as spam; a false negative labels spam as ham. Before analysis, this example assigns cost 5 to a false block and 1 to missed spam; those are teaching choices, not universal business costs.
 
-### Ref ID
-REF-GOOGLE-MLCC-CLASSIFICATION、REF-SKLEARN-CLASSIFICATION-METRICS`,
-        `The first step in a classification project is not choosing a model. It is defining the positive class and the cost of mistakes.
+### Prepare and run
+Read classification metrics and model selection first. Download the [source CSV](/datasets/numerical-methods/sms-spam.csv), [frozen split](/classification-project/v1/split.json), [English Notebook](/classification-project/v1/classification-project.en.ipynb) and [requirements](/classification-project/v1/requirements.txt) into one directory, then run six steps in order. The [Chinese Notebook](/classification-project/v1/classification-project.zh-CN.ipynb), [reference code](/classification-project/v1/reference.py), [reference results](/classification-project/v1/reference-summary.json) and [file manifest](/classification-project/v1/manifest.json) are also available.
 
-This chapter uses spam filtering as the main project. Each row can be one email, features come from the message text, and the label is \`spam\` or \`ham\`. The model outputs a score or probability, and a threshold decides whether the message is blocked.
+The existing UCI SMS Spam Collection (Tiago Almeida and José María Gómez Hidalgo, CC BY 4.0; [source record](/datasets/numerical-methods/sms-spam-manifest.json)) has ${reference.sourceRows} rows and also appears in the sparse-matrix topic. This project establishes its own frozen split and must not reuse the full-corpus vocabulary. Case-folding and collapsing whitespace identifies duplicate messages; retain their first row, leaving ${reference.uniqueMessages} messages and excluding ${reference.excludedDuplicateRows} repeated rows. Frozen counts are ${reference.counts.train} train, ${reference.counts.validation} validation and ${reference.counts.test} test.
 
-### Define the business problem first
-- **Input**: subject, body, sender signals, and other information available at prediction time.
-- **Label**: historical \`spam\` or \`ham\` labels from humans or rules.
-- **Positive class**: here \`spam\` is positive because the blocking action revolves around it.
-- **Error cost**: blocking a normal email is a false positive; letting spam through is a false negative. Both are bad, but their business costs differ.
+Always predicting ham gives ${(reference.majorityValidationAccuracy * 100).toFixed(2)}% validation accuracy but catches no spam. Compare positive-class metrics and costs, not accuracy alone. This public reference benchmark does not guarantee performance on future email traffic.
+${code('setup', 'en')}
 
-### Baseline comes first
-If 12% of messages are spam, a dummy baseline that always predicts ham still reaches 88% accuracy. That score looks high but blocks nothing. Classification projects cannot stop at accuracy.
-
-### If the task is disease screening
-Disease screening is also binary classification, but false negatives are often more dangerous: missing someone who needs follow-up can cost more than asking a healthy person to retest. This difference directly changes threshold choice.
-
-### Ref ID
-REF-GOOGLE-MLCC-CLASSIFICATION, REF-SKLEARN-CLASSIFICATION-METRICS`,
+**Review question:** which split are you reading now? Next, define a text Pipeline that fits training data only.`,
       ),
-      loc(
-        '先定义正类和错误成本。没有这一步，后面的 precision、recall 和阈值都没有业务含义。',
-        'Define the positive class and error costs first. Without that, precision, recall, and thresholds have no business meaning.',
-      ),
-      loc(
-        '看右侧项目流程，先指出正类、负类、假阳性和假阴性分别对应什么实际后果。',
-        'Use the project flow on the right to identify the positive class, negative class, false positive, and false negative consequences.',
-      ),
+      loc('先冻结数据职责和错误成本，再选择模型。', 'Freeze split roles and error costs before choosing a model.'),
+      loc('选择“文本”场景，指出 false positive 和 false negative 的实际后果。', 'Select the Text scene and identify the consequences of false positives and false negatives.'),
     ),
     chapter(
-      'text-to-features',
-      'modules.classificationProject.sections.textToFeatures.title',
+      'text-to-features', 'modules.classificationProject.sections.textToFeatures.title',
       loc(
-        `邮件文本不能直接交给线性模型。模型需要的是数值特征，所以第一座桥是把文本变成稀疏向量。
+        `### 本节问题：词表由谁学习？
+TfidfVectorizer 把文本变为 sparse matrix。每一列对应一个词或词组，每一行对应一条短信。这里保留至少在两篇训练文档中出现的词，使用一元和二元词组。
 
-### Bag of Words 和 TF-IDF
-\`CountVectorizer\` 会把文本拆成 token，再统计每个 token 出现次数。结果通常是 sparse matrix，因为每封邮件只会用到词表中的一小部分词。
+原始文本进入 Pipeline，向量化和 LogisticRegression 绑在一起。交叉验证会在每个训练折里重新拟合词表和 IDF，验证折只做 transform。这里先搭建流程，下一步才 fit；不要先在整份 CSV 上 fit_transform 后再切分。
+${code('vectorizer', 'zh-CN')}
 
-\`TfidfVectorizer\` 进一步降低常见词的权重，让“免费领取”“验证账户”这类更有区分度的词更突出。
+下一步比较同一训练协议下的候选参数。向量和 sparse matrix 的完整解释可回看 [稀疏矩阵专题](/math-lab/modules/sparse-matrices)。
 
-~~~python
-from sklearn.feature_extraction.text import TfidfVectorizer
-
-texts = [
-    "win prize now",
-    "meeting notes for tomorrow",
-    "claim your free prize",
-]
-
-vectorizer = TfidfVectorizer()
-X = vectorizer.fit_transform(texts)
-vectorizer.get_feature_names_out()
-X.shape
-~~~
-
-### 老师会先问
-词表是从哪里学到的？如果你在全体数据上先 \`fit\` 词表，再切分 train/test，测试集里的词分布已经泄漏进训练流程。
-
-### Ref ID
 REF-SKLEARN-TEXT-FEATURES、REF-SKLEARN-TEXT-GRID-SEARCH`,
-        `Raw email text cannot go directly into a linear model. The model needs numeric features, so the first bridge turns text into sparse vectors.
+        `### Question: which data learns the vocabulary?
+TfidfVectorizer converts text to a sparse matrix. Each column represents a token or phrase and each row a message. Keep terms present in at least two training documents, using unigrams and bigrams.
 
-### Bag of Words and TF-IDF
-\`CountVectorizer\` splits text into tokens and counts token occurrences. The result is usually a sparse matrix because each email uses only a small part of the vocabulary.
+Raw text enters a Pipeline combining vectorization with LogisticRegression. Every CV training fold refits vocabulary and IDF; its validation fold only transforms. Define the workflow now and fit it next. Do not fit_transform the full CSV before splitting.
+${code('vectorizer', 'en')}
 
-\`TfidfVectorizer\` further reduces the weight of common words so more discriminative terms such as "free prize" or "verify account" stand out.
+Next, compare candidate parameters under one training protocol. Revisit the [sparse-matrix topic](/math-lab/modules/sparse-matrices) for the full representation explanation.
 
-~~~python
-from sklearn.feature_extraction.text import TfidfVectorizer
-
-texts = [
-    "win prize now",
-    "meeting notes for tomorrow",
-    "claim your free prize",
-]
-
-vectorizer = TfidfVectorizer()
-X = vectorizer.fit_transform(texts)
-vectorizer.get_feature_names_out()
-X.shape
-~~~
-
-### Teacher question
-Where was the vocabulary learned? If you \`fit\` the vocabulary on all data before train/test split, test-set word distribution has already leaked into training.
-
-### Ref ID
 REF-SKLEARN-TEXT-FEATURES, REF-SKLEARN-TEXT-GRID-SEARCH`,
       ),
-      loc(
-        '文本向量化也是训练流程的一部分。词表、IDF 权重和缩放规则一样，只能从训练集学习。',
-        'Text vectorization is part of training. Vocabulary and IDF weights, like scaling rules, should be learned from training data only.',
-      ),
-      loc(
-        '在右侧向量化阶段，说明 token、词表、sparse vector 和特征矩阵 shape 分别是什么。',
-        'Use the vectorization stage to explain token, vocabulary, sparse vector, and feature-matrix shape.',
-      ),
+      loc('词表和 IDF 也是学出来的参数，必须遵守训练边界。', 'Vocabulary and IDF are learned parameters and must respect the training boundary.'),
+      loc('选择“向量”场景，说明验证短信遇到新词时为什么不能重学词表。', 'Select Vector and explain why unseen validation words cannot trigger vocabulary refitting.'),
     ),
     chapter(
-      'pipeline-baseline',
-      'modules.classificationProject.sections.pipelineBaseline.title',
+      'pipeline-baseline', 'modules.classificationProject.sections.pipelineBaseline.title',
       loc(
-        `现在把向量化、分类器和评估绑进一个 Pipeline。重点不是模型多强，而是流程干净。
+        `### 本节问题：怎样比较候选参数而不提前看测试集？
+划分文件由 train_test_split 在去重后的短信上使用 stratify 生成；运行参考代码时直接读取这些固定编号。只在 train 内做三折 StratifiedKFold，使用正类 spam 的 F1 比较 C=0.5、1、2。
 
-### 一个最小 spam baseline
-~~~python
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report
+| C | 三折平均 F1 | 标准差 |
+| --- | ---: | ---: |
+${reference.cv.map(row => `| ${row.C} | ${row.meanF1.toFixed(4)} | ${row.stdF1.toFixed(4)} |`).join('\n')}
 
-X = df["message"]
-y = df["label"]  # spam or ham
+参考选择 C=${reference.selectedC}，随后只在全部 train 上 refit。训练文本的矩阵形状为 ${reference.trainingMatrixShape[0]} × ${reference.trainingMatrixShape[1]}。这个选择不使用外部 validation 或 test 的分数；下一步才用 validation 选择阈值。
+${code('fit', 'zh-CN')}
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
+REF-SKLEARN-TEXT-GRID-SEARCH、REF-SKLEARN-CV`,
+        `### Question: how can candidate parameters be compared without peeking at test?
+The split file was created with train_test_split and stratify after deduplicating messages. The reference run reads those fixed IDs. Use three-fold StratifiedKFold inside train only, comparing C=0.5, 1 and 2 by spam F1.
 
-model = Pipeline([
-    ("tfidf", TfidfVectorizer(min_df=2, ngram_range=(1, 2))),
-    ("classifier", LogisticRegression(max_iter=1000)),
-])
+| C | Mean CV F1 | Standard deviation |
+| --- | ---: | ---: |
+${reference.cv.map(row => `| ${row.C} | ${row.meanF1.toFixed(4)} | ${row.stdF1.toFixed(4)} |`).join('\n')}
 
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-print(classification_report(y_test, pred))
-~~~
+The reference selects C=${reference.selectedC}, then refits on all train rows only. The training text matrix has shape ${reference.trainingMatrixShape[0]} × ${reference.trainingMatrixShape[1]}. External validation and test scores do not choose C. Next, use validation to select a threshold.
+${code('fit', 'en')}
 
-### 为什么要 stratify
-如果 spam 本来就少，随机切分可能让测试集里正类比例偏离整体数据。使用 \`stratify=y\` 可以让 train/test 保持更接近的类别比例。
-
-### Pipeline 的意义
-\`Pipeline\` 会在交叉验证或未来调参时，把 \`TfidfVectorizer.fit\` 限制在训练折里。它不是写法偏好，而是在防泄漏。
-
-### Ref ID
-REF-SKLEARN-TEXT-GRID-SEARCH、REF-SKLEARN-COMMON-PITFALLS、REF-SKLEARN-CLASSIFICATION-METRICS`,
-        `Now bind vectorization, classifier, and evaluation into one Pipeline. The focus is not model strength yet; it is a clean workflow.
-
-### A minimal spam baseline
-~~~python
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report
-
-X = df["message"]
-y = df["label"]  # spam or ham
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
-
-model = Pipeline([
-    ("tfidf", TfidfVectorizer(min_df=2, ngram_range=(1, 2))),
-    ("classifier", LogisticRegression(max_iter=1000)),
-])
-
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-print(classification_report(y_test, pred))
-~~~
-
-### Why stratify
-If spam is rare, a random split may give the test set a class rate unlike the full dataset. \`stratify=y\` keeps train/test class proportions closer.
-
-### Why Pipeline matters
-\`Pipeline\` keeps \`TfidfVectorizer.fit\` inside the training fold during cross-validation or later tuning. It is not style; it prevents leakage.
-
-### Ref ID
-REF-SKLEARN-TEXT-GRID-SEARCH, REF-SKLEARN-COMMON-PITFALLS, REF-SKLEARN-CLASSIFICATION-METRICS`,
+REF-SKLEARN-TEXT-GRID-SEARCH, REF-SKLEARN-CV`,
       ),
-      loc(
-        '一个好 baseline 要同时做到简单、可复现和不泄漏。',
-        'A good baseline should be simple, reproducible, and leakage-free.',
-      ),
-      loc(
-        '在右侧 pipeline 阶段，指出哪一步学习词表，哪一步学习分类权重，哪一步只读测试集。',
-        'Use the pipeline stage to identify which step learns vocabulary, which learns classifier weights, and which only reads the test set.',
-      ),
+      loc('Pipeline 在每折内部学习词表；测试集不参与选 C。', 'The Pipeline learns vocabulary within each fold; test does not select C.'),
+      loc('选择“Pipeline”场景，指出哪些步骤会 fit，哪些只会 transform 或 predict。', 'Select Pipeline and identify which steps fit and which only transform or predict.'),
     ),
     chapter(
-      'scores-thresholds',
-      'modules.classificationProject.sections.scoresThresholds.title',
+      'scores-thresholds', 'modules.classificationProject.sections.scoresThresholds.title',
       loc(
-        `分类器不一定只输出 \`spam\` 或 \`ham\`。更有用的是先输出正类概率，再用阈值做决策。
+        `### 本节问题：分数固定后，怎样选择一次决策规则？
+用 model.classes_ 找到 spam 对应的概率列，再调用 predict_proba。不要把“第二列一定是正类”写成默认假设。预测标签用 np.where 保持为 spam/ham，与真实标签类型一致。
 
-### 分数没有变，决策会变
-~~~python
-proba = model.predict_proba(X_test)[:, 1]
+只在 validation 比较 0.10—0.90、间隔 0.05 的预定网格，最小化 5 × FP + FN；平局时依次选择较少 FP、较高阈值。参考阈值为 ${reference.validation.threshold}：
+${metricsTable('validation', 'zh-CN')}
 
-threshold = 0.50
-pred_050 = (proba >= threshold).astype(int)
+降低阈值会扩大预测正类范围，通常提高 recall，也可能增加误拦。这里不重新训练参数，不用 test 重选阈值。下一步锁定当前模型和阈值，再做最终汇总。
+${code('threshold', 'zh-CN')}
 
-threshold = 0.30
-pred_030 = (proba >= threshold).astype(int)
-~~~
-
-同一批 \`proba\`，阈值从 0.50 降到 0.30，会拦截更多邮件。这样 recall 通常会上升，因为更多 spam 被抓住；precision 可能下降，因为更多正常邮件也被误拦。
-
-### 和垃圾邮件业务连接
-如果用户很讨厌漏掉 spam，可以降低阈值；如果误拦正常邮件代价很高，就要提高阈值。阈值不是数学常数，而是业务决策。
-
-### 老师会先问
-你是在训练模型，还是在改变决策规则？如果模型分数没变，只是阈值变了，那么参数并没有重新学习，变的是正类判定范围。
-
-### Ref ID
 REF-GOOGLE-MLCC-CLASSIFICATION、REF-SKLEARN-CLASSIFICATION-METRICS`,
-        `A classifier does not have to output only \`spam\` or \`ham\`. It is more useful to output positive-class probability first, then make decisions with a threshold.
+        `### Question: how do fixed scores become one chosen decision rule?
+Find spam in model.classes_ before selecting its predict_proba column; do not assume the second column is always positive. Use np.where to keep predicted spam/ham labels consistent with the true label type.
 
-### Scores stay fixed while decisions change
-~~~python
-proba = model.predict_proba(X_test)[:, 1]
+On validation only, search the predeclared 0.10–0.90 grid in steps of 0.05, minimizing 5 × FP + FN. Break ties by fewer FP, then higher threshold. The reference threshold is ${reference.validation.threshold}:
+${metricsTable('validation', 'en')}
 
-threshold = 0.50
-pred_050 = (proba >= threshold).astype(int)
+Lowering the threshold expands predicted positives, usually raising recall while possibly adding false blocks. Parameters are not retrained and test cannot reselect the threshold. Next, lock this model and threshold for the final summary.
+${code('threshold', 'en')}
 
-threshold = 0.30
-pred_030 = (proba >= threshold).astype(int)
-~~~
-
-With the same \`proba\`, lowering the threshold from 0.50 to 0.30 blocks more messages. Recall usually rises because more spam is caught; precision may fall because more normal mail is blocked too.
-
-### Connection to spam filtering
-If users hate missed spam, lower the threshold. If blocking normal mail is very costly, raise the threshold. The threshold is not a mathematical constant; it is a business decision.
-
-### Teacher question
-Are you training the model or changing the decision rule? If model scores stay fixed and only the threshold changes, parameters did not relearn. The predicted-positive region changed.
-
-### Ref ID
 REF-GOOGLE-MLCC-CLASSIFICATION, REF-SKLEARN-CLASSIFICATION-METRICS`,
       ),
-      loc(
-        '阈值移动的是决策，不是模型分数。把这件事分清，precision/recall 才会变得清楚。',
-        'Thresholds move decisions, not model scores. Once that is clear, precision and recall make sense.',
-      ),
-      loc(
-        '在右侧阈值阶段，把阈值下调，预测正例数量、假阳性和假阴性会怎样变化？',
-        'Use the threshold stage to reason about what happens to predicted positives, false positives, and false negatives when the threshold drops.',
-      ),
+      loc('阈值选择只看 validation；选择完成后再读 test。', 'Select the threshold on validation; read test only after selection ends.'),
+      loc('选择“score”场景，区分模型分数、阈值和字符串预测标签。', 'Select Score and distinguish model scores, the threshold and string predictions.'),
     ),
     chapter(
-      'metrics-tradeoffs',
-      'modules.classificationProject.sections.metricsTradeoffs.title',
+      'metrics-tradeoffs', 'modules.classificationProject.sections.metricsTradeoffs.title',
       loc(
-        `分类评估要把混淆矩阵、precision、recall、F1、ROC/AUC 和错误成本放在一起看。
+        `### 本节问题：最终报告能支持什么结论？
+锁定 C=${reference.selectedC}、阈值 ${reference.validation.threshold} 后，只对 ${reference.counts.test} 条 test 做一次最终汇总，不再 fit 或挑阈值：
+${metricsTable('lockedTest', 'zh-CN')}
 
-### 常用指标怎么接到样本
-~~~python
-from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, roc_auc_score
+在这份固定样本上，precision=1 只说明当前没有误拦；recall=${reference.lockedTest.recall.toFixed(4)} 说明仍漏掉 ${reference.lockedTest.confusion.FN} 条 spam。高 accuracy 或 ROC/AUC 都不能消除这个代价。不要把零 FP 推广为未来永远不会误拦。
 
-cm = confusion_matrix(y_test, pred_050, labels=["spam", "ham"])
-precision = precision_score(y_test, pred_050, pos_label="spam")
-recall = recall_score(y_test, pred_050, pos_label="spam")
-f1 = f1_score(y_test, pred_050, pos_label="spam")
-auc = roc_auc_score((y_test == "spam").astype(int), proba)
-~~~
+可以用 classification_report 查看多类汇总，但先核对正类、标签类型和分母。指标公式回看 [分类指标](/learn/classification/precisionRecall)，本课集中解释项目结果。
+${code('evaluate', 'zh-CN')}
 
-### 指标各自回答的问题
-- **precision**：被模型拦截的邮件里，有多少真的是 spam？
-- **recall**：所有 spam 里，模型抓住了多少？
-- **F1**：在 precision 和 recall 之间做一个平衡摘要。
-- **AUC**：不固定某个阈值时，模型排序正负样本的能力如何？
+下一步复盘 validation 的错误样本，保持当前 test 汇总固定。
 
-### 成本比 accuracy 更诚实
-疾病筛查里，漏掉阳性可能比误报更贵；垃圾邮件里，误拦重要邮件可能比漏掉普通广告更贵。不要问“哪个指标永远最好”，要问“这个任务最怕哪类错”。
+REF-SKLEARN-CLASSIFICATION-METRICS`,
+        `### Question: what does the final report support?
+After locking C=${reference.selectedC} and threshold ${reference.validation.threshold}, summarize the ${reference.counts.test} test rows once, with no further fit or threshold selection:
+${metricsTable('lockedTest', 'en')}
 
-### Ref ID
-REF-SKLEARN-CLASSIFICATION-METRICS、REF-GOOGLE-MLCC-CLASSIFICATION`,
-        `Classification evaluation should connect the confusion matrix, precision, recall, F1, ROC/AUC, and error costs.
+Precision=1 means there are no false blocks in this fixed sample. Recall=${reference.lockedTest.recall.toFixed(4)} still means ${reference.lockedTest.confusion.FN} missed spam messages. High accuracy or ROC/AUC does not remove that cost, and zero observed FP does not promise zero future false blocks.
 
-### Metrics connected to examples
-~~~python
-from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, roc_auc_score
+classification_report can provide a multiclass summary, but first check the positive class, label types and denominators. Revisit [classification metrics](/learn/classification/precisionRecall) for formulas; this lesson focuses on interpreting project results.
+${code('evaluate', 'en')}
 
-cm = confusion_matrix(y_test, pred_050, labels=["spam", "ham"])
-precision = precision_score(y_test, pred_050, pos_label="spam")
-recall = recall_score(y_test, pred_050, pos_label="spam")
-f1 = f1_score(y_test, pred_050, pos_label="spam")
-auc = roc_auc_score((y_test == "spam").astype(int), proba)
-~~~
+Next, inspect validation errors while keeping this test summary fixed.
 
-### What each metric asks
-- **precision**: among blocked emails, how many were truly spam?
-- **recall**: among all spam emails, how many did the model catch?
-- **F1**: a balanced summary between precision and recall.
-- **AUC**: without fixing one threshold, how well does the model rank positive above negative examples?
-
-### Cost is more honest than accuracy
-In disease screening, missing a positive case can be more expensive than a false alarm; in spam filtering, blocking an important normal email can be worse than letting a harmless ad through. Do not ask which metric is always best. Ask which mistake the task fears most.
-
-### Ref ID
-REF-SKLEARN-CLASSIFICATION-METRICS, REF-GOOGLE-MLCC-CLASSIFICATION`,
+REF-SKLEARN-CLASSIFICATION-METRICS`,
       ),
-      loc(
-        '指标不是排行榜，而是不同错误类型的放大镜。',
-        'Metrics are not a leaderboard. They are lenses for different error types.',
-      ),
-      loc(
-        '在右侧指标阶段，选择一个业务目标，并说明应该更重视 precision、recall 还是 AUC。',
-        'Use the metrics stage to choose a business goal and explain whether precision, recall, or AUC deserves more weight.',
-      ),
+      loc('固定测试结果是本次协议的报告，不是继续调参的排行榜。', 'The fixed test result reports this protocol; it is not a leaderboard for further tuning.'),
+      loc('选择“指标”场景，用 TP、FN 解释为什么高 precision 仍可能漏掉 spam。', 'Select Metrics and use TP and FN to explain why high precision can still miss spam.'),
     ),
     chapter(
-      'error-review',
-      'modules.classificationProject.sections.errorReview.title',
+      'error-review', 'modules.classificationProject.sections.errorReview.title',
       loc(
-        `项目最后不能只贴一张 classification report。你需要把错误样本翻出来，写出下一轮实验。
+        `### 本节问题：哪些观察能变成下一轮假设？
+只从 validation 取错误样本：
 
-### 复盘 false positives 和 false negatives
-~~~python
-review = pd.DataFrame({
-    "message": X_test,
-    "label": y_test,
-    "score": proba,
-    "pred": pred_050,
-})
+| 编号 | 错误类型 | spam 概率 |
+| --- | --- | ---: |
+${reference.validationErrorExamples.map(row => `| ${row.sms_id} | ${row.kind} | ${row.score.toFixed(4)} |`).join('\n')}
 
-false_positive = review[(review["label"] == "ham") & (review["pred"] == "spam")]
-false_negative = review[(review["label"] == "spam") & (review["pred"] == "ham")]
-false_positive.sort_values("score", ascending=False).head()
-false_negative.sort_values("score").head()
-~~~
+用 Notebook 的 df.loc[编号] 查看原文。4730 被标为 ham，却含有 FREE SMS 等词，值得检查这些词的权重是否影响误拦。69 看起来像笑话，4145 像问答；仅靠常见营销词可能无法覆盖语料中的 spam。这些是待验证的解释，不能直接当作因果结论。
 
-### 一个可执行的复盘
-“当前 TF-IDF + LogisticRegression baseline 能抓住明显 spam，但会误拦包含促销、发票或链接的正常邮件。下一轮先检查 false positive 的高权重 token，再比较 0.35、0.50、0.70 三个阈值下的 precision/recall，并用交叉验证确认结果是否稳定。”
+下一轮可以预先比较特征或模型，但必须重新说明评估边界。当前 test 已经看过，不能用它挑新阈值后再宣称是一次独立最终评估。公开 Notebook 的确定性重运行是在复现同一参考结果，不是在挑最好的一次。
+${code('review', 'zh-CN')}
 
-### 下一步路径
-完成这一章后，回到站内 Classification 指标实验，专门拖动阈值，观察混淆矩阵、precision、recall 和成本如何一起变化。项目复盘和指标实验应该互相解释。
+下一步可回到 [分类指标实验](/learn/classification/scores) 对照阈值与成本，或在 [项目案例目录](/projects) 选择其他参考案例。
 
-### Ref ID
 REF-SKLEARN-TEXT-GRID-SEARCH、REF-SKLEARN-CLASSIFICATION-METRICS、REF-SKLEARN-CV`,
-        `The project should not end with a pasted classification report. Inspect error examples and write the next experiment.
+        `### Question: which observations can become hypotheses for a future experiment?
+Inspect validation errors only:
 
-### Review false positives and false negatives
-~~~python
-review = pd.DataFrame({
-    "message": X_test,
-    "label": y_test,
-    "score": proba,
-    "pred": pred_050,
-})
+| ID | Error | Spam probability |
+| --- | --- | ---: |
+${reference.validationErrorExamples.map(row => `| ${row.sms_id} | ${row.kind} | ${row.score.toFixed(4)} |`).join('\n')}
 
-false_positive = review[(review["label"] == "ham") & (review["pred"] == "spam")]
-false_negative = review[(review["label"] == "spam") & (review["pred"] == "ham")]
-false_positive.sort_values("score", ascending=False).head()
-false_negative.sort_values("score").head()
-~~~
+Use df.loc[ID] in the Notebook to read the source text. Message 4730 is labeled ham but contains FREE SMS; checking those token weights may help explain the false block. Message 69 resembles a joke and 4145 a question, so common marketing tokens may miss some labeled spam. These are hypotheses to investigate, not causal conclusions.
 
-### An actionable review
-"The current TF-IDF + LogisticRegression baseline catches obvious spam, but it blocks some normal messages containing promotion, invoice, or link terms. Next, inspect high-weight tokens in false positives, compare thresholds 0.35, 0.50, and 0.70, and use cross-validation to check whether the result is stable."
+A future experiment can predeclare feature or model comparisons, with a new evaluation boundary. This test has already been observed; using it to select a new threshold would not be an independent final evaluation. Deterministically rerunning the public Notebook reproduces the same reference; it does not select the best run.
+${code('review', 'en')}
 
-### Next path
-After this chapter, return to the site's Classification metrics lab. Drag the threshold and watch the confusion matrix, precision, recall, and cost move together. The project review and metrics lab should explain each other.
+Next, revisit the [classification metrics lab](/learn/classification/scores) to compare threshold and cost, or choose another reference in the [project directory](/projects).
 
-### Ref ID
 REF-SKLEARN-TEXT-GRID-SEARCH, REF-SKLEARN-CLASSIFICATION-METRICS, REF-SKLEARN-CV`,
       ),
-      loc(
-        '分类项目复盘要能说清是哪类错最多、为什么错、下一轮先改哪一个变量。',
-        'A classification review should name which errors dominate, why they happen, and which single variable to change next.',
-      ),
-      loc(
-        '在右侧复盘阶段，把错误样本分成 false positive 和 false negative，再写一句下一轮实验计划。',
-        'Use the review stage to separate false positives from false negatives, then write one sentence for the next experiment.',
-      ),
+      loc('用验证错误形成假设；保留当前测试报告的解释边界。', 'Use validation errors to form hypotheses while preserving the meaning of the current test report.'),
+      loc('选择“复盘”场景，区分已观察到的错误与仍需实验验证的原因。', 'Select Review and distinguish observed errors from explanations that still need an experiment.'),
     ),
   ],
   controls: [],

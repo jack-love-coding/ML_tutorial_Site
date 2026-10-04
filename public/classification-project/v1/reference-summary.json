@@ -1,0 +1,366 @@
+{
+  "contractVersion": "classification-project-sms-v1",
+  "costs": {
+    "falseNegative": 1,
+    "falsePositive": 5
+  },
+  "counts": {
+    "test": 1032,
+    "train": 3095,
+    "validation": 1032
+  },
+  "cv": [
+    {
+      "C": 0.5,
+      "meanF1": 0.43789721,
+      "stdF1": 0.02122492
+    },
+    {
+      "C": 1.0,
+      "meanF1": 0.75961353,
+      "stdF1": 0.03909668
+    },
+    {
+      "C": 2.0,
+      "meanF1": 0.84613037,
+      "stdF1": 0.02253309
+    }
+  ],
+  "excludedDuplicateRows": 415,
+  "labelCounts": {
+    "test": {
+      "ham": 904,
+      "spam": 128
+    },
+    "train": {
+      "ham": 2710,
+      "spam": 385
+    },
+    "validation": {
+      "ham": 903,
+      "spam": 129
+    }
+  },
+  "lockedTest": {
+    "accuracy": 0.97577519,
+    "auc": 0.99573078,
+    "confusion": {
+      "FN": 25,
+      "FP": 0,
+      "TN": 904,
+      "TP": 103
+    },
+    "cost": 25,
+    "f1": 0.89177489,
+    "precision": 1.0,
+    "recall": 0.8046875
+  },
+  "majorityValidationAccuracy": 0.875,
+  "policy": {
+    "modelSelectionSplit": "train-cv",
+    "testEvaluations": 1,
+    "testReselectionAllowed": false,
+    "thresholdSelectionSplit": "validation"
+  },
+  "selectedC": 2.0,
+  "sourceRows": 5574,
+  "thresholdSweep": [
+    {
+      "accuracy": 0.94186047,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 7,
+        "FP": 53,
+        "TN": 850,
+        "TP": 122
+      },
+      "cost": 272,
+      "f1": 0.80263158,
+      "precision": 0.69714286,
+      "recall": 0.94573643,
+      "threshold": 0.1
+    },
+    {
+      "accuracy": 0.96899225,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 10,
+        "FP": 22,
+        "TN": 881,
+        "TP": 119
+      },
+      "cost": 120,
+      "f1": 0.88148148,
+      "precision": 0.84397163,
+      "recall": 0.92248062,
+      "threshold": 0.15
+    },
+    {
+      "accuracy": 0.97868217,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 11,
+        "FP": 11,
+        "TN": 892,
+        "TP": 118
+      },
+      "cost": 66,
+      "f1": 0.91472868,
+      "precision": 0.91472868,
+      "recall": 0.91472868,
+      "threshold": 0.2
+    },
+    {
+      "accuracy": 0.98062016,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 13,
+        "FP": 7,
+        "TN": 896,
+        "TP": 116
+      },
+      "cost": 48,
+      "f1": 0.92063492,
+      "precision": 0.94308943,
+      "recall": 0.89922481,
+      "threshold": 0.25
+    },
+    {
+      "accuracy": 0.97965116,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 17,
+        "FP": 4,
+        "TN": 899,
+        "TP": 112
+      },
+      "cost": 37,
+      "f1": 0.91428571,
+      "precision": 0.96551724,
+      "recall": 0.86821705,
+      "threshold": 0.3
+    },
+    {
+      "accuracy": 0.97674419,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 22,
+        "FP": 2,
+        "TN": 901,
+        "TP": 107
+      },
+      "cost": 32,
+      "f1": 0.89915966,
+      "precision": 0.98165138,
+      "recall": 0.82945736,
+      "threshold": 0.35
+    },
+    {
+      "accuracy": 0.97383721,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 25,
+        "FP": 2,
+        "TN": 901,
+        "TP": 104
+      },
+      "cost": 35,
+      "f1": 0.88510638,
+      "precision": 0.98113208,
+      "recall": 0.80620155,
+      "threshold": 0.4
+    },
+    {
+      "accuracy": 0.97383721,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 26,
+        "FP": 1,
+        "TN": 902,
+        "TP": 103
+      },
+      "cost": 31,
+      "f1": 0.88412017,
+      "precision": 0.99038462,
+      "recall": 0.79844961,
+      "threshold": 0.45
+    },
+    {
+      "accuracy": 0.96705426,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 33,
+        "FP": 1,
+        "TN": 902,
+        "TP": 96
+      },
+      "cost": 38,
+      "f1": 0.84955752,
+      "precision": 0.98969072,
+      "recall": 0.74418605,
+      "threshold": 0.5
+    },
+    {
+      "accuracy": 0.96511628,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 35,
+        "FP": 1,
+        "TN": 902,
+        "TP": 94
+      },
+      "cost": 40,
+      "f1": 0.83928571,
+      "precision": 0.98947368,
+      "recall": 0.72868217,
+      "threshold": 0.55
+    },
+    {
+      "accuracy": 0.96124031,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 40,
+        "FP": 0,
+        "TN": 903,
+        "TP": 89
+      },
+      "cost": 40,
+      "f1": 0.81651376,
+      "precision": 1.0,
+      "recall": 0.68992248,
+      "threshold": 0.6
+    },
+    {
+      "accuracy": 0.95251938,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 49,
+        "FP": 0,
+        "TN": 903,
+        "TP": 80
+      },
+      "cost": 49,
+      "f1": 0.76555024,
+      "precision": 1.0,
+      "recall": 0.62015504,
+      "threshold": 0.65
+    },
+    {
+      "accuracy": 0.93992248,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 62,
+        "FP": 0,
+        "TN": 903,
+        "TP": 67
+      },
+      "cost": 62,
+      "f1": 0.68367347,
+      "precision": 1.0,
+      "recall": 0.51937984,
+      "threshold": 0.7
+    },
+    {
+      "accuracy": 0.92926357,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 73,
+        "FP": 0,
+        "TN": 903,
+        "TP": 56
+      },
+      "cost": 73,
+      "f1": 0.60540541,
+      "precision": 1.0,
+      "recall": 0.43410853,
+      "threshold": 0.75
+    },
+    {
+      "accuracy": 0.91182171,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 91,
+        "FP": 0,
+        "TN": 903,
+        "TP": 38
+      },
+      "cost": 91,
+      "f1": 0.45508982,
+      "precision": 1.0,
+      "recall": 0.29457364,
+      "threshold": 0.8
+    },
+    {
+      "accuracy": 0.89728682,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 106,
+        "FP": 0,
+        "TN": 903,
+        "TP": 23
+      },
+      "cost": 106,
+      "f1": 0.30263158,
+      "precision": 1.0,
+      "recall": 0.17829457,
+      "threshold": 0.85
+    },
+    {
+      "accuracy": 0.88372093,
+      "auc": 0.98789994,
+      "confusion": {
+        "FN": 120,
+        "FP": 0,
+        "TN": 903,
+        "TP": 9
+      },
+      "cost": 120,
+      "f1": 0.13043478,
+      "precision": 1.0,
+      "recall": 0.06976744,
+      "threshold": 0.9
+    }
+  ],
+  "trainingMatrixShape": [
+    3095,
+    7612
+  ],
+  "uniqueMessages": 5159,
+  "validation": {
+    "accuracy": 0.97383721,
+    "auc": 0.98789994,
+    "confusion": {
+      "FN": 26,
+      "FP": 1,
+      "TN": 902,
+      "TP": 103
+    },
+    "cost": 31,
+    "f1": 0.88412017,
+    "precision": 0.99038462,
+    "recall": 0.79844961,
+    "threshold": 0.45
+  },
+  "validationErrorExamples": [
+    {
+      "kind": "FP",
+      "score": 0.590651410563,
+      "sms_id": 4730
+    },
+    {
+      "kind": "FN",
+      "score": 0.043627949817,
+      "sms_id": 4145
+    },
+    {
+      "kind": "FN",
+      "score": 0.048897807269,
+      "sms_id": 69
+    },
+    {
+      "kind": "FN",
+      "score": 0.056234585523,
+      "sms_id": 870
+    }
+  ]
+}

@@ -1,9 +1,11 @@
 import { algorithmTeaching } from '../src/lessons/algorithmTeaching.ts'
+import '../scripts/register-ts-resolver.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 
 const root = new URL('../', import.meta.url)
+const { classificationProjectModule } = await import('../src/data/classificationProjectModule.ts')
 
 function read(path) {
   return readFileSync(new URL(path, root), 'utf8')
@@ -60,6 +62,7 @@ test('classification project covers text vectorization, thresholds, metrics, and
     assert.match(moduleSource, new RegExp(`chapter\\(\\s*'${id}'`))
   }
 
+  const runtimeCopy = classificationProjectModule.chapters.map(chapter => Object.values(chapter.markdown).join('\n')).join('\n')
   for (const requiredConcept of [
     '垃圾邮件过滤',
     '正类',
@@ -79,7 +82,7 @@ test('classification project covers text vectorization, thresholds, metrics, and
     '错误样本',
     '老师会先问',
   ]) {
-    assert.match(moduleSource, new RegExp(escaped(requiredConcept)))
+    assert.match(runtimeCopy, new RegExp(escaped(requiredConcept)))
   }
 
   for (const refId of [
@@ -95,7 +98,7 @@ test('classification project covers text vectorization, thresholds, metrics, and
   assert.doesNotMatch(moduleSource, /鐩戠|鏃犵|娣卞|鐢熸垚寮|璁|鈥|�/)
 })
 
-test('classification project exposes checkpoints, lab stages, and centralized references', () => {
+test('classification project exposes reference examples, lab stages, and centralized references', () => {
   const checkpointSource = read('src/data/algorithmCheckpoints.ts')
   const labSource = read('src/components/AppliedWorkflowLessonLab.vue')
   const styleSource = read('src/styles/modules/workflow-lessons.css')
