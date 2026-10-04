@@ -38,7 +38,6 @@ test('runtime curriculum overview modules do not import complete lesson bodies',
     'src/views/CurriculumSpineView.vue',
     'src/views/CurriculumTrackView.vue',
     'src/views/CurriculumLibraryView.vue',
-    'src/views/CurriculumProgressView.vue',
   ]) {
     assert.doesNotMatch(read(path), /from ['"](?:\.\.\/|\.\/)*curriculum\/catalog\.ts['"]|from ['"]\.\/catalog\.ts['"]/)
   }

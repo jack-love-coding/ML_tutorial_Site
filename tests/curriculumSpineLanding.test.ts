@@ -14,7 +14,6 @@ test('spine landing route is a dedicated stage view while preserving the flat co
   const routerSource = read('src/router/index.ts')
   const navigationSource = read('src/data/navigationMenus.ts')
   const homeSource = read('src/views/HomeView.vue')
-  const progressSource = read('src/views/CurriculumProgressView.vue')
 
   assert.match(routerSource, /path: '\/spine'/)
   assert.match(routerSource, /CurriculumSpineView\.vue/)
@@ -25,8 +24,6 @@ test('spine landing route is a dedicated stage view while preserving the flat co
   assert.match(navigationSource, /'\/tracks\/core-learning-path'/)
   assert.match(navigationSource, /'\/learn'/)
   assert.match(homeSource, /\/spine/)
-  assert.match(progressSource, /route: '\/spine'/)
-  assert.match(progressSource, /route: '\/tracks\/core-learning-path'/)
 })
 
 test('spine landing renders selectable units and chapter links from the reading sequence', () => {

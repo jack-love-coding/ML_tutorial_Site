@@ -34,6 +34,8 @@
 
 历史 V1/V2、course-progress、迁移标记和 checkpoint-report 数据不清空、不迁移。实验只用当前页面内存，语言设置可持久保存。存储工具暂留兼容测试，但学生界面不调用。
 
+无运行时消费者的旧进度页、诊断页、能力雷达、学习报告、完成按钮、进度摘要与任务保存卡片已移除，同时删除专属样式和 UI 测试。`/progress` 仍跳转 `/spine`，`/math-lab/diagnostic` 仍跳转 `/library/math`。V1/V2、课程进度和报告数据工具及其兼容测试保留；`CheckpointQuiz` 等现有入口组件继续作为“例题与讲解”适配器使用，不恢复评分或保存动作。
+
 ## 验证与发布
 
 数学资源首页读取 `src/curriculum/generated/mathSummaries.ts`。数学课的最终 provider 经同一 `curriculum:generate` 命令生成 `generated/mathCourses/*.json`；运行时 `loadMathLabModule(id)` 只请求当前课程文件，保留成功结果缓存，失败请求可重试。不要手工编辑生成正文；`curriculum:check` 与 33 课逐字段测试检查漂移。页面请求带失效保护，返回、快速切课或卸载后，旧响应不会覆盖当前内容。浏览器专项为 `node scripts/qa/run-textbook-smoke.mjs math-loading math-reading`。

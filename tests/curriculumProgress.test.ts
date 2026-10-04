@@ -514,19 +514,9 @@ test('progress v2 source stays isolated from v1 progress storage helpers', () =>
   assert.doesNotMatch(progressSource, /clearDataLabProgress/)
 })
 
-test('progress route reads progress v2 and renders a continue-learning target', () => {
-  const progressViewSource = read('src/views/CurriculumProgressView.vue')
-
-  assert.match(progressViewSource, /migrateLearningProgressV2/)
-  assert.match(progressViewSource, /selectContinueLearning/)
-  assert.match(progressViewSource, /continueTarget/)
-  assert.match(progressViewSource, /visitedCount/)
-  assert.match(progressViewSource, /savedRecordCount/)
-  assert.match(progressViewSource, /recentLabEvidence/)
-  assert.match(progressViewSource, /labEvidence/)
-  assert.match(progressViewSource, /recentEvidence/)
-  assert.match(progressViewSource, /evidenceTaskStatuses/)
-  assert.match(progressViewSource, /needsExplanation/)
-  assert.doesNotMatch(progressViewSource, /checkpointComplete|checkpointMissing|completedCount|attemptCount/)
-  assert.doesNotMatch(progressViewSource, /Progress is moving onto the new curriculum route/)
+test('legacy assessment URLs redirect to reading resources without loading retired pages', () => {
+  const router = read('src/router/index.ts')
+  assert.match(router, /path: '\/progress',[\s\S]*?redirect: '\/spine'/)
+  assert.match(router, /path: '\/math-lab\/diagnostic',[\s\S]*?redirect: '\/library\/math'/)
+  assert.doesNotMatch(router, /CurriculumProgressView|DiagnosticPage/)
 })

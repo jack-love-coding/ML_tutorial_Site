@@ -31,14 +31,12 @@ test('frontend reviews explain choices without scoring or completion thresholds'
 
 test('visible Vue copy uses learner-facing result language instead of evidence jargon', () => {
   for (const path of [
-    'src/views/CurriculumProgressView.vue',
     'src/lessons/LessonInteractionProtocolPanel.vue',
     'src/components/CnnShapeParameterChallengeLab.vue',
     'src/components/TransformerBlockAssemblyChallengeLab.vue',
     'src/components/AttentionQkvChallengeLab.vue',
     'src/components/OptimizerCurveDiagnosisChallengeLab.vue',
     'src/components/ArchitectureToolsHandoffChallengeLab.vue',
-    'src/modules/math-lab/components/CheckpointReportCard.vue',
     'src/modules/data-lab/labs/DataQualityDecisionRecordLab.vue',
   ]) {
     assert.doesNotMatch(read(path), /证据/, `${path} should avoid evidence jargon in visible Chinese copy`)
