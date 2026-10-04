@@ -7,9 +7,9 @@ import { pagesEntrypoints } from '../scripts/pages-entrypoints.mjs'
 import { lossDisplayFiles } from '../scripts/generate-loss-display.mjs'
 import { curriculumLessonDirectory } from '../src/curriculum/generated/lessonDirectory.ts'
 import { teachingUnits } from '../src/curriculum/reading.ts'
-import { curriculumModuleById } from '../src/curriculum/catalog.ts'
-import { loadAlgorithmModule } from '../src/data/moduleCatalog.ts'
-import { dataLabModuleRegistry } from '../src/modules/data-lab/data/modules.ts'
+import { releaseResources, publicFile, verifyReleaseManifest } from '../scripts/textbook-release.ts'
+import { textbookReadingManifest, releasedModuleIds } from '../src/curriculum/publication.ts'
+import { mathLabModuleRegistry } from '../src/modules/math-lab/data/modules.ts'
 
 const hash = (data: Buffer | string) => createHash('sha256').update(data).digest('hex')
 test('Pages entries cover every module, chapter, short URL, and compatibility redirect', () => {
@@ -36,40 +36,49 @@ test('loss display data preserves every shown value and aggregate from the downl
     }
   }
 })
-let referencedAssets = 0
-function verifyReferences(value: unknown) {
-  if (typeof value === 'string') {
-    for (const match of value.matchAll(/\/(?:ai-overview|math-lab|data-lab|manim|notebooks|datasets|images)\/[\w./-]+\.(?:png|jpg|jpeg|svg|webp|mp4|json|ipynb|csv)/g)) { assert.ok(existsSync(resolve('public', '.' + match[0])), match[0]); referencedAssets++ }
-  } else if (Array.isArray(value)) value.forEach(verifyReferences)
-  else if (value && typeof value === 'object') Object.values(value).forEach(verifyReferences)
+async function verifyReleased(units = teachingUnits) {
+  const resources = await releaseResources(units)
+  for (const path of resources.assets) assert.ok(existsSync(publicFile(path)), path)
+  assert.ok(resources.assets.length > 5, 'asset scan must not be vacuous')
+  const verified = resources.manifests.reduce((count, path) => count + verifyReleaseManifest(path), 0)
+  assert.ok(resources.manifests.length > 0 && verified >= resources.manifests.length, 'manifest checks must not be vacuous')
+  return resources
 }
-test('pilot content references existing local assets', async () => {
-  for (const unit of teachingUnits.slice(0, 2)) for (const step of unit.readings) {
-    const metadata = curriculumModuleById.get(step.moduleId)!
-    const content = metadata.source.namespace === 'algorithm' ? await loadAlgorithmModule(step.moduleId as never) : dataLabModuleRegistry[step.moduleId]
-    assert.ok(content, step.moduleId)
-    verifyReferences(content)
-  }
-  assert.ok(referencedAssets > 5, 'asset scan must not be vacuous')
+
+test('every pilot or published unit has local resources and verified manifest hashes', async () => {
+  const resources = await verifyReleased()
+  assert.deepEqual(resources.moduleIds, releasedModuleIds())
 })
-test('published Notebook manifests and hashes are verified without regenerating notebooks', () => {
-  const manifests = ['notebooks/python-data-tools/outputs/manifest.json', 'notebooks/loss-functions/outputs/manifest.json', 'notebooks/linear-regression/output-manifest.json']
-  let verified = 0
-  function visit(value: unknown) {
-    if (Array.isArray(value)) return value.forEach(visit)
-    if (!value || typeof value !== 'object') return
-    const entry = value as Record<string, unknown>
-    const name = entry.publicPath ?? entry.path
-    if (typeof name === 'string' && typeof entry.sha256 === 'string' && !name.startsWith('scripts/') && !name.startsWith('docs/')) {
-      const path = name.startsWith('scripts/') || name.startsWith('docs/') ? name : resolve('public', name.replace(/^\//, ''))
-      assert.ok(existsSync(path), path)
-      const bytes = readFileSync(path)
-      assert.equal(hash(bytes), entry.sha256, path)
-      if (typeof entry.bytes === 'number') assert.equal(bytes.length, entry.bytes, path)
-      verified++
-    }
-    Object.values(value).forEach(visit)
+
+test('release coverage expands to math, paged lessons and projects when units 3 and 4 become pilot', async () => {
+  const candidates = teachingUnits.map(unit => ['unit-3', 'unit-4'].includes(unit.id)
+    ? { ...unit, publicationStatus: 'pilot' as const } : unit)
+  const resources = await verifyReleased(candidates)
+  assert.ok(resources.moduleIds.includes('calculus-functions-rate-change'))
+  const bridgeAsset = mathLabModuleRegistry['calculus-functions-rate-change']!.visuals.find(asset => asset.id === 'minimum-function-machine')!.assetPath!
+  assert.ok(resources.assets.includes(bridgeAsset), bridgeAsset)
+  assert.ok(resources.manifests.includes('/gradient-descent/v1/output-manifest.json'))
+  assert.ok(resources.manifests.includes('/notebooks/linear-regression/output-manifest.json'))
+  assert.ok(resources.manifests.includes('/notebooks/tabular-regression/output-manifest.json'))
+  assert.ok(!resources.moduleIds.includes('logistic-regression'))
+})
+
+test('math Notebook manifests come from course metadata when a math course is released', async () => {
+  const candidates = [{ ...teachingUnits[0]!, readings: [{ moduleId: 'least-squares-fitting' }], optional: [] }]
+  const resources = await releaseResources(candidates)
+  assert.deepEqual(resources.manifests, ['/notebooks/numerical-methods/outputs/manifest.json'])
+  assert.ok(resources.assets.some(path => path.endsWith('.ipynb')))
+  for (const manifest of resources.manifests) assert.ok(verifyReleaseManifest(manifest) > 0)
+})
+
+test('browser reading manifests preserve unit order, selected chapters and publication labels', () => {
+  const manifest = textbookReadingManifest()
+  assert.equal(manifest.units.length, teachingUnits.length)
+  for (const [index, unit] of manifest.units.entries()) {
+    assert.equal(unit.publicationStatus, teachingUnits[index]!.publicationStatus)
+    assert.ok(unit.readings.every(lesson => lesson.unitId === unit.id))
   }
-  for (const manifest of manifests) visit(JSON.parse(readFileSync(resolve('public', manifest), 'utf8')))
-  assert.ok(verified > 25)
+  assert.equal(manifest.units[2]!.readings.length, 28)
+  assert.equal(manifest.units[3]!.readings.length, 11)
+  assert.throws(() => publicFile('/../outside.json'), /escapes public/)
 })

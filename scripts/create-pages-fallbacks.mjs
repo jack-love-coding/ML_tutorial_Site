@@ -1,6 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { pagesEntrypoints } from './pages-entrypoints.mjs'
+import { textbookReadingManifest } from '../src/curriculum/publication.ts'
 
 const distDir = process.argv[2] ?? 'dist'
 const indexPath = join(distDir, 'index.html')
@@ -14,4 +15,5 @@ for (const route of routes) {
   copyFileSync(indexPath, outputPath)
 }
 writeFileSync(join(distDir, 'routes.json'), JSON.stringify(routes, null, 2) + '\n')
+writeFileSync(join(distDir, 'textbook-readings.json'), JSON.stringify(textbookReadingManifest()) + '\n')
 console.log(`Created ${routes.length} GitHub Pages SPA entrypoints from the curriculum directory.`)

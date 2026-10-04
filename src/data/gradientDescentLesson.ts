@@ -226,7 +226,7 @@ function buildLesson(section: StorySection): GradientDescentChapterLesson {
     downloads: [
       { label: loc('中文可执行 Notebook', 'Executed Chinese notebook'), publicPath: '/gradient-descent/v1/notebooks/gradient-descent-from-scratch.zh-CN.ipynb', kind: 'notebook' },
       { label: loc('英文可执行 Notebook', 'Executed English notebook'), publicPath: '/gradient-descent/v1/notebooks/gradient-descent-from-scratch.en.ipynb', kind: 'notebook' },
-      { label: loc('五条共享回归数据', 'Five-row shared regression data'), publicPath: '/gradient-descent/v1/data/study-hours-scores.csv', kind: 'csv' },
+      { label: loc('五条共享回归数据', 'Five-row shared regression data'), publicPath: '/gradient-descent/v1/study-score.csv', kind: 'csv' },
       { label: loc('互动资产清单', 'Interaction asset manifest'), publicPath: '/gradient-descent/v1/interaction-manifest.json', kind: 'json' },
       { label: loc('梯度更新动画', 'Gradient-update animation'), publicPath: '/manim/gradient-descent/gradient-rule.mp4', kind: 'video' },
     ],

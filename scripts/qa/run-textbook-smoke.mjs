@@ -1,5 +1,6 @@
 import { spawn } from 'node:child_process'
 import { resolve } from 'node:path'
+import { readFileSync } from 'node:fs'
 import { runBoundedProcess, stopProcess, waitForPreviewReady } from './run-logistic-regression-browser-matrix.mjs'
 const cwd = resolve(import.meta.dirname, '../..')
 const server = spawn('npm', ['exec', '--no', '--', 'vite', 'preview', '--base', '/ML_tutorial_Site/', '--host', '127.0.0.1', '--port', '4173', '--strictPort'], { cwd, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] })
@@ -22,7 +23,11 @@ try {
   for (const [session, file] of matrices.filter(([session]) => !requested.size || requested.has(session))) {
     try {
       await cli(session, ['open', 'http://127.0.0.1:4173/ML_tutorial_Site/'])
-      await cli(session, ['run-code', '--filename', `scripts/qa/${file}`])
+      if (session === 'textbook-route' && process.env.TEXTBOOK_SMOKE_UNITS) {
+        const unitIds = process.env.TEXTBOOK_SMOKE_UNITS.split(',').map(id => id.trim()).filter(Boolean)
+        const code = readFileSync(resolve(cwd, 'scripts/qa', file), 'utf8').replace('/* candidate-unit-ids */ []', JSON.stringify(unitIds))
+        await cli(session, ['run-code', code])
+      } else await cli(session, ['run-code', '--filename', `scripts/qa/${file}`])
     } finally { await cli(session, ['close']) }
   }
 } finally { await stopProcess(server) }
