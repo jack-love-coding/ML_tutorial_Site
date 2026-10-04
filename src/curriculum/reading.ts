@@ -58,7 +58,7 @@ export const teachingUnits: TeachingUnit[] = [
     readings: [{ moduleId: 'complexity-regularization' }, { moduleId: 'housing-price-project' }],
   },
   {
-    id: 'unit-5', title: copy('从概率到分类决策', 'From probability to classification decisions'), publicationStatus: 'preview',
+    id: 'unit-5', title: copy('从概率到分类决策', 'From probability to classification decisions'), publicationStatus: 'pilot',
     question: copy('概率如何转化为预测决策，错误成本又如何影响阈值？', 'How do probabilities become decisions, and how do error costs affect thresholds?'),
     prerequisites: copy('能够区分模型输出、损失函数与训练更新。', 'Distinguish model outputs, objectives, and training updates.'),
     instructions: copy('先理解概率和逻辑回归，再回访分类损失与似然，最后比较阈值和指标。', 'Read probability and logistic regression, revisit classification loss and likelihood, then compare thresholds and metrics.'),

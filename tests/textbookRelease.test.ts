@@ -51,9 +51,10 @@ test('every pilot or published unit has local resources and verified manifest ha
   assert.deepEqual(resources.moduleIds, releasedModuleIds())
 })
 
-test('release coverage expands to math, paged lessons and projects when units 3 and 4 become pilot', async () => {
-  const candidates = teachingUnits.map(unit => ['unit-3', 'unit-4'].includes(unit.id)
-    ? { ...unit, publicationStatus: 'pilot' as const } : unit)
+test('candidate coverage can isolate math bridges and regression projects from other units', async () => {
+  const candidates = teachingUnits.map(unit => ({ ...unit,
+    publicationStatus: ['unit-3', 'unit-4'].includes(unit.id) ? 'pilot' as const : 'preview' as const,
+  }))
   const resources = await verifyReleased(candidates)
   assert.ok(resources.moduleIds.includes('calculus-functions-rate-change'))
   const bridgeAsset = mathLabModuleRegistry['calculus-functions-rate-change']!.visuals.find(asset => asset.id === 'minimum-function-machine')!.assetPath!
@@ -62,6 +63,17 @@ test('release coverage expands to math, paged lessons and projects when units 3 
   assert.ok(resources.manifests.includes('/notebooks/linear-regression/output-manifest.json'))
   assert.ok(resources.manifests.includes('/notebooks/tabular-regression/output-manifest.json'))
   assert.ok(!resources.moduleIds.includes('logistic-regression'))
+})
+
+test('a classification decision candidate includes both frozen classification packages', async () => {
+  const candidates = teachingUnits.map(unit => ({ ...unit,
+    publicationStatus: unit.id === 'unit-5' ? 'pilot' as const : 'preview' as const,
+  }))
+  const resources = await verifyReleased(candidates)
+  assert.ok(resources.moduleIds.includes('beginner-probability-distributions'))
+  assert.ok(resources.manifests.includes('/logistic-regression/phase-29/manifest.json'))
+  assert.ok(resources.manifests.includes('/classification/phase-30/manifest.json'))
+  assert.ok(!resources.moduleIds.includes('classification-project'))
 })
 
 test('math Notebook manifests come from course metadata when a math course is released', async () => {
