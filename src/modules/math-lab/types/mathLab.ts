@@ -173,6 +173,29 @@ export interface MathLabModule {
   originalSort?: number
   importedAssetPaths?: string[]
   sourceReferences?: SourceReference[]
+  notebookCompanion?: MathNotebookCompanion
+}
+
+export interface MathCourseDownload {
+  publicPath: string
+  filename: string
+  label: LocalizedCopy
+  description: LocalizedCopy
+}
+
+export interface MathNotebookCompanion {
+  id: string
+  moduleId: MathLabModuleId
+  title: LocalizedCopy
+  description: LocalizedCopy
+  notebook: MathCourseDownload
+  dataset: MathCourseDownload
+  requirements: MathCourseDownload
+  supportingDownloads?: readonly MathCourseDownload[]
+  outputId: string
+  codeTitle: LocalizedCopy
+  codeExample: string
+  codeOutput: LocalizedCopy
 }
 
 export interface DiagnosticQuestion {

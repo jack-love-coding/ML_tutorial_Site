@@ -5,6 +5,8 @@ import type {
   MathLabSection,
 } from '../types/mathLab.ts'
 import { calculusRouteModules } from './calculusRouteModules.ts'
+import { calculusLessonProviders } from './calculusLessonProviders.ts'
+import { aiMathPathModuleIds } from './mathCourseOrder.ts'
 
 const md = String.raw
 const copy = (zhCN: string, en: string): LocalizedCopy => ({ 'zh-CN': zhCN, en })
@@ -75,38 +77,6 @@ residuals = [1.0, -2.0]
 loss = 2.5
 grad_w = [0.0, -5.0]
 grad_b = -1.0`
-
-const descentCode = md`import numpy as np
-
-X = np.array([[2.0, 3.0], [1.0, 4.0]])
-targets = np.array([9.0, 7.0])
-w0 = np.array([4.0, -1.0])
-b0 = 5.0
-
-def evaluate(w, b):
-    predictions = X @ w + b
-    residuals = predictions - targets
-    return float(np.mean(residuals ** 2))
-
-residuals = X @ w0 + b0 - targets
-grad_w = (2 / X.shape[0]) * X.T @ residuals
-grad_b = float(2 * residuals.mean())
-
-print("start_loss =", evaluate(w0, b0))
-print("gradient =", grad_w.tolist(), grad_b)
-for learning_rate in (0.05, 0.10):
-    w1 = w0 - learning_rate * grad_w
-    b1 = b0 - learning_rate * grad_b
-    print(
-        "lr =", learning_rate,
-        "params =", w1.tolist(), round(b1, 6),
-        "loss =", round(evaluate(w1, b1), 6),
-    )`
-
-const descentOutput = `start_loss = 2.5
-gradient = [0.0, -5.0] -1.0
-lr = 0.05 params = [4.0, -0.75] 5.05 loss = 2.07125
-lr = 0.1 params = [4.0, -0.5] 5.1 loss = 3.385`
 
 const batchCode = md`import numpy as np
 
@@ -250,56 +220,6 @@ const gradientSummarySection = section(
 Review Questions: Which parameter belongs to every gradient component? Why must gradient shape match parameter shape? Why is the negative gradient the local descent direction?
 
 The next chapter keeps the same starting point and adds learning rate \(\eta\) plus the assignment rule \(\theta\leftarrow\theta-\eta\nabla L\). The question changes from “what is the slope?” to “how far should we move, and did the true loss actually decrease after the move?”`,
-)
-
-const descentSharedSection = section(
-  'v3-descent-shared-update',
-  '同一起点的一次更新：负号不等于参数一定变小',
-  'One Update from the Same Start: Subtraction Does Not Mean Every Parameter Shrinks',
-  md`当前梯度是 **grad_w=[0,-5]**、**grad_b=-1**。取学习率 0.05，更新为 **w_new = [4,-0.75]**、**b_new = 5.05**。\(w_2\) 和 \(b\) 都变大，因为它们的梯度为负，而更新规则减去负数。第一项保持 4，因为当前 \(w_1\) 梯度为 0。
-
-新预测是 **[10.8,6.05]**，新残差是 **[1.8,-0.95]**，MSE 从 2.5 降到 2.07125。这个结果同时核对方向、步长和真实函数值。只看参数变大或变小没有意义；必须重新前向计算，确认 loss 对这次有限步长的响应。`,
-  md`The current gradients are grad_w=[0,-5] and grad_b=-1. With learning rate 0.05, the updated values are w_new=[4,-0.75] and b_new=5.05. Both \(w_2\) and \(b\) increase because their gradients are negative and the update subtracts a negative number. The first weight stays at 4 because its current gradient is zero.
-
-New predictions are [10.8,6.05], residuals are [1.8,-0.95], and MSE falls from 2.5 to 2.07125. This checks direction, step size, and the real function value together. Parameter values becoming larger or smaller is not the criterion; run the forward calculation again and inspect how loss responds to the finite step.`,
-)
-
-const descentRateSection = section(
-  'v3-descent-rate-comparison',
-  '同一方向、两个学习率：0.05 下降，0.10 反而上升',
-  'One Direction, Two Learning Rates: 0.05 Descends, 0.10 Rises',
-  md`把学习率改成 0.10，方向仍是负梯度，参数变为 **w=[4,-0.5]**、**b=5.1**，但新 MSE 是 3.385，比起点更高。原因不是梯度方向算反了，而是有限步长跨过了当前局部近似适用的区域。局部最速下降只对足够小的移动给出一阶保证。
-
-因此一次训练步应记录旧 loss、gradient norm、learning rate、更新量和新 loss。若 loss 上升，先缩小步长并核对梯度，再考虑曲率、batch 噪声或实现错误。学习率不是装饰性超参数，它把局部斜率换算成真实位移。`,
-  md`Change the learning rate to 0.10. The direction remains the negative gradient and parameters become w=[4,-0.5], b=5.1, yet the new MSE is 3.385, higher than the starting value. The gradient was not reversed; the finite step crossed beyond the region where the current local approximation was reliable. Steepest local descent gives a first-order guarantee only for a sufficiently small move.
-
-A training step should therefore retain old loss, gradient norm, learning rate, parameter change, and new loss. When loss rises, reduce the step and verify gradients before investigating curvature, batch noise, or implementation errors. Learning rate is the conversion from local slope to an actual displacement.`,
-)
-
-const descentOutputSection = section(
-  'v3-descent-numpy-output',
-  '代码核对：更新前后都重新计算真实 MSE',
-  'Code Check: Recompute the True MSE Before and After Updating',
-  md`代码只计算一次起点梯度，然后从同一个 **w0,b0** 分别尝试两个学习率。这样 0.05 与 0.10 的比较不会互相继承参数状态。若第二次试验从第一次更新后的参数继续走，它回答的是两步训练，而不是学习率控制实验。
-
-运行输出清楚展示：相同梯度、相同方向，不同有限步长可以产生相反的 loss 结果。实际训练循环每一步都要重新计算梯度，因为参数改变后，原来的局部斜率不再代表新位置。`,
-  md`The code computes the starting gradient once and tries two learning rates from the same w0,b0. This prevents the 0.05 and 0.10 trials from inheriting state from one another. Starting the second trial after the first update would test two training steps rather than a controlled learning-rate comparison.
-
-The output shows that the same gradient and direction can produce opposite loss outcomes under different finite step sizes. A real training loop recomputes gradients after every update because the old local slope no longer describes the new parameter position.`,
-)
-
-const descentSummarySection = section(
-  'v3-descent-summary',
-  '本章小结：训练步是测量、决策、移动、复算',
-  'Summary: A Training Step Measures, Decides, Moves, and Re-evaluates',
-  md`完整一步不是一条孤立公式：先用当前参数前向计算，再得到 loss 和梯度；学习率把梯度变成更新量；参数移动后重新计算真实 loss。负梯度提供局部下降方向，学习率决定是否把这个方向变成有效移动。
-
-下一章不再总用完整两行平均。它会分别查看单样本梯度 **[4,6,2]** 和 **[-4,-16,-4]**，解释为什么随机抽到不同样本会给出不同更新方向，以及这些方向平均后怎样回到全批量梯度 **[0,-5,-1]**。`,
-  md`A complete step is not one isolated formula. Run the forward pass at current parameters, obtain loss and gradients, convert gradients into an update with the learning rate, move parameters, then recompute true loss. The negative gradient gives a local descent direction; the learning rate determines whether that direction becomes an effective move.
-
-Review Questions: What four stages make one complete training step? Why can a correct negative-gradient direction still increase loss? What must be recomputed after parameters move?
-
-The next chapter stops averaging both examples every time. It inspects sample gradients [4,6,2] and [-4,-16,-4], explains why randomly selecting different examples produces different update directions, and shows how their average returns to the full-batch gradient [0,-5,-1].`,
 )
 
 const batchSharedSection = section(
@@ -505,23 +425,6 @@ function enhanceGradient(moduleDefinition: MathLabModule): MathLabModule {
   })
 }
 
-function enhanceDescent(moduleDefinition: MathLabModule): MathLabModule {
-  return withToc({
-    ...moduleDefinition,
-    estimatedMinutes: 60,
-    concepts: withConceptCode(moduleDefinition.concepts, 'negative-gradient-step', descentCode, descentOutput),
-    sections: [
-      moduleDefinition.sections[0]!,
-      descentSharedSection,
-      moduleDefinition.sections[1]!,
-      descentRateSection,
-      moduleDefinition.sections[2]!,
-      descentOutputSection,
-      descentSummarySection,
-    ],
-  })
-}
-
 function enhanceBatch(moduleDefinition: MathLabModule): MathLabModule {
   return withToc({
     ...moduleDefinition,
@@ -578,12 +481,16 @@ function enhanceTraining(moduleDefinition: MathLabModule): MathLabModule {
 
 const routeEnhancers: Readonly<Record<string, (moduleDefinition: MathLabModule) => MathLabModule>> = {
   'calculus-partial-derivatives-gradients': enhanceGradient,
-  'calculus-gradient-descent': enhanceDescent,
   'calculus-sgd-batch-noise': enhanceBatch,
   'calculus-optimizer-comparison': enhanceOptimizer,
   'calculus-training-code-diagnostics': enhanceTraining,
 }
 
-export const calculusOptimizationRouteModules: MathLabModule[] = calculusRouteModules.map((moduleDefinition) =>
-  routeEnhancers[moduleDefinition.id]?.(moduleDefinition) ?? moduleDefinition,
+// Compatibility collection for the complete seven-course route. Final providers bypass enhancers.
+const courseModules = [
+  ...calculusRouteModules.map(module => routeEnhancers[module.id]?.(module) ?? module),
+  ...calculusLessonProviders.flatMap(provider => provider.modules),
+]
+export const calculusOptimizationRouteModules: MathLabModule[] = courseModules.sort(
+  (left, right) => aiMathPathModuleIds.indexOf(left.id) - aiMathPathModuleIds.indexOf(right.id),
 )

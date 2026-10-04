@@ -10,10 +10,6 @@ import MathLabNotebookCompanion from '../components/MathLabNotebookCompanion.vue
 import MisconceptionCard from '../components/MisconceptionCard.vue'
 import ObservationPrompt from '../components/ObservationPrompt.vue'
 import { conceptIllustrationFor, type ConceptIllustration } from '../data/conceptIllustrations'
-import { amesNumericalNotebookForModule } from '../data/amesNumericalNotebook.ts'
-import { numericalBatch2NotebookForModule } from '../data/numericalBatch2Notebook.ts'
-import { numericalBatch3NotebookForModule } from '../data/numericalBatch3Notebook.ts'
-import { numericalBatch4NotebookForModule } from '../data/numericalBatch4Notebook.ts'
 import { observationPromptForModule } from '../data/checkpointReports'
 import { routeNavigationForModule } from '../data/learningRoutes'
 import { mathLabModuleRegistry, mathLabModules } from '../data/modules'
@@ -76,12 +72,7 @@ const moduleDefinition = computed(() => {
   const module = mathLabModuleRegistry[moduleId.value]
   return module ? projectMathReading(module, readingSelection.value) : undefined
 })
-const notebookCompanion = computed(() =>
-  amesNumericalNotebookForModule(moduleId.value)
-    ?? numericalBatch2NotebookForModule(moduleId.value)
-    ?? numericalBatch3NotebookForModule(moduleId.value)
-    ?? numericalBatch4NotebookForModule(moduleId.value),
-)
+const notebookCompanion = computed(() => moduleDefinition.value?.notebookCompanion)
 const moduleIndex = computed(() =>
   mathLabModules.findIndex((candidate) => candidate.id === moduleDefinition.value?.id),
 )

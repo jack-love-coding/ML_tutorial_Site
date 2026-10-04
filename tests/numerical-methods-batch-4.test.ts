@@ -930,8 +930,8 @@ test('[Plan 25-05] supporting downloads are localized, base-safe, and rendered w
     resolve(root, 'src/modules/math-lab/components/MathLabNotebookCompanion.vue'),
     'utf8',
   )
-  assert.match(companionSource, /NumericalBatch4NotebookCompanion/)
-  assert.match(companionSource, /'supportingDownloads' in props\.companion/)
+  assert.match(companionSource, /MathNotebookCompanion/)
+  assert.match(companionSource, /props\.companion.supportingDownloads/)
   assert.match(companionSource, /withPublicBase\(asset\.publicPath\)/)
   assert.match(companionSource, /math-notebook-companion__supporting-list/)
   assert.match(companionSource, /已执行结果与审计文件/)
@@ -956,12 +956,11 @@ test('[Plan 25-05] supporting downloads are localized, base-safe, and rendered w
   }
 })
 
-test('[Plan 25-05] Batch 4 resolver stays outermost while both teaching labs remain lazy and progress-safe', () => {
+test('Notebook metadata is resolved before rendering while teaching labs remain lazy and progress-safe', () => {
   const pageSource = readFileSync(resolve(root, 'src/modules/math-lab/pages/MathLabModulePage.vue'), 'utf8')
   const styleSource = readFileSync(resolve(root, 'src/styles/modules/math-lab.css'), 'utf8')
-  const batch3Position = pageSource.indexOf('?? numericalBatch3NotebookForModule(moduleId.value)')
-  const batch4Position = pageSource.indexOf('?? numericalBatch4NotebookForModule(moduleId.value)')
-  assert.ok(batch3Position >= 0 && batch4Position > batch3Position)
+  assert.match(pageSource, /moduleDefinition.value\?\.notebookCompanion/)
+  assert.doesNotMatch(pageSource, /numericalBatch[234]NotebookForModule|amesNumericalNotebookForModule/)
   assert.match(pageSource, /MathGradientLab: defineAsyncComponent\(\(\) => import\('\.\.\/labs\/MathGradientLab\.vue'\)\)/)
   assert.match(pageSource, /TrainingDiagnosticsLab: defineAsyncComponent\(\(\) => import\('\.\.\/labs\/TrainingDiagnosticsLab\.vue'\)\)/)
   assert.doesNotMatch(pageSource, /loadMathLabProgress\(\)/)
