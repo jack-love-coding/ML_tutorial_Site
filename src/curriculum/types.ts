@@ -76,4 +76,6 @@ export interface CurriculumSpineStage {
 export interface CurriculumReadingStep {
   moduleId: string
   lessonIds?: string[]
+  /** Existing labs needed by a short reading even when their full section is omitted. */
+  supplementalLabIds?: string[]
 }

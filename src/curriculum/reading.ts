@@ -41,11 +41,11 @@ export const teachingUnits: TeachingUnit[] = [
     instructions: copy('用短篇数学桥接读懂公式；在损失课比较目标，在梯度下降课改变更新步长，在回归课解释权重。', 'Use the short math bridges; compare objectives in loss, step sizes in gradient descent, and weights in regression.'),
     explanation: copy('损失衡量误差，梯度决定局部方向，回归模型把特征变成预测；三者各有主讲位置。', 'Loss measures error, gradients define a local direction, and regression maps features to predictions.'),
     readings: [
-      { moduleId: 'calculus-functions-rate-change', lessonIds: ['mapping-intuition', 'worked-prediction', 'python-translation'] },
+      { moduleId: 'calculus-functions-rate-change', lessonIds: ['mapping-intuition', 'worked-prediction', 'python-translation'], supplementalLabIds: ['prediction-mapping-lab'] },
       { moduleId: 'beginner-linear-algebra', lessonIds: ['beginner-linear-data-vector', 'minimum-linear-shape-ledger', 'beginner-linear-matrix-machine', 'minimum-linear-batch-output'] },
       { moduleId: 'loss-functions', lessonIds: ['why-loss', 'regression-losses'] },
       { moduleId: 'calculus-derivatives-local-change', lessonIds: ['derivatives-intuition', 'derivatives-worked-shared', 'minimum-derivative-local-approximation'] },
-      { moduleId: 'calculus-partial-derivatives-gradients', lessonIds: ['partial-one-direction', 'gradient-collects-partials'] },
+      { moduleId: 'calculus-partial-derivatives-gradients', lessonIds: ['partial-one-direction', 'gradient-collects-partials'], supplementalLabIds: ['calculus-partial-derivative-lab'] },
       { moduleId: 'gradient-descent' }, { moduleId: 'linear-regression' },
     ],
   },
@@ -113,7 +113,9 @@ export function readingContext(query: unknown, path: string, hash = '') {
   return { lesson, unit, index, previous: textbookReadings[index - 1], next: textbookReadings[index + 1] }
 }
 export function selectedReadingLessonIds(query: unknown, moduleId: string, lessonId: string) {
+  return selectedReadingStep(query, moduleId, lessonId)?.lessonIds
+}
+export function selectedReadingStep(query: unknown, moduleId: string, lessonId: string) {
   if (query !== textbookRouteId) return undefined
-  const step = teachingUnits.flatMap(unit => unit.readings).find(entry => entry.moduleId === moduleId && (!entry.lessonIds || entry.lessonIds.includes(lessonId) || !lessonId))
-  return step?.lessonIds
+  return teachingUnits.flatMap(unit => unit.readings).find(entry => entry.moduleId === moduleId && (!entry.lessonIds || entry.lessonIds.includes(lessonId) || !lessonId))
 }

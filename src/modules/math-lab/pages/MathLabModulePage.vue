@@ -27,6 +27,8 @@ import type {
 } from '../types/mathLab'
 import { withPublicBase } from '../../../utils/publicPath.ts'
 import { resolveMathLabModuleId } from '../utils/continueRoute'
+import { selectedReadingStep } from '../../../curriculum/reading.ts'
+import { projectMathReading } from '../utils/readingSelection.ts'
 
 const route = useRoute()
 const router = useRouter()
@@ -68,7 +70,12 @@ const labComponentRegistry = {
 
 const currentLocale = computed(() => locale.value as MathLabLocale)
 const moduleId = computed(() => route.params.moduleId as MathLabModuleId)
-const moduleDefinition = computed(() => mathLabModuleRegistry[moduleId.value])
+const readingSelection = computed(() => selectedReadingStep(route.query.route, moduleId.value, route.hash.slice(1)))
+const isSelectedReading = computed(() => Boolean(readingSelection.value?.lessonIds))
+const moduleDefinition = computed(() => {
+  const module = mathLabModuleRegistry[moduleId.value]
+  return module ? projectMathReading(module, readingSelection.value) : undefined
+})
 const notebookCompanion = computed(() =>
   amesNumericalNotebookForModule(moduleId.value)
     ?? numericalBatch2NotebookForModule(moduleId.value)
@@ -227,6 +234,12 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
       </aside>
     </section>
 
+    <section v-if="isSelectedReading" class="math-lab-panel" data-testid="math-reading-selection">
+      <h2>{{ currentLocale === 'zh-CN' ? '主线选读' : 'Selected reading' }}</h2>
+      <p>{{ currentLocale === 'zh-CN' ? '这里保留当前单元需要的章节与实验，完整推导和其他例题可在专题中查阅。' : 'These sections and labs support the current unit. The full topic includes further derivations and examples.' }}</p>
+      <a :href="withPublicBase(route.path)" data-testid="full-math-topic">{{ currentLocale === 'zh-CN' ? '查看完整专题' : 'View the full topic' }}</a>
+    </section>
+
     <section v-if="routeNavigation" class="math-lab-panel math-route-prerequisites">
       <header class="section-header">
         <span class="eyebrow">{{ currentLocale === 'zh-CN' ? '当前路线' : 'Current route' }}</span>
@@ -246,7 +259,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
 
     <section class="math-module-layout math-module-layout--article">
       <main class="math-module-main">
-        <section v-if="moduleDefinition.learningObjectives.length" class="math-lab-panel">
+        <section v-if="!isSelectedReading && moduleDefinition.learningObjectives.length" class="math-lab-panel">
           <header class="section-header">
             <span class="eyebrow">{{ currentLocale === 'zh-CN' ? '学习目标' : 'Learning goals' }}</span>
             <h2>{{ currentLocale === 'zh-CN' ? '本章读完后应该能做到' : 'What this chapter should unlock' }}</h2>
@@ -265,7 +278,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
         />
 
         <section
-          v-for="concept in moduleDefinition.concepts"
+          v-for="concept in isSelectedReading ? [] : moduleDefinition.concepts"
           :key="concept.id"
           class="math-lab-panel math-concept-section"
         >
@@ -413,7 +426,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           </section>
         </section>
 
-        <section v-if="moduleDefinition.misconceptions.length" class="math-misconception-grid">
+        <section v-if="!isSelectedReading && moduleDefinition.misconceptions.length" class="math-misconception-grid">
           <MisconceptionCard
             v-for="misconception in moduleDefinition.misconceptions"
             :key="misconception.id"
@@ -423,14 +436,14 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
         </section>
 
         <ObservationPrompt
-          v-if="observationPrompt"
+          v-if="!isSelectedReading && observationPrompt"
           :key="observationPrompt.id"
           :prompt="observationPrompt"
           :locale="currentLocale"
         />
 
         <CheckpointQuiz
-          v-if="moduleDefinition.quizzes.length"
+          v-if="!isSelectedReading && moduleDefinition.quizzes.length"
           :module-id="moduleDefinition.id"
           :quizzes="moduleDefinition.quizzes"
           :locale="currentLocale"
