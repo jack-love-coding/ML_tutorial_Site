@@ -36,6 +36,8 @@
 
 ## 验证与发布
 
+数学资源首页读取 `src/curriculum/generated/mathSummaries.ts`。数学课的最终 provider 经同一 `curriculum:generate` 命令生成 `generated/mathCourses/*.json`；运行时 `loadMathLabModule(id)` 只请求当前课程文件，保留成功结果缓存，失败请求可重试。不要手工编辑生成正文；`curriculum:check` 与 33 课逐字段测试检查漂移。页面请求带失效保护，返回、快速切课或卸载后，旧响应不会覆盖当前内容。浏览器专项为 `node scripts/qa/run-textbook-smoke.mjs math-loading math-reading`。
+
 执行 `npm test`、`npm run build`、`npm run build:pages` 和 `npm run curriculum:check`。浏览器验证 zh-CN/en、桌面/390px、键盘、reduced motion、旧链接和 Pages base。发布包完整性与离线 Notebook 重生成分层验证；离线重生成需要对应的 Python 与 wheel 环境，跳过项必须列明。
 
 首批试用入门与数据单元，其余按课程内容和工程验收逐批标记。发布记录必须包含 commit、课程范围、已执行检查、已知限制及上一可回退版本。阶段完成不自动视为公开上线。
