@@ -50,7 +50,7 @@ export const teachingUnits: TeachingUnit[] = [
     ],
   },
   {
-    id: 'unit-4', title: copy('理解泛化并复现回归案例', 'Generalization and a regression project'), publicationStatus: 'preview',
+    id: 'unit-4', title: copy('理解泛化并复现回归案例', 'Generalization and a regression project'), publicationStatus: 'pilot',
     question: copy('训练误差下降，为什么未来误差仍可能变大？', 'Why can future error grow while training error falls?'),
     prerequisites: copy('理解回归模型、损失与参数更新。', 'Understand regression, loss, and parameter updates.'),
     instructions: copy('比较复杂度和正则化，再按项目步骤复现数据划分、基线、参考结果与失败解释。', 'Compare complexity and regularization, then reproduce the project split, baseline, results, and failure analysis.'),
