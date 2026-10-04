@@ -171,7 +171,7 @@ export async function main() {
       const cli = localPlaywrightCommand(args)
       await runBoundedProcess({ ...cli, cwd: root, label: `playwright-cli ${args[0]}` })
     }
-    await runCli(['open', 'http://127.0.0.1:4173/ML_tutorial_Site/learn/logistic-regression'])
+    await runCli(['open', '--config', 'scripts/qa/browser.config.json', 'http://127.0.0.1:4173/ML_tutorial_Site/learn/logistic-regression'])
     browserOpened = true
     await runCli(['run-code', '--filename', 'scripts/qa/logisticRegressionBrowserMatrix.js'])
     completed = true

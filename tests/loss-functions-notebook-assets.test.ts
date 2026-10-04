@@ -32,10 +32,8 @@ const numericalRequirementsPath = resolve(root, 'public/notebooks/numerical-meth
 const numericalWheelCache = resolve(root, '.cache/numerical-methods/batch-4-wheelhouse')
 const requireLocalReleaseAssets =
   process.env.ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS === '1'
-const phase26ReleaseAssetsAvailable =
-  existsSync(stagingRoot) && existsSync(numericalWheelCache)
 const phase26ReleaseTest =
-  requireLocalReleaseAssets || phase26ReleaseAssetsAvailable ? test : test.skip
+  requireLocalReleaseAssets ? test : test.skip
 
 function sha256(path: string) {
   return createHash('sha256').update(readFileSync(path)).digest('hex')

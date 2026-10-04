@@ -31,7 +31,7 @@ export async function main() {
       const cli = localPlaywrightCommand(args)
       await runBoundedProcess({ ...cli, cwd: root, label: `playwright-cli ${args[0]}` })
     }
-    await runCli(['open', 'http://127.0.0.1:4173/ML_tutorial_Site/courses/ai-foundation'])
+    await runCli(['open', '--config', 'scripts/qa/browser.config.json', 'http://127.0.0.1:4173/ML_tutorial_Site/courses/ai-foundation'])
     browserOpened = true
     await runCli(['run-code', '--filename', 'scripts/qa/aiFoundationStageBBrowserMatrix.js'])
     completed = true

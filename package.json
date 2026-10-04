@@ -22,7 +22,10 @@
     "test:published-assets": "node --test tests/textbookRelease.test.ts",
     "loss:display:generate": "node scripts/generate-loss-display.mjs",
     "loss:display:check": "node scripts/generate-loss-display.mjs --check",
-    "test:offline-notebooks": "ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS=1 node --test tests/loss-functions-dataset-contract.test.ts tests/loss-functions-notebook-assets.test.ts tests/linear-regression-notebook-assets.test.ts"
+    "browser:install": "playwright install chromium",
+    "browser:check": "node scripts/qa/check-browser-runtime.mjs",
+    "offline:preflight": "python3 scripts/check-offline-environment.py",
+    "test:offline-notebooks": "npm run offline:preflight && ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS=1 node --test --test-concurrency=1 tests/loss-functions-dataset-contract.test.ts tests/loss-functions-notebook-assets.test.ts tests/linear-regression-notebook-assets.test.ts"
   },
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",

@@ -40,6 +40,8 @@
 
 执行 `npm test`、`npm run build`、`npm run build:pages` 和 `npm run curriculum:check`。浏览器验证 zh-CN/en、桌面/390px、键盘、reduced motion、旧链接和 Pages base。发布包完整性与离线 Notebook 重生成分层验证；离线重生成需要对应的 Python 与 wheel 环境，跳过项必须列明。
 
+固定浏览器安装、严格离线预检与 `release.json` 部署核验见 [可复现验证](reproducible-validation.md)。
+
 首批试用入门与数据单元，其余按课程内容和工程验收逐批标记。发布记录必须包含 commit、课程范围、已执行检查、已知限制及上一可回退版本。阶段完成不自动视为公开上线。
 
 ## 阶段 2 验证记录
