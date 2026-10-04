@@ -176,6 +176,10 @@ export interface MathLabModule {
   notebookCompanion?: MathNotebookCompanion
 }
 
+export type MathLabModuleSummary = Pick<MathLabModule,
+  'id' | 'order' | 'title' | 'subtitle' | 'difficulty' | 'estimatedMinutes'
+  | 'prerequisites' | 'nextModuleIds' | 'accent' | 'theme'>
+
 export interface MathCourseDownload {
   publicPath: string
   filename: string
