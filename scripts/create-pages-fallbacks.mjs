@@ -1,106 +1,17 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { pagesEntrypoints } from './pages-entrypoints.mjs'
 
 const distDir = process.argv[2] ?? 'dist'
 const indexPath = join(distDir, 'index.html')
-
-if (!existsSync(indexPath)) {
-  throw new Error(`Cannot find ${indexPath}. Run the production build first.`)
-}
-
-const routes = new Set([
-  '/data-lab',
-  '/math-lab',
-  '/math-lab/diagnostic',
-  '/python',
-  '/spine',
-  '/courses/ai-foundation',
-])
-
-function addRoute(route) {
-  if (!route.startsWith('/')) return
-  routes.add(route.replace(/\/$/, ''))
-}
-
-function readText(path) {
-  return existsSync(path) ? readFileSync(path, 'utf8') : ''
-}
-
-function walkFiles(dir, extension, files = []) {
-  if (!existsSync(dir)) return files
-
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name)
-    if (entry.isDirectory()) {
-      walkFiles(path, extension, files)
-    } else if (entry.isFile() && entry.name.endsWith(extension)) {
-      files.push(path)
-    }
-  }
-
-  return files
-}
-
-for (const file of walkFiles('src/data', '.ts')) {
-  const text = readText(file)
-  for (const match of text.matchAll(/route:\s*['"]([^'"]+)['"]/g)) {
-    addRoute(match[1])
-  }
-}
-
-for (const chapterId of [
-  'csv-to-frame',
-  'eda-first-pass',
-  'cleaning-splits',
-  'linear-baseline',
-  'evaluation',
-  'review-next-iteration',
-]) {
-  addRoute(`/learn/housing-price-project/${chapterId}`)
-}
-
-for (const chapterId of [
-  'loss-function',
-  'landscape',
-  'gradient-rule',
-  'learning-rate',
-  'saddle-local-minima',
-  'noise-and-batch',
-]) {
-  addRoute(`/learn/gradient-descent/${chapterId}`)
-}
-
-const importedNotes = readText('src/modules/math-lab/data/importedMathNotes.generated.ts')
-for (const match of importedNotes.matchAll(/^    "id": "([^"]+)",/gm)) {
-  addRoute(`/math-lab/modules/${match[1]}`)
-}
-
-const foundationModules = readText('src/modules/math-lab/data/mathFoundationsModules.ts')
-for (const match of foundationModules.matchAll(/^    id: '([^']+)',/gm)) {
-  addRoute(`/math-lab/modules/${match[1]}`)
-}
-
-const dataLabModules = readText('src/modules/data-lab/data/modules.ts')
-for (const match of dataLabModules.matchAll(/moduleDefinition\(\{\s*id:\s*['"]([^'"]+)['"]/g)) {
-  addRoute(`/data-lab/modules/${match[1]}`)
-}
-
-const curriculumTracks = readText('src/curriculum/tracks.ts')
-for (const match of curriculumTracks.matchAll(/^\s*id:\s*['"]([^'"]+)['"],/gm)) {
-  addRoute(`/tracks/${match[1]}`)
-}
-
-const aiFoundationCourse = readText('src/curriculum/courses/data/aiFoundation.ts')
-for (const match of aiFoundationCourse.matchAll(/id:\s*'(0[1-6]-[^']+)'/g)) {
-  addRoute(`/courses/ai-foundation/units/${match[1]}`)
-}
-
+if (!existsSync(indexPath)) throw new Error(`Cannot find ${indexPath}. Run the production build first.`)
+const routes = pagesEntrypoints()
 copyFileSync(indexPath, join(distDir, '404.html'))
-
-for (const route of [...routes].sort()) {
+for (const route of routes) {
+  if (route === '/') continue
   const outputPath = join(distDir, ...route.slice(1).split('/'), 'index.html')
   mkdirSync(dirname(outputPath), { recursive: true })
   copyFileSync(indexPath, outputPath)
 }
-
-console.log(`Created ${routes.size} GitHub Pages SPA fallback routes.`)
+writeFileSync(join(distDir, 'routes.json'), JSON.stringify(routes, null, 2) + '\n')
+console.log(`Created ${routes.length} GitHub Pages SPA entrypoints from the curriculum directory.`)

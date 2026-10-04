@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "build:pages": "vue-tsc -b && vite build --mode github-pages",
+    "build:pages": "vue-tsc -b && vite build --mode github-pages && node scripts/create-pages-fallbacks.mjs",
     "preview": "vite preview",
     "test": "node --test --test-concurrency=2 tests/*.test.*",
     "test:ci": "node --test --test-concurrency=2 tests/*.test.*",
@@ -17,7 +17,12 @@
     "test:release-assets": "ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS=1 node --test tests/loss-functions-dataset-contract.test.ts tests/loss-functions-notebook-assets.test.ts tests/linear-regression-notebook-assets.test.ts",
     "security:audit": "npm audit --audit-level=moderate --registry=https://registry.npmjs.org",
     "curriculum:generate": "node scripts/generateCurriculumCatalogMetadata.ts",
-    "curriculum:check": "node scripts/generateCurriculumCatalogMetadata.ts --check"
+    "curriculum:check": "node scripts/generateCurriculumCatalogMetadata.ts --check",
+    "test:textbook:browser": "npm run build:pages && node scripts/qa/run-textbook-smoke.mjs",
+    "test:published-assets": "node --test tests/textbookRelease.test.ts",
+    "loss:display:generate": "node scripts/generate-loss-display.mjs",
+    "loss:display:check": "node scripts/generate-loss-display.mjs --check",
+    "test:offline-notebooks": "ML_ATLAS_REQUIRE_LOCAL_RELEASE_ASSETS=1 node --test tests/loss-functions-dataset-contract.test.ts tests/loss-functions-notebook-assets.test.ts tests/linear-regression-notebook-assets.test.ts"
   },
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",

@@ -141,7 +141,7 @@ test('milestone audit preserves Math and Data lesson identity through legacy run
 
 test('milestone audit preserves legacy URL handlers alongside canonical routes', () => {
   const routerSource = read('src/router/index.ts')
-  const fallbackScript = read('scripts/create-pages-fallbacks.mjs')
+  const fallbackScript = read('scripts/pages-entrypoints.mjs') + read('src/curriculum/generated/lessonDirectory.ts')
 
   for (const routePattern of [
     "path: '/learn/:moduleId'",

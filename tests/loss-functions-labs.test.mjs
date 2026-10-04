@@ -32,13 +32,13 @@ test('registry routes all seven loss chapters explicitly and never falls through
 })
 
 test('registry loading validates base-safe summaries and aborts stale result requests', () => {
-  const registry = source('src/components/LossFunctionsLessonLab.vue')
+  const registry = source('src/composables/useLossDisplay.ts')
 
   assert.match(registry, /withPublicBase/)
   assert.match(registry, /parseLossFunctionsOutput/)
   assert.match(registry, /new AbortController\(\)/)
   assert.match(registry, /controller\?\.abort\(\)/)
-  assert.match(registry, /watch\(\s*\(\) => props\.section\.id/)
+  assert.match(registry, /watch\(chapter/)
   assert.doesNotMatch(registry, /secom-manufacturing\.csv/)
 })
 
@@ -60,8 +60,8 @@ test('gradient lab uses the pure authority with bounded selections reset and hon
 test('locked result panel selects typed rows plots probes and h sweeps without hiding fallback teaching', () => {
   const results = source('src/components/LossFunctionsResults.vue')
 
-  assert.match(results, /lossFunctionsChapterBindings/)
-  assert.match(results, /parseLossFunctionsOutput/)
+  assert.match(results, /useLossDisplay/)
+  assert.match(source('src/composables/useLossDisplay.ts'), /parseLossFunctionsOutput/)
   assert.match(results, /withPublicBase/)
   assert.match(results, /representativeRows/)
   assert.match(results, /highContributionRows/)

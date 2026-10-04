@@ -1,3 +1,4 @@
+import { pagesEntrypoints } from '../scripts/pages-entrypoints.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
@@ -39,14 +40,14 @@ test('gradient rule alone mounts the chaptered Manim lesson before its lab', () 
 test('gradient course route is dedicated, lazy, and precedes the generic lesson route', () => {
   const router = read('src/router/index.ts')
   const page = read('src/views/AlgorithmView.vue')
-  const fallbacks = read('scripts/create-pages-fallbacks.mjs')
+  const fallbacks = pagesEntrypoints()
   assert.ok(router.indexOf("path: '/learn/gradient-descent/:chapterId'") < router.indexOf("path: '/learn/:moduleId/:lessonId'"))
   assert.match(router, /redirect: '\/learn\/gradient-descent\/loss-function'/)
   assert.match(page, /defineAsyncComponent\([\s\S]*GradientDescentPagedLesson\.vue/)
   assert.match(page, /v-else-if="isGradientPage && activeSection"/)
   assert.match(page, /!isGradientPage \|\| activeSection\?\.id === 'noise-and-batch'/)
   assert.match(page, /!isNeuralGuidedPage && !isGradientPage/)
-  for (const chapterId of chapterIds) assert.ok(fallbacks.includes(`'${chapterId}'`), chapterId)
+  for (const chapterId of chapterIds) assert.ok(fallbacks.includes(`/learn/gradient-descent/${chapterId}`), chapterId)
 })
 
 test('course page uses a single reading column and lazy-loads six dedicated scenes', () => {

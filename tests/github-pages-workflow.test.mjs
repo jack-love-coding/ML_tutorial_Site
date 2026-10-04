@@ -23,7 +23,7 @@ test('GitHub Pages installs ffprobe before running media validation tests', () =
 test('GitHub Pages prepares the pinned Notebook smoke-test runtime before npm test', () => {
   const setupPythonIndex = workflow.indexOf('- name: Setup Python')
   const installNotebookDependenciesIndex = workflow.indexOf(
-    '- name: Install Notebook smoke-test dependencies',
+    '- name: Install numerical test dependencies',
   )
   const testIndex = workflow.indexOf('- name: Test')
 

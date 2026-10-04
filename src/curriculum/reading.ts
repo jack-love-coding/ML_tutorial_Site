@@ -18,7 +18,7 @@ export interface TeachingUnit {
 
 export const teachingUnits: TeachingUnit[] = [
   {
-    id: 'unit-1', title: copy('AI 与代码入门', 'AI and code foundations'), publicationStatus: 'preview',
+    id: 'unit-1', title: copy('AI 与代码入门', 'AI and code foundations'), publicationStatus: 'pilot',
     question: copy('模型怎样从数据中学习？代码如何表达这些步骤？', 'How do models learn from data, and how does code express the steps?'),
     prerequisites: copy('无需编程经验；准备一个可以运行 Notebook 的环境。', 'No programming experience required; prepare a Notebook environment.'),
     instructions: copy('先读 AI 总览，再从 Python 首章开始逐格运行代码，比较输入与输出。', 'Read the AI overview, then run Python cells in order and compare inputs with outputs.'),
@@ -27,7 +27,7 @@ export const teachingUnits: TeachingUnit[] = [
     optional: [{ moduleId: 'python-notebook', lessonIds: ['seaborn-statistics', 'plotly-exploration', 'analysis-report'] }],
   },
   {
-    id: 'unit-2', title: copy('从数据到模型输入', 'From data to model inputs'), publicationStatus: 'preview',
+    id: 'unit-2', title: copy('从数据到模型输入', 'From data to model inputs'), publicationStatus: 'pilot',
     question: copy('怎样处理数据，才能诚实地评估未来表现？', 'How can data preparation support an honest estimate of future performance?'),
     prerequisites: copy('能够读取 DataFrame 的行、列与基本图表。', 'Read DataFrame rows, columns, and basic charts.'),
     instructions: copy('先固定训练、验证、测试职责，再比较清洗、缩放与编码的结果。', 'Fix train, validation, and test roles before comparing cleaning, scaling, and encoding.'),
