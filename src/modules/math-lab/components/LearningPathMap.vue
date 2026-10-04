@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { MathLabLocale, MathLabModule, MathLabModuleId } from '../types/mathLab'
+import type { MathLabLocale, MathLabModuleSummary, MathLabModuleId } from '../types/mathLab'
 
 defineProps<{
-  modules: MathLabModule[]
+  modules: MathLabModuleSummary[]
   completedModuleIds?: MathLabModuleId[]
   locale: MathLabLocale
 }>()
