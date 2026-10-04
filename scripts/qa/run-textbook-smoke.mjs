@@ -15,6 +15,7 @@ const cli = async (session, args) => {
 try {
   await waitForPreviewReady(server)
   const matrices = [ ['textbook-storage', 'textbookReadingSmoke.js'], ['textbook-route', 'textbookRouteSmoke.js'], ['textbook-resources', 'textbookResourceSmoke.js'] ]
+  matrices.push(['math-reading', 'mathReadingSmoke.js'])
   // Each matrix gets an isolated browser profile; every profile is closed even after failure.
   for (const [session, file] of matrices) {
     try {
