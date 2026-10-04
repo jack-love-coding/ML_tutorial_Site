@@ -351,7 +351,6 @@ summary:focus-visible {
 .hero__highlights,
 .algorithm-hero__stats,
 .metrics-grid,
-.math-skill-radar__legend,
 .math-readout-grid,
 .linear-regression-lab__readout,
 .linear-regression-lab__mini-grid,
@@ -363,11 +362,9 @@ summary:focus-visible {
 .algorithm-hero__stat,
 .metric-card,
 .chart-summary__item,
-.math-skill-radar__legend article,
 .math-readout-grid article,
 .math-variable-grid article,
 .math-explanation-grid article,
-.math-diagnostic-question,
 .math-checkpoint__item,
 .linear-regression-lab__metric,
 .linear-regression-lab__mini-grid article,
@@ -419,7 +416,6 @@ summary:focus-visible {
 .modules-section,
 .path-section,
 .math-lab-dashboard,
-.math-diagnostic-layout,
 .math-module-layout {
   gap: 22px;
 }
@@ -771,7 +767,6 @@ summary:focus-visible {
 .math-mini-controls select,
 .matrix-input-grid input,
 .math-checkpoint__numeric input,
-.math-diagnostic-question input,
 .math-checkpoint__choices input {
   accent-color: var(--pixel-blue);
 }
@@ -960,16 +955,6 @@ select {
   background:
     linear-gradient(90deg, var(--pixel-green) 0 8px, transparent 8px),
     #ffffff;
-}
-
-.math-skill-radar circle,
-.math-skill-radar line {
-  stroke: rgba(16, 22, 47, 0.22);
-}
-
-.math-skill-radar polygon {
-  fill: rgba(83, 109, 254, 0.28);
-  stroke: var(--pixel-blue);
 }
 
 .math-article-nav {

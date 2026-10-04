@@ -494,12 +494,10 @@ test('route query navigation remains route-scoped without front-end completion c
   assert.equal(routeNavigationForModule('invalid-route', moduleIds[0]!), undefined)
 
   const page = readFileSync(new URL('../src/modules/math-lab/pages/MathLabModulePage.vue', import.meta.url), 'utf8')
-  const completion = readFileSync(new URL('../src/modules/math-lab/components/SelfPacedCompletionButton.vue', import.meta.url), 'utf8')
   assert.match(page, /routeNavigationForModule\(route\.query\.route, moduleId\.value\)/)
   assert.match(page, /query:\s*\{\s*route:\s*routeNavigation\.value\.routeId\s*\}/)
   assert.doesNotMatch(page, /moduleDefinition\.completionMode === 'self-attested'/)
   assert.doesNotMatch(page, /SelfPacedCompletionButton/)
-  assert.match(completion, /self-paced local navigation state, not a graded or formal acceptance/i)
 })
 
 test('production browser probe checks dashboard route order and exact adjacent hrefs', () => {

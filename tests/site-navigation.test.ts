@@ -8,7 +8,7 @@ import {
 import { learningRouteById } from '../src/modules/math-lab/data/learningRoutes.ts'
 import { mathLabModules } from '../src/modules/math-lab/data/modules.ts'
 import { curriculumRouteManifest } from '../src/curriculum/routeManifest.ts'
-import { learningRouteSummaryModules } from '../src/modules/math-lab/data/learningRouteSummaryModules.ts'
+import { mathLabModuleSummaries } from '../src/curriculum/generated/mathSummaries.ts'
 
 const registeredCoreModuleSlugs = [
   'ai-overview',
@@ -84,7 +84,7 @@ test('math lab navigation menu covers all lab module routes with localized label
   const goldTitle = { 'zh-CN': '函数与映射：输入怎样变成预测', en: 'Functions and Mappings: How Inputs Become Predictions' }
   assert.deepEqual(calculusRouteGroup.items.find((item) => item.id === 'calculus-functions-rate-change')?.label, goldTitle)
   assert.deepEqual(curriculumRouteManifest.find((item) => item.id === 'calculus-functions-rate-change')?.title, goldTitle)
-  assert.deepEqual(learningRouteSummaryModules.find((item) => item.id === 'calculus-functions-rate-change')?.title, goldTitle)
+  assert.deepEqual(mathLabModuleSummaries.find((item) => item.id === 'calculus-functions-rate-change')?.title, goldTitle)
   assert.deepEqual(
     calculusRouteGroup.items.map((item) => item.id),
     [

@@ -254,9 +254,7 @@ test('module page keeps route-aware links without frontend completion gates', ()
   assert.match(page, /route\.query\.route/)
   assert.match(page, /query:\s*\{\s*route:/)
   const dashboard = readFileSync(new URL('../src/modules/math-lab/components/LearningRouteDashboard.vue', import.meta.url), 'utf8')
-  const summary = readFileSync(new URL('../src/modules/math-lab/components/LearningRouteSummary.vue', import.meta.url), 'utf8')
   assert.match(dashboard, /\?route=\$\{route\.id\}/)
-  assert.match(summary, /\?route=\$\{props\.route\.id\}/)
 })
 
 test('matrix lesson uses a thin A-contract wrapper and keeps the shared lab implementation', () => {
