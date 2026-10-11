@@ -45,4 +45,6 @@ AI 入门图本地结果：1162 项通过、28 项条件跳过；两种构建与
 
 依赖修复合入后的整体验证：1165 项通过、28 项条件跳过；两种构建、目录与 8 项发布资源检查通过；数据课 20、导数 8、入门插图 5 个浏览器场景通过。导数两张运行时图由 1,520,747 字节的位图改为合计 6,599 字节的 SVG，原文件保留作历史来源。
 
+手机实际视窗另确认新图能完整放在吸顶导航下。复查发现减少动态偏好仅作用于课程子元素，文档根节点仍平滑滚动；已在基础样式中补齐根节点规则，并由浏览器检查计算样式。截图改用实际视窗，避免长元素截图把吸顶导航拼在图片中间。
+
 独立交付顺序：[依赖安全 #89](https://github.com/jack-love-coding/ML_tutorial_Site/pull/89) → [数据课 #86](https://github.com/jack-love-coding/ML_tutorial_Site/pull/86) → [导数图 #87](https://github.com/jack-love-coding/ML_tutorial_Site/pull/87) → [入门图 #88](https://github.com/jack-love-coding/ML_tutorial_Site/pull/88)。每个 PR 在远端验收通过后合并，确认对应 Pages 部署后再进入下一项；保留依赖分支。
