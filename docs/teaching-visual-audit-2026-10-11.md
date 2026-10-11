@@ -41,4 +41,8 @@
 
 AI 入门图本地结果：1162 项通过、28 项条件跳过；两种构建与目录检查通过。新增双语桌面／390px、刷新、键盘展开文字版和图片加载失败共 5 个浏览器场景通过。新图不嵌入文字、公式或未经数据支持的趋势线，知识性说明由页面提供；英文旧图不再重复附加同一翻译表。原图保留，生成方式、完整提示词、来源和 SHA-256 见 [新图记录](curriculum-v3/ai-overview/score-prediction-v2.md) 和相邻 manifest。
 
-发布状态：以上是本地验收。2026-10-11 的 #86 CI 中，完整测试、构建、资源检查和浏览器检查已通过，安全审计因现有依赖的新漏洞报告失败；在独立修复通过前不合并或发布本批改动。冻结 Notebook 未改变，本次未重新运行离线生成套件。
+发布状态：以上是本地验收。2026-10-11 的 #86 首次 CI 中，完整测试、构建、资源检查和浏览器检查已通过，安全审计因现有依赖的新漏洞报告失败。独立修复 [#89](https://github.com/jack-love-coding/ML_tutorial_Site/pull/89) 已同步到三条教学分支，干净安装后审计为 0 项漏洞；远端重新验收尚未完成，当前线上版本未更新。冻结 Notebook 未改变，本次未重新运行离线生成套件。
+
+依赖修复合入后的整体验证：1165 项通过、28 项条件跳过；两种构建、目录与 8 项发布资源检查通过；数据课 20、导数 8、入门插图 5 个浏览器场景通过。导数两张运行时图由 1,520,747 字节的位图改为合计 6,599 字节的 SVG，原文件保留作历史来源。
+
+独立交付顺序：[依赖安全 #89](https://github.com/jack-love-coding/ML_tutorial_Site/pull/89) → [数据课 #86](https://github.com/jack-love-coding/ML_tutorial_Site/pull/86) → [导数图 #87](https://github.com/jack-love-coding/ML_tutorial_Site/pull/87) → [入门图 #88](https://github.com/jack-love-coding/ML_tutorial_Site/pull/88)。每个 PR 在远端验收通过后合并，确认对应 Pages 部署后再进入下一项；保留依赖分支。
