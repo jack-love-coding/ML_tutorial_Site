@@ -257,9 +257,9 @@
 .math-visual-asset img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: auto;
   border-radius: 16px;
-  object-fit: cover;
+  object-fit: contain;
   background: #0c1628;
 }
 
@@ -289,9 +289,9 @@
 .math-concept-illustration img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: auto;
   border-radius: 14px;
-  object-fit: cover;
+  object-fit: contain;
   background: #0c1628;
 }
 
