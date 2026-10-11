@@ -13,7 +13,9 @@
       "version": 1,
       "generatedSource": "Codex built-in image_gen",
       "prompt": "Use case: scientific-educational. Asset type: 16:9 website course hero. Create a polished Chinese-first ML Atlas educational illustration: a real human learner and a calm screen-based intelligent learning assistant inspect a learning map; a rising trend line, three point clusters, and directional path arrows hint at supervised, unsupervised, and reinforcement learning. Use scientific editorial 2D/light 2.5D, crisp dark outlines, restrained shadows, high contrast, generous whitespace, and paper-like surfaces. Keep all content inside 8% margins. Use #fffef7, #fff7df, #10162f, #536dfe, #2fd27f, #36c5f0, #ffd84d, #ff9f43, #ff7ab6, #d9ceff. Render only “AI 学习全景”, exactly once. No humanoid robot, robot mascot, logo imitation, watermark, extra text, or garbled characters.",
-      "embeddedChinese": ["AI 学习全景"],
+      "embeddedChinese": [
+        "AI 学习全景"
+      ],
       "correction": "none",
       "correctionHistory": [],
       "publicPath": "/ai-overview/generated/ai-learning-overview-hero.png"
@@ -25,27 +27,45 @@
       "kind": "imagegen",
       "taxonomy": "scientific-educational",
       "courseUse": "Chapter 1 opening task",
-      "version": 1,
-      "generatedSource": "Codex built-in image_gen; hero style reference",
-      "prompt": "Use case: scientific-educational. Asset type: 4:3 course information card. Use the approved hero as style reference only. Top scene: learner practice records flow into a simple score trend chart with one predicted point and one observed point, implying supervised prediction rather than grading. Bottom: four equal high-contrast cells. Match the hero’s crisp dark outlines, paper surfaces, restrained shadows, and ML Atlas palette; blue is the supervised accent. Render verbatim: “问题” “预测下一次练习得分”; “已有信息” “练习时长、历史得分”; “怎么学” “比较预测分数与真实得分”; “输出” “一个预测分数”. Exact Chinese, no formulas, leaderboard, logo imitation, watermark, extra text, or unsafe margins.",
-      "embeddedChinese": [
-        "问题",
-        "预测下一次练习得分",
-        "已有信息",
-        "练习时长、历史得分",
-        "怎么学",
-        "比较预测分数与真实得分",
-        "输出",
-        "一个预测分数"
-      ],
-      "correction": "deterministic-text-replacement",
-      "correctionHistory": [
+      "version": 2,
+      "generatedSource": "Codex built-in imagegen; score-prediction v1 style reference; 2026-10-11",
+      "prompt": "Redraw this ML Atlas educational illustration. Preserve the restrained warm ivory background, dark navy outlines, blue/teal/violet accent palette and polished flat textbook illustration style, but replace the entire composition. This must teach the distinction between training on past labeled examples and predicting from a new input. Landscape image, 3:2 aspect ratio, very clean at 360px width. Exactly TWO large horizontal lanes with ample whitespace, separated by a thin subtle horizontal rule. TOP lane: at left, three vertically stacked simple cards, each showing a small clock icon paired with a filled green star icon (past practice duration paired with observed score). A single clear arrow goes right from this group into a blue rounded rectangular model block bearing only a simple adjustable-sliders icon; a small curved adjustment arrow wraps beside that block to indicate learning. BOTTOM lane: at left ONE simple new-record card showing a clock icon only, with NO star and NO target. A clear one-way arrow goes right into a visually identical blue model block, now bearing a small padlock badge to show its parameters are fixed. One clear arrow from this block to a single large hollow violet star inside an outlined circular badge, representing a predicted score, visually distinct from the green filled observed stars. Keep these three bottom elements aligned. All arrows must connect the intended groups, no arrows between the two lanes, no decorative charts, no axes, no upward trend line, no brain or neural network wallpaper. The picture is an analogy, not a quantitative graph. Absolutely NO text, letters, numerals, formulas, captions, lower information cards, titles, watermarks, logos or pseudo-text anywhere. The application will supply all explanatory bilingual labels as HTML outside the bitmap. Use large simple shapes, strong contrast and distinct filled versus hollow forms, not color alone. No realistic people are needed. This is a precise teaching diagram with only the described elements.",
+      "embeddedChinese": [],
+      "correction": "none",
+      "correctionHistory": [],
+      "publicPath": "/ai-overview/generated/score-prediction-v2.png",
+      "sha256": "3e7bf85563059e22353aacc8bf24634e80f154b1085c41a8ef8399141c4d25f7",
+      "previousVersions": [
         {
-          "date": "2026-07-13",
-          "operation": "Removed unrequested top-scene timing labels, numeric scores, and chart-legend wording with deterministic local background patches; preserved the generated scene and all eight required bottom-cell Chinese strings."
+          "id": "score-prediction",
+          "availability": "available",
+          "styleContinuation": "direct-reference",
+          "kind": "imagegen",
+          "taxonomy": "scientific-educational",
+          "courseUse": "Chapter 1 opening task",
+          "version": 1,
+          "generatedSource": "Codex built-in image_gen; hero style reference",
+          "prompt": "Use case: scientific-educational. Asset type: 4:3 course information card. Use the approved hero as style reference only. Top scene: learner practice records flow into a simple score trend chart with one predicted point and one observed point, implying supervised prediction rather than grading. Bottom: four equal high-contrast cells. Match the hero’s crisp dark outlines, paper surfaces, restrained shadows, and ML Atlas palette; blue is the supervised accent. Render verbatim: “问题” “预测下一次练习得分”; “已有信息” “练习时长、历史得分”; “怎么学” “比较预测分数与真实得分”; “输出” “一个预测分数”. Exact Chinese, no formulas, leaderboard, logo imitation, watermark, extra text, or unsafe margins.",
+          "embeddedChinese": [
+            "问题",
+            "预测下一次练习得分",
+            "已有信息",
+            "练习时长、历史得分",
+            "怎么学",
+            "比较预测分数与真实得分",
+            "输出",
+            "一个预测分数"
+          ],
+          "correction": "deterministic-text-replacement",
+          "correctionHistory": [
+            {
+              "date": "2026-07-13",
+              "operation": "Removed unrequested top-scene timing labels, numeric scores, and chart-legend wording with deterministic local background patches; preserved the generated scene and all eight required bottom-cell Chinese strings."
+            }
+          ],
+          "publicPath": "/ai-overview/generated/score-prediction.png"
         }
-      ],
-      "publicPath": "/ai-overview/generated/score-prediction.png"
+      ]
     },
     {
       "id": "pattern-discovery",

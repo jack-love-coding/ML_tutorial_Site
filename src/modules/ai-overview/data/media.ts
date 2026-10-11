@@ -12,6 +12,10 @@ const keyframe = (
 
 type CardSpec = {
   id: string
+  publicPath?: string
+  embeddedLabels?: boolean
+  alt?: readonly [string, string]
+  readingGuide?: readonly [string, string]
   availability?: AiOverviewMediaAsset['availability']
   chapterId: AiOverviewMediaAsset['chapterId']
   title: readonly [string, string]
@@ -34,6 +38,15 @@ const card = (spec: CardSpec): AiOverviewMediaAsset => {
     title: loc(...spec.title),
     caption: loc(...spec.caption),
     englishSummary: spec.englishSummary,
+    embeddedLabels: spec.embeddedLabels ?? true,
+    ...(spec.alt ? { alt: loc(...spec.alt) } : {}),
+    ...(spec.readingGuide ? { readingGuide: loc(...spec.readingGuide) } : {}),
+    taskFields: [
+      { label: loc('问题', 'Problem'), value: loc(...problem) },
+      { label: loc('已有信息', 'Available information'), value: loc(...information) },
+      { label: loc('怎么学', 'How it learns'), value: loc(...method) },
+      { label: loc('输出', 'Output'), value: loc(...output) },
+    ],
     bilingualLabels: [
       loc(`问题：${problem[0]}`, `Problem: ${problem[1]}`),
       loc(`已有信息：${information[0]}`, `Available information: ${information[1]}`),
@@ -43,7 +56,7 @@ const card = (spec: CardSpec): AiOverviewMediaAsset => {
   }
   return spec.availability === 'deferred'
     ? { ...content, availability: 'deferred', publicPath: null }
-    : { ...content, availability: 'available', publicPath: `/ai-overview/generated/${spec.id}.png` }
+    : { ...content, availability: 'available', publicPath: spec.publicPath ?? `/ai-overview/generated/${spec.id}.png` }
 }
 
 export const aiOverviewMediaAssets: readonly AiOverviewMediaAsset[] = [
@@ -63,12 +76,16 @@ export const aiOverviewMediaAssets: readonly AiOverviewMediaAsset[] = [
   },
   card({
     id: 'score-prediction', chapterId: 'three-problems',
+    publicPath: '/ai-overview/generated/score-prediction-v2.png',
+    embeddedLabels: false,
     title: ['得分预测', 'Score prediction'],
-    caption: ['模型从练习记录预测下一次得分，并用真实得分提供监督信号。', 'A model predicts the next score from practice records and uses the observed score as supervision.'],
-    englishSummary: 'Supervised learning connects practice duration and historical scores to one next-score prediction, then compares it with the observed result.',
+    caption: ['先用带真实得分的历史记录训练，再固定参数预测新样本。预测不是已经知道的答案。', 'Train on historical records with observed scores, then hold parameters fixed to predict a new example. A prediction is not a known answer.'],
+    alt: ['上排三个“时钟＋实心星”记录流入可调整的模型；下排只有时钟的新记录流入带锁模型，输出空心星。', 'Above, three clock-and-filled-star records feed an adjustable model. Below, a clock-only new record enters a locked model and produces a hollow star.'],
+    readingGuide: ['先看上排：时钟代表练习时长，实心星代表历史真实得分，旋转箭头表示训练中调整参数。再看下排：新样本只有时长，模型参数固定后输出空心星所代表的预测分数。图标不表示具体数值；锁表示这次预测期间不更新参数。真实得分之后才能用来比较误差。', 'Read the top lane first: clocks stand for practice duration, filled stars for observed historical scores, and the curved arrow for parameter updates during training. Below, the new example supplies duration only; fixed model parameters produce the hollow-star score prediction. Icons are not numerical values. The lock means no parameter update during this prediction; the actual score can be compared only after it is observed.'],
+    englishSummary: 'Past observed scores supervise training. New predictions use practice duration without access to the new target score.',
     labels: [
       ['预测下一次练习得分', 'Predict the next practice score'],
-      ['练习时长、历史得分', 'Practice duration and historical scores'],
+      ['历史练习时长与之后观察到的真实得分', 'Historical practice duration paired with subsequently observed scores'],
       ['比较预测分数与真实得分', 'Compare the predicted and observed scores'],
       ['一个预测分数', 'One predicted score'],
     ],

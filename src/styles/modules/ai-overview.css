@@ -60,6 +60,27 @@
   color: var(--ink);
 }
 
+.algorithm-view--ai-overview .overview-media-figure__reading-guide {
+  padding: .8rem;
+  border-left: 3px solid var(--ai-overview-accent);
+  line-height: 1.65;
+  background: var(--surface-strong);
+}
+.algorithm-view--ai-overview .overview-media-figure__task-fields {
+  display: grid;
+  gap: .65rem;
+  margin: 1rem 0 0;
+  line-height: 1.55;
+}
+.algorithm-view--ai-overview .overview-media-figure__task-fields > div {
+  display: grid;
+  gap: .2rem;
+  padding-top: .6rem;
+  border-top: 1px solid var(--line);
+}
+.algorithm-view--ai-overview .overview-media-figure__task-fields dt { font-weight: 700; }
+.algorithm-view--ai-overview .overview-media-figure__task-fields dd { margin: 0; overflow-wrap: anywhere; }
+
 .algorithm-view--ai-overview .overview-media-figure__deferred {
   display: grid;
   min-height: 7rem;

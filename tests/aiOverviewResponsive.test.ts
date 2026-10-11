@@ -88,7 +88,7 @@ test('media figure localizes captions and keeps English support and Chinese tran
   assert.match(source, /props\.asset\.posterPath\s*\?\s*withPublicBase\(props\.asset\.posterPath\)/)
   assert.match(source, /withPublicBase\(frame\.publicPath\)/)
   assert.match(source, /asset\.caption\[locale\]/)
-  assert.match(source, /v-if="locale === 'en'"/)
+  assert.match(source, /v-if="locale === 'en' && !asset.taskFields\?\.length"/)
   assert.match(source, /<table/)
   assert.match(source, /label\['zh-CN'\]/)
   assert.match(source, /label\.en/)

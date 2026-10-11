@@ -10,6 +10,8 @@ Use case: scientific-educational. Asset type: 16:9 website course hero. Primary 
 
 ## score-prediction
 
+2026-10-11：运行时改为无嵌字 v2，完整新提示词、制作方式与教学理由见 [score-prediction-v2.md](score-prediction-v2.md)。以下保留 v1 历史提示词。
+
 Use case: scientific-educational. Asset type: 4:3 course information card. Use the approved hero as Image 1 style reference only; create a new illustration, do not edit or copy its scene. Top scene: learner practice records flowing into a simple score trend chart with one predicted point and one observed point, clearly implying supervised prediction rather than grading. Bottom: four equal, high-contrast cells in a single row with generous padding. Style: same scientific editorial 2D/light 2.5D language, crisp dark outlines, paper `#fffef7`, ink `#10162f`, blue `#536dfe` as supervised accent, plus restrained green/yellow/cyan. Text (verbatim, no additions): “问题” / “预测下一次练习得分”; “已有信息” / “练习时长、历史得分”; “怎么学” / “比较预测分数与真实得分”; “输出” / “一个预测分数”. Constraints: 4:3, every Chinese character exact and legible, no formulas, no leaderboard, no logo imitation, no watermark, no extra text, all text inside safe zones.
 
 Deterministic correction (2026-07-13): removed only the generated top-scene timing labels, numeric scores, and chart-legend wording with local background patches. The learner, record cards, score trend, predicted/observed points, four required bottom cells, and all eight required Chinese strings remain unchanged. The project file records this as `deterministic-text-replacement`.
