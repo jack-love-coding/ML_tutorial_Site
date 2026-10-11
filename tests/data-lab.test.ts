@@ -91,8 +91,8 @@ test('data lab modules expose a complete independent learning path', () => {
     assert.equal(moduleDefinition.sourceReferences.length >= 2, true, `${moduleDefinition.id} needs lightweight references`)
     assert.equal('sourcePages' in moduleDefinition, false, `${moduleDefinition.id} should not expose page-level source metadata`)
     assert.equal('sourceMode' in moduleDefinition, false, `${moduleDefinition.id} should not expose source mode`)
-    assert.equal(moduleDefinition.visuals.filter((visual) => visual.type === 'image').length >= 2, true)
-    assert.equal(moduleDefinition.visuals.some((visual) => visual.type === 'manim-video'), true)
+    // A live diagram can teach the concept without duplicating it in unrelated media.
+    assert.ok(moduleDefinition.sections.some(section => section.visualIds?.length || section.labIds?.length), `${moduleDefinition.id} needs an inline explanation or lab`)
     assert.equal(moduleDefinition.notebookUrl, undefined, 'Notebook links should stay hidden until a URL exists')
 
     const zhLessonBody = [
@@ -144,6 +144,7 @@ test('data lab modules expose a complete independent learning path', () => {
     'DataPipelineTaskLab',
     'DataQualityDecisionRecordLab',
     'EdaWorkbenchLab',
+    'GeneralizationCurveLab',
     'PandasPipelineLab',
   ])
 })

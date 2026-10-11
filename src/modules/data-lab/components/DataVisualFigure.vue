@@ -19,14 +19,18 @@ const src = computed(() => withPublicBase(props.asset.assetPath))
     <div class="data-visual-figure__media">
       <img :src="src" :alt="asset.alt[locale]" loading="lazy" />
       <span
-        v-for="label in asset.labels ?? []"
+        v-for="(label, index) in asset.labels ?? []"
         :key="label.id"
         class="data-visual-figure__label"
+        aria-hidden="true"
         :style="{ left: `${label.x}%`, top: `${label.y}%` }"
       >
-        {{ label.label[locale] }}
+        {{ index + 1 }}
       </span>
     </div>
+    <ol v-if="asset.labels?.length" class="data-visual-figure__legend">
+      <li v-for="label in asset.labels" :key="label.id">{{ label.label[locale] }}</li>
+    </ol>
     <figcaption>
       <strong>{{ asset.title[locale] }}</strong>
       <MarkdownMathContent :source="asset.caption[locale]" />
