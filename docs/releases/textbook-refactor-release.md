@@ -1,6 +1,6 @@
 # 六单元辅助教材发布记录
 
-更新：2026-10-12。10 月 4 日从 #64—#70 依赖链开始，随后按教材试用价值完成 #71—#84；10 月 12 日完成依赖修复及首批插图与教案改进。所有运行时 PR 均通过实际 CI 后以 merge commit 合并，确认前一个 Pages 部署后再进入下一项。#63 的课程事实来源重构在上述批次开始前已合并。
+更新：2026-10-12。10 月 4 日从 #64—#70 依赖链开始，随后按教材试用价值完成 #71—#84；10 月 12 日完成依赖修复、首批插图与教案改进，以及函数、矩阵和条件概率三课的顺序发布。所有运行时 PR 均通过实际 CI 后以 merge commit 合并，确认前一个 Pages 部署后再进入下一项。#63 的课程事实来源重构在上述批次开始前已合并。
 
 ## 发布范围
 
@@ -8,7 +8,25 @@
 
 保留三套课程 schema、Catalog adapters、双语讲解、公式、实验、代码与 Notebook。学生评分、学习报告和自动记录已退出运行时；旧链接保留兼容，历史数据不清空、不迁移，实验状态留在页面内存，语言偏好继续保存。
 
-## 2026-10-12 插图与教案批次
+## 2026-10-12 函数、矩阵与条件概率发布
+
+| PR | 交付 | PR CI | 合并 SHA | Pages Actions | 通过：测试 / 教材浏览器 / 线上抽查 |
+| --- | --- | --- | --- | --- | --- |
+| [#90](https://github.com/jack-love-coding/ML_tutorial_Site/pull/90) | 函数预测与匀速运动图、操作说明 | [成功 / 38227585402](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38227585402) | [39180951](https://github.com/jack-love-coding/ML_tutorial_Site/commit/3918095173d06d722cf9447766443d8148f6c41e) | [成功 / 38232669961](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38232669961) | 1168 / 405 / 8 |
+| [#91](https://github.com/jack-love-coding/ML_tutorial_Site/pull/91) | 矩阵批量预测与函数课衔接 | [成功 / 38234242331](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38234242331) | [0901b8f2](https://github.com/jack-love-coding/ML_tutorial_Site/commit/0901b8f252697546c672832f360df766882b1999) | [成功 / 38235645850](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38235645850) | 1170 / 409 / 4 |
+| [#92](https://github.com/jack-love-coding/ML_tutorial_Site/pull/92) | 条件概率精确计数、图与实验 | [成功 / 38237166894](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38237166894) | [2b3a68ac](https://github.com/jack-love-coding/ML_tutorial_Site/commit/2b3a68ac26828e80bc685db1a1d2d2092dc330af) | [成功 / 38238386707](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38238386707) | 1173 / 418 / 9 |
+
+严格按 #90 → #91 → #92 推进：前一个部署成功、线上 release.json 匹配并通过该课真实站点检查后，才处理下一个 PR。#91、#92 改为指向 main，同步前序合并提交后确认文件树不变，再等待新 head 的实际 CI，通过后使用 merge commit 合并。依赖分支保留。
+
+最终运行时线上版本为 `2b3a68ac26828e80bc685db1a1d2d2092dc330af`，直接前驱为 `0901b8f252697546c672832f360df766882b1999`，部署 runId 为 `38238386707`；三项均与 GitHub main 和 Actions 核对。六个单元仍为 pilot。发布记录随后通过独立文档 PR 入库，文档发布后的最终 SHA、previousSha 和 runId 由在线 [release.json](https://jack-love-coding.github.io/ML_tutorial_Site/release.json) 记录；文档提交不会改变上述运行时内容。
+
+提交前各课已分别通过 npm test、npm run build、npm run build:pages 及相关专项检查。本轮实际 PR CI 和合并后的部署流程重新执行 npm run test:ci、Pages 构建、Phase 29 浏览器矩阵、完整教材 smoke、8 项发布资源检查、目录／损失展示数据漂移检查及安全审计。最终教材 smoke 共 418 场景，含六单元 120 节的双语连续阅读、历史存储、异步数学加载和三课新图。另在每次真实 Pages 部署后通过函数 8、矩阵 4、条件概率 9，共 21 个场景，包括中英文、1280px／390px、键盘、刷新、自然比例和条件概率图片失败提示。条件概率线上检查确认空存储不新增学习记录、预置历史 keys 逐字节不变。
+
+本轮没有 CI 失败项，未新增运行时代码修复；同步分支只改变合并关系。本批未重生成冻结 Notebook，普通套件的 28 项条件跳过继续列为未验证，不能沿用 10 月 4 日严格套件的结果。用户原工作区的 .planning/config.json 和 docs/gpt_advice.md 保持原样。
+
+撤回条件概率一课可回到已验证的 #91 提交 `0901b8f252697546c672832f360df766882b1999`；撤回本次三课改动可回到 #88 的 `ce84bc71571e4d46e76eda50c6891a952f2a72b3`，保留此前依赖安全修复和数据／导数／入门教学改进。通过独立 PR 或重部署已验证提交回退，保持旧链接及历史存储。
+
+## 2026-10-12 首批插图与教案
 
 | 顺序与 PR | 交付 | PR CI | 合并 SHA | Pages Actions |
 | --- | --- | --- | --- | --- |
@@ -17,15 +35,11 @@
 | [#87](https://github.com/jack-love-coding/ML_tutorial_Site/pull/87) | 导数切线与差分图由实际 MSE 生成 | [成功 / 38220072911](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38220072911) | [85085963](https://github.com/jack-love-coding/ML_tutorial_Site/commit/85085963b070932c5a7bc29d060989d2b6012fdc) | [成功 / 38221994454](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38221994454) |
 | [#88](https://github.com/jack-love-coding/ML_tutorial_Site/pull/88) | AI 入门预测图与双语读图说明 | [成功 / 38224219422](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38224219422) | [ce84bc71](https://github.com/jack-love-coding/ML_tutorial_Site/commit/ce84bc71571e4d46e76eda50c6891a952f2a72b3) | [成功 / 38225519810](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38225519810) |
 
-每次均核对真实站点的 `release.json`。最后一次线上 `sha=ce84bc71571e4d46e76eda50c6891a952f2a72b3`、`previousSha=85085963b070932c5a7bc29d060989d2b6012fdc`、`runId=38225519810` 与 main 及部署一致。六个单元仍为 pilot。依赖分支保留，#87、#88 同步前一个已部署 main 时，分别确认文件树未变化。
+每次均核对真实站点的 `release.json`。该批次最后一次线上 `sha=ce84bc71571e4d46e76eda50c6891a952f2a72b3`、`previousSha=85085963b070932c5a7bc29d060989d2b6012fdc`、`runId=38225519810` 与当时的 main 及部署一致。六个单元仍为 pilot。依赖分支保留，#87、#88 同步前一个已部署 main 时，分别确认文件树未变化。
 
 在各自部署后的真实 Pages 子路径上，另通过数据课 20、导数图 8、入门图 5 个场景，共 33 个，覆盖中文／英文、1280px／390px、图片与原生说明、实验、刷新及入门图片失败提示。CI 执行完整测试、构建、浏览器矩阵、资源／目录检查和安全审计。普通套件仍有 28 项条件跳过；本批没有重新生成冻结 Notebook，10 月 4 日的严格离线结果不能替代本批重运行证据。
 
-撤回最后一项可采用已验证的 #87 合并提交 `85085963b070932c5a7bc29d060989d2b6012fdc`；撤回整批教学改动而保留依赖修复可采用 #89 的 `d880fb22215f4d4a4ee931ed0d74606cad48eb53`。回退使用独立 PR 或重部署已验证提交，保留旧链接及历史存储。
-
-后续函数 [#90](https://github.com/jack-love-coding/ML_tutorial_Site/pull/90)、矩阵 [#91](https://github.com/jack-love-coding/ML_tutorial_Site/pull/91)、条件概率 [#92](https://github.com/jack-love-coding/ML_tutorial_Site/pull/92) 已分别提交，尚未合并或上线。三者的本地内容与浏览器验证见 [本批审查](../teaching-visual-audit-2026-10-12.md)；沿依赖顺序完成远端验收后再发布，不把本地通过或无冲突当作 CI 通过。
-
-函数 #90 最新提交 `4b2820c91cf4aa0a2716c0a18ba8d90ce7e57f9d` 的 [PR CI / 38227585402](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38227585402) 已成功，PR 部署按规则跳过；#91、#92 尚待前序合并后运行各自的 main PR CI。
+撤回该批次最后一项可采用已验证的 #87 合并提交 `85085963b070932c5a7bc29d060989d2b6012fdc`；撤回该批次全部教学改动而保留依赖修复可采用 #89 的 `d880fb22215f4d4a4ee931ed0d74606cad48eb53`。回退使用独立 PR 或重部署已验证提交，保留旧链接及历史存储。
 
 ## 2026-10-04 合并与部署
 

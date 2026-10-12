@@ -42,8 +42,8 @@
 
 ## 交付与发布边界
 
-函数 [#90](https://github.com/jack-love-coding/ML_tutorial_Site/pull/90) → 矩阵 [#91](https://github.com/jack-love-coding/ML_tutorial_Site/pull/91) → 条件概率 [#92](https://github.com/jack-love-coding/ML_tutorial_Site/pull/92) 分别提交，尚未合并或上线。同步原有批次最终 main 后，三条分支的文件树均保持与各自本地验证结果一致；本记录补充的发布状态为文档改动。
+函数 [#90](https://github.com/jack-love-coding/ML_tutorial_Site/pull/90) → 矩阵 [#91](https://github.com/jack-love-coding/ML_tutorial_Site/pull/91) → 条件概率 [#92](https://github.com/jack-love-coding/ML_tutorial_Site/pull/92) 已按顺序完成实际 CI、merge commit 合并和 Pages 部署。每次先核对线上 release.json，再通过该课的真实站点检查，才进入下一项。#91、#92 同步前序 main 时文件树保持不变，仍与本地验证的运行时代码一致；发布记录为独立文档改动。
 
-原有 #89 → #86 → #87 → #88 已实际通过 CI 并逐次部署，最终线上 SHA、各次 CI／Pages 链接和回退点见 [发布记录](releases/textbook-refactor-release.md)。新三个 PR 的远端验收与部署仍需逐项完成，不能把前一批部署或本地检查代作新改动的线上结果。
+三项 PR CI 分别为 [38227585402](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38227585402)、[38234242331](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38234242331)、[38237166894](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38237166894)，均通过；PR 事件的 deploy 按规则跳过，实际部署由各自合并后的 push 触发。最终 [Pages / 38238386707](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38238386707) 成功，线上 SHA 为 `2b3a68ac26828e80bc685db1a1d2d2092dc330af`，前驱为 `0901b8f252697546c672832f360df766882b1999`。
 
-函数 #90 的最新提交 `4b2820c91cf4aa0a2716c0a18ba8d90ce7e57f9d` 已通过 [实际 PR CI / 38227585402](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38227585402)，包括测试、Pages 构建、完整浏览器矩阵、资源／目录及安全检查；PR 事件的部署任务按规则跳过。矩阵 #91 和条件概率 #92 当前以各自前序分支为 base，尚无 main PR CI 结果，需在前序合并后重新指向 main 并验收。三个新 PR 均未合并或部署。
+最终远端 1173 项测试、418 个教材浏览器场景与资源／目录／安全检查通过。真实 Pages 另通过函数 8、矩阵 4、条件概率 9，共 21 个场景；条件概率验证空存储与预置历史数据、调参重置、刷新及图片失败时的讲解。28 项离线条件跳过仍为本批未验证。各次合并 SHA、部署链接和回退点见 [发布记录](releases/textbook-refactor-release.md)，六个单元继续保持 pilot。
