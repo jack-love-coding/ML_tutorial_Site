@@ -1267,6 +1267,8 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
       assert.equal(asset?.type, 'image')
       const preciseDiagrams: Record<string, string> = {
         'beginner-matrix-transform-longform': '/math-lab/diagrams/matrices/batch-prediction.svg',
+        'beginner-conditional-probability-longform': '/math-lab/diagrams/probability/condition-denominator.svg',
+        'beginner-bayes-update-longform': '/math-lab/diagrams/probability/base-rate-comparison.svg',
       }
       assert.equal(asset?.assetPath, preciseDiagrams[assetId] ?? `/math-lab/generated/${assetId}.png`)
       assert.doesNotMatch(asset?.assetPath ?? '', /^https?:\/\//)

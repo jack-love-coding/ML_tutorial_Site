@@ -24,6 +24,7 @@ try {
   matrices.push(['intro-illustration', 'introIllustrationSmoke.js'])
   matrices.push(['function-figures', 'functionFigureSmoke.js'])
   matrices.push(['matrix-figure', 'matrixFigureSmoke.js'])
+  matrices.push(['conditional-figures', 'conditionalFigureSmoke.js'])
   // Each matrix gets an isolated browser profile; every profile is closed even after failure.
   const requested = new Set(process.argv.slice(2))
   for (const name of requested) if (!matrices.some(([session]) => session === name)) throw new Error(`Unknown matrix: ${name}`)

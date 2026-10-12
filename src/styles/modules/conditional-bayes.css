@@ -1,0 +1,13 @@
+.conditional-bayes-lab__evidence { min-width: 0; padding: 1rem; background: #fff; color: #172033; border: 1px solid var(--border-subtle, #cbd5e1); border-radius: 8px; }
+.conditional-bayes-lab table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: .9rem; }
+.conditional-bayes-lab caption { text-align: left; margin-bottom: .8rem; }
+.conditional-bayes-lab th, .conditional-bayes-lab td { padding: .55rem .2rem; text-align: right; border-bottom: 1px solid #cbd5e1; overflow-wrap: anywhere; }
+.conditional-bayes-lab th:first-child { text-align: left; }
+.conditional-bayes-lab td:nth-child(3), .conditional-bayes-lab th:nth-child(3) { background: #eff6ff; border-left: 2px solid #1e40af; border-right: 2px solid #1e40af; }
+.conditional-bayes-lab__bar { height: 28px; border: 1px solid #334155; background: repeating-linear-gradient(135deg, #dbeafe 0 6px, #1e40af 6px 8px); }
+.conditional-bayes-lab__bar span { display: block; height: 100%; background: #9a3412; }
+.conditional-bayes-lab__legend { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; font-size: .9rem; }
+.conditional-bayes-lab__ratio { line-height: 1.6; }
+.conditional-bayes-lab__controls { grid-template-columns: 1fr; }
+.conditional-bayes-lab__reset { align-self: flex-start; padding: .6rem .8rem; border: 2px solid var(--pixel-line, #10162f); border-radius: 6px; background: #fffef7; color: #10162f; font: inherit; cursor: pointer; }
+.conditional-bayes-lab__reset:hover { background: #ffd84d; }
