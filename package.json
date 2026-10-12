@@ -32,15 +32,20 @@
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",
     "d3": "^7.9.0",
-    "katex": "^0.16.44",
+    "katex": "^0.18.2",
     "markdown-it": "^14.1.1",
     "pinia": "^3.0.4",
     "plotly.js-basic-dist-min": "3.7.0",
     "sanitize-html": "^2.17.6",
     "three": "^0.184.0",
-    "vue": "^3.5.30",
+    "vue": "^3.5.42",
     "vue-i18n": "^11.3.0",
     "vue-router": "^5.0.4"
+  },
+  "overrides": {
+    "@tensorflow/tfjs": {
+      "argparse": "2.0.1"
+    }
   },
   "devDependencies": {
     "@playwright/cli": "0.1.18",
