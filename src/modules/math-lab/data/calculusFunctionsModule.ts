@@ -9,36 +9,36 @@ const sections: MathLabSection[] = [
     level: 2,
     title: copy("1. 开场问题：四行代码做了什么？", "1. Opening Question: What Do Four Lines of Code Do?"),
     content: copy(`
-先不要运行代码：
+先读这四行代码：
 
 \`features = [2, 3]\`，\`weights = [4, -1]\`，\`bias = 5\`，\`prediction = 10\`。
 
-先写下：为什么两个输入得到一个输出？哪些量来自样本，哪些量由模型调整？若只把 \`weights[0]\` 从 4 改成 5，预测如何变化？本课建立可反复核验的链条：**输入与参数 → 明确规则 → 唯一输出 → 与目标比较 → 下一次实验**。练习只用于形成理解，不计分。
+本节围绕三个问题展开：为什么两个输入得到一个输出？哪些量来自样本，哪些量由模型调整？若只把 \`weights[0]\` 从 4 改成 5，预测如何变化？本课建立可反复核验的链条：**输入与参数 → 明确规则 → 唯一输出 → 与目标比较 → 下一次实验**。算例、结果与解释直接可见，可以在图、代码和实验之间来回核对。
 
-### 先作预测
+### 从一个变化开始观察
 
-不要只写一个数，请补全两句话：“我认为 \`prediction\` 是 ____，因为 ____”；“若只把第一个权重从 4 改成 5，我认为预测会 ____”。把答案保留到控制变量实验再核对。此时的不确定不是失败，而是后续公式、图像和代码需要解释的对象。
+只把第一个权重从 4 改成 5，其余量固定，预测就从 10 变为 12。先找出哪一项贡献改变，再沿图中的箭头检查求和与偏置：增加的 2 来自当前第一个特征值 2。下方控制实验会显示全部中间结果，可以随时重置并比较。这里无需提交答案；重点是把一次操作与它造成的变化联系起来。
 
 这五个问题会贯穿本课：为什么两个输入汇成一个输出？为什么特征与权重必须按位置一一配对？样本量与模型参数怎样区分？目标何时才能进入计算？数学函数和 Python \`def\` 又有什么边界？模型即使有 billions of parameters，一次前向计算仍遵循同一条输入—规则—输出链。
 
 ### 本课怎样学习
 
-每遇到公式，先用自然语言指出输入、参数和输出，再代入数字；每遇到代码，先预测中间变量和 shape，再运行核对；每遇到实验，先写固定量和唯一改变的量，再解释观察。答案折叠前保留自己的第一判断，因为“原先怎样想、证据怎样改变判断”比只抄最终数字更能形成可迁移的理解。本课不要求记忆孤立术语，而要求你能从表、图、公式或代码中的任一种表示重建其余表示。`, `
-Do not run the code yet:
+每遇到公式，先用自然语言指出输入、参数和输出，再代入数字；每遇到代码，先预测中间变量和 shape，再运行核对；每遇到实验，先写固定量和唯一改变的量，再解释观察。把观察到的现象与原先直觉放在一起比较：如果预测变大却离目标更远，就回看“输出”与“误差”的区别。记录自己的解释是可选的，参考结论始终可以直接阅读。本课不要求记忆孤立术语，而要求你能从表、图、公式或代码中的任一种表示重建其余表示。`, `
+Start by reading these four lines:
 
 \`features = [2, 3]\`, \`weights = [4, -1]\`, \`bias = 5\`, and \`prediction = 10\`.
 
-First write down: Why do two inputs produce one output? Which quantities come from the sample, and which can the model adjust? If only \`weights[0]\` changes from 4 to 5, how will the prediction change? This lesson builds a reusable audit chain: **inputs and parameters → explicit rule → unique output → comparison with target → next experiment**. The exercises are formative and not graded.
+Three questions organize this lesson: Why do two inputs produce one output? Which quantities come from the sample, and which can the model adjust? If only \`weights[0]\` changes from 4 to 5, how will the prediction change? This lesson builds a reusable audit chain: **inputs and parameters → explicit rule → unique output → comparison with target → next experiment**. Worked examples, results, and explanations are directly visible; use them to cross-check the graph, code, and lab.
 
-### Make a prediction first
+### Start by observing one change
 
-Do not write only a number. Complete two sentences: “I think \`prediction\` is ____, because ____”; and “If only the first weight changes from 4 to 5, I think the prediction will ____.” Keep your answers until the controlled experiment. Uncertainty here is useful evidence about what the formulas, graph, and code still need to explain.
+Change only the first weight from 4 to 5 while holding everything else fixed: prediction moves from 10 to 12. Find the contribution that changes, then follow the arrows through summation and bias. The extra 2 comes from the first feature value, 2. The controlled lab shows all intermediate results and lets you reset and compare at any time. No answer submission is needed; connect one action to its observable effect.
 
 Five questions organize the lesson: Why do two inputs become one output? Why must features and weights pair by position? How do sample values differ from model parameters? When may the target enter the computation? Where do a mathematical function and a Python \`def\` differ? Even a model with billions of parameters still follows the same input-rule-output chain in one forward pass.
 
 ### How to study this lesson
 
-For every formula, name inputs, parameters, and output in ordinary language before substituting numbers. For every code block, predict intermediate values and shapes before running it. For every experiment, list fixed quantities and the single changed quantity before explaining the observation. Preserve your initial answer before reading feedback: the change from an initial model to an evidence-based model matters more than copying a final number. The goal is to reconstruct table, graph, formula, and code representations from one another, not memorize isolated terms.`),
+For every formula, name inputs, parameters, and output in ordinary language before substituting numbers. For every code block, predict intermediate values and shapes before running it. For every experiment, list fixed quantities and the single changed quantity before explaining the observation. Compare the observation with your initial intuition: if a larger prediction moves farther from the target, revisit the distinction between output and error. Writing your own explanation is optional; reference conclusions are always available. The goal is to reconstruct table, graph, formula, and code representations from one another, not memorize isolated terms.`),
   },
   {
     id: "prerequisite-recap",

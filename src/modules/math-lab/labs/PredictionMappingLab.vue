@@ -2,9 +2,11 @@
 import { computed, ref } from 'vue'
 import type { MathLabLocale } from '../types/mathLab.ts'
 import { evaluatePredictionTask } from '../utils/mathToCode.ts'
+import { DEFAULT_PARAMETERS, MATH_TO_CODE_SAMPLES } from '../data/mathToCode/sharedTask.ts'
 
 const props = withDefaults(defineProps<{ locale?: MathLabLocale }>(), { locale: 'zh-CN' })
-const INITIAL_W1 = 4
+const sample = MATH_TO_CODE_SAMPLES[0]!
+const INITIAL_W1 = DEFAULT_PARAMETERS.weights[0]!
 const MIN_W1 = 2
 const MAX_W1 = 6
 const STEP_W1 = 0.5
@@ -12,7 +14,7 @@ const w1 = ref(INITIAL_W1)
 
 const text = computed(() => props.locale === 'zh-CN' ? {
   eyebrow: '控制变量实验', title: '只改变第一个权重 w1',
-  fixed: '固定：x = [2, 3]，w2 = -1，bias = 5，target = 9',
+  fixed: `固定：x = [${sample.features.join(', ')}]，w2 = ${DEFAULT_PARAMETERS.weights[1]}，bias = ${DEFAULT_PARAMETERS.bias}，target = ${sample.target}`,
   control: '第一个权重 w1', current: '当前值', reset: '重置为 w1 = 4',
   prediction: '预测 prediction', residual: '残差 residual', mse: '均方误差 MSE',
   tableTitle: '静态结果表（无动画也保留完整信息）', squared: '平方误差',
@@ -21,7 +23,7 @@ const text = computed(() => props.locale === 'zh-CN' ? {
   prompt: '比较当前行与相邻行：为什么 prediction 变大时，MSE 可能先减小再增大？',
 } : {
   eyebrow: 'Controlled experiment', title: 'Change only the first weight w1',
-  fixed: 'Fixed: x = [2, 3], w2 = -1, bias = 5, target = 9',
+  fixed: `Fixed: x = [${sample.features.join(', ')}], w2 = ${DEFAULT_PARAMETERS.weights[1]}, bias = ${DEFAULT_PARAMETERS.bias}, target = ${sample.target}`,
   control: 'First weight w1', current: 'Current value', reset: 'Reset to w1 = 4',
   prediction: 'Prediction', residual: 'Residual', mse: 'MSE',
   tableTitle: 'Static result table (all information remains without animation)', squared: 'Squared error',
@@ -46,8 +48,8 @@ function reset() {
 
 function evaluate(candidateW1: number) {
   return evaluatePredictionTask({
-    samples: [{ features: [2, 3], target: 9 }],
-    parameters: { weights: [normalizeW1(candidateW1), -1], bias: 5 },
+    samples: [sample],
+    parameters: { weights: [normalizeW1(candidateW1), ...DEFAULT_PARAMETERS.weights.slice(1)], bias: DEFAULT_PARAMETERS.bias },
   })
 }
 
