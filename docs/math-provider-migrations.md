@@ -12,6 +12,8 @@
 
 `calculusFunctionsModule.ts` 直接提供最终 11 节正文及两个视觉资源、预测映射实验、概念代码输出和例题解释。删除旧 calculus 基础正文、Math-to-Code 内联正文及 minimum-foundation 的函数 enhancer；旧内部 Math-to-Code 集合引用同一个 provider，不再维护另一份正文。完整运行对象 SHA-256 为 `106ba59402424e5450162986b3a5e7ee6fd0893a08c82f4c855311fb910c439b`，迁移前后不变；33 课生成文件逐字节无漂移。
 
+2026-10-12 独立内容修正 [#90](https://github.com/jack-love-coding/ML_tutorial_Site/pull/90) 把两张配图与现有算例对齐，并补充双语读图与实验指导，运行对象哈希更新为 `465988b98384176709790eb4346cedbc52246a1d5075b4e95910bf724f711dab`。这不是迁移漂移；原迁移证据保留，数值和浏览器验收见 [课件复查](teaching-visual-audit-2026-10-12.md)。预测图与实验共用样本及默认参数，正文保持单一 provider；再生图使用 `node scripts/generate-function-figures.ts`，添加 `--check` 校验漂移。
+
 已退出学生页面的旧分层习题双语正文移入 `docs/curriculum/v3/math-to-code/archive/`，保留历史资料。相应测试改为检查当前运行时的概念代码与图片，以及历史练习的归档完整性；没有把旧练习重新放回学生课程。
 
 验证：1147 项测试通过、28 项离线检查跳过；两种构建及生成目录检查通过；26 个 provider/Notebook 浏览器场景和 8 个选读场景通过。

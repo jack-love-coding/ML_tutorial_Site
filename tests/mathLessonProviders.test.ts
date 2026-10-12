@@ -20,7 +20,8 @@ function stable(value: unknown): unknown {
 // Original three: c1cb70a. Functions: cdadfea. Derivatives: 84eea70 before migration.
 // These are migration parity checks, not another copy of the lesson bodies.
 const contentHashes = {
-  'calculus-functions-rate-change': '106ba59402424e5450162986b3a5e7ee6fd0893a08c82f4c855311fb910c439b',
+  // Intentional 2026-10-12 correction: shared prediction flow and a straight uniform-motion figure.
+  'calculus-functions-rate-change': '465988b98384176709790eb4346cedbc52246a1d5075b4e95910bf724f711dab',
   // Intentional 2026-10-11 correction: generated tangent/secant figures and bilingual reading guidance.
   'calculus-derivatives-local-change': '5ce34046567de01b8ccf6b982e382471dab4334c151f6362d231e80e3c19bf82',
   'calculus-gradient-descent': 'd61a000aca097eb260854e7e8918c3f49643f01083e9b3fd84bb92ceffcfe704',
