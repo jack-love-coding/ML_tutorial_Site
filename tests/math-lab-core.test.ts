@@ -1265,7 +1265,10 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
       const asset = moduleDefinition.visuals.find((candidate) => candidate.id === assetId)
       assert.ok(asset, `${assetId} should be registered as a module visual`)
       assert.equal(asset?.type, 'image')
-      assert.match(asset?.assetPath ?? '', /^\/math-lab\/generated\/[a-z0-9-]+-longform\.png$/)
+      const preciseDiagrams: Record<string, string> = {
+        'beginner-matrix-transform-longform': '/math-lab/diagrams/matrices/batch-prediction.svg',
+      }
+      assert.equal(asset?.assetPath, preciseDiagrams[assetId] ?? `/math-lab/generated/${assetId}.png`)
       assert.doesNotMatch(asset?.assetPath ?? '', /^https?:\/\//)
       assert.doesNotMatch(asset?.assetPath ?? '', /^[A-Za-z]:\\/)
       assert.ok(sectionVisualIds.has(assetId), `${assetId} should be referenced by a section visualIds entry`)
@@ -1277,7 +1280,8 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
 
   const linearBody = byId['beginner-linear-algebra']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(linearBody, /向量回答的是：一个对象在每个特征方向上走了多少/)
-  assert.match(linearBody, /矩阵回答的是：多个输入特征如何被加权混合成新的表达/)
+  assert.match(linearBody, /行代表样本，列依次代表路径分支数、可用提示数/)
+  assert.match(linearBody, /空间变换矩阵 A/)
 
   const probabilityBody = byId['beginner-probability-distributions']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(probabilityBody, /概率回答的是：在明确的样本空间里，长期会怎样分配结果/)

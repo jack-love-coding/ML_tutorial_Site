@@ -90,7 +90,6 @@ const linearBatchSection = section(
   String.raw`For the first row, \(4\times2+(-1)\times3+5=10\); for the second, \(4\times1+(-1)\times4+5=5\). Therefore \(X\mathbf{w}+b=[10,5]\). The code panel shows the array, shapes, predictions, and real output together so a learner can calculate first and verify with code.
 
 The important point is not reducing everything to one line. The code must expose semantic boundaries: rows count examples, columns count features, \(X.shape[1]\) must equal \(w.shape[0]\), and the prediction count must equal the sample count. Accidentally transposing a square \(X\) may preserve shape \((2,2)\) while changing meaning, so column names and a non-square counterexample are needed in addition to a shape check.`,
-  ['beginner-matrix-transform-longform'],
 )
 
 const linearSummarySection = section(

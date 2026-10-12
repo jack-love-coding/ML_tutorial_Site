@@ -290,38 +290,38 @@ Worked example: if \(\mathbf{v}_1=[2,1]\) and \(\mathbf{v}_2=[-1,1]\), then \(3\
   ),
   section(
     'beginner-linear-matrix-machine',
-    copy('第四步：把矩阵看成空间机器', 'Step 4: A Matrix as a Space Machine'),
+    copy('第四步：逐行计算，一行一个预测', 'Step 4: One Prediction per Sample Row'),
     copy(
-      md`矩阵最容易被误读成表格。更好的入门图像是：**matrix as a space machine**。矩阵回答的是：多个输入特征如何被加权混合成新的表达。一个 \(2\times2\) 矩阵的两列告诉我们原来的横轴和纵轴会被送到哪里。于是整个网格会跟着拉伸、旋转、剪切或压扁。
-
-例如
+      md`函数课已经算过一个样本。现在把两个样本按行放进数据矩阵 \(X\)，仍使用同一组权重 \(w=[4,-1]\) 和偏置 \(b=5\)。行代表样本，列依次代表路径分支数、可用提示数。矩阵在这里保存数据；权重才是模型参数。
 
 $$
-A=\begin{bmatrix}2&1\\0&3\end{bmatrix},\qquad \mathbf{x}=\begin{bmatrix}4\\-1\end{bmatrix}.
+X=\begin{bmatrix}2&3\\1&4\end{bmatrix},\quad
+Xw+b=\begin{bmatrix}2\times4+3\times(-1)+5\\1\times4+4\times(-1)+5\end{bmatrix}
+=\begin{bmatrix}10\\5\end{bmatrix}.
 $$
 
-按列阅读时，
+**先读第一行，再读第二行。** 第一行的两个贡献为 8 和 −3，加偏置得到 10；第二行为 4 和 −4，加偏置得到 5。每行都使用同一个 w 与 b，偏置分别加到每个预测上。计算沿特征轴配对求和，保留样本轴，所以两个样本得到两个输出。
+
+读图时用行号 #1、#2 跟踪样本，不依赖颜色。把第二行暂时盖住，第一行输出仍为 10；交换两行只会把输出顺序改成 [5,10]，不会改变单个样本的预测。目标 [9,7] 留到预测完成后计算误差，不能当作第三列输入。
+
+**矩阵不只一种含义。** 数据矩阵 X 的行是样本；空间变换矩阵 A 的列则可以表示基方向的去向。例如 \(A=[[2,1],[0,3]]\) 把向量 \([4,-1]\) 映到 \([7,-3]\)。这是另一种合同，不能把 X 的“样本行”套成 A 的“输出坐标”。[矩阵变换专题](/math-lab/modules/linear-algebra-matrix-transformations)继续解释两种读法。
+
+下一节用 NumPy 复现这两行。保留列名和 shape 检查，比只记住矩阵乘法符号更有用。`,
+      md`The function lesson calculated one sample. Now stack two samples as rows of data matrix \(X\), keeping weights \(w=[4,-1]\) and bias \(b=5\). Rows are samples; columns are route branches and available hints, in that order. Here the matrix stores data; the weights are model parameters.
 
 $$
-A\mathbf{x}=4\begin{bmatrix}2\\0\end{bmatrix}-1\begin{bmatrix}1\\3\end{bmatrix}=\begin{bmatrix}7\\-3\end{bmatrix}.
+X=\begin{bmatrix}2&3\\1&4\end{bmatrix},\quad
+Xw+b=\begin{bmatrix}2\times4+3\times(-1)+5\\1\times4+4\times(-1)+5\end{bmatrix}
+=\begin{bmatrix}10\\5\end{bmatrix}.
 $$
 
-神经网络里的线性层 \(W\mathbf{x}+\mathbf{b}\) 就是在做类似事情：\(W\) 负责混合和变形，\(\mathbf{b}\) 负责平移。后面的激活函数再把直线边界弯成更复杂的边界。`,
-      md`Matrices are often misread as tables. The better first picture is **matrix as a space machine**. A matrix answers: how are multiple input features weighted and mixed into a new representation? In a \(2\times2\) matrix, the two columns tell where the old horizontal and vertical axes go. The whole grid then stretches, rotates, shears, or flattens with those axes.
+**Read the first row, then the second.** The first contributions are 8 and −3; bias gives 10. The second contributions are 4 and −4; bias gives 5. Every row uses the same w and b, with bias added separately to each prediction. Pairing and summing reduces the feature axis while preserving the sample axis: two samples produce two outputs.
 
-For example,
+Use row labels #1 and #2 to follow samples without relying on colour. Cover the second row: the first prediction stays 10. Swap the rows: outputs become [5,10], with each sample's prediction unchanged. Targets [9,7] enter the error calculation after prediction; they are not a third input column.
 
-$$
-A=\begin{bmatrix}2&1\\0&3\end{bmatrix},\qquad \mathbf{x}=\begin{bmatrix}4\\-1\end{bmatrix}.
-$$
+**A matrix can have different meanings.** Rows of data matrix X are samples; columns of a spatial transformation A can describe where basis directions land. For example, \(A=[[2,1],[0,3]]\) maps vector \([4,-1]\) to \([7,-3]\). This is a different contract: sample rows in X are not output coordinates in A. The [matrix transformations topic](/math-lab/modules/linear-algebra-matrix-transformations) develops both readings.
 
-Read by columns:
-
-$$
-A\mathbf{x}=4\begin{bmatrix}2\\0\end{bmatrix}-1\begin{bmatrix}1\\3\end{bmatrix}=\begin{bmatrix}7\\-3\end{bmatrix}.
-$$
-
-A neural-network linear layer \(W\mathbf{x}+\mathbf{b}\) does a related job: \(W\) mixes and transforms, while \(\mathbf{b}\) shifts. Later activation functions bend straight boundaries into more complex boundaries.`,
+Next, reproduce these rows with NumPy. Keep column names and shape checks rather than memorizing only the multiplication symbol.`,
     ),
     { visualIds: ['beginner-matrix-transform-longform'] },
   ),
@@ -1106,12 +1106,16 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('线性组合与 span：用基础方向到达新位置', 'Linear Combination and Span: Reach New Places with Base Directions'),
         copy('两支基础箭头按比例混合，形成一条线或一个平面，解释 span、线性相关和线性层混合特征的关系。', 'Two base arrows are mixed by weights to form a line or plane, connecting span, dependence, and how linear layers remix input features.'),
       ),
-      imageAsset(
-        'beginner-matrix-transform-longform',
-        'beginner-matrix-transform-longform.png',
-        copy('矩阵变换：一台空间变形机器', 'Matrix Transform: A Space Machine'),
-        copy('矩阵的列向量决定基方向去哪里，整个网格随之拉伸、旋转、剪切，并连接到神经网络的线性层。', 'Matrix columns decide where basis directions land, causing the whole grid to stretch, rotate, or shear and linking directly to neural-network linear layers.'),
-      ),
+      {
+        id: 'beginner-matrix-transform-longform',
+        type: 'image',
+        assetPath: '/math-lab/diagrams/matrices/batch-prediction.svg',
+        title: copy('共享参数，逐行预测', 'Shared Parameters, One Prediction per Row'),
+        transcript: copy('X 的两行是 [2,3]、[1,4]；共同使用 w=[4,-1]、b=5，得到 [10,5]。', 'Rows of X are [2,3] and [1,4]; shared w=[4,-1] and b=5 give [10,5].'),
+        alt: copy('两块带行号的计算卡分别展开两个样本的乘法、求和与偏置，底部按行顺序汇总两个预测。', 'Two numbered row panels expand paired products, summation, and bias; the bottom collects two predictions in row order.'),
+        caption: copy('沿 #1 与 #2 分别核对两项贡献，再加同一个偏置 5。两个样本分别得到 10 和 5，没有把两行加成一个输出。图中行号和算式与颜色共同区分样本。', 'Follow #1 and #2 separately, checking two contributions and then the same bias 5. The two samples give 10 and 5; their rows are not summed into one output. Row labels and equations distinguish samples as well as colour.'),
+        learningPurpose: copy('说明矩阵乘法如何复用同一个单样本规则，并保留样本轴。', 'Show how matrix multiplication reuses one sample rule and preserves the sample axis.'),
+      },
     ],
     labs: [
       lab('beginner-feature-vector-story-lab', copy('特征向量故事实验', 'Feature Vector Story Lab'), 'FeatureVectorStoryLab', [
