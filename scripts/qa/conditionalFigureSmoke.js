@@ -20,7 +20,7 @@ async (page) => {
     for (const [id, filename] of [['beginner-conditional-probability-longform', 'condition-denominator.svg'], ['beginner-bayes-update-longform', 'base-rate-comparison.svg']]) {
       const figure = page.locator('#' + id), image = figure.locator('img')
       await image.waitFor({ state: 'attached' }); await figure.scrollIntoViewIfNeeded(); await image.evaluate(image => image.decode())
-      if (!await image.evaluate((image, filename) => image.src.endsWith('/probability/' + filename) && Math.abs(image.naturalWidth / image.naturalHeight - image.width / image.height) < .02, filename)) throw new Error('Wrong or cropped probability diagram')
+      if (!await image.evaluate((image, filename) => image.src.endsWith('/probability/' + filename) && image.width <= 481 && Math.abs(image.naturalWidth / image.naturalHeight - image.width / image.height) < .02, filename)) throw new Error('Wrong or cropped probability diagram')
       if (!seeded) {
         await page.evaluate(id => window.scrollTo({ top: document.getElementById(id).getBoundingClientRect().top + window.scrollY - 120, behavior: 'instant' }), id)
         await page.screenshot({ path: `/tmp/ml-atlas-${filename}-${locale}-${width}.png` })

@@ -1340,7 +1340,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('重复抽样形成柱状图，样本越多频率形状越稳定，说明概率分布不是一次结果，而是长期模式。', 'Repeated sampling forms a histogram; with more samples the frequency shape stabilizes, showing that a distribution is a long-run pattern, not one outcome.'),
       ),
       {
-        id: 'beginner-conditional-probability-longform', type: 'image', assetPath: '/math-lab/diagrams/probability/condition-denominator.svg',
+        id: 'beginner-conditional-probability-longform', type: 'image', assetPath: '/math-lab/diagrams/probability/condition-denominator.svg', layout: 'compact',
         title: copy('条件筛选：分母变为 1760', 'Conditioning: The Denominator Becomes 1760'),
         transcript: copy('A 是垃圾邮件，B 是可疑链接。先分出 800 与 9200，再按信号率得到 656 与 1104；只在 B 的 1760 封里计算 656/1760 ≈ 37.3%。框是计算步骤，不用面积代表人数。', 'A means spam and B means a suspicious link. Split 800 and 9200, then apply signal rates to get 656 and 1104. Within the 1760 emails in B, 656/1760 ≈ 37.3%. Boxes show calculation stages, not areas proportional to counts.'),
         alt: copy('A 是垃圾邮件，B 是可疑链接。先分出 800 与 9200，再按信号率得到 656 与 1104；只在 B 的 1760 封里计算 656/1760 ≈ 37.3%。框是计算步骤，不用面积代表人数。', 'A means spam and B means a suspicious link. Split 800 and 9200, then apply signal rates to get 656 and 1104. Within the 1760 emails in B, 656/1760 ≈ 37.3%. Boxes show calculation stages, not areas proportional to counts.'),
@@ -1348,7 +1348,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
         learningPurpose: copy('用同一个假设算例区分条件方向、分母与先验。', 'Use one hypothetical example to distinguish conditional direction, denominator, and prior.'),
       },
       {
-        id: 'beginner-bayes-update-longform', type: 'image', assetPath: '/math-lab/diagrams/probability/base-rate-comparison.svg',
+        id: 'beginner-bayes-update-longform', type: 'image', assetPath: '/math-lab/diagrams/probability/base-rate-comparison.svg', layout: 'compact',
         title: copy('同样的信号率，不同的基准比例', 'Same Signal Rates, Different Base Rates'),
         transcript: copy('两条均以带信号邮件为总体。实心 A 与斜纹非 A 的宽度按真实计算比例绘制：先验 8% 时 656/1760 ≈ 37.3%；先验 1% 时 82/1270 ≈ 6.5%。', 'Each bar represents the emails with the signal. Solid A and hatched not-A widths match the calculation: prior 8% gives 656/1760 ≈ 37.3%; prior 1% gives 82/1270 ≈ 6.5%.'),
         alt: copy('两条均以带信号邮件为总体。实心 A 与斜纹非 A 的宽度按真实计算比例绘制：先验 8% 时 656/1760 ≈ 37.3%；先验 1% 时 82/1270 ≈ 6.5%。', 'Each bar represents the emails with the signal. Solid A and hatched not-A widths match the calculation: prior 8% gives 656/1760 ≈ 37.3%; prior 1% gives 82/1270 ≈ 6.5%.'),
