@@ -25,6 +25,8 @@
 
 后续函数 [#90](https://github.com/jack-love-coding/ML_tutorial_Site/pull/90)、矩阵 [#91](https://github.com/jack-love-coding/ML_tutorial_Site/pull/91)、条件概率 [#92](https://github.com/jack-love-coding/ML_tutorial_Site/pull/92) 已分别提交，尚未合并或上线。三者的本地内容与浏览器验证见 [本批审查](../teaching-visual-audit-2026-10-12.md)；沿依赖顺序完成远端验收后再发布，不把本地通过或无冲突当作 CI 通过。
 
+函数 #90 最新提交 `4b2820c91cf4aa0a2716c0a18ba8d90ce7e57f9d` 的 [PR CI / 38227585402](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38227585402) 已成功，PR 部署按规则跳过；#91、#92 尚待前序合并后运行各自的 main PR CI。
+
 ## 2026-10-04 合并与部署
 
 | PR | 独立交付 | 合并 SHA | Pages Actions |

@@ -45,3 +45,5 @@
 函数 [#90](https://github.com/jack-love-coding/ML_tutorial_Site/pull/90) → 矩阵 [#91](https://github.com/jack-love-coding/ML_tutorial_Site/pull/91) → 条件概率 [#92](https://github.com/jack-love-coding/ML_tutorial_Site/pull/92) 分别提交，尚未合并或上线。同步原有批次最终 main 后，三条分支的文件树均保持与各自本地验证结果一致；本记录补充的发布状态为文档改动。
 
 原有 #89 → #86 → #87 → #88 已实际通过 CI 并逐次部署，最终线上 SHA、各次 CI／Pages 链接和回退点见 [发布记录](releases/textbook-refactor-release.md)。新三个 PR 的远端验收与部署仍需逐项完成，不能把前一批部署或本地检查代作新改动的线上结果。
+
+函数 #90 的最新提交 `4b2820c91cf4aa0a2716c0a18ba8d90ce7e57f9d` 已通过 [实际 PR CI / 38227585402](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38227585402)，包括测试、Pages 构建、完整浏览器矩阵、资源／目录及安全检查；PR 事件的部署任务按规则跳过。矩阵 #91 和条件概率 #92 当前以各自前序分支为 base，尚无 main PR CI 结果，需在前序合并后重新指向 main 并验收。三个新 PR 均未合并或部署。

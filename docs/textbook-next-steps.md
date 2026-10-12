@@ -26,6 +26,8 @@
 
 下一批已完成函数 [#90](https://github.com/jack-love-coding/ML_tutorial_Site/pull/90)、矩阵 [#91](https://github.com/jack-love-coding/ML_tutorial_Site/pull/91)、条件概率 [#92](https://github.com/jack-love-coding/ML_tutorial_Site/pull/92) 三个独立 PR，按该顺序依赖。函数与矩阵共用样本、特征语义和预测计算，条件概率由同一假设模型生成图和整数计数，原生双语说明连接读图与操作。本地 1173 项测试、两种构建、21 个新增浏览器场景及连续阅读／存储检查通过，详见 [10 月 12 日审查](teaching-visual-audit-2026-10-12.md)。它们尚未合并或上线；前序部署后，后序 PR 再指向 main 并完成实际 CI，不能把串联 PR 暂无检查当作成功。
 
+函数 #90 的最新提交已通过 [实际 CI](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38227585402)；矩阵 #91、条件概率 #92 的 main PR CI 尚未执行。当前优先级是完成这三项的顺序合并与部署。
+
 | 优先级 | 触发条件与工作 | 完成标准 |
 | --- | --- | --- |
 | P0 | 小班试用发现阅读中断、错误公式或结果、失效资源、移动端无法操作 | 最小复现、针对性修复与回归检查；涉及正文的中英文同步；保留旧链接和历史数据 |
