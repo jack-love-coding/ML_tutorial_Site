@@ -15,4 +15,6 @@ KaTeX 的间接 CLI 依赖 commander 15 要求 Node >=22.12；项目构建和 CI
 
 验证包括干净 `npm ci`、`npm test`、两种生产构建、课程目录及发布资源检查。新增运行时回归覆盖继承 trust 时仍拒绝公式 HTML、TensorFlow CLI 和解析器、冻结 Tiny VGG 的加载与预测及张量释放。浏览器覆盖算法教学模式、数学 provider、异步加载与存储保留；实际结果随 PR 记录更新。普通测试仍有 28 项离线环境相关条件跳过，本次没有重新生成 Notebook。
 
-本地结果：1158 项测试通过、28 项跳过；两种构建、8 项发布资源检查、目录检查通过。浏览器通过 22 个教学模式、28 个数学 provider、9 个按需加载和 40 个历史数据保留场景。干净安装后 `npm run security:audit` 为 0 项漏洞，`npm ls` 无无效依赖。远端 CI 仍是合并门槛，本地结果不能代替远端验收。
+本地结果：1158 项测试通过、28 项跳过；两种构建、8 项发布资源检查、目录检查通过。浏览器通过 22 个教学模式、28 个数学 provider、9 个按需加载和 40 个历史数据保留场景。干净安装后 `npm run security:audit` 为 0 项漏洞，`npm ls` 无无效依赖。
+
+2026-10-12 远端结果：[PR #89 CI](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38129732861) 通过，以 merge commit `d880fb22215f4d4a4ee931ed0d74606cad48eb53` 合并，[Pages 部署](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38216295558) 成功，线上 release.json 与该 SHA 和 runId 一致。随后 #86、#87、#88 依次通过包含安全审计的实际 CI 并部署。完整发布证据及保留依赖修复的回退点见 [发布记录](releases/textbook-refactor-release.md)。
