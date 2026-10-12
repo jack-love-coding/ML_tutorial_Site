@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import DataTableView from '../components/DataTableView.vue'
+import SplitFitTransformFigure from '../components/SplitFitTransformFigure.vue'
 import type { DataLabLocale, DataTable, LocalizedCopy } from '../types/dataLab'
 import {
   buildDataPipelineTaskSnapshot,
@@ -158,6 +159,7 @@ function resetLab() {
 
 <template>
   <section class="data-lab-card data-pipeline-task-lab">
+    <SplitFitTransformFigure :snapshot="snapshot" :locale="locale" />
     <div class="data-lab-card__visual data-pipeline-task-lab__visual">
       <DataTableView :table="pipelineTable" :locale="locale" :max-rows="6" />
 

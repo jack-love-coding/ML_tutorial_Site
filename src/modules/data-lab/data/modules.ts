@@ -275,7 +275,7 @@ In class, students can compare three inputs: raw values, one-hot bins, and value
 
 The browser lab simulates pandas-style table changes in TypeScript so students can safely adjust options and observe shape and statistics. The matching pandas snippets provide the notebook pattern for carrying the concept to their own datasets.`,
         ),
-        { visualIds: ['pandas-workflow'], labIds: ['pandas-pipeline-lab', 'data-pipeline-task-lab'] },
+        { labIds: ['pandas-pipeline-lab', 'data-pipeline-task-lab'] },
       ),
     ],
     visuals: [
@@ -650,12 +650,20 @@ Students should connect split strategy to task: predicting tomorrow's sales must
         copy(
           md`数据处理也有“训练”。标准化均值、缺失值中位数、分箱边界、类别词表、低频阈值和输出列顺序，都是从数据中学来的参数。为什么重要：如果这些参数从全量数据估计，验证和测试的信息就泄漏进了训练流程，分数会高估模型能力。
 
-正确规则是 fit on train, transform everywhere。先在训练集上估计处理参数，再把同一套参数应用到验证、测试和新样本。pandas 中可以用中间变量明确区分 train_stats、train_vocab、transform_train、transform_valid，让学生看见参数从哪里来。`,
+正确规则是 fit on train, transform everywhere。先在训练集上估计处理参数，再把同一套参数应用到验证、测试和新样本。
+
+**操作：** 在下方实验中保持默认场景，找到 rooms 的均值 2.5 和验证行变换值约 0.447。再选择“先 fit 全表，再划分”：均值变为 3，验证行变换值变为 0。样本没有变，参数却读到了验证和测试数据，这就是泄漏。点“重置”回到安全场景。
+
+**再看词表：** 选择“类别词表从全表学习”，比较列数和 east 是否提前进入词表。这里的数字用于观察预处理，不是模型预测成绩。`,
           md`Data processing also has a training phase. Standardization means, imputation medians, bin edges, category vocabularies, rare thresholds, and output column order are parameters learned from data. This matters because estimating them from all data leaks validation and test information into the training workflow and overstates model ability.
 
-The rule is fit on train, transform everywhere. Estimate processing parameters on training data, then apply the same parameters to validation, test, and new examples. In pandas, intermediate variables such as train_stats, train_vocab, transform_train, and transform_valid make parameter origin visible.`,
+The rule is fit on train, transform everywhere. Estimate parameters on training data, then reuse them on validation, test, and new examples.
+
+**Try it:** In the default scenario below, find the rooms mean of 2.5 and the transformed validation value of about 0.447. Select “Fit all rows before split”: the mean becomes 3 and the validation value becomes 0. The sample is unchanged, but its preprocessing used held-out data. This is leakage. Use Reset to return to the safe scenario.
+
+**Inspect the vocabulary:** Select “Learn vocabulary on all rows” and compare the column count and whether east entered the vocabulary early. These numbers demonstrate preprocessing, not model performance.`,
         ),
-        { visualIds: ['pandas-shape-audit'], labIds: ['pandas-pipeline-lab'] },
+        { labIds: ['data-pipeline-task-lab'] },
       ),
       section(
         'generalization-gap',
@@ -675,32 +683,20 @@ Students should read training and validation curves together: both high may mean
         copy(
           md`可复查的数据协议至少记录：随机种子、划分策略、时间边界、分层列、训练集拟合出的参数、输出列顺序、每一步输入输出 shape，以及哪些列在预测时可用。为什么重要：没有协议，下一次重训可能悄悄改变评估含义；有了协议，学生和团队才能复现模型输入。
 
-课堂练习可以让学生把一段 pandas 代码拆成 fit 和 transform 两部分，并解释哪些变量应保存到模型工件中。这样他们会看到“数据准备”不是临时脚本，而是模型系统的一部分。`,
+回看上方实验的安全场景：训练、验证、测试矩阵分别是 [4,5]、[1,5]、[1,5]，行数不同但列的含义和顺序相同。先记录 split，再记录训练均值、标准差和固定词表；最后记录未知类别使用全 0 的策略。shape 相同本身不能证明没有泄漏，还必须检查每个 fit 的数据来源。
+
+下一节进入数据质量：在保持这条训练边界的前提下，再决定如何处理缺失、重复与异常值。`,
           md`A reviewable data protocol records at least random seed, split strategy, time boundary, stratification column, parameters fit on training data, output column order, input/output shape at each step, and which columns are available at prediction time. This matters because without a protocol, retraining may silently change evaluation meaning; with one, students and teams can reproduce model inputs.
 
-A classroom exercise can split pandas code into fit and transform phases, then explain which variables belong in the model artifact. Students then see that data preparation is not a temporary script but part of the model system.`,
+Revisit the safe scenario above: train, validation, and test matrices are [4,5], [1,5], and [1,5]. Their row counts differ, but column meanings and order match. Record the split, training means and standard deviations, fixed vocabulary, and all-zero policy for unknown categories. Matching shapes alone do not prove there is no leakage; check every fit source too.
+
+Next, study data quality: keep this training boundary while choosing how to handle missing values, duplicates, and outliers.`,
         ),
-        { visualIds: ['pandas-workflow'], labIds: ['pandas-pipeline-lab'] },
       ),
     ],
-    visuals: [
-      image('pandas-shape-audit', 'pandas-shape-audit-v2.png', copy('划分后的 shape 审计', 'Post-split shape audit'), copy('训练、验证和测试要记录 shape、列顺序和参数来源。', 'Train, validation, and test need recorded shape, column order, and parameter origin.'), [
-        { id: 'input', x: 11, y: 28, label: copy('输入表', 'Input table') },
-        { id: 'select', x: 25, y: 16, label: copy('划分', 'Split') },
-        { id: 'filter', x: 39, y: 16, label: copy('拟合参数', 'fit') },
-        { id: 'assign', x: 53, y: 16, label: copy('应用变换', 'transform') },
-        { id: 'audit', x: 50, y: 88, label: copy('审计', 'Audit') },
-      ]),
-      image('pandas-workflow', 'pandas-workflow.png', copy('划分与变换协议', 'Split and transform protocol'), copy('把划分、变换和保存参数组织成可复用的数据协议。', 'Turn splits, transforms, and saved parameters into a reusable data protocol.'), [
-        { id: 'input', x: 16, y: 13, label: copy('输入', 'Input') },
-        { id: 'chain', x: 52, y: 13, label: copy('协议', 'Protocol') },
-        { id: 'output', x: 83, y: 13, label: copy('输出', 'Output') },
-        { id: 'shape', x: 51, y: 84, label: copy('检查 shape', 'Check shape') },
-      ]),
-      video('pandas-method-chain-video', 'pandas-method-chain', copy('pandas 链式处理动画', 'pandas method-chain animation'), copy('展示表格如何经过过滤、派生、聚合和连接。', 'Shows a table moving through filter, assign, aggregate, and merge.')),
-    ],
+    visuals: [],
     labs: [
-      lab('pandas-pipeline-lab', copy('划分与变换实验室', 'Split and Transform Lab'), 'PandasPipelineLab', [
+      lab('data-pipeline-task-lab', copy('划分与变换实验室', 'Split and Transform Lab'), 'DataPipelineTaskLab', [
         copy('能解释 fit 参数只来自训练集。', 'Explain why fit parameters come from training data only.'),
         copy('能用 shape 审计发现划分或变换错误。', 'Use shape audits to find split or transform mistakes.'),
       ]),
@@ -760,12 +756,16 @@ In class, ask students to count dimensions: five raw input columns may become hu
         copy(
           md`训练曲线和验证曲线要一起读。两条曲线都高，说明模型可能太简单、特征不足、优化失败或数据质量差；训练曲线低而验证曲线高，说明模型在训练集上找到了不能泛化的规律。为什么重要：单看一个最终分数很难知道该改数据、改特征、改模型还是改训练过程。
 
-学生可以把曲线当作诊断面板：发散可能来自学习率过大或特征尺度混乱；平台期可能表示信号不足；训练验证差距扩大可能来自过多交叉、标签噪声或划分错误。`,
+**操作：** 下方先选“训练降，验证升”，把观察轮次从 30 移到 50。训练 MSE 从 0.18 降到 0.04，验证 MSE 却从 0.35 升到 0.70。它提示模型继续拟合训练数据，并不代表未来表现变好。再比较另外两种场景，并展开数值表核对图中的点。
+
+这些是讲解用的示意数据；曲线只能提供线索，不能单凭形状断定根因。发散、平台期或差距扩大，还需要检查学习率、特征、标签和划分。`,
           md`Training and validation curves must be read together. If both are high, the model may be too simple, features may be insufficient, optimization may fail, or data quality may be poor. If training is low and validation is high, the model has found training patterns that do not generalize. This matters because one final score rarely tells whether to change data, features, model, or training.
 
-Students can treat curves as a diagnostic panel: divergence may come from high learning rate or messy feature scale; plateaus may signal insufficient information; a widening train/validation gap may come from too many crosses, label noise, or split mistakes.`,
+**Try it:** Select “Train falls, validation rises” below and move from epoch 30 to 50. Training MSE falls from 0.18 to 0.04 while validation MSE rises from 0.35 to 0.70. Better fit to train does not mean better future performance. Compare the other two scenarios and open the value table to check the plotted points.
+
+These are illustrative teaching data. Curve shapes offer clues, not proof of a cause; inspect learning rate, features, labels, and splits when curves diverge, flatten, or separate.`,
         ),
-        { visualIds: ['curve-diagnosis'], labIds: ['eda-workbench-lab'] },
+        { labIds: ['generalization-curve-lab'] },
       ),
       section(
         'l2-budget',
@@ -773,10 +773,10 @@ Students can treat curves as a diagnostic panel: divergence may come from high l
         copy(
           md`L2 正则化会把权重平方和加入损失函数。直观地说，它让模型为过大的权重付出代价，因此模型更倾向于使用多个稳定信号，而不是极端依赖少数稀有槽位。为什么重要：高维稀疏输入中，某些偶然组合可能在训练集上特别有效；L2 会限制这种过度敏感。
 
-正则化不是简单地“削弱模型”。合适的正则化是在训练拟合和泛化之间设置预算。课堂练习可以让学生观察不同 L2 强度下训练 loss、验证 loss 和权重大小如何变化。`,
+正则化不是简单地“削弱模型”。合适的正则化是在训练拟合和泛化之间设置预算。回看[回归课的正则化实验](/learn/linear-regression/regularization)：切换 Ridge 并逐步调整 α，比较系数大小与验证 RMSE。系数收缩不保证验证误差单调下降；用验证集选择强度，保留测试集到最后。`,
           md`L2 regularization adds the sum of squared weights to the loss. Intuitively, it makes very large weights costly, so the model prefers using multiple stable signals rather than depending extremely on rare slots. This matters because in high-dimensional sparse inputs, accidental combinations may look powerful on training data; L2 limits that sensitivity.
 
-Regularization is not simply weakening a model. Appropriate regularization sets a budget between training fit and generalization. A classroom exercise can compare training loss, validation loss, and weight sizes under different L2 strengths.`,
+Regularization is not simply weakening a model. Appropriate regularization balances training fit and generalization. Revisit the [regression regularization lab](/learn/linear-regression/regularization): select Ridge and step through α, comparing coefficient sizes with validation RMSE. Smaller coefficients do not guarantee monotonically lower validation error. Choose strength on validation and reserve test for the end.`,
         ),
       ),
       section(
@@ -802,27 +802,11 @@ If validation data participated in scaling, vocabulary, or imputation parameter 
 
 A classroom deliverable can be a complexity-control report: every added feature must list its hypothesis, dimension growth, validation benefit, and risk. Students then learn that machine learning is not stacking more features, but controlling expressiveness with evidence.`,
         ),
-        { visualIds: ['pandas-workflow'] },
       ),
     ],
-    visuals: [
-      image('curve-diagnosis', 'eda-investigation-board-v2.png', copy('曲线诊断前的数据面板', 'Data panel before curve diagnosis'), copy('损失曲线异常常常可以追溯到尺度、标签、类别比例或划分问题。', 'Abnormal loss curves often trace back to scale, labels, class proportions, or split problems.'), [
-        { id: 'scale', x: 15, y: 19, label: copy('尺度', 'scale') },
-        { id: 'label', x: 36, y: 20, label: copy('标签', 'labels') },
-        { id: 'class', x: 57, y: 20, label: copy('比例', 'proportion') },
-        { id: 'split', x: 78, y: 20, label: copy('划分', 'split') },
-        { id: 'report', x: 50, y: 86, label: copy('诊断', 'diagnosis') },
-      ]),
-      image('pandas-workflow', 'pandas-workflow.png', copy('复杂度控制报告', 'Complexity-control report'), copy('把特征维度、交叉、正则化和验证曲线选择记录成报告。', 'Record feature dimension, crosses, regularization, and validation-curve choices as a report.'), [
-        { id: 'features', x: 16, y: 13, label: copy('特征', 'Features') },
-        { id: 'controls', x: 52, y: 13, label: copy('约束', 'Controls') },
-        { id: 'curves', x: 83, y: 13, label: copy('曲线', 'Curves') },
-        { id: 'report', x: 51, y: 84, label: copy('报告', 'Report') },
-      ]),
-      video('pandas-method-chain-video', 'pandas-method-chain', copy('数据报告流水线动画', 'Data-report pipeline animation'), copy('展示表格处理如何留下可复查的中间结果。', 'Shows how table processing leaves reviewable intermediate results.')),
-    ],
+    visuals: [],
     labs: [
-      lab('eda-workbench-lab', copy('复杂度诊断工作台', 'Complexity Diagnosis Workbench'), 'EdaWorkbenchLab', [
+      lab('generalization-curve-lab', copy('训练与验证曲线', 'Training and Validation Curves'), 'GeneralizationCurveLab', [
         copy('能把损失曲线异常追溯到可能的数据原因。', 'Trace loss-curve symptoms to possible data-side causes.'),
         copy('能说明正则化和提前停止如何依赖验证集。', 'Explain how regularization and early stopping depend on validation data.'),
       ]),

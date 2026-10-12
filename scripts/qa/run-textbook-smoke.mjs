@@ -19,6 +19,7 @@ try {
   matrices.push(['math-reading', 'mathReadingSmoke.js'])
   matrices.push(['math-loading', 'mathLoadingSmoke.js'])
   matrices.push(['classification-project', 'classificationProjectReferenceSmoke.js'])
+  matrices.push(['data-teaching-visuals', 'dataTeachingVisualSmoke.js'])
   // Each matrix gets an isolated browser profile; every profile is closed even after failure.
   const requested = new Set(process.argv.slice(2))
   for (const name of requested) if (!matrices.some(([session]) => session === name)) throw new Error(`Unknown matrix: ${name}`)

@@ -18,6 +18,8 @@ export interface DataPipelineTaskSnapshot {
   fitSources: { scaler: PipelineFitSource; vocabulary: PipelineFitSource }
   featureCounts: { numeric: number; categoricalSlots: number; total: number }
   matrixShapes: { train: string; validation: string; test: string }
+  scalerStats: Array<{ feature: NumericFeature; mean: number; standardDeviation: number; validationValue: number; transformedValidation: number }>
+  vocabulary: string[]
   codeLines: string[]
 }
 
@@ -73,21 +75,19 @@ function normalizeScenarioId(scenarioId: PipelineScenarioId): PipelineScenarioId
   return (dataPipelineScenarioIds as readonly string[]).includes(scenarioId) ? scenarioId : 'safe'
 }
 
-function buildCodeLines(fitSources: DataPipelineTaskSnapshot['fitSources']): string[] {
-  const lines = ['train, validation, test = split(raw_rows)']
-
-  if (fitSources.scaler === 'all' || fitSources.vocabulary === 'all') {
-    lines.push('preprocess.fit(raw_rows)  # unsafe: validation/test are visible')
-  } else if (fitSources.scaler === 'train' || fitSources.vocabulary === 'train') {
-    lines.push('preprocess.fit(X_train)')
-  } else {
-    lines.push('preprocess = identity_transform()')
+function buildCodeLines(fitSources: DataPipelineTaskSnapshot['fitSources'], numericFeatures: NumericFeature[]): string[] {
+  const lines = ['# Pseudocode: inspect the fit boundary, not a standalone script.', `numeric = ${JSON.stringify(numericFeatures)}`]
+  if (fitSources.scaler === 'all') lines.push('scaler.fit(raw_rows[numeric])  # leakage: before split')
+  lines.push('X_train, X_validation, X_test = split(raw_rows)')
+  if (fitSources.scaler === 'train') lines.push('scaler.fit(X_train[numeric])')
+  if (fitSources.vocabulary !== 'none') {
+    lines.push(`encoder.fit(${fitSources.vocabulary === 'train' ? 'X_train' : 'raw_rows'}[["district"]])${fitSources.vocabulary === 'all' ? '  # leakage: held-out categories' : ''}`)
   }
-
-  lines.push('X_train = preprocess.transform(train)')
-  lines.push('X_validation = preprocess.transform(validation)')
-  lines.push('X_test = preprocess.transform(test)')
-
+  lines.push('for X in [X_train, X_validation, X_test]:')
+  if (fitSources.scaler !== 'none') lines.push('    numeric_output = scaler.transform(X[numeric])')
+  if (fitSources.vocabulary !== 'none') lines.push('    category_output = encoder.transform(X[["district"]])  # unknown → all zeros')
+  if (fitSources.scaler === 'none' && fitSources.vocabulary === 'none') lines.push('    output = empty_matrix(rows=len(X), columns=0)')
+  else lines.push('    # Concatenate the enabled outputs in a fixed column order.')
   return lines
 }
 
@@ -110,6 +110,14 @@ export function buildDataPipelineTaskSnapshot(config: DataPipelineTaskConfig): D
   }
 
   const fitSources = { scaler, vocabulary }
+  const fitRows = scaler === 'all' ? dataPipelineTeachingRows : dataPipelineTeachingRows.filter(row => row.split === 'train')
+  const validation = dataPipelineTeachingRows.find(row => row.split === 'validation')!
+  const scalerStats = numericFeatures.map(feature => {
+    const mean = fitRows.reduce((total, row) => total + row[feature], 0) / fitRows.length
+    // Population standard deviation matches StandardScaler (ddof=0).
+    const standardDeviation = Math.sqrt(fitRows.reduce((total, row) => total + (row[feature] - mean) ** 2, 0) / fitRows.length)
+    return { feature, mean, standardDeviation, validationValue: validation[feature], transformedValidation: (validation[feature] - mean) / (standardDeviation || 1) }
+  })
 
   return {
     scenarioId,
@@ -127,6 +135,8 @@ export function buildDataPipelineTaskSnapshot(config: DataPipelineTaskConfig): D
       validation: matrixShape(splitCounts.validation, totalFeatureCount),
       test: matrixShape(splitCounts.test, totalFeatureCount),
     },
-    codeLines: buildCodeLines(fitSources),
+    scalerStats,
+    vocabulary: vocabulary === 'none' ? [] : [...new Set(dataPipelineTeachingRows.filter(row => vocabulary === 'all' || row.split === 'train').map(row => row.district))].sort(),
+    codeLines: buildCodeLines(fitSources, numericFeatures),
   }
 }

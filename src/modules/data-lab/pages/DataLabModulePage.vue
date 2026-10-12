@@ -20,6 +20,7 @@ const labComponentRegistry = {
   EdaWorkbenchLab: defineAsyncComponent(() => import('../labs/EdaWorkbenchLab.vue')),
   PandasPipelineLab: defineAsyncComponent(() => import('../labs/PandasPipelineLab.vue')),
   DataPipelineTaskLab: defineAsyncComponent(() => import('../labs/DataPipelineTaskLab.vue')),
+  GeneralizationCurveLab: defineAsyncComponent(() => import('../labs/GeneralizationCurveLab.vue')),
   CategoricalVocabularyTaskLab: defineAsyncComponent(() => import('../labs/CategoricalVocabularyTaskLab.vue')),
   CategoricalEncodingLab: defineAsyncComponent(() => import('../labs/CategoricalEncodingLab.vue')),
   DataQualityDecisionRecordLab: defineAsyncComponent(() => import('../labs/DataQualityDecisionRecordLab.vue')),

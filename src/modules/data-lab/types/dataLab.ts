@@ -98,6 +98,7 @@ export interface DataLabConfig {
     | 'EdaWorkbenchLab'
     | 'PandasPipelineLab'
     | 'DataPipelineTaskLab'
+    | 'GeneralizationCurveLab'
     | 'CategoricalVocabularyTaskLab'
     | 'CategoricalEncodingLab'
     | 'DataQualityDecisionRecordLab'
