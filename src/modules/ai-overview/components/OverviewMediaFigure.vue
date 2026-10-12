@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { AppLocale } from '../../../types/ml'
 import { withPublicBase } from '../../../utils/publicPath'
 import type { AiOverviewMediaAsset } from '../types'
@@ -8,12 +8,18 @@ import type { AiOverviewManimKeyframe } from '../types'
 const props = defineProps<{ asset: AiOverviewMediaAsset; locale: AppLocale }>()
 const source = computed(() => props.asset.availability === 'available' ? withPublicBase(props.asset.publicPath) : undefined)
 const poster = computed(() => props.asset.posterPath ? withPublicBase(props.asset.posterPath) : undefined)
+const imageFailed = ref(false)
+const collapseFields = computed(() => props.locale === 'zh-CN' && props.asset.embeddedLabels !== false && !imageFailed.value)
+watch(source, () => { imageFailed.value = false })
 function keyframeSource(frame: AiOverviewManimKeyframe) { return withPublicBase(frame.publicPath) }
 </script>
 
 <template>
-  <figure class="overview-media-figure">
-    <img v-if="asset.availability === 'available' && asset.kind === 'imagegen'" :src="source" :alt="asset.title[locale]" loading="lazy" />
+  <figure class="overview-media-figure" :data-media-id="asset.id">
+    <template v-if="asset.availability === 'available' && asset.kind === 'imagegen'">
+      <img v-if="!imageFailed" :src="source" :alt="asset.alt?.[locale] ?? asset.caption[locale]" loading="lazy" @error="imageFailed = true" />
+      <p v-else class="overview-media-figure__deferred" role="status">{{ locale === 'zh-CN' ? '插图暂时无法加载，下面的读图说明和要点仍可阅读。' : 'The illustration could not load. The reading guide and key points remain available below.' }}</p>
+    </template>
     <video v-else-if="asset.availability === 'available'" class="overview-media-figure__video" controls preload="metadata" :poster="poster" :aria-label="asset.title[locale]">
       <source :src="source" />
     </video>
@@ -31,7 +37,17 @@ function keyframeSource(frame: AiOverviewManimKeyframe) { return withPublicBase(
       </ol>
     </div>
     <figcaption><strong>{{ asset.title[locale] }}</strong> — {{ asset.caption[locale] }}</figcaption>
-    <div v-if="locale === 'en'" class="overview-media-figure__english-support" lang="en">
+    <p v-if="asset.readingGuide" class="overview-media-figure__reading-guide">{{ asset.readingGuide[locale] }}</p>
+    <component :is="collapseFields ? 'details' : 'div'" v-if="asset.taskFields?.length">
+      <summary v-if="collapseFields">图中要点的文字版</summary>
+      <dl class="overview-media-figure__task-fields">
+        <div v-for="field in asset.taskFields" :key="field.label.en">
+          <dt>{{ field.label[locale] }}</dt>
+          <dd>{{ field.value[locale] }}</dd>
+        </div>
+      </dl>
+    </component>
+    <div v-if="locale === 'en' && !asset.taskFields?.length" class="overview-media-figure__english-support" lang="en">
       <p>{{ asset.englishSummary }}</p>
       <div v-if="asset.bilingualLabels.length" class="overview-media-figure__table-wrap" tabindex="0" aria-label="Chinese labels and English translations">
         <table>

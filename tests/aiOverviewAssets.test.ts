@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import test from 'node:test'
+import { createHash } from 'node:crypto'
 
 const expectedIds = [
   'ai-overview-hero',
@@ -28,7 +29,8 @@ test('AI Overview image manifest records eleven available files and one auditabl
   for (const asset of images) {
     assert.ok(asset.prompt.length > 200)
     assert.equal(asset.taxonomy, 'scientific-educational')
-    assert.ok(asset.embeddedChinese.length > 0)
+    if (asset.id === 'score-prediction') assert.deepEqual(asset.embeddedChinese, [], 'new teaching text belongs in bilingual HTML')
+    else assert.ok(asset.embeddedChinese.length > 0)
     assert.ok(asset.correction === 'none' || asset.correction === 'deterministic-text-replacement')
   }
 
@@ -45,6 +47,32 @@ test('AI Overview image manifest records eleven available files and one auditabl
   assert.equal(deferred[0].deferral.date, '2026-07-13')
   assert.match(deferred[0].deferral.reason, /network error/i)
   assert.equal(deferred[0].deferral.placeholderCreated, false)
+})
+
+test('score illustration provenance matches runtime and its readable bilingual teaching fields', async () => {
+  const manifest = JSON.parse(readFileSync(new URL('../docs/curriculum-v3/ai-overview/assets.json', import.meta.url), 'utf8'))
+  const { aiOverviewMediaAssets } = await import('../src/modules/ai-overview/data/media.ts')
+  for (const asset of aiOverviewMediaAssets) {
+    const record = manifest.assets.find((entry: { id: string }) => entry.id === asset.id)
+    assert.equal(record.publicPath, asset.publicPath)
+    if (asset.id !== 'ai-overview-hero') {
+      assert.equal(asset.taskFields?.length, 4)
+      for (const field of asset.taskFields ?? []) for (const locale of ['zh-CN', 'en'] as const) {
+        assert.ok(field.label[locale].trim() && field.value[locale].trim())
+      }
+    }
+  }
+  const record = manifest.assets.find((entry: { id: string }) => entry.id === 'score-prediction')
+  const score = aiOverviewMediaAssets.find(asset => asset.id === 'score-prediction')!
+  assert.equal(record.version, 2)
+  assert.equal(createHash('sha256').update(readFileSync(new URL('../public' + record.publicPath, import.meta.url))).digest('hex'), record.sha256)
+  assert.ok(existsSync(new URL('../public' + record.previousVersions[0].publicPath, import.meta.url)))
+  assert.ok(score.alt?.['zh-CN'] && score.alt.en && score.readingGuide?.['zh-CN'] && score.readingGuide.en)
+  assert.match(score.readingGuide.en, /duration only|no parameter update/)
+  const source = readFileSync(new URL('../src/modules/ai-overview/components/OverviewMediaFigure.vue', import.meta.url), 'utf8')
+  assert.match(source, /<dl class="overview-media-figure__task-fields"/)
+  assert.match(source, /imageFailed/)
+  assert.match(source, /asset.readingGuide\[locale\]/)
 })
 
 test('AI Overview prompt record names every asset specification', () => {

@@ -18,6 +18,10 @@ type AiOverviewMediaAssetBase = {
   caption: LocalizedCopy
   englishSummary: string
   bilingualLabels: readonly LocalizedCopy[]
+  alt?: LocalizedCopy
+  readingGuide?: LocalizedCopy
+  embeddedLabels?: boolean
+  taskFields?: readonly { label: LocalizedCopy; value: LocalizedCopy }[]
 }
 export type AiOverviewManimKeyframe = {
   id: string
