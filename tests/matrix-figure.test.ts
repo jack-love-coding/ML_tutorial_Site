@@ -20,6 +20,9 @@ test('matrix figure is reproducible, used once, and explains axis meanings in bo
   const section = module.sections.find(section => section.id === 'beginner-linear-matrix-machine')!
   assert.match(section.content['zh-CN'], /行代表样本/)
   assert.match(section.content.en, /Rows are samples/)
+  assert.match(section.content.en, /base tasks and hint requests/)
+  const shape = module.sections.find(section => section.id === 'minimum-linear-shape-ledger')!
+  assert.match(shape.content.en, /base tasks.*hint requests/)
   assert.match(section.content.en, /different contract/)
   assert.equal(module.visuals.find(visual => visual.id === 'beginner-matrix-transform-longform')!.assetPath, '/math-lab/diagrams/matrices/batch-prediction.svg')
 })

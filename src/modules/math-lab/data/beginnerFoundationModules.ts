@@ -292,7 +292,7 @@ Worked example: if \(\mathbf{v}_1=[2,1]\) and \(\mathbf{v}_2=[-1,1]\), then \(3\
     'beginner-linear-matrix-machine',
     copy('第四步：逐行计算，一行一个预测', 'Step 4: One Prediction per Sample Row'),
     copy(
-      md`函数课已经算过一个样本。现在把两个样本按行放进数据矩阵 \(X\)，仍使用同一组权重 \(w=[4,-1]\) 和偏置 \(b=5\)。行代表样本，列依次代表路径分支数、可用提示数。矩阵在这里保存数据；权重才是模型参数。
+      md`函数课已经算过一个样本。现在把两个样本按行放进数据矩阵 \(X\)，仍使用同一组权重 \(w=[4,-1]\) 和偏置 \(b=5\)。行代表样本，列依次代表基础任务数、提示请求数。矩阵在这里保存数据；权重才是模型参数。
 
 $$
 X=\begin{bmatrix}2&3\\1&4\end{bmatrix},\quad
@@ -307,7 +307,7 @@ $$
 **矩阵不只一种含义。** 数据矩阵 X 的行是样本；空间变换矩阵 A 的列则可以表示基方向的去向。例如 \(A=[[2,1],[0,3]]\) 把向量 \([4,-1]\) 映到 \([7,-3]\)。这是另一种合同，不能把 X 的“样本行”套成 A 的“输出坐标”。[矩阵变换专题](/math-lab/modules/linear-algebra-matrix-transformations)继续解释两种读法。
 
 下一节用 NumPy 复现这两行。保留列名和 shape 检查，比只记住矩阵乘法符号更有用。`,
-      md`The function lesson calculated one sample. Now stack two samples as rows of data matrix \(X\), keeping weights \(w=[4,-1]\) and bias \(b=5\). Rows are samples; columns are route branches and available hints, in that order. Here the matrix stores data; the weights are model parameters.
+      md`The function lesson calculated one sample. Now stack two samples as rows of data matrix \(X\), keeping weights \(w=[4,-1]\) and bias \(b=5\). Rows are samples; columns are base tasks and hint requests, in that order. Here the matrix stores data; the weights are model parameters.
 
 $$
 X=\begin{bmatrix}2&3\\1&4\end{bmatrix},\quad

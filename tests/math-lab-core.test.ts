@@ -1282,7 +1282,7 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
 
   const linearBody = byId['beginner-linear-algebra']!.sections.map((section) => section.content['zh-CN']).join('\n')
   assert.match(linearBody, /向量回答的是：一个对象在每个特征方向上走了多少/)
-  assert.match(linearBody, /行代表样本，列依次代表路径分支数、可用提示数/)
+  assert.match(linearBody, /行代表样本，列依次代表基础任务数、提示请求数/)
   assert.match(linearBody, /空间变换矩阵 A/)
 
   const probabilityBody = byId['beginner-probability-distributions']!.sections.map((section) => section.content['zh-CN']).join('\n')
