@@ -1668,8 +1668,8 @@ export const curriculumLessonDirectory = [
       {
         "id": "lesson-handoff",
         "title": {
-          "zh-CN": "12. 小结与向量课 handoff",
-          "en": "12. Summary and Handoff to the Vector Lesson"
+          "zh-CN": "11. 小结与向量课衔接",
+          "en": "11. Summary and Handoff to the Vector Lesson"
         }
       }
     ]

@@ -141,7 +141,9 @@ Every product must produce minutes: $w_1$ is minutes per base task, so multiplyi
 
 $$r\\xrightarrow{h}\\mathbf x\\xrightarrow{F}\\hat y\\xrightarrow{e(\\cdot,y)}\\hat y-y.$$
 
-比较目标之前必须先有预测，预测之前必须先有特征。函数组合让我们逐段检查复杂系统，而不必一次理解全部。`, `
+比较目标之前必须先有预测，预测之前必须先有特征。函数组合让我们逐段检查复杂系统，而不必一次理解全部。
+
+读图时从上到下跟随实线箭头：先找到两项贡献 8 和 −3，再核对求和 5、加偏置后的预测 10。虚线只在预测之后引入目标 9，得到残差 1。下方实验先保留 w1 = 4，再调到 5，最后调到 3.5：预测依次为 10、12、9，平方误差依次为 1、9、0。预测变大不一定更好，要比较它离目标多远。`, `
 A function’s entrance, steps, and exit must be explicit. With parameters fixed, different inputs may share one output: $F([2,3];[4,-1],5)=10$ and $F([1,-1];[4,-1],5)=10$. Many-to-one is valid; one identical complete input producing two unexplained outputs is not.
 
 Think of a transparent machine. Features and weights enter through two labeled ports; inside, the machine performs “pair by position → multiply → sum → add bias”; exactly one prediction leaves the exit. Transparent means every step can be expanded and audited rather than hiding behind the word “model.” Writing only $f(\\mathbf x)$ usually implies fixed parameters; writing $F(\\mathbf x;\\mathbf w,b)$ explicitly includes the knob settings in the complete contract.
@@ -152,7 +154,9 @@ Larger workflows compose smaller functions. A feature function $h$ maps raw reco
 
 $$r\\xrightarrow{h}\\mathbf x\\xrightarrow{F}\\hat y\\xrightarrow{e(\\cdot,y)}\\hat y-y.$$
 
-The order cannot be swapped: comparison needs a prediction, and prediction needs features. Function composition lets us inspect a complex system one contract at a time.`),
+The order cannot be swapped: comparison needs a prediction, and prediction needs features. Function composition lets us inspect a complex system one contract at a time.
+
+Read the solid arrows from top to bottom: find contributions 8 and −3, check their sum 5, then add bias to obtain prediction 10. Dashed arrows introduce target 9 only after prediction, giving residual 1. In the lab below, start at w1 = 4, change it to 5, then to 3.5: predictions are 10, 12, 9, and squared errors are 1, 9, 0. A larger prediction is not necessarily better; compare its distance from the target.`),
     visualIds: ["minimum-function-machine"],
   },
   {
@@ -496,7 +500,7 @@ When output is wrong, do not change several numbers at once. Confirm task object
   {
     id: "lesson-handoff",
     level: 2,
-    title: copy("12. 小结与向量课 handoff", "12. Summary and Handoff to the Vector Lesson"),
+    title: copy("11. 小结与向量课衔接", "11. Summary and Handoff to the Vector Lesson"),
     content: copy(`
 本课已把合法输入、确定规则、唯一输出和监督反馈分开。四件可观察的事是：解释函数不等于直线；区分 feature、weight、bias、prediction 与 target；逐项重建 $8+(-3)+5=10$；把公式翻译成带长度、shape 和中间贡献检查的代码。
 
@@ -504,14 +508,14 @@ When output is wrong, do not change several numbers at once. Confirm task object
 
 下一课直接接收 $\\mathbf x=[2,3]$ 与 $\\mathbf w=[4,-1]$，解释顺序、维度、方向，以及为何 $\\mathbf w^\\mathsf T\\mathbf x=4\\times2+(-1)\\times3=5$ 称为点积。handoff 卡：样本向量候选 \`x = [2, 3]\`，权重向量候选 \`w = [4, -1]\`，\`w^T x = 4*2 + (-1)*3 = 5\`，\`y_hat = 5 + 5 = 10\`，\`residual = 10 - 9 = 1\`。
 
-带走三个未决问题：为什么一组有序特征可以当作一个整体向量？为什么顺序、维度、方向与大小都会影响表示？为什么 $4\\times2+(-1)\\times3$ 不只是“两个乘法加起来”，还可以解释为沿权重方向读取样本？能不看答案重建 handoff 卡，并逐行说出输入、规则、输出和单位，就说明本课已为向量课准备好稳定输入。若仍会把 target 塞回 prediction，或把 [8,-3] 当作最终输出，应先沿回看链接重新做 1A、2B 与控制实验，口头解释修正依据并复算全部关键中间值后再进入下一课。`, `
+带走三个未决问题：为什么一组有序特征可以当作一个整体向量？为什么顺序、维度、方向与大小都会影响表示？为什么 $4\\times2+(-1)\\times3$ 不只是“两个乘法加起来”，还可以解释为沿权重方向读取样本？需要回顾时，可回看[完整手算](#worked-prediction)与[控制实验](#controlled-experiment)：前者解释 target 为什么留在预测之后，后者展示改变一个权重怎样影响输出。下一课把同一组输入写成向量，阅读不设完成条件。`, `
 This lesson has separated valid input, deterministic rule, unique output, and supervisory feedback. Its four observable abilities are: explain why function does not mean line; distinguish feature, weight, bias, prediction, and target; reconstruct $8+(-3)+5=10$ term by term; and translate the formula into code with length, shape, and intermediate-contribution checks.
 
 You should be able to reconstruct $\\hat y=w_1x_1+w_2x_2+b$, use \`features = [2, 3]\`, \`weights = [4, -1]\`, and \`bias = 5\` to obtain \`prediction = 10\`, then compare with \`target = 9\` to obtain residual 1.
 
 The next lesson receives $\\mathbf x=[2,3]$ and $\\mathbf w=[4,-1]$ unchanged. It explains order, dimension, direction, and why $\\mathbf w^\\mathsf T\\mathbf x=4\\times2+(-1)\\times3=5$ is a dot product. Handoff card: candidate sample vector \`x = [2, 3]\`, candidate weight vector \`w = [4, -1]\`, \`w^T x = 4*2 + (-1)*3 = 5\`, \`y_hat = 5 + 5 = 10\`, and \`residual = 10 - 9 = 1\`.
 
-Carry three open questions forward: Why can an ordered feature set be treated as one vector? Why do order, dimension, direction, and magnitude affect representation? Why is $4\\times2+(-1)\\times3$ more than “two products added,” and how can it read a sample along a weight direction? If you can reconstruct the handoff card without looking and name input, rule, output, and unit on each line, this lesson has prepared stable input for the vector lesson. If target still slips into prediction, or [8,-3] still looks like a final output, follow the review links and repeat 1A, 2B, and the controlled experiment before moving on.`),
+Carry three open questions forward: Why can an ordered feature set be treated as one vector? Why do order, dimension, direction, and magnitude affect representation? Why is $4\\times2+(-1)\\times3$ more than “two products added,” and how can it read a sample along a weight direction? For a review, revisit the [hand calculation](#worked-prediction) and [controlled experiment](#controlled-experiment): the first explains why target follows prediction; the second shows how one weight changes the output. The next lesson writes these same inputs as a vector; there is no completion gate.`),
   },
 ]
 
@@ -612,22 +616,22 @@ residual = 1`),
     {
       id: "minimum-function-machine",
       type: "image",
-      title: copy("函数是一台有输入合同的机器", "A Function Is a Machine with an Input Contract"),
-      assetPath: "/math-lab/generated/beginner-function-machine-longform.png",
+      title: copy("从两项贡献得到预测，再比较目标", "From Two Contributions to a Prediction, Then a Comparison"),
+      assetPath: "/math-lab/diagrams/functions/prediction-flow.svg",
       transcript: copy("同一个输入只能沿确定规则得到一个输出；参数改变规则，目标只在输出之后提供比较。", "One input follows a deterministic rule to one output; parameters change the rule, while the target is used only after the output for comparison."),
       learningPurpose: copy("同一个输入只能沿确定规则得到一个输出；参数改变规则，目标只在输出之后提供比较。", "One input follows a deterministic rule to one output; parameters change the rule, while the target is used only after the output for comparison."),
       alt: copy("同一个输入只能沿确定规则得到一个输出；参数改变规则，目标只在输出之后提供比较。", "One input follows a deterministic rule to one output; parameters change the rule, while the target is used only after the output for comparison."),
-      caption: copy("同一个输入只能沿确定规则得到一个输出；参数改变规则，目标只在输出之后提供比较。", "One input follows a deterministic rule to one output; parameters change the rule, while the target is used only after the output for comparison."),
+      caption: copy("实线是前向计算：2×4 = 8，3×(−1) = −3，两项和为 5，加偏置 5 得预测 10。虚线是预测后的比较：目标 9 只用于残差 10−9 = 1。调 w1 时，输入与目标保持不变。", "Solid arrows show the forward pass: 2×4 = 8 and 3×(−1) = −3 sum to 5; bias 5 gives prediction 10. Dashed arrows compare afterwards: target 9 enters only residual 10−9 = 1. Inputs and target remain fixed when w1 changes."),
     },
     {
       id: "minimum-average-rate",
       type: "image",
-      title: copy("从区间平均变化率走向局部变化", "From Average Rate over an Interval to Local Change"),
-      assetPath: "/math-lab/generated/beginner-average-to-derivative-longform.png",
-      transcript: copy("两个输入点给出区间平均变化率；把观察窗口缩小，便为下一章的局部导数建立直觉。", "Two input points give an average rate over an interval; shrinking the observation window prepares the local-derivative intuition used later."),
-      learningPurpose: copy("两个输入点给出区间平均变化率；把观察窗口缩小，便为下一章的局部导数建立直觉。", "Two input points give an average rate over an interval; shrinking the observation window prepares the local-derivative intuition used later."),
-      alt: copy("两个输入点给出区间平均变化率；把观察窗口缩小，便为下一章的局部导数建立直觉。", "Two input points give an average rate over an interval; shrinking the observation window prepares the local-derivative intuition used later."),
-      caption: copy("两个输入点给出区间平均变化率；把观察窗口缩小，便为下一章的局部导数建立直觉。", "Two input points give an average rate over an interval; shrinking the observation window prepares the local-derivative intuition used later."),
+      title: copy("匀速运动：每秒增加 3 米", "Uniform Motion: Three More Metres Every Second"),
+      assetPath: "/math-lab/diagrams/functions/uniform-motion.svg",
+      transcript: copy("横轴时间 t（秒），纵轴位置 s（米）。五点为 (0,2)、(1,5)、(2,8)、(3,11)、(4,14)，全部位于 s(t)=2+3t 上。", "Horizontal t is time in seconds; vertical s is position in metres. Points (0,2), (1,5), (2,8), (3,11), (4,14) all lie on s(t)=2+3t."),
+      learningPurpose: copy("把表、公式和图中的同一点对齐，用单位解释斜率。", "Match each point across table, formula, and graph; interpret slope with units."),
+      alt: copy("从初始位置 2 米向上倾斜的直线；虚线三角形表示向右 1 秒、向上 3 米。", "A straight line starts at position 2 metres; a dashed triangle marks one second right and three metres up."),
+      caption: copy("先读 (0,2) 的初始位置，再沿虚线三角形从 (1,5) 到 (2,8)：时间增加 1 秒，位置增加 3 米，斜率是 3 米/秒。本例速度恒定，缩短时间区间也不会改变斜率；弯曲函数的局部变化留给导数课。", "Start at initial position (0,2), then follow the dashed triangle from (1,5) to (2,8): one more second gives three more metres, a slope of 3 m/s. Speed is constant here, so shorter intervals have the same slope. The derivative lesson explores local change on a curve."),
     },
   ],
   labs: [
