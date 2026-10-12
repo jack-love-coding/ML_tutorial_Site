@@ -27,5 +27,5 @@ test('motion diagram uses the actual straight line, units and constant positive 
 test('function SVGs are reproducible and the retired, mismatched bitmaps leave runtime', () => {
   for (const [name, svg] of functionFigures()) assert.equal(readFileSync(new URL('../public/math-lab/diagrams/functions/' + name, import.meta.url), 'utf8'), svg)
   const source = readFileSync(new URL('../src/modules/math-lab/data/calculusFunctionsModule.ts', import.meta.url), 'utf8')
-  assert.doesNotMatch(source, /beginner-(function-machine|average-to-derivative)-longform.png|repeat 1A|重新做 1A/)
+  assert.doesNotMatch(source, /beginner-(function-machine|average-to-derivative)-longform.png|repeat 1A|重新做 1A|答案折叠|Keep your answers|____/)
 })

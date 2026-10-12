@@ -21,7 +21,7 @@ function stable(value: unknown): unknown {
 // These are migration parity checks, not another copy of the lesson bodies.
 const contentHashes = {
   // Intentional 2026-10-12 correction: shared prediction flow and a straight uniform-motion figure.
-  'calculus-functions-rate-change': '37c777ac1ace0c7c7c41900b8dcbfa8997073187cd7a1b97c8f5f956ec65fd66',
+  'calculus-functions-rate-change': '3e16519c8c253747643b7f2d126eee8245c3c004372a767f63af22ec087693b9',
   // Intentional 2026-10-11 correction: generated tangent/secant figures and bilingual reading guidance.
   'calculus-derivatives-local-change': '5ce34046567de01b8ccf6b982e382471dab4334c151f6362d231e80e3c19bf82',
   'calculus-gradient-descent': 'd61a000aca097eb260854e7e8918c3f49643f01083e9b3fd84bb92ceffcfe704',

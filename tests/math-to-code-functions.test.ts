@@ -89,7 +89,7 @@ test('lesson preserves the shared numbers, formulas, two examples, feedback, pra
 test('each gold section preserves the approved manuscript teaching contract instead of a summary', () => {
   const module = mathToCodeModules[0]!
   const contracts: Record<string, string[]> = {
-    'opening-question': ['为什么两个输入', '先作预测', 'billions of parameters', 'Make a prediction first'],
+    'opening-question': ['为什么两个输入', '从一个变化开始观察', 'billions of parameters', 'Start by observing one change'],
     'prerequisite-recap': ['2.1', '2.2', '2.3', '索引 0', 'index 0', 'g(a)=4a-1'],
     'shared-prediction-task': ['分钟/基础任务', 'minutes/base task', '帽子符号', 'hat symbol', 'F(\\mathbf x;\\mathbf w,b)'],
     'mapping-intuition': ['多对一', 'Many-to-one', '函数组合', 'Function composition', 'r\\xrightarrow'],
