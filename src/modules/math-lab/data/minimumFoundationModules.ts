@@ -55,7 +55,7 @@ const linearShapeSection = section(
   'minimum-linear-shape-ledger',
   '样本、特征与 shape 账本',
   'Samples, Features, and a Shape Ledger',
-  String.raw`前一章把一个关卡记录写成 \(\mathbf{x}=[2,3]\)：第一列是路径分支数，第二列是可用提示数。**顺序是数据合同的一部分**，不能因为两个值都是数字就交换。一个样本有两个特征，所以 \(\mathbf{x}\in\mathbb{R}^2\)，NumPy shape 是 \((2,)\)。
+  String.raw`前一章把一个关卡记录写成 \(\mathbf{x}=[2,3]\)：第一列是基础任务数，第二列是提示请求数。**顺序是数据合同的一部分**，不能因为两个值都是数字就交换。一个样本有两个特征，所以 \(\mathbf{x}\in\mathbb{R}^2\)，NumPy shape 是 \((2,)\)。
 
 把第二个样本 \([1,4]\) 叠在下一行，得到
 
@@ -66,7 +66,7 @@ $$
 这里 axis 0 是样本轴，axis 1 是特征轴。第一个 2 表示两行样本，第二个 2 表示每行两个特征。权重 \(\mathbf{w}=[4,-1]\) 的 shape 是 \((2,)\)，它必须和特征轴长度一致。偏置 \(b=5\) 是标量。
 
 完整 shape 账本是：\(X:(2,2)\)、\(w:(2,)\)、\(b:()\)、\(Xw:(2,)\)、prediction:\((2,)\)。矩阵乘向量时，特征轴被逐项配对并求和，样本轴保留下来。模型因此一次得到两个预测，而不是把两个样本混成一个数。`,
-  String.raw`The previous chapter wrote one level record as \(\mathbf{x}=[2,3]\): the first column is the number of route branches and the second is the number of available hints. **Order is part of the data contract.** The two values cannot be swapped merely because both are numeric. One example has two features, so \(\mathbf{x}\in\mathbb{R}^2\) and its NumPy shape is \((2,)\).
+  String.raw`The previous chapter wrote one level record as \(\mathbf{x}=[2,3]\): the first column is the number of base tasks and the second is the number of hint requests. **Order is part of the data contract.** The two values cannot be swapped merely because both are numeric. One example has two features, so \(\mathbf{x}\in\mathbb{R}^2\) and its NumPy shape is \((2,)\).
 
 Stack a second example, \([1,4]\), as the next row:
 
@@ -90,7 +90,6 @@ const linearBatchSection = section(
   String.raw`For the first row, \(4\times2+(-1)\times3+5=10\); for the second, \(4\times1+(-1)\times4+5=5\). Therefore \(X\mathbf{w}+b=[10,5]\). The code panel shows the array, shapes, predictions, and real output together so a learner can calculate first and verify with code.
 
 The important point is not reducing everything to one line. The code must expose semantic boundaries: rows count examples, columns count features, \(X.shape[1]\) must equal \(w.shape[0]\), and the prediction count must equal the sample count. Accidentally transposing a square \(X\) may preserve shape \((2,2)\) while changing meaning, so column names and a non-square counterexample are needed in addition to a shape check.`,
-  ['beginner-matrix-transform-longform'],
 )
 
 const linearSummarySection = section(

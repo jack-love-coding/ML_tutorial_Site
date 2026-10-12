@@ -954,8 +954,8 @@ export const curriculumLessonDirectory = [
       {
         "id": "beginner-linear-matrix-machine",
         "title": {
-          "zh-CN": "第四步：把矩阵看成空间机器",
-          "en": "Step 4: A Matrix as a Space Machine"
+          "zh-CN": "第四步：逐行计算，一行一个预测",
+          "en": "Step 4: One Prediction per Sample Row"
         }
       },
       {
