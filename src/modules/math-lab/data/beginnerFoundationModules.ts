@@ -793,7 +793,11 @@ $$
 P(A\mid B)=\frac{P(A\cap B)}{P(B)}.
 $$
 
-这里的竖线 \(\mid\) 可以读成“在……已经发生的条件下”。例如原来随机抽一封邮件，垃圾邮件比例可能只有 8%；但如果我们已经看到“含可疑链接”这个信号，样本空间就被筛成“带信号的邮件”，垃圾邮件比例会改变。
+公式要求 \(P(B)>0\)。这里的竖线 \(\mid\) 可以读成“在……已经发生的条件下”。例如原来随机抽一封邮件，垃圾邮件比例可能只有 8%；但如果我们已经看到“含可疑链接”这个信号，样本空间就被筛成“带信号的邮件”，垃圾邮件比例会改变。
+
+**用同一组人数看分母。** 以下是假设模型的期望计数，不是实测数据：10,000 封邮件中 800 封为垃圾邮件（事件 A），9200 封为普通邮件。设垃圾邮件中 82% 带可疑链接（事件 B），普通邮件中 12% 带链接。于是带链接的垃圾邮件有 656 封，普通邮件有 1104 封。
+
+已知 B 后只保留 1760 封带链接邮件，后验为 \(656/(656+1104)\approx37.3\%\)。若把分母换为全部 800 封垃圾邮件，则是 \(656/800=82\%\)，回答的是反方向的 \(P(B\mid A)\)。图中框宽不表示人数，先看标签与计数；实验中的比例条才按后验缩放。
 
 很多 AI 错误来自把条件说漏了。模型在训练集上 90% 准，不等于在新城市、新设备、新人群上仍然 90% 准；因为条件已经变了。读概率时请养成一个习惯：每说一个概率，就补一句“在什么条件下”。`,
       md`Conditional probability asks: "If I already know one piece of evidence, should the old probability stay the same?" The formula is
@@ -802,7 +806,11 @@ $$
 P(A\mid B)=\frac{P(A\cap B)}{P(B)}.
 $$
 
-The vertical bar \(\mid\) reads as "given that." For example, if we randomly pick an email, the spam rate might be only 8%. But if we already know the email contains a suspicious link, the sample space is filtered to emails with that signal, and the spam proportion changes.
+The formula requires \(P(B)>0\). The vertical bar \(\mid\) reads as "given that." For example, if we randomly pick an email, the spam rate might be only 8%. But if we already know the email contains a suspicious link, the sample space is filtered to emails with that signal, and the spam proportion changes.
+
+**Use counts to compare denominators.** This is a hypothetical model of expected counts, not observed data: among 10,000 emails, 800 are spam (event A) and 9200 are normal. Suppose 82% of spam and 12% of normal mail have a suspicious link (event B). This gives 656 spam signals and 1104 normal-mail signals.
+
+Given B, retain only the 1760 emails with the signal. The posterior is \(656/(656+1104)\approx37.3\%\). With all 800 spam emails as denominator, \(656/800=82\%\) instead answers the reverse question, \(P(B\mid A)\). Box widths in the diagram do not encode counts; read labels and numbers. The lab's proportion bar is scaled to the posterior.
 
 Many AI mistakes come from omitting the condition. A model that is 90% accurate on the training set is not automatically 90% accurate in a new city, on a new device, or for a new population, because the condition changed. Build the habit: whenever you state a probability, add "under what condition?"`,
     ),
@@ -823,6 +831,17 @@ $$
 
 \(P(A)\) 是先验，表示看到信号前的基准比例；\(P(B\mid A)\) 是 likelihood，表示如果 \(A\) 真的成立，信号 \(B\) 有多常出现；\(P(B)\) 是归一化项，表示总体上看到这个信号的概率；\(P(A\mid B)\) 是后验，表示看到信号后我们应该更新到的新概率。
 
+代入上节的同一组假设：
+
+$$
+P(B)=0.08\times0.82+0.92\times0.12=0.176,\qquad
+P(A\mid B)=\frac{0.08\times0.82}{0.176}\approx0.3727.
+$$
+
+**操作与解释：** 先重置，核对 B 列的 656、1104、1760；只把基准比例调到 1%，保留命中率 82% 和误报率 12%。此时 100 封垃圾邮件中有 82 封带信号，9900 封普通邮件中有 1188 封带信号，后验变为 \(82/1270\approx6.5\%\)。最后重置回看：信号率相同，基准比例不同，后验就不同。图中每根条都只表示“带信号”的新样本空间，实心是 A，斜纹是非 A。
+
+实验的“假设先验 50%”读数为 \(0.82/(0.82+0.12)\approx87.2\%\)。这个简化不是普遍公式，而是把两类看作同样常见；它与本例 8% 先验不符。
+
 注意 base-rate effect：如果垃圾邮件本来很少，即使“可疑链接”对垃圾邮件很敏感，普通邮件中的少量误报也可能很多。贝叶斯更新提醒我们，不要只盯着信号有多强，还要把它放回整体分布里。`,
       md`Bayes' rule looks like a line of symbols, but it is a simple classroom move: start with the base rate, check how often the evidence appears under each case, then compute the new proportion after seeing the evidence.
 
@@ -831,6 +850,17 @@ P(A\mid B)=\frac{P(B\mid A)P(A)}{P(B)}.
 $$
 
 \(P(A)\) is the prior, the base rate before evidence. \(P(B\mid A)\) is the likelihood: if \(A\) is true, how often does evidence \(B\) appear? \(P(B)\) is the evidence: how often is this signal seen overall? \(P(A\mid B)\) is the posterior: the updated probability after seeing the evidence.
+
+Substitute the same hypothetical rates from the previous section:
+
+$$
+P(B)=0.08\times0.82+0.92\times0.12=0.176,\qquad
+P(A\mid B)=\frac{0.08\times0.82}{0.176}\approx0.3727.
+$$
+
+**Operate and explain:** reset and check 656, 1104, and 1760 in column B. Change only the base rate to 1%, keeping the hit rate 82% and false-alarm rate 12%. Now 82 of 100 spam emails and 1188 of 9900 normal emails have the signal. The posterior is \(82/1270\approx6.5\%\). Reset to compare: the same signal rates with different priors produce different posteriors. Each diagram bar represents only the signal-bearing population; solid fill is A and hatching is not A.
+
+The lab's “prior were 50%” reading is \(0.82/(0.82+0.12)\approx87.2\%\). This shortcut assumes equally common classes; it does not apply to the 8% prior here.
 
 Watch the base-rate effect: if spam is rare, even a signal that catches spam well may still include many false alarms from normal email. Bayes update reminds us not to stare only at signal strength; put the signal back into the whole distribution.`,
     ),
@@ -1308,18 +1338,22 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('分布与频率：很多次结果留下形状', 'Distribution and Frequency: Many Trials Leave a Shape'),
         copy('重复抽样形成柱状图，样本越多频率形状越稳定，说明概率分布不是一次结果，而是长期模式。', 'Repeated sampling forms a histogram; with more samples the frequency shape stabilizes, showing that a distribution is a long-run pattern, not one outcome.'),
       ),
-      imageAsset(
-        'beginner-conditional-probability-longform',
-        'beginner-conditional-probability-longform.png',
-        copy('条件概率：已知信息筛选样本空间', 'Conditional Probability: Evidence Filters the Sample Space'),
-        copy('先从总体样本空间中筛出满足条件的样本，再在新的分母里计算目标事件比例。', 'Filter the overall sample space by evidence first, then compute the target event proportion inside the new denominator.'),
-      ),
-      imageAsset(
-        'beginner-bayes-update-longform',
-        'beginner-bayes-update-longform.png',
-        copy('贝叶斯更新：先验、信号和后验', 'Bayes Update: Prior, Evidence, and Posterior'),
-        copy('把垃圾邮件基准比例、信号命中率和误报率组合起来，展示后验概率为什么不同于单独的信号强度。', 'Combine spam base rate, signal hit rate, and false alarm rate to show why posterior probability differs from signal strength alone.'),
-      ),
+      {
+        id: 'beginner-conditional-probability-longform', type: 'image', assetPath: '/math-lab/diagrams/probability/condition-denominator.svg',
+        title: copy('条件筛选：分母变为 1760', 'Conditioning: The Denominator Becomes 1760'),
+        transcript: copy('A 是垃圾邮件，B 是可疑链接。先分出 800 与 9200，再按信号率得到 656 与 1104；只在 B 的 1760 封里计算 656/1760 ≈ 37.3%。框是计算步骤，不用面积代表人数。', 'A means spam and B means a suspicious link. Split 800 and 9200, then apply signal rates to get 656 and 1104. Within the 1760 emails in B, 656/1760 ≈ 37.3%. Boxes show calculation stages, not areas proportional to counts.'),
+        alt: copy('A 是垃圾邮件，B 是可疑链接。先分出 800 与 9200，再按信号率得到 656 与 1104；只在 B 的 1760 封里计算 656/1760 ≈ 37.3%。框是计算步骤，不用面积代表人数。', 'A means spam and B means a suspicious link. Split 800 and 9200, then apply signal rates to get 656 and 1104. Within the 1760 emails in B, 656/1760 ≈ 37.3%. Boxes show calculation stages, not areas proportional to counts.'),
+        caption: copy('A 是垃圾邮件，B 是可疑链接。先分出 800 与 9200，再按信号率得到 656 与 1104；只在 B 的 1760 封里计算 656/1760 ≈ 37.3%。框是计算步骤，不用面积代表人数。', 'A means spam and B means a suspicious link. Split 800 and 9200, then apply signal rates to get 656 and 1104. Within the 1760 emails in B, 656/1760 ≈ 37.3%. Boxes show calculation stages, not areas proportional to counts.'),
+        learningPurpose: copy('用同一个假设算例区分条件方向、分母与先验。', 'Use one hypothetical example to distinguish conditional direction, denominator, and prior.'),
+      },
+      {
+        id: 'beginner-bayes-update-longform', type: 'image', assetPath: '/math-lab/diagrams/probability/base-rate-comparison.svg',
+        title: copy('同样的信号率，不同的基准比例', 'Same Signal Rates, Different Base Rates'),
+        transcript: copy('两条均以带信号邮件为总体。实心 A 与斜纹非 A 的宽度按真实计算比例绘制：先验 8% 时 656/1760 ≈ 37.3%；先验 1% 时 82/1270 ≈ 6.5%。', 'Each bar represents the emails with the signal. Solid A and hatched not-A widths match the calculation: prior 8% gives 656/1760 ≈ 37.3%; prior 1% gives 82/1270 ≈ 6.5%.'),
+        alt: copy('两条均以带信号邮件为总体。实心 A 与斜纹非 A 的宽度按真实计算比例绘制：先验 8% 时 656/1760 ≈ 37.3%；先验 1% 时 82/1270 ≈ 6.5%。', 'Each bar represents the emails with the signal. Solid A and hatched not-A widths match the calculation: prior 8% gives 656/1760 ≈ 37.3%; prior 1% gives 82/1270 ≈ 6.5%.'),
+        caption: copy('两条均以带信号邮件为总体。实心 A 与斜纹非 A 的宽度按真实计算比例绘制：先验 8% 时 656/1760 ≈ 37.3%；先验 1% 时 82/1270 ≈ 6.5%。', 'Each bar represents the emails with the signal. Solid A and hatched not-A widths match the calculation: prior 8% gives 656/1760 ≈ 37.3%; prior 1% gives 82/1270 ≈ 6.5%.'),
+        learningPurpose: copy('用同一个假设算例区分条件方向、分母与先验。', 'Use one hypothetical example to distinguish conditional direction, denominator, and prior.'),
+      },
       imageAsset(
         'beginner-expectation-variance-longform',
         'beginner-expectation-variance-longform.png',
@@ -1339,7 +1373,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
         copy('logits 经过 softmax 变成概率条，真实类别概率越低，交叉熵惩罚越大，从而驱动分类模型学习。', 'Logits become probability bars through softmax; the lower the true-class probability, the larger cross entropy becomes, driving classifier training.'),
       ),
       manimAsset('beginner-probability-frequency-video', 'beginner-probability-frequency', copy('一次结果到长期频率', 'One Outcome to Long-Run Frequency'), copy('动画展示单次结果如何波动，重复试验如何逐渐形成稳定的分布形状。', 'Animation showing how one outcome is noisy while repeated trials form a stable distribution shape.')),
-      manimAsset('beginner-conditional-bayes-video', 'beginner-conditional-bayes', copy('条件筛选与贝叶斯更新', 'Conditional Filtering and Bayes Update'), copy('动画展示已知信息如何筛选样本空间，以及先验、likelihood、归一化项如何组合成后验。', 'Animation showing how evidence filters the sample space and how prior, likelihood, and evidence combine into a posterior.')),
+      manimAsset('beginner-conditional-bayes-video', 'beginner-conditional-bayes', copy('条件筛选概念动画（非定量图）', 'Concept Animation: Conditional Filtering (Not to Scale)'), copy('动画表示筛选顺序，色块未按概率比例绘制，末尾约 38% 是粗略示意。精确计算请使用本页 10,000 封假设邮件表：656/1760 ≈ 37.3%。', 'The animation shows the filtering sequence; block widths are not proportional to probabilities and its about 38% is a rough illustration. For exact calculation, use this page’s hypothetical 10,000-email table: 656/1760 ≈ 37.3%.')),
       manimAsset('beginner-calibration-cross-entropy-video', 'beginner-calibration-cross-entropy', copy('校准与交叉熵', 'Calibration and Cross Entropy'), copy('动画连接概率条、校准分箱和真实类别概率过低时的负对数惩罚。', 'Animation connecting probability bars, calibration bins, and negative-log penalty when target probability is low.')),
     ],
     labs: [
