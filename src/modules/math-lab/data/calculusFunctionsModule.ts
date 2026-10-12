@@ -131,7 +131,9 @@ Every product must produce minutes: $w_1$ is minutes per base task, so multiplyi
     level: 2,
     title: copy("4. 映射直觉：有合同的机器", "4. Mapping Intuition: A Machine with a Contract"),
     content: copy(`
-函数的入口、步骤和出口都应明确。固定参数时，不同输入可以得到同一输出：$F([2,3];[4,-1],5)=10$，$F([1,-1];[4,-1],5)=10$；多对一不违反函数定义，同一组完整输入无缘无故得到两个输出才违反。
+本桥接使用小游戏关卡时长的教学模型：输入 [2,3] 依次表示 2 个基础任务、3 次提示请求，预测单位是分钟。权重 [4,-1] 与偏置 5 是教学设定，用于核对计算步骤。
+
+函数的入口、步骤和出口都应明确。固定参数时，不同输入可以得到同一输出：$F([2,3];[4,-1],5)=10$，$F([3,7];[4,-1],5)=10$；多对一不违反函数定义，同一组完整输入无缘无故得到两个输出才违反。
 
 把它想成透明机器：features 与 weights 从两个入口进入，内部依次执行“按位置配对 → 相乘 → 求和 → 加 bias”，出口只有一个 prediction。透明意味着每一步都能展开检查，而不是把“模型”当作无需解释的黑箱。只写 $f(\\mathbf x)$ 时，通常暗示参数已经固定；显式写 $F(\\mathbf x;\\mathbf w,b)$ 则把旋钮位置也纳入完整输入合同。
 
@@ -144,7 +146,9 @@ $$r\\xrightarrow{h}\\mathbf x\\xrightarrow{F}\\hat y\\xrightarrow{e(\\cdot,y)}\\
 比较目标之前必须先有预测，预测之前必须先有特征。函数组合让我们逐段检查复杂系统，而不必一次理解全部。
 
 读图时从上到下跟随实线箭头：先找到两项贡献 8 和 −3，再核对求和 5、加偏置后的预测 10。虚线只在预测之后引入目标 9，得到残差 1。下方实验先保留 w1 = 4，再调到 5，最后调到 3.5：预测依次为 10、12、9，平方误差依次为 1、9、0。预测变大不一定更好，要比较它离目标多远。`, `
-A function’s entrance, steps, and exit must be explicit. With parameters fixed, different inputs may share one output: $F([2,3];[4,-1],5)=10$ and $F([1,-1];[4,-1],5)=10$. Many-to-one is valid; one identical complete input producing two unexplained outputs is not.
+This bridge uses a toy game-level completion-time model: input [2,3] means 2 base tasks and 3 hint requests, in that order; predictions are in minutes. Weights [4,-1] and bias 5 are teaching values for checking the calculation.
+
+A function’s entrance, steps, and exit must be explicit. With parameters fixed, different inputs may share one output: $F([2,3];[4,-1],5)=10$ and $F([3,7];[4,-1],5)=10$. Many-to-one is valid; one identical complete input producing two unexplained outputs is not.
 
 Think of a transparent machine. Features and weights enter through two labeled ports; inside, the machine performs “pair by position → multiply → sum → add bias”; exactly one prediction leaves the exit. Transparent means every step can be expanded and audited rather than hiding behind the word “model.” Writing only $f(\\mathbf x)$ usually implies fixed parameters; writing $F(\\mathbf x;\\mathbf w,b)$ explicitly includes the knob settings in the complete contract.
 
@@ -618,6 +622,7 @@ residual = 1`),
       type: "image",
       title: copy("从两项贡献得到预测，再比较目标", "From Two Contributions to a Prediction, Then a Comparison"),
       assetPath: "/math-lab/diagrams/functions/prediction-flow.svg",
+      layout: "compact",
       transcript: copy("同一个输入只能沿确定规则得到一个输出；参数改变规则，目标只在输出之后提供比较。", "One input follows a deterministic rule to one output; parameters change the rule, while the target is used only after the output for comparison."),
       learningPurpose: copy("同一个输入只能沿确定规则得到一个输出；参数改变规则，目标只在输出之后提供比较。", "One input follows a deterministic rule to one output; parameters change the rule, while the target is used only after the output for comparison."),
       alt: copy("同一个输入只能沿确定规则得到一个输出；参数改变规则，目标只在输出之后提供比较。", "One input follows a deterministic rule to one output; parameters change the rule, while the target is used only after the output for comparison."),
@@ -628,6 +633,7 @@ residual = 1`),
       type: "image",
       title: copy("匀速运动：每秒增加 3 米", "Uniform Motion: Three More Metres Every Second"),
       assetPath: "/math-lab/diagrams/functions/uniform-motion.svg",
+      layout: "compact",
       transcript: copy("横轴时间 t（秒），纵轴位置 s（米）。五点为 (0,2)、(1,5)、(2,8)、(3,11)、(4,14)，全部位于 s(t)=2+3t 上。", "Horizontal t is time in seconds; vertical s is position in metres. Points (0,2), (1,5), (2,8), (3,11), (4,14) all lie on s(t)=2+3t."),
       learningPurpose: copy("把表、公式和图中的同一点对齐，用单位解释斜率。", "Match each point across table, formula, and graph; interpret slope with units."),
       alt: copy("从初始位置 2 米向上倾斜的直线；虚线三角形表示向右 1 秒、向上 3 米。", "A straight line starts at position 2 metres; a dashed triangle marks one second right and three metres up."),

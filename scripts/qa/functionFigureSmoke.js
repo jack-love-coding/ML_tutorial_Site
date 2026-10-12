@@ -10,7 +10,7 @@ async (page) => {
     await image.waitFor({ state: 'attached' })
     await figure.scrollIntoViewIfNeeded()
     await image.evaluate(image => image.decode())
-    const ok = await image.evaluate((image, filename) => image.src.endsWith(filename) && Math.abs(image.naturalWidth / image.naturalHeight - image.width / image.height) < .02, filename)
+    const ok = await image.evaluate((image, filename) => image.src.endsWith(filename) && image.width <= 481 && Math.abs(image.naturalWidth / image.naturalHeight - image.width / image.height) < .02, filename)
     if (!ok) throw new Error('Incorrect or cropped function figure: ' + id)
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw new Error('Function page overflow')
   }

@@ -354,6 +354,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
               :id="visualDomId(asset.id, section.id)"
               :key="asset.id"
               class="math-visual-asset"
+              :class="{ 'math-visual-asset--compact': asset.layout === 'compact' }"
             >
               <img
                 v-if="asset.assetPath"
@@ -401,7 +402,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
           </header>
 
           <template v-for="asset in remainingDisplayAssets" :key="asset.id">
-            <figure v-if="asset.type === 'image'" :id="asset.id" class="math-visual-asset">
+            <figure v-if="asset.type === 'image'" :id="asset.id" class="math-visual-asset" :class="{ 'math-visual-asset--compact': asset.layout === 'compact' }">
               <img
                 v-if="asset.assetPath"
                 :src="imageSrc(asset)"

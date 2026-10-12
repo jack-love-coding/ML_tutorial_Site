@@ -263,6 +263,11 @@
   background: #0c1628;
 }
 
+.math-visual-asset--compact img {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
 .math-visual-asset figcaption {
   display: grid;
   gap: 6px;

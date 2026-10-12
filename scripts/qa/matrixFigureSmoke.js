@@ -12,7 +12,7 @@ async (page) => {
     const figure = page.locator('#beginner-matrix-transform-longform'), image = figure.locator('img')
     await image.waitFor({ state: 'attached' }); await figure.scrollIntoViewIfNeeded(); await image.evaluate(image => image.decode())
     if (await figure.count() !== 1) throw new Error('Duplicate matrix figure')
-    if (!await image.evaluate(image => image.src.endsWith('/matrices/batch-prediction.svg') && Math.abs(image.naturalWidth / image.naturalHeight - image.width / image.height) < .02)) throw new Error('Wrong or cropped matrix figure')
+    if (!await image.evaluate(image => image.src.endsWith('/matrices/batch-prediction.svg') && image.width <= 481 && Math.abs(image.naturalWidth / image.naturalHeight - image.width / image.height) < .02)) throw new Error('Wrong, oversized, or cropped matrix figure')
     await page.evaluate(() => window.scrollTo({ top: document.querySelector('#beginner-matrix-transform-longform').getBoundingClientRect().top + window.scrollY - 120, behavior: 'instant' }))
     await page.screenshot({ path: `/tmp/ml-atlas-matrix-${locale}-${width}.png` })
     if (await page.locator('.katex-error').count()) throw new Error('Matrix formula error')

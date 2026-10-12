@@ -1140,6 +1140,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
         id: 'beginner-matrix-transform-longform',
         type: 'image',
         assetPath: '/math-lab/diagrams/matrices/batch-prediction.svg',
+        layout: 'compact',
         title: copy('共享参数，逐行预测', 'Shared Parameters, One Prediction per Row'),
         transcript: copy('X 的两行是 [2,3]、[1,4]；共同使用 w=[4,-1]、b=5，得到 [10,5]。', 'Rows of X are [2,3] and [1,4]; shared w=[4,-1] and b=5 give [10,5].'),
         alt: copy('两块带行号的计算卡分别展开两个样本的乘法、求和与偏置，底部按行顺序汇总两个预测。', 'Two numbered row panels expand paired products, summation, and bias; the bottom collects two predictions in row order.'),
