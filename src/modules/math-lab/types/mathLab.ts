@@ -107,6 +107,8 @@ export interface VisualAsset {
   learningPurpose: LocalizedCopy
   alt?: LocalizedCopy
   caption?: LocalizedCopy
+  /** Compact diagrams keep a readable scale beside their native captions. */
+  layout?: 'compact' | 'wide'
 }
 
 export interface LabConfig {

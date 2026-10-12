@@ -2,12 +2,13 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { contributions, prediction, residual, motionPoints, projectMotion, functionFigures } from '../scripts/generate-function-figures.ts'
-import { evaluatePredictionTask } from '../src/modules/math-lab/utils/mathToCode.ts'
+import { evaluatePredictionTask, predictOne } from '../src/modules/math-lab/utils/mathToCode.ts'
 
 test('function figure and controlled lab share the hand calculation and information boundary', () => {
   assert.deepEqual(contributions, [8, -3])
   assert.equal(prediction, 10)
   assert.equal(residual, 1)
+  assert.equal(predictOne([3, 7], [4, -1], 5), prediction, 'many-to-one example uses valid nonnegative task and hint counts')
   for (const [w1, expected, mse] of [[4, 10, 1], [5, 12, 9], [3.5, 9, 0]]) {
     const result = evaluatePredictionTask({ samples: [{ features: [2, 3], target: 9 }], parameters: { weights: [w1!, -1], bias: 5 } })
     assert.deepEqual(result.predictions, [expected])
