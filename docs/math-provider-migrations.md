@@ -31,6 +31,12 @@
 
 ## Notebook 与媒体元数据
 
+### 2026-10-11 导数插图纠错（独立内容变更）
+
+迁移时保留的旧切线位图有斜率方向错误；旧窗口图的端点和数值也没有可验证函数来源。现由 `scripts/generate-derivative-figures.ts` 使用同一 `MATH_TO_CODE_SAMPLES` 和预测／MSE 工具生成两张 SVG。当前点仍是 w₂=−1、L=2.5，切线斜率 −5；前向差分与正文中央差分明确区分。旧位图保留归档，运行时退出引用。12 节 ID、代码、公式和原有数值结果未变。
+
+新的完整 provider 指纹为 `5ce34046567de01b8ccf6b982e382471dab4334c151f6362d231e80e3c19bf82`。这次仅更新插图元数据和双语读图解释，不把内容修正伪装为迁移时一致。重新生成：`node scripts/generate-derivative-figures.ts`；漂移检查：同命令添加 `--check`；几何与数值回归：`node --test tests/derivative-figures.test.ts`。
+
 九组历史 Notebook 通过 `mathNotebookCompanions.ts` 转为统一的 `MathNotebookCompanion`，在课程注册时附加到 module。页面只读 `moduleDefinition.notebookCompanion`，不识别 Ames 或 numerical batch 编号。媒体继续由课程的 visuals、section visualIds 和 importedAssetPaths 管理。所有公开下载地址、代码和输出保持原样。
 
 扩展浏览器检查发现有限差分与非线性方程两处原有公式字符串把 LaTeX 的反斜线解释成 JavaScript 转义字符。`numericalBatch3Modules.ts` 中两处字符串改用已有 `String.raw` 模式，新增 KaTeX 与控制字符检查。三门试点课的内容指纹不受此修复影响，计算方法和数值结果未变。
