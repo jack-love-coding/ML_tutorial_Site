@@ -1,12 +1,36 @@
 # 六单元辅助教材发布记录
 
-更新：2026-10-12。10 月 4 日从 #64—#70 依赖链开始，随后按教材试用价值完成 #71—#84；10 月 12 日完成依赖修复、首批插图与教案改进，以及函数、矩阵和条件概率三课的顺序发布。所有运行时 PR 均通过实际 CI 后以 merge commit 合并，确认前一个 Pages 部署后再进入下一项。#63 的课程事实来源重构在上述批次开始前已合并。
+更新：2026-10-15。10 月 4 日从 #64—#70 依赖链开始，随后按教材试用价值完成 #71—#84；10 月 12 日完成首批插图与教案改进，以及函数、矩阵和条件概率三课。10 月 15 日继续整理偏导梯度图、类别编码和六单元阅读衔接，按独立 PR 验收与顺序发布。#63 的课程事实来源重构在上述批次开始前已合并。
 
 ## 发布范围
 
 六个单元均为 pilot，主线共 120 节：入门 13、数据输入 20、可解释模型 28、泛化与回归案例 11、分类决策 30、模型比较与分类案例 18。数学和深度学习专题继续可访问；没有扩展深度学习主线，也没有将试用状态改成 published。
 
 保留三套课程 schema、Catalog adapters、双语讲解、公式、实验、代码与 Notebook。学生评分、学习报告和自动记录已退出运行时；旧链接保留兼容，历史数据不清空、不迁移，实验状态留在页面内存，语言偏好继续保存。
+
+## 2026-10-15 偏导图、类别编码与六单元阅读衔接
+
+| PR | 交付 | PR CI | 合并 SHA | Pages Actions | 通过：测试 / 教材浏览器 / 线上抽查 |
+| --- | --- | --- | --- | --- | --- |
+| [#94](https://github.com/jack-love-coding/ML_tutorial_Site/pull/94) | 偏导梯度图与等高线同一数学模型、主线操作教案 | [成功 / 38724397438](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38724397438) | [72b51a8d](https://github.com/jack-love-coding/ML_tutorial_Site/commit/72b51a8d3effbe81b3d6cadeab74adf5dd189cd1) | [成功 / 38726195914](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38726195914) | 1176 / 427 / 9 |
+| [#95](https://github.com/jack-love-coding/ML_tutorial_Site/pull/95) | 统一类别词表、四种编码、精确插图及 Python 参考代码 | [成功 / 38729066752](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38729066752) | [126ec1d5](https://github.com/jack-love-coding/ML_tutorial_Site/commit/126ec1d5f4181846af6e7decd0c7dd0c8e46ff76) | [成功 / 38730820806](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38730820806) | 1179 / 440 / 13 |
+| [#96](https://github.com/jack-love-coding/ML_tutorial_Site/pull/96) | 九个主线衔接、两个选读入口、概率去重、CV 指标与正文链接 | [成功 / 38735233391](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38735233391) | [223c3f73](https://github.com/jack-love-coding/ML_tutorial_Site/commit/223c3f73bdf5e8eccd92094742d556825ba7fee4) | [成功 / 38737421414](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38737421414) | 1182 / 484 / 53 |
+
+按 #94 → #95 → #96 顺序交付；每项实际 CI 通过后使用 merge commit，确认对应 Pages 的 build/deploy 成功、在线 release.json 匹配并通过该项真实站点检查后，再创建下一份 PR。本地准备下一批内容不提前改变线上版本。依赖分支保留。
+
+#96 首次 CI [38732801334](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38732801334) 检出重复插图整理后旧图片锚点缺失。修复在课程资源元数据保留三条历史锚点，定位到唯一对应图片；原有验收断言保留，并增加旧链接刷新和路线参数检查。上表列出修复后实际通过的 CI，不将首次失败或简单重跑当作成功。
+
+偏导图和类别图由共享计算生成 SVG，分别校准等高线／梯度方向与词表／组合槽位；源 PNG 保留。类别编码的 597 组 Python 配置逐项匹配网页向量。六单元仍有 120 节，按顺序连续阅读的 240 个双语场景保留；九个主线出口和两个选读入口另交叉验证双语、桌面／390px、键盘、刷新和存储。概率重复图分别归到一个主讲位置，回归课回链目标函数和参数更新的主讲课；CV 示例显式使用负 MAE，并区分回归 dev 内 CV 与短信项目 train 内 CV、validation 选阈值。
+
+每个运行时 PR 本地通过 npm test、npm run build、npm run build:pages、目录及资源检查；远端重新运行完整测试、Pages 构建、Phase 29 矩阵、教材 smoke、8 项资源检查和安全审计。最终 1182 项测试通过、484 个教材浏览器场景通过，另有 75 个本批真实 Pages 场景通过。公式、代码、参考输出与冻结资源的保护范围见 [审查记录](../teaching-visual-audit-2026-10-15.md)。该记录区分实际查看的重点图片与资源清单检查，不表示已逐幅实看所有插图，也不替代学生理解效果的观察。
+
+最终运行时 SHA 为 `223c3f73bdf5e8eccd92094742d556825ba7fee4`，直接前驱为 `126ec1d5f4181846af6e7decd0c7dd0c8e46ff76`，部署 runId 为 `38737421414`。本发布记录随后通过独立文档与验收脚本 PR 入库；该 PR 发布后的最终 sha、previousSha 和 runId 由在线 [release.json](https://jack-love-coding.github.io/ML_tutorial_Site/release.json) 提供，不改变上述运行时内容。
+
+线上阅读衔接检查首次遇到 Pages 为静态目录补尾斜杠，页面实际正常而精确 URL 断言超时。共享检查只归一化路径尾斜杠，继续逐字比较 route 查询和锚点；同一脚本重新通过本地及真实 Pages 各 44 场景。该修正随发布记录入库，不修改学生运行时。
+
+28 项普通套件条件跳过仍为本批未验证；本批没有重生成冻结 Notebook，不能沿用 10 月 4 日严格套件的历史结果。六单元均保持 pilot。用户原工作区的 .planning/config.json 与 docs/gpt_advice.md 保持原样。
+
+撤回最后一项阅读衔接可回到 #95 的 `126ec1d5f4181846af6e7decd0c7dd0c8e46ff76`；撤回本次三项运行时改动可回到批次前已验证的 #93 `8fc685e17f6ed6f85ac17ba3d0ca68e7bfbcdc24`。通过独立回退 PR 或重部署已验证提交执行，保留旧链接和历史数据。
 
 ## 2026-10-12 函数、矩阵与条件概率发布
 

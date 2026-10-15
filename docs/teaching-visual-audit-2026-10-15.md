@@ -37,6 +37,8 @@
 
 本地验证：1,179 项测试通过、28 项条件跳过；`npm run build`、`npm run build:pages`、目录漂移及 8 项发布资源检查通过。单元 2 连续阅读 40、原有数据图文 20、新类别编码 13 个浏览器场景通过。新场景覆盖中英文、1280px／390px、四种编码、键盘、重置、完整槽位表、参考代码、刷新、图片失败图注及空／历史存储；新图和手机截图已实看。28 项条件跳过仍为本批未验证。
 
+类别编码已通过 [#95](https://github.com/jack-love-coding/ML_tutorial_Site/pull/95) 发布：CI [38729066752](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38729066752) 成功，合并为 `126ec1d5f4181846af6e7decd0c7dd0c8e46ff76`，Pages [38730820806](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38730820806) 成功。在线 sha、previousSha（`72b51a8d`）及 runId 已匹配，真实站点 13 场景通过；该次 CI 共 440 个教材浏览器场景通过。
+
 ## 六单元阅读衔接
 
 | 单元 | 本轮发现与处理 |
@@ -59,3 +61,7 @@
 首次远端 CI 检出概率插图旧锚点缺失：删除重复挂载后，历史图片深链接仍需可达。为三幅图增加由课程资源元数据维护的历史锚点，定位到唯一保留的图片；原图不重复挂载。异步加载浏览器矩阵保留原断言，并增加三条旧链接的刷新、图归属和路线参数检查。
 
 兼容修复后重新通过 1,182 项测试、两种构建、目录及 8 项资源检查；数学选读 8、异步加载与旧锚点 9、正文衔接 44 场景再次通过。
+
+额外补跑其余 143 个浏览器场景也全部通过；与迁移前数据对照，原有 15 个行内插图锚点均可解析。修复后 CI [38735233391](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38735233391) 在提交 `3a86fad477f1069a1bfeb1ae6ad3b2a8ae1ff5f7` 上通过：1,182 项测试、28 条件跳过、484 个教材浏览器场景、8 项资源检查，安全审计 0 漏洞。[#96](https://github.com/jack-love-coding/ML_tutorial_Site/pull/96) 已合并为 `223c3f73bdf5e8eccd92094742d556825ba7fee4`；Pages [38737421414](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38737421414) 的 build 和 deploy 均成功。在线 sha、previousSha（`126ec1d5`）和 runId 匹配，真实站点另通过阅读衔接 44、异步加载及旧锚点 9，共 53 场景。
+
+真实 Pages 首次衔接检查因静态目录自动补尾斜杠而超时，页面内容与路线已正确打开。共享检查改为仅忽略路径尾斜杠，仍严格核对查询参数和锚点；本地与线上各 44 场景重新通过，`npm test` 再次通过 1,182 项、条件跳过 28 项。检查脚本随最终发布记录入库，不改变运行时课程。三个运行时 PR 的真实 Pages 场景合计 75，部署证据与回退版本见 [发布记录](releases/textbook-refactor-release.md)。
