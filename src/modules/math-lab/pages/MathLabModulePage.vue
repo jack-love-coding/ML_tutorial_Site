@@ -356,6 +356,9 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
               class="math-visual-asset"
               :class="{ 'math-visual-asset--compact': asset.layout === 'compact' }"
             >
+              <template v-if="visualDomId(asset.id, section.id) === asset.id">
+                <span v-for="anchor in asset.legacyAnchorIds" :id="anchor" :key="anchor" class="math-visual-anchor" aria-hidden="true" />
+              </template>
               <img
                 v-if="asset.assetPath"
                 :src="imageSrc(asset)"
@@ -403,6 +406,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
 
           <template v-for="asset in remainingDisplayAssets" :key="asset.id">
             <figure v-if="asset.type === 'image'" :id="asset.id" class="math-visual-asset" :class="{ 'math-visual-asset--compact': asset.layout === 'compact' }">
+              <span v-for="anchor in asset.legacyAnchorIds" :id="anchor" :key="anchor" class="math-visual-anchor" aria-hidden="true" />
               <img
                 v-if="asset.assetPath"
                 :src="imageSrc(asset)"

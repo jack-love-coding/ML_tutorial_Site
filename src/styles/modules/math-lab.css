@@ -245,6 +245,7 @@
 }
 
 .math-visual-asset {
+  position: relative;
   display: grid;
   gap: 12px;
   margin: 0;
@@ -252,6 +253,15 @@
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.84);
   box-shadow: var(--shadow-soft);
+}
+
+.math-visual-anchor {
+  position: absolute;
+  inset-block-start: 0;
+  width: 1px;
+  height: 1px;
+  scroll-margin-top: 96px;
+  pointer-events: none;
 }
 
 .math-visual-asset img {

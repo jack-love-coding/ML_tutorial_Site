@@ -54,7 +54,7 @@ function concept(
   }
 }
 
-function imageAsset(id: string, filename: string, title: LocalizedCopy, transcript: LocalizedCopy): VisualAsset {
+function imageAsset(id: string, filename: string, title: LocalizedCopy, transcript: LocalizedCopy, legacyAnchorIds?: string[]): VisualAsset {
   return {
     id,
     type: 'image',
@@ -63,6 +63,7 @@ function imageAsset(id: string, filename: string, title: LocalizedCopy, transcri
     transcript,
     alt: transcript,
     caption: transcript,
+    ...(legacyAnchorIds?.length ? { legacyAnchorIds } : {}),
     learningPurpose: copy(
       '作为零基础章节的视觉锚点，先建立直觉，再进入公式和实验。',
       'Serve as a beginner visual anchor before formulas and labs.',
@@ -1320,7 +1321,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
     ],
     sections: probabilitySections,
     visuals: [
-      imageAsset('beginner-probability-story', 'beginner-probability-story.png', copy('概率分布入门故事', 'Beginner Probability Distribution Story'), copy('重复样本落入分桶，形成分布曲线，并连接到分类概率条。', 'Repeated samples fall into bins, form a distribution curve, and connect to classifier probability bars.')),
+      imageAsset('beginner-probability-story', 'beginner-probability-story.png', copy('概率分布入门故事', 'Beginner Probability Distribution Story'), copy('重复样本落入分桶，形成分布曲线，并连接到分类概率条。', 'Repeated samples fall into bins, form a distribution curve, and connect to classifier probability bars.'), ['beginner-probability-story--beginner-probability-sample-space']),
       imageAsset(
         'beginner-probability-why-longform',
         'beginner-probability-why-longform.png',
@@ -1332,12 +1333,14 @@ export const beginnerFoundationModules: MathLabModule[] = [
         'beginner-sample-space-random-variable-longform.png',
         copy('样本空间与随机变量', 'Sample Space and Random Variable'),
         copy('从左到右读：硬币、天气和课程标签的可能结果，样本空间及事件，再到数字编码。图中数字是约定编号，不是概率，也不赋予类别大小关系。', 'Read left to right: possible coin, weather, and course outcomes; sample spaces and events; then numeric encodings. The numbers are assigned IDs, not probabilities or an ordering of categories.'),
+        ['beginner-sample-space-random-variable-longform--beginner-probability-sample-space'],
       ),
       imageAsset(
         'beginner-distribution-frequency-longform',
         'beginner-distribution-frequency-longform.png',
         copy('分布与频率：很多次结果留下形状', 'Distribution and Frequency: Many Trials Leave a Shape'),
         copy('重复抽样形成柱状图，样本越多频率形状越稳定，说明概率分布不是一次结果，而是长期模式。', 'Repeated sampling forms a histogram; with more samples the frequency shape stabilizes, showing that a distribution is a long-run pattern, not one outcome.'),
+        ['beginner-distribution-frequency-longform--minimum-probability-numpy-output'],
       ),
       {
         id: 'beginner-conditional-probability-longform', type: 'image', assetPath: '/math-lab/diagrams/probability/condition-denominator.svg', layout: 'compact',

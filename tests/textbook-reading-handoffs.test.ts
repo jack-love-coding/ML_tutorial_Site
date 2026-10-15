@@ -51,6 +51,13 @@ test('probability introductions place each overview image once and retain code a
     assert.ok(module.visuals.some(asset => asset.id === id))
   }
   for (const lab of module.labs) assert.equal(module.sections.filter(section => section.labIds?.includes(lab.id)).length, 1)
+  const aliases = module.visuals.flatMap(asset => asset.legacyAnchorIds ?? [])
+  assert.deepEqual(aliases, [
+    'beginner-probability-story--beginner-probability-sample-space',
+    'beginner-sample-space-random-variable-longform--beginner-probability-sample-space',
+    'beginner-distribution-frequency-longform--minimum-probability-numpy-output',
+  ])
+  assert.equal(new Set([...module.sections.map(section => section.id), ...module.visuals.map(asset => asset.id), ...aliases]).size, module.sections.length + module.visuals.length + aliases.length)
   const sampleSpace = module.sections.find(section => section.id === 'beginner-probability-sample-space')!
   for (const locale of ['zh-CN', 'en'] as const) {
     assert.match(sampleSpace.content[locale], /P\(Z=0\)=0\.30/)
