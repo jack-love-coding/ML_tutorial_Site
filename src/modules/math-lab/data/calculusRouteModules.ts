@@ -170,8 +170,8 @@ const partialDerivativeLab = lab(
   ],
   {
     predictionPrompt: copy(
-      '先预测：如果只沿 x 方向移动，loss 会比沿 y 方向变化更快吗？写下你判断的依据。',
-      'Predict first: if you move only along x, will the loss change faster than along y? Write the basis for your judgment.',
+      '重置后分别将 x 增加 0.05、将 y 增加 0.05；每次只动一个参数，比较 loss 与偏导数的符号。',
+      'After resetting, increase x by 0.05, then reset and increase y by 0.05. Change one parameter at a time and compare loss with the sign of its partial derivative.',
     ),
     reflectionPrompt: copy(
       '结合 ∂L/∂x、∂L/∂y 和方向导数，解释完整梯度为什么不是只看一个坐标。',
@@ -226,17 +226,37 @@ const thirdChapter = moduleDefinition({
       ],
       copy('偏导数读一个方向，梯度收集所有方向。', 'A partial derivative reads one direction; the gradient collects all directions.'),
       copy('梯度箭头在 loss 地形上指向最快上升。', 'The gradient arrow points toward fastest increase on the loss landscape.'),
-      copy('若梯度是 \\([4,-1]\\)，第一个方向上升快，第二个方向增加会让 loss 降低。', 'If the gradient is \\([4,-1]\\), the first direction increases loss quickly and increasing the second lowers loss.'),
+      copy('实验起点的梯度为 \\((1.664,-0.696)\\)：小幅增加 x 会升高 loss，小幅增加 y 会降低 loss。', 'The lab starts with gradient \\((1.664,-0.696)\\): a small increase in x raises loss, while a small increase in y lowers it.'),
       copy('优化器读取梯度后才决定更新。', 'The optimizer reads the gradient before deciding an update.'),
     ),
   ],
   sections: [
-    section('partial-knob-case', copy('案例：旋钮、weight、bias 和 parameter', 'Case: Knobs, Weight, Bias, and Parameter'), copy(md`模型里常有很多旋钮。weight 控制输入放大多少，bias 控制整体平移多少，每个 parameter 都会影响 loss。若同时乱动所有旋钮，就很难解释变化来自哪里。`, md`A model often has many knobs. A weight controls how strongly an input is scaled, a bias shifts the output, and every parameter can affect loss. If all knobs move at once, the resulting loss change is hard to interpret. The partial-derivative move is to isolate one knob so the learner can connect one local parameter change to one local loss response before combining the directions again.`), { visualIds: ['partial-gradient-image'], labIds: ['calculus-partial-derivative-lab'] }),
-    section('partial-one-direction', copy('偏导数：固定其他参数', 'Partial Derivative: Hold the Others Fixed'), copy(md`偏导数的关键是“只动一个方向”。计算 \(\partial L/\partial w\) 时先固定其他旋钮，这就是 hold the others fixed。这样 loss 变化才能归因到当前方向。`, md`The key instruction for a partial derivative is to move one direction while holding the others fixed. When computing \(\partial L/\partial w\), the other knobs are temporarily fixed. That makes the loss change attributable to the current direction. The computation graph can be large, but the question remains small and precise: if only this parameter changes a tiny amount, how does loss respond nearby?`)),
-    section('gradient-collects-partials', copy('梯度：收集很多偏导数', 'Gradient: Collect Many Partials'), copy(md`梯度把很多偏导数按参数顺序排成向量。因为每个分量都是 loss 对一个参数方向的局部变化率，所以梯度指向当前位置最快上升方向。中文锚点是：梯度指向上坡。`, md`A gradient places many partial derivatives into one vector in parameter order. Each component is a local loss rate in one parameter direction, so the full gradient points toward fastest increase from the current position. That is why the gradient is not the downhill direction by itself. The next chapter will subtract the gradient, using the negative direction when the goal is to reduce loss.`)),
+    section('partial-knob-case', copy('案例：旋钮、weight、bias 和 parameter', 'Case: Knobs, Weight, Bias, and Parameter'), copy(md`模型里常有很多旋钮。weight 控制输入放大多少，bias 控制整体平移多少，每个 parameter 都会影响 loss。若同时乱动所有旋钮，就很难解释变化来自哪里。下一节用两个参数的示意损失隔离这个问题。`, md`A model often has many knobs. A weight scales an input and a bias shifts the output. If all parameters move at once, the loss change is hard to attribute. The next section isolates this question with an illustrative two-parameter loss.`)),
+    section('partial-one-direction', copy('偏导数：固定其他参数', 'Partial Derivative: Hold the Others Fixed'), copy(md`**本节问题：有两个参数时，怎样分清是谁改变了 loss？** 前一课用导数读取一个参数附近的变化率。偏导数沿用同一个问题，只是先固定其他参数。
+
+这里用一个便于画图的示意损失 \(L(x,y)=0.72x^2+0.32xy+0.52y^2\)。\(x,y\) 是两个参数坐标，不是函数课的两项样本特征；它也不是新的数据集或 MSE 参考结果。实验重置在 \((1.4,-1.1)\)，loss 为 \(1.5476\)。
+
+**操作步骤：** 在下方实验中重置，只把 x 从 1.40 调到 1.45，loss 显示从 1.548 升到 1.633。再次重置，只把 y 从 −1.10 调到 −1.05，loss 降到 1.514。每次都让另一个参数保持不变。
+
+**现象解释：** 起点有 \(\partial L/\partial x=1.44x+0.32y=1.664\)，\(\partial L/\partial y=0.32x+1.04y=-0.696\)。偏导数的正负说明小幅增加该参数时 loss 的变化方向；它是局部变化率，不是这一步的 loss 差值。`, md`**Question: with two parameters, which one changed the loss?** The previous lesson used a derivative to read local change near one parameter. A partial derivative asks the same question while holding the other parameters fixed.
+
+Use the illustrative loss \(L(x,y)=0.72x^2+0.32xy+0.52y^2\). Here \(x,y\) are parameter coordinates, not the two sample features from the function lesson. This is not a new dataset or an MSE reference result. Reset starts at \((1.4,-1.1)\), with loss \(1.5476\).
+
+**Steps:** Reset the lab below and move only x from 1.40 to 1.45: displayed loss rises from 1.548 to 1.633. Reset again and move only y from −1.10 to −1.05: loss falls to 1.514. Keep the other parameter fixed each time.
+
+**Explanation:** At the starting point, \(\partial L/\partial x=1.44x+0.32y=1.664\) and \(\partial L/\partial y=0.32x+1.04y=-0.696\). Each sign predicts the direction of loss change for a small increase in that parameter. The derivative is a local rate, not the finite loss difference for this step.`), { labIds: ['calculus-partial-derivative-lab'] }),
+    section('gradient-collects-partials', copy('梯度：收集很多偏导数', 'Gradient: Collect Many Partials'), copy(md`按参数顺序收集偏导数，得到起点的梯度 \(\nabla L=(1.664,-0.696)\)。图中的深色虚线经过起点，线上各点的 loss 相同；蓝色实线箭头指向最快上升方向，橙色长虚线箭头表示相反的下降方向。箭头长度经过归一化，只用来读方向。
+
+横纵轴每个单位的长度相同，所以非零梯度垂直于等高线，而不是顺着等高线走。在实验中把方向 u 设为 0°，方向导数等于 x 偏导数；设为 90°，它等于 y 偏导数。回到默认点比较两根箭头，再把参数移到原点：此时梯度为零，没有唯一的最陡方向。
+
+**下一步：** 已经知道往哪边会增大 loss，接着在[梯度下降](/learn/gradient-descent/loss-function?route=core-learning-path)中学习如何沿相反方向更新参数、为什么步长仍然重要。本节只负责读方向，不重复完整训练过程。`, md`Collect partial derivatives in parameter order to obtain \(\nabla L=(1.664,-0.696)\) at the starting point. The dark dashed contour passes through it and has constant loss. The blue solid arrow points toward fastest increase; the orange long-dashed arrow shows the opposite, downhill direction. Arrow lengths are normalized to show direction only.
+
+Both axes use equal unit lengths, so a nonzero gradient is perpendicular to a contour, rather than following it. Set direction u to 0° in the lab: the directional derivative equals the x partial. At 90° it equals the y partial. Compare the two arrows at the default point, then move both parameters to zero: the gradient vanishes and there is no unique steepest direction.
+
+**Next:** Now that you can read the direction of increasing loss, continue to [gradient descent](/learn/gradient-descent/loss-function?route=core-learning-path) to update parameters in the opposite direction and see why step size matters. This bridge reads directions; the next lesson owns the training process.`), { visualIds: ['partial-gradient-image'] }),
     section('partial-gradient-review', copy('复盘：一个方向到一组方向', 'Review: One Direction to a Set of Directions'), copy(md`复习时先问正在移动哪个旋钮，哪些旋钮固定。一个偏导数回答一个方向，一组偏导数组成梯度，梯度指向最快上升。`, md`Review Questions: Which parameter knob is moving? Which knobs are fixed? What local loss change does this one partial derivative report? After every direction has a partial derivative, how are they collected into the gradient? Does the gradient point uphill or downhill? This review closes the loop from one local derivative to many-parameter training.`)),
   ],
-  visuals: [imageAsset('partial-gradient-image', '/math-lab/generated/beginner-partial-gradient-longform.png', copy('偏导数和梯度图', 'Partial Gradient Image'), copy('两个参数旋钮分别产生偏导，多个局部变化率合成梯度方向。', 'Two parameter knobs produce partials, and local rates combine into a gradient direction.'))],
+  visuals: [{ ...imageAsset('partial-gradient-image', '/math-lab/diagrams/partials/gradient-contour.svg', copy('同一损失上的梯度与负梯度', 'Gradient and Negative Gradient on the Same Loss'), copy('起点 (1.4, −1.1)，梯度 (1.664, −0.696)。灰线表示相同 loss，深色点虚线经过起点；蓝色实线箭头上坡，橙色长虚线箭头下坡。两轴单位等长，箭头长度归一化。图与实验使用相同函数。', 'At (1.4, −1.1), the gradient is (1.664, −0.696). Gray contours have equal loss; the dark dotted contour passes through the point. The blue solid arrow goes uphill and the orange dashed arrow downhill. Axes use equal units; arrow lengths are normalized. Figure and lab use the same function.')), layout: 'compact', learningPurpose: copy('把两个偏导数、等高线和梯度方向对应起来。', 'Connect the two partial derivatives to contours and the gradient direction.') }],
   labs: [partialDerivativeLab],
   quizzes: [
     quiz('partial-one-knob', copy('偏导数一次怎样移动参数？', 'How does a partial derivative move parameters?'), 'one', copy('固定其他参数，只动一个方向。', 'Hold other parameters fixed and move one direction.'), copy('同时移动所有参数。', 'Move all parameters at once.'), copy('偏导数隔离一个方向。', 'A partial derivative isolates one direction.'), 'partial-moves-all-parameters', 'partial-gradient-image'),

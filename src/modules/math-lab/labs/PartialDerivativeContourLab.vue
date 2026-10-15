@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import * as d3 from 'd3'
 import { computed, reactive, ref, useId, watch } from 'vue'
 import DraggablePoint from '../components/interactive/DraggablePoint.vue'
 import InteractivePlane from '../components/interactive/InteractivePlane.vue'
 import type { ExperimentEvidence, MathLabLocale } from '../types/mathLab'
 import {
   evaluatePartialDerivativePoint,
-  quadraticLoss2D,
   sampleQuadraticSlice,
 } from '../utils/calculus'
-import { clamp, norm, round, type Vector2 } from '../utils/math'
+import { clamp, round, type Vector2 } from '../utils/math'
+import { partialContourPath, partialGradientLevels, partialGradientStart, partialGradientViewport, partialVectorEnd } from '../utils/partialGradientGeometry.ts'
 
 const props = withDefaults(defineProps<{
   locale?: MathLabLocale
@@ -21,12 +20,7 @@ const emit = defineEmits<{
   'evidence-change': [evidence: ExperimentEvidence]
 }>()
 
-const width = 420
-const height = 320
-const xMin = -3
-const xMax = 3
-const yMin = -3
-const yMax = 3
+const { width, height, xMin, xMax, yMin, yMax } = partialGradientViewport
 const markerPrefix = useId()
 const markerIds = {
   gradient: `${markerPrefix}-gradient-arrow`,
@@ -34,8 +28,8 @@ const markerIds = {
   direction: `${markerPrefix}-direction-arrow`,
 }
 
-const point = reactive<Vector2>({ x: 1.4, y: -1.1 })
-const directionAngle = ref(35)
+const point = reactive<Vector2>({ ...partialGradientStart.point })
+const directionAngle = ref(partialGradientStart.directionAngle)
 const showNegativeGradient = ref(true)
 
 const direction = computed<Vector2>(() => {
@@ -75,6 +69,10 @@ const copy = computed(() =>
         ySlice: '固定 x，只动 y',
         note: '一个偏导数只读一个坐标方向；完整梯度把两个偏导数组成向量，指向最陡上升方向。',
         pointLabel: '当前点',
+        model: '示意损失：L = 0.72x² + 0.32xy + 0.52y²；x、y 是参数，不是样本特征。',
+        legend: '实线 ∇L：上坡；长虚线 −∇L：下坡；点虚线 u：所选方向。箭头长度归一化，只表示方向。',
+        contour: '灰线是相同损失，深色虚线经过当前点。横纵轴单位相同；非零梯度垂直于当前等高线。',
+        stationary: '当前位置梯度为零，没有唯一的最陡方向；请移动参数点继续观察。',
       }
     : {
         eyebrow: 'Interactive lab',
@@ -96,53 +94,31 @@ const copy = computed(() =>
         ySlice: 'hold x, move y',
         note: 'One partial derivative reads one coordinate direction; the full gradient collects both partials into the steepest-ascent vector.',
         pointLabel: 'current point',
+        model: 'Illustrative loss: L = 0.72x² + 0.32xy + 0.52y²; x and y are parameters, not sample features.',
+        legend: 'Solid ∇L: uphill; long-dashed −∇L: downhill; dotted u: selected direction. Arrow lengths are normalized to show direction only.',
+        contour: 'Gray curves have equal loss; the dark dashed curve passes through the current point. Axes use equal units, so a nonzero gradient is perpendicular to the contour.',
+        stationary: 'The gradient is zero here, so there is no unique steepest direction. Move the parameter point to continue.',
       },
 )
 
-const contourPaths = computed(() => {
-  const gridSize = 56
-  const thresholds = [0.45, 0.9, 1.4, 2.1, 3, 4.2, 5.7, 7.4]
-  const values: number[] = []
-
-  for (let yIndex = 0; yIndex < gridSize; yIndex += 1) {
-    const y = yMax - (yIndex / (gridSize - 1)) * (yMax - yMin)
-    for (let xIndex = 0; xIndex < gridSize; xIndex += 1) {
-      const x = xMin + (xIndex / (gridSize - 1)) * (xMax - xMin)
-      values.push(quadraticLoss2D({ x, y }))
-    }
-  }
-
-  const path = d3.geoPath(d3.geoIdentity().scale(width / (gridSize - 1)))
-  return d3
-    .contours()
-    .size([gridSize, gridSize])
-    .thresholds(thresholds)(values)
-    .map((contour) => ({
-      value: contour.value,
-      d: path(contour) ?? '',
-    }))
-})
+const contourPaths = partialGradientLevels.map(value => ({ value, d: partialContourPath(value) }))
+const currentContour = computed(() => partialContourPath(evaluation.value.loss))
 
 const xSlice = computed(() => sampleQuadraticSlice({ point, axis: 'x', radius: 1.2, samples: 28 }))
 const ySlice = computed(() => sampleQuadraticSlice({ point, axis: 'y', radius: 1.2, samples: 28 }))
 
 function updatePoint(nextPoint: Vector2) {
-  point.x = round(clamp(nextPoint.x, xMin, xMax), 2)
-  point.y = round(clamp(nextPoint.y, yMin, yMax), 2)
+  point.x = round(clamp(nextPoint.x, -3, 3), 2)
+  point.y = round(clamp(nextPoint.y, -3, 3), 2)
 }
 
 function setPointAxis(axis: 'x' | 'y', value: number) {
   if (!Number.isFinite(value)) return
-  point[axis] = round(clamp(value, axis === 'x' ? xMin : yMin, axis === 'x' ? xMax : yMax), 2)
+  point[axis] = round(clamp(value, -3, 3), 2)
 }
 
 function vectorEnd(vector: Vector2, scale = 0.72): Vector2 {
-  const length = norm(vector)
-  if (length === 0) return evaluation.value.point
-  return {
-    x: evaluation.value.point.x + (vector.x / length) * scale,
-    y: evaluation.value.point.y + (vector.y / length) * scale,
-  }
+  return partialVectorEnd(evaluation.value.point, vector, scale)
 }
 
 function format(value: number, digits = 3) {
@@ -165,9 +141,8 @@ function slicePoints(samples: Array<{ offset: number; loss: number }>) {
 }
 
 function resetLab() {
-  point.x = 1.4
-  point.y = -1.1
-  directionAngle.value = 35
+  Object.assign(point, partialGradientStart.point)
+  directionAngle.value = partialGradientStart.directionAngle
   showNegativeGradient.value = true
 }
 
@@ -204,6 +179,7 @@ watch(
 <template>
   <section class="math-lab-card partial-derivative-lab">
     <div class="math-lab-card__visual partial-derivative-lab__visual">
+      <p>{{ copy.model }}</p>
       <InteractivePlane
         v-slot="{ toSvg, fromSvg }"
         :label="copy.aria"
@@ -215,14 +191,14 @@ watch(
         :y-max="yMax"
       >
         <defs>
-          <marker :id="markerIds.gradient" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#3868ff" />
+          <marker :id="markerIds.gradient" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#3868ff" />
           </marker>
-          <marker :id="markerIds.negative" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#d65a31" />
+          <marker :id="markerIds.negative" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#d65a31" />
           </marker>
-          <marker :id="markerIds.direction" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L9,3 z" fill="#0f9f7a" />
+          <marker :id="markerIds.direction" markerUnits="userSpaceOnUse" viewBox="0 0 10 10" markerWidth="12" markerHeight="12" refX="9" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#0f9f7a" />
           </marker>
         </defs>
 
@@ -232,9 +208,17 @@ watch(
             :key="contour.value"
             :d="contour.d"
           />
+          <path v-if="currentContour" :d="currentContour" class="partial-derivative-lab__current-contour" />
+        </g>
+
+        <g class="partial-derivative-lab__axes-labels" aria-hidden="true">
+          <text x="342" y="173">x</text><text x="190" y="18">y</text>
+          <text v-for="tick in [-3, 0, 3]" :key="`x-${tick}`" :x="toSvg({ x: tick, y: 0 }).x" y="198">{{ tick }}</text>
+          <text v-for="tick in [-3, 3]" :key="`y-${tick}`" x="166" :y="toSvg({ x: 0, y: tick }).y + 4">{{ tick }}</text>
         </g>
 
         <line
+          v-if="evaluation.gradientNorm > 0"
           :x1="toSvg(evaluation.point).x"
           :y1="toSvg(evaluation.point).y"
           :x2="toSvg(vectorEnd(evaluation.gradient)).x"
@@ -243,7 +227,7 @@ watch(
           :marker-end="`url(#${markerIds.gradient})`"
         />
         <line
-          v-if="showNegativeGradient"
+          v-if="showNegativeGradient && evaluation.gradientNorm > 0"
           :x1="toSvg(evaluation.point).x"
           :y1="toSvg(evaluation.point).y"
           :x2="toSvg(vectorEnd(evaluation.negativeGradient)).x"
@@ -269,6 +253,9 @@ watch(
           @update:point="updatePoint"
         />
       </InteractivePlane>
+      <p class="partial-derivative-lab__legend">{{ copy.legend }}</p>
+      <p class="math-lab-note">{{ copy.contour }}</p>
+      <p v-if="evaluation.gradientNorm === 0" role="status">{{ copy.stationary }}</p>
     </div>
 
     <div class="math-lab-card__controls partial-derivative-lab__controls">
@@ -329,79 +316,4 @@ watch(
   </section>
 </template>
 
-<style scoped>
-.partial-derivative-lab__contours path {
-  fill: none;
-  stroke: rgba(56, 104, 255, 0.28);
-  stroke-width: 2;
-}
-
-.partial-derivative-lab__vector {
-  stroke-width: 4;
-  stroke-linecap: round;
-}
-
-.partial-derivative-lab__vector--gradient {
-  stroke: #3868ff;
-}
-
-.partial-derivative-lab__vector--negative {
-  stroke: #d65a31;
-  stroke-dasharray: 8 6;
-}
-
-.partial-derivative-lab__vector--direction {
-  stroke: #0f9f7a;
-  stroke-dasharray: 4 5;
-}
-
-.partial-derivative-lab__checkbox {
-  display: flex;
-  grid-template-columns: none;
-  align-items: center;
-  gap: 10px;
-}
-
-.partial-derivative-lab__checkbox input {
-  width: 18px;
-  min-height: 18px;
-}
-
-.partial-derivative-lab__slices {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.partial-derivative-lab__slices figure {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 12px;
-  border: 1px solid rgba(15, 23, 40, 0.12);
-  border-radius: 8px;
-  background: #ffffff;
-}
-
-.partial-derivative-lab__slices span {
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.partial-derivative-lab__slices line {
-  stroke: rgba(16, 22, 47, 0.24);
-  stroke-width: 2;
-}
-
-.partial-derivative-lab__slices polyline {
-  fill: none;
-  stroke: #0f9f7a;
-  stroke-width: 3;
-}
-
-@media (max-width: 720px) {
-  .partial-derivative-lab__slices {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
+<style scoped src="../../../styles/modules/partial-derivative.css"></style>

@@ -1,0 +1,95 @@
+.partial-derivative-lab__contours path {
+  fill: none;
+  stroke: rgba(56, 104, 255, 0.28);
+  stroke-width: 2;
+}
+
+.partial-derivative-lab__vector {
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.partial-derivative-lab__vector--gradient {
+  stroke: #3868ff;
+}
+
+.partial-derivative-lab__vector--negative {
+  stroke: #d65a31;
+  stroke-dasharray: 8 6;
+}
+
+.partial-derivative-lab__vector--direction {
+  stroke: #0f9f7a;
+  stroke-dasharray: 4 5;
+}
+
+.partial-derivative-lab__checkbox {
+  display: flex;
+  grid-template-columns: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.partial-derivative-lab__checkbox input {
+  width: 18px;
+  min-height: 18px;
+}
+
+.partial-derivative-lab__slices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.partial-derivative-lab__slices figure {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(15, 23, 40, 0.12);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.partial-derivative-lab__slices span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.partial-derivative-lab__slices line {
+  stroke: rgba(16, 22, 47, 0.24);
+  stroke-width: 2;
+}
+
+.partial-derivative-lab__slices polyline {
+  fill: none;
+  stroke: #0f9f7a;
+  stroke-width: 3;
+}
+
+@media (max-width: 720px) {
+  .partial-derivative-lab__slices {
+    grid-template-columns: 1fr;
+  }
+}
+
+.partial-derivative-lab__contours .partial-derivative-lab__current-contour {
+  stroke: #475569;
+  stroke-dasharray: 3 4;
+}
+
+.partial-derivative-lab__axes-labels {
+  fill: #172033;
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.partial-derivative-lab__legend {
+  line-height: 1.6;
+}
+
+.partial-derivative-lab__visual :deep(.interactive-plane) {
+  min-height: 0;
+  aspect-ratio: 1;
+}
+
