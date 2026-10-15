@@ -182,8 +182,7 @@
 .scene-small { fill: #475569; font-size: 13px; }
 .scene-axis { fill: none; stroke: #64748b; stroke-width: 2; }
 .scene-arrow { fill: none; stroke: #64748b; stroke-width: 2.5; }
-.scene-arrow + marker path,
-marker path { fill: #64748b; }
+.housing-scene marker path { fill: #64748b; }
 .scene-blocked { fill: none; stroke: #b91c1c; stroke-width: 3; stroke-dasharray: 9 6; }
 .scene-line { fill: none; stroke: var(--housing-accent); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
 .scene-point { fill: #fff; stroke: var(--housing-accent); stroke-width: 3; }
