@@ -396,7 +396,7 @@ importance.head()
 重要性也可能偏向取值更多、更容易切分的特征；相关特征会互相分摊重要性。项目复盘时，最好把 importance、错误样本、领域知识和 permutation importance 一起看。
 
 ### 下一步路径
-学完这一章后，再回到模型选择章节，用 CV 比较 shallow tree、deep tree 和 random forest。树模型很适合把“解释性、稳定性、泛化”三件事放在同一张复盘卡上。
+下一步进入[模型选择与交叉验证](/learn/model-selection/one-split-risk?route=core-learning-path)，先理解单次切分为何会影响分数，再学习折内预处理与参数搜索。该课用熟悉的 Ridge 说明比较流程；同样的隔离原则也适用于 shallow tree、deep tree 和 random forest。随后在短信分类项目中复现完整选择过程。
 
 ### Ref ID
 REF-SKLEARN-ENSEMBLE-EXAMPLES、REF-SKLEARN-RANDOM-FOREST、REF-ISLR`,
@@ -422,7 +422,7 @@ If \`zipcode\` is important, it may proxy for income, school quality, transport,
 Importance can also favor features with more possible split points; correlated features may share importance. In a project review, inspect importance, error cases, domain knowledge, and permutation importance together.
 
 ### Next path
-After this chapter, return to Model Selection and compare shallow tree, deep tree, and random forest with CV. Tree models are a good place to put interpretability, stability, and generalization into one review card.
+Continue to [model selection and cross-validation](/learn/model-selection/one-split-risk?route=core-learning-path): first examine split-dependent scores, then fold-local preprocessing and parameter search. That lesson uses familiar Ridge regression to explain the protocol; the same isolation principles apply to shallow trees, deep trees, and random forests. The SMS project then reproduces the complete selection process.
 
 ### Ref ID
 REF-SKLEARN-ENSEMBLE-EXAMPLES, REF-SKLEARN-RANDOM-FOREST, REF-ISLR`,

@@ -107,6 +107,8 @@ export interface VisualAsset {
   learningPurpose: LocalizedCopy
   alt?: LocalizedCopy
   caption?: LocalizedCopy
+  /** Deep links retained when duplicate figure placements are consolidated. */
+  legacyAnchorIds?: string[]
   /** Compact diagrams keep a readable scale beside their native captions. */
   layout?: 'compact' | 'wide'
 }

@@ -1,0 +1,13 @@
+[
+  { "moduleId": "python-notebook", "lessonId": "matplotlib-visualization" },
+  { "moduleId": "categorical-data", "lessonId": "feature-crosses" },
+  { "moduleId": "linear-regression", "lessonId": "regularization" },
+  { "moduleId": "complexity-regularization", "lessonId": "complexity-report" },
+  { "moduleId": "housing-price-project", "lessonId": "review-next-iteration" },
+  { "moduleId": "beginner-probability-distributions", "lessonId": "probability-route-beginner-handoff" },
+  { "moduleId": "classification", "lessonId": "multiclass" },
+  { "moduleId": "tree-forest", "lessonId": "feature-importance" },
+  { "moduleId": "model-selection", "lessonId": "final-refit" },
+  { "moduleId": "python-notebook", "lessonId": "matplotlib-visualization", "optionalPath": "/learn/python-notebook/seaborn-statistics" },
+  { "moduleId": "beginner-probability-distributions", "lessonId": "probability-route-beginner-handoff", "optionalPath": "/math-lab/modules/monte-carlo?route=probability-route" }
+]

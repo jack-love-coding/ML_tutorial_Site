@@ -54,7 +54,7 @@ function concept(
   }
 }
 
-function imageAsset(id: string, filename: string, title: LocalizedCopy, transcript: LocalizedCopy): VisualAsset {
+function imageAsset(id: string, filename: string, title: LocalizedCopy, transcript: LocalizedCopy, legacyAnchorIds?: string[]): VisualAsset {
   return {
     id,
     type: 'image',
@@ -63,6 +63,7 @@ function imageAsset(id: string, filename: string, title: LocalizedCopy, transcri
     transcript,
     alt: transcript,
     caption: transcript,
+    ...(legacyAnchorIds?.length ? { legacyAnchorIds } : {}),
     learningPurpose: copy(
       '作为零基础章节的视觉锚点，先建立直觉，再进入公式和实验。',
       'Serve as a beginner visual anchor before formulas and labs.',
@@ -742,18 +743,18 @@ Treat probability as AI's language for uncertainty. A sample space names possibl
     'beginner-probability-sample-space',
     copy('第一步：样本空间、事件和随机变量', 'Step 1: Sample Space, Event, and Random Variable'),
     copy(
-      md`概率不是一句“我感觉会发生”。它先要说清楚可能发生什么。所有可能结果组成样本空间。例如抛一枚硬币，样本空间是 \(\{\text{正面},\text{反面}\}\)；明天天气可以简化成 \(\{\text{晴天},\text{阴天},\text{雨天}\}\)；从三类图片中分类，样本空间可以是 \(\{\text{猫},\text{狗},\text{鸟}\}\)。
+      md`概率先要说清楚可能发生什么。沿用上一节的任务，把样本空间写为 \(\Omega=\{\text{按时完成},\text{未按时完成}\}\)。定义随机变量 \(Z\)：按时完成映射为 1，未按时完成映射为 0。随机变量不是“自己随机变化的字母”，而是把结果映射成可计算数字的函数。
 
-事件是样本空间中的一部分。比如“会下雨”是天气样本空间里的一个事件，“不是猫”是图片分类样本空间里的一个事件。随机变量把结果翻译成数字，例如把“正面”记为 1，“反面”记为 0，把预测是否正确记为 1 或 0。这样我们才能计算平均值、方差、频率和 loss。
+事件是样本空间中的一部分；本例关心的事件是“按时完成”，等价于 \(Z=1\)。若 \(P(Z=0)=0.30\)、\(P(Z=1)=0.70\)，两项都非负且总和为 1。0.70 描述模型分配的概率，观察到的 Z 则只能是 0 或 1。
 
-老师会一直追问你三句话：样本空间是什么？我们关心哪个事件？随机变量 \(X\) 怎样把结果变成数？只要这三句话没说清楚，后面的概率、期望、方差和交叉熵都会飘起来。`,
-      md`Probability is not a sentence like "I feel this will happen." It first has to name what can happen. All possible outcomes form the sample space. For a coin flip, the sample space is \(\{\text{heads},\text{tails}\}\). Tomorrow's weather might be simplified as \(\{\text{sunny},\text{cloudy},\text{rainy}\}\). For a three-class image classifier, it might be \(\{\text{cat},\text{dog},\text{bird}\}\).
+下图改用硬币、天气和课程标签演示“结果 → 数字”，没有给出各结果的概率。按列阅读可能结果、事件和编码。天气的 2/1/0、课程的 1/2/3/4 只是约定编号，不能据此说类别有大小或计算有意义的平均课程；作为模型输入时仍需单元 2 的类别编码。`,
+      md`Probability first names what can happen. Continuing the previous task, write the sample space as \(\Omega=\{\text{on time},\text{not on time}\}\). Define random variable \(Z\): on time maps to 1 and not on time maps to 0. A random variable is not a letter that randomly changes by itself; it maps outcomes to computable values.
 
-An event is a part of the sample space. "It rains" is an event inside the weather sample space; "not cat" is an event inside an image-classification sample space. A random variable translates outcomes into numbers, such as heads \(\mapsto 1\), tails \(\mapsto 0\), or prediction-correct \(\mapsto 1\) and prediction-wrong \(\mapsto 0\). Then we can compute averages, variance, frequency, and loss.
+An event is part of the sample space; here “on time” is the event \(Z=1\). If \(P(Z=0)=0.30\) and \(P(Z=1)=0.70\), both values are nonnegative and sum to 1. The value 0.70 is the probability assigned by the model, while an observed Z can only be 0 or 1.
 
-A teacher will keep asking three questions: what is the sample space, which event do we care about, and how does the random variable \(X\) turn outcomes into numbers? If those are unclear, probability, expectation, variance, and cross entropy will all feel detached.`,
+The figure uses coins, weather, and course labels to show outcomes mapped to numbers; it does not assign their probabilities. Read its columns as outcomes, events, and encodings. Weather codes 2/1/0 and course codes 1/2/3/4 are arbitrary IDs, not magnitudes or meaningful average subjects. Model inputs still need the categorical encoding taught in unit 2.`,
     ),
-    { visualIds: ['beginner-probability-story', 'beginner-sample-space-random-variable-longform'] },
+    { visualIds: ['beginner-sample-space-random-variable-longform'] },
   ),
   section(
     'beginner-probability-distribution-shape',
@@ -1320,7 +1321,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
     ],
     sections: probabilitySections,
     visuals: [
-      imageAsset('beginner-probability-story', 'beginner-probability-story.png', copy('概率分布入门故事', 'Beginner Probability Distribution Story'), copy('重复样本落入分桶，形成分布曲线，并连接到分类概率条。', 'Repeated samples fall into bins, form a distribution curve, and connect to classifier probability bars.')),
+      imageAsset('beginner-probability-story', 'beginner-probability-story.png', copy('概率分布入门故事', 'Beginner Probability Distribution Story'), copy('重复样本落入分桶，形成分布曲线，并连接到分类概率条。', 'Repeated samples fall into bins, form a distribution curve, and connect to classifier probability bars.'), ['beginner-probability-story--beginner-probability-sample-space']),
       imageAsset(
         'beginner-probability-why-longform',
         'beginner-probability-why-longform.png',
@@ -1331,13 +1332,15 @@ export const beginnerFoundationModules: MathLabModule[] = [
         'beginner-sample-space-random-variable-longform',
         'beginner-sample-space-random-variable-longform.png',
         copy('样本空间与随机变量', 'Sample Space and Random Variable'),
-        copy('硬币、天气和课程标签先列出所有可能结果，再用随机变量把结果映射成可计算数字。', 'Coins, weather, and course labels first list all possible outcomes, then random variables map outcomes into computable numbers.'),
+        copy('从左到右读：硬币、天气和课程标签的可能结果，样本空间及事件，再到数字编码。图中数字是约定编号，不是概率，也不赋予类别大小关系。', 'Read left to right: possible coin, weather, and course outcomes; sample spaces and events; then numeric encodings. The numbers are assigned IDs, not probabilities or an ordering of categories.'),
+        ['beginner-sample-space-random-variable-longform--beginner-probability-sample-space'],
       ),
       imageAsset(
         'beginner-distribution-frequency-longform',
         'beginner-distribution-frequency-longform.png',
         copy('分布与频率：很多次结果留下形状', 'Distribution and Frequency: Many Trials Leave a Shape'),
         copy('重复抽样形成柱状图，样本越多频率形状越稳定，说明概率分布不是一次结果，而是长期模式。', 'Repeated sampling forms a histogram; with more samples the frequency shape stabilizes, showing that a distribution is a long-run pattern, not one outcome.'),
+        ['beginner-distribution-frequency-longform--minimum-probability-numpy-output'],
       ),
       {
         id: 'beginner-conditional-probability-longform', type: 'image', assetPath: '/math-lab/diagrams/probability/condition-denominator.svg', layout: 'compact',

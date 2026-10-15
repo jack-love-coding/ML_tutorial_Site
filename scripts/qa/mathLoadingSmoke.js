@@ -44,6 +44,21 @@ async (page) => {
       for (const anchor of ['beginner-probability-story', 'beginner-probability-story--beginner-probability-sample-space']) {
         if (await page.locator('#' + anchor).count() !== 1) throw new Error('Nonunique visual anchor: ' + anchor)
       }
+      const historicalAnchors = [
+        ['beginner-probability-story--beginner-probability-sample-space', 'beginner-probability-story'],
+        ['beginner-sample-space-random-variable-longform--beginner-probability-sample-space', 'beginner-sample-space-random-variable-longform'],
+        ['beginner-distribution-frequency-longform--minimum-probability-numpy-output', 'beginner-distribution-frequency-longform'],
+      ]
+      for (const [anchor, figure] of historicalAnchors) {
+        await page.goto(base + '/math-lab/modules/' + id + '?route=core-learning-path#' + anchor)
+        await page.locator('#' + anchor).waitFor({ state: 'attached' })
+        await page.reload()
+        const alias = page.locator('#' + anchor)
+        await alias.waitFor({ state: 'attached' })
+        if (await alias.count() !== 1 || await alias.evaluate(el => el.closest('figure')?.id) !== figure) throw new Error('Old image link lost its figure: ' + anchor)
+        if (await page.locator(`img[src$="/${figure}.png"]`).count() !== 1) throw new Error('Compatibility anchor repeated the image')
+        if (!page.url().includes('?route=core-learning-path#' + anchor)) throw new Error('Old image link lost route context')
+      }
     }
     if (id === 'least-squares-fitting' && await page.locator('a[href$=".ipynb"]').count() === 0) throw new Error('Notebook companion missing')
   }

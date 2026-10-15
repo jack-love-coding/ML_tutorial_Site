@@ -2249,8 +2249,8 @@ export const curriculumLessonDirectory = [
       {
         "id": "probability-route-beginner-handoff",
         "title": {
-          "zh-CN": "路线交接：从合法分布走向样本平均",
-          "en": "Route Handoff: From a Valid Distribution to Sample Averages"
+          "zh-CN": "下一步：分类主线与概率选读",
+          "en": "Next: Classification Core and Optional Probability Topics"
         }
       }
     ]

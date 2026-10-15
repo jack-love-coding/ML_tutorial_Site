@@ -5,6 +5,18 @@
   font-size: 1.02rem;
 }
 
+.markdown-math a[href] {
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .18em;
+}
+
+.markdown-math a[href]:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
 .markdown-math h3,
 .markdown-math h4,
 .markdown-math h5 {
