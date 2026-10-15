@@ -283,7 +283,7 @@ print(X_train.columns.tolist())`),
   'residual-loss': {
     id: 'residual-loss',
     blocks: [
-      explanation('loss-question', loc('问题引入', 'Question'), loc('一个预测错了多少，整批模型又错了多少？', 'How wrong is one prediction, and how wrong is the whole model?'), loc('残差保留误差方向，损失函数把一组残差压缩成可比较的数值。不同指标强调不同类型的失败。', 'Residuals preserve error direction; loss functions compress many residuals into comparable numbers. Different metrics emphasize different failures.'), 'question'),
+      explanation('loss-question', loc('问题引入', 'Question'), loc('一个预测错了多少，整批模型又错了多少？', 'How wrong is one prediction, and how wrong is the whole model?'), loc('MSE、MAE 的定义可回看[回归损失](/learn/loss-functions/regression-losses?route=core-learning-path)。本节把这些量用于 Bike Sharing：保留残差方向，核对“租车次数”与平方单位，解释大误差来自哪些样本。', 'Review the definitions of MSE and MAE in [regression losses](/learn/loss-functions/regression-losses?route=core-learning-path). Here we apply them to Bike Sharing: retain residual direction, check rental-count versus squared units, and identify which examples produce large errors.'), 'question'),
       formula('loss-residual-formula', loc('先固定残差方向', 'Fix the residual direction first'), String.raw`$$r_i=\hat y_i-y_i$$`, loc('本课统一使用 prediction − actual：正值表示预测偏高，负值表示预测偏低。', 'This course consistently uses prediction − actual: positive means overprediction, negative means underprediction.'), [
         { symbol: String.raw`$\hat y_i$`, meaning: loc('第 i 行预测', 'prediction for row i') },
         { symbol: String.raw`$y_i$`, meaning: loc('第 i 行实际租车量', 'actual rentals for row i') },
@@ -329,7 +329,7 @@ R²   =     0.170`, loc('RMSE 与 cnt 使用同一单位，更容易回答“典
   'training-motion': {
     id: 'training-motion',
     blocks: [
-      explanation('training-question', loc('问题引入', 'Question'), loc('模型怎样一步步走到最小损失？', 'How does the model move toward minimum loss?'), loc('本章不用黑箱训练。我们用 NumPy 写出整批梯度下降，再让 sklearn 在同一设计矩阵上给出对照答案。', 'This chapter does not hide training. We write batch gradient descent in NumPy, then ask sklearn for a reference on the exact same design matrix.'), 'question'),
+      explanation('training-question', loc('问题引入', 'Question'), loc('模型怎样一步步走到最小损失？', 'How does the model move toward minimum loss?'), loc('参数更新规则已在[梯度下降](/learn/gradient-descent/loss-function?route=core-learning-path)主讲。本节检查它在真实设计矩阵上如何运行：只从训练集拟合缩放参数，用 NumPy 更新，再与 sklearn 对照相同目标的结果。', 'The update rule is taught in [gradient descent](/learn/gradient-descent/loss-function?route=core-learning-path). Here we inspect its behavior on a real design matrix: fit scaling on training data only, update with NumPy, and compare with sklearn on the same objective.'), 'question'),
       explanation('training-scale', loc('数据观察', 'Data observation'), loc('先标准化，且只在训练集上 fit', 'Scale first—and fit on training only'), loc('`hr` 的范围是 0–23，而 `temp` 约为 0–1。若直接使用同一学习率，不同列的梯度尺度相差很大。StandardScaler 的均值和标准差只从训练集估计，再原样用于验证集。', '`hr` ranges from 0–23 while `temp` is roughly 0–1. One learning rate then acts on very different gradient scales. StandardScaler estimates means and standard deviations from training only, then applies them unchanged to validation.')),
       code('training-scale-code', loc('训练集拟合预处理', 'Fit preprocessing on training only'), `continuous = ["temp", "hum", "windspeed", "hr"]
 scaler = StandardScaler()
@@ -568,7 +568,7 @@ test evaluation count = 1`, loc('这个分数描述冻结线性方案面对更�
         { id: 'alpha', kind: 'select', label: loc('正则强度 α', 'Regularization strength α'), defaultValue: '10', options: ['0.01', '0.1', '1', '10', '100', '1000', '10000'].map((alpha) => ({ value: alpha, label: loc(`α = ${alpha}`, `α = ${alpha}`) })) },
         { id: 'playback', kind: 'playback', label: loc('系数路径回放', 'Coefficient-path playback'), defaultValue: 0 },
       ]),
-      explanation('reg-conclusion', conclusion, loc('完成一次诚实、可复现的线性回归流程', 'Complete one honest, reproducible linear-regression workflow'), loc('八章从单行预测走到时间切分、损失、优化、特征工程、系数边界、残差诊断和最终评价。最重要的结果不是某个分数，而是每一步都能由同一份数据、代码和 Notebook 重新得到。', 'The eight chapters move from one-row prediction through chronological splitting, loss, optimization, feature engineering, coefficient limits, residual diagnosis, and final evaluation. The most important result is not one score, but that every step can be reproduced from the same data, code, and notebooks.'), 'conclusion'),
+      explanation('reg-conclusion', conclusion, loc('从解释模型进入泛化选择', 'From model interpretation to generalization choices'), loc('现在可以把系数、残差和验证误差连起来解释；本课的 Bike Sharing 仍是已分析的参考案例。下一步进入[复杂度与正则化](/data-lab/modules/complexity-regularization?route=core-learning-path#input-complexity)，把这里观察到的系数收缩和验证差距用于选择特征与模型。随后用独立冻结的房价项目复现完整流程。', 'You can now connect coefficients, residuals, and validation error. Bike Sharing remains a previously analyzed reference case. Continue to [complexity and regularization](/data-lab/modules/complexity-regularization?route=core-learning-path#input-complexity), using the observed coefficient shrinkage and validation gap to choose features and models. Then reproduce the workflow with the independently frozen housing project.'), 'conclusion'),
     ],
     references: [
       { label: loc('UCI Bike Sharing Dataset', 'UCI Bike Sharing Dataset'), href: 'https://archive.ics.uci.edu/dataset/275/bike%2Bsharing%2Bdataset', note: loc('数据集与数据论文，CC BY 4.0。', 'Dataset and paper, CC BY 4.0.') },

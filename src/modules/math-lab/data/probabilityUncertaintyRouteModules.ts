@@ -122,14 +122,14 @@ stationary_residual_l1 = 1.819e-09`
 
 const beginnerHandoffSection = section(
   'probability-route-beginner-handoff',
-  '路线交接：从合法分布走向样本平均',
-  'Route Handoff: From a Valid Distribution to Sample Averages',
-  md`本章已经把样本空间、随机变量、条件概率、Bayes update、期望与方差放进同一幅地图，但需要先守住三个层次：**分布**是对所有可能结果的权重分配，**样本**是从分布得到的一次结果，**统计量**是对一批样本的汇总。把三者混在一起，就会把一次偶然结果误读成长期规律。
+  '下一步：分类主线与概率选读',
+  'Next: Classification Core and Optional Probability Topics',
+  md`沿六单元主线，下一步进入[逻辑回归的线性分数](/learn/logistic-regression/linear-score?route=core-learning-path)。保留本章“模型概率不等于一次结果”的认识，观察一个线性分数怎样经 sigmoid 变为 0 到 1 的概率。二分类损失与决策阈值在后续课程主讲，这里不提前展开。
 
-下一章把“重复观察”变成可执行算法。它会固定随机种子，先把积分改写成期望，再用样本均值估计这个期望。重点不是生成更多随机数，而是记录抽样规则、估计器、样本数和误差尺度，让随机计算仍然可以复现和检查。`,
-  md`This chapter places sample spaces, random variables, conditional probability, Bayes updates, expectation, and variance on one map. Keep three levels separate: a **distribution** assigns mass to all possible outcomes, a **sample** is one outcome drawn from it, and a **statistic** summarizes a collection of samples. Mixing them turns one accidental outcome into a false long-run conclusion.
+若正在阅读概率专题，可选[Monte Carlo 与随机采样](/math-lab/modules/monte-carlo?route=probability-route)：把积分改写成期望，用样本均值估计，并检查样本数和误差尺度。它不构成进入逻辑回归的前置要求。`,
+  md`On the six-unit core route, continue to [the linear score in logistic regression](/learn/logistic-regression/linear-score?route=core-learning-path). Keep the distinction between model probability and one outcome, then observe how sigmoid maps a linear score to a probability between 0 and 1. Later lessons teach binary loss and decision thresholds.
 
-The next chapter turns repeated observation into an executable algorithm. It fixes a random seed, rewrites an integral as an expectation, and estimates that expectation with a sample average. The goal is not merely to generate more random numbers. It is to retain the sampling rule, estimator, sample count, and error scale so that randomized computation remains reproducible and inspectable.`,
+For the probability topic route, optionally read [Monte Carlo and random sampling](/math-lab/modules/monte-carlo?route=probability-route): rewrite an integral as an expectation, estimate it with sample averages, and inspect sample size and error scale. It is not a prerequisite for logistic regression.`,
 )
 
 const monteCarloEstimatorSection = section(

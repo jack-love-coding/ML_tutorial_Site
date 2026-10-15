@@ -108,17 +108,12 @@ const probabilitySharedSection = section(
   'minimum-probability-shared-task',
   '从确定预测切换到不确定结果',
   'Move from a Deterministic Prediction to an Uncertain Outcome',
-  String.raw`前三章固定输入和参数时，prediction 是确定的。概率处理的是另一类问题：即使我们知道当前信息，下一局是否按时完成仍可能受玩家状态、随机地图和测量噪声影响。
+  String.raw`回归模型在输入和参数固定时给出确定的数值，但真实结果仍可能有误差。接下来改问“是否发生”：即使当前信息相同，下一局是否按时完成仍可能受玩家状态、随机地图和测量噪声影响。房价是连续目标；按时与否是两个结果，这个区别将引出分类模型。
 
-先把样本空间写清楚：\(\Omega=\{\text{按时完成},\text{未按时完成}\}\)。定义随机变量 \(Z\)：按时完成映射为 1，未按时完成映射为 0。随机变量不是“自己随机变化的字母”，而是把结果映射成可计算数字的函数。
+例如模型给出“按时完成的概率为 0.70”，它不是一次试验的真假保证。一次结果只能产生一个样本；需要许多同类案例才能检查 0.70 是否与真实频率接近。下一节再把两个结果写成样本空间，并约定如何用 0/1 表示。`,
+  String.raw`A regression model returns a fixed number when inputs and parameters are fixed, yet the observed outcome may differ. Next we ask whether something happens: even with the same current information, finishing a level on time may depend on player state, a random map, and measurement noise. Housing price is a continuous target; on-time versus late gives two outcomes. This distinction leads toward classification.
 
-若模型给出 \(P(Z=0)=0.30\)、\(P(Z=1)=0.70\)，这两个数必须非负且总和为 1。0.70 不是一次试验的真假保证，而是模型在当前信息下分配给“按时完成”的概率。一次结果只能产生一个样本；需要许多同类案例才能检查 0.70 是否与真实频率接近。`,
-  String.raw`In the first three chapters, a fixed input and fixed parameters produce a deterministic prediction. Probability addresses a different question: even with current information, whether the next level finishes on time may still depend on player state, a random map, and measurement noise.
-
-Start by naming the sample space: \(\Omega=\{\text{on time},\text{not on time}\}\). Define random variable \(Z\): on time maps to 1 and not on time maps to 0. A random variable is not a letter that “randomly changes by itself.” It is a function that maps outcomes to computable values.
-
-If a model reports \(P(Z=0)=0.30\) and \(P(Z=1)=0.70\), the values must be nonnegative and sum to 1. The value 0.70 is not a truth guarantee for one trial; it is the probability mass assigned to “on time” under the current information. One observed result is only one sample. Many comparable cases are needed to check whether 0.70 agrees with observed frequency.`,
-  ['beginner-sample-space-random-variable-longform'],
+For example, a model's on-time probability of 0.70 is not a truth guarantee for one trial. One observed result supplies one sample; many comparable cases are needed to check whether 0.70 agrees with observed frequency. The next section names the sample space and defines the 0/1 representation.`,
 )
 
 const probabilityCodeSection = section(
@@ -135,7 +130,6 @@ const probabilityCodeSection = section(
 The empirical frequency in the output need not equal 0.70. With a small sample, chance variation is visible. With thousands of trials, empirical frequency usually becomes more stable near 0.70. Keep three layers separate: \([0.30,0.70]\) is the model distribution, the drawn zeros and ones are samples, and their mean is an empirical frequency.
 
 If probabilities contain a negative value, NaN, or a sum other than 1, the code should fail clearly instead of silently normalizing and hiding an upstream bug. Later, softmax will turn logits into a valid distribution, but trustworthy probabilities still require data and calibration checks.`,
-  ['beginner-distribution-frequency-longform'],
 )
 
 const probabilitySummarySection = section(

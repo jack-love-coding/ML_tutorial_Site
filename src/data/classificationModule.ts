@@ -612,6 +612,9 @@ $$CE=-\\sum_i y_i\\log p_i=-\\log p_{true}$$
 ### 交互实验设计
 在 Three.js 概率单纯形中调节三个 logit 和 temperature。观察概率点如何在三角形内移动，以及 top-1 类别如何切换。
 
+### 下一步
+继续到[决策树与随机森林](/learn/tree-forest/non-gradient-model?route=core-learning-path)。本单元已说明如何评价分数、概率和决策；下一单元换一种生成预测的模型，并沿用验证指标和错误成本进行比较。
+
 ### 来源参考
 改写自 Google MLCC Multiclass 和 D2L Softmax Regression。`,
         `### Core Question
@@ -640,10 +643,13 @@ Do not model mutually exclusive multiclass classification as independent sigmoid
 ### Interaction Design
 Use the Three.js probability simplex and adjust logits plus temperature. Watch the probability point move inside the triangle and the top-1 class switch.
 
+### Next step
+Continue to [decision trees and random forests](/learn/tree-forest/non-gradient-model?route=core-learning-path). This unit explained how to evaluate scores, probabilities, and decisions. The next changes the model that produces predictions while retaining validation metrics and error costs for comparison.
+
 ### Source References
 Rewritten from Google MLCC Multiclass and D2L Softmax Regression.`,
       ),
-      loc('多分类的关键是共享概率预算，而不是多复制几个二分类器。到这里，损失 → 回归 → 项目 → 概率 → 决策的走廊已经闭合；请回到 AI 基础单元 09 完成成果自检。', 'The key is a shared probability budget, not copying several binary classifiers. This closes the loss → regression → project → probability → decision corridor; return to AI Foundations unit 09 for artifact self-checks.'),
+      loc('多分类共享一份概率预算。接下来比较树与森林时，继续区分模型输出、操作阈值和最终评价。', 'Multiclass prediction shares one probability budget. When comparing trees and forests next, keep model output, operating thresholds, and final evaluation distinct.'),
       loc('降低 temperature，观察概率分布如何变得更尖锐。', 'Lower temperature and watch the probability distribution become sharper.'),
       ['classification-softmax-video'],
       [sources.mlccMulticlass, sources.d2lSoftmax],

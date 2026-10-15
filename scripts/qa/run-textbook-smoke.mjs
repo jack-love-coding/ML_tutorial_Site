@@ -27,6 +27,7 @@ try {
   matrices.push(['conditional-figures', 'conditionalFigureSmoke.js'])
   matrices.push(['partial-gradient-figures', 'partialGradientFigureSmoke.js'])
   matrices.push(['categorical-encoding', 'categoricalEncodingSmoke.js'])
+  matrices.push(['reading-handoffs', 'readingHandoffSmoke.js'])
   // Each matrix gets an isolated browser profile; every profile is closed even after failure.
   const requested = new Set(process.argv.slice(2))
   for (const name of requested) if (!matrices.some(([session]) => session === name)) throw new Error(`Unknown matrix: ${name}`)
@@ -45,6 +46,10 @@ try {
           const code = readFileSync(resolve(cwd, 'scripts/qa', file), 'utf8').replace('/* candidate-unit-ids */ []', JSON.stringify([unitId]))
           await cli(session, ['run-code', code])
         }
+      } else if (session === 'reading-handoffs') {
+        const cases = readFileSync(resolve(cwd, 'scripts/qa/readingHandoffCases.json'), 'utf8')
+        const code = readFileSync(resolve(cwd, 'scripts/qa', file), 'utf8').replace('/* handoff-cases */ []', cases)
+        await cli(session, ['run-code', code])
       } else await cli(session, ['run-code', '--filename', `scripts/qa/${file}`])
     } finally { await cli(session, ['close']) }
   }

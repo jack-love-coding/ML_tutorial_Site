@@ -417,12 +417,16 @@ Common strategies include merging rare values, limiting vocabulary size, using h
 
 下图与[编码实验](#one-hot-and-sparsity)使用相同训练记录。重置后选择“特征交叉”：4 个街区槽与 4 个房型槽组成 16 槽，south×condo 激活第 5 槽（编号从 0 开始）。一个样本每个字段只有一个值，因此只有一个组合槽为 1；这与 multi-hot 的多个标签不同。
 
-先提出组合假设，再用验证集检查收益。拼接字符串只是创建类别，还要固定组合槽位顺序；交叉本身并不保证模型变好。`,
+先提出组合假设，再用验证集检查收益。拼接字符串只是创建类别，还要固定组合槽位顺序；交叉本身并不保证模型变好。
+
+主线下一步进入[函数与预测映射](/math-lab/modules/calculus-functions-rate-change?route=core-learning-path#mapping-intuition)：现在输入列及其顺序已经确定，接下来用一个小模型说明它们如何变成预测。`,
           md`Some patterns appear only in category combinations. Downtown small apartments and suburban large houses may follow different price relationships, and district or type alone may not be enough. A feature cross concatenates categories into combination slots so a linear model can learn local rules. This matters because cross dimensionality multiplies vocabulary sizes: two 100-token features may create 10,000 slots, which becomes very sparse without enough examples.
 
 The figure and [encoding lab](#one-hot-and-sparsity) use the same training rows. Reset and choose “feature cross”: 4 district slots and 4 property slots form 16 slots; south×condo activates slot 5 with zero-based indexing. One sample has one value per field, so only one combination is active. That differs from multi-hot tags.
 
-Propose a combination hypothesis, then check validation benefit. Concatenating strings only creates a category; the combination slot order still needs to be fixed. Crossing features alone does not guarantee a better model.`,
+Propose a combination hypothesis, then check validation benefit. Concatenating strings only creates a category; the combination slot order still needs to be fixed. Crossing features alone does not guarantee a better model.
+
+Continue along the core route to [functions and prediction mappings](/math-lab/modules/calculus-functions-rate-change?route=core-learning-path#mapping-intuition). With input columns and their order fixed, a small model will show how those inputs become a prediction.`,
         ),
         { visualIds: ['categorical-sparsity'] },
       ),
@@ -800,12 +804,16 @@ If validation data participated in scaling, vocabulary, or imputation parameter 
         'complexity-report',
         copy('把复杂度选择写成可复查结论', 'Write Complexity Choices as Reviewable Conclusions'),
         copy(
-          md`课程最后要把数据处理、特征工程和训练诊断合在一起。一个可复查结论应说明：保留哪些特征，删除哪些交叉，为什么选择这个分箱粒度，正则化强度如何影响验证曲线，提前停止点在哪里。为什么重要：当下一次模型表现变化时，团队才能判断变化来自数据分布、特征工程还是训练策略。
+          md`把上一节的训练与验证曲线连起来读：如果增加交叉后训练误差下降、验证误差却上升，就不能仅凭训练分数保留交叉。先检查划分和预处理是否一致，再比较减少交叉或加强正则化后的验证结果；测试集不参与这些选择。
 
-课堂交付可以是一份“复杂度控制报告”：每个新增特征必须写出假设、维度增长、验证收益和风险。这样学生会明白，机器学习不是堆更多特征，而是用证据控制表达能力。`,
-          md`The final course step combines data processing, feature engineering, and training diagnosis. A reviewable conclusion states which features were kept, which crosses were removed, why a bin granularity was chosen, how regularization strength affected validation curves, and where early stopping landed. This matters because when model behavior changes later, the team can tell whether the cause was data distribution, feature engineering, or training strategy.
+一个可复查的参考结论是：“这组交叉增加了维度，却没有改善验证表现，因此暂不采用。”它需要同时说明比较了哪些特征、使用什么指标，以及哪份数据用于选择；不能把这一判断泛化成“交叉永远无用”。
 
-A classroom deliverable can be a complexity-control report: every added feature must list its hypothesis, dimension growth, validation benefit, and risk. Students then learn that machine learning is not stacking more features, but controlling expressiveness with evidence.`,
+下一步进入[房价项目的数据入口](/learn/housing-price-project/csv-to-frame?route=core-learning-path)。在独立冻结的数据上，把这里的选择原则接到数据检查、基线、验证比较和最终评估中。`,
+          md`Read the previous training and validation curves together. If adding crosses lowers training error but raises validation error, the training score alone cannot justify keeping them. Check that splits and preprocessing are consistent, then compare validation results after reducing crosses or strengthening regularization. Test data takes no part in those choices.
+
+A reviewable example conclusion is: “These crosses increased dimensionality without improving validation performance, so we do not adopt them for now.” State the features compared, the metric, and the data used for selection. This does not imply that crosses are always useless.
+
+Continue to [the housing project's data entry](/learn/housing-price-project/csv-to-frame?route=core-learning-path). Apply these selection principles to data checks, a baseline, validation comparisons, and final evaluation on an independently frozen dataset.`,
         ),
       ),
     ],

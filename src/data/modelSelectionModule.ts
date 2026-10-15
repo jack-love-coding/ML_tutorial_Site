@@ -65,7 +65,7 @@ export const modelSelectionModule: AlgorithmModuleDefinition = {
 ### 为什么一次 split 会骗你
 假设房价开发数据里有少量特别贵的区域。如果这批样本刚好更多进入 validation，MAE 会变大；如果它们更多进入 train，模型可能更容易学到这些区域，验证分数又会变好。模型没有突然变聪明，评价样本变了。
 
-下面假设 X、y 是已整理的数值特征与回归目标。先固定最终 test，再只在 dev 内比较切分波动；test 不进入循环，也不从五个分数中挑一个最好看的作为最终报告。完整数据、可执行代码和参考结果将在本单元的分类项目中串起来。
+下面沿用熟悉的 Ridge 回归，只观察“比较流程”如何隔离数据；树与随机森林也遵循这个边界。假设 X、y 是已整理的数值特征与回归目标，固定最终 test，再只在 dev 内比较切分波动；test 不进入循环，也不从五个分数中挑一个最好看的作为最终报告。后面的短信分类项目会使用自己的分类指标，不把 MAE 当作分类评分。
 
 ~~~python
 from sklearn.model_selection import train_test_split
@@ -102,7 +102,7 @@ With the same model and the same development data, validation scores can move wh
 ### Why one split can mislead
 Suppose housing development data contains a few very expensive regions. If more land in validation, MAE rises; if more land in training, the model may learn them and validation improves. The model did not suddenly become smarter. The evaluation sample changed.
 
-Assume X and y are prepared numeric features and a regression target. Freeze final test first, then vary splits inside dev only. Test never enters the loop; the best of five scores is not a final report. The classification project later in this unit combines complete data, runnable code and reference results.
+We reuse familiar Ridge regression to isolate the comparison protocol; trees and forests obey the same data boundary. Assume X and y are prepared numeric features and a regression target. Freeze final test first, then vary splits inside dev only. Test never enters the loop, and the best of five scores is not a final report. The later SMS classification project uses its own classification metrics, rather than MAE.
 
 ~~~python
 from sklearn.model_selection import train_test_split
@@ -288,11 +288,15 @@ REF-SKLEARN-CV, REF-INRIA-SKLEARN-MOOC`,
 ~~~python
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import Ridge
 
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_dev)
 
-scores = cross_val_score(Ridge(alpha=1.0), X_scaled, y_dev, cv=5)
+scores = cross_val_score(
+    Ridge(alpha=1.0), X_scaled, y_dev, cv=5,
+    scoring="neg_mean_absolute_error",
+)
 ~~~
 
 这里的 \`scaler.fit_transform(X_dev)\` 已经看过所有开发集，包括每一轮本应被留出的验证折。
@@ -302,10 +306,13 @@ scores = cross_val_score(Ridge(alpha=1.0), X_scaled, y_dev, cv=5)
 from sklearn.pipeline import make_pipeline
 
 model = make_pipeline(StandardScaler(), Ridge(alpha=1.0))
-scores = cross_val_score(model, X_dev, y_dev, cv=5)
+scores = cross_val_score(
+    model, X_dev, y_dev, cv=5, scoring="neg_mean_absolute_error",
+)
+mae_scores = -scores
 ~~~
 
-Pipeline 会在每一折中重新 fit scaler 和模型。验证折只被 transform，不参与学习缩放参数。
+Pipeline 会在每一折中重新 fit scaler 和模型。验证折只被 transform，不参与学习缩放参数。两段代码都显式使用负 MAE：sklearn 评分统一为越大越好，所以取负号后才是越小越好的 MAE；Ridge 默认评分是 R²，省略 scoring 会悄悄换掉本课的比较指标。
 
 ### 老师会先问
 每个会学习规则的步骤，到底是在训练折里 fit，还是提前看过了验证折？这是判断泄漏的核心问题。
@@ -318,11 +325,15 @@ REF-SKLEARN-COMMON-PITFALLS、REF-SKLEARN-CV`,
 ~~~python
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import Ridge
 
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X_dev)
 
-scores = cross_val_score(Ridge(alpha=1.0), X_scaled, y_dev, cv=5)
+scores = cross_val_score(
+    Ridge(alpha=1.0), X_scaled, y_dev, cv=5,
+    scoring="neg_mean_absolute_error",
+)
 ~~~
 
 Here \`scaler.fit_transform(X_dev)\` has already seen the whole development set, including the validation fold that should be held out in each round.
@@ -332,10 +343,13 @@ Here \`scaler.fit_transform(X_dev)\` has already seen the whole development set,
 from sklearn.pipeline import make_pipeline
 
 model = make_pipeline(StandardScaler(), Ridge(alpha=1.0))
-scores = cross_val_score(model, X_dev, y_dev, cv=5)
+scores = cross_val_score(
+    model, X_dev, y_dev, cv=5, scoring="neg_mean_absolute_error",
+)
+mae_scores = -scores
 ~~~
 
-Pipeline refits the scaler and model inside each fold. The validation fold is transformed only; it does not help learn scaling parameters.
+Pipeline refits the scaler and model inside each fold. The validation fold is transformed only; it does not help learn scaling parameters. Both examples explicitly request negative MAE because sklearn scores use larger-is-better ordering. Negate the scores to recover smaller-is-better MAE. Ridge defaults to R², so omitting scoring would silently change the comparison metric.
 
 ### Teacher question
 For every step that learns rules, did it fit inside the training fold, or did it already see the validation fold? That is the core leakage question.
@@ -437,7 +451,7 @@ REF-SKLEARN-GRIDSEARCHCV, REF-SKLEARN-CV`,
         `模型选择结束后，才轮到最终测试。不要把 test set 拿来继续挑参数。
 
 ### 最终评估怎么写
-默认情况下，\`GridSearchCV(refit=True)\` 会用开发集重新训练最佳参数对应的 Pipeline。然后你只在 test set 上评估一次。
+这里的搜索调用是 \`search.fit(X_dev, y_dev)\`，因此默认 \`GridSearchCV(refit=True)\` 会在这份开发集上重新训练最佳 Pipeline，再用保留的 test 做一次评估。refit 使用传给 fit 的数据，不会自动寻找或合并其他分区。
 
 ~~~python
 from sklearn.metrics import mean_absolute_error
@@ -461,12 +475,15 @@ summary
 
 如果 test 分数明显差很多，先不要立刻继续调 test。回到数据、切分策略、特征和错误样本，写出新的实验计划。
 
+### 下一步：短信分类项目
+[进入问题与错误成本](/learn/classification-project/problem-and-costs?route=core-learning-path)。该项目只在 train 内做 CV，并用单独的 validation 选阈值；refit 也只用 train。最后冻结整个方案再打开 test。它与本节 dev 内 CV 的回归示例共享隔离原则，但数据职责不同，不能直接把 validation 合并进训练。
+
 ### Ref ID
 REF-SKLEARN-GRIDSEARCHCV、REF-SKLEARN-COMMON-PITFALLS、REF-INRIA-SKLEARN-MOOC`,
         `Only after model selection ends does final testing begin. Do not use the test set to keep choosing parameters.
 
 ### Writing final evaluation
-By default, \`GridSearchCV(refit=True)\` retrains the best-parameter Pipeline on the development set. Then evaluate once on the test set.
+Here the search calls \`search.fit(X_dev, y_dev)\`, so the default \`GridSearchCV(refit=True)\` retrains the best Pipeline on that development set before one evaluation on held-out test data. Refit uses the data passed to fit; it does not automatically find or combine other partitions.
 
 ~~~python
 from sklearn.metrics import mean_absolute_error
@@ -489,6 +506,9 @@ summary
 - **test score**: whether one final held-out estimate roughly matches CV.
 
 If the test score is much worse, do not immediately tune against test. Return to data, split strategy, features, and error cases, then write a new experiment plan.
+
+### Next: the SMS classification project
+[Start with the problem and error costs](/learn/classification-project/problem-and-costs?route=core-learning-path). That project runs CV within train, uses separate validation data to choose a threshold, and refits on train only. It freezes the complete workflow before opening test. It shares the isolation principle with this regression example's dev-set CV, but the partition roles differ: do not merge validation into training by copying this example.
 
 ### Ref ID
 REF-SKLEARN-GRIDSEARCHCV, REF-SKLEARN-COMMON-PITFALLS, REF-INRIA-SKLEARN-MOOC`,

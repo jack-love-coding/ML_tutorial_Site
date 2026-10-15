@@ -841,8 +841,8 @@ export const pythonDataToolsRuntimeChapters = [
         "kind": "markdown",
         "id": "matplotlib-visualization-markdown-10",
         "markdown": {
-          "zh-CN": "## 下一步\n\n下一章使用 Seaborn 比较分布和变量关系，并在描述统计、协方差和 Pearson 相关的范围内解释共同变化。",
-          "en": "## Next step\n\nThe next chapter uses Seaborn to compare distributions and relationships while keeping interpretation within descriptive statistics, covariance, and Pearson correlation."
+          "zh-CN": "## 下一步\n\n沿六单元主线，下一步进入[数据划分与泄漏边界](/data-lab/modules/splits-generalization?route=core-learning-path#split-contract)：先固定训练、验证、测试的职责，再学习清洗、缩放与编码。这里的图表已说明如何阅读数据；接下来要说明哪些数据可以参与拟合。\n\n希望继续练习图表时，可选读 [Seaborn 分布与关系](/learn/python-notebook/seaborn-statistics)，比较分布、协方差与 Pearson 相关。这是补充阅读，不是进入单元 2 的前置要求。",
+          "en": "## Next step\n\nOn the six-unit core route, continue to [data splits and leakage boundaries](/data-lab/modules/splits-generalization?route=core-learning-path#split-contract): fix the roles of training, validation, and test data before learning cleaning, scaling, and encoding. These charts show how to read data; the next step explains which data may participate in fitting.\n\nFor more chart practice, optionally read [Seaborn distributions and relationships](/learn/python-notebook/seaborn-statistics), covering distributions, covariance, and Pearson correlation. This supplement is not a prerequisite for unit 2."
         }
       }
     ]

@@ -254,4 +254,6 @@ Revisit “Match chart types to questions” and “Demonstrate a misleading cho
 
 ## Next step
 
-The next chapter uses Seaborn to compare distributions and relationships while keeping interpretation within descriptive statistics, covariance, and Pearson correlation.
+On the six-unit core route, continue to [data splits and leakage boundaries](/data-lab/modules/splits-generalization?route=core-learning-path#split-contract): fix the roles of training, validation, and test data before learning cleaning, scaling, and encoding. These charts show how to read data; the next step explains which data may participate in fitting.
+
+For more chart practice, optionally read [Seaborn distributions and relationships](/learn/python-notebook/seaborn-statistics), covering distributions, covariance, and Pearson correlation. This supplement is not a prerequisite for unit 2.
