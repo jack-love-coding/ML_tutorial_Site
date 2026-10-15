@@ -1,0 +1,19 @@
+.categorical-encoding-lab__visual { display: grid; gap: 16px; align-content: start; }
+.categorical-encoding-lab > div,
+.categorical-encoding-lab details { min-width: 0; max-width: 100%; }
+.categorical-encoding-lab__visual h4 { margin: 0; }
+.categorical-encoding-lab__visual p { margin: 0; line-height: 1.6; }
+.categorical-encoding-lab__vector { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: 6px; }
+.categorical-encoding-lab__vector > div { display: grid; gap: 4px; padding: 8px 4px; text-align: center; border: 1px solid #64748b; border-radius: 4px; background: white; }
+.categorical-encoding-lab__vector span { font-size: .8rem; }
+.categorical-encoding-lab__vector .is-active { border: 3px solid #1d4ed8; padding: 6px 2px; background: #dbeafe; }
+.categorical-encoding-lab label { display: grid; gap: 8px; }
+.categorical-encoding-lab select { width: 100%; min-height: 44px; font: inherit; padding: 8px; border: 1px solid #64748b; border-radius: 4px; background: white; }
+.categorical-encoding-lab__tags { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 12px; border: 1px solid #64748b; min-inline-size: 0; }
+.categorical-encoding-lab__tags label { display: flex; align-items: center; min-height: 36px; }
+.categorical-encoding-lab__tags input { width: 20px; height: 20px; }
+.categorical-encoding-lab__table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.categorical-encoding-lab__table th, .categorical-encoding-lab__table td { padding: 8px; text-align: left; overflow-wrap: anywhere; border-bottom: 1px solid #cbd5e1; }
+.categorical-encoding-lab__table th:nth-child(2) { width: 60%; }
+.categorical-encoding-lab summary { padding-block: 12px; cursor: pointer; font-weight: 700; }
+.categorical-encoding-lab pre { max-width: 100%; overflow-x: auto; }

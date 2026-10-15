@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import MarkdownMathContent from '../../../components/MarkdownMathContent.vue'
 import { withPublicBase } from '../../../utils/publicPath.ts'
 import type { DataLabLocale, DataVisualAsset } from '../types/dataLab'
@@ -12,14 +12,17 @@ const props = withDefaults(defineProps<{
 })
 
 const src = computed(() => withPublicBase(props.asset.assetPath))
+const failed = ref(false)
+watch(src, () => { failed.value = false })
 </script>
 
 <template>
-  <figure class="data-visual-figure">
+  <figure class="data-visual-figure" :class="{ 'data-visual-figure--compact': asset.layout === 'compact' }">
     <div class="data-visual-figure__media">
-      <img :src="src" :alt="asset.alt[locale]" loading="lazy" />
+      <img v-if="!failed" :src="src" :alt="asset.alt[locale]" loading="lazy" @error="failed = true" />
+      <p v-else class="data-visual-figure__fallback" role="status">{{ locale === 'zh-CN' ? '插图暂时无法加载，请阅读下方图注与操作说明。' : 'The figure could not load. Use the caption and instructions below.' }}</p>
       <span
-        v-for="(label, index) in asset.labels ?? []"
+        v-for="(label, index) in failed ? [] : asset.labels ?? []"
         :key="label.id"
         class="data-visual-figure__label"
         aria-hidden="true"

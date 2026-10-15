@@ -290,6 +290,14 @@
   box-shadow: 0 10px 24px rgba(15, 23, 40, 0.1);
 }
 
+.data-visual-figure--compact .data-visual-figure__media {
+  width: min(100%, 480px);
+  margin-inline: auto;
+  background: white;
+}
+.data-visual-figure--compact .data-visual-figure__media img { aspect-ratio: auto; height: auto; }
+.data-visual-figure__fallback { margin: 0; padding: 16px; color: #0f1728; background: #f1f5f9; line-height: 1.6; }
+
 .data-visual-figure figcaption {
   display: grid;
   gap: 6px;

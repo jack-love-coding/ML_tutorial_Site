@@ -79,6 +79,7 @@ export interface VisualOverlayLabel {
 }
 
 export interface DataVisualAsset {
+  layout?: 'compact'
   id: string
   type: 'image' | 'manim-video'
   title: LocalizedCopy

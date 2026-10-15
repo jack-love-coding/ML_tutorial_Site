@@ -109,7 +109,7 @@ test('categorical vocabulary task lab is wired into categorical data as a lazy D
   assert.match(moduleSource, /词表契约任务实验/)
   assert.match(
     moduleSource,
-    /labIds: \['categorical-vocabulary-task-lab', 'categorical-encoding-lab'\]/,
+    /labIds: \['categorical-vocabulary-task-lab'\]/,
   )
   assert.match(styleSource, /categorical-vocabulary-task-lab__slot-map/)
 })

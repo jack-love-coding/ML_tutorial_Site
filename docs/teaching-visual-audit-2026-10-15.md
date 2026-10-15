@@ -23,3 +23,16 @@
 本地验证：1,176 项测试通过，28 项条件跳过；两种构建、目录漂移及 8 项发布资源检查通过。单元 3 连续阅读 56、数学选读 8、全站存储 40、新偏导图与实验 9 个浏览器场景通过。新场景涵盖中英文、1280px／390px、等高线过点、箭头颜色、键盘、重置、刷新、零梯度、完整专题、图片失败时的正文与空／历史存储。手机和桌面截图已实看。
 
 各次实际 CI、合并与部署证据在交付时补入 [发布记录](releases/textbook-refactor-release.md)。普通套件的 28 项条件跳过仍为本批未验证，未重新生成 Notebook。
+
+偏导数已通过 [#94](https://github.com/jack-love-coding/ML_tutorial_Site/pull/94) 发布：实际 CI [38724397438](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38724397438) 通过，合并为 `72b51a8d3effbe81b3d6cadeab74adf5dd189cd1`，Pages [38726195914](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38726195914) 成功。在线 release.json 的 sha、previousSha（`8fc685e1`）和 runId 已匹配，真实站点另通过 9 场景。CI 教材 smoke 共 427 场景，测试 1,176 通过、28 条件跳过，安全审计 0 漏洞。
+
+## 类别编码
+
+- 两座实验台复用已有五条训练记录：north、south 各 2 条，west 1 条。默认词表为 north、south、RARE、OOV；不再让同一类别在相邻实验里切换已知／未知身份。
+- 词表图展示 north、west、airport 的三个独热向量；交叉图展示 south×condo 在 4×4 槽位中只激活第 5 槽。图和实验共用 TypeScript 模型，源 PNG 留作历史资源。生成与检查：`node scripts/generate-categorical-figures.ts` / `--check`。
+- 保留 one-hot、multi-hot、交叉、哈希四种表示。补预测街区、房型、标签选择与重置；拟合控件和预测控件职责明确。原先不可读的重复旋转条带改为向量、读数和可展开的完整槽位表；减少动态不丢失信息。
+- 替换与实验不一致的 sklearn 片段。可复制的标准库 Python 明确处理 RARE/OOV，哈希代码明确使用本实验的 FNV-1a；597 组配置执行后逐项匹配网页的 tokens/vector。
+- 每座实验只在一个主讲章节挂载，交叉图也只出现一次。后续章节用链接回看。正文区分显式 OOV 与此前流水线的全零未知策略，两者均须预先声明并冻结。
+- 两张 SVG 使用自然比例与原生双语图注；图片失败时显示文字提示并保留讲解。移动端展开代码后，容器保持在视口内，标签和模式仍可操作。
+
+本地验证：1,179 项测试通过、28 项条件跳过；`npm run build`、`npm run build:pages`、目录漂移及 8 项发布资源检查通过。单元 2 连续阅读 40、原有数据图文 20、新类别编码 13 个浏览器场景通过。新场景覆盖中英文、1280px／390px、四种编码、键盘、重置、完整槽位表、参考代码、刷新、图片失败图注及空／历史存储；新图和手机截图已实看。28 项条件跳过仍为本批未验证。

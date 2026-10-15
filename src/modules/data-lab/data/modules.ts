@@ -341,8 +341,8 @@ The browser lab simulates pandas-style table changes in TypeScript so students c
     ],
     concepts: [
       concept('category', copy('类别特征', 'Categorical Feature'), copy('类别特征表示成员身份，而不是连续距离。模型需要把类别变成固定槽位，才能稳定读取。', 'A categorical feature represents membership rather than continuous distance. A model needs categories mapped into fixed slots to read them consistently.'), copy('district=north 表示属于 north 街区，而不是数值大小。', 'district=north means membership in the north district, not magnitude.'), "df['district'].astype('category')"),
-      concept('vocabulary', copy('词表', 'Vocabulary'), copy('词表是训练时确定的合法类别集合。它规定每个类别落在哪个向量槽位，也规定新样本中的未知类别如何处理。', 'A vocabulary is the legal category set fixed during training. It defines vector slots and how unknown categories are handled.'), copy('训练时有 north、south、west，新样本出现 airport 时应进入 OOV 或 RARE 槽。', 'If training has north, south, and west, a new airport value should map to OOV or RARE.'), "pd.Categorical(df['district'], categories=train_vocab)"),
-      concept('one-hot', copy('one-hot 编码', 'One-hot Encoding'), copy('one-hot 用一组 0/1 槽表示类别身份。每个槽对应词表中的一个类别，当前类别所在槽为 1。', 'One-hot uses 0/1 slots for category membership. Each slot corresponds to one vocabulary token, and the active category gets 1.'), copy('district=south 可以编码为 [0, 1, 0, 0]。', 'district=south may encode as [0, 1, 0, 0].'), "pd.get_dummies(df['district'], prefix='district')"),
+      concept('vocabulary', copy('词表', 'Vocabulary'), copy('词表在训练时固定类别槽位与顺序，同时声明低频值和未知值的处理规则。', 'A vocabulary fixes category slots and order during training, with explicit rare and unknown rules.'), copy('本课 north/south 各出现 2 次，west 出现 1 次；默认 west 进入 RARE，未见的 airport 进入 OOV。', 'Here north/south each occur twice and west once; by default west maps to RARE and unseen airport to OOV.'), "pd.Categorical(df['district'], categories=train_vocab)"),
+      concept('one-hot', copy('one-hot 编码', 'One-hot Encoding'), copy('one-hot 用一组 0/1 槽表示类别身份。每个槽对应词表中的一个类别，当前类别所在槽为 1。', 'One-hot uses 0/1 slots for category membership. Each slot corresponds to one vocabulary token, and the active category gets 1.'), copy('按 [north, south, RARE, OOV] 排列时，district=south 编码为 [0, 1, 0, 0]。', 'With slots [north, south, RARE, OOV], district=south encodes as [0, 1, 0, 0].'), "pd.get_dummies(df['district'], prefix='district')"),
       concept('feature-cross', copy('特征交叉', 'Feature Cross'), copy('特征交叉把两个或多个类别组合成新类别，让模型学习局部规则，但维度会快速增长。', 'A feature cross combines categories into new categories so the model can learn local rules, but dimensionality grows quickly.'), copy('district=north 与 type=condo 交叉后形成 north_x_condo 槽位。', 'district=north crossed with type=condo creates a north_x_condo slot.'), "df['district_type'] = df['district'] + '_' + df['type']"),
     ],
     sections: [
@@ -357,20 +357,24 @@ pandas 中 object、string、category 和 int dtype 只是技术外观，不能�
 
 In pandas, object, string, category, and int dtype are technical appearances, not semantic decisions. A digit-like column may still be a category code; a text column may need to become multiple tags or a datetime field.`,
         ),
-        { visualIds: ['categorical-semantics'], labIds: ['categorical-encoding-lab'] },
+        { visualIds: ['categorical-semantics'] },
       ),
       section(
         'vocabulary-contract',
         copy('词表是类别输入的契约', 'A Vocabulary Is the Categorical Input Contract'),
         copy(
-          md`模型训练时必须知道类别集合和槽位顺序。词表把类别映射到固定位置，例如 north 落在第 0 槽、south 落在第 1 槽。为什么重要：如果验证或线上预测时重新排序词表，同一个向量位置就会变成不同含义，模型读到的信号会错位。词表还要规定低频类别和未知类别如何处理，避免新样本直接报错或产生全 0 向量。
+          md`**本节问题：预测时来了新类别，原来的列还能保持同一含义吗？** 回顾数据划分课的 fit/transform 边界：类别频次和槽位也只能从训练集学习。下面五条训练记录中 north、south 各出现 2 次，west 出现 1 次。最低频次为 2 时，词表固定为 [north, south, RARE, OOV]。
 
-课堂练习可以让学生从训练数据统计 value_counts，然后设置 minFrequency，把少数类别合并到 RARE，把训练后才出现的类别放到 OOV。这样学生能看到“稳定输入协议”比“把字符串转成数字”更重要。`,
-          md`During training, a model must know the category set and slot order. A vocabulary maps categories to fixed positions, such as north in slot 0 and south in slot 1. This matters because if validation or serving recomputes and reorders the vocabulary, the same vector position changes meaning and the model reads the wrong signal. The vocabulary also defines rare and unknown handling so new examples do not fail or produce misleading all-zero vectors.
+RARE 表示训练见过但合并的低频值；OOV 表示训练没见过的值。已知 north 激活第 0 槽，west 激活第 2 槽，airport 激活第 3 槽，三个样本始终使用同样四列。切换下面的“验证集重新建列”场景，检查第一个槽是否仍表示同一类别，再重置。
 
-A classroom exercise can build value_counts from training data, set a minFrequency, merge rare categories into RARE, and map post-training categories into OOV. Students then see that a stable input contract matters more than merely converting strings into numbers.`,
+前面的数据流水线用全零向量处理未知类别；本课显式预留 OOV 槽。两种规则都可以采用，但必须提前声明并始终复用。不能把 sklearn 的 handle_unknown='ignore' 当成“自动新建 OOV 列”，也不能让预测数据重新决定列顺序。`,
+          md`**Question: when a new category arrives, do the original columns keep their meaning?** Recall the fit/transform boundary from data splits: category counts and slots are learned from training only. The five training rows below contain north and south twice each, and west once. A minimum frequency of 2 fixes the slots as [north, south, RARE, OOV].
+
+RARE collects values seen but merged during training; OOV handles unseen values. Known north activates slot 0, west slot 2, and airport slot 3, always using the same four columns. Switch the task below to “Validation recomputes columns,” inspect whether the first slot still means the same category, then reset.
+
+The earlier pipeline uses an all-zero vector for unknown categories; this lesson reserves an explicit OOV slot. Both policies can be used if declared in advance and reused consistently. sklearn handle_unknown='ignore' does not create an OOV column, and prediction data must never redefine column order.`,
         ),
-        { visualIds: ['categorical-vocabulary'], labIds: ['categorical-vocabulary-task-lab', 'categorical-encoding-lab'] },
+        { visualIds: ['categorical-vocabulary'], labIds: ['categorical-vocabulary-task-lab'] },
       ),
       section(
         'one-hot-and-sparsity',
@@ -378,11 +382,20 @@ A classroom exercise can build value_counts from training data, set a minFrequen
         copy(
           md`one-hot 编码把一个类别展开成多个 0/1 槽。它的优点是不会强加类别大小顺序，适合名义类别；缺点是类别越多，向量越宽，绝大多数位置都是 0。为什么重要：稀疏输入本身不是错误，但它会提高存储、训练和泛化难度，尤其是在样本数不足时。学生应该把 one-hot 看成“稳定地表达成员身份”，而不是万能编码。
 
-pandas 的 get_dummies 很方便，但课堂中要强调它默认从当前数据推断列集合。真实工程应保存训练词表和输出列顺序，再对验证、测试和新样本补齐缺失列。`,
+pandas 的 get_dummies 默认从当前数据推断列集合，因此需要保存训练词表和列顺序。
+
+**操作步骤：** 保持默认 one-hot，依次选择 north、west、airport，读取映射类别与激活槽位；宽度始终为 4。把最低频次改为 1，west 才获得独立槽。这一步模拟重新 fit 训练词表，不是预测时的自动变化。重置后切换 multi-hot，添加 roof 标签：它进入标签词表的 OOV 槽。每个标签只激活一次。
+
+展开槽位表和 Python 代码可逐项复算。代码展示显式 RARE/OOV 规则；模式切换只说明输入表示，还没有训练预测模型。`,
           md`One-hot encoding expands one category into multiple 0/1 slots. Its benefit is that it avoids imposing magnitude order, which fits nominal categories. Its cost is width: more categories mean wider vectors, with most positions equal to 0. This matters because sparsity is not wrong, but it increases storage, training, and generalization difficulty, especially with few examples. Students should see one-hot as stable membership representation, not a universal encoding.
 
-pandas get_dummies is convenient, but lessons should emphasize that it infers columns from the current data by default. Real workflows save the training vocabulary and output column order, then align validation, test, and new examples to that schema.`,
+pandas get_dummies infers columns from the current data, so preserve the training vocabulary and column order.
+
+**Steps:** Keep one-hot defaults and select north, west, then airport. Read the mapped token and active slot: width stays 4. Lower minimum frequency to 1 and west receives a separate slot. This simulates fitting the training vocabulary again, not an automatic change during prediction. Reset, switch to multi-hot, and add roof: it enters the tag vocabulary's OOV slot. Each tag activates a slot at most once.
+
+Expand the slot table and Python code to reproduce each value. The code uses explicit RARE/OOV rules. Switching modes demonstrates input representations; no prediction model has been trained yet.`,
         ),
+        { labIds: ['categorical-encoding-lab'] },
       ),
       section(
         'high-cardinality',
@@ -395,7 +408,6 @@ pandas get_dummies is convenient, but lessons should emphasize that it infers co
 
 Common strategies include merging rare values, limiting vocabulary size, using hash buckets, keeping coarser groups, or excluding IDs as features. Students should explain the cost of each strategy: merging loses detail, hashing creates collisions, deletion removes signal, and blind expansion may be more dangerous.`,
         ),
-        { visualIds: ['categorical-sparsity'] },
       ),
       section(
         'feature-crosses',
@@ -403,12 +415,16 @@ Common strategies include merging rare values, limiting vocabulary size, using h
         copy(
           md`有些规律只在类别组合中出现。例如“市中心的小户型”和“郊区的大户型”可能对应不同价格关系，单独看地区或房型都不够。特征交叉把多个类别拼成组合槽位，让线性模型也能学习局部规则。为什么重要：交叉的维度等于各词表大小相乘，两个 100 类特征交叉就可能产生 10000 个槽，样本不够时会非常稀疏。
 
-课堂练习目标是让学生先提出组合假设，再用验证集检查收益，而不是机械地把所有类别两两交叉。pandas 中可以用字符串拼接构造交叉列，再用 get_dummies 展开，并用 shape 变化观察维度增长。`,
+下图与[编码实验](#one-hot-and-sparsity)使用相同训练记录。重置后选择“特征交叉”：4 个街区槽与 4 个房型槽组成 16 槽，south×condo 激活第 5 槽（编号从 0 开始）。一个样本每个字段只有一个值，因此只有一个组合槽为 1；这与 multi-hot 的多个标签不同。
+
+先提出组合假设，再用验证集检查收益。拼接字符串只是创建类别，还要固定组合槽位顺序；交叉本身并不保证模型变好。`,
           md`Some patterns appear only in category combinations. Downtown small apartments and suburban large houses may follow different price relationships, and district or type alone may not be enough. A feature cross concatenates categories into combination slots so a linear model can learn local rules. This matters because cross dimensionality multiplies vocabulary sizes: two 100-token features may create 10,000 slots, which becomes very sparse without enough examples.
 
-The classroom goal is to propose a combination hypothesis first and check validation benefit, not mechanically cross every pair of categories. In pandas, string concatenation can build a cross column, get_dummies can expand it, and shape changes reveal dimension growth.`,
+The figure and [encoding lab](#one-hot-and-sparsity) use the same training rows. Reset and choose “feature cross”: 4 district slots and 4 property slots form 16 slots; south×condo activates slot 5 with zero-based indexing. One sample has one value per field, so only one combination is active. That differs from multi-hot tags.
+
+Propose a combination hypothesis, then check validation benefit. Concatenating strings only creates a category; the combination slot order still needs to be fixed. Crossing features alone does not guarantee a better model.`,
         ),
-        { visualIds: ['categorical-sparsity'], labIds: ['categorical-encoding-lab'] },
+        { visualIds: ['categorical-sparsity'] },
       ),
     ],
     visuals: [
@@ -418,19 +434,8 @@ The classroom goal is to propose a combination hypothesis first and check valida
         { id: 'ordinal', x: 58, y: 31, label: copy('有序等级', 'ordinal') },
         { id: 'id', x: 78, y: 31, label: copy('审计 ID', 'audit ID') },
       ]),
-      image('categorical-vocabulary', 'categorical-vocabulary-one-hot.png', copy('词表与 one-hot', 'Vocabulary and one-hot'), copy('训练词表决定槽位顺序，未知类别进入稳定的 OOV 处理。', 'Training vocabulary fixes slot order, and unknown values use a stable OOV policy.'), [
-        { id: 'vocab', x: 18, y: 21, label: copy('训练词表', 'Vocabulary') },
-        { id: 'slot', x: 43, y: 21, label: copy('固定槽位', 'Fixed slots') },
-        { id: 'onehot', x: 68, y: 21, label: copy('独热编码', 'one-hot') },
-        { id: 'oov', x: 86, y: 73, label: copy('未知类别', 'OOV') },
-      ]),
-      image('categorical-sparsity', 'categorical-feature-cross-sparsity.png', copy('交叉与稀疏性', 'Crosses and sparsity'), copy('特征交叉能表达组合规则，也会让向量维度快速增长。', 'Feature crosses express combination rules but can rapidly increase vector width.'), [
-        { id: 'left', x: 13, y: 25, label: copy('地区', 'district') },
-        { id: 'right', x: 30, y: 25, label: copy('房型', 'type') },
-        { id: 'cross', x: 51, y: 25, label: copy('组合槽位', 'cross slots') },
-        { id: 'sparse', x: 78, y: 25, label: copy('稀疏向量', 'sparse vector') },
-        { id: 'risk', x: 52, y: 84, label: copy('验证收益', 'validation gain') },
-      ]),
+      { ...image('categorical-vocabulary', '', copy('同一词表：已知、低频与未知', 'One Vocabulary: Known, Rare and Unknown'), copy('五条训练记录得到四个槽：[north, south, RARE, OOV]。三行分别是 north→[1,0,0,0]、west→[0,0,1,0]、airport→[0,0,0,1]。图中的 1 和粗边框共同标记激活槽；预测时列数与列意不变。', 'Five training rows produce four slots: [north, south, RARE, OOV]. The three rows encode north→[1,0,0,0], west→[0,0,1,0], and airport→[0,0,0,1]. A 1 and a thick border identify the active slot. Prediction preserves column count and meaning.'), []), assetPath: '/data-lab/diagrams/categorical/vocabulary.svg', layout: 'compact' },
+      { ...image('categorical-sparsity', '', copy('一个样本激活一个交叉槽', 'One Sample Activates One Cross Slot'), copy('行是街区，列是房型；apt. 表示 apartment。4×4 共 16 个槽，先按行再按列编号。south×condo 位于第 1 行、第 1 列，因此激活 1×4+1=5 号槽，其余都是 0。此图展示单个样本，不是多条记录的计数。', 'Rows are districts and columns are property types; apt. means apartment. The 4×4 grid has 16 slots numbered row first, then column. south×condo is at row 1, column 1, activating slot 1×4+1=5. Every other value is 0. This is one sample, not counts across many records.'), []), assetPath: '/data-lab/diagrams/categorical/cross.svg', layout: 'compact' },
       video('categorical-one-hot-video', 'categorical-one-hot-flow', copy('one-hot 动画', 'One-hot animation'), copy('展示类别如何映射到固定向量槽位。', 'Shows categories mapping into fixed vector slots.')),
       video('feature-cross-video', 'feature-cross-sparsity', copy('特征交叉动画', 'Feature-cross animation'), copy('展示交叉维度如何随词表增长。', 'Shows cross dimensionality growing with vocabularies.')),
     ],
