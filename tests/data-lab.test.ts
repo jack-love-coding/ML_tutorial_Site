@@ -169,11 +169,19 @@ test('data lab references stay lightweight and visual assets are teaching-orient
     for (const visual of moduleDefinition.visuals) {
       assertLocalized(visual.title, `${visual.id} visual title`)
       assertLocalized(visual.caption, `${visual.id} visual caption`)
-      assert.match(visual.assetPath, visual.type === 'image' ? /^\/data-lab\/generated\// : /^\/manim\/data-lab\//)
+      const exactDiagrams: Record<string, string> = {
+        'categorical-vocabulary': '/data-lab/diagrams/categorical/vocabulary.svg',
+        'categorical-sparsity': '/data-lab/diagrams/categorical/cross.svg',
+      }
+      if (exactDiagrams[visual.id]) assert.equal(visual.assetPath, exactDiagrams[visual.id])
+      else assert.match(visual.assetPath, visual.type === 'image' ? /^\/data-lab\/generated\// : /^\/manim\/data-lab\//)
       assert.ok(existsSync(new URL(`public${visual.assetPath}`, root)), `${visual.assetPath} should exist`)
 
       if (visual.type === 'image') {
-        assert.equal((visual.labels?.length ?? 0) >= 4, true, `${visual.id} needs explanatory overlay labels`)
+        if (exactDiagrams[visual.id]) {
+          assert.equal(visual.layout, 'compact')
+          assert.equal(visual.labels?.length, 0, 'exact SVGs label their own slots; native bilingual captions explain them')
+        } else assert.equal((visual.labels?.length ?? 0) >= 4, true, `${visual.id} needs explanatory overlay labels`)
         if (visual.assetPath.includes('-v2.png')) {
           assert.equal((visual.labels?.length ?? 0) >= 5, true, `${visual.id} needs dense explanatory overlay labels`)
         }
