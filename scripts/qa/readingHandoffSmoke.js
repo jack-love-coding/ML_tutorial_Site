@@ -4,6 +4,8 @@ async (page) => {
   if (!cases.length) throw new Error('Missing handoff cases')
   const manifest = await (await page.request.get(base + '/textbook-readings.json')).json()
   const readings = manifest.units.flatMap(unit => unit.readings)
+  // GitHub Pages adds a trailing slash to static directories; route queries and hashes must still match.
+  const withoutTrailingPathSlash = url => url.replace(/^([^?#]*)\/([?#]|$)/, '$1$2')
   const errors = []; let passed = 0
   page.on('pageerror', error => errors.push(error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
@@ -38,14 +40,14 @@ async (page) => {
       await link.focus()
       if (!(await link.evaluate(anchor => Number.parseFloat(getComputedStyle(anchor).outlineWidth) >= 2))) throw new Error('Missing keyboard focus indicator')
       await page.keyboard.press('Enter')
-      await page.waitForURL(target)
+      await page.waitForURL(url => withoutTrailingPathSlash(url.href) === withoutTrailingPathSlash(target))
       await page.waitForLoadState('networkidle')
       if (probe.optionalPath) {
         if (probe.moduleId === 'python-notebook') await page.locator('[data-testid="python-data-tools-current-chapter"][data-section-id="seaborn-statistics"]').waitFor()
         else await page.locator('#monte-carlo-reproducible-randomness').waitFor()
       } else await page.getByTestId('reading-navigation').first().waitFor()
       await page.reload(); await page.waitForLoadState('networkidle')
-      if (page.url() !== target || await stored() !== before) throw new Error('Lost route or mutated learning storage')
+      if (withoutTrailingPathSlash(page.url()) !== withoutTrailingPathSlash(target) || await stored() !== before) throw new Error('Lost route or mutated learning storage')
       passed++
     }
   }
