@@ -1,0 +1,9 @@
+.frozen-figure-open { display: block; margin: .75rem 0; }
+.frozen-figure-open, .frozen-figure-toolbar button { min-height: 44px; padding: .5rem .75rem; cursor: pointer; }
+.frozen-figure-dialog { box-sizing: border-box; width: min(1100px, 96vw); max-width: 96vw; max-height: 94dvh; padding: 1rem; border: 2px solid #64748b; border-radius: 8px; background: #fff; color: #182238; }
+.frozen-figure-dialog::backdrop { background: rgb(0 0 0 / .65); }
+.frozen-figure-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.frozen-figure-dialog p { margin: .75rem 0; font-size: 1rem; line-height: 1.5; }
+.frozen-figure-viewport { overflow: auto; max-height: 65dvh; border: 1px solid #64748b; }
+.frozen-figure-viewport img { display: block; max-width: none; height: auto; }
+.frozen-figure-dialog :focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }

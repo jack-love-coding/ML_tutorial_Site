@@ -7,6 +7,7 @@ import type { LinearRegressionLessonBlock } from '../types/linearRegressionLesso
 import { withPublicBase } from '../utils/publicPath'
 import CodeLab from '../modules/math-lab/components/CodeLab.vue'
 import MarkdownMathContent from './MarkdownMathContent.vue'
+import FrozenFigureImage from './FrozenFigureImage.vue'
 
 const props = defineProps<{ block: LinearRegressionLessonBlock }>()
 const { locale } = useI18n()
@@ -99,12 +100,10 @@ watch(() => props.block.id, () => {
       </div>
       <small>Notebook cell · {{ figure.sourceCellId }}</small>
     </div>
-    <img
+    <FrozenFigureImage
       v-if="!imageUnavailable"
-      :src="withPublicBase(figure.publicPath)"
+      :locale="activeLocale" :src="withPublicBase(figure.publicPath)"
       :alt="localized(figure.alt)"
-      loading="lazy"
-      decoding="async"
       @error="imageUnavailable = true"
     />
     <div v-else class="linear-lesson-block__figure-fallback" role="img" :aria-label="localized(figure.alt)">

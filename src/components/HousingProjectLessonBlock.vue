@@ -7,6 +7,7 @@ import type { AppLocale, LocalizedCopy } from '../types/ml'
 import { withPublicBase } from '../utils/publicPath'
 import CodeLab from '../modules/math-lab/components/CodeLab.vue'
 import MarkdownMathContent from './MarkdownMathContent.vue'
+import FrozenFigureImage from './FrozenFigureImage.vue'
 
 const props = defineProps<{ block: HousingProjectLessonBlock }>()
 const { locale } = useI18n()
@@ -56,7 +57,7 @@ watch(() => props.block.id, () => { imageUnavailable.value = false })
       <div><span class="housing-block__eyebrow">{{ zh ? '真实数据图表' : 'Real-data figure' }}</span><h3>{{ localized(figure.title) }}</h3></div>
       <small>Notebook cell · {{ figure.sourceCellId }}</small>
     </header>
-    <img v-if="!imageUnavailable" :src="withPublicBase(figure.publicPath)" :alt="localized(figure.alt)" loading="lazy" decoding="async" @error="imageUnavailable = true" />
+    <FrozenFigureImage v-if="!imageUnavailable" :locale="activeLocale" :src="withPublicBase(figure.publicPath)" :alt="localized(figure.alt)" @error="imageUnavailable = true" />
     <div v-else class="housing-block__figure-fallback" role="img" :aria-label="localized(figure.alt)"><strong>{{ zh ? '图表文字版' : 'Text alternative' }}</strong><p>{{ localized(figure.fallback) }}</p></div>
     <figcaption>{{ localized(figure.caption) }}</figcaption>
     <p class="housing-block__reading-hint"><strong>{{ zh ? '阅读提示：' : 'Reading hint: ' }}</strong>{{ localized(figure.readingHint) }}</p>
