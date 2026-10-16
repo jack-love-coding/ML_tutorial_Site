@@ -32,7 +32,8 @@ const relative = computed(() => (props.asset.baseline.rmse - candidate.value.rms
       <line x1="54" :y1="py(asset.baseline[metric])" :x2="width - 20" :y2="py(asset.baseline[metric])" class="scene-baseline" />
       <polyline :points="points.map((p) => `${p.x},${py(p.y)}`).join(' ')" class="scene-line" />
       <g v-for="(point, index) in points" :key="asset.ridgePath[index].alpha"><circle :cx="point.x" :cy="py(point.y)" :r="index === alphaIndex ? 10 : 6" :class="index === alphaIndex ? 'scene-point is-selected' : 'scene-point'" /><text :x="point.x" y="325" text-anchor="middle" class="scene-small">{{ asset.ridgePath[index].alpha }}</text></g>
-      <text :x="width - 25" :y="py(asset.baseline[metric]) - 8" text-anchor="end" class="scene-small">LinearRegression</text>
+      <line :x1="width - 180" y1="19" :x2="width - 155" y2="19" class="scene-baseline" />
+      <text :x="width - 25" y="24" text-anchor="end" class="scene-small">LinearRegression</text>
     </svg>
     <div class="housing-scene__decision" :class="{ 'is-pass': relative >= asset.selectionThreshold }"><span>{{ zh ? '相对 RMSE 改善' : 'Relative RMSE improvement' }}</span><strong>{{ (relative * 100).toFixed(5) }}%</strong><small>{{ zh ? `采用门槛 ${(asset.selectionThreshold * 100).toFixed(0)}%` : `Adoption threshold ${(asset.selectionThreshold * 100).toFixed(0)}%` }}</small></div>
     <p class="housing-scene__watch"><strong>{{ zh ? '观察结果：' : 'What changed: ' }}</strong>{{ zh ? `当前候选没有越过门槛，冻结 ${asset.selectedModel}；不打开测试集来寻找更好看的一组参数。` : `The candidate does not clear the threshold, so ${asset.selectedModel} is frozen without opening test to hunt for a better-looking result.` }}</p>

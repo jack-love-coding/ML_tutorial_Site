@@ -31,6 +31,7 @@ async (page) => {
         if (!(await row.textContent()).includes(Math.abs(value).toFixed(3))) throw new Error('Contribution label changed')
       }
     }
+    if (chapter === 'review-next-iteration' && await selects.nth(1).locator('option').count() !== asset.residualSample.length) throw new Error('All residuals lost selectable rows')
     if (chapter === 'review-next-iteration' && !(await scene.locator('.housing-scene__watch').innerText()).includes(locale === 'en' ? 'A sample of final test residuals' : '当前显示测试残差抽样')) throw new Error('All residuals incorrectly use a subgroup summary')
     if (chapter === 'review-next-iteration') for (const value of Object.values(asset.testMetrics)) {
       if (!(await scene.innerText()).includes(value.toFixed(6))) throw new Error('Frozen test result changed')
