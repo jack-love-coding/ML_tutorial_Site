@@ -170,6 +170,8 @@ test('data lab references stay lightweight and visual assets are teaching-orient
       assertLocalized(visual.title, `${visual.id} visual title`)
       assertLocalized(visual.caption, `${visual.id} visual caption`)
       const exactDiagrams: Record<string, string> = {
+        'cleaning-policy-map': '/data-lab/diagrams/scaling/fit-and-transform.svg',
+        'cleaning-flow': '/data-lab/diagrams/cleaning/four-policies.svg',
         'categorical-vocabulary': '/data-lab/diagrams/categorical/vocabulary.svg',
         'categorical-sparsity': '/data-lab/diagrams/categorical/cross.svg',
       }

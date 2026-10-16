@@ -770,6 +770,7 @@
   justify-content: space-between;
 }
 
+.data-lab-reset,
 .data-pipeline-task-lab__heading button,
 .data-pipeline-task-lab__scenarios button {
   min-width: 0;
@@ -781,6 +782,7 @@
   cursor: pointer;
 }
 
+.data-lab-reset,
 .data-pipeline-task-lab__heading button {
   padding: 0 12px;
   border-radius: 999px;

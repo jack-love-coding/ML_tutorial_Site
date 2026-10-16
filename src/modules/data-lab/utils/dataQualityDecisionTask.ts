@@ -6,6 +6,7 @@ import {
   isMissing,
   tableShape,
 } from './tableTransforms.ts'
+import { trainingRoomsMedian } from './cleaningTeachingExample.ts'
 
 export const dataQualityDecisionScenarioIds = [
   'missing-rooms',
@@ -101,7 +102,7 @@ function currentShape(): string {
 
 function missingRoomsScenario(): ScenarioDefinition {
   const missingRows = housingTeachingTable.rows.filter((row) => isMissing(row.rooms)).length
-  const afterShape = tableShape(fillMissing(housingTeachingTable, 'rooms', 3))
+  const afterShape = tableShape(fillMissing(housingTeachingTable, 'rooms', trainingRoomsMedian))
 
   return {
     id: 'missing-rooms',

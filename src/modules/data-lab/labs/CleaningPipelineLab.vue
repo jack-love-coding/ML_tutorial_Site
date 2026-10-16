@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import DataTableView from '../components/DataTableView.vue'
-import type { DataLabLocale, DataTable, PipelineStep } from '../types/dataLab'
+import type { DataLabLocale, PipelineStep } from '../types/dataLab'
+import { applyCleaningTeachingSteps, cleaningPriceBounds, cleaningStepIds, trainingRoomsMedian } from '../utils/cleaningTeachingExample.ts'
 import {
-  castColumn,
-  clipColumn,
-  dropDuplicates,
-  fillMissing,
   housingTeachingTable,
   profileColumns,
   tableShape,
@@ -18,7 +15,7 @@ const props = withDefaults(defineProps<{
   locale: 'zh-CN',
 })
 
-const activeStepIds = ref(['fill-rooms', 'clip-price', 'dedupe', 'parse-date'])
+const activeStepIds = ref<string[]>([...cleaningStepIds])
 
 function copy(zh: string, en: string) {
   return { 'zh-CN': zh, en }
@@ -28,14 +25,14 @@ const steps: PipelineStep[] = [
   {
     id: 'fill-rooms',
     label: copy('填充缺失房间数', 'Fill missing rooms'),
-    pandasCode: "df['rooms'] = df['rooms'].fillna(df['rooms'].median())",
-    description: copy('用训练集中位数填充缺失房间数。', 'Fill missing room counts with the training median.'),
+    pandasCode: "rooms_fill = train_df['rooms'].median()\ndf['rooms'] = df['rooms'].fillna(rooms_fill)",
+    description: copy(`用原始训练片段的中位数 ${trainingRoomsMedian} 填补；这是插补值。`, `Use the original training fragment’s median ${trainingRoomsMedian}; this is an imputed value.`),
   },
   {
     id: 'clip-price',
     label: copy('裁剪价格离群点', 'Clip price outlier'),
-    pandasCode: "df['price'] = df['price'].clip(lower=100, upper=1200)",
-    description: copy('把明显越界的价格限制到审计后的合理范围。', 'Limit extreme prices to an audited plausible range.'),
+    pandasCode: `df['price'] = df['price'].clip(lower=${cleaningPriceBounds.lower}, upper=${cleaningPriceBounds.upper})`,
+    description: copy('演示预先指定的 [100,1200] 裁剪规则；极端值不一定是错误。', 'Demonstrate predeclared [100,1200] clipping bounds; an extreme value need not be an error.'),
   },
   {
     id: 'dedupe',
@@ -56,7 +53,8 @@ const copyText = computed(() =>
     ? {
         eyebrow: '交互实验',
         title: '清洗流水线实验',
-        subtitle: '切换清洗步骤，观察表格形状、缺失值和 pandas 代码怎样一起变化。',
+        subtitle: '这六行仅作训练片段。切换步骤，观察 shape、缺失与代码；真实任务先划分，再拟合填充值。',
+        reset: '重置',
         input: '输入表',
         output: '输出表',
         shape: '形状',
@@ -65,7 +63,8 @@ const copyText = computed(() =>
     : {
         eyebrow: 'Interactive lab',
         title: 'Cleaning Pipeline Lab',
-        subtitle: 'Toggle cleaning steps and watch table shape, missingness, and pandas code change together.',
+        subtitle: 'These six rows are a training-only fragment. Toggle steps and compare shape, missingness, and code. In a real task, split before fitting fill values.',
+        reset: 'Reset',
         input: 'input table',
         output: 'output table',
         shape: 'shape',
@@ -75,17 +74,7 @@ const copyText = computed(() =>
 
 const activeSteps = computed(() => steps.filter((step) => activeStepIds.value.includes(step.id)))
 
-function applyStep(table: DataTable, stepId: string) {
-  if (stepId === 'fill-rooms') return fillMissing(table, 'rooms', 3)
-  if (stepId === 'clip-price') return clipColumn(table, 'price', 100, 1200)
-  if (stepId === 'dedupe') return dropDuplicates(table, ['id'])
-  if (stepId === 'parse-date') return castColumn(table, 'listed_at', 'datetime')
-  return table
-}
-
-const outputTable = computed(() =>
-  activeSteps.value.reduce((table, step) => applyStep(table, step.id), housingTeachingTable),
-)
+const outputTable = computed(() => applyCleaningTeachingSteps(activeStepIds.value))
 
 const outputProfile = computed(() => profileColumns(outputTable.value))
 const inputShape = computed(() => tableShape(housingTeachingTable))
@@ -122,7 +111,9 @@ const outputShape = computed(() => tableShape(outputTable.value))
         </label>
       </div>
 
-      <pre class="data-code-block"><code>{{ activeSteps.map((step) => step.pandasCode).join('\n') }}</code></pre>
+      <button type="button" class="data-lab-reset" @click="activeStepIds = [...cleaningStepIds]">{{ copyText.reset }}</button>
+
+      <pre class="data-code-block"><code>{{ 'df = train_df.copy()  # training-only teaching fragment\n' + activeSteps.map((step) => step.pandasCode).join('\n') }}</code></pre>
 
       <div class="data-quality-list">
         <article v-for="profile in outputProfile" :key="profile.key">
