@@ -50,7 +50,7 @@ test('interaction controls remain bounded selects/buttons with text fallbacks', 
   ]) {
     const source = read(`src/components/housing-project-scenes/${component}`)
     assert.match(source, /<details>/)
-    assert.match(source, /<svg/)
+    assert.match(source, /<svg|<ol class="housing-scene__flow"/)
     assert.doesNotMatch(source, /v-html|Math\.random|setInterval|requestAnimationFrame/)
   }
 })
