@@ -25,21 +25,11 @@ const roleLabel = computed(() => ({ feature: zh.value ? '模型输入' : 'Model 
       <article><span>{{ zh ? '特征数' : 'Features' }}</span><strong>{{ asset.featureCount }}</strong></article>
       <article><span>{{ zh ? '当前角色' : 'Current role' }}</span><strong>{{ roleLabel }}</strong></article>
     </div>
-    <svg viewBox="0 0 760 250" role="img" :aria-label="zh ? '数据字段到模型输入与目标的流程图' : 'Flow from dataset fields to model input and target'">
-      <defs><marker id="contract-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" /></marker></defs>
-      <rect x="24" y="54" width="200" height="140" rx="12" class="scene-panel" />
-      <text x="124" y="82" text-anchor="middle" class="scene-label">{{ zh ? '本地 CSV' : 'Local CSV' }}</text>
-      <text x="124" y="118" text-anchor="middle" class="scene-value">{{ row?.row_id }}</text>
-      <text x="124" y="154" text-anchor="middle" class="scene-small">{{ field?.name }} = {{ typeof value === 'number' ? value.toFixed(3) : value }}</text>
-      <path d="M224 124 H326" class="scene-arrow" marker-end="url(#contract-arrow)" />
-      <rect x="336" y="68" width="170" height="112" rx="12" class="scene-panel is-active" />
-      <text x="421" y="105" text-anchor="middle" class="scene-label">{{ field?.name }}</text>
-      <text x="421" y="142" text-anchor="middle" class="scene-value">{{ roleLabel }}</text>
-      <path d="M506 124 H608" class="scene-arrow" marker-end="url(#contract-arrow)" />
-      <rect x="618" y="68" width="118" height="112" rx="12" class="scene-panel" />
-      <text x="677" y="108" text-anchor="middle" class="scene-label">{{ field?.role === 'feature' ? 'X' : field?.role === 'target' ? 'y' : '—' }}</text>
-      <text x="677" y="142" text-anchor="middle" class="scene-small">{{ field?.unit }}</text>
-    </svg>
+    <ol class="housing-scene__flow" :aria-label="zh ? '数据字段到模型输入与目标的流程' : 'Dataset field to model input and target'">
+      <li><strong>1 · {{ zh ? '本地 CSV' : 'Local CSV' }}</strong><span>{{ row?.row_id }}</span><span>{{ field?.name }} = {{ typeof value === 'number' ? value.toFixed(3) : value }}</span></li>
+      <li><strong>2 · {{ field?.name }}</strong><span>{{ roleLabel }}</span></li>
+      <li><strong>3 · {{ field?.role === 'feature' ? 'X' : field?.role === 'target' ? 'y' : (zh ? '不进入模型' : 'Outside the model') }}</strong><span>{{ field?.unit }}</span></li>
+    </ol>
     <p class="housing-scene__watch"><strong>{{ zh ? '观察结果：' : 'What changed: ' }}</strong>{{ zh ? `字段 ${field?.name} 的角色是“${roleLabel}”，单位为 ${field?.unit}。` : `${field?.name} is “${roleLabel}” and uses ${field?.unit}.` }}</p>
     <details><summary>{{ zh ? '查看文字数据表' : 'View text data table' }}</summary><table><tbody><tr><th>{{ zh ? '字段' : 'Field' }}</th><td>{{ field?.name }}</td></tr><tr><th>{{ zh ? '角色' : 'Role' }}</th><td>{{ roleLabel }}</td></tr><tr><th>{{ zh ? '单位' : 'Unit' }}</th><td>{{ field?.unit }}</td></tr><tr><th>{{ zh ? '当前值' : 'Current value' }}</th><td>{{ value }}</td></tr></tbody></table></details>
   </div>

@@ -32,6 +32,7 @@ try {
   matrices.push(['data-reading-figures', 'dataReadingFiguresSmoke.js'])
   matrices.push(['vector-reading-figures', 'vectorReadingFiguresSmoke.js'])
   matrices.unshift(['frozen-figures', 'frozenFigureSmoke.js'])
+  matrices.unshift(['housing-mobile', 'housingMobileSmoke.js'])
   // Each matrix gets an isolated browser profile; every profile is closed even after failure.
   const requested = new Set(process.argv.slice(2))
   for (const name of requested) if (!matrices.some(([session]) => session === name)) throw new Error(`Unknown matrix: ${name}`)
