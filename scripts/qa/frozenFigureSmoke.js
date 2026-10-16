@@ -27,7 +27,10 @@ async (page) => {
     await viewport.focus(); await page.keyboard.press('ArrowRight')
     await page.waitForFunction(() => document.querySelector('dialog[open] .frozen-figure-viewport').scrollLeft > 0)
     await dialog.getByRole('button', { name: locale === 'en' ? 'Reset' : '重置', exact: true }).click()
-    if (await dialog.locator('output').innerText() !== '100%' || await viewport.evaluate(el => el.scrollLeft) !== 0) throw new Error('Reset failed')
+    await page.waitForFunction(() => {
+      const dialog = document.querySelector('dialog[open]')
+      return dialog.querySelector('output').textContent === '100%' && dialog.querySelector('.frozen-figure-viewport').scrollLeft === 0
+    })
     await dialog.getByRole('button', { name: locale === 'en' ? 'Close' : '关闭', exact: true }).focus()
     await page.keyboard.press('Shift+Tab')
     if (!(await page.evaluate(() => document.activeElement?.closest('dialog') !== null))) throw new Error('Modal focus escaped')
