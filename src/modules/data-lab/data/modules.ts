@@ -10,6 +10,7 @@ import type {
   LocalizedCopy,
   SourceReference,
 } from '../types/dataLab'
+import { cleaningReadingVisual, scalingReadingVisual } from './cleaningReadingVisuals.ts'
 
 const md = String.raw
 
@@ -245,10 +246,14 @@ A classroom exercise is to tag each column as continuous numeric, ordinal, categ
         copy(
           md`数值列常常来自不同单位：价格、面积、年龄、点击次数、评分和距离的范围完全不同。缩放的目的不是让表格看起来整齐，而是让模型在训练时面对可比较的变化。标准化通常使用均值和标准差，归一化通常使用最小值和最大值。为什么重要：这些参数只能从训练集估计，然后原样用于验证集、测试集和新样本，否则评估过程会提前知道不该知道的信息。
 
-离群点也要先解释再处理。一个极端房价可能是录入错误，也可能是真实豪宅；一个异常点击量可能是作弊，也可能是热门事件。pandas 中的 clip、isna、describe 和分位数统计可以帮助学生观察范围，但是否删除、裁剪或保留，必须由业务含义和训练目标共同决定。`,
+下图只回答“缩放参数从哪里来”。沿训练值 → 均值／标准差 → 验证值的箭头手算，验证样本不能改变训练参数。到本章末尾的 split / fit / transform 实验，选择“先划分，再只 fit 训练集”，核对房间数 μ=2.5、σ≈1.118、验证值 3 变为约 0.447；再切换全表 fit，解释为什么数值变了。
+
+缩放改变单位和范围，不会自行删除离群点。极端房价可能是录入错误，也可能是真实豪宅；裁剪与删除都需要业务依据。缺失、重复和坏值的处理回看[数据质量课](/learn/dataset-quality/missing-bad-duplicate?route=core-learning-path)，这里专注训练参数的估计与复用。`,
           md`Numeric columns often come from different units: price, area, age, click count, rating, and distance have very different ranges. Scaling is not cosmetic cleanup; it makes changes comparable during training. Standardization usually uses mean and standard deviation, while normalization often uses minimum and maximum. This matters because these parameters must be estimated from training data, then reused for validation, test, and new examples, or evaluation will peek at information it should not know.
 
-Outliers must be interpreted before they are handled. An extreme house price may be a data-entry error or a real luxury property; unusual clicks may be fraud or a genuine event. In pandas, clip, isna, describe, and quantile summaries help students observe range, but deletion, clipping, or retention must follow business meaning and the training goal.`,
+The figure asks only where scaling parameters come from. Calculate along training values → mean/standard deviation → validation value; the validation example must not change the fitted parameters. In this chapter’s later split / fit / transform lab, select “Split first, fit train only” and verify rooms μ=2.5, σ≈1.118, and validation value 3 becoming about 0.447. Then fit all rows and explain why the numbers change.
+
+Scaling changes units and range; it does not automatically delete outliers. An extreme price can be a data-entry error or a genuine luxury property, so clipping and deletion need domain evidence. Revisit [data quality](/learn/dataset-quality/missing-bad-duplicate?route=core-learning-path) for missing, duplicate, and invalid values; this section focuses on fitting and reusing training parameters.`,
         ),
         { visualIds: ['cleaning-policy-map'] },
       ),
@@ -286,13 +291,7 @@ The browser lab simulates pandas-style table changes in TypeScript so students c
         { id: 'scale', x: 70, y: 18, label: copy('缩放/编码', 'Scale / encode') },
         { id: 'vector', x: 91, y: 29, label: copy('特征向量', 'Feature vector') },
       ]),
-      image('cleaning-policy-map', 'cleaning-policy-map-v2.png', copy('数值清洗策略图', 'Numeric cleaning policy map'), copy('缺失、重复、坏值和离群点需要不同策略，并且必须记录对训练数据的影响。', 'Missing values, duplicates, bad values, and outliers need different policies, with training impact recorded.'), [
-        { id: 'missing', x: 17, y: 25, label: copy('缺失', 'Missing') },
-        { id: 'duplicate', x: 36, y: 25, label: copy('重复', 'Duplicate') },
-        { id: 'bad', x: 56, y: 25, label: copy('坏值', 'Bad value') },
-        { id: 'outlier', x: 76, y: 25, label: copy('离群点', 'Outlier') },
-        { id: 'audit', x: 50, y: 82, label: copy('记录策略', 'Record policy') },
-      ]),
+      scalingReadingVisual,
       video('data-types-video', 'data-types-feature-flow', copy('特征流动画', 'Feature-flow animation'), copy('展示数据列如何进入特征向量。', 'Shows how data columns enter feature vectors.')),
     ],
     labs: [
@@ -509,10 +508,18 @@ The classroom goal is to write a data-issue checklist before training. At minimu
         copy(
           md`清洗不是把“不整齐”的数据全部删除。缺失值可能代表没有采集、没有发生、不适用或被用户拒绝填写；坏值可能来自解析错误；重复记录可能来自日志重试；离群点可能是真实少数情况。为什么重要：不同问题需要不同策略，统一删除常常会改变训练分布，让模型远离真实场景。
 
-pandas 对照中，isna、duplicated、clip、drop_duplicates、fillna 和分组统计能帮助学生定位问题。每次处理都要回答三个问题：删除或替换了多少行，是否集中影响某个群体，处理规则在预测时能否执行。`,
+pandas 对照中，isna、duplicated、clip、drop_duplicates、fillna 和分组统计能帮助学生定位问题。每次处理都要回答三个问题：删除或替换了多少行，是否集中影响某个群体，处理规则在预测时能否执行。
+
+**操作步骤：** 下图与实验共用六行训练片段。先关闭全部步骤，再逐个打开，每次只比较一个动作：行数是否变化、哪些值被改写、还留下哪些缺失。用图注中的数值核对输出，再按“重置”恢复四项全开。不要把插补值当成真实观察值，也不要把完成四个动作当成数据已完全干净。
+
+这份片段只演示动作，和数值课的缩放表、房价项目冻结数据是不同案例。真实任务沿用上一课的划分边界：补值、缩放等统计量在训练集拟合，验证集与测试集复用。`,
           md`Cleaning is not deleting everything that looks untidy. Missing values may mean not collected, did not happen, not applicable, or refused by the user; bad values may come from parsing errors; duplicates may come from log retries; outliers may be real minority cases. This matters because different problems need different policies, and blanket deletion often changes the training distribution.
 
-In pandas, isna, duplicated, clip, drop_duplicates, fillna, and grouped summaries help locate issues. Every treatment should answer three questions: how many rows were deleted or replaced, did the rule affect a group disproportionately, and can the same rule run at prediction time?`,
+In pandas, isna, duplicated, clip, drop_duplicates, fillna, and grouped summaries help locate issues. Every treatment should answer three questions: how many rows were deleted or replaced, did the rule affect a group disproportionately, and can the same rule run at prediction time?
+
+**Steps:** the figure and lab share a six-row training fragment. Disable all steps, then enable them one at a time. For each action, compare row count, changed values, and remaining missingness. Verify the output against the figure’s numeric explanation, then use Reset to enable all four steps. Imputed values are not observations, and completing four operations does not establish that the data is fully clean.
+
+This fragment demonstrates operations; it is separate from the numeric lesson’s scaling table and the frozen housing project. For real tasks, reuse the previous lesson’s split boundary: fit imputation and scaling statistics on training data and reuse them for validation and test.`,
         ),
         { visualIds: ['cleaning-flow'], labIds: ['cleaning-pipeline-lab'] },
       ),
@@ -562,12 +569,7 @@ A classroom deliverable can be a one-page table: each issue maps to a pandas che
         { id: 'imbalance', x: 77, y: 18, label: copy('比例', 'proportion') },
         { id: 'report', x: 50, y: 84, label: copy('质量报告', 'report') },
       ]),
-      image('cleaning-flow', 'data-cleaning-preprocessing.png', copy('清洗流程', 'Cleaning workflow'), copy('不同数据问题需要不同处理策略，并记录对训练样本的影响。', 'Different data problems need different treatments, with training impact recorded.'), [
-        { id: 'missing', x: 13, y: 28, label: copy('缺失', 'Missing') },
-        { id: 'bad', x: 34, y: 28, label: copy('坏值', 'Bad values') },
-        { id: 'duplicate', x: 55, y: 28, label: copy('重复', 'Duplicate') },
-        { id: 'outlier', x: 77, y: 28, label: copy('离群', 'Outlier') },
-      ]),
+      cleaningReadingVisual,
       image('pandas-shape-audit', 'pandas-shape-audit-v2.png', copy('shape 审计链', 'Shape-audit chain'), copy('每个数据变换都要记录输入输出 shape、列语义和参数。', 'Every transform records input/output shape, column meaning, and parameters.'), [
         { id: 'input', x: 11, y: 28, label: copy('输入表', 'Input table') },
         { id: 'select', x: 25, y: 16, label: copy('选择', 'Select') },
@@ -575,7 +577,7 @@ A classroom deliverable can be a one-page table: each issue maps to a pandas che
         { id: 'assign', x: 53, y: 16, label: copy('派生', 'Assign') },
         { id: 'audit', x: 50, y: 88, label: copy('审计 shape', 'Audit shape') },
       ]),
-      video('cleaning-video', 'data-cleaning-flow', copy('清洗动画', 'Cleaning animation'), copy('展示缺失、坏值和离群点如何进入处理策略。', 'Shows missing values, bad values, and outliers entering treatment policies.')),
+      video('cleaning-video', 'data-cleaning-flow', copy('清洗顺序示意：格子不对应实际表', 'Cleaning Sequence: Schematic Cells'), copy('动画只示意问题进入处理步骤，格子数量不是本实验的行列数。本页四个动作保留 6 列，去重后由 6 行变为 5 行；补值和日期解析本身不删除行或列。', 'The animation only illustrates issues passing through processing steps; its cell counts are not this lab’s dimensions. These four actions preserve 6 columns and deduplication reduces 6 rows to 5. Imputation and date parsing alone remove neither rows nor columns.')),
       video('eda-video', 'eda-split-apply', copy('EDA 分组动画', 'EDA grouped-analysis animation'), copy('展示分组统计如何暴露比例和质量问题。', 'Shows grouped statistics exposing proportion and quality issues.')),
     ],
     labs: [
