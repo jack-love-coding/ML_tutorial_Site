@@ -1,6 +1,19 @@
 import type { CurriculumReadingStep } from '../../../curriculum/types.ts'
 import type { MathLabModule } from '../types/mathLab.ts'
 
+/** Build the small anchor index used before lazy course loading, including repeated placements. */
+export function mathVisualLessonAnchors(module: MathLabModule): Record<string, string> {
+  const anchors: Record<string, string> = {}
+  for (const section of module.sections) for (const id of section.visualIds ?? []) {
+    if (anchors[id]) anchors[`${id}--${section.id}`] = section.id
+    else {
+      anchors[id] = section.id
+      for (const alias of module.visuals.find(asset => asset.id === id)?.legacyAnchorIds ?? []) anchors[alias] = section.id
+    }
+  }
+  return anchors
+}
+
 /** Project the final course without changing its authoritative body or resource ownership. */
 export function projectMathReading(module: MathLabModule, step?: CurriculumReadingStep): MathLabModule {
   if (!step?.lessonIds || step.moduleId !== module.id) return module

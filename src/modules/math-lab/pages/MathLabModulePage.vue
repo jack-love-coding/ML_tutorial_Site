@@ -141,6 +141,10 @@ const remainingLabs = computed(() =>
   moduleDefinition.value?.labs.filter((lab) => !inlineLabIds.value.has(lab.id)) ?? [],
 )
 const hasSupplements = computed(() => remainingDisplayAssets.value.length > 0 || remainingLabs.value.length > 0)
+const inlineCodeConceptIds = computed(() => new Set(moduleDefinition.value?.sections.flatMap(section => section.codeConceptIds ?? []) ?? []))
+function codeConceptsForSection(section: MathLabSection) {
+  return (section.codeConceptIds ?? []).flatMap(id => moduleDefinition.value?.concepts.filter(concept => concept.id === id && concept.codeExample) ?? [])
+}
 const observationPrompt = computed(() => observationPromptForModule(moduleDefinition.value?.id ?? moduleId.value))
 
 watch(
@@ -306,7 +310,7 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
             </article>
           </div>
           <CodeLab
-            v-if="concept.codeExample"
+            v-if="concept.codeExample && !inlineCodeConceptIds.has(concept.id)"
             :title="concept.name[currentLocale]"
             :code="concept.codeExample"
             :output="concept.codeOutput?.[currentLocale]"
@@ -343,6 +347,17 @@ function conceptIllustrationSrc(asset?: ConceptIllustration) {
               <h2>{{ section.title[currentLocale] }}</h2>
             </header>
             <MarkdownMathContent :source="section.content[currentLocale]" />
+            <CodeLab
+              v-for="concept in codeConceptsForSection(section)"
+              :key="concept.id"
+              :title="concept.name[currentLocale]"
+              :code="concept.codeExample!"
+              :output="concept.codeOutput?.[currentLocale]"
+              :label="currentLocale === 'zh-CN' ? '代码示例' : 'Code example'"
+              :copy-label="currentLocale === 'zh-CN' ? '复制代码' : 'Copy code'"
+              :copied-label="currentLocale === 'zh-CN' ? '已复制' : 'Copied'"
+              :output-label="currentLocale === 'zh-CN' ? '运行输出' : 'Output'"
+            />
           </article>
 
           <section

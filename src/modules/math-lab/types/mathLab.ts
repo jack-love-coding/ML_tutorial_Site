@@ -78,6 +78,8 @@ export interface MathLabSection {
   content: LocalizedCopy
   visualIds?: string[]
   labIds?: string[]
+  /** Place existing concept code at its reading step, without duplicating the source. */
+  codeConceptIds?: string[]
 }
 
 export interface MathConcept {

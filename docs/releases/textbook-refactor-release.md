@@ -13,8 +13,11 @@
 | PR | 交付 | PR CI | 合并 SHA | Pages Actions | 通过：测试 / 教材浏览器 / 线上抽查 |
 | --- | --- | --- | --- | --- | --- |
 | [#98](https://github.com/jack-love-coding/ML_tutorial_Site/pull/98) | 六张窄幅概率图、精确数表与同例教案、旧锚点兼容 | [成功 / 38855862343](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38855862343) | [22e19778](https://github.com/jack-love-coding/ML_tutorial_Site/commit/22e1977874510886d06b72476d883c0f9bb80fa7) | [成功 / 38857369474](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38857369474) | 1185 / 493 / 9 |
+| [#99](https://github.com/jack-love-coding/ML_tutorial_Site/pull/99) | 清洗中位数与 pandas 一致、清洗／缩放窄幅图、训练边界与重置 | [成功 / 38860643403](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38860643403) | [beb9a2b9](https://github.com/jack-love-coding/ML_tutorial_Site/commit/beb9a2b98e1639aa941c875a82f51410045fefe0) | [成功 / 38862188769](https://github.com/jack-love-coding/ML_tutorial_Site/actions/runs/38862188769) | 1188 / 511 / 18 |
 
 #98 最终提交 `d1a24dba963681587fb2e0f510aae0f9a92f530f` 的实际 CI 成功后使用 merge commit。旧提交的检查被更新提交取代并取消，不作为通过证据。Pages build/deploy 均成功，线上 `release.json` 的 sha 为 `22e1977874510886d06b72476d883c0f9bb80fa7`、previousSha 为 `fe13e26aac192cda3acd932a516c78fd55a619fa`、runId 为 `38857369474`，随后真实站点九个新图场景通过。
+
+#99 最终提交 `1fdd4c1c430c082c997efdd9f48e1587d0857513` 的实际 CI 成功后使用 merge commit。Pages build/deploy 均成功，线上 sha 为 `beb9a2b98e1639aa941c875a82f51410045fefe0`、previousSha 为 `22e1977874510886d06b72476d883c0f9bb80fa7`、runId 为 `38862188769`；真实站点 18 个清洗／缩放场景通过，包括键盘开关、3.5 中位数、重置、图片失败、刷新及历史存储。仅撤回数据课可回到已验证的 `22e19778`。
 
 本批基线与整批回退点为已验证的 `fe13e26aac192cda3acd932a516c78fd55a619fa`。概率课改用的六个 SVG 合计 8,690 bytes，替代的七张正文 PNG 合计 10,045,440 bytes；旧文件保留，此处比较所替换资源而非首页总流量。六单元仍为 pilot，28 项条件跳过仍属本批未验证，冻结 Notebook 未重生成。审查范围和后续小刻度问题见 [10 月 16 日记录](../teaching-visual-audit-2026-10-16.md)。
 

@@ -954,8 +954,9 @@ test('migrated note figures are stored locally', () => {
   const linearAlgebraRouteSource = read('src/modules/math-lab/data/linearAlgebraRouteModules.ts')
   const beginnerSourcesDoc = read('docs/math-lab-beginner-bridge-sources.md')
   const linearAlgebraRouteDoc = read('docs/math-lab-linear-algebra-route-sources.md')
+  assert.match(read('src/modules/math-lab/data/vectorReadingVisuals.ts'), /ordered-features\.svg/)
+  assert.match(beginnerSourcesDoc, /linear-algebra-feature-cards\.png/)
   for (const assetPath of [
-    'linear-algebra-feature-cards.png',
     'vector-distance-norm-intuition.png',
     'cosine-vs-distance-intuition.png',
     'high-dimensional-embedding-search.png',
