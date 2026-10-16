@@ -33,7 +33,7 @@ async (page) => {
       if (!(await link.evaluate(anchor => getComputedStyle(anchor).textDecorationLine)).includes('underline')) throw new Error('Narrative link is not visually identifiable')
       if (await page.locator('.katex-error').count() || await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) throw new Error('Formula or layout error at ' + page.url())
       if (probe.moduleId === 'beginner-probability-distributions') {
-        for (const name of ['beginner-probability-story.png', 'beginner-sample-space-random-variable-longform.png', 'beginner-distribution-frequency-longform.png']) if (await page.locator(`img[src$="/${name}"]`).count() !== 1) throw new Error('Repeated probability overview image: ' + name)
+        for (const id of ['beginner-probability-story', 'beginner-sample-space-random-variable-longform', 'beginner-distribution-frequency-longform']) if (await page.locator(`figure[id="${id}"] img`).count() !== 1) throw new Error('Repeated probability overview image: ' + id)
       }
       if (!probe.optionalPath && ['python-notebook', 'housing-price-project', 'beginner-probability-distributions', 'model-selection'].includes(probe.moduleId)) await page.screenshot({ path: `/tmp/ml-atlas-handoff-${probe.moduleId}-${locale}-${width}.png` })
       await page.keyboard.press('Tab')

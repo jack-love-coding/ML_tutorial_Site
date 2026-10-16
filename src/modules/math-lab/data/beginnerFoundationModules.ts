@@ -10,6 +10,7 @@ import type {
   SourceReference,
   VisualAsset,
 } from '../types/mathLab'
+import { probabilityReadingVisuals } from './probabilityReadingVisuals.ts'
 
 const md = String.raw
 
@@ -737,7 +738,7 @@ The main line of this chapter is not memorizing formulas. It is learning a way t
 
 Treat probability as AI's language for uncertainty. A sample space names possible outcomes, a random variable turns outcomes into numbers, a distribution describes long-run shape, conditional probability shrinks the space after evidence, Bayes update turns an old belief into a new one, and calibration checks whether model probabilities match real frequencies.`,
     ),
-    { visualIds: ['beginner-probability-story', 'beginner-probability-why-longform'] },
+    { visualIds: ['beginner-probability-story'] },
   ),
   section(
     'beginner-probability-sample-space',
@@ -747,12 +748,12 @@ Treat probability as AI's language for uncertainty. A sample space names possibl
 
 事件是样本空间中的一部分；本例关心的事件是“按时完成”，等价于 \(Z=1\)。若 \(P(Z=0)=0.30\)、\(P(Z=1)=0.70\)，两项都非负且总和为 1。0.70 描述模型分配的概率，观察到的 Z 则只能是 0 或 1。
 
-下图改用硬币、天气和课程标签演示“结果 → 数字”，没有给出各结果的概率。按列阅读可能结果、事件和编码。天气的 2/1/0、课程的 1/2/3/4 只是约定编号，不能据此说类别有大小或计算有意义的平均课程；作为模型输入时仍需单元 2 的类别编码。`,
+下图继续使用同一个“按时完成”事件 A。沿箭头把结果变为 0/1；不要把概率 0.70 当成某次观察到的 Z。这里的 0/1 是事件指示量，所以平均值有“按时比例”的含义。天气、课程等任意类别编号不能直接照搬这个解释；作为模型输入时仍需单元 2 的类别编码。`,
       md`Probability first names what can happen. Continuing the previous task, write the sample space as \(\Omega=\{\text{on time},\text{not on time}\}\). Define random variable \(Z\): on time maps to 1 and not on time maps to 0. A random variable is not a letter that randomly changes by itself; it maps outcomes to computable values.
 
 An event is part of the sample space; here “on time” is the event \(Z=1\). If \(P(Z=0)=0.30\) and \(P(Z=1)=0.70\), both values are nonnegative and sum to 1. The value 0.70 is the probability assigned by the model, while an observed Z can only be 0 or 1.
 
-The figure uses coins, weather, and course labels to show outcomes mapped to numbers; it does not assign their probabilities. Read its columns as outcomes, events, and encodings. Weather codes 2/1/0 and course codes 1/2/3/4 are arbitrary IDs, not magnitudes or meaningful average subjects. Model inputs still need the categorical encoding taught in unit 2.`,
+The figure keeps the same event A, “finishes on time.” Follow the arrows from outcomes to zero or one; do not confuse probability 0.70 with an observed Z. These zeros and ones are event indicators, so their mean is an on-time proportion. By contrast, arbitrary IDs for weather or subjects do not have that interpretation; model inputs still need the categorical encoding taught in unit 2.`,
     ),
     { visualIds: ['beginner-sample-space-random-variable-longform'] },
   ),
@@ -768,7 +769,9 @@ $$
 \sum_i p_i=1,\qquad p_i\ge0.
 $$
 
-均匀分布表示各结果差不多一样可能；二项分布表示多次成功/失败试验里成功次数的规律；normal distribution 常出现在许多小影响相加后的测量误差或自然波动中。看实验时不要只问“这一次掉到哪里”，要问“样本数变多后，频率图正在靠近哪条长期形状”。`,
+上式描述离散分布。下图沿用下一节的 NumPy 参考输出，把 12 次 0/1 样本与假设概率 0.70 放在同一刻度比较；有限样本的频率不必恰好是 0.70。
+
+**操作与解释：** 下方构造器另用六个分桶展示分布形状，和上图的二元任务不同。重置后为均匀分布、种子 11、300 个样本；在 60、300、900 个样本之间切换，观察实线柱与虚线理论值的偏差。更多样本通常更稳定，但每一步误差不必单调减小。切换二项或离散化的正态模式时，可能值及理论分布也会改变，不能继续拿二元任务的 0.70 作比较。`,
       md`One result can be accidental; many results leave a shape. **A distribution answers: after many observations, what shape do the results leave behind?** Drop colored beads into bins repeatedly. Some bins become tall; others remain short. Each bin's relative height is frequency. After many repeats, frequency often moves closer to probability.
 
 A probability distribution assigns probability to each possible value:
@@ -777,7 +780,9 @@ $$
 \sum_i p_i=1,\qquad p_i\ge0.
 $$
 
-A uniform distribution means outcomes are roughly equally likely. A binomial distribution describes how many successes appear in repeated success/failure trials. A normal distribution often appears when many small influences add together, such as measurement noise or natural variation. In the lab, do not only ask "where did this one sample land?" Ask "as sample count grows, which long-run shape is the histogram approaching?"`,
+This formula describes a discrete distribution. The figure uses the next section’s NumPy reference output: twelve binary observations compared with assumed probability 0.70 on the same scale. A finite-sample frequency need not be exactly 0.70.
+
+**Operate and explain:** the builder below uses six bins to show distribution shapes, a different task from the binary figure. Reset to uniform, seed 11, and 300 samples. Switch between 60, 300, and 900 samples and compare bars with the dashed theoretical values. More samples usually stabilize frequency, but error need not decrease at every step. Binomial and discretized-normal modes change the possible values and theoretical distribution; do not compare them with the binary task’s 0.70.`,
     ),
     {
       visualIds: ['beginner-distribution-frequency-longform', 'beginner-probability-frequency-video'],
@@ -883,7 +888,9 @@ $$
 \operatorname{Var}(X)=\mathbb{E}[(X-\mathbb{E}[X])^2].
 $$
 
-如果两个模型平均表现相同，但一个波动很大，一个波动很小，使用体验会完全不同。一个推荐系统平均满意度一样，但天天忽高忽低，用户会觉得不稳定；一个生成模型平均质量不错，但输出方差很大，结果也会难以控制。AI 里的不确定性估计、采样稳定性和数据噪声判断都需要这两个读数。`,
+下图给出两份可手算的假设分布：X 等概率取 1 或 3，以及等概率取 0 或 4。两者的期望都是 2，方差分别是 \(0.5(1-2)^2+0.5(3-2)^2=1\) 和 \(0.5(0-2)^2+0.5(4-2)^2=4\)。先找到共同的均值虚线，再比较圆点到它的距离。
+
+方差描述这个随机变量的波动，不直接证明模型预测准不准。评价模型仍要指定目标、误差指标和同一份评估数据。若 X 有物理单位，均值沿用该单位，方差使用单位的平方。`,
       md`A distribution tells not only which outcomes can appear, but also where the center is and how much spread exists. Expected value is the long-run average:
 
 $$
@@ -896,7 +903,9 @@ $$
 \operatorname{Var}(X)=\mathbb{E}[(X-\mathbb{E}[X])^2].
 $$
 
-If two models have the same average performance but one varies wildly while the other is stable, the user experience differs. A recommendation system with the same average satisfaction but daily swings feels unstable. A generative model with decent average quality but high variance is hard to control. AI uncertainty estimates, sampling stability, and data-noise checks all need these readouts.`,
+The figure supplies two hand-checkable hypothetical distributions: X is equally likely to be 1 or 3, versus equally likely to be 0 or 4. Both have expectation 2. Their variances are \(0.5(1-2)^2+0.5(3-2)^2=1\) and \(0.5(0-2)^2+0.5(4-2)^2=4\). Find the shared mean line, then compare the distances of the dots from it.
+
+Variance describes this random variable’s spread; it does not by itself establish prediction accuracy. Model evaluation still requires a target, error metric, and the same evaluation data. If X has physical units, the mean retains those units and variance uses squared units.`,
     ),
     { visualIds: ['beginner-expectation-variance-longform'] },
   ),
@@ -906,26 +915,18 @@ If two models have the same average performance but one varies wildly while the 
     copy(
       md`分类器最后通常不会只输出一个词，而是输出一排概率。例如 \([0.7,0.2,0.1]\) 表示模型把 70% 的信心放在第一类，20% 放在第二类，10% 放在第三类。它们必须非负，并且总和为 1。
 
-softmax 的作用就是把任意分数变成这样的概率条：
-
-$$
-p_i=\frac{e^{z_i}}{\sum_j e^{z_j}}.
-$$
-
 最高概率的类别是模型当前最倾向的答案，但概率高不等于永远可靠。校准要检查“模型说 70% 的样本，在真实世界里是不是大约 70% 正确”。如果模型经常把 90% 说成 60% 的真实正确率，它不是更聪明，而是过度自信。
 
-读概率条时用三问检查：第一，它们是不是都非负且总和为 1？第二，最高条是否对应真实类别？第三，这个概率值在验证集上能不能当作频率来信任？`,
+**读图步骤：** 下图只比较一组假设的有标签记录：10 条预测都说“90% 把握按时完成”，其中 6 条实际按时。先读横轴平均置信度 0.90，再读纵轴实际正确率 6/10=0.60，最后与虚线 y=x 比较。横纵轴都从 0 到 1，点在虚线下方说明这组预测过度自信。它不是单条样本的“真实概率”，也不是一份真实模型评估报告。
+
+读概率条时分清三个问题：概率是否非负且总和为 1；有真实标签时，预测类别是否正确；把许多同置信度记录放在一起，预测把握是否接近实际正确频率。校准需要足够的独立评估样本和清晰的分组协议，不能由一张十条记录的示意图下总体结论。`,
       md`A classifier usually does not output only one word. It outputs a row of probabilities. For example, \([0.7,0.2,0.1]\) means the model places 70% confidence on the first class, 20% on the second, and 10% on the third. The values must be nonnegative and sum to 1.
-
-Softmax turns arbitrary scores into probability bars:
-
-$$
-p_i=\frac{e^{z_i}}{\sum_j e^{z_j}}.
-$$
 
 The largest probability gives the model's current favorite answer, but high probability does not mean permanent reliability. Calibration checks whether examples predicted at 70% confidence are correct about 70% of the time in reality. If a model often says 90% while real accuracy is 60%, it is not wiser; it is overconfident.
 
-Use three checks when reading probability bars: are all values nonnegative and summing to 1? Is the tallest bar the true class? Can this probability value be trusted as frequency on validation data?`,
+**Read the figure:** this is one hypothetical labelled group. Ten predictions all say “90% confident of finishing on time”; six actually finish on time. Read x as mean confidence 0.90, y as observed accuracy 6/10=0.60, then compare with dashed line y=x. Both axes span 0 to 1. A point below the diagonal shows overconfidence in this group. It is neither one example’s “true probability” nor a real model evaluation report.
+
+Separate three questions: are the probabilities nonnegative and summing to 1; when the true label is available, is the predicted class correct; and over many records with similar confidence, does stated confidence match observed accuracy? Calibration needs enough independent evaluation examples and a clear grouping protocol. Ten illustrative records do not justify a population-wide conclusion.`,
     ),
     { visualIds: ['beginner-calibration-confidence-longform'] },
   ),
@@ -941,7 +942,9 @@ $$
 
 当 \(q=0.8\) 时，损失约为 0.223；当 \(q=0.05\) 时，损失约为 2.996。概率放错地方时惩罚会迅速变大，这就是分类模型和语言模型训练中交叉熵常见的原因。语言模型预测下一个 token，本质上也是在词表这个巨大样本空间上输出概率分布。
 
-把它读成老师的一句话：真实答案不是只要求你“选它”，还要求你“把足够多概率放到它身上”。交叉熵就是用真实类别检查模型概率放得对不对。`,
+**从图到计算：** 下图用三个类别 C0/C1/C2 的分数 z=[1.5,0.3,-0.8]，在温度 1 下计算 \(p_i=e^{z_i}/\sum_j e^{z_j}\)。三个条的长度严格等于相应概率。真实标签设为 C2，框住的是模型分给 C2 的概率 q；用未舍入的 q 取自然对数得到损失。先按下方表格核对概率，再核对 −ln(q)。
+
+这只是“模型概率可以接受数值评价”的预览。后续先读逻辑回归，再到[分类损失](/learn/loss-functions/classification-losses?route=core-learning-path)主讲 BCE、似然与负对数。本节不要求推导参数更新。`,
       md`When training a classifier, we want the model to place more probability on the true class. If the true class has probability \(q\), cross entropy with a one-hot target is
 
 $$
@@ -950,7 +953,9 @@ $$
 
 When \(q=0.8\), the loss is about 0.223. When \(q=0.05\), the loss is about 2.996. The penalty grows quickly when probability is placed in the wrong location. This is why cross entropy is common in classifier and language-model training. A language model predicting the next token is also outputting a probability distribution over a huge vocabulary sample space.
 
-Read it as a teacher's sentence: the true answer does not merely ask you to "choose it"; it asks you to place enough probability on it. Cross entropy checks whether the model put probability in the right place.`,
+**From figure to calculation:** for classes C0/C1/C2, the figure uses scores z=[1.5,0.3,-0.8] and temperature 1 to compute \(p_i=e^{z_i}/\sum_j e^{z_j}\). Every bar length equals its probability. The true label is C2; the outline marks the model probability q assigned to C2. Take the natural logarithm of the unrounded q for the loss. Check the probability table first, then −ln(q).
+
+This previews how model probabilities can be evaluated numerically. Continue to logistic regression before the [classification-loss lesson](/learn/loss-functions/classification-losses?route=core-learning-path), which owns BCE, likelihood, and negative logarithms. Parameter-update derivation is not required here.`,
     ),
     { visualIds: ['beginner-softmax-cross-entropy-longform', 'beginner-calibration-cross-entropy-video'] },
   ),
@@ -1317,31 +1322,11 @@ export const beginnerFoundationModules: MathLabModule[] = [
       concept('beginner-conditional-probability', copy('条件概率', 'Conditional Probability'), 'P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}', [variable('A', '关心的事件。', 'event of interest'), variable('B', '已经知道的条件或信息。', 'known condition or evidence')], copy('条件概率是在已知条件成立的样本空间里重新计算比例。', 'Conditional probability recomputes proportion inside the space where evidence is known.'), copy('像先筛出“带信号”的样本，再数其中有多少属于目标事件。', 'Like filtering examples with a signal, then counting how many belong to the target event.'), copy('1000 封邮件中，带可疑链接的那部分才是计算后验时的新分母。', 'Among 1000 emails, the suspicious-link subset becomes the new denominator for posterior reading.'), copy('验证集切片、分布漂移和公平性分析都依赖“在什么条件下”的概率。', 'Validation slices, distribution shift, and fairness analysis all depend on probability under conditions.')),
       concept('beginner-bayes-update', copy('贝叶斯更新', 'Bayes Update'), 'P(A\\mid B)=\\frac{P(B\\mid A)P(A)}{P(B)}', [variable('P(A)', '看到信号前的先验。', 'prior before evidence'), variable('P(B\\mid A)', '事件成立时看到信号的 likelihood。', 'likelihood of evidence if the event is true'), variable('P(A\\mid B)', '看到信号后的后验。', 'posterior after evidence')], copy('贝叶斯更新把基准比例和信号强度合在一起。', 'Bayes update combines base rate and signal strength.'), copy('像先看班级里近视人数比例，再看“坐最后一排看不清”的信号怎样改变判断。', 'Like starting from the class base rate, then updating after evidence such as difficulty seeing from the back row.'), copy('先验 8%、命中率 82%、误报率 12% 时，后验不是 82%，而要重新按信号人数计算。', 'With 8% prior, 82% hit rate, and 12% false alarm rate, the posterior is not 82%; it must be recomputed from evidence counts.'), copy('垃圾邮件过滤、医学检测和异常检测都要避免忽略 base rate。', 'Spam filtering, medical tests, and anomaly detection must avoid ignoring base rate.')),
       concept('beginner-expectation-variance', copy('期望与方差', 'Expectation and Variance'), '\\mathbb{E}[X]=\\sum_i x_i p_i,\\quad \\operatorname{Var}(X)=\\mathbb{E}[(X-\\mathbb{E}[X])^2]', [variable('\\mathbb{E}[X]', '长期平均中心。', 'long-run average center'), variable('\\operatorname{Var}(X)', '围绕中心的波动大小。', 'spread around the center')], copy('期望读中心，方差读稳定性。', 'Expectation reads center; variance reads stability.'), copy('像看跷跷板的平衡点和球散开的程度。', 'Like reading a balance point and how widely balls scatter around it.'), copy('两个分布可以均值相同，但一个集中、一个分散。', 'Two distributions can share a mean while one is concentrated and the other is spread out.'), copy('采样稳定性、噪声判断和生成模型温度都需要中心与波动。', 'Sampling stability, noise checks, and generation temperature all need center and spread.')),
-      concept('beginner-calibration', copy('校准', 'Calibration'), 'P(Y=1\\mid \\hat p\\approx c)\\approx c', [variable('\\hat p', '模型给出的预测概率。', 'model predicted probability'), variable('c', '某个置信度分箱。', 'a confidence bin')], copy('校准检查模型说出的概率能不能当作真实频率来信任。', 'Calibration checks whether model probabilities can be trusted as real frequencies.'), copy('像把所有“我有 70% 把握”的样本放在一起，看实际对了多少。', 'Like grouping all examples where the model says 70% and checking how many are actually correct.'), copy('若 90% 置信样本只有 60% 正确，模型过度自信。', 'If 90% confidence examples are only 60% correct, the model is overconfident.'), copy('风险控制、医疗分类和推荐排序不能只看 top-1 对错，还要看概率是否可信。', 'Risk control, medical classification, and recommendation ranking need trustworthy probabilities, not only top-1 correctness.')),
+      concept('beginner-calibration', copy('校准', 'Calibration'), 'P(Y=\\hat Y\\mid \\hat c\\approx c)\\approx c', [variable('\\hat c', '所预测类别的置信度，即最高类别概率。', 'confidence of the predicted class: the largest class probability'), variable('Y=\\hat Y', '真实标签与预测类别一致。', 'the true label matches the predicted class'), variable('c', '某个置信度分箱。', 'a confidence bin')], copy('校准检查模型说出的概率能不能当作真实频率来信任。', 'Calibration checks whether model probabilities can be trusted as real frequencies.'), copy('像把所有“我有 70% 把握”的样本放在一起，看实际对了多少。', 'Like grouping all examples where the model says 70% and checking how many are actually correct.'), copy('若 90% 置信样本只有 60% 正确，模型过度自信。', 'If 90% confidence examples are only 60% correct, the model is overconfident.'), copy('风险控制、医疗分类和推荐排序不能只看 top-1 对错，还要看概率是否可信。', 'Risk control, medical classification, and recommendation ranking need trustworthy probabilities, not only top-1 correctness.')),
     ],
     sections: probabilitySections,
     visuals: [
-      imageAsset('beginner-probability-story', 'beginner-probability-story.png', copy('概率分布入门故事', 'Beginner Probability Distribution Story'), copy('重复样本落入分桶，形成分布曲线，并连接到分类概率条。', 'Repeated samples fall into bins, form a distribution curve, and connect to classifier probability bars.'), ['beginner-probability-story--beginner-probability-sample-space']),
-      imageAsset(
-        'beginner-probability-why-longform',
-        'beginner-probability-why-longform.png',
-        copy('为什么 AI 要学概率', 'Why AI Needs Probability'),
-        copy('用天气、邮件和 next token 例子说明概率是 AI 描述不确定性的语言，不是猜一次中不中。', 'Weather, email, and next-token examples show probability as AI uncertainty language, not one-time guessing.'),
-      ),
-      imageAsset(
-        'beginner-sample-space-random-variable-longform',
-        'beginner-sample-space-random-variable-longform.png',
-        copy('样本空间与随机变量', 'Sample Space and Random Variable'),
-        copy('从左到右读：硬币、天气和课程标签的可能结果，样本空间及事件，再到数字编码。图中数字是约定编号，不是概率，也不赋予类别大小关系。', 'Read left to right: possible coin, weather, and course outcomes; sample spaces and events; then numeric encodings. The numbers are assigned IDs, not probabilities or an ordering of categories.'),
-        ['beginner-sample-space-random-variable-longform--beginner-probability-sample-space'],
-      ),
-      imageAsset(
-        'beginner-distribution-frequency-longform',
-        'beginner-distribution-frequency-longform.png',
-        copy('分布与频率：很多次结果留下形状', 'Distribution and Frequency: Many Trials Leave a Shape'),
-        copy('重复抽样形成柱状图，样本越多频率形状越稳定，说明概率分布不是一次结果，而是长期模式。', 'Repeated sampling forms a histogram; with more samples the frequency shape stabilizes, showing that a distribution is a long-run pattern, not one outcome.'),
-        ['beginner-distribution-frequency-longform--minimum-probability-numpy-output'],
-      ),
+      ...probabilityReadingVisuals,
       {
         id: 'beginner-conditional-probability-longform', type: 'image', assetPath: '/math-lab/diagrams/probability/condition-denominator.svg', layout: 'compact',
         title: copy('条件筛选：分母变为 1760', 'Conditioning: The Denominator Becomes 1760'),
@@ -1358,27 +1343,9 @@ export const beginnerFoundationModules: MathLabModule[] = [
         caption: copy('两条均以带信号邮件为总体。实心 A 与斜纹非 A 的宽度按真实计算比例绘制：先验 8% 时 656/1760 ≈ 37.3%；先验 1% 时 82/1270 ≈ 6.5%。', 'Each bar represents the emails with the signal. Solid A and hatched not-A widths match the calculation: prior 8% gives 656/1760 ≈ 37.3%; prior 1% gives 82/1270 ≈ 6.5%.'),
         learningPurpose: copy('用同一个假设算例区分条件方向、分母与先验。', 'Use one hypothetical example to distinguish conditional direction, denominator, and prior.'),
       },
-      imageAsset(
-        'beginner-expectation-variance-longform',
-        'beginner-expectation-variance-longform.png',
-        copy('期望与方差：中心和波动', 'Expectation and Variance: Center and Spread'),
-        copy('两组分布用同一均值但不同波动做对比，解释期望读长期中心，方差读不确定性大小。', 'Two distributions with the same mean but different spread explain that expectation reads long-run center while variance reads uncertainty size.'),
-      ),
-      imageAsset(
-        'beginner-calibration-confidence-longform',
-        'beginner-calibration-confidence-longform.png',
-        copy('校准：高置信度也要接受频率检查', 'Calibration: High Confidence Needs Frequency Checks'),
-        copy('把模型给出的置信度按分箱比较实际正确率，说明高概率不自动等于可靠。', 'Bin model confidence and compare actual accuracy to show that high probability is not automatically reliability.'),
-      ),
-      imageAsset(
-        'beginner-softmax-cross-entropy-longform',
-        'beginner-softmax-cross-entropy-longform.png',
-        copy('Softmax 与交叉熵：把分数变成训练信号', 'Softmax and Cross Entropy: Turn Scores into a Training Signal'),
-        copy('logits 经过 softmax 变成概率条，真实类别概率越低，交叉熵惩罚越大，从而驱动分类模型学习。', 'Logits become probability bars through softmax; the lower the true-class probability, the larger cross entropy becomes, driving classifier training.'),
-      ),
       manimAsset('beginner-probability-frequency-video', 'beginner-probability-frequency', copy('一次结果到长期频率', 'One Outcome to Long-Run Frequency'), copy('动画展示单次结果如何波动，重复试验如何逐渐形成稳定的分布形状。', 'Animation showing how one outcome is noisy while repeated trials form a stable distribution shape.')),
       manimAsset('beginner-conditional-bayes-video', 'beginner-conditional-bayes', copy('条件筛选概念动画（非定量图）', 'Concept Animation: Conditional Filtering (Not to Scale)'), copy('动画表示筛选顺序，色块未按概率比例绘制，末尾约 38% 是粗略示意。精确计算请使用本页 10,000 封假设邮件表：656/1760 ≈ 37.3%。', 'The animation shows the filtering sequence; block widths are not proportional to probabilities and its about 38% is a rough illustration. For exact calculation, use this page’s hypothetical 10,000-email table: 656/1760 ≈ 37.3%.')),
-      manimAsset('beginner-calibration-cross-entropy-video', 'beginner-calibration-cross-entropy', copy('校准与交叉熵', 'Calibration and Cross Entropy'), copy('动画连接概率条、校准分箱和真实类别概率过低时的负对数惩罚。', 'Animation connecting probability bars, calibration bins, and negative-log penalty when target probability is low.')),
+      manimAsset('beginner-calibration-cross-entropy-video', 'beginner-calibration-cross-entropy', copy('校准与交叉熵：另一个示意案例', 'Calibration and Cross Entropy: A Separate Illustration'), copy('动画另用猫／狗／鸟三类，概率为 [0.68,0.22,0.10]，真实类别为鸟，所以 q=0.10、−ln(q)≈2.303；它不是上图 logits 的计算结果。最后的校准柱也是假设示意，不是本页十条记录或真实评估报告。', 'The animation uses a separate cat/dog/bird example: probabilities [0.68,0.22,0.10], with bird as the true class, so q=0.10 and −ln(q)≈2.303. These are not the probabilities computed from the logits above. Its final calibration bars are also hypothetical, not this page’s ten-record group or a real evaluation report.')),
     ],
     labs: [
       lab('beginner-distribution-builder-lab', copy('分布构造实验', 'Distribution Builder Lab'), 'DistributionBuilderLab', [

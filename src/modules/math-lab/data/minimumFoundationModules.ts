@@ -7,6 +7,7 @@ import type {
 } from '../types/mathLab'
 import { beginnerFoundationModules } from './beginnerFoundationModules.ts'
 import { mathToCodeModules } from './mathToCode/modules.ts'
+import { probabilitySamplingOutput } from '../utils/probabilityReadingExamples.ts'
 
 const copy = (zhCN: string, en: string): LocalizedCopy => ({ 'zh-CN': zhCN, en })
 
@@ -214,7 +215,7 @@ rng = np.random.default_rng(7)
 samples = rng.choice([0, 1], size=12, p=probabilities)
 print("samples =", samples.tolist())
 print("empirical_frequency =", round(float(samples.mean()), 3))`,
-    'samples = [1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0]\nempirical_frequency = 0.75',
+    probabilitySamplingOutput,
   )
   return withToc({
     ...moduleDefinition,

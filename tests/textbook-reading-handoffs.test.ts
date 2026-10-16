@@ -54,6 +54,7 @@ test('probability introductions place each overview image once and retain code a
   const aliases = module.visuals.flatMap(asset => asset.legacyAnchorIds ?? [])
   assert.deepEqual(aliases, [
     'beginner-probability-story--beginner-probability-sample-space',
+    'beginner-probability-why-longform',
     'beginner-sample-space-random-variable-longform--beginner-probability-sample-space',
     'beginner-distribution-frequency-longform--minimum-probability-numpy-output',
   ])
@@ -62,7 +63,7 @@ test('probability introductions place each overview image once and retain code a
   for (const locale of ['zh-CN', 'en'] as const) {
     assert.match(sampleSpace.content[locale], /P\(Z=0\)=0\.30/)
     assert.match(sampleSpace.content[locale], /P\(Z=1\)=0\.70/)
-    assert.match(sampleSpace.content[locale], locale === 'en' ? /arbitrary IDs/ : /约定编号/)
+    assert.match(sampleSpace.content[locale], locale === 'en' ? /arbitrary IDs/ : /任意类别编号/)
   }
   assert.match(module.concepts.find(concept => concept.id === 'beginner-distribution')!.codeOutput!.en, /empirical_frequency = 0\.75/)
 })
