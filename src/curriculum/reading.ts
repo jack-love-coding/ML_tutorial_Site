@@ -1,4 +1,5 @@
 import { curriculumLessonDirectory } from './generated/lessonDirectory.ts'
+import { mathVisualLessonIds } from './generated/mathVisualLessonIds.ts'
 import type { LocalizedCopy } from '../types/ml.ts'
 import type { CurriculumReadingStep } from './types.ts'
 
@@ -99,7 +100,8 @@ export function identifyReadingLocation(path: string, hash = '') {
   const module = curriculumLessonDirectory.find(entry => path === entry.route || path.startsWith(entry.route + '/'))
     ?? (path === '/python' || path.startsWith('/python/') ? curriculumLessonDirectory.find(entry => entry.id === 'python-notebook') : undefined)
   if (!module) return undefined
-  const lessonId = module.source === 'algorithm' ? path.split('/').at(-1) : hash.slice(1)
+  const anchor = hash.slice(1)
+  const lessonId = module.source === 'algorithm' ? path.split('/').at(-1) : mathVisualLessonIds[module.id]?.[anchor] ?? anchor
   return { moduleId: module.id, lessonId: module.lessons.some(lesson => lesson.id === lessonId) ? lessonId! : '' }
 }
 export function readingContext(query: unknown, path: string, hash = '') {
@@ -117,5 +119,6 @@ export function selectedReadingLessonIds(query: unknown, moduleId: string, lesso
 }
 export function selectedReadingStep(query: unknown, moduleId: string, lessonId: string) {
   if (query !== textbookRouteId) return undefined
+  lessonId = mathVisualLessonIds[moduleId]?.[lessonId] ?? lessonId
   return teachingUnits.flatMap(unit => unit.readings).find(entry => entry.moduleId === moduleId && (!entry.lessonIds || entry.lessonIds.includes(lessonId) || !lessonId))
 }

@@ -11,6 +11,7 @@ import type {
   VisualAsset,
 } from '../types/mathLab'
 import { probabilityReadingVisuals } from './probabilityReadingVisuals.ts'
+import { vectorReadingVisuals } from './vectorReadingVisuals.ts'
 
 const md = String.raw
 
@@ -185,18 +186,18 @@ const linearSections = [
     'beginner-linear-data-vector',
     copy('第一步：数据怎样变成向量', 'Step 1: How Data Becomes a Vector'),
     copy(
-      md`先把“向量”想成一张有方向的特征卡。一个学生的学习记录可以写成 \([2,5,80]\)：本周练习 2 次、错 5 题、测验 80 分。一张图片可以写成很多像素值，一句话可以写成 embedding，一个房子可以写成面积、房龄、位置等特征。**data becomes a vector** 的意思不是把现实变成抽象符号，而是把同一个对象的多个观察值放进同一个坐标空间。
+      md`**本节问题：怎样把一条记录变成模型输入，又不丢掉数字的含义？** 沿用函数课的关卡记录：\(\mathbf{x}_A=[2,3]\)，第一项是基础任务数，第二项是提示请求数。把这两个观察值按固定顺序放在一起，就得到输入向量。目标得分 \(y_A=9\) 单独保存，用于之后比较预测；它不是第三个输入特征。
 
-向量回答的是：一个对象在每个特征方向上走了多少。如果只有两个特征，例如练习次数和错题数，我们可以把 \([2,5]\) 画成平面上的点，也可以画成从原点出发的箭头。箭头的方向表示“这个样本偏向哪里”，箭头的长度表示“这个样本整体有多大”。当特征更多时，我们画不出全部维度，但同样的规则仍然成立：每个数字回答同一个样本沿某个特征方向走了多少。
+读图时，从横轴找到 2，再沿纵轴找到 3，交点就是 A；从原点画到 A 的箭头表示同一个向量。B 的记录是 \([1,4]\)。从 A 移到 B，基础任务数少 1、提示请求数多 1，所以逐项相减得到 \(\mathbf{x}_B-\mathbf{x}_A=[-1,1]\)。先核对轴的含义，再读位置和变化。
 
-向量最有用的地方是可以做比较。两个学习记录 \(\mathbf{x}=[2,5,80]\)、\(\mathbf{y}=[3,4,82]\) 的差是 \(\mathbf{y}-\mathbf{x}=[1,-1,2]\)。这不是三个孤立数字，而是“多练一次、少错一题、分数高两分”的变化方向。AI 模型训练、推荐系统、图像检索和文本检索都在反复处理这样的方向与距离。`,
-      md`Think of a vector as a feature card with direction. A learner record might be \([2,5,80]\): two practice sessions, five mistakes, and a quiz score of 80. An image can become pixel values, a sentence can become an embedding, and a house can become features such as size, age, and location. **Data becomes a vector** does not mean reality disappears into symbols. It means several observations about the same object are placed in one coordinate space.
+箭头长不代表学习能力强；距离会受特征单位和缩放影响。把 \([2,3]\) 交换成 \([3,2]\) 也不是换一种写法，而是换了一条记录。下一节把 A、B 按行叠放，用 shape 检查“几条样本、几个特征”，再进入批量预测。`,
+      md`**Lesson question: how does a record become model input without losing the meaning of its numbers?** Reuse the level record from the function lesson: \(\mathbf{x}_A=[2,3]\). The first entry counts base tasks; the second counts hint requests. These observations in a fixed order form the input vector. Store target score \(y_A=9\) separately for comparison with a later prediction; it is not a third input feature.
 
-A vector answers: how far did one object move along each feature direction? With only two features, such as practice count and mistakes, \([2,5]\) can be drawn as a point on a plane or as an arrow from the origin. The arrow direction tells where the example leans; its length tells how large the whole feature package is. When there are more features, the picture is harder to draw, but the rule is unchanged: each number says how far this same example moves along one feature axis.
+Find 2 on the horizontal axis, then 3 on the vertical axis: their intersection is A. The arrow from the origin to A represents the same vector. Record B is \([1,4]\). Moving from A to B means one fewer base task and one more hint request, so elementwise subtraction gives \(\mathbf{x}_B-\mathbf{x}_A=[-1,1]\). Check the axis meanings before reading position or change.
 
-The useful move is comparison. For two learner records \(\mathbf{x}=[2,5,80]\) and \(\mathbf{y}=[3,4,82]\), the difference is \(\mathbf{y}-\mathbf{x}=[1,-1,2]\). That is not three isolated numbers; it is the change direction "one more practice session, one fewer mistake, two more score points." Model training, recommendation systems, image retrieval, and text retrieval keep reusing this language of direction and distance.`,
+A longer arrow does not imply greater learner ability; distance depends on feature units and scaling. Swapping \([2,3]\) to \([3,2]\) changes the record, not just its notation. Next, stack A and B by row and use shape to distinguish the number of samples from the number of features before calculating batch predictions.`,
     ),
-    { visualIds: ['beginner-linear-algebra-story', 'linear-algebra-feature-cards', 'beginner-vector-feature-space-longform'] },
+    { visualIds: ['beginner-linear-algebra-story'] },
   ),
   section(
     'beginner-linear-distance-similarity',
@@ -308,7 +309,7 @@ $$
 
 **矩阵不只一种含义。** 数据矩阵 X 的行是样本；空间变换矩阵 A 的列则可以表示基方向的去向。例如 \(A=[[2,1],[0,3]]\) 把向量 \([4,-1]\) 映到 \([7,-3]\)。这是另一种合同，不能把 X 的“样本行”套成 A 的“输出坐标”。[矩阵变换专题](/math-lab/modules/linear-algebra-matrix-transformations)继续解释两种读法。
 
-下一节用 NumPy 复现这两行。保留列名和 shape 检查，比只记住矩阵乘法符号更有用。`,
+在“用 NumPy 批量复现预测”一节核对这两行。保留列名和 shape 检查，比只记住矩阵乘法符号更有用。`,
       md`The function lesson calculated one sample. Now stack two samples as rows of data matrix \(X\), keeping weights \(w=[4,-1]\) and bias \(b=5\). Rows are samples; columns are base tasks and hint requests, in that order. Here the matrix stores data; the weights are model parameters.
 
 $$
@@ -323,7 +324,7 @@ Use row labels #1 and #2 to follow samples without relying on colour. Cover the 
 
 **A matrix can have different meanings.** Rows of data matrix X are samples; columns of a spatial transformation A can describe where basis directions land. For example, \(A=[[2,1],[0,3]]\) maps vector \([4,-1]\) to \([7,-3]\). This is a different contract: sample rows in X are not output coordinates in A. The [matrix transformations topic](/math-lab/modules/linear-algebra-matrix-transformations) develops both readings.
 
-Next, reproduce these rows with NumPy. Keep column names and shape checks rather than memorizing only the multiplication symbol.`,
+Check these rows in “Reproduce the Batch Prediction with NumPy.” Keep column names and shape checks rather than memorizing only the multiplication symbol.`,
     ),
     { visualIds: ['beginner-matrix-transform-longform'] },
   ),
@@ -1081,19 +1082,7 @@ export const beginnerFoundationModules: MathLabModule[] = [
     ],
     sections: linearSections,
     visuals: [
-      imageAsset('beginner-linear-algebra-story', 'beginner-linear-algebra-story.png', copy('线性代数入门故事', 'Beginner Linear Algebra Story'), copy('特征卡变成向量，向量被比较和混合，矩阵把网格变形。', 'Feature cards become vectors, vectors are compared and mixed, and a matrix transforms the grid.')),
-      imageAsset(
-        'beginner-vector-feature-space-longform',
-        'beginner-vector-feature-space-longform.png',
-        copy('向量：把一排特征放进同一个空间', 'Vector: Put Features into One Space'),
-        copy('学习次数、错题数和分数被写成同一个向量，展示二维箭头和三维特征空间如何帮助比较方向、距离和变化。', 'Practice count, mistakes, and score are placed in one vector, showing how 2D arrows and 3D feature space support comparisons of direction, distance, and change.'),
-      ),
-      imageAsset(
-        'linear-algebra-feature-cards',
-        'linear-algebra-feature-cards.png',
-        copy('对象怎样变成向量', 'How Objects Become Vectors'),
-        copy('学习记录、推荐偏好和句子 embedding 被放进同一套向量语言。', 'Learner records, recommendation preferences, and sentence embeddings enter the same vector language.'),
-      ),
+      ...vectorReadingVisuals,
       imageAsset(
         'beginner-vector-distance-similarity-longform',
         'beginner-vector-distance-similarity-longform.png',

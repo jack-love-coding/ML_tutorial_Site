@@ -56,7 +56,7 @@ const linearShapeSection = section(
   'minimum-linear-shape-ledger',
   '样本、特征与 shape 账本',
   'Samples, Features, and a Shape Ledger',
-  String.raw`前一章把一个关卡记录写成 \(\mathbf{x}=[2,3]\)：第一列是基础任务数，第二列是提示请求数。**顺序是数据合同的一部分**，不能因为两个值都是数字就交换。一个样本有两个特征，所以 \(\mathbf{x}\in\mathbb{R}^2\)，NumPy shape 是 \((2,)\)。
+  String.raw`上一节的关卡记录 \(\mathbf{x}=[2,3]\) 有两个特征，NumPy shape 是 \((2,)\)。末尾逗号是单元素 shape 元组的写法，表示数组只有一个轴；\((1,2)\) 则是有一行、两列的二维数组。
 
 把第二个样本 \([1,4]\) 叠在下一行，得到
 
@@ -64,10 +64,10 @@ $$
 X=\begin{bmatrix}2&3\\1&4\end{bmatrix}\in\mathbb{R}^{2\times2}.
 $$
 
-这里 axis 0 是样本轴，axis 1 是特征轴。第一个 2 表示两行样本，第二个 2 表示每行两个特征。权重 \(\mathbf{w}=[4,-1]\) 的 shape 是 \((2,)\)，它必须和特征轴长度一致。偏置 \(b=5\) 是标量。
+这里 axis 0 是样本轴，axis 1 是特征轴。第一个 2 表示两行样本，第二个 2 表示每行两个特征。先读第一列的两个基础任务数 2、1，再读第二列的两个提示数 3、4，就能核对图中的列序。
 
-完整 shape 账本是：\(X:(2,2)\)、\(w:(2,)\)、\(b:()\)、\(Xw:(2,)\)、prediction:\((2,)\)。矩阵乘向量时，特征轴被逐项配对并求和，样本轴保留下来。模型因此一次得到两个预测，而不是把两个样本混成一个数。`,
-  String.raw`The previous chapter wrote one level record as \(\mathbf{x}=[2,3]\): the first column is the number of base tasks and the second is the number of hint requests. **Order is part of the data contract.** The two values cannot be swapped merely because both are numeric. One example has two features, so \(\mathbf{x}\in\mathbb{R}^2\) and its NumPy shape is \((2,)\).
+两个轴恰好都长 2，不表示可以交换。转置后 shape 仍是 \((2,2)\)，行的含义却已经改变；shape 检查需要和列名一起读。目标 \(y=[9,7]\) 仍单独保存。后面的“逐行计算”一节加入权重和偏置，解释为什么每行得到一个预测。`,
+  String.raw`The previous section's record \(\mathbf{x}=[2,3]\) has two features and NumPy shape \((2,)\). The trailing comma marks a one-element shape tuple: the array has one axis. Shape \((1,2)\) instead describes a two-dimensional array with one row and two columns. Keep base tasks before hint requests in the column order.
 
 Stack a second example, \([1,4]\), as the next row:
 
@@ -75,10 +75,10 @@ $$
 X=\begin{bmatrix}2&3\\1&4\end{bmatrix}\in\mathbb{R}^{2\times2}.
 $$
 
-Axis 0 is the sample axis and axis 1 is the feature axis. The first 2 means two example rows; the second means two features per row. Weight vector \(\mathbf{w}=[4,-1]\) has shape \((2,)\), which must match the feature-axis length. Bias \(b=5\) is a scalar.
+Axis 0 is the sample axis and axis 1 is the feature axis. The first 2 means two example rows; the second means two features per row. Read base-task counts 2 and 1 down the first column, then hint counts 3 and 4 down the second to check the diagram's column order.
 
-The complete shape ledger is \(X:(2,2)\), \(w:(2,)\), \(b:()\), \(Xw:(2,)\), and prediction:\((2,)\). Matrix-vector multiplication pairs and reduces the feature axis while preserving the sample axis. The model therefore returns two predictions at once instead of mixing two examples into one number.`,
-  ['beginner-vector-feature-space-longform'],
+Both axes happen to have length 2, but they are not interchangeable. Transposing preserves shape \((2,2)\) while changing what each row means; read shape alongside column names. Targets \(y=[9,7]\) remain separate. The later “One Prediction per Sample Row” section adds weights and bias to explain why each row yields one prediction.`,
+  ['beginner-linear-shape-ledger'],
 )
 
 const linearBatchSection = section(
@@ -87,10 +87,10 @@ const linearBatchSection = section(
   'Reproduce the Batch Prediction with NumPy',
   String.raw`对第一行，\(4\times2+(-1)\times3+5=10\)；对第二行，\(4\times1+(-1)\times4+5=5\)。因此 \(X\mathbf{w}+b=[10,5]\)。代码块会同时展示数组、shape、预测和运行输出，读者可以先手算，再用代码核对。
 
-这段代码最重要的不是缩短成一行，而是暴露语义边界：行数是样本数，列数是特征数；\(X.shape[1]\) 必须等于 \(w.shape[0]\)；预测数量必须等于样本数量。若把 \(X\) 转置，方阵例子仍可能保持 \((2,2)\) 并悄悄产生错误含义，所以还要用列名和非方阵反例检查轴，而不能只看 shape 是否“能运行”。`,
+完整计算的 shape 账本是 \(X:(2,2)\)、\(w:(2,)\)、\(b:()\)、\(Xw+b:(2,)\)。检查 \(X.shape[1]=w.shape[0]\)，并确认输出长度等于样本数。还要读列名：这个方阵转置后 shape 不变，但会把样本和特征混淆；可以加一条样本构成 \((3,2)\)，检查代码是否仍按行输出三个预测。`,
   String.raw`For the first row, \(4\times2+(-1)\times3+5=10\); for the second, \(4\times1+(-1)\times4+5=5\). Therefore \(X\mathbf{w}+b=[10,5]\). The code panel shows the array, shapes, predictions, and real output together so a learner can calculate first and verify with code.
 
-The important point is not reducing everything to one line. The code must expose semantic boundaries: rows count examples, columns count features, \(X.shape[1]\) must equal \(w.shape[0]\), and the prediction count must equal the sample count. Accidentally transposing a square \(X\) may preserve shape \((2,2)\) while changing meaning, so column names and a non-square counterexample are needed in addition to a shape check.`,
+The full computation's shape ledger is \(X:(2,2)\), \(w:(2,)\), \(b:()\), and \(Xw+b:(2,)\). Check \(X.shape[1]=w.shape[0]\) and that output length equals sample count. Read the column names too: transposing this square matrix preserves shape but mixes sample and feature meanings. Add a third sample to obtain \((3,2)\) and check that the code still returns three predictions, one per row.`,
 )
 
 const linearSummarySection = section(
@@ -185,7 +185,7 @@ print("predictions.shape =", predictions.shape)`,
       originalSections[0]!,
       linearShapeSection,
       ...originalSections.slice(1),
-      linearBatchSection,
+      { ...linearBatchSection, codeConceptIds: ['beginner-feature-vector'] },
       linearSummarySection,
     ],
     quizzes: pickQuiz(moduleDefinition.quizzes, [

@@ -22,6 +22,7 @@ export async function generateCurriculumFiles() {
   const { algorithmCurriculumMetadata } = await import('../src/curriculum/algorithmMetadata.ts')
   const { mathLabModules } = await import('../src/modules/math-lab/data/modules.ts')
   const { summarizeMathModule } = await import('../src/modules/math-lab/utils/moduleSummary.ts')
+  const { mathVisualLessonAnchors } = await import('../src/modules/math-lab/utils/readingSelection.ts')
   const order = Object.keys(algorithmCurriculumMetadata)
   algorithms.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
   const catalog = [...algorithms, ...curriculumCatalog.filter((module) => module.source.namespace !== 'algorithm')]
@@ -30,6 +31,7 @@ export async function generateCurriculumFiles() {
     lessons: lessons.map(({ id: lessonId, title }) => ({ id: lessonId, title })),
   }))
   return new Map([
+    ['mathVisualLessonIds.ts', `// Generated from final math course visual placements. Do not edit by hand.\nexport const mathVisualLessonIds: Record<string, Record<string, string>> = ${JSON.stringify(Object.fromEntries(mathLabModules.map(module => [module.id, mathVisualLessonAnchors(module)]).filter(([, anchors]) => Object.keys(anchors).length)), null, 2)}\n`],
     ...mathLabModules.map(module => [`mathCourses/${module.id}.json`, `${JSON.stringify(module)}\n`] as [string, string]),
     ['mathSummaries.ts', `// Generated from final math course definitions. Do not edit by hand.\nimport type { MathLabModuleSummary } from '../../modules/math-lab/types/mathLab.ts'\nexport const mathLabModuleSummaries = ${JSON.stringify(mathLabModules.map(summarizeMathModule), null, 2)} satisfies MathLabModuleSummary[]\n`],
     ['algorithmCatalog.ts', `// Generated from runtime algorithm definitions. Do not edit by hand.\nimport type { CurriculumModule } from '../types.ts'\nexport const algorithmCatalog = ${JSON.stringify(algorithms, null, 2)} satisfies CurriculumModule[]\n`],

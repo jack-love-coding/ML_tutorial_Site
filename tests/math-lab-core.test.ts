@@ -1240,7 +1240,7 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
   const root = new URL('../', import.meta.url)
   const expectedLongformAssets = {
     'beginner-linear-algebra': [
-      'beginner-vector-feature-space-longform',
+      'beginner-linear-algebra-story',
       'beginner-vector-distance-similarity-longform',
       'beginner-linear-combination-span-longform',
       'beginner-matrix-transform-longform',
@@ -1265,6 +1265,7 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
       assert.ok(asset, `${assetId} should be registered as a module visual`)
       assert.equal(asset?.type, 'image')
       const preciseDiagrams: Record<string, string> = {
+        'beginner-linear-algebra-story': '/math-lab/diagrams/matrices/ordered-features.svg',
         'beginner-matrix-transform-longform': '/math-lab/diagrams/matrices/batch-prediction.svg',
         'beginner-conditional-probability-longform': '/math-lab/diagrams/probability/condition-denominator.svg',
         'beginner-bayes-update-longform': '/math-lab/diagrams/probability/base-rate-comparison.svg',
@@ -1285,7 +1286,7 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
   }
 
   const linearBody = byId['beginner-linear-algebra']!.sections.map((section) => section.content['zh-CN']).join('\n')
-  assert.match(linearBody, /向量回答的是：一个对象在每个特征方向上走了多少/)
+  assert.match(linearBody, /先核对轴的含义，再读位置和变化/)
   assert.match(linearBody, /行代表样本，列依次代表基础任务数、提示请求数/)
   assert.match(linearBody, /空间变换矩阵 A/)
 
