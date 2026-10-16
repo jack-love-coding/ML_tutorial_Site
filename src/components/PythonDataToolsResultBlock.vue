@@ -9,6 +9,7 @@ import type {
   PythonDataToolsTeachingTable,
 } from '../utils/pythonDataToolsOutputs.ts'
 import MarkdownMathContent from './MarkdownMathContent.vue'
+import FrozenFigureImage from './FrozenFigureImage.vue'
 import PythonDataToolsPlotlyFigure from './PythonDataToolsPlotlyFigure.vue'
 
 const props = withDefaults(defineProps<{
@@ -146,11 +147,11 @@ function tableLabel(table: PythonDataToolsTeachingTable) {
       </div>
 
       <figure v-else-if="pngResult" class="python-data-tools-result__figure">
-        <img
+        <FrozenFigureImage
           v-if="!imageFailed"
+          :locale="locale"
           :src="pngResult.imageUrl"
           :alt="presentation.alt[locale]"
-          loading="lazy"
           @load="imageFailed = false"
           @error="imageFailed = true"
         />
