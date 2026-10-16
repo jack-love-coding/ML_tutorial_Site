@@ -1246,7 +1246,6 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
       'beginner-matrix-transform-longform',
     ],
     'beginner-probability-distributions': [
-      'beginner-probability-why-longform',
       'beginner-sample-space-random-variable-longform',
       'beginner-distribution-frequency-longform',
       'beginner-conditional-probability-longform',
@@ -1269,6 +1268,11 @@ test('zero-base foundation expansion wires longform visuals and concept bridges'
         'beginner-matrix-transform-longform': '/math-lab/diagrams/matrices/batch-prediction.svg',
         'beginner-conditional-probability-longform': '/math-lab/diagrams/probability/condition-denominator.svg',
         'beginner-bayes-update-longform': '/math-lab/diagrams/probability/base-rate-comparison.svg',
+        'beginner-sample-space-random-variable-longform': '/math-lab/diagrams/probability/event-indicator.svg',
+        'beginner-distribution-frequency-longform': '/math-lab/diagrams/probability/sample-frequency.svg',
+        'beginner-expectation-variance-longform': '/math-lab/diagrams/probability/same-mean-spread.svg',
+        'beginner-calibration-confidence-longform': '/math-lab/diagrams/probability/calibration-cohort.svg',
+        'beginner-softmax-cross-entropy-longform': '/math-lab/diagrams/probability/softmax-target.svg',
       }
       assert.equal(asset?.assetPath, preciseDiagrams[assetId] ?? `/math-lab/generated/${assetId}.png`)
       assert.doesNotMatch(asset?.assetPath ?? '', /^https?:\/\//)
