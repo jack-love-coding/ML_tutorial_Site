@@ -17,6 +17,8 @@
 
 数学图采用确定性 SVG，由实际数值生成，生成器带 `--check`。不重新生成 Notebook、模型结果或无关 PNG／视频。普通测试中的 28 项条件跳过仍列为本批未验证；冻结产物校验与严格离线重生成是不同验收。
 
+对比本批基线，`public/` 仅新增十个 SVG，原有静态资源没有修改或删除。28 项跳过涉及严格环境／wheel 缓存、真实候选数据、Notebook 独立重跑及发布事务等；本批 NumPy／pandas 小例子的实际运行不能替代这些检查。
+
 本地首项验收：`npm test` 1,185 通过、28 条件跳过；`npm run build`、`npm run build:pages`、`npm run curriculum:check`、8 项发布资源检查及生成器 `--check` 通过。131 个相关浏览器场景通过（单元 5 阅读 60、数学加载／锚点 9、条件概率 9、跨课衔接 44、新概率图 9），覆盖双语、1280px／390px、键盘重置、reduced motion、旧锚点与刷新、图片失败后原生数表可读、空存储和预置历史记录逐字节不变。六张新图均检查了实际手机截图。
 
 ## 第二项：清洗与缩放
@@ -48,4 +50,8 @@
 1. 已冻结的 Python／房价图表和原生项目图：部分刻度在手机上仍偏小。房价六个原生图的最小标签约 5.7—5.9px，现有文字版可读，但不能据此宣布图片可读性已解决。后续改展示布局或提供可操作的细节视图，不能为了放大图片而悄悄重生成冻结结果。
 2. 继续结合课堂反馈逐幅检查尚未深读的图片、交互绘图与 Notebook；清单和自动浏览器检查不代替学生理解效果观察。
 
+下一批的代码入口已定位：房价六个原生图位于 `src/components/housing-project-scenes/`，固定 740／760 宽的 viewBox 经 `housing-project.css` 的 `width:100%` 缩小，13／15 单位标签一起缩小。Python、回归和房价冻结图片分别由 `PythonDataToolsResultBlock.vue`、`LinearRegressionLessonBlock.vue`、`HousingProjectLessonBlock.vue` 展示；现有文字版和图片失败 fallback 应保留。优先补可用键盘操作的细节视图或局部滚动区域，检查关闭后焦点返回、缩放／重置和双语提示；保持原图、数据文件与 manifest 哈希不变，不以更换冻结结果来修正显示尺寸。
+
 每项独立 PR，真实 CI 通过后 merge commit 合并；确认 Pages 与在线 `release.json` 对应本次合并，再开始下一项发布。最终验证数、部署链接和回退点记录在 [发布记录](releases/textbook-refactor-release.md)。六单元继续 pilot，学习存储保持不变。
+
+本批已按 #98 → #99 → #100 完成上述流程。最终运行时版本为 `df3fac880420ec81faec57b111704a86b49c51aa`，Pages run `38865580374` 的 build／deploy 均成功；线上 release.json 的 SHA、前驱和 runId 与 GitHub 一致。最终 PR 与 Pages 构建均通过 1,191 项测试、521 个教材浏览器场景，三个部署后分别通过概率 9、数据 18、向量 10，共 37 个真实站点场景。尚未解决的小刻度和 28 项条件跳过保留为明确限制。
