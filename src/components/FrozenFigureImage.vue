@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import type { AppLocale } from '../types/ml'
 import '../styles/shared/frozen-figure.css'
 
@@ -18,9 +18,11 @@ function loaded(event: Event) {
   naturalWidth.value = (event.target as HTMLImageElement).naturalWidth
   emit('load')
 }
-function reset() {
+async function reset() {
   zoom.value = 1
-  viewport.value?.scrollTo(0, 0)
+  await nextTick()
+  // Cancel any arrow-key scrolling after the image has returned to its original size.
+  viewport.value?.scrollTo({ left: 0, top: 0, behavior: 'instant' })
 }
 function open() {
   reset()
