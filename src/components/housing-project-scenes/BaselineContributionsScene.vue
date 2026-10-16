@@ -30,7 +30,8 @@ const barX = (value: number) => value >= 0 ? width.value / 2 : width.value / 2 -
       </g>
       <text :x="width / 2" y="535" text-anchor="middle" class="scene-small">{{ zh ? '负贡献 ← 0 → 正贡献' : 'negative ← 0 → positive' }}</text>
     </svg>
-    <p class="housing-scene__equation">{{ sample.intercept.toFixed(3) }} {{ entries.map(([, value]) => `${value >= 0 ? '+' : '−'} ${Math.abs(value).toFixed(3)}`).join(' ') }} = <strong>{{ sample.prediction.toFixed(3) }}</strong></p>
+    <p class="housing-scene__equation">{{ sample.intercept.toFixed(3) }} {{ entries.map(([, value]) => `${value >= 0 ? '+' : '−'} ${Math.abs(value).toFixed(3)}`).join(' ') }} ≈ <strong>{{ sample.prediction.toFixed(3) }}</strong></p>
+    <p>{{ zh ? '这里保留三位小数，表中保留六位；预测值由未舍入的贡献计算，因此显示值相加可能有末位差异。' : 'This view shows three decimals and the table shows six. Predictions use unrounded contributions, so adding displayed values may differ in the last digit.' }}</p>
     <p class="housing-scene__watch"><strong>{{ zh ? '观察结果：' : 'What changed: ' }}</strong>{{ zh ? '切换样本时，模型参数不变，变化的是该行标准化特征值及其贡献。贡献解释计算过程，不解释因果。' : 'Parameters stay fixed across rows; standardized values and their contributions change. Contributions explain arithmetic, not causality.' }}</p>
     <details><summary>{{ zh ? '查看当前贡献表' : 'View contribution table' }}</summary><table><thead><tr><th>{{ zh ? '特征' : 'Feature' }}</th><th>{{ zh ? '贡献' : 'Contribution' }}</th></tr></thead><tbody><tr v-for="([name, value]) in entries" :key="name"><td>{{ name }}</td><td>{{ value.toFixed(6) }}</td></tr><tr><td>{{ zh ? '截距' : 'Intercept' }}</td><td>{{ sample.intercept.toFixed(6) }}</td></tr></tbody></table></details>
   </div>

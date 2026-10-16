@@ -25,6 +25,7 @@ async (page) => {
     if (chapter === 'linear-baseline') {
       const sample = asset.samples[0]
       const text = await scene.innerText()
+      if (!(await scene.locator('.housing-scene__equation').innerText()).includes('≈') || !text.includes(locale === 'en' ? 'unrounded contributions' : '未舍入的贡献')) throw new Error('Rounded contributions presented as an exact equality')
       for (const n of [sample.actual, sample.prediction, sample.actual - sample.prediction]) if (!text.includes(n.toFixed(3))) throw new Error('Contribution summary changed')
       for (const [name, value] of Object.entries(sample.contributions)) {
         const row = scene.locator('svg g').filter({ hasText: name })
